@@ -116,12 +116,12 @@ public class ResourceKeyMigration implements BatchComponent {
         Resource sonarFile;
         String parentOldKey;
         if ("java".equals(resourceModel.getLanguageKey())) {
-          parentOldKey = module.getEffectiveKey() + ":" + DeprecatedKeyUtils.getJavaFileParentDeprecatedKey(oldKey);
+          parentOldKey = String.format("%s:%s", module.getEffectiveKey(), DeprecatedKeyUtils.getJavaFileParentDeprecatedKey(oldKey));
         } else {
           sonarFile = new File(oldKey);
-          parentOldKey = module.getEffectiveKey() + ":" + sonarFile.getParent().getDeprecatedKey();
+          parentOldKey = String.format("%s:%s", module.getEffectiveKey(), sonarFile.getParent().getDeprecatedKey());
         }
-        String parentNewKey = module.getEffectiveKey() + ":" + getParentKey(matchedFile);
+        String parentNewKey = String.format("%s:%s", module.getEffectiveKey(), getParentKey(matchedFile));
         if (!deprecatedDirectoryKeyMapper.containsKey(parentOldKey)) {
           deprecatedDirectoryKeyMapper.put(parentOldKey, parentNewKey);
         } else if (!parentNewKey.equals(deprecatedDirectoryKeyMapper.get(parentOldKey))) {
