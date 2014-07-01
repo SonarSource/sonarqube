@@ -25,6 +25,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.IndexClient;
@@ -107,7 +108,8 @@ public class DefaultRuleFinder implements RuleFinder {
 
   private org.sonar.api.rules.Rule toRule(Rule rule) {
     org.sonar.api.rules.Rule apiRule = new org.sonar.api.rules.Rule();
-    apiRule.setName(rule.name())
+    apiRule
+      .setName(rule.name())
       .setLanguage(rule.language())
       .setKey(rule.key().rule())
       .setConfigKey(rule.internalKey())
@@ -122,7 +124,8 @@ public class DefaultRuleFinder implements RuleFinder {
       .setDefaultSubCharacteristicKey(rule.defaultDebtSubCharacteristicKey())
       .setCharacteristicKey(rule.debtCharacteristicKey())
       .setSubCharacteristicKey(rule.debtSubCharacteristicKey())
-      .setTags(rule.tags().toArray(new String[rule.tags().size()]));
+      .setTags(rule.tags().toArray(new String[rule.tags().size()]))
+      .setId(((RuleDoc) rule).id());
 
     List<org.sonar.api.rules.RuleParam> apiParams = newArrayList();
     for (RuleParam param : rule.params()) {

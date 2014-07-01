@@ -511,8 +511,9 @@ public class Rule {
   /**
    * For definition of rule only
    */
-  public void setTags(String[] tags) {
+  public Rule setTags(String[] tags) {
     this.tags = tags;
+    return this;
   }
 
   /**
