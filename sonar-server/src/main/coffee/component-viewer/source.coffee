@@ -116,14 +116,28 @@ define [
           container = row.children('.line')
           container.addClass 'issue' if line > 0
           if rendered < ISSUES_LIMIT
-            issueView = new IssueView model: new Issue issue
+            issueModel = new Issue issue
+            issueView = new IssueView model: issueModel
             issueView.render().$el.appendTo container
             issueView.on 'reset', =>
+              @updateIssue issueModel
               @options.main.requestComponent(@options.main.key, false, false).done =>
                 @options.main.headerView.silentUpdate = true
                 @options.main.headerView.render()
           else
             row.prop 'title', tp('component_viewer.issues_limit_reached_tooltip', issue.message)
+
+
+    updateIssue: (issueModel) ->
+      issues = @model.get 'issues'
+      issues = _.reject issues, (issue) -> issue.key == issueModel.get('key')
+      issues.push issueModel.toJSON()
+      @model.set 'issues', issues
+
+      issues = @model.get 'activeIssues'
+      issues = _.reject issues, (issue) -> issue.key == issueModel.get('key')
+      issues.push issueModel.toJSON()
+      @model.set 'activeIssues', issues
 
 
     showSpinner: ->
