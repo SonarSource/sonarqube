@@ -20,17 +20,13 @@
 package org.sonar.server.rule;
 
 import org.fest.assertions.Assertions;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Collections;
@@ -44,16 +40,25 @@ public class DefaultRuleFinderMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
+  private DbClient dbClient;
   private DefaultRuleFinder finder;
   private DbSession session;
 
   @Before
-  public void setup() {
+  public void setUp() throws Exception {
     finder = tester.get(DefaultRuleFinder.class);
+    dbClient = tester.get(DbClient.class);
+    session = dbClient.openSession(false);
+  }
 
-    session = tester.get(DbClient.class).openSession(false);
-
-    tester.get(RuleDao.class).insert(session,
+  /**
+   * Testing with ids required data to be identical to all tests
+   */
+  @BeforeClass
+  public static void setupClass() {
+    tester.clearDbAndIndexes();
+    DbSession session = tester.get(DbClient.class).openSession(false);
+    tester.get(DbClient.class).ruleDao().insert(session,
       new RuleDto()
         .setName("Check Header")
         .setConfigKey("Checker/Treewalker/HeaderCheck")
@@ -81,16 +86,17 @@ public class DefaultRuleFinderMediumTest {
         .setRuleKey("CallSuperFirst")
         .setRepositoryKey("pmd")
         .setSeverity(2)
-        .setStatus(RuleStatus.READY)
+        .setStatus(RuleStatus.READY),
+      RuleTesting.newManualRule("Manual_Rule").setName("Manual Rule")
     );
     session.commit();
+    session.close();
   }
 
   @After
   public void after() {
     session.close();
   }
-
 
   @Test
   public void should_success_finder_wrap() {
@@ -123,7 +129,7 @@ public class DefaultRuleFinderMediumTest {
 
     // find_all_enabled
     //Assertions.assertThat(finder.findAll(RuleQuery.create())).onProperty("id").containsOnly(1, 3, 4);
-    Assertions.assertThat(finder.findAll(RuleQuery.create())).hasSize(3);
+    Assertions.assertThat(finder.findAll(RuleQuery.create())).hasSize(4);
 
     // do_not_find_disabled_rules
     Assertions.assertThat(finder.findByKey("checkstyle", "DisabledCheck")).isNull();
@@ -134,5 +140,16 @@ public class DefaultRuleFinderMediumTest {
     // should_find_by_ids_empty
     tester.clearDbAndIndexes();
     assertThat(finder.findByIds(Collections.<Integer>emptyList())).isEmpty();
+  }
+
+  @Test
+  public void find_manual_rule() {
+    // find by id
+    Assertions.assertThat(finder.findById(5)).isNotNull();
+
+    // find by key
+    Rule rule = finder.findByKey("manual", "Manual_Rule");
+    Assertions.assertThat(rule).isNotNull();
+    Assertions.assertThat(rule.isEnabled()).isTrue();
   }
 }

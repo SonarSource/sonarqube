@@ -33,6 +33,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -118,7 +119,7 @@ public class DefaultRuleFinder implements RuleFinder {
       .setUpdatedAt(rule.updatedAt())
       .setDescription(rule.htmlDescription())
       .setRepositoryKey(rule.key().repository())
-      .setSeverity(RulePriority.valueOf(rule.severity()))
+      .setSeverity(rule.severity() != null ? RulePriority.valueOf(rule.severity()) : null)
       .setStatus(rule.status().name())
       .setDefaultCharacteristicKey(rule.defaultDebtCharacteristicKey())
       .setDefaultSubCharacteristicKey(rule.defaultDebtSubCharacteristicKey())
