@@ -47,14 +47,12 @@ class HtmlBlockquoteChannel extends Channel<MarkdownOutput> {
   @Override
   public boolean consume(CodeReader code, MarkdownOutput output) {
     try {
-      if (code.getColumnPosition() == 0) {
-        if (quotedLineElement.consume(code, output)) {
-          while (endOfLine.consume(code, output) && quotedLineElement.consume(code, output)) {
-            // consume input
-          }
-          output.append("</blockquote>");
-          return true;
+      if (code.getColumnPosition() == 0 && quotedLineElement.consume(code, output)) {
+        while (endOfLine.consume(code, output) && quotedLineElement.consume(code, output)) {
+          // consume input
         }
+        output.append("</blockquote>");
+        return true;
       }
       return false;
     } finally {
@@ -79,15 +77,18 @@ class HtmlBlockquoteChannel extends Channel<MarkdownOutput> {
     }
 
     private int searchIndexOfFirstCharacter(CharSequence token) {
-      for (int index = 0; index < token.length(); index++) {
+      int index = 0;
+      while (index < token.length()) {
         if (token.charAt(index) == '&') {
           index += 4;
-          while (++ index < token.length()) {
+          while (index < token.length()) {
+            index ++;
             if (token.charAt(index) != ' ') {
               return index;
             }
           }
         }
+        index ++;
       }
       return token.length() - 1;
     }

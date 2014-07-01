@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.sonar.api.utils.System2;
 
-class LoggingWatch extends StopWatch {
+class LoggingWatch implements StopWatch {
 
   private Logger logger;
   private System2 system;
