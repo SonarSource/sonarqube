@@ -95,6 +95,9 @@ public class DefaultRuleFinderMediumTest {
   @Test
   public void should_success_finder_wrap() {
 
+    // has Id
+    Assertions.assertThat(finder.findById(1).getId()).isEqualTo(1);
+
     // should_find_by_id
     Assertions.assertThat(finder.findById(3).getConfigKey()).isEqualTo("Checker/Treewalker/AnnotationUseStyleCheck");
 
