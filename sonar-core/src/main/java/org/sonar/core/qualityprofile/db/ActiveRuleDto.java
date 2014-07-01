@@ -49,6 +49,9 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   private Integer severity;
   private String inheritance;
 
+  /**
+   * for internal use, should be private
+   */
   @Deprecated
   public ActiveRuleDto setKey(ActiveRuleKey key) {
     this.repository = key.ruleKey().repository();

@@ -481,8 +481,8 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         this.deleteDocument(additionalKey);
       }
     } catch (Exception e) {
-      throw new IllegalStateException("Could not DELETE _id = '" + this.getKeyValue(key) + "' " +
-        "for index '" + this.getIndexName() + "': " + e.getMessage());
+      throw new IllegalStateException(String.format("Could not DELETE _id = '%s' for index '%s",
+        getKeyValue(key), getIndexName()), e);
     }
   }
 
@@ -494,8 +494,8 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         this.deleteDocument(additionalItem.getKey());
       }
     } catch (Exception e) {
-      throw new IllegalStateException("Could not DELETE _id = '" + this.getKeyValue(item.getKey()) + "' " +
-        "for index '" + this.getIndexName() + "': " + e.getMessage());
+      throw new IllegalStateException(String.format("Could not DELETE _id = '%s' for index '%s",
+        getKeyValue(item.getKey()), getIndexName()), e);
     }
   }
 
