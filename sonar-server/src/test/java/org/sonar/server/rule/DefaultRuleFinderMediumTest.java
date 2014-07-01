@@ -45,10 +45,12 @@ public class DefaultRuleFinderMediumTest {
   public static ServerTester tester = new ServerTester();
 
   private DefaultRuleFinder finder;
+  private DbClient dbClient;
   private DbSession session;
 
   @Before
   public void setup() {
+    dbClient = tester.get(DbClient.class);
     finder = tester.get(DefaultRuleFinder.class);
 
     session = tester.get(DbClient.class).openSession(false);

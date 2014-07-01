@@ -187,7 +187,7 @@ public class RuleCreator implements ServerComponent {
     RuleDto ruleDto = RuleDto.createFor(ruleKey)
       .setName(newRule.name())
       .setDescription(newRule.htmlDescription())
-      .setSeverity(newRule.severity())
+      .setSeverity(newRule.severity() != null ? newRule.severity() : Severity.MAJOR)
       .setStatus(RuleStatus.READY);
     dbClient.ruleDao().insert(dbSession, ruleDto);
     return ruleKey;

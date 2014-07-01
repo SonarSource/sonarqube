@@ -409,7 +409,7 @@ public class RuleCreatorMediumTest {
     assertThat(rule.key()).isEqualTo(RuleKey.of("manual", "MANUAL_RULE"));
     assertThat(rule.name()).isEqualTo("My manual");
     assertThat(rule.htmlDescription()).isEqualTo("Some description");
-    assertThat(rule.severity()).isNull();
+    assertThat(rule.severity()).isEqualTo(Severity.MAJOR);
     assertThat(rule.status()).isEqualTo(RuleStatus.READY);
     assertThat(rule.language()).isNull();
     assertThat(rule.internalKey()).isNull();
