@@ -298,10 +298,10 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
 
     /** Implementation of activation query */
-    if (query.getActivation().equals(Boolean.TRUE)) {
+    if (Boolean.TRUE.equals(query.getActivation())) {
       fb.must(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
         childQuery));
-    } else if (query.getActivation().equals(Boolean.FALSE)) {
+    } else if (Boolean.FALSE.equals(query.getActivation())) {
       fb.mustNot(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
         childQuery));
     }
