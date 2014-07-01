@@ -64,7 +64,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
           } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Could not access Field '" + classField.getName() + "'");
+            throw new IllegalStateException("Could not access Field '" + classField.getName() + "'", e);
           }
         }
       }
@@ -126,7 +126,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
           } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Could not access Field '" + classField.getName() + "'");
+            throw new IllegalStateException("Could not access Field '" + classField.getName() + "'", e);
           }
         }
       }
