@@ -45,6 +45,9 @@ public class RuleMeasure extends Measure {
     this(metric, rule != null ? rule.ruleKey() : null, rulePriority, ruleCategory);
   }
 
+  /**
+   * This constructor is for internal use only. Please use static methods createForXXX().
+   */
   public RuleMeasure(Metric metric, @Nullable RuleKey ruleKey, @Nullable RulePriority rulePriority, @Nullable Integer ruleCategory) {
     super(metric);
     this.ruleKey = ruleKey;

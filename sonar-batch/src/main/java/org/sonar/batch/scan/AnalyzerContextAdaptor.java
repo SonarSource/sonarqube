@@ -151,24 +151,39 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
     }
 
     Measure measureToSave = new Measure(m);
+    setValueAccordingToMetricType(measure, m, measureToSave);
+    if (measure.inputFile() != null) {
+      Formula formula = measure.metric() instanceof org.sonar.api.measures.Metric ?
+        ((org.sonar.api.measures.Metric) measure.metric()).getFormula() : null;
+      if (formula instanceof SumChildDistributionFormula
+        && !Scopes.isHigherThanOrEquals(Scopes.FILE, ((SumChildDistributionFormula) formula).getMinimumScopeToPersist())) {
+        measureToSave.setPersistenceMode(PersistenceMode.MEMORY);
+      }
+      sensorContext.saveMeasure(measure.inputFile(), measureToSave);
+    } else {
+      sensorContext.saveMeasure(measureToSave);
+    }
+  }
+
+  private void setValueAccordingToMetricType(AnalyzerMeasure<?> measure, org.sonar.api.measures.Metric<?> m, Measure measureToSave) {
     switch (m.getType()) {
       case BOOL:
         measureToSave.setValue(Boolean.TRUE.equals(measure.value()) ? 1.0 : 0.0);
         break;
       case INT:
       case MILLISEC:
-        measureToSave.setValue(Double.valueOf(((Integer) measure.value())));
+        measureToSave.setValue(Double.valueOf((Integer) measure.value()));
         break;
       case FLOAT:
       case PERCENT:
       case RATING:
-        measureToSave.setValue(((Double) measure.value()));
+        measureToSave.setValue((Double) measure.value());
         break;
       case STRING:
       case LEVEL:
       case DATA:
       case DISTRIB:
-        measureToSave.setData(((String) measure.value()));
+        measureToSave.setData((String) measure.value());
         break;
       case WORK_DUR:
         measureToSave.setValue(Double.valueOf((Long) measure.value()));
@@ -181,18 +196,6 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
         } else {
           throw new UnsupportedOperationException("Unsupported type :" + m.getType());
         }
-    }
-    if (measure.inputFile() != null) {
-      Formula formula = measure.metric() instanceof org.sonar.api.measures.Metric ?
-        ((org.sonar.api.measures.Metric) measure.metric()).getFormula() : null;
-      if (formula instanceof SumChildDistributionFormula) {
-        if (!Scopes.isHigherThanOrEquals(Scopes.FILE, ((SumChildDistributionFormula) formula).getMinimumScopeToPersist())) {
-          measureToSave.setPersistenceMode(PersistenceMode.MEMORY);
-        }
-      }
-      sensorContext.saveMeasure(measure.inputFile(), measureToSave);
-    } else {
-      sensorContext.saveMeasure(measureToSave);
     }
   }
 
