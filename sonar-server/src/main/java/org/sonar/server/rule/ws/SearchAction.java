@@ -234,13 +234,17 @@ public class SearchAction implements RequestHandler {
     query.setHasDebtCharacteristic(request.paramAsBoolean(PARAM_HAS_DEBT_CHARACTERISTIC));
     query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
     query.setQProfileKey(request.param(PARAM_QPROFILE));
-    query.setSortField(RuleNormalizer.RuleField.of(request.param(SearchOptions.PARAM_SORT)));
-    query.setAscendingSort(request.mandatoryParamAsBoolean(SearchOptions.PARAM_ASCENDING));
     query.setTags(request.paramAsStrings(PARAM_TAGS));
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
     query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
     query.setKey(request.param(PARAM_KEY));
+
+    String sortParam = request.param(SearchOptions.PARAM_SORT);
+    if (sortParam != null) {
+      query.setSortField(RuleNormalizer.RuleField.of(sortParam));
+      query.setAscendingSort(request.mandatoryParamAsBoolean(SearchOptions.PARAM_ASCENDING));
+    }
     return query;
   }
 
