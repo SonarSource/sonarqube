@@ -4,7 +4,7 @@
   "devDependencies": {
     "karma": "0.10.10",
     "karma-jasmine": "0.1.5",
-    "karma-phantomjs-launcher": "0.1.2",
+    "karma-phantomjs-launcher": "0.1.4",
     "karma-coverage": "0.2.1",
     "karma-junit-reporter": "0.2.1",
     "grunt": "0.4.4",
