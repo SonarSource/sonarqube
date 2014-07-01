@@ -39,7 +39,6 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-@Deprecated
 /**
  * Will be removed in the future. Please use {@link org.sonar.server.rule.RuleService}
  */
@@ -68,9 +67,7 @@ public class DefaultRuleFinder implements RuleFinder {
       return rules;
     }
     for (Rule rule : index.getByIds(ruleIds)) {
-      if (rule.status() != RuleStatus.REMOVED) {
-        rules.add(toRule(rule));
-      }
+      rules.add(toRule(rule));
     }
     return rules;
   }

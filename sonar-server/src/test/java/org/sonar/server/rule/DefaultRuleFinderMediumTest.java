@@ -111,8 +111,7 @@ public class DefaultRuleFinderMediumTest {
     Assertions.assertThat(finder.findById(2)).isNull();
 
     // should_find_by_ids
-    // 2 is returned even its status is REMOVED !!! Conflicts with IMPL. //TODO check with @Simon
-    assertThat(finder.findByIds(newArrayList(2, 3))).hasSize(1);
+    assertThat(finder.findByIds(newArrayList(2, 3))).hasSize(2);
 
     // should_find_by_key
     Rule rule = finder.findByKey("checkstyle", "com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck");
@@ -128,7 +127,7 @@ public class DefaultRuleFinderMediumTest {
     Assertions.assertThat(finder.findAll(RuleQuery.create().withRepositoryKey("checkstyle"))).hasSize(2);
 
     // find_all_enabled
-    //Assertions.assertThat(finder.findAll(RuleQuery.create())).onProperty("id").containsOnly(1, 3, 4);
+    Assertions.assertThat(finder.findAll(RuleQuery.create())).onProperty("id").containsOnly(1, 3, 4, 5);
     Assertions.assertThat(finder.findAll(RuleQuery.create())).hasSize(4);
 
     // do_not_find_disabled_rules
@@ -140,6 +139,24 @@ public class DefaultRuleFinderMediumTest {
     // should_find_by_ids_empty
     tester.clearDbAndIndexes();
     assertThat(finder.findByIds(Collections.<Integer>emptyList())).isEmpty();
+  }
+
+  @Test
+  public void find_ids_including_removed_rule() {
+    // find rule with id 2 is REMOVED
+    assertThat(finder.findByIds(newArrayList(2))).hasSize(1);
+  }
+
+  @Test
+  public void find_id_return_null_on_removed_rule() {
+    // find rule with id 2 is REMOVED
+    assertThat(finder.findById(2)).isNull();
+  }
+
+  @Test
+  public void find_all_not_include_removed_rule() {
+    // find rule with id 2 is REMOVED
+    Assertions.assertThat(finder.findAll(RuleQuery.create())).onProperty("id").containsOnly(1, 3, 4, 5);
   }
 
   @Test
