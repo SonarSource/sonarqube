@@ -66,7 +66,7 @@ class LanguageDetection {
         for (int i = 0; i < patterns.length; i++) {
           String suffix = patterns[i];
           String extension = sanitizeExtension(suffix);
-          patterns[i] = "**/*." + extension;
+          patterns[i] = new StringBuilder().append("**/*.").append(extension).toString();
         }
         PathPattern[] defaultLanguagePatterns = PathPattern.create(patterns);
         patternsByLanguage.put(language.key(), defaultLanguagePatterns);

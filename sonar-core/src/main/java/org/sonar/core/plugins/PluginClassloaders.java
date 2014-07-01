@@ -180,7 +180,7 @@ public class PluginClassloaders {
         String[] packagesToExport = new String[PREFIXES_TO_EXPORT.length];
         for (int i = 0; i < PREFIXES_TO_EXPORT.length; i++) {
           // important to have dot at the end of package name only for classworlds 1.1
-          packagesToExport[i] = PREFIXES_TO_EXPORT[i] + realm.getId() + ".api";
+          packagesToExport[i] = String.format("%s%s.api", PREFIXES_TO_EXPORT[i], realm.getId());
         }
         export(realm, packagesToExport);
       }
