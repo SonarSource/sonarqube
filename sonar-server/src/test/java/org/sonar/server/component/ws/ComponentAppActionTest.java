@@ -324,7 +324,7 @@ public class ComponentAppActionTest {
     addComponent();
 
     when(resourceDao.getLastSnapshotByResourceId(eq(1L), eq(session))).thenReturn(
-      new SnapshotDto().setPeriod1Mode("previous_analysis").setPeriod1Date(DateUtils.parseDate("2014-05-08"))
+      new SnapshotDto().setPeriodMode(1, "previous_analysis").setPeriodDate(1, DateUtils.parseDate("2014-05-08"))
     );
     when(periods.label(anyString(), anyString(), any(Date.class))).thenReturn("since previous analysis (May 08 2014)");
 
@@ -383,7 +383,7 @@ public class ComponentAppActionTest {
 
     Date periodDate = DateUtils.parseDate("2014-05-08");
     when(resourceDao.getLastSnapshotByResourceId(eq(1L), eq(session))).thenReturn(
-      new SnapshotDto().setPeriod1Mode("previous_analysis").setPeriod1Date(periodDate)
+      new SnapshotDto().setPeriodMode(1, "previous_analysis").setPeriodDate(1, periodDate)
     );
     when(periods.label(anyString(), anyString(), any(Date.class))).thenReturn("since previous analysis (May 08 2014)");
 
@@ -448,7 +448,7 @@ public class ComponentAppActionTest {
   private void addPeriod(){
     Date periodDate = DateUtils.parseDate("2014-05-08");
     when(resourceDao.getLastSnapshotByResourceId(eq(1L), eq(session))).thenReturn(
-      new SnapshotDto().setPeriod1Mode("previous_analysis").setPeriod1Date(periodDate)
+      new SnapshotDto().setPeriodMode(1, "previous_analysis").setPeriodDate(1, periodDate)
     );
     when(periods.label(anyString(), anyString(), any(Date.class))).thenReturn("since previous analysis (May 08 2014)");
   }

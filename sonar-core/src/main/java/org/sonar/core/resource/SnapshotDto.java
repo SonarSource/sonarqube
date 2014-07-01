@@ -19,15 +19,16 @@
  */
 package org.sonar.core.resource;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.Date;
 
 public final class SnapshotDto {
+
+  private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
+
   private Long id;
   private Long parentId;
   private Long rootId;
+  private Long rootProjectId;
 
   private Date date;
   private Date buildDate;
@@ -40,7 +41,6 @@ public final class SnapshotDto {
   private String version;
   private String path;
   private Integer depth;
-  private Long rootProjectId;
 
   private String period1Mode;
   private String period2Mode;
@@ -195,53 +195,26 @@ public final class SnapshotDto {
     return this;
   }
 
-  @CheckForNull
-  public String getPeriod1Mode() {
-    return period1Mode;
-  }
-
-  public SnapshotDto setPeriod1Mode(@Nullable String period1Mode) {
-    this.period1Mode = period1Mode;
-    return this;
-  }
-
-  @CheckForNull
-  public String getPeriod2Mode() {
-    return period2Mode;
-  }
-
-  public SnapshotDto setPeriod2Mode(@Nullable String period2Mode) {
-    this.period2Mode = period2Mode;
-    return this;
-  }
-
-  @CheckForNull
-  public String getPeriod3Mode() {
-    return period3Mode;
-  }
-
-  public SnapshotDto setPeriod3Mode(@Nullable String period3Mode) {
-    this.period3Mode = period3Mode;
-    return this;
-  }
-
-  @CheckForNull
-  public String getPeriod4Mode() {
-    return period4Mode;
-  }
-
-  public SnapshotDto setPeriod4Mode(@Nullable String period4Mode) {
-    this.period4Mode = period4Mode;
-    return this;
-  }
-
-  @CheckForNull
-  public String getPeriod5Mode() {
-    return period5Mode;
-  }
-
-  public SnapshotDto setPeriod5Mode(@Nullable String period5Mode) {
-    this.period5Mode = period5Mode;
+  public SnapshotDto setPeriodMode(int index, String p) {
+    switch (index) {
+      case 1:
+        period1Mode = p;
+        break;
+      case 2:
+        period2Mode = p;
+        break;
+      case 3:
+        period3Mode = p;
+        break;
+      case 4:
+        period4Mode = p;
+        break;
+      case 5:
+        period5Mode = p;
+        break;
+      default:
+        throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
+    }
     return this;
   }
 
@@ -258,57 +231,30 @@ public final class SnapshotDto {
       case 5:
         return period5Mode;
       default:
-        throw new IndexOutOfBoundsException("Index of periodMode is between 1 and 5");
+        throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
     }
   }
 
-  @CheckForNull
-  public String getPeriod1Param() {
-    return period1Param;
-  }
-
-  public SnapshotDto setPeriod1Param(@Nullable String period1Param) {
-    this.period1Param = period1Param;
-    return this;
-  }
-
-  @CheckForNull
-  public String getPeriod2Param() {
-    return period2Param;
-  }
-
-  public SnapshotDto setPeriod2Param(@Nullable String period2Param) {
-    this.period2Param = period2Param;
-    return this;
-  }
-
-  @CheckForNull
-  public String getPeriod3Param() {
-    return period3Param;
-  }
-
-  public SnapshotDto setPeriod3Param(@Nullable String period3Param) {
-    this.period3Param = period3Param;
-    return this;
-  }
-
-  @CheckForNull
-  public String getPeriod4Param() {
-    return period4Param;
-  }
-
-  public SnapshotDto setPeriod4Param(@Nullable String period4Param) {
-    this.period4Param = period4Param;
-    return this;
-  }
-
-  @CheckForNull
-  public String getPeriod5Param() {
-    return period5Param;
-  }
-
-  public SnapshotDto setPeriod5Param(@Nullable String period5Param) {
-    this.period5Param = period5Param;
+  public SnapshotDto setPeriodParam(int index, String p) {
+    switch (index) {
+      case 1:
+        period1Param = p;
+        break;
+      case 2:
+        period2Param = p;
+        break;
+      case 3:
+        period3Param = p;
+        break;
+      case 4:
+        period4Param = p;
+        break;
+      case 5:
+        period5Param = p;
+        break;
+      default:
+        throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
+    }
     return this;
   }
 
@@ -325,57 +271,30 @@ public final class SnapshotDto {
       case 5:
         return period5Param;
       default:
-        throw new IndexOutOfBoundsException("Index of periodModeParameter is between 1 and 5");
+        throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
     }
   }
 
-  @CheckForNull
-  public Date getPeriod1Date() {
-    return period1Date;
-  }
-
-  public SnapshotDto setPeriod1Date(@Nullable Date period1Date) {
-    this.period1Date = period1Date;
-    return this;
-  }
-
-  @CheckForNull
-  public Date getPeriod2Date() {
-    return period2Date;
-  }
-
-  public SnapshotDto setPeriod2Date(@Nullable Date period2Date) {
-    this.period2Date = period2Date;
-    return this;
-  }
-
-  @CheckForNull
-  public Date getPeriod3Date() {
-    return period3Date;
-  }
-
-  public SnapshotDto setPeriod3Date(@Nullable Date period3Date) {
-    this.period3Date = period3Date;
-    return this;
-  }
-
-  @CheckForNull
-  public Date getPeriod4Date() {
-    return period4Date;
-  }
-
-  public SnapshotDto setPeriod4Date(@Nullable Date period4Date) {
-    this.period4Date = period4Date;
-    return this;
-  }
-
-  @CheckForNull
-  public Date getPeriod5Date() {
-    return period5Date;
-  }
-
-  public SnapshotDto setPeriod5Date(@Nullable Date period5Date) {
-    this.period5Date = period5Date;
+  public SnapshotDto setPeriodDate(int index, Date d) {
+    switch (index) {
+      case 1:
+        period1Date = d;
+        break;
+      case 2:
+        period2Date = d;
+        break;
+      case 3:
+        period3Date = d;
+        break;
+      case 4:
+        period4Date = d;
+        break;
+      case 5:
+        period5Date = d;
+        break;
+      default:
+        throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
+    }
     return this;
   }
 
@@ -392,7 +311,8 @@ public final class SnapshotDto {
       case 5:
         return period5Date;
       default:
-        throw new IndexOutOfBoundsException("Index of periodDate is between 1 and 5");
+        throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
     }
   }
+
 }

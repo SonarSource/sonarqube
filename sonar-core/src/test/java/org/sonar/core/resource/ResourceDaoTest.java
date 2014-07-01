@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
@@ -443,10 +444,30 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void get_last_snapshot_by_resource_id() {
-    setupData("fixture");
+    setupData("get_last_snapshot_by_resource_id");
 
     SnapshotDto snapshotDto = dao.getLastSnapshotByResourceId(1L, session);
     assertThat(snapshotDto.getId()).isEqualTo(1);
+
+    assertThat(snapshotDto.getPeriodMode(1)).isEqualTo("previous_analysis");
+    assertThat(snapshotDto.getPeriodModeParameter(1)).isNull();
+    assertThat(snapshotDto.getPeriodDate(1)).isNull();
+
+    assertThat(snapshotDto.getPeriodMode(2)).isEqualTo("days");
+    assertThat(snapshotDto.getPeriodModeParameter(2)).isEqualTo("30");
+    assertThat(snapshotDto.getPeriodDate(2)).isEqualTo(DateUtils.parseDate("2011-09-24"));
+
+    assertThat(snapshotDto.getPeriodMode(3)).isEqualTo("days");
+    assertThat(snapshotDto.getPeriodModeParameter(3)).isEqualTo("90");
+    assertThat(snapshotDto.getPeriodDate(3)).isEqualTo(DateUtils.parseDate("2011-07-26"));
+
+    assertThat(snapshotDto.getPeriodMode(4)).isEqualTo("previous_analysis");
+    assertThat(snapshotDto.getPeriodModeParameter(4)).isNull();
+    assertThat(snapshotDto.getPeriodDate(4)).isNull();
+
+    assertThat(snapshotDto.getPeriodMode(5)).isEqualTo("previous_version");
+    assertThat(snapshotDto.getPeriodModeParameter(5)).isNull();
+    assertThat(snapshotDto.getPeriodDate(5)).isNull();
 
     snapshotDto = dao.getLastSnapshotByResourceId(2L, session);
     assertThat(snapshotDto.getId()).isEqualTo(2L);
