@@ -52,8 +52,12 @@ module.exports = (grunt) ->
           skipExternal: true
           rewriteUrl: (url, options, dataURI) ->
             path = url.replace pkg.assets, ''
-            hash = require('crypto').createHash('md5').update(dataURI).digest('hex')
-            "../#{path}?#{hash}"
+            if path.indexOf('data:') == 0
+              "#{path}"
+            else
+              hash = require('crypto').createHash('md5').update(dataURI).digest('hex')
+              "../#{path}?#{hash}"
+
 
 
     coffee:
