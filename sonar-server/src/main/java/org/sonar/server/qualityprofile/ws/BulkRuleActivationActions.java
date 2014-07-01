@@ -101,7 +101,7 @@ public class BulkRuleActivationActions implements ServerComponent {
       .setExampleValue("java:MyProfile");
   }
 
-  private void bulkActivate(Request request, Response response) throws Exception {
+  private void bulkActivate(Request request, Response response) {
     BulkChangeResult result = profileService.bulkActivate(
       SearchAction.createRuleQuery(ruleService.newRuleQuery(), request),
       request.mandatoryParam(PROFILE_KEY),
@@ -109,7 +109,7 @@ public class BulkRuleActivationActions implements ServerComponent {
     writeResponse(result, response);
   }
 
-  private void bulkDeactivate(Request request, Response response) throws Exception {
+  private void bulkDeactivate(Request request, Response response) {
     BulkChangeResult result = profileService.bulkDeactivate(
       SearchAction.createRuleQuery(ruleService.newRuleQuery(), request),
       request.mandatoryParam(PROFILE_KEY));

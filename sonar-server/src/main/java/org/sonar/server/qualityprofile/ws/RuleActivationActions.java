@@ -109,7 +109,7 @@ public class RuleActivationActions implements ServerComponent {
       .setExampleValue("squid:AvoidCycles");
   }
 
-  private void activate(Request request, Response response) throws Exception {
+  private void activate(Request request, Response response) {
     RuleKey ruleKey = readRuleKey(request);
     RuleActivation activation = new RuleActivation(ruleKey);
     activation.setSeverity(request.param(SEVERITY));
@@ -121,7 +121,7 @@ public class RuleActivationActions implements ServerComponent {
     service.activate(request.mandatoryParam(PROFILE_KEY), activation);
   }
 
-  private void deactivate(Request request, Response response) throws Exception {
+  private void deactivate(Request request, Response response) {
     RuleKey ruleKey = readRuleKey(request);
     service.deactivate(ActiveRuleKey.of(request.mandatoryParam(PROFILE_KEY), ruleKey));
   }

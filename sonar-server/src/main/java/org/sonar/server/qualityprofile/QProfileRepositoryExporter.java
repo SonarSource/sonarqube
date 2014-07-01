@@ -87,7 +87,7 @@ public class QProfileRepositoryExporter implements ServerComponent {
         paramsByActiveRule.put(activeRuleDto.getId(), activeRuleParamDto);
       }
     }
-    // TODO ruleRegistry.bulkIndexActiveRules(activeRuleDtos, paramsByActiveRule);
+    // TODO use RuleActivator to benefit from changelog and preview cache cleanup
   }
 
   private void processValidationMessages(ValidationMessages messages, QProfileResult result) {
