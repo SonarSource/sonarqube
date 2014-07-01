@@ -63,8 +63,9 @@ public class RuleActivatorContextFactory implements ServerComponent {
   private RuleActivatorContext create(QualityProfileDto profile, RuleKey ruleKey, DbSession session, RuleActivatorContext context) {
     initRule(ruleKey, context, session);
     initActiveRules(profile.getKey(), ruleKey, context, session, false);
-    if (profile.getParentKee() != null) {
-      initActiveRules(profile.getParentKee(), ruleKey, context, session, true);
+    String parentKee = profile.getParentKee();
+    if (parentKee != null) {
+      initActiveRules(parentKee, ruleKey, context, session, true);
     }
     return context;
   }

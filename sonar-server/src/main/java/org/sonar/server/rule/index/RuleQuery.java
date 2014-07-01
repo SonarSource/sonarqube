@@ -65,8 +65,8 @@ public class RuleQuery {
     return qProfileKey;
   }
 
-  public RuleQuery setQProfileKey(String qProfileKey) {
-    this.qProfileKey = qProfileKey;
+  public RuleQuery setQProfileKey(@Nullable String s) {
+    this.qProfileKey = s;
     return this;
   }
 
@@ -229,8 +229,8 @@ public class RuleQuery {
     return this;
   }
 
-  public RuleQuery setAvailableSince(Date since) {
-    this.availableSince = since;
+  public RuleQuery setAvailableSince(@Nullable Date d) {
+    this.availableSince = d;
     return this;
   }
 
@@ -238,8 +238,8 @@ public class RuleQuery {
     return this.availableSince;
   }
 
-  public RuleQuery setInternalKey(String internalKey) {
-    this.internalKey = internalKey;
+  public RuleQuery setInternalKey(@Nullable String s) {
+    this.internalKey = s;
     return this;
   }
 
@@ -247,8 +247,8 @@ public class RuleQuery {
     return internalKey;
   }
 
-  public RuleQuery setRuleKey(String ruleKey) {
-    this.ruleKey = ruleKey;
+  public RuleQuery setRuleKey(@Nullable String s) {
+    this.ruleKey = s;
     return this;
   }
 

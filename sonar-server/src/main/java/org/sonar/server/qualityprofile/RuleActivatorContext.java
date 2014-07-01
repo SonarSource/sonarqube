@@ -204,10 +204,12 @@ class RuleActivatorContext {
   }
 
   boolean isSame(ActiveRuleChange change) {
-    if (change.getInheritance() != null && !change.getInheritance().name().equals(activeRule.getInheritance())) {
+    ActiveRule.Inheritance inheritance = change.getInheritance();
+    if (inheritance != null && !inheritance.name().equals(activeRule.getInheritance())) {
       return false;
     }
-    if (change.getSeverity() != null && !change.getSeverity().equals(activeRule.getSeverityString())) {
+    String severity = change.getSeverity();
+    if (severity != null && !severity.equals(activeRule.getSeverityString())) {
       return false;
     }
     for (Map.Entry<String, String> changeParam : change.getParameters().entrySet()) {

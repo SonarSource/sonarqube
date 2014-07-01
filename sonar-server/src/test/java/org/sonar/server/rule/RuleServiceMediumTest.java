@@ -32,6 +32,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
@@ -43,6 +44,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class RuleServiceMediumTest {
 
@@ -79,6 +81,29 @@ public class RuleServiceMediumTest {
 
     Rule rule = service.getByKey(key);
     assertThat(rule).isNotNull();
+
+    assertThat(service.getByKey(RuleKey.of("un", "known"))).isNull();
+  }
+
+  @Test
+  public void get_non_null_rule_by_key() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    RuleKey key = RuleKey.of("java", "S001");
+
+    dao.insert(dbSession, RuleTesting.newDto(key));
+    dbSession.commit();
+    dbSession.clearCache();
+
+    assertThat(service.getNonNullByKey(key)).isNotNull();
+    try {
+      service.getNonNullByKey(RuleKey.of("un", "known"));
+      fail();
+    } catch (NotFoundException e) {
+      assertThat(e).hasMessage("Rule not found: un:known");
+    }
   }
 
   @Test

@@ -35,7 +35,7 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
 
   public ActiveRuleDoc(Map<String, Object> fields) {
     super(fields);
-    this.key = ActiveRuleKey.parse((String) getNullableField(ActiveRuleNormalizer.ActiveRuleField.KEY.field()));
+    this.key = ActiveRuleKey.parse((String) getField(ActiveRuleNormalizer.ActiveRuleField.KEY.field()));
     Preconditions.checkArgument(key!=null, "Invalid ActiveRuleKey!");
   }
 

@@ -156,14 +156,14 @@ public class CreateAction implements RequestHandler {
   }
 
   private void writeResponse(Response response, RuleKey ruleKey) {
-    Rule rule = service.getByKey(ruleKey);
+    Rule rule = service.getNonNullByKey(ruleKey);
     JsonWriter json = response.newJsonWriter().beginObject().name("rule");
     mapping.write((BaseDoc) rule, json);
     json.endObject().close();
   }
 
   private void write409(Response response, RuleKey ruleKey) {
-    Rule rule = service.getByKey(ruleKey);
+    Rule rule = service.getNonNullByKey(ruleKey);
 
     Response.Stream stream = response.stream();
     stream.setStatus(409);

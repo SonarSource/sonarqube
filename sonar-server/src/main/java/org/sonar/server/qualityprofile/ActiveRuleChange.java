@@ -27,6 +27,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,22 +61,21 @@ public class ActiveRuleChange implements ActivityLog {
     return severity;
   }
 
-  public ActiveRuleChange setSeverity(@Nullable String severity) {
-    this.severity = severity;
+  public ActiveRuleChange setSeverity(@Nullable String s) {
+    this.severity = s;
     return this;
   }
 
-  public ActiveRuleChange setInheritance(@Nullable ActiveRule.Inheritance inheritance) {
-    this.inheritance = inheritance;
+  public ActiveRuleChange setInheritance(@Nullable ActiveRule.Inheritance i) {
+    this.inheritance = i;
     return this;
   }
 
   @CheckForNull
   public ActiveRule.Inheritance getInheritance() {
-    return this.inheritance;
+    return inheritance;
   }
 
-  @CheckForNull
   public Map<String, String> getParameters() {
     return parameters;
   }
@@ -95,16 +95,13 @@ public class ActiveRuleChange implements ActivityLog {
   public Map<String, String> getDetails() {
     HashMap<String, String> details = new HashMap<String, String>();
 
-    if (getKey() != null) {
-      details.put("key", getKey().toString());
-      details.put("ruleKey", getKey().ruleKey().toString());
-      details.put("profileKey", getKey().qProfile().toString());
-    }
-    if (!parameters.isEmpty()) {
-      for (Map.Entry<String, String> param : parameters.entrySet()) {
-        if (!param.getKey().isEmpty()) {
-          details.put("param_" + param.getKey(), param.getValue());
-        }
+    details.put("key", getKey().toString());
+    details.put("ruleKey", getKey().ruleKey().toString());
+    details.put("profileKey", getKey().qProfile().toString());
+
+    for (Map.Entry<String, String> param : parameters.entrySet()) {
+      if (!param.getKey().isEmpty()) {
+        details.put("param_" + param.getKey(), param.getValue());
       }
     }
     if (StringUtils.isNotEmpty(severity)) {
@@ -133,6 +130,6 @@ public class ActiveRuleChange implements ActivityLog {
 
   @Override
   public String getAction() {
-    return this.type.name();
+    return type.name();
   }
 }

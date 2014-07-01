@@ -22,6 +22,7 @@ package org.sonar.server.rule;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
@@ -51,8 +52,16 @@ public class RuleService implements ServerComponent {
   }
 
   @CheckForNull
-  public org.sonar.server.rule.Rule getByKey(RuleKey key) {
+  public Rule getByKey(RuleKey key) {
     return index.getByKey(key);
+  }
+
+  public Rule getNonNullByKey(RuleKey key) {
+    Rule rule = index.getByKey(key);
+    if (rule == null) {
+      throw new NotFoundException("Rule not found: " + key);
+    }
+    return rule;
   }
 
   public RuleQuery newRuleQuery() {

@@ -46,10 +46,11 @@ public class ActiveRuleCompleter implements ServerComponent {
   void completeSearch(RuleQuery query, Collection<Rule> rules, JsonWriter json) {
     json.name("actives").beginObject();
 
-    if (query.getQProfileKey() != null) {
+    String profileKey = query.getQProfileKey();
+    if (profileKey != null) {
       // Load details of active rules on the selected profile
       for (Rule rule : rules) {
-        ActiveRule activeRule = loader.getActiveRule(ActiveRuleKey.of(query.getQProfileKey(), rule.key()));
+        ActiveRule activeRule = loader.getActiveRule(ActiveRuleKey.of(profileKey, rule.key()));
         if (activeRule != null) {
           writeActiveRules(rule.key(), Arrays.asList(activeRule), json);
         }
@@ -88,8 +89,9 @@ public class ActiveRuleCompleter implements ServerComponent {
       .prop("qProfile", activeRule.key().qProfile().toString())
       .prop("inherit", activeRule.inheritance().toString())
       .prop("severity", activeRule.severity());
-    if (activeRule.parentKey() != null) {
-      json.prop("parent", activeRule.parentKey().toString());
+    ActiveRuleKey parentKey = activeRule.parentKey();
+    if (parentKey != null) {
+      json.prop("parent", parentKey.toString());
     }
     json.name("params").beginArray();
     for (Map.Entry<String, String> param : activeRule.params().entrySet()) {

@@ -218,8 +218,11 @@ public class QProfileService implements ServerComponent {
         RuleDto ruleDto = db.ruleDao().getNullableByKey(session, profileActivity.ruleKey());
         profileActivity.ruleName(ruleDto != null ? ruleDto.getName() : null);
 
-        UserDto user = db.userDao().selectActiveUserByLogin(profileActivity.login(), session);
-        profileActivity.authorName(user != null ? user.getName() : null);
+        String login = profileActivity.login();
+        if (login != null) {
+          UserDto user = db.userDao().selectActiveUserByLogin(login, session);
+          profileActivity.authorName(user != null ? user.getName() : null);
+        }
         result.getHits().add(profileActivity);
       }
       return result;
