@@ -79,7 +79,11 @@ public class ListingWs implements WebService {
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) throws Exception {
-          Controller controller = context.controller(request.mandatoryParam("controller"));
+          String controllerKey = request.mandatoryParam("controller");
+          Controller controller = context.controller(controllerKey);
+          if (controller == null) {
+            throw new IllegalArgumentException("Controller does not exist: " + controllerKey);
+          }
           String actionKey = request.mandatoryParam("action");
           Action action = controller.action(actionKey);
           if (action == null) {

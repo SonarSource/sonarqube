@@ -39,7 +39,6 @@ import java.util.List;
  * Log service is used to log Activity classes which represents an event to DB and Index.
  *
  * @see org.sonar.core.activity.ActivityLog
- * @since 4.4
  */
 public class ActivityService {
 
@@ -62,13 +61,7 @@ public class ActivityService {
   }
 
   public void write(DbSession session, Activity.Type type, String message) {
-    this.write(session, type, message, null);
-  }
-
-  public void write(DbSession session, Activity.Type type, String message, Integer time) {
-    this.save(session, ActivityDto.createFor(message)
-      .setType(type)
-      .setExecutionTime(time));
+    save(session, ActivityDto.createFor(message).setType(type));
   }
 
   public <L extends ActivityLog> void write(DbSession session, Activity.Type type, List<L> logs) {
@@ -88,7 +81,6 @@ public class ActivityService {
 
   public Result<Activity> search(ActivityQuery query, QueryOptions options) {
     ActivityIndex index = indexClient.get(ActivityIndex.class);
-    return
-      new Result<Activity>(index, index.search(query, options));
+    return new Result<Activity>(index, index.search(query, options));
   }
 }

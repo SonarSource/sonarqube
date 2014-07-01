@@ -34,7 +34,6 @@ import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeFalse;
 
 public class CommandExecutorTest {
 
@@ -57,30 +56,30 @@ public class CommandExecutorTest {
   @Test
   public void should_consume_StdOut_and_StdErr() throws Exception {
     // too many false-positives on MS windows
-    assumeFalse(SystemUtils.IS_OS_WINDOWS);
+    if (!SystemUtils.IS_OS_WINDOWS) {
+      final StringBuilder stdOutBuilder = new StringBuilder();
+      StreamConsumer stdOutConsumer = new StreamConsumer() {
+        public void consumeLine(String line) {
+          stdOutBuilder.append(line).append(SystemUtils.LINE_SEPARATOR);
+        }
+      };
+      final StringBuilder stdErrBuilder = new StringBuilder();
+      StreamConsumer stdErrConsumer = new StreamConsumer() {
+        public void consumeLine(String line) {
+          stdErrBuilder.append(line).append(SystemUtils.LINE_SEPARATOR);
+        }
+      };
+      Command command = Command.create(getScript("output")).setDirectory(workDir);
+      int exitCode = CommandExecutor.create().execute(command, stdOutConsumer, stdErrConsumer, 1000L);
+      assertThat(exitCode).isEqualTo(0);
 
-    final StringBuilder stdOutBuilder = new StringBuilder();
-    StreamConsumer stdOutConsumer = new StreamConsumer() {
-      public void consumeLine(String line) {
-        stdOutBuilder.append(line).append(SystemUtils.LINE_SEPARATOR);
-      }
-    };
-    final StringBuilder stdErrBuilder = new StringBuilder();
-    StreamConsumer stdErrConsumer = new StreamConsumer() {
-      public void consumeLine(String line) {
-        stdErrBuilder.append(line).append(SystemUtils.LINE_SEPARATOR);
-      }
-    };
-    Command command = Command.create(getScript("output")).setDirectory(workDir);
-    int exitCode = CommandExecutor.create().execute(command, stdOutConsumer, stdErrConsumer, 1000L);
-    assertThat(exitCode).isEqualTo(0);
-
-    String stdOut = stdOutBuilder.toString();
-    String stdErr = stdErrBuilder.toString();
-    assertThat(stdOut).contains("stdOut: first line");
-    assertThat(stdOut).contains("stdOut: second line");
-    assertThat(stdErr).contains("stdErr: first line");
-    assertThat(stdErr).contains("stdErr: second line");
+      String stdOut = stdOutBuilder.toString();
+      String stdErr = stdErrBuilder.toString();
+      assertThat(stdOut).contains("stdOut: first line");
+      assertThat(stdOut).contains("stdOut: second line");
+      assertThat(stdErr).contains("stdErr: first line");
+      assertThat(stdErr).contains("stdErr: second line");
+    }
   }
 
   @Test

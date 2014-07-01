@@ -48,7 +48,7 @@ public class ActivityDoc extends BaseDoc implements Activity {
 
   @Override
   public Type type() {
-    return Type.valueOf((String) this.getNullableField(ActivityNormalizer.LogFields.TYPE.field()));
+    return Type.valueOf((String) getField(ActivityNormalizer.LogFields.TYPE.field()));
   }
 
   @Override

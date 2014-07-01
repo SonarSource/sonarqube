@@ -26,6 +26,8 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.technicaldebt.batch.Characteristic;
+import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 
 class MeasureValueCoder implements ValueCoder {
@@ -54,10 +56,14 @@ class MeasureValueCoder implements ValueCoder {
     value.put(m.getVariation4());
     value.put(m.getVariation5());
     value.putString(m.getUrl());
-    value.put(m.getCharacteristic() != null ? m.getCharacteristic().id() : null);
-    value.put(m.getRequirement() != null ? m.getRequirement().id() : null);
-    value.put(m.getPersonId() != null ? m.getPersonId().intValue() : null);
-    value.putString(m.getPersistenceMode() != null ? m.getPersistenceMode().name() : null);
+    Characteristic characteristic = m.getCharacteristic();
+    value.put(characteristic != null ? characteristic.id() : null);
+    Requirement requirement = m.getRequirement();
+    value.put(requirement != null ? requirement.id() : null);
+    Integer personId = m.getPersonId();
+    value.put(personId != null ? personId.intValue() : null);
+    PersistenceMode persistenceMode = m.getPersistenceMode();
+    value.putString(persistenceMode != null ? persistenceMode.name() : null);
   }
 
   public Object get(Value value, Class clazz, CoderContext context) {

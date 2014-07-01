@@ -73,10 +73,6 @@ public final class ActivityDto extends Dto<String> {
     return this;
   }
 
-  public ActivityDto setExecutionTime(Integer executionTime) {
-    return this;
-  }
-
   public String getData() {
     return data;
   }

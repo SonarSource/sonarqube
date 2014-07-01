@@ -42,6 +42,7 @@ import org.sonar.server.search.IndexField;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,11 +98,11 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
   }
 
   public SearchResponse search(ActivityQuery query, QueryOptions options) {
-    return this.search(query, options, null);
+    return search(query, options, null);
   }
 
   public SearchResponse search(ActivityQuery query, QueryOptions options,
-                               FilterBuilder domainFilter) {
+                               @Nullable FilterBuilder domainFilter) {
 
     // Prepare query
     SearchRequestBuilder esSearch = getClient()
