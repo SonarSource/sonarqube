@@ -94,22 +94,19 @@
       dataType: 'json',
       statusCode: {
         304: function() {
-          // NOP, use cached messages
+          window.messages = JSON.parse(localStorage.getItem('l10n.bundle'));
         }
       }
     }).done(function(bundle) {
-      bundleTimestamp = new Date().toISOString();
-      bundleTimestamp = bundleTimestamp.substr(0, bundleTimestamp.indexOf('.')) + '+0000';
-      localStorage.setItem('l10n.timestamp', bundleTimestamp);
-      localStorage.setItem('l10n.locale', currentLocale);
+      if(bundle !== undefined) {
+        bundleTimestamp = new Date().toISOString();
+        bundleTimestamp = bundleTimestamp.substr(0, bundleTimestamp.indexOf('.')) + '+0000';
+        localStorage.setItem('l10n.timestamp', bundleTimestamp);
+        localStorage.setItem('l10n.locale', currentLocale);
 
-      for (var message in bundle) {
-        if (bundle.hasOwnProperty(message)) {
-          var storageKey = 'l10n.' + message;
-          localStorage.setItem(storageKey, bundle[message]);
-        }
+        window.messages = bundle;
+        localStorage.setItem('l10n.bundle', JSON.stringify(bundle));
       }
     });
   };
-
 })();
