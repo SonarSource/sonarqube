@@ -481,7 +481,7 @@ requirejs [
   # Message bundles
   l10nXHR = window.requestMessages()
 
-  jQuery.when(appXHR, l10nXHR).done ->
+  jQuery.when(l10nXHR, appXHR).done ->
       # Remove the initial spinner
       jQuery('#coding-rules-page-loader').remove()
 

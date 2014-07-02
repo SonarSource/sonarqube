@@ -5,7 +5,7 @@
     }
   };
 
-  window.t2 = function() {
+  window.t = function() {
     if (!window.messages) {
       return window.translate.apply(this, arguments);
     }
@@ -18,26 +18,10 @@
     return (window.messages && window.messages[key]) || key;
   };
 
-  window.t = function() {
-    var args = Array.prototype.slice.call(arguments, 0),
-        key = args.join('.'),
-        storageKey = 'l10n.' + key,
-        message = localStorage.getItem(storageKey);
-    if (!message) {
-      return window.t2.apply(this, arguments);
-    }
-    return message;
-  };
-
-
   window.tp = function() {
     var args = Array.prototype.slice.call(arguments, 0),
-        key = args.shift(),
-        storageKey = 'l10n.' + key,
-        message = localStorage.getItem(storageKey);
-    if (!message && window.messages) {
+      key = args.shift(),
       message = window.messages[key];
-    }
     if (message) {
       args.forEach(function(p, i) {
         message = message.replace('{' + i + '}', p);
