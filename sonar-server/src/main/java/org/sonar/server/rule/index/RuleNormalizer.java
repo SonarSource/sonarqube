@@ -39,12 +39,7 @@ import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
@@ -220,20 +215,21 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       if (defaultSubCharacteristicId != null) {
         CharacteristicDto characteristic, subCharacteristic = null;
         subCharacteristic = db.debtCharacteristicDao().selectById(defaultSubCharacteristicId, session);
-
         if (subCharacteristic != null) {
           Integer characteristicId = subCharacteristic.getParentId();
-          characteristic = db.debtCharacteristicDao().selectById(characteristicId);
-          if (characteristic != null) {
-            update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), characteristic.getKey());
-            update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+          if (characteristicId != null) {
+            characteristic = db.debtCharacteristicDao().selectById(characteristicId);
+            if (characteristic != null) {
+              update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), characteristic.getKey());
+              update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+            }
           }
         }
       }
 
       Integer subCharacteristicId = rule.getSubCharacteristicId();
       if (subCharacteristicId != null) {
-        if (subCharacteristicId == -1) {
+        if (subCharacteristicId.equals(-1)) {
           update.put(RuleField.CHARACTERISTIC.field(), DebtCharacteristic.NONE);
           update.put(RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE);
         } else {
