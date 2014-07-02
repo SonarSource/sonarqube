@@ -156,7 +156,6 @@ define(
                 }
               }),
               showCallback = function () {
-                console.log(that.model.toJSON());
                 jQuery('.navigator-details').removeClass('navigator-fetching');
                 app.detailsRegion.show(componentViewer);
                 componentViewer.settings.set('issues', false);
