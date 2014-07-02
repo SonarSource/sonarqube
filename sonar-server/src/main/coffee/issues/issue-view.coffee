@@ -82,11 +82,16 @@ define [
       key.setScope 'detail'
 
 
+    setListScope: ->
+      key.setScope 'list'
+
+
     onClose: ->
       @ruleRegion.reset() if @ruleRegion
 
 
     resetIssue: (options) ->
+      @setListScope()
       key = @model.get 'key'
       @model.clear silent: true
       @model.set { key: key }, { silent: true }
