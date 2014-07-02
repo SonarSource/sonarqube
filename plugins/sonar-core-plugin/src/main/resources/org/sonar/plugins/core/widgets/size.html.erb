@@ -45,7 +45,7 @@
                     <% language = languages.find { |l| l.getKey()==language_key.to_s } -%>
                     <%= language ? language.getName() : language_key -%>
                   </td>
-                  <td class="thin right">
+                  <td class="thin right nowrap">
                     <%= ncloc.format_numeric_value(language_ncloc) %>
                   </td>
                   <td>
