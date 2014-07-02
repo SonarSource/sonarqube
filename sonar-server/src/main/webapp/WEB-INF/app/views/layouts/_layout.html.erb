@@ -12,7 +12,7 @@
     <div id="nav-left">
       <ul>
         <li>
-          <a href="<%= ApplicationController.root_context -%>/" class="<%= 'selected' if selected_section==Navigation::SECTION_HOME -%>"><%= message('layout.dashboards') -%></a>
+          <a href="<%= ApplicationController.root_context -%>/" class="<%= 'selected' if selected_section==Navigation::SECTION_HOME || selected_section==Navigation::SECTION_RESOURCE -%>"><%= message('layout.dashboards') -%></a>
         </li>
         <%= render 'layouts/menu_projects' -%>
         <li>
