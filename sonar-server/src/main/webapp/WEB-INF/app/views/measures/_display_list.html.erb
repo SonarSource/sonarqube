@@ -222,11 +222,11 @@
   </tbody>
   <% if widget_id %>
     <%= table_pagination(filter.pagination, :colspan => colspan, :id => "measure_filter_foot#{widget_id}", :include_loading_icon => true) { |label, page_id|
-      link_to_function label, "refreshList#{widget_id}('#{filter.criteria[:sort]}', #{filter.criteria[:asc]}, #{page_id})"
+      link_to_function label, "refreshList#{widget_id}('#{filter.criteria[:sort]}', #{filter.criteria[:asc]}, #{page_id})", :class => 'underlined-link'
     } -%>
   <% else %>
     <%= table_pagination(filter.pagination, :colspan => colspan, :id => "measure_filter_foot#{widget_id}", :include_loading_icon => true) { |label, page_id|
-      link_to(label, filter.criteria.merge({:page => page_id}))
+      link_to(label, filter.criteria.merge({:page => page_id}), :class => 'underlined-link')
     } -%>
   <% end %>
 </table>
