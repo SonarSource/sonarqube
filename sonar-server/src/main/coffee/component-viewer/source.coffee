@@ -105,7 +105,7 @@ define [
       rendered = 0
       issues.forEach (issue) =>
         line = issue.line || 0
-        line = 0 if issue.resolution == 'FIXED' || issue.resolution == 'REMOVED'
+        line = 0 if issue.status == 'CLOSED'
         row = @$("##{@cid}-#{line}")
         unless row.length > 0
           line = 0

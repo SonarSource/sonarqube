@@ -65,7 +65,7 @@ define [
       @sourceView.resetShowBlocks()
       issues.forEach (issue) =>
         line = issue.line || 0
-        if issue.resolution == 'FIXED' || issue.resolution == 'REMOVED'
+        if issue.status == 'CLOSED'
           @sourceView.addShowBlock 0, 0, true
         else
           @sourceView.addShowBlock line - LINES_AROUND_ISSUE, line + LINES_AROUND_ISSUE, line == 0
@@ -93,7 +93,7 @@ define [
       issues.forEach (issue) =>
         if predicate issue
           line = issue.line || 0
-          if issue.resolution == 'FIXED' || issue.resolution == 'REMOVED'
+          if issue.status == 'CLOSED'
             @sourceView.addShowBlock 0, 0, true
           else
             @sourceView.addShowBlock line - LINES_AROUND_ISSUE, line + LINES_AROUND_ISSUE, line == 0
