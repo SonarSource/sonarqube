@@ -200,7 +200,7 @@
               <exclude>*_javassist_*</exclude>
             </excludes>
             <includes>
-              <include>org.sonar.**</include>
+              <include>org.sonar.*</include>
             </includes>
           </configuration>
         </plugin>
