@@ -50,7 +50,7 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   private String inheritance;
 
   /**
-   * for internal use, should be private
+   * @deprecated for internal use, should be private
    */
   @Deprecated
   public ActiveRuleDto setKey(ActiveRuleKey key) {
