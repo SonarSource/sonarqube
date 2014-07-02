@@ -1,5 +1,8 @@
 module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-karma')
+  grunt.loadNpmTasks('grunt-express-server')
+  grunt.loadNpmTasks('grunt-casper')
+
   pkg = grunt.file.readJSON('package.json')
 
   grunt.initConfig
@@ -255,6 +258,20 @@ module.exports = (grunt) ->
         logLevel: 'DEBUG'
 
 
+    express:
+      dev:
+        options:
+          script: '<%= pkg.assets %>js/tests/e2e/server.js'
+
+
+    casper:
+      test:
+        options:
+          test: true
+          'no-colors': true
+        src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
+
+
     watch:
       options:
         spawn: false
@@ -303,4 +320,4 @@ module.exports = (grunt) ->
                                  'concat:build',
                                  'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'clean:build']
 
-  grunt.registerTask 'test', ['coffee:build', 'handlebars:build', 'copy:js', 'concat:dev', 'karma:unit']
+  grunt.registerTask 'test', ['coffee:build', 'handlebars:build', 'copy:js', 'concat:dev', 'karma:unit', 'express', 'casper']
