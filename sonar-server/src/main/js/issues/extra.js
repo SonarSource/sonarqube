@@ -156,6 +156,7 @@ define(
                 }
               }),
               showCallback = function () {
+                console.log(that.model.toJSON());
                 jQuery('.navigator-details').removeClass('navigator-fetching');
                 app.detailsRegion.show(componentViewer);
                 componentViewer.settings.set('issues', false);
@@ -165,6 +166,9 @@ define(
               };
 
           jQuery('.navigator-details').empty().addClass('navigator-fetching');
+          var issueKey = this.model.get('key');
+          this.model.clear({ silent: true });
+          this.model.set({ key: issueKey }, { silent: true });
           jQuery.when(this.model.fetch()).done(showCallback);
         },
 
