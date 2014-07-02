@@ -9,5 +9,4 @@ define [
 
     defaults:
       key: ''
-      label: t 'none'
       sinceDate: null

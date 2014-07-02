@@ -160,7 +160,7 @@ define [
 
         if full
           # Periods
-          @periods.reset [{}]
+          @periods.reset [{label: t('none')}]
           data.periods.forEach (p) =>
             d = new Date p[2]
             d.setHours 0, 0, 0, 0
