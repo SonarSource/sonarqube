@@ -69,7 +69,11 @@ class MeasureValueCoder implements ValueCoder {
   public Object get(Value value, Class clazz, CoderContext context) {
     Measure<?> m = new Measure();
     String metricKey = value.getString();
-    m.setMetric(metricFinder.findByKey(metricKey));
+    Metric metric = metricFinder.findByKey(metricKey);
+    if (metric == null) {
+      throw new IllegalStateException("Unknow metric with key " + metricKey);
+    }
+    m.setMetric(metric);
     m.setRawValue(value.isNull(true) ? null : value.getDouble());
     m.setData(value.getString());
     m.setDescription(value.getString());
