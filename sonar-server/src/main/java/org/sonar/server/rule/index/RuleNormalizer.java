@@ -38,6 +38,9 @@ import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -111,7 +114,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField _TAGS = addSearchable(IndexField.Type.STRING, "_tags");
     public static final IndexField PARAMS = addEmbedded("params", RuleParamField.ALL_FIELDS);
 
-
     public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
     private static final Set<IndexField> getAllFields() {
@@ -138,11 +140,9 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     }
   }
 
-
   public RuleNormalizer(DbClient db) {
     super(IndexDefinition.RULE, db);
   }
-
 
   @Override
   public List<UpdateRequest> normalize(RuleKey key) {
@@ -192,7 +192,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField.NOTE_CREATED_AT.field(), rule.getNoteCreatedAt());
       update.put(RuleField.NOTE_UPDATED_AT.field(), rule.getNoteUpdatedAt());
 
-      //TODO Legacy PARENT_ID in DTO should be parent_key
+      // TODO Legacy PARENT_ID in DTO should be parent_key
       Integer templateId = rule.getTemplateId();
       if (templateId != null) {
         RuleDto templateRule = db.ruleDao().getById(session, templateId);
@@ -202,7 +202,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         update.put(RuleField.TEMPLATE_KEY.field(), null);
       }
 
-      //TODO Legacy ID in DTO should be Key
+      // TODO Legacy ID in DTO should be Key
       update.put(RuleField.CHARACTERISTIC.field(), null);
       update.put(RuleField.SUB_CHARACTERISTIC.field(), null);
       update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), null);
@@ -213,12 +213,11 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
       Integer defaultSubCharacteristicId = rule.getDefaultSubCharacteristicId();
       if (defaultSubCharacteristicId != null) {
-        CharacteristicDto characteristic, subCharacteristic = null;
-        subCharacteristic = db.debtCharacteristicDao().selectById(defaultSubCharacteristicId, session);
+        CharacteristicDto subCharacteristic = db.debtCharacteristicDao().selectById(defaultSubCharacteristicId, session);
         if (subCharacteristic != null) {
           Integer characteristicId = subCharacteristic.getParentId();
           if (characteristicId != null) {
-            characteristic = db.debtCharacteristicDao().selectById(characteristicId);
+            CharacteristicDto characteristic = db.debtCharacteristicDao().selectById(characteristicId);
             if (characteristic != null) {
               update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), characteristic.getKey());
               update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
@@ -233,14 +232,15 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
           update.put(RuleField.CHARACTERISTIC.field(), DebtCharacteristic.NONE);
           update.put(RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE);
         } else {
-          CharacteristicDto characteristic, subCharacteristic = null;
-          subCharacteristic = db.debtCharacteristicDao().selectById(subCharacteristicId, session);
-          Integer characteristicId = subCharacteristic.getParentId();
-          if (characteristicId != null) {
-            characteristic = db.debtCharacteristicDao().selectById(characteristicId);
-            if (characteristic != null) {
-              update.put(RuleField.CHARACTERISTIC.field(), characteristic.getKey());
-              update.put(RuleField.SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+          CharacteristicDto subCharacteristic = db.debtCharacteristicDao().selectById(subCharacteristicId, session);
+          if (subCharacteristic != null) {
+            Integer characteristicId = subCharacteristic.getParentId();
+            if (characteristicId != null) {
+              CharacteristicDto characteristic = db.debtCharacteristicDao().selectById(characteristicId);
+              if (characteristic != null) {
+                update.put(RuleField.CHARACTERISTIC.field(), characteristic.getKey());
+                update.put(RuleField.SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+              }
             }
           }
         }
@@ -248,7 +248,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         update.put(RuleField.CHARACTERISTIC.field(), null);
         update.put(RuleField.SUB_CHARACTERISTIC.field(), null);
       }
-
 
       if (rule.getDefaultRemediationFunction() != null) {
         update.put(RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field(), rule.getDefaultRemediationFunction());
@@ -270,17 +269,14 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         update.put(RuleField.DEBT_FUNCTION_OFFSET.field(), null);
       }
 
-
       update.put(RuleField.TAGS.field(), rule.getTags());
       update.put(RuleField.SYSTEM_TAGS.field(), rule.getSystemTags());
       update.put(RuleField._TAGS.field(), Sets.union(rule.getSystemTags(), rule.getTags()));
-
 
       /** Upsert elements */
       Map<String, Object> upsert = new HashMap<String, Object>(update);
       upsert.put(RuleField.KEY.field(), rule.getKey().toString());
       upsert.put(RuleField.PARAMS.field(), new ArrayList<String>());
-
 
       /** Creating updateRequest */
       return ImmutableList.of(new UpdateRequest()
@@ -323,23 +319,37 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     newParam.put(RuleParamField.DEFAULT_VALUE.field(), param.getDefaultValue());
 
     return ImmutableList.of(new UpdateRequest()
-        .id(key.toString())
-        .script(ListUpdate.NAME)
-        .addScriptParam(ListUpdate.FIELD, RuleField.PARAMS.field())
-        .addScriptParam(ListUpdate.VALUE, newParam)
-        .addScriptParam(ListUpdate.ID_FIELD, RuleParamField.NAME.field())
-        .addScriptParam(ListUpdate.ID_VALUE, param.getName())
-    );
+      .id(key.toString())
+      .script(ListUpdate.NAME)
+      .addScriptParam(ListUpdate.FIELD, RuleField.PARAMS.field())
+      .addScriptParam(ListUpdate.VALUE, newParam)
+      .addScriptParam(ListUpdate.ID_FIELD, RuleParamField.NAME.field())
+      .addScriptParam(ListUpdate.ID_VALUE, param.getName())
+      );
   }
 
   private List<UpdateRequest> nestedDelete(RuleParamDto param, RuleKey key) {
     return ImmutableList.of(new UpdateRequest()
-        .id(key.toString())
-        .script(ListUpdate.NAME)
-        .addScriptParam(ListUpdate.FIELD, RuleField.PARAMS.field())
-        .addScriptParam(ListUpdate.VALUE, null)
-        .addScriptParam(ListUpdate.ID_FIELD, RuleParamField.NAME.field())
-        .addScriptParam(ListUpdate.ID_VALUE, param.getName())
-    );
+      .id(key.toString())
+      .script(ListUpdate.NAME)
+      .addScriptParam(ListUpdate.FIELD, RuleField.PARAMS.field())
+      .addScriptParam(ListUpdate.VALUE, null)
+      .addScriptParam(ListUpdate.ID_FIELD, RuleParamField.NAME.field())
+      .addScriptParam(ListUpdate.ID_VALUE, param.getName())
+      );
+  }
+
+  @CheckForNull
+  private CharacteristicDto characteristic(@Nullable Integer subCharacteristicId, DbSession session) {
+    if (subCharacteristicId != null) {
+      CharacteristicDto subCharacteristic = db.debtCharacteristicDao().selectById(subCharacteristicId, session);
+      if (subCharacteristic != null) {
+        Integer characteristicId = subCharacteristic.getParentId();
+        if (characteristicId != null) {
+          return db.debtCharacteristicDao().selectById(characteristicId);
+        }
+      }
+    }
+    return null;
   }
 }
