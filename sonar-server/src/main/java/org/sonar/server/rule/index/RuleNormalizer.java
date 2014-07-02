@@ -236,10 +236,12 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
           CharacteristicDto characteristic, subCharacteristic = null;
           subCharacteristic = db.debtCharacteristicDao().selectById(subCharacteristicId, session);
           Integer characteristicId = subCharacteristic.getParentId();
-          characteristic = db.debtCharacteristicDao().selectById(characteristicId);
-          if (characteristic != null) {
-            update.put(RuleField.CHARACTERISTIC.field(), characteristic.getKey());
-            update.put(RuleField.SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+          if (characteristicId != null) {
+            characteristic = db.debtCharacteristicDao().selectById(characteristicId);
+            if (characteristic != null) {
+              update.put(RuleField.CHARACTERISTIC.field(), characteristic.getKey());
+              update.put(RuleField.SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+            }
           }
         }
       } else {
