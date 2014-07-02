@@ -36,7 +36,6 @@
           if (selected) {
             var key = selected.data('key');
             window.location = baseUrl + '/dashboard/index/' + key + dashboardParameters();
-            console.log(baseUrl + '/dashboard/index/' + key + dashboardParameters());
           }
         },
 
