@@ -192,7 +192,11 @@ public class QualityGates {
   public Collection<QualityGateConditionDto> listConditions(long qGateId) {
     Collection<QualityGateConditionDto> conditionsForGate = conditionDao.selectForQualityGate(qGateId);
     for (QualityGateConditionDto condition : conditionsForGate) {
-      condition.setMetricKey(metricFinder.findById((int) condition.getMetricId()).getKey());
+      Metric metric = metricFinder.findById((int) condition.getMetricId());
+      if (metric == null) {
+        throw new IllegalStateException("Could not find metric with id " + condition.getMetricId());
+      }
+      condition.setMetricKey(metric.getKey());
     }
     return conditionsForGate;
   }
