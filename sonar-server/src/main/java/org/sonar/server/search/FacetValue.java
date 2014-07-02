@@ -79,4 +79,26 @@ public class FacetValue implements Comparable<FacetValue> {
       return this.getValue().compareTo(other.getValue());
     }
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof FacetValue)) return false;
+
+    FacetValue that = (FacetValue) o;
+
+    if (!key.equals(that.key)) return false;
+    if (subFacets != null ? !subFacets.equals(that.subFacets) : that.subFacets != null) return false;
+    if (!value.equals(that.value)) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = key.hashCode();
+    result = 31 * result + value.hashCode();
+    result = 31 * result + (subFacets != null ? subFacets.hashCode() : 0);
+    return result;
+  }
 }

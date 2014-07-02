@@ -73,6 +73,28 @@ public class Hit implements Comparable<Hit> {
     }
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Hit)) return false;
+
+    Hit hit = (Hit) o;
+
+    if (fields != null ? !fields.equals(hit.fields) : hit.fields != null) return false;
+    if (rank != null ? !rank.equals(hit.rank) : hit.rank != null) return false;
+    if (score != null ? !score.equals(hit.score) : hit.score != null) return false;
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = fields != null ? fields.hashCode() : 0;
+    result = 31 * result + (rank != null ? rank.hashCode() : 0);
+    result = 31 * result + (score != null ? score.hashCode() : 0);
+    return result;
+  }
+
   public static Hit fromMap(Integer rank, Map<String, Object> fieldMap) {
     return fromMap(rank, new TreeMap<String, Object>(fieldMap));
   }
