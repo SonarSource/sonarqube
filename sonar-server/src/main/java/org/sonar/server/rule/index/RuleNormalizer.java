@@ -38,9 +38,6 @@ import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -339,17 +336,4 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       );
   }
 
-  @CheckForNull
-  private CharacteristicDto characteristic(@Nullable Integer subCharacteristicId, DbSession session) {
-    if (subCharacteristicId != null) {
-      CharacteristicDto subCharacteristic = db.debtCharacteristicDao().selectById(subCharacteristicId, session);
-      if (subCharacteristic != null) {
-        Integer characteristicId = subCharacteristic.getParentId();
-        if (characteristicId != null) {
-          return db.debtCharacteristicDao().selectById(characteristicId);
-        }
-      }
-    }
-    return null;
-  }
 }
