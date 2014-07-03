@@ -92,7 +92,7 @@ public class MeasureDaoTest extends AbstractDaoTestCase {
     MeasureDto result = results.get(0);
     assertThat(result.getId()).isEqualTo(22);
     assertThat(result.getValue()).isEqualTo(10d);
-    assertThat(result.getKey()).isNotNull();
+    assertThat(result.getKey()).isEqualTo(MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc"));
     assertThat(result.getVariation(1)).isEqualTo(1d);
     assertThat(result.getVariation(2)).isEqualTo(2d);
     assertThat(result.getVariation(3)).isEqualTo(3d);

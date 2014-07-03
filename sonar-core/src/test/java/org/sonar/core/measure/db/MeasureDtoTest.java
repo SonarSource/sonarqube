@@ -30,7 +30,7 @@ public class MeasureDtoTest {
   @Test
   public void test_getter_and_setter() throws Exception {
     MeasureDto measureDto = MeasureDto.createFor(MeasureKey.of("component", "metric"))
-      .setId(10)
+      .setId(10L)
       .setValue(2d)
       .setTextValue("text value")
       .setData(new byte[]{})
