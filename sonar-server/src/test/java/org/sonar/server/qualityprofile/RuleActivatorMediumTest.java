@@ -20,11 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -56,6 +52,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.sonar.server.qualityprofile.QProfileTesting.*;
 
+@Ignore
 public class RuleActivatorMediumTest {
 
   static final RuleKey MANUAL_RULE_KEY = RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "m1");
@@ -967,6 +964,10 @@ public class RuleActivatorMediumTest {
         found = true;
         assertThat(activeRuleDto.getSeverityString()).isEqualTo(expectedSeverity);
         assertThat(activeRuleDto.getInheritance()).isEqualTo(expectedInheritance);
+        // Dates should be set
+        assertThat(activeRuleDto.getCreatedAt()).isNotNull();
+        assertThat(activeRuleDto.getUpdatedAt()).isNotNull();
+
         List<ActiveRuleParamDto> paramDtos = db.activeRuleDao().findParamsByActiveRuleKey(dbSession, activeRuleDto.getKey());
         assertThat(paramDtos).hasSize(expectedParams.size());
         for (Map.Entry<String, String> entry : expectedParams.entrySet()) {
