@@ -82,7 +82,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
           refreshTime = System.currentTimeMillis();
           index.refresh();
           refreshTime = System.currentTimeMillis() - refreshTime;
-          refreshes.add(action.getIndex().getIndexName());
+          refreshes.add(index.getIndexName());
         }
         types.add(action.getPayloadClass().getSimpleName());
       } catch (InterruptedException e) {
