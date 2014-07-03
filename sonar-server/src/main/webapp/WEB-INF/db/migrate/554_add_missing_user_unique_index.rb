@@ -40,11 +40,28 @@ class AddMissingUserUniqueIndex < ActiveRecord::Migration
     set_table_name 'groups_users'
   end
 
+  class Dashboard < ActiveRecord::Base
+    set_table_name 'dashboards'
+    has_many :active_dashboards, :dependent => :destroy, :inverse_of => :dashboard
+  end
+
   class ActiveDashboard < ActiveRecord::Base
+    set_table_name 'active_dashboards'
+    belongs_to :dashboard
   end
 
   class PermTemplatesUser < ActiveRecord::Base
     set_table_name 'perm_templates_users'
+  end
+
+  class MeasureFilter < ActiveRecord::Base
+    set_table_name 'measure_filters'
+    has_many :measure_filter_favourites, :dependent => :delete_all
+  end
+
+  class MeasureFilterFavourite < ActiveRecord::Base
+    set_table_name 'measure_filter_favourites'
+    belongs_to :measure_filter
   end
 
   def self.up
@@ -60,8 +77,11 @@ class AddMissingUserUniqueIndex < ActiveRecord::Migration
     UserRole.reset_column_information
     Property.reset_column_information
     GroupsUsers.reset_column_information
+    Dashboard.reset_column_information
     ActiveDashboard.reset_column_information
     PermTemplatesUser.reset_column_information
+    MeasureFilter.reset_column_information
+    MeasureFilterFavourite.reset_column_information
 
     say_with_time 'Delete duplicated users' do
       existing_logins = Set.new
@@ -72,8 +92,11 @@ class AddMissingUserUniqueIndex < ActiveRecord::Migration
           UserRole.delete_all(['user_id=?', user.id])
           Property.delete_all(['user_id=?', user.id])
           GroupsUsers.delete_all(['user_id=?', user.id])
-          ActiveDashboard.delete_all(['user_id=?', user.id])
-          PermTemplatesUser.delete_all(['user_id=?', user.id])
+          Dashboard.destroy_all(['user_id=?', user.id])
+          ActiveDashboard.destroy_all(['user_id=?', user.id])
+          PermTemplatesUser.destroy_all(['user_id=?', user.id])
+          MeasureFilter.destroy_all(['user_id=?', user.id])
+          MeasureFilterFavourite.destroy_all(['user_id=?', user.id])
           user.destroy
         else
           existing_logins.add(user.login)
