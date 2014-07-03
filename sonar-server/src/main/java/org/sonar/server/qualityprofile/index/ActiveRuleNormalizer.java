@@ -37,7 +37,12 @@ import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRuleKey> {
 
@@ -50,6 +55,9 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     public static final IndexField PARENT_KEY = add(IndexField.Type.STRING, "parentKey");
     public static final IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
     public static final IndexField PARAMS = addEmbedded("params", ActiveRuleParamField.ALL_FIELDS);
+
+    public static final IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
+    public static final IndexField UPDATED_AT = addSortable(IndexField.Type.DATE, UPDATED_AT_FIELD);
 
     public static Set<IndexField> ALL_FIELDS = getAllFields();
 
@@ -123,6 +131,10 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
         activeRuleDto.getInheritance() :
         ActiveRule.Inheritance.NONE.name());
     newRule.put(ActiveRuleField.SEVERITY.field(), activeRuleDto.getSeverityString());
+    newRule.put(ActiveRuleField.KEY.field(), key.toString());
+
+    newRule.put(ActiveRuleField.CREATED_AT.field(), activeRuleDto.getCreatedAt());
+    newRule.put(ActiveRuleField.UPDATED_AT.field(), activeRuleDto.getUpdatedAt());
 
     DbSession session = db.openSession(false);
     try {

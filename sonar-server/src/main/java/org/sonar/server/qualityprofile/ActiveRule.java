@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 
 import javax.annotation.CheckForNull;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,10 @@ public interface ActiveRule {
     NONE, OVERRIDES, INHERITED;
     public static final List<Inheritance> ALL = ImmutableList.of(NONE, OVERRIDES, INHERITED);
   }
+
+  Date createdAt();
+
+  Date updatedAt();
 
   ActiveRuleKey key();
 

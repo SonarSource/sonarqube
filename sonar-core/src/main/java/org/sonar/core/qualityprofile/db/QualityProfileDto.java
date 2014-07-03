@@ -34,7 +34,6 @@ public class QualityProfileDto extends Dto<String> {
   private String name;
   private String language;
   private String parentKee;
-  private Date createdAt, updatedAt;
   private String rulesUpdatedAt;
 
   /**
@@ -98,22 +97,6 @@ public class QualityProfileDto extends Dto<String> {
   public QualityProfileDto setParentKee(@Nullable String s) {
     this.parentKee = s;
     return this;
-  }
-
-  public Date getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
   }
 
   public String getRulesUpdatedAt() {

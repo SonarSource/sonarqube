@@ -11,7 +11,9 @@
     a.inheritance as "inheritance",
     r.plugin_rule_key as "rulefield",
     r.plugin_name as "repository",
-    qp.kee as "profileKey"
+    qp.kee as "profileKey",
+    a.created_at as "createdAt",
+    a.updated_at as "updatedAt"
   </sql>
 
   <sql id="activeRuleKeyJoin">
@@ -26,7 +28,9 @@
     a.rule_id as ruleId,
     a.failure_level as severity,
     a.inheritance as inheritance,
-    active_rule_parent.id as parentId
+    active_rule_parent.id as parentId,
+    a.created_at as "createdAt",
+    a.updated_at as "updatedAt"
   </sql>
 
   <sql id="activeRuleJoin">
@@ -48,8 +52,8 @@
   </select>
 
   <insert id="insert" parameterType="ActiveRule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance)
-    VALUES (#{profileId}, #{ruleId}, #{severity}, #{inheritance})
+    INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance, created_at, updated_at)
+    VALUES (#{profileId}, #{ruleId}, #{severity}, #{inheritance}, #{createdAt}, #{updatedAt})
   </insert>
 
   <update id="update" parameterType="ActiveRule">
@@ -57,7 +61,8 @@
     profile_id=#{profileId},
     rule_id=#{ruleId},
     failure_level=#{severity},
-    inheritance=#{inheritance}
+    inheritance=#{inheritance},
+    updated_at=#{updatedAt}
     WHERE id=#{id}
   </update>
 
@@ -78,7 +83,8 @@
   </select>
 
   <select id="selectById" parameterType="int" resultType="ActiveRule">
-    SELECT <include refid="activeRuleColumns"/>
+    SELECT
+    <include refid="activeRuleColumns"/>
     FROM active_rules a
     <include refid="activeRuleJoin"/>
     WHERE a.id=#{id}
@@ -91,13 +97,14 @@
     FROM active_rules a
     <include refid="activeRuleKeyJoin"/>
     WHERE
-      qp.kee = #{profileKey}
-      AND r.plugin_rule_key = #{rule}
-      AND r.plugin_name = #{repository}
+    qp.kee = #{profileKey}
+    AND r.plugin_rule_key = #{rule}
+    AND r.plugin_name = #{repository}
   </select>
 
   <select id="selectByProfileKey" parameterType="string" resultType="ActiveRule">
-    SELECT <include refid="activeRuleKeyColumns"/>
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
     FROM active_rules a
     <include refid="activeRuleKeyJoin"/>
     where qp.kee=#{id}
@@ -171,7 +178,8 @@
   </select>
 
   <select id="selectParamByActiveRuleAndKey" parameterType="map" resultType="ActiveRuleParam">
-    SELECT <include refid="activeRuleParamColumns"/>
+    SELECT
+    <include refid="activeRuleParamColumns"/>
     FROM active_rule_parameters p
     <where>
       AND p.active_rule_id=#{activeRuleId}
