@@ -87,19 +87,8 @@ public class FileIndexer implements BatchComponent {
     executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
 
     InputFileBuilder inputFileBuilder = inputFileBuilderFactory.create(fileSystem);
-    if (!fileSystem.sourceFiles().isEmpty() || !fileSystem.testFiles().isEmpty()) {
-      // Index only provided files
-      indexFiles(inputFileBuilder, fileSystem, progress, fileSystem.sourceFiles(), InputFile.Type.MAIN);
-      indexFiles(inputFileBuilder, fileSystem, progress, fileSystem.testFiles(), InputFile.Type.TEST);
-    } else {
-      for (File mainDir : fileSystem.sourceDirs()) {
-        indexDirectory(inputFileBuilder, fileSystem, progress, mainDir, InputFile.Type.MAIN);
-      }
-      for (File testDir : fileSystem.testDirs()) {
-        indexDirectory(inputFileBuilder, fileSystem, progress, testDir, InputFile.Type.TEST);
-      }
-
-    }
+    indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.sources(), InputFile.Type.MAIN);
+    indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.tests(), InputFile.Type.TEST);
 
     executor.shutdown();
     try {
@@ -122,22 +111,33 @@ public class FileIndexer implements BatchComponent {
 
   }
 
+  private void indexFiles(DefaultModuleFileSystem fileSystem, Progress progress, InputFileBuilder inputFileBuilder, List<File> sources, InputFile.Type type) {
+    for (File dirOrFile : sources) {
+      if (dirOrFile.isDirectory()) {
+        indexDirectory(inputFileBuilder, fileSystem, progress, dirOrFile, type);
+      } else {
+        indexFile(inputFileBuilder, fileSystem, progress, dirOrFile, type);
+      }
+    }
+  }
+
   private void indexFiles(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, List<File> sourceFiles, InputFile.Type type) {
     for (File sourceFile : sourceFiles) {
-      DeprecatedDefaultInputFile inputFile = inputFileBuilder.create(sourceFile);
-      if (inputFile != null && exclusionFilters.accept(inputFile, type)) {
-        indexFile(inputFileBuilder, fileSystem, progress, inputFile, type);
-      }
+      indexFile(inputFileBuilder, fileSystem, progress, sourceFile, type);
     }
   }
 
   private void indexDirectory(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex, InputFile.Type type) {
     Collection<File> files = FileUtils.listFiles(dirToIndex, FILE_FILTER, DIR_FILTER);
     for (File file : files) {
-      DeprecatedDefaultInputFile inputFile = inputFileBuilder.create(file);
-      if (inputFile != null && exclusionFilters.accept(inputFile, type)) {
-        indexFile(inputFileBuilder, fileSystem, status, inputFile, type);
-      }
+      indexFile(inputFileBuilder, fileSystem, status, file, type);
+    }
+  }
+
+  private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, File sourceFile, InputFile.Type type) {
+    DeprecatedDefaultInputFile inputFile = inputFileBuilder.create(sourceFile);
+    if (inputFile != null && exclusionFilters.accept(inputFile, type)) {
+      indexFile(inputFileBuilder, fileSystem, progress, inputFile, type);
     }
   }
 

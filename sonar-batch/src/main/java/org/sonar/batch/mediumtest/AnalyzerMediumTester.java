@@ -28,6 +28,7 @@ import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.measures.CoreMetrics;
@@ -45,6 +46,7 @@ import org.sonar.batch.languages.Language;
 import org.sonar.batch.languages.LanguagesReferential;
 import org.sonar.batch.rule.QProfile;
 import org.sonar.batch.rules.QProfilesReferential;
+import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan2.AnalyzerIssueCache;
 import org.sonar.batch.scan2.AnalyzerMeasureCache;
 import org.sonar.batch.scan2.ProjectScanContainer;
@@ -227,6 +229,7 @@ public class AnalyzerMediumTester {
   public static class TaskResult implements ScanTaskObserver {
     private List<AnalyzerIssue> issues = new ArrayList<AnalyzerIssue>();
     private List<AnalyzerMeasure> measures = new ArrayList<AnalyzerMeasure>();
+    private List<InputFile> inputFiles = new ArrayList<InputFile>();
 
     @Override
     public void scanTaskCompleted(ProjectScanContainer container) {
@@ -237,6 +240,11 @@ public class AnalyzerMediumTester {
       for (AnalyzerMeasure<?> measure : container.getComponentByType(AnalyzerMeasureCache.class).all()) {
         measures.add(measure);
       }
+
+      InputFileCache inputFileCache = container.getComponentByType(InputFileCache.class);
+      for (InputFile inputFile : inputFileCache.all()) {
+        inputFiles.add(inputFile);
+      }
     }
 
     public List<AnalyzerIssue> issues() {
@@ -245,6 +253,10 @@ public class AnalyzerMediumTester {
 
     public List<AnalyzerMeasure> measures() {
       return measures;
+    }
+
+    public List<InputFile> inputFiles() {
+      return inputFiles;
     }
 
   }

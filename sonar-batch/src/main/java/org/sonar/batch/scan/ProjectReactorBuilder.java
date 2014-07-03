@@ -304,8 +304,8 @@ public class ProjectReactorBuilder {
       }
 
       // Check sonar.tests
-      String[] testDirs = getListFromProperty(props, PROPERTY_TESTS);
-      checkExistenceOfDirectories(projectId, baseDir, testDirs, PROPERTY_TESTS);
+      String[] testPaths = getListFromProperty(props, PROPERTY_TESTS);
+      checkExistenceOfPaths(projectId, baseDir, testPaths, PROPERTY_TESTS);
 
       // Check sonar.binaries
       String[] binDirs = getListFromProperty(props, PROPERTY_BINARIES);
@@ -332,8 +332,8 @@ public class ProjectReactorBuilder {
     Properties properties = project.getProperties();
 
     // We need to check the existence of source directories
-    String[] sourceDirs = getListFromProperty(properties, PROPERTY_SOURCES);
-    checkExistenceOfDirectories(project.getKey(), project.getBaseDir(), sourceDirs, PROPERTY_SOURCES);
+    String[] sourcePaths = getListFromProperty(properties, PROPERTY_SOURCES);
+    checkExistenceOfPaths(project.getKey(), project.getBaseDir(), sourcePaths, PROPERTY_SOURCES);
 
     // And we need to resolve patterns that may have been used in "sonar.libraries"
     List<String> libPaths = Lists.newArrayList();
@@ -415,10 +415,23 @@ public class ProjectReactorBuilder {
   }
 
   @VisibleForTesting
-  protected static void checkExistenceOfDirectories(String moduleRef, File baseDir, String[] sourceDirs, String propName) {
-    for (String path : sourceDirs) {
+  protected static void checkExistenceOfDirectories(String moduleRef, File baseDir, String[] dirPaths, String propName) {
+    for (String path : dirPaths) {
       File sourceFolder = resolvePath(baseDir, path);
       if (!sourceFolder.isDirectory()) {
+        LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, propName, moduleRef));
+        throw new IllegalStateException("The folder '" + path + "' does not exist for '" + moduleRef +
+          "' (base directory = " + baseDir.getAbsolutePath() + ")");
+      }
+    }
+
+  }
+
+  @VisibleForTesting
+  protected static void checkExistenceOfPaths(String moduleRef, File baseDir, String[] paths, String propName) {
+    for (String path : paths) {
+      File sourceFolder = resolvePath(baseDir, path);
+      if (!sourceFolder.exists()) {
         LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, propName, moduleRef));
         throw new IllegalStateException("The folder '" + path + "' does not exist for '" + moduleRef +
           "' (base directory = " + baseDir.getAbsolutePath() + ")");

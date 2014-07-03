@@ -111,10 +111,14 @@ public class DefaultModuleFileSystemTest {
     when(initializer.buildDir()).thenReturn(buildDir);
     when(initializer.workingDir()).thenReturn(workingDir);
     when(initializer.binaryDirs()).thenReturn(Arrays.asList(new File(basedir, "target/classes")));
-    when(initializer.sourceDirs()).thenReturn(Arrays.asList(new File(basedir, "src/main/java"), new File(basedir, "src/main/groovy")));
-    when(initializer.testDirs()).thenReturn(Arrays.asList(new File(basedir, "src/test/java")));
-    when(initializer.additionalSourceFiles()).thenReturn(Arrays.asList(additionalFile));
-    when(initializer.additionalTestFiles()).thenReturn(Arrays.asList(additionalTest));
+    File javaSrc = new File(basedir, "src/main/java");
+    javaSrc.mkdirs();
+    File groovySrc = new File(basedir, "src/main/groovy");
+    groovySrc.mkdirs();
+    when(initializer.sources()).thenReturn(Arrays.asList(javaSrc, groovySrc, additionalFile));
+    File javaTest = new File(basedir, "src/test/java");
+    javaTest.mkdirs();
+    when(initializer.tests()).thenReturn(Arrays.asList(javaTest, additionalTest));
 
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
@@ -125,8 +129,6 @@ public class DefaultModuleFileSystemTest {
     assertThat(fs.sourceDirs()).hasSize(2);
     assertThat(fs.testDirs()).hasSize(1);
     assertThat(fs.binaryDirs()).hasSize(1);
-    assertThat(fs.sourceFiles()).containsOnly(additionalFile);
-    assertThat(fs.testFiles()).containsOnly(additionalTest);
   }
 
   @Test
@@ -134,7 +136,7 @@ public class DefaultModuleFileSystemTest {
     File basedir = temp.newFolder();
     when(initializer.baseDir()).thenReturn(basedir);
     when(initializer.workingDir()).thenReturn(basedir);
-    when(initializer.sourceDirs()).thenReturn(Arrays.asList(new File(basedir, "src/main/java")));
+    when(initializer.sources()).thenReturn(Arrays.asList(new File(basedir, "src/main/java")));
 
     DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);

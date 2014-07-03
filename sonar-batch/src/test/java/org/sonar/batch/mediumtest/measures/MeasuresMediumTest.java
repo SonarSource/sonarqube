@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.xoo;
+package org.sonar.batch.mediumtest.measures;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
@@ -25,11 +25,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
 import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuilder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.mediumtest.AnalyzerMediumTester;
 import org.sonar.batch.mediumtest.AnalyzerMediumTester.TaskResult;
 import org.sonar.batch.mediumtest.xoo.plugin.XooPlugin;
@@ -40,17 +38,15 @@ import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class XooMediumTest {
+public class MeasuresMediumTest {
 
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   public AnalyzerMediumTester tester = AnalyzerMediumTester.builder()
-    // .registerPlugin("xoo", new File("target/sonar-xoo-plugin-2.0-SNAPSHOT.jar"))
     .registerPlugin("xoo", new XooPlugin())
     .registerLanguage(new Xoo())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .activateRule(RuleKey.of("xoo", "OneIssuePerLine"))
     .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     .build();
 
@@ -65,33 +61,18 @@ public class XooMediumTest {
   }
 
   @Test
-  public void mediumTestOfSampleProject() throws Exception {
-    File projectDir = new File(XooMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+  public void computeMeasuresOnSampleProject() throws Exception {
+    File projectDir = new File(MeasuresMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
 
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .start();
 
     assertThat(result.measures()).hasSize(19);
-    assertThat(result.issues()).hasSize(24);
   }
 
   @Test
-  public void testIssueExclusion() throws Exception {
-    File projectDir = new File(XooMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
-
-    TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .property("sonar.issue.ignore.allfile", "1")
-      .property("sonar.issue.ignore.allfile.1.fileRegexp", "object")
-      .start();
-
-    assertThat(result.measures()).hasSize(19);
-    assertThat(result.issues()).hasSize(19);
-  }
-
-  @Test
-  public void testMeasuresAndIssues() throws IOException {
+  public void computeMeasuresOnTempProject() throws IOException {
 
     File baseDir = temp.newFolder();
     File srcDir = new File(baseDir, "src");
@@ -115,7 +96,6 @@ public class XooMediumTest {
       .start();
 
     assertThat(result.measures()).hasSize(1);
-    assertThat(result.issues()).hasSize(20);
 
     assertThat(result.measures()).contains(new DefaultAnalyzerMeasureBuilder<Integer>()
       .forMetric(CoreMetrics.LINES)
@@ -123,20 +103,10 @@ public class XooMediumTest {
       .withValue(20)
       .build());
 
-    boolean foundIssueAtLine1 = false;
-    for (AnalyzerIssue issue : result.issues()) {
-      if (issue.line() == 1) {
-        foundIssueAtLine1 = true;
-        assertThat(issue.inputFile()).isEqualTo(new DefaultInputFile("src/sample.xoo"));
-        assertThat(issue.message()).isEqualTo("This issue is generated on each line");
-        assertThat(issue.effortToFix()).isNull();
-      }
-    }
-    assertThat(foundIssueAtLine1).isTrue();
   }
 
   @Test
-  public void testScmActivityAnalyzer() throws IOException {
+  public void testDistributionMeasure() throws IOException {
 
     File baseDir = temp.newFolder();
     File srcDir = new File(baseDir, "src");

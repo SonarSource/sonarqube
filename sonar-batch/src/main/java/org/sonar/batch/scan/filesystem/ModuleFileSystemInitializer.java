@@ -35,11 +35,9 @@ import java.util.List;
 public class ModuleFileSystemInitializer implements BatchComponent {
 
   private File baseDir, workingDir, buildDir;
-  private List<File> sourceDirs = Lists.newArrayList();
-  private List<File> testDirs = Lists.newArrayList();
+  private List<File> sourceDirsOrFiles = Lists.newArrayList();
+  private List<File> testDirsOrFiles = Lists.newArrayList();
   private List<File> binaryDirs = Lists.newArrayList();
-  private List<File> additionalSourceFiles;
-  private List<File> additionalTestFiles;
 
   public ModuleFileSystemInitializer(ProjectDefinition module, TempFolder tempUtils, PathResolver pathResolver) {
     baseDir = module.getBaseDir();
@@ -64,23 +62,21 @@ public class ModuleFileSystemInitializer implements BatchComponent {
   }
 
   private void initSources(ProjectDefinition module, PathResolver pathResolver) {
-    for (String sourcePath : module.getSourceDirs()) {
-      File dir = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
-      if (dir.isDirectory() && dir.exists()) {
-        sourceDirs.add(dir);
+    for (String sourcePath : module.sources()) {
+      File dirOrFile = pathResolver.relativeFile(module.getBaseDir(), sourcePath);
+      if (dirOrFile.exists()) {
+        sourceDirsOrFiles.add(dirOrFile);
       }
     }
-    additionalSourceFiles = pathResolver.relativeFiles(module.getBaseDir(), module.getSourceFiles());
   }
 
   private void initTests(ProjectDefinition module, PathResolver pathResolver) {
-    for (String testPath : module.getTestDirs()) {
-      File dir = pathResolver.relativeFile(module.getBaseDir(), testPath);
-      if (dir.exists() && dir.isDirectory()) {
-        testDirs.add(dir);
+    for (String testPath : module.tests()) {
+      File dirOrFile = pathResolver.relativeFile(module.getBaseDir(), testPath);
+      if (dirOrFile.exists()) {
+        testDirsOrFiles.add(dirOrFile);
       }
     }
-    additionalTestFiles = pathResolver.relativeFiles(module.getBaseDir(), module.getTestFiles());
   }
 
   private void initBinaryDirs(ProjectDefinition module, PathResolver pathResolver) {
@@ -102,23 +98,15 @@ public class ModuleFileSystemInitializer implements BatchComponent {
     return buildDir;
   }
 
-  List<File> sourceDirs() {
-    return sourceDirs;
+  List<File> sources() {
+    return sourceDirsOrFiles;
   }
 
-  List<File> testDirs() {
-    return testDirs;
+  List<File> tests() {
+    return testDirsOrFiles;
   }
 
   List<File> binaryDirs() {
     return binaryDirs;
-  }
-
-  List<File> additionalSourceFiles() {
-    return additionalSourceFiles;
-  }
-
-  List<File> additionalTestFiles() {
-    return additionalTestFiles;
   }
 }
