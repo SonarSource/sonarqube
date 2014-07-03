@@ -87,7 +87,7 @@
                   <a href="#" title="<%= h resource.name(true) -%>" data-key="<%= resource.key -%>"
                      class="js-drilldown-link underlined-link"><%= h resource.name(false) %></a>
                 <% else %>
-                  <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}, :class => 'underlined-link') -%>
+                  <%= link_to(h(resource.name), params.merge({:only_path => true, :rids => (selected ? rids-[resource.id] : rids+[resource.id])}), :class => 'underlined-link') -%>
                 <% end %>
               </td>
               <td class="right">

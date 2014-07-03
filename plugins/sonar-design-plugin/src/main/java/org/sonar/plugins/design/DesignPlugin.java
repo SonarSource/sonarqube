@@ -37,11 +37,11 @@ public class DesignPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
     return ImmutableList.of(
-        // Batch
-        MavenDependenciesSensor.class,
-        ProjectDsmDecorator.class,
-        PackageTangleIndexDecorator.class,
-        FileTangleIndexDecorator.class,
+      // Batch
+      MavenDependenciesSensor.class,
+      ProjectDsmDecorator.class,
+      PackageTangleIndexDecorator.class,
+      FileTangleIndexDecorator.class,
 
       // UI
       GwtLibrariesPage.class,

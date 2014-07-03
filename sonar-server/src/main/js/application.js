@@ -381,44 +381,7 @@ function supportsHTML5Storage() {
 
 //******************* HANDLING OF ACCORDION NAVIGATION [BEGIN] ******************* //
 
-function openAccordionItem(url, elt, updateCurrentElement) {
-  var htmlClass = 'accordion-item';
-  var currentElement = $j(elt).closest('.'+ htmlClass);
-
-  // Create loading image
-  var loadingImg = new Image();
-  loadingImg.src = baseUrl + "/images/loading.gif";
-  loadingImg.className = 'accordion-loading';
-  var loading = $j(loadingImg);
-  var existingLoading = currentElement.find('.accordion-loading');
-  if (updateCurrentElement && existingLoading.length) {
-    existingLoading.show();
-    loading.hide();
-  }
-
-  // Remove elements under current element
-  if (currentElement.length) {
-    // Fix the height in order to not change the position on the screen when removing elements under current element
-    var elementToRemove = currentElement.nextAll('.'+ htmlClass);
-    if (elementToRemove.height()) {
-      $j("#accordion-panel").height($j("#accordion-panel").height() + elementToRemove.height());
-    }
-    // Remove all accordion items after current element
-    elementToRemove.remove();
-    // Display loading image only if not already displayed (if previous call was not finished)
-    if (currentElement.next('.accordion-loading').length === 0) {
-      loading.insertAfter(currentElement);
-    }
-  } else {
-    // Current element is not in a working view, remove all working views
-    $j('.'+ htmlClass).remove();
-    // Display loading image only if not already displayed (if previous call was not finished)
-    if ($j("#accordion-panel").next('.accordion-loading').length === 0) {
-      loading.insertAfter($j("#accordion-panel"));
-    }
-  }
-
-  // Get content from url
+function openAccordionItem(url) {
   var ajaxRequest = $j.ajax({
       url: url
       }).fail(function (jqXHR, textStatus) {
@@ -426,57 +389,13 @@ function openAccordionItem(url, elt, updateCurrentElement) {
         console.log(error);
         $j("#accordion-panel").append($j('<div class="error">').append(error));
       }).done(function (html) {
-        if (currentElement.length) {
-          var body = currentElement.find('.accordion-item-body');
-          if (!updateCurrentElement && !body.hasClass('accordion-item-body-medium')) {
-            body.addClass("accordion-item-body-medium");
-            elt.scrollIntoView(false);
-          }
-        } else {
-          $j("#accordion-panel").height('auto');
-
-          // Current element is not in a working view, remove again all working views to purge elements that could be added just before this one
-          $j('.'+ htmlClass).remove();
-        }
-
-        if (updateCurrentElement) {
-          // Fix the height in order to not change the position on the screen
-          var prevHeight = $j("#accordion-panel").height();
-          currentElement.html(html);
-          $j("#accordion-panel").height('auto');
-          var newHeight = $j("#accordion-panel").height();
-          if (prevHeight > newHeight) {
-            $j("#accordion-panel").height(prevHeight);
-          } else {
-            $j("#accordion-panel").height(newHeight);
-          }
-        } else {
-          // Add new item add the end of the panel and restore the height param
-          var nbElement = $j("."+htmlClass).size();
-          var newElement = $j('<div id="'+ htmlClass + nbElement +'" class="'+ htmlClass +'">');
-          $j("#accordion-panel").append(newElement);
-
-          // Add html after having adding the new element in the page in order to scripts (for instance for GWT) to be well executed
-          newElement.append(html);
-          $j("#accordion-panel").height('auto');
-
-          // Set the focus on the top of the current item with animation
-          if (currentElement.length) {
-            $j('html, body').animate({
-              scrollTop: currentElement.offset().top}, 500
-            );
-          }
-        }
-        loading.remove();
+          var panel = $j("#accordion-panel");
+          panel.html(html);
+            panel.scrollIntoView(false);
       });
   return ajaxRequest;
 }
 
-
-function expandAccordionItem(elt) {
-  var currentElement = $j(elt).closest('.accordion-item');
-  currentElement.find('.accordion-item-body').removeClass("accordion-item-body-medium");
-}
 
 //******************* HANDLING OF ACCORDION NAVIGATION [END] ******************* //
 
