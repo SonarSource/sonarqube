@@ -26,6 +26,7 @@ import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -39,7 +40,12 @@ import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
@@ -179,7 +185,10 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField.HTML_DESCRIPTION.field(), rule.getDescription());
       update.put(RuleField.FIX_DESCRIPTION.field(), rule.getEffortToFixDescription());
       update.put(RuleField.SEVERITY.field(), rule.getSeverityString());
-      update.put(RuleField.STATUS.field(), rule.getStatus().name());
+
+      RuleStatus status = rule.getStatus();
+      update.put(RuleField.STATUS.field(), status != null ? rule.getStatus().name() : null);
+
       update.put(RuleField.LANGUAGE.field(), rule.getLanguage());
       update.put(RuleField.INTERNAL_KEY.field(), rule.getConfigKey());
       update.put(RuleField.IS_TEMPLATE.field(), rule.isTemplate());
@@ -316,24 +325,24 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     newParam.put(RuleParamField.DEFAULT_VALUE.field(), param.getDefaultValue());
 
     return ImmutableList.of(new UpdateRequest()
-      .id(key.toString())
-      .script(ListUpdate.NAME)
-      .addScriptParam(ListUpdate.FIELD, RuleField.PARAMS.field())
-      .addScriptParam(ListUpdate.VALUE, newParam)
-      .addScriptParam(ListUpdate.ID_FIELD, RuleParamField.NAME.field())
-      .addScriptParam(ListUpdate.ID_VALUE, param.getName())
-      );
+        .id(key.toString())
+        .script(ListUpdate.NAME)
+        .addScriptParam(ListUpdate.FIELD, RuleField.PARAMS.field())
+        .addScriptParam(ListUpdate.VALUE, newParam)
+        .addScriptParam(ListUpdate.ID_FIELD, RuleParamField.NAME.field())
+        .addScriptParam(ListUpdate.ID_VALUE, param.getName())
+    );
   }
 
   private List<UpdateRequest> nestedDelete(RuleParamDto param, RuleKey key) {
     return ImmutableList.of(new UpdateRequest()
-      .id(key.toString())
-      .script(ListUpdate.NAME)
-      .addScriptParam(ListUpdate.FIELD, RuleField.PARAMS.field())
-      .addScriptParam(ListUpdate.VALUE, null)
-      .addScriptParam(ListUpdate.ID_FIELD, RuleParamField.NAME.field())
-      .addScriptParam(ListUpdate.ID_VALUE, param.getName())
-      );
+        .id(key.toString())
+        .script(ListUpdate.NAME)
+        .addScriptParam(ListUpdate.FIELD, RuleField.PARAMS.field())
+        .addScriptParam(ListUpdate.VALUE, null)
+        .addScriptParam(ListUpdate.ID_FIELD, RuleParamField.NAME.field())
+        .addScriptParam(ListUpdate.ID_VALUE, param.getName())
+    );
   }
 
 }

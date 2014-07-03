@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -66,6 +67,7 @@ public class ActiveRuleBackendMediumTest {
   }
 
   @Test
+  @Ignore("To be fixed with DB Time zone sprint -- SONAR-5183")
   public void synchronize_index() throws Exception {
     QualityProfileDto profile1 = QProfileTesting.newXooP1();
     db.qualityProfileDao().insert(dbSession, profile1);
