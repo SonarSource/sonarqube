@@ -97,9 +97,10 @@ public class ActiveRuleBackendMediumTest {
 
     // 3. Assert startup picks it up
     tester.clearIndexes();
+    Date before = index.getLastSynchronization();
     tester.get(Platform.class).executeStartupTasks();
     assertThat(index.getByKey(activeRule.getKey())).isNotNull();
-
+    assertThat(before.before(index.getLastSynchronization())).isTrue();
   }
 
   @Test
