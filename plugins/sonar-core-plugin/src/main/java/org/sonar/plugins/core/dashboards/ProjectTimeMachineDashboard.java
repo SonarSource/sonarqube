@@ -91,6 +91,7 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
     rulesTimeMachineWidget.setProperty(METRIC4, CoreMetrics.MAJOR_VIOLATIONS_KEY);
     rulesTimeMachineWidget.setProperty(METRIC5, CoreMetrics.MINOR_VIOLATIONS_KEY);
     rulesTimeMachineWidget.setProperty(METRIC6, CoreMetrics.INFO_VIOLATIONS_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC7, CoreMetrics.TECHNICAL_DEBT_KEY);
 
     Widget complexityTimeMachineWidget = addTimeMachineWidgetOnSecondColumn(dashboard);
     complexityTimeMachineWidget.setProperty(METRIC1, CoreMetrics.COMPLEXITY_KEY);
