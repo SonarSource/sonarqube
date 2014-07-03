@@ -23,8 +23,10 @@ import com.google.common.base.Preconditions;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseDoc;
+import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,16 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
     super(fields);
     this.key = ActiveRuleKey.parse((String) getField(ActiveRuleNormalizer.ActiveRuleField.KEY.field()));
     Preconditions.checkArgument(key!=null, "Invalid ActiveRuleKey!");
+  }
+
+  @Override
+  public Date createdAt() {
+    return IndexUtils.parseDateTime((String) getNullableField(ActiveRuleNormalizer.ActiveRuleField.CREATED_AT.field()));
+  }
+
+  @Override
+  public Date updatedAt() {
+    return IndexUtils.parseDateTime((String) getNullableField(ActiveRuleNormalizer.ActiveRuleField.UPDATED_AT.field()));
   }
 
   @Override

@@ -29,19 +29,19 @@ public abstract class Dto<K extends Serializable> {
 
   public abstract K getKey();
 
-  public void setCreatedAt(Date datetime){
+  public final void setCreatedAt(Date datetime) {
     this.createdAt = datetime;
   }
 
-  public void setUpdatedAt(Date datetime){
+  public final void setUpdatedAt(Date datetime) {
     this.updatedAt = datetime;
   }
 
-  public Date getCreatedAt(){
+  public final Date getCreatedAt() {
     return this.createdAt;
   }
 
-  public Date getUpdatedAt(){
+  public final Date getUpdatedAt() {
     return this.updatedAt;
   }
 }
