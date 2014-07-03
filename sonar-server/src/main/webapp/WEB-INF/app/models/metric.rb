@@ -240,10 +240,6 @@ class Metric < ActiveRecord::Base
     Caches.clear(I18N_SHORT_NAME_CACHE_KEY)
   end
 
-  def self.default_time_machine_metrics
-    [COMPLEXITY, COVERAGE, VIOLATIONS_DENSITY]
-  end
-
   def self.by_keys(keys)
     result=[]
     keys.each do |k|
@@ -355,13 +351,13 @@ class Metric < ActiveRecord::Base
   UNCOVERED_CONDITIONS='uncovered_conditions'
 
   VIOLATIONS = 'violations'
-  VIOLATIONS_DENSITY = 'violations_density'
-  WEIGHTED_VIOLATIONS = 'weighted_violations'
   BLOCKER_VIOLATIONS='blocker_violations'
   CRITICAL_VIOLATIONS='critical_violations'
   MAJOR_VIOLATIONS='major_violations'
   MINOR_VIOLATIONS='minor_violations'
   INFO_VIOLATIONS='info_violations'
+
+  TECH_DEBT='sqale_index'
 
   MAINTAINABILITY='maintainability'
   EFFICIENCY='efficiency'

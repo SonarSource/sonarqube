@@ -211,9 +211,6 @@ public interface CoreProperties {
   @Deprecated
   String CORE_SKIPPED_MODULES_PROPERTY = "sonar.skippedModules";
 
-  String CORE_RULE_WEIGHTS_PROPERTY = "sonar.core.rule.weight";
-  String CORE_RULE_WEIGHTS_DEFAULT_VALUE = "INFO=0;MINOR=1;MAJOR=3;CRITICAL=5;BLOCKER=10";
-
   /**
    * @since 4.0
    * @deprecated since 4.3. See http://jira.codehaus.org/browse/SONAR-5109

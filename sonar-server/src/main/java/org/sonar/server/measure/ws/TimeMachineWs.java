@@ -52,7 +52,7 @@ public class TimeMachineWs implements WebService {
     action.createParam("metrics")
       .setDescription("Comma-separated list of <a href=\"http://docs.codehaus.org/display/SONAR/Metric+definitions\">metric keys/ids</a>")
       .setRequired(true)
-      .setExampleValue("coverage,violations_density");
+      .setExampleValue("coverage,violations");
 
     action.createParam("fromDateTime")
       .setDescription("ISO-8601 datetime (inclusive)")

@@ -1351,35 +1351,6 @@ public final class CoreMetrics {
   //
   // --------------------------------------------------------------------------------------------------------------------
 
-  public static final String WEIGHTED_VIOLATIONS_KEY = "weighted_violations";
-
-  public static final Metric<Integer> WEIGHTED_VIOLATIONS = new Metric.Builder(WEIGHTED_VIOLATIONS_KEY, "Weighted issues", Metric.ValueType.INT)
-    .setDescription("Weighted Issues")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(true)
-    .setDomain(DOMAIN_ISSUES)
-    .setBestValue(0.0)
-    .setOptimizedBestValue(true)
-    .create();
-
-  /**
-   * @deprecated since 4.0. See SONAR-4755
-   */
-  @Deprecated
-  public static final String VIOLATIONS_DENSITY_KEY = "violations_density";
-
-  /**
-   * @deprecated since 4.0. See SONAR-4755
-   */
-  @Deprecated
-  public static final Metric<Double> VIOLATIONS_DENSITY = new Metric.Builder(VIOLATIONS_DENSITY_KEY, "Rules compliance", Metric.ValueType.PERCENT)
-    .setDescription("Rules compliance")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setQualitative(true)
-    .setDomain(DOMAIN_ISSUES)
-    .setHidden(true)
-    .create();
-
   public static final String VIOLATIONS_KEY = "violations";
   public static final Metric<Integer> VIOLATIONS = new Metric.Builder(VIOLATIONS_KEY, "Issues", Metric.ValueType.INT)
     .setDescription("Issues")

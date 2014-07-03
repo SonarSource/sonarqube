@@ -173,7 +173,7 @@ class Sonar::ComponentsConfiguration
   def default_text_columns
     unless @@default_columns
       @@default_columns = ""
-      @@default_columns << Sonar::ColumnsView::TYPE_METRIC + COLUMN_SEPARATOR + Metric::VIOLATIONS_DENSITY + COLUMNS_SEPARATOR
+      @@default_columns << Sonar::ColumnsView::TYPE_METRIC + COLUMN_SEPARATOR + Metric::TECH_DEBT + COLUMNS_SEPARATOR
       @@default_columns << Sonar::ColumnsView::TYPE_METRIC + COLUMN_SEPARATOR + Metric::COVERAGE + COLUMNS_SEPARATOR
       @@default_columns << Sonar::ColumnsView::TYPE_BUILD_TIME + COLUMN_SEPARATOR + 'build_time' + COLUMNS_SEPARATOR
       @@default_columns << Sonar::ColumnsView::TYPE_LINKS + COLUMN_SEPARATOR + "links"

@@ -64,7 +64,7 @@ public class MeasuresFiltersTest {
     List<Measure> measures = Arrays.asList(
       RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule1, 50.0),
       RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule2, 10.0),
-      RuleMeasure.createForRule(CoreMetrics.VIOLATIONS_DENSITY, rule2, 3.3),
+      RuleMeasure.createForRule(CoreMetrics.INFO_VIOLATIONS, rule2, 3.3),
 
       RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL, 400.0),
       RuleMeasure.createForPriority(CoreMetrics.COVERAGE, RulePriority.CRITICAL, 400.0),
@@ -81,7 +81,7 @@ public class MeasuresFiltersTest {
     List<Measure> measures = Arrays.asList(
       RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule1, 50.0),
       RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule2, 10.0),
-      RuleMeasure.createForRule(CoreMetrics.VIOLATIONS_DENSITY, rule2, 3.3),
+      RuleMeasure.createForRule(CoreMetrics.INFO_VIOLATIONS, rule2, 3.3),
 
       RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL, 400.0),
       RuleMeasure.createForPriority(CoreMetrics.COVERAGE, RulePriority.CRITICAL, 400.0),
