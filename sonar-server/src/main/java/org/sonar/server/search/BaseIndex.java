@@ -26,6 +26,8 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRespon
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
@@ -42,8 +44,9 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
-import org.elasticsearch.search.sort.SortOrder;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
@@ -199,13 +202,17 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   public Date getLastSynchronization() {
     Date date;
     try {
-      date = getClient().prepareSearch(this.getIndexName())
+      SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
         .setTypes(this.getIndexType())
         .setQuery(QueryBuilders.matchAllQuery())
-        .setSize(1)
-        .addField(BaseNormalizer.UPDATED_AT_FIELD)
-        .addSort(BaseNormalizer.UPDATED_AT_FIELD, SortOrder.DESC)
-        .get().getHits().getAt(0).field(BaseNormalizer.UPDATED_AT_FIELD).getValue();
+        .setSize(0)
+        .addAggregation(AggregationBuilders.max("latest")
+          .field(BaseNormalizer.UPDATED_AT_FIELD));
+
+      SearchResponse response = request.get();
+
+      Max max = (Max) response.getAggregations().get("latest");
+      return new DateTime(Double.valueOf(max.getValue()).longValue()).toDate();
     } catch (Exception e) {
       date = new Date(0L);
     }
