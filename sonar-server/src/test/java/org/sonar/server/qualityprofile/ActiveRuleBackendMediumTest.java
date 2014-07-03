@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -36,6 +35,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.platform.Platform;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.RuleTesting;
@@ -67,8 +67,10 @@ public class ActiveRuleBackendMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed with DB Time zone sprint -- SONAR-5183")
   public void synchronize_index() throws Exception {
+
+    Date beginning = new Date();
+
     QualityProfileDto profile1 = QProfileTesting.newXooP1();
     db.qualityProfileDao().insert(dbSession, profile1);
 
@@ -79,15 +81,23 @@ public class ActiveRuleBackendMediumTest {
     db.activeRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
 
-    tester.clearIndexes();
-
-    // 0. Assert that we have no rules in Is.
-    assertThat(index.getByKey(activeRule.getKey())).isNull();
 
     // 1. Synchronize since 0
-    db.activeRuleDao().synchronizeAfter(dbSession, new Date());
+    tester.clearIndexes();
+    assertThat(index.getByKey(activeRule.getKey())).isNull();
+    db.activeRuleDao().synchronizeAfter(dbSession, new Date(0L));
+    assertThat(index.getByKey(activeRule.getKey())).isNotNull();
 
-    // 2. Assert that we have the rule in Index
+    // 2. Synchronize since beginning
+    tester.clearIndexes();
+    assertThat(index.getByKey(activeRule.getKey())).isNull();
+    db.activeRuleDao().synchronizeAfter(dbSession, beginning);
+    assertThat(index.getByKey(activeRule.getKey())).isNotNull();
+
+
+    // 3. Assert startup picks it up
+    tester.clearIndexes();
+    tester.get(Platform.class).executeStartupTasks();
     assertThat(index.getByKey(activeRule.getKey())).isNotNull();
 
   }
