@@ -30,7 +30,7 @@ public class MeasureDto extends Dto<MeasureKey>{
 
   private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
 
-  private Integer id;
+  private Long id;
 
   private String metricKey;
 
@@ -48,11 +48,11 @@ public class MeasureDto extends Dto<MeasureKey>{
     // Nothing here
   }
 
-  public Integer getId() {
+  public Long getId() {
     return id;
   }
 
-  public MeasureDto setId(Integer id) {
+  public MeasureDto setId(Long id) {
     this.id = id;
     return this;
   }
