@@ -19,6 +19,7 @@
  */
 package org.sonar.application;
 
+import org.apache.catalina.Engine;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.slf4j.LoggerFactory;
@@ -41,13 +42,11 @@ class Connectors {
     List<Connector> connectors = new ArrayList<Connector>();
     connectors.addAll(Arrays.asList(newHttpConnector(props), newAjpConnector(props), newHttpsConnector(props)));
     connectors.removeAll(Collections.singleton(null));
-
-    verify(connectors);
-
     tomcat.setConnector(connectors.get(0));
     for (Connector connector : connectors) {
       tomcat.getService().addConnector(connector);
     }
+    verify(connectors);
   }
 
   private static void verify(List<Connector> connectors) {
@@ -98,7 +97,7 @@ class Connectors {
     }
     return connector;
   }
-  
+
   @Nullable
   private static Connector newHttpsConnector(Props props) {
     Connector connector = null;

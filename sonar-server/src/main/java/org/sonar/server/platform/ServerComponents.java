@@ -518,6 +518,7 @@ class ServerComponents {
 
     // users
     pico.addSingleton(SecurityRealmFactory.class);
+    pico.addSingleton(StringExtractor.class);
     pico.addSingleton(HibernateUserFinder.class);
     pico.addSingleton(NewUserNotifier.class);
     pico.addSingleton(DefaultUserFinder.class);

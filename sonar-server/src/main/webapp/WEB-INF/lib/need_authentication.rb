@@ -22,13 +22,38 @@
 # Use Sonar database (table USERS) to authenticate users.
 #
 class DefaultRealm
+  def initialize()
+    @string_extractor = Api::Utils.java_facade.getCoreComponentByClassname('org.sonar.server.user.StringExtractor')
+  end
+
   def authenticate?(username, password, servlet_request)
-    result=nil
-    if !username.blank? && !password.blank?
+    if with_cert?(username, password) && @string_extractor!=nil
+      context = org.sonar.server.user.StringExtractor::Context.new(servlet_request)
+      username = @string_extractor.extractFromCertificate(context)
+      user = User.find_active_by_login(username)
+      if !user
+        if !Api::Utils.java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
+          # Automatically create a user in the sonar db if authentication has been successfully done
+          user = User.new(:login => username, :name => username, :email => '')
+          default_group_name = Api::Utils.java_facade.getSettings().getString('sonar.defaultGroup')
+          default_group = Group.find_by_name(default_group_name)
+          if default_group
+            user.groups << default_group
+          else
+            Rails.logger.error("The default user group does not exist: #{default_group_name}. Please check the parameter 'Default user group' in general settings.")
+          end
+          user
+        end
+      end
+    else
+      result=nil
       user=User.find_active_by_login(username)
       result=user if user && user.authenticated?(password)
     end
-    result
+  end
+
+  def with_cert?(username, password)
+    username==nil && password==nil
   end
 
   def editable_password?

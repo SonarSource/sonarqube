@@ -570,4 +570,6 @@ public interface CoreProperties {
    * @since 4.0
    */
   String HOURS_IN_DAY = "sonar.technicalDebt.hoursInDay";
+
+  String REGEX_PATTERN_FOR_CERT = "sonar.security.certRegex";
 }

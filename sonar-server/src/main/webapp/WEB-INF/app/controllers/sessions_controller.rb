@@ -46,7 +46,7 @@ class SessionsController < ApplicationController
     end
     cookies.delete :auth_token    
     flash[:notice]=message('session.flash_notice.logged_out')
-    redirect_to(home_path)
+    redirect_to("/sessions/new")
     reset_session
   end
 
