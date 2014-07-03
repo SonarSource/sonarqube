@@ -74,13 +74,16 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
         indexTime = System.currentTimeMillis();
         this.offer(action, 1000, TimeUnit.SECONDS);
         latch.await(1000, TimeUnit.MILLISECONDS);
-        bcount ++;
+        bcount++;
         indexTime = System.currentTimeMillis() - indexTime;
         // refresh the index.
-        refreshTime = System.currentTimeMillis();
-        action.getIndex().refresh();
-        refreshTime = System.currentTimeMillis() - refreshTime;
-        refreshes.add(action.getIndex().getIndexName());
+        Index<?, ?, ?> index = action.getIndex();
+        if (index != null) {
+          refreshTime = System.currentTimeMillis();
+          index.refresh();
+          refreshTime = System.currentTimeMillis() - refreshTime;
+          refreshes.add(action.getIndex().getIndexName());
+        }
         types.add(action.getPayloadClass().getSimpleName());
       } catch (InterruptedException e) {
         throw new IllegalStateException("ES update has been interrupted", e);
@@ -93,7 +96,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
       List<IndexAction> embeddedActions = Lists.newArrayList();
 
       for (IndexAction action : actions) {
-        if(action.getClass().isAssignableFrom(EmbeddedIndexAction.class)){
+        if (action.getClass().isAssignableFrom(EmbeddedIndexAction.class)) {
           embeddedActions.add(action);
         } else {
           itemActions.add(action);
@@ -124,7 +127,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
           action.setLatch(embeddedLatch);
           this.offer(action, 1000, TimeUnit.SECONDS);
           types.add(action.getPayloadClass().getSimpleName());
-          ecount ++;
+          ecount++;
         }
         embeddedLatch.await(1500, TimeUnit.MILLISECONDS);
         embeddedTime = System.currentTimeMillis() - embeddedTime;
@@ -134,7 +137,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
         refreshTime = System.currentTimeMillis();
         for (IndexAction action : actions) {
           if (action.getIndex() != null &&
-            !refreshedIndexes.contains(action.getIndex().getIndexName())){
+            !refreshedIndexes.contains(action.getIndex().getIndexName())) {
             refreshedIndexes.add(action.getIndex().getIndexName());
             action.getIndex().refresh();
             refreshes.add(action.getIndex().getIndexName());
@@ -146,7 +149,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
       }
       LOGGER.debug("INDEX - time:{}ms ({}ms index, {}ms embedded, {}ms refresh)\ttypes:[{}],\tbulk:{}\tembedded:{}\trefresh:[{}]",
         (System.currentTimeMillis() - all_start), indexTime, embeddedTime, refreshTime,
-        StringUtils.join(types,","),
+        StringUtils.join(types, ","),
         bcount, ecount, StringUtils.join(refreshes, ","));
     }
   }
