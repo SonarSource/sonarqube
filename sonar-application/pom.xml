@@ -230,6 +230,7 @@
               <descriptors>
                 <descriptor>assembly.xml</descriptor>
               </descriptors>
+              <recompressZippedFiles>true</recompressZippedFiles>
             </configuration>
           </execution>
         </executions>
