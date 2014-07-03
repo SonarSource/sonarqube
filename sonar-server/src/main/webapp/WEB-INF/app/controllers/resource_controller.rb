@@ -41,6 +41,20 @@ class ResourceController < ApplicationController
     redirect_to :controller => 'component', :action => 'index', :anchor => anchor
   end
 
+  # deprecated stuff for drilldown
+  def view
+    require_parameters 'id'
+    @resource = Project.by_key(params[:id])
+    access_denied unless has_role?(:user, @resource)
+    @snapshot = @resource.last_snapshot
+    load_extensions() if @snapshot
+    if @extension
+      render :partial => 'view'
+    else
+      not_found('Extension not found')
+    end
+  end
+
   #
   # Call by new component viewer to display plugin extension
   #

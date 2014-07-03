@@ -79,9 +79,7 @@
           <li>
             <%= qualifier_icon(resource) -%>
             &nbsp;
-            <%= link_to(h(resource.name),
-                        {:overwrite_params => {:id => resource.key}.merge(resource_link)}
-                ) -%>
+            <%= link_to(h(resource.name), params.merge({:id => resource.key}.merge(resource_link))) -%>
           </li>
         <%
            end

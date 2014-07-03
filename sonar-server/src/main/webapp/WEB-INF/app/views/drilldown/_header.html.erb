@@ -1,12 +1,13 @@
+<%= render :partial => 'gwt/base', :locals => {:resource => nil, :popup => false, :metric => (@metric ? @metric.key : nil)} -%>
+<%= render :partial => 'gwt/resource_viewers' -%>
+
 <script type="text/javascript">
   /* display resource */
-  function d(resourceId, display_title) {
-    if (display_title == undefined) {
-      display_title = true;
-    }
-    var url = '<%= ApplicationController.root_context -%>/resource/index/' + resourceId + '?metric=<%= @metric.id if @metric -%>' +
-        '&rule=<%= @rule ? @rule.id : @severity -%>&period=<%= @period -%>&project=<%= @resource.id -%>&display_title=' + display_title;
-    openAccordionItem(url, this);
+  function d(resourceId, is_file) {
+    var action = is_file ? 'index' : 'view';
+    var url = '<%= ApplicationController.root_context -%>/resource/' + action + '/' + resourceId + '?metric=<%= @metric.id if @metric -%>' +
+        '&rule=<%= @rule ? @rule.id : @severity -%>&period=<%= @period -%>&project=<%= @resource.id -%>';
+    openAccordionItem(url);
     return false;
   }
 
@@ -18,5 +19,14 @@
     } else {
       window.location.reload();
     }
+  }
+
+  function loadGWT(gwtId, resourceId, resourceKey, resourceName, resourceScope, resourceQualifier, resourceLanguage) {
+    config["resource"] = [
+      {"id":resourceId, "key":resourceKey, "name":resourceName, "scope":resourceScope, "qualifier":resourceQualifier,
+        "lang":resourceLanguage}
+    ];
+    config["resource_key"] = resourceId;
+    modules[gwtId]();
   }
 </script>
