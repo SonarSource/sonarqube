@@ -51,7 +51,6 @@ define
 
 
   # Issues
-  'weighted_violations':              { tab: 'issues', item: '.js-filter-unresolved-issues' }
   'violations':                       { tab: 'issues', item: '.js-filter-unresolved-issues' }
   'blocker_violations':               { tab: 'issues', item: '.js-filter-BLOCKER-issues' }
   'critical_violations':              { tab: 'issues', item: '.js-filter-CRITICAL-issues' }
