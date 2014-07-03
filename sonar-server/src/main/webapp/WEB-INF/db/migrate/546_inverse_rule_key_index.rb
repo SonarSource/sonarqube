@@ -25,14 +25,28 @@
 require 'set'
 class InverseRuleKeyIndex < ActiveRecord::Migration
 
-  class Rule < ActiveRecord::Base
-  end
 
   class ActiveRule < ActiveRecord::Base
+    set_table_name 'active_rules'
+  end
+
+  class Characteristic < ActiveRecord::Base
+    set_table_name 'characteristics'
+  end
+
+  class Issue < ActiveRecord::Base
+    set_table_name 'issues'
+  end
+
+  class ActiveRuleChange < ActiveRecord::Base
+    set_table_name 'active_rule_changes'
   end
 
   class ProjectMeasure < ActiveRecord::Base
     set_table_name 'project_measures'
+  end
+
+  class Rule < ActiveRecord::Base
   end
 
   class RuleParameter < ActiveRecord::Base
@@ -54,9 +68,12 @@ class InverseRuleKeyIndex < ActiveRecord::Migration
 
   private
   def self.delete_duplicated_rules
-    Rule.reset_column_information
     ActiveRule.reset_column_information
+    ActiveRuleChange.reset_column_information
+    Characteristic.reset_column_information
+    Issue.reset_column_information
     ProjectMeasure.reset_column_information
+    Rule.reset_column_information
     RuleParameter.reset_column_information
 
     say_with_time 'Delete duplicated rules' do
@@ -66,10 +83,13 @@ class InverseRuleKeyIndex < ActiveRecord::Migration
         key = "#{rule.plugin_name}:#{rule.plugin_rule_key}"
         if existing_keys.include?(key)
           say "Delete duplicated rule '#{key}' (id=#{rule.id})"
-          rule.destroy
           ActiveRule.delete_all(['rule_id=?', rule.id])
+          ActiveRuleChange.delete_all(['rule_id=?', rule.id])
+          Characteristic.delete_all(['rule_id=?', rule.id])
+          Issue.delete_all(['rule_id=?', rule.id])
           ProjectMeasure.delete_all(['rule_id=?', rule.id])
           RuleParameter.delete_all(['rule_id=?', rule.id])
+          rule.destroy
         else
           existing_keys.add(key)
         end

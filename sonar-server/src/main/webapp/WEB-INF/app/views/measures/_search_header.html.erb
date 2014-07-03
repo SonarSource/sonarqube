@@ -11,7 +11,7 @@
           [<%= message 'measure_filter.private' -%>]
         <% elsif logged_in? && @filter.user_id==current_user.id %>
           [<%= message 'measure_filter.shared_with_all_users' -%>]
-        <% elsif @filter.user_id %>
+        <% elsif @filter.user_id && @filter.user %>
           [<%= message 'shared_by' -%> <%= @filter.user.name -%>]
         <% else %>
           [<%= message 'shared_by' -%> Sonar]
