@@ -34,13 +34,16 @@ import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.utils.MessageException;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
 
 /**
  * Index input files into {@link InputFileCache}.
@@ -57,8 +60,6 @@ public class FileIndexer implements BatchComponent {
   private final boolean isAggregator;
   private final ExclusionFilters exclusionFilters;
   private final InputFileBuilderFactory inputFileBuilderFactory;
-
-  private ExecutorService executor;
 
   public FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
     InputFileCache cache, ProjectDefinition def) {
@@ -84,20 +85,11 @@ public class FileIndexer implements BatchComponent {
 
     Progress progress = new Progress(fileCache.byModule(fileSystem.moduleKey()));
 
-    executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-
     InputFileBuilder inputFileBuilder = inputFileBuilderFactory.create(fileSystem);
     indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.sources(), InputFile.Type.MAIN);
     indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.tests(), InputFile.Type.TEST);
 
-    executor.shutdown();
-    try {
-      while (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-        LOG.debug("{} files indexed...", progress.count());
-      }
-    } catch (InterruptedException e) {
-      throw new IllegalStateException("FileIndexer was interrupted", e);
-    }
+    indexAllConcurrently(progress);
 
     // Populate FS in a synchronous way because PersistIt Exchange is not concurrent
     for (InputFile indexed : progress.indexed) {
@@ -111,6 +103,26 @@ public class FileIndexer implements BatchComponent {
 
     LOG.info(String.format("%d files indexed", progress.count()));
 
+  }
+
+  private void indexAllConcurrently(Progress progress) {
+    ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+    try {
+      List<Future<Void>> all = executor.invokeAll(progress.indexingTasks);
+      for (Future<Void> future : all) {
+        future.get();
+      }
+    } catch (InterruptedException e) {
+      throw new IllegalStateException("FileIndexer was interrupted", e);
+    } catch (ExecutionException e) {
+      Throwable cause = e.getCause();
+      if (cause instanceof RuntimeException) {
+        throw (RuntimeException) cause;
+      } else {
+        throw new IllegalStateException("Error during file indexing", e);
+      }
+    }
+    executor.shutdown();
   }
 
   private void indexFiles(DefaultModuleFileSystem fileSystem, Progress progress, InputFileBuilder inputFileBuilder, List<File> sources, InputFile.Type type) {
@@ -140,18 +152,18 @@ public class FileIndexer implements BatchComponent {
   private void indexFile(final InputFileBuilder inputFileBuilder, final DefaultModuleFileSystem fs,
     final Progress status, final DeprecatedDefaultInputFile inputFile, final InputFile.Type type) {
 
-    Runnable worker = new Runnable() {
+    Callable<Void> task = new Callable<Void>() {
 
       @Override
-      public void run() {
+      public Void call() throws Exception {
         InputFile completedFile = inputFileBuilder.complete(inputFile, type);
         if (completedFile != null && accept(completedFile)) {
-          status.markAsIndexed(completedFile);
+          status.markAsIndexed(inputFile);
         }
+        return null;
       }
     };
-    executor.execute(worker);
-
+    status.planForIndexing(task);
   }
 
   private boolean accept(InputFile inputFile) {
@@ -167,10 +179,16 @@ public class FileIndexer implements BatchComponent {
   private static class Progress {
     private final Set<InputFile> removed;
     private final Set<InputFile> indexed;
+    private final List<Callable<Void>> indexingTasks;
 
     Progress(Iterable<InputFile> removed) {
       this.removed = Sets.newHashSet(removed);
       this.indexed = new HashSet<InputFile>();
+      this.indexingTasks = new ArrayList<Callable<Void>>();
+    }
+
+    void planForIndexing(Callable<Void> indexingTask) {
+      this.indexingTasks.add(indexingTask);
     }
 
     synchronized void markAsIndexed(InputFile inputFile) {

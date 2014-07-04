@@ -23,10 +23,13 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.mediumtest.AnalyzerMediumTester;
 import org.sonar.batch.mediumtest.AnalyzerMediumTester.TaskResult;
 import org.sonar.batch.mediumtest.xoo.plugin.XooPlugin;
@@ -39,8 +42,11 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class FileSystemMediumTest {
 
-  @org.junit.Rule
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   public AnalyzerMediumTester tester = AnalyzerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
@@ -139,6 +145,24 @@ public class FileSystemMediumTest {
       .start();
 
     assertThat(result.inputFiles()).hasSize(4);
+  }
+
+  @Test
+  public void failForDuplicateInputFile() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("can't be indexed twice. Please check that inclusion/exclusion patterns produce disjoint sets for main and test files");
+    tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src,src/sample.xoo")
+        .build())
+      .start();
+
   }
 
 }
