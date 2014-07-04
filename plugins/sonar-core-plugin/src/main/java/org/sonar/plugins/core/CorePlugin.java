@@ -250,7 +250,6 @@ public final class CorePlugin extends SonarPlugin {
       CountFalsePositivesDecorator.class,
       InitialOpenIssuesSensor.class,
       InitialOpenIssuesStack.class,
-      HotspotMostViolatedResourcesWidget.class,
       HotspotMostViolatedRulesWidget.class,
       MyUnresolvedIssuesWidget.class,
       FalsePositiveIssuesWidget.class,
