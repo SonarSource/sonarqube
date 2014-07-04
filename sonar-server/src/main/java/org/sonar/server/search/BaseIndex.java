@@ -211,10 +211,11 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     SearchResponse response = request.get();
 
     Max max = (Max) response.getAggregations().get("latest");
-    if (Double.isNaN(max.getValue())) {
-      date = new Date(0L);
-    } else {
+
+    if (max.getValue() > 0) {
       date = new DateTime(Double.valueOf(max.getValue()).longValue()).toDate();
+    } else {
+      date = new Date(0L);
     }
 
     LOG.info("Index {}:{} has last update of {}", this.getIndexName(), this.getIndexType(), date);
