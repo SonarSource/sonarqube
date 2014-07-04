@@ -159,7 +159,8 @@ define(
                 jQuery('.navigator-details').removeClass('navigator-fetching');
                 app.detailsRegion.show(componentViewer);
                 componentViewer.settings.set('issues', false);
-                componentViewer.open(that.model.get('component')).always(function() {
+                componentViewer.open(that.model.get('component'));
+                componentViewer.on('loaded', function() {
                   componentViewer.showIssues(false, that.model.toJSON());
                 });
               };
