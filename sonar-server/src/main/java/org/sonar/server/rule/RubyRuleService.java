@@ -69,9 +69,10 @@ public class RubyRuleService implements ServerComponent, Startable {
 
   /**
    * Used in SQALE
+   * If 'pageSize' params is set no -1, all rules are returned (using scrolling)
    */
   public PagedResult<Rule> find(Map<String, Object> params) {
-    RuleQuery query = service.newRuleQuery();
+    RuleQuery query = new RuleQuery();
     query.setQueryText(Strings.emptyToNull((String) params.get("searchQuery")));
     query.setKey(Strings.emptyToNull((String) params.get("key")));
     query.setLanguages(RubyUtils.toStrings(params.get("languages")));
@@ -84,13 +85,19 @@ public class RubyRuleService implements ServerComponent, Startable {
     query.setSortField(RuleNormalizer.RuleField.NAME);
 
     QueryOptions options = new QueryOptions();
-    Integer page = RubyUtils.toInteger(params.get("p"));
-    int pageIndex = page != null ? page : 1;
     Integer pageSize = RubyUtils.toInteger(params.get("pageSize"));
-    options.setPage(pageIndex, pageSize != null ? pageSize : 50);
-
-    Result<Rule> result = service.search(query, options);
-    return new PagedResult<Rule>(result.getHits(), PagingResult.create(options.getLimit(), pageIndex, result.getTotal()));
+    int size = pageSize != null ? pageSize : 50;
+    if (size > -1) {
+      Integer page = RubyUtils.toInteger(params.get("p"));
+      int pageIndex = page != null ? page : 1;
+      options.setPage(pageIndex, size);
+      Result<Rule> result = service.search(query, options);
+      return new PagedResult<Rule>(result.getHits(), PagingResult.create(options.getLimit(), pageIndex, result.getTotal()));
+    } else {
+      options = new QueryOptions().setScroll(true);
+      List<Rule> rules = newArrayList(service.search(query, options).scroll());
+      return new PagedResult<Rule>(rules, PagingResult.create(Integer.MAX_VALUE, 1, rules.size()));
+    }
   }
 
   /**

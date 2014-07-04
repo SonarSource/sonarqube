@@ -24,14 +24,24 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.server.paging.PagedResult;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
+import java.util.HashMap;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -44,6 +54,12 @@ public class RubyRuleServiceTest {
   @Mock
   RuleUpdater updater;
 
+  @Captor
+  ArgumentCaptor<QueryOptions> optionsCaptor;
+
+  @Captor
+  ArgumentCaptor<RuleQuery> ruleQueryCaptor;
+
   RubyRuleService service;
 
   @Before
@@ -55,6 +71,73 @@ public class RubyRuleServiceTest {
   public void find_by_key() throws Exception {
     service.findByKey("squid:S001");
     verify(ruleService).getByKey(RuleKey.of("squid", "S001"));
+  }
+
+  @Test
+  public void search_rules() throws Exception {
+    when(ruleService.search(any(RuleQuery.class), any(QueryOptions.class))).thenReturn(mock(Result.class));
+
+    HashMap<String, Object> params = newHashMap();
+    params.put("searchQuery", "Exception");
+    params.put("key", "S001");
+    params.put("languages", "xoo,js");
+    params.put("repositories", "checkstyle,pmd");
+    params.put("severities", "MAJOR,MINOR");
+    params.put("statuses", "BETA,READY");
+    params.put("tags", "tag1,tag2");
+    params.put("debtCharacteristics", "char1,char2");
+    params.put("hasDebtCharacteristic", "true");
+    params.put("p", "1");
+    params.put("pageSize", "40");
+    service.find(params);
+
+    verify(ruleService).search(ruleQueryCaptor.capture(), optionsCaptor.capture());
+
+    assertThat(ruleQueryCaptor.getValue().getQueryText()).isEqualTo("Exception");
+    assertThat(ruleQueryCaptor.getValue().getKey()).isEqualTo("S001");
+    assertThat(ruleQueryCaptor.getValue().getLanguages()).containsOnly("xoo", "js");
+    assertThat(ruleQueryCaptor.getValue().getRepositories()).containsOnly("checkstyle", "pmd");
+    assertThat(ruleQueryCaptor.getValue().getRepositories()).containsOnly("checkstyle", "pmd");
+    assertThat(ruleQueryCaptor.getValue().getSeverities()).containsOnly("MAJOR", "MINOR");
+    assertThat(ruleQueryCaptor.getValue().getStatuses()).containsOnly(RuleStatus.BETA, RuleStatus.READY);
+    assertThat(ruleQueryCaptor.getValue().getTags()).containsOnly("tag1", "tag2");
+    assertThat(ruleQueryCaptor.getValue().getDebtCharacteristics()).containsOnly("char1", "char2");
+    assertThat(ruleQueryCaptor.getValue().getHasDebtCharacteristic()).isTrue();
+
+    assertThat(optionsCaptor.getValue().getLimit()).isEqualTo(40);
+    assertThat(optionsCaptor.getValue().getOffset()).isEqualTo(0);
+  }
+
+  @Test
+  public void search_rules_without_page_size_param() throws Exception {
+    when(ruleService.search(any(RuleQuery.class), any(QueryOptions.class))).thenReturn(mock(Result.class));
+
+    HashMap<String, Object> params = newHashMap();
+    params.put("p", "1");
+    service.find(params);
+
+    verify(ruleService).search(ruleQueryCaptor.capture(), optionsCaptor.capture());
+
+    assertThat(optionsCaptor.getValue().getLimit()).isEqualTo(50);
+    assertThat(optionsCaptor.getValue().getOffset()).isEqualTo(0);
+  }
+
+  @Test
+  public void search_all_rules() throws Exception {
+    List<Rule> rules = newArrayList(mock(Rule.class));
+    Result serviceResult = mock(Result.class);
+    when(serviceResult.scroll()).thenReturn(rules.iterator());
+
+    when(ruleService.search(any(RuleQuery.class), any(QueryOptions.class))).thenReturn(serviceResult);
+
+    HashMap<String, Object> params = newHashMap();
+    params.put("pageSize", "-1");
+    PagedResult<Rule> result = service.find(params);
+
+    verify(serviceResult).scroll();
+
+    verify(ruleService).search(ruleQueryCaptor.capture(), optionsCaptor.capture());
+    assertThat(result.paging().pageSize()).isEqualTo(Integer.MAX_VALUE);
   }
 
   @Test
