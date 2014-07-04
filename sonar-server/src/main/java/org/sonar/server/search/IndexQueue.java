@@ -43,7 +43,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexQueue.class);
 
   private static final Integer DEFAULT_QUEUE_SIZE = 200;
-  private static final int TIMEOUT = 3000;
+  private static final int TIMEOUT = 30000;
 
   public IndexQueue() {
     super(DEFAULT_QUEUE_SIZE);
