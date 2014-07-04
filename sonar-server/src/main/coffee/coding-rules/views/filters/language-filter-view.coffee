@@ -15,6 +15,8 @@ define [
 
     initialize: ->
       super
+      @choices.comparator = 'text'
+      @choices.sort()
       @app = @model.get 'app'
       @listenTo @app.qualityProfileFilter, 'change:value', @onChangeProfile
       @selectedFromProfile = false
