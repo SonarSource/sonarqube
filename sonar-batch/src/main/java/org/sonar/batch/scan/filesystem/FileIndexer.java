@@ -92,7 +92,9 @@ public class FileIndexer implements BatchComponent {
 
     executor.shutdown();
     try {
-      executor.awaitTermination(10, TimeUnit.SECONDS);
+      while (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+        LOG.debug("{} files indexed...", progress.count());
+      }
     } catch (InterruptedException e) {
       throw new IllegalStateException("FileIndexer was interrupted", e);
     }
@@ -118,12 +120,6 @@ public class FileIndexer implements BatchComponent {
       } else {
         indexFile(inputFileBuilder, fileSystem, progress, dirOrFile, type);
       }
-    }
-  }
-
-  private void indexFiles(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, List<File> sourceFiles, InputFile.Type type) {
-    for (File sourceFile : sourceFiles) {
-      indexFile(inputFileBuilder, fileSystem, progress, sourceFile, type);
     }
   }
 
