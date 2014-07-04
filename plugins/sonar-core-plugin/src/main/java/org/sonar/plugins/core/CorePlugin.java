@@ -216,7 +216,7 @@ public final class CorePlugin extends SonarPlugin {
       HotspotMetricWidget.class,
       TreemapWidget.class,
       MeasureFilterListWidget.class,
-      MeasureFilterTreemapWidget.class,
+      MeasureFilterAsTreemapWidget.class,
       WelcomeWidget.class,
       DocumentationCommentsWidget.class,
       DuplicationsWidget.class,

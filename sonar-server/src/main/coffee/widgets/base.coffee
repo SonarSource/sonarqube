@@ -2,6 +2,9 @@ window.SonarWidgets ?= {}
 
 class BaseWidget
   lineHeight: 20
+  colorLow: '#d62728'
+  colorHigh: '#85bb43'
+  colorUnknown: '#777'
 
 
   constructor: ->
@@ -45,6 +48,13 @@ class BaseWidget
 
   update: ->
     @
+
+
+  tooltip: (d) ->
+    title = d.longName
+    title += "\n#{@colorMetric.name}: #{@colorMetric.formattedValue d}" if @colorMetric.value(d)?
+    title += "\n#{@sizeMetric.name}: #{@sizeMetric.formattedValue d}" if @sizeMetric.value(d)?
+    title
 
 
 window.SonarWidgets.BaseWidget = BaseWidget

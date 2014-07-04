@@ -33,6 +33,6 @@ import org.sonar.api.web.WidgetPropertyType;
 public class TreemapWidget extends CoreWidget {
   public TreemapWidget() {
     // do not use the id "treemap" to avoid conflict with the same CSS class
-    super("treemap-widget", "Treemap of Components", "/org/sonar/plugins/core/widgets/treemap.html.erb");
+    super("treemap-widget", "Treemap of Components", "/Users/Stas/Projects/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/treemap.html.erb");
   }
 }

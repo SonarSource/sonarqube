@@ -2799,6 +2799,48 @@ div.rule-title {
   fill: #777;
 }
 
+.sonar-d3 .treemap-container {
+  position: relative;
+}
+
+.sonar-d3 .treemap-cell {
+  position: absolute;
+  border-right: 1px solid #fff;
+  border-bottom: 1px solid #fff;
+  .box-sizing(border-box);
+}
+
+.sonar-d3 .treemap-inner {
+  position: absolute;
+  z-index: 1;
+  top: 0; left: 0; bottom: 0; right: 0;
+  padding: 0 5px;
+  border: 1px solid;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sonar-d3 .treemap-detach {
+  position: absolute;
+  z-index: 2;
+  top: 5px; right: 5px;
+  line-height: 16px;
+  color: inherit;
+  opacity: 0.5;
+
+  &:hover { opacity: 1; }
+}
+
+.sonar-d3 .treemap-cell-small {
+  .treemap-inner { text-indent: -9999px; }
+  .treemap-detach {
+    top: 50%; left: 50%;
+    margin: -8px 0 0 -8px;
+  }
+}
+
 
 /* ------------------- Admin pages ------------------- */
 

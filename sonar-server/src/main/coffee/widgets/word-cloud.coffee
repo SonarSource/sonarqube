@@ -1,7 +1,4 @@
 class WordCloud extends window.SonarWidgets.BaseWidget
-  colorLow: '#d62728'
-  colorHigh: '#1f77b4'
-  colorUnknown: '#777'
   sizeLow: 10
   sizeHigh: 24
 
@@ -22,11 +19,7 @@ class WordCloud extends window.SonarWidgets.BaseWidget
       url = @options().baseUrl + encodeURIComponent(d.key)
       url += '?metric=' + encodeURIComponent(@colorMetric.key) if d.qualifier == 'CLA' || d.qualifier == 'FIL'
       url
-    wordsEnter.attr 'title', (d) =>
-      title = d.longName
-      title += " | #{@colorMetric.name}: #{@colorMetric.formattedValue d}" if @colorMetric.value(d)?
-      title += " | #{@sizeMetric.name}: #{@sizeMetric.formattedValue d}" if @sizeMetric.value(d)?
-      title
+    wordsEnter.attr 'title', (d) => @tooltip d
 
     words.style 'color', (d) =>
       if @colorMetric.value(d)? then @color @colorMetric.value(d) else @colorUnknown

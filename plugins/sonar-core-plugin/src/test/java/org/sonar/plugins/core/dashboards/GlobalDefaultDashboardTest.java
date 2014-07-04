@@ -29,8 +29,8 @@ import org.sonar.plugins.core.CorePlugin;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.widgets.WelcomeWidget;
+import org.sonar.plugins.core.widgets.measures.MeasureFilterAsTreemapWidget;
 import org.sonar.plugins.core.widgets.measures.MeasureFilterListWidget;
-import org.sonar.plugins.core.widgets.measures.MeasureFilterTreemapWidget;
 
 import java.util.List;
 
@@ -77,7 +77,7 @@ public class GlobalDefaultDashboardTest {
     assertThat(secondColumn).hasSize(2);
     assertThat(secondColumn.get(0).getId()).isEqualTo(MeasureFilterListWidget.ID);
     assertThat(secondColumn.get(0).getProperty("filter")).isEqualTo("101");
-    assertThat(secondColumn.get(1).getId()).isEqualTo(MeasureFilterTreemapWidget.ID);
+    assertThat(secondColumn.get(1).getId()).isEqualTo(MeasureFilterAsTreemapWidget.ID);
     assertThat(secondColumn.get(1).getProperty("filter")).isEqualTo("101");
   }
 

@@ -27,8 +27,8 @@ import org.sonar.core.measure.db.MeasureFilterDto;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
 import org.sonar.plugins.core.measurefilters.ProjectFilter;
 import org.sonar.plugins.core.widgets.WelcomeWidget;
+import org.sonar.plugins.core.widgets.measures.MeasureFilterAsTreemapWidget;
 import org.sonar.plugins.core.widgets.measures.MeasureFilterListWidget;
-import org.sonar.plugins.core.widgets.measures.MeasureFilterTreemapWidget;
 
 /**
  * Projects global dashboard for Sonar
@@ -75,10 +75,10 @@ public final class GlobalDefaultDashboard extends DashboardTemplate {
         .setProperty(MeasureFilterListWidget.PAGE_SIZE_PROPERTY, "20");
 
       dashboard
-        .addWidget(MeasureFilterTreemapWidget.ID, 2)
+        .addWidget(MeasureFilterAsTreemapWidget.ID, 2)
         .setProperty(MeasureFilterListWidget.FILTER_PROPERTY, filter.getId().toString())
-        .setProperty(MeasureFilterTreemapWidget.SIZE_METRIC_PROPERTY, "ncloc")
-        .setProperty(MeasureFilterTreemapWidget.COLOR_METRIC_PROPERTY, "coverage");
+        .setProperty(MeasureFilterAsTreemapWidget.SIZE_METRIC_PROPERTY, "ncloc")
+        .setProperty(MeasureFilterAsTreemapWidget.COLOR_METRIC_PROPERTY, "coverage");
     }
   }
 
