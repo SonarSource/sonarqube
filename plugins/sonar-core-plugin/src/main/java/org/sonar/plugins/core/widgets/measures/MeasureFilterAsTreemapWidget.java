@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.core.widgets.measures;
 
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.*;
 import org.sonar.plugins.core.widgets.CoreWidget;
 import org.sonar.plugins.core.widgets.WidgetConstants;
@@ -32,9 +33,10 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
     optional = false),
   @WidgetProperty(key = MeasureFilterAsTreemapWidget.CHART_TITLE_PROPERTY, type = WidgetPropertyType.STRING),
   @WidgetProperty(key = MeasureFilterAsTreemapWidget.SIZE_METRIC_PROPERTY, type = WidgetPropertyType.METRIC,
-    optional = true, options = { WidgetConstants.FILTER_OUT_NEW_METRICS }),
+    defaultValue = CoreMetrics.COMPLEXITY_KEY, options = { WidgetConstants.FILTER_OUT_NEW_METRICS }),
   @WidgetProperty(key = MeasureFilterAsTreemapWidget.COLOR_METRIC_PROPERTY, type = WidgetPropertyType.METRIC,
-    optional = true, options = { WidgetConstants.FILTER_OUT_NEW_METRICS, "type:PERCENT,RATING,LEVEL" }),
+    defaultValue = CoreMetrics.COVERAGE_KEY,
+    options = { WidgetConstants.FILTER_OUT_NEW_METRICS, "type:PERCENT,RATING,LEVEL" }),
   @WidgetProperty(key = MeasureFilterAsTreemapWidget.HEIGHT_PERCENTS_PROPERTY, type = WidgetPropertyType.INTEGER,
     optional = true, defaultValue = "55", description = "Height in percents of width"),
   @WidgetProperty(key = MeasureFilterAsTreemapWidget.MAX_ITEMS_PROPERTY, type = WidgetPropertyType.INTEGER,
@@ -50,6 +52,6 @@ public class MeasureFilterAsTreemapWidget extends CoreWidget {
     public static final String ID = "measure_filter_treemap";
 
   public MeasureFilterAsTreemapWidget() {
-    super(ID, "Measure Filter as Treemap", "/Users/Stas/Projects/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/measure_filter_treemap.html.erb");
+    super(ID, "Measure Filter as Treemap", "/org/sonar/plugins/core/widgets/measures/measure_filter_treemap.html.erb");
   }
 }

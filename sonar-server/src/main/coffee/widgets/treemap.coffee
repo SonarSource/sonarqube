@@ -28,7 +28,6 @@ class Treemap extends window.SonarWidgets.BaseWidget
     cellsEnter.style 'font-size', (d) => "#{@size @sizeMetric.value d}px"
 
     cellsLink = cellsEnter.append('a').classed 'treemap-detach', true
-    cellsLink.attr 'target', '_blank'
     cellsLink.attr 'href', (d) =>
       url = @options().baseUrl + encodeURIComponent(d.key)
       url += '?metric=' + encodeURIComponent(@colorMetric.key) if d.qualifier == 'CLA' || d.qualifier == 'FIL'
