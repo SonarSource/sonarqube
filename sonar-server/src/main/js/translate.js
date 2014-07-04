@@ -81,7 +81,7 @@
           window.messages = JSON.parse(localStorage.getItem('l10n.bundle'));
         }
       }
-    }).done(function(bundle) {
+    }).done(function(bundle, textStatus, jqXHR) {
       if(bundle !== undefined) {
         bundleTimestamp = new Date().toISOString();
         bundleTimestamp = bundleTimestamp.substr(0, bundleTimestamp.indexOf('.')) + '+0000';
@@ -90,6 +90,8 @@
 
         window.messages = bundle;
         localStorage.setItem('l10n.bundle', JSON.stringify(bundle));
+      } else if (jqXHR.status == 304) {
+        window.messages = JSON.parse(localStorage.getItem('l10n.bundle'));
       }
     });
   };
