@@ -6,34 +6,31 @@
      measures << m if m
    end
    period = params[:period]
-   unless measures.empty? || measures.none? {|measure| measure.visible?(period.to_i)}
+   unless measures.empty? || measures.none? { |measure| measure.visible?(period.to_i) }
 %>
-
-  <table class="width100">
-    <tr>
-      <td width="100%">
-        <%
-           measures.each do |measure|
-             if measure.visible?(period.to_i)
-        -%>
-          <div class="dashbox">
-            <p class="title"><%= measure.metric.short_name -%></p>
-            <p>
-              <% if measure.value.nil? -%>
-              <%# This is a differential measure -%>
-              <span class="big"><%= format_measure(measure, :url => url_for_drilldown(measure, :period => period), :period => period) -%></span>
-              <% else -%>
-              <%# This is a classic measure that can have a differential -%>
-              <span class="big"><%= format_measure(measure, :url => url_for_drilldown(measure)) -%></span>
-              <%= dashboard_configuration.selected_period? ? format_variation(measure) : trend_icon(measure) -%>
-              <% end -%>
+  <div class="widget-row">
+    <%
+       measures.each do |measure|
+         if measure.visible?(period.to_i)
+    -%>
+        <div class="widget-span widget-span-3">
+          <div class="widget-measure-container">
+            <p class="widget-measure widget-measure-main">
+              <span class="widget-label"><%= measure.metric.short_name -%></span>
+              <span class="nowrap">
+                <% if measure.value.nil? -%>
+                  <%= format_measure(measure, :url => url_for_drilldown(measure, :period => period), :period => period) -%>
+                <% else %>
+                  <%= format_measure(measure, :url => url_for_drilldown(measure)) -%>
+                  <%= dashboard_configuration.selected_period? ? format_variation(measure) : trend_icon(measure) -%>
+                <% end -%>
+              </span>
             </p>
           </div>
-        <%
-             end
-           end
-        -%>
-      </td>
-    </tr>
-  </table>
+        </div>
+      <%
+         end
+         end
+      -%>
+  </div>
 <% end %>
