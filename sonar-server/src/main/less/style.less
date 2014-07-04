@@ -2822,7 +2822,7 @@ div.rule-title {
   white-space: nowrap;
 }
 
-.sonar-d3 .treemap-detach {
+.sonar-d3 .treemap-dashboard {
   position: absolute;
   z-index: 2;
   top: 5px; right: 5px;
@@ -2835,10 +2835,15 @@ div.rule-title {
 
 .sonar-d3 .treemap-cell-small {
   .treemap-inner { text-indent: -9999px; }
-  .treemap-detach {
+  .treemap-dashboard {
     top: 50%; left: 50%;
     margin: -8px 0 0 -8px;
   }
+}
+
+.sonar-d3 .treemap-cell-very-small {
+  .treemap-inner { text-indent: -9999px; }
+  .treemap-dashboard { display: none; }
 }
 
 

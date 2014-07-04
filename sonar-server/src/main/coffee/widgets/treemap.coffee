@@ -27,7 +27,7 @@ class Treemap extends window.SonarWidgets.BaseWidget
       if @colorMetric.value(d)? then @color @colorMetric.value(d) else @colorUnknown
     cellsEnter.style 'font-size', (d) => "#{@size @sizeMetric.value d}px"
 
-    cellsLink = cellsEnter.append('a').classed 'treemap-detach', true
+    cellsLink = cellsEnter.append('a').classed 'treemap-dashboard', true
     cellsLink.attr 'href', (d) =>
       url = @options().baseUrl + encodeURIComponent(d.key)
       url += '?metric=' + encodeURIComponent(@colorMetric.key) if d.qualifier == 'CLA' || d.qualifier == 'FIL'
@@ -51,6 +51,7 @@ class Treemap extends window.SonarWidgets.BaseWidget
     @cells.style 'width', (d) -> "#{d.dx}px"
     @cells.style 'height', (d) -> "#{d.dy}px"
     @cells.classed 'treemap-cell-small', (d) -> d.dy < 60
+    @cells.classed 'treemap-cell-very-small', (d) -> d.dx < 20 || d.dy < 20
     @cellsInner.style 'line-height', (d) -> "#{d.dy}px"
 
 
