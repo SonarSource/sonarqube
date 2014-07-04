@@ -33,6 +33,7 @@ import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
@@ -181,10 +182,14 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   private void update(DbSession session, E item, Date now) {
-    item.setUpdatedAt(now);
-    doUpdate(session, item);
-    if (hasIndex()) {
-      session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT, item));
+    try {
+      item.setUpdatedAt(now);
+      doUpdate(session, item);
+      if (hasIndex()) {
+        session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT, item));
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to update item in db: " + item, e);
     }
   }
 
@@ -218,9 +223,13 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
       item.setCreatedAt(now);
     }
     item.setUpdatedAt(now);
-    doInsert(session, item);
-    if (hasIndex()) {
-      session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT, item));
+    try {
+      doInsert(session, item);
+      if (hasIndex()) {
+        session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT, item));
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to insert item in db: " + item, e.getCause());
     }
   }
 
@@ -247,9 +256,13 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   @Override
   public final void deleteByKey(DbSession session, K key) {
     Preconditions.checkNotNull(key, "Missing key");
-    doDeleteByKey(session, key);
-    if (hasIndex()) {
-      session.enqueue(new KeyIndexAction<K>(getIndexType(), IndexAction.Method.DELETE, key));
+    try {
+      doDeleteByKey(session, key);
+      if (hasIndex()) {
+        session.enqueue(new KeyIndexAction<K>(getIndexType(), IndexAction.Method.DELETE, key));
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to delete item from db: " + key, e);
     }
   }
 
