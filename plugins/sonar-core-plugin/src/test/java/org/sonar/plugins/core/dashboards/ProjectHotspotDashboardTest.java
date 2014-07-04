@@ -44,6 +44,6 @@ public class ProjectHotspotDashboardTest {
     Dashboard dashboard = template.createDashboard();
 
     assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.TWO_COLUMNS);
-    assertThat(dashboard.getWidgets()).hasSize(8);
+    assertThat(dashboard.getWidgets()).hasSize(7);
   }
 }

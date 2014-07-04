@@ -63,8 +63,6 @@ public final class ProjectHotspotDashboard extends DashboardTemplate {
   }
 
   private void addSecondColumn(Dashboard dashboard) {
-    dashboard.addWidget("hotspot_most_violated_resources", 2);
-
     Dashboard.Widget widget = dashboard.addWidget(HOTSPOT_METRIC, 2);
     widget.setProperty(METRIC_PROPERTY, "uncovered_lines");
 
