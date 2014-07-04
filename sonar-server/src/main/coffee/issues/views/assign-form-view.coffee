@@ -7,6 +7,7 @@ define [
 ) ->
 
   $ = jQuery
+  ME = '#me#'
 
 
   class AssignFormView extends Marionette.ItemView
@@ -28,7 +29,7 @@ define [
       additionalChoices = []
 
       if !assignee || currentUser != assignee
-        additionalChoices.push id: currentUser, text: t('assigned_to_me')
+        additionalChoices.push id: ME, text: t('assigned_to_me')
 
       if !!assignee
         additionalChoices.push id: '', text: t('unassigned')
@@ -68,13 +69,12 @@ define [
 
     submit: ->
       @options.detailView.showActionSpinner()
-
+      data = issue: @options.issue.get('key')
+      if @ui.select.val() == ME then data.me = true else data.assignee = @ui.select.val()
       $.ajax
         type: 'POST'
         url: baseUrl + '/api/issues/assign'
-        data:
-          issue: @options.issue.get('key')
-          assignee: @ui.select.val()
+        data: data
       .done => @options.detailView.updateAfterAction true
       .fail (r) =>
         alert _.pluck(r.responseJSON.errors, 'msg').join(' ')

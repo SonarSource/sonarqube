@@ -230,7 +230,7 @@ define [
         url: baseUrl + '/api/issues/assign'
         data:
           issue: @model.get('key')
-          assignee: window.SS.currentUser
+          me: true
       .done => @resetIssue()
       .fail (r) =>
         alert  _.pluck(r.responseJSON.errors, 'msg').join(' ')
