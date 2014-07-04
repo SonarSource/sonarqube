@@ -246,10 +246,16 @@ define [
           if @settings.get('scm') then @showSCM() else @hideSCM()
           @trigger 'loaded'
       .fail =>
-        @state.set 'removed', true
-        @state.set 'hasSource', false
-        @render()
-        @trigger 'loaded'
+        if component.status == 404
+          @state.set 'removed', true
+          @state.set 'hasSource', false
+          @render()
+          @trigger 'loaded'
+        else @cannotOpen()
+
+
+    cannotOpen: ->
+      @$el.html "<div class='message-error'>#{t 'component_viewer.cannot_show'}</div>"
 
 
     toggleWorkspace: (store = false) ->
