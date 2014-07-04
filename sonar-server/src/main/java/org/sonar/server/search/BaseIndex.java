@@ -201,21 +201,22 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   @Override
   public Date getLastSynchronization() {
     Date date;
-    try {
-      SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
-        .setTypes(this.getIndexType())
-        .setQuery(QueryBuilders.matchAllQuery())
-        .setSize(0)
-        .addAggregation(AggregationBuilders.max("latest")
-          .field(BaseNormalizer.UPDATED_AT_FIELD));
+    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
+      .setTypes(this.getIndexType())
+      .setQuery(QueryBuilders.matchAllQuery())
+      .setSize(0)
+      .addAggregation(AggregationBuilders.max("latest")
+        .field(BaseNormalizer.UPDATED_AT_FIELD));
 
-      SearchResponse response = request.get();
+    SearchResponse response = request.get();
 
-      Max max = (Max) response.getAggregations().get("latest");
-      return new DateTime(Double.valueOf(max.getValue()).longValue()).toDate();
-    } catch (Exception e) {
+    Max max = (Max) response.getAggregations().get("latest");
+    if (Double.isNaN(max.getValue())) {
       date = new Date(0L);
+    } else {
+      date = new DateTime(Double.valueOf(max.getValue()).longValue()).toDate();
     }
+
     LOG.info("Index {}:{} has last update of {}", this.getIndexName(), this.getIndexType(), date);
     return date;
   }
