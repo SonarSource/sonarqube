@@ -43,6 +43,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexQueue.class);
 
   private static final Integer DEFAULT_QUEUE_SIZE = 200;
+  private static final int TIMEOUT = 3000;
 
   public IndexQueue() {
     super(DEFAULT_QUEUE_SIZE);
@@ -72,8 +73,10 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
       action.setLatch(latch);
       try {
         indexTime = System.currentTimeMillis();
-        this.offer(action, 1000, TimeUnit.SECONDS);
-        latch.await(1000, TimeUnit.MILLISECONDS);
+        this.offer(action, TIMEOUT, TimeUnit.SECONDS);
+        if (!latch.await(TIMEOUT, TimeUnit.MILLISECONDS)) {
+          throw new IllegalStateException("ES update could not be completed within: " + TIMEOUT + "ms");
+        }
         bcount++;
         indexTime = System.currentTimeMillis() - indexTime;
         // refresh the index.
@@ -112,12 +115,14 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
         indexTime = System.currentTimeMillis();
         for (IndexAction action : itemActions) {
           action.setLatch(itemLatch);
-          this.offer(action, 1000, TimeUnit.SECONDS);
+          this.offer(action, TIMEOUT, TimeUnit.SECONDS);
           types.add(action.getPayloadClass().getSimpleName());
           bcount++;
 
         }
-        itemLatch.await(2000, TimeUnit.MILLISECONDS);
+        if (!itemLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)) {
+          throw new IllegalStateException("ES update could not be completed within: " + TIMEOUT + "ms");
+        }
         indexTime = System.currentTimeMillis() - indexTime;
 
         /* and now push the embedded */
@@ -125,11 +130,13 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
         embeddedTime = System.currentTimeMillis();
         for (IndexAction action : embeddedActions) {
           action.setLatch(embeddedLatch);
-          this.offer(action, 1000, TimeUnit.SECONDS);
+          this.offer(action, TIMEOUT, TimeUnit.SECONDS);
           types.add(action.getPayloadClass().getSimpleName());
           ecount++;
         }
-        embeddedLatch.await(1500, TimeUnit.MILLISECONDS);
+        if (!embeddedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)) {
+          throw new IllegalStateException("ES embedded update could not be completed within: " + TIMEOUT + "ms");
+        }
         embeddedTime = System.currentTimeMillis() - embeddedTime;
 
         /* Finally refresh affected indexes */
