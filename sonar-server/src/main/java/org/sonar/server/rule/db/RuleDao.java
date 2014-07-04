@@ -35,7 +35,6 @@ import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.CheckForNull;
-
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -103,6 +102,7 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
           RuleKey.of(map.get("repoField"), map.get("ruleField"))));
       }
     });
+    session.commit();
   }
 
   /**

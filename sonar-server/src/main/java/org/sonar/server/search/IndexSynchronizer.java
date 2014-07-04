@@ -52,7 +52,7 @@ public class IndexSynchronizer {
     synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
     synchronize(session, db.activityDao(), index.get(ActivityIndex.class));
     session.commit();
-    LOG.info("Synchronization done in {}ms...", System.currentTimeMillis()-start);
+    LOG.info("Synchronization done in {}ms...", System.currentTimeMillis() - start);
     session.close();
   }
 
@@ -60,6 +60,5 @@ public class IndexSynchronizer {
     long start = System.currentTimeMillis();
     dao.synchronizeAfter(session,
       index.getLastSynchronization());
-    LOG.info("-- Synchronized {} in {}ms", index.getIndexType(), System.currentTimeMillis() - start);
   }
 }
