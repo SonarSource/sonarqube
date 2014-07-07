@@ -20,10 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -45,6 +42,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -157,6 +155,26 @@ public class RuleActivatorMediumTest {
 
     assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
     verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.CRITICAL, null, ImmutableMap.of("max", "42"));
+    assertThat(changes).hasSize(1);
+    assertThat(changes.get(0).getType()).isEqualTo(ActiveRuleChange.Type.UPDATED);
+  }
+
+  @Test
+  @Ignore
+  public void update_activation_with_parameter_without_default_value() throws Exception {
+    // initial activation
+    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
+    activation.setSeverity(Severity.BLOCKER);
+    activate(activation, XOO_P1_KEY);
+
+    // update
+    RuleActivation update = new RuleActivation(RuleTesting.XOO_X1);
+    // parameter min has no default value
+    update.setParameter("min", "42");
+    List<ActiveRuleChange> changes = activate(update, XOO_P1_KEY);
+
+    assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
+    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.BLOCKER, null, ImmutableMap.of("min", "42"));
     assertThat(changes).hasSize(1);
     assertThat(changes.get(0).getType()).isEqualTo(ActiveRuleChange.Type.UPDATED);
   }
