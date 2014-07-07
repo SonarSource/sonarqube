@@ -2,8 +2,11 @@ window.SonarWidgets ?= {}
 
 class BaseWidget
   lineHeight: 20
-  colorLow: '#d62728'
-  colorHigh: '#85bb43'
+
+  colors4: ['#ee0000', '#f77700', '#80cc00', '#00aa00']
+  colors4r: ['#00aa00', '#80cc00', '#f77700', '#ee0000']
+  colors5: ['#ee0000', '#f77700', '#ffee00', '#80cc00', '#00aa00']
+  colors5r: ['#00aa00', '#80cc00', '#ffee00', '#f77700', '#ee0000']
   colorUnknown: '#777'
 
 

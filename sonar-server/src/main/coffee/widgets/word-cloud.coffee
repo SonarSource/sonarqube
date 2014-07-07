@@ -40,11 +40,11 @@ class WordCloud extends window.SonarWidgets.BaseWidget
     @addMetric 'sizeMetric', 1
 
     # Configure scales
-    @color = d3.scale.linear().domain([0, 100])
+    @color = d3.scale.linear().domain([0, 33, 67, 100])
     if @colorMetric.direction == 1
-      @color.range [@colorLow, @colorHigh]
+      @color.range @colors4
     else
-      @color.range [@colorHigh, @colorLow]
+      @color.range @colors4r
 
     sizeDomain = d3.extent @components(), (d) => @sizeMetric.value d
     @size = d3.scale.linear().domain(sizeDomain).range [@sizeLow, @sizeHigh]

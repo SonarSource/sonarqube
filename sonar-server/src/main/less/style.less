@@ -2735,6 +2735,14 @@ div.rule-title {
   -webkit-transform-origin: center;
 }
 
+.sonar-d3 .legend-html {
+  margin-bottom: 10px;
+  color: @secondFontColor;
+
+  .legend-text + .legend-text { margin-left: 15px; }
+  .legend-text-main { font-weight: 500; }
+}
+
 .sonar-d3 .details-color-indicator {
   fill: #fff;
   transition: fill 0.2s ease;
@@ -2781,8 +2789,11 @@ div.rule-title {
   white-space: nowrap;
   margin-right: 14px;
   text-decoration: none;
+  border-bottom: 1px solid transparent;
 
-  &:hover { text-decoration: underline; }
+  &:hover {
+    border-bottom: 1px solid;
+  }
 }
 
 .sonar-d3 .max-results-reached-message {
@@ -2808,6 +2819,7 @@ div.rule-title {
   border-right: 1px solid #fff;
   border-bottom: 1px solid #fff;
   .box-sizing(border-box);
+  cursor: pointer;
 }
 
 .sonar-d3 .treemap-inner {
@@ -2815,7 +2827,8 @@ div.rule-title {
   z-index: 1;
   top: 0; left: 0; bottom: 0; right: 0;
   padding: 0 5px;
-  border: 1px solid;
+  color: #fff;
+  font-weight: 300;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
