@@ -20,11 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -116,12 +112,14 @@ public class RuleActivatorMediumTest {
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
+    activation.setParameter("min", "3");
     List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
 
     assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
-    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.BLOCKER, null,
+      ImmutableMap.of("max", "7", "min", "3"));
     assertThat(changes).hasSize(1);
     assertThat(changes.get(0).getType()).isEqualTo(ActiveRuleChange.Type.ACTIVATED);
   }
@@ -131,7 +129,8 @@ public class RuleActivatorMediumTest {
     activate(new RuleActivation(RuleTesting.XOO_X1), XOO_P1_KEY);
 
     assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
-    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MINOR, null, ImmutableMap.of("max", "10"));
+    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MINOR, null,
+      ImmutableMap.of("max", "10"));
   }
 
   @Test
@@ -159,6 +158,26 @@ public class RuleActivatorMediumTest {
 
     assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
     verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.CRITICAL, null, ImmutableMap.of("max", "42"));
+    assertThat(changes).hasSize(1);
+    assertThat(changes.get(0).getType()).isEqualTo(ActiveRuleChange.Type.UPDATED);
+  }
+
+  @Test
+  public void update_activation_with_parameter_without_default_value() throws Exception {
+    // initial activation -> param "max" has a default value
+    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
+    activation.setSeverity(Severity.BLOCKER);
+    activate(activation, XOO_P1_KEY);
+    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.BLOCKER, null,
+      ImmutableMap.of("max", "10"));
+
+    // update param "min", which has no default value
+    RuleActivation update = new RuleActivation(RuleTesting.XOO_X1);
+    update.setParameter("min", "3");
+    List<ActiveRuleChange> changes = activate(update, XOO_P1_KEY);
+    assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
+    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.BLOCKER, null,
+      ImmutableMap.of("min", "3", "max", "10"));
     assertThat(changes).hasSize(1);
     assertThat(changes.get(0).getType()).isEqualTo(ActiveRuleChange.Type.UPDATED);
   }
