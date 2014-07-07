@@ -149,11 +149,11 @@
     WHERE id=#{id}
   </update>
 
-  <update id="deleteParameters" parameterType="Integer">
+  <update id="deleteParameters" parameterType="int">
     DELETE FROM active_rule_parameters WHERE active_rule_id=#{id}
   </update>
 
-  <update id="deleteParameter" parameterType="Integer">
+  <update id="deleteParameter" parameterType="int">
     DELETE FROM active_rule_parameters WHERE id=#{id}
   </update>
 

@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -37,6 +38,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -290,30 +293,38 @@ public class RegisterRules implements Startable {
 
   private void mergeParams(RulesDefinition.Rule ruleDef, RuleDto rule, DbSession session) {
     List<RuleParamDto> paramDtos = dbClient.ruleDao().findRuleParamsByRuleKey(session, rule.getKey());
-    List<String> existingParamDtoNames = new ArrayList<String>();
+    Map<String, RuleParamDto> existingParamsByName = Maps.newHashMap();
 
     for (RuleParamDto paramDto : paramDtos) {
       RulesDefinition.Param paramDef = ruleDef.param(paramDto.getName());
       if (paramDef == null) {
-        // TODO cascade on the activeRule upon RuleDeletion
+        dbClient.activeRuleDao().deleteParamsByRuleParam(session, rule, paramDto.getName());
         dbClient.ruleDao().removeRuleParam(session, rule, paramDto);
       } else {
-        // TODO validate that existing active rules still match constraints
-        // TODO store param name
         if (mergeParam(paramDto, paramDef)) {
           dbClient.ruleDao().updateRuleParam(session, rule, paramDto);
         }
-        existingParamDtoNames.add(paramDto.getName());
+        existingParamsByName.put(paramDto.getName(), paramDto);
       }
     }
+
+    // Create newly parameters
     for (RulesDefinition.Param param : ruleDef.params()) {
-      if (!existingParamDtoNames.contains(param.key())) {
-        RuleParamDto paramDto = RuleParamDto.createFor(rule)
+      RuleParamDto paramDto = existingParamsByName.get(param.key());
+      if (paramDto == null) {
+        paramDto = RuleParamDto.createFor(rule)
           .setName(param.key())
           .setDescription(param.description())
           .setDefaultValue(param.defaultValue())
           .setType(param.type().toString());
         dbClient.ruleDao().addRuleParam(session, rule, paramDto);
+        if (!StringUtils.isEmpty(param.defaultValue())) {
+          // Propagate the default value to existing active rules
+          for (ActiveRuleDto activeRule : dbClient.activeRuleDao().findByRule(session, rule)) {
+            ActiveRuleParamDto activeParam = ActiveRuleParamDto.createFor(paramDto).setValue(param.defaultValue());
+            dbClient.activeRuleDao().addParam(session, activeRule, activeParam);
+          }
+        }
       }
     }
   }
