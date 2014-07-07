@@ -43,9 +43,6 @@ public class QProfilesTest {
   @Mock
   QProfileLookup profileLookup;
 
-  @Mock
-  QProfileOperations profileOperations;
-
   QProfiles qProfiles;
 
   @Before

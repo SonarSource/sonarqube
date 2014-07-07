@@ -182,7 +182,6 @@ import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.qualityprofile.QProfileOperations;
 import org.sonar.server.qualityprofile.QProfileProjectLookup;
 import org.sonar.server.qualityprofile.QProfileProjectOperations;
 import org.sonar.server.qualityprofile.QProfileRepositoryExporter;
@@ -422,7 +421,6 @@ class ServerComponents {
     pico.addSingleton(AnnotationProfileParser.class);
     pico.addSingleton(QProfiles.class);
     pico.addSingleton(QProfileLookup.class);
-    pico.addSingleton(QProfileOperations.class);
     pico.addSingleton(QProfileProjectOperations.class);
     pico.addSingleton(QProfileProjectLookup.class);
     pico.addSingleton(QProfileRepositoryExporter.class);

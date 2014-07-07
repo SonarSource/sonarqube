@@ -39,6 +39,7 @@ import java.util.Map;
 
 public class QProfileProjectLookup implements ServerComponent {
 
+  public static final String PROFILE_PROPERTY_PREFIX = "sonar.profile.";
   private final DbClient db;
 
   public QProfileProjectLookup(DbClient db) {
@@ -52,7 +53,7 @@ public class QProfileProjectLookup implements ServerComponent {
       QProfileValidations.checkProfileIsNotNull(qualityProfile);
       Map<String, Component> componentsByKeys = Maps.newHashMap();
       for (Component component : db.qualityProfileDao().selectProjects(
-        qualityProfile.getName(), QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), session
+        qualityProfile.getName(), PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), session
         )) {
         componentsByKeys.put(component.key(), component);
       }
@@ -73,12 +74,12 @@ public class QProfileProjectLookup implements ServerComponent {
   }
 
   public int countProjects(QProfile profile) {
-    return db.qualityProfileDao().countProjects(profile.name(), QProfileOperations.PROFILE_PROPERTY_PREFIX + profile.language());
+    return db.qualityProfileDao().countProjects(profile.name(), PROFILE_PROPERTY_PREFIX + profile.language());
   }
 
   @CheckForNull
   public QProfile findProfileByProjectAndLanguage(long projectId, String language) {
-    QualityProfileDto dto = db.qualityProfileDao().getByProjectAndLanguage(projectId, language, QProfileOperations.PROFILE_PROPERTY_PREFIX + language);
+    QualityProfileDto dto = db.qualityProfileDao().getByProjectAndLanguage(projectId, language, PROFILE_PROPERTY_PREFIX + language);
     if (dto != null) {
       return QProfile.from(dto);
     }

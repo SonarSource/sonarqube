@@ -48,7 +48,7 @@ public class QProfileProjectOperations implements ServerComponent {
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
       db.propertiesDao().setProperty(new PropertyDto().setKey(
-        QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(project.getId()), session);
+        QProfileProjectLookup.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(project.getId()), session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -62,7 +62,7 @@ public class QProfileProjectOperations implements ServerComponent {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
-      db.propertiesDao().deleteProjectProperty(QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), project.getId(), session);
+      db.propertiesDao().deleteProjectProperty(QProfileProjectLookup.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), project.getId(), session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -75,7 +75,7 @@ public class QProfileProjectOperations implements ServerComponent {
     try {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
 
-      db.propertiesDao().deleteProjectProperty(QProfileOperations.PROFILE_PROPERTY_PREFIX + language, project.getId(), session);
+      db.propertiesDao().deleteProjectProperty(QProfileProjectLookup.PROFILE_PROPERTY_PREFIX + language, project.getId(), session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -87,7 +87,7 @@ public class QProfileProjectOperations implements ServerComponent {
     DbSession session = db.openSession(false);
     try {
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
-      db.propertiesDao().deleteProjectProperties(QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), qualityProfile.getName(), session);
+      db.propertiesDao().deleteProjectProperties(QProfileProjectLookup.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), qualityProfile.getName(), session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
