@@ -57,7 +57,6 @@ public class IndexSynchronizer {
   }
 
   private void synchronize(DbSession session, Dao dao, Index index) {
-    long start = System.currentTimeMillis();
     dao.synchronizeAfter(session,
       index.getLastSynchronization());
   }
