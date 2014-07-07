@@ -291,7 +291,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_has_subChar() {
+  public void search_by_has_debt_characteristic() throws InterruptedException {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1")
       .setEnabled(true)
       .setName("char1");
@@ -304,9 +304,18 @@ public class RuleIndexMediumTest {
       .setParentId(char1.getId());
     db.debtCharacteristicDao().insert(char11, dbSession);
 
+    // Rule with default characteristic
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("findbugs", "S001"))
-      .setSubCharacteristicId(char11.getId()));
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("pmd", "S002")));
+      .setSubCharacteristicId(null)
+      .setRemediationFunction(null)
+      .setDefaultSubCharacteristicId(char11.getId())
+      .setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h"));
+    // Rule with overridden characteristic
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("pmd", "S002"))
+      .setSubCharacteristicId(char11.getId())
+      .setRemediationFunction("LINEAR").setRemediationCoefficient("2h")
+      .setDefaultSubCharacteristicId(null)
+      .setDefaultRemediationFunction(null));
     dbSession.commit();
 
     // 0. assert base case
@@ -315,7 +324,7 @@ public class RuleIndexMediumTest {
 
     // 1. assert hasSubChar filter
     assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(true), new QueryOptions()).getTotal())
-      .isEqualTo(1);
+      .isEqualTo(2);
   }
 
   @Test
