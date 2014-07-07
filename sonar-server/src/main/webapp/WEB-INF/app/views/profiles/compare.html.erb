@@ -52,7 +52,7 @@
             <% @in1.each do |diff| %>
               <tr id="rule_<%= u(diff.rule.key) -%>">
                 <td class="<%= cycle('even', 'odd', :name => 'in1') -%>">
-                  <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule1} %>
+                  <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule1, :aprofile => @profile1} %>
                 </td>
               </tr>
             <% end %>
@@ -79,7 +79,7 @@
             <% @in2.each do |diff| %>
               <tr id="rule_<%= u(diff.rule.key) -%>">
                 <td class="<%= cycle('even', 'odd', :name => 'in2') -%>">
-                  <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule2} %>
+                  <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule2, :aprofile => @profile2} %>
                 </td>
               </tr>
             <% end %>
@@ -109,7 +109,7 @@
             %>
               <tr id="rule_<%= u(diff.rule.key) -%>">
                 <td class="<%= td_css -%>" width="49%">
-                  <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule1} %>
+                  <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule1, :aprofile => @profile1} %>
                   <% if diff.removed_params && !diff.removed_params.empty? %>
                     <ul>
                       <% diff.removed_params.each do |parameter| %>
@@ -121,7 +121,7 @@
                 </td>
                 <td width="2%" class="<%= td_css -%>"></td>
                 <td class="<%= td_css -%>" width="49%">
-                  <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule2} %>
+                  <%= render :partial => 'diff_rule', :locals => {:arule => diff.arule2, :aprofile => @profile2} %>
                   <% if diff.added_params && !diff.added_params.empty? %>
                     <ul>
                       <% diff.added_params.each do |parameter| %>
