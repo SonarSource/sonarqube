@@ -92,7 +92,9 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
 
   private void appendFooter(StringBuilder sb, Notification notification) {
     String issueKey = notification.getFieldValue("key");
-    sb.append("See it in SonarQube: ").append(settings.getServerBaseURL()).append("/issue/show/").append(issueKey).append(NEW_LINE);
+    String componentKey = notification.getFieldValue("componentKey");
+    sb.append("See it in SonarQube: ").append(settings.getServerBaseURL()).append("/component/index#component=").append(componentKey)
+      .append("&currentIssue=").append(issueKey).append(NEW_LINE);
   }
 
   private void appendLine(StringBuilder sb, @Nullable String line) {

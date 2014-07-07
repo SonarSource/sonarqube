@@ -1,7 +1,7 @@
-org.apache.struts.Action
+Action
 Rule: Avoid Cycles
 Message: Has 3 cycles
 
 Assignee changed to louis
 
-See it in SonarQube: http://nemo.sonarsource.org/issue/show/ABCDE
+See it in SonarQube: http://nemo.sonarsource.org/component/index#component=org.apache.struts.Action&currentIssue=ABCDE
