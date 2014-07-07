@@ -214,7 +214,10 @@ class RuleActivatorContext {
     }
     for (Map.Entry<String, String> changeParam : change.getParameters().entrySet()) {
       ActiveRuleParamDto param = activeRuleParams.get(changeParam.getKey());
-      if (param != null && !StringUtils.equals(changeParam.getValue(), param.getValue())) {
+      if (changeParam.getValue()==null && param != null && param.getValue()!=null) {
+        return false;
+      }
+      if (changeParam.getValue()!=null && (param == null || !StringUtils.equals(changeParam.getValue(), param.getValue()))) {
         return false;
       }
     }
