@@ -36,6 +36,6 @@ class RuleMacro implements Macro {
   }
 
   public String getReplacement() {
-    return "<a class='open-modal rule-modal' modal-width='800' href='" + contextPath + "/rules/show/$1:$2?modal=true&layout=false'>$2</a>";
+    return "<a href='" + contextPath + "/coding_rules#rule_key=$1:$2'>$2</a>";
   }
 }
