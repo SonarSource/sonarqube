@@ -245,9 +245,10 @@ define [
           if @settings.get('duplications') then @showDuplications() else @hideDuplications()
           if @settings.get('scm') then @showSCM() else @hideSCM()
           @trigger 'loaded'
-      .fail =>
+      .fail (r) =>
         if component.status == 404
           @state.set 'removed', true
+          @state.set 'removedMessage', _.pluck(r.responseJSON.errors, 'msg').join '. '
           @state.set 'hasSource', false
           @render()
           @trigger 'loaded'
