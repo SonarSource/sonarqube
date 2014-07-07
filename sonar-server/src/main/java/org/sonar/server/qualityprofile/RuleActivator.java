@@ -164,25 +164,25 @@ public class RuleActivator implements ServerComponent {
   private void applySeverityAndParamToChange(RuleActivation request, RuleActivatorContext context, ActiveRuleChange change) {
     if (request.isReset()) {
       // load severity and params from parent profile, else from default values
-      change.setSeverity(firstNonEmpty(
+      change.setSeverity(firstNonNull(
         context.parentSeverity(), context.defaultSeverity()));
       for (RuleParamDto ruleParamDto : context.ruleParams()) {
         String paramKey = ruleParamDto.getName();
-        change.setParameter(paramKey, validateParam(ruleParamDto, firstNonEmpty(
+        change.setParameter(paramKey, validateParam(ruleParamDto, firstNonNull(
           context.parentParamValue(paramKey), context.defaultParamValue(paramKey))));
       }
 
     } else if (context.activeRule() != null) {
       // already activated -> load severity and parameters from request, else keep existing ones, else from parent,
       // else from default
-      change.setSeverity(firstNonEmpty(
+      change.setSeverity(firstNonNull(
         request.getSeverity(),
         context.currentSeverity(),
         context.parentSeverity(),
         context.defaultSeverity()));
       for (RuleParamDto ruleParamDto : context.ruleParams()) {
         String paramKey = ruleParamDto.getName();
-        change.setParameter(paramKey, validateParam(ruleParamDto, firstNonEmpty(
+        change.setParameter(paramKey, validateParam(ruleParamDto, firstNonNull(
           context.requestParamValue(request, paramKey),
           context.currentParamValue(paramKey),
           context.parentParamValue(paramKey),
@@ -191,13 +191,13 @@ public class RuleActivator implements ServerComponent {
 
     } else if (context.activeRule() == null) {
       // not activated -> load severity and parameters from request, else from parent, else from defaults
-      change.setSeverity(firstNonEmpty(
+      change.setSeverity(firstNonNull(
         request.getSeverity(),
         context.parentSeverity(),
         context.defaultSeverity()));
       for (RuleParamDto ruleParamDto : context.ruleParams()) {
         String paramKey = ruleParamDto.getName();
-        change.setParameter(paramKey, validateParam(ruleParamDto, firstNonEmpty(
+        change.setParameter(paramKey, validateParam(ruleParamDto, firstNonNull(
           context.requestParamValue(request, paramKey),
           context.parentParamValue(paramKey),
           context.defaultParamValue(paramKey))));
@@ -206,9 +206,9 @@ public class RuleActivator implements ServerComponent {
   }
 
   @CheckForNull
-  String firstNonEmpty(String... strings) {
+  String firstNonNull(String... strings) {
     for (String s : strings) {
-      if (StringUtils.isNotEmpty(s)) {
+      if (s!=null) {
         return s;
       }
     }

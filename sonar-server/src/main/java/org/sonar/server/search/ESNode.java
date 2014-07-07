@@ -23,7 +23,6 @@ package org.sonar.server.search;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.logging.ESLoggerFactory;
 import org.elasticsearch.common.logging.slf4j.Slf4jESLoggerFactory;
@@ -112,13 +111,11 @@ public class ESNode implements Startable {
       .node();
     node.start();
 
-
-    if (
-      node.client().admin().cluster().prepareHealth()
-        .setWaitForYellowStatus()
-        .setTimeout(healthTimeout)
-        .get()
-        .getStatus() == ClusterHealthStatus.RED) {
+    if (node.client().admin().cluster().prepareHealth()
+      .setWaitForYellowStatus()
+      .setTimeout(healthTimeout)
+      .get()
+      .getStatus() == ClusterHealthStatus.RED) {
       throw new IllegalStateException(
         String.format("Elasticsearch index is corrupt, please delete directory '%s/%s' and relaunch the SonarQube server.", fileSystem.getHomeDir().getAbsolutePath(), DATA_DIR));
     }
@@ -174,41 +171,40 @@ public class ESNode implements Startable {
     esSettings
       .put("index.mapper.dynamic", false)
 
-        // Sortable text analyzer
+      // Sortable text analyzer
       .put("index.analysis.analyzer.sortable.type", "custom")
       .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
       .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase", "truncate")
 
-        // Edge NGram index-analyzer
+      // Edge NGram index-analyzer
       .put("index.analysis.analyzer.index_grams.type", "custom")
       .put("index.analysis.analyzer.index_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.index_grams.filter", "trim", "lowercase", "gram_filter")
 
-        // Edge NGram search-analyzer
+      // Edge NGram search-analyzer
       .put("index.analysis.analyzer.search_grams.type", "custom")
       .put("index.analysis.analyzer.search_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.search_grams.filter", "trim", "lowercase")
 
-        // Word index-analyzer
+      // Word index-analyzer
       .put("index.analysis.analyzer.index_words.type", "custom")
       .put("index.analysis.analyzer.index_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.index_words.filter",
         "standard", "word_filter", "lowercase", "stop", "asciifolding", "porter_stem")
 
-        // Word search-analyzer
+      // Word search-analyzer
       .put("index.analysis.analyzer.search_words.type", "custom")
       .put("index.analysis.analyzer.search_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.search_words.filter",
         "standard", "lowercase", "stop", "asciifolding", "porter_stem")
 
-
-        // Edge NGram filter
+      // Edge NGram filter
       .put("index.analysis.filter.gram_filter.type", "edgeNGram")
       .put("index.analysis.filter.gram_filter.min_gram", 2)
       .put("index.analysis.filter.gram_filter.max_gram", 15)
       .putArray("index.analysis.filter.gram_filter.token_chars", "letter", "digit", "punctuation", "symbol")
 
-        // Word filter
+      // Word filter
       .put("index.analysis.filter.word_filter.type", "word_delimiter")
       .put("index.analysis.filter.word_filter.generate_word_parts", true)
       .put("index.analysis.filter.word_filter.catenate_words", true)
@@ -219,7 +215,7 @@ public class ESNode implements Startable {
       .put("index.analysis.filter.word_filter.split_on_numerics", true)
       .put("index.analysis.filter.word_filter.stem_english_possessive", true)
 
-        // Path Analyzer
+      // Path Analyzer
       .put("index.analysis.analyzer.path_analyzer.type", "custom")
       .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy");
 

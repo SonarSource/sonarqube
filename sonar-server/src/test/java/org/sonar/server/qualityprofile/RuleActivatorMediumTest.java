@@ -245,14 +245,16 @@ public class RuleActivatorMediumTest {
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
+    activation.setParameter("min", "3");
     activate(activation, XOO_P1_KEY);
 
     // update without any severity or params = reset
     RuleActivation update = new RuleActivation(RuleTesting.XOO_X1).setReset(true);
     activate(update, XOO_P1_KEY);
-
     assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
-    verifyHasActiveRule(activeRuleKey, Severity.MINOR, null, ImmutableMap.of("max", "10"));
+    verifyHasActiveRule(activeRuleKey, Severity.MINOR, null,
+      // only default values
+      ImmutableMap.of("max", "10"));
   }
 
   @Test
