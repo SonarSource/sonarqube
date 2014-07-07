@@ -47,6 +47,7 @@ import org.sonar.server.startup.RegisterDebtModel;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -71,7 +72,7 @@ public class RegisterRules implements Startable {
   /**
    * @param registerDebtModel used only to be started after init of the technical debt model
    */
-  public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient,  RegisterDebtModel registerDebtModel) {
+  public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, RegisterDebtModel registerDebtModel) {
     this(defLoader, ruleActivator, dbClient, System2.INSTANCE);
   }
 
@@ -350,40 +351,44 @@ public class RegisterRules implements Startable {
     return changed;
   }
 
-  private List<RuleDto> processRemainingDbRules(Collection<RuleDto> ruleDtos, DbSession session) {
+  private List<RuleDto> processRemainingDbRules(Collection<RuleDto> existingRules, DbSession session) {
+    // custom rules check status of template, so they must be processed at the end
+    List<RuleDto> customRules = newArrayList();
     List<RuleDto> removedRules = newArrayList();
-    for (RuleDto ruleDto : ruleDtos) {
-      boolean toBeRemoved = true;
 
-      // 0. Case Rule is a Custom rule
-      if (ruleDto.getTemplateId() != null) {
-        RuleDto template = dbClient.ruleDao().getTemplate(ruleDto, session);
-
-        // 0.1 CustomRule has an Active Template
-        if (template != null && RuleStatus.REMOVED != template.getStatus()) {
-          if (updateCustomRuleFromTemplateRule(ruleDto, template)) {
-            dbClient.ruleDao().update(session, ruleDto);
-          }
-          toBeRemoved = false;
-        }
-      }
-      if (toBeRemoved && RuleStatus.REMOVED != ruleDto.getStatus()) {
-        LOG.info(String.format("Disable rule %s", ruleDto.getKey()));
-        ruleDto.setStatus(RuleStatus.REMOVED);
-        ruleDto.setSystemTags(Collections.<String>emptySet());
-        ruleDto.setTags(Collections.<String>emptySet());
-        dbClient.ruleDao().update(session, ruleDto);
-        removedRules.add(ruleDto);
-        if (removedRules.size() % 100 == 0) {
-          session.commit();
-        }
+    for (RuleDto rule : existingRules) {
+      if (rule.getTemplateId() != null) {
+        customRules.add(rule);
+      } else if (rule.getStatus() != RuleStatus.REMOVED) {
+        removeRule(session, removedRules, rule);
       }
     }
 
-    if (!removedRules.isEmpty()) {
+    for (RuleDto customRule : customRules) {
+      RuleDto template = dbClient.ruleDao().getTemplate(customRule, session);
+      if (template != null && template.getStatus() != RuleStatus.REMOVED) {
+        if (updateCustomRuleFromTemplateRule(customRule, template)) {
+          dbClient.ruleDao().update(session, customRule);
+        }
+      } else {
+        removeRule(session, removedRules, customRule);
+      }
+    }
+
+    session.commit();
+    return removedRules;
+  }
+
+  private void removeRule(DbSession session, List<RuleDto> removedRules, RuleDto rule) {
+    LOG.info(String.format("Disable rule %s", rule.getKey()));
+    rule.setStatus(RuleStatus.REMOVED);
+    rule.setSystemTags(Collections.<String>emptySet());
+    rule.setTags(Collections.<String>emptySet());
+    dbClient.ruleDao().update(session, rule);
+    removedRules.add(rule);
+    if (removedRules.size() % 100 == 0) {
       session.commit();
     }
-    return removedRules;
   }
 
   private static boolean updateCustomRuleFromTemplateRule(RuleDto customRule, RuleDto templateRule) {
@@ -418,6 +423,10 @@ public class RegisterRules implements Startable {
     }
     if (customRule.getStatus() != templateRule.getStatus()) {
       customRule.setStatus(templateRule.getStatus());
+      changed = true;
+    }
+    if (!StringUtils.equals(customRule.getSeverityString(), templateRule.getSeverityString())) {
+      customRule.setSeverity(templateRule.getSeverityString());
       changed = true;
     }
     return changed;
