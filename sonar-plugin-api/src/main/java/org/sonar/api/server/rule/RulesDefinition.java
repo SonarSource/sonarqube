@@ -20,7 +20,13 @@
 package org.sonar.api.server.rule;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -123,7 +129,7 @@ import java.util.Set;
  *   {@literal @}Override
  *   public void define(Context context) {
  *     NewRepository repository = context.createRepository("my_js", "js").setName("My Javascript Analyzer");
- *     xmlLoader.load(repository, getClass().getResourceAsStream("/path/to/rules.xml"));
+ *     xmlLoader.load(repository, getClass().getResourceAsStream("/path/to/rules.xml"), "UTF-8");
  *     i18nLoader.load(repository);
  *     repository.done();
  *   }
@@ -304,7 +310,6 @@ public interface RulesDefinition extends ServerExtension {
   class Context {
     private final Map<String, Repository> repositoriesByKey = Maps.newHashMap();
     private final ListMultimap<String, ExtendedRepository> extendedRepositoriesByKey = ArrayListMultimap.create();
-
 
     public NewRepository createRepository(String key, String language) {
       return new NewRepositoryImpl(this, key, language, false);
@@ -511,7 +516,6 @@ public interface RulesDefinition extends ServerExtension {
 
     DebtRemediationFunction constantPerIssue(String offset);
   }
-
 
   class NewRule {
     private final String repoKey, key;
