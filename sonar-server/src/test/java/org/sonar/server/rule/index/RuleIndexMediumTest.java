@@ -24,7 +24,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.time.DateUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -47,8 +50,12 @@ import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -284,8 +291,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed")
-  public void search_by_has_debt_characteristic() {
+  public void search_by_has_debt_characteristic() throws InterruptedException {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1")
       .setEnabled(true)
       .setName("char1");
