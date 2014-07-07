@@ -227,4 +227,15 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     }
     return null;
   }
+
+  public void deleteParamsByRuleParam(DbSession dbSession, RuleDto rule, String paramKey) {
+    List<ActiveRuleDto> activeRules = findByRule(dbSession, rule);
+    for (ActiveRuleDto activeRule : activeRules) {
+      for (ActiveRuleParamDto activeParam : findParamsByActiveRuleKey(dbSession, activeRule.getKey())) {
+        if (activeParam.getKey().equals(paramKey)) {
+          deleteParam(dbSession, activeRule, activeParam);
+        }
+      }
+    }
+  }
 }
