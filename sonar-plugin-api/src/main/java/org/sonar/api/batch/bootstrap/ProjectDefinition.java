@@ -182,8 +182,12 @@ public class ProjectDefinition {
   }
 
   private void appendProperty(String key, String value) {
-    String newValue = properties.getProperty(key, "") + SEPARATOR + value;
-    properties.put(key, newValue);
+    String current = properties.getProperty(key, "");
+    if (StringUtils.isBlank(current)) {
+      properties.put(key, value);
+    } else {
+      properties.put(key, current + SEPARATOR + value);
+    }
   }
 
   /**

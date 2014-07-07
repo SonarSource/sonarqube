@@ -20,6 +20,7 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -68,10 +69,12 @@ public class FileSystemLogger implements BatchComponent {
       for (Iterator<File> it = paths.iterator(); it.hasNext();) {
         File file = it.next();
         String relativePathToBaseDir = resolver.relativePath(baseDir, file);
-        if (relativePathToBaseDir != null) {
-          sb.append(relativePathToBaseDir);
-        } else {
+        if (relativePathToBaseDir == null) {
           sb.append(file);
+        } else if (StringUtils.isBlank(relativePathToBaseDir)) {
+          sb.append(".");
+        } else {
+          sb.append(relativePathToBaseDir);
         }
         if (it.hasNext()) {
           sb.append(", ");
