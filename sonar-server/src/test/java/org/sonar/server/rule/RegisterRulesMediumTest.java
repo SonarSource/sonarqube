@@ -50,6 +50,8 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -59,56 +61,89 @@ import static org.fest.assertions.Fail.fail;
 
 public class RegisterRulesMediumTest {
 
-  static XooRulesDefinition rulesDefinition = new XooRulesDefinition();
+  static final XooRulesDefinition RULE_DEFS = new XooRulesDefinition();
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().addComponents(rulesDefinition);
+  public static final ServerTester TESTER = new ServerTester().addComponents(RULE_DEFS);
 
   RuleIndex index;
-
   DbClient db;
   DbSession dbSession;
 
   @Before
   public void before() {
-    tester.clearDbAndIndexes();
-    rulesDefinition.includeX1 = true;
-    rulesDefinition.includeX1bis = false;
-    rulesDefinition.includeX2 = true;
-    rulesDefinition.includeTemplate1 = true;
-    rulesDefinition.includeRuleLinkedToRootCharacteristic = false;
-    tester.get(Platform.class).executeStartupTasks();
-    db = tester.get(DbClient.class);
-    dbSession = tester.get(DbClient.class).openSession(false);
+    TESTER.clearDbAndIndexes();
+    db = TESTER.get(DbClient.class);
+    dbSession = TESTER.get(DbClient.class).openSession(false);
     dbSession.clearCache();
-
-    index = tester.get(RuleIndex.class);
+    index = TESTER.get(RuleIndex.class);
   }
 
   @After
   public void after() {
-    dbSession.close();
+    if (dbSession != null) {
+      dbSession.close();
+    }
+  }
+
+  private void register(@Nullable Rules rules) {
+    if (dbSession != null) {
+      dbSession.close();
+    }
+    RULE_DEFS.set(rules);
+    TESTER.get(Platform.class).executeStartupTasks();
+    db = TESTER.get(DbClient.class);
+    dbSession = TESTER.get(DbClient.class).openSession(false);
+    dbSession.clearCache();
+    index = TESTER.get(RuleIndex.class);
   }
 
   @Test
   public void register_rules_at_startup() throws Exception {
-    verifyRulesInDb();
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        RulesDefinition.NewRule x1Rule = repository.createRule("x1")
+          .setName("x1 name")
+          .setHtmlDescription("x1 desc")
+          .setSeverity(Severity.MINOR)
+          .setEffortToFixDescription("x1 effort to fix")
+          .setTags("tag1");
+        x1Rule.createParam("acceptWhitespace")
+          .setType(RuleParamType.BOOLEAN)
+          .setDefaultValue("false")
+          .setDescription("Accept whitespaces on the line");
+        x1Rule.createParam("min")
+          .setType(RuleParamType.INTEGER);
+        x1Rule
+          .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY)
+          .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
+      }
+    });
 
+    // verify db
+    List<RuleDto> rules = db.ruleDao().findAll(dbSession);
+    assertThat(rules).hasSize(1);
+    assertThat(rules.get(0).getKey()).isEqualTo(RuleKey.of("xoo", "x1"));
+    List<RuleParamDto> ruleParams = db.ruleDao().findAllRuleParams(dbSession);
+    assertThat(ruleParams).hasSize(2);
+
+    // verify es
     Result<Rule> searchResult = index.search(new RuleQuery(), new QueryOptions());
-    assertThat(searchResult.getTotal()).isEqualTo(3);
-    assertThat(searchResult.getHits()).hasSize(3);
-
-    Rule rule = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(searchResult.getTotal()).isEqualTo(1);
+    assertThat(searchResult.getHits()).hasSize(1);
+    Rule rule = index.getByKey(RuleKey.of("xoo", "x1"));
     assertThat(rule.severity()).isEqualTo(Severity.MINOR);
     assertThat(rule.name()).isEqualTo("x1 name");
     assertThat(rule.htmlDescription()).isEqualTo("x1 desc");
     assertThat(rule.systemTags()).contains("tag1");
-
-    assertThat(rule.params()).hasSize(1);
+    assertThat(rule.params()).hasSize(2);
     assertThat(rule.param("acceptWhitespace").type()).isEqualTo(RuleParamType.BOOLEAN);
     assertThat(rule.param("acceptWhitespace").defaultValue()).isEqualTo("false");
     assertThat(rule.param("acceptWhitespace").description()).isEqualTo("Accept whitespaces on the line");
-
+    assertThat(rule.param("min").type()).isEqualTo(RuleParamType.INTEGER);
+    assertThat(rule.param("min").defaultValue()).isNull();
+    assertThat(rule.param("min").description()).isNull();
     assertThat(rule.debtSubCharacteristicKey()).isEqualTo(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY);
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1h");
@@ -117,76 +152,114 @@ public class RegisterRulesMediumTest {
   }
 
   /**
-   * support the use-case:
+   * Use-case:
    * 1. start server
    * 2. stop server
    * 3. drop elasticsearch index: rm -rf data/es
    * 4. start server -> db is up-to-date (no changes) but rules must be re-indexed
    */
   @Test
-  public void index_even_if_no_changes() throws Exception {
-    verifyRulesInDb();
+  public void index_rules_even_if_no_changes() throws Exception {
+    Rules rules = new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("x1")
+          .setName("x1 name")
+          .setHtmlDescription("x1 desc");
+      }
+    };
+    register(rules);
 
     // clear ES but keep db
-    tester.clearIndexes();
-    verifyRulesInDb();
+    TESTER.clearIndexes();
+    register(rules);
+
+    // verify that rules are indexed
     Result<Rule> searchResult = index.search(new RuleQuery(), new QueryOptions());
-    assertThat(searchResult.getTotal()).isEqualTo(0);
-    assertThat(searchResult.getHits()).hasSize(0);
-
-    // db is not updated (same rules) but es must be reindexed
-    tester.get(Platform.class).executeStartupTasks();
-
-    index = tester.get(RuleIndex.class);
-
-    verifyRulesInDb();
     searchResult = index.search(new RuleQuery().setKey("xoo:x1"), new QueryOptions());
     assertThat(searchResult.getTotal()).isEqualTo(1);
     assertThat(searchResult.getHits()).hasSize(1);
-    assertThat(searchResult.getHits().get(0).params()).hasSize(1);
+    assertThat(searchResult.getHits().get(0).key()).isEqualTo(RuleKey.of("xoo", "x1"));
   }
 
   @Test
-  public void update_rule() {
-    verifyRulesInDb();
+  public void update_existing_rules() {
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        RulesDefinition.NewRule x1Rule = repository.createRule("x1")
+          .setName("Name1")
+          .setHtmlDescription("Desc1")
+          .setSeverity(Severity.MINOR)
+          .setEffortToFixDescription("Effort1")
+          .setTags("tag1", "tag2");
+        x1Rule.createParam("max")
+          .setType(RuleParamType.INTEGER)
+          .setDefaultValue("10")
+          .setDescription("Maximum1");
+        x1Rule.createParam("min")
+          .setType(RuleParamType.INTEGER);
+        x1Rule
+          .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY)
+          .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
+      }
+    });
 
-    // The plugin X1 will be updated
-    rulesDefinition.includeX1 = false;
-    rulesDefinition.includeX1bis = true;
-    tester.get(Platform.class).executeStartupTasks();
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        RulesDefinition.NewRule x1Rule = repository.createRule(RuleTesting.XOO_X1.rule())
+          .setName("Name2")
+          .setHtmlDescription("Desc2")
+          .setSeverity(Severity.INFO)
+          .setEffortToFixDescription("Effort2")
+          .setTags("tag2", "tag3");
+        // Param "max" is updated, "min" is removed, "format" is added
+        x1Rule.createParam("max")
+          .setType(RuleParamType.INTEGER)
+          .setDefaultValue("15")
+          .setDescription("Maximum2");
+        x1Rule.createParam("format").setType(RuleParamType.TEXT);
+        x1Rule
+          .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
+          .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linear("2h"));
+      }
+    });
 
     Rule rule = index.getByKey(RuleTesting.XOO_X1);
     assertThat(rule.severity()).isEqualTo(Severity.INFO);
-    assertThat(rule.name()).isEqualTo("x1 name updated");
-    assertThat(rule.htmlDescription()).isEqualTo("x1 desc updated");
-    assertThat(rule.systemTags()).contains("tag1", "tag2");
-
+    assertThat(rule.name()).isEqualTo("Name2");
+    assertThat(rule.htmlDescription()).isEqualTo("Desc2");
+    assertThat(rule.systemTags()).contains("tag2", "tag3");
     assertThat(rule.params()).hasSize(2);
-
-    assertThat(rule.param("acceptWhitespace").type()).isEqualTo(RuleParamType.BOOLEAN);
-    assertThat(rule.param("acceptWhitespace").defaultValue()).isEqualTo("true");
-    assertThat(rule.param("acceptWhitespace").description()).isEqualTo("Accept whitespaces on the line updated");
-
-    // New parameter
+    assertThat(rule.param("max").type()).isEqualTo(RuleParamType.INTEGER);
+    assertThat(rule.param("max").defaultValue()).isEqualTo("15");
+    assertThat(rule.param("max").description()).isEqualTo("Maximum2");
     assertThat(rule.param("format").type()).isEqualTo(RuleParamType.TEXT);
-    assertThat(rule.param("format").defaultValue()).isEqualTo("txt");
-    assertThat(rule.param("format").description()).isEqualTo("Format");
-
+    assertThat(rule.param("format").defaultValue()).isNull();
+    assertThat(rule.param("format").description()).isNull();
     assertThat(rule.debtSubCharacteristicKey()).isEqualTo(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY);
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
     assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("2h");
     assertThat(rule.debtRemediationFunction().offset()).isNull();
-    assertThat(rule.effortToFixDescription()).isEqualTo("x1 effort to fix updated");
+    assertThat(rule.effortToFixDescription()).isEqualTo("Effort2");
   }
 
   @Test
-  public void not_update_rule_if_no_change() throws Exception {
+  public void do_not_update_rules_if_no_changes() throws Exception {
+    Rules rules = new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc");
+      }
+    };
+    register(rules);
+
     // Store updated at date
     Date updatedAt = index.getByKey(RuleTesting.XOO_X1).updatedAt();
 
     // Re-execute startup tasks
-    tester.get(Platform.class).executeStartupTasks();
-    dbSession.clearCache();
+    register(rules);
 
     // Verify rule has not been updated
     Rule customRuleReloaded = index.getByKey(RuleTesting.XOO_X1);
@@ -194,54 +267,55 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  public void mark_rule_as_removed() throws Exception {
-    verifyRulesInDb();
+  public void uninstall_and_reinstall_rules() {
+    Rules rules = new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc");
+      }
+    };
+    register(rules);
 
-    rulesDefinition.includeX2 = false;
-    tester.get(Platform.class).executeStartupTasks();
-
-    verifyRulesInDb();
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x2"));
-    assertThat(rule.getStatus()).isEqualTo(RuleStatus.REMOVED);
-  }
-
-  @Test
-  public void reactivate_disabled_rules() {
-    verifyRulesInDb();
-
-    // Disable plugin X1
-    rulesDefinition.includeX1 = false;
-    tester.get(Platform.class).executeStartupTasks();
-
+    // Uninstall plugin
+    register(null);
     RuleDto rule = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.REMOVED);
-    dbSession.clearCache();
+    Rule indexedRule = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(indexedRule.status()).isEqualTo(RuleStatus.REMOVED);
 
-    // Reactivate plugin X1
-    rulesDefinition.includeX1 = true;
-    tester.get(Platform.class).executeStartupTasks();
-
-    RuleDto ruleReloaded = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
-    assertThat(ruleReloaded.getStatus()).isEqualTo(RuleStatus.READY);
+    // Re-install plugin
+    register(rules);
+    rule = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
+    indexedRule = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(indexedRule.status()).isEqualTo(RuleStatus.READY);
   }
 
   @Test
   public void deactivate_removed_rules_only_if_repository_still_exists() throws Exception {
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc");
+      }
+    });
+
+    // Create a profile and activate rule
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
 
-    // create a profile and activate rule
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
-    tester.get(QProfileService.class).activate(QProfileTesting.XOO_P1_KEY, activation);
-    dbSession.clearCache();
+    TESTER.get(QProfileService.class).activate(QProfileTesting.XOO_P1_KEY, activation);
 
-    // restart, x2 still exists -> deactivate x1
-    rulesDefinition.includeX1 = false;
-    rulesDefinition.includeX2 = true;
-    tester.get(Platform.class).executeStartupTasks();
-    dbSession.clearCache();
+    // Restart, repo xoo still exists -> deactivate x1
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("x2").setName("x2 name").setHtmlDescription("x2 desc");
+      }
+    });
     assertThat(db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x1")).getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x2")).getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(db.activeRuleDao().findByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).hasSize(0);
@@ -249,282 +323,265 @@ public class RegisterRulesMediumTest {
 
   @Test
   public void do_not_deactivate_removed_rules_if_repository_accidentaly_uninstalled() throws Exception {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
+    Rules rules = new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc");
+      }
+    };
+    register(rules);
 
     // create a profile and activate rule
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
-    tester.get(QProfileService.class).activate(QProfileTesting.XOO_P1_KEY, activation);
-    dbSession.clearCache();
+    TESTER.get(QProfileService.class).activate(QProfileTesting.XOO_P1_KEY, activation);
 
-    // restart without x1, x2, template1 -> keep active rule of x1
-    rulesDefinition.includeX1 = false;
-    rulesDefinition.includeX2 = false;
-    rulesDefinition.includeTemplate1 = false;
-    tester.get(Platform.class).executeStartupTasks();
-    dbSession.clearCache();
+    // Restart without xoo
+    register(null);
     assertThat(db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1).getStatus()).isEqualTo(RuleStatus.REMOVED);
-    assertThat(db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X2).getStatus()).isEqualTo(RuleStatus.REMOVED);
+    assertThat(db.activeRuleDao().findByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).hasSize(1);
+
+    // Re-install
+    register(rules);
+    assertThat(db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1).getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(db.activeRuleDao().findByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).hasSize(1);
   }
 
   @Test
-  public void remove_end_user_tags_that_are_declared_as_system() {
-    verifyRulesInDb();
-
+  public void remove_user_tags_that_are_newly_declared_as_system() {
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc").setTags("tag1");
+      }
+    });
     Rule rule = index.getByKey(RuleTesting.XOO_X1);
-    assertThat(rule.systemTags()).contains("tag1");
+    assertThat(rule.systemTags()).containsOnly("tag1");
     assertThat(rule.tags()).isEmpty();
 
-    // Add a user tag
-    tester.get(RuleUpdater.class).update(RuleUpdate.createForPluginRule(rule.key())
-      .setTags(newHashSet("user-tag")),
-      UserSession.get());
+    // User adds tag
+    TESTER.get(RuleUpdater.class).update(RuleUpdate.createForPluginRule(RuleTesting.XOO_X1).setTags(newHashSet("tag2")), UserSession.get());
     dbSession.clearCache();
+    rule = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(rule.systemTags()).containsOnly("tag1");
+    assertThat(rule.tags()).containsOnly("tag2");
 
-    // Verify tags
-    Rule ruleUpdated = index.getByKey(RuleTesting.XOO_X1);
-    assertThat(ruleUpdated.systemTags()).contains("tag1");
-    assertThat(ruleUpdated.tags()).contains("user-tag");
-
-    // The plugin X1 will be updated
-    rulesDefinition.includeX1 = false;
-    rulesDefinition.includeX1bis = true;
-    tester.get(Platform.class).executeStartupTasks();
-    dbSession.clearCache();
-
-    // User tag should become a system tag
-    RuleDto ruleDtoReloaded = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
-    assertThat(ruleDtoReloaded.getSystemTags()).contains("tag1", "tag2", "user-tag");
-    assertThat(ruleDtoReloaded.getTags()).isEmpty();
-
-    // User tag should become a system tag
-    Rule ruleReloaded = index.getByKey(RuleTesting.XOO_X1);
-    assertThat(ruleReloaded.systemTags()).contains("tag1", "tag2", "user-tag");
-    assertThat(ruleReloaded.tags()).isEmpty();
+    // Definition updated -> user tag "tag2" becomes a system tag
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc").setTags("tag1", "tag2");
+      }
+    });
+    rule = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(rule.systemTags()).containsOnly("tag1", "tag2");
+    assertThat(rule.tags()).isEmpty();
   }
 
   @Test
-  public void update_debt_rule() throws Exception {
-    verifyRulesInDb();
-
-    // Update x1 rule
-    RuleDto ruleDto = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
-    db.ruleDao().update(dbSession, ruleDto
-      .setDefaultSubCharacteristicId(123456)
-      .setDefaultRemediationFunction("LINEAR_OFFSET")
-      .setDefaultRemediationCoefficient("2h")
-      .setDefaultRemediationOffset("35min")
-      );
-    dbSession.commit();
-    dbSession.clearCache();
-
-    // Re-execute startup tasks
-    tester.get(Platform.class).executeStartupTasks();
-
-    // Verify default debt has been reset to plugin definition
-    Rule ruleReloaded = index.getByKey(RuleTesting.XOO_X1);
-    assertThat(ruleReloaded.debtSubCharacteristicKey()).isEqualTo(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY);
-    assertThat(ruleReloaded.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(ruleReloaded.debtRemediationFunction().coefficient()).isEqualTo("1h");
-    assertThat(ruleReloaded.debtRemediationFunction().offset()).isEqualTo("30min");
-  }
-
-  @Test
-  public void remove_debt_rule() throws Exception {
-    verifyRulesInDb();
-
-    // Set some default debt on x2 rule, which has no debt provided by th plugin
-    RuleDto ruleDto = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X2);
-    db.ruleDao().update(dbSession, ruleDto
-      .setDefaultSubCharacteristicId(db.debtCharacteristicDao().selectByKey(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY, dbSession).getId())
-      .setDefaultRemediationFunction("LINEAR_OFFSET")
-      .setDefaultRemediationCoefficient("2h")
-      .setDefaultRemediationOffset("35min")
-      );
-    dbSession.commit();
-    dbSession.clearCache();
-
-    // Re-execute startup tasks
-    tester.get(Platform.class).executeStartupTasks();
-
-    // Verify default debt has been removed
-    Rule ruleReloaded = index.getByKey(RuleTesting.XOO_X2);
-    assertThat(ruleReloaded.debtSubCharacteristicKey()).isNull();
-    assertThat(ruleReloaded.debtRemediationFunction()).isNull();
-  }
-
-  @Test
-  public void fail_when_rule_is_linked_on_root_characteristic() throws Exception {
-    verifyRulesInDb();
-
-    rulesDefinition.includeRuleLinkedToRootCharacteristic = true;
+  public void fail_if_debt_characteristic_is_root() throws Exception {
     try {
-      // Re-execute startup tasks
-      tester.get(Platform.class).executeStartupTasks();
+      register(new Rules() {
+        @Override
+        public void init(RulesDefinition.NewRepository repository) {
+          RulesDefinition.NewRule rule = repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc");
+          rule
+            .setDebtSubCharacteristic("REUSABILITY")
+            .setDebtRemediationFunction(rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
+        }
+      });
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(MessageException.class).hasMessage("Rule 'xoo:RuleLinkedToRootCharacteristic' cannot be linked on the root characteristic 'REUSABILITY'");
+    } catch (MessageException e) {
+      assertThat(e).hasMessage("Rule 'xoo:x1' cannot be linked on the root characteristic 'REUSABILITY'");
     }
   }
 
   @Test
-  public void update_custom_rule_from_template() throws Exception {
-    Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
+  public void update_custom_rule_on_template_change() throws Exception {
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("T1")
+          .setName("template1 name")
+          .setHtmlDescription("template1 desc")
+          .setSeverity(Severity.MAJOR)
+          .setTemplate(true)
+          .createParam("format")
+          .setDefaultValue("csv")
+          .setType(RuleParamType.STRING)
+          .setDescription("format parameter");
+      }
+    });
+    Rule template = index.getByKey(RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = tester.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.key())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", template.key())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("format", "txt")));
 
-    // Update custom rule
-    RuleDto customRuleDto = db.ruleDao().getByKey(dbSession, customRuleKey);
-    db.ruleDao().update(dbSession, customRuleDto
-      .setLanguage("other language")
-      .setConfigKey("other config key")
-      .setDefaultSubCharacteristicId(45)
-      .setDefaultRemediationFunction("LINEAR_OFFSET")
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("5min")
-      .setEffortToFixDescription("effort to fix desc")
-      );
-    dbSession.commit();
-    dbSession.clearCache();
-
-    // Re-execute startup tasks
-    tester.get(Platform.class).executeStartupTasks();
+    // Update template and restart
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        RulesDefinition.NewRule rule = repository.createRule("T1")
+          .setName("template1 name")
+          .setHtmlDescription("template1 desc")
+          .setSeverity(Severity.BLOCKER)
+          .setStatus(RuleStatus.BETA)
+          .setTemplate(true)
+          .setInternalKey("new_internal");
+        rule
+          .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY)
+          .setDebtRemediationFunction(rule.debtRemediationFunctions().linearWithOffset("1h", "30min"))
+          .setEffortToFixDescription("Effort");
+      }
+    });
 
     // Verify custom rule has been restore from the template
     Rule customRule = index.getByKey(customRuleKey);
     assertThat(customRule.language()).isEqualTo("xoo");
-    assertThat(customRule.internalKey()).isNull();
-    assertThat(customRule.debtSubCharacteristicKey()).isNull();
-    assertThat(customRule.debtRemediationFunction()).isNull();
+    assertThat(customRule.internalKey()).isEqualTo("new_internal");
+    assertThat(customRule.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(customRule.status()).isEqualTo(RuleStatus.BETA);
+    assertThat(customRule.debtSubCharacteristicKey()).isEqualTo(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY);
+    assertThat(customRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(customRule.effortToFixDescription()).isEqualTo("Effort");
   }
 
   @Test
-  public void not_update_custom_rule_from_template_if_no_change() throws Exception {
-    Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
+  public void do_not_update_custom_rule_if_no_template_change() throws Exception {
+    Rules rules = new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("T1")
+          .setName("template1 name")
+          .setHtmlDescription("template1 desc")
+          .setSeverity(Severity.MAJOR)
+          .setTemplate(true)
+          .createParam("format")
+          .setDefaultValue("csv")
+          .setType(RuleParamType.STRING)
+          .setDescription("format parameter");
+      }
+    };
+    register(rules);
+    Rule template = index.getByKey(RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = tester.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.key())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", template.key())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("format", "txt")));
-    dbSession.commit();
-    dbSession.clearCache();
 
-    // Store updated at date
     Date updatedAt = index.getByKey(customRuleKey).updatedAt();
 
-    // Re-execute startup tasks
-    tester.get(Platform.class).executeStartupTasks();
+    register(rules);
 
-    // Verify custom rule has not been updated
+    // Verify custom rule has been restore from the template
     Rule customRuleReloaded = index.getByKey(customRuleKey);
     assertThat(customRuleReloaded.updatedAt()).isEqualTo(updatedAt);
   }
 
   @Test
-  public void not_update_custom_rule_params_from_template() throws Exception {
-    Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
+  public void do_not_update_custom_rule_params_from_template() throws Exception {
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("T1")
+          .setName("template1 name")
+          .setHtmlDescription("template1 desc")
+          .setSeverity(Severity.MAJOR)
+          .setTemplate(true)
+          .createParam("format")
+          .setDefaultValue("csv")
+          .setType(RuleParamType.STRING)
+          .setDescription("format parameter");
+      }
+    });
+    Rule templateRule = index.getByKey(RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = tester.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.key())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.key())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("format", "txt")));
-    dbSession.commit();
-    dbSession.clearCache();
 
-    // Update custom rule param name
-    RuleDto customRuleDto = db.ruleDao().getByKey(dbSession, customRuleKey);
-    RuleParamDto customRuleParamDto = db.ruleDao().findRuleParamsByRuleKey(dbSession, customRuleKey).get(0);
-    db.ruleDao().removeRuleParam(dbSession, customRuleDto, customRuleParamDto);
-    db.ruleDao().addRuleParam(dbSession, customRuleDto, customRuleParamDto.setName("format2"));
-    dbSession.commit();
-    dbSession.clearCache();
-
-    // Verify param has been updated
-    Rule customRule = index.getByKey(customRuleKey);
-    assertThat(customRule.params()).hasSize(1);
-    assertThat(customRule.params().get(0).key()).isEqualTo("format2");
-
-    // Re-execute startup tasks
-    tester.get(Platform.class).executeStartupTasks();
+    register(new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("T1")
+          .setName("template1 name")
+          .setHtmlDescription("template1 desc")
+          .setSeverity(Severity.MAJOR)
+          .setTemplate(true)
+            // "format" removed, "format2" added
+          .createParam("format2")
+          .setDefaultValue("csv")
+          .setType(RuleParamType.STRING)
+          .setDescription("format parameter");
+      }
+    });
 
     // Verify custom rule param has not been changed!
     Rule customRuleReloaded = index.getByKey(customRuleKey);
-    assertThat(customRuleReloaded.params().get(0).key()).isEqualTo("format2");
+    assertThat(customRuleReloaded.params().get(0).key()).isEqualTo("format");
   }
 
   @Test
-  public void disable_custom_rules_if_template_is_disabled() {
-    Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
+  public void disable_custom_rules_if_template_disabled() {
+    Rules rules = new Rules() {
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        repository.createRule("T1")
+          .setName("template1 name")
+          .setHtmlDescription("template1 desc")
+          .setSeverity(Severity.MAJOR)
+          .setTemplate(true)
+          .createParam("format")
+          .setDefaultValue("csv")
+          .setType(RuleParamType.STRING)
+          .setDescription("format parameter");
+      }
+    };
+    register(rules);
+    Rule templateRule = index.getByKey(RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = tester.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.key())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.key())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
-      .setStatus(RuleStatus.READY));
-    dbSession.commit();
-    dbSession.clearCache();
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("format", "txt")));
     assertThat(index.getByKey(customRuleKey).status()).isEqualTo(RuleStatus.READY);
 
-    // Restart without template rule
-    rulesDefinition.includeTemplate1 = false;
-    tester.get(Platform.class).executeStartupTasks();
+    // Restart without template
+    register(null);
 
     // Verify custom rule is removed
-    assertThat(index.getByKey(customRuleKey).status()).isEqualTo(RuleStatus.REMOVED);
-  }
-
-  @Test
-  public void reactivate_disabled_custom_rules() {
-    Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
-
-    // Create custom rule
-    RuleKey customRuleKey = tester.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.key())
-      .setName("My custom")
-      .setHtmlDescription("Some description")
-      .setSeverity(Severity.MAJOR)
-      .setStatus(RuleStatus.READY));
-    dbSession.commit();
-    dbSession.clearCache();
-    assertThat(index.getByKey(customRuleKey).status()).isEqualTo(RuleStatus.READY);
-
-    // Restart without template rule
-    rulesDefinition.includeTemplate1 = false;
-    tester.get(Platform.class).executeStartupTasks();
-    dbSession.clearCache();
-
-
-    // Verify custom rule is removed
+    assertThat(index.getByKey(templateRule.key()).status()).isEqualTo(RuleStatus.REMOVED);
     assertThat(index.getByKey(customRuleKey).status()).isEqualTo(RuleStatus.REMOVED);
 
-    // Restart with template rule
-    rulesDefinition.includeTemplate1 = true;
-    tester.get(Platform.class).executeStartupTasks();
-    dbSession.clearCache();
-
-    // Verify custom rule is reactivate
+    // Re-install template
+    register(rules);
+    assertThat(index.getByKey(templateRule.key()).status()).isEqualTo(RuleStatus.READY);
     assertThat(index.getByKey(customRuleKey).status()).isEqualTo(RuleStatus.READY);
   }
 
   @Test
-  public void not_disable_manual_rules() {
+  public void do_not_disable_manual_rules() {
     // Create manual rule
-    RuleKey manualRuleKey = tester.get(RuleCreator.class).create(NewRule.createForManualRule("MANUAL_RULE")
+    RuleKey manualRuleKey = TESTER.get(RuleCreator.class).create(NewRule.createForManualRule("MANUAL_RULE")
       .setName("My manual")
       .setHtmlDescription("Some description"));
     dbSession.commit();
@@ -532,97 +589,31 @@ public class RegisterRulesMediumTest {
     assertThat(index.getByKey(manualRuleKey).status()).isEqualTo(RuleStatus.READY);
 
     // Restart
-    tester.get(Platform.class).executeStartupTasks();
+    register(null);
 
     // Verify manual rule is still ready
     assertThat(index.getByKey(manualRuleKey).status()).isEqualTo(RuleStatus.READY);
   }
 
-  private void verifyRulesInDb() {
-    List<RuleDto> rules = db.ruleDao().findAll(dbSession);
-    assertThat(rules).hasSize(3);
-    List<RuleParamDto> ruleParams = db.ruleDao().findAllRuleParams(dbSession);
-    assertThat(ruleParams).hasSize(2);
+  interface Rules {
+    void init(RulesDefinition.NewRepository repository);
   }
 
   public static class XooRulesDefinition implements RulesDefinition {
+    private Rules rules = null;
 
-    boolean includeX1 = true, includeX1bis = false, includeX2 = true, includeTemplate1 = true, includeRuleLinkedToRootCharacteristic = false;
+    void set(@Nullable Rules rules) {
+      this.rules = rules;
+    }
 
     @Override
     public void define(Context context) {
-      if (includeX1 || includeX1bis || includeX2 || includeTemplate1 || includeRuleLinkedToRootCharacteristic) {
+      if (rules != null) {
         NewRepository repository = context.createRepository("xoo", "xoo").setName("Xoo Repo");
-        if (includeX1) {
-          NewRule x1Rule = repository.createRule(RuleTesting.XOO_X1.rule())
-            .setName("x1 name")
-            .setHtmlDescription("x1 desc")
-            .setSeverity(Severity.MINOR)
-            .setEffortToFixDescription("x1 effort to fix")
-            .setTags("tag1");
-          x1Rule.createParam("acceptWhitespace")
-            .setType(RuleParamType.BOOLEAN)
-            .setDefaultValue("false")
-            .setDescription("Accept whitespaces on the line");
-          x1Rule
-            .setDebtSubCharacteristic(SubCharacteristics.INTEGRATION_TESTABILITY)
-            .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
-        }
-
-        // X1 having fields updated to simulate an update from the plugin
-        if (includeX1bis) {
-          NewRule x1Rule = repository.createRule(RuleTesting.XOO_X1.rule())
-            .setName("x1 name updated")
-            .setHtmlDescription("x1 desc updated")
-            .setSeverity(Severity.INFO)
-            .setEffortToFixDescription("x1 effort to fix updated")
-            .setTags("tag1", "tag2", "user-tag");
-          x1Rule.createParam("acceptWhitespace")
-            .setType(RuleParamType.BOOLEAN)
-            .setDefaultValue("true")
-            .setDescription("Accept whitespaces on the line updated");
-          // New param
-          x1Rule.createParam("format")
-            .setType(RuleParamType.TEXT)
-            .setDefaultValue("txt")
-            .setDescription("Format");
-          x1Rule
-            .setDebtSubCharacteristic(SubCharacteristics.INSTRUCTION_RELIABILITY)
-            .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linear("2h"));
-        }
-
-        if (includeX2) {
-          repository.createRule(RuleTesting.XOO_X2.rule())
-            .setName("x2 name")
-            .setHtmlDescription("x2 desc")
-            .setSeverity(Severity.MAJOR);
-        }
-
-        if (includeRuleLinkedToRootCharacteristic) {
-          NewRule x1Rule = repository.createRule("RuleLinkedToRootCharacteristic")
-            .setName("RuleLinkedToRootCharacteristic name")
-            .setHtmlDescription("RuleLinkedToRootCharacteristic desc")
-            .setSeverity(Severity.MINOR);
-          x1Rule
-            // Link to a root characteristic -> fail
-            .setDebtSubCharacteristic("REUSABILITY")
-            .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
-        }
-
-        if (includeTemplate1) {
-          repository.createRule("template1")
-            .setName("template1 name")
-            .setHtmlDescription("template1 desc")
-            .setSeverity(Severity.MAJOR)
-            .setTemplate(true)
-            .createParam("format")
-            .setDefaultValue("csv")
-            .setType(RuleParamType.STRING)
-            .setDescription("format parameter");
-        }
-
+        rules.init(repository);
         repository.done();
       }
     }
+
   }
 }
