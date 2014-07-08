@@ -22,7 +22,7 @@
 # SonarQube 4.5
 # SONAR-5447
 #
-class DropActiveRuleChangeTables < ActiveRecord::Migration
+class DropActiveRuleChangesTables < ActiveRecord::Migration
 
   def self.up
     drop_table :active_rule_param_changes
