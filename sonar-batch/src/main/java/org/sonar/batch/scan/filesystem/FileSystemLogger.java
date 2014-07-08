@@ -20,7 +20,7 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.codehaus.plexus.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
