@@ -47,6 +47,11 @@ define [
       value = value.split(',') if _.isString(value)
       if @choices && value.length > 0
         @model.set value: value, enabled: true
+        @choices.each (item) ->
+          item.set 'checked', false
+        _.each value, (v) =>
+          cModel = @choices.findWhere id: v
+          cModel.set 'checked', true
         @onChangeQualityProfile()
       else
         @clear()

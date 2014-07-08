@@ -39,30 +39,33 @@
       %>
       <div class="widget-span widget-span-3">
         <div class="widget-measure-container">
-          <div class="widget-measure widget-measure-main">
-            <table class="data" style="width:120px">
-              <% Severity::KEYS.each do |key|
-                stat = severity_map[key]
-                severity = key.downcase
-                value = 0
-                value = stat.getValue() if stat
-              -%>
-                <tr>
-                  <td>
-                    <i class="icon-severity-<%= severity %>"></i><%= message(severity) -%>
-                  </td>
-                  <td class="thin right">
-                    <%= value -%>
-                  </td>
-                  <td class="nowrap ">
-                    <% if max > 0 %>
-                      <%= barchart(:width => 70, :percent => (100 * value / max).to_i) %>
-                    <% end %>
-                  </td>
-                </tr>
-              <% end -%>
-            </table>
-          </div>
+          <table class="data" style="width: 240px">
+            <tbody>
+            <% Severity::KEYS.each do |key|
+              stat = severity_map[key]
+              severity = key.downcase
+              value = 0
+              value = stat.getValue() if stat
+            -%>
+              <tr>
+                <td>
+                  <i class="icon-severity-<%= severity %>"></i> <%= message(severity) -%>
+                </td>
+                <td class="thin right">
+                  <a href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key()}|activation=true|languages=#{@profile.language()}|active_severities=#{severity.upcase}" -%>"
+                    class="widget-link">
+                    <span><%= value -%></span>
+                  </a>
+                </td>
+                <td class="nowrap ">
+                  <% if max > 0 %>
+                    <%= barchart(:width => 70, :percent => (100 * value / max).to_i) %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end -%>
+            </tbody>
+          </table>
         </div>
       </div>
     <% end -%>
