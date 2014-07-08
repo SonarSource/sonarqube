@@ -50,12 +50,8 @@ import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -621,7 +617,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_profile_and_inheritance() throws InterruptedException {
+  public void search_by_profile_inheritance_and_active_severities() throws InterruptedException {
     QualityProfileDto qualityProfileDto1 = QProfileTesting.newXooP1();
     QualityProfileDto qualityProfileDto2 = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);
     db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
@@ -716,6 +712,31 @@ public class RuleIndexMediumTest {
       .setQProfileKey(qualityProfileDto2.getKey())
       .setInheritance(ImmutableSet.of(
         ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+      new QueryOptions()
+      );
+    assertThat(result.getHits()).hasSize(3);
+
+    // 9. get rules active on profile1 with active severity BLOCKER
+    result = index.search(new RuleQuery().setActivation(true)
+      .setQProfileKey(qualityProfileDto1.getKey())
+      .setActiveSeverities(ImmutableSet.of(
+        Severity.BLOCKER.toString())),
+      new QueryOptions()
+      );
+    assertThat(result.getHits()).hasSize(3);
+
+    // 10. get rules active on profile2 with active severity MINOR, then BLOCKER + MINOR
+    result = index.search(new RuleQuery().setActivation(true)
+      .setQProfileKey(qualityProfileDto2.getKey())
+      .setActiveSeverities(ImmutableSet.of(
+        Severity.MINOR.toString())),
+      new QueryOptions()
+      );
+    assertThat(result.getHits()).hasSize(1);
+    result = index.search(new RuleQuery().setActivation(true)
+      .setQProfileKey(qualityProfileDto2.getKey())
+      .setActiveSeverities(ImmutableSet.of(
+        Severity.BLOCKER.toString(), Severity.MINOR.toString())),
       new QueryOptions()
       );
     assertThat(result.getHits()).hasSize(3);

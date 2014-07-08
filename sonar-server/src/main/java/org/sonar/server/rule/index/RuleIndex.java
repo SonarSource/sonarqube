@@ -27,14 +27,7 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -50,22 +43,12 @@ import org.sonar.core.profiling.StopWatch;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
-import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.ESNode;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.IndexField;
-import org.sonar.server.search.QueryOptions;
-import org.sonar.server.search.Result;
+import org.sonar.server.search.*;
 
 import javax.annotation.CheckForNull;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -292,6 +275,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter();
     this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), query.getQProfileKey());
     this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field(), query.getInheritance());
+    this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field(), query.getActiveSeverities());
 
     // ChildQuery
     QueryBuilder childQuery;

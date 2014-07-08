@@ -59,6 +59,7 @@ public class SearchAction implements RequestHandler {
   public static final String PARAM_HAS_DEBT_CHARACTERISTIC = "has_debt_characteristic";
   public static final String PARAM_TAGS = "tags";
   public static final String PARAM_INHERITANCE = "inheritance";
+  public static final String PARAM_ACTIVE_SEVERITIES = "active_severities";
   public static final String PARAM_IS_TEMPLATE = "is_template";
   public static final String PARAM_TEMPLATE_KEY = "template_key";
   public static final String PARAM_FACETS = "facets";
@@ -177,6 +178,12 @@ public class SearchAction implements RequestHandler {
         ActiveRule.Inheritance.OVERRIDES.name());
 
     action
+      .createParam(PARAM_ACTIVE_SEVERITIES)
+      .setDescription("Comma-separated list of activation severities, i.e the severity of rules in Quality profiles.")
+      .setPossibleValues(Severity.ALL)
+      .setExampleValue("CRITICAL,BLOCKER");
+
+    action
       .createParam(PARAM_IS_TEMPLATE)
       .setDescription("Filter template rules")
       .setBooleanPossibleValues();
@@ -236,6 +243,7 @@ public class SearchAction implements RequestHandler {
     query.setQProfileKey(request.param(PARAM_QPROFILE));
     query.setTags(request.paramAsStrings(PARAM_TAGS));
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
+    query.setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES));
     query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
     query.setKey(request.param(PARAM_KEY));

@@ -26,6 +26,7 @@ import org.sonar.server.search.IndexField;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 
@@ -43,6 +44,7 @@ public class RuleQuery {
   private Boolean activation;
   private String qProfileKey;
   private Collection<String> inheritance;
+  private Collection<String> activeSeverities;
   private String templateKey;
   private Boolean isTemplate;
   private Date availableSince;
@@ -185,6 +187,21 @@ public class RuleQuery {
 
   public RuleQuery setInheritance(@Nullable Collection<String> inheritance) {
     this.inheritance = inheritance;
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getActiveSeverities() {
+    return activeSeverities;
+  }
+
+  public RuleQuery setActiveSeverities(@Nullable Collection<String> severities) {
+    if (severities != null) {
+      for (String severity : severities) {
+        Preconditions.checkArgument(Severity.ALL.contains(severity), "Unknown severity: " + severity);
+      }
+    }
+    this.activeSeverities = severities;
     return this;
   }
 
