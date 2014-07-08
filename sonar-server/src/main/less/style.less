@@ -2819,17 +2819,19 @@ div.rule-title {
   border-right: 1px solid #fff;
   border-bottom: 1px solid #fff;
   .box-sizing(border-box);
+  text-align: center;
   cursor: pointer;
 }
 
 .sonar-d3 .treemap-inner {
-  position: absolute;
-  z-index: 1;
-  top: 0; left: 0; bottom: 0; right: 0;
-  padding: 0 5px;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1.2;
+  padding: 5px;
+  .box-sizing(border-box);
   color: #fff;
   font-weight: 300;
-  text-align: center;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2847,16 +2849,7 @@ div.rule-title {
 }
 
 .sonar-d3 .treemap-cell-small {
-  .treemap-inner { text-indent: -9999px; }
-  .treemap-dashboard {
-    top: 50%; left: 50%;
-    margin: -8px 0 0 -8px;
-  }
-}
-
-.sonar-d3 .treemap-cell-very-small {
-  .treemap-inner { text-indent: -9999px; }
-  .treemap-dashboard { display: none; }
+  .treemap-inner { display: none; }
 }
 
 .sonar-d3 .treemap-breadcrumbs {

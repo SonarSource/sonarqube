@@ -1,13 +1,81 @@
 <%
-   size_metric = widget_properties['sizeMetric']
-   color_metric = widget_properties['colorMetric']
-
-   filter = MeasureFilter.new
-   filter.set_criteria_value(:base, @resource.key)
-   filter.set_criteria_value(:display, 'treemap')
-   filter.set_criteria_value(:tmSize, size_metric.key) if size_metric
-   filter.set_criteria_value(:tmColor, color_metric.key) if color_metric
-   filter.set_criteria_value(:tmHeight, widget_properties['heightInPercents'])
-   filter.execute(self, :user => current_user)
+   containerId = 'project-file-widget' + widget.id.to_s
+   colorMetric = widget_properties['colorMetric']
+   sizeMetric = widget_properties['sizeMetric']
+   chartTitle = widget_properties['chartTitle']
+   maxItems = widget_properties['maxItems'].to_i
 %>
-<%= render :partial => "measures/display_treemap", :locals => {:edit_mode => false, :widget_id => widget.id, :filter => filter} %>
+
+<div class="treemap-widget" id="<%= containerId %>">
+  <!--[if lte IE 8 ]> <h3><%= message('widget.unsupported_browser_warning') -%></h3> <![endif]-->
+
+  <!--[if (gte IE 9)|!(IE)]><!-->
+  <% if chartTitle %>
+    <h3 style="margin-bottom: 5px;"><%= h(chartTitle) -%></h3>
+  <% end %>
+  <!--<![endif]-->
+</div>
+
+<!--[if (gte IE 9)|!(IE)]><!-->
+<script>
+  (function () {
+    <%
+      filter = MeasureFilter.new
+      filter.set_criteria_value(:base, @resource.key)
+      filter.set_criteria_value(:display, 'treemap')
+      filter.set_criteria_value(:tmSize, sizeMetric.key) if sizeMetric
+      filter.set_criteria_value(:tmColor, colorMetric.key) if colorMetric
+      filter.set_criteria_value(:tmHeight, widget_properties['heightInPercents'])
+      filter.execute(self, :user => current_user)
+    %>
+
+    var data = {
+      metrics: {
+        <%= colorMetric.name -%>: {
+          name: '<%= colorMetric.short_name -%>',
+          direction: <%= colorMetric.direction -%>
+        },
+        <%= sizeMetric.name -%>: {
+          name: '<%= sizeMetric.short_name -%>'
+        }
+      },
+      components: [
+        <%
+        filter.rows.each  do |row|
+          color = row.measure(colorMetric)
+          size = row.measure(sizeMetric)
+        %>
+          {
+            key: '<%= escape_javascript row.resource.key -%>',
+            name: '<%= escape_javascript row.resource.name -%>',
+            longName: '<%= escape_javascript row.resource.long_name -%>',
+            qualifier: '<%= escape_javascript row.resource.qualifier -%>',
+            measures: {
+              <%= colorMetric.name -%>: { val: <%= color ? color.value : "null" -%>, fval: '<%= color ? color.formatted_value : "-" -%>' },
+              <%= sizeMetric.name -%>: { val: <%= size ? size.value : "null" -%>, fval: '<%= size ? size.formatted_value : "-" -%>' }
+            }
+          },
+        <% end %>
+      ]
+    },
+    widget = new SonarWidgets.Treemap();
+
+    widget
+      .metrics(data.metrics)
+      .metricsPriority(['<%= colorMetric.name -%>', '<%= sizeMetric.name -%>'])
+      .components(data.components)
+      .options({
+        heightInPercents: '<%= widget_properties['heightInPercents'] -%>',
+        maxItems: <%= maxItems -%>,
+        maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
+        baseUrl: baseUrl + '/dashboard/index/',
+        noData: '<%= message('no_data') -%>'
+      })
+      .render('#<%= containerId -%>');
+
+    autoResize(500, function() {
+      widget.update('#<%= containerId -%>');
+    });
+  })();
+</script>
+<!--<![endif]-->

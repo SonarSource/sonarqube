@@ -1,7 +1,6 @@
 class Treemap extends window.SonarWidgets.BaseWidget
   sizeLow: 11
-  sizeMedium: 13
-  sizeHigh: 20
+  sizeHigh: 18
 
 
   constructor: ->
@@ -28,8 +27,13 @@ class Treemap extends window.SonarWidgets.BaseWidget
     @cells.style 'background-color', (d) =>
       if @colorMetric.value(d)? then @color @colorMetric.value(d) else @colorUnknown
 
+    prefix = @mostCommonPrefix _.pluck @components(), 'longName'
+    prefixLength = prefix.length
     @cellsInner = @box.selectAll('.treemap-inner').data nodes
-    @cellsInner.text (d) -> d.longName
+    @cellsInner.html (d) ->
+      if prefixLength > 0
+        "#{prefix}<br>#{d.longName.substr prefixLength}"
+      else d.longName
 
     @attachEvents cellsEnter
 
@@ -54,9 +58,12 @@ class Treemap extends window.SonarWidgets.BaseWidget
     @cells.style 'left', (d) -> "#{d.x}px"
     @cells.style 'top', (d) -> "#{d.y}px"
     @cells.style 'width', (d) -> "#{d.dx}px"
+    @cellsInner.style 'max-width', (d) -> "#{d.dx}px"
     @cells.style 'height', (d) -> "#{d.dy}px"
     @cells.style 'line-height', (d) -> "#{d.dy}px"
-    @cells.style 'font-size', (d) => "#{@size d.dx}px"
+    @cells.style 'font-size', (d) => "#{@size (d.dx / d.longName.length)}px"
+    @cells.classed 'treemap-cell-small', (d) ->
+      (d.dx / d.longName.length) < 1 || d.dy < 40
 
 
   renderLegend: (box) ->
@@ -120,7 +127,7 @@ class Treemap extends window.SonarWidgets.BaseWidget
       @color.range @colors5
     else
       @color.range @colors5r
-    @size = d3.scale.linear().domain([80, 300]).range([@sizeLow, @sizeHigh]).clamp true
+    @size = d3.scale.linear().domain([3, 15]).range([@sizeLow, @sizeHigh]).clamp true
 
     @treemap = d3.layout.treemap()
     @treemap.value (d) => @sizeMetric.value d
@@ -175,6 +182,20 @@ class Treemap extends window.SonarWidgets.BaseWidget
         @updateTreemap components, components.length > @options().maxItems
         @addToBreadcrumbs _.extend d, components: components, maxResultsReached: @maxResultsReached()
       else @stopDrilldown()
+
+
+  mostCommonPrefix: (strings) ->
+    sortedStrings = strings.slice(0).sort()
+    firstString = sortedStrings[0]
+    firstStringLength = firstString.length
+    lastString = sortedStrings[sortedStrings.length - 1]
+    i = 0
+    while i < firstStringLength && firstString.charAt(i) == lastString.charAt(i)
+      i++
+    prefix = firstString.substr 0, i
+    lastPrefixPart = _.last prefix.split /[\s\\\/]/
+    prefix.substr 0, prefix.length - lastPrefixPart.length
+
 
 
 

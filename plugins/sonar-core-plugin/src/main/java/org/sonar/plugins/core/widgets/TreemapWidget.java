@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.plugins.core.widgets;
 
 import org.sonar.api.measures.CoreMetrics;
@@ -25,14 +26,15 @@ import org.sonar.api.web.WidgetProperty;
 import org.sonar.api.web.WidgetPropertyType;
 
 @WidgetProperties({
+  @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
   @WidgetProperty(key = "sizeMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.NCLOC_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
   @WidgetProperty(key = "colorMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COVERAGE_KEY,
     options = {WidgetConstants.FILTER_OUT_NEW_METRICS, "type:PERCENT,RATING,LEVEL"}),
-  @WidgetProperty(key = "heightInPercents", type = WidgetPropertyType.INTEGER, optional = true, defaultValue = "55")
+  @WidgetProperty(key = "heightInPercents", type = WidgetPropertyType.INTEGER, optional = true, defaultValue = "55"),
+  @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "100")
 })
 public class TreemapWidget extends CoreWidget {
   public TreemapWidget() {
-    // do not use the id "treemap" to avoid conflict with the same CSS class
     super("treemap-widget", "Treemap of Components", "/org/sonar/plugins/core/widgets/treemap.html.erb");
   }
 }
