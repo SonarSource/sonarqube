@@ -5,7 +5,7 @@
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar</artifactId>
   <packaging>pom</packaging>
-  <version>4.4-SNAPSHOT</version>
+  <version>4.4-RC2</version>
   <name>SonarQube</name>
   <url>http://www.sonarqube.org/</url>
   <description>Open source platform for continuous inspection of code quality</description>
@@ -1176,7 +1176,7 @@
     <connection>scm:git:git@github.com:SonarSource/sonarqube.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonarqube.git</developerConnection>
     <url>https://github.com/SonarSource/sonarqube</url>
-    <tag>HEAD</tag>
+    <tag>4.4-RC2</tag>
   </scm>
 
   <ciManagement>
