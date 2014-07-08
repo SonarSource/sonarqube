@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
 public class ChangeLogMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase();
+  public static TestDatabase db = new TestDatabase().schema(ChangeLogMigrationTest.class, "schema.sql");
 
   @Mock
   System2 system2;

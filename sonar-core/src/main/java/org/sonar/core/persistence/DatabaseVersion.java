@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class DatabaseVersion implements BatchComponent, ServerComponent {
 
-  public static final int LAST_VERSION = 556;
+  public static final int LAST_VERSION = 580;
 
   public static enum Status {
     UP_TO_DATE, REQUIRES_UPGRADE, REQUIRES_DOWNGRADE, FRESH_INSTALL
@@ -48,9 +48,8 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "action_plans",
     "active_dashboards",
     "active_rules",
-    "active_rule_changes",
     "active_rule_parameters",
-    "active_rule_param_changes",
+    "activities",
     "authors",
     "characteristics",
     "dashboards",
@@ -92,9 +91,8 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "users",
     "user_roles",
     "widgets",
-    "widget_properties",
-    "activities"
-    );
+    "widget_properties"
+  );
 
   private MyBatis mybatis;
 
