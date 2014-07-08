@@ -2859,6 +2859,24 @@ div.rule-title {
   .treemap-dashboard { display: none; }
 }
 
+.sonar-d3 .treemap-breadcrumbs {
+  margin-top: 10px;
+  padding-top: 7px;
+  border-top: 1px solid #E6E6E6;
+}
+
+.sonar-d3 .treemap-breadcrumbs-item {
+  color: @secondFontColor;
+
+  & > [class^="icon-qualifier-"] { margin-right: 4px; }
+}
+
+.sonar-d3 .treemap-breadcrumbs-item + .treemap-breadcrumbs-item {
+  margin-left: 10px;
+
+  & > .icon-chevron-right { margin-right: 10px; }
+}
+
 
 /* ------------------- Admin pages ------------------- */
 

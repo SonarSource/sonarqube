@@ -42,6 +42,7 @@
         .metricsPriority(metrics)
         .options({
           heightInPercents: '<%= widget_properties['heightInPercents'] -%>',
+          maxItems: <%= maxItems -%>,
           maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
           baseUrl: baseUrl + '/dashboard/index/',
           noData: '<%= message('no_data') -%>'
