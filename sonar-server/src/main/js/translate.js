@@ -1,7 +1,11 @@
 (function() {
+  window.suppressTranslationWarnings = false;
+
   var warn = function(message) {
-    if (console != null && typeof console.warn === 'function') {
-      console.warn(message);
+    if (!window.suppressTranslationWarnings) {
+      if (console != null && typeof console.warn === 'function') {
+        console.warn(message);
+      }
     }
   };
 
@@ -90,7 +94,7 @@
 
         window.messages = bundle;
         localStorage.setItem('l10n.bundle', JSON.stringify(bundle));
-      } else if (jqXHR.status === 304) {
+      } else if (jqXHR.status == 304) {
         window.messages = JSON.parse(localStorage.getItem('l10n.bundle'));
       }
     });

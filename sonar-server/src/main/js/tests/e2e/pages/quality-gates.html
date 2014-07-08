@@ -9,9 +9,9 @@
     <script type="text/javascript">
       var baseUrl = '..';
       var $j = jQuery.noConflict();
+      window.suppressTranslationWarnings = true;
       $j(document).ready(function () {
         $j('.open-modal').modal();
-
         $j('<scr' + 'ipt data-main="../js/quality-gate/app" src="../js/require.js"></scr' + 'ipt>').appendTo('body');
       });
     </script>
