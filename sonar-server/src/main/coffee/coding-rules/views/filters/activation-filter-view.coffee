@@ -1,47 +1,19 @@
 define [
-  'navigator/filters/choice-filters'
-  'coding-rules/views/filters/inheritance-filter-view'
+  'coding-rules/views/filters/profile-dependent-filter-view'
 ], (
-  ChoiceFilters
-  InheritanceFilterView
+  ProfileDependentFilterView
 ) ->
 
-  class ActivationFilterView extends ChoiceFilters.ChoiceFilterView
+  class ActivationFilterView extends ProfileDependentFilterView
     tooltip: 'coding_rules.filters.activation.help'
-
-    initialize: ->
-      super
-      @qualityProfileFilter = @model.get 'qualityProfileFilter'
-      @listenTo @qualityProfileFilter, 'change:value', @onChangeQualityProfile
-      @onChangeQualityProfile()
-
-
-    onChangeQualityProfile: ->
-      qualityProfileKey = @qualityProfileFilter.get 'value'
-      if _.isArray(qualityProfileKey) && qualityProfileKey.length == 1
-        @makeActive()
-      else
-        @makeInactive()
 
 
     makeActive: ->
-      @model.set inactive: false, title: ''
-      @model.trigger 'change:enabled'
+      super
       unless @model.get 'value'
         @choices.each (model) -> model.set 'checked', model.id == 'true'
         @model.set 'value', ['true']
-      @$el.removeClass('navigator-filter-inactive').prop 'title', ''
-      @options.filterBarView.moreCriteriaFilter.view.detailsView.enableByProperty(@detailsView.model.get 'property')
-      @hideDetails()
 
-
-    makeInactive: ->
-      @model.set inactive: true, title: t @tooltip
-      @model.trigger 'change:enabled'
-      @choices.each (model) -> model.set 'checked', false
-      @detailsView.updateLists()
-      @detailsView.updateValue()
-      @$el.addClass('navigator-filter-inactive').prop 'title', t @tooltip
 
 
     showDetails: ->

@@ -44,6 +44,7 @@ requirejs [
   'coding-rules/views/filters/query-filter-view',
   'coding-rules/views/filters/quality-profile-filter-view',
   'coding-rules/views/filters/inheritance-filter-view',
+  'coding-rules/views/filters/active-severities-filter-view',
   'coding-rules/views/filters/activation-filter-view',
   'coding-rules/views/filters/characteristic-filter-view',
   'coding-rules/views/filters/repository-filter-view',
@@ -79,6 +80,7 @@ requirejs [
   QueryFilterView,
   QualityProfileFilterView,
   InheritanceFilterView,
+  ActiveSeveritiesFilterView,
   ActivationFilterView,
   CharacteristicFilterView,
   RepositoryFilterView,
@@ -373,6 +375,26 @@ requirejs [
         true: t 'coding_rules.filters.activation.active'
         false: t 'coding_rules.filters.activation.inactive'
     @filters.add @activationFilter
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.active_severity'
+      property: 'active_severities'
+      type: ActiveSeveritiesFilterView
+      enabled: false
+      optional: true
+      qualityProfileFilter: @qualityProfileFilter
+      choices:
+        'BLOCKER': t 'severity.BLOCKER'
+        'CRITICAL': t 'severity.CRITICAL'
+        'MAJOR': t 'severity.MAJOR'
+        'MINOR': t 'severity.MINOR'
+        'INFO': t 'severity.INFO'
+      choiceIcons:
+        'BLOCKER': 'severity-blocker'
+        'CRITICAL': 'severity-critical'
+        'MAJOR': 'severity-major'
+        'MINOR': 'severity-minor'
+        'INFO': 'severity-info'
 
     @languageFilter =  new BaseFilters.Filter
       name: t 'coding_rules.filters.language'
