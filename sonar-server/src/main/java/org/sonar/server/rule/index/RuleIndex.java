@@ -46,7 +46,6 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.search.*;
 
 import javax.annotation.CheckForNull;
-
 import java.io.IOException;
 import java.util.*;
 

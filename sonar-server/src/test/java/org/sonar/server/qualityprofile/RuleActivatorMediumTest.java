@@ -988,6 +988,10 @@ public class RuleActivatorMediumTest {
         found = true;
         assertThat(activeRuleDto.getSeverityString()).isEqualTo(expectedSeverity);
         assertThat(activeRuleDto.getInheritance()).isEqualTo(expectedInheritance);
+        // Dates should be set
+        assertThat(activeRuleDto.getCreatedAt()).isNotNull();
+        assertThat(activeRuleDto.getUpdatedAt()).isNotNull();
+
         List<ActiveRuleParamDto> paramDtos = db.activeRuleDao().findParamsByActiveRuleKey(dbSession, activeRuleDto.getKey());
         assertThat(paramDtos).hasSize(expectedParams.size());
         for (Map.Entry<String, String> entry : expectedParams.entrySet()) {
@@ -1007,6 +1011,10 @@ public class RuleActivatorMediumTest {
         found = true;
         assertThat(activeRule.severity()).isEqualTo(expectedSeverity);
         assertThat(activeRule.inheritance()).isEqualTo(expectedInheritance == null ? ActiveRule.Inheritance.NONE : ActiveRule.Inheritance.valueOf(expectedInheritance));
+
+        // Dates should be set
+        assertThat(activeRule.createdAt()).isNotNull();
+        assertThat(activeRule.updatedAt()).isNotNull();
 
         // verify parameters in es
         assertThat(activeRule.params()).hasSize(expectedParams.size());
