@@ -41,9 +41,11 @@ public class ElasticSearch extends org.sonar.process.Process {
   static final String COULD_NOT_PARSE_ARGUMENT_INTO_A_NUMBER = "Could not parse argument into a number";
 
   private final Node node;
+  private final Integer esPort;
 
-  public ElasticSearch(String name, int port) {
+  public ElasticSearch(Integer esPort, String name, int port) {
     super(name, port);
+    this.esPort = esPort;
 
     ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
 
@@ -70,8 +72,8 @@ public class ElasticSearch extends org.sonar.process.Process {
 //      .put("http.enabled", true)
 //      .put("http.host", "127.0.0.1")
 
-      .put("transport.tcp.port", 9300)
-      .put("http.port", 9200);
+      .put("transport.tcp.port", this.esPort);
+//      .put("http.port", 9200);
 
     File esDir = FileUtils.getTempDirectory();
     try {
@@ -86,6 +88,9 @@ public class ElasticSearch extends org.sonar.process.Process {
       .build().start();
   }
 
+  public Integer getEsPort() {
+    return esPort;
+  }
 
   @Override
   public void execute() {
@@ -121,14 +126,26 @@ public class ElasticSearch extends org.sonar.process.Process {
     }
   }
 
+  private static final Integer getEsPort(String... args) {
+    if (args[2].isEmpty()) {
+      throw new IllegalStateException(MISSING_PORT_ARGUMENT);
+    }
+    try {
+      return Integer.valueOf(args[2]);
+    } catch (Exception e) {
+      throw new IllegalStateException(COULD_NOT_PARSE_ARGUMENT_INTO_A_NUMBER);
+    }
+  }
+
   public static void main(String... args) {
-    if (args.length != 2) {
+    if (args.length != 3) {
       throw new IllegalStateException(MISSING_ARGUMENTS);
     }
     String name = ElasticSearch.getName(args);
     Integer port = ElasticSearch.getPort(args);
+    Integer esPort = ElasticSearch.getEsPort(args);
     LOGGER.info("Launching '{}' with heartbeat on port '{}'", name, port);
-    ElasticSearch elasticSearch = new ElasticSearch(name, port);
+    ElasticSearch elasticSearch = new ElasticSearch(esPort, name, port);
     elasticSearch.execute();
   }
 }

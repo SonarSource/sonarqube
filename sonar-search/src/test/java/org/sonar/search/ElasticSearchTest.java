@@ -43,7 +43,7 @@ public class ElasticSearchTest {
   @Before
   public void setup() throws SocketException {
     socket = new DatagramSocket(0);
-    elasticSearch = new ElasticSearch("test", socket.getLocalPort());
+    elasticSearch = new ElasticSearch(NetworkUtils.freePort(), "test", socket.getLocalPort());
   }
 
   @After
@@ -63,7 +63,7 @@ public class ElasticSearchTest {
       .put("cluster.name", "sonarqube")
       .build();
     TransportClient client = new TransportClient(settings)
-      .addTransportAddress(new InetSocketTransportAddress("localhost", 9300));
+      .addTransportAddress(new InetSocketTransportAddress("localhost", elasticSearch.getEsPort()));
 
 
     // 0 assert that we have a OK cluster available

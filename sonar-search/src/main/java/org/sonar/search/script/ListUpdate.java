@@ -19,7 +19,6 @@
  */
 package org.sonar.search.script;
 
-import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.xcontent.support.XContentMapValues;
 import org.elasticsearch.script.AbstractExecutableScript;
@@ -115,7 +114,7 @@ public class ListUpdate extends AbstractExecutableScript {
         if (XContentMapValues.nodeStringValue(currentFieldValue.get(idField), null).equals(idValue)) {
           source.put(field, value);
         } else {
-          source.put(field, ImmutableSet.of(fieldValue, value));
+          source.put(field, org.elasticsearch.common.collect.ImmutableSet.of(fieldValue, value));
         }
       } else {
         // 3. field is a list

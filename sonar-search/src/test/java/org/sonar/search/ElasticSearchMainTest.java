@@ -39,7 +39,7 @@ public class ElasticSearchMainTest {
   @Test
   public void fail_missing_name_arguments() {
     try {
-      ElasticSearch.main(new String[]{"", ""});
+      ElasticSearch.main(new String[]{"", "", ""});
       fail();
     } catch (Exception e) {
       assertThat(e.getMessage()).isEqualTo(ElasticSearch.MISSING_NAME_ARGUMENT);
@@ -49,7 +49,7 @@ public class ElasticSearchMainTest {
   @Test
   public void fail_missing_port_arguments() {
     try {
-      ElasticSearch.main(new String[]{"hello", ""});
+      ElasticSearch.main(new String[]{"hello", "", ""});
       fail();
     } catch (Exception e) {
       assertThat(e.getMessage()).isEqualTo(ElasticSearch.MISSING_PORT_ARGUMENT);
@@ -59,7 +59,7 @@ public class ElasticSearchMainTest {
   @Test
   public void fail_bad_port_arguments() {
     try {
-      ElasticSearch.main(new String[]{"hello", "x0x0x0x0"});
+      ElasticSearch.main(new String[]{"hello", "x0x0x0x0", ""});
       fail();
     } catch (Exception e) {
       assertThat(e.getMessage()).isEqualTo(ElasticSearch.COULD_NOT_PARSE_ARGUMENT_INTO_A_NUMBER);
