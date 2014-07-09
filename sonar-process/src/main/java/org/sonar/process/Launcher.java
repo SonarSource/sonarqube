@@ -45,12 +45,12 @@ public class Launcher extends Thread {
   }
 
   private void launch() {
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        Runner.main(name, socket.getLocalPort() + "");
-      }
-    }).start();
+//    new Thread(new Runnable() {
+//      @Override
+//      public void run() {
+//        Runner.main(name, socket.getLocalPort() + "");
+//      }
+//    }).start();
   }
 
   private void shutdown() {
@@ -61,6 +61,7 @@ public class Launcher extends Thread {
     long ping = Long.MAX_VALUE;
     try {
       while (true) {
+        LOGGER.info("My heart is beating");
         DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
         socket.receive(packet);
         long newPing = System.currentTimeMillis();

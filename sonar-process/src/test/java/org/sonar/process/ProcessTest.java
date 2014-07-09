@@ -19,6 +19,41 @@
  */
 package org.sonar.process;
 
-public class RunnerTest  {
+import org.junit.Test;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+
+public class ProcessTest {
+
+
+  @Test(timeout = 5000L)
+  public void heart_beats() throws InterruptedException, IOException {
+
+    DatagramSocket socket = new DatagramSocket(0);
+    Process test = testProcess("test", socket);
+
+    int ping = 0;
+    while (ping < 3) {
+      DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
+      socket.receive(packet);
+      ping++;
+    }
+
+    socket.close();
+  }
+
+  private Process testProcess(final String name, final DatagramSocket socket) {
+    return new Process(name, socket.getLocalPort()) {
+      @Override
+      public void execute() {
+        try {
+          Thread.sleep(10000L);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+    };
+  }
 }
