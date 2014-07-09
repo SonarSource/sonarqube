@@ -26,6 +26,8 @@ class Treemap extends window.SonarWidgets.BaseWidget
     @cells.attr 'title', (d) => @tooltip d
     @cells.style 'background-color', (d) =>
       if @colorMetric.value(d)? then @color @colorMetric.value(d) else @colorUnknown
+    @cells.classed 'treemap-cell-drilldown', (d) ->
+      d.qualifier? && d.qualifier != 'FIL' && d.qualifier != 'CLA'
 
     prefix = @mostCommonPrefix _.pluck @components(), 'longName'
     prefixLength = prefix.length
@@ -37,7 +39,6 @@ class Treemap extends window.SonarWidgets.BaseWidget
 
     @attachEvents cellsEnter
 
-    # Show maxResultsReached message
     @maxResultsReachedLabel.style 'display', if @maxResultsReached() then 'block' else 'none'
 
 
@@ -50,8 +51,14 @@ class Treemap extends window.SonarWidgets.BaseWidget
 
 
   attachEvents: (cells) ->
-    cells.on 'click', (d) =>
-      @requestChildren d
+    cells.on 'click', (d) => @requestChildren d
+    cells.on 'dblclick', (d) => @openDashboard d
+
+
+  openDashboard: (d) ->
+    url = @options().baseUrl + encodeURIComponent(d.key)
+    url += '?metric=' + encodeURIComponent(@colorMetric.key) if d.qualifier == 'CLA' || d.qualifier == 'FIL'
+    window.location = url
 
 
   positionCells: ->
@@ -112,6 +119,28 @@ class Treemap extends window.SonarWidgets.BaseWidget
       @updateBreadcrumbs()
 
 
+  getColorScale: ->
+    return @getLevelColorScale() if @colorMetric.type == 'LEVEL'
+    return @getRatingColorScale() if @colorMetric.type == 'RATING'
+    @getPercentColorScale()
+
+
+  getPercentColorScale: ->
+    color = d3.scale.linear().domain([0, 25, 50, 75, 100])
+    color.range if @colorMetric.direction == 1 then @colors5 else @colors5r
+    color
+
+
+  getRatingColorScale: ->
+    color = d3.scale.ordinal().domain([1, 2, 3, 4, 5]).range @colors5r
+    color
+
+
+  getLevelColorScale: ->
+    color = d3.scale.ordinal().domain(['ERROR', 'WARN', 'OK', 'NONE']).range @colorsLevel
+    color
+
+
   render: (container) ->
     box = d3.select(container).append('div')
     box.classed 'sonar-d3', true
@@ -122,11 +151,8 @@ class Treemap extends window.SonarWidgets.BaseWidget
     @addMetric 'sizeMetric', 1
 
     # Configure scales
-    @color = d3.scale.linear().domain([0, 25, 50, 75, 100])
-    if @colorMetric.direction == 1
-      @color.range @colors5
-    else
-      @color.range @colors5r
+    @color = @getColorScale()
+
     @size = d3.scale.linear().domain([3, 15]).range([@sizeLow, @sizeHigh]).clamp true
 
     @treemap = d3.layout.treemap()
@@ -148,9 +174,6 @@ class Treemap extends window.SonarWidgets.BaseWidget
     @treemap.size [@width(), @height()]
     @cells.data @getNodes()
     @positionCells()
-
-
-  stopDrilldown: ->
 
 
   formatComponents: (data) ->
@@ -181,7 +204,6 @@ class Treemap extends window.SonarWidgets.BaseWidget
         components = _.initial components, components.length - @options().maxItems - 1
         @updateTreemap components, components.length > @options().maxItems
         @addToBreadcrumbs _.extend d, components: components, maxResultsReached: @maxResultsReached()
-      else @stopDrilldown()
 
 
   mostCommonPrefix: (strings) ->

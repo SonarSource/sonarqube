@@ -7,6 +7,7 @@ class BaseWidget
   colors4r: ['#00aa00', '#80cc00', '#f77700', '#ee0000']
   colors5: ['#ee0000', '#f77700', '#ffee00', '#80cc00', '#00aa00']
   colors5r: ['#00aa00', '#80cc00', '#ffee00', '#f77700', '#ee0000']
+  colorsLevel: ['#d4333f', '#ff9900', '#85bb43', '##b4b4b4']
   colorUnknown: '#777'
 
 
@@ -35,8 +36,12 @@ class BaseWidget
     key = @metricsPriority()[index]
     @[property] = _.extend @metrics()[key],
       key: key
-      value: (d) -> d.measures[key]?.val
-      formattedValue: (d) -> d.measures[key]?.fval
+      value: (d) ->
+        if d.measures[key]?
+          if d.measures[key].text? then d.measures[key].text else d.measures[key].val
+      formattedValue: (d) ->
+        if d.measures[key]?
+          if d.measures[key].text? then d.measures[key].text else d.measures[key].fval
     @
 
 
