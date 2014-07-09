@@ -22,7 +22,6 @@ package org.sonar.core.config;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
@@ -39,18 +38,9 @@ public class CorePropertyDefinitions {
     defs.addAll(IssueExclusionProperties.all());
     defs.addAll(ExclusionProperties.all());
     defs.addAll(SecurityProperties.all());
+    defs.addAll(DebtProperties.all());
 
     defs.addAll(ImmutableList.of(
-
-      // DEBT
-      PropertyDefinition.builder(CoreProperties.HOURS_IN_DAY)
-        .name("Number of working hours in a day")
-        .type(PropertyType.INTEGER)
-        .defaultValue("8")
-        .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)
-        .deprecatedKey("sqale.hoursInDay")
-        .build(),
-
       // BATCH
 
       PropertyDefinition.builder(CoreProperties.CORE_VIOLATION_LOCALE_PROPERTY)
@@ -111,7 +101,7 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
         .build()
-    ));
+      ));
     return defs;
   }
 }

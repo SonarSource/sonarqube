@@ -567,4 +567,49 @@ public interface CoreProperties {
    * @since 4.0
    */
   String HOURS_IN_DAY = "sonar.technicalDebt.hoursInDay";
+
+  /**
+   * @since 4.5
+   */
+  String SIZE_METRIC = "sonar.technicalDebt.sizeMetric";
+
+  /**
+   * @since 4.5
+   */
+  String MAN_DAYS_BY_SIZE_POINT = "sonar.technicalDebt.workUnitsBySizePoint";
+
+  /**
+   * @since 4.5
+   */
+  String MAN_DAYS_BY_SIZE_POINT_DEF_VALUE = "30";
+
+  /**
+   * @since 4.5
+   */
+  String RATING_GRID = "sonar.technicalDebt.ratingGrid";
+
+  /**
+   * @since 4.5
+   */
+  String RATING_GRID_DEF_VALUES = "0.1,0.2,0.5,1";
+
+  /**
+   * @since 4.5
+   */
+  String LANGUAGE_SPECIFIC_PARAMETERS = "languageSpecificParameters";
+
+  /**
+   * @since 4.5
+   */
+  String LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY = "language";
+
+  /**
+   * @since 4.5
+   */
+  String LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY = "man_days";
+
+  /**
+   * @since 4.5
+   */
+  String LANGUAGE_SPECIFIC_PARAMETERS_SIZE_METRIC_KEY = "size_metric";
 }

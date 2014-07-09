@@ -28,20 +28,13 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.batch.DefaultProjectClasspath;
-import org.sonar.batch.DefaultSensorContext;
-import org.sonar.batch.DefaultTimeMachine;
-import org.sonar.batch.ProjectTree;
-import org.sonar.batch.ResourceFilters;
-import org.sonar.batch.ViolationFilters;
+import org.sonar.batch.*;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.batch.debt.DebtDecorator;
-import org.sonar.batch.debt.IssueChangelogDebtCalculator;
-import org.sonar.batch.debt.NewDebtDecorator;
+import org.sonar.batch.debt.*;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourcePersister;
@@ -60,26 +53,8 @@ import org.sonar.batch.phases.PhasesTimeProfiler;
 import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
 import org.sonar.batch.qualitygate.QualityGateProvider;
 import org.sonar.batch.qualitygate.QualityGateVerifier;
-import org.sonar.batch.rule.ActiveRulesProvider;
-import org.sonar.batch.rule.ModuleQProfiles;
-import org.sonar.batch.rule.QProfileDecorator;
-import org.sonar.batch.rule.QProfileEventsDecorator;
-import org.sonar.batch.rule.QProfileSensor;
-import org.sonar.batch.rule.QProfileVerifier;
-import org.sonar.batch.rule.RulesProfileProvider;
-import org.sonar.batch.scan.filesystem.ComponentIndexer;
-import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
-import org.sonar.batch.scan.filesystem.DeprecatedFileFilters;
-import org.sonar.batch.scan.filesystem.ExclusionFilters;
-import org.sonar.batch.scan.filesystem.FileIndexer;
-import org.sonar.batch.scan.filesystem.FileSystemLogger;
-import org.sonar.batch.scan.filesystem.InputFileBuilderFactory;
-import org.sonar.batch.scan.filesystem.LanguageDetectionFactory;
-import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
-import org.sonar.batch.scan.filesystem.ModuleInputFileCache;
-import org.sonar.batch.scan.filesystem.PreviousFileHashLoader;
-import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
-import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
+import org.sonar.batch.rule.*;
+import org.sonar.batch.scan.filesystem.*;
 import org.sonar.batch.scan.report.JsonReport;
 import org.sonar.batch.scan2.AnalyzerOptimizer;
 import org.sonar.core.component.ScanPerspectives;
@@ -189,6 +164,8 @@ public class ModuleScanContainer extends ComponentContainer {
       IssueChangelogDebtCalculator.class,
       DebtDecorator.class,
       NewDebtDecorator.class,
+      SqaleRatingDecorator.class,
+      SqaleRatingSettings.class,
 
       ScanPerspectives.class);
   }

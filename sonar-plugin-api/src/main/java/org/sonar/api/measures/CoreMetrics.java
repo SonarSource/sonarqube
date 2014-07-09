@@ -2122,6 +2122,39 @@ public final class CoreMetrics {
     .setDeleteHistoricalData(true)
     .create();
 
+  /**
+   * @since 4.5
+   */
+  public static final String SQALE_RATING_KEY = "sqale_rating";
+
+  /**
+   * @since 4.5
+   */
+  public static final Metric<String> RATING = new Metric.Builder(SQALE_RATING_KEY, "SQALE Rating", Metric.ValueType.RATING)
+    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(true)
+    .setBestValue(1.0)
+    .setWorstValue(5.0)
+    .create();
+
+  /**
+   * @since 4.5
+   */
+  public static final String DEVELOPMENT_COST_KEY = "development_cost";
+
+  /**
+   * @since 4.5
+   */
+  public static final Metric<String> DEVELOPMENT_COST = new Metric.Builder(DEVELOPMENT_COST_KEY, "SQALE Development Cost", Metric.ValueType.STRING)
+    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .setHidden(true)
+    .create();
+
   // --------------------------------------------------------------------------------------------------------------------
   //
   // FILE DATA
