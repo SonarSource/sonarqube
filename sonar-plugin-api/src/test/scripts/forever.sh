@@ -2,5 +2,5 @@
 
 while test "notempty"
 do
-  sleep 1
+  sleep 5s
 done

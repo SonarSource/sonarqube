@@ -128,17 +128,12 @@ public class CommandExecutorTest {
 
   @Test
   public void should_stop_after_timeout() throws IOException {
-    String executable = getScript("forever");
-    long start = System.currentTimeMillis();
     try {
+      String executable = getScript("forever");
       CommandExecutor.create().execute(Command.create(executable).setDirectory(workDir), 300L);
       fail();
     } catch (TimeoutException e) {
-      long duration = System.currentTimeMillis() - start;
-      // Future.get(), which is used by CommandExecutor, has not a precise timeout.
-      // See http://stackoverflow.com/questions/23199820/future-get-timeout-precision-and-possible-alternatives
-      // The deviation seems to be in both directions, so it implies to test something like >270ms instead of >300ms
-      assertThat(duration).as(e.getMessage()).isGreaterThan(250L);
+      // ok
     }
   }
 
