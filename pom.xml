@@ -13,6 +13,7 @@
   <modules>
     <module>sonar-application</module>
     <module>sonar-process</module>
+    <module>sonar-search</module>
     <module>sonar-batch</module>
     <module>sonar-batch-maven-compat</module>
     <module>sonar-check-api</module>
