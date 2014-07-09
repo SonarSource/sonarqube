@@ -53,9 +53,11 @@ public class RuleKey implements Serializable {
    * if the format is not valid.
    */
   public static RuleKey parse(String s) {
-    String[] split = s.split(":");
-    Preconditions.checkArgument(split.length == 2, "Invalid rule key: " + s);
-    return RuleKey.of(split[0], split[1]);
+    int semiColonPos = s.indexOf(":");
+    Preconditions.checkArgument(semiColonPos > 0, "Invalid rule key: " + s);
+    String key = s.substring(0, semiColonPos);
+    String repo = s.substring(semiColonPos + 1);
+    return RuleKey.of(key, repo);
   }
 
   /**
