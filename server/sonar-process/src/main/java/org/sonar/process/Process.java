@@ -28,9 +28,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-/**
- * @Since 4.5
- */
 public abstract class Process implements Runnable {
 
   public static final String NAME_PROPERTY = "pName";

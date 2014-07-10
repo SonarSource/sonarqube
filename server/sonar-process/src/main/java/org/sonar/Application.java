@@ -21,16 +21,15 @@ package org.sonar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.Launcher;
+import org.sonar.process.MonitorService;
+import org.sonar.process.ProcessWrapper;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-/**
- * @Since 4.5
- */
 public class Application {
 
   private final static Logger LOGGER = LoggerFactory.getLogger(Application.class);
@@ -43,27 +42,39 @@ public class Application {
   public static void main(String... args) throws InterruptedException, IOException {
 
     final ExecutorService executor = Executors.newFixedThreadPool(2);
-    final Launcher sonarQube = new Launcher("SQ", systemAvailableSocket());
-    final Launcher elasticsearch = new Launcher("ES", systemAvailableSocket());
+    final MonitorService monitor = new MonitorService(systemAvailableSocket());
+
+    //Create the processes
+    //final ProcessWrapper sonarQube = new ProcessWrapper("SQ", monitor);
+    final ProcessWrapper elasticsearch = null;//new ProcessWrapper("ES", monitor.getMonitoringPort());
+
+    //Register processes to monitor
+    monitor.register(elasticsearch);
 
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
         LOGGER.info("Shutting down sonar Node");
-        sonarQube.interrupt();
+        //sonarQube.shutdown();
         elasticsearch.interrupt();
-        executor.shutdownNow();
+        executor.shutdown();
+        try {
+          executor.awaitTermination(10L, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+          LOGGER.warn("Executing terminated", e);
+        }
       }
     });
 
-    LOGGER.info("Starting SQ Node...");
-    executor.submit(sonarQube);
-
-    LOGGER.info("Starting ES Node...");
+    // Start our processes
+    LOGGER.info("Starting Child processes...");
     executor.submit(elasticsearch);
+    //executor.submit(sonarQube);
 
-    while (!executor.isTerminated()) {
-      Thread.sleep(1000);
-    }
+    // And monitor the activity
+    monitor.run();
+
+    // If monitor is finished, we're done. Cleanup
+    executor.shutdown();
   }
 }

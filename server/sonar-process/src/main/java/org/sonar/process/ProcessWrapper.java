@@ -19,6 +19,28 @@
  */
 package org.sonar.process;
 
-public class LauncherTest  {
+import com.google.common.annotations.VisibleForTesting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class ProcessWrapper extends Thread {
+
+  private final static Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
+
+  final String name;
+
+  @VisibleForTesting
+  ProcessWrapper(String name, Integer port) {
+    LOGGER.info("Creating Launcher for '{}' with base port: {}", name, port);
+    this.name = name;
+  }
+
+  public ProcessWrapper(String className, String[] classPath, String name, Integer port) {
+    LOGGER.info("Creating Launcher for '{}' with base port: {}", name, port);
+    this.name = name;
+  }
+
+  public void run() {
+
+  }
 }
