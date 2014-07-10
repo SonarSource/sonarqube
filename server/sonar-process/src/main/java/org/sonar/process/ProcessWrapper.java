@@ -19,28 +19,84 @@
  */
 package org.sonar.process;
 
-import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Map;
 
 public class ProcessWrapper extends Thread {
 
   private final static Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
 
-  final String name;
+  final int port;
+  final String className;
+  final String[] classPath;
+  final Map<String, String> properties;
+  java.lang.Process process;
 
-  @VisibleForTesting
-  ProcessWrapper(String name, Integer port) {
+  public ProcessWrapper(String className, String[] classPath, Map<String, String> properties, String name, Integer port) {
+    super(name);
     LOGGER.info("Creating Launcher for '{}' with base port: {}", name, port);
-    this.name = name;
-  }
-
-  public ProcessWrapper(String className, String[] classPath, String name, Integer port) {
-    LOGGER.info("Creating Launcher for '{}' with base port: {}", name, port);
-    this.name = name;
+    this.port = port;
+    this.className = className;
+    this.classPath = classPath;
+    this.properties = properties;
   }
 
   public void run() {
+    ProcessBuilder processBuilder =
+      new ProcessBuilder("java", "-cp",
+        StringUtils.join(classPath, ":"),
+        className);
+    processBuilder.environment().putAll(properties);
+    processBuilder.environment().put(Process.NAME_PROPERTY, this.getName());
+    processBuilder.environment().put(Process.HEARTBEAT_PROPERTY, Integer.toString(port));
 
+    try {
+      process = processBuilder.start();
+      StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), "ERROR");
+      StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), "OUTPUT");
+      outputGobbler.start();
+      errorGobbler.start();
+      while (!currentThread().isInterrupted()) {
+        process.wait(100);
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Io Exception in ProcessWrapper", e);
+    } catch (InterruptedException e) {
+      LOGGER.warn("Process has been shutdown");
+    }
+  }
+
+  public void shutdown() {
+    this.process.destroy();
+  }
+
+  private class StreamGobbler extends Thread {
+    InputStream is;
+    String type;
+
+    private StreamGobbler(InputStream is, String type) {
+      this.is = is;
+      this.type = type;
+    }
+
+    @Override
+    public void run() {
+      try {
+        InputStreamReader isr = new InputStreamReader(is);
+        BufferedReader br = new BufferedReader(isr);
+        String line = null;
+        while ((line = br.readLine()) != null)
+          System.out.println(type + "> " + line);
+      } catch (IOException ioe) {
+        ioe.printStackTrace();
+      }
+    }
   }
 }

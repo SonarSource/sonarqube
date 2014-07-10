@@ -19,6 +19,7 @@
  */
 package org.sonar;
 
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MonitorService;
@@ -46,7 +47,11 @@ public class Application {
 
     //Create the processes
     //final ProcessWrapper sonarQube = new ProcessWrapper("SQ", monitor);
-    final ProcessWrapper elasticsearch = null;//new ProcessWrapper("ES", monitor.getMonitoringPort());
+    final ProcessWrapper elasticsearch = new ProcessWrapper(
+      "org.sonar.search.ElasticSearch",
+      new String[]{"/Volumes/data/sonar/sonarqube/server/sonar-search/target/sonar-search-4.5-SNAPSHOT.jar"},
+      ImmutableMap.of("esPort", "9200", "esHome", "/Volumes/data/sonar/sonarqube/server/sonar-search/target/"),
+      "ES", monitor.getMonitoringPort());
 
     //Register processes to monitor
     monitor.register(elasticsearch);
@@ -73,8 +78,9 @@ public class Application {
 
     // And monitor the activity
     monitor.run();
+    LOGGER.warn("Shutting down the node...");
 
     // If monitor is finished, we're done. Cleanup
-    executor.shutdown();
+    executor.shutdownNow();
   }
 }

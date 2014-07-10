@@ -86,14 +86,12 @@ public abstract class Process implements Runnable {
   @Override
   public void run() {
     LOGGER.info("Setting up heartbeat on port '{}'", port);
-    DatagramPacket client = null;
     try {
-      byte[] data = new byte[name.length()];
-      name.getBytes(0, name.length(), data, 0);
+      byte[] data = name.getBytes();
       DatagramPacket pack =
         new DatagramPacket(data, data.length, InetAddress.getLocalHost(), port);
       while (!Thread.currentThread().isInterrupted()) {
-        LOGGER.trace("My heart is beating");
+        LOGGER.trace("{} process ping mother-ship", name);
         DatagramSocket ds = new DatagramSocket();
         ds.send(pack);
         ds.close();
@@ -104,7 +102,7 @@ public abstract class Process implements Runnable {
         }
       }
     } catch (IOException e) {
-      throw new IllegalStateException("Monitoring Thread for " + name + " could not communicate to socket", e);
+      throw new IllegalStateException("Heartbeat Thread for " + name + " could not communicate to socket", e);
     }
     System.out.println("Closing  application");
   }

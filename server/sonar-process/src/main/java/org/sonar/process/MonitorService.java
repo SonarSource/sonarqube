@@ -1,3 +1,22 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.sonar.process;
 
 import org.slf4j.Logger;
@@ -13,46 +32,42 @@ public class MonitorService extends Thread {
   private final static Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
 
   final DatagramSocket socket;
-  final Map<String, Thread> processes;
+  final Map<String, ProcessWrapper> processes;
   final Map<String, Long> processesPing;
 
   public MonitorService(DatagramSocket socket) {
+    LOGGER.info("Monitor listening on socket:{}", socket.getLocalPort());
     this.socket = socket;
-    processes = new HashMap<String, Thread>();
+    processes = new HashMap<String, ProcessWrapper>();
     processesPing = new HashMap<String, Long>();
   }
 
   public void register(ProcessWrapper process) {
     this.processes.put(process.getName(), process);
-    this.processesPing.put(process.getName(), System.currentTimeMillis());
   }
 
   @Override
   public void run() {
     LOGGER.info("Launching Monitoring Thread");
-    long time = System.currentTimeMillis();
-    while (!currentThread().isInterrupted()) {
+    long time;
+    while (!Thread.currentThread().isInterrupted()) {
       DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
+      time = System.currentTimeMillis();
       try {
         socket.setSoTimeout(200);
         socket.receive(packet);
-        time = System.currentTimeMillis();
-        String message = new String(packet.getData());
-        long lastTime = processesPing.get(message);
+        String message = new String(packet.getData()).trim();
         processesPing.put(message, time);
-        LOGGER.info("{} last seen since {}ms", message, (time - lastTime));
       } catch (Exception e) {
-        // Do nothing
+        ; // To not do anything.
       }
       if (!checkAllProcessPing(time)) {
         break;
       }
     }
     LOGGER.info("Some app has not been pinging");
-    for (Thread process : processes.values()) {
-      if (!process.isInterrupted()) {
-        process.interrupt();
-      }
+    for (ProcessWrapper process : processes.values()) {
+      process.shutdown();
     }
   }
 
@@ -61,14 +76,14 @@ public class MonitorService extends Thread {
 
     //check that all thread wrapper are running
     for (Thread thread : processes.values()) {
-      if (thread.isInterrupted() || !thread.isAlive()) {
+      if (thread.isInterrupted()) {
         return false;
       }
     }
 
     //check that all heartbeats are OK
     for (Long ping : processesPing.values()) {
-      if ((now - ping) > 3000) {
+      if ((now - ping) > 5000) {
         return false;
       }
     }
@@ -76,6 +91,6 @@ public class MonitorService extends Thread {
   }
 
   public Integer getMonitoringPort() {
-    return socket.getPort();
+    return socket.getLocalPort();
   }
 }
