@@ -106,7 +106,7 @@ public final class SqaleRatingDecorator implements Decorator {
     InputFile file = fs.inputFile(fs.predicates().hasRelativePath(context.getResource().getKey()));
     if (file != null) {
       String language = file.language();
-      return getMeasureValue(context, sqaleRatingSettings.getSizeMetric(language, metrics)) * sqaleRatingSettings.getWorkUnitsBySizePoint(language);
+      return getMeasureValue(context, sqaleRatingSettings.getSizeMetric(language, metrics)) * sqaleRatingSettings.getDevCost(language);
     } else {
       Collection<Measure> childrenMeasures = context.getChildrenMeasures(CoreMetrics.DEVELOPMENT_COST);
       Double sum = sum(childrenMeasures);

@@ -64,7 +64,7 @@ public class SqaleRatingSettingsTest {
     settings.setProperty(CoreProperties.DEVELOPMENT_COST, "50");
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
-    assertThat(configurationLoader.getWorkUnitsBySizePoint("defaultLanguage")).isEqualTo(50L);
+    assertThat(configurationLoader.getDevCost("defaultLanguage")).isEqualTo(50L);
   }
 
   @Test
@@ -93,8 +93,8 @@ public class SqaleRatingSettingsTest {
 
     assertThat(configurationLoader.getSizeMetric(aLanguage, metrics)).isEqualTo(CoreMetrics.NCLOC);
     assertThat(configurationLoader.getSizeMetric(anotherLanguage, metrics)).isEqualTo(CoreMetrics.COMPLEXITY);
-    assertThat(configurationLoader.getWorkUnitsBySizePoint(aLanguage)).isEqualTo(30L);
-    assertThat(configurationLoader.getWorkUnitsBySizePoint(anotherLanguage)).isEqualTo(40L);
+    assertThat(configurationLoader.getDevCost(aLanguage)).isEqualTo(30L);
+    assertThat(configurationLoader.getDevCost(anotherLanguage)).isEqualTo(40L);
   }
 
   @Test
@@ -138,6 +138,6 @@ public class SqaleRatingSettingsTest {
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
     assertThat(configurationLoader.getSizeMetric(aLanguage, metrics)).isEqualTo(CoreMetrics.COMPLEXITY);
-    assertThat(configurationLoader.getWorkUnitsBySizePoint(aLanguage)).isEqualTo(40L);
+    assertThat(configurationLoader.getDevCost(aLanguage)).isEqualTo(40L);
   }
 }

@@ -48,7 +48,7 @@ public class SqaleRatingSettings implements BatchComponent {
     }
   }
 
-  public long getWorkUnitsBySizePoint(String languageKey) {
+  public long getDevCost(String languageKey) {
     try {
       LanguageSpecificConfiguration languageSpecificConfig = getSpecificParametersForLanguage(languageKey);
       if (languageSpecificConfig != null && languageSpecificConfig.getManDays() != null) {
