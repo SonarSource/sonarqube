@@ -52,13 +52,15 @@ public final class StartServer {
     final ExecutorService executor = Executors.newFixedThreadPool(2);
     final MonitorService monitor = new MonitorService(systemAvailableSocket());
 
+    final String esPort = Integer.toString(NetworkUtils.freePort());
+
     //Create the processes
     //final ProcessWrapper sonarQube = new ProcessWrapper("SQ", monitor);
     final ProcessWrapper elasticsearch = new ProcessWrapper(
       "org.sonar.search.ElasticSearch",
       new String[]{env.rootDir().getAbsolutePath() + "/lib/search/sonar-search-4.5-SNAPSHOT.jar"},
       ImmutableMap.of(
-        "esPort", Integer.toString(NetworkUtils.freePort()),
+        "esPort",esPort,
         "esHome", env.rootDir().getAbsolutePath()),
       "ES", monitor.getMonitoringPort());
 
