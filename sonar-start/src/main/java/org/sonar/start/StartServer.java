@@ -49,7 +49,6 @@ public final class StartServer {
 
   public void start() throws IOException {
 
-    System.out.println("LOGGER = " + env.rootDir().getAbsolutePath());
     final ExecutorService executor = Executors.newFixedThreadPool(2);
     final MonitorService monitor = new MonitorService(systemAvailableSocket());
 
