@@ -23,6 +23,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.Hibernate;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
@@ -32,6 +33,7 @@ import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import javax.annotation.CheckForNull;
 import javax.persistence.Query;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,11 +74,16 @@ public final class CacheRuleFinder implements RuleFinder {
       rulesByKey.put(repositoryKey, repository);
 
       for (Rule rule : findAll(RuleQuery.create().withRepositoryKey(repositoryKey))) {
+        hibernateHack(rule);
         repository.put(rule.getKey(), rule);
         rulesById.put(rule.getId(), rule);
       }
     }
     return repository;
+  }
+
+  private void hibernateHack(Rule rule) {
+    Hibernate.initialize(rule.getParams());
   }
 
   protected final Rule doFindById(int ruleId) {
@@ -88,7 +95,6 @@ public final class CacheRuleFinder implements RuleFinder {
         ),
       null);
   }
-
 
   @Override
   @CheckForNull
