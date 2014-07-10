@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>org.codehaus.sonar</groupId>
-    <artifactId>sonar-server-parent</artifactId>
+    <artifactId>server</artifactId>
     <version>4.5-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>

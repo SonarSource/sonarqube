@@ -6,7 +6,7 @@
     <artifactId>sonar</artifactId>
     <version>4.5-SNAPSHOT</version>
   </parent>
-  <artifactId>sonar-server-parent</artifactId>
+  <artifactId>server</artifactId>
   <packaging>pom</packaging>
   <name>SonarQube :: Server :: Parent</name>
 
