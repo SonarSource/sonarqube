@@ -19,17 +19,30 @@
  */
 package org.sonar.process;
 
+import com.google.common.io.Resources;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.URISyntaxException;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProcessTest {
 
+  @Test
+  public void process_loads() throws SocketException, URISyntaxException, MalformedURLException {
+    DatagramSocket socket = new DatagramSocket(0);
+    testProcess("test", socket);
+  }
 
   @Test(timeout = 5000L)
-  public void heart_beats() throws InterruptedException, IOException {
+  public void heart_beats() throws InterruptedException, IOException, URISyntaxException {
 
     DatagramSocket socket = new DatagramSocket(0);
     Process test = testProcess("test", socket);
@@ -49,8 +62,11 @@ public class ProcessTest {
     socket.close();
   }
 
-  private Process testProcess(final String name, final DatagramSocket socket) {
-    return new Process(name, socket.getLocalPort()) {
+  private Process testProcess(final String name, final DatagramSocket socket) throws URISyntaxException, MalformedURLException {
+    Env env = mock(Env.class);
+    File propsFile = new File(Resources.getResource(getClass(), "ProcessTest/sonar.properties").getFile());
+    when(env.file("conf/sonar.properties")).thenReturn(propsFile);
+    return new Process(env, name, socket.getLocalPort()) {
       @Override
       public void execute() {
         try {

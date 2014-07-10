@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * @Since 4.5
@@ -40,20 +43,25 @@ public abstract class Process implements Runnable {
   final String name;
   final int port;
 
-//  final protected Env env;
-//  final protected Props props;
+  final protected Env env;
+  final protected Props props;
 
-  public Process(String name, int port) {
+  public Process(String name, int port) throws URISyntaxException {
+    this(new Env(), name, port);
+  }
 
-//    // Loading Env from sonar.properties file.
-//    try {
-//      this.env = new Env();
-//    } catch (URISyntaxException e) {
-//      throw new IllegalStateException("Could not load Env", e);
-//    }
-//
-//    // Loading all Properties from file
-//    this.props = Props.create(env);
+  public Process(URL configFile, String name, int port) throws URISyntaxException {
+    this(new Env(configFile), name, port);
+  }
+
+  @VisibleForTesting
+  Process(Env env, String name, int port) {
+
+    // This is our environment
+    this.env = env;
+
+    // Loading all Properties from file
+    this.props = Props.create(env);
 
     this.name = name;
     this.port = port;
