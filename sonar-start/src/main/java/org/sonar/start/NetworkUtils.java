@@ -26,7 +26,10 @@ class NetworkUtils {
 
   static int freePort() {
     try {
-      return new ServerSocket(0).getLocalPort();
+      ServerSocket s =  new ServerSocket(0);
+      int port = s.getLocalPort();
+      s.close();
+      return port;
     } catch (IOException e) {
       throw new IllegalStateException("Can not find an open network port", e);
     }
