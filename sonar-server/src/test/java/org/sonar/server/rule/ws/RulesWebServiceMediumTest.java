@@ -179,7 +179,7 @@ public class RulesWebServiceMediumTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "debtRemFn,debtChar");
+    request.setParam(SearchOptions.PARAM_FIELDS, "debtRemFn,debtChar,debtCharName");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_debt_rule.json");
   }

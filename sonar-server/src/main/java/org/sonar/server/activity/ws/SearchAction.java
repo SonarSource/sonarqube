@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.activity.Activity;
 import org.sonar.server.activity.ActivityService;
-import org.sonar.server.activity.index.ActivityDoc;
 import org.sonar.server.activity.index.ActivityQuery;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
@@ -53,14 +52,14 @@ public class SearchAction implements RequestHandler {
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction(SEARCH_ACTION)
-      .setDescription("Search for a logs")
+      .setDescription("Search for activities")
       .setSince("4.4")
       .setInternal(true)
       .setHandler(this);
 
     // Other parameters
     action.createParam(PARAM_TYPE)
-      .setDescription("Select types of log to search")
+      .setDescription("Types of activities to search")
       .setPossibleValues(Activity.Type.values())
       .setDefaultValue(StringUtils.join(Activity.Type.values(), ","));
 
@@ -87,7 +86,7 @@ public class SearchAction implements RequestHandler {
   private void writeLogs(Result<Activity> result, JsonWriter json, SearchOptions options) {
     json.name("logs").beginArray();
     for (Activity log : result.getHits()) {
-      mapping.write((ActivityDoc) log, json, options);
+      mapping.write(log, json, options);
     }
     json.endArray();
   }

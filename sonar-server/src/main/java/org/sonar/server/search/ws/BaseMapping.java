@@ -34,15 +34,18 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Mapping of search documents (see BaseDoc) to WS JSON responses
+ * Mapping of search documents (see {@link org.sonar.server.search.BaseDoc}) to WS JSON responses
  */
-public abstract class BaseMapping implements ServerComponent {
+public abstract class BaseMapping<DOC extends BaseDoc, CTX> implements ServerComponent {
 
-  private final Multimap<String, String> indexFields = LinkedHashMultimap.create();
-  private final Multimap<String, BaseMapping.Field> fields = LinkedHashMultimap.create();
+  private final Multimap<String, String> indexFieldsByWsFields = LinkedHashMultimap.create();
+  private final Multimap<String, Mapper> mappers = LinkedHashMultimap.create();
 
+  /**
+   * All the WS supported fields
+   */
   public Set<String> supportedFields() {
-    return fields.keySet();
+    return mappers.keySet();
   }
 
   public QueryOptions newQueryOptions(SearchOptions options) {
@@ -51,67 +54,73 @@ public abstract class BaseMapping implements ServerComponent {
     List<String> optionFields = options.fields();
     if (optionFields != null) {
       for (String optionField : optionFields) {
-        result.addFieldsToReturn(this.indexFields.get(optionField));
+        result.addFieldsToReturn(indexFieldsByWsFields.get(optionField));
       }
     }
     return result;
   }
 
-  public void write(BaseDoc doc, JsonWriter json) {
-    write(doc, json, null);
+  /**
+   * Write all document fields
+   */
+  protected void doWrite(DOC doc, @Nullable CTX context, JsonWriter json) {
+    doWrite(doc, context, json, null);
   }
 
-  public void write(BaseDoc doc, JsonWriter json, @Nullable SearchOptions options) {
+  /**
+   * Write only requested document fields
+   */
+  protected void doWrite(DOC doc, @Nullable CTX context, JsonWriter json, @Nullable SearchOptions options) {
     json.beginObject();
     json.prop("key", doc.keyField());
     if (options == null || options.fields() == null) {
       // return all fields
-      for (BaseMapping.Field field : fields.values()) {
-        field.write(json, doc);
+      for (Mapper mapper : mappers.values()) {
+        mapper.write(json, doc, context);
       }
     } else {
       for (String optionField : options.fields()) {
-        for (BaseMapping.Field field : fields.get(optionField)) {
-          field.write(json, doc);
+        for (Mapper mapper : mappers.get(optionField)) {
+          mapper.write(json, doc, context);
         }
       }
     }
     json.endObject();
   }
 
-  protected BaseMapping addIndexStringField(String key, String indexKey) {
-    return addField(key, new IndexStringField(key, indexKey));
+  protected BaseMapping map(String key, String indexKey) {
+    return map(key, new IndexStringMapper(key, indexKey));
   }
 
-  protected BaseMapping addIndexBooleanField(String key, String indexKey) {
-    return addField(key, new IndexBooleanField(key, indexKey));
+  protected BaseMapping mapBoolean(String key, String indexKey) {
+    return map(key, new IndexBooleanMapper(key, indexKey));
   }
 
-  protected BaseMapping addIndexDatetimeField(String key, String indexKey) {
-    return addField(key, new IndexDatetimeField(key, indexKey));
+  protected BaseMapping mapDateTime(String key, String indexKey) {
+    return map(key, new IndexDatetimeMapper(key, indexKey));
   }
 
-  protected BaseMapping addIndexArrayField(String key, String indexKey) {
-    return addField(key, new IndexArrayField(key, indexKey));
+  protected BaseMapping mapArray(String key, String indexKey) {
+    return map(key, new IndexArrayMapper(key, indexKey));
   }
 
-  protected BaseMapping addField(String key, Field field) {
-    fields.put(key, field);
-    if (field instanceof IndexField) {
-      IndexField indexField = (IndexField) field;
-      indexFields.putAll(key, Arrays.asList(indexField.indexFields()));
+  protected BaseMapping map(String key, Mapper mapper) {
+    mappers.put(key, mapper);
+    if (mapper instanceof IndexMapper) {
+      IndexMapper indexField = (IndexMapper) mapper;
+      indexFieldsByWsFields.putAll(key, Arrays.asList(indexField.indexFields()));
     }
     return this;
   }
 
-  public static interface Field<D> {
-    void write(JsonWriter json, D doc);
+  public static interface Mapper<DOC extends BaseDoc, CTX> {
+    void write(JsonWriter json, DOC doc, CTX context);
   }
 
-  public abstract static class IndexField<D> implements Field<D> {
+  public abstract static class IndexMapper<DOC extends BaseDoc, CTX> implements Mapper<DOC, CTX> {
     protected final String[] indexFields;
 
-    protected IndexField(String... indexFields) {
+    protected IndexMapper(String... indexFields) {
       this.indexFields = indexFields;
     }
 
@@ -123,21 +132,21 @@ public abstract class BaseMapping implements ServerComponent {
   /**
    * String field
    */
-  public static class IndexStringField extends IndexField<BaseDoc> {
+  public static class IndexStringMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC,CTX> {
     private final String key;
 
-    public IndexStringField(String key, String indexKey, String defaultIndexKey) {
+    public IndexStringMapper(String key, String indexKey, String defaultIndexKey) {
       super(indexKey, defaultIndexKey);
       this.key = key;
     }
 
-    public IndexStringField(String key, String indexKey) {
+    public IndexStringMapper(String key, String indexKey) {
       super(indexKey);
       this.key = key;
     }
 
     @Override
-    public void write(JsonWriter json, BaseDoc doc) {
+    public void write(JsonWriter json, DOC doc, CTX context) {
       Object val = doc.getNullableField(indexFields[0]);
       if (val == null && indexFields.length == 2) {
         // There is an alternative value
@@ -147,31 +156,31 @@ public abstract class BaseMapping implements ServerComponent {
     }
   }
 
-  public static class IndexBooleanField extends IndexField<BaseDoc> {
+  public static class IndexBooleanMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC,CTX> {
     private final String key;
 
-    public IndexBooleanField(String key, String indexKey) {
+    public IndexBooleanMapper(String key, String indexKey) {
       super(indexKey);
       this.key = key;
     }
 
     @Override
-    public void write(JsonWriter json, BaseDoc doc) {
+    public void write(JsonWriter json, DOC doc, CTX context) {
       Boolean val = doc.getNullableField(indexFields[0]);
       json.prop(key, val != null ? val.booleanValue() : null);
     }
   }
 
-  public static class IndexArrayField extends IndexField<BaseDoc> {
+  public static class IndexArrayMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC,CTX> {
     private final String key;
 
-    public IndexArrayField(String key, String indexKey) {
+    public IndexArrayMapper(String key, String indexKey) {
       super(indexKey);
       this.key = key;
     }
 
     @Override
-    public void write(JsonWriter json, BaseDoc doc) {
+    public void write(JsonWriter json, DOC doc, CTX context) {
       Iterable<String> values = doc.getNullableField(indexFields[0]);
       if (values != null) {
         json.name(key).beginArray().values(values).endArray();
@@ -179,16 +188,16 @@ public abstract class BaseMapping implements ServerComponent {
     }
   }
 
-  public static class IndexDatetimeField extends IndexField<BaseDoc> {
+  public static class IndexDatetimeMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC,CTX> {
     private final String key;
 
-    public IndexDatetimeField(String key, String indexKey) {
+    public IndexDatetimeMapper(String key, String indexKey) {
       super(indexKey);
       this.key = key;
     }
 
     @Override
-    public void write(JsonWriter json, BaseDoc doc) {
+    public void write(JsonWriter json, DOC doc, CTX context) {
       String val = doc.getNullableField(indexFields[0]);
       if (val != null) {
         json.propDateTime(key, IndexUtils.parseDateTime(val));

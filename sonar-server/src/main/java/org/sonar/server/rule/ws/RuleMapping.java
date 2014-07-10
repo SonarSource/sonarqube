@@ -19,157 +19,213 @@
  */
 package org.sonar.server.rule.ws;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.server.debt.DebtCharacteristic;
+import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleParam;
+import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.ws.BaseMapping;
+import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.text.MacroInterpreter;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Map;
+
 /**
- * Conversion between RuleDoc and WS JSON response
+ * Conversion of {@link org.sonar.server.rule.index.RuleDoc} to WS JSON document
  */
-public class RuleMapping extends BaseMapping {
+public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
 
-  public RuleMapping(Languages languages, MacroInterpreter macroInterpreter) {
-    super();
-    addIndexStringField("repo", RuleNormalizer.RuleField.REPOSITORY.field());
-    addIndexStringField("name", RuleNormalizer.RuleField.NAME.field());
-    addIndexDatetimeField("createdAt", RuleNormalizer.RuleField.CREATED_AT.field());
-    addField("htmlDesc", new HtmlDescField(macroInterpreter));
-    addIndexStringField("severity", RuleNormalizer.RuleField.SEVERITY.field());
-    addIndexStringField("status", RuleNormalizer.RuleField.STATUS.field());
-    addIndexStringField("internalKey", RuleNormalizer.RuleField.INTERNAL_KEY.field());
-    addIndexBooleanField("isTemplate", RuleNormalizer.RuleField.IS_TEMPLATE.field());
-    addIndexStringField("templateKey", RuleNormalizer.RuleField.TEMPLATE_KEY.field());
-    addIndexArrayField("tags", RuleNormalizer.RuleField.TAGS.field());
-    addIndexArrayField("sysTags", RuleNormalizer.RuleField.SYSTEM_TAGS.field());
-    addField("defaultDebtChar", new IndexStringField("defaultDebtChar", RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field()));
-    addField("defaultDebtChar", new IndexStringField("defaultDebtSubChar", RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
-    addField("debtChar", new IndexStringField("debtChar", RuleNormalizer.RuleField.CHARACTERISTIC.field(),
-      RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field()));
-    addField("debtChar", new IndexStringField("debtSubChar", RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
-      RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
-    addField("debtRemFn", new IndexStringField("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field(),
-      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field()));
-    addField("debtRemFn", new IndexStringField("debtRemFnCoeff", RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field(),
-      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field()));
-    addField("debtRemFn", new IndexStringField("debtRemFnOffset", RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field(),
-      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field()));
-    addField("defaultDebtRemFn", new IndexStringField("defaultDebtRemFnType", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field()));
-    addField("defaultDebtRemFn", new IndexStringField("defaultDebtRemFnCoeff", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field()));
-    addField("defaultDebtRemFn", new IndexStringField("defaultDebtRemFnOffset", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field()));
-    addIndexStringField("effortToFixDescription", RuleNormalizer.RuleField.FIX_DESCRIPTION.field());
-    addIndexStringField("mdNote", RuleNormalizer.RuleField.NOTE.field());
-    addField("htmlNote", new HtmlNoteField(macroInterpreter));
-    addIndexStringField("noteLogin", RuleNormalizer.RuleField.NOTE_LOGIN.field());
-    addIndexStringField("lang", RuleNormalizer.RuleField.LANGUAGE.field());
-    addField("langName", new LangNameField(languages));
-    addField("debtCharName", new CharacteristicNameField());
-    addField("debtSubCharName", new SubCharacteristicNameField());
-    addField("debtOverloaded", new OverriddenField());
-    addField("params", new ParamsField());
+  private final DebtModel debtModel;
+
+  public RuleMapping(final Languages languages, final MacroInterpreter macroInterpreter, final DebtModel debtModel) {
+    this.debtModel = debtModel;
+
+    mapBasicFields(languages);
+    mapDescriptionFields(macroInterpreter);
+    mapDebtFields();
+    mapParamFields();
   }
 
-  private static class ParamsField extends IndexField<Rule> {
-    ParamsField() {
-      super(RuleNormalizer.RuleField.PARAMS.field());
-    }
-
-    @Override
-    public void write(JsonWriter json, Rule rule) {
-      json.name("params").beginArray();
-      for (RuleParam param : rule.params()) {
-        json
-          .beginObject()
-          .prop("key", param.key())
-          .prop("desc", param.description())
-          .prop("defaultValue", param.defaultValue())
-          .endObject();
+  private void mapBasicFields(final Languages languages) {
+    map("repo", RuleNormalizer.RuleField.REPOSITORY.field());
+    map("name", RuleNormalizer.RuleField.NAME.field());
+    mapDateTime("createdAt", RuleNormalizer.RuleField.CREATED_AT.field());
+    map("severity", RuleNormalizer.RuleField.SEVERITY.field());
+    map("status", RuleNormalizer.RuleField.STATUS.field());
+    map("internalKey", RuleNormalizer.RuleField.INTERNAL_KEY.field());
+    mapBoolean("isTemplate", RuleNormalizer.RuleField.IS_TEMPLATE.field());
+    map("templateKey", RuleNormalizer.RuleField.TEMPLATE_KEY.field());
+    mapArray("tags", RuleNormalizer.RuleField.TAGS.field());
+    mapArray("sysTags", RuleNormalizer.RuleField.SYSTEM_TAGS.field());
+    map("lang", RuleNormalizer.RuleField.LANGUAGE.field());
+    map("langName", new IndexMapper<RuleDoc, RuleMappingContext>(RuleNormalizer.RuleField.LANGUAGE.field()) {
+      @Override
+      public void write(JsonWriter json, RuleDoc rule, RuleMappingContext context) {
+        Language lang = languages.get(rule.language());
+        json.prop("langName", lang != null ? lang.getName() : null);
       }
-      json.endArray();
-    }
+    });
   }
 
-  private static class LangNameField extends IndexField<Rule> {
-    private final Languages languages;
-
-    private LangNameField(Languages languages) {
-      super(RuleNormalizer.RuleField.LANGUAGE.field());
-      this.languages = languages;
-    }
-
-    @Override
-    public void write(JsonWriter json, Rule rule) {
-      String langKey = rule.language();
-      Language lang = languages.get(langKey);
-      json.prop("langName", lang != null ? lang.getName() : null);
-    }
-  }
-
-  private static class HtmlNoteField extends IndexField<Rule> {
-    private final MacroInterpreter macroInterpreter;
-
-    private HtmlNoteField(MacroInterpreter macroInterpreter) {
-      super(RuleNormalizer.RuleField.NOTE.field());
-      this.macroInterpreter = macroInterpreter;
-    }
-
-    @Override
-    public void write(JsonWriter json, Rule rule) {
-      String markdownNote = rule.markdownNote();
-      if (markdownNote != null) {
-        json.prop("htmlNote", macroInterpreter.interpret(Markdown.convertToHtml(markdownNote)));
-      }
-    }
-  }
-
-  private static class HtmlDescField implements Field<Rule> {
-    private final MacroInterpreter macroInterpreter;
-
-    private HtmlDescField(MacroInterpreter macroInterpreter) {
-      this.macroInterpreter = macroInterpreter;
-    }
-
-    @Override
-    public void write(JsonWriter json, Rule rule) {
-      String html = rule.htmlDescription();
-      if (html != null) {
-        if (rule.isManual() || rule.templateKey() != null) {
-          String desc = StringEscapeUtils.escapeHtml(html);
-          desc = desc.replaceAll("\\n", "<br/>");
-          json.prop("htmlDesc", desc);
-        } else {
-          json.prop("htmlDesc", macroInterpreter.interpret(html));
+  private void mapDescriptionFields(final MacroInterpreter macroInterpreter) {
+    map("htmlDesc", new Mapper<RuleDoc, RuleMappingContext>() {
+      @Override
+      public void write(JsonWriter json, RuleDoc rule, RuleMappingContext context) {
+        String html = rule.htmlDescription();
+        if (html != null) {
+          if (rule.isManual() || rule.templateKey() != null) {
+            String desc = StringEscapeUtils.escapeHtml(html);
+            desc = desc.replaceAll("\\n", "<br/>");
+            json.prop("htmlDesc", desc);
+          } else {
+            json.prop("htmlDesc", macroInterpreter.interpret(html));
+          }
         }
       }
+    });
+    map("noteLogin", RuleNormalizer.RuleField.NOTE_LOGIN.field());
+    map("mdNote", RuleNormalizer.RuleField.NOTE.field());
+    map("htmlNote", new IndexMapper<RuleDoc, RuleMappingContext>(RuleNormalizer.RuleField.NOTE.field()) {
+      @Override
+      public void write(JsonWriter json, RuleDoc rule, RuleMappingContext context) {
+        String markdownNote = rule.markdownNote();
+        if (markdownNote != null) {
+          json.prop("htmlNote", macroInterpreter.interpret(Markdown.convertToHtml(markdownNote)));
+        }
+      }
+    });
+  }
+
+  private void mapDebtFields() {
+    map("defaultDebtChar", new IndexStringMapper("defaultDebtChar", RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field()));
+    map("defaultDebtSubChar", new IndexStringMapper("defaultDebtSubChar", RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
+    map("debtChar", new IndexStringMapper("debtChar", RuleNormalizer.RuleField.CHARACTERISTIC.field(),
+      RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field()));
+    map("debtSubChar", new IndexStringMapper("debtSubChar", RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
+      RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
+    map("debtCharName", new CharacteristicNameMapper());
+    map("debtSubCharName", new SubCharacteristicNameMapper());
+    map("debtRemFn", new IndexStringMapper("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field(),
+      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field()));
+    map("debtRemFn", new IndexStringMapper("debtRemFnCoeff", RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field(),
+      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field()));
+    map("debtRemFn", new IndexStringMapper("debtRemFnOffset", RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field(),
+      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field()));
+    map("defaultDebtRemFn", new IndexStringMapper("defaultDebtRemFnType", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field()));
+    map("defaultDebtRemFn", new IndexStringMapper("defaultDebtRemFnCoeff", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field()));
+    map("defaultDebtRemFn", new IndexStringMapper("defaultDebtRemFnOffset", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field()));
+    map("effortToFixDescription", RuleNormalizer.RuleField.FIX_DESCRIPTION.field());
+    map("debtOverloaded", new OverriddenMapper());
+  }
+
+  private void mapParamFields() {
+    map("params", new IndexMapper<RuleDoc, RuleMappingContext>(RuleNormalizer.RuleField.PARAMS.field()) {
+      @Override
+      public void write(JsonWriter json, RuleDoc rule, RuleMappingContext context) {
+        json.name("params").beginArray();
+        for (RuleParam param : rule.params()) {
+          json
+            .beginObject()
+            .prop("key", param.key())
+            .prop("desc", param.description())
+            .prop("defaultValue", param.defaultValue())
+            .endObject();
+        }
+        json.endArray();
+      }
+    });
+  }
+
+  public void write(Rule rule, JsonWriter json, @Nullable SearchOptions options) {
+    RuleMappingContext context = new RuleMappingContext();
+    if (needDebtCharacteristicNames(options) && rule.debtCharacteristicKey() != null) {
+      // load debt characteristics if requested
+      context.add(debtModel.characteristicByKey(rule.debtCharacteristicKey()));
+    }
+    if (needDebtSubCharacteristicNames(options) && rule.debtSubCharacteristicKey() != null) {
+      context.add(debtModel.characteristicByKey(rule.debtSubCharacteristicKey()));
+    }
+    doWrite((RuleDoc) rule, context, json, options);
+  }
+
+  public void write(Collection<Rule> rules, JsonWriter json, @Nullable SearchOptions options) {
+    if (!rules.isEmpty()) {
+      RuleMappingContext context = new RuleMappingContext();
+      if (needDebtCharacteristicNames(options) || needDebtSubCharacteristicNames(options)) {
+        // load all debt characteristics
+        context.addAll(debtModel.allCharacteristics());
+      }
+      for (Rule rule : rules) {
+        doWrite((RuleDoc) rule, context, json, options);
+      }
     }
   }
 
-  private static class CharacteristicNameField implements Field<Rule> {
+  private boolean needDebtCharacteristicNames(@Nullable SearchOptions options) {
+    return options == null || options.hasField("debtCharName");
+  }
+
+  private boolean needDebtSubCharacteristicNames(@Nullable SearchOptions options) {
+    return options == null || options.hasField("debtSubCharName");
+  }
+
+  private static class CharacteristicNameMapper extends IndexMapper<RuleDoc, RuleMappingContext> {
+    private CharacteristicNameMapper() {
+      super(RuleNormalizer.RuleField.CHARACTERISTIC.field(), RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field());
+    }
+
     @Override
-    public void write(JsonWriter json, Rule rule) {
-      // TODO set characteristic name
-      json.prop("debtCharName", rule.debtCharacteristicKey());
+    public void write(JsonWriter json, RuleDoc rule, RuleMappingContext context) {
+      json.prop("debtCharName", context.debtCharacteristicName(rule.debtCharacteristicKey()));
     }
   }
 
-  private static class SubCharacteristicNameField implements Field<Rule> {
+  private static class SubCharacteristicNameMapper extends IndexMapper<RuleDoc, RuleMappingContext> {
+    private SubCharacteristicNameMapper() {
+      super(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field());
+    }
+
     @Override
-    public void write(JsonWriter json, Rule rule) {
-      // TODO set characteristic name
-      json.prop("debtSubCharName", rule.debtSubCharacteristicKey());
+    public void write(JsonWriter json, RuleDoc rule, RuleMappingContext context) {
+      json.prop("debtSubCharName", context.debtCharacteristicName(rule.debtSubCharacteristicKey()));
     }
   }
 
-  private static class OverriddenField implements Field<Rule> {
+  private static class OverriddenMapper implements Mapper<RuleDoc, RuleMappingContext> {
     @Override
-    public void write(JsonWriter json, Rule rule) {
+    public void write(JsonWriter json, RuleDoc rule, RuleMappingContext context) {
       json.prop("debtOverloaded", rule.debtOverloaded());
+    }
+  }
+}
+
+class RuleMappingContext {
+  private final Map<String, String> debtCharacteristicNamesByKey = Maps.newHashMap();
+
+  @CheckForNull
+  public String debtCharacteristicName(String key) {
+    return debtCharacteristicNamesByKey.get(key);
+  }
+
+  void add(@Nullable DebtCharacteristic c) {
+    if (c != null) {
+      debtCharacteristicNamesByKey.put(c.key(), c.name());
+    }
+  }
+
+  void addAll(Collection<DebtCharacteristic> coll) {
+    for (DebtCharacteristic c : coll) {
+      add(c);
     }
   }
 }

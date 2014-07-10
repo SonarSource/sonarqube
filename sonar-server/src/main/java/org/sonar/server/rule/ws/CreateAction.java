@@ -35,7 +35,6 @@ import org.sonar.server.rule.NewRule;
 import org.sonar.server.rule.ReactivationException;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
-import org.sonar.server.search.BaseDoc;
 
 import java.io.OutputStreamWriter;
 
@@ -158,7 +157,7 @@ public class CreateAction implements RequestHandler {
   private void writeResponse(Response response, RuleKey ruleKey) {
     Rule rule = service.getNonNullByKey(ruleKey);
     JsonWriter json = response.newJsonWriter().beginObject().name("rule");
-    mapping.write((BaseDoc) rule, json);
+    mapping.write(rule, json, null /* TODO replace by SearchOptions immutable constant */);
     json.endObject().close();
   }
 
@@ -169,7 +168,7 @@ public class CreateAction implements RequestHandler {
     stream.setStatus(409);
     stream.setMediaType(MimeTypes.JSON);
     JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output())).beginObject().name("rule");
-    mapping.write((BaseDoc) rule, json);
+    mapping.write(rule, json, null /* TODO replace by SearchOptions immutable constant */);
     json.endObject().close();
   }
 }

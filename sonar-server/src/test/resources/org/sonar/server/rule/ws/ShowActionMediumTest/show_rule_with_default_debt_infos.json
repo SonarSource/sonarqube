@@ -1,9 +1,9 @@
 {
   "rule": {
     "debtChar": "API",
-    "debtCharName": "API",
+    "debtCharName": "Api",
     "debtSubChar": "API_ABUSE",
-    "debtSubCharName": "API_ABUSE",
+    "debtSubCharName": "API Abuse",
     "debtRemFnType": "LINEAR_OFFSET",
     "debtRemFnCoeff": "5d",
     "debtRemFnOffset": "10h",

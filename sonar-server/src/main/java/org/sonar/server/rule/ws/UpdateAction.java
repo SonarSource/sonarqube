@@ -37,7 +37,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleUpdate;
-import org.sonar.server.search.BaseDoc;
 
 public class UpdateAction implements RequestHandler {
 
@@ -160,7 +159,7 @@ public class UpdateAction implements RequestHandler {
     return update;
   }
 
-  private RuleUpdate createRuleUpdate(RuleKey key){
+  private RuleUpdate createRuleUpdate(RuleKey key) {
     Rule rule = service.getByKey(key);
     if (rule == null) {
       throw new NotFoundException("This rule does not exists : " + key);
@@ -215,7 +214,7 @@ public class UpdateAction implements RequestHandler {
   private void writeResponse(Response response, RuleKey ruleKey) {
     Rule rule = service.getNonNullByKey(ruleKey);
     JsonWriter json = response.newJsonWriter().beginObject().name("rule");
-    mapping.write((BaseDoc) rule, json);
+    mapping.write(rule, json, null /* TODO replace by SearchOptions immutable constant */);
     json.endObject().close();
   }
 }
