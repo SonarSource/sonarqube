@@ -97,7 +97,7 @@ public final class SqaleRatingDecorator implements Decorator {
 
   static String toRatingLetter(@Nullable Integer rating) {
     if (rating != null) {
-      return SqaleRatingGrid.SqaleRating.buildFromIndex(rating).name();
+      return SqaleRatingGrid.SqaleRating.createForIndex(rating).name();
     }
     return null;
   }

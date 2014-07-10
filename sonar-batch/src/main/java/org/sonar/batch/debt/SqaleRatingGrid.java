@@ -20,6 +20,7 @@
 
 package org.sonar.batch.debt;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.MessageException;
 
 import java.util.Arrays;
@@ -32,13 +33,6 @@ class SqaleRatingGrid {
     this.gridValues = Arrays.copyOf(gridValues, gridValues.length);
   }
 
-  public double getGradeLowerBound(SqaleRating rating) {
-    if (rating.getIndex() > 1) {
-      return gridValues[rating.getIndex() - 2];
-    }
-    return 0;
-  }
-
   public int getRatingForDensity(double density) {
     for (SqaleRating sqaleRating : SqaleRating.values()) {
       double lowerBound = getGradeLowerBound(sqaleRating);
@@ -47,6 +41,14 @@ class SqaleRatingGrid {
       }
     }
     throw MessageException.of("The SQALE density value should be between 0 and " + Double.MAX_VALUE + " and got " + density);
+  }
+
+  @VisibleForTesting
+  double getGradeLowerBound(SqaleRating rating) {
+    if (rating.getIndex() > 1) {
+      return gridValues[rating.getIndex() - 2];
+    }
+    return 0;
   }
 
   enum SqaleRating {
@@ -67,7 +69,7 @@ class SqaleRatingGrid {
       return index;
     }
 
-    public static SqaleRating buildFromIndex(int index) {
+    public static SqaleRating createForIndex(int index) {
       for (SqaleRating rating : values()) {
         if (rating.getIndex() == index) {
           return rating;
