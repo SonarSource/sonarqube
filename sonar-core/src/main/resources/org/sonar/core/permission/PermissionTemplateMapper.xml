@@ -3,45 +3,45 @@
 
 <mapper namespace="org.sonar.core.permission.PermissionTemplateMapper">
 
-  <insert id="insert" parameterType="PermissionTemplate" keyColumn="id" useGeneratedKeys="true" keyProperty="id" lang="raw">
+  <insert id="insert" parameterType="PermissionTemplate" keyColumn="id" useGeneratedKeys="true" keyProperty="id" >
     INSERT INTO permission_templates (name, kee, description, key_pattern, created_at, updated_at)
     VALUES (#{name}, #{kee}, #{description}, #{keyPattern}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <update id="update" parameterType="PermissionTemplate" lang="raw">
+  <update id="update" parameterType="PermissionTemplate" >
     UPDATE permission_templates
     SET name = #{name}, description = #{description}, key_pattern = #{keyPattern}, updated_at = #{updatedAt}
     WHERE id = #{id}
   </update>
 
-  <delete id="delete" parameterType="long" lang="raw">
+  <delete id="delete" parameterType="long" >
     DELETE FROM permission_templates
     WHERE id = #{templateId}
   </delete>
 
-  <delete id="deleteUsersPermissions" parameterType="long" lang="raw">
+  <delete id="deleteUsersPermissions" parameterType="long" >
     DELETE FROM perm_templates_users
     WHERE template_id = #{templateId}
   </delete>
 
-  <delete id="deleteGroupsPermissions" parameterType="long" lang="raw">
+  <delete id="deleteGroupsPermissions" parameterType="long" >
     DELETE FROM perm_templates_groups
     WHERE template_id = #{templateId}
   </delete>
 
-  <insert id="insertUserPermission" parameterType="PermissionTemplateUser" lang="raw">
+  <insert id="insertUserPermission" parameterType="PermissionTemplateUser" >
     INSERT INTO perm_templates_users (template_id, user_id, permission_reference, created_at, updated_at)
     VALUES (#{templateId}, #{userId}, #{permission}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <delete id="deleteUserPermission" parameterType="PermissionTemplateUser" lang="raw">
+  <delete id="deleteUserPermission" parameterType="PermissionTemplateUser" >
     DELETE FROM perm_templates_users
     WHERE template_id = #{templateId}
     AND user_id = #{userId}
     AND permission_reference = #{permission}
   </delete>
 
-  <insert id="insertGroupPermission" parameterType="PermissionTemplateGroup" lang="raw">
+  <insert id="insertGroupPermission" parameterType="PermissionTemplateGroup" >
     INSERT INTO perm_templates_groups (template_id, group_id, permission_reference, created_at, updated_at)
     VALUES (#{templateId}, #{groupId}, #{permission}, #{createdAt}, #{updatedAt})
   </insert>
@@ -108,18 +108,18 @@
     ORDER BY groups.name
   </select>
 
-  <select id="selectByKey" parameterType="String" resultType="PermissionTemplate" lang="raw">
+  <select id="selectByKey" parameterType="String" resultType="PermissionTemplate" >
     SELECT id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
     FROM permission_templates
     WHERE kee = #{kee}
   </select>
 
-  <select id="selectAllPermissionTemplates" resultType="PermissionTemplate" lang="raw">
+  <select id="selectAllPermissionTemplates" resultType="PermissionTemplate" >
     SELECT id, name, kee, description, key_pattern AS keyPattern, created_at AS createdAt, updated_at AS updatedAt
     FROM permission_templates
   </select>
 
-  <select id="selectTemplateUsersPermissions" parameterType="String" resultMap="fullPermissionsTemplateResult" lang="raw">
+  <select id="selectTemplateUsersPermissions" parameterType="String" resultMap="fullPermissionsTemplateResult" >
     SELECT  pt.id AS template_id,
             pt.name AS template_name,
             pt.description AS template_description,
@@ -137,7 +137,7 @@
     WHERE pt.kee = #{templateKey}
   </select>
 
-  <select id="selectTemplateGroupsPermissions" parameterType="String" resultMap="fullPermissionsTemplateResult" lang="raw">
+  <select id="selectTemplateGroupsPermissions" parameterType="String" resultMap="fullPermissionsTemplateResult" >
     SELECT  pt.id AS template_id,
             pt.name AS template_name,
             pt.description AS template_description,

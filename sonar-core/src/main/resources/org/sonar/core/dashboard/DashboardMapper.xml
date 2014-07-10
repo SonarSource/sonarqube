@@ -3,12 +3,12 @@
 
 <mapper namespace="org.sonar.core.dashboard.DashboardMapper">
 
-  <select id="selectGlobalDashboard" parameterType="string" resultType="Dashboard" lang="raw">
+  <select id="selectGlobalDashboard" parameterType="string" resultType="Dashboard" >
     select id, user_id as "userId", name, description, column_layout as "columnLayout", shared, is_global, created_at as "createdAt", updated_at as "updatedAt"
     from dashboards WHERE name=#{id} and user_id is null
   </select>
 
-  <insert id="insert" parameterType="Dashboard" keyColumn="id" useGeneratedKeys="true" keyProperty="id" lang="raw">
+  <insert id="insert" parameterType="Dashboard" keyColumn="id" useGeneratedKeys="true" keyProperty="id" >
     INSERT INTO dashboards (user_id, name, description, column_layout, shared, is_global, created_at, updated_at)
     VALUES (#{userId}, #{name}, #{description},
     #{columnLayout}, #{shared}, #{global}, #{createdAt}, #{updatedAt})

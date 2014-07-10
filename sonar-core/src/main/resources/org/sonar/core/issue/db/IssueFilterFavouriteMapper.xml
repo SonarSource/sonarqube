@@ -28,11 +28,11 @@
     VALUES (#{userLogin}, #{issueFilterId}, current_timestamp)
   </insert>
 
-  <delete id="delete" parameterType="long" lang="raw">
+  <delete id="delete" parameterType="long" >
     delete from issue_filter_favourites where id=#{id}
   </delete>
 
-  <delete id="deleteByFilterId" parameterType="long" lang="raw">
+  <delete id="deleteByFilterId" parameterType="long" >
     delete from issue_filter_favourites where issue_filter_id=#{issueFilterId}
   </delete>
 

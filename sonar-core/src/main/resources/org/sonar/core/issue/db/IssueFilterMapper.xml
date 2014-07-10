@@ -40,12 +40,12 @@
     where filters.shared=${_true}
   </select>
 
-  <insert id="insert" parameterType="IssueFilter" keyColumn="id" useGeneratedKeys="true" keyProperty="id" lang="raw">
+  <insert id="insert" parameterType="IssueFilter" keyColumn="id" useGeneratedKeys="true" keyProperty="id" >
     INSERT INTO issue_filters (name, user_login, shared, description, data, created_at, updated_at)
     VALUES (#{name}, #{userLogin}, #{shared}, #{description}, #{data}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <update id="update" parameterType="IssueFilter" lang="raw">
+  <update id="update" parameterType="IssueFilter" >
     update issue_filters set
     name=#{name},
     shared=#{shared},
@@ -56,7 +56,7 @@
     where id=#{id}
   </update>
 
-  <delete id="delete" parameterType="long" lang="raw">
+  <delete id="delete" parameterType="long" >
     delete from issue_filters where id=#{id}
   </delete>
 

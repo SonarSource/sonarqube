@@ -95,7 +95,7 @@
     VALUES (#{kee}, #{name}, #{parentId}, #{characteristicOrder}, #{enabled}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <update id="update" parameterType="Characteristic" lang="raw">
+  <update id="update" parameterType="Characteristic" >
     update characteristics set
     name=#{name},
     parent_id=#{parentId},
@@ -105,7 +105,7 @@
     where id=#{id}
   </update>
 
-  <select id="selectDeprecatedRequirements" resultType="RequirementMigration" lang="raw">
+  <select id="selectDeprecatedRequirements" resultType="RequirementMigration" >
     select id as "id",
     parent_id as "parentId",
     root_id as "rootId",
@@ -120,7 +120,7 @@
     where rule_id IS NOT NULL
   </select>
 
-  <delete id="deleteRequirementsFromCharacteristicsTable" lang="raw">
+  <delete id="deleteRequirementsFromCharacteristicsTable" >
     DELETE FROM characteristics WHERE rule_id IS NOT NULL
   </delete>
 </mapper>

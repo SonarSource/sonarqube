@@ -60,7 +60,7 @@
     </if>
   </sql>
 
-  <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id" lang="raw">
+  <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id" >
     INSERT INTO issues (kee, component_id, root_component_id, rule_id, action_plan_key, severity, manual_severity,
     message, line, effort_to_fix, technical_debt, status,
     resolution, checksum, reporter, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
@@ -74,7 +74,7 @@
   <!--
     IMPORTANT - invariant columns can't be updated. See IssueDto#toDtoForUpdate()
   -->
-  <update id="update" parameterType="Issue" lang="raw">
+  <update id="update" parameterType="Issue" >
     update issues set
     action_plan_key=#{actionPlanKey},
     severity=#{severity},
@@ -101,7 +101,7 @@
   <!--
    IMPORTANT - invariant columns can't be updated. See IssueDto#toDtoForUpdate()
  -->
-  <update id="updateIfBeforeSelectedDate" parameterType="Issue" lang="raw">
+  <update id="updateIfBeforeSelectedDate" parameterType="Issue" >
     update issues set
     action_plan_key=#{actionPlanKey},
     severity=#{severity},
@@ -135,7 +135,7 @@
     where i.kee=#{kee}
   </select>
 
-  <select id="selectNonClosedIssuesByModule" parameterType="int" resultType="Issue" lang="raw">
+  <select id="selectNonClosedIssuesByModule" parameterType="int" resultType="Issue" >
     select
       i.id,
       i.kee as kee,

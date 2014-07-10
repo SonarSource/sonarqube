@@ -3,13 +3,13 @@
 
 <mapper namespace="org.sonar.core.activity.db.ActivityMapper">
 
-  <insert id="insert" parameterType="Activity" useGeneratedKeys="false" lang="raw">
+  <insert id="insert" parameterType="Activity" useGeneratedKeys="false" >
     insert into activities
     (created_at, log_key, log_type, log_action, user_login, data_field, log_message)
     values (#{createdAt}, #{key}, #{type}, #{action}, #{author}, #{data}, #{message})
   </insert>
 
-  <select id="selectAll" parameterType="map" resultType="Activity" lang="raw">
+  <select id="selectAll" parameterType="map" resultType="Activity" >
     SELECT
     created_at as "createdAt",
     log_type as "type",

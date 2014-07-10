@@ -14,12 +14,12 @@
     p.rules_updated_at as rulesUpdatedAt
   </sql>
 
-  <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id" lang="raw">
+  <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id" >
     INSERT INTO rules_profiles (kee, parent_kee, name, language, created_at, updated_at, rules_updated_at)
     VALUES (#{kee}, #{parentKee}, #{name}, #{language}, #{createdAt}, #{updatedAt}, #{rulesUpdatedAt,})
   </insert>
 
-  <update id="update" parameterType="QualityProfile" lang="raw">
+  <update id="update" parameterType="QualityProfile" >
     UPDATE rules_profiles SET
     name=#{name},
     language=#{language},
@@ -29,7 +29,7 @@
     WHERE id=#{id}
   </update>
 
-  <update id="delete" parameterType="int" lang="raw">
+  <update id="delete" parameterType="int" >
     DELETE FROM rules_profiles WHERE id=#{id}
   </update>
 

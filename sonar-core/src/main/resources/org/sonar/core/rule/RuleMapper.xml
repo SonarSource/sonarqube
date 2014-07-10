@@ -124,7 +124,7 @@
     #{noteUpdatedAt}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <delete id="deleteParams" parameterType="Integer" lang="raw">
+  <delete id="deleteParams" parameterType="Integer" >
     delete from active_rule_parameters where rules_parameter_id=#{id}
   </delete>
 
@@ -159,16 +159,16 @@
     WHERE p.rule_id=#{ruleId} AND p.name=#{key}
   </select>
 
-  <delete id="deleteParameter" parameterType="Integer" lang="raw">
+  <delete id="deleteParameter" parameterType="Integer" >
     delete from rules_parameters where id=#{id}
   </delete>
 
-  <insert id="insertParameter" parameterType="RuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id" lang="raw">
+  <insert id="insertParameter" parameterType="RuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id" >
     INSERT INTO rules_parameters (rule_id, name, param_type, default_value, description)
     VALUES (#{ruleId}, #{name}, #{type}, #{defaultValue}, #{description})
   </insert>
 
-  <update id="updateParameter" parameterType="RuleParam" lang="raw">
+  <update id="updateParameter" parameterType="RuleParam" >
     UPDATE rules_parameters SET
       param_type=#{type},
       default_value=#{defaultValue},
@@ -176,7 +176,7 @@
     WHERE id=#{id}
   </update>
 
-  <select id="selectKeysOfRulesUpdatedSince" resultType="map" lang="raw">
+  <select id="selectKeysOfRulesUpdatedSince" resultType="map" >
     SELECT r.plugin_name as "repoField", r.plugin_rule_key as "ruleField"
     FROM rules r
     WHERE r.updated_at IS NULL or r.updated_at &gt;= #{id}

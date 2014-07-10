@@ -27,13 +27,13 @@
     )
   </select>
 
-  <select id="selectGlobalProperties" resultType="Property" lang="raw">
+  <select id="selectGlobalProperties" resultType="Property" >
     select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
     from properties p
     where p.resource_id is null and p.user_id is null
   </select>
 
-  <select id="selectProjectProperties" parameterType="String" resultType="Property" lang="raw">
+  <select id="selectProjectProperties" parameterType="String" resultType="Property" >
     select p.id as id, p.prop_key as "key", p.text_value as value, p.resource_id as resourceId, p.user_id as userId
     from properties p, projects r
     where p.resource_id=r.id and p.user_id is null and r.kee=#{id}
@@ -80,20 +80,20 @@
     </where>
   </select>
 
-  <update id="update" parameterType="Property" lang="raw">
+  <update id="update" parameterType="Property" >
     update properties set text_value = #{value} where id = #{id}
   </update>
 
-  <insert id="insert" parameterType="Property" useGeneratedKeys="false" lang="raw">
+  <insert id="insert" parameterType="Property" useGeneratedKeys="false" >
     INSERT INTO properties (prop_key, resource_id, user_id, text_value)
     VALUES (#{key}, #{resourceId}, #{userId}, #{value})
   </insert>
 
-  <delete id="deleteProjectProperty" parameterType="map" lang="raw">
+  <delete id="deleteProjectProperty" parameterType="map" >
     delete from properties where prop_key=#{key} and resource_id=#{rId} and user_id is null
   </delete>
 
-  <delete id="deleteProjectProperties" parameterType="map" lang="raw">
+  <delete id="deleteProjectProperties" parameterType="map" >
     DELETE FROM properties
     WHERE
       prop_key=#{key}
@@ -102,23 +102,23 @@
       AND user_id IS NULL
   </delete>
 
-  <delete id="deleteGlobalProperty" parameterType="string" lang="raw">
+  <delete id="deleteGlobalProperty" parameterType="string" >
     delete from properties where prop_key=#{id} and resource_id is null and user_id is null
   </delete>
 
-  <delete id="deleteGlobalProperties" lang="raw">
+  <delete id="deleteGlobalProperties" >
     delete from properties where resource_id is null and user_id is null
   </delete>
 
-  <delete id="deleteAllProperties" parameterType="string" lang="raw">
+  <delete id="deleteAllProperties" parameterType="string" >
     delete from properties where prop_key=#{id}
   </delete>
 
-  <update id="renamePropertyKey" parameterType="map" lang="raw">
+  <update id="renamePropertyKey" parameterType="map" >
     update properties set prop_key=#{newKey} where prop_key=#{oldKey}
   </update>
 
-  <update id="updateProperties" parameterType="map" lang="raw">
+  <update id="updateProperties" parameterType="map" >
     update properties set text_value=#{newValue} where text_value LIKE #{oldValue} and prop_key=#{key}
   </update>
 
