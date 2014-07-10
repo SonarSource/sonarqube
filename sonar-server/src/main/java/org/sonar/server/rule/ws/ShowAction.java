@@ -29,7 +29,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
-import org.sonar.server.search.BaseDoc;
 
 /**
  * @since 4.4
@@ -78,7 +77,7 @@ public class ShowAction implements RequestHandler {
       throw new NotFoundException("Rule not found: " + key);
     }
     JsonWriter json = response.newJsonWriter().beginObject().name("rule");
-    mapping.write((BaseDoc) rule, json);
+    mapping.write(rule, json, null /* TODO replace by SearchOptions immutable constant */);
 
     if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
       activeRuleCompleter.completeShow(rule, json);

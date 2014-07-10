@@ -21,6 +21,7 @@ package org.sonar.server.rule.ws;
 
 import org.junit.Test;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.QueryOptions;
@@ -34,10 +35,11 @@ public class RuleMappingTest {
 
   Languages languages = new Languages();
   MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
+  DebtModel debtModel = mock(DebtModel.class);
 
   @Test
   public void toQueryOptions_load_all_fields() throws Exception {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
@@ -48,7 +50,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_load_only_few_simple_fields() throws Exception {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
@@ -63,7 +65,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_langName_requires_lang() throws Exception {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
@@ -75,7 +77,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_debt_requires_group_of_fields() throws Exception {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
@@ -93,7 +95,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_html_note_requires_markdown_note() throws Exception {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
@@ -105,7 +107,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_debt_characteristics() throws Exception {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
@@ -114,8 +116,6 @@ public class RuleMappingTest {
 
     assertThat(queryOptions.getFieldsToReturn()).containsOnly(
       RuleNormalizer.RuleField.CHARACTERISTIC.field(),
-      RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
-      RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field(),
-      RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field());
+      RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field());
   }
 }

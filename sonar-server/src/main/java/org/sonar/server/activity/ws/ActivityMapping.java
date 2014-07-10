@@ -22,40 +22,39 @@ package org.sonar.server.activity.ws;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.activity.Activity;
+import org.sonar.server.activity.index.ActivityDoc;
 import org.sonar.server.activity.index.ActivityNormalizer;
 import org.sonar.server.search.ws.BaseMapping;
+import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.text.MacroInterpreter;
 
 import java.util.Map;
 
 /**
- * Conversion between Log and WS JSON response
+ * Conversion between {@link org.sonar.server.activity.index.ActivityDoc} and WS JSON response
  */
-public class ActivityMapping extends BaseMapping {
-
+public class ActivityMapping extends BaseMapping<ActivityDoc, Object> {
 
   public ActivityMapping(Languages languages, MacroInterpreter macroInterpreter) {
-    super();
-    addIndexStringField("type", ActivityNormalizer.LogFields.TYPE.field());
-    addIndexStringField("action", ActivityNormalizer.LogFields.ACTION.field());
-    addIndexDatetimeField("createdAt", ActivityNormalizer.LogFields.CREATED_AT.field());
-    addIndexStringField("login", ActivityNormalizer.LogFields.LOGIN.field());
-    addIndexStringField("message", ActivityNormalizer.LogFields.MESSAGE.field());
-    addField("details", new DetailField());
-  }
-
-  private static class DetailField extends IndexField<Activity> {
-    DetailField() {
-      super(ActivityNormalizer.LogFields.DETAILS.field());
-    }
-
-    @Override
-    public void write(JsonWriter json, Activity activity) {
-      json.name("details").beginObject();
-      for (Map.Entry<String, String> detail : activity.details().entrySet()) {
-        json.prop(detail.getKey(), detail.getValue());
+    map("type", ActivityNormalizer.LogFields.TYPE.field());
+    map("action", ActivityNormalizer.LogFields.ACTION.field());
+    mapDateTime("createdAt", ActivityNormalizer.LogFields.CREATED_AT.field());
+    map("login", ActivityNormalizer.LogFields.LOGIN.field());
+    map("message", ActivityNormalizer.LogFields.MESSAGE.field());
+    map("details", new IndexMapper<ActivityDoc, Object>(ActivityNormalizer.LogFields.DETAILS.field()) {
+      @Override
+      public void write(JsonWriter json, ActivityDoc activity, Object context) {
+        json.name("details").beginObject();
+        for (Map.Entry<String, String> detail : activity.details().entrySet()) {
+          json.prop(detail.getKey(), detail.getValue());
+        }
+        json.endObject();
       }
-      json.endObject();
-    }
+    });
   }
+
+  public void write(Activity activity, JsonWriter writer, SearchOptions options) {
+    doWrite((ActivityDoc)activity, null, writer, options);
+  }
+
 }

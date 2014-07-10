@@ -102,7 +102,7 @@ public class ShowActionMediumTest {
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
 
-    CharacteristicDto characteristicDto = new CharacteristicDto().setKey("API").setName("API").setEnabled(true);
+    CharacteristicDto characteristicDto = new CharacteristicDto().setKey("API").setName("Api").setEnabled(true);
     tester.get(CharacteristicDao.class).insert(characteristicDto, session);
     CharacteristicDto subCharacteristicDto = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(characteristicDto.getId());
     tester.get(CharacteristicDao.class).insert(subCharacteristicDto, session);
@@ -131,7 +131,6 @@ public class ShowActionMediumTest {
       .setParam("key", ruleDto.getKey().toString());
     WsTester.Result response = request.execute();
 
-    System.out.println("response = " + response.outputAsString());
     response.assertJson(getClass(), "show_rule_with_default_debt_infos.json", false);
   }
 
@@ -141,7 +140,7 @@ public class ShowActionMediumTest {
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
 
-    CharacteristicDto characteristicDto = new CharacteristicDto().setKey("API").setName("API").setEnabled(true);
+    CharacteristicDto characteristicDto = new CharacteristicDto().setKey("API").setName("Api").setEnabled(true);
     tester.get(CharacteristicDao.class).insert(characteristicDto, session);
     CharacteristicDto subCharacteristicDto = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(characteristicDto.getId());
     tester.get(CharacteristicDao.class).insert(subCharacteristicDto, session);
@@ -177,12 +176,12 @@ public class ShowActionMediumTest {
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
 
-    CharacteristicDto defaultCharacteristic = new CharacteristicDto().setKey("API").setName("API").setEnabled(true);
+    CharacteristicDto defaultCharacteristic = new CharacteristicDto().setKey("API").setName("Api").setEnabled(true);
     tester.get(CharacteristicDao.class).insert(defaultCharacteristic, session);
     CharacteristicDto defaultSubCharacteristic = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(defaultCharacteristic.getId());
     tester.get(CharacteristicDao.class).insert(defaultSubCharacteristic, session);
 
-    CharacteristicDto characteristic = new CharacteristicDto().setKey("OS").setName("OS").setEnabled(true);
+    CharacteristicDto characteristic = new CharacteristicDto().setKey("OS").setName("Os").setEnabled(true);
     tester.get(CharacteristicDao.class).insert(characteristic, session);
     CharacteristicDto subCharacteristic = new CharacteristicDto().setKey("OS_RELATED_PORTABILITY").setName("Portability").setEnabled(true).setParentId(characteristic.getId());
     tester.get(CharacteristicDao.class).insert(subCharacteristic, session);

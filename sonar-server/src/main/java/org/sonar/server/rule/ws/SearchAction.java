@@ -110,7 +110,7 @@ public class SearchAction implements RequestHandler {
 
     action
       .createParam(PARAM_KEY)
-      .setDescription("Single or list of keys of rule to search for")
+      .setDescription("Key of rule to search for")
       .setExampleValue("squid:S001");
 
     action
