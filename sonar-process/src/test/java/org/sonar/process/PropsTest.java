@@ -19,17 +19,12 @@
  */
 package org.sonar.process;
 
-import com.google.common.io.Resources;
-import org.apache.commons.io.FilenameUtils;
 import org.junit.Test;
 
-import java.io.File;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PropsTest {
 
@@ -97,39 +92,5 @@ public class PropsTest {
     assertThat(props.booleanOf("unset", true)).isTrue();
     assertThat(props.booleanOf("foo", false)).isTrue();
     assertThat(props.booleanOf("bar", true)).isFalse();
-  }
-
-  @Test
-  public void load_file_and_system_properties() throws Exception {
-    System.setProperty("hello", "bar");
-
-    Env env = mock(Env.class);
-    File propsFile = new File(Resources.getResource(getClass(), "PropsTest/sonar.properties").getFile());
-    when(env.file("conf/sonar.properties")).thenReturn(propsFile);
-
-    Props props = Props.create(env);
-
-    assertThat(props.of("foo")).isEqualTo("bar");
-    assertThat(props.of("java.version")).isNotNull();
-
-    // system properties override file properties
-    assertThat(props.of("hello")).isEqualTo("bar");
-    assertThat(props.of("java.io.tmpdir")).isNotEmpty().isNotEqualTo("/should/be/overridden");
-
-    assertThat(System.getProperty("foo")).isEqualTo("bar");
-    assertThat(System.getProperty("hello")).isEqualTo("bar");
-  }
-
-  @Test
-  public void fail_if_file_does_not_exist() throws Exception {
-    Env env = mock(Env.class);
-    when(env.file("conf/sonar.properties")).thenReturn(new File("target/not_exist/sonar.properties"));
-
-    try {
-      Props.create(env);
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("File does not exist or can't be open: " + FilenameUtils.separatorsToSystem("target/not_exist/sonar.properties"));
-    }
   }
 }

@@ -19,15 +19,11 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.io.IOUtils;
-
 import javax.annotation.Nullable;
-import java.io.File;
-import java.io.FileReader;
 import java.util.Map;
 import java.util.Properties;
 
-class Props {
+public class Props {
 
   private final Properties props;
 
@@ -35,26 +31,26 @@ class Props {
     this.props = props;
   }
 
-  String of(String key) {
+  public String of(String key) {
     return props.getProperty(key);
   }
 
-  String of(String key, @Nullable String defaultValue) {
+  public String of(String key, @Nullable String defaultValue) {
     String s = of(key);
     return s == null ? defaultValue : s;
   }
 
-  boolean booleanOf(String key) {
+  public boolean booleanOf(String key) {
     String s = of(key);
     return s != null && Boolean.parseBoolean(s);
   }
 
-  boolean booleanOf(String key, boolean defaultValue) {
+  public boolean booleanOf(String key, boolean defaultValue) {
     String s = of(key);
     return s != null ? Boolean.parseBoolean(s) : defaultValue;
   }
 
-  Integer intOf(String key) {
+  public Integer intOf(String key) {
     String s = of(key);
     if (s != null && !"".equals(s)) {
       try {
@@ -66,37 +62,26 @@ class Props {
     return null;
   }
 
-  int intOf(String key, int defaultValue) {
+  public int intOf(String key, int defaultValue) {
     Integer i = intOf(key);
     return i == null ? defaultValue : i;
   }
 
-  static Props create(Env env) {
-    File propsFile = env.file("conf/sonar.properties");
+  public static Props create(Properties properties) {
     Properties p = new Properties();
-    FileReader reader = null;
-    try {
-      reader = new FileReader(propsFile);
 
-      // order is important : the last override the first
-      p.load(reader);
-      p.putAll(System.getenv());
-      p.putAll(System.getProperties());
+    // order is important : the last override the first
+    p.putAll(System.getenv());
+    p.putAll(System.getProperties());
+    p.putAll(properties);
 
-      p = ConfigurationUtils.interpolateEnvVariables(p);
-      p = decrypt(p);
+    p = ConfigurationUtils.interpolateEnvVariables(p);
+    p = decrypt(p);
 
-      // Set all properties as system properties to pass them to PlatformServletContextListener
-      System.setProperties(p);
+    // Set all properties as system properties to pass them to PlatformServletContextListener
+    // System.setProperties(p);
 
-      return new Props(p);
-
-    } catch (Exception e) {
-      throw new IllegalStateException("File does not exist or can't be open: " + propsFile, e);
-
-    } finally {
-      IOUtils.closeQuietly(reader);
-    }
+    return new Props(p);
   }
 
   static Properties decrypt(Properties properties) {

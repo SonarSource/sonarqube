@@ -19,7 +19,7 @@
  */
 package org.sonar.search;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.common.logging.ESLoggerFactory;
 import org.elasticsearch.common.logging.slf4j.Slf4jESLoggerFactory;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -27,25 +27,41 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.Props;
 import org.sonar.search.script.ListUpdate;
-
-import java.io.File;
 
 public class ElasticSearch extends org.sonar.process.Process {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearch.class);
 
-  static final String MISSING_ARGUMENTS = "2 arguments are required for org.sonar.search.Application";
-  static final String MISSING_NAME_ARGUMENT = "Missing Name argument";
-  static final String MISSING_PORT_ARGUMENT = "Missing Port argument";
-  static final String COULD_NOT_PARSE_ARGUMENT_INTO_A_NUMBER = "Could not parse argument into a number";
+  public static final String ES_PORT_PROPERTY = "esPort";
+  public static final String ES_CLUSTER_PROPERTY = "esCluster";
+  public static final String ES_HOME_PROPERTY = "esHome";
+
+  public static final String MISSING_ES_PORT = "Missing ES port Argument";
+  public static final String MISSING_ES_HOME = "Missing ES home directory Argument";
+
+  public static final String DEFAULT_CLUSTER_NAME = "sonarqube";
 
   private final Node node;
-  private final Integer esPort;
 
-  public ElasticSearch(Integer esPort, String name, int port) {
-    super(name, port);
-    this.esPort = esPort;
+  public ElasticSearch(Props props) {
+    super(props);
+
+
+    if (StringUtils.isEmpty(props.of(ES_HOME_PROPERTY, null))) {
+      throw new IllegalStateException(MISSING_ES_HOME);
+    }
+    String home = props.of(ES_HOME_PROPERTY);
+
+
+    if (StringUtils.isEmpty(props.of(ES_PORT_PROPERTY, null))) {
+      throw new IllegalStateException(MISSING_ES_PORT);
+    }
+    Integer port = props.intOf(ES_PORT_PROPERTY);
+
+
+    String clusterName = props.of(ES_CLUSTER_PROPERTY, DEFAULT_CLUSTER_NAME);
 
     ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
 
@@ -62,34 +78,24 @@ public class ElasticSearch extends org.sonar.process.Process {
       .put("script.default_lang", "native")
       .put("script.native." + ListUpdate.NAME + ".type", ListUpdate.UpdateListScriptFactory.class.getName())
 //
-      .put("cluster.name", "sonarqube")
+      .put("cluster.name", clusterName)
 //
       .put("node.name", "sonarqube-" + System.currentTimeMillis())
       .put("node.data", true)
       .put("node.local", false)
 //
 //      .put("network.bind_host", "127.0.0.1")
-//      .put("http.enabled", true)
+      .put("http.enabled", false)
 //      .put("http.host", "127.0.0.1")
 
-      .put("transport.tcp.port", this.esPort);
+      .put("transport.tcp.port", port)
 //      .put("http.port", 9200);
 
-    File esDir = FileUtils.getTempDirectory();
-    try {
-      FileUtils.forceMkdir(esDir);
-      esSettings.put("path.home", esDir.getAbsolutePath());
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to create directory " + esDir.getAbsolutePath(), e);
-    }
+      .put("path.home", home);
 
     node = NodeBuilder.nodeBuilder()
       .settings(esSettings)
       .build().start();
-  }
-
-  public Integer getEsPort() {
-    return esPort;
   }
 
   @Override
@@ -105,47 +111,15 @@ public class ElasticSearch extends org.sonar.process.Process {
   }
 
   public void shutdown() {
-    this.node.close();
-  }
-
-  private static final String getName(String... args) {
-    if (args[0].isEmpty()) {
-      throw new IllegalStateException(MISSING_NAME_ARGUMENT);
+    if (node != null) {
+      this.node.close();
     }
-    return args[0];
-  }
-
-  private static final Integer getPort(String... args) {
-    if (args[1].isEmpty()) {
-      throw new IllegalStateException(MISSING_PORT_ARGUMENT);
-    }
-    try {
-      return Integer.valueOf(args[1]);
-    } catch (Exception e) {
-      throw new IllegalStateException(COULD_NOT_PARSE_ARGUMENT_INTO_A_NUMBER);
-    }
-  }
-
-  private static final Integer getEsPort(String... args) {
-    if (args[2].isEmpty()) {
-      throw new IllegalStateException(MISSING_PORT_ARGUMENT);
-    }
-    try {
-      return Integer.valueOf(args[2]);
-    } catch (Exception e) {
-      throw new IllegalStateException(COULD_NOT_PARSE_ARGUMENT_INTO_A_NUMBER);
-    }
+    super.shutdown();
   }
 
   public static void main(String... args) {
-    if (args.length != 3) {
-      throw new IllegalStateException(MISSING_ARGUMENTS);
-    }
-    String name = ElasticSearch.getName(args);
-    Integer port = ElasticSearch.getPort(args);
-    Integer esPort = ElasticSearch.getEsPort(args);
-    LOGGER.info("Launching '{}' with heartbeat on port '{}'", name, port);
-    ElasticSearch elasticSearch = new ElasticSearch(esPort, name, port);
+    Props props = Props.create(System.getProperties());
+    ElasticSearch elasticSearch = new ElasticSearch(props);
     elasticSearch.execute();
   }
 }

@@ -19,7 +19,7 @@
  */
 package org.sonar.process;
 
-import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,13 +27,18 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.URISyntaxException;
-import java.net.URL;
 
 /**
  * @Since 4.5
  */
 public abstract class Process implements Runnable {
+
+  public static final String NAME_PROPERTY = "pName";
+  public static final String HEARTBEAT_PROPERTY = "pPort";
+
+  public static final String MISSING_NAME_ARGUMENT = "Missing Name argument";
+  public static final String MISSING_PORT_ARGUMENT = "Missing Port argument";
+
 
   private final static Logger LOGGER = LoggerFactory.getLogger(Process.class);
 
@@ -41,30 +46,34 @@ public abstract class Process implements Runnable {
   private final Thread monitor;
 
   final String name;
-  final int port;
+  final Integer port;
 
-  final protected Env env;
   final protected Props props;
 
-  public Process(String name, int port) throws URISyntaxException {
-    this(new Env(), name, port);
-  }
-
-  public Process(URL configFile, String name, int port) throws URISyntaxException {
-    this(new Env(configFile), name, port);
-  }
-
-  @VisibleForTesting
-  Process(Env env, String name, int port) {
-
-    // This is our environment
-    this.env = env;
+  public Process(Props props) {
 
     // Loading all Properties from file
-    this.props = Props.create(env);
+    this.props = props;
+    this.name = props.of(NAME_PROPERTY, null);
+    this.port = props.intOf(HEARTBEAT_PROPERTY);
 
-    this.name = name;
-    this.port = port;
+
+    // Testing required properties
+    if (StringUtils.isEmpty(this.name)) {
+      throw new IllegalStateException(MISSING_NAME_ARGUMENT);
+    }
+
+    if (this.port == null) {
+      throw new IllegalStateException(MISSING_PORT_ARGUMENT);
+    }
+
+    // Adding a shutdown hook
+    Runtime.getRuntime().addShutdownHook(new Thread() {
+      @Override
+      public void run() {
+        shutdown();
+      }
+    });
 
     //Starting monitoring thread
     this.monitor = new Thread(this);
@@ -72,6 +81,10 @@ public abstract class Process implements Runnable {
   }
 
   public abstract void execute();
+
+  public void shutdown() {
+    this.monitor.interrupt();
+  }
 
   @Override
   public void run() {
@@ -87,12 +100,14 @@ public abstract class Process implements Runnable {
         DatagramSocket ds = new DatagramSocket();
         ds.send(pack);
         ds.close();
-        Thread.sleep(heartBeatInterval);
+        try {
+          Thread.sleep(heartBeatInterval);
+        } catch (InterruptedException e) {
+          break;
+        }
       }
     } catch (IOException e) {
       throw new IllegalStateException("Monitoring Thread for " + name + " could not communicate to socket", e);
-    } catch (InterruptedException e) {
-      throw new IllegalStateException("Monitoring Thread for " + name + " is interrupted ", e);
     }
     System.out.println("Closing  application");
   }

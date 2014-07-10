@@ -19,54 +19,81 @@
  */
 package org.sonar.process;
 
-import com.google.common.io.Resources;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URISyntaxException;
+import java.util.Properties;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ProcessTest {
 
-  @Test
-  public void process_loads() throws SocketException, URISyntaxException, MalformedURLException {
-    DatagramSocket socket = new DatagramSocket(0);
-    testProcess("test", socket);
+  DatagramSocket socket;
+
+  @Before
+  public void setup() throws SocketException {
+    this.socket = new DatagramSocket(0);
   }
 
-  @Test(timeout = 5000L)
-  public void heart_beats() throws InterruptedException, IOException, URISyntaxException {
+  @After
+  public void tearDown() {
+    this.socket.close();
+  }
 
-    DatagramSocket socket = new DatagramSocket(0);
-    Process test = testProcess("test", socket);
+  @Test
+  public void fail_missing_properties() throws MalformedURLException, URISyntaxException {
+    Properties properties = new Properties();
+    try {
+      testProcess(properties);
+    } catch (Exception e) {
+      assertThat(e.getMessage()).isEqualTo(Process.MISSING_NAME_ARGUMENT);
+    }
+
+    properties.setProperty(Process.NAME_PROPERTY, "test");
+    try {
+      testProcess(properties);
+    } catch (Exception e) {
+      assertThat(e.getMessage()).isEqualTo(Process.MISSING_PORT_ARGUMENT);
+    }
+
+    properties.setProperty(Process.HEARTBEAT_PROPERTY, Integer.toString(socket.getLocalPort()));
+    assertThat(testProcess(properties)).isNotNull();
+  }
+
+  @Test
+  public void heart_beats() {
+    Properties properties = new Properties();
+    properties.setProperty(Process.NAME_PROPERTY, "test");
+    properties.setProperty(Process.HEARTBEAT_PROPERTY, Integer.toString(socket.getLocalPort()));
+    Process test = testProcess(properties);
+
+    assertThat(test).isNotNull();
 
     int ping = 0;
-    while (ping < 3) {
+    int loop = 0;
+    while (loop < 3) {
       DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
       try {
-        socket.setSoTimeout(200);
+        socket.setSoTimeout(2000);
         socket.receive(packet);
+        ping++;
       } catch (Exception e) {
         // Do nothing
       }
-      ping++;
+      loop++;
     }
 
-    socket.close();
+    assertThat(ping).isEqualTo(loop);
   }
 
-  private Process testProcess(final String name, final DatagramSocket socket) throws URISyntaxException, MalformedURLException {
-    Env env = mock(Env.class);
-    File propsFile = new File(Resources.getResource(getClass(), "ProcessTest/sonar.properties").getFile());
-    when(env.file("conf/sonar.properties")).thenReturn(propsFile);
-    return new Process(env, name, socket.getLocalPort()) {
+  private Process testProcess(Properties properties) {
+    return new Process(Props.create(properties)) {
       @Override
       public void execute() {
         try {
@@ -74,6 +101,11 @@ public class ProcessTest {
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
+      }
+
+      @Override
+      public void shutdown() {
+
       }
     };
   }
