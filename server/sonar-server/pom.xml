@@ -3,8 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.codehaus.sonar</groupId>
-    <artifactId>sonar</artifactId>
+    <artifactId>sonar-server-parent</artifactId>
     <version>4.5-SNAPSHOT</version>
+    <relativePath>..</relativePath>
   </parent>
   <artifactId>sonar-server</artifactId>
   <packaging>war</packaging>
