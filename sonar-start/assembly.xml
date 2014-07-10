@@ -36,6 +36,25 @@
       <unpack>true</unpack>
       <scope>provided</scope>
     </dependencySet>
+
+    <!-- Java Service Wrapper -->
+    <dependencySet>
+      <outputDirectory>bin</outputDirectory>
+      <includes>
+        <include>org.sonatype.jsw-binaries:jsw-binaries</include>
+      </includes>
+      <unpack>true</unpack>
+      <scope>provided</scope>
+      <unpackOptions>
+        <excludes>
+          <exclude>**/app</exclude>
+          <exclude>**/*.bat</exclude>
+          <exclude>**/sample*/**</exclude>
+          <exclude>**/macosx-universal-32/**</exclude>
+        </excludes>
+      </unpackOptions>
+      <fileMode>0755</fileMode>
+    </dependencySet>
   </dependencySets>
 
   <files>

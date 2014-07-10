@@ -97,6 +97,22 @@
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <!-- JSW -->
+    <dependency>
+      <groupId>org.sonatype.jsw-binaries</groupId>
+      <artifactId>jsw-binaries</artifactId>
+      <version>3.2.3.6</version>
+      <type>tar.gz</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- do not upgrade because of licensing change -->
+      <groupId>tanukisoft</groupId>
+      <artifactId>wrapper</artifactId>
+      <version>3.2.3</version>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
 
   <build>
