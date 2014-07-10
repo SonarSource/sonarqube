@@ -72,7 +72,7 @@ public final class StartServer {
       public void run() {
         LOGGER.info("Shutting down sonar Node");
         //sonarQube.shutdown();
-        elasticsearch.interrupt();
+        elasticsearch.shutdown();
         executor.shutdown();
         try {
           executor.awaitTermination(10L, TimeUnit.SECONDS);

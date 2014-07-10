@@ -74,6 +74,7 @@ public class ProcessWrapper extends Thread {
   }
 
   public void shutdown() {
+    this.interrupt();
     this.process.destroy();
   }
 
