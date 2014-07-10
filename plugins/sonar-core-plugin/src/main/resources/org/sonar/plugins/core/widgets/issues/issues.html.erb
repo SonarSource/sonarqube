@@ -95,11 +95,11 @@
     %>
     <table class="data widget-barchar">
       <tr>
-        <td>
+        <td class="nowrap">
           <i class="icon-severity-blocker"></i>
           <%= message('blocker') -%>
         </td>
-        <td class="thin right">
+        <td class="thin right nowrap">
           <%= link_to format_measure(blocker_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'BLOCKER'}, :class => 'widget-link drilldown_BLOCKER' -%>
         </td>
         <td class="thin">
@@ -117,11 +117,11 @@
         </td>
       </tr>
       <tr>
-        <td>
+        <td class="nowrap">
           <i class="icon-severity-critical"></i>
           <%= message('critical') -%>
         </td>
-        <td class="thin right">
+        <td class="thin right nowrap">
           <%= link_to format_measure(critical_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'CRITICAL'}, :class => 'widget-link drilldown_CRITICAL' -%>
         </td>
         <td class="thin">
@@ -139,11 +139,11 @@
         </td>
       </tr>
       <tr>
-        <td>
+        <td class="nowrap">
           <i class="icon-severity-major"></i>
           <%= message('major') -%>
         </td>
-        <td class="thin right">
+        <td class="thin right nowrap">
           <%= link_to format_measure(major_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MAJOR'}, :class => 'widget-link drilldown_MAJOR' -%>
         </td>
         <td class="thin">
@@ -161,11 +161,11 @@
         </td>
       </tr>
       <tr>
-        <td>
+        <td class="nowrap">
           <i class="icon-severity-minor"></i>
           <%= message('minor') -%>
         </td>
-        <td class="thin right">
+        <td class="thin right nowrap">
           <%= link_to format_measure(minor_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MINOR'}, :class => 'widget-link drilldown_MINOR' -%>
         </td>
         <td class="thin">
@@ -183,11 +183,11 @@
         </td>
       </tr>
       <tr>
-        <td>
+        <td class="nowrap">
           <i class="icon-severity-info"></i>
           <%= message('info') -%>
         </td>
-        <td class="thin right">
+        <td class="thin right nowrap">
           <%= link_to format_measure(info_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'INFO'}, :class => 'widget-link drilldown_INFO' -%>
         </td>
         <td class="thin">
