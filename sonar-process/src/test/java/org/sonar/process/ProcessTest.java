@@ -37,7 +37,12 @@ public class ProcessTest {
     int ping = 0;
     while (ping < 3) {
       DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
-      socket.receive(packet);
+      try {
+        socket.setSoTimeout(200);
+        socket.receive(packet);
+      } catch (Exception e) {
+        // Do nothing
+      }
       ping++;
     }
 

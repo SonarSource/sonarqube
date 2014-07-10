@@ -22,7 +22,6 @@ package org.sonar.process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
@@ -59,21 +58,22 @@ public class Launcher extends Thread {
 
   private void monitor() {
     long ping = Long.MAX_VALUE;
-    try {
-      while (true) {
-        LOGGER.info("My heart is beating");
-        DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
+    while (true) {
+      LOGGER.info("My heart is beating");
+      DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
+      try {
+        socket.setSoTimeout(3000);
         socket.receive(packet);
-        long newPing = System.currentTimeMillis();
-        String message = new String(packet.getData(), 0, 0, packet.getLength());
-        LOGGER.info("{} last seen since {}ms", message, (newPing - ping));
-        if ((newPing - ping) > 3000) {
-          // close everything here...
-        }
-        ping = newPing;
+      } catch (Exception e) {
+        // Do nothing
       }
-    } catch (IOException e) {
-      throw new IllegalStateException("Launcher Thread for " + name + " could not communicate to socket", e);
+      long newPing = System.currentTimeMillis();
+      String message = new String(packet.getData(), 0, 0, packet.getLength());
+      LOGGER.info("{} last seen since {}ms", message, (newPing - ping));
+      if ((newPing - ping) > 3000) {
+        // close everything here...
+      }
+      ping = newPing;
     }
   }
 

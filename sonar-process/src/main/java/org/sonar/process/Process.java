@@ -40,7 +40,21 @@ public abstract class Process implements Runnable {
   final String name;
   final int port;
 
+//  final protected Env env;
+//  final protected Props props;
+
   public Process(String name, int port) {
+
+//    // Loading Env from sonar.properties file.
+//    try {
+//      this.env = new Env();
+//    } catch (URISyntaxException e) {
+//      throw new IllegalStateException("Could not load Env", e);
+//    }
+//
+//    // Loading all Properties from file
+//    this.props = Props.create(env);
+
     this.name = name;
     this.port = port;
 
