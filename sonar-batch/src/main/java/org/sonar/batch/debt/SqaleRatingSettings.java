@@ -54,10 +54,10 @@ public class SqaleRatingSettings implements BatchComponent {
       if (languageSpecificConfig != null && languageSpecificConfig.getManDays() != null) {
         return Long.parseLong(languageSpecificConfig.getManDays());
       }
-      return Long.parseLong(settings.getString(CoreProperties.MAN_DAYS_BY_SIZE_POINT));
+      return Long.parseLong(settings.getString(CoreProperties.DEVELOPMENT_COST));
     } catch (Exception e) {
-      throw new IllegalArgumentException("The value of the SQALE property '" + CoreProperties.MAN_DAYS_BY_SIZE_POINT
-        + "' is incorrect. Expected long but got '" + settings.getString(CoreProperties.MAN_DAYS_BY_SIZE_POINT) + "'", e);
+      throw new IllegalArgumentException("The value of the SQALE property '" + CoreProperties.DEVELOPMENT_COST
+        + "' is incorrect. Expected long but got '" + settings.getString(CoreProperties.DEVELOPMENT_COST) + "'", e);
     }
   }
 

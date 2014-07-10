@@ -576,12 +576,12 @@ public interface CoreProperties {
   /**
    * @since 4.5
    */
-  String MAN_DAYS_BY_SIZE_POINT = "sonar.technicalDebt.workUnitsBySizePoint";
+  String DEVELOPMENT_COST = "sonar.technicalDebt.developmentCost";
 
   /**
    * @since 4.5
    */
-  String MAN_DAYS_BY_SIZE_POINT_DEF_VALUE = "30";
+  String DEVELOPMENT_COST_DEF_VALUE = "30";
 
   /**
    * @since 4.5

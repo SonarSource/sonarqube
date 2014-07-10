@@ -61,7 +61,7 @@ public class SqaleRatingSettingsTest {
 
   @Test
   public void load_work_units_for_language() throws Exception {
-    settings.setProperty(CoreProperties.MAN_DAYS_BY_SIZE_POINT, "50");
+    settings.setProperty(CoreProperties.DEVELOPMENT_COST, "50");
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
     assertThat(configurationLoader.getWorkUnitsBySizePoint("defaultLanguage")).isEqualTo(50L);
@@ -110,7 +110,7 @@ public class SqaleRatingSettingsTest {
   @Test
   public void fail_on_invalid_work_unit_value() throws Exception {
     throwable.expect(IllegalArgumentException.class);
-    settings.setProperty(CoreProperties.MAN_DAYS_BY_SIZE_POINT, "a");
+    settings.setProperty(CoreProperties.DEVELOPMENT_COST, "a");
     SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
 
     configurationLoader.getSizeMetric("aLanguage", metrics);
@@ -130,7 +130,7 @@ public class SqaleRatingSettingsTest {
     String aLanguage = "aLanguage";
 
     settings.setProperty(CoreProperties.SIZE_METRIC, "complexity");
-    settings.setProperty(CoreProperties.MAN_DAYS_BY_SIZE_POINT, "30");
+    settings.setProperty(CoreProperties.DEVELOPMENT_COST, "30");
     settings.setProperty(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS, "0");
     settings.setProperty(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY, aLanguage);
     settings.setProperty(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY, "40");

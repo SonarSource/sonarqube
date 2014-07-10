@@ -55,8 +55,8 @@ class DebtProperties {
         .deprecatedKey("sizeMetric")
         .build(),
 
-      PropertyDefinition.builder(CoreProperties.MAN_DAYS_BY_SIZE_POINT)
-        .defaultValue("" + CoreProperties.MAN_DAYS_BY_SIZE_POINT_DEF_VALUE)
+      PropertyDefinition.builder(CoreProperties.DEVELOPMENT_COST)
+        .defaultValue("" + CoreProperties.DEVELOPMENT_COST_DEF_VALUE)
         .name("Development cost")
         .description("Cost to develop one unit of code. If the unit is a line of code (LOC), and the cost to develop 1 LOC has been estimated at 30 minutes, " +
           "then the value of this property would be 30.")

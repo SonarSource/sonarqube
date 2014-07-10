@@ -110,7 +110,7 @@ public class SqaleRatingDecoratorTest {
 
   @Test
   public void save_total_rating_c() {
-    settings.setProperty(CoreProperties.MAN_DAYS_BY_SIZE_POINT, 2 * ONE_DAY_IN_MINUTES);
+    settings.setProperty(CoreProperties.DEVELOPMENT_COST, 2 * ONE_DAY_IN_MINUTES);
     settings.setProperty(CoreProperties.SIZE_METRIC, "ncloc");
     settings.setProperty(CoreProperties.RATING_GRID, "1, 10,20,50");
 
@@ -127,7 +127,7 @@ public class SqaleRatingDecoratorTest {
 
   @Test
   public void save_total_rating_a() {
-    settings.setProperty(CoreProperties.MAN_DAYS_BY_SIZE_POINT, 2 * ONE_DAY_IN_MINUTES);
+    settings.setProperty(CoreProperties.DEVELOPMENT_COST, 2 * ONE_DAY_IN_MINUTES);
     settings.setProperty(CoreProperties.SIZE_METRIC, "ncloc");
     settings.setProperty(CoreProperties.RATING_GRID, "1, 10,20,50");
 
@@ -144,7 +144,7 @@ public class SqaleRatingDecoratorTest {
 
   @Test
   public void save_total_rating_e() {
-    settings.setProperty(CoreProperties.MAN_DAYS_BY_SIZE_POINT, 2 * ONE_DAY_IN_MINUTES);
+    settings.setProperty(CoreProperties.DEVELOPMENT_COST, 2 * ONE_DAY_IN_MINUTES);
     settings.setProperty(CoreProperties.SIZE_METRIC, "ncloc");
     settings.setProperty(CoreProperties.RATING_GRID, "1, 10,20,50");
 
