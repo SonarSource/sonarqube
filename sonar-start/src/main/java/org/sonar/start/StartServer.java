@@ -28,6 +28,7 @@ import org.sonar.process.ProcessWrapper;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -92,6 +93,6 @@ public final class StartServer {
   }
 
   public static void main(String... args) throws InterruptedException, IOException, URISyntaxException {
-    new StartServer(new Env()).start();
+    new StartServer(new Env(Paths.get(".").toFile())).start();
   }
 }

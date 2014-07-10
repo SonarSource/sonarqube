@@ -59,8 +59,8 @@ public class ProcessWrapper extends Thread {
 
     try {
       process = processBuilder.start();
-      StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), "ERROR");
-      StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), "OUTPUT");
+      StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), this.getName()+"-ERROR");
+      StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), this.getName());
       outputGobbler.start();
       errorGobbler.start();
       while (!currentThread().isInterrupted()) {
@@ -93,7 +93,7 @@ public class ProcessWrapper extends Thread {
         BufferedReader br = new BufferedReader(isr);
         String line = null;
         while ((line = br.readLine()) != null)
-          System.out.println(type + "> " + line);
+          System.out.println(type + " > " + line);
       } catch (IOException ioe) {
         ioe.printStackTrace();
       }
