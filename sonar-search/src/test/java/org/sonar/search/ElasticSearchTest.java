@@ -56,7 +56,8 @@ public class ElasticSearchTest {
   @After
   public void tearDown() throws IOException {
     socket.close();
-    FileUtils.deleteDirectory(tempDirectory);
+    //TODO Fails on Jenkins
+    //FileUtils.deleteDirectory(tempDirectory);
   }
 
   @Test
