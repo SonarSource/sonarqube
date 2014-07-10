@@ -291,6 +291,11 @@ public class ProjectDefinition {
    */
   @Deprecated
   public ProjectDefinition addSourceFiles(String... paths) {
+    // Hack for visual studio project builder that used to add baseDir first as source dir
+    List<String> sourceDirs = getSourceDirs();
+    if (sourceDirs.size() == 1 && new File(sourceDirs.get(0)).isDirectory()) {
+      resetSources();
+    }
     return addSources(paths);
   }
 
@@ -299,6 +304,11 @@ public class ProjectDefinition {
    */
   @Deprecated
   public ProjectDefinition addSourceFiles(File... files) {
+    // Hack for visual studio project builder that used to add baseDir first as source dir
+    List<String> sourceDirs = getSourceDirs();
+    if (sourceDirs.size() == 1 && new File(sourceDirs.get(0)).isDirectory()) {
+      resetSources();
+    }
     return addSources(files);
   }
 
@@ -404,6 +414,11 @@ public class ProjectDefinition {
    */
   @Deprecated
   public ProjectDefinition addTestFiles(String... paths) {
+    // Hack for visual studio project builder that used to add baseDir first as test dir
+    List<String> testDirs = getTestDirs();
+    if (testDirs.size() == 1 && new File(testDirs.get(0)).isDirectory()) {
+      resetTests();
+    }
     return addTests(paths);
   }
 
