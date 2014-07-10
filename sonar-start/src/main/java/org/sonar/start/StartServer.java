@@ -57,7 +57,9 @@ public final class StartServer {
     final ProcessWrapper elasticsearch = new ProcessWrapper(
       "org.sonar.search.ElasticSearch",
       new String[]{env.rootDir().getAbsolutePath() + "/lib/search/sonar-search-4.5-SNAPSHOT.jar"},
-      ImmutableMap.of("esPort", "9200", "esHome", env.rootDir().getAbsolutePath()),
+      ImmutableMap.of(
+        "esPort", Integer.toString(NetworkUtils.freePort()),
+        "esHome", env.rootDir().getAbsolutePath()),
       "ES", monitor.getMonitoringPort());
 
     //Register processes to monitor

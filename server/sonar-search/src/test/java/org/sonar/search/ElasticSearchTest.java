@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -82,9 +83,9 @@ public class ElasticSearchTest {
   }
 
   @Test
-  public void can_connect() {
+  public void can_connect() throws SocketException {
 
-    int port = NetworkUtils.freePort();
+    int port = new DatagramSocket(0).getLocalPort();
 
     Properties properties = new Properties();
     properties.setProperty(Process.NAME_PROPERTY, "ES");
