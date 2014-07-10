@@ -2155,6 +2155,23 @@ public final class CoreMetrics {
     .setHidden(true)
     .create();
 
+  /**
+   * @since 4.5
+   */
+  public static final String SQALE_DEBT_RATIO_KEY = "sqale_debt_ratio";
+
+  /**
+   * @since 4.5
+   */
+  public static final Metric<Double> SQALE_DEBT_RATIO = new Metric.Builder(SQALE_DEBT_RATIO_KEY, "SQALE Technical Debt Ratio", Metric.ValueType.PERCENT)
+    .setDescription("Ratio of the technical debt compared to what it would cost to develop the whole source code from scratch.")
+    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .create();
+
   // --------------------------------------------------------------------------------------------------------------------
   //
   // FILE DATA

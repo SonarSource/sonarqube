@@ -76,7 +76,7 @@ public final class SqaleRatingDecorator implements Decorator {
 
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    return Lists.<Metric>newArrayList(CoreMetrics.RATING, CoreMetrics.DEVELOPMENT_COST);
+    return Lists.<Metric>newArrayList(CoreMetrics.RATING, CoreMetrics.DEVELOPMENT_COST, CoreMetrics.SQALE_DEBT_RATIO);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
@@ -86,6 +86,8 @@ public final class SqaleRatingDecorator implements Decorator {
 
       long debt = getMeasureValue(context, CoreMetrics.TECHNICAL_DEBT);
       double density = computeDensity(debt, developmentCost);
+      context.saveMeasure(CoreMetrics.SQALE_DEBT_RATIO, 100.0 * density);
+
       SqaleRatingGrid ratingGrid = new SqaleRatingGrid(sqaleRatingSettings.getRatingGrid());
       context.saveMeasure(createRatingMeasure(ratingGrid.getRatingForDensity(density)));
     }

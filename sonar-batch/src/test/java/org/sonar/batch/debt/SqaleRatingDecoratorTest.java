@@ -55,7 +55,7 @@ public class SqaleRatingDecoratorTest {
   static final Long ONE_DAY_IN_MINUTES = 8L * 60;
 
   Settings settings;
-  Metric[] metrics = {CoreMetrics.NCLOC, CoreMetrics.ABSTRACTNESS, CoreMetrics.COMPLEXITY};
+  Metric[] metrics = {CoreMetrics.NCLOC, CoreMetrics.COMPLEXITY};
 
   @Mock
   DecoratorContext context;
@@ -81,7 +81,7 @@ public class SqaleRatingDecoratorTest {
   @Test
   public void generates_metrics() throws Exception {
     SqaleRatingDecorator decorator = new SqaleRatingDecorator();
-    assertThat(decorator.generatesMetrics()).hasSize(2);
+    assertThat(decorator.generatesMetrics()).hasSize(3);
   }
 
   @Test
@@ -121,6 +121,7 @@ public class SqaleRatingDecoratorTest {
     decorator.decorate(file, context);
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.RATING, 3.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.DEVELOPMENT_COST, "9600")));
+    verify(context).saveMeasure(CoreMetrics.SQALE_DEBT_RATIO, 1500d);
 
     verify(context).getMeasure(CoreMetrics.NCLOC);
   }
@@ -138,6 +139,7 @@ public class SqaleRatingDecoratorTest {
     decorator.decorate(file, context);
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.RATING, 1.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.DEVELOPMENT_COST, "9600")));
+    verify(context).saveMeasure(CoreMetrics.SQALE_DEBT_RATIO, 0d);
 
     verify(context).getMeasure(CoreMetrics.NCLOC);
   }
@@ -150,11 +152,12 @@ public class SqaleRatingDecoratorTest {
 
     when(context.getResource()).thenReturn(file);
     when(context.getMeasure(CoreMetrics.NCLOC)).thenReturn(new Measure(CoreMetrics.NCLOC, 10.0));
-    when(context.getMeasure(CoreMetrics.TECHNICAL_DEBT)).thenReturn(new Measure(CoreMetrics.TECHNICAL_DEBT, 100000000000.0));
+    when(context.getMeasure(CoreMetrics.TECHNICAL_DEBT)).thenReturn(new Measure(CoreMetrics.TECHNICAL_DEBT, 960000.0));
 
     decorator.decorate(file, context);
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.RATING, 5.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.DEVELOPMENT_COST, "9600")));
+    verify(context).saveMeasure(CoreMetrics.SQALE_DEBT_RATIO, 10000d);
 
     verify(context).getMeasure(CoreMetrics.NCLOC);
   }
@@ -170,6 +173,7 @@ public class SqaleRatingDecoratorTest {
     decorator.decorate(mock(File.class), context);
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.RATING, 3.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.DEVELOPMENT_COST, "9600")));
+    verify(context).saveMeasure(CoreMetrics.SQALE_DEBT_RATIO, 1500d);
 
     verify(context, never()).getMeasure(CoreMetrics.NCLOC);
   }

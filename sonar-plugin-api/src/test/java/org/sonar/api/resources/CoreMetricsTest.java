@@ -32,7 +32,7 @@ public class CoreMetricsTest {
   @Test
   public void read_metrics_from_class_reflection() {
     List<Metric> metrics = CoreMetrics.getMetrics();
-    assertThat(metrics).hasSize(152);
+    assertThat(metrics).hasSize(153);
     assertThat(metrics).contains(CoreMetrics.NCLOC, CoreMetrics.DIRECTORIES);
   }
 
