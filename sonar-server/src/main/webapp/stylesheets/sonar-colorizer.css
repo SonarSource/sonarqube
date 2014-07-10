@@ -1,0 +1,74 @@
+.code {
+  font-size: 12px;
+}
+
+.code pre {
+  font-family: Monospace;
+  margin: 0;
+  padding: 0 5px;
+  color: #111;
+  margin: 0;
+}
+
+/* for example java annotations */
+.code .a {
+  color: #808000;
+}
+
+/* constants */
+.code .c {
+  color: #660E80;
+  font-style: italic;
+  font-weight: bold;
+}
+
+/* javadoc */
+.code .j {
+  color: #666666;
+  font-style: normal;
+}
+
+/* classic comment */
+.code .cd {
+  color: #666666;
+  font-style: italic;
+}
+
+/* C++ doc */
+.code .cppd {
+  color: #666666;
+  font-style: italic;
+}
+
+/* keyword */
+.code .k {
+  color: #000080;
+  font-weight: bold;
+}
+
+/* string */
+.code .s {
+  color: #008000;
+  font-weight: bold;
+}
+
+/* keyword light*/
+.code .h {
+  color: #000080;
+  font-weight: normal;
+}
+
+/* preprocessing directive */
+.code .p {
+  color: #347235;
+  font-weight: normal;
+}
+
+.sym {
+  cursor: hand; cursor: pointer;
+}
+
+.highlighted {
+  background-color: #B3D4FF;
+}
+

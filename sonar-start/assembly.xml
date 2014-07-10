@@ -1,0 +1,114 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+  <id>distribution</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>true</includeBaseDirectory>
+
+  <dependencySets>
+
+    <!-- Search -->
+    <dependencySet>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <outputDirectory>lib/search</outputDirectory>
+      <includes>
+        <include>org.codehaus.sonar:sonar-search</include>
+      </includes>
+      <scope>provided</scope>
+    </dependencySet>
+
+    <!-- Server -->
+    <dependencySet>
+      <outputDirectory>lib/server</outputDirectory>
+      <useTransitiveDependencies>true</useTransitiveDependencies>
+      <includes>
+        <include>org.codehaus.sonar:sonar-application</include>
+      </includes>
+      <scope>provided</scope>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>web</outputDirectory>
+      <includes>
+        <include>org.codehaus.sonar:sonar-server</include>
+      </includes>
+      <unpack>true</unpack>
+      <scope>provided</scope>
+    </dependencySet>
+  </dependencySets>
+
+  <files>
+    <file>
+      <outputDirectory>/</outputDirectory>
+      <source>${project.build.directory}/start.jar</source>
+    </file>
+  </files>
+
+
+  <fileSets>
+    <!-- Configuration Files -->
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>conf/**</include>
+      </includes>
+      <!-- See SONAR-2580 - for better readability of configuration files on Windows: -->
+      <lineEnding>dos</lineEnding>
+      <fileMode>0644</fileMode>
+    </fileSet>
+    <!-- Windows Scripts -->
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>**/*.bat</include>
+        <include>**/*.cmd</include>
+      </includes>
+      <lineEnding>dos</lineEnding>
+      <fileMode>0644</fileMode>
+    </fileSet>
+    <!-- Linux Scripts -->
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>**/*.sh</include>
+        <include>**/ant</include>
+        <include>**/antRun</include>
+      </includes>
+      <lineEnding>unix</lineEnding>
+      <fileMode>0755</fileMode>
+    </fileSet>
+    <!-- Other stuff -->
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>/</outputDirectory>
+      <excludes>
+        <exclude>conf/**</exclude>
+        <exclude>**/*.bat</exclude>
+        <exclude>**/*.cmd</exclude>
+        <exclude>**/*.sh</exclude>
+        <exclude>**/ant</exclude>
+        <exclude>**/antRun</exclude>
+      </excludes>
+      <fileMode>0644</fileMode>
+    </fileSet>
+    <!-- Empty directories -->
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>extensions/jdbc-driver/oracle/</outputDirectory>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>logs/</outputDirectory>
+      <excludes>
+        <exclude>**/*</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+</assembly>

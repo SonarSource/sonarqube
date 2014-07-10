@@ -1,0 +1,17 @@
+<!--
+
+    See http://logback.qos.ch/access.html#configuration
+
+-->
+<configuration debug="false">
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
+
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>${SONAR_HOME}/logs/access.log</file>
+    <encoder>
+      <pattern>combined</pattern>
+    </encoder>
+  </appender>
+
+  <appender-ref ref="FILE" />
+</configuration>
