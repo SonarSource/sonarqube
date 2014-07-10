@@ -11,10 +11,6 @@
   </select>
   <input id="issue-plan-submit" type="submit" value="{{t 'issue.plan.submit'}}">&nbsp;
 {{else}}
-  <% if is_admin? %>
-    <span class="error">{{t 'issue.plan.error.plan_must_be_created_first_for_admin'}}</span>
-  <% else %>
-    <span class="error">{{t 'issue.plan.error.plan_must_be_created_first_for_other'}}</span>
-  <% end %>
+  <span class="error">{{t 'issue.plan.error.plan_must_be_created_first'}}</span>
 {{/if}}
 <a id="issue-plan-cancel" class="action">{{t 'cancel'}}</a>
