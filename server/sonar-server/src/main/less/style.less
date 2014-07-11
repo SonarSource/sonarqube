@@ -2843,19 +2843,31 @@ div.rule-title {
   white-space: nowrap;
 }
 
-.sonar-d3 .treemap-dashboard {
+.sonar-d3 .treemap-link {
   position: absolute;
   z-index: 2;
   top: 5px; right: 5px;
-  line-height: 16px;
-  color: inherit;
+  line-height: @iconSmallFontSize;
+  color: #fff;
   opacity: 0.5;
 
   &:hover { opacity: 1; }
 }
 
+.sonar-d3 .treemap-link i,
+.sonar-d3 .treemap-link i:before {
+  vertical-align: top;
+  font-size: inherit;
+  line-height: inherit;
+}
+
 .sonar-d3 .treemap-cell-small {
   .treemap-inner { display: none; }
+}
+
+.sonar-d3 .treemap-cell-very-small {
+  .treemap-inner { display: none; }
+  .treemap-link { display: none; }
 }
 
 .sonar-d3 .treemap-breadcrumbs {

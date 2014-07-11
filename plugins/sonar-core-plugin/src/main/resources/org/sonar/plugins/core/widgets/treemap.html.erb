@@ -69,7 +69,8 @@
         maxItems: <%= maxItems -%>,
         maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
         baseUrl: baseUrl + '/dashboard/index/',
-        noData: '<%= message('no_data') -%>'
+        noData: '<%= message('no_data') -%>',
+        resource: '<%= @resource.name -%>'
       })
       .render('#<%= containerId -%>');
 

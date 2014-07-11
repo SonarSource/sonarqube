@@ -22,6 +22,7 @@ class Treemap extends window.SonarWidgets.BaseWidget
     cellsEnter = @cells.enter().append 'div'
     cellsEnter.classed 'treemap-cell', true
     cellsEnter.append('div').classed 'treemap-inner', true
+    cellsEnter.append('a').classed 'treemap-link', true
 
     @cells.attr 'title', (d) => @tooltip d
     @cells.style 'background-color', (d) =>
@@ -36,6 +37,13 @@ class Treemap extends window.SonarWidgets.BaseWidget
       if prefixLength > 0
         "#{prefix}<br>#{d.longName.substr prefixLength}"
       else d.longName
+
+    @cellsLink = @box.selectAll('.treemap-link').data nodes
+    @cellsLink.html '<i class="icon-link"></i>'
+    @cellsLink.attr 'href', (d) =>
+      url = @options().baseUrl + encodeURIComponent(d.key)
+      url += '?metric=' + encodeURIComponent(@colorMetric.key) if d.qualifier == 'CLA' || d.qualifier == 'FIL'
+      url
 
     @attachEvents cellsEnter
 
@@ -52,13 +60,6 @@ class Treemap extends window.SonarWidgets.BaseWidget
 
   attachEvents: (cells) ->
     cells.on 'click', (d) => @requestChildren d
-    cells.on 'dblclick', (d) => @openDashboard d
-
-
-  openDashboard: (d) ->
-    url = @options().baseUrl + encodeURIComponent(d.key)
-    url += '?metric=' + encodeURIComponent(@colorMetric.key) if d.qualifier == 'CLA' || d.qualifier == 'FIL'
-    window.location = url
 
 
   positionCells: ->
@@ -69,8 +70,9 @@ class Treemap extends window.SonarWidgets.BaseWidget
     @cells.style 'height', (d) -> "#{d.dy}px"
     @cells.style 'line-height', (d) -> "#{d.dy}px"
     @cells.style 'font-size', (d) => "#{@size (d.dx / d.longName.length)}px"
-    @cells.classed 'treemap-cell-small', (d) ->
-      (d.dx / d.longName.length) < 1 || d.dy < 40
+    @cellsLink.style 'font-size', (d) => "#{@sizeLink Math.min(d.dx, d.dy)}px"
+    @cells.classed 'treemap-cell-small', (d) -> (d.dx / d.longName.length) < 1 || d.dy < 40
+    @cells.classed 'treemap-cell-very-small', (d) -> d.dx < 24 || d.dy < 24
 
 
   renderLegend: (box) ->
@@ -92,6 +94,8 @@ class Treemap extends window.SonarWidgets.BaseWidget
     breadcrumbs = @breadcrumbsBox.selectAll('.treemap-breadcrumbs-item').data @breadcrumbs
     breadcrumbs.exit().remove()
     breadcrumbsEnter = breadcrumbs.enter().append('span').classed 'treemap-breadcrumbs-item', true
+    breadcrumbsEnter.attr 'title', (d) =>
+      if d.longName? then d.longName else @options().resource
     breadcrumbsEnter.append('i').classed('icon-chevron-right', true).style 'display', (d, i) ->
       if i > 0 then 'inline' else 'none'
     breadcrumbsEnter.append('i').attr 'class', (d) ->
@@ -154,8 +158,12 @@ class Treemap extends window.SonarWidgets.BaseWidget
     @color = @getColorScale()
 
     @size = d3.scale.linear().domain([3, 15]).range([@sizeLow, @sizeHigh]).clamp true
+    @sizeLink = d3.scale.linear().domain([60, 100]).range([12, 14]).clamp true
 
     @treemap = d3.layout.treemap()
+    @treemap.sort (a, b) -> a.value - b.value
+    @treemap.round true
+
     @treemap.value (d) => @sizeMetric.value d
 
     @maxResultsReachedLabel = box.append('div').text @options().maxItemsReachedMessage
