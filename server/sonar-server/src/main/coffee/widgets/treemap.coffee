@@ -195,7 +195,7 @@ class Treemap extends window.SonarWidgets.BaseWidget
         component.msr.forEach (measure) ->
           measures[measure.key] = val: measure.val, fval: measure.frmt_val
 
-        key: component.key
+        key: if component.copy? then component.copy else component.key
         name: component.name
         longName: component.lname
         qualifier: component.qualifier
