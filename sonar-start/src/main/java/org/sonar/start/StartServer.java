@@ -121,7 +121,9 @@ public final class StartServer {
     sonarqube = new ProcessWrapper(
       "org.sonar.application.StartServer",
       new String[]{env.rootDir().getAbsolutePath() + "/lib/server/sonar-application-4.5-SNAPSHOT.jar"},
-      ImmutableMap.of("test", "test"),
+      ImmutableMap.of(
+        "SONAR_HOME", env.rootDir().getAbsolutePath(),
+        "test", "test"),
       "SQ", monitor.getMonitoringPort());
 
     registerProcess(sonarqube);
@@ -132,6 +134,7 @@ public final class StartServer {
       "org.sonar.search.ElasticSearch",
       new String[]{env.rootDir().getAbsolutePath() + "/lib/search/sonar-search-4.5-SNAPSHOT.jar"},
       ImmutableMap.of(
+        "SONAR_HOME", env.rootDir().getAbsolutePath(),
         "esDebug", properties.containsKey("esDebug") ? properties.get("esDebug") : "false",
         "esPort", esPort,
         "esHome", env.rootDir().getAbsolutePath()),
@@ -147,7 +150,6 @@ public final class StartServer {
     //Check if we have a SONAR_HOME
     if (StringUtils.isEmpty(home)) {
       home = new File(".").getAbsolutePath();
-      System.getenv().put("SONAR_HOME", home);
     }
 
     new StartServer(new Env(home), args).start();
