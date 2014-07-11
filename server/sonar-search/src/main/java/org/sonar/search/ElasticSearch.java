@@ -102,12 +102,11 @@ public class ElasticSearch extends org.sonar.process.Process {
 
     node = NodeBuilder.nodeBuilder()
       .settings(esSettings)
-      .build();
+      .build().start();
   }
 
   @Override
   public void onStart() {
-    node.start();
     try {
       Thread.currentThread().join();
     } catch (InterruptedException e) {
