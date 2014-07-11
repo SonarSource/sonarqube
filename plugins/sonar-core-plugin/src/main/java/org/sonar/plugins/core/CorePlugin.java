@@ -226,6 +226,7 @@ public final class CorePlugin extends SonarPlugin {
       MeasureFilterAsHistogramWidget.class,
       MeasureFilterAsBubbleChartWidget.class,
       ProjectFileCloudWidget.class,
+      DebtOverviewWidget.class,
 
       // dashboards
       ProjectDefaultDashboard.class,
