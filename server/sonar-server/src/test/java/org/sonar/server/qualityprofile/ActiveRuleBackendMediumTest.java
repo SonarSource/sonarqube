@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -64,6 +65,11 @@ public class ActiveRuleBackendMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     index = tester.get(ActiveRuleIndex.class);
+  }
+
+  @After
+  public void after() throws Exception {
+    dbSession.close();
   }
 
   @Test
@@ -232,7 +238,8 @@ public class ActiveRuleBackendMediumTest {
     // insert and index
     QualityProfileDto profileDto = QProfileTesting.newXooP1();
     db.qualityProfileDao().insert(dbSession, profileDto);
-    for (int i = 0; i < 100; i++) {
+    int nb = 100;
+    for (int i = 0; i < nb; i++) {
       RuleDto rule = newRuleDto(RuleKey.of("xoo", "S00" + i));
       db.ruleDao().insert(dbSession, rule);
 
@@ -244,36 +251,36 @@ public class ActiveRuleBackendMediumTest {
 
     // verify index
     Collection<ActiveRule> activeRules = index.findByProfile(profileDto.getKey());
-    assertThat(activeRules).hasSize(100);
+    assertThat(activeRules).hasSize(nb);
   }
 
-//  @Test
-//  public void count_by_profile() {
-//    QualityProfileDto profileDto1 = QProfileTesting.newXooP1();
-//    QualityProfileDto profileDto2 = QProfileTesting.newXooP2();
-//    db.qualityProfileDao().insert(dbSession, profileDto1, profileDto2);
-//
-//    RuleKey ruleKey = RuleTesting.XOO_X1;
-//    RuleDto ruleDto = newRuleDto(ruleKey);
-//    db.ruleDao().insert(dbSession, ruleDto);
-//
-//    ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(profileDto1, ruleDto).setSeverity(Severity.MAJOR);
-//    ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profileDto2, ruleDto).setSeverity(Severity.MAJOR);
-//    db.activeRuleDao().insert(dbSession, activeRule1, activeRule2);
-//    dbSession.commit();
-//
-//    // 0. Test base case
-//    assertThat(index.countAll()).isEqualTo(2);
-//
-//    // 1. Assert by profileKey
-//    assertThat(index.countByQualityProfileKey(profileDto1.getKey())).isEqualTo(1);
-//
-//    // 2. Assert by term aggregation;
-//    Map<String, Long> counts = index.countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY);
-//    assertThat(counts).hasSize(2);
-//    assertThat(counts.values()).containsOnly(1L, 1L);
-//    assertThat(counts.keySet()).containsOnly(profileDto1.getKey().toString(), profileDto2.getKey().toString());
-//  }
+  @Test
+  public void count_by_profile() {
+    QualityProfileDto profileDto1 = QProfileTesting.newXooP1();
+    QualityProfileDto profileDto2 = QProfileTesting.newXooP2();
+    db.qualityProfileDao().insert(dbSession, profileDto1, profileDto2);
+
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    RuleDto ruleDto = newRuleDto(ruleKey);
+    db.ruleDao().insert(dbSession, ruleDto);
+
+    ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(profileDto1, ruleDto).setSeverity(Severity.MAJOR);
+    ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profileDto2, ruleDto).setSeverity(Severity.MAJOR);
+    db.activeRuleDao().insert(dbSession, activeRule1, activeRule2);
+    dbSession.commit();
+
+    // 0. Test base case
+    assertThat(index.countAll()).isEqualTo(2);
+
+    // 1. Assert by profileKey
+    assertThat(index.countByQualityProfileKey(profileDto1.getKey())).isEqualTo(1);
+
+    // 2. Assert by term aggregation;
+    Map<String, Long> counts = index.countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY);
+    assertThat(counts).hasSize(2);
+    assertThat(counts.values()).containsOnly(1L, 1L);
+    assertThat(counts.keySet()).containsOnly(profileDto1.getKey().toString(), profileDto2.getKey().toString());
+  }
 
   @Test
   public void count_all_by_index_field() {

@@ -176,7 +176,6 @@ public class QProfilesWsMediumTest {
     RuleDto rule1 = createRule(profile.getLanguage(), "world");
     createActiveRule(rule0, profile);
     createActiveRule(rule1, profile);
-    ;
     session.commit();
 
     // 0. Assert No Active Rule for profile

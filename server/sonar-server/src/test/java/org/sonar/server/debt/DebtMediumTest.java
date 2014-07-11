@@ -20,11 +20,13 @@
 
 package org.sonar.server.debt;
 
-import org.junit.Rule;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.platform.Platform;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -32,8 +34,14 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DebtMediumTest {
 
-  @Rule
-  public ServerTester serverTester = new ServerTester();
+  @ClassRule
+  public static ServerTester serverTester = new ServerTester();
+
+  @Before
+  public void setUp() throws Exception {
+    serverTester.clearDbAndIndexes();
+    serverTester.get(Platform.class).executeStartupTasks();
+  }
 
   @Test
   public void find_characteristics() throws Exception {
