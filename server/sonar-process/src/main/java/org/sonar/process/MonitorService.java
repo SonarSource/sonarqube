@@ -68,9 +68,6 @@ public class MonitorService extends Thread {
         break;
       }
     }
-    for (ProcessWrapper process : processes.values()) {
-      process.shutdown();
-    }
   }
 
 
