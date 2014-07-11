@@ -42,7 +42,7 @@
 
   <root>
     <level value="INFO"/>
-    <appender-ref ref="LOGFILE"/>
+    <appender-ref ref="CONSOLE"/>
   </root>
 
 </configuration>
