@@ -44,11 +44,11 @@ public final class StartServer {
   private final static String SONAR_HOME = "SONAR_HOME";
 
   private final Env env;
-  private final ExecutorService executor;
-  private final MonitorService monitor;
   private final String esPort;
   private final Map<String, String> properties;
 
+  private ExecutorService executor;
+  private MonitorService monitor;
   private ProcessWrapper elasticsearch;
   private ProcessWrapper sonarqube;
 
@@ -70,25 +70,42 @@ public final class StartServer {
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
-        LOGGER.info("Shutting down sonar Node");
-        if (elasticsearch != null) {
-          elasticsearch.shutdown();
-        }
-        if (sonarqube != null) {
-          sonarqube.shutdown();
-        }
-        executor.shutdown();
-        try {
-          executor.awaitTermination(10L, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-          LOGGER.warn("Executing terminated", e);
-        }
+        shutdown();
       }
     });
+
+    monitor.start();
   }
 
   private DatagramSocket systemAvailableSocket() throws IOException {
     return new DatagramSocket(0);
+  }
+
+  public void shutdown() {
+    LOGGER.info("Shutting down sonar Node");
+    if (monitor != null) {
+      monitor.interrupt();
+      monitor = null;
+    }
+    if (elasticsearch != null) {
+      elasticsearch.shutdown();
+      elasticsearch = null;
+    }
+
+    if (sonarqube != null) {
+      sonarqube.shutdown();
+      sonarqube = null;
+    }
+
+    if (executor != null) {
+      executor.shutdown();
+      try {
+        executor.awaitTermination(10L, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        LOGGER.warn("Executing terminated", e);
+      }
+      executor = null;
+    }
   }
 
   public void start() {
@@ -100,12 +117,12 @@ public final class StartServer {
     this.startSQ();
 
     // And monitor the activity
-    monitor.run();
-    LOGGER.warn("Shutting down the node...");
-
-    // If monitor is finished, we're done. Cleanup
-    executor.shutdownNow();
-
+    try {
+      monitor.join();
+    } catch (InterruptedException e) {
+      LOGGER.warn("Shutting down the node...");
+    }
+    shutdown();
   }
 
   private void registerProcess(ProcessWrapper process) {
@@ -145,7 +162,8 @@ public final class StartServer {
 
   public static void main(String... args) throws InterruptedException, IOException, URISyntaxException {
 
-    String home = System.getenv(SONAR_HOME);
+    //String home = System.getenv(SONAR_HOME);
+    String home = "/Volumes/data/sonar/sonarqube/sonar-start/target/sonarqube-4.5-SNAPSHOT";
 
     //Check if we have a SONAR_HOME
     if (StringUtils.isEmpty(home)) {

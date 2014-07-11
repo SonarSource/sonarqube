@@ -65,7 +65,7 @@ public class MonitorService extends Thread {
         ; // To not do anything.
       }
       if (!checkAllProcessPing(time)) {
-        break;
+        Thread.currentThread().interrupt();
       }
     }
   }

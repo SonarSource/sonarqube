@@ -76,7 +76,14 @@ public class ProcessWrapper extends Thread {
   public void shutdown() {
     LOGGER.info("Shutting down '{}'", this.getName());
     this.interrupt();
-    this.process.destroy();
+//    try {
+//      process.destroy();
+//    } catch (InterruptedException e) {
+//      //TODO do kill only in last resort...
+//      process.destroy();
+//    } finally {
+      process = null;
+//    }
   }
 
   private class StreamGobbler extends Thread {

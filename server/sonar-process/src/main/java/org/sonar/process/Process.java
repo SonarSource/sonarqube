@@ -40,7 +40,7 @@ public abstract class Process implements Runnable {
   private final static Logger LOGGER = LoggerFactory.getLogger(Process.class);
 
   protected Long heartBeatInterval = 1000L;
-  protected final Thread monitor;
+  protected Thread monitor;
 
   final String name;
   final Integer port;
@@ -82,17 +82,20 @@ public abstract class Process implements Runnable {
   public abstract void onStop();
 
   public final void start() {
+    LOGGER.info("Process[{}]::start", name);
     onStart();
   }
 
   public final void shutdown() {
+    LOGGER.info("Process[{}]::shutdown", name);
     this.monitor.interrupt();
+    this.monitor = null;
     this.onStop();
   }
 
   @Override
   public void run() {
-    LOGGER.debug("Setting up heartbeat on port '{}'", port);
+    LOGGER.info("Process[{}]::heartbeat({}) START", name, port);
     try {
       byte[] data = name.getBytes();
       DatagramPacket pack =
@@ -111,5 +114,6 @@ public abstract class Process implements Runnable {
     } catch (IOException e) {
       throw new IllegalStateException("Heartbeat Thread for " + name + " could not communicate to socket", e);
     }
+    LOGGER.warn("Process[{}]::heartbeat OVER", name);
   }
 }
