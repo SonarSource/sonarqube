@@ -3,32 +3,6 @@
    sqale_debt_ratio = @snapshot.measure('sqale_debt_ratio')
    if sqale_rating && sqale_rating.text_value && sqale_debt_ratio
 %>
-  <style>
-    .debt_overview .rating {
-      padding: 2px 5px;
-      color: #fff;
-    }
-
-    .debt_overview .A {
-      background-color: #00AA00;
-    }
-
-    .debt_overview .B {
-      background-color: #80CC00;
-    }
-
-    .debt_overview .C {
-      background-color: #FFEE00;
-    }
-
-    .debt_overview .D {
-      background-color: #F77700;
-    }
-
-    .debt_overview .E {
-      background-color: #EE0000;
-    }
-  </style>
   <% if sqale_rating && sqale_rating.text_value %>
     <div class="widget-row">
       <div class="widget-span widget-span-6">
@@ -37,7 +11,7 @@
             <span class="widget-label"><%= message('metric.sqale_rating.name') -%></span>
             <span class="nowrap">
               <a href="<%= url_for_drilldown('sqale_rating') -%>" class="widget-link">
-                <span class="rating <%= sqale_rating.text_value -%>"><%= sqale_rating.text_value -%></span>
+                <span class="rating rating-<%= sqale_rating.text_value -%>"><%= sqale_rating.text_value -%></span>
               </a>
               <% unless dashboard_configuration.selected_period? %>
                 <%= trend_icon(sqale_rating) -%>
