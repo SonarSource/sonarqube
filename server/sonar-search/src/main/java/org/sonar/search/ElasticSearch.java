@@ -34,6 +34,8 @@ public class ElasticSearch extends org.sonar.process.Process {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearch.class);
 
+
+  public static final String ES_DEBUG_PROPERTY = "esDebug";
   public static final String ES_PORT_PROPERTY = "esPort";
   public static final String ES_CLUSTER_PROPERTY = "esCluster";
   public static final String ES_HOME_PROPERTY = "esHome";
@@ -74,27 +76,29 @@ public class ElasticSearch extends org.sonar.process.Process {
       .put("index.number_of_shards", "1")
       .put("index.number_of_replicas", "0")
       .put("index.store.type", "mmapfs")
-//
       .put("indices.store.throttle.type", "merge")
       .put("indices.store.throttle.max_bytes_per_sec", "200mb")
-//
+
       .put("script.default_lang", "native")
       .put("script.native." + ListUpdate.NAME + ".type", ListUpdate.UpdateListScriptFactory.class.getName())
-//
+
       .put("cluster.name", clusterName)
-//
       .put("node.name", "sonarqube-" + System.currentTimeMillis())
       .put("node.data", true)
       .put("node.local", false)
-//
+
 //      .put("network.bind_host", "127.0.0.1")
-      .put("http.enabled", false)
-//      .put("http.port", 9200)
-//      .put("http.host", "127.0.0.1")
 
       .put("transport.tcp.port", port)
-
       .put("path.home", home);
+
+    if (props.booleanOf(ES_DEBUG_PROPERTY, false)) {
+      esSettings
+        .put("http.enabled", true)
+        .put("http.port", 9200);
+    } else {
+      esSettings.put("http.enabled", false);
+    }
 
     node = NodeBuilder.nodeBuilder()
       .settings(esSettings)
@@ -103,14 +107,11 @@ public class ElasticSearch extends org.sonar.process.Process {
 
   @Override
   public void execute() {
-    while (node != null && !node.isClosed()) {
-      try {
-        Thread.sleep(1000);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+    try {
+      Thread.currentThread().join();
+    } catch (InterruptedException e) {
+      LOGGER.warn("ES Process has been interrupted");
     }
-    System.out.println("-- ES is done.");
   }
 
   public void shutdown() {

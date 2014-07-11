@@ -29,6 +29,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -41,15 +44,25 @@ public final class StartServer {
   private final ExecutorService executor;
   private final MonitorService monitor;
   private final String esPort;
+  private final Map<String, String> properties;
 
   private ProcessWrapper elasticsearch;
   private ProcessWrapper sonarqube;
 
   public StartServer(Env env) throws IOException {
+    this(env, new String[]{});
+  }
+
+  public StartServer(Env env, String... args) throws IOException {
     this.env = env;
     this.executor = Executors.newFixedThreadPool(2);
     this.monitor = new MonitorService(systemAvailableSocket());
     this.esPort = Integer.toString(NetworkUtils.freePort());
+    this.properties = new HashMap<String, String>();
+
+    if (Arrays.binarySearch(args, "--debug") > -1) {
+      properties.put("esDebug", "true");
+    }
 
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
@@ -116,6 +129,7 @@ public final class StartServer {
       "org.sonar.search.ElasticSearch",
       new String[]{env.rootDir().getAbsolutePath() + "/lib/search/sonar-search-4.5-SNAPSHOT.jar"},
       ImmutableMap.of(
+        "esDebug", properties.containsKey("esDebug") ? properties.get("esDebug") : "false",
         "esPort", esPort,
         "esHome", env.rootDir().getAbsolutePath()),
       "ES", monitor.getMonitoringPort());
@@ -125,6 +139,6 @@ public final class StartServer {
 
   public static void main(String... args) throws InterruptedException, IOException, URISyntaxException {
     File home = new File(".");
-    new StartServer(new Env(home)).start();
+    new StartServer(new Env(home), args).start();
   }
 }
