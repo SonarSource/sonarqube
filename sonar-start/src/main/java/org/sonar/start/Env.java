@@ -32,8 +32,8 @@ class Env {
   private final File confFile;
   private final File homeDir;
 
-  public Env(File homeDir) throws URISyntaxException {
-    this.homeDir = homeDir;
+  public Env(String homeDir) throws URISyntaxException {
+    this.homeDir = new File(homeDir);
     this.confFile = new File(CONF_DIRECTORY+"/sonar.properties");
   }
 

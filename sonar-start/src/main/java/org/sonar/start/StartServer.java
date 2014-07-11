@@ -20,6 +20,7 @@
 package org.sonar.start;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MonitorService;
@@ -39,6 +40,8 @@ import java.util.concurrent.TimeUnit;
 public final class StartServer {
 
   private final static Logger LOGGER = LoggerFactory.getLogger(StartServer.class);
+
+  private final static String SONAR_HOME = "SONAR_HOME";
 
   private final Env env;
   private final ExecutorService executor;
@@ -138,7 +141,15 @@ public final class StartServer {
   }
 
   public static void main(String... args) throws InterruptedException, IOException, URISyntaxException {
-    File home = new File(".");
+
+    String home = System.getenv(SONAR_HOME);
+
+    //Check if we have a SONAR_HOME
+    if (StringUtils.isEmpty(home)) {
+      home = new File(".").getAbsolutePath();
+      System.getenv().put("SONAR_HOME", home);
+    }
+
     new StartServer(new Env(home), args).start();
   }
 }
