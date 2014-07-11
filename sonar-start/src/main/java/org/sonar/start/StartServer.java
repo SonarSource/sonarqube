@@ -38,41 +38,29 @@ public final class StartServer {
   private final static Logger LOGGER = LoggerFactory.getLogger(StartServer.class);
 
   private final Env env;
+  private final ExecutorService executor;
+  private final MonitorService monitor;
+  private final String esPort;
 
-  public StartServer(Env env) {
+  private ProcessWrapper elasticsearch;
+  private ProcessWrapper sonarqube;
+
+  public StartServer(Env env) throws IOException {
     this.env = env;
-  }
-
-  private DatagramSocket systemAvailableSocket() throws IOException {
-    return new DatagramSocket(0);
-  }
-
-  public void start() throws IOException {
-
-    final ExecutorService executor = Executors.newFixedThreadPool(2);
-    final MonitorService monitor = new MonitorService(systemAvailableSocket());
-
-    final String esPort = Integer.toString(NetworkUtils.freePort());
-
-    //Create the processes
-    //final ProcessWrapper sonarQube = new ProcessWrapper("SQ", monitor);
-    final ProcessWrapper elasticsearch = new ProcessWrapper(
-      "org.sonar.search.ElasticSearch",
-      new String[]{env.rootDir().getAbsolutePath() + "/lib/search/sonar-search-4.5-SNAPSHOT.jar"},
-      ImmutableMap.of(
-        "esPort",esPort,
-        "esHome", env.rootDir().getAbsolutePath()),
-      "ES", monitor.getMonitoringPort());
-
-    //Register processes to monitor
-    monitor.register(elasticsearch);
+    this.executor = Executors.newFixedThreadPool(2);
+    this.monitor = new MonitorService(systemAvailableSocket());
+    this.esPort = Integer.toString(NetworkUtils.freePort());
 
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
         LOGGER.info("Shutting down sonar Node");
-        //sonarQube.shutdown();
-        elasticsearch.shutdown();
+        if (elasticsearch != null) {
+          elasticsearch.shutdown();
+        }
+        if (sonarqube != null) {
+          sonarqube.shutdown();
+        }
         executor.shutdown();
         try {
           executor.awaitTermination(10L, TimeUnit.SECONDS);
@@ -81,11 +69,19 @@ public final class StartServer {
         }
       }
     });
+  }
 
-    // Start our processes
-    LOGGER.info("Starting Child processes...");
-    executor.submit(elasticsearch);
-    //executor.submit(sonarQube);
+  private DatagramSocket systemAvailableSocket() throws IOException {
+    return new DatagramSocket(0);
+  }
+
+  public void start() {
+
+    // Start ES
+    this.startES();
+
+    // Start SQ
+    this.startSQ();
 
     // And monitor the activity
     monitor.run();
@@ -93,6 +89,38 @@ public final class StartServer {
 
     // If monitor is finished, we're done. Cleanup
     executor.shutdownNow();
+
+  }
+
+  private void registerProcess(ProcessWrapper process) {
+    //Register processes to monitor
+    monitor.register(process);
+
+    // Start our processes
+    LOGGER.info("Starting Child processes...");
+    executor.submit(process);
+  }
+
+  private void startSQ() {
+    sonarqube = new ProcessWrapper(
+      "org.sonar.application.StartServer",
+      new String[]{env.rootDir().getAbsolutePath() + "/lib/server/sonar-application-4.5-SNAPSHOT.jar"},
+      ImmutableMap.of("test", "test"),
+      "SQ", monitor.getMonitoringPort());
+
+    registerProcess(sonarqube);
+  }
+
+  private void startES() {
+    elasticsearch = new ProcessWrapper(
+      "org.sonar.search.ElasticSearch",
+      new String[]{env.rootDir().getAbsolutePath() + "/lib/search/sonar-search-4.5-SNAPSHOT.jar"},
+      ImmutableMap.of(
+        "esPort", esPort,
+        "esHome", env.rootDir().getAbsolutePath()),
+      "ES", monitor.getMonitoringPort());
+
+    registerProcess(elasticsearch);
   }
 
   public static void main(String... args) throws InterruptedException, IOException, URISyntaxException {
