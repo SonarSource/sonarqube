@@ -79,6 +79,11 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-server</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-web</artifactId>
+      <version>${project.version}</version>
       <type>war</type>
     </dependency>
     <dependency>
@@ -264,8 +269,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>80000000</minsize>
-                  <maxsize>90000000</maxsize>
+                  <minsize>85000000</minsize>
+                  <maxsize>95000000</maxsize>
                   <files>
                     <file>${project.build.directory}/sonarqube-${project.version}.zip</file>
                   </files>

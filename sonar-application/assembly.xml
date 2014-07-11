@@ -8,10 +8,9 @@
   <dependencySets>
     <!-- Libraries -->
     <dependencySet>
-      <outputDirectory>lib</outputDirectory>
+      <outputDirectory>lib/server</outputDirectory>
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <excludes>
-        <exclude>org.codehaus.sonar:sonar-server</exclude>
         <exclude>mysql:mysql-connector-java</exclude>
         <exclude>postgresql:postgresql</exclude>
         <exclude>net.sourceforge.jtds:jtds</exclude>
@@ -46,7 +45,7 @@
     <dependencySet>
       <outputDirectory>web</outputDirectory>
       <includes>
-        <include>org.codehaus.sonar:sonar-server</include>
+        <include>org.codehaus.sonar:sonar-web</include>
       </includes>
       <unpack>true</unpack>
     </dependencySet>
