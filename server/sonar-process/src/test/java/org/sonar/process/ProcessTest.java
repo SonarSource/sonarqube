@@ -94,8 +94,8 @@ public class ProcessTest {
 
   private Process testProcess(Properties properties) {
     return new Process(Props.create(properties)) {
-      @Override
-      public void execute() {
+
+      public void onStart() {
         try {
           Thread.sleep(10000L);
         } catch (InterruptedException e) {
@@ -103,8 +103,7 @@ public class ProcessTest {
         }
       }
 
-      @Override
-      public void shutdown() {
+      public void onStop() {
 
       }
     };
