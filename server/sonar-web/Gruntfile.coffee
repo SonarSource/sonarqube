@@ -253,6 +253,12 @@ module.exports = (grunt) ->
         src: '<%= pkg.sources %>js/require.js', dest: '<%= pkg.assets %>js/require.js'
 
 
+    karma:
+      unit:
+        configFile: 'karma.conf.js'
+        singleRun: true
+
+
     express:
       dev:
         options:
@@ -264,7 +270,7 @@ module.exports = (grunt) ->
         options:
           test: true
           'no-colors': true
-        src: ['<%= pkg.sources %>js/tests/**/*-spec.js']
+        src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
 
 
     watch:
@@ -315,4 +321,4 @@ module.exports = (grunt) ->
                                  'concat:build',
                                  'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'clean:build']
 
-  grunt.registerTask 'test', ['coffee:build', 'handlebars:build', 'copy:js', 'concat:dev', 'express', 'casper']
+  grunt.registerTask 'test', ['coffee:build', 'handlebars:build', 'copy:js', 'concat:dev', 'karma:unit']

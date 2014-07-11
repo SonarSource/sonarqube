@@ -94,7 +94,7 @@
 
         window.messages = bundle;
         localStorage.setItem('l10n.bundle', JSON.stringify(bundle));
-      } else if (jqXHR.status == 304) {
+      } else if (jqXHR.status === 304) {
         window.messages = JSON.parse(localStorage.getItem('l10n.bundle'));
       }
     });
