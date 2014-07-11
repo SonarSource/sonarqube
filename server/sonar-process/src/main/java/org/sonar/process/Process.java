@@ -74,13 +74,20 @@ public abstract class Process implements Runnable {
 
     //Starting monitoring thread
     this.monitor = new Thread(this);
-    this.monitor.start();
   }
 
-  public abstract void execute();
+  public abstract void onStart();
 
-  public void shutdown() {
+  public abstract void onStop();
+
+  public final void start() {
+    this.monitor.start();
+    onStart();
+  }
+
+  public final void shutdown() {
     this.monitor.interrupt();
+    this.onStop();
   }
 
   @Override

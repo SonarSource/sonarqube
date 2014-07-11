@@ -102,11 +102,12 @@ public class ElasticSearch extends org.sonar.process.Process {
 
     node = NodeBuilder.nodeBuilder()
       .settings(esSettings)
-      .build().start();
+      .build();
   }
 
   @Override
-  public void execute() {
+  public void onStart() {
+    node.start();
     try {
       Thread.currentThread().join();
     } catch (InterruptedException e) {
@@ -114,16 +115,15 @@ public class ElasticSearch extends org.sonar.process.Process {
     }
   }
 
-  public void shutdown() {
+  public void onStop() {
     if (node != null) {
       this.node.close();
     }
-    super.shutdown();
   }
 
   public static void main(String... args) {
     Props props = Props.create(System.getProperties());
     ElasticSearch elasticSearch = new ElasticSearch(props);
-    elasticSearch.execute();
+    elasticSearch.start();
   }
 }
