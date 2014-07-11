@@ -104,7 +104,6 @@ public class ProcessTest {
       }
 
       public void onStop() {
-
       }
     };
   }

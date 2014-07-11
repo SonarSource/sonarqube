@@ -40,7 +40,7 @@ public abstract class Process implements Runnable {
   private final static Logger LOGGER = LoggerFactory.getLogger(Process.class);
 
   protected Long heartBeatInterval = 1000L;
-  private final Thread monitor;
+  protected final Thread monitor;
 
   final String name;
   final Integer port;
@@ -74,6 +74,7 @@ public abstract class Process implements Runnable {
 
     //Starting monitoring thread
     this.monitor = new Thread(this);
+    this.monitor.start();
   }
 
   public abstract void onStart();
@@ -81,7 +82,6 @@ public abstract class Process implements Runnable {
   public abstract void onStop();
 
   public final void start() {
-    this.monitor.start();
     onStart();
   }
 
