@@ -41,7 +41,7 @@ public class ProcessWrapper extends Thread {
 
   public ProcessWrapper(String className, String[] classPath, Map<String, String> properties, String name, Integer port) {
     super(name);
-    LOGGER.info("Creating Launcher for '{}' with base port: {}", name, port);
+    LOGGER.info("Creating Process for '{}' with monitoring port: {}", name, port);
     this.port = port;
     this.className = className;
     this.classPath = classPath;
@@ -74,6 +74,7 @@ public class ProcessWrapper extends Thread {
   }
 
   public void shutdown() {
+    LOGGER.info("Shutting down '{}'", this.getName());
     this.interrupt();
     this.process.destroy();
   }

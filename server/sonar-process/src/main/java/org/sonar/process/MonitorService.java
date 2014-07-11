@@ -51,7 +51,7 @@ public class MonitorService extends Thread {
 
   @Override
   public void run() {
-    LOGGER.info("Launching Monitoring Thread");
+    LOGGER.info("Starting monitoring for {} processes.", processes.size());
     long time;
     while (!Thread.currentThread().isInterrupted()) {
       DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
@@ -68,7 +68,6 @@ public class MonitorService extends Thread {
         break;
       }
     }
-    LOGGER.error("Not all process have checked-in. Aborting node");
     for (ProcessWrapper process : processes.values()) {
       process.shutdown();
     }
