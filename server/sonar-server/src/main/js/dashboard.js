@@ -37,7 +37,7 @@
       blocks
           .prop('draggable', true)
           .on('dragstart', function(e) {
-            e.originalEvent.dataTransfer.setData('text/plain', 'drag');
+            e.originalEvent.dataTransfer.setData('Text', 'drag');
             draggable = $(this);
             columnHandle.show();
           })
