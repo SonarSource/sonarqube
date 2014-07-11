@@ -89,6 +89,7 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-server</artifactId>
       <version>${project.version}</version>
+      <type>war</type>
       <scope>provided</scope>
     </dependency>
     <dependency>
