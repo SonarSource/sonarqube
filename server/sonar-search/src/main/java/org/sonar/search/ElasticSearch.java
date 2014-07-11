@@ -66,6 +66,9 @@ public class ElasticSearch extends org.sonar.process.Process {
     ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
 
     ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
+
+      .put("discovery.zen.ping.multicast.enable", "false")
+
       .put("index.merge.policy.max_merge_at_once", "200")
       .put("index.merge.policy.segments_per_tier", "200")
       .put("index.number_of_shards", "1")
@@ -86,10 +89,10 @@ public class ElasticSearch extends org.sonar.process.Process {
 //
 //      .put("network.bind_host", "127.0.0.1")
       .put("http.enabled", false)
+//      .put("http.port", 9200)
 //      .put("http.host", "127.0.0.1")
 
       .put("transport.tcp.port", port)
-//      .put("http.port", 9200);
 
       .put("path.home", home);
 

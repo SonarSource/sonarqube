@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.net.SocketException;
 import java.util.Properties;
 
@@ -62,7 +63,11 @@ public class ElasticSearchTest {
   }
 
   @Test
-  public void missing_properties() {
+  public void missing_properties() throws IOException {
+
+    ServerSocket socket = new ServerSocket(0);
+    Integer port = socket.getLocalPort();
+    socket.close();
 
     Properties properties = new Properties();
     properties.setProperty(Process.NAME_PROPERTY, "ES");
@@ -80,6 +85,9 @@ public class ElasticSearchTest {
     } catch (Exception e) {
       assertThat(e.getMessage()).isEqualTo(ElasticSearch.MISSING_ES_PORT);
     }
+
+    properties.setProperty(ElasticSearch.ES_PORT_PROPERTY, Integer.toString(port));
+    assertThat(new ElasticSearch(Props.create(properties))).isNotNull();
   }
 
   @Test
