@@ -28,9 +28,6 @@ import org.elasticsearch.script.NativeScriptFactory;
 import java.util.Collection;
 import java.util.Map;
 
-/**
- * @since 4.4
- */
 public class ListUpdate extends AbstractExecutableScript {
 
   public static final String NAME = "listUpdate";

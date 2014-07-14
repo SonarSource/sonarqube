@@ -19,21 +19,13 @@
  */
 package org.sonar.search;
 
-import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.common.logging.ESLoggerFactory;
-import org.elasticsearch.common.logging.slf4j.Slf4jESLoggerFactory;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.process.Props;
 import org.sonar.search.script.ListUpdate;
 
 public class ElasticSearch extends org.sonar.process.Process {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearch.class);
-
 
   public static final String ES_DEBUG_PROPERTY = "esDebug";
   public static final String ES_PORT_PROPERTY = "esPort";
@@ -51,25 +43,21 @@ public class ElasticSearch extends org.sonar.process.Process {
     super(props);
 
 
-    if (StringUtils.isEmpty(props.of(ES_HOME_PROPERTY, null))) {
+    String home = props.of(ES_HOME_PROPERTY);
+    if (home == null) {
       throw new IllegalStateException(MISSING_ES_HOME);
     }
-    String home = props.of(ES_HOME_PROPERTY);
 
-
-    if (StringUtils.isEmpty(props.of(ES_PORT_PROPERTY, null))) {
+    Integer port = props.intOf(ES_PORT_PROPERTY);
+    if (port == null) {
       throw new IllegalStateException(MISSING_ES_PORT);
     }
-    Integer port = props.intOf(ES_PORT_PROPERTY);
-
 
     String clusterName = props.of(ES_CLUSTER_PROPERTY, DEFAULT_CLUSTER_NAME);
 
-    ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
-
     ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
 
-      .put("discovery.zen.ping.multicast.enable", "false")
+      .put("discovery.zen.ping.multicast.enabled", "false")
 
       .put("index.merge.policy.max_merge_at_once", "200")
       .put("index.merge.policy.segments_per_tier", "200")
@@ -86,9 +74,6 @@ public class ElasticSearch extends org.sonar.process.Process {
       .put("node.name", "sonarqube-" + System.currentTimeMillis())
       .put("node.data", true)
       .put("node.local", false)
-
-//      .put("network.bind_host", "127.0.0.1")
-
       .put("transport.tcp.port", port)
       .put("path.home", home);
 
@@ -110,13 +95,14 @@ public class ElasticSearch extends org.sonar.process.Process {
     try {
       Thread.currentThread().join();
     } catch (InterruptedException e) {
-      LOGGER.warn("ES Process has been interrupted");
+      // TODO use java.util.logging
+      e.printStackTrace();
     }
   }
 
   public void onStop() {
     if (node != null) {
-      this.node.close();
+      node.close();
     }
   }
 

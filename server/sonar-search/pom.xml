@@ -13,33 +13,25 @@
   <artifactId>sonar-search</artifactId>
   <packaging>jar</packaging>
   <name>SonarQube :: Search</name>
-  <description>Elasticsearch Wrapper</description>
+  <description>Wrapper to start Elasticsearch</description>
 
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-process</artifactId>
-      <version>${project.version}</version>
+      <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.elasticsearch</groupId>
       <artifactId>elasticsearch</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-    </dependency>
-
+    <!-- testing -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -75,7 +67,7 @@
           </execution>
         </executions>
         <configuration>
-          <finalName>${artifactId}-${version}</finalName>
+          <finalName>${pom.artifactId}-${pom.version}</finalName>
         </configuration>
       </plugin>
     </plugins>
