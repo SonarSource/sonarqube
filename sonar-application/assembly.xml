@@ -8,7 +8,7 @@
   <dependencySets>
     <!-- Libraries -->
     <dependencySet>
-      <outputDirectory>lib/server</outputDirectory>
+      <outputDirectory>lib</outputDirectory>
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <excludes>
         <exclude>mysql:mysql-connector-java</exclude>
