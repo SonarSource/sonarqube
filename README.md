@@ -18,11 +18,11 @@ Put your technical debt under control. For more information please see:
 The development mode is used to edit Ruby on Rails code. The application is automatically reloaded when Ruby files are saved. It avoids restarting the server. Changes are reloaded on the fly. Execute one of the following commands from the sonar-server/ directory to start server:
 
     # for embedded database
-    sonar-server/h2-start.sh
+    server/sonar-web/h2-start.sh
     
     # or for other dbs
-    sonar-server/mysql-start.sh
-    sonar-server/postgresql-start.sh
+    server/sonar-web/mysql-start.sh
+    server/sonar-web/postgresql-start.sh
 
 Then Ruby code can be directly edited from sonar-server/src/main/webapp/WEB-INF/app.
 
