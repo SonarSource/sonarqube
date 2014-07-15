@@ -321,4 +321,4 @@ module.exports = (grunt) ->
                                  'concat:build',
                                  'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'clean:build']
 
-  grunt.registerTask 'test', ['coffee:build', 'handlebars:build', 'copy:js', 'concat:dev', 'karma:unit']
+  grunt.registerTask 'test', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev', 'karma:unit']
