@@ -345,7 +345,12 @@ class ProjectController < ApplicationController
     event = parent_snapshot.event(EventCategory::KEY_VERSION)
     old_version_name = event.name
     events = find_events(event)
-    Event.delete(events.map { |e| e.id })
+
+    Event.transaction do
+      events.map { |e| e.id }.each_slice(999) do |safe_for_oracle_ids|
+        Event.delete(safe_for_oracle_ids)
+      end
+    end
 
     reportProjectModification(parent_snapshot.root_project_id)
 
@@ -427,7 +432,6 @@ class ProjectController < ApplicationController
     events = []
     name = event.name
     category = event.category
-    description = event.description
     snapshots = find_project_snapshots(event.snapshot_id)
     snapshots.each do |snapshot|
       snapshot.events.reject { |e| e.name!=name || e.category!=category }.each do |event|

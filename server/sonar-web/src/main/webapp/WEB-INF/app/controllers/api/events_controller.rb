@@ -196,7 +196,12 @@ class Api::EventsController < Api::ApiController
           events << event
         end
       end
-      Event.delete(events.map {|e| e.id})
+
+      Event.transaction do
+        events.map { |e| e.id }.each_slice(999) do |safe_for_oracle_ids|
+          Event.delete(safe_for_oracle_ids)
+        end
+      end
       
       render_success("Event deleted")
       
