@@ -19,7 +19,7 @@
 #
 class MeasureFilterDisplay
 
-  DISPLAY_CLASSES = [MeasureFilterDisplayList, MeasureFilterDisplayTreemap]
+  DISPLAY_CLASSES = [MeasureFilterDisplayList]
 
   def self.create(filter, options)
     key = filter.criteria('display')
