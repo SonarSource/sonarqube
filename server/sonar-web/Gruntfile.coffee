@@ -253,15 +253,13 @@ module.exports = (grunt) ->
         src: '<%= pkg.sources %>js/require.js', dest: '<%= pkg.assets %>js/require.js'
 
 
-    karma:
-      unit:
-        configFile: 'karma.conf.js'
-        singleRun: true
-
-
     express:
+      test:
+        options:
+          script: '<%= pkg.assets %>js/tests/e2e/server.js'
       dev:
         options:
+          background: false
           script: '<%= pkg.assets %>js/tests/e2e/server.js'
 
 
@@ -321,4 +319,5 @@ module.exports = (grunt) ->
                                  'concat:build',
                                  'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'clean:build']
 
-  grunt.registerTask 'test', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev', 'karma:unit']
+  grunt.registerTask 'test', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
+                              'express:test', 'casper:test']

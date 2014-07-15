@@ -1,0 +1,496 @@
+{"metrics": {
+  "coverage": {
+    "name": "Coverage",
+    "type": "PERCENT",
+    "direction": 1,
+    "worstValue": 0.0,
+    "bestValue": 100.0
+  },
+  "ncloc": {
+    "name": "Lines of code",
+    "type": "INT",
+    "direction": -1
+  }
+}, "components": [
+  {
+    "key": "org.codehaus.sonar:sonar",
+    "name": "SonarQube",
+    "longName": "SonarQube",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 80.4,
+        "fval": "80.4%"
+      },
+      "ncloc": {
+        "val": 113123.0,
+        "fval": "113,123"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar:sonar-persistit",
+    "name": "sonar-persistit",
+    "longName": "sonar-persistit",
+    "qualifier": "TRK",
+    "measures": {
+      "ncloc": {
+        "val": 45330.0,
+        "fval": "45,330"
+      }
+    }
+  },
+  {
+    "key": "com.sonarsource.cpp:cpp",
+    "name": "SonarSource :: CPP",
+    "longName": "SonarSource :: CPP",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 90.4,
+        "fval": "90.4%"
+      },
+      "ncloc": {
+        "val": 31250.0,
+        "fval": "31,250"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar-plugins.java:java",
+    "name": "SonarQube Java",
+    "longName": "SonarQube Java",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 90.1,
+        "fval": "90.1%"
+      },
+      "ncloc": {
+        "val": 22588.0,
+        "fval": "22,588"
+      }
+    }
+  },
+  {
+    "key": "com.sonarsource.cobol:cobol",
+    "name": "SonarSource :: Cobol",
+    "longName": "SonarSource :: Cobol",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 83.5,
+        "fval": "83.5%"
+      },
+      "ncloc": {
+        "val": 20879.0,
+        "fval": "20,879"
+      }
+    }
+  },
+  {
+    "key": "com.sonarsource.plsql:plsql",
+    "name": "SonarSource :: PL/SQL",
+    "longName": "SonarSource :: PL/SQL",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 96.6,
+        "fval": "96.6%"
+      },
+      "ncloc": {
+        "val": 12110.0,
+        "fval": "12,110"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar.sslr:sslr",
+    "name": "SonarSource :: Language Recognizer",
+    "longName": "SonarSource :: Language Recognizer",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 80.3,
+        "fval": "80.3%"
+      },
+      "ncloc": {
+        "val": 8698.0,
+        "fval": "8,698"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar-ide.eclipse:eclipse-parent",
+    "name": "SonarQube Integration for Eclipse (parent)",
+    "longName": "SonarQube Integration for Eclipse (parent)",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 17.2,
+        "fval": "17.2%"
+      },
+      "ncloc": {
+        "val": 7924.0,
+        "fval": "7,924"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar-plugins.php:parent",
+    "name": "PHP",
+    "longName": "PHP",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 94.9,
+        "fval": "94.9%"
+      },
+      "ncloc": {
+        "val": 7134.0,
+        "fval": "7,134"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar-plugins.javascript:javascript",
+    "name": "JavaScript",
+    "longName": "JavaScript",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 94.0,
+        "fval": "94.0%"
+      },
+      "ncloc": {
+        "val": 6820.0,
+        "fval": "6,820"
+      }
+    }
+  },
+  {
+    "key": "com.maif.sonar:maif-cobol-plugin",
+    "name": "MAIF :: Cobol plugin",
+    "longName": "MAIF :: Cobol plugin",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 91.6,
+        "fval": "91.6%"
+      },
+      "ncloc": {
+        "val": 6684.0,
+        "fval": "6,684"
+      }
+    }
+  },
+  {
+    "key": "com.sonarsource.vbnet:vbnet",
+    "name": "SonarSource :: Visual Basic .NET",
+    "longName": "SonarSource :: Visual Basic .NET",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 94.3,
+        "fval": "94.3%"
+      },
+      "ncloc": {
+        "val": 6416.0,
+        "fval": "6,416"
+      }
+    }
+  },
+  {
+    "key": "com.sonarsource.orchestrator:orchestrator-parent",
+    "name": "SonarSource :: Orchestrator :: Parent",
+    "longName": "SonarSource :: Orchestrator :: Parent",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 76.1,
+        "fval": "76.1%"
+      },
+      "ncloc": {
+        "val": 5815.0,
+        "fval": "5,815"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar-plugins.flex:flex",
+    "name": "Flex",
+    "longName": "Flex",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 93.1,
+        "fval": "93.1%"
+      },
+      "ncloc": {
+        "val": 5401.0,
+        "fval": "5,401"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar-plugins.dotnet.csharp:sonar-csharp-squid",
+    "name": "SonarQube C# Plugin",
+    "longName": "SonarQube C# Plugin",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 90.3,
+        "fval": "90.3%"
+      },
+      "ncloc": {
+        "val": 4930.0,
+        "fval": "4,930"
+      }
+    }
+  },
+  {
+    "key": "com.sonarsource.rpg:rpg",
+    "name": "SonarSource :: RPG",
+    "longName": "SonarSource :: RPG",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 92.7,
+        "fval": "92.7%"
+      },
+      "ncloc": {
+        "val": 4235.0,
+        "fval": "4,235"
+      }
+    }
+  },
+  {
+    "key": "com.sonarsource.plugins.vb:vb",
+    "name": "SonarSource :: Visual Basic",
+    "longName": "SonarSource :: Visual Basic",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 96.1,
+        "fval": "96.1%"
+      },
+      "ncloc": {
+        "val": 4190.0,
+        "fval": "4,190"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar-plugins.erlang:erlang",
+    "name": "Erlang",
+    "longName": "Erlang",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 88.6,
+        "fval": "88.6%"
+      },
+      "ncloc": {
+        "val": 3843.0,
+        "fval": "3,843"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar-plugins:sonar-web-plugin",
+    "name": "SonarQube Web Plugin",
+    "longName": "SonarQube Web Plugin",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 94.4,
+        "fval": "94.4%"
+      },
+      "ncloc": {
+        "val": 3816.0,
+        "fval": "3,816"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar-plugins.python:python",
+    "name": "Python",
+    "longName": "Python",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 91.5,
+        "fval": "91.5%"
+      },
+      "ncloc": {
+        "val": 3631.0,
+        "fval": "3,631"
+      }
+    }
+  },
+  {
+    "key": "com.sonarsource.abap:abap",
+    "name": "SonarSource :: ABAP",
+    "longName": "SonarSource :: ABAP",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 95.1,
+        "fval": "95.1%"
+      },
+      "ncloc": {
+        "val": 3603.0,
+        "fval": "3,603"
+      }
+    }
+  },
+  {
+    "key": "com.sonarsource.pli:pli",
+    "name": "SonarSource :: PL/I",
+    "longName": "SonarSource :: PL/I",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 95.7,
+        "fval": "95.7%"
+      },
+      "ncloc": {
+        "val": 3387.0,
+        "fval": "3,387"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar.sslr-squid-bridge:sslr-squid-bridge",
+    "name": "SonarSource :: Language Recognizer :: Squid Bridge",
+    "longName": "SonarSource :: Language Recognizer :: Squid Bridge",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 85.2,
+        "fval": "85.2%"
+      },
+      "ncloc": {
+        "val": 3250.0,
+        "fval": "3,250"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar:sonar-update-center",
+    "name": "Sonar :: Update Center",
+    "longName": "Sonar :: Update Center",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 89.0,
+        "fval": "89.0%"
+      },
+      "ncloc": {
+        "val": 3192.0,
+        "fval": "3,192"
+      }
+    }
+  },
+  {
+    "key": "com.sonarsource.infra:jobs-creator",
+    "name": "Infra Jenkins Job Creator",
+    "longName": "Infra Jenkins Job Creator",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 50.6,
+        "fval": "50.6%"
+      },
+      "ncloc": {
+        "val": 2757.0,
+        "fval": "2,757"
+      }
+    }
+  },
+  {
+    "key": "com.sonarsource:sonar-dev-cockpit-plugin",
+    "name": "SonarSource :: Developer Cockpit",
+    "longName": "SonarSource :: Developer Cockpit",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 92.7,
+        "fval": "92.7%"
+      },
+      "ncloc": {
+        "val": 2692.0,
+        "fval": "2,692"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar-ide.intellij:sonar-intellij-plugin",
+    "name": "SonarQube Integration for IntelliJ",
+    "longName": "SonarQube Integration for IntelliJ",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 0.2,
+        "fval": "0.2%"
+      },
+      "ncloc": {
+        "val": 2679.0,
+        "fval": "2,679"
+      }
+    }
+  },
+  {
+    "key": "com.sonarsource.views:sonar-views-plugin",
+    "name": "SonarSource :: Views",
+    "longName": "SonarSource :: Views",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 94.6,
+        "fval": "94.6%"
+      },
+      "ncloc": {
+        "val": 2630.0,
+        "fval": "2,630"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar-plugins.css:css",
+    "name": "CSS",
+    "longName": "CSS",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 81.9,
+        "fval": "81.9%"
+      },
+      "ncloc": {
+        "val": 2485.0,
+        "fval": "2,485"
+      }
+    }
+  },
+  {
+    "key": "org.codehaus.sonar-plugins.xml:xml",
+    "name": "XML",
+    "longName": "XML",
+    "qualifier": "TRK",
+    "measures": {
+      "coverage": {
+        "val": 83.8,
+        "fval": "83.8%"
+      },
+      "ncloc": {
+        "val": 2122.0,
+        "fval": "2,122"
+      }
+    }
+  }
+], "maxResultsReached": false, "paging": {
+  "page": 1,
+  "pages": 3,
+  "pageSize": 30,
+  "total": 73
+}}

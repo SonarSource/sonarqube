@@ -1,0 +1,616 @@
+[
+  {
+    "id": 258,
+    "key": "org.codehaus.sonar:sonar-core",
+    "name": "SonarQube :: Core",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Core",
+    "version": "4.5-SNAPSHOT",
+    "description": "Core components shared to batch and server",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 83.3,
+        "frmt_val": "83.3%"
+      },
+      {
+        "key": "ncloc",
+        "val": 17854.0,
+        "frmt_val": "17,854"
+      }
+    ]
+  },
+  {
+    "id": 17221,
+    "key": "org.codehaus.sonar:sonar-home",
+    "name": "SonarQube :: Home",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": "2013-02-08T22:22:38+0600",
+    "lname": "SonarQube :: Home",
+    "version": "4.5-SNAPSHOT",
+    "description": "Access the user home directory that contains cache of files",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 75.1,
+        "frmt_val": "75.1%"
+      },
+      {
+        "key": "ncloc",
+        "val": 280.0,
+        "frmt_val": "280"
+      }
+    ]
+  },
+  {
+    "id": 2867,
+    "key": "org.codehaus.sonar:sonar-batch-maven-compat",
+    "name": "SonarQube :: Batch Maven Compat",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Batch Maven Compat",
+    "version": "4.5-SNAPSHOT",
+    "description": "Compatibility layer, which provides MavenProject for non-Maven environments."
+  },
+  {
+    "id": 2871,
+    "key": "org.codehaus.sonar:sonar-maven3-plugin",
+    "name": "SonarQube :: Maven3 Plugin",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Maven3 Plugin",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality"
+  },
+  {
+    "id": 2872,
+    "key": "org.codehaus.sonar:sonar-server",
+    "name": "SonarQube :: Server",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Server",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 87.8,
+        "frmt_val": "87.8%"
+      },
+      {
+        "key": "ncloc",
+        "val": 35987.0,
+        "frmt_val": "35,987"
+      }
+    ]
+  },
+  {
+    "id": 1227,
+    "key": "org.codehaus.sonar:sonar-ws-client",
+    "name": "SonarQube :: Web Service Client",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Web Service Client",
+    "version": "4.5-SNAPSHOT",
+    "description": "Java Client Library for SonarQube Web Services",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 77.2,
+        "frmt_val": "77.2%"
+      },
+      {
+        "key": "ncloc",
+        "val": 6393.0,
+        "frmt_val": "6,393"
+      }
+    ]
+  },
+  {
+    "id": 1627,
+    "key": "org.codehaus.sonar.plugins:sonar-dbcleaner-plugin",
+    "name": "SonarQube :: Plugins :: Database Cleaner",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Plugins :: Database Cleaner",
+    "version": "4.5-SNAPSHOT",
+    "description": "Optimizes database performances by removing old and useless data.",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 80.8,
+        "frmt_val": "80.8%"
+      },
+      {
+        "key": "ncloc",
+        "val": 397.0,
+        "frmt_val": "397"
+      }
+    ]
+  },
+  {
+    "id": 2881,
+    "key": "org.codehaus.sonar.plugins:sonar-design-plugin",
+    "name": "SonarQube :: Plugins :: Design",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Plugins :: Design",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 28.4,
+        "frmt_val": "28.4%"
+      },
+      {
+        "key": "ncloc",
+        "val": 359.0,
+        "frmt_val": "359"
+      }
+    ]
+  },
+  {
+    "id": 2882,
+    "key": "org.codehaus.sonar.plugins:sonar-l10n-en-plugin",
+    "name": "SonarQube :: Plugins :: English Pack",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Plugins :: English Pack",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 100.0,
+        "frmt_val": "100.0%"
+      },
+      {
+        "key": "ncloc",
+        "val": 9.0,
+        "frmt_val": "9"
+      }
+    ]
+  },
+  {
+    "id": 25120,
+    "key": "org.codehaus.sonar.plugins:sonar-xoo-plugin",
+    "name": "SonarQube :: Plugins :: Xoo",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": "2014-01-17T16:38:52+0600",
+    "lname": "SonarQube :: Plugins :: Xoo",
+    "version": "4.5-SNAPSHOT",
+    "description": "Sample of plugin to document and test available APIs",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 50.0,
+        "frmt_val": "50.0%"
+      },
+      {
+        "key": "ncloc",
+        "val": 86.0,
+        "frmt_val": "86"
+      }
+    ]
+  },
+  {
+    "id": 2866,
+    "key": "org.codehaus.sonar:sonar-application",
+    "name": "SonarQube :: Application",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Application",
+    "version": "4.5-SNAPSHOT",
+    "description": "Package the standalone distribution",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 90.2,
+        "frmt_val": "90.2%"
+      },
+      {
+        "key": "ncloc",
+        "val": 610.0,
+        "frmt_val": "610"
+      }
+    ]
+  },
+  {
+    "id": 33484,
+    "key": "org.codehaus.sonar:sonar-process",
+    "name": "SonarQube :: Process",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": "2014-07-08T17:17:01+0600",
+    "lname": "SonarQube :: Process",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 68.9,
+        "frmt_val": "68.9%"
+      },
+      {
+        "key": "ncloc",
+        "val": 409.0,
+        "frmt_val": "409"
+      }
+    ]
+  },
+  {
+    "id": 33505,
+    "key": "org.codehaus.sonar:sonar-search",
+    "name": "SonarQube :: Search",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": "2014-07-09T23:19:46+0600",
+    "lname": "SonarQube :: Search",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 24.2,
+        "frmt_val": "24.2%"
+      },
+      {
+        "key": "ncloc",
+        "val": 226.0,
+        "frmt_val": "226"
+      }
+    ]
+  },
+  {
+    "id": 1624,
+    "key": "org.codehaus.sonar:sonar-batch",
+    "name": "SonarQube :: Batch",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Batch",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 76.7,
+        "frmt_val": "76.7%"
+      },
+      {
+        "key": "ncloc",
+        "val": 15301.0,
+        "frmt_val": "15,301"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "key": "org.codehaus.sonar:sonar-check-api",
+    "name": "SonarQube :: Check API",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Check API",
+    "version": "4.5-SNAPSHOT",
+    "description": "Check API",
+    "msr": [
+      {
+        "key": "ncloc",
+        "val": 57.0,
+        "frmt_val": "57"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "key": "org.codehaus.sonar:sonar-colorizer",
+    "name": "SonarQube :: Code Colorizer",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Code Colorizer",
+    "version": "4.5-SNAPSHOT",
+    "description": "Code syntax highlighter",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 89.2,
+        "frmt_val": "89.2%"
+      },
+      {
+        "key": "ncloc",
+        "val": 784.0,
+        "frmt_val": "784"
+      }
+    ]
+  },
+  {
+    "id": 1625,
+    "key": "org.codehaus.sonar:sonar-deprecated",
+    "name": "SonarQube :: Deprecated",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Deprecated",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 52.0,
+        "frmt_val": "52.0%"
+      },
+      {
+        "key": "ncloc",
+        "val": 1375.0,
+        "frmt_val": "1,375"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "key": "org.codehaus.sonar:sonar-duplications",
+    "name": "SonarQube :: Duplications",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Duplications",
+    "version": "4.5-SNAPSHOT",
+    "description": "Detect duplicated code",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 85.1,
+        "frmt_val": "85.1%"
+      },
+      {
+        "key": "ncloc",
+        "val": 2693.0,
+        "frmt_val": "2,693"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "key": "org.codehaus.sonar:sonar-graph",
+    "name": "SonarQube :: Graph",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Graph",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 93.0,
+        "frmt_val": "93.0%"
+      },
+      {
+        "key": "ncloc",
+        "val": 997.0,
+        "frmt_val": "997"
+      }
+    ]
+  },
+  {
+    "id": 1626,
+    "key": "org.codehaus.sonar:sonar-java-api",
+    "name": "SonarQube :: Java API",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Java API",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 60.9,
+        "frmt_val": "60.9%"
+      },
+      {
+        "key": "ncloc",
+        "val": 265.0,
+        "frmt_val": "265"
+      }
+    ]
+  },
+  {
+    "id": 2869,
+    "key": "org.codehaus.sonar:sonar-markdown",
+    "name": "SonarQube :: Markdown",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Markdown",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 95.5,
+        "frmt_val": "95.5%"
+      },
+      {
+        "key": "ncloc",
+        "val": 340.0,
+        "frmt_val": "340"
+      }
+    ]
+  },
+  {
+    "id": 2870,
+    "key": "org.codehaus.sonar:sonar-maven-plugin",
+    "name": "SonarQube :: Maven2 Plugin",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Maven2 Plugin",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 16.9,
+        "frmt_val": "16.9%"
+      },
+      {
+        "key": "ncloc",
+        "val": 122.0,
+        "frmt_val": "122"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "key": "org.codehaus.sonar:sonar-plugin-api",
+    "name": "SonarQube :: Plugin API",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Plugin API",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 71.8,
+        "frmt_val": "71.8%"
+      },
+      {
+        "key": "ncloc",
+        "val": 22421.0,
+        "frmt_val": "22,421"
+      }
+    ]
+  },
+  {
+    "id": 251,
+    "key": "org.codehaus.sonar:sonar-testing-harness",
+    "name": "SonarQube :: Testing Harness",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Testing Harness",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "ncloc",
+        "val": 265.0,
+        "frmt_val": "265"
+      }
+    ]
+  },
+  {
+    "id": 2873,
+    "key": "org.codehaus.sonar.plugins:sonar-core-plugin",
+    "name": "SonarQube :: Plugins :: Core",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Plugins :: Core",
+    "version": "4.5-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 86.4,
+        "frmt_val": "86.4%"
+      },
+      {
+        "key": "ncloc",
+        "val": 4904.0,
+        "frmt_val": "4,904"
+      }
+    ]
+  },
+  {
+    "id": 2879,
+    "key": "org.codehaus.sonar.plugins:sonar-cpd-plugin",
+    "name": "SonarQube :: Plugins :: CPD",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Plugins :: CPD",
+    "version": "4.5-SNAPSHOT",
+    "description": "Find duplicated source code within project.",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 42.6,
+        "frmt_val": "42.6%"
+      },
+      {
+        "key": "ncloc",
+        "val": 722.0,
+        "frmt_val": "722"
+      }
+    ]
+  },
+  {
+    "id": 2883,
+    "key": "org.codehaus.sonar.plugins:sonar-email-notifications-plugin",
+    "name": "SonarQube :: Plugins :: Email Notifications",
+    "scope": "PRJ",
+    "qualifier": "BRC",
+    "date": "2014-07-09T23:19:45+0600",
+    "creationDate": null,
+    "lname": "SonarQube :: Plugins :: Email Notifications",
+    "version": "4.5-SNAPSHOT",
+    "description": "Email Notifications",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 80.6,
+        "frmt_val": "80.6%"
+      },
+      {
+        "key": "ncloc",
+        "val": 267.0,
+        "frmt_val": "267"
+      }
+    ]
+  }
+]
