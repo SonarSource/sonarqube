@@ -19,13 +19,19 @@
  */
 package org.sonar.search;
 
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.process.Process;
 import org.sonar.process.Props;
 import org.sonar.search.script.ListUpdate;
 
-public class ElasticSearch extends org.sonar.process.Process {
+public class ElasticSearch extends Process {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearch.class);
 
   public static final String ES_DEBUG_PROPERTY = "esDebug";
   public static final String ES_PORT_PROPERTY = "esPort";
@@ -55,7 +61,11 @@ public class ElasticSearch extends org.sonar.process.Process {
 
     String clusterName = props.of(ES_CLUSTER_PROPERTY, DEFAULT_CLUSTER_NAME);
 
+    LOGGER.info("Starting ES[{}] on port: {}", clusterName, port);
+
     ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
+
+      .put("es.foreground", "yes")
 
       .put("discovery.zen.ping.multicast.enabled", "false")
 
@@ -77,26 +87,36 @@ public class ElasticSearch extends org.sonar.process.Process {
       .put("transport.tcp.port", port)
       .put("path.home", home);
 
-    if (props.booleanOf(ES_DEBUG_PROPERTY, false)) {
+//    if (props.booleanOf(ES_DEBUG_PROPERTY, false)) {
       esSettings
         .put("http.enabled", true)
         .put("http.port", 9200);
-    } else {
-      esSettings.put("http.enabled", false);
-    }
+//    } else {
+//      esSettings.put("http.enabled", false);
+//    }
 
     node = NodeBuilder.nodeBuilder()
       .settings(esSettings)
-      .build().start();
+      .build();
+  }
+
+
+  @Override
+  public boolean isReady() {
+    ClusterHealthStatus status = node.client().admin().cluster().prepareClusterStats()
+      .get().getStatus();
+    return status != null && status == ClusterHealthStatus.GREEN;
   }
 
   @Override
   public void onStart() {
-    try {
-      Thread.currentThread().join();
-    } catch (InterruptedException e) {
-      // TODO use java.util.logging
-      e.printStackTrace();
+    node.start();
+    while (!node.isClosed()) {
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     }
   }
 
@@ -106,9 +126,9 @@ public class ElasticSearch extends org.sonar.process.Process {
     }
   }
 
-  public static void main(String... args) {
+  public static void main(String... args) throws InterruptedException {
     Props props = Props.create(System.getProperties());
-    ElasticSearch elasticSearch = new ElasticSearch(props);
+    final ElasticSearch elasticSearch = new ElasticSearch(props);
     elasticSearch.start();
   }
 }

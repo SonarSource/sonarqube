@@ -31,10 +31,12 @@ import org.junit.Test;
 import org.sonar.process.Process;
 import org.sonar.process.Props;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
 import java.io.File;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
+import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
 import java.net.SocketException;
 import java.util.Properties;
@@ -44,99 +46,110 @@ import static org.junit.Assert.fail;
 
 public class ElasticSearchTest {
 
-  DatagramSocket socket;
   File tempDirectory;
   ElasticSearch elasticSearch;
+  int freePort;
+  int freeESPort;
 
   @Before
   public void setup() throws IOException {
-    socket = new DatagramSocket(0);
     tempDirectory = FileUtils.getTempDirectory();
-    FileUtils.forceMkdir(tempDirectory);
-  }
-
-  @After
-  public void tearDown() throws IOException {
-    socket.close();
-    //TODO Fails on Jenkins
-    //FileUtils.deleteDirectory(tempDirectory);
-  }
-
-  @Test
-  public void missing_properties() throws IOException {
 
     ServerSocket socket = new ServerSocket(0);
-    Integer port = socket.getLocalPort();
+    freePort = socket.getLocalPort();
     socket.close();
+
+    socket = new ServerSocket(0);
+    freeESPort = socket.getLocalPort();
+    socket.close();
+  }
+
+
+  @After
+  public void tearDown() throws MBeanRegistrationException, InstanceNotFoundException {
+    resetMBeanServer();
+  }
+
+  private void resetMBeanServer() throws MBeanRegistrationException, InstanceNotFoundException {
+    try {
+      MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+      mbeanServer.unregisterMBean(Process.objectNameFor("ES"));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+
+  @Test
+  public void missing_properties() throws IOException, MBeanRegistrationException, InstanceNotFoundException {
 
     Properties properties = new Properties();
     properties.setProperty(Process.NAME_PROPERTY, "ES");
-    properties.setProperty(Process.HEARTBEAT_PROPERTY, Integer.toString(socket.getLocalPort()));
+    properties.setProperty(Process.PORT_PROPERTY, Integer.toString(freePort));
 
     try {
-      new ElasticSearch(Props.create(properties));
+      elasticSearch = new ElasticSearch(Props.create(properties));
     } catch (Exception e) {
       assertThat(e.getMessage()).isEqualTo(ElasticSearch.MISSING_ES_HOME);
     }
 
     properties.setProperty(ElasticSearch.ES_HOME_PROPERTY, tempDirectory.getAbsolutePath());
     try {
-      new ElasticSearch(Props.create(properties));
+      resetMBeanServer();
+      elasticSearch = new ElasticSearch(Props.create(properties));
     } catch (Exception e) {
       assertThat(e.getMessage()).isEqualTo(ElasticSearch.MISSING_ES_PORT);
     }
+    resetMBeanServer();
 
-    properties.setProperty(ElasticSearch.ES_PORT_PROPERTY, Integer.toString(port));
-    assertThat(new ElasticSearch(Props.create(properties))).isNotNull();
+    properties.setProperty(ElasticSearch.ES_PORT_PROPERTY, Integer.toString(freeESPort));
+    elasticSearch = new ElasticSearch(Props.create(properties));
+    assertThat(elasticSearch).isNotNull();
   }
 
   @Test
   public void can_connect() throws SocketException {
 
-    int port = new DatagramSocket(0).getLocalPort();
-
     Properties properties = new Properties();
     properties.setProperty(Process.NAME_PROPERTY, "ES");
-    properties.setProperty(Process.HEARTBEAT_PROPERTY, Integer.toString(socket.getLocalPort()));
     properties.setProperty(ElasticSearch.ES_HOME_PROPERTY, tempDirectory.getAbsolutePath());
-    properties.setProperty(ElasticSearch.ES_PORT_PROPERTY, Integer.toString(port));
+    properties.setProperty(ElasticSearch.ES_PORT_PROPERTY, Integer.toString(freeESPort));
 
     elasticSearch = new ElasticSearch(Props.create(properties));
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        elasticSearch.start();
+      }
+    }).start();
+    assertThat(elasticSearch.isReady()).isFalse();
 
-
-    // 0 assert that application is running
-    assertHeartBeat();
+    while (!elasticSearch.isReady()) {
+      try {
+        Thread.sleep(200);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
 
     Settings settings = ImmutableSettings.settingsBuilder()
       .put("cluster.name", "sonarqube")
       .build();
     TransportClient client = new TransportClient(settings)
-      .addTransportAddress(new InetSocketTransportAddress("localhost", port));
+      .addTransportAddress(new InetSocketTransportAddress("localhost", freeESPort));
+
 
     // 0 assert that we have a OK cluster available
     assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
 
-    // 1 assert that we get a heartBeat from the application
-    assertHeartBeat();
 
     // 2 assert that we can shut down ES
-    elasticSearch.shutdown();
+    elasticSearch.stop();
     try {
       client.admin().cluster().prepareClusterStats().get().getStatus();
       fail();
     } catch (Exception e) {
       assertThat(e.getMessage()).isEqualTo("No node available");
     }
-  }
-
-  private void assertHeartBeat() {
-    DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
-    try {
-      socket.setSoTimeout(1200);
-      socket.receive(packet);
-    } catch (Exception e) {
-      throw new IllegalStateException("Did not get a heartbeat");
-    }
-    assertThat(packet.getData()).isNotNull();
   }
 }
