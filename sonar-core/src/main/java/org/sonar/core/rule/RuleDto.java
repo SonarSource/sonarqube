@@ -30,11 +30,8 @@ import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+
+import java.util.*;
 
 public final class RuleDto extends Dto<RuleKey> {
 
@@ -44,6 +41,7 @@ public final class RuleDto extends Dto<RuleKey> {
   private String repositoryKey;
   private String ruleKey;
   private String description;
+  private String descriptionFormat;
   private RuleStatus status;
   private String name;
   private String configKey;
@@ -110,6 +108,15 @@ public final class RuleDto extends Dto<RuleKey> {
 
   public RuleDto setDescription(String description) {
     this.description = description;
+    return this;
+  }
+
+  public String getDescriptionFormat() {
+    return descriptionFormat;
+  }
+
+  public RuleDto setDescriptionFormat(String descriptionFormat) {
+    this.descriptionFormat = descriptionFormat;
     return this;
   }
 

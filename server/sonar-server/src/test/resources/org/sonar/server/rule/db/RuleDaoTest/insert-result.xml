@@ -27,7 +27,7 @@
          remediation_function="LINEAR" default_remediation_function="LINEAR_OFFSET"
          remediation_coeff="1h" default_remediation_coeff="5d"
          remediation_offset="5min" default_remediation_offset="10h"
-         effort_to_fix_description="squid.S115.effortToFix"
+         effort_to_fix_description="squid.S115.effortToFix" description_format="MARKDOWN"
       />
 
 </dataset>

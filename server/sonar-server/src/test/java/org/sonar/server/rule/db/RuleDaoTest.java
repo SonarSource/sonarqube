@@ -69,6 +69,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId()).isEqualTo(1);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
+    assertThat(ruleDto.getDescriptionFormat()).isEqualTo("HTML");
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
     assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
@@ -93,6 +94,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId()).isEqualTo(1);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
+    assertThat(ruleDto.getDescriptionFormat()).isEqualTo("HTML");
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
     assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
@@ -115,6 +117,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId()).isEqualTo(2);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
+    assertThat(ruleDto.getDescriptionFormat()).isEqualTo("HTML");
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
   }
@@ -170,6 +173,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setRepositoryKey("plugin")
       .setName("new name")
       .setDescription("new description")
+      .setDescriptionFormat("MARKDOWN")
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
@@ -210,6 +214,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setRepositoryKey("plugin")
       .setName("new name")
       .setDescription("new description")
+      .setDescriptionFormat("MARKDOWN")
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
@@ -244,6 +249,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setRepositoryKey("plugin")
       .setName("new name")
       .setDescription("new description")
+      .setDescriptionFormat("HTML")
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
@@ -266,6 +272,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setRepositoryKey("plugin2")
       .setName("new name2")
       .setDescription("new description2")
+      .setDescriptionFormat("MARKDOWN")
       .setStatus(RuleStatus.BETA)
       .setConfigKey("NewConfigKey2")
       .setSeverity(Severity.MAJOR)

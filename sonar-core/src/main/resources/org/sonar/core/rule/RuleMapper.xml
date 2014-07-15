@@ -8,6 +8,7 @@
     r.plugin_rule_key as "ruleKey",
     r.plugin_name as "repositoryKey",
     r.description,
+    r.description_format as "descriptionFormat",
     r.status,
     r.name,
     r.plugin_config_key as "configKey",
@@ -70,6 +71,7 @@
     plugin_rule_key=#{ruleKey},
     plugin_name=#{repositoryKey},
     description=#{description},
+    description_format=#{descriptionFormat},
     status=#{status},
     name=#{name},
     plugin_config_key=#{configKey},
@@ -97,7 +99,7 @@
   </update>
 
   <sql id="insertColumns">
-    (plugin_rule_key, plugin_name, description, status, name, plugin_config_key, priority, is_template, language, template_id,
+    (plugin_rule_key, plugin_name, description, description_format, status, name, plugin_config_key, priority, is_template, language, template_id,
     characteristic_id, default_characteristic_id, remediation_function, default_remediation_function,
     remediation_coeff, default_remediation_coeff, remediation_offset, default_remediation_offset,
     effort_to_fix_description, tags, system_tags, note_data, note_user_login, note_created_at, note_updated_at,
@@ -106,7 +108,7 @@
 
   <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into rules <include refid="insertColumns"/>
-    values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
+    values (#{ruleKey}, #{repositoryKey}, #{description}, #{descriptionFormat}, #{status}, #{name}, #{configKey},
       #{severity}, #{isTemplate}, #{language}, #{templateId},
       #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
       #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
@@ -116,7 +118,7 @@
 
   <insert id="batchInsert" parameterType="Rule" useGeneratedKeys="false">
     insert into rules <include refid="insertColumns"/>
-    values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
+    values (#{ruleKey}, #{repositoryKey}, #{description}, #{descriptionFormat}, #{status}, #{name}, #{configKey},
     #{severity}, #{isTemplate}, #{language}, #{templateId},
     #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
     #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
