@@ -30,6 +30,7 @@ casper.test.begin('Treemap', function suite(test) {
 
   casper.start('http://localhost:3000/pages/treemap.html', function () {
     casper.evaluate(function (treemapData, resourceResponse) {
+      jQuery.mockjaxSettings.contentType = 'text/json';
       jQuery.mockjax({ url: '/api/resources/index', responseText: resourceResponse });
       var widget = new SonarWidgets.Treemap();
       widget
@@ -55,6 +56,19 @@ casper.test.begin('Treemap', function suite(test) {
           test.assertSelectorHasText('.treemap-cell', 'SonarQube');
           test.assertMatch(casper.getElementAttribute('.treemap-link', 'href'), /dashboard\/index/,
               'Treemap cells have links to dashboards');
+        });
+      })
+      .then(function () {
+        casper.evaluate(function () {
+          var evt = document.createEvent('MouseEvents');
+          evt.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+          d3.select('.treemap-cell').node().dispatchEvent(evt);
+        });
+      })
+      .then(function () {
+        casper.wait(500, function () {
+          test.assertSelectorHasText('.treemap-cell', 'Server');
+          test.assertElementCount('.treemap-cell', 25);
         });
       });
 
