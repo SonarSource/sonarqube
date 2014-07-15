@@ -117,6 +117,9 @@ public class FileSystemMediumTest {
     assertThat(result.inputFiles().get(0).type()).isEqualTo(InputFile.Type.TEST);
   }
 
+  /**
+   * SONAR-5419
+   */
   @Test
   public void scanProjectWithMixedSourcesAndTests() throws IOException {
     File srcDir = new File(baseDir, "src");
