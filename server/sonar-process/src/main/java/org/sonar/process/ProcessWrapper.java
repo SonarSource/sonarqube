@@ -141,7 +141,7 @@ public class ProcessWrapper {
     processBuilder.environment().putAll(properties);
     processBuilder.environment().put(Process.NAME_PROPERTY, this.getName());
     processBuilder.environment().put(Process.PORT_PROPERTY, Integer.toString(port));
-    System.out.println("processBuilder.toString(); = " + processBuilder.toString());
+
     try {
       java.lang.Process process = processBuilder.start();
       errorGobbler = new StreamGobbler(process.getErrorStream(), this.getName() + "-ERROR");

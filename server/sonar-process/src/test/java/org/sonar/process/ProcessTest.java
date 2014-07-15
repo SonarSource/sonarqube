@@ -55,6 +55,26 @@ public class ProcessTest {
   }
 
   @Test
+  public void fails_invalid_name() {
+    try {
+      Process.objectNameFor("::");
+      fail();
+    } catch (Exception e) {
+      assertThat(e.getMessage()).isEqualTo("Cannot create ObjectName for ::");
+    }
+  }
+
+  @Test
+  public void fail_missing_properties() {
+    Properties properties = new Properties();
+    try {
+      new TestProcess(Props.create(properties));
+    } catch (Exception e) {
+      assertThat(e.getMessage()).isEqualTo(Process.MISSING_NAME_ARGUMENT);
+    }
+  }
+
+  @Test
   public void should_register_mbean() throws Exception {
 
     MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
