@@ -72,15 +72,15 @@ public class ProcessTest {
 
     // 2 assert that we cannot make another Process in the same JVM
     try {
-      process = new TestProcess(null);
+      process = new TestProcess(props);
       fail();
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).isEqualTo("Process already exists in current JVM");
     }
   }
 
-  @Test
-  public void should_stop() throws Exception {
+  @Test(timeout = 5000L)
+  public void should_stop_explicit() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(Process.NAME_PROPERTY, "TEST");
     Props props = Props.create(properties);
@@ -107,19 +107,18 @@ public class ProcessTest {
 
     // 2. Stop the process through Management
     processMXBean.stop();
-    Thread.sleep(200);
-    assertThat(procThread.isAlive()).isFalse();
+    procThread.join();
   }
 
   @Test(timeout = 5000L)
-  public void should_stop_by_itself() throws Exception {
+  public void should_stop_implicit() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(Process.NAME_PROPERTY, "TEST");
     properties.setProperty(Process.PORT_PROPERTY, Integer.toString(freePort));
     Props props = Props.create(properties);
     process = new TestProcess(props);
-    process.start();
 
+    process.start();
   }
 
   public static class TestProcess extends Process {
@@ -137,7 +136,7 @@ public class ProcessTest {
       ready = true;
       while (running) {
         try {
-          Thread.sleep(200);
+          Thread.sleep(1000);
         } catch (InterruptedException e) {
           e.printStackTrace();
         }

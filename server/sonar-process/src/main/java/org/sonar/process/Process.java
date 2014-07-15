@@ -30,6 +30,10 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public abstract class Process implements ProcessMXBean {
 
@@ -37,10 +41,7 @@ public abstract class Process implements ProcessMXBean {
   public static final String PORT_PROPERTY = "pPort";
 
   public static final String MISSING_NAME_ARGUMENT = "Missing Name argument";
-  public static final String MISSING_PORT_ARGUMENT = "Missing Port argument";
 
-  private final Thread monitoringThread;
-  private static final long MAX_ALLOWED_TIME = 3000L;
 
   private final static Logger LOGGER = LoggerFactory.getLogger(Process.class);
 
@@ -50,6 +51,20 @@ public abstract class Process implements ProcessMXBean {
   final Integer port;
 
   final protected Props props;
+
+  private static final long MAX_ALLOWED_TIME = 3000L;
+  private ScheduledFuture<?> pingTask = null;
+  final ScheduledExecutorService monitor = Executors.newScheduledThreadPool(1);
+  final Runnable breakOnMissingPing = new Runnable() {
+    public void run() {
+      long time = System.currentTimeMillis();
+      LOGGER.info("last check-in was {}ms ago.", time - lastPing);
+      if (time - lastPing > MAX_ALLOWED_TIME) {
+        LOGGER.warn("Did not get a check-in since {}ms. Initiate shutdown", time - lastPing);
+        stop();
+      }
+    }
+  };
 
   public Process(Props props) {
 
@@ -62,12 +77,6 @@ public abstract class Process implements ProcessMXBean {
     // Testing required properties
     if (StringUtils.isEmpty(this.name)) {
       throw new IllegalStateException(MISSING_NAME_ARGUMENT);
-    }
-
-    if (this.port != null) {
-      this.monitoringThread = new Thread(new Monitor(this));
-    } else {
-      this.monitoringThread = null;
     }
 
     MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -83,6 +92,10 @@ public abstract class Process implements ProcessMXBean {
   }
 
   public ObjectName getObjectName() {
+    return objectNameFor(name);
+  }
+
+  static public ObjectName objectNameFor(String name) {
     try {
       return new ObjectName("org.sonar", "name", name);
     } catch (MalformedObjectNameException e) {
@@ -100,9 +113,9 @@ public abstract class Process implements ProcessMXBean {
 
   public final void start() {
     LOGGER.info("Process[{}]::start START", name);
-    if (monitoringThread != null) {
-      this.lastPing = System.currentTimeMillis();
-      monitoringThread.start();
+    if (this.port != null) {
+      lastPing = System.currentTimeMillis();
+      pingTask = monitor.scheduleWithFixedDelay(breakOnMissingPing, 0, 3, TimeUnit.SECONDS);
     }
     this.onStart();
     LOGGER.info("Process[{}]::start END", name);
@@ -110,37 +123,11 @@ public abstract class Process implements ProcessMXBean {
 
   public final void stop() {
     LOGGER.info("Process[{}]::shutdown START", name);
-    if (monitoringThread != null) {
-      monitoringThread.interrupt();
+    if (pingTask != null) {
+      pingTask.cancel(true);
     }
+    monitor.shutdownNow();
     this.onStop();
     LOGGER.info("Process[{}]::shutdown END", name);
-  }
-
-
-  private class Monitor implements Runnable {
-
-    final Process process;
-
-    private Monitor(Process process) {
-      this.process = process;
-    }
-
-    @Override
-    public void run() {
-      while (monitoringThread != null && !monitoringThread.isInterrupted()) {
-        long time = System.currentTimeMillis();
-        LOGGER.info("Process[{}]::Monitor::run - last checked-in is {}ms", name, time - lastPing);
-        if (time - lastPing > MAX_ALLOWED_TIME) {
-          process.stop();
-          break;
-        }
-        try {
-          Thread.sleep(1000);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-      }
-    }
   }
 }
