@@ -28,7 +28,10 @@ import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
-import org.sonar.plugins.core.dashboards.*;
+import org.sonar.plugins.core.dashboards.GlobalDefaultDashboard;
+import org.sonar.plugins.core.dashboards.ProjectDefaultDashboard;
+import org.sonar.plugins.core.dashboards.ProjectIssuesDashboard;
+import org.sonar.plugins.core.dashboards.ProjectTimeMachineDashboard;
 import org.sonar.plugins.core.issue.*;
 import org.sonar.plugins.core.issue.notification.*;
 import org.sonar.plugins.core.measurefilters.MyFavouritesFilter;
@@ -230,7 +233,6 @@ public final class CorePlugin extends SonarPlugin {
 
       // dashboards
       ProjectDefaultDashboard.class,
-      ProjectHotspotDashboard.class,
       ProjectIssuesDashboard.class,
       ProjectTimeMachineDashboard.class,
       GlobalDefaultDashboard.class,
