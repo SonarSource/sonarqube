@@ -23,19 +23,16 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.MonitorService;
 import org.sonar.process.ProcessWrapper;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.DatagramSocket;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public final class StartServer {
 
@@ -48,7 +45,6 @@ public final class StartServer {
   private final Map<String, String> properties;
 
   private ExecutorService executor;
-  private MonitorService monitor;
   private ProcessWrapper elasticsearch;
   private ProcessWrapper sonarqube;
 
@@ -59,111 +55,71 @@ public final class StartServer {
   public StartServer(Env env, String... args) throws IOException {
     this.env = env;
     this.executor = Executors.newFixedThreadPool(2);
-    this.monitor = new MonitorService(systemAvailableSocket());
     this.esPort = Integer.toString(NetworkUtils.freePort());
     this.properties = new HashMap<String, String>();
 
     if (Arrays.binarySearch(args, "--debug") > -1) {
       properties.put("esDebug", "true");
     }
-
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        shutdown();
-      }
-    });
-
-    monitor.start();
-  }
-
-  private DatagramSocket systemAvailableSocket() throws IOException {
-    return new DatagramSocket(0);
   }
 
   public void shutdown() {
     LOGGER.info("Shutting down sonar Node");
-    if (monitor != null) {
-      monitor.interrupt();
-      monitor = null;
-    }
-    if (elasticsearch != null) {
-      elasticsearch.shutdown();
-      elasticsearch = null;
-    }
-
-    if (sonarqube != null) {
-      sonarqube.shutdown();
-      sonarqube = null;
-    }
-
-    if (executor != null) {
-      executor.shutdown();
-      try {
-        executor.awaitTermination(10L, TimeUnit.SECONDS);
-      } catch (InterruptedException e) {
-        LOGGER.warn("Executing terminated", e);
-      }
-      executor = null;
-    }
   }
 
   public void start() {
 
     // Start ES
-    this.startES();
+    this.startES(NetworkUtils.freePort());
+
+    while (!elasticsearch.isReady()) {
+      LOGGER.info("Waiting for ES");
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
 
     // Start SQ
-    this.startSQ();
+    //this.startSQ(NetworkUtils.freePort());
 
-    // And monitor the activity
-    try {
-      monitor.join();
-    } catch (InterruptedException e) {
-      LOGGER.warn("Shutting down the node...");
-    }
-    shutdown();
+//    // And monitor the activity
+//    try {
+//      monitor.join();
+//    } catch (InterruptedException e) {
+//      LOGGER.warn("Shutting down the node...");
+//    }
+    //   shutdown();
   }
 
-  private void registerProcess(ProcessWrapper process) {
-    //Register processes to monitor
-    monitor.register(process);
 
-    // Start our processes
-    LOGGER.info("Starting Child processes...");
-    executor.submit(process);
-  }
-
-  private void startSQ() {
+  private void startSQ(int port) {
     sonarqube = new ProcessWrapper(
       "org.sonar.application.StartServer",
-      new String[]{env.rootDir().getAbsolutePath() + "/lib/server/sonar-application-4.5-SNAPSHOT.jar"},
       ImmutableMap.of(
         "SONAR_HOME", env.rootDir().getAbsolutePath(),
         "test", "test"),
-      "SQ", monitor.getMonitoringPort());
-
-    registerProcess(sonarqube);
+      "SQ", port,
+      env.rootDir().getAbsolutePath() + "/lib/server/sonar-application-4.5-SNAPSHOT.jar");
   }
 
-  private void startES() {
+  private void startES(int port) {
     elasticsearch = new ProcessWrapper(
       "org.sonar.search.ElasticSearch",
-      new String[]{env.rootDir().getAbsolutePath() + "/lib/search/sonar-search-4.5-SNAPSHOT.jar"},
       ImmutableMap.of(
         "SONAR_HOME", env.rootDir().getAbsolutePath(),
         "esDebug", properties.containsKey("esDebug") ? properties.get("esDebug") : "false",
         "esPort", esPort,
         "esHome", env.rootDir().getAbsolutePath()),
-      "ES", monitor.getMonitoringPort());
-
-    registerProcess(elasticsearch);
+      "ES", port,
+      env.rootDir().getAbsolutePath() + "/lib/search/sonar-search-4.5-SNAPSHOT.jar");
   }
 
   public static void main(String... args) throws InterruptedException, IOException, URISyntaxException {
 
-    //String home = System.getenv(SONAR_HOME);
-    String home = "/Volumes/data/sonar/sonarqube/sonar-start/target/sonarqube-4.5-SNAPSHOT";
+    String home = System.getenv(SONAR_HOME);
+    //String home = "/Volumes/data/sonar/sonarqube/sonar-start/target/sonarqube-4.5-SNAPSHOT";
 
     //Check if we have a SONAR_HOME
     if (StringUtils.isEmpty(home)) {
