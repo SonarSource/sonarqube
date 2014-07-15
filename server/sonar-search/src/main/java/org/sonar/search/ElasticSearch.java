@@ -87,13 +87,13 @@ public class ElasticSearch extends Process {
       .put("transport.tcp.port", port)
       .put("path.home", home);
 
-//    if (props.booleanOf(ES_DEBUG_PROPERTY, false)) {
-    esSettings
-      .put("http.enabled", true)
-      .put("http.port", 9200);
-//    } else {
-//      esSettings.put("http.enabled", false);
-//    }
+    if (props.booleanOf(ES_DEBUG_PROPERTY, false)) {
+      esSettings
+        .put("http.enabled", true)
+        .put("http.port", 9200);
+    } else {
+      esSettings.put("http.enabled", false);
+    }
 
     node = NodeBuilder.nodeBuilder()
       .settings(esSettings)

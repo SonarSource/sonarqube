@@ -70,19 +70,11 @@ public final class StartServer {
   public void start() {
 
     // Start ES
-    this.startES(NetworkUtils.freePort());
+    //this.startES(NetworkUtils.freePort());
 
-    while (!elasticsearch.isReady()) {
-      LOGGER.info("Waiting for ES");
-      try {
-        Thread.sleep(1000);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
 
     // Start SQ
-    //this.startSQ(NetworkUtils.freePort());
+    this.startSQ(NetworkUtils.freePort());
 
 //    // And monitor the activity
 //    try {
@@ -114,6 +106,15 @@ public final class StartServer {
         "esHome", env.rootDir().getAbsolutePath()),
       "ES", port,
       env.rootDir().getAbsolutePath() + "/lib/search/sonar-search-4.5-SNAPSHOT.jar");
+
+    while (!elasticsearch.isReady()) {
+      LOGGER.info("Waiting for ES");
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   public static void main(String... args) throws InterruptedException, IOException, URISyntaxException {
