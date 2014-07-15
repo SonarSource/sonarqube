@@ -35,6 +35,12 @@ public @interface NavigationSection {
 
   String HOME = "home";
   String RESOURCE = "resource";
+
+  /**
+   * @deprecated since 4.5, as it costs too much to maintain and update.
+   * @see <a href="https://jira.codehaus.org/browse/SONAR-5321">SONAR-5321</a>
+   */
+  @Deprecated
   String RESOURCE_TAB = "resource_tab";
   String CONFIGURATION = "configuration";
 
