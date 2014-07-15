@@ -23,24 +23,28 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
+import java.lang.management.ManagementFactory;
 
-public abstract class Process implements Runnable {
+public abstract class Process implements ProcessMXBean {
 
   public static final String NAME_PROPERTY = "pName";
-  public static final String HEARTBEAT_PROPERTY = "pPort";
+  public static final String PORT_PROPERTY = "pPort";
 
   public static final String MISSING_NAME_ARGUMENT = "Missing Name argument";
   public static final String MISSING_PORT_ARGUMENT = "Missing Port argument";
 
+  private final Thread monitoringThread;
+  private static final long MAX_ALLOWED_TIME = 3000L;
 
   private final static Logger LOGGER = LoggerFactory.getLogger(Process.class);
 
-  protected Long heartBeatInterval = 1000L;
-  protected Thread monitor;
+  protected Long lastPing;
 
   final String name;
   final Integer port;
@@ -52,7 +56,7 @@ public abstract class Process implements Runnable {
     // Loading all Properties from file
     this.props = props;
     this.name = props.of(NAME_PROPERTY, null);
-    this.port = props.intOf(HEARTBEAT_PROPERTY);
+    this.port = props.intOf(PORT_PROPERTY);
 
 
     // Testing required properties
@@ -60,21 +64,34 @@ public abstract class Process implements Runnable {
       throw new IllegalStateException(MISSING_NAME_ARGUMENT);
     }
 
-    if (this.port == null) {
-      throw new IllegalStateException(MISSING_PORT_ARGUMENT);
+    if (this.port != null) {
+      this.monitoringThread = new Thread(new Monitor(this));
+    } else {
+      this.monitoringThread = null;
     }
 
-    // Adding a shutdown hook
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        shutdown();
-      }
-    });
+    MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+    try {
+      mbeanServer.registerMBean(this, this.getObjectName());
+    } catch (InstanceAlreadyExistsException e) {
+      throw new IllegalStateException("Process already exists in current JVM", e);
+    } catch (MBeanRegistrationException e) {
+      throw new IllegalStateException("Could not register process as MBean", e);
+    } catch (NotCompliantMBeanException e) {
+      throw new IllegalStateException("Process is not a compliant MBean", e);
+    }
+  }
 
-    //Starting monitoring thread
-    this.monitor = new Thread(this);
-    this.monitor.start();
+  public ObjectName getObjectName() {
+    try {
+      return new ObjectName("org.sonar", "name", name);
+    } catch (MalformedObjectNameException e) {
+      throw new IllegalStateException("Cannot create ObjectName for " + name, e);
+    }
+  }
+
+  public void ping() {
+    this.lastPing = System.currentTimeMillis();
   }
 
   public abstract void onStart();
@@ -82,38 +99,48 @@ public abstract class Process implements Runnable {
   public abstract void onStop();
 
   public final void start() {
-    LOGGER.info("Process[{}]::start", name);
-    onStart();
+    LOGGER.info("Process[{}]::start START", name);
+    if (monitoringThread != null) {
+      this.lastPing = System.currentTimeMillis();
+      monitoringThread.start();
+    }
+    this.onStart();
+    LOGGER.info("Process[{}]::start END", name);
   }
 
-  public final void shutdown() {
-    LOGGER.info("Process[{}]::shutdown", name);
-    this.monitor.interrupt();
-    this.monitor = null;
+  public final void stop() {
+    LOGGER.info("Process[{}]::shutdown START", name);
+    if (monitoringThread != null) {
+      monitoringThread.interrupt();
+    }
     this.onStop();
+    LOGGER.info("Process[{}]::shutdown END", name);
   }
 
-  @Override
-  public void run() {
-    LOGGER.info("Process[{}]::heartbeat({}) START", name, port);
-    try {
-      byte[] data = name.getBytes();
-      DatagramPacket pack =
-        new DatagramPacket(data, data.length, InetAddress.getLocalHost(), port);
-      while (!Thread.currentThread().isInterrupted()) {
-        LOGGER.trace("{} process ping mother-ship", name);
-        DatagramSocket ds = new DatagramSocket();
-        ds.send(pack);
-        ds.close();
-        try {
-          Thread.sleep(heartBeatInterval);
-        } catch (InterruptedException e) {
+
+  private class Monitor implements Runnable {
+
+    final Process process;
+
+    private Monitor(Process process) {
+      this.process = process;
+    }
+
+    @Override
+    public void run() {
+      while (monitoringThread != null && !monitoringThread.isInterrupted()) {
+        long time = System.currentTimeMillis();
+        LOGGER.info("Process[{}]::Monitor::run - last checked-in is {}ms", name, time - lastPing);
+        if (time - lastPing > MAX_ALLOWED_TIME) {
+          process.stop();
           break;
         }
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
       }
-    } catch (IOException e) {
-      throw new IllegalStateException("Heartbeat Thread for " + name + " could not communicate to socket", e);
     }
-    LOGGER.warn("Process[{}]::heartbeat OVER", name);
   }
 }

@@ -23,88 +23,142 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.MalformedURLException;
-import java.net.SocketException;
-import java.net.URISyntaxException;
+import javax.management.JMX;
+import javax.management.MBeanServer;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.net.ServerSocket;
 import java.util.Properties;
 
+import static junit.framework.TestCase.fail;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ProcessTest {
 
-  DatagramSocket socket;
+  int freePort;
 
   @Before
-  public void setup() throws SocketException {
-    this.socket = new DatagramSocket(0);
+  public void setup() throws IOException {
+    ServerSocket socket = new ServerSocket(0);
+    freePort = socket.getLocalPort();
+    socket.close();
   }
+
+  Process process;
 
   @After
-  public void tearDown() {
-    this.socket.close();
+  public void tearDown() throws Exception {
+    if (process != null) {
+      MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+      mbeanServer.unregisterMBean(process.getObjectName());
+    }
   }
 
   @Test
-  public void fail_missing_properties() throws MalformedURLException, URISyntaxException {
+  public void should_register_mbean() throws Exception {
+
+    MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+
     Properties properties = new Properties();
-    try {
-      testProcess(properties);
-    } catch (Exception e) {
-      assertThat(e.getMessage()).isEqualTo(Process.MISSING_NAME_ARGUMENT);
-    }
+    properties.setProperty(Process.NAME_PROPERTY, "TEST");
+    Props props = Props.create(properties);
+    process = new TestProcess(props);
 
-    properties.setProperty(Process.NAME_PROPERTY, "test");
-    try {
-      testProcess(properties);
-    } catch (Exception e) {
-      assertThat(e.getMessage()).isEqualTo(Process.MISSING_PORT_ARGUMENT);
-    }
+    // 0 Can have a valid ObjectName
+    assertThat(process.getObjectName()).isNotNull();
 
-    properties.setProperty(Process.HEARTBEAT_PROPERTY, Integer.toString(socket.getLocalPort()));
-    assertThat(testProcess(properties)).isNotNull();
+    // 1 assert that process MBean is registered
+    assertThat(mbeanServer.isRegistered(process.getObjectName())).isTrue();
+
+    // 2 assert that we cannot make another Process in the same JVM
+    try {
+      process = new TestProcess(null);
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("Process already exists in current JVM");
+    }
   }
 
   @Test
-  public void heart_beats() {
+  public void should_stop() throws Exception {
     Properties properties = new Properties();
-    properties.setProperty(Process.NAME_PROPERTY, "test");
-    properties.setProperty(Process.HEARTBEAT_PROPERTY, Integer.toString(socket.getLocalPort()));
-    Process test = testProcess(properties);
+    properties.setProperty(Process.NAME_PROPERTY, "TEST");
+    Props props = Props.create(properties);
+    process = new TestProcess(props);
 
-    assertThat(test).isNotNull();
+    MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+    final ProcessMXBean processMXBean = JMX.newMBeanProxy(mbeanServer, process.getObjectName(), ProcessMXBean.class);
 
-    int ping = 0;
-    int loop = 0;
-    while (loop < 3) {
-      DatagramPacket packet = new DatagramPacket(new byte[1024], 1024);
-      try {
-        socket.setSoTimeout(2000);
-        socket.receive(packet);
-        ping++;
-      } catch (Exception e) {
-        // Do nothing
+    Thread procThread = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        process.start();
       }
-      loop++;
-    }
+    });
 
-    assertThat(ping).isEqualTo(loop);
+    // 0. Process is loaded but not ready yet.
+    assertThat(processMXBean.isReady()).isFalse();
+
+    // 1. Pretend the process has started
+    procThread.start();
+    Thread.sleep(200);
+    assertThat(procThread.isAlive()).isTrue();
+    assertThat(processMXBean.isReady()).isTrue();
+
+    // 2. Stop the process through Management
+    processMXBean.stop();
+    Thread.sleep(200);
+    assertThat(procThread.isAlive()).isFalse();
   }
 
-  private Process testProcess(Properties properties) {
-    return new Process(Props.create(properties)) {
+  @Test(timeout = 5000L)
+  public void should_stop_by_itself() throws Exception {
+    Properties properties = new Properties();
+    properties.setProperty(Process.NAME_PROPERTY, "TEST");
+    properties.setProperty(Process.PORT_PROPERTY, Integer.toString(freePort));
+    Props props = Props.create(properties);
+    process = new TestProcess(props);
+    process.start();
 
-      public void onStart() {
+  }
+
+  public static class TestProcess extends Process {
+
+    private boolean ready = false;
+    private boolean running = false;
+
+    public TestProcess(Props props) {
+      super(props);
+      running = true;
+    }
+
+    @Override
+    public void onStart() {
+      ready = true;
+      while (running) {
         try {
-          Thread.sleep(10000L);
+          Thread.sleep(200);
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
       }
+    }
 
-      public void onStop() {
-      }
-    };
+    @Override
+    public void onStop() {
+      running = false;
+    }
+
+    @Override
+    public boolean isReady() {
+      return ready;
+    }
+
+    public static void main(String... args) {
+      System.out.println("Starting child process");
+      Props props = Props.create(System.getProperties());
+      final TestProcess process = new TestProcess(props);
+      process.start();
+    }
   }
 }
