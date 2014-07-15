@@ -1,9 +1,9 @@
 package org.sonar.process;
 
-import com.sun.tools.attach.VirtualMachine;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import sun.tools.jconsole.LocalVirtualMachine;
 
 import javax.management.MalformedObjectNameException;
 import java.io.IOException;
@@ -29,7 +29,11 @@ public class ProcessWrapperTest {
   @Ignore("Not a good idea to assert on # of VMs")
   public void process_should_run() throws IOException, MalformedObjectNameException, InterruptedException {
 
-    int VMcount = VirtualMachine.list().size();
+    LocalVirtualMachine.getAllVirtualMachines().size();
+    int VMcount = LocalVirtualMachine.getAllVirtualMachines().size();
+
+    System.out.println("LocalVirtualMachine.getAllVirtualMachines() = " + LocalVirtualMachine.getAllVirtualMachines());
+    
     RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
     ProcessWrapper wrapper = wrapper = new ProcessWrapper(ProcessTest.TestProcess.class.getName(),
       Collections.EMPTY_MAP, "TEST", freePort, runtime.getClassPath());
@@ -37,10 +41,10 @@ public class ProcessWrapperTest {
     assertThat(wrapper).isNotNull();
     assertThat(wrapper.isReady()).isTrue();
 
-    assertThat(VirtualMachine.list().size()).isEqualTo(VMcount + 1);
+    assertThat(LocalVirtualMachine.getAllVirtualMachines().size()).isEqualTo(VMcount + 1);
 
     wrapper.stop();
-    assertThat(VirtualMachine.list().size()).isEqualTo(VMcount);
+    assertThat(LocalVirtualMachine.getAllVirtualMachines().size()).isEqualTo(VMcount);
 
   }
 }
