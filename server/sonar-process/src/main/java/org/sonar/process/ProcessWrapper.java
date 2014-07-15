@@ -37,6 +37,10 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class ProcessWrapper {
 
@@ -54,6 +58,16 @@ public class ProcessWrapper {
   final java.lang.Process process;
   private StreamGobbler errorGobbler;
   private StreamGobbler outputGobbler;
+
+
+  private ScheduledFuture<?> pingTask = null;
+  final ScheduledExecutorService monitor = Executors.newScheduledThreadPool(1);
+  final Runnable pinging = new Runnable() {
+    public void run() {
+      processMXBean.ping();
+    }
+  };
+
 
 
   public ProcessWrapper(String className, Map<String, String> properties, final String name, Integer port, String... classPath) {
@@ -105,7 +119,7 @@ public class ProcessWrapper {
       throw new IllegalStateException("Could not connect to JMX service", e);
     }
 
-    //TODO Register Scheduled timer to ping the Mbean
+    pingTask = monitor.scheduleWithFixedDelay(pinging, 0, 3, TimeUnit.SECONDS);
   }
 
   public boolean isReady() {
@@ -113,19 +127,12 @@ public class ProcessWrapper {
   }
 
   public void stop() {
+    pingTask.cancel(true);
     processMXBean.stop();
-  }
-
-  public void ping() {
-    processMXBean.ping();
   }
 
   public String getName() {
     return name;
-  }
-
-  public ProcessMXBean getProcessMXBean() {
-    return processMXBean;
   }
 
   public java.lang.Process executeProcess() {

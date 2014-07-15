@@ -88,9 +88,9 @@ public class ElasticSearch extends Process {
       .put("path.home", home);
 
 //    if (props.booleanOf(ES_DEBUG_PROPERTY, false)) {
-      esSettings
-        .put("http.enabled", true)
-        .put("http.port", 9200);
+    esSettings
+      .put("http.enabled", true)
+      .put("http.port", 9200);
 //    } else {
 //      esSettings.put("http.enabled", false);
 //    }
@@ -103,9 +103,13 @@ public class ElasticSearch extends Process {
 
   @Override
   public boolean isReady() {
-    ClusterHealthStatus status = node.client().admin().cluster().prepareClusterStats()
-      .get().getStatus();
-    return status != null && status == ClusterHealthStatus.GREEN;
+    try {
+      ClusterHealthStatus status = node.client().admin().cluster().prepareClusterStats()
+        .get().getStatus();
+      return status != null && status == ClusterHealthStatus.GREEN;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   @Override

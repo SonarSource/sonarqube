@@ -115,7 +115,7 @@ public abstract class Process implements ProcessMXBean {
     LOGGER.info("Process[{}]::start START", name);
     if (this.port != null) {
       lastPing = System.currentTimeMillis();
-      pingTask = monitor.scheduleWithFixedDelay(breakOnMissingPing, 0, 3, TimeUnit.SECONDS);
+      pingTask = monitor.scheduleWithFixedDelay(breakOnMissingPing, 5, 5, TimeUnit.SECONDS);
     }
     this.onStart();
     LOGGER.info("Process[{}]::start END", name);

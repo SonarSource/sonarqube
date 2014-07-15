@@ -130,7 +130,7 @@ public class ProcessTest {
     procThread.join();
   }
 
-  @Test(timeout = 5000L)
+  @Test(timeout = 15000L)
   public void should_stop_implicit() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(Process.NAME_PROPERTY, "TEST");
