@@ -449,6 +449,7 @@
               <useNaming>false</useNaming>
               <systemProperties>
                 <SONAR_HOME>${project.build.directory}/dev</SONAR_HOME>
+                <rails.env>development</rails.env>
                 <jruby.max.runtimes>3</jruby.max.runtimes>
                 <sonar.jdbc.url>${sonar.jdbc.url}</sonar.jdbc.url>
                 <sonar.es.http.host>127.0.0.1</sonar.es.http.host>
