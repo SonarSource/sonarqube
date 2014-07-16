@@ -706,8 +706,8 @@ public interface RulesDefinition extends ServerExtension {
       if (Strings.isNullOrEmpty(name)) {
         throw new IllegalStateException(String.format("Name of rule %s is empty", this));
       }
-      if (Strings.isNullOrEmpty(htmlDescription)) {
-        throw new IllegalStateException(String.format("HTML description of rule %s is empty", this));
+      if (Strings.isNullOrEmpty(htmlDescription) && Strings.isNullOrEmpty(markdownDescription)) {
+        throw new IllegalStateException(String.format("One of HTML description or Markdown description must be defined for rule %s", this));
       }
       if ((Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction != null) || (!Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction == null)) {
         throw new IllegalStateException(String.format("Both debt sub-characteristic and debt remediation function should be defined on rule '%s'", this));

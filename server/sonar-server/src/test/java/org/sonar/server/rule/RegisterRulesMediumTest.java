@@ -111,7 +111,7 @@ public class RegisterRulesMediumTest {
       public void init(RulesDefinition.NewRepository repository) {
         RulesDefinition.NewRule x1Rule = repository.createRule("x1")
           .setName("x1 name")
-          .setHtmlDescription("x1 desc")
+          .setMarkdownDescription("x1 desc")
           .setSeverity(Severity.MINOR)
           .setEffortToFixDescription("x1 effort to fix")
           .setTags("tag1");
