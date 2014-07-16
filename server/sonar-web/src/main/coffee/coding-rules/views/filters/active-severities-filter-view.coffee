@@ -1,3 +1,4 @@
+
 define [
   'coding-rules/views/filters/profile-dependent-filter-view'
 ], (
@@ -5,3 +6,4 @@ define [
 ) ->
 
   class ActiveSeveritiesFilterView extends ProfileDependentFilterView
+    tooltip: 'coding_rules.filters.active_severity.inactive'

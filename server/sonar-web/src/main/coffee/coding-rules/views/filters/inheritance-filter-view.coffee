@@ -5,6 +5,7 @@ define [
 ) ->
 
   class InheritanceFilterView extends ProfileDependentFilterView
+    tooltip: 'coding_rules.filters.inheritance.inactive'
 
     onChangeQualityProfile: ->
       qualityProfileKey = @qualityProfileFilter.get 'value'
