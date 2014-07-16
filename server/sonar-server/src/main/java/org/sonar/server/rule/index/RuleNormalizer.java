@@ -280,9 +280,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField._TAGS.field(), Sets.union(rule.getSystemTags(), rule.getTags()));
 
       /** Upsert elements */
-      Map<String, Object> upsert = new HashMap<String, Object>(update);
+      Map<String, Object> upsert = getUpsertFor(RuleField.ALL_FIELDS, update);
       upsert.put(RuleField.KEY.field(), rule.getKey().toString());
-      upsert.put(RuleField.PARAMS.field(), new ArrayList<String>());
 
       /** Creating updateRequest */
       return ImmutableList.of(new UpdateRequest()

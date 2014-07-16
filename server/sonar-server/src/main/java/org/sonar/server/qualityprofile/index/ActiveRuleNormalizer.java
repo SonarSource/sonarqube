@@ -159,8 +159,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
       session.close();
     }
 
-    Map<String, Object> upsert = new HashMap<String, Object>(newRule);
-    upsert.put(ActiveRuleField.PARAMS.field(), new ArrayList());
+    Map<String, Object> upsert = getUpsertFor(ActiveRuleField.ALL_FIELDS, newRule);
 
     /* Creating updateRequest */
     return ImmutableList.of(new UpdateRequest()

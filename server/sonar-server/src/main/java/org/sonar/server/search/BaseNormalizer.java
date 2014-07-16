@@ -24,7 +24,11 @@ import org.sonar.core.persistence.Dto;
 import org.sonar.server.db.DbClient;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class BaseNormalizer<DTO extends Dto<KEY>, KEY extends Serializable> {
 
@@ -36,6 +40,20 @@ public abstract class BaseNormalizer<DTO extends Dto<KEY>, KEY extends Serializa
   protected BaseNormalizer(IndexDefinition definition, DbClient db) {
     this.db = db;
     this.definition = definition;
+  }
+
+  protected Map<String, Object> getUpsertFor(Set<IndexField> fields, Map<String, Object> update) {
+    Map<String, Object> upsert = new HashMap<String, Object>(update);
+    for (IndexField field : fields) {
+      if (!upsert.containsKey(field.field())) {
+        if (field.type().equals(IndexField.Type.OBJECT)) {
+          upsert.put(field.field(), new ArrayList<String>());
+        } else {
+          upsert.put(field.field(), null);
+        }
+      }
+    }
+    return upsert;
   }
 
   public List<UpdateRequest> deleteNested(Object object, KEY key) {
