@@ -867,12 +867,12 @@
       <dependency>
         <groupId>org.codehaus.woodstox</groupId>
         <artifactId>woodstox-core-lgpl</artifactId>
-        <version>4.0.4</version>
+        <version>4.4.0</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.staxmate</groupId>
         <artifactId>staxmate</artifactId>
-        <version>2.0.0</version>
+        <version>2.0.1</version>
         <exclusions>
           <!-- see SONAR-879 -->
           <exclusion>
@@ -1022,7 +1022,7 @@
       <dependency>
         <groupId>org.codehaus.woodstox</groupId>
         <artifactId>stax2-api</artifactId>
-        <version>3.0.1</version>
+        <version>3.1.4</version>
         <exclusions>
           <exclusion>
             <groupId>stax</groupId>
