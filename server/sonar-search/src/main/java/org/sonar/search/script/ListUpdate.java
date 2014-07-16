@@ -74,7 +74,7 @@ public class ListUpdate extends AbstractExecutableScript {
 
   private Map<String, Object> ctx;
 
-  public ListUpdate(String idField, String idValue, String field, Map<String, Object> value) {
+  public ListUpdate(String idField, String idValue, String field, @Nullable Map<String, Object> value) {
     this.idField = idField;
     this.idValue = idValue;
     this.field = field;
