@@ -191,10 +191,14 @@ public class QProfileService implements ServerComponent {
     factory.setDefault(key);
   }
 
+  /**
+   * Used in /api/profiles and in /profiles/export
+   * @param language
+   * @return
+   */
   @CheckForNull
-  public String getDefault(String language) {
-    QualityProfileDto profile = factory.getDefault(language);
-    return profile != null ? profile.getKey() : null;
+  public QualityProfileDto getDefault(String language) {
+    return factory.getDefault(language);
   }
 
   private void verifyAdminPermission() {
