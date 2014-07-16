@@ -37,11 +37,6 @@ class ColumnsController < ApplicationController
     redirect_to :controller => 'components', :action => 'index', :configuring => 'true', :id => params[:rid]
   end
 
-  def toggle_treemap
-    @components_configuration.toggle_treemap_enabled
-    redirect_to :controller => 'components', :action => 'index', :configuring => 'true', :id => params[:rid]
-  end
-  
   def left
     column = @components_configuration.find_selected_column(@column_id)
     @components_configuration.move_column(column, "left")
