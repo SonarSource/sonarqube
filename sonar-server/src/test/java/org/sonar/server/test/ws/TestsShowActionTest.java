@@ -21,7 +21,6 @@
 package org.sonar.server.test.ws;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -94,7 +93,6 @@ public class TestsShowActionTest {
   }
 
   @Test
-  @Ignore
   public void show_from_test_data() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", TEST_PLAN_KEY);
 
@@ -102,7 +100,7 @@ public class TestsShowActionTest {
       .setTextValue("<tests-details>" +
         "<testcase status=\"ok\" time=\"10\" name=\"test1\"/>" +
         "<testcase status=\"error\" time=\"97\" name=\"test2\">" +
-        "<error message=\"expected:<true> but was:<false>\">" +
+        "<error message=\"expected:&lt;true&gt; but was:&lt;false&gt;\">" +
         "<![CDATA[" +
         "java.lang.AssertionError: expected:<true> but was:<false>\n\t" +
         "at org.junit.Assert.fail(Assert.java:91)\n\t" +
