@@ -43,9 +43,7 @@ define [
 
     addMoreCriteriaFilter: ->
       readOnlyFilters = @collection.where(type: ReadOnlyFilterView)
-      console.log readOnlyFilters
       disabledFilters = _.difference(@collection.where(enabled: false), readOnlyFilters)
-      console.log disabledFilters
       if disabledFilters.length > 0
         @moreCriteriaFilter = new BaseFilters.Filter
           type: MoreCriteriaFilters.MoreCriteriaFilterView,
