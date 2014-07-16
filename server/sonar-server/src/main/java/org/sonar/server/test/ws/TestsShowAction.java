@@ -117,16 +117,12 @@ public class TestsShowAction implements RequestHandler {
 
         json.prop("name", cursor.getAttrValue("name"));
         json.prop("status", cursor.getAttrValue("status").toUpperCase());
-        json.prop("durationInMs", cursor.getAttrValue("time"));
+        json.prop("durationInMs", Long.parseLong(cursor.getAttrValue("time")));
 
         SMInputCursor errorCursor = cursor.childElementCursor();
         if (errorCursor.getNext() != null) {
           json.prop("message", errorCursor.getAttrValue("message"));
-
-          SMInputCursor stackTraceCursor = cursor.childElementCursor();
-          if (stackTraceCursor.getNext() != null) {
-//            json.prop("stackTrace", stackTraceCursor.getAttrValue(""));
-          }
+          json.prop("stackTrace", errorCursor.getElemStringValue());
         }
 
         json.endObject();

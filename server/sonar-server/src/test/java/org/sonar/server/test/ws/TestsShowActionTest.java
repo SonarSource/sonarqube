@@ -114,8 +114,6 @@ public class TestsShowActionTest {
         "</testcase>" +
         "</tests-details>"));
 
-    // TODO failure
-
     WsTester.TestRequest request = tester.newGetRequest("api/tests", "show").setParam("key", TEST_PLAN_KEY);
 
     request.execute().assertJson(getClass(), "show_from_test_data.json");
