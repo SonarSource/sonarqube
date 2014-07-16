@@ -37,11 +37,15 @@ public final class RuleDto extends Dto<RuleKey> {
 
   public static final Integer DISABLED_CHARACTERISTIC_ID = -1;
 
+  public enum Format {
+    HTML, MARKDOWN
+  }
+
   private Integer id;
   private String repositoryKey;
   private String ruleKey;
   private String description;
-  private String descriptionFormat;
+  private Format descriptionFormat;
   private RuleStatus status;
   private String name;
   private String configKey;
@@ -111,11 +115,11 @@ public final class RuleDto extends Dto<RuleKey> {
     return this;
   }
 
-  public String getDescriptionFormat() {
+  public Format getDescriptionFormat() {
     return descriptionFormat;
   }
 
-  public RuleDto setDescriptionFormat(String descriptionFormat) {
+  public RuleDto setDescriptionFormat(Format descriptionFormat) {
     this.descriptionFormat = descriptionFormat;
     return this;
   }

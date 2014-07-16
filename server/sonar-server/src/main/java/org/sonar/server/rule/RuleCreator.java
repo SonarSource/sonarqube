@@ -27,6 +27,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleDto.Format;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.index.RuleDoc;
@@ -131,7 +132,7 @@ public class RuleCreator implements ServerComponent {
   }
 
   private static void validateDescription(NewRule newRule){
-    if (Strings.isNullOrEmpty(newRule.htmlDescription())) {
+    if (Strings.isNullOrEmpty(newRule.htmlDescription()) && Strings.isNullOrEmpty(newRule.markdownDescription())) {
       throw new IllegalArgumentException("The description is missing");
     }
   }
@@ -152,7 +153,8 @@ public class RuleCreator implements ServerComponent {
       .setTemplateId(templateRuleDto.getId())
       .setConfigKey(templateRuleDto.getConfigKey())
       .setName(newRule.name())
-      .setDescription(newRule.htmlDescription())
+      .setDescription(newRule.markdownDescription())
+      .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(newRule.severity())
       .setStatus(newRule.status())
       .setLanguage(templateRuleDto.getLanguage())
@@ -186,7 +188,8 @@ public class RuleCreator implements ServerComponent {
   private RuleKey createManualRule(RuleKey ruleKey, NewRule newRule, DbSession dbSession){
     RuleDto ruleDto = RuleDto.createFor(ruleKey)
       .setName(newRule.name())
-      .setDescription(newRule.htmlDescription())
+      .setDescription(newRule.markdownDescription())
+      .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(newRule.severity())
       .setStatus(RuleStatus.READY);
     dbClient.ruleDao().insert(dbSession, ruleDto);

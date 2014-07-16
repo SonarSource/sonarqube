@@ -30,6 +30,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleDto.Format;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
@@ -79,6 +80,7 @@ public class ShowActionMediumTest {
       RuleTesting.newDto(RuleKey.of("java", "S001"))
         .setName("Rule S001")
         .setDescription("Rule S001 <b>description</b>")
+        .setDescriptionFormat(Format.HTML)
         .setSeverity(Severity.MINOR)
         .setStatus(RuleStatus.BETA)
         .setConfigKey("InternalKeyS001")
@@ -221,6 +223,7 @@ public class ShowActionMediumTest {
       RuleTesting.newDto(RuleKey.of("java", "S001"))
         .setName("Rule S001")
         .setDescription("Rule S001 <b>description</b>")
+        .setDescriptionFormat(Format.HTML)
         .setSeverity(Severity.MINOR)
         .setStatus(RuleStatus.BETA)
         .setConfigKey("InternalKeyS001")
@@ -288,7 +291,7 @@ public class ShowActionMediumTest {
       .setName("My custom")
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.READY)
-      .setHtmlDescription("<div>line1\nline2</div>");
+      .setMarkdownDescription("<div>line1\nline2</div>");
     RuleKey customRuleKey = ruleService.create(customRule);
     session.clearCache();
 
@@ -307,7 +310,7 @@ public class ShowActionMediumTest {
     NewRule manualRule = NewRule.createForManualRule("MY_MANUAL")
       .setName("My manual")
       .setSeverity(Severity.MINOR)
-      .setHtmlDescription("<div>line1\nline2</div>");
+      .setMarkdownDescription("<div>line1\nline2</div>");
     RuleKey customRuleKey = ruleService.create(manualRule);
     session.clearCache();
 

@@ -130,7 +130,7 @@ public class CreateAction implements RequestHandler {
       if (!Strings.isNullOrEmpty(customKey)) {
         NewRule newRule = NewRule.createForCustomRule(customKey, RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY)))
           .setName(request.mandatoryParam(PARAM_NAME))
-          .setHtmlDescription(request.mandatoryParam(PARAM_DESCRIPTION))
+          .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
           .setSeverity(request.mandatoryParam(PARAM_SEVERITY))
           .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)))
           .setPreventReactivation(request.paramAsBoolean(PARAM_PREVENT_REACTIVATION));
@@ -144,7 +144,7 @@ public class CreateAction implements RequestHandler {
       if (!Strings.isNullOrEmpty(manualKey)) {
         NewRule newRule = NewRule.createForManualRule(manualKey)
           .setName(request.mandatoryParam(PARAM_NAME))
-          .setHtmlDescription(request.mandatoryParam(PARAM_DESCRIPTION))
+          .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
           .setSeverity(request.param(PARAM_SEVERITY))
           .setPreventReactivation(request.paramAsBoolean(PARAM_PREVENT_REACTIVATION));
         writeResponse(response, service.create(newRule));

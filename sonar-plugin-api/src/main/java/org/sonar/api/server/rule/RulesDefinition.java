@@ -20,13 +20,7 @@
 package org.sonar.api.server.rule;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -519,7 +513,7 @@ public interface RulesDefinition extends ServerExtension {
 
   class NewRule {
     private final String repoKey, key;
-    private String name, htmlDescription, internalKey, severity = Severity.MAJOR;
+    private String name, htmlDescription, markdownDescription, internalKey, severity = Severity.MAJOR;
     private boolean template;
     private RuleStatus status = RuleStatus.defaultStatus();
     private String debtSubCharacteristic;
@@ -561,6 +555,9 @@ public interface RulesDefinition extends ServerExtension {
     }
 
     public NewRule setHtmlDescription(@Nullable String s) {
+      if (markdownDescription != null) {
+        throw new IllegalStateException(String.format("Rule '%s' already has a Markdown description", this));
+      }
       this.htmlDescription = StringUtils.trimToNull(s);
       return this;
     }
@@ -577,6 +574,30 @@ public interface RulesDefinition extends ServerExtension {
         }
       } else {
         this.htmlDescription = null;
+      }
+      return this;
+    }
+
+    public NewRule setMarkdownDescription(@Nullable String s) {
+      if (htmlDescription != null) {
+        throw new IllegalStateException(String.format("Rule '%s' already has an HTML description", this));
+      }
+      this.markdownDescription = StringUtils.trimToNull(s);
+      return this;
+    }
+
+    /**
+     * Load description from a file available in classpath. Example : <code>setMarkdownDescription(getClass().getResource("/myrepo/Rule1234.md")</code>
+     */
+    public NewRule setMarkdownDescription(@Nullable URL classpathUrl) {
+      if (classpathUrl != null) {
+        try {
+          setMarkdownDescription(IOUtils.toString(classpathUrl));
+        } catch (IOException e) {
+          throw new IllegalStateException("Fail to read: " + classpathUrl, e);
+        }
+      } else {
+        this.markdownDescription = null;
       }
       return this;
     }
@@ -702,7 +723,7 @@ public interface RulesDefinition extends ServerExtension {
   @Immutable
   class Rule {
     private final Repository repository;
-    private final String repoKey, key, name, htmlDescription, internalKey, severity;
+    private final String repoKey, key, name, htmlDescription, markdownDescription, internalKey, severity;
     private final boolean template;
     private final String debtSubCharacteristic;
     private final DebtRemediationFunction debtRemediationFunction;
@@ -717,6 +738,7 @@ public interface RulesDefinition extends ServerExtension {
       this.key = newRule.key;
       this.name = newRule.name;
       this.htmlDescription = newRule.htmlDescription;
+      this.markdownDescription = newRule.markdownDescription;
       this.internalKey = newRule.internalKey;
       this.severity = newRule.severity;
       this.template = newRule.template;
@@ -751,6 +773,11 @@ public interface RulesDefinition extends ServerExtension {
     @CheckForNull
     public String htmlDescription() {
       return htmlDescription;
+    }
+
+    @CheckForNull
+    public String markdownDescription() {
+      return markdownDescription;
     }
 
     public boolean template() {

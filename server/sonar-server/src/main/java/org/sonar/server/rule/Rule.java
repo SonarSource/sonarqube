@@ -24,6 +24,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +40,8 @@ public interface Rule {
   String name();
 
   String htmlDescription();
+
+  String markdownDescription();
 
   String effortToFixDescription();
 

@@ -32,22 +32,21 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.markdown.Markdown;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
+import org.sonar.server.text.MacroInterpreter;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
+
+  private final MacroInterpreter macroInterpreter;
 
   public static final class RuleParamField extends Indexable {
 
@@ -91,6 +90,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
     public static final IndexField UPDATED_AT = addSortable(IndexField.Type.DATE, UPDATED_AT_FIELD);
     public static final IndexField HTML_DESCRIPTION = addSearchable(IndexField.Type.TEXT, "htmlDesc");
+    public static final IndexField MARKDOWN_DESCRIPTION = add(IndexField.Type.TEXT, "mdDesc");
     public static final IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
     public static final IndexField STATUS = add(IndexField.Type.STRING, "status");
     public static final IndexField FIX_DESCRIPTION = add(IndexField.Type.STRING, "effortToFix");
@@ -143,8 +143,9 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     }
   }
 
-  public RuleNormalizer(DbClient db) {
+  public RuleNormalizer(DbClient db, MacroInterpreter macroInterpreter) {
     super(IndexDefinition.RULE, db);
+    this.macroInterpreter = macroInterpreter;
   }
 
   @Override
@@ -182,7 +183,15 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField.NAME.field(), rule.getName());
       update.put(RuleField.CREATED_AT.field(), rule.getCreatedAt());
       update.put(RuleField.UPDATED_AT.field(), rule.getUpdatedAt());
-      update.put(RuleField.HTML_DESCRIPTION.field(), rule.getDescription());
+
+      if (RuleDto.Format.HTML.equals(rule.getDescriptionFormat())) {
+        update.put(RuleField.HTML_DESCRIPTION.field(), rule.getDescription());
+        update.put(RuleField.MARKDOWN_DESCRIPTION.field(), null);
+      } else {
+        update.put(RuleField.HTML_DESCRIPTION.field(), rule.getDescription() == null ? null : Markdown.convertToHtml(rule.getDescription()));
+        update.put(RuleField.MARKDOWN_DESCRIPTION.field(), rule.getDescription());
+      }
+
       update.put(RuleField.FIX_DESCRIPTION.field(), rule.getEffortToFixDescription());
       update.put(RuleField.SEVERITY.field(), rule.getSeverityString());
 

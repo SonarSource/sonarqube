@@ -41,6 +41,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleDto.Format;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
@@ -51,12 +52,7 @@ import org.sonar.server.startup.RegisterDebtModel;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -198,13 +194,19 @@ public class RegisterRules implements Startable {
     RuleDto ruleDto = RuleDto.createFor(RuleKey.of(ruleDef.repository().key(), ruleDef.key()))
       .setIsTemplate(ruleDef.template())
       .setConfigKey(ruleDef.internalKey())
-      .setDescription(ruleDef.htmlDescription())
       .setLanguage(ruleDef.repository().language())
       .setName(ruleDef.name())
       .setSeverity(ruleDef.severity())
       .setStatus(ruleDef.status())
       .setEffortToFixDescription(ruleDef.effortToFixDescription())
       .setSystemTags(ruleDef.tags());
+    if (ruleDef.htmlDescription() != null) {
+      ruleDto.setDescription(ruleDef.htmlDescription());
+      ruleDto.setDescriptionFormat(Format.HTML);
+    } else {
+      ruleDto.setDescription(ruleDef.markdownDescription());
+      ruleDto.setDescriptionFormat(Format.MARKDOWN);
+    }
 
     dbClient.ruleDao().insert(session, ruleDto);
     return ruleDto;
@@ -216,10 +218,7 @@ public class RegisterRules implements Startable {
       dto.setName(def.name());
       changed = true;
     }
-    if (!StringUtils.equals(dto.getDescription(), def.htmlDescription())) {
-      dto.setDescription(def.htmlDescription());
-      changed = true;
-    }
+    changed = mergeDescription(def, dto);
     if (!dto.getSystemTags().containsAll(def.tags())) {
       dto.setSystemTags(def.tags());
       changed = true;
@@ -244,6 +243,20 @@ public class RegisterRules implements Startable {
     }
     if (!StringUtils.equals(dto.getLanguage(), def.repository().language())) {
       dto.setLanguage(def.repository().language());
+      changed = true;
+    }
+    return changed;
+  }
+
+  private boolean mergeDescription(RulesDefinition.Rule def, RuleDto dto) {
+    boolean changed = false;
+    if (def.htmlDescription() != null && !StringUtils.equals(dto.getDescription(), def.htmlDescription())) {
+      dto.setDescription(def.htmlDescription());
+      dto.setDescriptionFormat(Format.HTML);
+      changed = true;
+    } else if (def.markdownDescription() != null && !StringUtils.equals(dto.getDescription(), def.markdownDescription())) {
+      dto.setDescription(def.markdownDescription());
+      dto.setDescriptionFormat(Format.MARKDOWN);
       changed = true;
     }
     return changed;

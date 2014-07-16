@@ -120,7 +120,7 @@ public class RuleServiceMediumTest {
 
     Rule rule = service.getByKey(manualRule.getKey());
     assertThat(rule).isNotNull();
-    assertThat(rule.htmlDescription()).isEqualTo("<div>Manual rule desc</div>");
+    assertThat(rule.htmlDescription()).isEqualTo("&lt;div&gt;Manual rule desc&lt;/div&gt;");
   }
 
   @Test

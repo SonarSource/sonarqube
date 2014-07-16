@@ -34,7 +34,7 @@ public class NewRule {
 
   private String ruleKey;
   private RuleKey templateKey;
-  private String name, htmlDescription, severity;
+  private String name, htmlDescription, markdownDescription, severity;
   private RuleStatus status;
   private final Map<String, String> parameters = Maps.newHashMap();
 
@@ -70,6 +70,16 @@ public class NewRule {
 
   public NewRule setHtmlDescription(@Nullable String htmlDescription) {
     this.htmlDescription = htmlDescription;
+    return this;
+  }
+
+  @CheckForNull
+  public String markdownDescription() {
+    return markdownDescription;
+  }
+
+  public NewRule setMarkdownDescription(@Nullable String markdownDescription) {
+    this.markdownDescription = markdownDescription;
     return this;
   }
 

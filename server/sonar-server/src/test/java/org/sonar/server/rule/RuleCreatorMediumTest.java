@@ -32,6 +32,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleDto.Format;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.db.RuleDao;
@@ -73,7 +74,7 @@ public class RuleCreatorMediumTest {
     // Create custom rule
     NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
-      .setHtmlDescription("Some description")
+      .setMarkdownDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", "a.*"));
@@ -124,6 +125,7 @@ public class RuleCreatorMediumTest {
       .setStatus(RuleStatus.REMOVED)
       .setName("Old name")
       .setDescription("Old description")
+      .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(Severity.INFO));
     dao.addRuleParam(dbSession, rule, dao.findRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
     dbSession.commit();
@@ -132,7 +134,7 @@ public class RuleCreatorMediumTest {
     // Create custom rule with same key, but with different values
     NewRule newRule = NewRule.createForCustomRule(key, templateRule.getKey())
       .setName("New name")
-      .setHtmlDescription("New description")
+      .setMarkdownDescription("New description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", "c.*"));
@@ -146,7 +148,7 @@ public class RuleCreatorMediumTest {
 
     // These values should be the same than before
     assertThat(result.name()).isEqualTo("Old name");
-    assertThat(result.htmlDescription()).isEqualTo("Old description");
+    assertThat(result.markdownDescription()).isEqualTo("Old description");
     assertThat(result.severity()).isEqualTo(Severity.INFO);
     assertThat(result.param("regex").defaultValue()).isEqualTo("a.*");
 
@@ -399,7 +401,7 @@ public class RuleCreatorMediumTest {
   public void create_manual_rule() throws Exception {
     NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
       .setName("My manual")
-      .setHtmlDescription("Some description");
+      .setMarkdownDescription("Some description");
     RuleKey ruleKey = creator.create(newRule);
 
     dbSession.clearCache();
@@ -408,7 +410,7 @@ public class RuleCreatorMediumTest {
     assertThat(rule).isNotNull();
     assertThat(rule.key()).isEqualTo(RuleKey.of("manual", "MANUAL_RULE"));
     assertThat(rule.name()).isEqualTo("My manual");
-    assertThat(rule.htmlDescription()).isEqualTo("Some description");
+    assertThat(rule.markdownDescription()).isEqualTo("Some description");
     assertThat(rule.severity()).isNull();
     assertThat(rule.status()).isEqualTo(RuleStatus.READY);
     assertThat(rule.language()).isNull();
@@ -424,7 +426,7 @@ public class RuleCreatorMediumTest {
   public void create_manual_rule_with_severity() throws Exception {
     NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
       .setName("My manual")
-      .setHtmlDescription("Some description")
+      .setMarkdownDescription("Some description")
       .setSeverity(Severity.BLOCKER);
     RuleKey ruleKey = creator.create(newRule);
 
@@ -434,7 +436,7 @@ public class RuleCreatorMediumTest {
     assertThat(rule).isNotNull();
     assertThat(rule.key()).isEqualTo(RuleKey.of("manual", "MANUAL_RULE"));
     assertThat(rule.name()).isEqualTo("My manual");
-    assertThat(rule.htmlDescription()).isEqualTo("Some description");
+    assertThat(rule.markdownDescription()).isEqualTo("Some description");
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.status()).isEqualTo(RuleStatus.READY);
     assertThat(rule.language()).isNull();
@@ -462,7 +464,7 @@ public class RuleCreatorMediumTest {
     // Create a rule with the same key and with another name, description and severity
     NewRule newRule = NewRule.createForManualRule(key)
       .setName("New name")
-      .setHtmlDescription("New description");
+      .setMarkdownDescription("New description");
     RuleKey ruleKey = creator.create(newRule);
 
     dbSession.clearCache();
@@ -473,7 +475,7 @@ public class RuleCreatorMediumTest {
 
     // Name, description and severity should be the same than before
     assertThat(result.name()).isEqualTo("Old name");
-    assertThat(result.htmlDescription()).isEqualTo("Old description");
+    assertThat(result.markdownDescription()).isEqualTo("Old description");
     assertThat(result.severity()).isEqualTo(Severity.INFO);
 
     // Check that the id is the same

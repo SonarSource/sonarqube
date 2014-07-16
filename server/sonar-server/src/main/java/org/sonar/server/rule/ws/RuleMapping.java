@@ -20,7 +20,6 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.debt.DebtCharacteristic;
@@ -37,6 +36,7 @@ import org.sonar.server.text.MacroInterpreter;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -81,18 +81,14 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     map("htmlDesc", new Mapper<RuleDoc, RuleMappingContext>() {
       @Override
       public void write(JsonWriter json, RuleDoc rule, RuleMappingContext context) {
-        String html = rule.htmlDescription();
-        if (html != null) {
-          if (rule.isManual() || rule.templateKey() != null) {
-            String desc = StringEscapeUtils.escapeHtml(html);
-            desc = desc.replaceAll("\\n", "<br/>");
-            json.prop("htmlDesc", desc);
-          } else {
-            json.prop("htmlDesc", macroInterpreter.interpret(html));
-          }
+        if (rule.markdownDescription() != null) {
+          json.prop("htmlDesc", macroInterpreter.interpret(Markdown.convertToHtml(rule.markdownDescription())));
+        } else {
+          json.prop("htmlDesc", macroInterpreter.interpret(rule.htmlDescription()));
         }
       }
     });
+    map("mdDesc", RuleNormalizer.RuleField.MARKDOWN_DESCRIPTION.field());
     map("noteLogin", RuleNormalizer.RuleField.NOTE_LOGIN.field());
     map("mdNote", RuleNormalizer.RuleField.NOTE.field());
     map("htmlNote", new IndexMapper<RuleDoc, RuleMappingContext>(RuleNormalizer.RuleField.NOTE.field()) {
