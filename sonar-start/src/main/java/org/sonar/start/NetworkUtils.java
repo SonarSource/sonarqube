@@ -24,9 +24,11 @@ import java.net.ServerSocket;
 
 class NetworkUtils {
 
+  static private int lastPort = -1;
+
   static int freePort() {
     try {
-      ServerSocket s =  new ServerSocket(0);
+      ServerSocket s = new ServerSocket(lastPort + 1);
       int port = s.getLocalPort();
       s.close();
       return port;
