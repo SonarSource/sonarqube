@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.component.SnapshotPerspectives;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -36,7 +37,7 @@ public class TestsWsTest {
   @Before
   public void setUp() throws Exception {
     SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
-    WsTester tester = new WsTester(new TestsWs(new TestsShowAction(snapshotPerspectives), new TestsTestCasesAction(snapshotPerspectives), new TestsCoveredFilesAction(snapshotPerspectives)));
+    WsTester tester = new WsTester(new TestsWs(new TestsShowAction(mock(DbClient.class), snapshotPerspectives), new TestsTestCasesAction(snapshotPerspectives), new TestsCoveredFilesAction(snapshotPerspectives)));
     controller = tester.controller("api/tests");
   }
 
