@@ -50,6 +50,22 @@
     </where>
   </select>
 
+  <select id="selectByComponentAndMetric" parameterType="map" resultType="Measure">
+    SELECT metric.name as metric_name,
+    <include refid="measureColumns"/>
+    FROM project_measures pm
+    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
+    INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
+    INNER JOIN metrics metric ON metric.id=pm.metric_id
+    <where>
+      AND p.kee = #{componentKey}
+      AND metric.name=#{metricKey}
+      AND pm.rule_id IS NULL
+      AND pm.characteristic_id IS NULL
+      AND pm.person_id IS NULL
+    </where>
+  </select>
+
   <select id="countByKey" parameterType="map" resultType="long">
     SELECT count(pm.id)
     FROM project_measures pm

@@ -101,6 +101,23 @@ public class MeasureDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void find_by_component_key_and_metric() throws Exception {
+    setupData("shared");
+
+    MeasureDto result = dao.findByComponentKeyAndMetricKey("org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc", session);
+    assertThat(result.getId()).isEqualTo(22);
+    assertThat(result.getValue()).isEqualTo(10d);
+    assertThat(result.getKey()).isEqualTo(MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc"));
+    assertThat(result.getVariation(1)).isEqualTo(1d);
+    assertThat(result.getVariation(2)).isEqualTo(2d);
+    assertThat(result.getVariation(3)).isEqualTo(3d);
+    assertThat(result.getVariation(4)).isEqualTo(4d);
+    assertThat(result.getVariation(5)).isEqualTo(-5d);
+
+    assertThat(dao.findByComponentKeyAndMetricKey("org.struts:struts-core:src/org/struts/RequestContext.java", "unknown", session)).isNull();
+  }
+
+  @Test
   public void exists_by_key() throws Exception {
     setupData("shared");
 

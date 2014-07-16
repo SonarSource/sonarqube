@@ -21,6 +21,7 @@
 package org.sonar.server.test.ws;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -30,6 +31,11 @@ import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.TestCase;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.SnapshotPerspectives;
+import org.sonar.core.measure.db.MeasureDto;
+import org.sonar.core.measure.db.MeasureKey;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
@@ -45,33 +51,74 @@ public class TestsShowActionTest {
   static final String TEST_PLAN_KEY = "src/test/java/org/foo/BarTest.java";
 
   @Mock
+  DbSession session;
+
+  @Mock
+  MeasureDao measureDao;
+
+  @Mock
   MutableTestPlan testPlan;
+
+  @Mock
+  SnapshotPerspectives snapshotPerspectives;
 
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
-    SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
-    when(snapshotPerspectives.as(MutableTestPlan.class, TEST_PLAN_KEY)).thenReturn(testPlan);
-    tester = new WsTester(new TestsWs(new TestsShowAction(snapshotPerspectives), mock(TestsTestCasesAction.class), mock(TestsCoveredFilesAction.class)));
+    DbClient dbClient = mock(DbClient.class);
+    when(dbClient.openSession(false)).thenReturn(session);
+    when(dbClient.measureDao()).thenReturn(measureDao);
+
+    tester = new WsTester(new TestsWs(new TestsShowAction(dbClient, snapshotPerspectives), mock(TestsTestCasesAction.class), mock(TestsCoveredFilesAction.class)));
   }
 
   @Test
   public void show() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", TEST_PLAN_KEY);
 
+    when(snapshotPerspectives.as(MutableTestPlan.class, TEST_PLAN_KEY)).thenReturn(testPlan);
+
     MutableTestCase testCase1 = testCase("test1", TestCase.Status.OK, 10L, 32, null, null);
     MutableTestCase testCase2 = testCase("test2", TestCase.Status.ERROR, 97L, 21, "expected:<true> but was:<false>",
       "java.lang.AssertionError: expected:<true> but was:<false>\n\t" +
-      "at org.junit.Assert.fail(Assert.java:91)\n\t" +
-      "at org.junit.Assert.failNotEquals(Assert.java:645)\n\t" +
-      "at org.junit.Assert.assertEquals(Assert.java:126)\n\t" +
-      "at org.junit.Assert.assertEquals(Assert.java:145)\n");
+        "at org.junit.Assert.fail(Assert.java:91)\n\t" +
+        "at org.junit.Assert.failNotEquals(Assert.java:645)\n\t" +
+        "at org.junit.Assert.assertEquals(Assert.java:126)\n\t" +
+        "at org.junit.Assert.assertEquals(Assert.java:145)\n");
     when(testPlan.testCases()).thenReturn(newArrayList(testCase1, testCase2));
 
     WsTester.TestRequest request = tester.newGetRequest("api/tests", "show").setParam("key", TEST_PLAN_KEY);
 
     request.execute().assertJson(getClass(), "show.json");
+  }
+
+  @Test
+  @Ignore
+  public void show_from_test_data() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", TEST_PLAN_KEY);
+
+    when(measureDao.findByComponentKeyAndMetricKey(TEST_PLAN_KEY, "test_data", session)).thenReturn(MeasureDto.createFor(MeasureKey.of(TEST_PLAN_KEY, "test_data"))
+      .setTextValue("<tests-details>" +
+        "<testcase status=\"ok\" time=\"10\" name=\"test1\"/>" +
+        "<testcase status=\"error\" time=\"97\" name=\"test2\">" +
+        "<error message=\"expected:<true> but was:<false>\">" +
+        "<![CDATA[" +
+        "java.lang.AssertionError: expected:<true> but was:<false>\n\t" +
+        "at org.junit.Assert.fail(Assert.java:91)\n\t" +
+        "at org.junit.Assert.failNotEquals(Assert.java:645)\n\t" +
+        "at org.junit.Assert.assertEquals(Assert.java:126)\n\t" +
+        "at org.junit.Assert.assertEquals(Assert.java:145)\n" +
+        "]]>" +
+        "</error>" +
+        "</testcase>" +
+        "</tests-details>"));
+
+    // TODO failure
+
+    WsTester.TestRequest request = tester.newGetRequest("api/tests", "show").setParam("key", TEST_PLAN_KEY);
+
+    request.execute().assertJson(getClass(), "show_from_test_data.json");
   }
 
   private MutableTestCase testCase(String name, TestCase.Status status, Long durationInMs, int coveredLines, @Nullable String message, @Nullable String stackTrace) {

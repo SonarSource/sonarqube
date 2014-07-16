@@ -69,6 +69,10 @@ public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> i
     return dtos;
   }
 
+  public MeasureDto findByComponentKeyAndMetricKey(String componentKey, String metricKey, DbSession session) {
+    return session.getMapper(MeasureMapper.class).selectByComponentAndMetric(componentKey, metricKey);
+  }
+
   @Override
   protected MeasureDto doInsert(DbSession session, MeasureDto item) {
     throw notImplemented();

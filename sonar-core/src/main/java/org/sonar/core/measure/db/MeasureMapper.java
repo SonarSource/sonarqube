@@ -22,6 +22,8 @@ package org.sonar.core.measure.db;
 
 import org.apache.ibatis.annotations.Param;
 
+import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public interface MeasureMapper {
@@ -29,6 +31,9 @@ public interface MeasureMapper {
   MeasureDto selectByKey(@Param("key") MeasureKey key);
 
   List<MeasureDto> selectByComponentAndMetrics(@Param("componentKey") String componentKey, @Param("metricKeys") List<String> metricKeys);
+
+  @CheckForNull
+  MeasureDto selectByComponentAndMetric(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
 
   long countByKey(@Param("key") MeasureKey key);
 
