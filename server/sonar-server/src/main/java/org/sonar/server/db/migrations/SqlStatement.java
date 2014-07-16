@@ -19,14 +19,20 @@
  */
 package org.sonar.server.db.migrations;
 
+import javax.annotation.Nullable;
 import java.sql.SQLException;
+import java.util.Date;
 
-/**
- * Java alternative of ActiveRecord::Migration. Do not forget to declare implementation classes in {@link DatabaseMigrations#CLASSES}
- * @since 3.7
- */
-public interface DatabaseMigration {
+public interface SqlStatement<CHILD extends SqlStatement> {
+  CHILD setBoolean(int columnIndex, @Nullable Boolean value) throws SQLException;
 
-  void execute() throws SQLException;
+  CHILD setDate(int columnIndex, @Nullable Date value) throws SQLException;
 
+  CHILD setInt(int columnIndex, @Nullable Integer value) throws SQLException;
+
+  CHILD setLong(int columnIndex, @Nullable Long value) throws SQLException;
+
+  CHILD setString(int columnIndex, @Nullable String value) throws SQLException;
+
+  CHILD close();
 }

@@ -22,13 +22,12 @@ package org.sonar.server.db.migrations.v44;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.MassUpdater;
-import org.sonar.server.db.migrations.SqlUtil;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.Select;
+import org.sonar.server.db.migrations.SqlStatement;
 import org.sonar.server.util.Slug;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -36,90 +35,52 @@ import java.sql.SQLException;
  * 
  * @since 4.4
  */
-public class FeedQProfileKeysMigration implements DatabaseMigration {
+public class FeedQProfileKeysMigration extends BaseDataChange {
 
-  private final Database db;
-
-  public FeedQProfileKeysMigration(Database database) {
-    this.db = database;
+  public FeedQProfileKeysMigration(Database db) {
+    super(db);
   }
 
   @Override
-  public void execute() {
-    updateKeys();
-    updateParentKeys();
+  public void execute(Context context) throws SQLException {
+    updateKeys(context);
+    updateParentKeys(context);
   }
 
-  private void updateKeys() {
-    new MassUpdater(db, 100).execute(
-      new MassUpdater.InputLoader<Row>() {
-        @Override
-        public String selectSql() {
-          return "SELECT id,language,name FROM rules_profiles";
-        }
+  private void updateKeys(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT id,language,name FROM rules_profiles");
+    massUpdate.update("UPDATE rules_profiles SET kee=? WHERE id=?");
+    massUpdate.execute(new MassUpdate.Handler() {
+      @Override
+      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+        Long id = row.getLong(1);
+        String lang = row.getString(2);
+        String name = row.getString(3);
 
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.id = SqlUtil.getLong(rs, 1);
-          row.lang = rs.getString(2);
-          row.name = rs.getString(3);
-          return row;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-
-        @Override
-        public String updateSql() {
-          return "UPDATE rules_profiles SET kee=? WHERE id=?";
-        }
-
-        @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setString(1, Slug.slugify(String.format("%s %s %s", row.lang, row.name, RandomStringUtils.randomNumeric(5))));
-          updateStatement.setLong(2, row.id);
-          return true;
-        }
+        update.setString(1, Slug.slugify(String.format("%s %s %s", lang, name, RandomStringUtils.randomNumeric(5))));
+        update.setLong(2, id);
+        return true;
       }
-      );
+    });
   }
 
-  private void updateParentKeys() {
-    new MassUpdater(db, 100).execute(
-      new MassUpdater.InputLoader<Row>() {
-        @Override
-        public String selectSql() {
-          return "SELECT child.id,parent.kee FROM rules_profiles child, rules_profiles parent WHERE child.parent_name=parent.name " +
-            "and child.language=parent.language AND child.parent_name IS NOT NULL";
-        }
+  private void updateParentKeys(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT child.id,parent.kee FROM rules_profiles child, rules_profiles parent WHERE child.parent_name=parent.name " +
+      "and child.language=parent.language AND child.parent_name IS NOT NULL");
+    massUpdate.update("UPDATE rules_profiles SET parent_kee=? WHERE id=?");
+    massUpdate.execute(new MassUpdate.Handler() {
+      @Override
+      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+        Long id = row.getLong(1);
+        String parentKey = row.getString(2);
 
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.id = SqlUtil.getLong(rs, 1);
-          row.parentKey = rs.getString(2);
-          return row;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-
-        @Override
-        public String updateSql() {
-          return "UPDATE rules_profiles SET parent_kee=? WHERE id=?";
-        }
-
-        @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setString(1, row.parentKey);
-          updateStatement.setLong(2, row.id);
-          return true;
-        }
+        update.setString(1, parentKey);
+        update.setLong(2, id);
+        return true;
       }
-      );
-  }
+    });
 
-  private static class Row {
-    private Long id;
-    private String lang, name, parentKey;
   }
 }

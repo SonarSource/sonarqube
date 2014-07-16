@@ -19,14 +19,34 @@
  */
 package org.sonar.server.db.migrations;
 
+import org.sonar.core.persistence.Database;
+
+import java.sql.Connection;
 import java.sql.SQLException;
 
-/**
- * Java alternative of ActiveRecord::Migration. Do not forget to declare implementation classes in {@link DatabaseMigrations#CLASSES}
- * @since 3.7
- */
-public interface DatabaseMigration {
+public interface DataChange {
 
-  void execute() throws SQLException;
+  class Context {
+    private final Database db;
+    private final Connection connection;
 
+    public Context(Database db, Connection connection) {
+      this.db = db;
+      this.connection = connection;
+    }
+
+    public Select prepareSelect(String sql) throws SQLException {
+      return SelectImpl.create(db, connection, sql);
+    }
+
+    public Upsert prepareUpsert(String sql) throws SQLException {
+      return UpsertImpl.create(connection, sql);
+    }
+
+    public MassUpdate prepareMassUpdate() throws SQLException {
+      return new MassUpdate(db, connection);
+    }
+  }
+
+  void execute(Context context) throws SQLException;
 }

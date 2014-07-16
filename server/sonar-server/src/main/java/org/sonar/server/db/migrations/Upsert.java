@@ -21,12 +21,10 @@ package org.sonar.server.db.migrations;
 
 import java.sql.SQLException;
 
-/**
- * Java alternative of ActiveRecord::Migration. Do not forget to declare implementation classes in {@link DatabaseMigrations#CLASSES}
- * @since 3.7
- */
-public interface DatabaseMigration {
+public interface Upsert extends SqlStatement<Upsert> {
+  Upsert addBatch() throws SQLException;
 
-  void execute() throws SQLException;
+  Upsert execute() throws SQLException;
 
+  Upsert commit() throws SQLException;
 }

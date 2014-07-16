@@ -20,7 +20,6 @@
 
 package org.sonar.server.db.migrations.v44;
 
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -36,18 +35,11 @@ public class FeedQProfileKeysMigrationTest {
   @ClassRule
   public static TestDatabase db = new TestDatabase().schema(FeedQProfileKeysMigrationTest.class, "schema.sql");
 
-  FeedQProfileKeysMigration migration;
-
-  @Before
-  public void setUp() throws Exception {
-    migration = new FeedQProfileKeysMigration(db.database());
-  }
-
   @Test
   public void feed_keys() throws Exception {
     db.prepareDbUnit(getClass(), "feed_keys.xml");
 
-    migration.execute();
+    new FeedQProfileKeysMigration(db.database()).execute();
 
     QualityProfileDao dao = new QualityProfileDao(db.myBatis(), mock(System2.class));
 
@@ -73,6 +65,5 @@ public class FeedQProfileKeysMigrationTest {
     assertThat(phpProfile.getLanguage()).isEqualTo("php");
     assertThat(phpProfile.getParentKee()).isNull();
   }
-
 
 }
