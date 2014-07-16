@@ -131,7 +131,7 @@ public class RubyRuleService implements ServerComponent, Startable {
   public void createManualRule(Map<String, Object> params) {
     NewRule newRule = NewRule.createForManualRule((String) params.get("manualKey"))
       .setName((String) params.get("name"))
-      .setHtmlDescription((String) params.get("htmlDescription"));
+      .setMarkdownDescription((String) params.get("markdownDescription"));
     service.create(newRule);
   }
 
@@ -141,7 +141,7 @@ public class RubyRuleService implements ServerComponent, Startable {
   public void updateManualRule(Map<String, Object> params) {
     RuleUpdate update = RuleUpdate.createForManualRule(RuleKey.parse((String) params.get("ruleKey")))
       .setName((String) params.get("name"))
-      .setHtmlDescription((String) params.get("htmlDescription"));
+      .setMarkdownDescription((String) params.get("markdownDescription"));
     service.update(update);
   }
 

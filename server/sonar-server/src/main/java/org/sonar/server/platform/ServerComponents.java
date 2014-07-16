@@ -206,9 +206,6 @@ class ServerComponents {
       MeasureFilterDao.class,
       ActivityDao.class,
 
-      // Text
-      MacroInterpreter.class,
-
       // Elasticsearch
       ESNode.class,
       RuleNormalizer.class,
@@ -493,6 +490,7 @@ class ServerComponents {
     pico.addSingleton(org.sonar.server.duplication.ws.ShowAction.class);
 
     // text
+    pico.addSingleton(MacroInterpreter.class);
     pico.addSingleton(RubyTextService.class);
 
     // Notifications

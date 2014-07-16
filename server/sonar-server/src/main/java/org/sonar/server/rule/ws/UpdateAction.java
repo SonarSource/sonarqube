@@ -48,7 +48,7 @@ public class UpdateAction implements RequestHandler {
   public static final String PARAM_DEBT_REMEDIATION_FN_OFFSET = "debt_remediation_fn_offset";
   public static final String PARAM_DEBT_REMEDIATION_FY_COEFF = "debt_remediation_fy_coeff";
   public static final String PARAM_NAME = "name";
-  public static final String PARAM_DESCRIPTION = "html_description";
+  public static final String PARAM_DESCRIPTION = "markdown_description";
   public static final String PARAM_SEVERITY = "severity";
   public static final String PARAM_STATUS = "status";
   public static final String PARAMS = "params";
@@ -142,7 +142,7 @@ public class UpdateAction implements RequestHandler {
     }
     String description = request.param(PARAM_DESCRIPTION);
     if (description != null) {
-      update.setHtmlDescription(description);
+      update.setMarkdownDescription(description);
     }
     String severity = request.param(PARAM_SEVERITY);
     if (severity != null) {

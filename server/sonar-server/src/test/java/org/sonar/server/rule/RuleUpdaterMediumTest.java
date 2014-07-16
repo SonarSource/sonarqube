@@ -365,7 +365,7 @@ public class RuleUpdaterMediumTest {
     // Update custom rule
     RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
       .setName("New name")
-      .setHtmlDescription("New description")
+      .setMarkdownDescription("New description")
       .setSeverity("MAJOR")
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", "b.*"));
@@ -460,7 +460,7 @@ public class RuleUpdaterMediumTest {
     // Update custom rule
     RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
       .setName("")
-      .setHtmlDescription("New desc");
+      .setMarkdownDescription("New desc");
     try {
       updater.update(update, UserSession.get());
       fail();
@@ -484,7 +484,7 @@ public class RuleUpdaterMediumTest {
     // Update custom rule
     RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
       .setName("New name")
-      .setHtmlDescription("");
+      .setMarkdownDescription("");
     try {
       updater.update(update, UserSession.get());
       fail();
@@ -507,7 +507,7 @@ public class RuleUpdaterMediumTest {
     // Update manual rule
     RuleUpdate update = RuleUpdate.createForManualRule(manualRule.getKey())
       .setName("New name")
-      .setHtmlDescription("New description")
+      .setMarkdownDescription("New description")
       .setSeverity(Severity.CRITICAL);
     updater.update(update, UserSession.get());
 
@@ -587,7 +587,7 @@ public class RuleUpdaterMediumTest {
     try {
       // Update rule
       RuleUpdate.createForPluginRule(ruleDto.getKey())
-        .setHtmlDescription("New description");
+        .setMarkdownDescription("New description");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom or a manual rule");

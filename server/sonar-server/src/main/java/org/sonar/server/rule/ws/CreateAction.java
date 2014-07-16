@@ -46,7 +46,7 @@ public class CreateAction implements RequestHandler {
   public static final String PARAM_CUSTOM_KEY = "custom_key";
   public static final String PARAM_MANUAL_KEY = "manual_key";
   public static final String PARAM_NAME = "name";
-  public static final String PARAM_DESCRIPTION = "html_description";
+  public static final String PARAM_DESCRIPTION = "markdown_description";
   public static final String PARAM_SEVERITY = "severity";
   public static final String PARAM_STATUS = "status";
   public static final String PARAM_TEMPLATE_KEY = "template_key";

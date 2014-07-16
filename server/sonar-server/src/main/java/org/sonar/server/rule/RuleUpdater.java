@@ -39,11 +39,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class RuleUpdater implements ServerComponent {
 
@@ -149,7 +145,7 @@ public class RuleUpdater implements ServerComponent {
   }
 
   private void updateDescription(RuleUpdate update, Context context) {
-    String description = update.getHtmlDescription();
+    String description = update.getMarkdownDescription();
     if (Strings.isNullOrEmpty(description)) {
       throw new IllegalArgumentException("The description is missing");
     } else {

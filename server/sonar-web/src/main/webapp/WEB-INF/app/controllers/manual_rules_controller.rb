@@ -34,7 +34,7 @@ class ManualRulesController < ApplicationController
       rule_update = {
           'ruleKey' => params[:key],
           'name' => params[:name],
-          'htmlDescription' => params[:description]
+          'markdownDescription' => params[:description]
       }
       Internal.rules.updateManualRule(rule_update)
       render :text => 'ok', :status => 200
@@ -51,7 +51,7 @@ class ManualRulesController < ApplicationController
       new_rule = {
           'manualKey' => manual_key,
           'name' => params[:name],
-          'htmlDescription' => params[:description]
+          'markdownDescription' => params[:description]
       }
       Internal.rules.createManualRule(new_rule)
       render :text => 'ok', :status => 200

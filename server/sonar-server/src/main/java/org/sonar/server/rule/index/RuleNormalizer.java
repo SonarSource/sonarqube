@@ -39,14 +39,11 @@ import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
-import org.sonar.server.text.MacroInterpreter;
 
 import java.lang.reflect.Field;
 import java.util.*;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
-
-  private final MacroInterpreter macroInterpreter;
 
   public static final class RuleParamField extends Indexable {
 
@@ -143,9 +140,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     }
   }
 
-  public RuleNormalizer(DbClient db, MacroInterpreter macroInterpreter) {
+  public RuleNormalizer(DbClient db) {
     super(IndexDefinition.RULE, db);
-    this.macroInterpreter = macroInterpreter;
   }
 
   @Override

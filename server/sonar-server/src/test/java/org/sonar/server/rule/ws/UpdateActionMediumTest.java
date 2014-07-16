@@ -94,7 +94,7 @@ public class UpdateActionMediumTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "update")
       .setParam("key", customRuleKey.toString())
       .setParam("name", "My custom rule")
-      .setParam("html_description", "Description")
+      .setParam("markdown_description", "Description")
       .setParam("severity", "MAJOR")
       .setParam("status", "BETA")
       .setParam("params", "regex=a.*");
@@ -119,7 +119,7 @@ public class UpdateActionMediumTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "update")
       .setParam("key", customRule.getKey().toString())
       .setParam("name", "My custom rule")
-      .setParam("html_description", "");
+      .setParam("markdown_description", "");
 
     try {
       request.execute();

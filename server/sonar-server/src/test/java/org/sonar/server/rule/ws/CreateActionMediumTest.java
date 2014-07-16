@@ -87,7 +87,7 @@ public class CreateActionMediumTest {
       .setParam("custom_key", "MY_CUSTOM")
       .setParam("template_key", templateRule.getKey().toString())
       .setParam("name", "My custom rule")
-      .setParam("html_description", "Description")
+      .setParam("markdown_description", "Description")
       .setParam("severity", "MAJOR")
       .setParam("status", "BETA")
       .setParam("params", "regex=a.*");
@@ -103,7 +103,7 @@ public class CreateActionMediumTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
       .setParam("manual_key", "MY_MANUAL")
       .setParam("name", "My manual rule")
-      .setParam("html_description", "Description")
+      .setParam("markdown_description", "Description")
       .setParam("severity", "MAJOR");
     request.execute().assertJson(getClass(), "create_manual_rule.json", false);
   }
@@ -117,7 +117,7 @@ public class CreateActionMediumTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
       .setParam("manual_key", "MY_MANUAL")
       .setParam("name", "My manual rule")
-      .setParam("html_description", "Description");
+      .setParam("markdown_description", "Description");
     request.execute().assertJson(getClass(), "create_manual_rule_without_severity.json", false);
   }
 
@@ -130,7 +130,7 @@ public class CreateActionMediumTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
       .setParam("key", "MY_MANUAL")
       .setParam("name", "My manual rule")
-      .setParam("html_description", "Description")
+      .setParam("markdown_description", "Description")
       .setParam("severity", "MAJOR");
 
     try {
@@ -161,7 +161,7 @@ public class CreateActionMediumTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
       .setParam("manual_key", key)
       .setParam("name", "My manual rule")
-      .setParam("html_description", "Description")
+      .setParam("markdown_description", "Description")
       .setParam("severity", "MAJOR")
       .setParam("prevent_reactivation", "true");
     request.execute()

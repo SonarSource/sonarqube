@@ -45,7 +45,7 @@ public class RuleUpdate {
   private String debtSubCharacteristicKey;
   private DebtRemediationFunction debtRemediationFunction;
 
-  private String name, htmlDescription, severity;
+  private String name, markdownDescription, severity;
   private RuleStatus status;
   private final Map<String, String> parameters = Maps.newHashMap();
 
@@ -124,13 +124,13 @@ public class RuleUpdate {
   }
 
   @CheckForNull
-  public String getHtmlDescription() {
-    return htmlDescription;
+  public String getMarkdownDescription() {
+    return markdownDescription;
   }
 
-  public RuleUpdate setHtmlDescription(@Nullable String htmlDescription) {
+  public RuleUpdate setMarkdownDescription(@Nullable String markdownDescription) {
     checkCustomOrManualRule();
-    this.htmlDescription = htmlDescription;
+    this.markdownDescription = markdownDescription;
     this.changeDescription = true;
     return this;
   }

@@ -56,7 +56,7 @@ define [
 
       postData =
         name: @ui.customRuleCreationName.val()
-        html_description: @ui.customRuleCreationHtmlDescription.val()
+        markdown_description: @ui.customRuleCreationHtmlDescription.val()
         severity: @ui.customRuleCreationSeverity.val()
         status: @ui.customRuleCreationStatus.val()
 
@@ -77,7 +77,7 @@ define [
     reactivate: ->
       postData =
         name: @existingRule.name
-        html_description: @existingRule.htmlDesc
+        markdown_description: @existingRule.mdDesc
         severity: @existingRule.severity
         status: @existingRule.status
         template_key: @existingRule.templateKey

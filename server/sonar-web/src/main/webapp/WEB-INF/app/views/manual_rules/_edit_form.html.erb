@@ -13,7 +13,7 @@
       </div>
       <div class="modal-field">
         <label for="manual_rules[]">Description <em class="mandatory">*</em></label>
-        <textarea rows="5" cols="50" name="description"><%= h @rule.htmlDescription() -%></textarea>
+        <textarea rows="5" cols="50" name="description"><%= h @rule.markdownDescription() -%></textarea>
         <br/>
       </div>
     </div>
