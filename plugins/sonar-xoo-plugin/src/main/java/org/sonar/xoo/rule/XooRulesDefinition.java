@@ -40,7 +40,7 @@ public class XooRulesDefinition implements RulesDefinition {
     // can be loaded from JSON or XML files too.
     NewRule x1Rule = repository.createRule("x1")
       .setName("No empty line")
-      .setHtmlDescription("Generate an issue on empty lines of Xoo source files")
+      .setMarkdownDescription("Generate an issue on *empty* lines of Xoo source files")
 
         // optional tags
       .setTags("style", "security")
@@ -60,7 +60,7 @@ public class XooRulesDefinition implements RulesDefinition {
     x1Rule.createParam("acceptWhitespace")
       .setDefaultValue("false")
       .setType(RuleParamType.BOOLEAN)
-      .setDescription("Accept whitespaces on the line");
+      .setDescription("Accept whitespaces (``\\s|\\t``) on the line");
 
     // don't forget to call done() to finalize the definition
     repository.done();

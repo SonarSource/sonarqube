@@ -42,7 +42,7 @@ public class XooRulesDefinitionTest {
     RulesDefinition.Rule x1 = repo.rule("x1");
     assertThat(x1.key()).isEqualTo("x1");
     assertThat(x1.tags()).containsOnly("style", "security");
-    assertThat(x1.htmlDescription()).isNotEmpty();
+    assertThat(x1.markdownDescription()).isNotEmpty();
 
     assertThat(x1.debtSubCharacteristic()).isEqualTo(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY);
     assertThat(x1.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
