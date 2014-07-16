@@ -29,18 +29,26 @@ requirejs [
 
   $ = jQuery
   App = new Marionette.Application()
+  el = $('#accordion-panel')
 
 
   App.addRegions
     viewerRegion: '#accordion-panel'
 
 
+  App.resizeContainer = ->
+    height = Math.min 780, ($(window).height() - 20)
+    el.innerHeight(height)
+
+
   App.requestComponentViewer = ->
     unless App.componentViewer?
-      App.componentViewer = new ComponentViewer()
+      @resizeContainer()
+      $(window).on 'resize', => @resizeContainer()
+      App.componentViewer = new ComponentViewer
+        elementToFit: el
       App.viewerRegion.show App.componentViewer
     App.componentViewer
-
 
 
   App.addInitializer ->

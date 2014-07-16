@@ -457,7 +457,6 @@ requirejs [
       property: 'rule_key'
       type: ReadOnlyFilterView
       enabled: false
-      inactive: true
       optional: true
 
 

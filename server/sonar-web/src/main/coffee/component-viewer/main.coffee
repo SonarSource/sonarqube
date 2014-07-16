@@ -85,6 +85,7 @@ define [
         @settings.set options.settings
       @settings.set 'scm', !!localStorage.getItem('componentViewerSCM')
       @shouldStoreSettings = options.shouldStoreSettings
+      @elementToFit = options.elementToFit
 
       @state = new State()
 
@@ -123,11 +124,33 @@ define [
         localStorage.setItem 'componentViewerSettings', JSON.stringify @settings.toJSON()
 
 
+    fitIntoElement: ->
+      return unless @elementToFit
+      source = @$(@sourceRegion.$el)
+      workspace = @$(@workspaceRegion.$el)
+
+      width = @elementToFit.width()
+      height = @elementToFit.height()
+      availableWidth = width - workspace.outerWidth(true)
+      availableHeight = height - @$(@headerRegion.$el).outerHeight(true)
+
+      source.removeClass 'overflow'
+      source.width(availableWidth).css('max-height', availableHeight)
+      source.addClass 'overflow'
+      workspace.removeClass 'overflow'
+      workspace.height availableHeight
+      workspace.addClass 'overflow'
+
+
     onRender: ->
       @workspaceRegion.show @workspaceView
       @$el.toggleClass 'component-viewer-workspace-enabled', @settings.get 'workspace'
       @sourceRegion.show @sourceView
       @headerRegion.show @headerView
+      @fitIntoElement()
+      resizeEvent = 'resize.componentViewer'
+      $(window).off(resizeEvent).on resizeEvent, =>
+        setTimeout (=> @fitIntoElement()), 100
 
 
     requestComponent: (key, clear = false, full = true) ->
@@ -261,6 +284,7 @@ define [
 
     toggleWorkspace: (store = false) ->
       if @settings.get 'workspace' then @hideWorkspace() else @showWorkspace()
+      @fitIntoElement()
       @storeSettings() if store
 
 

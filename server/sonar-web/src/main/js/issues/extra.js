@@ -147,16 +147,18 @@ define(
           var that = this,
               app = this.options.app,
               settings = localStorage.getItem('componentViewerSettings'),
+              navigatorDetails = jQuery('.navigator-details'),
               componentViewer = new ComponentViewer({
                 settings: settings,
                 shouldStoreSettings: true,
+                elementToFit: navigatorDetails,
                 component: {
                   project: this.model.get('project'),
                   projectLongName: this.model.get('projectLongName')
                 }
               }),
               showCallback = function () {
-                jQuery('.navigator-details').removeClass('navigator-fetching');
+                navigatorDetails.removeClass('navigator-fetching');
                 app.detailsRegion.show(componentViewer);
                 componentViewer.settings.set('issues', false);
                 componentViewer.open(that.model.get('component'));
@@ -165,7 +167,7 @@ define(
                 });
               };
 
-          jQuery('.navigator-details').empty().addClass('navigator-fetching');
+          navigatorDetails.empty().addClass('navigator-fetching');
           var issueKey = this.model.get('key');
           this.model.clear({ silent: true });
           this.model.set({ key: issueKey }, { silent: true });

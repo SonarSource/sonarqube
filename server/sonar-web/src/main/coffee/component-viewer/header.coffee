@@ -138,6 +138,7 @@ define [
       @ui.expandLinks.removeClass 'active'
       @ui.expandedBar.removeClass 'active'
       @barRegion.reset()
+      @options.main.fitIntoElement()
 
 
     enableBar: (scope) ->
@@ -157,6 +158,7 @@ define [
         activeHeaderItem = @state.get 'activeHeaderItem'
         if activeHeaderItem
           @$(activeHeaderItem).addClass 'active'
+        @options.main.fitIntoElement()
 
 
     enableBarItem: (item, silent = false) ->

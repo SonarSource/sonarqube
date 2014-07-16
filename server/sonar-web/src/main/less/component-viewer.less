@@ -10,6 +10,7 @@
   min-width: 600px;
   border-left-width: 0;
   .box-sizing(border-box);
+  .clearfix;
 }
 
 .component-viewer-workspace-enabled {
@@ -31,11 +32,15 @@
 
 .component-viewer-workspace {
   position: relative;
-  display: table-cell;
-  vertical-align: top;
+  float: left;
   min-width: 30px;
+  margin-right: 10px;
   border: 1px solid @barBorderColor;
   background-color: @barBackgroundColor;
+
+  &.overflow {
+    .box-sizing(border-box);
+  }
 }
 
 .component-viewer-workspace-header {
@@ -102,14 +107,16 @@
 
 
 .component-viewer-source {
-  display: table-cell;
-  vertical-align: top;
-  width: 100%;
-  padding-left: 10px;
+  float: left;
+  border: 1px solid @barBorderColor;
+
+  &.overflow {
+    .box-sizing(border-box);
+    overflow: auto;
+  }
 
   .code {
     width: 100%;
-    border: 1px solid @barBorderColor;
   }
 
   .code th {

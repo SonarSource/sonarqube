@@ -28,10 +28,17 @@ requirejs [
   $ = jQuery
   API_ISSUE = "#{baseUrl}/api/issues/show"
   App = new Marionette.Application()
+  el = $('#body')
 
 
   App.addRegions
     viewerRegion: '#component-viewer'
+
+
+  App.resizeContainer = ->
+    width = $(window).width()
+    height = $(window).height()
+    el.innerWidth(width).innerHeight(height)
 
 
   App.requestComponentViewer = (s) ->
@@ -40,7 +47,11 @@ requirejs [
       s.split(',').forEach (d) -> settings[d] = true
     else settings = null
     unless App.componentViewer?
-      App.componentViewer = new ComponentViewer settings: settings
+      @resizeContainer()
+      $(window).on 'resize', => @resizeContainer()
+      App.componentViewer = new ComponentViewer
+        settings: settings
+        elementToFit: el
       App.viewerRegion.show App.componentViewer
     App.componentViewer
 
