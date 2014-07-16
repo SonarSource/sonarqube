@@ -133,7 +133,7 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
           json
             .beginObject()
             .prop("key", param.key())
-            .prop("desc", param.description())
+            .prop("htmlDesc", param.description() == null ? null : Markdown.convertToHtml(param.description()))
             .prop("defaultValue", param.defaultValue())
             .endObject();
         }

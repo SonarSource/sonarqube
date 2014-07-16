@@ -88,7 +88,7 @@ public class ShowActionMediumTest {
         .setTags(newHashSet("tag1", "tag2"))
         .setSystemTags(newHashSet("systag1", "systag2"))
     );
-    RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
     ruleDao.addRuleParam(session, ruleDto, param);
     session.commit();
     session.clearCache();
