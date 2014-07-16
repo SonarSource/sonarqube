@@ -1,0 +1,150 @@
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  AJP connector is enabled on port 9000
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9000
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  Shutdown command is enabled on port 9010
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  AJP connector is enabled on port 9009
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  AJP connector is enabled on port 9009
+2014.07.16 12:18:39 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:18:40 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 0
+2014.07.16 12:18:40 INFO  [o.a.c.h.Http11Protocol]  Initializing ProtocolHandler ["http-bio-0.0.0.0-auto-1"]
+2014.07.16 12:18:40 INFO  [o.a.c.c.StandardService]  Starting service Tomcat
+2014.07.16 12:18:40 INFO  [o.a.c.c.StandardEngine]  Starting Servlet Engine: Apache Tomcat/7.0.42
+2014.07.16 12:18:40 INFO  [o.a.c.s.ContextConfig]  No global web.xml found
+2014.07.16 12:18:40 INFO  [o.a.c.h.Http11Protocol]  Starting ProtocolHandler ["http-bio-0.0.0.0-auto-1-54089"]
+2014.07.16 12:18:40 INFO  [o.a.c.h.Http11Protocol]  Pausing ProtocolHandler ["http-bio-0.0.0.0-auto-1-54089"]
+2014.07.16 12:18:41 INFO  [o.a.c.c.StandardService]  Stopping service Tomcat
+2014.07.16 12:18:41 ERROR [o.a.c.l.WebappClassLoader]  The web application [] appears to have started a thread named [Abandoned connection cleanup thread] but has failed to stop it. This is very likely to create a memory leak.
+2014.07.16 12:18:41 INFO  [o.a.c.h.Http11Protocol]  Stopping ProtocolHandler ["http-bio-0.0.0.0-auto-1-54089"]
+2014.07.16 12:18:42 INFO  [o.a.c.h.Http11Protocol]  Destroying ProtocolHandler ["http-bio-0.0.0.0-auto-1-54089"]
+2014.07.16 12:18:42 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 0
+2014.07.16 12:18:42 INFO  [o.a.c.h.Http11Protocol]  Initializing ProtocolHandler ["http-bio-0.0.0.0-auto-2"]
+2014.07.16 12:18:42 INFO  [o.a.c.c.StandardService]  Starting service Tomcat
+2014.07.16 12:18:42 INFO  [o.a.c.c.StandardEngine]  Starting Servlet Engine: Apache Tomcat/7.0.42
+2014.07.16 12:18:42 INFO  [o.a.c.s.ContextConfig]  No global web.xml found
+2014.07.16 12:18:42 INFO  [o.a.c.h.Http11Protocol]  Starting ProtocolHandler ["http-bio-0.0.0.0-auto-2-54093"]
+2014.07.16 12:18:43 INFO  [o.a.c.h.Http11Protocol]  Pausing ProtocolHandler ["http-bio-0.0.0.0-auto-2-54093"]
+2014.07.16 12:18:44 INFO  [o.a.c.c.StandardService]  Stopping service Tomcat
+2014.07.16 12:18:44 INFO  [o.a.c.h.Http11Protocol]  Stopping ProtocolHandler ["http-bio-0.0.0.0-auto-2-54093"]
+2014.07.16 12:18:45 INFO  [o.a.c.h.Http11Protocol]  Destroying ProtocolHandler ["http-bio-0.0.0.0-auto-2-54093"]
+2014.07.16 12:18:45 WARN  [o.s.a.Webapp]  
+
+
+------ RAILS DEVELOPMENT MODE IS ENABLED ------
+
+
+
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  AJP connector is enabled on port 9000
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9000
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  Shutdown command is enabled on port 9010
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  AJP connector is enabled on port 9009
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:54:44 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:54:45 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:54:45 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:54:45 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:54:45 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 12:54:45 INFO  [o.s.a.Connectors]  AJP connector is enabled on port 9009
+2014.07.16 12:54:45 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 12:54:45 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 0
+2014.07.16 12:54:45 INFO  [o.a.c.h.Http11Protocol]  Initializing ProtocolHandler ["http-bio-0.0.0.0-auto-1"]
+2014.07.16 12:54:45 INFO  [o.a.c.c.StandardService]  Starting service Tomcat
+2014.07.16 12:54:45 INFO  [o.a.c.c.StandardEngine]  Starting Servlet Engine: Apache Tomcat/7.0.42
+2014.07.16 12:54:45 INFO  [o.a.c.s.ContextConfig]  No global web.xml found
+2014.07.16 12:54:45 INFO  [o.a.c.h.Http11Protocol]  Starting ProtocolHandler ["http-bio-0.0.0.0-auto-1-54845"]
+2014.07.16 12:54:45 INFO  [o.a.c.h.Http11Protocol]  Pausing ProtocolHandler ["http-bio-0.0.0.0-auto-1-54845"]
+2014.07.16 12:54:46 INFO  [o.a.c.c.StandardService]  Stopping service Tomcat
+2014.07.16 12:54:46 ERROR [o.a.c.l.WebappClassLoader]  The web application [] appears to have started a thread named [Abandoned connection cleanup thread] but has failed to stop it. This is very likely to create a memory leak.
+2014.07.16 12:54:46 INFO  [o.a.c.h.Http11Protocol]  Stopping ProtocolHandler ["http-bio-0.0.0.0-auto-1-54845"]
+2014.07.16 12:54:47 INFO  [o.a.c.h.Http11Protocol]  Destroying ProtocolHandler ["http-bio-0.0.0.0-auto-1-54845"]
+2014.07.16 12:54:47 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 0
+2014.07.16 12:54:47 INFO  [o.a.c.h.Http11Protocol]  Initializing ProtocolHandler ["http-bio-0.0.0.0-auto-2"]
+2014.07.16 12:54:47 INFO  [o.a.c.c.StandardService]  Starting service Tomcat
+2014.07.16 12:54:47 INFO  [o.a.c.c.StandardEngine]  Starting Servlet Engine: Apache Tomcat/7.0.42
+2014.07.16 12:54:47 INFO  [o.a.c.s.ContextConfig]  No global web.xml found
+2014.07.16 12:54:47 INFO  [o.a.c.h.Http11Protocol]  Starting ProtocolHandler ["http-bio-0.0.0.0-auto-2-54849"]
+2014.07.16 12:54:48 INFO  [o.a.c.h.Http11Protocol]  Pausing ProtocolHandler ["http-bio-0.0.0.0-auto-2-54849"]
+2014.07.16 12:54:49 INFO  [o.a.c.c.StandardService]  Stopping service Tomcat
+2014.07.16 12:54:49 INFO  [o.a.c.h.Http11Protocol]  Stopping ProtocolHandler ["http-bio-0.0.0.0-auto-2-54849"]
+2014.07.16 12:54:50 INFO  [o.a.c.h.Http11Protocol]  Destroying ProtocolHandler ["http-bio-0.0.0.0-auto-2-54849"]
+2014.07.16 12:54:50 WARN  [o.s.a.Webapp]  
+
+
+------ RAILS DEVELOPMENT MODE IS ENABLED ------
+
+
+
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  AJP connector is enabled on port 9000
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9000
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  Shutdown command is enabled on port 9010
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  AJP connector is enabled on port 9009
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 9000
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  AJP connector is enabled on port 9009
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTPS connector is enabled on port 9443
+2014.07.16 20:30:59 WARN  [o.s.a.Webapp]  
+
+
+------ RAILS DEVELOPMENT MODE IS ENABLED ------
+
+
+
+2014.07.16 20:30:59 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 0
+2014.07.16 20:30:59 INFO  [o.a.c.h.Http11Protocol]  Initializing ProtocolHandler ["http-bio-0.0.0.0-auto-1"]
+2014.07.16 20:30:59 INFO  [o.a.c.c.StandardService]  Starting service Tomcat
+2014.07.16 20:30:59 INFO  [o.a.c.c.StandardEngine]  Starting Servlet Engine: Apache Tomcat/7.0.42
+2014.07.16 20:30:59 INFO  [o.a.c.s.ContextConfig]  No global web.xml found
+2014.07.16 20:30:59 INFO  [o.a.c.h.Http11Protocol]  Starting ProtocolHandler ["http-bio-0.0.0.0-auto-1-57803"]
+2014.07.16 20:31:00 INFO  [o.a.c.h.Http11Protocol]  Pausing ProtocolHandler ["http-bio-0.0.0.0-auto-1-57803"]
+2014.07.16 20:31:01 INFO  [o.a.c.c.StandardService]  Stopping service Tomcat
+2014.07.16 20:31:01 ERROR [o.a.c.l.WebappClassLoader]  The web application [] appears to have started a thread named [Abandoned connection cleanup thread] but has failed to stop it. This is very likely to create a memory leak.
+2014.07.16 20:31:01 INFO  [o.a.c.h.Http11Protocol]  Stopping ProtocolHandler ["http-bio-0.0.0.0-auto-1-57803"]
+2014.07.16 20:31:02 INFO  [o.a.c.h.Http11Protocol]  Destroying ProtocolHandler ["http-bio-0.0.0.0-auto-1-57803"]
+2014.07.16 20:31:02 INFO  [o.s.a.Connectors]  HTTP connector is enabled on port 0
+2014.07.16 20:31:02 INFO  [o.a.c.h.Http11Protocol]  Initializing ProtocolHandler ["http-bio-0.0.0.0-auto-2"]
+2014.07.16 20:31:02 INFO  [o.a.c.c.StandardService]  Starting service Tomcat
+2014.07.16 20:31:02 INFO  [o.a.c.c.StandardEngine]  Starting Servlet Engine: Apache Tomcat/7.0.42
+2014.07.16 20:31:02 INFO  [o.a.c.s.ContextConfig]  No global web.xml found
+2014.07.16 20:31:02 INFO  [o.a.c.h.Http11Protocol]  Starting ProtocolHandler ["http-bio-0.0.0.0-auto-2-57807"]
+2014.07.16 20:31:02 INFO  [o.a.c.h.Http11Protocol]  Pausing ProtocolHandler ["http-bio-0.0.0.0-auto-2-57807"]
+2014.07.16 20:31:03 INFO  [o.a.c.c.StandardService]  Stopping service Tomcat
+2014.07.16 20:31:03 INFO  [o.a.c.h.Http11Protocol]  Stopping ProtocolHandler ["http-bio-0.0.0.0-auto-2-57807"]
+2014.07.16 20:31:04 INFO  [o.a.c.h.Http11Protocol]  Destroying ProtocolHandler ["http-bio-0.0.0.0-auto-2-57807"]

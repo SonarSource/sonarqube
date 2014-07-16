@@ -35,6 +35,7 @@ import org.sonar.server.db.migrations.v44.FeedQProfileDatesMigration;
 import org.sonar.server.db.migrations.v44.FeedQProfileKeysMigration;
 import org.sonar.server.db.migrations.v44.IssueActionPlanKeyMigration;
 import org.sonar.server.db.migrations.v44.MeasureDataMigration;
+import org.sonar.server.db.migrations.v45.AddMissingRuleParameterDefaultValuesMigration;
 
 import java.util.List;
 
@@ -61,7 +62,10 @@ public interface DatabaseMigrations {
     FeedQProfileKeysMigration.class,
     FeedQProfileDatesMigration.class,
     ChangeLogMigration.class,
-    ConvertProfileMeasuresMigration.class
+    ConvertProfileMeasuresMigration.class,
+
+    // 4.5
+    AddMissingRuleParameterDefaultValuesMigration.class
   );
 
 }
