@@ -63,13 +63,22 @@ class MetricsController < ApplicationController
   def save_from_web
     short_name = params[:metric][:short_name]
     metric_name = short_name.downcase.gsub(/\s/, '_')[0..59]
-    
+
+    @errors = []
     if params[:id]
       metric = Metric.find(params[:id].to_i)
     else
       metric = Metric.first(:conditions => ["name = ?", metric_name])
       if metric
-        @reactivate_metric = metric
+        if metric.origin != Metric::ORIGIN_GUI
+          @errors << "A standard metric named '#{metric_name}' already exists. Please change the name of the manual metric you want to create."
+          @metric = Metric.new
+          @domains = metric.domain
+          render :partial => 'metrics/create_form', :status => 400
+          return
+        else
+          @reactivate_metric = metric
+        end
       else
         metric = Metric.new
       end
@@ -99,14 +108,13 @@ class MetricsController < ApplicationController
         end
       end
     rescue
-      @errors = []
       @errors << metric.errors.full_messages.join("<br/>\n")
     end
     
     if @reactivate_metric
       prepare_metrics_and_domains
       render :partial => 'metrics/reactivate_form', :status => 400
-    elsif @errors
+    elsif !@errors.empty?
       @metric = metric
       @domains = metric.domain
       render :partial => 'metrics/create_form', :status => 400
