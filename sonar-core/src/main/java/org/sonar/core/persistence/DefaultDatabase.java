@@ -25,7 +25,6 @@ import org.apache.commons.dbcp.BasicDataSourceFactory;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.cfg.Environment;
-import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
@@ -221,6 +220,6 @@ public class DefaultDatabase implements Database {
 
   @Override
   public String toString() {
-    return "Database[" + (properties != null ? properties.getProperty(SONAR_JDBC_URL) : "?")+ "]";
+    return "Database[" + (properties != null ? properties.getProperty(SONAR_JDBC_URL) : "?") + "]";
   }
 }
