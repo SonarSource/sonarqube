@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
@@ -32,9 +33,14 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.System2;
+import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
+import org.sonar.batch.settings.SettingsReferential;
+
+import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,6 +52,7 @@ public class ProjectScanContainerTest {
   private ProjectScanContainer container;
   private Settings settings;
   private ComponentContainer parentContainer;
+  private BootstrapProperties bootstrapProperties;
 
   @Before
   public void prepare() {
@@ -55,6 +62,11 @@ public class ProjectScanContainerTest {
     parentContainer = new ComponentContainer();
     parentContainer.add(settings);
     parentContainer.add(System2.INSTANCE);
+    bootstrapProperties = new BootstrapProperties(Collections.<String, String>emptyMap());
+    parentContainer.add(bootstrapProperties);
+    parentContainer.add(new AnalysisMode(bootstrapProperties));
+    parentContainer.add(new PropertiesConfiguration());
+    parentContainer.add(mock(SettingsReferential.class));
     container = new ProjectScanContainer(parentContainer);
   }
 
@@ -84,7 +96,7 @@ public class ProjectScanContainerTest {
 
     assertThat(container.getComponentsByType(PhasesSumUpTimeProfiler.class)).hasSize(0);
 
-    settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, "true");
+    bootstrapProperties.properties().put(CoreProperties.PROFILING_LOG_PROPERTY, "true");
 
     container = new ProjectScanContainer(parentContainer);
     container.add(mock(ExtensionInstaller.class), projectBootstrapper);

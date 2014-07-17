@@ -17,31 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan;
+package org.sonar.batch.protocol.input;
 
-import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.BatchSettings;
+import java.util.Map;
 
-/**
- * Barrier to control the project settings are loaded from Sonar DB before applying project exclusions
- * </ul>
- */
-public class ProjectSettingsReady {
+public class QProfiles {
 
-  private final ProjectReactor reactor;
-  private final BatchSettings settings;
+  public static class QProfile {
 
-  public ProjectSettingsReady(ProjectReactor reactor, BatchSettings settings) {
-    this.reactor = reactor;
-    this.settings = settings;
+    private String key, name, language;
   }
 
-  public void start() {
-    settings.init(reactor);
-  }
+  private Map<String, QProfile> byLanguage;
 
-  public void stop() {
-    // Remove project specific settings
-    settings.restore();
-  }
 }

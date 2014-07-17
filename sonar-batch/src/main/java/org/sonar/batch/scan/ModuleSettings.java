@@ -28,7 +28,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisMode;
-import org.sonar.batch.bootstrap.BatchSettings;
+import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.settings.SettingsReferential;
 
 import javax.annotation.Nullable;
@@ -44,7 +44,7 @@ public class ModuleSettings extends Settings {
   private final SettingsReferential settingsReferential;
   private AnalysisMode analysisMode;
 
-  public ModuleSettings(BatchSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf, SettingsReferential settingsReferential,
+  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf, SettingsReferential settingsReferential,
     AnalysisMode analysisMode) {
     super(batchSettings.getDefinitions());
     this.settingsReferential = settingsReferential;
@@ -56,13 +56,13 @@ public class ModuleSettings extends Settings {
     init(project, batchSettings);
   }
 
-  private ModuleSettings init(ProjectDefinition project, BatchSettings batchSettings) {
+  private ModuleSettings init(ProjectDefinition project, GlobalSettings batchSettings) {
     addProjectProperties(project, batchSettings);
     addBuildProperties(project);
     return this;
   }
 
-  private void addProjectProperties(ProjectDefinition project, BatchSettings batchSettings) {
+  private void addProjectProperties(ProjectDefinition project, GlobalSettings batchSettings) {
     String branch = batchSettings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
     String projectKey = project.getKey();
     if (StringUtils.isNotBlank(branch)) {

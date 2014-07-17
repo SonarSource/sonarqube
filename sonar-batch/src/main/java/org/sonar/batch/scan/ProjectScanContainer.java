@@ -186,7 +186,7 @@ public class ProjectScanContainer extends ComponentContainer {
       // Measures
       MeasureCache.class,
 
-      ProjectSettingsReady.class);
+      ProjectSettings.class);
   }
 
   private void fixMavenExecutor() {

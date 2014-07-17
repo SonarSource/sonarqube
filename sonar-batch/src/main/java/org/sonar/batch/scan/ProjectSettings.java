@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.scan;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
@@ -28,71 +28,46 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.settings.SettingsReferential;
 
 import javax.annotation.Nullable;
 
-import java.util.Map;
+public class ProjectSettings extends Settings {
 
-public class BatchSettings extends Settings {
-
-  private static final Logger LOG = LoggerFactory.getLogger(BatchSettings.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectSettings.class);
 
   private Configuration deprecatedConfiguration;
 
-  private final BootstrapProperties bootstrapProps;
+  private final GlobalSettings globalSettings;
   private final SettingsReferential settingsReferential;
   private final AnalysisMode mode;
-  private Map<String, String> savedProperties;
 
-  public BatchSettings(BootstrapProperties bootstrapProps, PropertyDefinitions propertyDefinitions,
+  public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, PropertyDefinitions propertyDefinitions,
     SettingsReferential settingsReferential, Configuration deprecatedConfiguration, AnalysisMode mode) {
-
     super(propertyDefinitions);
     this.mode = mode;
-    getEncryption().setPathToSecretKey(bootstrapProps.property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
-    this.bootstrapProps = bootstrapProps;
+    getEncryption().setPathToSecretKey(globalSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
+    this.globalSettings = globalSettings;
     this.settingsReferential = settingsReferential;
     this.deprecatedConfiguration = deprecatedConfiguration;
-    init(null);
+    init(reactor);
   }
 
-  public void init(@Nullable ProjectReactor reactor) {
-    savedProperties = this.getProperties();
+  private void init(ProjectReactor reactor) {
+    LOG.info("Load project settings");
 
-    if (reactor != null) {
-      LOG.info("Load project settings");
+    addProperties(globalSettings.getProperties());
 
-      String branch = reactor.getRoot().getProperties().getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY);
-      String projectKey = reactor.getRoot().getKey();
-      if (StringUtils.isNotBlank(branch)) {
-        projectKey = String.format("%s:%s", projectKey, branch);
-      }
-      downloadSettings(projectKey);
-    } else {
-      LOG.info("Load global settings");
-      downloadSettings(null);
+    String branch = reactor.getRoot().getProperties().getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    String projectKey = reactor.getRoot().getKey();
+    if (StringUtils.isNotBlank(branch)) {
+      projectKey = String.format("%s:%s", projectKey, branch);
     }
+    addProperties(settingsReferential.projectSettings(projectKey));
 
-    addProperties(bootstrapProps.properties());
-    if (reactor != null) {
-      addProperties(reactor.getRoot().getProperties());
-    }
-  }
-
-  /**
-   * Restore properties like they were before call of the {@link #init(org.sonar.api.batch.bootstrap.ProjectReactor)} method
-   */
-  public void restore() {
-    this.setProperties(savedProperties);
-  }
-
-  private void downloadSettings(@Nullable String projectKey) {
-    if (StringUtils.isNotBlank(projectKey)) {
-      addProperties(settingsReferential.projectSettings(projectKey));
-    } else {
-      addProperties(settingsReferential.globalSettings());
-    }
+    addProperties(reactor.getRoot().getProperties());
   }
 
   @Override

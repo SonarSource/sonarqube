@@ -30,7 +30,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisMode;
-import org.sonar.batch.bootstrap.BatchSettings;
+import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.settings.SettingsReferential;
 
 import java.util.List;
@@ -68,7 +68,7 @@ public class ModuleSettingsTest {
 
   @Test
   public void test_loading_of_module_settings() {
-    BatchSettings batchSettings = mock(BatchSettings.class);
+    GlobalSettings batchSettings = mock(GlobalSettings.class);
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
       "overridding", "batch",
@@ -92,7 +92,7 @@ public class ModuleSettingsTest {
 
   @Test
   public void should_not_fail_when_accessing_secured_properties() {
-    BatchSettings batchSettings = mock(BatchSettings.class);
+    GlobalSettings batchSettings = mock(GlobalSettings.class);
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
       "sonar.foo.secured", "bar"
@@ -110,7 +110,7 @@ public class ModuleSettingsTest {
 
   @Test
   public void should_fail_when_accessing_secured_properties_in_preview() {
-    BatchSettings batchSettings = mock(BatchSettings.class);
+    GlobalSettings batchSettings = mock(GlobalSettings.class);
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
       "sonar.foo.secured", "bar"

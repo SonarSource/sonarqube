@@ -45,16 +45,14 @@ public class ProjectExclusions implements TaskComponent {
   private ProjectReactor reactor;
 
   public ProjectExclusions(Settings settings, ProjectReactor reactor,
-      // exclusions are applied when settings are loaded from Sonar DB
-      ProjectSettingsReady settingsReady,
-      // exclusions are applied when the project is completely defined by extensions
-      @Nullable ProjectBuilder[] projectBuilders) {
+    // exclusions are applied when the project is completely defined by extensions
+    @Nullable ProjectBuilder[] projectBuilders) {
     this.settings = settings;
     this.reactor = reactor;
   }
 
-  public ProjectExclusions(Settings settings, ProjectReactor reactor, ProjectSettingsReady settingsReady) {
-    this(settings, reactor, settingsReady, new ProjectBuilder[0]);
+  public ProjectExclusions(Settings settings, ProjectReactor reactor) {
+    this(settings, reactor, new ProjectBuilder[0]);
   }
 
   public void apply() {

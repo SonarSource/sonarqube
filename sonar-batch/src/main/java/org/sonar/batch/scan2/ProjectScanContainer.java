@@ -35,6 +35,7 @@ import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.scan.ProjectReactorBuilder;
+import org.sonar.batch.scan.ProjectSettings;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
@@ -77,6 +78,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addBatchComponents() {
     add(
+      ProjectSettings.class,
       Caches.class,
 
       // Measures
