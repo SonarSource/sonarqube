@@ -59,4 +59,12 @@ public class DevelopmentCostMeasuresMigrationTest {
     db.assertDbUnit(getClass(), "migrate_dev_cost_measures_result.xml", "project_measures");
   }
 
+  @Test
+  public void metric_does_not_exist() throws Exception {
+    db.prepareDbUnit(getClass(), "metric_does_not_exist.xml");
+
+    migration.execute();
+
+    db.assertDbUnit(getClass(), "metric_does_not_exist_result.xml", "project_measures");
+  }
 }

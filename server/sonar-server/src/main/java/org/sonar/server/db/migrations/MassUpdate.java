@@ -34,6 +34,7 @@ public class MassUpdate {
   public static interface Handler {
     /**
      * Convert some column values of a given row.
+     *
      * @return true if the row must be updated, else false. If false, then the update parameter must not be touched.
      */
     boolean handle(Select.Row row, SqlStatement update) throws SQLException;
@@ -99,8 +100,8 @@ public class MassUpdate {
   }
 
   static class ProgressTask extends TimerTask {
-    static final long PERIOD_MS = 60000L;
-    private final Logger logger = LoggerFactory.getLogger("DbMigration");
+    private static final Logger LOGGER = LoggerFactory.getLogger("DbMigration");
+    private static final long PERIOD_MS = 60000L;
     private final AtomicLong counter;
     private String rowName = "rows";
 
@@ -118,7 +119,7 @@ public class MassUpdate {
     }
 
     void log() {
-      logger.info(String.format("%d %s processed", counter.get(), rowName));
+      LOGGER.info(String.format("%d %s processed", counter.get(), rowName));
     }
   }
 

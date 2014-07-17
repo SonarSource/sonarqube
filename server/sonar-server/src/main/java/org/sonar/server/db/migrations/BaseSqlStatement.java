@@ -28,10 +28,10 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
 
-abstract class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD> {
+class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD> {
   protected PreparedStatement pstmt;
 
-  BaseSqlStatement(PreparedStatement pstmt) {
+  protected BaseSqlStatement(PreparedStatement pstmt) {
     this.pstmt = pstmt;
   }
 

@@ -74,7 +74,6 @@ public interface Select extends SqlStatement<Select> {
   }
 
   static interface RowReader<T> {
-    RowReader<Long> LONG = new LongReader();
     T read(Row row) throws SQLException;
   }
 
@@ -87,6 +86,8 @@ public interface Select extends SqlStatement<Select> {
       return row.getLong(1);
     }
   }
+
+  static final RowReader<Long> LONG_READER = new LongReader();
 
   static interface RowHandler<T> {
     void handle(Row row) throws SQLException;

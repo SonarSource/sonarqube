@@ -48,7 +48,7 @@ public class DevelopmentCostMeasuresMigration extends BaseDataChange {
   public void execute(Context context) throws SQLException {
     workDurationConvertor.init();
 
-    Long metricId = context.prepareSelect("select id from metrics where name='development_cost'").get(Select.RowReader.LONG);
+    Long metricId = context.prepareSelect("select id from metrics where name='development_cost'").get(Select.LONG_READER);
     if (metricId != null) {
       MassUpdate massUpdate = context.prepareMassUpdate();
       massUpdate.select("select id, value from project_measures where metric_id=? and value is not null").setLong(1, metricId);

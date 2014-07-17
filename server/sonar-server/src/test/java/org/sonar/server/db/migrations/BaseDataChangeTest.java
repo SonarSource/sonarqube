@@ -29,6 +29,7 @@ import org.sonar.core.persistence.TestDatabase;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -47,14 +48,20 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
   public void query() throws Exception {
     db.prepareDbUnit(getClass(), "persons.xml");
 
-    final List<Long> ids = new ArrayList<Long>();
+    final AtomicBoolean executed = new AtomicBoolean(false);
     new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
-        ids.addAll(context.prepareSelect("select id from persons order by id desc").list(Select.RowReader.LONG));
+        assertThat(context.prepareSelect("select id from persons order by id desc").list(Select.LONG_READER))
+          .containsExactly(3L, 2L, 1L);
+        assertThat(context.prepareSelect("select id from persons where id=?").setLong(1, 2L).get(Select.LONG_READER))
+          .isEqualTo(2L);
+        assertThat(context.prepareSelect("select id from persons where id=?").setLong(1, 12345L).get(Select.LONG_READER))
+          .isNull();
+        executed.set(true);
       }
     }.execute();
-    assertThat(ids).containsExactly(3L, 2L, 1L);
+    assertThat(executed.get()).isTrue();
   }
 
   @Test
@@ -87,7 +94,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
     new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
-        ids.addAll(context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).list(Select.RowReader.LONG));
+        ids.addAll(context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).list(Select.LONG_READER));
       }
     }.execute();
     assertThat(ids).containsOnly(2L, 3L);
@@ -102,7 +109,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
       @Override
       public void execute(Context context) throws SQLException {
         // parameter value is not set
-        ids.addAll(context.prepareSelect("select id from persons where id>=?").list(Select.RowReader.LONG));
+        ids.addAll(context.prepareSelect("select id from persons where id>=?").list(Select.LONG_READER));
       }
     };
     try {
@@ -332,7 +339,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
   static class UserReader implements Select.RowReader<Object[]> {
     @Override
     public Object[] read(Select.Row row) throws SQLException {
-      return new Object[] {
+      return new Object[]{
         // id, login, age, enabled
         row.getLong(1),
         row.getString(2),

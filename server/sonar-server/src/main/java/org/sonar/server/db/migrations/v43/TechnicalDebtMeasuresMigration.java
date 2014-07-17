@@ -55,7 +55,7 @@ public class TechnicalDebtMeasuresMigration extends BaseDataChange {
       "where name='sqale_index' or name='new_technical_debt' " +
       "or name='sqale_effort_to_grade_a' or name='sqale_effort_to_grade_b' or name='sqale_effort_to_grade_c' " +
       "or name='sqale_effort_to_grade_d' or name='blocker_remediation_cost' or name='critical_remediation_cost' " +
-      "or name='major_remediation_cost' or name='minor_remediation_cost' or name='info_remediation_cost'").list(Select.RowReader.LONG);
+      "or name='major_remediation_cost' or name='minor_remediation_cost' or name='info_remediation_cost'").list(Select.LONG_READER);
 
     if (!metricIds.isEmpty()) {
       MassUpdate massUpdate = context.prepareMassUpdate();
@@ -71,35 +71,37 @@ public class TechnicalDebtMeasuresMigration extends BaseDataChange {
       }
       massUpdate.update("UPDATE project_measures SET value=?," +
         "variation_value_1=?,variation_value_2=?,variation_value_3=?,variation_value_4=?,variation_value_5=? WHERE id=?");
-      massUpdate.execute(new MassUpdate.Handler() {
-        @Override
-        public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-          Long id = row.getLong(1);
-          Double value = row.getDouble(2);
-          Double var1 = row.getDouble(3);
-          Double var2 = row.getDouble(4);
-          Double var3 = row.getDouble(5);
-          Double var4 = row.getDouble(6);
-          Double var5 = row.getDouble(7);
-
-          update.setLong(1, convertDebtForDays(value));
-          update.setLong(2, convertDebtForDays(var1));
-          update.setLong(3, convertDebtForDays(var2));
-          update.setLong(4, convertDebtForDays(var3));
-          update.setLong(5, convertDebtForDays(var4));
-          update.setLong(6, convertDebtForDays(var5));
-          update.setLong(7, id);
-          return true;
-        }
-      });
+      massUpdate.execute(new Converter());
     }
   }
 
-  @CheckForNull
-  private Long convertDebtForDays(@Nullable Double data) {
-    if (data != null) {
-      return workDurationConvertor.createFromDays(data);
+  private class Converter implements MassUpdate.Handler {
+    @Override
+    public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+      Long id = row.getLong(1);
+      Double value = row.getDouble(2);
+      Double var1 = row.getDouble(3);
+      Double var2 = row.getDouble(4);
+      Double var3 = row.getDouble(5);
+      Double var4 = row.getDouble(6);
+      Double var5 = row.getDouble(7);
+
+      update.setLong(1, convertDebtForDays(value));
+      update.setLong(2, convertDebtForDays(var1));
+      update.setLong(3, convertDebtForDays(var2));
+      update.setLong(4, convertDebtForDays(var3));
+      update.setLong(5, convertDebtForDays(var4));
+      update.setLong(6, convertDebtForDays(var5));
+      update.setLong(7, id);
+      return true;
     }
-    return null;
+
+    @CheckForNull
+    private Long convertDebtForDays(@Nullable Double data) {
+      if (data != null) {
+        return workDurationConvertor.createFromDays(data);
+      }
+      return null;
+    }
   }
 }
