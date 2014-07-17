@@ -19,9 +19,10 @@ define [
         extra_fields: 'actions,transitions,assigneeName,actionPlanName'
       $.get API_ISSUES, options, (data) =>
         @state.set 'hasIssues', true
+        issues = _.sortBy data.issues, (issue) -> "#{issue.rule}_____#{issue.message}"
         @source.set
-          issues: data.issues
-          activeIssues: data.issues.filter (issue) -> !issue.resolution
+          issues: issues
+          activeIssues: issues.filter (issue) -> !issue.resolution
 
 
     showIssues: (store = false, issue) ->
