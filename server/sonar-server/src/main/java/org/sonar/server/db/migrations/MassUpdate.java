@@ -89,9 +89,13 @@ public class MassUpdate {
         update.execute().commit();
       }
       update.close();
+
+      // log the total number of process rows
+      progressTask.log();
     } finally {
       timer.cancel();
       timer.purge();
+      timer = null;
     }
   }
 
@@ -111,6 +115,10 @@ public class MassUpdate {
 
     @Override
     public void run() {
+      log();
+    }
+
+    void log() {
       logger.info(String.format("%d %s processed", counter.get(), rowName));
     }
   }

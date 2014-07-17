@@ -66,7 +66,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
       @Override
       public void execute(Context context) throws SQLException {
         persons.addAll(context
-          .prepareSelect("select id,login,age,enabled,updated_at from persons where id=2")
+          .prepareSelect("select id,login,age,enabled,updated_at,coeff from persons where id=2")
           .list(new UserReader()));
       }
     }.execute();
@@ -76,6 +76,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
     assertThat(persons.get(0)[2]).isEqualTo(14);
     assertThat(persons.get(0)[3]).isEqualTo(true);
     assertThat(persons.get(0)[4]).isNotNull();
+    assertThat(persons.get(0)[5]).isEqualTo(5.2);
   }
 
   @Test
@@ -138,11 +139,12 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
     new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
-        context.prepareUpsert("insert into persons(id,login,age,enabled) values (?,?,?,?)")
+        context.prepareUpsert("insert into persons(id,login,age,enabled,coeff) values (?,?,?,?,?)")
           .setLong(1, 10L)
           .setString(2, "kurt")
           .setInt(3, 27)
           .setBoolean(4, true)
+          .setDouble(5, 2.2)
           .execute().commit().close();
       }
     }.execute();
@@ -157,18 +159,20 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
     new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
-        Upsert upsert = context.prepareUpsert("insert into persons(id,login,age,enabled) values (?,?,?,?)");
+        Upsert upsert = context.prepareUpsert("insert into persons(id,login,age,enabled,coeff) values (?,?,?,?,?)");
         upsert
           .setLong(1, 10L)
           .setString(2, "kurt")
           .setInt(3, 27)
           .setBoolean(4, true)
+          .setDouble(5, 2.2)
           .addBatch();
         upsert
           .setLong(1, 11L)
           .setString(2, "courtney")
           .setInt(3, 25)
           .setBoolean(4, false)
+          .setDouble(5, 2.3)
           .addBatch();
         upsert.execute().commit().close();
       }
@@ -184,13 +188,14 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
     new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
-        Upsert upsert = context.prepareUpsert("update persons set login=?,age=?,enabled=?, updated_at=? where id=?");
+        Upsert upsert = context.prepareUpsert("update persons set login=?,age=?,enabled=?, updated_at=?, coeff=? where id=?");
         upsert
           .setString(1, null)
           .setInt(2, null)
           .setBoolean(3, null)
           .setDate(4, null)
-          .setLong(5, 2L)
+          .setDouble(5, null)
+          .setLong(6, 2L)
           .execute()
           .commit()
           .close();
@@ -208,13 +213,14 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
     new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
-        Upsert upsert = context.prepareUpsert("insert into persons(id,login,age,enabled) values (?,?,?,?)");
+        Upsert upsert = context.prepareUpsert("insert into persons(id,login,age,enabled,coeff) values (?,?,?,?,?)");
         for (int i = 0; i < count; i++) {
           upsert
             .setLong(1, 10L + i)
             .setString(2, "login" + i)
             .setInt(3, 10 + i)
             .setBoolean(4, true)
+            .setDouble(4, i + 0.5)
             .addBatch();
         }
         upsert.execute().commit().close();
@@ -332,7 +338,8 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
         row.getString(2),
         row.getInt(3),
         row.getBoolean(4),
-        row.getDate(5)
+        row.getDate(5),
+        row.getDouble(6),
       };
     }
   }
