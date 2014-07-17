@@ -26,6 +26,9 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.sql.SQLException;
 
 /**
@@ -56,12 +59,16 @@ public class PackageKeysMigration extends BaseDataChange {
     });
   }
 
-  String convertKey(String packageKey) {
-    String prefix = StringUtils.substringBeforeLast(packageKey, ":") + ":";
-    String key = StringUtils.substringAfterLast(packageKey, ":");
-    if ("[default]".equals(key)) {
-      return prefix + "[root]";
+  @CheckForNull
+  String convertKey(@Nullable String packageKey) {
+    if (packageKey != null) {
+      String prefix = StringUtils.substringBeforeLast(packageKey, ":") + ":";
+      String key = StringUtils.substringAfterLast(packageKey, ":");
+      if ("[default]".equals(key)) {
+        return prefix + "[root]";
+      }
+      return prefix + StringUtils.replace(key, ".", "/");
     }
-    return prefix + StringUtils.replace(key, ".", "/");
+    return null;
   }
 }

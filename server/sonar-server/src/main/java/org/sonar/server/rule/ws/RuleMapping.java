@@ -144,12 +144,14 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
 
   public void write(Rule rule, JsonWriter json, @Nullable SearchOptions options) {
     RuleMappingContext context = new RuleMappingContext();
-    if (needDebtCharacteristicNames(options) && rule.debtCharacteristicKey() != null) {
+    String characteristicKey;
+    if (needDebtCharacteristicNames(options) && (characteristicKey = rule.debtCharacteristicKey()) != null) {
       // load debt characteristics if requested
-      context.add(debtModel.characteristicByKey(rule.debtCharacteristicKey()));
+      context.add(debtModel.characteristicByKey(characteristicKey));
     }
-    if (needDebtSubCharacteristicNames(options) && rule.debtSubCharacteristicKey() != null) {
-      context.add(debtModel.characteristicByKey(rule.debtSubCharacteristicKey()));
+    String subCharacteristicKey;
+    if (needDebtSubCharacteristicNames(options) && (subCharacteristicKey = rule.debtSubCharacteristicKey()) != null) {
+      context.add(debtModel.characteristicByKey(subCharacteristicKey));
     }
     doWrite((RuleDoc) rule, context, json, options);
   }

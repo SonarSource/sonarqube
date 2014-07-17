@@ -25,6 +25,8 @@ import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.Upsert;
 
+import javax.annotation.Nullable;
+
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -42,63 +44,59 @@ public class AddMissingRuleParameterDefaultValuesMigration extends BaseDataChang
   }
 
   @Override
-  public void execute(Context context) {
-    try {
-      // get all the parameters with default value
-      List<RuleParam> ruleParameters = context.prepareSelect("select id,rule_id,name,default_value from rules_parameters where default_value is not null")
-        .list(new Select.RowReader<RuleParam>() {
+  public void execute(Context context) throws SQLException {
+    // get all the parameters with default value
+    List<RuleParam> ruleParameters = context.prepareSelect("select id,rule_id,name,default_value from rules_parameters where default_value is not null")
+      .list(new Select.RowReader<RuleParam>() {
+        @Override
+        public RuleParam read(Select.Row row) throws SQLException {
+          return new RuleParam(row.getLong(1), row.getLong(2), row.getString(3), row.getString(4));
+        }
+      });
+
+    for (RuleParam ruleParameter : ruleParameters) {
+      List<ActiveRule> activeRules = context.prepareSelect("select ar.id, ar.profile_id from active_rules ar " +
+        "left outer join active_rule_parameters arp on arp.active_rule_id=ar.id and arp.rules_parameter_id=? " +
+        "where ar.rule_id=? and arp.id is null")
+        .setLong(1, ruleParameter.id)
+        .setLong(2, ruleParameter.ruleId)
+        .list(new Select.RowReader<ActiveRule>() {
           @Override
-          public RuleParam read(Select.Row row) throws SQLException {
-            return new RuleParam(row.getLong(1), row.getLong(2), row.getString(3), row.getString(4));
+          public ActiveRule read(Select.Row row) throws SQLException {
+            return new ActiveRule(row.getLong(1), row.getLong(2));
           }
         });
 
-      for (RuleParam ruleParameter : ruleParameters) {
-        List<ActiveRule> activeRules = context.prepareSelect("select ar.id, ar.profile_id from active_rules ar " +
-          "left outer join active_rule_parameters arp on arp.active_rule_id=ar.id and arp.rules_parameter_id=? " +
-          "where ar.rule_id=? and arp.id is null")
-          .setLong(1, ruleParameter.id)
-          .setLong(2, ruleParameter.ruleId)
-          .list(new Select.RowReader<ActiveRule>() {
-            @Override
-            public ActiveRule read(Select.Row row) throws SQLException {
-              return new ActiveRule(row.getLong(1), row.getLong(2));
-            }
-          });
-
-        Upsert upsert = context.prepareUpsert("insert into active_rule_parameters(active_rule_id, rules_parameter_id, value, rules_parameter_key) values (?, ?, ?, ?)");
-        for (ActiveRule activeRule : activeRules) {
-          upsert
-            .setLong(1, activeRule.id)
-            .setLong(2, ruleParameter.id)
-            .setString(3, ruleParameter.defaultValue)
-            .setString(4, ruleParameter.name)
-            .addBatch();
-        }
-        upsert.execute().commit().close();
-
-        // update date for ES indexation
-        upsert = context.prepareUpsert("update active_rules set updated_at=? where id=?");
-        Date now = new Date(system.now());
-        for (ActiveRule activeRule : activeRules) {
-          upsert
-            .setDate(1, now)
-            .setLong(2, activeRule.id)
-            .addBatch();
-        }
-        upsert.execute().commit().close();
-
+      Upsert upsert = context.prepareUpsert("insert into active_rule_parameters(active_rule_id, rules_parameter_id, value, rules_parameter_key) values (?, ?, ?, ?)");
+      for (ActiveRule activeRule : activeRules) {
+        upsert
+          .setLong(1, activeRule.id)
+          .setLong(2, ruleParameter.id)
+          .setString(3, ruleParameter.defaultValue)
+          .setString(4, ruleParameter.name)
+          .addBatch();
       }
-    } catch (SQLException e) {
-      e.printStackTrace();
+      upsert.execute().commit().close();
+
+      // update date for ES indexation
+      upsert = context.prepareUpsert("update active_rules set updated_at=? where id=?");
+      Date now = new Date(system.now());
+      for (ActiveRule activeRule : activeRules) {
+        upsert
+          .setDate(1, now)
+          .setLong(2, activeRule.id)
+          .addBatch();
+      }
+      upsert.execute().commit().close();
+
     }
   }
 
   private static class RuleParam {
-    final long id, ruleId;
+    final Long id, ruleId;
     final String defaultValue, name;
 
-    RuleParam(long id, long ruleId, String name, String defaultValue) {
+    RuleParam(@Nullable Long id, @Nullable Long ruleId, @Nullable String name, @Nullable String defaultValue) {
       this.id = id;
       this.ruleId = ruleId;
       this.name = name;
@@ -107,9 +105,9 @@ public class AddMissingRuleParameterDefaultValuesMigration extends BaseDataChang
   }
 
   private static class ActiveRule {
-    final long id, profileId;
+    final Long id, profileId;
 
-    ActiveRule(long id, long profileId) {
+    ActiveRule(@Nullable Long id, @Nullable Long profileId) {
       this.id = id;
       this.profileId = profileId;
     }

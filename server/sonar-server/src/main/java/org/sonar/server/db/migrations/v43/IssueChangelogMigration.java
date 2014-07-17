@@ -30,6 +30,9 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -80,7 +83,11 @@ public class IssueChangelogMigration extends BaseDataChange {
   }
 
   @VisibleForTesting
-  String convertChangelog(String data) {
+  @CheckForNull
+  String convertChangelog(@Nullable String data) {
+    if (data == null) {
+      return null;
+    }
     Matcher matcher = pattern.matcher(data);
     StringBuffer sb = new StringBuffer();
     if (matcher.find()) {

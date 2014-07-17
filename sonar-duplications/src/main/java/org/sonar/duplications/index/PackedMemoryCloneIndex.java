@@ -243,13 +243,13 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
   }
 
   private boolean isLessByHash(int i, int j) {
-    i *= blockInts;
-    j *= blockInts;
-    for (int k = 0; k < hashInts; k++, i++, j++) {
-      if (blockData[i] < blockData[j]) {
+    int i2 = i * blockInts;
+    int j2 = j * blockInts;
+    for (int k = 0; k < hashInts; k++, i2++, j2++) {
+      if (blockData[i2] < blockData[j2]) {
         return true;
       }
-      if (blockData[i] > blockData[j]) {
+      if (blockData[i2] > blockData[j2]) {
         return false;
       }
     }

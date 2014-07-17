@@ -21,6 +21,9 @@ package org.sonar.server.db.migrations;
 
 import java.sql.SQLException;
 
+/**
+ * INSERT, UPDATE or DELETE
+ */
 public interface Upsert extends SqlStatement<Upsert> {
   Upsert addBatch() throws SQLException;
 
