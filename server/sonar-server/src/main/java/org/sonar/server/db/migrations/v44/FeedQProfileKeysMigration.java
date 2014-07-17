@@ -51,6 +51,7 @@ public class FeedQProfileKeysMigration extends BaseDataChange {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT id,language,name FROM rules_profiles");
     massUpdate.update("UPDATE rules_profiles SET kee=? WHERE id=?");
+    massUpdate.rowPluralName("profiles");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {

@@ -59,6 +59,7 @@ public class TechnicalDebtMeasuresMigration extends BaseDataChange {
 
     if (!metricIds.isEmpty()) {
       MassUpdate massUpdate = context.prepareMassUpdate();
+      massUpdate.rowPluralName("measures");
 
       SqlStatement select = massUpdate.select("SELECT pm.id, pm.value " +
         ", pm.variation_value_1 , pm.variation_value_2, pm.variation_value_3 " +

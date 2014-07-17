@@ -63,7 +63,7 @@ public class MassUpdate {
     return this;
   }
 
-  public MassUpdate setRowPluralName(String s) {
+  public MassUpdate rowPluralName(String s) {
     this.progressTask.setRowPluralName(s);
     return this;
   }
@@ -96,7 +96,7 @@ public class MassUpdate {
   }
 
   static class ProgressTask extends TimerTask {
-    static final long PERIOD_MS = 10000L;
+    static final long PERIOD_MS = 60000L;
     private final Logger logger = LoggerFactory.getLogger("DbMigration");
     private final AtomicLong counter;
     private String rowName = "rows";
