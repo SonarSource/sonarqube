@@ -44,6 +44,7 @@ public class IssueChangelogMigration extends BaseDataChange {
 
   private final WorkDurationConvertor workDurationConvertor;
   private final System2 system2;
+  private final Pattern pattern = Pattern.compile("technicalDebt=(\\d*)\\|(\\d*)", Pattern.CASE_INSENSITIVE);
 
   public IssueChangelogMigration(Database database, System2 system2, PropertiesDao propertiesDao) {
     this(database, system2, new WorkDurationConvertor(propertiesDao));
@@ -80,7 +81,6 @@ public class IssueChangelogMigration extends BaseDataChange {
 
   @VisibleForTesting
   String convertChangelog(String data) {
-    Pattern pattern = Pattern.compile("technicalDebt=(\\d*)\\|(\\d*)", Pattern.CASE_INSENSITIVE);
     Matcher matcher = pattern.matcher(data);
     StringBuffer sb = new StringBuffer();
     if (matcher.find()) {
@@ -100,11 +100,6 @@ public class IssueChangelogMigration extends BaseDataChange {
     }
     matcher.appendTail(sb);
     return sb.toString();
-  }
-
-  private static class Row {
-    private Long id;
-    private String changeData;
   }
 
 }
