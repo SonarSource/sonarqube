@@ -52,7 +52,7 @@
     <tbody>
     <% @profiles.select { |p| p.language == language.getKey() }.each do |profile|
        projects_count = projects_count(profile)
-       is_default_profile = default_profile && default_profile==profile.key()
+       is_default_profile = default_profile && default_profile.key()==profile.key()
     %>
       <tr class="<%= cycle 'even', 'odd', :name => language.getKey() -%> hoverable" id="<%= u profile.key() %>">
         <td  width="40%">

@@ -3,12 +3,14 @@ define [
   'navigator/filters/base-filters',
   'navigator/filters/favorite-filters',
   'navigator/filters/more-criteria-filters',
+  'navigator/filters/read-only-filters',
   'templates/coding-rules'
 ], (
   FilterBarView,
   BaseFilters,
   FavoriteFiltersModule,
   MoreCriteriaFilters,
+  ReadOnlyFilterView,
   Templates
 ) ->
 
@@ -40,7 +42,8 @@ define [
 
 
     addMoreCriteriaFilter: ->
-      disabledFilters = this.collection.where enabled: false
+      readOnlyFilters = @collection.where(type: ReadOnlyFilterView)
+      disabledFilters = _.difference(@collection.where(enabled: false), readOnlyFilters)
       if disabledFilters.length > 0
         @moreCriteriaFilter = new BaseFilters.Filter
           type: MoreCriteriaFilters.MoreCriteriaFilterView,
@@ -53,7 +56,7 @@ define [
     changeEnabled: ->
       if @moreCriteriaFilter?
         disabledFilters = _.reject @collection.where(enabled: false), (filter) ->
-          filter.get('type') == MoreCriteriaFilters.MoreCriteriaFilterView
+          filter.get('type') in [MoreCriteriaFilters.MoreCriteriaFilterView, ReadOnlyFilterView]
 
         if disabledFilters.length == 0
           @moreCriteriaFilter.set { enabled: false }, { silent: true }
