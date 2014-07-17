@@ -95,7 +95,6 @@ public class MassUpdate {
     } finally {
       timer.cancel();
       timer.purge();
-      timer = null;
     }
   }
 

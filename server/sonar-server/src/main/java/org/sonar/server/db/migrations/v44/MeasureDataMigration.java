@@ -20,18 +20,13 @@
 
 package org.sonar.server.db.migrations.v44;
 
-import org.apache.commons.lang.StringUtils;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.MassUpdater;
-import org.sonar.server.db.migrations.SqlUtil;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.Select;
+import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * SONAR-5249
@@ -40,80 +35,29 @@ import java.util.List;
  * Used in the Active Record Migration 530.
  * @since 4.4
  */
-public class MeasureDataMigration implements DatabaseMigration {
-
-  private final Database db;
+public class MeasureDataMigration extends BaseDataChange {
 
   public MeasureDataMigration(Database database) {
-    this.db = database;
+    super(database);
   }
 
   @Override
-  public void execute() {
-    final List<Long> ids = new ArrayList<Long>();
-    new MassUpdater(db, 50).execute(
-      new MassUpdater.InputLoader<Row>() {
-        @Override
-        public String selectSql() {
-          return "SELECT md.id, md.measure_id FROM measure_data md";
-        }
+  public void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.rowPluralName("measures");
+    massUpdate.select("select md.id, md.measure_id FROM measure_data md " +
+      "inner join project_measures m on m.id=md.measure_id and m.measure_data is null");
+    massUpdate.update("update project_measures SET measure_data = (SELECT md.data FROM measure_data md WHERE md.id = ?) WHERE id=?");
+    massUpdate.execute(new MassUpdate.Handler() {
+      @Override
+      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+        Long id = row.getLong(1);
+        Long measureId = row.getLong(2);
 
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.id = SqlUtil.getLong(rs, 1);
-          row.measureId = SqlUtil.getLong(rs, 2);
-          return row;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-
-        @Override
-        public String updateSql() {
-          return "UPDATE project_measures SET measure_data = (SELECT md.data FROM measure_data md WHERE md.id = ?) WHERE id=?";
-        }
-
-        @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          ids.add(row.id);
-          updateStatement.setLong(1, row.id);
-          updateStatement.setLong(2, row.measureId);
-          return true;
-        }
-      },
-      new MassUpdater.PeriodicUpdater() {
-
-        @Override
-        public boolean update(Connection connection) throws SQLException {
-          if (!ids.isEmpty()) {
-            PreparedStatement s = prepareDeleteQuery(ids, connection);
-            s.executeUpdate();
-            s.close();
-            ids.clear();
-            return true;
-          }
-          return false;
-        }
-      });
+        update.setLong(1, id);
+        update.setLong(2, measureId);
+        return true;
+      }
+    });
   }
-
-  private PreparedStatement prepareDeleteQuery(final List<Long> ids, Connection connection) throws SQLException {
-    String deleteSql = new StringBuilder()
-      .append("DELETE FROM measure_data WHERE id IN (")
-      .append(StringUtils.repeat("?", ",", ids.size()))
-      .append(")").toString();
-    PreparedStatement s = connection.prepareStatement(deleteSql);
-    int i = 1;
-    for (Long id : ids) {
-      s.setLong(i, id);
-      i++;
-    }
-    return s;
-  }
-
-  private static class Row {
-    private Long id;
-    private Long measureId;
-  }
-
 }
