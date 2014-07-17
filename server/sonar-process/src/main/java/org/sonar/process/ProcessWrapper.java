@@ -150,6 +150,7 @@ public class ProcessWrapper {
         StringUtils.join(classPath, ":"),
         className);
     processBuilder.environment().putAll(properties);
+    processBuilder.environment().put(Process.SONAR_HOME, workDir);
     processBuilder.environment().put(Process.NAME_PROPERTY, this.getName());
     processBuilder.environment().put(Process.PORT_PROPERTY, Integer.toString(port));
 
