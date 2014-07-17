@@ -40,14 +40,14 @@ class Api::ProfilesController < Api::ApiController
       project = Project.by_key(project_key)
       not_found('Unknown project') unless project
       if language.present?
-        default_profile_by_language[language] = Internal.quality_profiles.defaultProfile(language)
+        default_profile_by_language[language] = Internal.qprofile_service.getDefault(language)
         profile = Internal.quality_profiles.findProfileByProjectAndLanguage(project.id, language)
         profiles << profile if profile
         # Return default profile if the project is not associate to a profile
         profiles << default_profile_by_language[language] unless profile
       else
         Api::Utils.languages.each do |language|
-          default_profile_by_language[language.getKey()] = Internal.quality_profiles.defaultProfile(language.getKey())
+          default_profile_by_language[language.getKey()] = Internal.qprofile_service.getDefault(language.getKey())
           profile = Internal.quality_profiles.findProfileByProjectAndLanguage(project.id, language.getKey())
           profiles << profile if profile
           # Return default profile if the project is not associate to a profile
@@ -65,7 +65,7 @@ class Api::ProfilesController < Api::ApiController
     profiles.each do |p|
       lang = p.language
       unless default_profile_by_language[lang]
-        default_profile_by_language[lang] = Internal.quality_profiles.defaultProfile(lang.to_s)
+        default_profile_by_language[lang] = Internal.qprofile_service.getDefault(lang.to_s)
       end
     end
 
@@ -83,9 +83,10 @@ class Api::ProfilesController < Api::ApiController
     access_denied unless has_role?(:profileadmin)
     require_parameters :language, :name
 
-    profile_key=Java::OrgSonarCoreQualityprofileDb::QualityProfileKey.of(params[:name], params[:language])
     call_backend do
-      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).delete(profile_key)
+      profile = Internal.quality_profiles.profile(params[:name], params[:language])
+      not_found('Profile not found') unless profile
+      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).delete(profile.key)
     end
     render_success('Profile destroyed')
   end
@@ -97,8 +98,7 @@ class Api::ProfilesController < Api::ApiController
     verify_post_request
     profile = Internal.quality_profiles.profile(params[:name], params[:language])
     not_found('Profile not found') unless profile
-    profile_key=Java::OrgSonarCoreQualityprofileDb::QualityProfileKey.of(profile.name, profile.language)
-    Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).setDefault(profile_key)
+    Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).setDefault(profile.key)
     render_success
   end
 
@@ -131,13 +131,13 @@ class Api::ProfilesController < Api::ApiController
 
     language = params[:language]
     if (params[:name].blank?)
-      profile = Internal.quality_profiles.defaultProfile(language)
+      profile = Internal.qprofile_service.getDefault(language)
     else
       profile = Internal.quality_profiles.profile(params[:name], params[:language])
     end
 
-    profile_key=Java::OrgSonarCoreQualityprofileDb::QualityProfileKey.of(profile.name, profile.language)
-    backup = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).backup(profile_key)
+    not_found('Profile not found') unless profile
+    backup = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).backup(profile.key)
 
     respond_to do |format|
       format.xml { render :xml => backup }
@@ -228,7 +228,7 @@ class Api::ProfilesController < Api::ApiController
     xml.profile do
       xml.name(@profile.name)
       xml.language(@profile.language)
-      xml.parent(@profile.parent_name) if @profile.parent_name.present?
+      xml.parent(@profile.parent_kee) if @profile.parent_kee.present?
       xml.default(@profile.default_profile?)
 
       @active_rules.each do |active_rule|
