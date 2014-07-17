@@ -19,10 +19,15 @@
  */
 package org.sonar.server.db.migrations;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.persistence.Database;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class MassUpdate {
 
@@ -35,42 +40,79 @@ public class MassUpdate {
   }
 
   private final Database db;
-  private final Connection connection;
+  private final Connection readConnection, writeConnection;
+  private final AtomicLong counter = new AtomicLong(0L);
+  private final ProgressTask progressTask = new ProgressTask(counter);
 
   private Select select;
   private Upsert update;
 
-  MassUpdate(Database db, Connection connection) {
+  MassUpdate(Database db, Connection readConnection, Connection writeConnection) {
     this.db = db;
-    this.connection = connection;
+    this.readConnection = readConnection;
+    this.writeConnection = writeConnection;
   }
 
   public SqlStatement select(String sql) throws SQLException {
-    this.select = SelectImpl.create(db, connection, sql);
+    this.select = SelectImpl.create(db, readConnection, sql);
     return this.select;
   }
 
   public MassUpdate update(String sql) throws SQLException {
-    this.update = UpsertImpl.create(connection, sql);
+    this.update = UpsertImpl.create(writeConnection, sql);
+    return this;
+  }
+
+  public MassUpdate setRowPluralName(String s) {
+    this.progressTask.setRowPluralName(s);
     return this;
   }
 
   public void execute(final Handler handler) throws SQLException {
-    if (select == null || update==null) {
+    if (select == null || update == null) {
       throw new IllegalStateException("SELECT or UPDATE requests are not defined");
     }
 
-    select.scroll(new Select.RowHandler() {
-      @Override
-      public void handle(Select.Row row) throws SQLException {
-        if (handler.handle(row, update)) {
-          update.addBatch();
+    Timer timer = new Timer("Db Migration Progress");
+    timer.schedule(progressTask, ProgressTask.PERIOD_MS, ProgressTask.PERIOD_MS);
+    try {
+      select.scroll(new Select.RowHandler() {
+        @Override
+        public void handle(Select.Row row) throws SQLException {
+          if (handler.handle(row, update)) {
+            update.addBatch();
+          }
+          counter.getAndIncrement();
         }
+      });
+      if (((UpsertImpl) update).getBatchCount() > 0L) {
+        update.execute().commit();
       }
-    });
-    if (((UpsertImpl)update).getBatchCount()>0L) {
-      update.execute().commit();
+      update.close();
+    } finally {
+      timer.cancel();
+      timer.purge();
     }
-    update.close();
   }
+
+  static class ProgressTask extends TimerTask {
+    static final long PERIOD_MS = 10000L;
+    private final Logger logger = LoggerFactory.getLogger("DbMigration");
+    private final AtomicLong counter;
+    private String rowName = "rows";
+
+    ProgressTask(AtomicLong counter) {
+      this.counter = counter;
+    }
+
+    void setRowPluralName(String s) {
+      this.rowName = s;
+    }
+
+    @Override
+    public void run() {
+      logger.info(String.format("%d %s processed", counter.get(), rowName));
+    }
+  }
+
 }

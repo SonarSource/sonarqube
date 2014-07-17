@@ -45,7 +45,7 @@ public interface DataChange {
     }
 
     public MassUpdate prepareMassUpdate() throws SQLException {
-      return new MassUpdate(db, writeConnection);
+      return new MassUpdate(db, readConnection, writeConnection);
     }
   }
 
