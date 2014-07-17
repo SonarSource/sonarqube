@@ -29,6 +29,7 @@ public final class IndexProperties {
     MEMORY, TRANSPORT, DATA
   }
 
-  public static final String TYPE = "sonar.es.type";
-  public static final String HTTP_PORT = "sonar.es.http.port";
+public static final String TYPE = "sonar.es.type";
+public static final String HTTP_PORT = "sonar.es.http.port";
+public static final String NODE_PORT = "sonar.es.node.port";
 }
