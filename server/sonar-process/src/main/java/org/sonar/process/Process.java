@@ -29,6 +29,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,6 +37,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public abstract class Process implements ProcessMXBean {
+
+  public static final String SONAR_HOME = "SONAR_HOME";
 
   public static final String NAME_PROPERTY = "pName";
   public static final String PORT_PROPERTY = "pPort";
@@ -68,6 +71,9 @@ public abstract class Process implements ProcessMXBean {
 
   public Process(Props props) {
 
+  
+    validateSonarHome(props);
+    
     // Loading all Properties from file
     this.props = props;
     this.name = props.of(NAME_PROPERTY, null);
@@ -90,7 +96,7 @@ public abstract class Process implements ProcessMXBean {
       throw new IllegalStateException("Process is not a compliant MBean", e);
     }
 
-    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
       @Override
       public void run() {
         Process.this.stop();
@@ -136,5 +142,25 @@ public abstract class Process implements ProcessMXBean {
     monitor.shutdownNow();
     this.onStop();
     LOGGER.info("Process[{}]::shutdown END", name);
+  }
+
+  private void validateSonarHome(Props props) {
+
+    // check that we have a SONAR_HOME either in props or in env.
+    String sonarHome = props.of(SONAR_HOME, System.getenv(SONAR_HOME));
+    if (StringUtils.isEmpty(sonarHome)) {
+      throw new IllegalStateException("variable SONAR_HOME is not set.");
+    }
+
+    // check that SONAR_HOME exists
+    File home = new File(sonarHome);
+    if(!home.exists()) {
+      throw new IllegalStateException("Directory SONAR_HOME '" + sonarHome + "' is not set");
+    }
+
+    // check that SONAR_HOME is writable
+    if (!home.canWrite()) {
+      throw new IllegalStateException("Directory SONAR_HOME '" + sonarHome + "' is not writable");
+    }
   }
 }
