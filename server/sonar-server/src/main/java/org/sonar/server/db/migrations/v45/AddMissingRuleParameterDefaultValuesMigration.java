@@ -19,13 +19,12 @@
  */
 package org.sonar.server.db.migrations.v45;
 
-import org.apache.commons.dbutils.DbUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.Upsert;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -35,17 +34,19 @@ import java.util.List;
  */
 public class AddMissingRuleParameterDefaultValuesMigration extends BaseDataChange {
 
-  public AddMissingRuleParameterDefaultValuesMigration(Database db) {
+  private final System2 system;
+
+  public AddMissingRuleParameterDefaultValuesMigration(Database db, System2 system) {
     super(db);
+    this.system = system;
   }
 
   @Override
   public void execute(Context context) {
-    Connection connection = null;
     try {
       // get all the parameters with default value
       List<RuleParam> ruleParameters = context.prepareSelect("select id,rule_id,name,default_value from rules_parameters where default_value is not null")
-        .query(new Select.RowReader<RuleParam>() {
+        .list(new Select.RowReader<RuleParam>() {
           @Override
           public RuleParam read(Select.Row row) throws SQLException {
             return new RuleParam(row.getLong(1), row.getLong(2), row.getString(3), row.getString(4));
@@ -58,7 +59,7 @@ public class AddMissingRuleParameterDefaultValuesMigration extends BaseDataChang
           "where ar.rule_id=? and arp.id is null")
           .setLong(1, ruleParameter.id)
           .setLong(2, ruleParameter.ruleId)
-          .query(new Select.RowReader<ActiveRule>() {
+          .list(new Select.RowReader<ActiveRule>() {
             @Override
             public ActiveRule read(Select.Row row) throws SQLException {
               return new ActiveRule(row.getLong(1), row.getLong(2));
@@ -74,24 +75,22 @@ public class AddMissingRuleParameterDefaultValuesMigration extends BaseDataChang
             .setString(4, ruleParameter.name)
             .addBatch();
         }
-        upsert.execute();
+        upsert.execute().commit().close();
 
         // update date for ES indexation
         upsert = context.prepareUpsert("update active_rules set updated_at=? where id=?");
-        Date now = new Date();
+        Date now = new Date(system.now());
         for (ActiveRule activeRule : activeRules) {
           upsert
             .setDate(1, now)
             .setLong(2, activeRule.id)
             .addBatch();
         }
-        upsert.execute();
+        upsert.execute().commit().close();
 
       }
     } catch (SQLException e) {
       e.printStackTrace();
-    } finally {
-      DbUtils.closeQuietly(connection);
     }
   }
 
@@ -113,18 +112,6 @@ public class AddMissingRuleParameterDefaultValuesMigration extends BaseDataChang
     ActiveRule(long id, long profileId) {
       this.id = id;
       this.profileId = profileId;
-    }
-  }
-
-  private static class ActiveRuleParam {
-    final long activeRuleId, ruleParamId;
-    final String value, ruleParamKey;
-
-    ActiveRuleParam(long activeRuleId, long ruleParamId, String ruleParamKey, String value) {
-      this.activeRuleId = activeRuleId;
-      this.ruleParamId = ruleParamId;
-      this.ruleParamKey = ruleParamKey;
-      this.value = value;
     }
   }
 }

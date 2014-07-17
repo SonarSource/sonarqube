@@ -37,7 +37,7 @@ class SelectImpl extends BaseSqlStatement<Select> implements Select {
   }
 
   @Override
-  public <T> List<T> query(Select.RowReader<T> reader) throws SQLException {
+  public <T> List<T> list(Select.RowReader<T> reader) throws SQLException {
     ResultSet rs = pstmt.executeQuery();
     Select.Row row = new Select.Row(rs);
     try {
@@ -46,6 +46,21 @@ class SelectImpl extends BaseSqlStatement<Select> implements Select {
         rows.add(reader.read(row));
       }
       return rows;
+    } finally {
+      DbUtils.closeQuietly(rs);
+      close();
+    }
+  }
+
+  @Override
+  public <T> T get(Select.RowReader<T> reader) throws SQLException {
+    ResultSet rs = pstmt.executeQuery();
+    Select.Row row = new Select.Row(rs);
+    try {
+      if (rs.next()) {
+        return reader.read(row);
+      }
+      return null;
     } finally {
       DbUtils.closeQuietly(rs);
       close();

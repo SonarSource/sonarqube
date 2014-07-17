@@ -28,23 +28,24 @@ public interface DataChange {
 
   class Context {
     private final Database db;
-    private final Connection connection;
+    private final Connection readConnection, writeConnection;
 
-    public Context(Database db, Connection connection) {
+    public Context(Database db, Connection readConnection, Connection writeConnection) {
       this.db = db;
-      this.connection = connection;
+      this.readConnection = readConnection;
+      this.writeConnection = writeConnection;
     }
 
     public Select prepareSelect(String sql) throws SQLException {
-      return SelectImpl.create(db, connection, sql);
+      return SelectImpl.create(db, readConnection, sql);
     }
 
     public Upsert prepareUpsert(String sql) throws SQLException {
-      return UpsertImpl.create(connection, sql);
+      return UpsertImpl.create(writeConnection, sql);
     }
 
     public MassUpdate prepareMassUpdate() throws SQLException {
-      return new MassUpdate(db, connection);
+      return new MassUpdate(db, writeConnection);
     }
   }
 

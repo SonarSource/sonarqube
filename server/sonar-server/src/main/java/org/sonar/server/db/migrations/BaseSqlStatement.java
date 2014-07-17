@@ -22,7 +22,6 @@ package org.sonar.server.db.migrations;
 import org.apache.commons.dbutils.DbUtils;
 
 import javax.annotation.Nullable;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -40,7 +39,7 @@ abstract class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatem
   public CHILD close() {
     DbUtils.closeQuietly(pstmt);
     pstmt = null;
-    return (CHILD)this;
+    return (CHILD) this;
   }
 
   @Override
@@ -75,6 +74,16 @@ abstract class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatem
       pstmt.setNull(columnIndex, Types.BOOLEAN);
     } else {
       pstmt.setBoolean(columnIndex, value);
+    }
+    return (CHILD) this;
+  }
+
+  @Override
+  public CHILD setDouble(int columnIndex, @Nullable Double value) throws SQLException {
+    if (value == null) {
+      pstmt.setNull(columnIndex, Types.DECIMAL);
+    } else {
+      pstmt.setDouble(columnIndex, value);
     }
     return (CHILD) this;
   }

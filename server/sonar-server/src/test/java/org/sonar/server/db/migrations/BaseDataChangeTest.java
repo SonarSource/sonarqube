@@ -51,7 +51,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
     new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
-        ids.addAll(context.prepareSelect("select id from persons order by id desc").query(Select.LONG_READER));
+        ids.addAll(context.prepareSelect("select id from persons order by id desc").list(Select.RowReader.LONG));
       }
     }.execute();
     assertThat(ids).containsExactly(3L, 2L, 1L);
@@ -67,7 +67,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
       public void execute(Context context) throws SQLException {
         persons.addAll(context
           .prepareSelect("select id,login,age,enabled,updated_at from persons where id=2")
-          .query(new UserReader()));
+          .list(new UserReader()));
       }
     }.execute();
     assertThat(persons).hasSize(1);
@@ -86,7 +86,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
     new BaseDataChange(db.database()) {
       @Override
       public void execute(Context context) throws SQLException {
-        ids.addAll(context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).query(Select.LONG_READER));
+        ids.addAll(context.prepareSelect("select id from persons where id>=?").setLong(1, 2L).list(Select.RowReader.LONG));
       }
     }.execute();
     assertThat(ids).containsOnly(2L, 3L);
@@ -101,7 +101,7 @@ public class BaseDataChangeTest extends AbstractDaoTestCase {
       @Override
       public void execute(Context context) throws SQLException {
         // parameter value is not set
-        ids.addAll(context.prepareSelect("select id from persons where id>=?").query(Select.LONG_READER));
+        ids.addAll(context.prepareSelect("select id from persons where id>=?").list(Select.RowReader.LONG));
       }
     };
     try {

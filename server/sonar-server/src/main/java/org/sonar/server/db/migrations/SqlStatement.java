@@ -28,6 +28,8 @@ public interface SqlStatement<CHILD extends SqlStatement> {
 
   CHILD setDate(int columnIndex, @Nullable Date value) throws SQLException;
 
+  CHILD setDouble(int columnIndex, @Nullable Double value) throws SQLException;
+
   CHILD setInt(int columnIndex, @Nullable Integer value) throws SQLException;
 
   CHILD setLong(int columnIndex, @Nullable Long value) throws SQLException;

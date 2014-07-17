@@ -74,6 +74,7 @@ public interface Select extends SqlStatement<Select> {
   }
 
   static interface RowReader<T> {
+    RowReader<Long> LONG = new LongReader();
     T read(Row row) throws SQLException;
   }
 
@@ -87,13 +88,14 @@ public interface Select extends SqlStatement<Select> {
     }
   }
 
-  public static final LongReader LONG_READER = new LongReader();
-
   static interface RowHandler<T> {
     void handle(Row row) throws SQLException;
   }
 
-  <T> List<T> query(RowReader<T> reader) throws SQLException;
+  <T> List<T> list(RowReader<T> reader) throws SQLException;
+
+  @CheckForNull
+  <T> T get(RowReader<T> reader) throws SQLException;
 
   void scroll(RowHandler handler) throws SQLException;
 }

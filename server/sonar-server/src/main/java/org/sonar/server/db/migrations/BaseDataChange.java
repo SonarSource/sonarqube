@@ -35,15 +35,17 @@ public abstract class BaseDataChange implements DataChange, DatabaseMigration {
 
   @Override
   public final void execute() throws SQLException {
-    Connection connection = null;
+    Connection readConnection = null, writeConnection = null;
     try {
-      connection = db.getDataSource().getConnection();
-      connection.setAutoCommit(false);
-      Context context = new Context(db, connection);
+      readConnection = db.getDataSource().getConnection();
+      writeConnection = db.getDataSource().getConnection();
+      writeConnection.setAutoCommit(false);
+      Context context = new Context(db, readConnection, writeConnection);
       execute(context);
 
     } finally {
-      DbUtils.closeQuietly(connection);
+      DbUtils.closeQuietly(readConnection);
+      DbUtils.closeQuietly(writeConnection);
     }
   }
 }
