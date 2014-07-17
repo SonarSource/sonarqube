@@ -29,6 +29,7 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.task.TaskExtension;
@@ -36,6 +37,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
+import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.settings.SettingsReferential;
@@ -57,14 +59,15 @@ public class ProjectScanContainerTest {
   @Before
   public void prepare() {
     projectBootstrapper = mock(ProjectBootstrapper.class);
+    bootstrapProperties = new BootstrapProperties(Collections.<String, String>emptyMap());
+    AnalysisMode analysisMode = new AnalysisMode(bootstrapProperties);
     when(projectBootstrapper.bootstrap()).thenReturn(new ProjectReactor(ProjectDefinition.create()));
-    settings = new Settings();
+    settings = new GlobalSettings(bootstrapProperties, new PropertyDefinitions(), mock(SettingsReferential.class), new PropertiesConfiguration(), analysisMode);
     parentContainer = new ComponentContainer();
     parentContainer.add(settings);
     parentContainer.add(System2.INSTANCE);
-    bootstrapProperties = new BootstrapProperties(Collections.<String, String>emptyMap());
     parentContainer.add(bootstrapProperties);
-    parentContainer.add(new AnalysisMode(bootstrapProperties));
+    parentContainer.add(analysisMode);
     parentContainer.add(new PropertiesConfiguration());
     parentContainer.add(mock(SettingsReferential.class));
     container = new ProjectScanContainer(parentContainer);
@@ -96,7 +99,7 @@ public class ProjectScanContainerTest {
 
     assertThat(container.getComponentsByType(PhasesSumUpTimeProfiler.class)).hasSize(0);
 
-    bootstrapProperties.properties().put(CoreProperties.PROFILING_LOG_PROPERTY, "true");
+    settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, "true");
 
     container = new ProjectScanContainer(parentContainer);
     container.add(mock(ExtensionInstaller.class), projectBootstrapper);
