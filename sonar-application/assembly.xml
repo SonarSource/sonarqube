@@ -12,7 +12,7 @@
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <excludes>
         <exclude>mysql:mysql-connector-java</exclude>
-        <exclude>postgresql:postgresql</exclude>
+        <exclude>org.postgresql:postgresql</exclude>
         <exclude>net.sourceforge.jtds:jtds</exclude>
         <exclude>org.codehaus.sonar.plugins:*</exclude>
         <exclude>org.codehaus.sonar-plugins.*:*</exclude>
@@ -61,7 +61,7 @@
     <dependencySet>
       <outputDirectory>extensions/jdbc-driver/postgresql/</outputDirectory>
       <includes>
-        <include>postgresql:postgresql</include>
+        <include>org.postgresql:postgresql</include>
       </includes>
       <unpack>false</unpack>
       <scope>runtime</scope>
