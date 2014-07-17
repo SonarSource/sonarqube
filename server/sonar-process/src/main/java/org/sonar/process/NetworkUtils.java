@@ -17,27 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.start;
+package org.sonar.process;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 
-class NetworkUtils {
+public class NetworkUtils {
 
-  static private int lastPort = -1;
-
-  static int freePort() {
+  public static int freePort() {
     try {
-      ServerSocket s = new ServerSocket(lastPort + 1);
+      ServerSocket s = new ServerSocket(0);
       int port = s.getLocalPort();
       s.close();
       return port;
     } catch (IOException e) {
       throw new IllegalStateException("Can not find an open network port", e);
     }
-  }
-
-  private static boolean isValidPort(int port) {
-    return port > 1023;
   }
 }
