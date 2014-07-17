@@ -1,16 +1,17 @@
 <div class="component-viewer-popup-container">
-
   {{#notEq test.status 'ERROR'}}
-    <div class="component-viewer-popup-title">{{t 'component_viewer.transition.covers'}}</div>
-    {{#each items}}
-      <div class="component-viewer-popup-section">
-        <a class="component-viewer-popup-test-file link-action" data-key="{{key}}" title="{{name}}">{{name}}</a>
-        <span class="subtitle">{{tp 'component_viewer.x_lines_are_covered' coveredLines}}</span>
-        <br><span class="subtitle" title="{{dir}}">{{dir}}</span>
-      </div>
-    {{else}}
-      {{t 'none'}}
-    {{/each}}
+    {{#notEq test.status 'FAILURE'}}
+      <div class="component-viewer-popup-title">{{t 'component_viewer.transition.covers'}}</div>
+      {{#each items}}
+        <div class="component-viewer-popup-section">
+          <a class="component-viewer-popup-test-file link-action" data-key="{{key}}" title="{{name}}">{{name}}</a>
+          <span class="subtitle">{{tp 'component_viewer.x_lines_are_covered' coveredLines}}</span>
+          <br><span class="subtitle" title="{{dir}}">{{dir}}</span>
+        </div>
+      {{else}}
+        {{t 'none'}}
+      {{/each}}
+    {{/notEq}}
   {{/notEq}}
 
   {{#notEq test.status 'OK'}}
