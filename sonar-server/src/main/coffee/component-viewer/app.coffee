@@ -34,10 +34,11 @@ requirejs [
     viewerRegion: '#component-viewer'
 
 
-  App.requestComponentViewer = (s) ->
+  App.requestComponentViewer = (s, currentIssue) ->
     if s?
       settings = issues: false, coverage: false, duplications: false, scm: false, workspace: false
       s.split(',').forEach (d) -> settings[d] = true
+      settings.issues = false if currentIssue?
     else settings = null
     unless App.componentViewer?
       App.componentViewer = new ComponentViewer settings: settings
@@ -53,7 +54,7 @@ requirejs [
       t = d.split '='
       params[t[0]] = decodeURIComponent t[1]
 
-    viewer = App.requestComponentViewer params.settings
+    viewer = App.requestComponentViewer params.settings, params.currentIssue
     if params.component?
       loadIssue = (key) ->
         $.get API_ISSUE, key: key, (r) =>
