@@ -63,7 +63,9 @@
           <span class="label">{{testStatusIcon status}}
             <span class="duration subtitle">{{durationInMs}}ms</span>
             {{name}}</span>
-            <span class="number">{{coveredLines}}</span>
+            {{#if coveredLines}}
+              <span class="number">{{coveredLines}}</span>
+            {{/if}}
             <i class="icon-chevron-right"></i>
           </a></li>
         {{else}}
