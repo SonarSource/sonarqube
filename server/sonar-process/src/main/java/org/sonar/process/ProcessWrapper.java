@@ -20,6 +20,7 @@
 package org.sonar.process;
 
 import com.google.common.io.Closeables;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -48,6 +50,7 @@ public class ProcessWrapper {
 
   final int port;
   final String name;
+  final String workDir;
   final String className;
   final String[] classPath;
   final Map<String, String> properties;
@@ -70,10 +73,11 @@ public class ProcessWrapper {
 
 
 
-  public ProcessWrapper(String className, Map<String, String> properties, final String name, Integer port, String... classPath) {
-    LOGGER.info("Creating Process for '{}' with monitoring port: {}", name, port);
+  public ProcessWrapper(String workDir, String className, Map<String, String> properties, final String name, String... classPath) {
+    this.port = NetworkUtils.freePort();
+    LOGGER.info("Creating Process for '{}' with workDir: '{}' and monitoring port: {}", name, workDir, port);
+    this.workDir = workDir;
     this.name = name;
-    this.port = port;
     this.className = className;
     this.classPath = classPath;
     this.properties = properties;
@@ -148,6 +152,14 @@ public class ProcessWrapper {
     processBuilder.environment().putAll(properties);
     processBuilder.environment().put(Process.NAME_PROPERTY, this.getName());
     processBuilder.environment().put(Process.PORT_PROPERTY, Integer.toString(port));
+
+    //check that working directory exists.
+    File workDirectory = new File(workDir);
+    if(!workDirectory.exists()) {
+      throw new IllegalStateException("Work directory does not exist.");
+    } else {
+      processBuilder.directory(FileUtils.getFile(workDir));
+    }
 
     try {
       java.lang.Process process = processBuilder.start();

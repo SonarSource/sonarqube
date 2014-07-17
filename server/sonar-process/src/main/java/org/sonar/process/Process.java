@@ -89,6 +89,13 @@ public abstract class Process implements ProcessMXBean {
     } catch (NotCompliantMBeanException e) {
       throw new IllegalStateException("Process is not a compliant MBean", e);
     }
+
+    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+      @Override
+      public void run() {
+        Process.this.stop();
+      }
+    }));
   }
 
   public ObjectName getObjectName() {

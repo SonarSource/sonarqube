@@ -21,6 +21,7 @@ package org.sonar.search;
 
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.Logger;
@@ -104,9 +105,14 @@ public class ElasticSearch extends Process {
   @Override
   public boolean isReady() {
     try {
-      ClusterHealthStatus status = node.client().admin().cluster().prepareClusterStats()
-        .get().getStatus();
-      return status != null && status == ClusterHealthStatus.GREEN;
+      return (node.client().admin().cluster().prepareHealth()
+        .setWaitForYellowStatus()
+        .setTimeout(TimeValue.timeValueSeconds(3L))
+        .get()
+        .getStatus() != ClusterHealthStatus.RED);
+//      ClusterHealthStatus status = node.client().admin().cluster().prepareClusterStats()
+//        .get().getStatus();
+//      return status != null && status == ClusterHealthStatus.GREEN;
     } catch (Exception e) {
       return false;
     }
