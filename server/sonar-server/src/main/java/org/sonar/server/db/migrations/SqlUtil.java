@@ -50,18 +50,6 @@ public class SqlUtil {
   }
 
   @CheckForNull
-  public static Double getDouble(ResultSet rs, int columnIndex) throws SQLException {
-    double d = rs.getDouble(columnIndex);
-    return rs.wasNull() ? null : d;
-  }
-
-  @CheckForNull
-  public static Integer getInt(ResultSet rs, int columnIndex) throws SQLException {
-    int i = rs.getInt(columnIndex);
-    return rs.wasNull() ? null : i;
-  }
-
-  @CheckForNull
   public static Long getLong(ResultSet rs, String columnName) throws SQLException {
     long l = rs.getLong(columnName);
     return rs.wasNull() ? null : l;

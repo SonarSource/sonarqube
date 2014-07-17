@@ -22,69 +22,49 @@ package org.sonar.server.db.migrations.v44;
 
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.MassUpdater;
-import org.sonar.server.db.migrations.SqlUtil;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.Select;
+import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * SONAR-5218
  * Update all issues having action plan linked on removed action plan.
- *
+ * <p/>
  * Used in the Active Record Migration 531.
+ *
  * @since 4.4
  */
-public class IssueActionPlanKeyMigration implements DatabaseMigration {
+public class IssueActionPlanKeyMigration extends BaseDataChange {
 
   private final System2 system2;
-  private final Database db;
 
   public IssueActionPlanKeyMigration(Database database, System2 system2) {
-    this.db = database;
+    super(database);
     this.system2 = system2;
   }
 
   @Override
-  public void execute() {
-    new MassUpdater(db).execute(
-      new MassUpdater.InputLoader<Row>() {
-        @Override
-        public String selectSql() {
-          return "SELECT i.id FROM issues i " +
-            "LEFT OUTER JOIN action_plans ap ON ap.kee=i.action_plan_key " +
-            "WHERE i.action_plan_key IS NOT NULL " +
-            "AND ap.kee is null ";
-        }
+  public void execute(Context context) throws SQLException {
+    final Date now = new Date(system2.now());
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT i.id FROM issues i " +
+      "LEFT OUTER JOIN action_plans ap ON ap.kee=i.action_plan_key " +
+      "WHERE i.action_plan_key IS NOT NULL " +
+      "AND ap.kee is null");
+    massUpdate.update("UPDATE issues SET action_plan_key=NULL,updated_at=? WHERE id=?");
+    massUpdate.execute(new MassUpdate.Handler() {
+      @Override
+      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+        Long id = row.getLong(1);
 
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.id = SqlUtil.getLong(rs, 1);
-          return row;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-        @Override
-        public String updateSql() {
-          return "UPDATE issues SET action_plan_key=NULL,updated_at=? WHERE id=?";
-        }
-
-        @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setTimestamp(1, new Timestamp(system2.now()));
-          updateStatement.setLong(2, row.id);
-          return true;
-        }
+        update.setDate(1, now);
+        update.setLong(2, id);
+        return true;
       }
-      );
+    });
   }
-
-  private static class Row {
-    private Long id;
-  }
-
 }

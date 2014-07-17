@@ -23,68 +23,46 @@ package org.sonar.server.db.migrations.v43;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.MassUpdater;
-import org.sonar.server.db.migrations.SqlUtil;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.Select;
+import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * Used in the Active Record Migration 525
  *
  * @since 4.3
  */
-public class NotResolvedIssuesOnRemovedComponentsMigration implements DatabaseMigration {
+public class NotResolvedIssuesOnRemovedComponentsMigration extends BaseDataChange {
 
   private final System2 system2;
-  private final Database db;
 
   public NotResolvedIssuesOnRemovedComponentsMigration(Database database, System2 system2) {
-    this.db = database;
+    super(database);
     this.system2 = system2;
   }
 
   @Override
-  public void execute() {
-    new MassUpdater(db).execute(
-      new MassUpdater.InputLoader<Row>() {
-        @Override
-        public String selectSql() {
-          return "SELECT i.id FROM issues i " +
-            "INNER JOIN projects p on p.id=i.component_id " +
-            "WHERE p.enabled=${_false} AND i.resolution IS NULL ";
-        }
-
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.id = SqlUtil.getLong(rs, 1);
-          return row;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-        @Override
-        public String updateSql() {
-          return "UPDATE issues SET status=?,resolution=?,updated_at=? WHERE id=?";
-        }
-
-        @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setString(1, Issue.STATUS_CLOSED);
-          updateStatement.setString(2, Issue.RESOLUTION_REMOVED);
-          updateStatement.setTimestamp(3, new Timestamp(system2.now()));
-          updateStatement.setLong(4, row.id);
-          return true;
-        }
+  public void execute(Context context) throws SQLException {
+    final Date now = new Date(system2.now());
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT i.id FROM issues i " +
+      "INNER JOIN projects p on p.id=i.component_id " +
+      "WHERE p.enabled=? AND i.resolution IS NULL ").setBoolean(1, false);
+    massUpdate.update("UPDATE issues SET status=?,resolution=?,updated_at=? WHERE id=?");
+    massUpdate.execute(new MassUpdate.Handler() {
+      @Override
+      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+        Long id = row.getLong(1);
+        update.setString(1, Issue.STATUS_CLOSED);
+        update.setString(2, Issue.RESOLUTION_REMOVED);
+        update.setDate(3, now);
+        update.setLong(4, id);
+        return true;
       }
-      );
+    });
   }
-
-  private static class Row {
-    private Long id;
-  }
-
 }

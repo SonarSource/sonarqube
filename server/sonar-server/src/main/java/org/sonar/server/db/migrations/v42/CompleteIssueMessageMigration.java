@@ -20,12 +20,11 @@
 package org.sonar.server.db.migrations.v42;
 
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.MassUpdater;
-import org.sonar.server.db.migrations.SqlUtil;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.Select;
+import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -33,49 +32,27 @@ import java.sql.SQLException;
  *
  * @since 4.2
  */
-public class CompleteIssueMessageMigration implements DatabaseMigration {
-
-  private final Database db;
+public class CompleteIssueMessageMigration extends BaseDataChange {
 
   public CompleteIssueMessageMigration(Database database) {
-    this.db = database;
+    super(database);
   }
 
   @Override
-  public void execute() {
-    new MassUpdater(db).execute(
-      new MassUpdater.InputLoader<Row>() {
-        @Override
-        public String selectSql() {
-          return "SELECT i.id, r.name FROM issues i INNER JOIN rules r ON r.id=i.rule_id WHERE i.message IS NULL";
-        }
+  public void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT i.id, r.name FROM issues i INNER JOIN rules r ON r.id=i.rule_id WHERE i.message IS NULL");
+    massUpdate.update("UPDATE issues SET message=? WHERE id=?");
+    massUpdate.execute(new MassUpdate.Handler() {
+      @Override
+      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+        Long issueId = row.getLong(1);
+        String ruleName = row.getString(2);
 
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.issueId = SqlUtil.getLong(rs, 1);
-          row.ruleName = rs.getString(2);
-          return row;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-        @Override
-        public String updateSql() {
-          return "UPDATE issues SET message=? WHERE id=?";
-        }
-
-        @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setString(1, row.ruleName);
-          updateStatement.setLong(2, row.issueId);
-          return true;
-        }
+        update.setString(1, ruleName);
+        update.setLong(2, issueId);
+        return true;
       }
-    );
-  }
-
-  private static class Row {
-    private Long issueId;
-    private String ruleName;
+    });
   }
 }

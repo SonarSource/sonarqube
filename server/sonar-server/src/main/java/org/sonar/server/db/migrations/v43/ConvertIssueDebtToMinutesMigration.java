@@ -20,86 +20,60 @@
 
 package org.sonar.server.db.migrations.v43;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.properties.PropertiesDao;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.MassUpdater;
-import org.sonar.server.db.migrations.SqlUtil;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.Select;
+import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.util.Date;
 
 /**
- * Used in the Active Record Migration 513
+ * Used in the Active Record Migration 513.
+ * WARNING - this migration is not re-entrant.
+ *
  * @since 4.3
  */
-public class ConvertIssueDebtToMinutesMigration implements DatabaseMigration {
+public class ConvertIssueDebtToMinutesMigration extends BaseDataChange {
 
   private final WorkDurationConvertor workDurationConvertor;
   private final System2 system2;
-  private final Database db;
 
-  public ConvertIssueDebtToMinutesMigration(Database database, PropertiesDao propertiesDao) {
-    this(database, propertiesDao, System2.INSTANCE);
-  }
-
-  @VisibleForTesting
-  ConvertIssueDebtToMinutesMigration(Database database, PropertiesDao propertiesDao, System2 system2) {
-    this.db = database;
+  public ConvertIssueDebtToMinutesMigration(Database database, PropertiesDao propertiesDao, System2 system2) {
+    super(database);
     this.workDurationConvertor = new WorkDurationConvertor(propertiesDao);
     this.system2 = system2;
   }
 
   @Override
-  public void execute() {
+  public void execute(Context context) throws SQLException {
     workDurationConvertor.init();
+    final Date now = new Date(system2.now());
+    MassUpdate massUpdate = context.prepareMassUpdate();
 
-    new MassUpdater(db).execute(
-      new MassUpdater.InputLoader<Row>() {
-        @Override
-        public String selectSql() {
-          return "SELECT i.id, i.technical_debt FROM issues i";
-        }
+    // See https://jira.codehaus.org/browse/SONAR-5394
+    // The SQL request should not set the filter on technical_debt is not null. There's no index
+    // on this column, so filtering is done programmatically.
+    massUpdate.select("select id, technical_debt from issues");
 
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Long debt = SqlUtil.getLong(rs, 2);
-          if (!rs.wasNull() && debt != null) {
-            // See https://jira.codehaus.org/browse/SONAR-5394
-            // The SQL request should not set the filter on technical_debt is not null. There's no index
-            // on this column, so filtering is done programmatically.
-            Row row = new Row();
-            row.id = SqlUtil.getLong(rs, 1);
-            row.debt = debt;
-            return row;
-          }
-          return null;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-        @Override
-        public String updateSql() {
-          return "UPDATE issues SET technical_debt=?,updated_at=? WHERE id=?";
-        }
-
-        @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setLong(1, workDurationConvertor.createFromLong(row.debt));
-          updateStatement.setTimestamp(2, new Timestamp(system2.now()));
-          updateStatement.setLong(3, row.id);
+    massUpdate.update("update issues set technical_debt=?, updated_at=? where id=?");
+    massUpdate.execute(new MassUpdate.Handler() {
+      @Override
+      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+        Long debt = row.getLong(2);
+        if (debt != null) {
+          Long id = row.getLong(1);
+          update.setLong(1, workDurationConvertor.createFromLong(debt));
+          update.setDate(2, now);
+          update.setLong(3, id);
           return true;
         }
+        return false;
       }
-    );
-  }
-
-  private static class Row {
-    private Long id;
-    private Long debt;
+    });
   }
 
 }

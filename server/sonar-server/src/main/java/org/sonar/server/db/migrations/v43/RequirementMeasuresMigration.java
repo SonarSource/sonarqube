@@ -21,12 +21,11 @@
 package org.sonar.server.db.migrations.v43;
 
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.MassUpdater;
-import org.sonar.server.db.migrations.SqlUtil;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.Select;
+import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -34,52 +33,29 @@ import java.sql.SQLException;
  *
  * @since 4.3
  */
-public class RequirementMeasuresMigration implements DatabaseMigration {
-
-  private final Database db;
+public class RequirementMeasuresMigration extends BaseDataChange {
 
   public RequirementMeasuresMigration(Database database) {
-    this.db = database;
+    super(database);
   }
 
   @Override
-  public void execute() {
-    new MassUpdater(db).execute(
-      new MassUpdater.InputLoader<Row>() {
-        @Override
-        public String selectSql() {
-          return "SELECT project_measures.id,characteristics.rule_id FROM project_measures " +
-            "INNER JOIN characteristics ON characteristics.id = project_measures.characteristic_id " +
-            "WHERE characteristics.rule_id IS NOT NULL";
-        }
+  public void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT project_measures.id,characteristics.rule_id FROM project_measures " +
+      "INNER JOIN characteristics ON characteristics.id = project_measures.characteristic_id " +
+      "WHERE characteristics.rule_id IS NOT NULL");
+    massUpdate.update("UPDATE project_measures SET characteristic_id=null,rule_id=? WHERE id=?");
+    massUpdate.execute(new MassUpdate.Handler() {
+      @Override
+      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+        Long id = row.getLong(1);
+        Long ruleId = row.getLong(2);
 
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.id = SqlUtil.getLong(rs, 1);
-          row.ruleId = SqlUtil.getInt(rs, 2);
-          return row;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-        @Override
-        public String updateSql() {
-          return "UPDATE project_measures SET characteristic_id=null,rule_id=? WHERE id=?";
-        }
-
-        @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setInt(1, row.ruleId);
-          updateStatement.setLong(2, row.id);
-          return true;
-        }
+        update.setLong(1, ruleId);
+        update.setLong(2, id);
+        return true;
       }
-    );
+    });
   }
-
-  private static class Row {
-    private Long id;
-    private Integer ruleId;
-  }
-
 }

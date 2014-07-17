@@ -20,110 +20,85 @@
 
 package org.sonar.server.db.migrations.v43;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.properties.PropertiesDao;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.MassUpdater;
-import org.sonar.server.db.migrations.SqlUtil;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.Select;
+import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.sql.SQLException;
-import java.sql.Types;
+import java.util.List;
 
 /**
  * Used in the Active Record Migration 515
+ *
  * @since 4.3
  */
-public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
-
-  private static final String SELECT_SQL = "SELECT pm.id, pm.value " +
-    ", pm.variation_value_1 , pm.variation_value_2, pm.variation_value_3 " +
-    ", pm.variation_value_4 , pm.variation_value_5 " +
-    " FROM project_measures pm INNER JOIN metrics m on m.id=pm.metric_id " +
-    " WHERE (m.name='sqale_index' or m.name='new_technical_debt' " +
-    // SQALE measures
-    " or m.name='sqale_effort_to_grade_a' or m.name='sqale_effort_to_grade_b' or m.name='sqale_effort_to_grade_c' or m.name='sqale_effort_to_grade_d' " +
-    " or m.name='blocker_remediation_cost' or m.name='critical_remediation_cost' or m.name='major_remediation_cost' or m.name='minor_remediation_cost' " +
-    " or m.name='info_remediation_cost' " +
-    ")";
-
-  private static final String UPDATE_SQL = "UPDATE project_measures SET value=?," +
-    "variation_value_1=?,variation_value_2=?,variation_value_3=?,variation_value_4=?,variation_value_5=? WHERE id=?";
+public class TechnicalDebtMeasuresMigration extends BaseDataChange {
 
   private final WorkDurationConvertor workDurationConvertor;
-  private final Database db;
 
   public TechnicalDebtMeasuresMigration(Database database, PropertiesDao propertiesDao) {
-    this.db = database;
+    super(database);
     this.workDurationConvertor = new WorkDurationConvertor(propertiesDao);
   }
 
   @Override
-  public void execute() {
+  public void execute(Context context) throws SQLException {
     workDurationConvertor.init();
 
-    new MassUpdater(db).execute(
-      new MassUpdater.InputLoader<Row>() {
-        @Override
-        public String selectSql() {
-          return SELECT_SQL;
-        }
+    List<Long> metricIds = context.prepareSelect("select id from metrics " +
+      "where name='sqale_index' or name='new_technical_debt' " +
+      "or name='sqale_effort_to_grade_a' or name='sqale_effort_to_grade_b' or name='sqale_effort_to_grade_c' " +
+      "or name='sqale_effort_to_grade_d' or name='blocker_remediation_cost' or name='critical_remediation_cost' " +
+      "or name='major_remediation_cost' or name='minor_remediation_cost' or name='info_remediation_cost'").list(Select.RowReader.LONG);
 
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.id = SqlUtil.getLong(rs, 1);
-          row.value = SqlUtil.getDouble(rs, 2);
-          row.var1 = SqlUtil.getDouble(rs, 3);
-          row.var2 = SqlUtil.getDouble(rs, 4);
-          row.var3 = SqlUtil.getDouble(rs, 5);
-          row.var4 = SqlUtil.getDouble(rs, 6);
-          row.var5 = SqlUtil.getDouble(rs, 7);
-          return row;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-        @Override
-        public String updateSql() {
-          return UPDATE_SQL;
-        }
+    if (!metricIds.isEmpty()) {
+      MassUpdate massUpdate = context.prepareMassUpdate();
 
+      SqlStatement select = massUpdate.select("SELECT pm.id, pm.value " +
+        ", pm.variation_value_1 , pm.variation_value_2, pm.variation_value_3 " +
+        ", pm.variation_value_4 , pm.variation_value_5 " +
+        " FROM project_measures pm " +
+        " WHERE pm.metric_id IN (" + StringUtils.repeat("?", ",", metricIds.size()) + ")");
+      for (int i = 0; i < metricIds.size(); i++) {
+        select.setLong(i + 1, metricIds.get(i));
+      }
+      massUpdate.update("UPDATE project_measures SET value=?," +
+        "variation_value_1=?,variation_value_2=?,variation_value_3=?,variation_value_4=?,variation_value_5=? WHERE id=?");
+      massUpdate.execute(new MassUpdate.Handler() {
         @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          setDouble(updateStatement, 1, row.value);
-          setDouble(updateStatement, 2, row.var1);
-          setDouble(updateStatement, 3, row.var2);
-          setDouble(updateStatement, 4, row.var3);
-          setDouble(updateStatement, 5, row.var4);
-          setDouble(updateStatement, 6, row.var5);
-          updateStatement.setLong(7, row.id);
+        public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+          Long id = row.getLong(1);
+          Double value = row.getDouble(2);
+          Double var1 = row.getDouble(3);
+          Double var2 = row.getDouble(4);
+          Double var3 = row.getDouble(5);
+          Double var4 = row.getDouble(6);
+          Double var5 = row.getDouble(7);
+
+          update.setLong(1, convertDebtForDays(value));
+          update.setLong(2, convertDebtForDays(var1));
+          update.setLong(3, convertDebtForDays(var2));
+          update.setLong(4, convertDebtForDays(var3));
+          update.setLong(5, convertDebtForDays(var4));
+          update.setLong(6, convertDebtForDays(var5));
+          update.setLong(7, id);
           return true;
         }
-      }
-    );
-  }
-
-  private void setDouble(PreparedStatement statement, int index, Double value) throws SQLException {
-    if (value != null) {
-      statement.setDouble(index, convertDebtForDays(value));
-    } else {
-      statement.setNull(index, Types.DOUBLE);
+      });
     }
   }
 
-  private Long convertDebtForDays(Double data) {
-    return workDurationConvertor.createFromDays(data);
+  @CheckForNull
+  private Long convertDebtForDays(@Nullable Double data) {
+    if (data != null) {
+      return workDurationConvertor.createFromDays(data);
+    }
+    return null;
   }
-
-  private static class Row {
-    private Long id;
-    private Double value;
-    private Double var1;
-    private Double var2;
-    private Double var3;
-    private Double var4;
-    private Double var5;
-  }
-
 }

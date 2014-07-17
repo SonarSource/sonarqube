@@ -22,75 +22,53 @@ package org.sonar.server.db.migrations.v43;
 
 import org.sonar.core.persistence.Database;
 import org.sonar.core.properties.PropertiesDao;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.MassUpdater;
-import org.sonar.server.db.migrations.SqlUtil;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.Select;
+import org.sonar.server.db.migrations.SqlStatement;
 
 import javax.annotation.CheckForNull;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
  * Used in the Active Record Migration 516
+ *
  * @since 4.3
  */
-public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
+public class DevelopmentCostMeasuresMigration extends BaseDataChange {
 
   private final WorkDurationConvertor workDurationConvertor;
-  private final Database db;
 
   public DevelopmentCostMeasuresMigration(Database database, PropertiesDao propertiesDao) {
-    this.db = database;
+    super(database);
     this.workDurationConvertor = new WorkDurationConvertor(propertiesDao);
   }
 
   @Override
-  public void execute() {
+  public void execute(Context context) throws SQLException {
     workDurationConvertor.init();
 
-    new MassUpdater(db).execute(
-      new MassUpdater.InputLoader<Row>() {
+    Long metricId = context.prepareSelect("select id from metrics where name='development_cost'").get(Select.RowReader.LONG);
+    if (metricId != null) {
+      MassUpdate massUpdate = context.prepareMassUpdate();
+      massUpdate.select("select id, value from project_measures where metric_id=? and value is not null").setLong(1, metricId);
+      massUpdate.update("update project_measures set value=NULL,text_value=? where id=?");
+      massUpdate.execute(new MassUpdate.Handler() {
         @Override
-        public String selectSql() {
-          return "SELECT pm.id, pm.value " +
-            " FROM project_measures pm INNER JOIN metrics m on m.id=pm.metric_id " +
-            " WHERE m.name='development_cost' AND pm.value IS NOT NULL";
-        }
+        public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+          Long id = row.getLong(1);
+          Double value = row.getDouble(2);
 
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.id = SqlUtil.getLong(rs, 1);
-          row.value = SqlUtil.getDouble(rs, 2);
-          return row;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-        @Override
-        public String updateSql() {
-          return "UPDATE project_measures SET value=NULL,text_value=? WHERE id=?";
-        }
-
-        @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setString(1, convertDebtForDays(row.value));
-          updateStatement.setLong(2, row.id);
+          update.setString(1, convertDebtForDays(value));
+          update.setLong(2, id);
           return true;
         }
-      }
-    );
+      });
+    }
   }
 
   @CheckForNull
   private String convertDebtForDays(Double data) {
     return Long.toString(workDurationConvertor.createFromDays(data));
   }
-
-  private static class Row {
-    private Long id;
-    private Double value;
-  }
-
 }

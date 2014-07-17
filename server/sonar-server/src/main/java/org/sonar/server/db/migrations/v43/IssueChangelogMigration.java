@@ -25,26 +25,25 @@ import com.google.common.base.Strings;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.properties.PropertiesDao;
-import org.sonar.server.db.migrations.DatabaseMigration;
-import org.sonar.server.db.migrations.MassUpdater;
-import org.sonar.server.db.migrations.SqlUtil;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.Select;
+import org.sonar.server.db.migrations.SqlStatement;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Used in the Active Record Migration 514
+ *
  * @since 4.3
  */
-public class IssueChangelogMigration implements DatabaseMigration {
+public class IssueChangelogMigration extends BaseDataChange {
 
   private final WorkDurationConvertor workDurationConvertor;
   private final System2 system2;
-  private final Database db;
 
   public IssueChangelogMigration(Database database, System2 system2, PropertiesDao propertiesDao) {
     this(database, system2, new WorkDurationConvertor(propertiesDao));
@@ -52,46 +51,31 @@ public class IssueChangelogMigration implements DatabaseMigration {
 
   @VisibleForTesting
   IssueChangelogMigration(Database database, System2 system2, WorkDurationConvertor convertor) {
-    this.db = database;
+    super(database);
     this.workDurationConvertor = convertor;
     this.system2 = system2;
   }
 
   @Override
-  public void execute() {
+  public void execute(Context context) throws SQLException {
     workDurationConvertor.init();
+    final Date now = new Date(system2.now());
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT ic.id, ic.change_data  FROM issue_changes ic " +
+      "WHERE ic.change_type = 'diff' AND ic.change_data LIKE '%technicalDebt%'");
+    massUpdate.update("UPDATE issue_changes SET change_data=?,updated_at=? WHERE id=?");
+    massUpdate.execute(new MassUpdate.Handler() {
+      @Override
+      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+        Long id = row.getLong(1);
+        String changeData = row.getString(2);
 
-    new MassUpdater(db).execute(
-      new MassUpdater.InputLoader<Row>() {
-        @Override
-        public String selectSql() {
-          return "SELECT ic.id, ic.change_data  FROM issue_changes ic " +
-            " WHERE ic.change_type = 'diff' AND ic.change_data LIKE '%technicalDebt%'";
-        }
-
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.id = SqlUtil.getLong(rs, 1);
-          row.changeData = rs.getString(2);
-          return row;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-        @Override
-        public String updateSql() {
-          return "UPDATE issue_changes SET change_data=?,updated_at=? WHERE id=?";
-        }
-
-        @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setString(1, convertChangelog(row.changeData));
-          updateStatement.setTimestamp(2, new Timestamp(system2.now()));
-          updateStatement.setLong(3, row.id);
-          return true;
-        }
+        update.setString(1, convertChangelog(changeData));
+        update.setDate(2, now);
+        update.setLong(3, id);
+        return true;
       }
-    );
+    });
   }
 
   @VisibleForTesting
