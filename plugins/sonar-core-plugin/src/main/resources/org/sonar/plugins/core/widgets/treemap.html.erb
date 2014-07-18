@@ -22,10 +22,9 @@
     <%
       filter = MeasureFilter.new
       filter.set_criteria_value(:base, @resource.key)
-      filter.set_criteria_value(:display, 'treemap')
-      filter.set_criteria_value(:tmSize, sizeMetric.key) if sizeMetric
-      filter.set_criteria_value(:tmColor, colorMetric.key) if colorMetric
-      filter.set_criteria_value(:tmHeight, widget_properties['heightInPercents'])
+      filter.set_criteria_value(:pageSize, 100)
+      filter.set_criteria_value(:page, 1)
+      filter.metrics=([sizeMetric, colorMetric].compact)
       filter.execute(self, :user => current_user)
     %>
 

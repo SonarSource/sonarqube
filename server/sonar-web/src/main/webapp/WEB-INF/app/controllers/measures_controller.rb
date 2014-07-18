@@ -242,7 +242,6 @@ class MeasuresController < ApplicationController
 
     filter = find_filter(params[:filter])
     filter.load_criteria_from_data
-    params[:display] = 'none'
     filter.override_criteria(criteria_params)
     filter.metrics= params[:metrics].split(',') if metrics
     filter.require_links= display_links

@@ -19,16 +19,10 @@
 #
 class MeasureFilterDisplay
 
-  DISPLAY_CLASSES = [MeasureFilterDisplayList]
-
   def self.create(filter, options)
-    key = filter.criteria('display')
-    display_class=DISPLAY_CLASSES.find{|display_class| display_class::KEY==key.to_sym} if key
-    display_class.new(filter, options) if display_class
-  end
-
-  def self.keys
-    DISPLAY_CLASSES.map{|display_class| display_class::KEY}
+    # Do not init a MeasureFilterDisplayList when we want to completely control the render (column to return, pagination, etc.) of the filter
+    # For instance, the /measures/search_filter manage by itself the column and the pagination
+    MeasureFilterDisplayList.new(filter, options) if filter.criteria('display') == 'list'
   end
 
   def key
