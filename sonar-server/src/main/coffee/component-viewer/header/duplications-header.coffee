@@ -17,4 +17,6 @@ define [
       'click .js-filter-duplications': 'filterByDuplications'
 
 
-    filterByDuplications: (e) -> @header.filterLines e, 'filterByDuplications'
+    filterByDuplications: (e) ->
+      @header.filterLines e, 'filterByDuplications'
+      @state.set 'activeHeaderItem', '.js-filter-duplications'
