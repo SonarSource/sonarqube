@@ -35,14 +35,10 @@
     </encoder>
   </appender>
 
-  <logger name="console" additivity="false">
-    <level value="INFO"/>
-    <appender-ref ref="CONSOLE"/>
-  </logger>
-
   <root>
-    <level value="INFO"/>
-    <appender-ref ref="CONSOLE"/>
+    <level value="TRACE"/>
+    <appender-ref ref="LOGFILE"/>
+    <appender-ref ref="CONSOLE" />
   </root>
 
 </configuration>

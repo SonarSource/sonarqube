@@ -23,7 +23,7 @@ public interface ProcessMXBean {
 
   boolean isReady();
 
-  void ping();
+  long ping();
 
-  void stop();
+  void terminate();
 }

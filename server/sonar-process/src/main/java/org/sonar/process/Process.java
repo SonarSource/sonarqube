@@ -54,6 +54,7 @@ public abstract class Process implements ProcessMXBean {
   final Integer port;
 
   final protected Props props;
+  final private Thread shutdownHook;
 
   private static final long MAX_ALLOWED_TIME = 3000L;
   private ScheduledFuture<?> pingTask = null;
@@ -61,16 +62,16 @@ public abstract class Process implements ProcessMXBean {
   final Runnable breakOnMissingPing = new Runnable() {
     public void run() {
       long time = System.currentTimeMillis();
-      LOGGER.info("last check-in was {}ms ago.", time - lastPing);
+      LOGGER.debug("last check-in was {}ms ago.", time - lastPing);
       if (time - lastPing > MAX_ALLOWED_TIME) {
         LOGGER.warn("Did not get a check-in since {}ms. Initiate shutdown", time - lastPing);
-        stop();
+        Runtime.getRuntime().removeShutdownHook(shutdownHook);
+        shutdown();
       }
     }
   };
 
   public Process(Props props) {
-
   
     validateSonarHome(props);
     
@@ -96,12 +97,13 @@ public abstract class Process implements ProcessMXBean {
       throw new IllegalStateException("Process is not a compliant MBean", e);
     }
 
-    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+    shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
-        Process.this.stop();
+        Process.this.shutdown();
       }
-    }));
+    });
+    Runtime.getRuntime().addShutdownHook(shutdownHook);
   }
 
   public ObjectName getObjectName() {
@@ -116,32 +118,45 @@ public abstract class Process implements ProcessMXBean {
     }
   }
 
-  public void ping() {
+  public long ping() {
     this.lastPing = System.currentTimeMillis();
+    return lastPing;
   }
 
   public abstract void onStart();
 
-  public abstract void onStop();
+  public abstract void onTerminate();
 
   public final void start() {
-    LOGGER.info("Process[{}]::start START", name);
+    LOGGER.trace("Process[{}]::start() START", name);
     if (this.port != null) {
       lastPing = System.currentTimeMillis();
       pingTask = monitor.scheduleWithFixedDelay(breakOnMissingPing, 5, 5, TimeUnit.SECONDS);
     }
     this.onStart();
-    LOGGER.info("Process[{}]::start END", name);
+    LOGGER.trace("Process[{}]::start() END", name);
   }
 
-  public final void stop() {
-    LOGGER.info("Process[{}]::shutdown START", name);
+  public final void terminate() {
+    LOGGER.trace("Process[{}]::stop() START", name);
+    Runtime.getRuntime().removeShutdownHook(shutdownHook);
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        shutdown();
+      }
+    }).start();
+    LOGGER.trace("Process[{}]::stop() END", name);
+  }
+
+  private void shutdown(){
+    LOGGER.trace("Process[{}]::shutdown() START", name);
+    this.onTerminate();
     if (pingTask != null) {
       pingTask.cancel(true);
     }
     monitor.shutdownNow();
-    this.onStop();
-    LOGGER.info("Process[{}]::shutdown END", name);
+    LOGGER.trace("Process[{}]::shutdown() END", name);
   }
 
   private void validateSonarHome(Props props) {

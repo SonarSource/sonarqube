@@ -144,7 +144,7 @@ public class ElasticSearchTest {
 
 
     // 2 assert that we can shut down ES
-    elasticSearch.stop();
+    elasticSearch.terminate();
     try {
       client.admin().cluster().prepareClusterStats().get().getStatus();
       fail();

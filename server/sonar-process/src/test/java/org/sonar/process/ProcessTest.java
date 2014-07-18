@@ -126,7 +126,7 @@ public class ProcessTest {
     assertThat(processMXBean.isReady()).isTrue();
 
     // 2. Stop the process through Management
-    processMXBean.stop();
+    processMXBean.terminate();
     procThread.join();
   }
 
@@ -164,7 +164,7 @@ public class ProcessTest {
     }
 
     @Override
-    public void onStop() {
+    public void onTerminate() {
       running = false;
     }
 

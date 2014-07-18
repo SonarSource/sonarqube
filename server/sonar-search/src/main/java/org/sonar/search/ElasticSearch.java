@@ -110,9 +110,6 @@ public class ElasticSearch extends Process {
         .setTimeout(TimeValue.timeValueSeconds(3L))
         .get()
         .getStatus() != ClusterHealthStatus.RED);
-//      ClusterHealthStatus status = node.client().admin().cluster().prepareClusterStats()
-//        .get().getStatus();
-//      return status != null && status == ClusterHealthStatus.GREEN;
     } catch (Exception e) {
       return false;
     }
@@ -130,8 +127,8 @@ public class ElasticSearch extends Process {
     }
   }
 
-  public void onStop() {
-    if (node != null) {
+  public void onTerminate() {
+    if (node != null && !node.isClosed()) {
       node.close();
     }
   }
