@@ -36,6 +36,7 @@ define [
       @options.main.state.unset 'activeHeaderItem'
       @options.main._open key
       @options.main.on 'loaded', =>
+        @options.main.off 'loaded'
         @options.main.headerView.enableBar('tests').done =>
           if method?
             @options.main.headerView.enableUnitTest method
