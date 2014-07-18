@@ -161,6 +161,7 @@ define(
                 componentViewer.settings.set('issues', false);
                 componentViewer.open(that.model.get('component'));
                 componentViewer.on('loaded', function() {
+                  componentViewer.off('loaded');
                   componentViewer.showIssues(false, that.model.toJSON());
                 });
               };
