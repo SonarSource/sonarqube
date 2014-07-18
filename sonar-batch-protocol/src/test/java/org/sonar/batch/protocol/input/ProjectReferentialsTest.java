@@ -34,7 +34,7 @@ public class ProjectReferentialsTest {
   @Test
   public void testToJson() throws Exception {
     ProjectReferentials ref = new ProjectReferentials();
-    ref.metrics().add(new Metric("ncloc", "INT"));
+    ref.metrics().add(new Metric(1, "ncloc", "INT"));
     ref.addQProfile(new QProfile("squid-java", "Java", "java", new SimpleDateFormat("dd/MM/yyyy").parse("14/03/1984")));
     ref.addSettings("foo", new HashMap<String, String>());
     ref.settings("foo").put("prop", "value");
@@ -44,7 +44,7 @@ public class ProjectReferentialsTest {
     System.out.println(ref.toJson());
     JSONAssert
       .assertEquals(
-        "{timestamp:10,metrics:[{key:ncloc,valueType:INT}],"
+        "{timestamp:10,metrics:[{id:1,key:ncloc,valueType:INT}],"
           + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
           + "activeRules:[{repositoryKey:repo,ruleKey:rule,severity:MAJOR,internalKey:rule,language:java,params:{}}],"
           + "settingsByModule:{foo:{prop:value}}}",
@@ -53,13 +53,14 @@ public class ProjectReferentialsTest {
 
   @Test
   public void testFromJson() throws JSONException {
-    ProjectReferentials ref = ProjectReferentials.fromJson(new StringReader("{timestamp:1,metrics:[{key:ncloc,valueType:DATA}],"
+    ProjectReferentials ref = ProjectReferentials.fromJson(new StringReader("{timestamp:1,metrics:[{id:1,key:ncloc,valueType:DATA}],"
       + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
       + "activeRules:[{repositoryKey:repo,ruleKey:rule,severity:MAJOR,internalKey:rule,language:java,params:{}}],"
       + "settingsByModule:{foo:{prop:value}}}"));
 
     assertThat(ref.timestamp()).isEqualTo(1);
     Metric metric = ref.metrics().iterator().next();
+    assertThat(metric.id()).isEqualTo(1);
     assertThat(metric.key()).isEqualTo("ncloc");
     assertThat(metric.valueType()).isEqualTo("DATA");
 

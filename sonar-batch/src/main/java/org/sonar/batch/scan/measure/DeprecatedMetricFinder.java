@@ -33,16 +33,18 @@ import java.util.Map;
 public final class DeprecatedMetricFinder implements MetricFinder {
 
   private Map<String, Metric> metricsByKey = Maps.newLinkedHashMap();
+  private Map<Integer, Metric> metricsById = Maps.newLinkedHashMap();
 
   public DeprecatedMetricFinder(ProjectReferentials projectReferentials) {
     for (org.sonar.batch.protocol.input.Metric metric : projectReferentials.metrics()) {
-      metricsByKey.put(metric.key(), new org.sonar.api.measures.Metric.Builder(metric.key(), metric.key(), ValueType.valueOf(metric.valueType())).create());
+      metricsByKey.put(metric.key(), new org.sonar.api.measures.Metric.Builder(metric.key(), metric.key(), ValueType.valueOf(metric.valueType())).create().setId(metric.id()));
+      metricsById.put(metric.id(), new org.sonar.api.measures.Metric.Builder(metric.key(), metric.key(), ValueType.valueOf(metric.valueType())).create().setId(metric.id()));
     }
   }
 
   @Override
   public Metric findById(int metricId) {
-    throw new UnsupportedOperationException("Metric id is not available on batch side");
+    return metricsById.get(metricId);
   }
 
   @Override

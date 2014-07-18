@@ -21,13 +21,20 @@ package org.sonar.batch.protocol.input;
 
 public class Metric {
 
+  private final int id;
+
   private final String key;
 
   private final String valueType;
 
-  public Metric(String key, String valueType) {
+  public Metric(int id, String key, String valueType) {
+    this.id = id;
     this.key = key;
     this.valueType = valueType;
+  }
+
+  public int id() {
+    return id;
   }
 
   public String key() {
