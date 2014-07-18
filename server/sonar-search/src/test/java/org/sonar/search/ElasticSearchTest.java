@@ -84,6 +84,7 @@ public class ElasticSearchTest {
   public void missing_properties() throws IOException, MBeanRegistrationException, InstanceNotFoundException {
 
     Properties properties = new Properties();
+    properties.setProperty(Process.SONAR_HOME, FileUtils.getTempDirectoryPath());
     properties.setProperty(Process.NAME_PROPERTY, "ES");
     properties.setProperty(Process.PORT_PROPERTY, Integer.toString(freePort));
 
@@ -111,6 +112,7 @@ public class ElasticSearchTest {
   public void can_connect() throws SocketException {
 
     Properties properties = new Properties();
+    properties.setProperty(Process.SONAR_HOME, FileUtils.getTempDirectoryPath());
     properties.setProperty(Process.NAME_PROPERTY, "ES");
     properties.setProperty(ElasticSearch.ES_HOME_PROPERTY, tempDirectory.getAbsolutePath());
     properties.setProperty(ElasticSearch.ES_PORT_PROPERTY, Integer.toString(freeESPort));
@@ -144,7 +146,7 @@ public class ElasticSearchTest {
 
 
     // 2 assert that we can shut down ES
-    elasticSearch.terminate();
+    elasticSearch.terminate(true);
     try {
       client.admin().cluster().prepareClusterStats().get().getStatus();
       fail();

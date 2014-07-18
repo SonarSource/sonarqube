@@ -140,16 +140,28 @@ public abstract class Process implements ProcessMXBean {
     LOGGER.trace("Process[{}]::start() END", name);
   }
 
-  public final void terminate() {
+  public final void terminate(boolean waitForTermination) {
     LOGGER.trace("Process[{}]::stop() START", name);
     Runtime.getRuntime().removeShutdownHook(shutdownHook);
-    new Thread(new Runnable() {
+    Thread terminating = new Thread(new Runnable() {
       @Override
       public void run() {
         shutdown();
       }
-    }).start();
+    });
+    terminating.start();
+    if (waitForTermination) {
+      try {
+        terminating.join();
+      } catch (InterruptedException e) {
+        throw new IllegalStateException("Could not terminate process", e);
+      }
+    }
     LOGGER.trace("Process[{}]::stop() END", name);
+  }
+
+  public final void terminate() {
+    terminate(false);
   }
 
   private void shutdown(){
