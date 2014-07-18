@@ -60,6 +60,7 @@ public class ESNode implements Startable {
 
   // available only after startup
   private Client client;
+  private Node node;
 
   public ESNode(ServerFileSystem fileSystem, Settings settings) {
     this(fileSystem, settings, DEFAULT_HEALTH_TIMEOUT);
@@ -107,7 +108,7 @@ public class ESNode implements Startable {
       initRestConsole(esSettings);
       initNetwork(esSettings);
 
-      Node node = NodeBuilder.nodeBuilder()
+      node = NodeBuilder.nodeBuilder()
         .settings(esSettings)
         .node();
       node.start();
@@ -257,6 +258,10 @@ public class ESNode implements Startable {
     if (client != null) {
       client.close();
       client = null;
+    }
+    if (node != null) {
+      node.close();
+      node = null;
     }
   }
 
