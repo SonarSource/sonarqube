@@ -8,7 +8,7 @@
 
 <div class="component-viewer-header-expanded-bar-section">
   <div class="component-viewer-header-expanded-bar-section-title">
-    {{#if hasIssues}}{{t 'component_viewer.measure_section.resolutions'}}{{else}}{{t 'component_viewer.no_issues'}}{{/if}}
+    {{#if hasIssues}}{{t 'component_viewer.measure_section.filters'}}{{else}}{{t 'component_viewer.no_issues'}}{{/if}}
   </div>
   <ul class="component-viewer-header-expanded-bar-section-list">
     {{#if currentIssue}}
@@ -20,6 +20,12 @@
     {{#unless state.removed}}
       <li><a class="item js-filter-unresolved-issues">
         <span>{{t 'component_viewer.issues.unresolved_issues'}}</span>
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{/unless}}
+    {{#unless state.removed}}
+      <li><a class="item js-filter-open-issues">
+        <span>{{t 'component_viewer.issues.open_issues'}}</span>
         <i class="icon-chevron-right"></i>
       </a></li>
     {{/unless}}

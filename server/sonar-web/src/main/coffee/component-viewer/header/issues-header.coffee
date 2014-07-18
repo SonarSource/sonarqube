@@ -27,6 +27,7 @@ define [
       'click .js-filter-fixed-issues': 'filterByFixedIssues'
       'click .js-filter-unresolved-issues': 'filterByUnresolvedIssues'
       'click .js-filter-false-positive-issues': 'filterByFalsePositiveIssues'
+      'click .js-filter-open-issues': 'filterByOpenIssues'
       'click .js-filter-BLOCKER-issues': 'filterByBlockerIssues'
       'click .js-filter-CRITICAL-issues': 'filterByCriticalIssues'
       'click .js-filter-MAJOR-issues': 'filterByMajorIssues'
@@ -84,6 +85,11 @@ define [
     filterByFalsePositiveIssues: (e) ->
       @header.filterLines e, 'filterByFalsePositiveIssues'
       @state.set 'activeHeaderItem', '.js-filter-false-positive-issues'
+
+
+    filterByOpenIssues: (e) ->
+      @header.filterLines e, 'filterByOpenIssues'
+      @state.set 'activeHeaderItem', '.js-filter-open-issues'
 
 
     filterByRule: (e) ->

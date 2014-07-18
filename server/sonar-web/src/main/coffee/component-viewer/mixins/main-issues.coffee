@@ -119,6 +119,9 @@ define [
     # False Positive
     filterByFalsePositiveIssues: -> @filterByIssues (issue) -> issue.resolution == 'FALSE-POSITIVE'
 
+    # Open/Reopened Issues
+    filterByOpenIssues: -> @filterByIssues (issue) -> issue.status == 'OPEN' || issue.status == 'REOPENED'
+
     # Rule
     filterByRule: (rule) -> @filterByIssues (issue) -> issue.rule == rule && !issue.resolution
 
