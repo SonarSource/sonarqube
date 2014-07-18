@@ -37,6 +37,10 @@ class Env {
     this.confFile = new File(CONF_DIRECTORY+"/sonar.properties");
   }
 
+  public File getConfFile() {
+    return confFile;
+  }
+
   File rootDir() {
     return homeDir;
   }

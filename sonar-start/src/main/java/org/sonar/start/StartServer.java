@@ -28,11 +28,13 @@ import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessWrapper;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public final class StartServer {
 
@@ -50,7 +52,7 @@ public final class StartServer {
   private ProcessWrapper elasticsearch;
   private ProcessWrapper sonarqube;
 
-  public StartServer(Env env, String... args) throws IOException {
+  public StartServer(Env env, String... args) throws IOException, InterruptedException {
     this.env = env;
     this.esPort = Integer.toString(NetworkUtils.freePort());
     this.properties = new HashMap<String, String>();
@@ -64,9 +66,7 @@ public final class StartServer {
     shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
-        System.out.println("Before");
         stop();
-        System.out.println("After");
       }
     });
 
@@ -96,11 +96,20 @@ public final class StartServer {
 
   public void start() {
 
+    //Loading properties from sonar.properties file
+    Properties sonarProperties = new Properties();
+    try {
+      sonarProperties.load(new FileReader(env.getConfFile()));
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not read properties from env", e);
+    }
+
     String workingDirectory = env.rootDir().getAbsolutePath();
 
     // Start ES
     elasticsearch = new ProcessWrapper(
       env.rootDir().getAbsolutePath(),
+      sonarProperties.getProperty("sonar.es.java_opts"),
       "org.sonar.search.ElasticSearch",
       ImmutableMap.of(
         "esDebug", properties.containsKey("esDebug") ? properties.get("esDebug") : "false",
