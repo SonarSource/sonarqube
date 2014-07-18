@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -33,13 +34,18 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
 
 public class ProcessWrapper extends Thread {
 
@@ -71,17 +77,17 @@ public class ProcessWrapper extends Thread {
 
     this.process = executeProcess();
 
-    processMXBean =  waitForJMX(name, port);
+    processMXBean = waitForJMX(name, port);
   }
 
   public ProcessMXBean getProcessMXBean() {
     return processMXBean;
   }
 
-  private ProcessMXBean waitForJMX(String name, Integer port){
+  private ProcessMXBean waitForJMX(String name, Integer port) {
 
     Exception exception = null;
-    for(int i=0; i< 10; i++) {
+    for (int i = 0; i < 10; i++) {
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
@@ -95,7 +101,7 @@ public class ProcessWrapper extends Thread {
         JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, null);
         MBeanServerConnection mBeanServer = jmxConnector.getMBeanServerConnection();
         ProcessMXBean bean = JMX.newMBeanProxy(mBeanServer, Process.objectNameFor(name), ProcessMXBean.class);
-        LOGGER.info("ProcessWrapper::waitForJMX -- Connected to JMX Server with URL: {}",jmxUrl.toString());
+        LOGGER.info("ProcessWrapper::waitForJMX -- Connected to JMX Server with URL: {}", jmxUrl.toString());
         return bean;
       } catch (MalformedURLException e) {
         throw new IllegalStateException("JMXUrl is not valid", e);
@@ -108,7 +114,7 @@ public class ProcessWrapper extends Thread {
     throw new IllegalStateException("Could not connect to JMX service", exception);
   }
 
-  public boolean isReady(){
+  public boolean isReady() {
     return processMXBean != null && processMXBean.isReady();
   }
 
@@ -127,21 +133,70 @@ public class ProcessWrapper extends Thread {
     LOGGER.trace("ProcessWrapper::run() END");
   }
 
+  private String getJavaCommand() {
+    String separator = System.getProperty("file.separator");
+    return System.getProperty("java.home")
+      + separator + "bin" + separator + "java";
+  }
+
+  private String getJavaOptions() {
+    if (properties.containsKey(Process.JAVA_OPS)) {
+      return properties.get(Process.JAVA_OPS);
+    } else {
+      return "";
+    }
+  }
+
+  private List<String> getJMXOptions() {
+    return ImmutableList.<String>of(
+      "-Dcom.sun.management.jmxremote",
+      "-Dcom.sun.management.jmxremote.port=" + this.port,
+      "-Dcom.sun.management.jmxremote.authenticate=false",
+      "-Dcom.sun.management.jmxremote.ssl=false");
+  }
+
+  private List<String> getClassPath() {
+    String separator = System.getProperty("file.separator");
+    return ImmutableList.<String>of(
+      "-cp",
+      StringUtils.join(classPath, separator));
+  }
+
+  private String getPropertyFile() {
+    File propertyFile = new File(FileUtils.getTempDirectory(), UUID.randomUUID().toString());
+    if (!propertyFile.canWrite()) {
+      throw new IllegalStateException("Cannot write temp propertyFile to '" +
+        propertyFile.getAbsolutePath() + "'");
+    }
+    try {
+      Properties props = new Properties();
+      for (Map.Entry<String, String> property : properties.entrySet()) {
+        props.put(property.getKey(), property.getValue());
+      }
+      OutputStream out = new FileOutputStream(propertyFile);
+      props.store(out, "Temporary properties file for Process [" + getName() + "]");
+      out.close();
+      return propertyFile.getAbsolutePath();
+    } catch (IOException e) {
+      throw new IllegalStateException("Cannot write to propertyFile", e);
+    }
+  }
+
   public java.lang.Process executeProcess() {
     LOGGER.info("ProcessWrapper::executeProcess() START");
-    String separator = System.getProperty("file.separator");
-    String path = System.getProperty("java.home")
-      + separator + "bin" + separator + "java";
-    ProcessBuilder processBuilder =
-      new ProcessBuilder(path,
-        "-Dcom.sun.management.jmxremote",
-        "-Dcom.sun.management.jmxremote.port=" + port,
-        "-Dcom.sun.management.jmxremote.authenticate=false",
-        "-Dcom.sun.management.jmxremote.ssl=false",
-        "-cp",
-        StringUtils.join(classPath, separator),
-        className);
+
+    ProcessBuilder processBuilder = new ProcessBuilder();
+    processBuilder.command().add(getJavaCommand());
+    processBuilder.command().add(getJavaOptions());
+    processBuilder.command().addAll(getJMXOptions());
+    processBuilder.command().addAll(getClassPath());
+    processBuilder.command().add(className);
+    processBuilder.command().add(getPropertyFile());
+
+
+    //TODO remove once Process uses the temp file generated by getPropertyFile();
     processBuilder.environment().putAll(properties);
+
     processBuilder.environment().put(Process.SONAR_HOME, workDir);
     processBuilder.environment().put(Process.NAME_PROPERTY, this.getName());
     processBuilder.environment().put(Process.PORT_PROPERTY, Integer.toString(port));
@@ -195,7 +250,7 @@ public class ProcessWrapper extends Thread {
   }
 
   public void terminate() {
-    if(this.processMXBean != null) {
+    if (this.processMXBean != null) {
       this.processMXBean.terminate();
       waitUntilFinish(this);
     } else {
@@ -213,7 +268,7 @@ public class ProcessWrapper extends Thread {
     private final String pName;
 
     StreamGobbler(InputStream is, String name) {
-      super(name+"_ProcessStreamGobbler");
+      super(name + "_ProcessStreamGobbler");
       this.is = is;
       this.pName = name;
     }

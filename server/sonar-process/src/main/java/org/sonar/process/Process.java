@@ -40,6 +40,7 @@ public abstract class Process implements ProcessMXBean {
 
   public static final String SONAR_HOME = "SONAR_HOME";
 
+  public static final String JAVA_OPS = "javaOps";
   public static final String NAME_PROPERTY = "pName";
   public static final String PORT_PROPERTY = "pPort";
 
