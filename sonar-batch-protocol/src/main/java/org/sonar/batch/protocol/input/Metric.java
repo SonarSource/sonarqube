@@ -27,10 +27,16 @@ public class Metric {
 
   private final String valueType;
 
-  public Metric(int id, String key, String valueType) {
+  private final Double bestValue;
+
+  private final boolean optimizedBestValue;
+
+  public Metric(int id, String key, String valueType, Double bestValue, boolean optimizedBestValue) {
     this.id = id;
     this.key = key;
     this.valueType = valueType;
+    this.bestValue = bestValue;
+    this.optimizedBestValue = optimizedBestValue;
   }
 
   public int id() {
@@ -43,6 +49,14 @@ public class Metric {
 
   public String valueType() {
     return valueType;
+  }
+
+  public Double bestValue() {
+    return bestValue;
+  }
+
+  public boolean isOptimizedBestValue() {
+    return optimizedBestValue;
   }
 
 }

@@ -34,7 +34,7 @@ public class ProjectReferentialsTest {
   @Test
   public void testToJson() throws Exception {
     ProjectReferentials ref = new ProjectReferentials();
-    ref.metrics().add(new Metric(1, "ncloc", "INT"));
+    ref.metrics().add(new Metric(1, "ncloc", "INT", 1.0, true));
     ref.addQProfile(new QProfile("squid-java", "Java", "java", new SimpleDateFormat("dd/MM/yyyy").parse("14/03/1984")));
     ref.addSettings("foo", new HashMap<String, String>());
     ref.settings("foo").put("prop", "value");
@@ -44,7 +44,7 @@ public class ProjectReferentialsTest {
     System.out.println(ref.toJson());
     JSONAssert
       .assertEquals(
-        "{timestamp:10,metrics:[{id:1,key:ncloc,valueType:INT}],"
+        "{timestamp:10,metrics:[{id:1,key:ncloc,valueType:INT,bestValue:1.0,optimizedBestValue:true}],"
           + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
           + "activeRules:[{repositoryKey:repo,ruleKey:rule,severity:MAJOR,internalKey:rule,language:java,params:{}}],"
           + "settingsByModule:{foo:{prop:value}}}",

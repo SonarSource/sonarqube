@@ -245,7 +245,7 @@ public class AnalyzerMediumTester {
     }
 
     public FakeProjectReferentialsLoader add(Metric metric) {
-      ref.metrics().add(new org.sonar.batch.protocol.input.Metric(metricId, metric.key(), metric.getType().name()));
+      ref.metrics().add(new org.sonar.batch.protocol.input.Metric(metricId, metric.key(), metric.getType().name(), metric.getBestValue(), metric.isOptimizedBestValue()));
       metricId++;
       return this;
     }
