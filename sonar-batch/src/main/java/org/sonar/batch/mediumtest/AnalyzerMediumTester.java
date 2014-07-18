@@ -21,7 +21,6 @@ package org.sonar.batch.mediumtest;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.SonarPlugin;
@@ -33,7 +32,6 @@ import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
@@ -44,6 +42,8 @@ import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.languages.Language;
 import org.sonar.batch.languages.LanguagesReferential;
+import org.sonar.batch.protocol.input.ProjectReferentials;
+import org.sonar.batch.referential.ProjectReferentialsLoader;
 import org.sonar.batch.rule.QProfile;
 import org.sonar.batch.rules.QProfilesReferential;
 import org.sonar.batch.scan.filesystem.InputFileCache;
@@ -75,9 +75,9 @@ public class AnalyzerMediumTester {
   }
 
   public static class AnalyzerMediumTesterBuilder {
+    private final FakeProjectReferentialsLoader refProvider = new FakeProjectReferentialsLoader();
     private final FakeSettingsReferential settingsReferential = new FakeSettingsReferential();
     private final FackPluginsReferential pluginsReferential = new FackPluginsReferential();
-    private final FakeMetricFinder metricFinder = new FakeMetricFinder();
     private final FakeRuleFinder ruleFinder = new FakeRuleFinder();
     private final FakeQProfileReferential qProfileReferential = new FakeQProfileReferential();
     private final FakeLanguageReferential languageReferential = new FakeLanguageReferential();
@@ -108,7 +108,7 @@ public class AnalyzerMediumTester {
     }
 
     public AnalyzerMediumTesterBuilder registerMetric(Metric<?> metric) {
-      metricFinder.add(metricId, metric);
+      refProvider.add(metric);
       metricId++;
       return this;
     }
@@ -162,7 +162,7 @@ public class AnalyzerMediumTester {
         new EnvironmentInformation("mediumTest", "1.0"),
         builder.settingsReferential,
         builder.pluginsReferential,
-        builder.metricFinder,
+        builder.refProvider,
         builder.ruleFinder,
         builder.qProfileReferential,
         builder.rulesBuilder.build(),
@@ -261,6 +261,21 @@ public class AnalyzerMediumTester {
 
   }
 
+  private static class FakeProjectReferentialsLoader implements ProjectReferentialsLoader {
+
+    private ProjectReferentials ref = new ProjectReferentials();
+
+    @Override
+    public ProjectReferentials load(String projectKey) {
+      return ref;
+    }
+
+    public FakeProjectReferentialsLoader add(Metric metric) {
+      ref.metrics().add(new org.sonar.batch.protocol.input.Metric(metric.key(), metric.getType().name()));
+      return this;
+    }
+  }
+
   private static class FakeSettingsReferential implements SettingsReferential {
 
     private Map<String, String> globalSettings = new HashMap<String, String>();
@@ -309,46 +324,6 @@ public class AnalyzerMediumTester {
     @Override
     public Map<PluginMetadata, SonarPlugin> localPlugins() {
       return localPlugins;
-    }
-
-  }
-
-  private static class FakeMetricFinder implements MetricFinder {
-
-    private Map<String, Metric> metricsByKey = Maps.newLinkedHashMap();
-    private Map<Integer, Metric> metricsById = Maps.newLinkedHashMap();
-
-    public FakeMetricFinder add(int id, Metric metric) {
-      metricsByKey.put(metric.getKey(), metric);
-      metricsById.put(id, metric);
-      return this;
-    }
-
-    @Override
-    public Metric findById(int metricId) {
-      return metricsById.get(metricId);
-    }
-
-    @Override
-    public Metric findByKey(String key) {
-      return metricsByKey.get(key);
-    }
-
-    @Override
-    public Collection<Metric> findAll(List<String> metricKeys) {
-      List<Metric> result = Lists.newLinkedList();
-      for (String metricKey : metricKeys) {
-        Metric metric = findByKey(metricKey);
-        if (metric != null) {
-          result.add(metric);
-        }
-      }
-      return result;
-    }
-
-    @Override
-    public Collection<Metric> findAll() {
-      return metricsByKey.values();
     }
 
   }

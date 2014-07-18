@@ -165,6 +165,18 @@ public class ProjectDefinition {
     return properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
   }
 
+  /**
+   * @since 4.5
+   */
+  public String getKeyWithBranch() {
+    String branch = properties.getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    String projectKey = getKey();
+    if (StringUtils.isNotBlank(branch)) {
+      projectKey = String.format("%s:%s", projectKey, branch);
+    }
+    return projectKey;
+  }
+
   public String getVersion() {
     return properties.getProperty(CoreProperties.PROJECT_VERSION_PROPERTY);
   }

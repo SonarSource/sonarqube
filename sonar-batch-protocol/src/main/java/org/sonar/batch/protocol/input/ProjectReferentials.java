@@ -24,25 +24,19 @@ import com.google.gson.Gson;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ProjectReferentials {
 
   private long timestamp;
   private Collection<Language> languages = new ArrayList<Language>();
-  private Map<String, Map<String, String>> projectSettings = new HashMap<String, Map<String, String>>();
-
-  public Map<String, String> projectSettings(String projectOrSubProjectKey) {
-    return projectSettings.get(projectOrSubProjectKey);
-  }
-
-  public void setProjectSettings(String projectOrSubProjectKey, Map<String, String> projectSettings) {
-    this.projectSettings.put(projectOrSubProjectKey, projectSettings);
-  }
+  private Collection<Metric> metrics = new ArrayList<Metric>();
 
   public Collection<Language> languages() {
     return languages;
+  }
+
+  public Collection<Metric> metrics() {
+    return metrics;
   }
 
   public long timestamp() {

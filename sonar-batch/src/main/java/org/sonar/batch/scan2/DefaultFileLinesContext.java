@@ -26,9 +26,8 @@ import com.google.common.collect.Maps;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuilder;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.FileLinesContext;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.KeyValueFormat.Converter;
 import org.sonar.core.component.ComponentKeys;
@@ -112,7 +111,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
   public void save() {
     for (Map.Entry<String, Map<Integer, Object>> entry : map.entrySet()) {
       String metricKey = entry.getKey();
-      Metric metric = metricFinder.findByKey(metricKey);
+      org.sonar.api.batch.measure.Metric<String> metric = metricFinder.findByKey(metricKey);
       if (metric == null) {
         throw new IllegalStateException("Unable to find metric with key: " + metricKey);
       }

@@ -20,7 +20,6 @@
 package org.sonar.batch.scan;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -60,12 +59,7 @@ public class ProjectSettings extends Settings {
 
     addProperties(globalSettings.getProperties());
 
-    String branch = reactor.getRoot().getProperties().getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY);
-    String projectKey = reactor.getRoot().getKey();
-    if (StringUtils.isNotBlank(branch)) {
-      projectKey = String.format("%s:%s", projectKey, branch);
-    }
-    addProperties(settingsReferential.projectSettings(projectKey));
+    addProperties(settingsReferential.projectSettings(reactor.getRoot().getKeyWithBranch()));
 
     addProperties(reactor.getRoot().getProperties());
   }

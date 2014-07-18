@@ -34,11 +34,13 @@ import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
+import org.sonar.batch.referential.ProjectReferentialsLoader;
 import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.batch.scan.ProjectSettings;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
+import org.sonar.batch.scan.measure.DefaultMetricFinder;
 
 public class ProjectScanContainer extends ComponentContainer {
   public ProjectScanContainer(ComponentContainer taskContainer) {
@@ -74,6 +76,8 @@ public class ProjectScanContainer extends ComponentContainer {
       throw new IllegalStateException(bootstrapper + " has returned null as ProjectReactor");
     }
     add(reactor);
+    ProjectReferentialsLoader projectReferentialsLoader = getComponentByType(ProjectReferentialsLoader.class);
+    add(projectReferentialsLoader.load(reactor.getRoot().getKeyWithBranch()));
   }
 
   private void addBatchComponents() {
@@ -82,6 +86,7 @@ public class ProjectScanContainer extends ComponentContainer {
       Caches.class,
 
       // Measures
+      DefaultMetricFinder.class,
       AnalyzerMeasureCache.class,
 
       // file system

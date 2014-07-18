@@ -63,9 +63,12 @@ import org.sonar.batch.issue.ScanIssueStorage;
 import org.sonar.batch.languages.DeprecatedLanguagesReferential;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
+import org.sonar.batch.referential.ProjectReferentialsLoader;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
+import org.sonar.batch.scan.measure.DefaultMetricFinder;
+import org.sonar.batch.scan.measure.DeprecatedMetricFinder;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
@@ -120,6 +123,9 @@ public class ProjectScanContainer extends ComponentContainer {
       }
       add(reactor);
     }
+    ProjectReferentialsLoader projectReferentialsLoader = getComponentByType(ProjectReferentialsLoader.class);
+    add(projectReferentialsLoader.load(reactor.getRoot().getKeyWithBranch()));
+
   }
 
   private void addBatchComponents() {
@@ -185,6 +191,8 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Measures
       MeasureCache.class,
+      DeprecatedMetricFinder.class,
+      DefaultMetricFinder.class,
 
       ProjectSettings.class);
   }

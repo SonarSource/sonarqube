@@ -17,30 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.measures;
+package org.sonar.batch.referential;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.task.TaskComponent;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 
-import javax.annotation.CheckForNull;
+public interface ProjectReferentialsLoader {
 
-import java.util.Collection;
-import java.util.List;
-
-/**
- * @since 2.5
- * @deprecated since 4.5 use {@link org.sonar.api.batch.measure.MetricFinder} on batch side
- */
-@Deprecated
-public interface MetricFinder extends TaskComponent, ServerComponent {
-
-  @CheckForNull
-  Metric findById(int id);
-
-  @CheckForNull
-  Metric findByKey(String key);
-
-  Collection<Metric> findAll(List<String> metricKeys);
-
-  Collection<Metric> findAll();
+  ProjectReferentials load(String projectKey);
 }

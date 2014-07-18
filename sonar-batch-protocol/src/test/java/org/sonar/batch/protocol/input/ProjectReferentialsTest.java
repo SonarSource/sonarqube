@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.StringReader;
-import java.util.HashMap;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -33,17 +32,19 @@ public class ProjectReferentialsTest {
   @Test
   public void testToJson() throws JSONException {
     ProjectReferentials ref = new ProjectReferentials();
-    HashMap<String, String> projectSettings = new HashMap<String, String>();
-    projectSettings.put("sonar.foo", "bar");
-    ref.setProjectSettings("foo", projectSettings);
+    ref.metrics().add(new Metric("ncloc", "INT"));
 
-    JSONAssert.assertEquals("{languages: [], projectSettings: {foo: {'sonar.foo': 'bar'}}, timestamp: 0}", ref.toJson(), true);
+    System.out.println(ref.toJson());
+    JSONAssert.assertEquals("{timestamp:0,languages:[],metrics:[{key:ncloc,valueType:INT}]}", ref.toJson(), true);
   }
 
   @Test
   public void testFromJson() throws JSONException {
-    ProjectReferentials ref = ProjectReferentials.fromJson(new StringReader("{languages: [], projectSettings: {foo: {'sonar.foo': 'bar'}}, timestamp: 1}"));
+    ProjectReferentials ref = ProjectReferentials.fromJson(new StringReader("{timestamp:1,languages:[],metrics:[{key:ncloc,valueType:INT}]}"));
 
     assertThat(ref.timestamp()).isEqualTo(1);
+    Metric metric = ref.metrics().iterator().next();
+    assertThat(metric.key()).isEqualTo("ncloc");
+    assertThat(metric.valueType()).isEqualTo("INT");
   }
 }

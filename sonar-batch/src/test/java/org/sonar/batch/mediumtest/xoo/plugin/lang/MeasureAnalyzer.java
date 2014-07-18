@@ -27,9 +27,8 @@ import org.sonar.api.batch.analyzer.AnalyzerDescriptor;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
 import org.sonar.batch.mediumtest.xoo.plugin.base.XooConstants;
 
@@ -82,40 +81,22 @@ public class MeasureAnalyzer implements Analyzer {
   }
 
   private AnalyzerMeasure<?> createMeasure(AnalyzerContext context, InputFile xooFile, String metricKey, String value) {
-    Metric metric = metricFinder.findByKey(metricKey);
+    org.sonar.api.batch.measure.Metric<Serializable> metric = metricFinder.findByKey(metricKey);
     AnalyzerMeasureBuilder<Serializable> builder = context.measureBuilder()
       .forMetric(metric)
       .onFile(xooFile);
-    switch (metric.getType()) {
-      case BOOL:
-        builder.withValue(Boolean.parseBoolean(value));
-        break;
-      case INT:
-      case MILLISEC:
-        builder.withValue(Integer.valueOf(value));
-        break;
-      case FLOAT:
-      case PERCENT:
-      case RATING:
-        builder.withValue(Double.valueOf(value));
-        break;
-      case STRING:
-      case LEVEL:
-      case DATA:
-      case DISTRIB:
-        builder.withValue(value);
-        break;
-      case WORK_DUR:
-        builder.withValue(Long.valueOf(value));
-        break;
-      default:
-        if (metric.isNumericType()) {
-          builder.withValue(Double.valueOf(value));
-        } else if (metric.isDataType()) {
-          builder.withValue(value);
-        } else {
-          throw new UnsupportedOperationException("Unsupported type :" + metric.getType());
-        }
+    if (Boolean.class.equals(metric.valueType())) {
+      builder.withValue(Boolean.parseBoolean(value));
+    } else if (Integer.class.equals(metric.valueType())) {
+      builder.withValue(Integer.valueOf(value));
+    } else if (Double.class.equals(metric.valueType())) {
+      builder.withValue(Double.valueOf(value));
+    } else if (String.class.equals(metric.valueType())) {
+      builder.withValue(value);
+    } else if (Long.class.equals(metric.valueType())) {
+      builder.withValue(Long.valueOf(value));
+    } else {
+      throw new UnsupportedOperationException("Unsupported type :" + metric.valueType());
     }
     return builder.build();
   }

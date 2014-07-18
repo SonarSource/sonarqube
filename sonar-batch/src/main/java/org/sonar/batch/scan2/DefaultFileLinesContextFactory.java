@@ -22,9 +22,9 @@ package org.sonar.batch.scan2;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 
@@ -35,7 +35,8 @@ public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
   private final ProjectDefinition def;
   private InputFileCache fileCache;
 
-  public DefaultFileLinesContextFactory(InputFileCache fileCache, FileSystem fs, MetricFinder metricFinder, AnalyzerMeasureCache measureCache, ProjectDefinition def) {
+  public DefaultFileLinesContextFactory(InputFileCache fileCache, FileSystem fs, MetricFinder metricFinder, AnalyzerMeasureCache measureCache,
+    ProjectDefinition def) {
     this.fileCache = fileCache;
     this.metricFinder = metricFinder;
     this.measureCache = measureCache;

@@ -21,7 +21,6 @@ package org.sonar.batch.scan;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -63,13 +62,8 @@ public class ModuleSettings extends Settings {
   }
 
   private void addProjectProperties(ProjectDefinition project, GlobalSettings batchSettings) {
-    String branch = batchSettings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
-    String projectKey = project.getKey();
-    if (StringUtils.isNotBlank(branch)) {
-      projectKey = String.format("%s:%s", projectKey, branch);
-    }
     addProperties(batchSettings.getProperties());
-    addProperties(settingsReferential.projectSettings(projectKey));
+    addProperties(settingsReferential.projectSettings(project.getKeyWithBranch()));
   }
 
   private void addBuildProperties(ProjectDefinition project) {

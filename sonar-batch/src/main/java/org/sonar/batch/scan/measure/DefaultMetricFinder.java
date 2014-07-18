@@ -17,37 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.metric;
+package org.sonar.batch.scan.measure;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.sonar.api.measures.Metric;
-import org.sonar.jpa.session.DatabaseSessionFactory;
+import org.sonar.api.batch.measure.Metric;
+import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public final class CacheMetricFinder extends DefaultMetricFinder {
+public class DefaultMetricFinder implements MetricFinder {
 
   private Map<String, Metric> metricsByKey = Maps.newLinkedHashMap();
-  private Map<Integer, Metric> metricsById = Maps.newLinkedHashMap();
 
-  public CacheMetricFinder(DatabaseSessionFactory sessionFactory) {
-    super(sessionFactory);
-  }
-
-  public void start() {
-    Collection<Metric> metrics = doFindAll();
-    for (Metric metric : metrics) {
-      metricsByKey.put(metric.getKey(), metric);
-      metricsById.put(metric.getId(), metric);
+  public DefaultMetricFinder(ProjectReferentials projectReferentials) {
+    for (org.sonar.batch.protocol.input.Metric metric : projectReferentials.metrics()) {
+      metricsByKey.put(metric.key(), new org.sonar.api.measures.Metric.Builder(metric.key(), metric.key(), ValueType.valueOf(metric.valueType())).create());
     }
-  }
-
-  @Override
-  public Metric findById(int metricId) {
-    return metricsById.get(metricId);
   }
 
   @Override
@@ -71,4 +61,5 @@ public final class CacheMetricFinder extends DefaultMetricFinder {
   public Collection<Metric> findAll() {
     return metricsByKey.values();
   }
+
 }

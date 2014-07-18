@@ -17,30 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.measures;
+package org.sonar.batch.protocol.input;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.task.TaskComponent;
+public class Metric {
 
-import javax.annotation.CheckForNull;
+  private final String key;
 
-import java.util.Collection;
-import java.util.List;
+  private final String valueType;
 
-/**
- * @since 2.5
- * @deprecated since 4.5 use {@link org.sonar.api.batch.measure.MetricFinder} on batch side
- */
-@Deprecated
-public interface MetricFinder extends TaskComponent, ServerComponent {
+  public Metric(String key, String valueType) {
+    this.key = key;
+    this.valueType = valueType;
+  }
 
-  @CheckForNull
-  Metric findById(int id);
+  public String key() {
+    return key;
+  }
 
-  @CheckForNull
-  Metric findByKey(String key);
+  public String valueType() {
+    return valueType;
+  }
 
-  Collection<Metric> findAll(List<String> metricKeys);
-
-  Collection<Metric> findAll();
 }

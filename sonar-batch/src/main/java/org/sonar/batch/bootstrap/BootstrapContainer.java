@@ -23,7 +23,6 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.rules.RuleFinder;
@@ -40,6 +39,8 @@ import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
 import org.sonar.batch.debt.DebtModelProvider;
+import org.sonar.batch.referential.DefaultProjectReferentialsLoader;
+import org.sonar.batch.referential.ProjectReferentialsLoader;
 import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.rules.DefaultQProfileReferential;
 import org.sonar.batch.rules.QProfilesReferential;
@@ -49,7 +50,6 @@ import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.metric.CacheMetricFinder;
 import org.sonar.core.persistence.DaoUtils;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.MyBatis;
@@ -110,6 +110,9 @@ public class BootstrapContainer extends ComponentContainer {
       UriReader.class,
       new FileCacheProvider(),
       System2.INSTANCE);
+    if (getComponentByType(ProjectReferentialsLoader.class) == null) {
+      add(DefaultProjectReferentialsLoader.class);
+    }
     if (getComponentByType(SettingsReferential.class) == null) {
       add(DefaultSettingsReferential.class);
     }
@@ -118,9 +121,6 @@ public class BootstrapContainer extends ComponentContainer {
     }
     if (getComponentByType(RuleFinder.class) == null) {
       add(CacheRuleFinder.class);
-    }
-    if (getComponentByType(MetricFinder.class) == null) {
-      add(CacheMetricFinder.class);
     }
     if (getComponentByType(QProfilesReferential.class) == null) {
       add(DefaultQProfileReferential.class);
