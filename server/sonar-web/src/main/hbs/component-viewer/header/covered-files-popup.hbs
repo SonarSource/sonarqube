@@ -1,9 +1,9 @@
-<div class="component-viewer-popup-container">
+<div class="bubble-popup-container">
   {{#notEq test.status 'ERROR'}}
     {{#notEq test.status 'FAILURE'}}
-      <div class="component-viewer-popup-title">{{t 'component_viewer.transition.covers'}}</div>
+      <div class="bubble-popup-title">{{t 'component_viewer.transition.covers'}}</div>
       {{#each items}}
-        <div class="component-viewer-popup-section">
+        <div class="bubble-popup-section">
           <a class="component-viewer-popup-test-file link-action" data-key="{{key}}" title="{{name}}">{{name}}</a>
           <span class="subtitle">{{tp 'component_viewer.x_lines_are_covered' coveredLines}}</span>
           <br><span class="subtitle" title="{{dir}}">{{dir}}</span>
@@ -15,7 +15,7 @@
   {{/notEq}}
 
   {{#notEq test.status 'OK'}}
-    <div class="component-viewer-popup-title">{{t 'component_viewer.details'}}</div>
+    <div class="bubble-popup-title">{{t 'component_viewer.details'}}</div>
     {{#if test.message}}
       <pre>{{test.message}}</pre>
     {{/if}}
@@ -24,4 +24,4 @@
 
 </div>
 
-<div class="component-viewer-popup-arrow"></div>
+<div class="bubble-popup-arrow"></div>

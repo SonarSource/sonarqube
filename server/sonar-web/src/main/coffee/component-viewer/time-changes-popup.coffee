@@ -1,7 +1,7 @@
 define [
   'backbone.marionette'
   'templates/component-viewer'
-  'component-viewer/popup'
+  'common/popup'
 ], (
   Marionette
   Templates

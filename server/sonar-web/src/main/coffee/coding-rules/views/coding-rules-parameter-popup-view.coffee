@@ -1,13 +1,11 @@
 define [
   'backbone.marionette'
   'templates/coding-rules'
-  'component-viewer/popup'
-#  'component-viewer/utils'
+  'common/popup'
 ], (
   Marionette
   Templates
   Popup
-#  utils
 ) ->
 
   $ = jQuery

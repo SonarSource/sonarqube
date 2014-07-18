@@ -1,12 +1,12 @@
-<div class="component-viewer-popup-container">
-  <div class="component-viewer-popup-title">{{t 'component_viewer.transition.coverage'}}</div>
+<div class="bubble-popup-container">
+  <div class="bubble-popup-title">{{t 'component_viewer.transition.coverage'}}</div>
 
   {{#each testFiles}}
-    <div class="component-viewer-popup-section">
+    <div class="bubble-popup-section">
       <a class="component-viewer-popup-test-file link-action" data-key="{{file.key}}" title="{{file.longName}}">
         {{file.longName}}
       </a>
-      <ul class="component-viewer-popup-list">
+      <ul class="bubble-popup-list">
         {{#each tests}}
           <li class="component-viewer-popup-test" title="{{name}}">
             <i class="component-viewer-popup-test-status {{testStatusIconClass status}}"></i>
@@ -24,4 +24,4 @@
   {{/each}}
 </div>
 
-<div class="component-viewer-popup-arrow"></div>
+<div class="bubble-popup-arrow"></div>

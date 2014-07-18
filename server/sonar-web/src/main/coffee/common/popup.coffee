@@ -7,20 +7,20 @@ define [
   $ = jQuery
 
 
-  class CoveragePopupView extends Marionette.ItemView
-    className: 'component-viewer-popup'
+  class PopupView extends Marionette.ItemView
+    className: 'bubble-popup'
 
 
     onRender: ->
       @$el.detach().appendTo $('body')
 
       if @options.bottom
-        @$el.addClass 'component-viewer-popup-bottom'
+        @$el.addClass 'bubble-popup-bottom'
         @$el.css
           top: @options.triggerEl.offset().top + @options.triggerEl.outerHeight()
           left: @options.triggerEl.offset().left
       else if @options.bottomRight
-        @$el.addClass 'component-viewer-popup-bottom-right'
+        @$el.addClass 'bubble-popup-bottom-right'
         @$el.css
           top: @options.triggerEl.offset().top + @options.triggerEl.outerHeight()
           right: $(window).width() - @options.triggerEl.offset().left - @options.triggerEl.outerWidth()
@@ -30,6 +30,6 @@ define [
           left: @options.triggerEl.offset().left + @options.triggerEl.outerWidth()
 
 
-      $('body').on 'click.coverage-popup', =>
-        $('body').off 'click.coverage-popup'
+      $('body').on 'click.bubble-popup', =>
+        $('body').off 'click.bubble-popup'
         @close()

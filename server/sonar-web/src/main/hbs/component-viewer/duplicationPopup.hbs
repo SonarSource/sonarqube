@@ -1,7 +1,7 @@
-<div class="component-viewer-popup-container">
-  <div class="component-viewer-popup-title">{{t 'component_viewer.transition.duplication'}}</div>
+<div class="bubble-popup-container">
+  <div class="bubble-popup-title">{{t 'component_viewer.transition.duplication'}}</div>
   {{#each duplications}}
-    <div class="component-viewer-popup-section">
+    <div class="bubble-popup-section">
       {{#notEq file.projectName ../component.projectName}}
         <span class="component-viewer-popup-label">{{file.projectName}}</span>
       {{/notEq}}
@@ -23,4 +23,4 @@
   {{/each}}
 </div>
 
-<div class="component-viewer-popup-arrow"></div>
+<div class="bubble-popup-arrow"></div>
