@@ -50,7 +50,7 @@
     {{/if}}
   </div>
   <ul class="component-viewer-header-expanded-bar-section-list">
-    {{#each component.tests}}
+    {{#each tests}}
       {{#eq status 'SKIPPED'}}
         <li><span class="item" title="{{name}}" data-status="{{status}}">
         <span class="label">{{testStatusIcon status}}
@@ -77,4 +77,9 @@
       {{/eq}}
     {{/each}}
   </ul>
+  <div class="component-viewer-header-expanded-bar-section-title">
+    <span>{{t 'component_viewer.tests.sort_by'}}</span>
+    <a class="js-sort-tests-name underlined-link">{{t 'component_viewer.tests.test_name'}}</a>
+    <a class="js-sort-tests-duration underlined-link">{{t 'component_viewer.tests.duration'}}</a>
+  </div>
 </div>

@@ -24,11 +24,20 @@ define [
 
     events:
       'click @ui.unitTests': 'showCoveredFiles'
+      'click .js-sort-tests-duration': 'sortTestsByDuration'
+      'click .js-sort-tests-name': 'sortTestsByName'
+
+
+    initialize: ->
+      super
+      @tests = _.sortBy @component.get('tests'), 'name'
+      @activeSort = '.js-sort-tests-name'
 
 
     onRender: ->
       @header.enableUnitTest = (testName) =>
         @ui.unitTests.filter("[data-name=#{testName}]").click()
+      @$(@activeSort).addClass 'active-link' if @activeSort
 
 
     onClose: ->
@@ -50,6 +59,18 @@ define [
         popup.render()
 
 
+    sortTestsByDuration: ->
+      @activeSort = '.js-sort-tests-duration'
+      @tests = _.sortBy @tests, 'durationInMs'
+      @render()
+
+
+    sortTestsByName: ->
+      @activeSort = '.js-sort-tests-name'
+      @tests = _.sortBy @tests, 'name'
+      @render()
+
+
     hasCoveragePerTestData: ->
       hasData = false
       @component.get('tests').forEach (test) ->
@@ -59,4 +80,5 @@ define [
 
     serializeData: ->
       _.extend super,
+        tests: @tests
         hasCoveragePerTestData: @hasCoveragePerTestData()
