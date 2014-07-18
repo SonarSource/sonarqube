@@ -129,14 +129,17 @@ public class ProcessWrapper extends Thread {
 
   public java.lang.Process executeProcess() {
     LOGGER.info("ProcessWrapper::executeProcess() START");
+    String separator = System.getProperty("file.separator");
+    String path = System.getProperty("java.home")
+      + separator + "bin" + separator + "java";
     ProcessBuilder processBuilder =
-      new ProcessBuilder("java",
+      new ProcessBuilder(path,
         "-Dcom.sun.management.jmxremote",
         "-Dcom.sun.management.jmxremote.port=" + port,
         "-Dcom.sun.management.jmxremote.authenticate=false",
         "-Dcom.sun.management.jmxremote.ssl=false",
         "-cp",
-        StringUtils.join(classPath, ":"),
+        StringUtils.join(classPath, separator),
         className);
     processBuilder.environment().putAll(properties);
     processBuilder.environment().put(Process.SONAR_HOME, workDir);
@@ -153,9 +156,9 @@ public class ProcessWrapper extends Thread {
 
     try {
       LOGGER.debug("ProcessWrapper::executeProcess() -- Starting process with command '{}'",
-        StringUtils.join(processBuilder.command()," "));
+        StringUtils.join(processBuilder.command(), " "));
       java.lang.Process process = processBuilder.start();
-      LOGGER.debug("ProcessWrapper::executeProcess() -- Process started: {}",process.toString());
+      LOGGER.debug("ProcessWrapper::executeProcess() -- Process started: {}", process.toString());
       errorGobbler = new StreamGobbler(process.getErrorStream(), this.getName() + "-ERROR");
       outputGobbler = new StreamGobbler(process.getInputStream(), this.getName());
       outputGobbler.start();
