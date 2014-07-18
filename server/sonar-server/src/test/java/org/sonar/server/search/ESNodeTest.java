@@ -31,6 +31,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.mapper.StrictDynamicMappingException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -69,6 +70,7 @@ public class ESNodeTest {
   }
 
   @Test
+  @Ignore("Need to update this test for remote ES.")
   public void start_and_stop_es_node() throws Exception {
     assertThat(dataDir).doesNotExist();
 
@@ -95,14 +97,14 @@ public class ESNodeTest {
     ESNode node = new ESNode(fs, new Settings());
     node.start();
 
-    node.client().admin().indices().prepareCreate("polop")
+    node.client().admin().indices().prepareCreate("strict")
       .addMapping("type1", "{\"type1\": {\"properties\": {\"value\": {\"type\": \"string\"}}}}")
       .execute().actionGet();
-    node.client().admin().cluster().prepareHealth("polop").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
+    node.client().admin().cluster().prepareHealth("strict").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
 
     // strict mapping is enforced
     try {
-      node.client().prepareIndex("polop", "type1", "666").setSource(
+      node.client().prepareIndex("strict", "type1", "666").setSource(
         XContentFactory.jsonBuilder().startObject().field("unknown", "plouf").endObject()
       ).get();
     } finally {
@@ -115,14 +117,14 @@ public class ESNodeTest {
     ESNode node = new ESNode(fs, new Settings());
     node.start();
 
-    node.client().admin().indices().prepareCreate("polop")
+    node.client().admin().indices().prepareCreate("path")
       .addMapping("type1", "{\"type1\": {\"properties\": {\"value\": {\"type\": \"string\"}}}}")
       .execute().actionGet();
-    node.client().admin().cluster().prepareHealth("polop").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
+    node.client().admin().cluster().prepareHealth("path").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
 
     // default "path_analyzer" analyzer is defined for all indices
     AnalyzeResponse response = node.client().admin().indices()
-      .prepareAnalyze("polop", "/temp/65236/test path/MyFile.java").setAnalyzer("path_analyzer").get();
+      .prepareAnalyze("path", "/temp/65236/test path/MyFile.java").setAnalyzer("path_analyzer").get();
     // default "path_analyzer" analyzer is defined for all indices
     assertThat(response.getTokens()).hasSize(4);
     assertThat(response.getTokens().get(0).getTerm()).isEqualTo("/temp");
@@ -143,14 +145,14 @@ public class ESNodeTest {
     ESNode node = new ESNode(fs, new Settings());
     node.start();
 
-    node.client().admin().indices().prepareCreate("polop")
+    node.client().admin().indices().prepareCreate("sort")
       .addMapping("type1", "{\"type1\": {\"properties\": {\"value\": {\"type\": \"string\"}}}}")
       .execute().actionGet();
-    node.client().admin().cluster().prepareHealth("polop").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
+    node.client().admin().cluster().prepareHealth("sort").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
 
     // default "sortable" analyzer is defined for all indices
     assertThat(node.client().admin().indices()
-      .prepareAnalyze("polop", "This Is A Wonderful Text").setAnalyzer("sortable").get()
+      .prepareAnalyze("sort", "This Is A Wonderful Text").setAnalyzer("sortable").get()
       .getTokens().get(0).getTerm()).isEqualTo("this is a ");
 
     node.stop();
@@ -161,14 +163,14 @@ public class ESNodeTest {
     ESNode node = new ESNode(fs, new Settings());
     node.start();
 
-    node.client().admin().indices().prepareCreate("polop")
+    node.client().admin().indices().prepareCreate("gram")
       .addMapping("type1", "{\"type1\": {\"properties\": {\"value\": {\"type\": \"string\"}}}}")
       .execute().actionGet();
-    node.client().admin().cluster().prepareHealth("polop").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
+    node.client().admin().cluster().prepareHealth("gram").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
 
     // default "string_gram" analyzer is defined for all indices
     AnalyzeResponse response = node.client().admin().indices()
-      .prepareAnalyze("polop", "he.llo w@rl#d").setAnalyzer("index_grams").get();
+      .prepareAnalyze("gram", "he.llo w@rl#d").setAnalyzer("index_grams").get();
     assertThat(response.getTokens()).hasSize(10);
     assertThat(response.getTokens().get(0).getTerm()).isEqualTo("he");
     assertThat(response.getTokens().get(7).getTerm()).isEqualTo("w@rl");
@@ -192,6 +194,7 @@ public class ESNodeTest {
   }
 
   @Test(expected = IllegalStateException.class)
+  @Ignore("Need to update this test for remote ES.")
   public void should_fail_on_corrupt_index() throws Exception {
     File zip = new File(Resources.getResource(getClass(), "ESNodeTest/data-es-corrupt.zip").toURI());
     ZipUtils.unzip(zip, dataDir);
