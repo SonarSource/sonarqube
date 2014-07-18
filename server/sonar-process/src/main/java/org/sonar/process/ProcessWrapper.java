@@ -87,7 +87,7 @@ public class ProcessWrapper extends Thread {
   private ProcessMXBean waitForJMX(String name, Integer port) {
 
     Exception exception = null;
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 5; i++) {
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
@@ -164,10 +164,10 @@ public class ProcessWrapper extends Thread {
 
   private String getPropertyFile() {
     File propertyFile = new File(FileUtils.getTempDirectory(), UUID.randomUUID().toString());
-    if (!propertyFile.canWrite()) {
-      throw new IllegalStateException("Cannot write temp propertyFile to '" +
-        propertyFile.getAbsolutePath() + "'");
-    }
+//    if (!propertyFile.canWrite()) {
+//      throw new IllegalStateException("Cannot write temp propertyFile to '" +
+//        propertyFile.getAbsolutePath() + "'");
+//    }
     try {
       Properties props = new Properties();
       for (Map.Entry<String, String> property : properties.entrySet()) {
