@@ -19,6 +19,7 @@
  */
 package org.sonar.search;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
@@ -44,12 +45,32 @@ public class ElasticSearch extends Process {
 
   public static final String DEFAULT_CLUSTER_NAME = "sonarqube";
 
-  private final Node node;
+  private Node node;
 
+  public ElasticSearch(String... args) {
+    super(args);
+  }
+
+  @VisibleForTesting
   public ElasticSearch(Props props) {
     super(props);
+  }
 
+  @Override
+  public boolean isReady() {
+    try {
+      return (node.client().admin().cluster().prepareHealth()
+        .setWaitForYellowStatus()
+        .setTimeout(TimeValue.timeValueSeconds(3L))
+        .get()
+        .getStatus() != ClusterHealthStatus.RED);
+    } catch (Exception e) {
+      return false;
+    }
+  }
 
+  @Override
+  public void onStart() {
     String home = props.of(ES_HOME_PROPERTY);
     if (home == null) {
       throw new IllegalStateException(MISSING_ES_HOME);
@@ -99,25 +120,7 @@ public class ElasticSearch extends Process {
     node = NodeBuilder.nodeBuilder()
       .settings(esSettings)
       .build();
-  }
 
-
-  @Override
-  public boolean isReady() {
-    try {
-      return (node.client().admin().cluster().prepareHealth()
-        .setWaitForYellowStatus()
-        .setTimeout(TimeValue.timeValueSeconds(3L))
-        .get()
-        .getStatus() != ClusterHealthStatus.RED);
-    } catch (Exception e) {
-      return false;
-    }
-  }
-
-  @Override
-  public void onStart() {
-    node.start();
     while (!node.isClosed()) {
       try {
         Thread.sleep(1000);
@@ -134,8 +137,7 @@ public class ElasticSearch extends Process {
   }
 
   public static void main(String... args) throws InterruptedException {
-    Props props = Props.create(System.getProperties());
-    final ElasticSearch elasticSearch = new ElasticSearch(props);
+    final ElasticSearch elasticSearch = new ElasticSearch(args);
     elasticSearch.start();
   }
 }

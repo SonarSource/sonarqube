@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,10 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -54,11 +58,11 @@ public abstract class Process implements ProcessMXBean {
 
   protected Long lastPing;
 
-  final String name;
-  final Integer port;
+  String name;
+  Integer port;
 
-  final protected Props props;
-  final private Thread shutdownHook;
+  protected final Props props;
+  private Thread shutdownHook;
 
   private static final long MAX_ALLOWED_TIME = 3000L;
   private ScheduledFuture<?> pingTask = null;
@@ -75,15 +79,40 @@ public abstract class Process implements ProcessMXBean {
     }
   };
 
+  public Process(String[] args) {
+    // loading arguments from file and system.
+    if (args.length < 1) {
+      throw new IllegalStateException("Process is missing argument!");
+    }
+
+    File propertyFile = new File(args[0]);
+    if (!propertyFile.exists()) {
+      throw new IllegalStateException("Property file '" + args[0] + "' does not exist! ");
+    }
+
+    Properties properties = new Properties();
+    try {
+      properties.load(new FileReader(propertyFile));
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not read properties from file '" + args[0] + "'", e);
+    }
+    props = Props.create(properties);
+    init();
+  }
+
+  @VisibleForTesting
   public Process(Props props) {
-  
-    validateSonarHome(props);
-    
-    // Loading all Properties from file
     this.props = props;
+    init();
+  }
+
+  private void init() {
+
+    // Loading all Properties from file
     this.name = props.of(NAME_PROPERTY, null);
     this.port = props.intOf(PORT_PROPERTY);
 
+    validateSonarHome(props);
 
     // Testing required properties
     if (StringUtils.isEmpty(this.name)) {
