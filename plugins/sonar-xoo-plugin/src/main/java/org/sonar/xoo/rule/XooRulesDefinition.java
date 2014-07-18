@@ -60,7 +60,9 @@ public class XooRulesDefinition implements RulesDefinition {
     x1Rule.createParam("acceptWhitespace")
       .setDefaultValue("false")
       .setType(RuleParamType.BOOLEAN)
-      .setDescription("Accept whitespaces (``\\s|\\t``) on the line");
+      .setDescription("= Accept whitespace (``\\s|\\t``) on the line\nThis property is available so that a line containing only whitespace is not considered empty.\n"
+        + "== Example with property set to ``false``\n``xoo\n   <- One issue here\n<- And one here\n``\n\n"
+        + "== Example with property set to ``true``\n``xoo\n   <- No issue here\n<- But one here\n``\n");
 
     // don't forget to call done() to finalize the definition
     repository.done();
