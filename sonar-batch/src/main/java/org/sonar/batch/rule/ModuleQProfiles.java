@@ -19,15 +19,9 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.batch.languages.Language;
-
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.config.Settings;
-import org.sonar.api.utils.MessageException;
-import org.sonar.batch.languages.LanguagesReferential;
-import org.sonar.batch.rules.QProfilesReferential;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 
 import javax.annotation.CheckForNull;
 
@@ -40,44 +34,16 @@ import java.util.Map;
 public class ModuleQProfiles implements BatchComponent {
 
   public static final String SONAR_PROFILE_PROP = "sonar.profile";
-
   private final Map<String, QProfile> byLanguage;
 
-  public ModuleQProfiles(Settings settings, LanguagesReferential languages, QProfilesReferential qProfileRef) {
+  public ModuleQProfiles(ProjectReferentials ref) {
     ImmutableMap.Builder<String, QProfile> builder = ImmutableMap.builder();
-    String defaultName = settings.getString(SONAR_PROFILE_PROP);
 
-    for (Language language : languages.all()) {
-      QProfile profile = null;
-      if (StringUtils.isNotBlank(defaultName)) {
-        profile = loadDefaultQProfile(qProfileRef, defaultName, language.key());
-      }
-      if (profile == null) {
-        profile = loadQProfile(qProfileRef, settings, language.key());
-      }
-      if (profile != null) {
-        builder.put(profile.getLanguage(), profile);
-      }
+    for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
+      builder.put(qProfile.language(),
+        new QProfile().setKey(qProfile.key()).setName(qProfile.name()).setLanguage(qProfile.language()).setRulesUpdatedAt(qProfile.rulesUpdatedAt()));
     }
     byLanguage = builder.build();
-  }
-
-  @CheckForNull
-  private QProfile loadQProfile(QProfilesReferential qProfileRef, Settings settings, String language) {
-    String profileName = settings.getString("sonar.profile." + language);
-    if (profileName != null) {
-      QProfile dto = qProfileRef.get(language, profileName);
-      if (dto == null) {
-        throw MessageException.of(String.format("Quality profile not found : '%s' on language '%s'", profileName, language));
-      }
-      return dto;
-    }
-    return null;
-  }
-
-  @CheckForNull
-  private QProfile loadDefaultQProfile(QProfilesReferential qProfileRef, String profileName, String language) {
-    return qProfileRef.get(language, profileName);
   }
 
   public Collection<QProfile> findAll() {

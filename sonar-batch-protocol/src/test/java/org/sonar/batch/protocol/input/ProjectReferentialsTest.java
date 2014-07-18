@@ -24,23 +24,32 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ProjectReferentialsTest {
 
   @Test
-  public void testToJson() throws JSONException {
+  public void testToJson() throws Exception {
     ProjectReferentials ref = new ProjectReferentials();
     ref.metrics().add(new Metric("ncloc", "INT"));
+    ref.addQProfile(new QProfile("squid-java", "Java", "java", new SimpleDateFormat("dd/MM/yyyy").parse("14/03/1984")));
 
     System.out.println(ref.toJson());
-    JSONAssert.assertEquals("{timestamp:0,languages:[],metrics:[{key:ncloc,valueType:INT}]}", ref.toJson(), true);
+    JSONAssert
+      .assertEquals(
+        "{timestamp:0,metrics:[{key:ncloc,valueType:INT}],"
+          + "qprofilesByLanguage:{java:{key:\"squid-java\","
+          + "name:Java,"
+          + "language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
+          + "activeRules:[]}",
+        ref.toJson(), true);
   }
 
   @Test
   public void testFromJson() throws JSONException {
-    ProjectReferentials ref = ProjectReferentials.fromJson(new StringReader("{timestamp:1,languages:[],metrics:[{key:ncloc,valueType:INT}]}"));
+    ProjectReferentials ref = ProjectReferentials.fromJson(new StringReader("{timestamp:1,metrics:[{key:ncloc,valueType:INT}]}"));
 
     assertThat(ref.timestamp()).isEqualTo(1);
     Metric metric = ref.metrics().iterator().next();

@@ -19,33 +19,24 @@
  */
 package org.sonar.batch.mediumtest;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.rule.internal.RulesBuilder;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.resources.Languages;
 import org.sonar.batch.bootstrap.PluginsReferential;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.languages.Language;
-import org.sonar.batch.languages.LanguagesReferential;
+import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.batch.referential.ProjectReferentialsLoader;
-import org.sonar.batch.rule.QProfile;
-import org.sonar.batch.rules.QProfilesReferential;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan2.AnalyzerIssueCache;
 import org.sonar.batch.scan2.AnalyzerMeasureCache;
@@ -58,7 +49,6 @@ import org.sonar.core.plugins.RemotePlugin;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -78,13 +68,7 @@ public class AnalyzerMediumTester {
     private final FakeProjectReferentialsLoader refProvider = new FakeProjectReferentialsLoader();
     private final FakeSettingsReferential settingsReferential = new FakeSettingsReferential();
     private final FackPluginsReferential pluginsReferential = new FackPluginsReferential();
-    private final FakeRuleFinder ruleFinder = new FakeRuleFinder();
-    private final FakeQProfileReferential qProfileReferential = new FakeQProfileReferential();
-    private final FakeLanguageReferential languageReferential = new FakeLanguageReferential();
     private final Map<String, String> bootstrapProperties = new HashMap<String, String>();
-    private final RulesBuilder rulesBuilder = new RulesBuilder();
-    private final ActiveRulesBuilder activeRulesBuilder = new ActiveRulesBuilder();
-    private int metricId = 1;
 
     public AnalyzerMediumTester build() {
       return new AnalyzerMediumTester(this);
@@ -109,12 +93,11 @@ public class AnalyzerMediumTester {
 
     public AnalyzerMediumTesterBuilder registerMetric(Metric<?> metric) {
       refProvider.add(metric);
-      metricId++;
       return this;
     }
 
     public AnalyzerMediumTesterBuilder addQProfile(String language, String name) {
-      qProfileReferential.add(new QProfile().setKey(name).setName(name).setLanguage(language).setRulesUpdatedAt(new Date()));
+      refProvider.addQProfile(language, name);
       return this;
     }
 
@@ -124,24 +107,13 @@ public class AnalyzerMediumTester {
       return this;
     }
 
-    public AnalyzerMediumTesterBuilder registerLanguage(org.sonar.api.resources.Language... languages) {
-      languageReferential.register(languages);
-      return this;
-    }
-
     public AnalyzerMediumTesterBuilder bootstrapProperties(Map<String, String> props) {
       bootstrapProperties.putAll(props);
       return this;
     }
 
-    public AnalyzerMediumTesterBuilder activateRule(RuleKey key) {
-      rulesBuilder.add(key);
-      activeRulesBuilder.create(key).activate();
-      return this;
-    }
-
-    public AnalyzerMediumTesterBuilder registerInactiveRule(RuleKey key) {
-      rulesBuilder.add(key);
+    public AnalyzerMediumTesterBuilder activateRule(ActiveRule activeRule) {
+      refProvider.addActiveRule(activeRule);
       return this;
     }
 
@@ -163,12 +135,7 @@ public class AnalyzerMediumTester {
         builder.settingsReferential,
         builder.pluginsReferential,
         builder.refProvider,
-        builder.ruleFinder,
-        builder.qProfileReferential,
-        builder.rulesBuilder.build(),
-        builder.activeRulesBuilder.build(),
-        new DefaultDebtModel(),
-        builder.languageReferential)
+        new DefaultDebtModel())
       .setBootstrapProperties(builder.bootstrapProperties)
       .build();
   }
@@ -266,12 +233,22 @@ public class AnalyzerMediumTester {
     private ProjectReferentials ref = new ProjectReferentials();
 
     @Override
-    public ProjectReferentials load(String projectKey) {
+    public ProjectReferentials load(ProjectReactor reactor, Settings settings, Languages languages) {
       return ref;
+    }
+
+    public FakeProjectReferentialsLoader addQProfile(String language, String name) {
+      ref.addQProfile(new org.sonar.batch.protocol.input.QProfile(name, name, language, new Date()));
+      return this;
     }
 
     public FakeProjectReferentialsLoader add(Metric metric) {
       ref.metrics().add(new org.sonar.batch.protocol.input.Metric(metric.key(), metric.getType().name()));
+      return this;
+    }
+
+    public FakeProjectReferentialsLoader addActiveRule(ActiveRule activeRule) {
+      ref.addActiveRule(activeRule);
       return this;
     }
   }
@@ -324,78 +301,6 @@ public class AnalyzerMediumTester {
     @Override
     public Map<PluginMetadata, SonarPlugin> localPlugins() {
       return localPlugins;
-    }
-
-  }
-
-  private static class FakeRuleFinder implements RuleFinder {
-    private BiMap<Integer, Rule> rulesById = HashBiMap.create();
-    private Map<String, Map<String, Rule>> rulesByRepoKeyAndRuleKey = Maps.newHashMap();
-
-    @Override
-    public Rule findById(int ruleId) {
-      return rulesById.get(ruleId);
-    }
-
-    @Override
-    public Rule findByKey(String repositoryKey, String ruleKey) {
-      Map<String, Rule> repository = rulesByRepoKeyAndRuleKey.get(repositoryKey);
-      return repository != null ? repository.get(ruleKey) : null;
-    }
-
-    @Override
-    public Rule findByKey(RuleKey key) {
-      return findByKey(key.repository(), key.rule());
-    }
-
-    @Override
-    public Rule find(RuleQuery query) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Collection<Rule> findAll(RuleQuery query) {
-      throw new UnsupportedOperationException();
-    }
-  }
-
-  private static class FakeQProfileReferential implements QProfilesReferential {
-
-    private Map<String, Map<String, QProfile>> profiles = new HashMap<String, Map<String, QProfile>>();
-
-    @Override
-    public QProfile get(String language, String name) {
-      return profiles.get(language).get(name);
-    }
-
-    public void add(QProfile qprofile) {
-      if (!profiles.containsKey(qprofile.getLanguage())) {
-        profiles.put(qprofile.getLanguage(), new HashMap<String, QProfile>());
-      }
-      profiles.get(qprofile.getLanguage()).put(qprofile.getName(), qprofile);
-    }
-
-  }
-
-  private static class FakeLanguageReferential implements LanguagesReferential {
-
-    private Map<String, Language> languages = new HashMap<String, Language>();
-
-    public FakeLanguageReferential register(org.sonar.api.resources.Language... languages) {
-      for (org.sonar.api.resources.Language language : languages) {
-        this.languages.put(language.getKey(), new Language(language.getKey(), language.getName(), language.getFileSuffixes()));
-      }
-      return this;
-    }
-
-    @Override
-    public Language get(String languageKey) {
-      return languages.get(languageKey);
-    }
-
-    @Override
-    public Collection<Language> all() {
-      return languages.values();
     }
 
   }

@@ -24,19 +24,36 @@ import com.google.gson.Gson;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProjectReferentials {
 
   private long timestamp;
-  private Collection<Language> languages = new ArrayList<Language>();
   private Collection<Metric> metrics = new ArrayList<Metric>();
-
-  public Collection<Language> languages() {
-    return languages;
-  }
+  private Map<String, QProfile> qprofilesByLanguage = new HashMap<String, QProfile>();
+  private Collection<ActiveRule> activeRules = new ArrayList<ActiveRule>();
 
   public Collection<Metric> metrics() {
     return metrics;
+  }
+
+  public Collection<QProfile> qProfiles() {
+    return qprofilesByLanguage.values();
+  }
+
+  public ProjectReferentials addQProfile(QProfile qProfile) {
+    qprofilesByLanguage.put(qProfile.language(), qProfile);
+    return this;
+  }
+
+  public Collection<ActiveRule> activeRules() {
+    return activeRules;
+  }
+
+  public ProjectReferentials addActiveRule(ActiveRule activeRule) {
+    activeRules.add(activeRule);
+    return this;
   }
 
   public long timestamp() {

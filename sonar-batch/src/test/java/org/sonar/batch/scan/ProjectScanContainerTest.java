@@ -32,6 +32,7 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrap.AnalysisMode;
@@ -39,6 +40,8 @@ import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
+import org.sonar.batch.protocol.input.ProjectReferentials;
+import org.sonar.batch.referential.ProjectReferentialsLoader;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.settings.SettingsReferential;
 
@@ -62,14 +65,22 @@ public class ProjectScanContainerTest {
     bootstrapProperties = new BootstrapProperties(Collections.<String, String>emptyMap());
     AnalysisMode analysisMode = new AnalysisMode(bootstrapProperties);
     when(projectBootstrapper.bootstrap()).thenReturn(new ProjectReactor(ProjectDefinition.create()));
-    settings = new GlobalSettings(bootstrapProperties, new PropertyDefinitions(), mock(SettingsReferential.class), new PropertiesConfiguration(), analysisMode);
     parentContainer = new ComponentContainer();
-    parentContainer.add(settings);
     parentContainer.add(System2.INSTANCE);
     parentContainer.add(bootstrapProperties);
     parentContainer.add(analysisMode);
     parentContainer.add(new PropertiesConfiguration());
-    parentContainer.add(mock(SettingsReferential.class));
+    SettingsReferential settingsReferential = mock(SettingsReferential.class);
+    settings = new GlobalSettings(bootstrapProperties, new PropertyDefinitions(), settingsReferential, new PropertiesConfiguration(), analysisMode);
+    parentContainer.add(settings);
+    parentContainer.add(settingsReferential);
+    ProjectReferentialsLoader projectReferentialsLoader = new ProjectReferentialsLoader() {
+      @Override
+      public ProjectReferentials load(ProjectReactor reactor, Settings settings, Languages languages) {
+        return new ProjectReferentials();
+      }
+    };
+    parentContainer.add(projectReferentialsLoader);
     container = new ProjectScanContainer(parentContainer);
   }
 

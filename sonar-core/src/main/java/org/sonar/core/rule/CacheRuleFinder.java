@@ -38,6 +38,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @deprecated since 4.5
+ */
+@Deprecated
 public final class CacheRuleFinder implements RuleFinder {
 
   private BiMap<Integer, Rule> rulesById = HashBiMap.create();

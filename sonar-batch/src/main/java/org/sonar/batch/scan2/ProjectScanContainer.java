@@ -28,13 +28,17 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.index.Caches;
+import org.sonar.batch.languages.DefaultLanguagesReferential;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
+import org.sonar.batch.referential.DefaultProjectReferentialsLoader;
 import org.sonar.batch.referential.ProjectReferentialsLoader;
+import org.sonar.batch.referential.ProjectReferentialsProvider;
 import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.batch.scan.ProjectSettings;
 import org.sonar.batch.scan.filesystem.InputFileCache;
@@ -76,14 +80,20 @@ public class ProjectScanContainer extends ComponentContainer {
       throw new IllegalStateException(bootstrapper + " has returned null as ProjectReactor");
     }
     add(reactor);
-    ProjectReferentialsLoader projectReferentialsLoader = getComponentByType(ProjectReferentialsLoader.class);
-    add(projectReferentialsLoader.load(reactor.getRoot().getKeyWithBranch()));
+    if (getComponentByType(ProjectReferentialsLoader.class) == null) {
+      add(DefaultProjectReferentialsLoader.class);
+    }
   }
 
   private void addBatchComponents() {
     add(
+      new ProjectReferentialsProvider(),
       ProjectSettings.class,
       Caches.class,
+
+      // lang
+      Languages.class,
+      DefaultLanguagesReferential.class,
 
       // Measures
       DefaultMetricFinder.class,

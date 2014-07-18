@@ -19,18 +19,15 @@
  */
 package org.sonar.batch.rule;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RuleParam;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.input.ProjectReferentials;
+
+import java.util.Map.Entry;
 
 /**
  * Loads the rules that are activated on the Quality profiles
@@ -40,48 +37,27 @@ public class ActiveRulesProvider extends ProviderAdapter {
 
   private ActiveRules singleton = null;
 
-  public ActiveRules provide(ModuleQProfiles qProfiles, ActiveRuleDao dao, RuleFinder ruleFinder) {
+  public ActiveRules provide(ProjectReferentials ref) {
     if (singleton == null) {
-      singleton = load(qProfiles, dao, ruleFinder);
+      singleton = load(ref);
     }
     return singleton;
   }
 
-  private ActiveRules load(ModuleQProfiles qProfiles, ActiveRuleDao dao, RuleFinder ruleFinder) {
+  private ActiveRules load(ProjectReferentials ref) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    for (QProfile qProfile : qProfiles.findAll()) {
-      ListMultimap<Integer, ActiveRuleParamDto> paramDtosByActiveRuleId = ArrayListMultimap.create();
-      for (ActiveRuleParamDto dto : dao.selectParamsByProfileKey(qProfile.getKey())) {
-        paramDtosByActiveRuleId.put(dto.getActiveRuleId(), dto);
+    for (ActiveRule activeRule : ref.activeRules()) {
+      NewActiveRule newActiveRule = builder.create(RuleKey.of(activeRule.repositoryKey(), activeRule.ruleKey()));
+      newActiveRule.setSeverity(activeRule.severity());
+      newActiveRule.setLanguage(activeRule.language());
+      newActiveRule.setInternalKey(activeRule.internalKey());
+
+      // load parameters
+      for (Entry<String, String> param : activeRule.params().entrySet()) {
+        newActiveRule.setParam(param.getKey(), param.getValue());
       }
 
-      for (ActiveRuleDto activeDto : dao.selectByProfileKey(qProfile.getKey())) {
-        Rule rule = ruleFinder.findById(activeDto.getRulId());
-        if (rule != null) {
-          NewActiveRule newActiveRule = builder.create(rule.ruleKey());
-          newActiveRule.setSeverity(activeDto.getSeverityString());
-          newActiveRule.setLanguage(rule.getLanguage());
-          Rule template = rule.getTemplate();
-          if (template != null) {
-            newActiveRule.setInternalKey(template.getConfigKey());
-          } else {
-            newActiveRule.setInternalKey(rule.getConfigKey());
-          }
-
-          // load parameter values
-          for (ActiveRuleParamDto paramDto : paramDtosByActiveRuleId.get(activeDto.getId())) {
-            newActiveRule.setParam(paramDto.getKey(), paramDto.getValue());
-          }
-
-          // load default values
-          for (RuleParam param : rule.getParams()) {
-            if (!newActiveRule.params().containsKey(param.getKey())) {
-              newActiveRule.setParam(param.getKey(), param.getDefaultValue());
-            }
-          }
-          newActiveRule.activate();
-        }
-      }
+      newActiveRule.activate();
     }
     return builder.build();
   }

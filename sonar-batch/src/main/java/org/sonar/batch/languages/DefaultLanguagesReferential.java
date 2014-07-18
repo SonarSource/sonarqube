@@ -30,11 +30,11 @@ import java.util.Collection;
  * Languages referential using {@link Languages}
  * @since 4.4
  */
-public class DeprecatedLanguagesReferential implements LanguagesReferential {
+public class DefaultLanguagesReferential implements LanguagesReferential {
 
   private Languages languages;
 
-  public DeprecatedLanguagesReferential(Languages languages) {
+  public DefaultLanguagesReferential(Languages languages) {
     this.languages = languages;
   }
 

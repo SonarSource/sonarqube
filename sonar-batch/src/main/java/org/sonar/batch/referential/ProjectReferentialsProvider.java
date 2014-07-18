@@ -17,5 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.batch.rules;
+package org.sonar.batch.referential;
+
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Languages;
+import org.sonar.batch.protocol.input.ProjectReferentials;
+
+public class ProjectReferentialsProvider extends ProviderAdapter {
+
+  public ProjectReferentials provide(ProjectReferentialsLoader loader, ProjectReactor reactor, Settings settings, Languages languages) {
+    return loader.load(reactor, settings, languages);
+  }
+}

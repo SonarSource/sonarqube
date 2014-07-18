@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
-import org.sonar.batch.languages.DeprecatedLanguagesReferential;
+import org.sonar.batch.languages.DefaultLanguagesReferential;
 import org.sonar.batch.languages.LanguagesReferential;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -31,7 +31,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class LanguageDetectionFactoryTest {
   @Test
   public void testCreate() throws Exception {
-    LanguagesReferential languages = new DeprecatedLanguagesReferential(new Languages(Java.INSTANCE));
+    LanguagesReferential languages = new DefaultLanguagesReferential(new Languages(Java.INSTANCE));
     LanguageDetectionFactory factory = new LanguageDetectionFactory(new Settings(), languages);
     LanguageDetection languageDetection = factory.create();
     assertThat(languageDetection).isNotNull();

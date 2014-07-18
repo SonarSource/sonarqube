@@ -41,6 +41,7 @@ import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsRegexpScanner;
+import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.scan.LanguageVerifier;
@@ -106,6 +107,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
       // rules
       ModuleQProfiles.class,
+      new ActiveRulesProvider(),
       CheckFactory.class,
 
       // issues

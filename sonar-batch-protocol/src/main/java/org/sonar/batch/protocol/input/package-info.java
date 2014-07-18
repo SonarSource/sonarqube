@@ -17,24 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.rules;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.protocol.input;
 
-import org.sonar.batch.rule.QProfile;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.sonar.api.BatchComponent;
-
-import javax.annotation.CheckForNull;
-
-/**
- * Quality profiles referential
- * @since 4.4
- */
-public interface QProfilesReferential extends BatchComponent {
-
-  /**
-   * Get quality profile
-   */
-  @CheckForNull
-  QProfile get(String language, String name);
-
-}

@@ -87,7 +87,7 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
     return this;
   }
 
-  public Integer getRulId() {
+  public Integer getRuleId() {
     return ruleId;
   }
 

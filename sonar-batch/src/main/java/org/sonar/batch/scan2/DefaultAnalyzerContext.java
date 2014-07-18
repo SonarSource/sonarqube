@@ -33,7 +33,6 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.scan.AnalyzerContextAdaptor;
@@ -50,10 +49,9 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final IssueFilters issueFilters;
-  private final Rules rules;
 
   public DefaultAnalyzerContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, AnalyzerIssueCache issueCache,
-    Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters, Rules rules) {
+    Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters) {
     this.def = def;
     this.measureCache = measureCache;
     this.issueCache = issueCache;
@@ -61,7 +59,6 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
     this.fs = fs;
     this.activeRules = activeRules;
     this.issueFilters = issueFilters;
-    this.rules = rules;
   }
 
   @Override

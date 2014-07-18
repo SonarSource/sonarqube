@@ -28,12 +28,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.mediumtest.AnalyzerMediumTester;
 import org.sonar.batch.mediumtest.AnalyzerMediumTester.TaskResult;
 import org.sonar.batch.mediumtest.xoo.plugin.XooPlugin;
-import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
+import org.sonar.batch.protocol.input.ActiveRule;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,9 +49,8 @@ public class FileSystemMediumTest {
 
   public AnalyzerMediumTester tester = AnalyzerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
-    .registerLanguage(new Xoo())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .activateRule(RuleKey.of("xoo", "OneIssuePerLine"))
+    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", "MAJOR", "xoo", "xoo"))
     .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     .build();
 

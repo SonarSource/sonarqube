@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.rule;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
@@ -28,8 +27,9 @@ import java.util.Collection;
 
 /**
  * @since 4.2
+ * @deprecated since 4.5 use {@link ActiveRules}
  */
-@Beta
+@Deprecated
 public interface Rules {
 
   @CheckForNull

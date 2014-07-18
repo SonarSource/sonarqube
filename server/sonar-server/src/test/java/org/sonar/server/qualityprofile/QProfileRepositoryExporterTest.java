@@ -50,7 +50,11 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileRepositoryExporterTest {
@@ -105,7 +109,7 @@ public class QProfileRepositoryExporterTest {
 
     ArgumentCaptor<ActiveRuleDto> activeRuleArgument = ArgumentCaptor.forClass(ActiveRuleDto.class);
     verify(activeRuleDao).insert(activeRuleArgument.capture(), eq(session));
-    assertThat(activeRuleArgument.getValue().getRulId()).isEqualTo(10);
+    assertThat(activeRuleArgument.getValue().getRuleId()).isEqualTo(10);
     assertThat(activeRuleArgument.getValue().getSeverityString()).isEqualTo(Severity.BLOCKER);
 
     ArgumentCaptor<ActiveRuleParamDto> activeRuleParamArgument = ArgumentCaptor.forClass(ActiveRuleParamDto.class);

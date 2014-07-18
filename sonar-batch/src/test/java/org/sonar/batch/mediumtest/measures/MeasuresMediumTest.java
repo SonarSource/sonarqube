@@ -31,7 +31,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.AnalyzerMediumTester;
 import org.sonar.batch.mediumtest.AnalyzerMediumTester.TaskResult;
 import org.sonar.batch.mediumtest.xoo.plugin.XooPlugin;
-import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +44,6 @@ public class MeasuresMediumTest {
 
   public AnalyzerMediumTester tester = AnalyzerMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
-    .registerLanguage(new Xoo())
     .addDefaultQProfile("xoo", "Sonar Way")
     .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     .build();

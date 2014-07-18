@@ -19,15 +19,51 @@
  */
 package org.sonar.batch.protocol.input;
 
-import java.util.Map;
+import java.util.Date;
 
-public class QProfiles {
+public class QProfile {
 
-  public static class QProfile {
+  private final String key, name, language;
+  private final Date rulesUpdatedAt;
 
-    private String key, name, language;
+  public QProfile(String key, String name, String language, Date rulesUpdatedAt) {
+    this.key = key;
+    this.name = name;
+    this.language = language;
+    this.rulesUpdatedAt = rulesUpdatedAt;
   }
 
-  private Map<String, QProfile> byLanguage;
+  public String key() {
+    return key;
+  }
 
+  public String name() {
+    return name;
+  }
+
+  public String language() {
+    return language;
+  }
+
+  public Date rulesUpdatedAt() {
+    return rulesUpdatedAt;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    QProfile qProfile = (QProfile) o;
+    return key.equals(qProfile.key);
+  }
+
+  @Override
+  public int hashCode() {
+    return key.hashCode();
+  }
 }

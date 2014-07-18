@@ -25,25 +25,19 @@ import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
-import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.batch.components.PastSnapshotFinderByDate;
 import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
-import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.referential.DefaultProjectReferentialsLoader;
 import org.sonar.batch.referential.ProjectReferentialsLoader;
-import org.sonar.batch.rule.RulesProvider;
-import org.sonar.batch.rules.DefaultQProfileReferential;
-import org.sonar.batch.rules.QProfilesReferential;
 import org.sonar.batch.settings.DefaultSettingsReferential;
 import org.sonar.batch.settings.SettingsReferential;
 import org.sonar.core.cluster.NullQueue;
@@ -110,20 +104,14 @@ public class BootstrapContainer extends ComponentContainer {
       UriReader.class,
       new FileCacheProvider(),
       System2.INSTANCE);
-    if (getComponentByType(ProjectReferentialsLoader.class) == null) {
-      add(DefaultProjectReferentialsLoader.class);
-    }
     if (getComponentByType(SettingsReferential.class) == null) {
       add(DefaultSettingsReferential.class);
     }
     if (getComponentByType(PluginsReferential.class) == null) {
       add(DefaultPluginsReferential.class);
     }
-    if (getComponentByType(RuleFinder.class) == null) {
-      add(CacheRuleFinder.class);
-    }
-    if (getComponentByType(QProfilesReferential.class) == null) {
-      add(DefaultQProfileReferential.class);
+    if (getComponentByType(ProjectReferentialsLoader.class) == null) {
+      add(DefaultProjectReferentialsLoader.class);
     }
   }
 
@@ -141,7 +129,8 @@ public class BootstrapContainer extends ComponentContainer {
       JpaDatabaseSession.class,
       BatchDatabaseSessionFactory.class,
       DaoUtils.getDaoClasses(),
-      PurgeProfiler.class);
+      PurgeProfiler.class,
+      CacheRuleFinder.class);
   }
 
   /**
@@ -161,11 +150,8 @@ public class BootstrapContainer extends ComponentContainer {
       PastSnapshotFinderByPreviousAnalysis.class,
       PastSnapshotFinderByVersion.class,
       PastSnapshotFinderByPreviousVersion.class,
-      PastMeasuresLoader.class,
       PastSnapshotFinder.class,
-      Durations.class,
-      new DebtModelProvider(),
-      new RulesProvider());
+      Durations.class);
   }
 
   @Override

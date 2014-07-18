@@ -39,7 +39,9 @@ import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
+import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PeriodsDefinition;
+import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ComponentDataCache;
@@ -60,10 +62,11 @@ import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.IssuePersister;
 import org.sonar.batch.issue.ScanIssueStorage;
-import org.sonar.batch.languages.DeprecatedLanguagesReferential;
+import org.sonar.batch.languages.DefaultLanguagesReferential;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
-import org.sonar.batch.referential.ProjectReferentialsLoader;
+import org.sonar.batch.referential.ProjectReferentialsProvider;
+import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
@@ -123,13 +126,11 @@ public class ProjectScanContainer extends ComponentContainer {
       }
       add(reactor);
     }
-    ProjectReferentialsLoader projectReferentialsLoader = getComponentByType(ProjectReferentialsLoader.class);
-    add(projectReferentialsLoader.load(reactor.getRoot().getKeyWithBranch()));
-
   }
 
   private void addBatchComponents() {
     add(
+      new ProjectReferentialsProvider(),
       DefaultResourceCreationLock.class,
       DefaultPersistenceManager.class,
       DependencyPersister.class,
@@ -179,7 +180,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // lang
       Languages.class,
-      DeprecatedLanguagesReferential.class,
+      DefaultLanguagesReferential.class,
       HighlightableBuilder.class,
       SymbolizableBuilder.class,
 
@@ -193,6 +194,11 @@ public class ProjectScanContainer extends ComponentContainer {
       MeasureCache.class,
       DeprecatedMetricFinder.class,
       DefaultMetricFinder.class,
+      PastMeasuresLoader.class,
+
+      // Rules
+      new RulesProvider(),
+      new DebtModelProvider(),
 
       ProjectSettings.class);
   }
