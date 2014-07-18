@@ -208,7 +208,7 @@ class Treemap extends window.SonarWidgets.BaseWidget
     jQuery.get(RESOURCES_URL, resource: d.key, depth: 1, metrics: metrics).done (r) =>
       components = @formatComponents r
       if components?
-        components = _.sortBy components, (d) => @sizeMetric.value d
+        components = _.sortBy components, (d) => -@sizeMetric.value d
         components = _.initial components, components.length - @options().maxItems - 1
         @updateTreemap components, components.length > @options().maxItems
         @addToBreadcrumbs _.extend d, components: components, maxResultsReached: @maxResultsReached()
