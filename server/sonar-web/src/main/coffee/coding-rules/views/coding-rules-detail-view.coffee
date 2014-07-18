@@ -6,6 +6,7 @@ define [
   'coding-rules/views/coding-rules-detail-custom-rules-view'
   'coding-rules/views/coding-rules-detail-custom-rule-view'
   'coding-rules/views/coding-rules-parameter-popup-view'
+  'coding-rules/views/coding-rules-debt-popup-view'
   'templates/coding-rules'
 ], (
   Backbone
@@ -15,6 +16,7 @@ define [
   CodingRulesDetailCustomRulesView
   CodingRulesDetailCustomRuleView
   CodingRulesParameterPopupView
+  CodingRulesDebtPopupView
   Templates
 ) ->
 
@@ -70,6 +72,7 @@ define [
       'click @ui.deleteCustomRule': 'deleteCustomRule'
 
       'click .coding-rules-detail-parameter-details': 'showParamPopup'
+      'click .coding-rules-subcharacteristic': 'showDebtPopup'
 
     initialize: (options) ->
       super options
@@ -175,6 +178,17 @@ define [
       key = jQuery(e.currentTarget).closest('.coding-rules-detail-parameter').data 'key'
       popup = new CodingRulesParameterPopupView
         model: new Backbone.Model _.findWhere(@model.get('params'), key: key)
+        triggerEl: jQuery(e.currentTarget)
+      popup.render()
+      false
+
+
+    showDebtPopup: (e) ->
+      e.stopPropagation()
+      jQuery('body').click()
+      popup = new CodingRulesDebtPopupView
+        model: @model
+        app: @options.app
         triggerEl: jQuery(e.currentTarget)
       popup.render()
       false
@@ -317,6 +331,6 @@ define [
         isManual: isManual
         canWrite: @options.app.canWrite
         qualityProfilesVisible: qualityProfilesVisible
-        subcharacteristic: (@options.app.characteristics[@model.get 'debtSubChar'] || '').replace ': ', ' > '
+        subcharacteristic: @options.app.getSubcharacteristicName(@model.get 'debtSubChar')
         createdAt: new Date(@model.get 'createdAt')
         allTags: _.union @model.get('sysTags'), @model.get('tags')

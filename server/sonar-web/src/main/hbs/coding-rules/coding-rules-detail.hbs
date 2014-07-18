@@ -33,8 +33,9 @@
     </div>
   </li>{{/if}}
 
-
-  <li class="coding-rules-detail-property" title="{{t 'coding_rules.remediation_function'}} {{t 'coding_rules.remediation_function' debtRemFnType}}{{#if debtRemFnCoeff}}, {{t 'coding_rules.remediation_function.coeff'}} {{debtRemFnCoeff}}{{/if}}{{#if debtRemFnOffset}}, {{t 'coding_rules.remediation_function.offset'}} {{debtRemFnOffset}}{{/if}}">{{subcharacteristic}}</li>
+  {{#if subcharacteristic}}
+    <li class="coding-rules-detail-property">{{subcharacteristic}} <a href="#" class="coding-rules-subcharacteristic">{{t 'more'}}</a></li>
+  {{/if}}
   <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
   <li class="coding-rules-detail-property">{{repository}}{{#unless isManual}} ({{language}}){{/unless}}</li>
 

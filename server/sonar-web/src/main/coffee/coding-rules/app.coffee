@@ -246,6 +246,11 @@ requirejs [
   App.getQualityProfileByKey = (profile_key) ->
     _.findWhere App.qualityProfiles, key: profile_key
 
+
+  App.getSubcharacteristicName = (name) ->
+    (App.characteristics[name] || '').replace ': ', ' > '
+
+
   App.showRule = (ruleKey) ->
     App.layout.showSpinner 'detailsRegion'
     jQuery.ajax
