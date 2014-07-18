@@ -65,6 +65,7 @@ public class ElasticSearch extends Process {
         .get()
         .getStatus() != ClusterHealthStatus.RED);
     } catch (Exception e) {
+      //LOGGER.warn("ES is not ready yet.", e);
       return false;
     }
   }
@@ -119,11 +120,11 @@ public class ElasticSearch extends Process {
 
     node = NodeBuilder.nodeBuilder()
       .settings(esSettings)
-      .build();
+      .build().start();
 
-    while (!node.isClosed()) {
+    while (node != null && !node.isClosed()) {
       try {
-        Thread.sleep(1000);
+        Thread.sleep(100);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }

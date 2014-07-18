@@ -126,13 +126,16 @@ public class ElasticSearchTest {
     }).start();
     assertThat(elasticSearch.isReady()).isFalse();
 
-    while (!elasticSearch.isReady()) {
+    int count = 0;
+    while (!elasticSearch.isReady() && count < 100) {
       try {
-        Thread.sleep(200);
+        Thread.sleep(500);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
+      count++;
     }
+    assertThat(count).isLessThan(100);
 
     Settings settings = ImmutableSettings.settingsBuilder()
       .put("cluster.name", "sonarqube")

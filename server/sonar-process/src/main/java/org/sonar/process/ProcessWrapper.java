@@ -173,6 +173,10 @@ public class ProcessWrapper extends Thread {
       for (Map.Entry<String, String> property : properties.entrySet()) {
         props.put(property.getKey(), property.getValue());
       }
+      props.put(Process.SONAR_HOME, workDir);
+      props.put(Process.NAME_PROPERTY, this.getName());
+      props.put(Process.PORT_PROPERTY, Integer.toString(port));
+
       OutputStream out = new FileOutputStream(propertyFile);
       props.store(out, "Temporary properties file for Process [" + getName() + "]");
       out.close();
