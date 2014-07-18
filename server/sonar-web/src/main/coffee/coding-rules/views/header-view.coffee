@@ -12,7 +12,12 @@ define [
 
     events:
       'click #coding-rules-new-search': 'newSearch'
+      'click #coding-rules-create-rule': 'createRule'
 
 
     newSearch: ->
       @options.app.router.emptyQuery()
+
+
+    createRule: ->
+      @options.app.createManualRule()

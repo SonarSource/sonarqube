@@ -1,0 +1,47 @@
+<form>
+  <div class="modal-head">
+    {{#if change}}
+      <h2>{{t 'coding_rules.update_manual_rule'}}</h2>
+    {{else}}
+      <h2>{{t 'coding_rules.create_manual_rule'}}</h2>
+    {{/if}}
+  </div>
+
+  <div class="modal-body">
+    <div class="modal-error"></div>
+    <div class="modal-warning">{{t 'coding_rules.reactivate.help'}}</div>
+
+    <table>
+      <tr class="property">
+        <th><h3>{{t 'name'}} <em class="mandatory">*</em></h3></th>
+        <td>
+          <input type="text" name="name" id="coding-rules-manual-rule-creation-name" value="{{name}}"/>
+        </td>
+      </tr>
+      <tr class="property">
+        <th><h3>{{t 'key'}}{{#unless change}} <em class="mandatory">*</em>{{/unless}}</h3></th>
+        <td>
+          {{#if change}}
+            {{key}}
+          {{else}}
+            <input type="text" name="key" id="coding-rules-manual-rule-creation-key" value="{{internalKey}}"/>
+          {{/if}}
+        </td>
+      </tr>
+      <tr class="property">
+        <th><h3>{{t 'description'}} <em class="mandatory">*</em></h3></th>
+        <td>
+          <textarea type="textarea" name="markdown_description" id="coding-rules-manual-rule-creation-html-description"
+            rows="4" style="width: 100%; margin-bottom: 4px;">{{{mdDesc}}}</textarea>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="modal-foot">
+    <button id="coding-rules-manual-rule-creation-create">
+      {{#if change}}{{t 'save'}}{{else}}{{t 'create'}}{{/if}}
+    </button>
+    <a id="coding-rules-manual-rule-creation-cancel" class="action">{{t 'cancel'}}</a>
+  </div>
+</form>

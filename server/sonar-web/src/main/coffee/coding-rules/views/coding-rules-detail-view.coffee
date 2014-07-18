@@ -52,7 +52,8 @@ define [
       changeQualityProfile: '.coding-rules-detail-quality-profile-update'
       createCustomRule: '#coding-rules-custom-rules-create'
       changeCustomRule: '#coding-rules-detail-custom-rule-change'
-      deleteCustomRule: '#coding-rules-detail-custom-rule-delete'
+      changeManualRule: '#coding-rules-detail-manual-rule-change'
+      deleteCustomRule: '#coding-rules-detail-rule-delete'
 
 
     events:
@@ -69,7 +70,8 @@ define [
       'click @ui.changeQualityProfile': 'changeQualityProfile'
       'click @ui.createCustomRule': 'createCustomRule'
       'click @ui.changeCustomRule': 'changeCustomRule'
-      'click @ui.deleteCustomRule': 'deleteCustomRule'
+      'click @ui.changeManualRule': 'changeManualRule'
+      'click @ui.deleteCustomRule': 'deleteRule'
 
       'click .coding-rules-detail-parameter-details': 'showParamPopup'
       'click .coding-rules-subcharacteristic': 'showDebtPopup'
@@ -293,7 +295,12 @@ define [
       @options.app.codingRulesCustomRuleCreationView.show()
 
 
-    deleteCustomRule: ->
+    changeManualRule: ->
+      @options.app.codingRulesManualRuleCreationView.model = @model
+      @options.app.codingRulesManualRuleCreationView.show()
+
+
+    deleteRule: ->
       confirmDialog
         title: t 'delete'
         html: t 'are_you_sure'
@@ -313,6 +320,7 @@ define [
       contextQualityProfile = @options.app.getQualityProfile()
       repoKey = @model.get 'repo'
       isManual = (@options.app.manualRepository().key == repoKey)
+      isCustom = (@model.get('templateKey') != null)
 
       qualityProfilesVisible = not isManual
       if qualityProfilesVisible
@@ -330,6 +338,7 @@ define [
         repository: _.find(@options.app.repositories, (repo) -> repo.key == repoKey).name
         isManual: isManual
         canWrite: @options.app.canWrite
+        isEditable: (@options.app.canWrite and (isManual or isCustom))
         qualityProfilesVisible: qualityProfilesVisible
         subcharacteristic: @options.app.getSubcharacteristicName(@model.get 'debtSubChar')
         createdAt: new Date(@model.get 'createdAt')

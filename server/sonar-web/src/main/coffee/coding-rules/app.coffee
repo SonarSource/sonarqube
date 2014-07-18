@@ -34,6 +34,7 @@ requirejs [
   'coding-rules/views/coding-rules-bulk-change-dropdown-view',
   'coding-rules/views/coding-rules-facets-view',
   'coding-rules/views/coding-rules-custom-rule-creation-view',
+  'coding-rules/views/coding-rules-manual-rule-creation-view',
 
   # filters
   'navigator/filters/base-filters',
@@ -70,6 +71,7 @@ requirejs [
   CodingRulesBulkChangeDropdownView,
   CodingRulesFacetsView,
   CodingRulesCustomRuleCreationView,
+  CodingRulesManualRuleCreationView,
 
   # filters
   BaseFilters,
@@ -274,6 +276,11 @@ requirejs [
     language: 'none'
 
 
+  App.createManualRule = ->
+    App.codingRulesManualRuleCreationView.model = new Backbone.Model()
+    App.codingRulesManualRuleCreationView.show()
+
+
   # Construct layout
   App.addInitializer ->
     @layout = new CodingRulesLayout app: @
@@ -316,6 +323,10 @@ requirejs [
   App.addInitializer ->
     @codingRulesCustomRuleCreationView = new CodingRulesCustomRuleCreationView app: @
 
+
+  # Construct custom rule creation view
+  App.addInitializer ->
+    @codingRulesManualRuleCreationView = new CodingRulesManualRuleCreationView app: @
 
   # Define filters
   App.addInitializer ->
