@@ -25,6 +25,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -35,25 +36,34 @@ public class ProjectReferentialsTest {
     ProjectReferentials ref = new ProjectReferentials();
     ref.metrics().add(new Metric("ncloc", "INT"));
     ref.addQProfile(new QProfile("squid-java", "Java", "java", new SimpleDateFormat("dd/MM/yyyy").parse("14/03/1984")));
+    ref.addSettings("foo", new HashMap<String, String>());
+    ref.settings("foo").put("prop", "value");
+    ref.addActiveRule(new ActiveRule("repo", "rule", "MAJOR", "rule", "java"));
+    ref.setTimestamp(10);
 
     System.out.println(ref.toJson());
     JSONAssert
       .assertEquals(
-        "{timestamp:0,metrics:[{key:ncloc,valueType:INT}],"
-          + "qprofilesByLanguage:{java:{key:\"squid-java\","
-          + "name:Java,"
-          + "language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
-          + "activeRules:[]}",
+        "{timestamp:10,metrics:[{key:ncloc,valueType:INT}],"
+          + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
+          + "activeRules:[{repositoryKey:repo,ruleKey:rule,severity:MAJOR,internalKey:rule,language:java,params:{}}],"
+          + "settingsByModule:{foo:{prop:value}}}",
         ref.toJson(), true);
   }
 
   @Test
   public void testFromJson() throws JSONException {
-    ProjectReferentials ref = ProjectReferentials.fromJson(new StringReader("{timestamp:1,metrics:[{key:ncloc,valueType:INT}]}"));
+    ProjectReferentials ref = ProjectReferentials.fromJson(new StringReader("{timestamp:1,metrics:[{key:ncloc,valueType:DATA}],"
+      + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
+      + "activeRules:[{repositoryKey:repo,ruleKey:rule,severity:MAJOR,internalKey:rule,language:java,params:{}}],"
+      + "settingsByModule:{foo:{prop:value}}}"));
 
     assertThat(ref.timestamp()).isEqualTo(1);
     Metric metric = ref.metrics().iterator().next();
     assertThat(metric.key()).isEqualTo("ncloc");
-    assertThat(metric.valueType()).isEqualTo("INT");
+    assertThat(metric.valueType()).isEqualTo("DATA");
+
+    assertThat(ref.activeRules().iterator().next().ruleKey()).isEqualTo("rule");
+    assertThat(ref.qProfiles().iterator().next().name()).isEqualTo("Java");
   }
 }

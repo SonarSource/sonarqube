@@ -27,12 +27,26 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Container for all data going from server to batch.
+ * This is not an API since server and batch always share the same version.
+ */
 public class ProjectReferentials {
 
   private long timestamp;
   private Collection<Metric> metrics = new ArrayList<Metric>();
   private Map<String, QProfile> qprofilesByLanguage = new HashMap<String, QProfile>();
   private Collection<ActiveRule> activeRules = new ArrayList<ActiveRule>();
+  private Map<String, Map<String, String>> settingsByModule = new HashMap<String, Map<String, String>>();
+
+  public Map<String, String> settings(String projectKey) {
+    return settingsByModule.get(projectKey);
+  }
+
+  public ProjectReferentials addSettings(String projectKey, Map<String, String> settings) {
+    settingsByModule.put(projectKey, settings);
+    return this;
+  }
 
   public Collection<Metric> metrics() {
     return metrics;
