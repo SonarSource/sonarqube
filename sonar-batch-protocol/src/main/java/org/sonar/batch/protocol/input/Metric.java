@@ -19,6 +19,9 @@
  */
 package org.sonar.batch.protocol.input;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class Metric {
 
   private final int id;
@@ -31,7 +34,7 @@ public class Metric {
 
   private final boolean optimizedBestValue;
 
-  public Metric(int id, String key, String valueType, Double bestValue, boolean optimizedBestValue) {
+  public Metric(int id, String key, String valueType, @Nullable Double bestValue, boolean optimizedBestValue) {
     this.id = id;
     this.key = key;
     this.valueType = valueType;
@@ -51,6 +54,7 @@ public class Metric {
     return valueType;
   }
 
+  @CheckForNull
   public Double bestValue() {
     return bestValue;
   }

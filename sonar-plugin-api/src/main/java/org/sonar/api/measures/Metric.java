@@ -26,6 +26,7 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -466,6 +467,7 @@ public class Metric<G extends Serializable> implements ServerExtension, BatchExt
     return worstValue;
   }
 
+  @CheckForNull
   public Double getBestValue() {
     return bestValue;
   }
@@ -519,6 +521,10 @@ public class Metric<G extends Serializable> implements ServerExtension, BatchExt
     return this;
   }
 
+  /**
+   * @return null for manual metrics
+   */
+  @CheckForNull
   public Boolean isOptimizedBestValue() {
     return optimizedBestValue;
   }

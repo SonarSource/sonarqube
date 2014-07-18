@@ -71,7 +71,9 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
   public ProjectReferentials load(ProjectReactor reactor, Settings settings, Languages languages) {
     ProjectReferentials ref = new ProjectReferentials();
     for (Metric m : sessionFactory.getSession().getResults(Metric.class, ENABLED, true)) {
-      ref.metrics().add(new org.sonar.batch.protocol.input.Metric(m.getId(), m.getKey(), m.getType().name(), m.getBestValue(), m.isOptimizedBestValue()));
+      Boolean optimizedBestValue = m.isOptimizedBestValue();
+      ref.metrics().add(
+        new org.sonar.batch.protocol.input.Metric(m.getId(), m.getKey(), m.getType().name(), m.getBestValue(), optimizedBestValue != null ? optimizedBestValue : false));
     }
 
     String defaultName = settings.getString(ModuleQProfiles.SONAR_PROFILE_PROP);
