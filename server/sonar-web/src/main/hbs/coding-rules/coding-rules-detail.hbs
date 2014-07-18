@@ -109,22 +109,24 @@
   <h3 class="coding-rules-detail-title">{{t 'coding_rules.parameters'}}</h3>
   <ul class="coding-rules-detail-parameters">
     {{#each params}}
-      <li class="coding-rules-detail-parameter">
+      <li class="coding-rules-detail-parameter" data-key="{{key}}">
         <h3 class="coding-rules-detail-parameter-name">{{key}}</h3>
 
         <div class="coding-rules-detail-parameter-description">
           {{#if ../../templateKey}}
             <span class="value">{{defaultValue}}</span>
           {{else}}
-            <div class="coding-rules-detail-parameter-description">
-              {{{htmlDesc}}}
-              {{#if defaultValue}}
-                <div>
-                  {{t 'coding_rules.parameters.default_value'}} {{defaultValue}}
-                </div>
-              {{/if}}
-            </div>
+            {{{htmlDesc}}}
+            {{#if defaultValue}}
+              <div>
+                {{t 'coding_rules.parameters.default_value'}} {{defaultValue}}
+              </div>
+            {{/if}}
           {{/if}}
+        </div>
+        {{#if showMoreLink}}
+          <a href="#" class="coding-rules-detail-parameter-details">{{t 'more'}}</a>
+        {{/if}}
       </li>
     {{/each}}
   </ul>

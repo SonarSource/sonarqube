@@ -5,6 +5,7 @@ define [
   'coding-rules/views/coding-rules-detail-quality-profile-view'
   'coding-rules/views/coding-rules-detail-custom-rules-view'
   'coding-rules/views/coding-rules-detail-custom-rule-view'
+  'coding-rules/views/coding-rules-parameter-popup-view'
   'templates/coding-rules'
 ], (
   Backbone
@@ -13,6 +14,7 @@ define [
   CodingRulesDetailQualityProfileView
   CodingRulesDetailCustomRulesView
   CodingRulesDetailCustomRuleView
+  CodingRulesParameterPopupView
   Templates
 ) ->
 
@@ -67,12 +69,16 @@ define [
       'click @ui.changeCustomRule': 'changeCustomRule'
       'click @ui.deleteCustomRule': 'deleteCustomRule'
 
+      'click .coding-rules-detail-parameter-details': 'showParamPopup'
 
     initialize: (options) ->
       super options
 
       if @model.get 'params'
-        @model.set 'params', _.sortBy(@model.get('params'), 'key')
+        origParams = @model.get('params')
+        _.map origParams, (param) =>
+          _.extend param, showMoreLink: (param.htmlDesc and param.htmlDesc.indexOf('<') >= 0)
+        @model.set 'params', _.sortBy(origParams, 'key')
 
       _.map options.actives, (active) =>
         _.extend active, options.app.getQualityProfileByKey active.qProfile
@@ -100,7 +106,7 @@ define [
           @listenTo @contextProfile, 'destroy', @hideContext
 
     onRender: ->
-      @$el.find('.open-modal').modal();
+      @$el.find('.open-modal').modal()
 
       if @model.get 'isTemplate'
         @$(@contextRegion.el).hide()
@@ -161,6 +167,17 @@ define [
 
       @ui.extendDescriptionForm.hide()
       @ui.extendDescriptionSpinner.hide()
+
+
+    showParamPopup: (e) ->
+      e.stopPropagation()
+      jQuery('body').click()
+      key = jQuery(e.currentTarget).closest('.coding-rules-detail-parameter').data 'key'
+      popup = new CodingRulesParameterPopupView
+        model: new Backbone.Model _.findWhere(@model.get('params'), key: key)
+        triggerEl: jQuery(e.currentTarget)
+      popup.render()
+      false
 
 
     hideContext: ->
