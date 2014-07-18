@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,6 +71,22 @@ public class ProcessTest {
     try {
       new TestProcess(Props.create(properties));
     } catch (Exception e) {
+      assertThat(e.getMessage()).isEqualTo(Process.SONAR_HOME_IS_NOT_SET);
+    }
+
+    properties = new Properties();
+    properties.setProperty(Process.SONAR_HOME, "lahdslahdslf");
+    try {
+      new TestProcess(Props.create(properties));
+    } catch (Exception e) {
+      assertThat(e.getMessage()).isEqualTo(Process.SONAR_HOME_DOES_NOT_EXIST);
+    }
+
+    properties = new Properties();
+    properties.setProperty(Process.SONAR_HOME, FileUtils.getTempDirectoryPath());
+    try {
+      new TestProcess(Props.create(properties));
+    } catch (Exception e) {
       assertThat(e.getMessage()).isEqualTo(Process.MISSING_NAME_ARGUMENT);
     }
   }
@@ -80,6 +97,7 @@ public class ProcessTest {
     MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
     Properties properties = new Properties();
+    properties.setProperty(Process.SONAR_HOME, FileUtils.getTempDirectoryPath());
     properties.setProperty(Process.NAME_PROPERTY, "TEST");
     Props props = Props.create(properties);
     process = new TestProcess(props);
@@ -102,6 +120,7 @@ public class ProcessTest {
   @Test(timeout = 5000L)
   public void should_stop_explicit() throws Exception {
     Properties properties = new Properties();
+    properties.setProperty(Process.SONAR_HOME, FileUtils.getTempDirectoryPath());
     properties.setProperty(Process.NAME_PROPERTY, "TEST");
     Props props = Props.create(properties);
     process = new TestProcess(props);
@@ -133,6 +152,7 @@ public class ProcessTest {
   @Test(timeout = 15000L)
   public void should_stop_implicit() throws Exception {
     Properties properties = new Properties();
+    properties.setProperty(Process.SONAR_HOME, FileUtils.getTempDirectoryPath());
     properties.setProperty(Process.NAME_PROPERTY, "TEST");
     properties.setProperty(Process.PORT_PROPERTY, Integer.toString(freePort));
     Props props = Props.create(properties);
