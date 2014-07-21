@@ -81,7 +81,9 @@ requirejs [
         blocks = params.blocks.split(';').map (b) ->
           t = b.split ','
           from: +t[0], to: +t[1]
-        viewer.on 'resetShowBlocks', -> viewer.sourceView.showBlocks = blocks
+        viewer.on 'resetShowBlocks', ->
+          viewer.off 'resetShowBlocks'
+          viewer.sourceView.showBlocks = blocks
 
       viewer.open params.component
 
