@@ -24,10 +24,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.core.config.Logback;
 import org.sonar.core.profiling.Profiling;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
+import java.util.Enumeration;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
@@ -50,7 +52,16 @@ public final class PlatformServletContextListener implements ServletContextListe
   public void contextInitialized(ServletContextEvent event) {
     try {
       configureLogback(event);
-      Platform.getInstance().init(System.getProperties());
+      Properties props = new Properties();
+      ServletContext context = event.getServletContext();
+      Enumeration<String> paramKeys = context.getInitParameterNames();
+      while (paramKeys.hasMoreElements()) {
+        String key = paramKeys.nextElement();
+        if (key.startsWith("sonar.")) {
+          props.put(key, context.getInitParameter(key));
+        }
+      }
+      Platform.getInstance().init(props);
       Platform.getInstance().doStart();
     } catch (Throwable t) {
       // Tomcat 7 "limitations":
@@ -80,19 +91,19 @@ public final class PlatformServletContextListener implements ServletContextListe
    */
   private void configureLogback(ServletContextEvent event) {
     String configProfilingLevel = defaultIfEmpty(
-        event.getServletContext().getInitParameter(Profiling.CONFIG_PROFILING_LEVEL),
-        System.getProperty(Profiling.CONFIG_PROFILING_LEVEL));
+      event.getServletContext().getInitParameter(Profiling.CONFIG_PROFILING_LEVEL),
+      System.getProperty(Profiling.CONFIG_PROFILING_LEVEL));
     Profiling.Level profilingLevel = Profiling.Level.fromConfigString(configProfilingLevel);
     String consoleEnabled = defaultIfEmpty(defaultIfEmpty(
         event.getServletContext().getInitParameter(CONFIG_LOG_CONSOLE),
         System.getProperty(CONFIG_LOG_CONSOLE)),
-        // Line below used in last resort
-        "false");
+      // Line below used in last resort
+      "false");
     Map<String, String> variables = ImmutableMap.of(
-        "RAILS_LOGGER_LEVEL", profilingLevel == Profiling.Level.FULL ? "DEBUG" : "WARN",
-        "LOGFILE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? LOGFILE_FULL_LOGGING_FORMAT : LOGFILE_STANDARD_LOGGING_FORMAT,
-        "CONSOLE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? CONSOLE_FULL_LOGGING_FORMAT : CONSOLE_STANDARD_LOGGING_FORMAT,
-        "CONSOLE_ENABLED", consoleEnabled);
+      "RAILS_LOGGER_LEVEL", profilingLevel == Profiling.Level.FULL ? "DEBUG" : "WARN",
+      "LOGFILE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? LOGFILE_FULL_LOGGING_FORMAT : LOGFILE_STANDARD_LOGGING_FORMAT,
+      "CONSOLE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? CONSOLE_FULL_LOGGING_FORMAT : CONSOLE_STANDARD_LOGGING_FORMAT,
+      "CONSOLE_ENABLED", consoleEnabled);
     Logback.configure("/org/sonar/server/platform/logback.xml", variables);
   }
 }

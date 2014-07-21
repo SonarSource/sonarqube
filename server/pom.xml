@@ -14,6 +14,7 @@
     <module>sonar-process</module>
     <module>sonar-search</module>
     <module>sonar-server</module>
+    <module>sonar-server-app</module>
     <module>sonar-web</module>
     <module>sonar-ws-client</module>
   </modules>

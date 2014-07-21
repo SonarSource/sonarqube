@@ -103,8 +103,8 @@ public class ProcessWrapper extends Thread {
       LOGGER.info("Try #{} to connect to JMX server for process '{}'", i, name);
       try {
         String protocol = "rmi";
-        String path = "/jndi/rmi://" + InetAddress.getLocalHost().getHostName() + ":" + port + "/jmxrmi";
-        JMXServiceURL jmxUrl = new JMXServiceURL(protocol, InetAddress.getLocalHost().getHostName(), port, path);
+        String path = "/jndi/rmi://" + InetAddress.getLocalHost().getHostAddress() + ":" + port + "/jmxrmi";
+        JMXServiceURL jmxUrl = new JMXServiceURL(protocol, InetAddress.getLocalHost().getHostAddress(), port, path);
         JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, null);
         MBeanServerConnection mBeanServer = jmxConnector.getMBeanServerConnection();
         ProcessMXBean bean = JMX.newMBeanProxy(mBeanServer, Process.objectNameFor(name), ProcessMXBean.class);
@@ -147,7 +147,7 @@ public class ProcessWrapper extends Thread {
   }
 
   private List<String> getJMXOptions() {
-    return ImmutableList.<String>of(
+    return ImmutableList.of(
       "-Dcom.sun.management.jmxremote",
       "-Dcom.sun.management.jmxremote.port=" + this.port,
       "-Dcom.sun.management.jmxremote.authenticate=false",
@@ -155,18 +155,13 @@ public class ProcessWrapper extends Thread {
   }
 
   private List<String> getClassPath() {
-    String separator = System.getProperty("file.separator");
-    return ImmutableList.<String>of(
-      "-cp",
-      StringUtils.join(classPath, separator));
+    // java specification : "multiple path entries are separated by semi-colons", not by
+    // system file separator,
+    return ImmutableList.of("-cp", StringUtils.join(classPath, ";"));
   }
 
   private String getPropertyFile() {
     File propertyFile = new File(FileUtils.getTempDirectory(), UUID.randomUUID().toString());
-//    if (!propertyFile.canWrite()) {
-//      throw new IllegalStateException("Cannot write temp propertyFile to '" +
-//        propertyFile.getAbsolutePath() + "'");
-//    }
     try {
       Properties props = new Properties();
       for (Map.Entry<String, String> property : properties.entrySet()) {
@@ -189,6 +184,7 @@ public class ProcessWrapper extends Thread {
     LOGGER.info("ProcessWrapper::executeProcess() START");
 
     ProcessBuilder processBuilder = new ProcessBuilder();
+    processBuilder.environment().put("SONAR_HOME", workDir);
     processBuilder.command().add(getJavaCommand());
 
     if (!StringUtils.isEmpty(javaOpts)) {
@@ -199,6 +195,7 @@ public class ProcessWrapper extends Thread {
     }
     processBuilder.command().addAll(getJMXOptions());
     processBuilder.command().addAll(getClassPath());
+
     processBuilder.command().add(className);
     processBuilder.command().add(getPropertyFile());
 

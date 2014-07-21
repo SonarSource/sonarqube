@@ -25,23 +25,18 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Process;
 import org.sonar.process.Props;
 import org.sonar.search.script.ListUpdate;
 
+import java.io.File;
+
 public class ElasticSearch extends Process {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearch.class);
-
   public static final String ES_DEBUG_PROPERTY = "esDebug";
-  public static final String ES_PORT_PROPERTY = "esPort";
+  public static final String ES_PORT_PROPERTY = "sonar.es.node.port";
   public static final String ES_CLUSTER_PROPERTY = "esCluster";
-  public static final String ES_HOME_PROPERTY = "esHome";
-
-  public static final String MISSING_ES_PORT = "Missing ES port Argument";
-  public static final String MISSING_ES_HOME = "Missing ES home directory Argument";
 
   public static final String DEFAULT_CLUSTER_NAME = "sonarqube";
 
@@ -72,22 +67,13 @@ public class ElasticSearch extends Process {
 
   @Override
   public void onStart() {
-    String home = props.of(ES_HOME_PROPERTY);
-    if (home == null) {
-      throw new IllegalStateException(MISSING_ES_HOME);
-    }
-
+    String dataDir = props.of("sonar.path.data");
     Integer port = props.intOf(ES_PORT_PROPERTY);
-    if (port == null) {
-      throw new IllegalStateException(MISSING_ES_PORT);
-    }
-
     String clusterName = props.of(ES_CLUSTER_PROPERTY, DEFAULT_CLUSTER_NAME);
 
-    LOGGER.info("Starting ES[{}] on port: {}", clusterName, port);
+    LoggerFactory.getLogger(ElasticSearch.class).info("Starting ES[{}] on port: {}", clusterName, port);
 
     ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
-
       .put("es.foreground", "yes")
 
       .put("discovery.zen.ping.multicast.enabled", "false")
@@ -108,7 +94,7 @@ public class ElasticSearch extends Process {
       .put("node.data", true)
       .put("node.local", false)
       .put("transport.tcp.port", port)
-      .put("path.home", home);
+      .put("path.data", new File(dataDir, "es").getAbsolutePath());
 
     if (props.booleanOf(ES_DEBUG_PROPERTY, false)) {
       esSettings

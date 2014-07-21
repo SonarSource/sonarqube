@@ -14,10 +14,20 @@
         <exclude>mysql:mysql-connector-java</exclude>
         <exclude>org.postgresql:postgresql</exclude>
         <exclude>net.sourceforge.jtds:jtds</exclude>
+        <exclude>org.codehaus.sonar:sonar-search</exclude>
+        <exclude>org.codehaus.sonar:sonar-web</exclude>
         <exclude>org.codehaus.sonar.plugins:*</exclude>
-        <exclude>org.codehaus.sonar-plugins.*:*</exclude>
+        <exclude>org.codehaus.sonar-plugins.java:*</exclude>
         <exclude>org.codehaus.sonar:sonar-batch-maven-compat</exclude>
       </excludes>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>lib/search</outputDirectory>
+      <useTransitiveDependencies>true</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+      <includes>
+        <include>org.codehaus.sonar:sonar-search</include>
+      </includes>
     </dependencySet>
     <dependencySet>
       <outputDirectory>lib/batch</outputDirectory>

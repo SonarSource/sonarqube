@@ -77,7 +77,7 @@ public final class ServerImpl extends Server implements Startable {
         // Remove trailing slashes
         .replaceFirst("(\\/+)$", "");
 
-      sonarHome = new File(settings.getString(CoreProperties.SONAR_HOME));
+      sonarHome = new File(settings.getString("sonar.path.home"));
       if (!sonarHome.isDirectory()) {
         throw new IllegalStateException("SonarQube home directory is not valid");
       }

@@ -19,6 +19,13 @@
     <sonar.exclusions>src/main/js/third-party/**/*,src/main/js/require.js,src/main/js/tests/**/*</sonar.exclusions>
   </properties>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-server</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
   <build>
     <resources>
       <resource>
@@ -359,12 +366,6 @@
         <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
-          <scope>provided</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.codehaus.sonar</groupId>
-          <artifactId>sonar-server</artifactId>
-          <version>${project.version}</version>
           <scope>provided</scope>
         </dependency>
         <!-- core plugins -->

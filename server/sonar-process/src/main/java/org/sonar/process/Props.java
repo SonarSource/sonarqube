@@ -67,6 +67,10 @@ public class Props {
     return i == null ? defaultValue : i;
   }
 
+  public Properties properties() {
+    return props;
+  }
+
   public static Props create(Properties properties) {
     Properties p = new Properties();
 

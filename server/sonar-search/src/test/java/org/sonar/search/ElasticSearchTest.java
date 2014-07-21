@@ -79,42 +79,12 @@ public class ElasticSearchTest {
     }
   }
 
-
-  @Test
-  public void missing_properties() throws IOException, MBeanRegistrationException, InstanceNotFoundException {
-
-    Properties properties = new Properties();
-    properties.setProperty(Process.SONAR_HOME, FileUtils.getTempDirectoryPath());
-    properties.setProperty(Process.NAME_PROPERTY, "ES");
-    properties.setProperty(Process.PORT_PROPERTY, Integer.toString(freePort));
-
-    try {
-      elasticSearch = new ElasticSearch(Props.create(properties));
-    } catch (Exception e) {
-      assertThat(e.getMessage()).isEqualTo(ElasticSearch.MISSING_ES_HOME);
-    }
-
-    properties.setProperty(ElasticSearch.ES_HOME_PROPERTY, tempDirectory.getAbsolutePath());
-    try {
-      resetMBeanServer();
-      elasticSearch = new ElasticSearch(Props.create(properties));
-    } catch (Exception e) {
-      assertThat(e.getMessage()).isEqualTo(ElasticSearch.MISSING_ES_PORT);
-    }
-    resetMBeanServer();
-
-    properties.setProperty(ElasticSearch.ES_PORT_PROPERTY, Integer.toString(freeESPort));
-    elasticSearch = new ElasticSearch(Props.create(properties));
-    assertThat(elasticSearch).isNotNull();
-  }
-
   @Test
   public void can_connect() throws SocketException {
-
     Properties properties = new Properties();
     properties.setProperty(Process.SONAR_HOME, FileUtils.getTempDirectoryPath());
     properties.setProperty(Process.NAME_PROPERTY, "ES");
-    properties.setProperty(ElasticSearch.ES_HOME_PROPERTY, tempDirectory.getAbsolutePath());
+    properties.setProperty("sonar.path.data", tempDirectory.getAbsolutePath());
     properties.setProperty(ElasticSearch.ES_PORT_PROPERTY, Integer.toString(freeESPort));
 
     elasticSearch = new ElasticSearch(Props.create(properties));

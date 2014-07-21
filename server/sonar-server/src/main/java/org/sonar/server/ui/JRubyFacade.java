@@ -369,7 +369,7 @@ public final class JRubyFacade {
   }
 
   public String getServerHome() {
-    return get(Settings.class).getString(CoreProperties.SONAR_HOME);
+    return get(Settings.class).getString("sonar.path.home");
   }
 
   public ComponentContainer getContainer() {

@@ -17,11 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application;
+package org.sonar.server.app;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.Props;
+
+import java.util.Map;
 
 class Webapp {
 
@@ -37,7 +40,12 @@ class Webapp {
       context.setConfigFile(env.file("web/META-INF/context.xml").toURI().toURL());
       context.addParameter(PROPERTY_LOG_PROFILING_LEVEL, props.of(PROPERTY_LOG_PROFILING_LEVEL, "NONE"));
       context.addParameter(PROPERTY_LOG_CONSOLE, props.of(PROPERTY_LOG_CONSOLE, "false"));
-
+      for (Map.Entry<Object, Object> entry : props.properties().entrySet()) {
+        String key = entry.getKey().toString();
+        if (key.startsWith("sonar.")) {
+          context.addParameter(key, entry.getValue().toString());
+        }
+      }
       configureRailsMode(props, context);
       context.setJarScanner(new NullJarScanner());
 

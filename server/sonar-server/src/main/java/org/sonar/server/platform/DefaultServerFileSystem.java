@@ -56,7 +56,7 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
   public DefaultServerFileSystem(Database database, Settings settings, Server server) {
     this.database = database;
     this.server = server;
-    this.homeDir = new File(settings.getString(CoreProperties.SONAR_HOME));
+    this.homeDir = new File(settings.getString("sonar.path.home"));
   }
 
   /**

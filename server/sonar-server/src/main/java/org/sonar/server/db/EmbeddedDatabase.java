@@ -100,7 +100,7 @@ public class EmbeddedDatabase implements Startable  {
   }
 
   private File getSonarHomeDataDirectory(Settings settings) {
-    File sonarHome = new File(settings.getString(CoreProperties.SONAR_HOME));
+    File sonarHome = new File(settings.getString("sonar.path.home"));
     if (!sonarHome.isDirectory()) {
       throw new IllegalStateException("SonarQube home directory is not valid");
     }

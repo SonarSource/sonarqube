@@ -77,14 +77,26 @@
 
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-server</artifactId>
+      <artifactId>sonar-process</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-server-app</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-search</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-web</artifactId>
       <version>${project.version}</version>
       <type>war</type>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>
