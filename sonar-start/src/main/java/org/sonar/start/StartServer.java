@@ -65,25 +65,30 @@ public final class StartServer {
     shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
-        stop();
+        LOGGER.info("Shutting down all node services");
+        monitor.interrupt();
+        terminateAndWait(elasticsearch);
+        terminateAndWait(sonarqube);
       }
     });
 
     Runtime.getRuntime().addShutdownHook(shutdownHook);
   }
 
-  public void shutdown() {
+  public void stop(boolean waitForCompletion) {
     Runtime.getRuntime().removeShutdownHook(shutdownHook);
-    this.stop();
+    shutdownHook.start();
+    if (waitForCompletion) {
+      try {
+        shutdownHook.join();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   public void stop() {
-    LOGGER.info("Shutting down all node services");
-    terminateAndWait(elasticsearch);
-    terminateAndWait(sonarqube);
-
-    //TODO should not have to explicitly exit...
-    System.exit(1);
+    stop(false);
   }
 
   private void terminateAndWait(ProcessWrapper process) {
@@ -140,7 +145,7 @@ public final class StartServer {
     try {
       monitor.join();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      this.stop(true);
     }
 
     // Start SQ
@@ -160,7 +165,7 @@ public final class StartServer {
 //    } catch (InterruptedException e) {
 //      LOGGER.warn("Shutting down the node...");
 //    }
-    shutdown();
+    this.stop(true);
   }
 
 

@@ -129,6 +129,7 @@ public abstract class Process implements ProcessMXBean {
       throw new IllegalStateException("Process is not a compliant MBean", e);
     }
 
+
     shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -183,7 +184,7 @@ public abstract class Process implements ProcessMXBean {
       try {
         shutdownHook.join();
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        System.exit(-1);
       }
     }
     LOGGER.trace("Process[{}]::terminate() END", name);

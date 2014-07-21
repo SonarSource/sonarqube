@@ -254,8 +254,6 @@ public class ProcessWrapper extends Thread {
     if (this.processMXBean != null) {
       this.processMXBean.terminate();
       waitUntilFinish(this);
-    } else {
-      process.destroy();
     }
   }
 

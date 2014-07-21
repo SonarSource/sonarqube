@@ -102,7 +102,9 @@ public class Monitor extends Thread {
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        LOGGER.warn("Monitoring thread has been interrupted. Closing");
+        watch.cancel(true);
+        monitor.shutdownNow();
       }
     }
     watch.cancel(true);
