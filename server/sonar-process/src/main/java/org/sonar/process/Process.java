@@ -63,7 +63,6 @@ public abstract class Process implements ProcessMXBean {
 
   protected final Props props;
   private Thread shutdownHook;
-  private volatile boolean JVM_SHUTDOWN = false;
 
   private static final long MAX_ALLOWED_TIME = 3000L;
   private ScheduledFuture<?> pingTask = null;
@@ -134,7 +133,6 @@ public abstract class Process implements ProcessMXBean {
       @Override
       public void run() {
         LOGGER.trace("Process[{}]::ShutdownHook::run() START", name);
-        Process.this.JVM_SHUTDOWN = true;
         Process.this.onTerminate();
         if (Process.this.pingTask != null) {
           Process.this.pingTask.cancel(true);

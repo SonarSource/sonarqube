@@ -192,7 +192,10 @@ public class ProcessWrapper extends Thread {
     processBuilder.command().add(getJavaCommand());
 
     if (!StringUtils.isEmpty(javaOpts)) {
-      processBuilder.command().add(javaOpts);
+      LOGGER.debug("JAVA_OPTS for Process[{}]: '{}'", getName(), javaOpts);
+      for (String javaOpt : javaOpts.split(" ")) {
+        processBuilder.command().add(javaOpt);
+      }
     }
     processBuilder.command().addAll(getJMXOptions());
     processBuilder.command().addAll(getClassPath());
