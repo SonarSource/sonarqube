@@ -45,7 +45,6 @@ public final class StartServer {
   private Monitor monitor;
 
   private final Env env;
-  private final String esPort;
   private final Map<String, String> properties;
   private final Thread shutdownHook;
 
@@ -54,7 +53,6 @@ public final class StartServer {
 
   public StartServer(Env env, String... args) throws IOException, InterruptedException {
     this.env = env;
-    this.esPort = Integer.toString(NetworkUtils.freePort());
     this.properties = new HashMap<String, String>();
 
     monitor = new Monitor();
@@ -106,17 +104,24 @@ public final class StartServer {
 
     String workingDirectory = env.rootDir().getAbsolutePath();
 
+    String esPort;
+    if (properties.containsKey("sonar.es.node.port")) {
+      esPort = properties.get("sonar.es.node.port");
+    } else {
+      esPort = Integer.toString(NetworkUtils.freePort());
+    }
+
     // Start ES
     elasticsearch = new ProcessWrapper(
-      env.rootDir().getAbsolutePath(),
+      workingDirectory,
       sonarProperties.getProperty("sonar.es.java_opts"),
       "org.sonar.search.ElasticSearch",
       ImmutableMap.of(
         "esDebug", properties.containsKey("esDebug") ? properties.get("esDebug") : "false",
         "esPort", esPort,
-        "esHome", env.rootDir().getAbsolutePath()),
+        "esHome", workingDirectory),
       "ES",
-      env.rootDir().getAbsolutePath() + "/lib/search/sonar-search-4.5-SNAPSHOT.jar");
+      workingDirectory + "/lib/search/sonar-search-4.5-SNAPSHOT.jar");
 
     monitor.registerProcess(elasticsearch);
 //
@@ -160,8 +165,8 @@ public final class StartServer {
 
   public static void main(String... args) throws InterruptedException, IOException, URISyntaxException {
 
-    //String home = System.getenv(SONAR_HOME);
-    String home = "/Volumes/data/sonar/sonarqube/sonar-start/target/sonarqube-4.5-SNAPSHOT";
+    String home = System.getenv(SONAR_HOME);
+    //String home = "/Volumes/data/sonar/sonarqube/sonar-start/target/sonarqube-4.5-SNAPSHOT";
 
     //Check if we have a SONAR_HOME
     if (StringUtils.isEmpty(home)) {
