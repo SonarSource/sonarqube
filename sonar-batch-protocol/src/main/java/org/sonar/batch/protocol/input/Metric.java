@@ -30,14 +30,42 @@ public class Metric {
 
   private final String valueType;
 
+  private final String description;
+
+  private final int direction;
+
+  private final String name;
+
+  private final boolean qualitative;
+
+  private final boolean userManaged;
+
+  private final Double worstValue;
+
   private final Double bestValue;
 
   private final boolean optimizedBestValue;
 
-  public Metric(int id, String key, String valueType, @Nullable Double bestValue, boolean optimizedBestValue) {
+  public Metric(int id,
+    String key,
+    String valueType,
+    String description,
+    int direction,
+    String name,
+    boolean qualitative,
+    boolean userManaged,
+    @Nullable Double worstValue,
+    @Nullable Double bestValue,
+    boolean optimizedBestValue) {
     this.id = id;
     this.key = key;
     this.valueType = valueType;
+    this.description = description;
+    this.direction = direction;
+    this.name = name;
+    this.qualitative = qualitative;
+    this.userManaged = userManaged;
+    this.worstValue = worstValue;
     this.bestValue = bestValue;
     this.optimizedBestValue = optimizedBestValue;
   }
@@ -52,6 +80,31 @@ public class Metric {
 
   public String valueType() {
     return valueType;
+  }
+
+  public String description() {
+    return description;
+  }
+
+  public int direction() {
+    return direction;
+  }
+
+  public String name() {
+    return name;
+  }
+
+  public boolean isQualitative() {
+    return qualitative;
+  }
+
+  public boolean isUserManaged() {
+    return userManaged;
+  }
+
+  @CheckForNull
+  public Double worstValue() {
+    return worstValue;
   }
 
   @CheckForNull

@@ -39,8 +39,14 @@ public final class DeprecatedMetricFinder implements MetricFinder {
     for (org.sonar.batch.protocol.input.Metric metric : projectReferentials.metrics()) {
       Metric hibernateMetric = new org.sonar.api.measures.Metric.Builder(metric.key(), metric.key(), ValueType.valueOf(metric.valueType()))
         .create()
+        .setDirection(metric.direction())
+        .setQualitative(metric.isQualitative())
+        .setUserManaged(metric.isUserManaged())
+        .setDescription(metric.description())
+        .setName(metric.name())
         .setOptimizedBestValue(metric.isOptimizedBestValue())
         .setBestValue(metric.bestValue())
+        .setWorstValue(metric.worstValue())
         .setId(metric.id());
       metricsByKey.put(metric.key(), hibernateMetric);
       metricsById.put(metric.id(), new org.sonar.api.measures.Metric.Builder(metric.key(), metric.key(), ValueType.valueOf(metric.valueType())).create().setId(metric.id()));
