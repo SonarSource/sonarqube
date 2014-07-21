@@ -271,7 +271,7 @@ module ApplicationHelper
         alert_class="class='alert_#{m.alert_status}'" unless m.metric.val_type==Metric::VALUE_TYPE_LEVEL
         link_rel=h(m.alert_text)
       elsif m.metric.val_type==Metric::VALUE_TYPE_RATING && m.color
-        style = "style='background-color: #{m.color.html};padding: 2px 5px'"
+        alert_class="class='rating rating-" + m.formatted_value + "'"
       end
 
       span_id=''

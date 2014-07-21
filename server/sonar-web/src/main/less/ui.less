@@ -319,8 +319,12 @@ input[type=button] {
  */
 
 .rating {
-  padding: 2px 5px;
+  display: inline-block;
+  .size(1em, 1.3em);
+  line-height: 1.3;
   color: #fff;
+  font-weight: 300;
+  text-align: center;
 }
 
 .rating-A {
@@ -333,6 +337,7 @@ input[type=button] {
 
 .rating-C {
   background-color: #FFEE00;
+  color: @baseFontColor;
 }
 
 .rating-D {

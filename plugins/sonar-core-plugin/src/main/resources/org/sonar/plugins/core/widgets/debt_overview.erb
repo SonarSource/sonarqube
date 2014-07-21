@@ -10,9 +10,7 @@
           <div class="widget-measure widget-measure-main">
             <span class="widget-label"><%= message('metric.sqale_rating.name') -%></span>
             <span class="nowrap">
-              <a href="<%= url_for_drilldown('sqale_rating') -%>" class="widget-link">
-                <span class="rating rating-<%= sqale_rating.text_value -%>"><%= sqale_rating.text_value -%></span>
-              </a>
+              <%= format_measure(sqale_rating, :url => url_for_drilldown(sqale_rating)) %>
               <% unless dashboard_configuration.selected_period? %>
                 <%= trend_icon(sqale_rating) -%>
               <% end %>
