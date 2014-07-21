@@ -39,6 +39,8 @@ import org.sonar.wsclient.user.internal.DefaultUserClient;
 
 import javax.annotation.Nullable;
 
+import java.util.Map;
+
 /**
  * Entry point of the Java Client for Sonar Web Services. It does not support all web services yet.
  * <p/>
@@ -138,6 +140,24 @@ public class SonarClient {
    */
   public static SonarClient create(String serverUrl) {
     return builder().url(serverUrl).build();
+  }
+
+  /**
+   * Send a POST request on the given relativeUrl, with provided parameters (can be empty)
+   * @since 4.5
+   * @return the response body
+   */
+  public String post(String relativeUrl, Map<String, Object> params) {
+    return requestFactory.post(relativeUrl, params);
+  }
+
+  /**
+   * Send a GET request on the given relativeUrl, with provided parameters (can be empty)
+   * @since 4.5
+   * @return the response body
+   */
+  public String get(String relativeUrl, Map<String, Object> params) {
+    return requestFactory.get(relativeUrl, params);
   }
 
   public static class Builder {
