@@ -63,6 +63,7 @@ public abstract class Process implements ProcessMXBean {
 
   protected final Props props;
   private Thread shutdownHook;
+  private volatile boolean JVM_SHUTDOWN = false;
 
   private static final long MAX_ALLOWED_TIME = 3000L;
   private ScheduledFuture<?> pingTask = null;
@@ -73,8 +74,7 @@ public abstract class Process implements ProcessMXBean {
       LOGGER.debug("last check-in was {}ms ago.", time - lastPing);
       if (time - lastPing > MAX_ALLOWED_TIME) {
         LOGGER.warn("Did not get a check-in since {}ms. Initiate shutdown", time - lastPing);
-        Runtime.getRuntime().removeShutdownHook(shutdownHook);
-        shutdown();
+        terminate();
       }
     }
   };
@@ -133,7 +133,14 @@ public abstract class Process implements ProcessMXBean {
     shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
-        Process.this.shutdown();
+        LOGGER.trace("Process[{}]::ShutdownHook::run() START", name);
+        Process.this.JVM_SHUTDOWN = true;
+        Process.this.onTerminate();
+        if (Process.this.pingTask != null) {
+          Process.this.pingTask.cancel(true);
+        }
+        Process.this.monitor.shutdownNow();
+        LOGGER.trace("Process[{}]::ShutdownHook::run() END", name);
       }
     });
     Runtime.getRuntime().addShutdownHook(shutdownHook);
@@ -171,37 +178,21 @@ public abstract class Process implements ProcessMXBean {
   }
 
   public final void terminate(boolean waitForTermination) {
-    LOGGER.trace("Process[{}]::stop() START", name);
+    LOGGER.trace("Process[{}]::terminate() START", name);
     Runtime.getRuntime().removeShutdownHook(shutdownHook);
-    Thread terminating = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        shutdown();
-      }
-    });
-    terminating.start();
+    shutdownHook.start();
     if (waitForTermination) {
       try {
-        terminating.join();
+        shutdownHook.join();
       } catch (InterruptedException e) {
-        throw new IllegalStateException("Could not terminate process", e);
+        e.printStackTrace();
       }
     }
-    LOGGER.trace("Process[{}]::stop() END", name);
+    LOGGER.trace("Process[{}]::terminate() END", name);
   }
 
   public final void terminate() {
     terminate(false);
-  }
-
-  private void shutdown(){
-    LOGGER.trace("Process[{}]::shutdown() START", name);
-    this.onTerminate();
-    if (pingTask != null) {
-      pingTask.cancel(true);
-    }
-    monitor.shutdownNow();
-    LOGGER.trace("Process[{}]::shutdown() END", name);
   }
 
   private void validateSonarHome(Props props) {
@@ -214,7 +205,7 @@ public abstract class Process implements ProcessMXBean {
 
     // check that SONAR_HOME exists
     File home = new File(sonarHome);
-    if(!home.exists()) {
+    if (!home.exists()) {
       throw new IllegalStateException(SONAR_HOME_DOES_NOT_EXIST);
     }
 

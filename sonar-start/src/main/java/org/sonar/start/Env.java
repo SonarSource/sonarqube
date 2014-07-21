@@ -27,14 +27,14 @@ import java.net.URISyntaxException;
 
 class Env {
 
-  private static final String CONF_DIRECTORY = "/conf";
+  private static final String CONF_DIRECTORY = "conf";
 
   private final File confFile;
   private final File homeDir;
 
   public Env(String homeDir) throws URISyntaxException {
     this.homeDir = new File(homeDir);
-    this.confFile = new File(CONF_DIRECTORY+"/sonar.properties");
+    this.confFile = new File(homeDir, CONF_DIRECTORY + "/sonar.properties");
   }
 
   public File getConfFile() {

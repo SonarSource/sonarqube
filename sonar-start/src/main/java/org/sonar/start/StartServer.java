@@ -160,8 +160,8 @@ public final class StartServer {
 
   public static void main(String... args) throws InterruptedException, IOException, URISyntaxException {
 
-    String home = System.getenv(SONAR_HOME);
-    //String home = "/Volumes/data/sonar/sonarqube/sonar-start/target/sonarqube-4.5-SNAPSHOT";
+    //String home = System.getenv(SONAR_HOME);
+    String home = "/Volumes/data/sonar/sonarqube/sonar-start/target/sonarqube-4.5-SNAPSHOT";
 
     //Check if we have a SONAR_HOME
     if (StringUtils.isEmpty(home)) {
