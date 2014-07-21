@@ -126,7 +126,8 @@ public class ElasticSearch extends Process {
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        ;
+        ; //Do not do anything. the process is simply quitting.
       }
     }
   }
