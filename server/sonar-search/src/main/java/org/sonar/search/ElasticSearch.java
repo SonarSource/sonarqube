@@ -126,14 +126,18 @@ public class ElasticSearch extends Process {
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {
-        LOGGER.warn("ES Node is being shutdown.", e);
+        node.close();
       }
     }
+    terminate();
   }
 
   public void onTerminate() {
     if (node != null && !node.isClosed()) {
       node.close();
+    }
+    if (node != null) {
+      node.stop();
     }
   }
 
