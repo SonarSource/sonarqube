@@ -59,10 +59,18 @@
 
       <div class="component-viewer-header-measures-scope">
         <a data-scope="issues" class="component-viewer-header-measures-expand js-header-tab-issues">
+          {{#if component.measures.fSqaleRating}}
             <div class="component-viewer-header-measure">
-              <span class="component-viewer-header-measure-value">{{default component.measures.fDebt '0'}}</span>
-              <span class="component-viewer-header-measure-label">{{t 'component_viewer.header.debt'}}</span>
+              <span class="rating rating-{{component.measures.fSqaleRating}}"
+                    {{#if component.measures.fSqaleDebtRatio}}title="{{t 'metric.sqale_debt_ratio.name'}}: {{component.measures.fSqaleDebtRatio}}"{{/if}}>
+                {{component.measures.fSqaleRating}}
+              </span>
             </div>
+          {{/if}}
+          <div class="component-viewer-header-measure">
+            <span class="component-viewer-header-measure-value">{{default component.measures.fDebt '0'}}</span>
+            <span class="component-viewer-header-measure-label">{{t 'component_viewer.header.debt'}}</span>
+          </div>
           {{#if component.measures.fIssues}}
             <div class="component-viewer-header-measure">
               <span class="component-viewer-header-measure-value">{{component.measures.fIssues}}</span>

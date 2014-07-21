@@ -35,7 +35,8 @@
     "fIssues": "6",
     "fMinorIssues": "1",
     "fMajorIssues": "1",
-    "fInfoIssues": "4"
+    "fInfoIssues": "4",
+    "fSqaleRating": "A"
   },
   "tabs": ["scm", "coverage", "duplications"],
   "manual_rules": [

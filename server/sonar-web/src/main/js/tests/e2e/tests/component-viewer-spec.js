@@ -63,6 +63,7 @@ casper.test.begin('Component Viewer Base Tests', function suite(test) {
 
     // Check main measures
     test.assertSelectorHasText('.js-header-tab-basic', '379');
+    test.assertSelectorHasText('.js-header-tab-issues', 'A');
     test.assertSelectorHasText('.js-header-tab-issues', '3h 30min');
     test.assertSelectorHasText('.js-header-tab-issues', '6');
     test.assertSelectorHasText('.js-header-tab-coverage', '74.3%');
