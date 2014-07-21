@@ -41,6 +41,7 @@ public final class StartServer {
   private final static Logger LOGGER = LoggerFactory.getLogger(StartServer.class);
 
   public final static String SONAR_HOME = "SONAR_HOME";
+  private static final String SONAR_ES_NODE_PORT = "sonar.es.node.port";
 
   private Monitor monitor;
 
@@ -105,8 +106,8 @@ public final class StartServer {
     String workingDirectory = env.rootDir().getAbsolutePath();
 
     String esPort;
-    if (properties.containsKey("sonar.es.node.port")) {
-      esPort = properties.get("sonar.es.node.port");
+    if (properties.containsKey(SONAR_ES_NODE_PORT)) {
+      esPort = properties.get(SONAR_ES_NODE_PORT);
     } else {
       esPort = Integer.toString(NetworkUtils.freePort());
     }
