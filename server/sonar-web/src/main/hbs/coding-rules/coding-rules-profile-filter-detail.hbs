@@ -1,6 +1,6 @@
 <li>
-  <label title="{{id}}">
-    <input type="checkbox" value="{{id}}" {{#if checked}}checked{{/if}}>
+  <label title="{{id}}" data-id="{{id}}">
+    <i class="icon-checkbox {{#if checked}}icon-checkbox-checked{{/if}} {{#unless multiple}}icon-checkbox-single{{/unless}}"></i>
     <span>
       {{text}}
       <br>
