@@ -72,7 +72,7 @@ public class Monitor extends Thread {
       for (ProcessWrapper process : processes) {
         try {
           long time = process.getProcessMXBean().ping();
-          LOGGER.info("Monitor::ProcessWatch PINGED '{}'", process.getName());
+          LOGGER.debug("Monitor::ProcessWatch PINGED '{}'", process.getName());
           pings.put(process.getName(), time);
         } catch (Exception e) {
           LOGGER.error("Error while pinging {}", process.getName(), e);
