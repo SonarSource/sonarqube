@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.mediumtest.issues;
 
+import org.sonar.api.batch.sensor.issue.Issue;
+
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.batch.mediumtest.AnalyzerMediumTester;
 import org.sonar.batch.mediumtest.AnalyzerMediumTester.TaskResult;
@@ -110,7 +111,7 @@ public class IssuesMediumTest {
     assertThat(result.issues()).hasSize(20);
 
     boolean foundIssueAtLine1 = false;
-    for (AnalyzerIssue issue : result.issues()) {
+    for (Issue issue : result.issues()) {
       if (issue.line() == 1) {
         foundIssueAtLine1 = true;
         assertThat(issue.inputFile()).isEqualTo(new DefaultInputFile("src/sample.xoo"));

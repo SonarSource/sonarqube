@@ -22,9 +22,8 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.batch.CheckProject;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.analyzer.Analyzer;
-import org.sonar.api.batch.analyzer.AnalyzerContext;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan.SensorWrapper;
@@ -40,10 +39,10 @@ import java.util.List;
  */
 public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensionDictionnary {
 
-  private AnalyzerContext context;
+  private SensorContext context;
   private AnalyzerOptimizer analyzerOptimizer;
 
-  public BatchExtensionDictionnary(ComponentContainer componentContainer, AnalyzerContext context, AnalyzerOptimizer analyzerOptimizer) {
+  public BatchExtensionDictionnary(ComponentContainer componentContainer, SensorContext context, AnalyzerOptimizer analyzerOptimizer) {
     super(componentContainer);
     this.context = context;
     this.analyzerOptimizer = analyzerOptimizer;
@@ -60,17 +59,17 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
   private <T> List<T> getFilteredExtensions(Class<T> type, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
     List<T> result = Lists.newArrayList();
     for (Object extension : getExtensions(type)) {
-      if (Sensor.class.equals(type) && extension instanceof Analyzer) {
-        extension = new SensorWrapper((Analyzer) extension, context, analyzerOptimizer);
+      if (org.sonar.api.batch.Sensor.class.equals(type) && extension instanceof Sensor) {
+        extension = new SensorWrapper((Sensor) extension, context, analyzerOptimizer);
       }
       if (shouldKeep(type, extension, project, matcher)) {
         result.add((T) extension);
       }
     }
-    if (Sensor.class.equals(type)) {
+    if (org.sonar.api.batch.Sensor.class.equals(type)) {
       // Retrieve Analyzer and wrap then in SensorWrapper
-      for (Object extension : getExtensions(Analyzer.class)) {
-        extension = new SensorWrapper((Analyzer) extension, context, analyzerOptimizer);
+      for (Object extension : getExtensions(Sensor.class)) {
+        extension = new SensorWrapper((Sensor) extension, context, analyzerOptimizer);
         if (shouldKeep(type, extension, project, matcher)) {
           result.add((T) extension);
         }
@@ -81,7 +80,7 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
 
   private boolean shouldKeep(Class type, Object extension, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
     boolean keep = (ClassUtils.isAssignable(extension.getClass(), type)
-      || (Sensor.class.equals(type) && ClassUtils.isAssignable(extension.getClass(), Analyzer.class)))
+      || (Sensor.class.equals(type) && ClassUtils.isAssignable(extension.getClass(), Sensor.class)))
       && (matcher == null || matcher.accept(extension));
     if (keep && project != null && ClassUtils.isAssignable(extension.getClass(), CheckProject.class)) {
       keep = ((CheckProject) extension).shouldExecuteOnProject(project);

@@ -19,24 +19,25 @@
  */
 package org.sonar.batch.mediumtest.xoo.plugin.rule;
 
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.measure.Measure;
+
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.analyzer.Analyzer;
-import org.sonar.api.batch.analyzer.AnalyzerContext;
-import org.sonar.api.batch.analyzer.AnalyzerDescriptor;
-import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
 import org.sonar.batch.mediumtest.xoo.plugin.base.XooConstants;
 
-public class OneIssuePerLineAnalyzer implements Analyzer {
+public class OneIssuePerLineAnalyzer implements Sensor {
 
   public static final String RULE_KEY = "OneIssuePerLine";
   private static final String EFFORT_TO_FIX_PROPERTY = "sonar.oneIssuePerLine.effortToFix";
 
   @Override
-  public void describe(AnalyzerDescriptor descriptor) {
+  public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("One Issue Per Line")
       .dependsOn(CoreMetrics.LINES)
@@ -45,15 +46,15 @@ public class OneIssuePerLineAnalyzer implements Analyzer {
   }
 
   @Override
-  public void analyse(AnalyzerContext context) {
+  public void analyse(SensorContext context) {
     for (InputFile file : context.fileSystem().inputFiles(context.fileSystem().predicates().hasLanguages(Xoo.KEY))) {
       createIssues(file, context);
     }
   }
 
-  private void createIssues(InputFile file, AnalyzerContext context) {
+  private void createIssues(InputFile file, SensorContext context) {
     RuleKey ruleKey = RuleKey.of(XooConstants.REPOSITORY_KEY, RULE_KEY);
-    AnalyzerMeasure<Integer> linesMeasure = context.getMeasure(file, CoreMetrics.LINES);
+    Measure<Integer> linesMeasure = context.getMeasure(file, CoreMetrics.LINES);
     if (linesMeasure == null) {
       LoggerFactory.getLogger(getClass()).warn("Missing measure " + CoreMetrics.LINES_KEY + " on " + file);
     } else {

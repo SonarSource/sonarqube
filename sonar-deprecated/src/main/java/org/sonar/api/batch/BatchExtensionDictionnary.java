@@ -19,13 +19,14 @@
  */
 package org.sonar.api.batch;
 
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.BatchExtension;
-import org.sonar.api.batch.analyzer.Analyzer;
-import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.platform.ComponentContainer;
@@ -148,9 +149,9 @@ public class BatchExtensionDictionnary {
   private <T> List<Object> getDependencies(T extension) {
     List<Object> result = new ArrayList<Object>();
     result.addAll(evaluateAnnotatedClasses(extension, DependsUpon.class));
-    if (ClassUtils.isAssignable(extension.getClass(), Analyzer.class)) {
-      DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor();
-      ((Analyzer) extension).describe(descriptor);
+    if (ClassUtils.isAssignable(extension.getClass(), Sensor.class)) {
+      DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
+      ((Sensor) extension).describe(descriptor);
       result.addAll(Arrays.asList(descriptor.dependsOn()));
     }
     return result;
@@ -162,9 +163,9 @@ public class BatchExtensionDictionnary {
   public <T> List<Object> getDependents(T extension) {
     List<Object> result = new ArrayList<Object>();
     result.addAll(evaluateAnnotatedClasses(extension, DependedUpon.class));
-    if (ClassUtils.isAssignable(extension.getClass(), Analyzer.class)) {
-      DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor();
-      ((Analyzer) extension).describe(descriptor);
+    if (ClassUtils.isAssignable(extension.getClass(), Sensor.class)) {
+      DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
+      ((Sensor) extension).describe(descriptor);
       result.addAll(Arrays.asList(descriptor.provides()));
     }
     return result;

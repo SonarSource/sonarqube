@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.scan2;
 
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
+
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.analyzer.issue.internal.DefaultAnalyzerIssue;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 
@@ -30,26 +31,26 @@ import org.sonar.batch.index.Caches;
 public class AnalyzerIssueCache implements BatchComponent {
 
   // project key -> resource key -> issue key -> issue
-  private final Cache<DefaultAnalyzerIssue> cache;
+  private final Cache<DefaultIssue> cache;
 
   public AnalyzerIssueCache(Caches caches) {
     cache = caches.createCache("issues");
   }
 
-  public Iterable<DefaultAnalyzerIssue> byComponent(String projectKey, String resourceKey) {
+  public Iterable<DefaultIssue> byComponent(String projectKey, String resourceKey) {
     return cache.values(projectKey, resourceKey);
   }
 
-  public Iterable<DefaultAnalyzerIssue> all() {
+  public Iterable<DefaultIssue> all() {
     return cache.values();
   }
 
-  public AnalyzerIssueCache put(String projectKey, String resourceKey, DefaultAnalyzerIssue issue) {
+  public AnalyzerIssueCache put(String projectKey, String resourceKey, DefaultIssue issue) {
     cache.put(projectKey, resourceKey, issue.key(), issue);
     return this;
   }
 
-  public Iterable<DefaultAnalyzerIssue> byModule(String projectKey) {
+  public Iterable<DefaultIssue> byModule(String projectKey) {
     return cache.values(projectKey);
   }
 

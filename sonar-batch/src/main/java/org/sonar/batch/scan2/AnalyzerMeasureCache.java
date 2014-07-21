@@ -19,9 +19,10 @@
  */
 package org.sonar.batch.scan2;
 
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+
 import com.google.common.base.Preconditions;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasure;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.Caches;
@@ -32,25 +33,25 @@ import org.sonar.batch.index.Caches;
 public class AnalyzerMeasureCache implements BatchComponent {
 
   // project key -> component key -> metric key -> measure
-  private final Cache<DefaultAnalyzerMeasure> cache;
+  private final Cache<DefaultMeasure> cache;
 
   public AnalyzerMeasureCache(Caches caches) {
     cache = caches.createCache("measures");
   }
 
-  public Iterable<Entry<DefaultAnalyzerMeasure>> entries() {
+  public Iterable<Entry<DefaultMeasure>> entries() {
     return cache.entries();
   }
 
-  public Iterable<DefaultAnalyzerMeasure> byModule(String projectKey) {
+  public Iterable<DefaultMeasure> byModule(String projectKey) {
     return cache.values(projectKey);
   }
 
-  public DefaultAnalyzerMeasure<?> byMetric(String projectKey, String resourceKey, String metricKey) {
+  public DefaultMeasure<?> byMetric(String projectKey, String resourceKey, String metricKey) {
     return cache.get(projectKey, resourceKey, metricKey);
   }
 
-  public AnalyzerMeasureCache put(String projectKey, String resourceKey, DefaultAnalyzerMeasure<?> measure) {
+  public AnalyzerMeasureCache put(String projectKey, String resourceKey, DefaultMeasure<?> measure) {
     Preconditions.checkNotNull(projectKey);
     Preconditions.checkNotNull(resourceKey);
     Preconditions.checkNotNull(measure);
@@ -58,14 +59,14 @@ public class AnalyzerMeasureCache implements BatchComponent {
     return this;
   }
 
-  public boolean contains(String projectKey, String resourceKey, DefaultAnalyzerMeasure<?> measure) {
+  public boolean contains(String projectKey, String resourceKey, DefaultMeasure<?> measure) {
     Preconditions.checkNotNull(projectKey);
     Preconditions.checkNotNull(resourceKey);
     Preconditions.checkNotNull(measure);
     return cache.containsKey(projectKey, resourceKey, measure.metric().key());
   }
 
-  public Iterable<DefaultAnalyzerMeasure> all() {
+  public Iterable<DefaultMeasure> all() {
     return cache.values();
   }
 

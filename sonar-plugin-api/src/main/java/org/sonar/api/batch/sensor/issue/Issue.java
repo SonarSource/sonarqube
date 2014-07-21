@@ -17,29 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.xoo.plugin;
+package org.sonar.api.batch.sensor.issue;
 
-import org.sonar.api.SonarPlugin;
-import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
-import org.sonar.batch.mediumtest.xoo.plugin.lang.MeasureSensor;
-import org.sonar.batch.mediumtest.xoo.plugin.lang.ScmActivitySensor;
-import org.sonar.batch.mediumtest.xoo.plugin.rule.OneIssuePerLineAnalyzer;
+import org.sonar.api.batch.sensor.Sensor;
 
-import java.util.Arrays;
-import java.util.List;
+import com.google.common.annotations.Beta;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.rule.RuleKey;
 
-public final class XooPlugin extends SonarPlugin {
+import javax.annotation.Nullable;
 
-  @Override
-  public List getExtensions() {
-    return Arrays.asList(
-      // language
-      MeasureSensor.class,
-      ScmActivitySensor.class,
-      Xoo.class,
+/**
+ * Issue reported by an {@link Sensor}
+ *
+ * @since 4.4
+ */
+@Beta
+public interface Issue {
 
-      // rules
-      OneIssuePerLineAnalyzer.class
-      );
-  }
+  /**
+   * The {@link InputFile} this issue belongs to. Returns null if issue is global to the project.
+   */
+  @Nullable
+  InputFile inputFile();
+
+  /**
+   * The {@link RuleKey} of this issue.
+   */
+  RuleKey ruleKey();
+
+  /**
+   * Message of the issue.
+   */
+  String message();
+
+  /**
+   * Line of the issue.
+   */
+  Integer line();
+
+  /**
+   * Effort to fix the issue. Used by technical debt model.
+   */
+  @Nullable
+  Double effortToFix();
+
 }

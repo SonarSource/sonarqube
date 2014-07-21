@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.mediumtest;
 
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.measure.Measure;
+
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
-import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.batch.fs.InputFile;
@@ -194,17 +195,17 @@ public class AnalyzerMediumTester {
   }
 
   public static class TaskResult implements ScanTaskObserver {
-    private List<AnalyzerIssue> issues = new ArrayList<AnalyzerIssue>();
-    private List<AnalyzerMeasure> measures = new ArrayList<AnalyzerMeasure>();
+    private List<Issue> issues = new ArrayList<Issue>();
+    private List<Measure> measures = new ArrayList<Measure>();
     private List<InputFile> inputFiles = new ArrayList<InputFile>();
 
     @Override
     public void scanTaskCompleted(ProjectScanContainer container) {
-      for (AnalyzerIssue issue : container.getComponentByType(AnalyzerIssueCache.class).all()) {
+      for (Issue issue : container.getComponentByType(AnalyzerIssueCache.class).all()) {
         issues.add(issue);
       }
 
-      for (AnalyzerMeasure<?> measure : container.getComponentByType(AnalyzerMeasureCache.class).all()) {
+      for (Measure<?> measure : container.getComponentByType(AnalyzerMeasureCache.class).all()) {
         measures.add(measure);
       }
 
@@ -214,11 +215,11 @@ public class AnalyzerMediumTester {
       }
     }
 
-    public List<AnalyzerIssue> issues() {
+    public List<Issue> issues() {
       return issues;
     }
 
-    public List<AnalyzerMeasure> measures() {
+    public List<Measure> measures() {
       return measures;
     }
 

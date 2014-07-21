@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.scan2;
 
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.analyzer.Analyzer;
-import org.sonar.api.batch.analyzer.AnalyzerContext;
-import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 
 import java.util.Collection;
@@ -41,12 +42,12 @@ public class AnalyzersExecutor implements BatchComponent {
     this.optimizer = optimizer;
   }
 
-  public void execute(AnalyzerContext context) {
-    Collection<Analyzer> analyzers = selector.select(Analyzer.class, null, true, null);
+  public void execute(SensorContext context) {
+    Collection<Sensor> analyzers = selector.select(Sensor.class, null, true, null);
 
-    for (Analyzer analyzer : analyzers) {
+    for (Sensor analyzer : analyzers) {
 
-      DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor();
+      DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
       analyzer.describe(descriptor);
 
       if (!optimizer.shouldExecute(descriptor)) {
@@ -61,7 +62,7 @@ public class AnalyzersExecutor implements BatchComponent {
 
   }
 
-  private void executeSensor(AnalyzerContext context, Analyzer analyzer) {
+  private void executeSensor(SensorContext context, Sensor analyzer) {
     analyzer.analyse(context);
   }
 

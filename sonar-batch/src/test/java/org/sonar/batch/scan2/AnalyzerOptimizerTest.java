@@ -19,18 +19,18 @@
  */
 package org.sonar.batch.scan2;
 
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.rule.RuleKey;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class AnalyzerOptimizerTest {
@@ -48,14 +48,14 @@ public class AnalyzerOptimizerTest {
 
   @Test
   public void should_run_analyzer_with_no_metadata() throws Exception {
-    DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor();
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 
   @Test
   public void should_optimize_on_language() throws Exception {
-    DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor()
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
       .workOnLanguages("java", "php");
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
@@ -65,7 +65,7 @@ public class AnalyzerOptimizerTest {
 
   @Test
   public void should_optimize_on_type() throws Exception {
-    DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor()
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
       .workOnFileTypes(InputFile.Type.MAIN);
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
@@ -78,7 +78,7 @@ public class AnalyzerOptimizerTest {
 
   @Test
   public void should_optimize_on_both_type_and_language() throws Exception {
-    DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor()
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
       .workOnLanguages("java", "php")
       .workOnFileTypes(InputFile.Type.MAIN);
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
@@ -93,7 +93,7 @@ public class AnalyzerOptimizerTest {
 
   @Test
   public void should_optimize_on_repository() throws Exception {
-    DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor()
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
       .createIssuesForRuleRepositories("squid");
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 

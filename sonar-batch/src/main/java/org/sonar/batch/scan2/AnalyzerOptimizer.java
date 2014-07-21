@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.scan2;
 
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+
 import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -39,14 +40,14 @@ public class AnalyzerOptimizer implements BatchComponent {
   /**
    * Decide if the given Analyzer should be executed.
    */
-  public boolean shouldExecute(DefaultAnalyzerDescriptor descriptor) {
+  public boolean shouldExecute(DefaultSensorDescriptor descriptor) {
     // FS Conditions
     boolean fsCondition = fsCondition(descriptor);
     boolean activeRulesCondition = activeRulesCondition(descriptor);
     return fsCondition && activeRulesCondition;
   }
 
-  private boolean activeRulesCondition(DefaultAnalyzerDescriptor descriptor) {
+  private boolean activeRulesCondition(DefaultSensorDescriptor descriptor) {
     if (!descriptor.ruleRepositories().isEmpty()) {
       for (String repoKey : descriptor.ruleRepositories()) {
         if (!activeRules.findByRepository(repoKey).isEmpty()) {
@@ -58,7 +59,7 @@ public class AnalyzerOptimizer implements BatchComponent {
     return true;
   }
 
-  private boolean fsCondition(DefaultAnalyzerDescriptor descriptor) {
+  private boolean fsCondition(DefaultSensorDescriptor descriptor) {
     if (!descriptor.languages().isEmpty() || !descriptor.types().isEmpty()) {
       FilePredicate langPredicate = descriptor.languages().isEmpty() ? fs.predicates().all() : fs.predicates().hasLanguages(descriptor.languages());
 

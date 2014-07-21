@@ -120,7 +120,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
       TimeMachineConfiguration.class,
       DefaultSensorContext.class,
-      AnalyzerContextAdaptor.class,
+      SensorContextAdaptor.class,
       BatchExtensionDictionnary.class,
       DefaultTimeMachine.class,
       ViolationFilters.class,

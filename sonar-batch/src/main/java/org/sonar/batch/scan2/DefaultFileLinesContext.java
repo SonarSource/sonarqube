@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.scan2;
 
+import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
-import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuilder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.FileLinesContext;
@@ -118,7 +119,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
       Map<Integer, Object> lines = entry.getValue();
       if (shouldSave(lines)) {
         String data = KeyValueFormat.format(lines);
-        measureCache.put(projectKey, ComponentKeys.createEffectiveKey(projectKey, inputFile), new DefaultAnalyzerMeasureBuilder<String>()
+        measureCache.put(projectKey, ComponentKeys.createEffectiveKey(projectKey, inputFile), new DefaultMeasureBuilder<String>()
           .forMetric(metric)
           .onFile(inputFile)
           .withValue(data)
@@ -129,7 +130,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
   }
 
   private Map loadData(String metricKey, Converter converter) {
-    AnalyzerMeasure measure = measureCache.byMetric(projectKey, ComponentKeys.createEffectiveKey(projectKey, inputFile), metricKey);
+    Measure measure = measureCache.byMetric(projectKey, ComponentKeys.createEffectiveKey(projectKey, inputFile), metricKey);
     if (measure == null) {
       // no such measure
       return ImmutableMap.of();

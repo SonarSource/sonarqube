@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.phases;
 
-import org.sonar.api.batch.analyzer.Analyzer;
-
 import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -38,7 +36,7 @@ public abstract class SensorMatcher implements BatchExtension, ExtensionMatcher 
   @Override
   public final boolean accept(Object extension) {
     return ClassUtils.isAssignable(extension.getClass(), Sensor.class)
-      && acceptSensor((Sensor) extension) || ClassUtils.isAssignable(extension.getClass(), Analyzer.class);
+      && acceptSensor((Sensor) extension) || ClassUtils.isAssignable(extension.getClass(), Sensor.class);
   }
 
   public abstract boolean acceptSensor(Sensor sensor);

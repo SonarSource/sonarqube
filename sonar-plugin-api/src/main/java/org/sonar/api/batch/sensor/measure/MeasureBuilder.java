@@ -17,29 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.xoo.plugin;
+package org.sonar.api.batch.sensor.measure;
 
-import org.sonar.api.SonarPlugin;
-import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
-import org.sonar.batch.mediumtest.xoo.plugin.lang.MeasureSensor;
-import org.sonar.batch.mediumtest.xoo.plugin.lang.ScmActivitySensor;
-import org.sonar.batch.mediumtest.xoo.plugin.rule.OneIssuePerLineAnalyzer;
+import org.sonar.api.batch.measure.Metric;
 
-import java.util.Arrays;
-import java.util.List;
+import com.google.common.annotations.Beta;
+import org.sonar.api.batch.fs.InputFile;
 
-public final class XooPlugin extends SonarPlugin {
+import java.io.Serializable;
 
-  @Override
-  public List getExtensions() {
-    return Arrays.asList(
-      // language
-      MeasureSensor.class,
-      ScmActivitySensor.class,
-      Xoo.class,
+/**
+ * Builder to create new {@link Measure}
+ * @since 4.4
+ */
+@Beta
+public interface MeasureBuilder<G extends Serializable> {
 
-      // rules
-      OneIssuePerLineAnalyzer.class
-      );
-  }
+  /**
+   * The file the measure belongs to.
+   */
+  MeasureBuilder<G> onFile(InputFile file);
+
+  /**
+   * Tell that the measure is global to the project.
+   */
+  MeasureBuilder<G> onProject();
+
+  /**
+   * The metric this measure belong to.
+   */
+  MeasureBuilder<G> forMetric(Metric<G> metric);
+
+  /**
+   * Value of the measure.
+   */
+  MeasureBuilder<G> withValue(G value);
+
+  /**
+   * Build the measure.
+   */
+  Measure<G> build();
 }

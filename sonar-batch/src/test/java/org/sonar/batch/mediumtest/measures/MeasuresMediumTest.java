@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.mediumtest.measures;
 
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
+
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuilder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.AnalyzerMediumTester;
@@ -95,7 +96,7 @@ public class MeasuresMediumTest {
 
     assertThat(result.measures()).hasSize(1);
 
-    assertThat(result.measures()).contains(new DefaultAnalyzerMeasureBuilder<Integer>()
+    assertThat(result.measures()).contains(new DefaultMeasureBuilder<Integer>()
       .forMetric(CoreMetrics.LINES)
       .onFile(new DefaultInputFile("src/sample.xoo"))
       .withValue(20)
@@ -138,13 +139,13 @@ public class MeasuresMediumTest {
 
     assertThat(result.measures()).hasSize(4);
 
-    assertThat(result.measures()).contains(new DefaultAnalyzerMeasureBuilder<Integer>()
+    assertThat(result.measures()).contains(new DefaultMeasureBuilder<Integer>()
       .forMetric(CoreMetrics.LINES)
       .onFile(new DefaultInputFile("src/sample.xoo"))
       .withValue(5)
       .build());
 
-    assertThat(result.measures()).contains(new DefaultAnalyzerMeasureBuilder<String>()
+    assertThat(result.measures()).contains(new DefaultMeasureBuilder<String>()
       .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
       .onFile(new DefaultInputFile("src/sample.xoo"))
       .withValue("1=julien;2=julien;3=julien;4=julien;5=simon")

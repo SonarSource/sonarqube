@@ -17,29 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.xoo.plugin;
+package org.sonar.api.batch.sensor;
 
-import org.sonar.api.SonarPlugin;
-import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
-import org.sonar.batch.mediumtest.xoo.plugin.lang.MeasureSensor;
-import org.sonar.batch.mediumtest.xoo.plugin.lang.ScmActivitySensor;
-import org.sonar.batch.mediumtest.xoo.plugin.rule.OneIssuePerLineAnalyzer;
+import com.google.common.annotations.Beta;
+import org.sonar.api.BatchExtension;
 
-import java.util.Arrays;
-import java.util.List;
+/**
+ * <p>
+ * An Analyzer is invoked once during the analysis of a project. The analyzer can parse a flat file, connect to a web server... Analyzers are
+ * used to add measure and issues at file level.
+ * </p>
+ *
+ * <p>
+ * For example the Cobertura Analyzer parses Cobertura report and saves the first-level of measures on files.
+ * </p>
+ *
+ * @since 4.4
+ */
+@Beta
+public interface Sensor extends BatchExtension {
 
-public final class XooPlugin extends SonarPlugin {
+  /**
+   * Populate {@link SensorDescriptor} of this analyzer.
+   */
+  void describe(SensorDescriptor descriptor);
 
-  @Override
-  public List getExtensions() {
-    return Arrays.asList(
-      // language
-      MeasureSensor.class,
-      ScmActivitySensor.class,
-      Xoo.class,
+  /**
+   * The actual analyzer code.
+   */
+  void analyse(SensorContext context);
 
-      // rules
-      OneIssuePerLineAnalyzer.class
-      );
-  }
 }

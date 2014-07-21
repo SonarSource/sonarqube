@@ -17,29 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.xoo.plugin;
-
-import org.sonar.api.SonarPlugin;
-import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
-import org.sonar.batch.mediumtest.xoo.plugin.lang.MeasureSensor;
-import org.sonar.batch.mediumtest.xoo.plugin.lang.ScmActivitySensor;
-import org.sonar.batch.mediumtest.xoo.plugin.rule.OneIssuePerLineAnalyzer;
-
-import java.util.Arrays;
-import java.util.List;
-
-public final class XooPlugin extends SonarPlugin {
-
-  @Override
-  public List getExtensions() {
-    return Arrays.asList(
-      // language
-      MeasureSensor.class,
-      ScmActivitySensor.class,
-      Xoo.class,
-
-      // rules
-      OneIssuePerLineAnalyzer.class
-      );
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.api.batch.sensor.issue.internal;

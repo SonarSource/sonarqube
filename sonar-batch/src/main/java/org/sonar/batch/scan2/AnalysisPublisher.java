@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.scan2;
 
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.measure.Measure;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
-import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -97,7 +98,7 @@ public final class AnalysisPublisher {
       jsonWriter
         .beginObject().name("issues")
         .beginArray();
-      for (AnalyzerIssue issue : issueCache.byModule(def.getKey())) {
+      for (Issue issue : issueCache.byModule(def.getKey())) {
         jsonWriter.beginObject()
           .prop("repository", issue.ruleKey().repository())
           .prop("rule", issue.ruleKey().rule());
@@ -128,7 +129,7 @@ public final class AnalysisPublisher {
       jsonWriter
         .beginObject().name("measures")
         .beginArray();
-      for (AnalyzerMeasure<?> measure : measureCache.byModule(def.getKey())) {
+      for (Measure<?> measure : measureCache.byModule(def.getKey())) {
         jsonWriter.beginObject()
           .prop("metricKey", measure.metric().key());
         if (measure.inputFile() != null) {

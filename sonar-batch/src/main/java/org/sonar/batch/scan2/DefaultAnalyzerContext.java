@@ -19,15 +19,16 @@
  */
 package org.sonar.batch.scan2;
 
-import org.sonar.api.batch.analyzer.AnalyzerContext;
-import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
-import org.sonar.api.batch.analyzer.issue.AnalyzerIssueBuilder;
-import org.sonar.api.batch.analyzer.issue.internal.DefaultAnalyzerIssue;
-import org.sonar.api.batch.analyzer.issue.internal.DefaultAnalyzerIssueBuilder;
-import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
-import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
-import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasure;
-import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuilder;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.IssueBuilder;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssueBuilder;
+import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.measure.MeasureBuilder;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
+
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -35,12 +36,12 @@ import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.issue.IssueFilters;
-import org.sonar.batch.scan.AnalyzerContextAdaptor;
+import org.sonar.batch.scan.SensorContextAdaptor;
 import org.sonar.core.component.ComponentKeys;
 
 import java.io.Serializable;
 
-public class DefaultAnalyzerContext implements AnalyzerContext {
+public class DefaultAnalyzerContext implements SensorContext {
 
   private final AnalyzerMeasureCache measureCache;
   private final AnalyzerIssueCache issueCache;
@@ -77,46 +78,46 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
   }
 
   @Override
-  public <G extends Serializable> AnalyzerMeasureBuilder<G> measureBuilder() {
-    return new DefaultAnalyzerMeasureBuilder<G>();
+  public <G extends Serializable> MeasureBuilder<G> measureBuilder() {
+    return new DefaultMeasureBuilder<G>();
   }
 
   @Override
-  public AnalyzerMeasure getMeasure(String metricKey) {
+  public Measure getMeasure(String metricKey) {
     return measureCache.byMetric(def.getKey(), def.getKey(), metricKey);
   }
 
   @Override
-  public <G extends Serializable> AnalyzerMeasure<G> getMeasure(Metric<G> metric) {
-    return (AnalyzerMeasure<G>) measureCache.byMetric(def.getKey(), def.getKey(), metric.key());
+  public <G extends Serializable> Measure<G> getMeasure(Metric<G> metric) {
+    return (Measure<G>) measureCache.byMetric(def.getKey(), def.getKey(), metric.key());
   }
 
   @Override
-  public AnalyzerMeasure getMeasure(InputFile file, String metricKey) {
+  public Measure getMeasure(InputFile file, String metricKey) {
     return measureCache.byMetric(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), file), metricKey);
   }
 
   @Override
-  public <G extends Serializable> AnalyzerMeasure<G> getMeasure(InputFile file, Metric<G> metric) {
-    return (AnalyzerMeasure<G>) measureCache.byMetric(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), file), metric.key());
+  public <G extends Serializable> Measure<G> getMeasure(InputFile file, Metric<G> metric) {
+    return (Measure<G>) measureCache.byMetric(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), file), metric.key());
   }
 
   @Override
-  public void addMeasure(AnalyzerMeasure<?> measure) {
+  public void addMeasure(Measure<?> measure) {
     if (measure.inputFile() != null) {
-      measureCache.put(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), measure.inputFile()), (DefaultAnalyzerMeasure) measure);
+      measureCache.put(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), measure.inputFile()), (DefaultMeasure) measure);
     } else {
-      measureCache.put(def.getKey(), def.getKey(), (DefaultAnalyzerMeasure) measure);
+      measureCache.put(def.getKey(), def.getKey(), (DefaultMeasure) measure);
     }
   }
 
   @Override
-  public AnalyzerIssueBuilder issueBuilder() {
-    return new DefaultAnalyzerIssueBuilder();
+  public IssueBuilder issueBuilder() {
+    return new DefaultIssueBuilder();
   }
 
   @Override
-  public boolean addIssue(AnalyzerIssue issue) {
+  public boolean addIssue(Issue issue) {
     String resourceKey;
     if (issue.inputFile() != null) {
       resourceKey = ComponentKeys.createEffectiveKey(def.getKey(), issue.inputFile());
@@ -124,8 +125,8 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
       resourceKey = def.getKey();
     }
     // TODO Lot of things to do. See ModuleIssues::initAndAddIssue
-    if (issueFilters.accept(AnalyzerContextAdaptor.toDefaultIssue(def.getKey(), resourceKey, issue), null)) {
-      issueCache.put(def.getKey(), resourceKey, (DefaultAnalyzerIssue) issue);
+    if (issueFilters.accept(SensorContextAdaptor.toDefaultIssue(def.getKey(), resourceKey, issue), null)) {
+      issueCache.put(def.getKey(), resourceKey, (DefaultIssue) issue);
       return true;
     }
 

@@ -21,29 +21,27 @@ package org.sonar.batch.scan;
 
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.analyzer.Analyzer;
-import org.sonar.api.batch.analyzer.AnalyzerContext;
-import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
 import org.sonar.api.batch.measure.Metric;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan2.AnalyzerOptimizer;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class SensorWrapper implements Sensor {
+public class SensorWrapper implements org.sonar.api.batch.Sensor {
 
-  private Analyzer analyzer;
-  private AnalyzerContext adaptor;
-  private DefaultAnalyzerDescriptor descriptor;
+  private Sensor analyzer;
+  private SensorContext adaptor;
+  private DefaultSensorDescriptor descriptor;
   private AnalyzerOptimizer optimizer;
 
-  public SensorWrapper(Analyzer analyzer, AnalyzerContext adaptor, AnalyzerOptimizer optimizer) {
+  public SensorWrapper(Sensor analyzer, SensorContext adaptor, AnalyzerOptimizer optimizer) {
     this.analyzer = analyzer;
     this.optimizer = optimizer;
-    descriptor = new DefaultAnalyzerDescriptor();
+    descriptor = new DefaultSensorDescriptor();
     analyzer.describe(descriptor);
     this.adaptor = adaptor;
   }
@@ -64,7 +62,7 @@ public class SensorWrapper implements Sensor {
   }
 
   @Override
-  public void analyse(Project module, SensorContext context) {
+  public void analyse(Project module, org.sonar.api.batch.SensorContext context) {
     analyzer.analyse(adaptor);
   }
 }
