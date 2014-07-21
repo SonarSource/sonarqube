@@ -17,20 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins;
+
+package org.sonar.server.batch;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.Server;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
-import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.home.cache.FileHashes;
 
 import java.io.File;
@@ -40,13 +37,13 @@ import java.util.Collection;
 /**
  * JAR files to be downloaded by sonar-runner.
  */
-public class BatchWs implements WebService, Startable {
+public class BatchIndex implements ServerComponent, Startable {
 
   private final Server server;
   private String index;
   private File batchDir;
 
-  public BatchWs(Server server) {
+  public BatchIndex(Server server) {
     this.server = server;
   }
 
@@ -68,59 +65,23 @@ public class BatchWs implements WebService, Startable {
 
   @Override
   public void stop() {
-    // nothing to do
+    // Nothing to do
   }
 
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("batch")
-      .setSince("4.4")
-      .setDescription("Get JAR files for batch");
-    controller.createAction("index")
-      .setInternal(true)
-      .setDescription("List the JAR files to be downloaded by source analyzer")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          index(response);
-        }
-      }).setResponseExample(getClass().getResource("example-batch-index.txt"));
-    controller.createAction("file")
-      .setInternal(true)
-      .setDescription("Download a JAR file required by source analyzer")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          file(request, response);
-        }
-      }).createParam("name")
-        .setDescription("File name")
-        .setExampleValue("batch-library-2.3.jar");
-
-    controller.done();
+  String getIndex() {
+    return index;
   }
 
-  private void index(Response response) {
-    try {
-      response.stream().setMediaType("text/plain");
-      IOUtils.write(index, response.stream().output());
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to send batch index", e);
-    }
-  }
-
-  private void file(Request request, Response response) {
-    String filename = request.mandatoryParam("name");
+  File getFile(String filename) {
     try {
       File input = new File(batchDir, filename);
       if (!input.exists() || !FileUtils.directoryContains(batchDir, input)) {
         throw new IllegalArgumentException("Bad filename: " + filename);
       }
-      response.stream().setMediaType("application/java-archive");
-      FileUtils.copyFile(input, response.stream().output());
+      return input;
 
     } catch (IOException e) {
-      throw new IllegalStateException("Fail to send batch file " + filename, e);
+      throw new IllegalStateException("Can get file " + filename, e);
     }
   }
 }

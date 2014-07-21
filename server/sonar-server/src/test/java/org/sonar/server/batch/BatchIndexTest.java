@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins;
+package org.sonar.server.batch;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharUtils;
@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.platform.Server;
-import org.sonar.server.ws.WsTester;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,13 +35,15 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class BatchWsTest {
+public class BatchIndexTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  File jar;
 
   Server server = mock(Server.class);
 
@@ -53,29 +54,28 @@ public class BatchWsTest {
 
     File batchDir = new File(rootDir, "lib/batch");
     FileUtils.forceMkdir(batchDir);
+    jar = new File(batchDir, "sonar-batch.jar");
     FileUtils.writeStringToFile(new File(batchDir, "sonar-batch.jar"), "foo");
   }
 
   @Test
-  public void download_index() throws Exception {
-    BatchWs ws = new BatchWs(server);
-    ws.start();
-    WsTester tester = new WsTester(ws);
+  public void get_index() throws Exception {
+    BatchIndex batchIndex = new BatchIndex(server);
+    batchIndex.start();
 
-    String index = tester.newGetRequest("batch", "index").execute().outputAsString();
+    String index = batchIndex.getIndex();
     assertThat(index).isEqualTo("sonar-batch.jar|acbd18db4cc2f85cedef654fccc4a4d8" + CharUtils.LF);
 
-    ws.stop();
+    batchIndex.stop();
   }
 
   @Test
-  public void download_file() throws Exception {
-    BatchWs ws = new BatchWs(server);
-    ws.start();
-    WsTester tester = new WsTester(ws);
+  public void get_file() throws Exception {
+    BatchIndex batchIndex = new BatchIndex(server);
+    batchIndex.start();
 
-    String jar = tester.newGetRequest("batch", "file").setParam("name", "sonar-batch.jar").execute().outputAsString();
-    assertThat(jar).isEqualTo("foo");
+    File file = batchIndex.getFile("sonar-batch.jar");
+    assertThat(file).isEqualTo(jar);
   }
 
   /**
@@ -87,11 +87,10 @@ public class BatchWsTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Bad filename: ../sonar-batch.jar");
 
-    BatchWs ws = new BatchWs(server);
-    ws.start();
-    WsTester tester = new WsTester(ws);
+    BatchIndex batchIndex = new BatchIndex(server);
+    batchIndex.start();
 
-    tester.newGetRequest("batch", "file").setParam("name", "../sonar-batch.jar").execute();
+    batchIndex.getFile("../sonar-batch.jar");
   }
 
   @Test
@@ -99,10 +98,9 @@ public class BatchWsTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Bad filename: other.jar");
 
-    BatchWs ws = new BatchWs(server);
-    ws.start();
-    WsTester tester = new WsTester(ws);
+    BatchIndex batchIndex = new BatchIndex(server);
+    batchIndex.start();
 
-    tester.newGetRequest("batch", "file").setParam("name", "other.jar").execute();
+    batchIndex.getFile("other.jar");
   }
 }

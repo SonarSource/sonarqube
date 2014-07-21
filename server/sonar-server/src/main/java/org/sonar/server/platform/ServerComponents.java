@@ -78,6 +78,8 @@ import org.sonar.server.activity.index.ActivityNormalizer;
 import org.sonar.server.activity.ws.ActivitiesWebService;
 import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.ws.AuthenticationWs;
+import org.sonar.server.batch.BatchIndex;
+import org.sonar.server.batch.BatchWs;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
@@ -220,7 +222,7 @@ class ServerComponents {
       // LogService
       ActivityService.class
 
-    ));
+      ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
     components.addAll(DaoUtils.getDaoClasses());
@@ -235,6 +237,10 @@ class ServerComponents {
     return Lists.newArrayList(
       DefaultServerUpgradeStatus.class,
       DatabaseMigrator.class,
+
+      // batch
+      BatchIndex.class,
+      BatchWs.class,
 
       // plugins
       ServerPluginJarsInstaller.class,
@@ -253,9 +259,8 @@ class ServerComponents {
 
       // ws
       RestartHandler.class,
-      SystemWs.class,
-      BatchWs.class
-    );
+      SystemWs.class
+      );
   }
 
   /**
@@ -272,9 +277,8 @@ class ServerComponents {
       HttpDownloader.class,
       UriReader.class,
       ServerIdGenerator.class
-    );
+      );
   }
-
 
   void startLevel4Components(ComponentContainer pico) {
     pico.addSingleton(PluginDownloader.class);
@@ -349,7 +353,6 @@ class ServerComponents {
     pico.addSingleton(ActivitiesWebService.class);
     pico.addSingleton(org.sonar.server.activity.ws.SearchAction.class);
     pico.addSingleton(ActivityMapping.class);
-
 
     // measure
     pico.addComponent(MeasuresDao.class, false);
@@ -526,7 +529,6 @@ class ServerComponents {
       pico.addSingleton(components);
     }
 
-
     ServerExtensionInstaller extensionInstaller = pico.getComponentByType(ServerExtensionInstaller.class);
     extensionInstaller.installExtensions(pico);
 
@@ -538,7 +540,6 @@ class ServerComponents {
   }
 
   public void executeStartupTasks(ComponentContainer pico) {
-
 
     final ComponentContainer startupContainer = pico.createChild();
 

@@ -1,0 +1,89 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.batch;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
+
+import java.io.IOException;
+
+public class BatchWs implements WebService {
+
+  private final BatchIndex batchIndex;
+
+  public BatchWs(BatchIndex batchIndex) {
+    this.batchIndex = batchIndex;
+  }
+
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController("batch")
+      .setSince("4.4")
+      .setDescription("Get JAR files for batch");
+
+    defineIndexAction(controller);
+    defineFileAction(controller);
+
+    controller.done();
+  }
+
+  private void defineIndexAction(NewController controller) {
+    controller.createAction("index")
+      .setInternal(true)
+      .setDescription("List the JAR files to be downloaded by source analyzer")
+      .setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) {
+          try {
+            response.stream().setMediaType("text/plain");
+            IOUtils.write(batchIndex.getIndex(), response.stream().output());
+          } catch (IOException e) {
+            throw new IllegalStateException("Fail to send batch index", e);
+          }
+        }
+      })
+      .setResponseExample(getClass().getResource("example-batch-index.txt"));
+  }
+
+  private void defineFileAction(NewController controller) {
+    controller.createAction("file")
+      .setInternal(true)
+      .setDescription("Download a JAR file required by source analyzer")
+      .setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) {
+          String filename = request.mandatoryParam("name");
+          try {
+            response.stream().setMediaType("application/java-archive");
+            FileUtils.copyFile(batchIndex.getFile(filename), response.stream().output());
+          } catch (IOException e) {
+            throw new IllegalStateException("Fail to send batch file " + filename, e);
+          }
+        }
+      })
+      .createParam("name")
+      .setDescription("File name")
+      .setExampleValue("batch-library-2.3.jar");
+  }
+}
