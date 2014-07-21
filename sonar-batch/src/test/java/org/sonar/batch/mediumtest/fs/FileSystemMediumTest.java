@@ -29,8 +29,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.mediumtest.AnalyzerMediumTester;
-import org.sonar.batch.mediumtest.AnalyzerMediumTester.TaskResult;
+import org.sonar.batch.mediumtest.BatchMediumTester;
+import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.batch.mediumtest.xoo.plugin.XooPlugin;
 import org.sonar.batch.protocol.input.ActiveRule;
 
@@ -47,7 +47,7 @@ public class FileSystemMediumTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  public AnalyzerMediumTester tester = AnalyzerMediumTester.builder()
+  public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", "MAJOR", "xoo", "xoo"))

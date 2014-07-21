@@ -37,12 +37,12 @@ public interface SensorDescriptor {
   SensorDescriptor name(String name);
 
   /**
-   * List {@link Metric} this {@link Sensor} depends on. Will be used to execute Analyzers in correct order.
+   * List {@link Metric} this {@link Sensor} depends on. Will be used to execute sensors in correct order.
    */
   SensorDescriptor dependsOn(Metric<?>... metrics);
 
   /**
-   * List {@link Metric} this {@link Sensor} provides. Will be used to execute Analyzers in correct order.
+   * List {@link Metric} this {@link Sensor} provides. Will be used to execute sensors in correct order.
    */
   SensorDescriptor provides(Metric<?>... metrics);
 

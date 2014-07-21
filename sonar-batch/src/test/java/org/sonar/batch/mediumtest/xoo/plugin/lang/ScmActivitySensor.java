@@ -67,7 +67,7 @@ public class ScmActivitySensor implements Sensor {
   }
 
   @Override
-  public void analyse(SensorContext context) {
+  public void execute(SensorContext context) {
     for (InputFile inputFile : fs.inputFiles(fs.predicates().hasLanguage(Xoo.KEY))) {
       processFile(inputFile);
     }

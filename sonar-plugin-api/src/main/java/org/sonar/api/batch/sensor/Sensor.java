@@ -24,12 +24,12 @@ import org.sonar.api.BatchExtension;
 
 /**
  * <p>
- * An Analyzer is invoked once during the analysis of a project. The analyzer can parse a flat file, connect to a web server... Analyzers are
+ * A sensor is invoked once during the analysis of a project. The sensor can parse a flat file, connect to a web server... Sensors are
  * used to add measure and issues at file level.
  * </p>
  *
  * <p>
- * For example the Cobertura Analyzer parses Cobertura report and saves the first-level of measures on files.
+ * For example the Cobertura Sensor parses Cobertura report and saves the first-level of measures on files.
  * </p>
  *
  * @since 4.4
@@ -38,13 +38,13 @@ import org.sonar.api.BatchExtension;
 public interface Sensor extends BatchExtension {
 
   /**
-   * Populate {@link SensorDescriptor} of this analyzer.
+   * Populate {@link SensorDescriptor} of this sensor.
    */
   void describe(SensorDescriptor descriptor);
 
   /**
-   * The actual analyzer code.
+   * The actual sensor code.
    */
-  void analyse(SensorContext context);
+  void execute(SensorContext context);
 
 }

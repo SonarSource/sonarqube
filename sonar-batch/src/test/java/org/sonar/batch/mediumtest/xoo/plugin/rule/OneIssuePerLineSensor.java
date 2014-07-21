@@ -31,7 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
 import org.sonar.batch.mediumtest.xoo.plugin.base.XooConstants;
 
-public class OneIssuePerLineAnalyzer implements Sensor {
+public class OneIssuePerLineSensor implements Sensor {
 
   public static final String RULE_KEY = "OneIssuePerLine";
   private static final String EFFORT_TO_FIX_PROPERTY = "sonar.oneIssuePerLine.effortToFix";
@@ -46,7 +46,7 @@ public class OneIssuePerLineAnalyzer implements Sensor {
   }
 
   @Override
-  public void analyse(SensorContext context) {
+  public void execute(SensorContext context) {
     for (InputFile file : context.fileSystem().inputFiles(context.fileSystem().predicates().hasLanguages(Xoo.KEY))) {
       createIssues(file, context);
     }

@@ -19,16 +19,15 @@
  */
 package org.sonar.batch.mediumtest.xoo.plugin.lang;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.MeasureBuilder;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
 import org.sonar.batch.mediumtest.xoo.plugin.base.XooConstants;
@@ -112,7 +111,7 @@ public class MeasureSensor implements Sensor {
   }
 
   @Override
-  public void analyse(SensorContext context) {
+  public void execute(SensorContext context) {
     for (InputFile file : context.fileSystem().inputFiles(context.fileSystem().predicates().hasLanguages(Xoo.KEY))) {
       processFileMeasures(file, context);
     }

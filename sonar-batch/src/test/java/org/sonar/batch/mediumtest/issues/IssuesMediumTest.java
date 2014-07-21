@@ -28,8 +28,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.batch.mediumtest.AnalyzerMediumTester;
-import org.sonar.batch.mediumtest.AnalyzerMediumTester.TaskResult;
+import org.sonar.batch.mediumtest.BatchMediumTester;
+import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.batch.mediumtest.xoo.plugin.XooPlugin;
 import org.sonar.batch.protocol.input.ActiveRule;
 
@@ -43,7 +43,7 @@ public class IssuesMediumTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public AnalyzerMediumTester tester = AnalyzerMediumTester.builder()
+  public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .activateRule(new ActiveRule("xoo", "OneIssuePerLine", "MAJOR", "xoo", "xoo"))

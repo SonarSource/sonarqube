@@ -63,6 +63,6 @@ public class SensorWrapper implements org.sonar.api.batch.Sensor {
 
   @Override
   public void analyse(Project module, org.sonar.api.batch.SensorContext context) {
-    analyzer.analyse(adaptor);
+    analyzer.execute(adaptor);
   }
 }

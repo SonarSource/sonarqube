@@ -63,7 +63,7 @@ public class AnalyzersExecutor implements BatchComponent {
   }
 
   private void executeSensor(SensorContext context, Sensor analyzer) {
-    analyzer.analyse(context);
+    analyzer.execute(context);
   }
 
 }

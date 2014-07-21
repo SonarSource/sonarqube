@@ -19,14 +19,13 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.measure.Measure;
-
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -57,63 +56,63 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class AnalyzerMediumTester {
+public class BatchMediumTester {
 
   private Batch batch;
 
-  public static AnalyzerMediumTesterBuilder builder() {
-    return new AnalyzerMediumTesterBuilder().registerCoreMetrics();
+  public static BatchMediumTesterBuilder builder() {
+    return new BatchMediumTesterBuilder().registerCoreMetrics();
   }
 
-  public static class AnalyzerMediumTesterBuilder {
+  public static class BatchMediumTesterBuilder {
     private final FakeProjectReferentialsLoader refProvider = new FakeProjectReferentialsLoader();
     private final FakeSettingsReferential settingsReferential = new FakeSettingsReferential();
     private final FackPluginsReferential pluginsReferential = new FackPluginsReferential();
     private final Map<String, String> bootstrapProperties = new HashMap<String, String>();
 
-    public AnalyzerMediumTester build() {
-      return new AnalyzerMediumTester(this);
+    public BatchMediumTester build() {
+      return new BatchMediumTester(this);
     }
 
-    public AnalyzerMediumTesterBuilder registerPlugin(String pluginKey, File location) {
+    public BatchMediumTesterBuilder registerPlugin(String pluginKey, File location) {
       pluginsReferential.addPlugin(pluginKey, location);
       return this;
     }
 
-    public AnalyzerMediumTesterBuilder registerPlugin(String pluginKey, SonarPlugin instance) {
+    public BatchMediumTesterBuilder registerPlugin(String pluginKey, SonarPlugin instance) {
       pluginsReferential.addPlugin(pluginKey, instance);
       return this;
     }
 
-    public AnalyzerMediumTesterBuilder registerCoreMetrics() {
+    public BatchMediumTesterBuilder registerCoreMetrics() {
       for (Metric<?> m : CoreMetrics.getMetrics()) {
         registerMetric(m);
       }
       return this;
     }
 
-    public AnalyzerMediumTesterBuilder registerMetric(Metric<?> metric) {
+    public BatchMediumTesterBuilder registerMetric(Metric<?> metric) {
       refProvider.add(metric);
       return this;
     }
 
-    public AnalyzerMediumTesterBuilder addQProfile(String language, String name) {
+    public BatchMediumTesterBuilder addQProfile(String language, String name) {
       refProvider.addQProfile(language, name);
       return this;
     }
 
-    public AnalyzerMediumTesterBuilder addDefaultQProfile(String language, String name) {
+    public BatchMediumTesterBuilder addDefaultQProfile(String language, String name) {
       addQProfile(language, name);
       settingsReferential.globalSettings().put("sonar.profile." + language, name);
       return this;
     }
 
-    public AnalyzerMediumTesterBuilder bootstrapProperties(Map<String, String> props) {
+    public BatchMediumTesterBuilder bootstrapProperties(Map<String, String> props) {
       bootstrapProperties.putAll(props);
       return this;
     }
 
-    public AnalyzerMediumTesterBuilder activateRule(ActiveRule activeRule) {
+    public BatchMediumTesterBuilder activateRule(ActiveRule activeRule) {
       refProvider.addActiveRule(activeRule);
       return this;
     }
@@ -128,7 +127,7 @@ public class AnalyzerMediumTester {
     batch.stop();
   }
 
-  private AnalyzerMediumTester(AnalyzerMediumTesterBuilder builder) {
+  private BatchMediumTester(BatchMediumTesterBuilder builder) {
     batch = Batch.builder()
       .setEnableLoggingConfiguration(true)
       .addComponents(
@@ -169,9 +168,9 @@ public class AnalyzerMediumTester {
 
   public static class TaskBuilder {
     private final Map<String, String> taskProperties = new HashMap<String, String>();
-    private AnalyzerMediumTester tester;
+    private BatchMediumTester tester;
 
-    public TaskBuilder(AnalyzerMediumTester tester) {
+    public TaskBuilder(BatchMediumTester tester) {
       this.tester = tester;
     }
 
@@ -246,7 +245,17 @@ public class AnalyzerMediumTester {
     }
 
     public FakeProjectReferentialsLoader add(Metric metric) {
-      ref.metrics().add(new org.sonar.batch.protocol.input.Metric(metricId, metric.key(), metric.getType().name(), metric.getBestValue(), metric.isOptimizedBestValue()));
+      ref.metrics().add(new org.sonar.batch.protocol.input.Metric(metricId,
+        metric.key(),
+        metric.getType().name(),
+        metric.getDescription(),
+        metric.getDirection(),
+        metric.getName(),
+        metric.getQualitative(),
+        metric.getUserManaged(),
+        metric.getWorstValue(),
+        metric.getBestValue(),
+        metric.isOptimizedBestValue()));
       metricId++;
       return this;
     }

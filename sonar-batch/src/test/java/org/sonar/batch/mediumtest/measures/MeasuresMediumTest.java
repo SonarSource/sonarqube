@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.mediumtest.measures;
 
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
-
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -28,9 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.batch.mediumtest.AnalyzerMediumTester;
-import org.sonar.batch.mediumtest.AnalyzerMediumTester.TaskResult;
+import org.sonar.batch.mediumtest.BatchMediumTester;
+import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.batch.mediumtest.xoo.plugin.XooPlugin;
 
 import java.io.File;
@@ -43,7 +42,7 @@ public class MeasuresMediumTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  public AnalyzerMediumTester tester = AnalyzerMediumTester.builder()
+  public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
