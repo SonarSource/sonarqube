@@ -45,14 +45,15 @@
        end %>
 
   <%
-     using_default=false
-     quality_gate=Property.value('sonar.qualitygate', @resource && @resource.id, nil)
-     unless quality_gate
-       quality_gate=Property.value('sonar.qualitygate', nil, nil)
-       using_default=false || quality_gate
-     end
-     if quality_gate
-       qgate = Internal.quality_gates.get(quality_gate.to_i)
+     unless @resource.qualifier == 'DEV' or @resource.qualifier == 'SVW'
+       using_default=false
+       quality_gate=Property.value('sonar.qualitygate', @resource && @resource.id, nil)
+       unless quality_gate
+         quality_gate=Property.value('sonar.qualitygate', nil, nil)
+         using_default=false || quality_gate
+       end
+       if quality_gate
+         qgate = Internal.quality_gates.get(quality_gate.to_i)
   %>
     <p class="description-widget-description">
       <span id="resource_qgate">
@@ -63,7 +64,7 @@
         <% end %>
       </span>
     </p>
-  <% end %>
+  <% end end %>
 
   <% unless @project.project_links.empty? %>
     <ul class="description-widget-links">
