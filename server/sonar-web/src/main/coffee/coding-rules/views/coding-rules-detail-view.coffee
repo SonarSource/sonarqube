@@ -320,7 +320,9 @@ define [
       contextQualityProfile = @options.app.getQualityProfile()
       repoKey = @model.get 'repo'
       isManual = (@options.app.manualRepository().key == repoKey)
-      isCustom = (@model.get('templateKey') != null)
+      console.log isManual
+      isCustom = (@model.has 'templateKey')
+      console.log isCustom
 
       qualityProfilesVisible = not isManual
       if qualityProfilesVisible
