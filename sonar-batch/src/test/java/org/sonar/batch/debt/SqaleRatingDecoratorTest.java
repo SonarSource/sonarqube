@@ -119,7 +119,7 @@ public class SqaleRatingDecoratorTest {
     when(context.getMeasure(CoreMetrics.TECHNICAL_DEBT)).thenReturn(new Measure(CoreMetrics.TECHNICAL_DEBT, 300.0 * ONE_DAY_IN_MINUTES));
 
     decorator.decorate(file, context);
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.RATING, 3.0)));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.SQALE_RATING, 3.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.DEVELOPMENT_COST, "9600")));
     verify(context).saveMeasure(CoreMetrics.SQALE_DEBT_RATIO, 1500d);
 
@@ -137,7 +137,7 @@ public class SqaleRatingDecoratorTest {
     when(context.getMeasure(CoreMetrics.TECHNICAL_DEBT)).thenReturn(new Measure(CoreMetrics.TECHNICAL_DEBT, 0.0));
 
     decorator.decorate(file, context);
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.RATING, 1.0)));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.SQALE_RATING, 1.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.DEVELOPMENT_COST, "9600")));
     verify(context).saveMeasure(CoreMetrics.SQALE_DEBT_RATIO, 0d);
 
@@ -155,7 +155,7 @@ public class SqaleRatingDecoratorTest {
     when(context.getMeasure(CoreMetrics.TECHNICAL_DEBT)).thenReturn(new Measure(CoreMetrics.TECHNICAL_DEBT, 960000.0));
 
     decorator.decorate(file, context);
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.RATING, 5.0)));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.SQALE_RATING, 5.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.DEVELOPMENT_COST, "9600")));
     verify(context).saveMeasure(CoreMetrics.SQALE_DEBT_RATIO, 10000d);
 
@@ -171,7 +171,7 @@ public class SqaleRatingDecoratorTest {
     when(context.getChildrenMeasures(CoreMetrics.DEVELOPMENT_COST)).thenReturn(newArrayList(new Measure(CoreMetrics.DEVELOPMENT_COST, Double.toString(20.0 * ONE_DAY_IN_MINUTES))));
 
     decorator.decorate(mock(File.class), context);
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.RATING, 3.0)));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.SQALE_RATING, 3.0)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.DEVELOPMENT_COST, "9600")));
     verify(context).saveMeasure(CoreMetrics.SQALE_DEBT_RATIO, 1500d);
 

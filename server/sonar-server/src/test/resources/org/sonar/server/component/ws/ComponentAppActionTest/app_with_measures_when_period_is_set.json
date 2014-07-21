@@ -21,7 +21,8 @@
     "fNcloc": "2",
     "fCoverage": "5.0",
     "fDuplicationDensity": "1.2",
-    "fDebt": "10min"
+    "fDebt": "10min",
+    "fSqaleDebtRatio" : "5.0"
   },
   "tabs": [
     "coverage"

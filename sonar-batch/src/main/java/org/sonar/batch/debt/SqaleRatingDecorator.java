@@ -76,7 +76,7 @@ public final class SqaleRatingDecorator implements Decorator {
 
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    return Lists.<Metric>newArrayList(CoreMetrics.RATING, CoreMetrics.DEVELOPMENT_COST, CoreMetrics.SQALE_DEBT_RATIO);
+    return Lists.<Metric>newArrayList(CoreMetrics.SQALE_RATING, CoreMetrics.DEVELOPMENT_COST, CoreMetrics.SQALE_DEBT_RATIO);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
@@ -94,7 +94,7 @@ public final class SqaleRatingDecorator implements Decorator {
   }
 
   private Measure createRatingMeasure(int rating) {
-    return new Measure(CoreMetrics.RATING).setIntValue(rating).setData(toRatingLetter(rating));
+    return new Measure(CoreMetrics.SQALE_RATING).setIntValue(rating).setData(toRatingLetter(rating));
   }
 
   static String toRatingLetter(@Nullable Integer rating) {

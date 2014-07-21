@@ -47,7 +47,10 @@
     "fNcloc": "12",
     "fDebt": "4h",
     "fIssues": "4",
-    "fInfoIssues": "4"
+    "fInfoIssues": "4",
+    "fDuplicationDensity": "1.2",
+    "fSqaleRating" : "C",
+    "fSqaleDebtRatio" : "35.0%"
   },
   "extensions": [
     ["metricsTab", "Metrics"]

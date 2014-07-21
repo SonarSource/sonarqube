@@ -211,11 +211,13 @@ public class ComponentAppAction implements RequestHandler {
   private void appendMeasures(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey, Multiset<String> severitiesAggregation, Integer periodIndex) {
     json.name("measures").beginObject();
 
-    json.prop("fNcloc", formatMeasure(measuresByMetricKey.get(CoreMetrics.NCLOC_KEY), periodIndex));
-    json.prop("fCoverage", formatMeasure(measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY), periodIndex));
-    json.prop("fDuplicationDensity", formatMeasure(measuresByMetricKey.get(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY), periodIndex));
-    json.prop("fDebt", formatMeasure(measuresByMetricKey.get(CoreMetrics.TECHNICAL_DEBT_KEY), periodIndex));
-    json.prop("fTests", formatMeasure(measuresByMetricKey.get(CoreMetrics.TESTS_KEY), periodIndex));
+    json.prop("fNcloc", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.NCLOC_KEY), periodIndex));
+    json.prop("fCoverage", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY), periodIndex));
+    json.prop("fDuplicationDensity", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY), periodIndex));
+    json.prop("fDebt", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.TECHNICAL_DEBT_KEY), periodIndex));
+    json.prop("fSqaleRating", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.SQALE_RATING_KEY), periodIndex));
+    json.prop("fSqaleDebtRatio", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.SQALE_DEBT_RATIO_KEY), periodIndex));
+    json.prop("fTests", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.TESTS_KEY), periodIndex));
 
     json.prop("fIssues", i18n.formatInteger(UserSession.get().locale(), severitiesAggregation.size()));
     for (String severity : severitiesAggregation.elementSet()) {
@@ -268,7 +270,7 @@ public class ComponentAppAction implements RequestHandler {
         json.beginObject()
           .prop("key", manualRule.key().toString())
           .prop("name", manualRule.name())
-        .endObject();
+          .endObject();
       }
       json.endArray();
     }
@@ -334,7 +336,7 @@ public class ComponentAppAction implements RequestHandler {
     for (MeasureDto measureDto : dbClient.measureDao().findByComponentKeyAndMetricKeys(fileKey,
       newArrayList(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY,
         CoreMetrics.DUPLICATED_LINES_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.TESTS_KEY,
-        CoreMetrics.SCM_AUTHORS_BY_LINE_KEY),
+        CoreMetrics.SCM_AUTHORS_BY_LINE_KEY, CoreMetrics.SQALE_RATING_KEY, CoreMetrics.SQALE_DEBT_RATIO_KEY),
       session)) {
       measuresByMetricKey.put(measureDto.getKey().metricKey(), measureDto);
     }
@@ -368,51 +370,58 @@ public class ComponentAppAction implements RequestHandler {
   }
 
   @CheckForNull
-  private String formatMeasure(@Nullable MeasureDto measure, @Nullable Integer periodIndex) {
+  private String formatMeasureOrVariation(@Nullable MeasureDto measure, @Nullable Integer periodIndex) {
+    if (periodIndex == null) {
+      return formatMeasure(measure);
+    } else {
+      return formatVariation(measure, periodIndex);
+    }
+  }
+
+  @CheckForNull
+  private String formatMeasure(@Nullable MeasureDto measure) {
     if (measure != null) {
       Metric metric = CoreMetrics.getMetric(measure.getKey().metricKey());
-      if (periodIndex == null) {
-        Double value = measure.getValue();
-        if (value != null) {
-          return formatValue(value, metric.getType());
-        }
-      } else {
-        Double variation = measure.getVariation(periodIndex);
-        if (variation != null) {
-          return formatVariation(variation, metric.getType());
-        }
+      Metric.ValueType metricType = metric.getType();
+      Double value = measure.getValue();
+      String data = measure.getData();
+
+      if (metricType.equals(Metric.ValueType.FLOAT) && value != null) {
+        return i18n.formatDouble(UserSession.get().locale(), value);
+      }
+      if (metricType.equals(Metric.ValueType.INT) && value != null) {
+        return i18n.formatInteger(UserSession.get().locale(), value.intValue());
+      }
+      if (metricType.equals(Metric.ValueType.PERCENT) && value != null) {
+        return i18n.formatDouble(UserSession.get().locale(), value) + "%";
+      }
+      if (metricType.equals(Metric.ValueType.WORK_DUR) && value != null) {
+        return durations.format(UserSession.get().locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
+      }
+      if ((metricType.equals(Metric.ValueType.STRING) || metricType.equals(Metric.ValueType.RATING)) && data != null) {
+        return data;
       }
     }
     return null;
   }
 
   @CheckForNull
-  private String formatValue(Double value, Metric.ValueType metricType) {
-    if (metricType.equals(Metric.ValueType.FLOAT)) {
-      return i18n.formatDouble(UserSession.get().locale(), value);
-    }
-    if (metricType.equals(Metric.ValueType.INT)) {
-      return i18n.formatInteger(UserSession.get().locale(), value.intValue());
-    }
-    if (metricType.equals(Metric.ValueType.PERCENT)) {
-      return i18n.formatDouble(UserSession.get().locale(), value) + "%";
-    }
-    if (metricType.equals(Metric.ValueType.WORK_DUR)) {
-      return durations.format(UserSession.get().locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
-    }
-    return null;
-  }
-
-  @CheckForNull
-  private String formatVariation(Double value, Metric.ValueType metricType) {
-    if (metricType.equals(Metric.ValueType.FLOAT) || metricType.equals(Metric.ValueType.PERCENT)) {
-      return i18n.formatDouble(UserSession.get().locale(), value);
-    }
-    if (metricType.equals(Metric.ValueType.INT)) {
-      return i18n.formatInteger(UserSession.get().locale(), value.intValue());
-    }
-    if (metricType.equals(Metric.ValueType.WORK_DUR)) {
-      return durations.format(UserSession.get().locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
+  private String formatVariation(@Nullable MeasureDto measure, Integer periodIndex) {
+    if (measure != null) {
+      Double variation = measure.getVariation(periodIndex);
+      if (variation != null) {
+        Metric metric = CoreMetrics.getMetric(measure.getKey().metricKey());
+        Metric.ValueType metricType = metric.getType();
+        if (metricType.equals(Metric.ValueType.FLOAT) || metricType.equals(Metric.ValueType.PERCENT)) {
+          return i18n.formatDouble(UserSession.get().locale(), variation);
+        }
+        if (metricType.equals(Metric.ValueType.INT)) {
+          return i18n.formatInteger(UserSession.get().locale(), variation.intValue());
+        }
+        if (metricType.equals(Metric.ValueType.WORK_DUR)) {
+          return durations.format(UserSession.get().locale(), durations.create(variation.longValue()), Durations.DurationFormat.SHORT);
+        }
+      }
     }
     return null;
   }

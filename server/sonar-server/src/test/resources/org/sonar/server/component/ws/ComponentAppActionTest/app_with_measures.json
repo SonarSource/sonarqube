@@ -19,7 +19,9 @@
     "fNcloc": "200",
     "fCoverage": "95.4%",
     "fDuplicationDensity": "7.4%",
-    "fDebt": "3h 2min"
+    "fDebt": "3h 2min",
+    "fSqaleRating" : "C",
+    "fSqaleDebtRatio" : "35.0%"
   },
   "tabs": [
     "coverage"

@@ -2130,7 +2130,7 @@ public final class CoreMetrics {
   /**
    * @since 4.5
    */
-  public static final Metric<String> RATING = new Metric.Builder(SQALE_RATING_KEY, "SQALE Rating", Metric.ValueType.RATING)
+  public static final Metric<String> SQALE_RATING = new Metric.Builder(SQALE_RATING_KEY, "SQALE Rating", Metric.ValueType.RATING)
     .setDomain(DOMAIN_TECHNICAL_DEBT)
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)

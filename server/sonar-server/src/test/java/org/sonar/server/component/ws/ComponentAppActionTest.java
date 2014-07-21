@@ -206,6 +206,8 @@ public class ComponentAppActionTest {
     addMeasure(CoreMetrics.NCLOC_KEY, 200);
     addMeasure(CoreMetrics.COVERAGE_KEY, 95.4);
     addMeasure(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, 7.4);
+    addMeasure(CoreMetrics.SQALE_RATING_KEY, "C");
+    addMeasure(CoreMetrics.SQALE_DEBT_RATIO_KEY, 35d);
 
     measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, CoreMetrics.TECHNICAL_DEBT_KEY)).setValue(182.0));
     when(durations.format(any(Locale.class), any(Duration.class), eq(Durations.DurationFormat.SHORT))).thenReturn("3h 2min");
@@ -227,6 +229,7 @@ public class ComponentAppActionTest {
     addVariationMeasure(CoreMetrics.NCLOC_KEY, 2, 1);
     addVariationMeasure(CoreMetrics.COVERAGE_KEY, 5d, 1);
     addVariationMeasure(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, 1.2, 1);
+    addVariationMeasure(CoreMetrics.SQALE_DEBT_RATIO_KEY, 5d, 1);
 
     measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, CoreMetrics.TECHNICAL_DEBT_KEY)).setVariation(1, 10.0));
     when(durations.format(any(Locale.class), any(Duration.class), eq(Durations.DurationFormat.SHORT))).thenReturn("10min");
@@ -461,6 +464,10 @@ public class ComponentAppActionTest {
   private void addMeasure(String metricKey, Double value) {
     measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, metricKey)).setValue(value));
     when(i18n.formatDouble(any(Locale.class), eq(value))).thenReturn(Double.toString(value));
+  }
+
+  private void addMeasure(String metricKey, String value) {
+    measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, metricKey)).setTextValue(value));
   }
 
   private void addVariationMeasure(String metricKey, Integer value, Integer periodIndex) {
