@@ -246,6 +246,37 @@ a[class^="icon-"], a[class*=" icon-"] {
 
 
 /*
+ * Checkbox
+ */
+
+.icon-checkbox {
+  position: relative;
+  top: -1px;
+  color: @secondFontColor;
+  font-size: @iconFontSize;
+}
+
+.icon-checkbox:before {
+  content: "\e60c";
+}
+
+.icon-checkbox-checked {
+
+  &:after {
+    color: @blue;
+  }
+
+  &:after {
+    content: "\e60d";
+    position: absolute;
+    top: 0; left: 0;
+  }
+
+  &.icon-checkbox-single:after { content: "\e60e"; }
+}
+
+
+/*
  * Common
  */
 

@@ -11,7 +11,7 @@ define([
 
     events: function() {
       return {
-        'change input[type=checkbox]': 'onCheck'
+        'click label': 'onCheck'
       };
     },
 
@@ -27,8 +27,12 @@ define([
           container = this.$(selector);
 
       container.empty().toggleClass('hidden', collection.length === 0);
-      collection.each(function(item) {
-        container.append(that.itemTemplate(item.toJSON()));
+      collection.each(function (item) {
+        container.append(
+          that.itemTemplate(_.extend(item.toJSON(), {
+            multiple: that.model.get('multiple')
+          }))
+        );
       });
     },
 
@@ -50,9 +54,9 @@ define([
 
 
     onCheck: function(e) {
-      var checkbox = jQuery(e.target),
-          id = checkbox.val(),
-          checked = checkbox.prop('checked');
+      var checkbox = jQuery(e.currentTarget),
+          id = checkbox.data('id'),
+          checked = checkbox.children('.icon-checkbox-checked').length > 0;
 
       if (this.model.get('multiple')) {
         if (checkbox.closest('.opposite').length > 0) {
@@ -72,7 +76,7 @@ define([
         });
       }
 
-      this.options.filterView.choices.get(id).set('checked', checked);
+      this.options.filterView.choices.get(id).set('checked', !checked);
       this.updateValue();
       this.updateLists();
     },
@@ -165,8 +169,8 @@ define([
 
 
     selectCurrent: function() {
-      var cb = this.$('input[type=checkbox]').eq(this.currentChoice);
-      cb.prop('checked', !cb.prop('checked')).trigger('change');
+      var cb = this.$('label').eq(this.currentChoice);
+      cb.click();
     },
 
 

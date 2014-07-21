@@ -1,7 +1,7 @@
 <script id="choice-filter-item-template" type="text/x-handlebars-template">
   <li>
-    <label title="{{text}}"> {{! TODO: escape }}
-      <input type="checkbox" value="{{id}}" {{#if checked}}checked{{/if}}>
+    <label title="{{text}}" data-id="{{id}}">
+      <i class="icon-checkbox {{#if checked}}icon-checkbox-checked{{/if}} {{#unless multiple}}icon-checkbox-single{{/unless}}"></i>
       {{#if icon}}<i class="icon-{{icon}}"></i>{{/if}}
       <span>
         {{text}}
