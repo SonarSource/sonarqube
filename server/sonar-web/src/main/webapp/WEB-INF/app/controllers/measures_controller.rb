@@ -245,6 +245,8 @@ class MeasuresController < ApplicationController
     filter.override_criteria(criteria_params)
     filter.metrics= params[:metrics].split(',') if metrics
     filter.require_links= display_links
+    # Force the display to none in case this value was saved to 'list' in the db
+    filter.set_criteria_value('display', 'none')
     filter.execute(self, :user => current_user)
 
     hash = {}
