@@ -9,7 +9,7 @@ define([
 
 
   var Suggestions = Backbone.Collection.extend({
-    comparator: 'checked',
+    comparator: 'text',
 
     initialize: function() {
       this.more = false;
