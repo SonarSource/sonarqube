@@ -269,6 +269,11 @@ module.exports = (grunt) ->
           test: true
           'no-colors': true
         src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
+      cw:
+        options:
+          test: true
+          'no-colors': true
+        src: ['<%= pkg.sources %>js/tests/e2e/tests/component-viewer-spec.js']
 
 
     watch:
@@ -321,3 +326,6 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'test', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
                               'express:test', 'casper:test']
+
+  grunt.registerTask 'cw', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
+                            'express:test', 'casper:cw']
