@@ -76,7 +76,9 @@ public class AddMissingRuleParameterDefaultValuesMigration extends BaseDataChang
           .setString(4, ruleParameter.name)
           .addBatch();
       }
-      upsert.execute().commit().close();
+      if (!activeRules.isEmpty()) {
+        upsert.execute().commit().close();
+      }
 
       // update date for ES indexation
       upsert = context.prepareUpsert("update active_rules set updated_at=? where id=?");
@@ -87,8 +89,9 @@ public class AddMissingRuleParameterDefaultValuesMigration extends BaseDataChang
           .setLong(2, activeRule.id)
           .addBatch();
       }
-      upsert.execute().commit().close();
-
+      if (!activeRules.isEmpty()) {
+        upsert.execute().commit().close();
+      }
     }
   }
 
