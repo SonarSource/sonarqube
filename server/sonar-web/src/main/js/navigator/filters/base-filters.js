@@ -101,6 +101,9 @@ define([
     renderBase: function() {
       Marionette.ItemView.prototype.render.apply(this, arguments);
       this.renderInput();
+
+      var title = this.model.get('name') + ': ' + this.renderValue();
+      this.$el.prop('title', title);
     },
 
 
