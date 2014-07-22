@@ -7,17 +7,31 @@
   <includeBaseDirectory>true</includeBaseDirectory>
   <dependencySets>
     <!-- Libraries -->
+
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+      <useProjectArtifact>true</useProjectArtifact>
+      <includes>
+        <include>org.codehaus.sonar:sonar-application</include>
+        <include>tanukisoft:wrapper</include>
+      </includes>
+    </dependencySet>
+
+
+    <dependencySet>
+      <outputDirectory>lib/common</outputDirectory>
       <useTransitiveFiltering>true</useTransitiveFiltering>
+      <useProjectArtifact>false</useProjectArtifact>
       <excludes>
         <exclude>mysql:mysql-connector-java</exclude>
         <exclude>org.postgresql:postgresql</exclude>
         <exclude>net.sourceforge.jtds:jtds</exclude>
         <exclude>tanukisoft:wrapper</exclude>
-        <exclude>org.codehaus.sonar:sonar-search</exclude>
-        <exclude>org.codehaus.sonar:sonar-process</exclude>
+        <exclude>org.codehaus.sonar:sonar-server-app</exclude>
         <exclude>org.codehaus.sonar:sonar-web</exclude>
+        <exclude>org.codehaus.sonar:sonar-search</exclude>
         <exclude>org.codehaus.sonar.plugins:*</exclude>
         <exclude>org.codehaus.sonar-plugins.java:*</exclude>
         <exclude>org.codehaus.sonar:sonar-batch-maven-compat</exclude>
@@ -27,23 +41,27 @@
 
     <dependencySet>
       <outputDirectory>lib/search</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
+      <useTransitiveDependencies>true</useTransitiveDependencies>
       <useTransitiveFiltering>true</useTransitiveFiltering>
-      <outputDirectory>lib</outputDirectory>
-      <useTransitiveFiltering>true</useTransitiveFiltering>
-      <excludes>
-        <exclude>mysql:mysql-connector-java</exclude>
-        <exclude>org.postgresql:postgresql</exclude>
-        <exclude>net.sourceforge.jtds:jtds</exclude>
-        <exclude>tanukisoft:wrapper</exclude>
-        <exclude>org.codehaus.sonar:sonar-search</exclude>
-        <exclude>org.codehaus.sonar:sonar-process</exclude>
-        <exclude>org.codehaus.sonar:sonar-web</exclude>
-        <exclude>org.codehaus.sonar.plugins:*</exclude>
-        <exclude>org.codehaus.sonar-plugins.java:*</exclude>
-        <exclude>org.codehaus.sonar:sonar-batch-maven-compat</exclude>
-      </excludes>
-
+      <includes>
+        <include>org.codehaus.sonar:sonar-search</include>
+      </includes>
+      <scope>runtime</scope>
     </dependencySet>
+
+    <dependencySet>
+      <outputDirectory>lib/server</outputDirectory>
+      <useTransitiveDependencies>true</useTransitiveDependencies>
+      <useTransitiveFiltering>true</useTransitiveFiltering>
+      <includes>
+        <include>org.codehaus.sonar:sonar-server-app</include>
+      </includes>
+      <scope>runtime</scope>
+    </dependencySet>
+
+
+
     <dependencySet>
       <outputDirectory>lib/batch</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
