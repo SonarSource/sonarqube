@@ -2,10 +2,8 @@
   window.suppressTranslationWarnings = false;
 
   var warn = function(message) {
-    if (!window.suppressTranslationWarnings) {
-      if (console != null && typeof console.warn === 'function') {
-        console.warn(message);
-      }
+    if (!window.suppressTranslationWarnings && console != null && typeof console.warn === 'function') {
+      console.warn(message);
     }
   };
 

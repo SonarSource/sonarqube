@@ -70,10 +70,10 @@ var SelectBox = {
   cache: {},
   init: function (id) {
     var box = document.getElementById(id);
-    var node;
     SelectBox.cache[id] = [];
     var cache = SelectBox.cache[id];
-    for (var i = 0; (node = box.options[i]); i++) {
+    for (var i = 0, j = box.options.length; i < j; i++) {
+      var node = box.options[i];
       cache.push({value: node.value, text: node.text, displayed: 1});
     }
   },
@@ -98,7 +98,7 @@ var SelectBox = {
       node.displayed = 1;
       for (var j = 0, k = tokens.length; j < k; j++) {
         var token = tokens[j];
-        if (node.text.toLowerCase().indexOf(token) == -1) {
+        if (node.text.toLowerCase().indexOf(token) === -1) {
           node.displayed = 0;
         }
       }

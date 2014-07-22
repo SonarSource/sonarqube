@@ -122,6 +122,9 @@ define([
           e.preventDefault();
           this.selectCurrent();
           break;
+        default:
+          // Not a functional key - then skip
+          break;
       }
     },
 
