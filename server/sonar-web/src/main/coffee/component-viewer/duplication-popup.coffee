@@ -24,8 +24,6 @@ define [
     goToFile: (e) ->
       key = $(e.currentTarget).data 'key'
       line = $(e.currentTarget).data 'line'
-      if key == @options.main.component.get 'key'
-        return @options.main.scrollToLine line
       files = @options.main.source.get('duplicationFiles')
       @options.main.addTransition 'duplication', @collection.map (item) ->
         file = files[item.get('_ref')]
@@ -34,10 +32,14 @@ define [
         name: x.name
         subname: x.dir
         active: file.key == key
-      @options.main._open key
-      @options.main.on 'sized', =>
-        @options.main.off 'sized'
+      if key == @options.main.component.get 'key'
         @options.main.scrollToLine line
+        @options.main.workspaceView.render()
+      else
+        @options.main._open key
+        @options.main.on 'sized', =>
+          @options.main.off 'sized'
+          @options.main.scrollToLine line
 
 
     serializeData: ->
@@ -47,6 +49,9 @@ define [
         blocks: blocks
         file: files[fileRef]
       duplications = _.sortBy duplications, (d) =>
-        d.file.projectName != @options.main.component.get 'projectName'
+        a = d.file.projectName != @options.main.component.get 'projectName'
+        b = d.file.key != @options.main.component.get 'key'
+        '' + a + b
+
       component: @options.main.component.toJSON()
       duplications: duplications

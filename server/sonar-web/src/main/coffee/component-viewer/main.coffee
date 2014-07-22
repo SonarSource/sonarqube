@@ -347,10 +347,9 @@ define [
           setTimeout (=> @scrollToLine(line)), 100
         return
       @scrolled = line
-      d = row.offset().top - @$el.offset().top - SCROLL_OFFSET
+      d = row.offset().top - @$(@sourceRegion.$el).offset().top + @$(@sourceRegion.$el).scrollTop() - SCROLL_OFFSET
       @scrollPlusDelta d
 
 
     scrollPlusDelta: (delta) ->
-      parent = @$el.scrollParent()
-      parent.scrollTop delta
+      @$(@sourceRegion.$el).scrollTop delta

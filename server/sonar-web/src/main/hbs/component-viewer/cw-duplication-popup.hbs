@@ -5,9 +5,11 @@
       {{#notEq file.projectName ../component.projectName}}
         <span class="component-viewer-popup-label">{{file.projectName}}</span>
       {{/notEq}}
-      <a class="link-action" data-key="{{file.key}}" title="{{file.name}}">
-        {{file.name}}
-      </a>
+      {{#notEq file.key ../component.key}}
+        <a class="link-action" data-key="{{file.key}}" title="{{file.name}}">
+          {{file.name}}
+        </a>
+      {{/notEq}}
 
       <div class="component-viewer-popup-duplications">
         Lines:

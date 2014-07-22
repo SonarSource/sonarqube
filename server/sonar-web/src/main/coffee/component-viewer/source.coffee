@@ -202,7 +202,7 @@ define [
       line = $(e.currentTarget).closest('[data-line-number]').data 'line-number'
       blocks = @model.get('duplications')[index - 1].blocks
       blocks = _.filter blocks, (b) ->
-        (b._ref != '1') || (b._ref == '1' && b.from > line) || (b._ref == '1' && b.from + b.size <= line)
+        (b._ref != '1') || (b._ref == '1' && b.from > line) || (b._ref == '1' && b.from + b.size < line)
       popup = new DuplicationPopupView
         triggerEl: $(e.currentTarget)
         main: @options.main
