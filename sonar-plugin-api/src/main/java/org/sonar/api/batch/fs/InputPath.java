@@ -26,6 +26,8 @@ import java.io.Serializable;
  * Layer over {@link java.io.File} for files or directories.
  *
  * @since 4.5
+ * @see InputFile
+ * @see InputDir
  */
 public interface InputPath extends Serializable {
 

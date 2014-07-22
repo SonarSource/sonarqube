@@ -19,14 +19,14 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.api.utils.PathUtils;
-
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -161,7 +161,11 @@ public class DefaultFileSystem implements FileSystem {
   @Override
   public InputDir inputDir(File dir) {
     doPreloadFiles();
-    return cache.inputDir(PathUtils.sanitize(new RelativeP));
+    String relativePath = PathUtils.sanitize(new PathResolver().relativePath(baseDir, dir));
+    if (relativePath == null) {
+      return null;
+    }
+    return cache.inputDir(relativePath);
   }
 
   public static Collection<InputFile> filter(Iterable<InputFile> target, FilePredicate predicate) {
@@ -182,6 +186,14 @@ public class DefaultFileSystem implements FileSystem {
     if (inputFile.language() != null) {
       languages.add(inputFile.language());
     }
+    return this;
+  }
+
+  /**
+   * Adds InputDir to the list.
+   */
+  public DefaultFileSystem add(InputDir inputDir) {
+    cache.add(inputDir);
     return this;
   }
 
@@ -224,9 +236,16 @@ public class DefaultFileSystem implements FileSystem {
 
     protected abstract void doAdd(InputFile inputFile);
 
+    protected abstract void doAdd(InputDir inputDir);
+
     final void add(InputFile inputFile) {
       doAdd(inputFile);
     }
+
+    public void add(InputDir inputDir) {
+      doAdd(inputDir);
+    }
+
   }
 
   /**
@@ -254,6 +273,11 @@ public class DefaultFileSystem implements FileSystem {
     @Override
     protected void doAdd(InputFile inputFile) {
       fileMap.put(inputFile.relativePath(), inputFile);
+    }
+
+    @Override
+    protected void doAdd(InputDir inputDir) {
+      dirMap.put(inputDir.relativePath(), inputDir);
     }
   }
 

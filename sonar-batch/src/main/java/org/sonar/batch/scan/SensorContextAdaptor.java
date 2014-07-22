@@ -20,7 +20,9 @@
 package org.sonar.batch.scan;
 
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -38,6 +40,7 @@ import org.sonar.api.measures.Formula;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.SumChildDistributionFormula;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -204,13 +207,20 @@ public class SensorContextAdaptor implements SensorContext {
   @Override
   public boolean addIssue(Issue issue) {
     Resource r;
-    InputFile inputFile = issue.inputFile();
-    if (inputFile != null) {
-      r = File.create(inputFile.relativePath());
+    InputPath inputPath = issue.inputPath();
+    if (inputPath != null) {
+      if (inputPath instanceof InputDir) {
+        r = Directory.create(inputPath.relativePath());
+      } else {
+        r = File.create(inputPath.relativePath());
+      }
     } else {
       r = project;
     }
     Issuable issuable = perspectives.as(Issuable.class, r);
+    if (issuable == null) {
+      return false;
+    }
     return issuable.addIssue(toDefaultIssue(project.getKey(), r.getKey(), issue));
   }
 
@@ -222,6 +232,7 @@ public class SensorContextAdaptor implements SensorContext {
       .effortToFix(issue.effortToFix())
       .line(issue.line())
       .message(issue.message())
+      .severity(issue.severity())
       .build();
   }
 

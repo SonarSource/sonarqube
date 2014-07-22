@@ -55,6 +55,10 @@ public class InputPathCache implements BatchComponent {
     return (Iterable) cache.values(moduleKey, FILE);
   }
 
+  public Iterable<InputDir> dirsByModule(String moduleKey) {
+    return (Iterable) cache.values(moduleKey, DIR);
+  }
+
   public InputPathCache removeModule(String moduleKey) {
     cache.clear(moduleKey);
     return this;
@@ -65,8 +69,18 @@ public class InputPathCache implements BatchComponent {
     return this;
   }
 
+  public InputPathCache remove(String moduleKey, InputDir inputDir) {
+    cache.remove(moduleKey, DIR, inputDir.relativePath());
+    return this;
+  }
+
   public InputPathCache put(String moduleKey, InputFile inputFile) {
     cache.put(moduleKey, FILE, inputFile.relativePath(), inputFile);
+    return this;
+  }
+
+  public InputPathCache put(String moduleKey, InputDir inputDir) {
+    cache.put(moduleKey, DIR, inputDir.relativePath(), inputDir);
     return this;
   }
 
@@ -78,4 +92,5 @@ public class InputPathCache implements BatchComponent {
   public InputDir getDir(String moduleKey, String relativePath) {
     return (InputDir) cache.get(moduleKey, DIR, relativePath);
   }
+
 }

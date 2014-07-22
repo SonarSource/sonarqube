@@ -20,7 +20,7 @@
 package org.sonar.core.component;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -64,12 +64,12 @@ public final class ComponentKeys {
     return key;
   }
 
-  public static String createEffectiveKey(String projectKey, InputFile inputFile) {
+  public static String createEffectiveKey(String projectKey, InputPath inputPath) {
     // not a project nor a library
     return new StringBuilder(ResourceModel.KEY_SIZE)
       .append(projectKey)
       .append(':')
-      .append(inputFile.relativePath())
+      .append(inputPath.relativePath())
       .toString();
   }
 

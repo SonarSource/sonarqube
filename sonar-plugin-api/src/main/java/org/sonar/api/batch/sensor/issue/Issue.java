@@ -19,13 +19,12 @@
  */
 package org.sonar.api.batch.sensor.issue;
 
-import org.sonar.api.batch.sensor.Sensor;
-
 import com.google.common.annotations.Beta;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.rule.RuleKey;
 
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 
 /**
  * Issue reported by an {@link Sensor}
@@ -36,10 +35,10 @@ import javax.annotation.Nullable;
 public interface Issue {
 
   /**
-   * The {@link InputFile} this issue belongs to. Returns null if issue is global to the project.
+   * The {@link InputPath} this issue belongs to. Returns null if issue is global to the project.
    */
-  @Nullable
-  InputFile inputFile();
+  @CheckForNull
+  InputPath inputPath();
 
   /**
    * The {@link RuleKey} of this issue.
@@ -52,14 +51,23 @@ public interface Issue {
   String message();
 
   /**
-   * Line of the issue.
+   * Line of the issue. Null for global issues and issues on directories. Can also be null
+   * for files (issue global to the file).
    */
+  @CheckForNull
   Integer line();
 
   /**
    * Effort to fix the issue. Used by technical debt model.
    */
-  @Nullable
+  @CheckForNull
   Double effortToFix();
+
+  /**
+   * See constants in {@link org.sonar.api.rule.Severity}.
+   * Can be null before issue is saved to tell to use severity configured in quality profile.
+   */
+  @CheckForNull
+  String severity();
 
 }

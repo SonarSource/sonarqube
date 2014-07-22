@@ -19,9 +19,6 @@
  */
 package org.sonar.batch.scan2;
 
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.measure.Measure;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -29,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.text.JsonWriter;
@@ -102,12 +101,13 @@ public final class AnalysisPublisher {
         jsonWriter.beginObject()
           .prop("repository", issue.ruleKey().repository())
           .prop("rule", issue.ruleKey().rule());
-        if (issue.inputFile() != null) {
-          jsonWriter.prop("filePath", issue.inputFile().relativePath());
+        if (issue.inputPath() != null) {
+          jsonWriter.prop("path", issue.inputPath().relativePath());
         }
         jsonWriter.prop("message", issue.message())
           .prop("effortToFix", issue.effortToFix())
           .prop("line", issue.line())
+          .prop("severity", issue.severity())
           .endObject();
       }
       jsonWriter.endArray()

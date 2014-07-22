@@ -24,6 +24,7 @@ import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.config.Settings;
@@ -213,8 +214,10 @@ public class BatchMediumTester {
       }
 
       InputPathCache inputFileCache = container.getComponentByType(InputPathCache.class);
-      for (InputFile inputFile : inputFileCache.all()) {
-        inputFiles.add(inputFile);
+      for (InputPath inputPath : inputFileCache.all()) {
+        if (inputPath instanceof InputFile) {
+          inputFiles.add((InputFile) inputPath);
+        }
       }
     }
 

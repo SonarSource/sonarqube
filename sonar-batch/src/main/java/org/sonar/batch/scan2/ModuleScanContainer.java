@@ -101,7 +101,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
       AnalyzerOptimizer.class,
 
-      DefaultAnalyzerContext.class,
+      DefaultSensorContext.class,
       BatchExtensionDictionnary.class,
       IssueFilters.class,
 

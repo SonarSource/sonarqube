@@ -19,6 +19,14 @@
  */
 package org.sonar.batch.scan2;
 
+import com.google.common.base.Strings;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.Metric;
+import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
@@ -28,20 +36,16 @@ import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.MeasureBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
-
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measure.Metric;
-import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.config.Settings;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.scan.SensorContextAdaptor;
 import org.sonar.core.component.ComponentKeys;
 
 import java.io.Serializable;
 
-public class DefaultAnalyzerContext implements SensorContext {
+public class DefaultSensorContext implements SensorContext {
 
   private final AnalyzerMeasureCache measureCache;
   private final AnalyzerIssueCache issueCache;
@@ -51,7 +55,7 @@ public class DefaultAnalyzerContext implements SensorContext {
   private final ActiveRules activeRules;
   private final IssueFilters issueFilters;
 
-  public DefaultAnalyzerContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, AnalyzerIssueCache issueCache,
+  public DefaultSensorContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, AnalyzerIssueCache issueCache,
     Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters) {
     this.def = def;
     this.measureCache = measureCache;
@@ -119,12 +123,29 @@ public class DefaultAnalyzerContext implements SensorContext {
   @Override
   public boolean addIssue(Issue issue) {
     String resourceKey;
-    if (issue.inputFile() != null) {
-      resourceKey = ComponentKeys.createEffectiveKey(def.getKey(), issue.inputFile());
+    if (issue.inputPath() != null) {
+      resourceKey = ComponentKeys.createEffectiveKey(def.getKey(), issue.inputPath());
     } else {
       resourceKey = def.getKey();
     }
-    // TODO Lot of things to do. See ModuleIssues::initAndAddIssue
+    RuleKey ruleKey = issue.ruleKey();
+    // TODO we need a Rule referential on batch side
+    Rule rule = null;
+    // Rule rule = rules.find(ruleKey);
+    // if (rule == null) {
+    // throw MessageException.of(String.format("The rule '%s' does not exist.", ruleKey));
+    // }
+    ActiveRule activeRule = activeRules.find(ruleKey);
+    if (activeRule == null) {
+      // rule does not exist or is not enabled -> ignore the issue
+      return false;
+    }
+    if (/* Strings.isNullOrEmpty(rule.name()) && */Strings.isNullOrEmpty(issue.message())) {
+      throw MessageException.of(String.format("The rule '%s' has no name and the related issue has no message.", ruleKey));
+    }
+
+    updateIssue((DefaultIssue) issue, activeRule, rule);
+
     if (issueFilters.accept(SensorContextAdaptor.toDefaultIssue(def.getKey(), resourceKey, issue), null)) {
       issueCache.put(def.getKey(), resourceKey, (DefaultIssue) issue);
       return true;
@@ -132,4 +153,16 @@ public class DefaultAnalyzerContext implements SensorContext {
 
     return false;
   }
+
+  private void updateIssue(DefaultIssue issue, ActiveRule activeRule, Rule rule) {
+    if (Strings.isNullOrEmpty(issue.message())) {
+      issue.setMessage(rule.name());
+    }
+
+    if (issue.severity() == null) {
+      issue.setSeverity(activeRule.severity());
+    }
+
+  }
+
 }

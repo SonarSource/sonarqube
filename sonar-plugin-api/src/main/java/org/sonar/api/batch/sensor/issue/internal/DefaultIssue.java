@@ -19,15 +19,15 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
-import org.sonar.api.batch.sensor.issue.Issue;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
@@ -36,19 +36,21 @@ import java.util.UUID;
 public class DefaultIssue implements Issue, Serializable {
 
   private final String key;
-  private final InputFile inputFile;
+  private final InputPath inputPath;
   private final RuleKey ruleKey;
-  private final String message;
+  private String message;
   private final Integer line;
   private final Double effortToFix;
+  private String severity;
 
   DefaultIssue(DefaultIssueBuilder builder) {
     Preconditions.checkNotNull(builder.ruleKey, "ruleKey is mandatory on issue");
-    this.inputFile = builder.file;
+    this.inputPath = builder.path;
     this.ruleKey = builder.ruleKey;
     this.message = builder.message;
     this.line = builder.line;
     this.effortToFix = builder.effortToFix;
+    this.severity = builder.severity;
     this.key = builder.key == null ? UUID.randomUUID().toString() : builder.key;
     Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
   }
@@ -59,8 +61,8 @@ public class DefaultIssue implements Issue, Serializable {
 
   @Override
   @Nullable
-  public InputFile inputFile() {
-    return inputFile;
+  public InputPath inputPath() {
+    return inputPath;
   }
 
   @Override
@@ -73,6 +75,10 @@ public class DefaultIssue implements Issue, Serializable {
     return message;
   }
 
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
   @Override
   public Integer line() {
     return line;
@@ -82,6 +88,16 @@ public class DefaultIssue implements Issue, Serializable {
   @Nullable
   public Double effortToFix() {
     return effortToFix;
+  }
+
+  @Override
+  @CheckForNull
+  public String severity() {
+    return severity;
+  }
+
+  public void setSeverity(String severity) {
+    this.severity = severity;
   }
 
   @Override

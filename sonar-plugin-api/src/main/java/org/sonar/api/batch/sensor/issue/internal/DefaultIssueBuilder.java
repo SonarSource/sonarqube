@@ -19,24 +19,27 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
+import com.google.common.base.Preconditions;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
-
-import com.google.common.base.Preconditions;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 
 import javax.annotation.Nullable;
 
 public class DefaultIssueBuilder implements IssueBuilder {
 
   String key;
-  Boolean onProject = null;
-  InputFile file;
+  boolean onProject = false;
+  InputPath path;
   RuleKey ruleKey;
   String message;
   Integer line;
   Double effortToFix;
+  String severity;
 
   @Override
   public DefaultIssueBuilder ruleKey(RuleKey ruleKey) {
@@ -46,26 +49,33 @@ public class DefaultIssueBuilder implements IssueBuilder {
 
   @Override
   public DefaultIssueBuilder onFile(InputFile file) {
-    onProject(false);
+    Preconditions.checkState(!this.onProject, "onProject already called");
+    Preconditions.checkState(this.path == null, "onFile or onDir already called");
     Preconditions.checkNotNull(file, "InputFile should be non null");
-    this.file = file;
+    this.path = file;
+    return this;
+  }
+
+  @Override
+  public DefaultIssueBuilder onDir(InputDir dir) {
+    Preconditions.checkState(!this.onProject, "onProject already called");
+    Preconditions.checkState(this.path == null, "onFile or onDir already called");
+    Preconditions.checkNotNull(dir, "InputDir should be non null");
+    this.path = dir;
     return this;
   }
 
   @Override
   public DefaultIssueBuilder onProject() {
-    onProject(true);
-    this.file = null;
+    Preconditions.checkState(!this.onProject, "onProject already called");
+    Preconditions.checkState(this.path == null, "onFile or onDir already called");
+    this.onProject = true;
     return this;
-  }
-
-  private void onProject(boolean isOnProject) {
-    Preconditions.checkState(this.onProject == null, "onFile or onProject can be called only once");
-    this.onProject = isOnProject;
   }
 
   @Override
   public DefaultIssueBuilder atLine(int line) {
+    Preconditions.checkState(this.path != null && this.path instanceof InputFile, "atLine should be called after onFile");
     this.line = line;
     return this;
   }
@@ -79,6 +89,13 @@ public class DefaultIssueBuilder implements IssueBuilder {
   @Override
   public DefaultIssueBuilder message(String message) {
     this.message = message;
+    return this;
+  }
+
+  @Override
+  public IssueBuilder severity(@Nullable String severity) {
+    Preconditions.checkState(severity == null || Severity.ALL.contains(severity), "Invalid severity: " + severity);
+    this.severity = severity;
     return this;
   }
 

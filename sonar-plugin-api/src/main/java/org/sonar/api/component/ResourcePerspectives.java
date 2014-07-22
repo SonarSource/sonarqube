@@ -21,6 +21,8 @@ package org.sonar.api.component;
 
 import org.sonar.api.resources.Resource;
 
+import javax.annotation.CheckForNull;
+
 /**
  * Only on batch-side.
  *
@@ -28,5 +30,6 @@ import org.sonar.api.resources.Resource;
  */
 public interface ResourcePerspectives extends Perspectives {
 
+  @CheckForNull
   <P extends Perspective> P as(Class<P> perspectiveClass, Resource resource);
 }

@@ -19,28 +19,23 @@
  */
 package org.sonar.batch.mediumtest.xoo.plugin.rule;
 
-import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
 import org.sonar.batch.mediumtest.xoo.plugin.base.XooConstants;
 
-public class OneIssuePerLineSensor implements Sensor {
+public class OneIssueOnDirPerFileSensor implements Sensor {
 
-  public static final String RULE_KEY = "OneIssuePerLine";
-  private static final String EFFORT_TO_FIX_PROPERTY = "sonar.oneIssuePerLine.effortToFix";
-  private static final String FORCE_SEVERITY_PROPERTY = "sonar.oneIssuePerLine.forceSeverity";
+  public static final String RULE_KEY = "OneIssueOnDirPerFile";
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .name("One Issue Per Line")
-      .dependsOn(CoreMetrics.LINES)
+      .name("One Issue On Dir Per File")
       .workOnLanguages(Xoo.KEY)
       .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);
   }
@@ -54,20 +49,13 @@ public class OneIssuePerLineSensor implements Sensor {
 
   private void createIssues(InputFile file, SensorContext context) {
     RuleKey ruleKey = RuleKey.of(XooConstants.REPOSITORY_KEY, RULE_KEY);
-    Measure<Integer> linesMeasure = context.getMeasure(file, CoreMetrics.LINES);
-    if (linesMeasure == null) {
-      LoggerFactory.getLogger(getClass()).warn("Missing measure " + CoreMetrics.LINES_KEY + " on " + file);
-    } else {
-      for (int line = 1; line <= (Integer) linesMeasure.value(); line++) {
-        context.addIssue(context.issueBuilder()
-          .ruleKey(ruleKey)
-          .onFile(file)
-          .atLine(line)
-          .effortToFix(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY))
-          .severity(context.settings().getString(FORCE_SEVERITY_PROPERTY))
-          .message("This issue is generated on each line")
-          .build());
-      }
+    InputDir inputDir = context.fileSystem().inputDir(file.file().getParentFile());
+    if (inputDir != null) {
+      context.addIssue(context.issueBuilder()
+        .ruleKey(ruleKey)
+        .onDir(inputDir)
+        .message("This issue is generated for file " + file.relativePath())
+        .build());
     }
   }
 }

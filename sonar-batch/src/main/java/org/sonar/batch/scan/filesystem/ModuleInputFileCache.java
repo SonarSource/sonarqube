@@ -55,4 +55,9 @@ public class ModuleInputFileCache extends DefaultFileSystem.Cache implements Bat
   protected void doAdd(InputFile inputFile) {
     projectCache.put(moduleKey, inputFile);
   }
+
+  @Override
+  protected void doAdd(InputDir inputDir) {
+    projectCache.put(moduleKey, inputDir);
+  }
 }

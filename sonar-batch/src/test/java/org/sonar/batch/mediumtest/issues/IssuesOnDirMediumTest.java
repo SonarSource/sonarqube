@@ -25,8 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.batch.mediumtest.xoo.plugin.XooPlugin;
@@ -37,7 +36,7 @@ import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class IssuesMediumTest {
+public class IssuesOnDirMediumTest {
 
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -45,7 +44,7 @@ public class IssuesMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", "MAJOR", "xoo", "xoo"))
+    .activateRule(new ActiveRule("xoo", "OneIssueOnDirPerFile", "MINOR", "xoo", "xoo"))
     .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     .build();
 
@@ -60,52 +59,17 @@ public class IssuesMediumTest {
   }
 
   @Test
-  public void testOneIssuePerLine() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
-
-    TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .start();
-
-    assertThat(result.issues()).hasSize(24);
-  }
-
-  @Test
-  public void testOverrideQProfileSeverity() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
-
-    TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .property("sonar.oneIssuePerLine.forceSeverity", "CRITICAL")
-      .start();
-
-    assertThat(result.issues().iterator().next().severity()).isEqualTo("CRITICAL");
-  }
-
-  @Test
-  public void testIssueExclusion() throws Exception {
-    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
-
-    TaskResult result = tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .property("sonar.issue.ignore.allfile", "1")
-      .property("sonar.issue.ignore.allfile.1.fileRegexp", "object")
-      .start();
-
-    assertThat(result.issues()).hasSize(19);
-  }
-
-  @Test
-  public void testIssueDetails() throws IOException {
+  public void scanTempProject() throws IOException {
 
     File baseDir = temp.newFolder();
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
-    File xooFile = new File(srcDir, "sample.xoo");
-    File xooMeasureFile = new File(srcDir, "sample.xoo.measures");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
-    FileUtils.write(xooMeasureFile, "lines:20");
+    File xooFile1 = new File(srcDir, "sample1.xoo");
+    FileUtils.write(xooFile1, "Sample1 xoo\ncontent");
+
+    File xooFile2 = new File(srcDir, "sample2.xoo");
+    FileUtils.write(xooFile2, "Sample2 xoo\ncontent");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -119,18 +83,9 @@ public class IssuesMediumTest {
         .build())
       .start();
 
-    assertThat(result.issues()).hasSize(20);
+    assertThat(result.issues()).hasSize(2);
+    assertThat(result.issues().iterator().next().inputPath()).isEqualTo(new DefaultInputDir("src"));
 
-    boolean foundIssueAtLine1 = false;
-    for (Issue issue : result.issues()) {
-      if (issue.line() == 1) {
-        foundIssueAtLine1 = true;
-        assertThat(issue.inputPath()).isEqualTo(new DefaultInputFile("src/sample.xoo"));
-        assertThat(issue.message()).isEqualTo("This issue is generated on each line");
-        assertThat(issue.effortToFix()).isNull();
-      }
-    }
-    assertThat(foundIssueAtLine1).isTrue();
   }
 
 }

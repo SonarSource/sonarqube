@@ -27,9 +27,7 @@ import java.util.Collection;
 
 /**
  * @since 4.2
- * @deprecated since 4.5 use {@link ActiveRules}
  */
-@Deprecated
 public interface Rules {
 
   @CheckForNull

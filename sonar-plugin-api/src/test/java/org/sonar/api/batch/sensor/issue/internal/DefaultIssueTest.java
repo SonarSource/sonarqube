@@ -19,14 +19,13 @@
  */
 package org.sonar.api.batch.sensor.issue.internal;
 
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueBuilder;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultIssueTest {
@@ -44,7 +43,7 @@ public class DefaultIssueTest {
       .message("Wrong way!")
       .build();
 
-    assertThat(issue.inputFile()).isEqualTo(new DefaultInputFile("src/Foo.php"));
+    assertThat(issue.inputPath()).isEqualTo(new DefaultInputFile("src/Foo.php"));
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(issue.line()).isEqualTo(1);
     assertThat(issue.effortToFix()).isEqualTo(10.0);
@@ -56,14 +55,13 @@ public class DefaultIssueTest {
     Issue issue = new DefaultIssueBuilder()
       .onProject()
       .ruleKey(RuleKey.of("repo", "rule"))
-      .atLine(1)
       .effortToFix(10.0)
       .message("Wrong way!")
       .build();
 
-    assertThat(issue.inputFile()).isNull();
+    assertThat(issue.inputPath()).isNull();
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
-    assertThat(issue.line()).isEqualTo(1);
+    assertThat(issue.line()).isNull();
     assertThat(issue.effortToFix()).isEqualTo(10.0);
     assertThat(issue.message()).isEqualTo("Wrong way!");
   }
@@ -71,7 +69,7 @@ public class DefaultIssueTest {
   @Test
   public void not_allowed_to_call_onFile_and_onProject() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("onFile or onProject can be called only once");
+    thrown.expectMessage("onProject already called");
     new DefaultIssueBuilder()
       .onProject()
       .onFile(new DefaultInputFile("src/Foo.php"))
@@ -80,7 +78,15 @@ public class DefaultIssueTest {
       .effortToFix(10.0)
       .message("Wrong way!")
       .build();
+  }
 
+  @Test
+  public void validate_severity() {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Invalid severity: FOO");
+    new DefaultIssueBuilder()
+      .severity("FOO")
+      .build();
   }
 
 }

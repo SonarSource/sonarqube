@@ -20,8 +20,10 @@
 package org.sonar.api.batch.sensor.issue;
 
 import com.google.common.annotations.Beta;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 
 import javax.annotation.Nullable;
 
@@ -44,12 +46,17 @@ public interface IssueBuilder {
   IssueBuilder onFile(InputFile file);
 
   /**
+   * The {@link InputDir} the issue belongs to. For global issues call {@link #onProject()}.
+   */
+  IssueBuilder onDir(InputDir inputDir);
+
+  /**
    * Tell that the issue is global to the project.
    */
   IssueBuilder onProject();
 
   /**
-   * Line of the issue. If no line is specified then issue is supposed to be global to the file.
+   * Line of the issue. Only available for {@link #onFile(InputFile)} issues. If no line is specified then issue is supposed to be global to the file.
    */
   IssueBuilder atLine(int line);
 
@@ -62,6 +69,12 @@ public interface IssueBuilder {
    * Message of the issue.
    */
   IssueBuilder message(String message);
+
+  /**
+   * Severity of the issue. See {@link Severity}.
+   * Setting a null value means to use severity configured in quality profile.
+   */
+  IssueBuilder severity(@Nullable String severity);
 
   /**
    * Build the issue.

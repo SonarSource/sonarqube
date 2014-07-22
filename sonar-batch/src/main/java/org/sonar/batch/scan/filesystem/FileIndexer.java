@@ -28,9 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
+import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
 
 import java.io.File;
@@ -83,7 +86,7 @@ public class FileIndexer implements BatchComponent {
     LOG.info("Index files");
     exclusionFilters.prepare();
 
-    Progress progress = new Progress(fileCache.filesByModule(fileSystem.moduleKey()));
+    Progress progress = new Progress(fileCache.filesByModule(fileSystem.moduleKey()), fileCache.dirsByModule(fileSystem.moduleKey()));
 
     InputFileBuilder inputFileBuilder = inputFileBuilderFactory.create(fileSystem);
     indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.sources(), InputFile.Type.MAIN);
@@ -95,9 +98,15 @@ public class FileIndexer implements BatchComponent {
     for (InputFile indexed : progress.indexed) {
       fileSystem.add(indexed);
     }
+    for (InputDir indexed : progress.indexedDir) {
+      fileSystem.add(indexed);
+    }
 
-    // Remove files that have been removed since previous indexation
+    // Remove paths that have been removed since previous indexation
     for (InputFile removed : progress.removed) {
+      fileCache.remove(fileSystem.moduleKey(), removed);
+    }
+    for (InputDir removed : progress.removedDir) {
       fileCache.remove(fileSystem.moduleKey(), removed);
     }
 
@@ -159,6 +168,13 @@ public class FileIndexer implements BatchComponent {
         InputFile completedFile = inputFileBuilder.complete(inputFile, type);
         if (completedFile != null && accept(completedFile)) {
           status.markAsIndexed(inputFile);
+          File parentDir = inputFile.file().getParentFile();
+          String relativePath = new PathResolver().relativePath(fs.baseDir(), parentDir);
+          if (relativePath != null) {
+            DefaultInputDir inputDir = new DefaultInputDir(relativePath);
+            inputDir.setFile(parentDir);
+            status.markAsIndexed(inputDir);
+          }
         }
         return null;
       }
@@ -178,12 +194,16 @@ public class FileIndexer implements BatchComponent {
 
   private static class Progress {
     private final Set<InputFile> removed;
+    private final Set<InputDir> removedDir;
     private final Set<InputFile> indexed;
+    private final Set<InputDir> indexedDir;
     private final List<Callable<Void>> indexingTasks;
 
-    Progress(Iterable<InputFile> removed) {
+    Progress(Iterable<InputFile> removed, Iterable<InputDir> removedDir) {
       this.removed = Sets.newHashSet(removed);
+      this.removedDir = Sets.newHashSet(removedDir);
       this.indexed = new HashSet<InputFile>();
+      this.indexedDir = new HashSet<InputDir>();
       this.indexingTasks = new ArrayList<Callable<Void>>();
     }
 
@@ -198,6 +218,11 @@ public class FileIndexer implements BatchComponent {
       }
       removed.remove(inputFile);
       indexed.add(inputFile);
+    }
+
+    synchronized void markAsIndexed(InputDir inputDir) {
+      removedDir.remove(inputDir);
+      indexedDir.add(inputDir);
     }
 
     int count() {

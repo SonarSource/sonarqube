@@ -23,6 +23,7 @@ import org.sonar.api.SonarPlugin;
 import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
 import org.sonar.batch.mediumtest.xoo.plugin.lang.MeasureSensor;
 import org.sonar.batch.mediumtest.xoo.plugin.lang.ScmActivitySensor;
+import org.sonar.batch.mediumtest.xoo.plugin.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.batch.mediumtest.xoo.plugin.rule.OneIssuePerLineSensor;
 
 import java.util.Arrays;
@@ -39,7 +40,8 @@ public final class XooPlugin extends SonarPlugin {
       Xoo.class,
 
       // rules
-      OneIssuePerLineSensor.class
+      OneIssuePerLineSensor.class,
+      OneIssueOnDirPerFileSensor.class
       );
   }
 }
