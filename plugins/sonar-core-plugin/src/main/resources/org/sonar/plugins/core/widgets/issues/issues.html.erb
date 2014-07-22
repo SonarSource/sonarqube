@@ -11,6 +11,43 @@
    new_technical_debt = @snapshot.measure('new_technical_debt')
 %>
 <div class="widget-row">
+
+  <% if technical_debt %>
+    <div class="widget-span widget-span-3">
+      <div class="widget-measure-container">
+        <div class="widget-measure widget-measure-main">
+          <span class="widget-label"><%= message('widget.rules.technical_debt') -%></span>
+          <a href="<%= url_for_drilldown('sqale_index') -%>" class="widget-link link-<%= widget.key %>-debt">
+            <%= format_measure(technical_debt) -%>
+          </a>
+          <%= dashboard_configuration.selected_period? ? format_variation(technical_debt) : trend_icon(technical_debt) -%>
+        </div>
+        <div class="widget-measure-delta">
+          <%
+             if @dashboard_configuration.selected_period?
+               technical_debt_variation = variation_value(technical_debt)
+               new_technical_debt_variation = variation_value(new_technical_debt)
+               estimated_cleared_technical_debt = (new_technical_debt_variation - technical_debt_variation).to_i if technical_debt_variation && new_technical_debt_variation
+          %>
+            <% if new_technical_debt_variation && new_technical_debt_variation > 0 %>
+              <p class="small">
+                <%= message('widget.rules.added') %>
+                <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>"
+                   class="varw widget-link widget-link-red link-<%= widget.key %>-new-debt"><%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
+              </p>
+            <% end %>
+            <% if estimated_cleared_technical_debt && estimated_cleared_technical_debt > 0 %>
+              <p class="small">
+                <%= message('widget.rules.removed') %>
+                <span class="varb"><%= Internal.i18n.formatLongDuration(estimated_cleared_technical_debt, 'SHORT') -%></span>
+              </p>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <div class="widget-span widget-span-3">
     <div class="widget-measure-container">
       <div class="widget-measure widget-measure-main">
@@ -46,42 +83,6 @@
       </div>
     </div>
   </div>
-
-  <% if technical_debt %>
-    <div class="widget-span widget-span-3">
-      <div class="widget-measure-container">
-        <div class="widget-measure widget-measure-main">
-          <span class="widget-label"><%= message('widget.rules.technical_debt') -%></span>
-          <a href="<%= url_for_drilldown('sqale_index') -%>" class="widget-link link-<%= widget.key %>-debt">
-            <%= format_measure(technical_debt) -%>
-          </a>
-          <%= dashboard_configuration.selected_period? ? format_variation(technical_debt) : trend_icon(technical_debt) -%>
-        </div>
-        <div class="widget-measure-delta">
-          <%
-             if @dashboard_configuration.selected_period?
-               technical_debt_variation = variation_value(technical_debt)
-               new_technical_debt_variation = variation_value(new_technical_debt)
-               estimated_cleared_technical_debt = (new_technical_debt_variation - technical_debt_variation).to_i if technical_debt_variation && new_technical_debt_variation
-          %>
-            <% if new_technical_debt_variation && new_technical_debt_variation > 0 %>
-                    <p class="small">
-                      <%= message('widget.rules.added') %>
-                      <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>"
-                         class="varw widget-link widget-link-red link-<%= widget.key %>-new-debt"><%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
-                    </p>
-            <% end %>
-            <% if estimated_cleared_technical_debt && estimated_cleared_technical_debt > 0 %>
-                    <p class="small">
-                      <%= message('widget.rules.removed') %>
-                      <span class="varb"><%= Internal.i18n.formatLongDuration(estimated_cleared_technical_debt, 'SHORT') -%></span>
-                    </p>
-            <% end %>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  <% end %>
 
   <div class="widget-span widget-span-6">
     <%
