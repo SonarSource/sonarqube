@@ -190,7 +190,7 @@ public class ComponentAppAction implements RequestHandler {
     if (measuresByMetricKey.get(CoreMetrics.SCM_AUTHORS_BY_LINE_KEY) != null) {
       tabs.add("scm");
     }
-    if (measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY) != null) {
+    if (hasCoverage(measuresByMetricKey)) {
       tabs.add("coverage");
     }
     if (measuresByMetricKey.get(CoreMetrics.DUPLICATED_LINES_KEY) != null) {
@@ -199,6 +199,12 @@ public class ComponentAppAction implements RequestHandler {
     if (!tabs.isEmpty()) {
       json.name("tabs").beginArray().values(tabs).endArray();
     }
+  }
+
+  private boolean hasCoverage(Map<String, MeasureDto> measuresByMetricKey) {
+    return measuresByMetricKey.get(CoreMetrics.OVERALL_COVERAGE_KEY) != null
+      || measuresByMetricKey.get(CoreMetrics.IT_COVERAGE_KEY) != null
+      || measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY) != null;
   }
 
   private void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {
@@ -212,7 +218,7 @@ public class ComponentAppAction implements RequestHandler {
     json.name("measures").beginObject();
 
     json.prop("fNcloc", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.NCLOC_KEY), periodIndex));
-    json.prop("fCoverage", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY), periodIndex));
+    json.prop("fCoverage", formatMeasureOrVariation(coverageMeasure(measuresByMetricKey), periodIndex));
     json.prop("fDuplicationDensity", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY), periodIndex));
     json.prop("fDebt", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.TECHNICAL_DEBT_KEY), periodIndex));
     json.prop("fSqaleRating", formatMeasureOrVariation(measuresByMetricKey.get(CoreMetrics.SQALE_RATING_KEY), periodIndex));
@@ -224,6 +230,19 @@ public class ComponentAppAction implements RequestHandler {
       json.prop("f" + Strings.capitalize(severity.toLowerCase()) + "Issues", i18n.formatInteger(UserSession.get().locale(), severitiesAggregation.count(severity)));
     }
     json.endObject();
+  }
+
+  private MeasureDto coverageMeasure(Map<String, MeasureDto> measuresByMetricKey) {
+    MeasureDto overallCoverage = measuresByMetricKey.get(CoreMetrics.OVERALL_COVERAGE_KEY);
+    MeasureDto itCoverage = measuresByMetricKey.get(CoreMetrics.IT_COVERAGE_KEY);
+    MeasureDto utCoverage = measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY);
+    if (overallCoverage != null) {
+      return overallCoverage;
+    } else if (utCoverage != null) {
+      return utCoverage;
+    } else {
+      return itCoverage;
+    }
   }
 
   private void appendPeriods(JsonWriter json, List<Period> periodList) {
@@ -334,7 +353,7 @@ public class ComponentAppAction implements RequestHandler {
     Map<String, MeasureDto> measuresByMetricKey = newHashMap();
     String fileKey = component.getKey();
     for (MeasureDto measureDto : dbClient.measureDao().findByComponentKeyAndMetricKeys(fileKey,
-      newArrayList(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY,
+      newArrayList(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.IT_COVERAGE_KEY, CoreMetrics.OVERALL_COVERAGE_KEY,
         CoreMetrics.DUPLICATED_LINES_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.TESTS_KEY,
         CoreMetrics.SCM_AUTHORS_BY_LINE_KEY, CoreMetrics.SQALE_RATING_KEY, CoreMetrics.SQALE_DEBT_RATIO_KEY),
       session)) {

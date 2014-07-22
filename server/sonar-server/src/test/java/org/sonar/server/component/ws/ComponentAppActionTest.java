@@ -321,6 +321,43 @@ public class ComponentAppActionTest {
   }
 
   @Test
+  public void app_with_overall_measure() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    addComponent();
+
+    addMeasure(CoreMetrics.OVERALL_COVERAGE_KEY, 90.1);
+    addMeasure(CoreMetrics.COVERAGE_KEY, 95.4);
+    addMeasure(CoreMetrics.IT_COVERAGE_KEY, 85.2);
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
+    request.execute().assertJson(getClass(), "app_with_overall_measure.json");
+  }
+
+  @Test
+  public void app_with_ut_measure() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    addComponent();
+
+    addMeasure(CoreMetrics.COVERAGE_KEY, 95.4);
+    addMeasure(CoreMetrics.IT_COVERAGE_KEY, 85.2);
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
+    request.execute().assertJson(getClass(), "app_with_ut_measure.json");
+  }
+
+  @Test
+  public void app_with_it_measure() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
+    addComponent();
+
+
+    addMeasure(CoreMetrics.IT_COVERAGE_KEY, 85.2);
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
+    request.execute().assertJson(getClass(), "app_with_it_measure.json");
+  }
+
+  @Test
   public void app_with_periods() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
 
