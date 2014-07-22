@@ -39,6 +39,10 @@ public class ForkProcesses {
       esPort = String.valueOf(NetworkUtils.freePort());
       installation.setProp("sonar.es.node.port", esPort);
     }
+    String esCluster = installation.prop("sonar.es.cluster.name", null);
+    if(esCluster == null){
+      installation.setProp("sonar.es.cluster.name", "sonarqube");
+    }
     installation.setProp("sonar.es.type", "TRANSPORT");
 
     shutdownHook = new Thread(new Runnable() {
@@ -52,6 +56,8 @@ public class ForkProcesses {
 
     Runtime.getRuntime().addShutdownHook(shutdownHook);
 
+    monitor = new Monitor();
+
     elasticsearch = new ProcessWrapper(
       installation.homeDir().getAbsolutePath(),
       installation.prop("sonar.es.javaOpts", "-server -Xmx256m -Xms128m -Xss256k -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly"),
@@ -59,6 +65,7 @@ public class ForkProcesses {
       installation.props(),
       "ES",
       installation.starPath("lib/search"));
+    monitor.registerProcess(elasticsearch);
 
 
     server = new ProcessWrapper(
@@ -68,10 +75,8 @@ public class ForkProcesses {
       installation.props(),
       "SQ",
       installation.starPath("lib"));
-
-    monitor = new Monitor();
-    monitor.registerProcess(elasticsearch);
     monitor.registerProcess(server);
+
     monitor.start();
     try {
       monitor.join();
