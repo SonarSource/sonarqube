@@ -24,6 +24,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.NetworkUtils;
 
 import javax.annotation.CheckForNull;
@@ -39,20 +40,18 @@ import java.util.Properties;
 public class Installation {
   private static final Logger LOG = LoggerFactory.getLogger(Installation.class);
 
-  // guessed from location of sonar-application.jar
   private final File homeDir;
   private final File tempDir, dataDir, logsDir, webDir;
   private final Map<String, String> props;
 
   Installation() throws URISyntaxException, IOException {
-    // lib/sonar-application.jar
+    // home dir guessed with location of lib/sonar-application.jar
     File appJar = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
     homeDir = appJar.getParentFile().getParentFile();
 
     props = initProps(homeDir);
 
     // init file system
-    props.put("sonar.path.home", homeDir.getAbsolutePath());
     this.dataDir = existingDir("sonar.path.data", "data");
     this.tempDir = freshDir("sonar.path.temp", "temp");
     this.logsDir = existingDir("sonar.path.logs", "logs");
@@ -87,12 +86,13 @@ public class Installation {
         result.put(entry.getKey().toString(), val.toString());
       }
     }
+    result.put("sonar.path.home", homeDir.getAbsolutePath());
     return result;
   }
 
   private void initElasticsearch() {
-    // init Elasticsearch
-    if (props.get("sonar.es.port") == null) {
+    String port = props.get("sonar.es.port");
+    if (port == null || "".equals(port) || "0".equals(port)) {
       props.put("sonar.es.port", String.valueOf(NetworkUtils.freePort()));
     }
     if (props.get("sonar.es.cluster.name") == null) {
@@ -105,12 +105,8 @@ public class Installation {
     return homeDir;
   }
 
-  File esDir() {
-    return new File(homeDir, "data/es");
-  }
-
-  File webDir() {
-    return webDir;
+  File logsDir() {
+    return logsDir;
   }
 
   File tempDir() {
@@ -132,11 +128,9 @@ public class Installation {
   private File existingDir(String propKey, String defaultRelativePath) throws IOException {
     File dir = configuredDir(propKey, defaultRelativePath);
     if (!dir.exists()) {
-      // TODO replace by MessageException
       throw new IllegalStateException(String.format("Directory does not exist: %s. Please check property %s", dir.getAbsolutePath(), propKey));
     }
     if (!dir.isDirectory()) {
-      // TODO replace by MessageException
       throw new IllegalStateException(String.format("Not a directory: %s. Please check property %s", dir.getAbsolutePath(), propKey));
     }
     return dir;
@@ -156,31 +150,10 @@ public class Installation {
     return props;
   }
 
-  String prop(String key) {
-    return props.get(key);
-  }
-
   @CheckForNull
   String prop(String key, @Nullable String defaultValue) {
     String s = props.get(key);
     return s != null ? s : defaultValue;
-  }
-
-  @CheckForNull
-  Integer propAsInt(String key) {
-    String s = prop(key, null);
-    if (s != null && !"".equals(s)) {
-      try {
-        return Integer.parseInt(s);
-      } catch (NumberFormatException e) {
-        throw new IllegalStateException(String.format("Value of property %s is not an integer: %s", key, s), e);
-      }
-    }
-    return null;
-  }
-
-  void setProp(String key, String value) {
-    props.put(key, value);
   }
 
   void logInfo(String message) {

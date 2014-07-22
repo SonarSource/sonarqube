@@ -49,13 +49,11 @@ public class Monitor extends Thread {
   }
 
   public void registerProcess(ProcessWrapper processWrapper) {
-    LOGGER.trace("Monitor::registerProcess() START");
     processes.add(processWrapper);
     pings.put(processWrapper.getName(), System.currentTimeMillis());
     processWrapper.start();
     for(int i=0; i<10; i++){
-      if(processWrapper.getProcessMXBean() == null
-        || !processWrapper.getProcessMXBean().isReady()){
+      if(processWrapper.getProcessMXBean() == null || !processWrapper.getProcessMXBean().isReady()){
         try {
           Thread.sleep(500L);
         } catch (InterruptedException e) {
@@ -63,7 +61,6 @@ public class Monitor extends Thread {
         }
       }
     }
-    LOGGER.trace("Monitor::registerProcess() END");
   }
 
   private class ProcessWatch implements Runnable {

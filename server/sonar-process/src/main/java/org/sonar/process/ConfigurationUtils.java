@@ -31,11 +31,11 @@ public final class ConfigurationUtils {
     // Utility class
   }
 
-  static Properties interpolateEnvVariables(Properties properties) {
+  public static Properties interpolateEnvVariables(Properties properties) {
     return interpolateVariables(properties, System.getenv());
   }
 
-  static Properties interpolateVariables(Properties properties, Map<String, String> variables) {
+  public static Properties interpolateVariables(Properties properties, Map<String, String> variables) {
     Properties result = new Properties();
     Enumeration keys = properties.keys();
     while (keys.hasMoreElements()) {

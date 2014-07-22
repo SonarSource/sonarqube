@@ -27,20 +27,18 @@ import javax.annotation.Nullable;
 
 public class StartServer {
   private Monitor monitor;
-  private final Thread shutdownHook;
   private ProcessWrapper elasticsearch;
   private ProcessWrapper server;
 
   public StartServer() throws Exception {
     Installation installation = new Installation();
 
-    shutdownHook = new Thread(new Runnable() {
+    Thread shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
         stop();
       }
     });
-
     Runtime.getRuntime().addShutdownHook(shutdownHook);
 
     monitor = new Monitor();
@@ -51,7 +49,7 @@ public class StartServer {
       .setJmxPort(NetworkUtils.freePort())
       .addJavaOpts(opts)
       .addJavaOpts("-Djava.io.tmpdir=" + installation.tempDir().getAbsolutePath())
-      .setEnvProperty("SONAR_HOME", installation.homeDir().getAbsolutePath())
+      .addJavaOpts("-Dsonar.path.logs=" + installation.logsDir().getAbsolutePath())
       .setClassName("org.sonar.search.ElasticSearch")
       .setProperties(installation.props())
       .addClasspath(installation.starPath("lib/common"))
@@ -67,8 +65,8 @@ public class StartServer {
       .addJavaOpts(opts)
       .addJavaOpts("-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false")
       .addJavaOpts("-Djava.io.tmpdir=" + installation.tempDir().getAbsolutePath())
+      .addJavaOpts("-Dsonar.path.logs=" + installation.logsDir().getAbsolutePath())
       .setClassName("org.sonar.server.app.ServerProcess")
-      .setEnvProperty("SONAR_HOME", installation.homeDir().getAbsolutePath())
       .setProperties(installation.props())
       .addClasspath(installation.starPath("extensions/jdbc-driver/mysql"))
       .addClasspath(installation.starPath("extensions/jdbc-driver/mssql"))

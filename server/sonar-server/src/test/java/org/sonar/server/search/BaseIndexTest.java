@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.profiling.Profiling;
 
@@ -39,8 +38,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class BaseIndexTest {
 
@@ -51,10 +48,10 @@ public class BaseIndexTest {
 
   @Before
   public void setup() throws IOException {
-    File homeDir = temp.newFolder();
-    ServerFileSystem fs = mock(ServerFileSystem.class);
-    when(fs.getHomeDir()).thenReturn(homeDir);
-    node = new ESNode(fs, new Settings());
+    File dataDir = temp.newFolder();
+    Settings settings = new Settings();
+    settings.setProperty("sonar.path.data", dataDir.getAbsolutePath());
+    node = new ESNode(settings);
     node.start();
   }
 

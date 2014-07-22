@@ -20,7 +20,6 @@
 package org.sonar.server.search;
 
 import com.google.common.io.Resources;
-import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.client.AdminClient;
@@ -29,14 +28,12 @@ import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.mapper.StrictDynamicMappingException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.ZipUtils;
 
 import java.io.File;
@@ -44,29 +41,20 @@ import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ESNodeTest {
 
-  ServerFileSystem fs;
-  File homedir;
   File dataDir;
+  Settings settings;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Before
   public void createMocks() throws IOException {
-    homedir = temp.newFolder();
-    fs = mock(ServerFileSystem.class);
-    when(fs.getHomeDir()).thenReturn(homedir);
-    dataDir = new File(homedir, ESNode.DATA_DIR);
-  }
-
-  @After
-  public void cleanUp() {
-    FileUtils.deleteQuietly(homedir);
+    dataDir = temp.newFolder();
+    settings = new Settings();
+    settings.setProperty("sonar.path.data", dataDir.getAbsolutePath());
   }
 
   @Test
@@ -74,7 +62,7 @@ public class ESNodeTest {
   public void start_and_stop_es_node() throws Exception {
     assertThat(dataDir).doesNotExist();
 
-    ESNode node = new ESNode(fs, new Settings());
+    ESNode node = new ESNode(settings);
     node.start();
 
     ClusterAdminClient cluster = node.client().admin().cluster();
@@ -94,7 +82,7 @@ public class ESNodeTest {
 
   @Test(expected = StrictDynamicMappingException.class)
   public void should_use_default_settings_for_index() throws Exception {
-    ESNode node = new ESNode(fs, new Settings());
+    ESNode node = new ESNode(settings);
     node.start();
 
     node.client().admin().indices().prepareCreate("strict")
@@ -114,7 +102,7 @@ public class ESNodeTest {
 
   @Test
   public void check_path_analyzer() throws Exception {
-    ESNode node = new ESNode(fs, new Settings());
+    ESNode node = new ESNode(settings);
     node.start();
 
     node.client().admin().indices().prepareCreate("path")
@@ -142,7 +130,7 @@ public class ESNodeTest {
 
   @Test
   public void check_sortable_analyzer() throws Exception {
-    ESNode node = new ESNode(fs, new Settings());
+    ESNode node = new ESNode(settings);
     node.start();
 
     node.client().admin().indices().prepareCreate("sort")
@@ -160,7 +148,7 @@ public class ESNodeTest {
 
   @Test
   public void check_gram_analyzer() throws Exception {
-    ESNode node = new ESNode(fs, new Settings());
+    ESNode node = new ESNode(settings);
     node.start();
 
     node.client().admin().indices().prepareCreate("gram")
@@ -183,7 +171,7 @@ public class ESNodeTest {
     File zip = new File(Resources.getResource(getClass(), "ESNodeTest/data-es-clean.zip").toURI());
     ZipUtils.unzip(zip, dataDir);
 
-    ESNode node = new ESNode(fs, new Settings());
+    ESNode node = new ESNode(settings);
     node.start();
 
     AdminClient admin = node.client().admin();
@@ -199,7 +187,7 @@ public class ESNodeTest {
     File zip = new File(Resources.getResource(getClass(), "ESNodeTest/data-es-corrupt.zip").toURI());
     ZipUtils.unzip(zip, dataDir);
 
-    ESNode node = new ESNode(fs, new Settings(), "5s");
+    ESNode node = new ESNode(settings, "5s");
     try {
       node.start();
     } finally {
@@ -209,7 +197,7 @@ public class ESNodeTest {
 
   @Test
   public void should_fail_to_get_client_if_not_started() {
-    ESNode node = new ESNode(fs, new Settings());
+    ESNode node = new ESNode(settings);
     try {
       node.client();
       fail();

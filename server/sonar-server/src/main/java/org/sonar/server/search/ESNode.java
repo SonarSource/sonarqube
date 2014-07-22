@@ -36,7 +36,7 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.api.utils.MessageException;
 import org.sonar.server.search.es.ListUpdate;
 import org.sonar.server.search.es.ListUpdate.UpdateListScriptFactory;
 
@@ -48,13 +48,9 @@ import java.io.File;
 public class ESNode implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ESNode.class);
-
   private static final String HTTP_ENABLED = "http.enabled";
-  static final String DATA_DIR = "data/es";
-
   private static final String DEFAULT_HEALTH_TIMEOUT = "30s";
 
-  private final ServerFileSystem fileSystem;
   private final Settings settings;
   private final String healthTimeout;
 
@@ -62,13 +58,12 @@ public class ESNode implements Startable {
   private Client client;
   private Node node;
 
-  public ESNode(ServerFileSystem fileSystem, Settings settings) {
-    this(fileSystem, settings, DEFAULT_HEALTH_TIMEOUT);
+  public ESNode(Settings settings) {
+    this(settings, DEFAULT_HEALTH_TIMEOUT);
   }
 
   @VisibleForTesting
-  ESNode(ServerFileSystem fileSystem, Settings settings, String healthTimeout) {
-    this.fileSystem = fileSystem;
+  ESNode(Settings settings, String healthTimeout) {
     this.settings = settings;
     this.healthTimeout = healthTimeout;
   }
@@ -77,9 +72,11 @@ public class ESNode implements Startable {
   public void start() {
     initLogging();
 
-    IndexProperties.ES_TYPE type = settings.hasKey(IndexProperties.TYPE) ?
-      IndexProperties.ES_TYPE.valueOf(settings.getString(IndexProperties.TYPE)) :
-      IndexProperties.ES_TYPE.DATA;
+    String typeValue = settings.getString(IndexProperties.TYPE);
+    IndexProperties.ES_TYPE type =
+      typeValue != null ?
+        IndexProperties.ES_TYPE.valueOf(typeValue) :
+        IndexProperties.ES_TYPE.DATA;
 
     ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
       .put("index.merge.policy.max_merge_at_once", "200")
@@ -95,27 +92,10 @@ public class ESNode implements Startable {
 
     initAnalysis(esSettings);
 
-
     if (IndexProperties.ES_TYPE.TRANSPORT.equals(type)) {
-      client = new TransportClient(esSettings)
-        .addTransportAddress(new InetSocketTransportAddress("localhost",
-          settings.getInt(IndexProperties.NODE_PORT)));
+      initRemoteClient(esSettings);
     } else {
-      if (IndexProperties.ES_TYPE.MEMORY.equals(type)) {
-        initMemoryES(esSettings);
-      } else if (IndexProperties.ES_TYPE.DATA.equals(type)) {
-        initDataES(esSettings);
-      }
-      initDirs(esSettings);
-      initRestConsole(esSettings);
-      initNetwork(esSettings);
-
-      node = NodeBuilder.nodeBuilder()
-        .settings(esSettings)
-        .node();
-      node.start();
-
-      client = node.client();
+      initLocalClient(type, esSettings);
     }
 
     if (client.admin().cluster().prepareHealth()
@@ -123,21 +103,46 @@ public class ESNode implements Startable {
       .setTimeout(healthTimeout)
       .get()
       .getStatus() == ClusterHealthStatus.RED) {
-      throw new IllegalStateException(
-        String.format("Elasticsearch index is corrupt, please delete directory '%s/%s' and relaunch the SonarQube server.", fileSystem.getHomeDir().getAbsolutePath(), DATA_DIR));
+      throw MessageException.of(String.format("Elasticsearch index is corrupt, please delete directory '%s' " +
+        "and relaunch the SonarQube server.", esDataDir()));
     }
 
     addIndexTemplates();
 
     LOG.info("Elasticsearch started");
+  }
 
+  private void initRemoteClient(ImmutableSettings.Builder esSettings) {
+    int port = settings.getInt(IndexProperties.NODE_PORT);
+    client = new TransportClient(esSettings)
+      .addTransportAddress(new InetSocketTransportAddress("localhost",
+        port));
+    LOG.info("Elasticsearch port: " + port);
+  }
+
+  private void initLocalClient(IndexProperties.ES_TYPE type, ImmutableSettings.Builder esSettings) {
+    if (IndexProperties.ES_TYPE.MEMORY.equals(type)) {
+      initMemoryES(esSettings);
+    } else if (IndexProperties.ES_TYPE.DATA.equals(type)) {
+      initDataES(esSettings);
+    }
+    initDirs(esSettings);
+    initRestConsole(esSettings);
+    initNetwork(esSettings);
+
+    node = NodeBuilder.nodeBuilder()
+      .settings(esSettings)
+      .node();
+    node.start();
+
+    client = node.client();
   }
 
   private void initMemoryES(ImmutableSettings.Builder builder) {
     builder
-      .put("node.name", "node-test-" + System.currentTimeMillis())
+      .put("node.name", "node-mem-" + System.currentTimeMillis())
       .put("node.data", true)
-      .put("cluster.name", "cluster-test-" + NetworkUtils.getLocalAddress().getHostName())
+      .put("cluster.name", "cluster-mem-" + NetworkUtils.getLocalAddress().getHostName())
       .put("index.store.type", "memory")
       .put("index.store.fs.memory.enabled", "true")
       .put("gateway.type", "none")
@@ -145,10 +150,6 @@ public class ESNode implements Startable {
       .put("index.number_of_replicas", "0")
       .put("cluster.routing.schedule", "50ms")
       .put("node.local", true);
-  }
-
-  private void initTransportES(ImmutableSettings.Builder builder) {
-    throw new IllegalStateException("Not implemented yet");
   }
 
   private void initDataES(ImmutableSettings.Builder builder) {
@@ -245,14 +246,18 @@ public class ESNode implements Startable {
   }
 
   private void initDirs(ImmutableSettings.Builder esSettings) {
-    File esDir = new File(fileSystem.getHomeDir(), DATA_DIR);
+    File esDir = esDataDir();
     try {
       FileUtils.forceMkdir(esDir);
       esSettings.put("path.home", esDir.getAbsolutePath());
       LOG.debug("Elasticsearch data stored in {}", esDir.getAbsolutePath());
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to create directory " + esDir.getAbsolutePath(), e);
+      throw new IllegalStateException("Fail to create directory " + esDir, e);
     }
+  }
+
+  private File esDataDir() {
+    return new File(settings.getString("sonar.path.data"), "es");
   }
 
   @Override
