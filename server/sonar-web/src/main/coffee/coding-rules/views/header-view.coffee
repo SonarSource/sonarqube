@@ -21,3 +21,8 @@ define [
 
     createRule: ->
       @options.app.createManualRule()
+
+
+    serializeData: ->
+      _.extend super,
+        'canWrite': @options.app.canWrite
