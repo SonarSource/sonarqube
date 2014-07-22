@@ -6,7 +6,6 @@ define [
   'coding-rules/views/coding-rules-detail-custom-rules-view'
   'coding-rules/views/coding-rules-detail-custom-rule-view'
   'coding-rules/views/coding-rules-parameter-popup-view'
-  'coding-rules/views/coding-rules-debt-popup-view'
   'templates/coding-rules'
 ], (
   Backbone
@@ -16,7 +15,6 @@ define [
   CodingRulesDetailCustomRulesView
   CodingRulesDetailCustomRuleView
   CodingRulesParameterPopupView
-  CodingRulesDebtPopupView
   Templates
 ) ->
 
@@ -37,6 +35,9 @@ define [
       tagsEdit: '.coding-rules-detail-tag-edit'
       tagsEditDone: '.coding-rules-detail-tag-edit-done'
       tagsList: '.coding-rules-detail-tag-list'
+
+      subcharacteristic: '.coding-rules-subcharacteristic'
+      subcharacteristicMore: '.coding-rules-subcharacteristic-more'
 
       descriptionExtra: '#coding-rules-detail-description-extra'
       extendDescriptionLink: '#coding-rules-detail-extend-description'
@@ -74,7 +75,7 @@ define [
       'click @ui.deleteCustomRule': 'deleteRule'
 
       'click .coding-rules-detail-parameter-details': 'showParamPopup'
-      'click .coding-rules-subcharacteristic': 'showDebtPopup'
+      'click .coding-rules-subcharacteristic': 'toggleDebtInfo'
 
     initialize: (options) ->
       super options
@@ -185,14 +186,8 @@ define [
       false
 
 
-    showDebtPopup: (e) ->
-      e.stopPropagation()
-      jQuery('body').click()
-      popup = new CodingRulesDebtPopupView
-        model: @model
-        app: @options.app
-        triggerEl: jQuery(e.currentTarget)
-      popup.render()
+    toggleDebtInfo: (e) ->
+      @ui.subcharacteristicMore.toggle()
       false
 
 

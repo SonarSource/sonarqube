@@ -34,7 +34,9 @@
   </li>{{/if}}
 
   {{#if subcharacteristic}}
-    <li class="coding-rules-detail-property">{{subcharacteristic}} <a href="#" class="coding-rules-subcharacteristic">{{t 'more'}}</a></li>
+    <li class="coding-rules-detail-property">
+      <a class="link-action coding-rules-subcharacteristic">{{subcharacteristic}}</a>
+    </li>
   {{/if}}
   <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
   <li class="coding-rules-detail-property">{{repository}}{{#unless isManual}} ({{language}}){{/unless}}</li>
@@ -48,6 +50,31 @@
     </li>
   {{/if}}
 </ul>
+
+{{#if subcharacteristic}}
+<div class="coding-rules-subcharacteristic-more inline-help">
+  <ul>
+    {{#if debtRemFnType}}
+    <li>
+      <h3>{{t 'coding_rules.remediation_function'}}</h3>
+      {{t 'coding_rules.remediation_function' debtRemFnType}}
+    </li>
+    {{/if}}
+    {{#if debtRemFnCoeff}}
+    <li>
+      <h3>{{t 'coding_rules.remediation_function.coeff'}}</h3>
+      {{debtRemFnCoeff}}
+    </li>
+    {{/if}}
+    {{#if debtRemFnOffset}}
+    <li>
+      <h3>{{t 'coding_rules.remediation_function.offset'}}</h3>
+      {{debtRemFnOffset}}
+    </li>
+    {{/if}}
+  </ul>
+</div>
+{{/if}}
 
 <div class="coding-rules-detail-description rule-desc markdown">{{{htmlDesc}}}</div>
 
