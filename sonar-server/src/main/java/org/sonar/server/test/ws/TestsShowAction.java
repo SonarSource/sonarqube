@@ -117,7 +117,8 @@ public class TestsShowAction implements RequestHandler {
 
         json.prop("name", cursor.getAttrValue("name"));
         json.prop("status", cursor.getAttrValue("status").toUpperCase());
-        json.prop("durationInMs", Long.parseLong(cursor.getAttrValue("time")));
+        // time can contain float value, we have to truncate it
+        json.prop("durationInMs", ((Double) Double.parseDouble(cursor.getAttrValue("time"))).longValue());
 
         SMInputCursor errorCursor = cursor.childElementCursor();
         if (errorCursor.getNext() != null) {
