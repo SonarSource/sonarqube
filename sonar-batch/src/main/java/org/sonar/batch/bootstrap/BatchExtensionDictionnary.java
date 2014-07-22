@@ -67,7 +67,7 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
       }
     }
     if (org.sonar.api.batch.Sensor.class.equals(type)) {
-      // Retrieve Analyzer and wrap then in SensorWrapper
+      // Retrieve new Sensors and wrap then in SensorWrapper
       for (Object extension : getExtensions(Sensor.class)) {
         extension = new SensorWrapper((Sensor) extension, context, analyzerOptimizer);
         if (shouldKeep(type, extension, project, matcher)) {
@@ -80,7 +80,7 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
 
   private boolean shouldKeep(Class type, Object extension, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
     boolean keep = (ClassUtils.isAssignable(extension.getClass(), type)
-      || (Sensor.class.equals(type) && ClassUtils.isAssignable(extension.getClass(), Sensor.class)))
+      || (org.sonar.api.batch.Sensor.class.equals(type) && ClassUtils.isAssignable(extension.getClass(), Sensor.class)))
       && (matcher == null || matcher.accept(extension));
     if (keep && project != null && ClassUtils.isAssignable(extension.getClass(), CheckProject.class)) {
       keep = ((CheckProject) extension).shouldExecuteOnProject(project);
