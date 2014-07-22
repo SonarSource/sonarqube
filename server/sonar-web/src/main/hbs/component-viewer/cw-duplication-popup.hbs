@@ -2,9 +2,19 @@
   <div class="bubble-popup-title">{{t 'component_viewer.transition.duplication'}}</div>
   {{#each duplications}}
     <div class="bubble-popup-section">
-      {{#notEq file.projectName ../component.projectName}}
-        <span class="component-viewer-popup-label">{{file.projectName}}</span>
+      {{#notEq file.project ../component.project}}
+        <div class="component-viewer-popup-label">
+          {{file.projectName}}
+          {{#if file.subProjectName}}
+            / {{file.subProjectName}}
+          {{/if}}
+        </div>
+      {{else}}
+        {{#notEq file.subProject ../../component.subProject}}
+          <div class="component-viewer-popup-label">{{file.projectName}} / {{file.subProjectName}}</div>
+        {{/notEq}}
       {{/notEq}}
+
       {{#notEq file.key ../component.key}}
         <a class="link-action" data-key="{{file.key}}" title="{{file.name}}">
           {{file.name}}

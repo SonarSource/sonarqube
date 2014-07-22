@@ -50,8 +50,9 @@ define [
         file: files[fileRef]
       duplications = _.sortBy duplications, (d) =>
         a = d.file.projectName != @options.main.component.get 'projectName'
-        b = d.file.key != @options.main.component.get 'key'
-        '' + a + b
+        b = d.file.subProjectName != @options.main.component.get 'subProjectName'
+        c = d.file.key != @options.main.component.get 'key'
+        '' + a + b + c
 
       component: @options.main.component.toJSON()
       duplications: duplications
