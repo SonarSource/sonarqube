@@ -21,6 +21,7 @@ package org.sonar.batch.rule;
 
 import org.junit.Test;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.RuleFinder;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.when;
 public class RulesProfileProviderTest {
 
   ModuleQProfiles qProfiles = mock(ModuleQProfiles.class);
-  ActiveRules activeRules = mock(ActiveRules.class);
+  ActiveRules activeRules = new ActiveRulesBuilder().build();
   RuleFinder ruleFinder = mock(RuleFinder.class);
   Settings settings = new Settings();
   RulesProfileProvider provider = new RulesProfileProvider();
@@ -72,6 +73,7 @@ public class RulesProfileProviderTest {
     // no merge, directly the old hibernate profile
     assertThat(profile).isNotNull();
     assertThat(profile.getLanguage()).isEqualTo("java");
-    assertThat(profile.getName()).isEqualTo("Sonar way");;
+    assertThat(profile.getName()).isEqualTo("Sonar way");
+    ;
   }
 }
