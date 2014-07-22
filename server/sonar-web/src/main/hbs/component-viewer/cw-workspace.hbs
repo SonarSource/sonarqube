@@ -16,6 +16,9 @@
     <li class="component-viewer-workspace-item {{#if active}}active{{/if}}">
       {{qualifierIcon component.q}}
       <a class="link-action" data-key="{{component.key}}">{{component.name}}</a>
+      <div class="text-ellipsis subtitle" title="{{component.projectName}} / {{component.subProjectName}}">
+        {{component.projectName}} / {{component.subProjectName}}
+      </div>
       {{#if component.dir}}
         <div class="text-ellipsis subtitle">{{component.dir}}</div>
       {{/if}}
@@ -25,7 +28,14 @@
           {{#each options}}
             <li class="component-viewer-workspace-option text-ellipsis {{#if active}}active{{/if}}" title="{{name}}">
               <a class="link-action" data-workspace-key="{{../component.key}}" data-key="{{key}}">{{name}}</a>
-              {{#if subname}}<div class="text-ellipsis subtitle" title="{{subname}}">{{subname}}</div>{{/if}}
+              {{#if component}}
+                <div class="text-ellipsis subtitle" title="{{component.projectName}} / {{component.subProjectName}}">
+                  {{component.projectName}} / {{component.subProjectName}}
+                </div>
+              {{/if}}
+              {{#if subname}}
+                <div class="text-ellipsis subtitle" title="{{subname}}">{{subname}}</div>
+              {{/if}}
             </li>
           {{/each}}
         </ul>

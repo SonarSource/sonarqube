@@ -252,8 +252,7 @@ define [
       component = @requestComponent key
       @currentIssue = null
       component.done =>
-        @workspace.where(key: key).forEach (model) =>
-          model.set 'component': @component.toJSON()
+        @updateWorkspaceComponents()
         @state.set 'removed', false
         source.always =>
           if source.status == 403
@@ -278,6 +277,17 @@ define [
           @render()
           @trigger 'loaded'
         else @cannotOpen()
+
+
+    updateWorkspaceComponents: ->
+      @workspace.where(key: @component.get('key')).forEach (model) =>
+        model.set 'component': @component.toJSON()
+
+      @workspace.each (w) =>
+        options =  w.get('options')
+        _.where(options, key: @component.get('key')).forEach (model) =>
+          model.component = @component.toJSON()
+        w.set 'options', options
 
 
     cannotOpen: ->
