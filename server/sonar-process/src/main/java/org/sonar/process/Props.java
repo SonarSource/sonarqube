@@ -27,7 +27,7 @@ public class Props {
 
   private final Properties props;
 
-  Props(Properties props) {
+  public Props(Properties props) {
     this.props = props;
   }
 
@@ -71,22 +71,6 @@ public class Props {
     return props;
   }
 
-  public static Props create(Properties properties) {
-    Properties p = new Properties();
-
-    // order is important : the last override the first
-    p.putAll(System.getenv());
-    p.putAll(System.getProperties());
-    p.putAll(properties);
-
-    p = ConfigurationUtils.interpolateEnvVariables(p);
-    p = decrypt(p);
-
-    // Set all properties as system properties to pass them to PlatformServletContextListener
-    // System.setProperties(p);
-
-    return new Props(p);
-  }
 
   static Properties decrypt(Properties properties) {
     Encryption encryption = new Encryption(properties.getProperty(AesCipher.ENCRYPTION_SECRET_KEY_PATH));

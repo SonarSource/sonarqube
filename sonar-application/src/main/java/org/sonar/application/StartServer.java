@@ -25,25 +25,23 @@ import org.sonar.process.ProcessWrapper;
 
 import javax.annotation.Nullable;
 
-public class ForkProcesses {
+public class StartServer {
   private Monitor monitor;
   private final Thread shutdownHook;
   private ProcessWrapper elasticsearch;
   private ProcessWrapper server;
 
-  public ForkProcesses() throws Exception {
+  public StartServer() throws Exception {
     Installation installation = new Installation();
 
     String esPort = installation.prop("sonar.es.node.port", null);
     if (esPort == null) {
       esPort = String.valueOf(NetworkUtils.freePort());
-      installation.setProp("sonar.es.node.port", esPort);
     }
     String esCluster = installation.prop("sonar.es.cluster.name", null);
-    if(esCluster == null){
+    if (esCluster == null) {
       installation.setProp("sonar.es.cluster.name", "sonarqube");
     }
-    installation.setProp("sonar.es.type", "TRANSPORT");
 
     shutdownHook = new Thread(new Runnable() {
       @Override
@@ -58,25 +56,28 @@ public class ForkProcesses {
 
     monitor = new Monitor();
 
-    elasticsearch = new ProcessWrapper(
-      installation.homeDir().getAbsolutePath(),
-      installation.prop("sonar.es.javaOpts", "-server -Xmx256m -Xms128m -Xss256k -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly"),
-      "org.sonar.search.ElasticSearch",
-      installation.props(),
-      "ES",
-      installation.starPath("lib/common"),
-      installation.starPath("lib/search"));
+    String opts = installation.prop("sonar.es.javaOpts", "-server -Xmx256m -Xms128m -Xss256k -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly");
+    elasticsearch = new ProcessWrapper("ES")
+      .setWorkDir(installation.homeDir())
+      .addJavaOpts(opts)
+      .setClassName("org.sonar.search.ElasticSearch")
+      .setArguments(installation.props())
+      .setArgument("sonar.es.node.port", esPort)
+      .addClasspath(installation.starPath("lib/common"))
+      .addClasspath(installation.starPath("lib/search"));
     monitor.registerProcess(elasticsearch);
 
 
-    server = new ProcessWrapper(
-      installation.homeDir().getAbsolutePath(),
-      installation.prop("sonar.web.javaOpts", "-Xmx768m -server -XX:MaxPermSize=160m -Djava.awt.headless=true -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -Djruby.management.enabled=false"),
-      "org.sonar.server.app.ServerProcess",
-      installation.props(),
-      "SQ",
-      installation.starPath("lib/common"),
-      installation.starPath("lib/server"));
+    opts = installation.prop("sonar.web.javaOpts", "-Xmx768m -server -XX:MaxPermSize=160m -Djava.awt.headless=true -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -Djruby.management.enabled=false");
+    server = new ProcessWrapper("SQ")
+      .setWorkDir(installation.homeDir())
+      .addJavaOpts(opts)
+      .setClassName("org.sonar.server.app.ServerProcess")
+      .setEnvProperty("SONAR_HOME", installation.homeDir().getAbsolutePath())
+      .setArguments(installation.props())
+      .setArgument("sonar.es.type", "TRANSPORT")
+      .addClasspath(installation.starPath("lib/common"))
+      .addClasspath(installation.starPath("lib/server"));
     monitor.registerProcess(server);
 
     monitor.start();
@@ -99,6 +100,7 @@ public class ForkProcesses {
       }
     }
   }
+
   private void terminateAndWait(@Nullable ProcessWrapper process) {
     if (process != null && process.getThread() != null) {
       process.terminate();
@@ -106,6 +108,6 @@ public class ForkProcesses {
   }
 
   public static void main(String[] args) throws Exception {
-    new ForkProcesses();
+    new StartServer();
   }
 }

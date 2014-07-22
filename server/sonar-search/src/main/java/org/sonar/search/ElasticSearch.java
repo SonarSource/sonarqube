@@ -19,7 +19,6 @@
  */
 package org.sonar.search;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
@@ -46,7 +45,6 @@ public class ElasticSearch extends Process {
     super(args);
   }
 
-  @VisibleForTesting
   public ElasticSearch(Props props) {
     super(props);
   }

@@ -19,7 +19,6 @@
  */
 package org.sonar.process;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,23 +94,19 @@ public abstract class Process implements ProcessMXBean {
     } catch (IOException e) {
       throw new IllegalStateException("Could not read properties from file '" + args[0] + "'", e);
     }
-    props = Props.create(properties);
+    props = new Props(properties);
     init();
   }
 
-  @VisibleForTesting
   public Process(Props props) {
     this.props = props;
     init();
   }
 
   private void init() {
-
     // Loading all Properties from file
     this.name = props.of(NAME_PROPERTY, null);
     this.port = props.intOf(PORT_PROPERTY);
-
-    validateSonarHome(props);
 
     // Testing required properties
     if (StringUtils.isEmpty(this.name)) {
@@ -193,25 +188,5 @@ public abstract class Process implements ProcessMXBean {
 
   public final void terminate() {
     terminate(false);
-  }
-
-  private void validateSonarHome(Props props) {
-
-    // check that we have a SONAR_HOME either in props or in env.
-    String sonarHome = props.of(SONAR_HOME, System.getenv(SONAR_HOME));
-    if (StringUtils.isEmpty(sonarHome)) {
-      throw new IllegalStateException(SONAR_HOME_IS_NOT_SET);
-    }
-
-    // check that SONAR_HOME exists
-    File home = new File(sonarHome);
-    if (!home.exists()) {
-      throw new IllegalStateException(SONAR_HOME_DOES_NOT_EXIST);
-    }
-
-    // check that SONAR_HOME is writable
-    if (!home.canWrite()) {
-      throw new IllegalStateException(SONAR_HOME_IS_NOT_WRITABLE);
-    }
   }
 }

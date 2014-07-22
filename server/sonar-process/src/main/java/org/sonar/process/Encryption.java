@@ -20,9 +20,8 @@
 
 package org.sonar.process;
 
-import com.google.common.collect.ImmutableMap;
-
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -38,14 +37,13 @@ public final class Encryption {
   private static final String AES_ALGORITHM = "aes";
   private final AesCipher aesCipher;
 
-  private final Map<String, Cipher> ciphers;
+  private final Map<String, Cipher> ciphers = new HashMap<String, Cipher>();
   private static final Pattern ENCRYPTED_PATTERN = Pattern.compile("\\{(.*?)\\}(.*)");
 
   public Encryption(@Nullable String pathToSecretKey) {
     aesCipher = new AesCipher(pathToSecretKey);
-    ciphers = ImmutableMap.of(
-      BASE64_ALGORITHM, new Base64Cipher(),
-      AES_ALGORITHM, aesCipher);
+    ciphers.put(BASE64_ALGORITHM, new Base64Cipher());
+    ciphers.put(AES_ALGORITHM, aesCipher);
   }
 
   public boolean isEncrypted(String value) {

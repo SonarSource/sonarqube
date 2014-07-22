@@ -20,8 +20,6 @@
 
 package org.sonar.process;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Throwables;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -61,8 +59,10 @@ final class AesCipher extends Cipher {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFile());
       return new String(Base64.encodeBase64(cipher.doFinal(clearText.getBytes("UTF-8"))));
+    } catch (RuntimeException e) {
+      throw e;
     } catch (Exception e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -73,8 +73,10 @@ final class AesCipher extends Cipher {
       cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile());
       byte[] cipherData = cipher.doFinal(Base64.decodeBase64(StringUtils.trim(encryptedText)));
       return new String(cipherData);
+    } catch (RuntimeException e) {
+      throw e;
     } catch (Exception e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -95,7 +97,6 @@ final class AesCipher extends Cipher {
     return loadSecretFileFromFile(path);
   }
 
-  @VisibleForTesting
   Key loadSecretFileFromFile(@Nullable String path) throws IOException {
     if (StringUtils.isBlank(path)) {
       throw new IllegalStateException("Secret key not found. Please set the property " + ENCRYPTION_SECRET_KEY_PATH);
@@ -123,7 +124,6 @@ final class AesCipher extends Cipher {
     }
   }
 
-  @VisibleForTesting
   String getPathToSecretKey() {
     if (StringUtils.isBlank(pathToSecretKey)) {
       pathToSecretKey = new File(FileUtils.getUserDirectoryPath(), ".sonar/sonar-secret.txt").getPath();

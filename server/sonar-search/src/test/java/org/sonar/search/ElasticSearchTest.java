@@ -87,7 +87,7 @@ public class ElasticSearchTest {
     properties.setProperty("sonar.path.data", tempDirectory.getAbsolutePath());
     properties.setProperty(ElasticSearch.ES_PORT_PROPERTY, Integer.toString(freeESPort));
 
-    elasticSearch = new ElasticSearch(Props.create(properties));
+    elasticSearch = new ElasticSearch(new Props(properties));
     new Thread(new Runnable() {
       @Override
       public void run() {
