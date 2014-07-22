@@ -45,7 +45,7 @@ public class IssuesMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", "MAJOR", "xoo", "xoo"))
+    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", "MAJOR", "OneIssuePerLine.internal", "xoo"))
     .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     .build();
 
@@ -68,6 +68,18 @@ public class IssuesMediumTest {
       .start();
 
     assertThat(result.issues()).hasSize(24);
+  }
+
+  @Test
+  public void findActiveRuleByInternalKey() throws Exception {
+    File projectDir = new File(IssuesMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
+
+    TaskResult result = tester
+      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.xoo.internalKey", "OneIssuePerLine.internal")
+      .start();
+
+    assertThat(result.issues()).hasSize(24 /* 24 lines */+ 3 /* 3 files */);
   }
 
   @Test

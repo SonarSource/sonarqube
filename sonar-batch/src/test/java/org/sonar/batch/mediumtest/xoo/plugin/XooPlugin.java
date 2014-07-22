@@ -23,6 +23,7 @@ import org.sonar.api.SonarPlugin;
 import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
 import org.sonar.batch.mediumtest.xoo.plugin.lang.MeasureSensor;
 import org.sonar.batch.mediumtest.xoo.plugin.lang.ScmActivitySensor;
+import org.sonar.batch.mediumtest.xoo.plugin.rule.CreateIssueByInternalKeySensor;
 import org.sonar.batch.mediumtest.xoo.plugin.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.batch.mediumtest.xoo.plugin.rule.OneIssuePerLineSensor;
 
@@ -39,9 +40,10 @@ public final class XooPlugin extends SonarPlugin {
       ScmActivitySensor.class,
       Xoo.class,
 
-      // rules
+      // sensors
       OneIssuePerLineSensor.class,
-      OneIssueOnDirPerFileSensor.class
+      OneIssueOnDirPerFileSensor.class,
+      CreateIssueByInternalKeySensor.class
       );
   }
 }

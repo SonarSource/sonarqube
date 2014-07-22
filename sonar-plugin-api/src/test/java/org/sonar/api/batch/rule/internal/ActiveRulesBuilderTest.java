@@ -52,6 +52,7 @@ public class ActiveRulesBuilderTest {
     assertThat(activeRules.findAll()).hasSize(3);
     assertThat(activeRules.findByRepository("squid")).hasSize(2);
     assertThat(activeRules.findByRepository("findbugs")).hasSize(1);
+    assertThat(activeRules.findByInternalKey("squid", "__S0001__")).isNotNull();
     assertThat(activeRules.findByRepository("unknown")).isEmpty();
 
     ActiveRule squid1 = activeRules.find(RuleKey.of("squid", "S0001"));

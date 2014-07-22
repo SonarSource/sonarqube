@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
@@ -76,7 +77,7 @@ public class RulesProfileProvider extends ProviderAdapter {
     // TODO deprecatedProfile.setVersion(qProfile.version());
     deprecatedProfile.setName(qProfile.getName());
     deprecatedProfile.setLanguage(qProfile.getLanguage());
-    for (org.sonar.api.batch.rule.ActiveRule activeRule : activeRules.findByLanguage(qProfile.getLanguage())) {
+    for (org.sonar.api.batch.rule.ActiveRule activeRule : ((DefaultActiveRules) activeRules).findByLanguage(qProfile.getLanguage())) {
       Rule rule = ruleFinder.findByKey(activeRule.ruleKey());
       ActiveRule deprecatedActiveRule = deprecatedProfile.activateRule(rule, RulePriority.valueOf(activeRule.severity()));
       for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
