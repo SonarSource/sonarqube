@@ -14,7 +14,7 @@ define [
 
 
   class extends BaseHeaderView
-    template: Templates['scm-header']
+    template: Templates['cw-scm-header']
 
 
     events:

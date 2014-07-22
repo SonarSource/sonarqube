@@ -5,8 +5,8 @@ define [
   'component-viewer/duplication-popup'
   'component-viewer/time-changes-popup'
   'component-viewer/line-actions-popup'
-  'issues/issue-view'
-  'issues/models/issue'
+  'issue/issue-view'
+  'issue/models/issue'
   'common/handlebars-extensions'
 ], (
   Marionette
@@ -26,8 +26,8 @@ define [
 
 
   class SourceView extends Marionette.ItemView
-    template: Templates['source']
-    expandTemplate: Templates['code-expand']
+    template: Templates['cw-source']
+    expandTemplate: Templates['cw-code-expand']
 
     LINES_AROUND_ISSUE = 4
     LINES_AROUND_COVERED_LINE = 1

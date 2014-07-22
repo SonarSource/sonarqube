@@ -69,7 +69,7 @@ define [
 
   class ComponentViewer extends utils.mixOf Marionette.Layout, IssuesMixin, CoverageMixin, DuplicationsMixin, SCMMixin
     className: 'component-viewer'
-    template: Templates['layout']
+    template: Templates['cw-layout']
 
 
     regions:

@@ -10,4 +10,4 @@ define [
 
 
   class extends BaseHeaderView
-    template: Templates['basic-header']
+    template: Templates['cw-basic-header']

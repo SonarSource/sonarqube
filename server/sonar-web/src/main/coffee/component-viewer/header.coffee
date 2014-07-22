@@ -39,7 +39,7 @@ define [
 
 
   class extends Marionette.Layout
-    template: Templates['header']
+    template: Templates['cw-header']
 
 
     regions:

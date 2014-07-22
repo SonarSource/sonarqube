@@ -1,14 +1,16 @@
 define(
     [
-      'backbone', 'backbone.marionette',
-      '../navigator/filters/filter-bar',
+      'backbone',
+      'backbone.marionette',
+      'navigator/filters/filter-bar',
       'navigator/filters/base-filters',
       'navigator/filters/favorite-filters',
       'navigator/filters/read-only-filters',
-      'component-viewer/main'
+      'component-viewer/main',
+      'templates/issues'
     ],
     function (Backbone, Marionette, FilterBarView, BaseFilters, FavoriteFiltersModule, ReadOnlyFilterView,
-              ComponentViewer) {
+              ComponentViewer, Templates) {
 
       var AppState = Backbone.Model.extend({
 
@@ -119,7 +121,7 @@ define(
 
 
       var IssueView = Marionette.ItemView.extend({
-        template: Handlebars.compile(jQuery('#issue-template').html() || ''),
+        template: Templates['issue-detail'],
         tagName: 'li',
 
 
@@ -190,12 +192,12 @@ define(
       var NoIssuesView = Marionette.ItemView.extend({
         tagName: 'li',
         className: 'navigator-results-no-results',
-        template: Handlebars.compile(jQuery('#no-issues-template').html() || '')
+        template: Templates['no-issues']
       });
 
 
       var IssuesView = Marionette.CompositeView.extend({
-        template: Handlebars.compile(jQuery('#issues-template').html() || ''),
+        template: Templates['issues'],
         itemViewContainer: '.navigator-results-list',
         itemView: IssueView,
         emptyView: NoIssuesView,
@@ -304,7 +306,7 @@ define(
 
 
       var IssuesActionsView = Marionette.ItemView.extend({
-        template: Handlebars.compile(jQuery('#issues-actions-template').html() || ''),
+        template: Templates['issues-actions'],
 
 
         collectionEvents: {
@@ -376,6 +378,7 @@ define(
             sorting: this.collection.sorting,
             maxResultsReached: this.collection.maxResultsReached,
             appState: window.SS.appState.toJSON(),
+            bulkChangeUrl: baseUrl + '/issues/bulk_change_form',
             query: (Backbone.history.fragment || '').replace(/\|/g, '&')
           });
         }
@@ -384,7 +387,7 @@ define(
 
 
       var IssuesDetailsFavoriteFilterView = FavoriteFiltersModule.DetailsFavoriteFilterView.extend({
-        template: Handlebars.compile(jQuery('#issues-details-favorite-filter-template').html() || ''),
+        template: Templates['issues-details-favorite-filter'],
 
 
         applyFavorite: function (e) {
@@ -435,6 +438,7 @@ define(
 
 
       var IssuesFilterBarView = FilterBarView.extend({
+        template: Templates['filter-bar'],
 
         collectionEvents: {
           'change:enabled': 'changeEnabled'
@@ -511,7 +515,7 @@ define(
 
 
       var IssuesHeaderView = Marionette.ItemView.extend({
-        template: Handlebars.compile(jQuery('#issues-header-template').html() || ''),
+        template: Templates['issues-header'],
 
 
         modelEvents: {

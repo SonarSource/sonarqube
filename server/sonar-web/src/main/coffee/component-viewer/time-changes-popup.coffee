@@ -12,7 +12,7 @@ define [
 
 
   class TimeChangesPopupView extends Popup
-    template: Templates['time-changes-popup']
+    template: Templates['cw-time-changes-popup']
 
 
     events:

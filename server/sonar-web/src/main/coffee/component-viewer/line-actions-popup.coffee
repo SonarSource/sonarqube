@@ -2,7 +2,7 @@ define [
   'backbone.marionette'
   'templates/component-viewer'
   'common/popup'
-  'issues/manual-issue-view'
+  'issue/manual-issue-view'
 ], (
   Marionette
   Templates
@@ -14,7 +14,7 @@ define [
 
 
   class extends Popup
-    template: Templates['line-options-popup']
+    template: Templates['cw-line-options-popup']
 
 
     events:

@@ -1,11 +1,12 @@
 define([
   'navigator/filters/base-filters',
   'navigator/filters/choice-filters',
+  'templates/navigator',
   'common/handlebars-extensions'
-], function (BaseFilters, ChoiceFilters) {
+], function (BaseFilters, ChoiceFilters, Templates) {
 
   var DetailsMoreCriteriaFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
-    template: getTemplate('#more-criteria-details-filter-template'),
+    template: Templates['more-criteria-details-filter'],
 
 
     events: {
@@ -58,7 +59,7 @@ define([
 
 
   var MoreCriteriaFilterView = ChoiceFilters.ChoiceFilterView.extend({
-    template: getTemplate('#more-criteria-filter-template'),
+    template: Templates['more-criteria-filter'],
     className: 'navigator-filter navigator-filter-more-criteria',
 
 

@@ -14,7 +14,7 @@ define [
 
 
   class DuplicationPopupView extends Popup
-    template: Templates['duplicationPopup']
+    template: Templates['cw-duplication-popup']
 
 
     events:

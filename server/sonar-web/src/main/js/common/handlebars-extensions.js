@@ -292,7 +292,7 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
   });
 
   Handlebars.registerHelper('componentViewerHeaderLink', function(value, label, cl, hash) {
-    var name = '_header-link';
+    var name = '_cw-header-link';
     if (value != null) {
       var ps = Handlebars.partials;
       if (typeof ps[name] !== 'function') {
@@ -303,7 +303,7 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
   });
 
   Handlebars.registerHelper('componentViewerHeaderItem', function(value, label, hash) {
-    var name = '_header-item';
+    var name = '_cw-header-item';
     if (value != null) {
       var ps = Handlebars.partials;
       if (typeof ps[name] !== 'function') {

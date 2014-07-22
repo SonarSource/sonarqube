@@ -2,11 +2,12 @@ define([
   'backbone',
   'backbone.marionette',
   'navigator/filters/base-filters',
+  'templates/navigator',
   'common/handlebars-extensions'
-], function (Backbone, Marionette, BaseFilters) {
+], function (Backbone, Marionette, BaseFilters, Templates) {
 
   return BaseFilters.BaseFilterView.extend({
-    template: getTemplate('#checkbox-filter-template'),
+    template: Templates['checkbox-filter'],
     className: 'navigator-filter navigator-filter-inline',
 
 

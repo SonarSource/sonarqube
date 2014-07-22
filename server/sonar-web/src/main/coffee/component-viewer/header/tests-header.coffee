@@ -15,7 +15,7 @@ define [
 
 
   class extends BaseHeaderView
-    template: Templates['tests-header']
+    template: Templates['cw-tests-header']
 
 
     ui:

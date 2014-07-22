@@ -14,7 +14,7 @@ define [
 
 
   class CoveragePopupView extends Popup
-    template: Templates['coveragePopup']
+    template: Templates['cw-coverage-popup']
 
 
     events:

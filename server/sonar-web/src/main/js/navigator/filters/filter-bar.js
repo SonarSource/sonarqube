@@ -9,7 +9,6 @@ define(
     function (Marionette, BaseFilters) {
 
       return Marionette.CompositeView.extend({
-        template: getTemplate('#filter-bar-template'),
         itemViewContainer: '.navigator-filters-list',
 
 

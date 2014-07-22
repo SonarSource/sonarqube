@@ -25,7 +25,7 @@ requirejs.config({
 requirejs(
     [
       'backbone', 'backbone.marionette',
-      'navigator/filters/filter-bar',
+      'measures/measures-filter-bar',
       'navigator/filters/base-filters',
       'navigator/filters/checkbox-filters',
       'navigator/filters/choice-filters',

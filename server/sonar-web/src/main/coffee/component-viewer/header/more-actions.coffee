@@ -11,7 +11,7 @@ define [
 
   class extends Marionette.ItemView
     className: 'component-viewer-header-more-actions'
-    template: Templates['more-actions']
+    template: Templates['cw-more-actions']
 
 
     events:

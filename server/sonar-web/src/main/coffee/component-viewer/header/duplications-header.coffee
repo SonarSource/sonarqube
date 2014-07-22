@@ -10,7 +10,7 @@ define [
 
 
   class extends BaseHeaderView
-    template: Templates['duplications-header']
+    template: Templates['cw-duplications-header']
 
 
     events:

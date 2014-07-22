@@ -1,7 +1,11 @@
-define(['navigator/filters/base-filters', 'common/handlebars-extensions'], function (BaseFilters) {
+define([
+  'navigator/filters/base-filters',
+  'templates/navigator',
+  'common/handlebars-extensions'
+], function (BaseFilters, Templates) {
 
   var DetailsStringFilterView = BaseFilters.DetailsFilterView.extend({
-    template: getTemplate('#string-filter-template'),
+    template: Templates['string-filter'],
 
 
     events: {

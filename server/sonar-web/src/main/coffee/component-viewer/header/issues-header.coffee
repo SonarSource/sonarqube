@@ -14,7 +14,7 @@ define [
 
 
   class extends BaseHeaderView
-    template: Templates['issues-header']
+    template: Templates['cw-issues-header']
 
 
     events:

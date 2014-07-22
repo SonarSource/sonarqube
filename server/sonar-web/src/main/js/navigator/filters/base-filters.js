@@ -1,4 +1,9 @@
-define(['backbone', 'backbone.marionette', 'common/handlebars-extensions'], function (Backbone, Marionette) {
+define([
+  'backbone',
+  'backbone.marionette',
+  'templates/navigator',
+  'common/handlebars-extensions'
+], function (Backbone, Marionette, Templates) {
 
   var Filter = Backbone.Model.extend({
 
@@ -20,7 +25,7 @@ define(['backbone', 'backbone.marionette', 'common/handlebars-extensions'], func
 
 
   var DetailsFilterView = Marionette.ItemView.extend({
-    template: getTemplate('#base-details-filter-template'),
+    template: Templates['base-details-filter'],
     className: 'navigator-filter-details',
 
 
@@ -38,7 +43,7 @@ define(['backbone', 'backbone.marionette', 'common/handlebars-extensions'], func
 
 
   var BaseFilterView = Marionette.ItemView.extend({
-    template: getTemplate('#base-filter-template'),
+    template: Templates['base-filter'],
     className: 'navigator-filter',
 
 

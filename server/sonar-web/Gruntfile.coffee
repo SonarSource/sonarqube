@@ -216,6 +216,9 @@ module.exports = (grunt) ->
 
       build:
         files:
+          '<%= pkg.assets %>js/templates/navigator.js': [
+            '<%= pkg.sources %>hbs/navigator/**/*.hbs'
+          ]
           '<%= pkg.assets %>js/templates/coding-rules.js': [
             '<%= pkg.sources %>hbs/common/**/*.hbs'
             '<%= pkg.sources %>hbs/coding-rules/**/*.hbs'
@@ -226,8 +229,11 @@ module.exports = (grunt) ->
           '<%= pkg.assets %>js/templates/component-viewer.js': [
             '<%= pkg.sources %>hbs/component-viewer/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/issues.js': [
+          '<%= pkg.assets %>js/templates/issue.js': [
             '<%= pkg.sources %>hbs/common/**/*.hbs'
+            '<%= pkg.sources %>hbs/issue/**/*.hbs'
+          ]
+          '<%= pkg.assets %>js/templates/issues.js': [
             '<%= pkg.sources %>hbs/issues/**/*.hbs'
           ]
           '<%= pkg.assets %>js/templates/api-documentation.js': [

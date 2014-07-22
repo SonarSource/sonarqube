@@ -1,12 +1,13 @@
 define([
   'handlebars',
   'navigator/filters/base-filters',
+  'templates/navigator',
   'common/handlebars-extensions'
-], function (Handlebars, BaseFilters) {
+], function (Handlebars, BaseFilters, Templates) {
 
   var DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
-    template: getTemplate('#choice-filter-template'),
-    itemTemplate: getTemplate('#choice-filter-item-template'),
+    template: Templates['choice-filter'],
+    itemTemplate: Templates['choice-filter-item'],
 
 
     events: function() {

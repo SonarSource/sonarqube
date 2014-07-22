@@ -1,0 +1,27 @@
+{{#unless maxResultsReached}}
+  <div class="navigator-actions-order">
+    {{#if sorting}}
+      {{t 'issues.ordered_by'}} <strong class="navigator-actions-ordered-by">{{sorting.sortText}}</strong> {{#if sorting.asc}}<i class="icon-sort-asc"></i>{{else}}<i class="icon-sort-desc"></i>{{/if}}
+    {{else}}
+      Order
+    {{/if}}
+  </div>
+  <ul class="navigator-actions-order-choices">
+    <li data-sort="UPDATE_DATE" data-asc="true">{{t 'issues.sort.update_date'}} <i class="icon-sort-asc"></i></li>
+    <li data-sort="UPDATE_DATE" data-asc="false">{{t 'issues.sort.update_date'}} <i class="icon-sort-desc"></i></li>
+    <li data-sort="SEVERITY" data-asc="true">{{t 'issues.sort.severity'}} <i class="icon-sort-asc"></i></li>
+    <li data-sort="SEVERITY" data-asc="false">{{t 'issues.sort.severity'}} <i class="icon-sort-desc"></i></li>
+    <li data-sort="STATUS" data-asc="true">{{t 'issues.sort.status'}} <i class="icon-sort-asc"></i></li>
+    <li data-sort="STATUS" data-asc="false">{{t 'issues.sort.status'}} <i class="icon-sort-desc"></i></li>
+  </ul>
+{{/unless}}
+<div class="navigator-actions-total">
+  {{t 'issues.found'}}: <strong>{{paging.fTotal}}</strong>
+  {{#notEq paging.fTotal 0}}
+    {{#if appState.canBulkChange}}
+      <a href="{{bulkChangeUrl}}?{{query}}"
+         class="navigator-actions-bulk"
+         title="{{t 'bulk_change'}}"><i class="icon-bulk-change"></i></a>
+    {{/if}}
+  {{/notEq}}
+</div>

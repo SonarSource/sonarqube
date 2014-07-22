@@ -10,7 +10,7 @@ define [
 
 
   class WorkspaceView extends Marionette.ItemView
-    template: Templates['workspace']
+    template: Templates['cw-workspace']
 
 
     events:

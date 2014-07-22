@@ -14,7 +14,7 @@ define [
 
 
   class extends BaseHeaderView
-    template: Templates['coverage-header']
+    template: Templates['cw-coverage-header']
 
 
     events:

@@ -14,7 +14,7 @@ define [
 
 
   class CoveredFilesPopupView extends Popup
-    template: Templates['covered-files-popup']
+    template: Templates['cw-covered-files-popup']
 
 
     events:
