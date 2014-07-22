@@ -36,7 +36,7 @@ public abstract class SensorMatcher implements BatchExtension, ExtensionMatcher 
   @Override
   public final boolean accept(Object extension) {
     return ClassUtils.isAssignable(extension.getClass(), Sensor.class)
-      && acceptSensor((Sensor) extension) || ClassUtils.isAssignable(extension.getClass(), Sensor.class);
+      && acceptSensor((Sensor) extension) || ClassUtils.isAssignable(extension.getClass(), org.sonar.api.batch.sensor.Sensor.class);
   }
 
   public abstract boolean acceptSensor(Sensor sensor);
