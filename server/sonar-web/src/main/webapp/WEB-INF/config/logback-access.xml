@@ -14,9 +14,9 @@
   <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${SONAR_HOME}/logs/access.log</file>
+    <file>${sonar.path.logs}/access.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <param name="FileNamePattern" value="${SONAR_HOME}/logs/access.%i.log"/>
+      <param name="FileNamePattern" value="${sonar.path.logs}/access.%i.log"/>
       <param name="MinIndex" value="1"/>
       <param name="MaxIndex" value="3"/>
     </rollingPolicy>

@@ -1,1 +1,0 @@
-This directory contains temporary data required by server. Do not clean up when server is up.
