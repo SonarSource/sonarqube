@@ -94,8 +94,8 @@ import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.DatabaseMigrations;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.debt.*;
+import org.sonar.server.duplication.ws.DuplicationsJsonWriter;
 import org.sonar.server.duplication.ws.DuplicationsParser;
-import org.sonar.server.duplication.ws.DuplicationsWriter;
 import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.issue.*;
 import org.sonar.server.issue.actionplan.ActionPlanService;
@@ -493,7 +493,7 @@ class ServerComponents {
     // Duplications
     pico.addSingleton(DuplicationsParser.class);
     pico.addSingleton(DuplicationsWs.class);
-    pico.addSingleton(DuplicationsWriter.class);
+    pico.addSingleton(DuplicationsJsonWriter.class);
     pico.addSingleton(org.sonar.server.duplication.ws.ShowAction.class);
 
     // text

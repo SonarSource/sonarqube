@@ -32,11 +32,11 @@ import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class DuplicationsWriter implements ServerComponent {
+public class DuplicationsJsonWriter implements ServerComponent {
 
   private final ComponentDao componentDao;
 
-  public DuplicationsWriter(ComponentDao componentDao) {
+  public DuplicationsJsonWriter(ComponentDao componentDao) {
     this.componentDao = componentDao;
   }
 
@@ -82,7 +82,8 @@ public class DuplicationsWriter implements ServerComponent {
   }
 
   private void writeFiles(Map<String, String> refByComponentKey, JsonWriter json, DbSession session) {
-    Map<Long, ComponentDto> projectById = newHashMap();
+    Map<Long, ComponentDto> projectsById = newHashMap();
+    Map<Long, ComponentDto> subProjectsById = newHashMap();
     for (Map.Entry<String, String> entry : refByComponentKey.entrySet()) {
       String componentKey = entry.getKey();
       String ref = entry.getValue();
@@ -91,12 +92,37 @@ public class DuplicationsWriter implements ServerComponent {
         json.name(ref).beginObject();
         json.prop("key", file.key());
         json.prop("name", file.longName());
-        ComponentDto project = projectById.get(file.projectId());
-        if (project == null) {
-          project = componentDao.getById(file.projectId(), session);
-          projectById.put(file.projectId(), project);
+
+        Long projectId = file.projectId();
+        ComponentDto project = projectsById.get(file.projectId());
+        if (project == null && projectId != null) {
+          project = componentDao.getById(projectId, session);
+          if (project != null) {
+            projectsById.put(projectId, project);
+          }
         }
-        json.prop("projectName", project != null ? project.longName() : null);
+
+        Long subProjectId = file.subProjectId();
+        ComponentDto subProject = subProjectsById.get(subProjectId);
+        if (subProject == null && subProjectId != null) {
+          subProject = componentDao.getById(subProjectId, session);
+          if (subProject != null) {
+            subProjectsById.put(subProject.getId(), subProject);
+          }
+        }
+
+        if (project != null) {
+          json.prop("project", project.key());
+          json.prop("projectName", project.longName());
+
+          // Do not return sub project if sub project and project are the same
+          boolean displaySubProject = subProject != null && !subProject.getId().equals(project.getId());
+          if (displaySubProject) {
+            json.prop("subProject", subProject.key());
+            json.prop("subProjectName", subProject.longName());
+          }
+        }
+
         json.endObject();
       }
     }

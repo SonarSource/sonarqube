@@ -33,7 +33,7 @@ import static org.mockito.Mockito.mock;
 public class DuplicationsWsTest {
 
   WsTester tester = new WsTester(new DuplicationsWs(
-    new ShowAction(mock(DbClient.class), mock(ComponentDao.class), mock(MeasureDao.class), mock(DuplicationsParser.class), mock(DuplicationsWriter.class))));
+    new ShowAction(mock(DbClient.class), mock(ComponentDao.class), mock(MeasureDao.class), mock(DuplicationsParser.class), mock(DuplicationsJsonWriter.class))));
 
   @Test
   public void define_ws() throws Exception {

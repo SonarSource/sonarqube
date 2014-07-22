@@ -37,13 +37,12 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DuplicationsWriterTest {
+public class DuplicationsJsonWriterTest {
 
   @Mock
   ComponentDao componentDao;
@@ -51,23 +50,24 @@ public class DuplicationsWriterTest {
   @Mock
   DbSession session;
 
-  DuplicationsWriter writer;
+  DuplicationsJsonWriter writer;
 
   @Before
   public void setUp() throws Exception {
-    writer = new DuplicationsWriter(componentDao);
+    writer = new DuplicationsJsonWriter(componentDao);
   }
 
   @Test
   public void write_duplications() throws Exception {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = new ComponentDto().setId(10L).setQualifier("FIL").setKey(key1).setLongName("PropertyDeleteQuery").setProjectId(1L);
+    ComponentDto file1 = new ComponentDto().setId(10L).setQualifier("FIL").setKey(key1).setLongName("PropertyDeleteQuery").setProjectId(1L).setSubProjectId(5L);
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
-    ComponentDto file2 = new ComponentDto().setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setProjectId(1L);
+    ComponentDto file2 = new ComponentDto().setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setProjectId(1L).setSubProjectId(5L);
 
     when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
     when(componentDao.getNullableByKey(session, key2)).thenReturn(file2);
-    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setLongName("SonarQube"));
+    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setKey("org.codehaus.sonar:sonar-ws-client").setLongName("SonarQube :: Web Service Client"));
 
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
@@ -93,19 +93,76 @@ public class DuplicationsWriterTest {
         "    \"1\": {\n" +
         "      \"key\": \"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java\",\n" +
         "      \"name\": \"PropertyDeleteQuery\",\n" +
-        "      \"projectName\": \"SonarQube\"\n" +
+        "      \"project\": \"org.codehaus.sonar:sonar\",\n" +
+        "      \"projectName\": \"SonarQube\",\n" +
+        "      \"subProject\": \"org.codehaus.sonar:sonar-ws-client\",\n" +
+        "      \"subProjectName\": \"SonarQube :: Web Service Client\"\n" +
         "    },\n" +
         "    \"2\": {\n" +
         "      \"key\": \"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java\",\n" +
         "      \"name\": \"PropertyUpdateQuery\",\n" +
-        "      \"projectName\": \"SonarQube\"\n" +
+        "      \"project\": \"org.codehaus.sonar:sonar\",\n" +
+        "      \"projectName\": \"SonarQube\",\n" +
+        "      \"subProject\": \"org.codehaus.sonar:sonar-ws-client\",\n" +
+        "      \"subProjectName\": \"SonarQube :: Web Service Client\"\n" +
         "    }\n" +
         "  }" +
         "}"
     );
 
     verify(componentDao, times(2)).getNullableByKey(eq(session), anyString());
-    verify(componentDao, times(1)).getById(anyLong(), eq(session));
+    // Verify call to dao is cached when searching for project / sub project
+    verify(componentDao, times(1)).getById(eq(1L), eq(session));
+    verify(componentDao, times(1)).getById(eq(5L), eq(session));
+  }
+
+  @Test
+  public void write_duplications_without_sub_project() throws Exception {
+    String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
+    ComponentDto file1 = new ComponentDto().setId(10L).setQualifier("FIL").setKey(key1).setLongName("PropertyDeleteQuery").setProjectId(1L);
+    String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
+    ComponentDto file2 = new ComponentDto().setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setProjectId(1L);
+
+    when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
+    when(componentDao.getNullableByKey(session, key2)).thenReturn(file2);
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setLongName("SonarQube"));
+
+    List<DuplicationsParser.Block> blocks = newArrayList();
+    blocks.add(new DuplicationsParser.Block(newArrayList(
+      new DuplicationsParser.Duplication(file1, 57, 12),
+      new DuplicationsParser.Duplication(file2, 73, 12)
+    )));
+
+    test(blocks,
+      "{\n" +
+        "  \"duplications\": [\n" +
+        "    {\n" +
+        "      \"blocks\": [\n" +
+        "        {\n" +
+        "          \"from\": 57, \"size\": 12, \"_ref\": \"1\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"from\": 73, \"size\": 12, \"_ref\": \"2\"\n" +
+        "        }\n" +
+        "      ]\n" +
+        "    }," +
+        "  ],\n" +
+        "  \"files\": {\n" +
+        "    \"1\": {\n" +
+        "      \"key\": \"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java\",\n" +
+        "      \"name\": \"PropertyDeleteQuery\",\n" +
+        "      \"project\": \"org.codehaus.sonar:sonar\",\n" +
+        "      \"projectName\": \"SonarQube\"\n" +
+        "    },\n" +
+        "    \"2\": {\n" +
+        "      \"key\": \"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java\",\n" +
+        "      \"name\": \"PropertyUpdateQuery\",\n" +
+        "      \"project\": \"org.codehaus.sonar:sonar\",\n" +
+        "      \"projectName\": \"SonarQube\"\n" +
+        "    }\n" +
+        "  }" +
+        "}"
+    );
   }
 
   @Test
@@ -114,7 +171,7 @@ public class DuplicationsWriterTest {
     ComponentDto file1 = new ComponentDto().setId(10L).setQualifier("FIL").setKey(key1).setLongName("PropertyDeleteQuery").setProjectId(1L);
 
     when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
-    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setLongName("SonarQube"));
 
     List<DuplicationsParser.Block> blocks = newArrayList();
 
@@ -142,14 +199,12 @@ public class DuplicationsWriterTest {
         "    \"1\": {\n" +
         "      \"key\": \"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java\",\n" +
         "      \"name\": \"PropertyDeleteQuery\",\n" +
+        "      \"project\": \"org.codehaus.sonar:sonar\",\n" +
         "      \"projectName\": \"SonarQube\"\n" +
         "    }\n" +
         "  }" +
         "}"
     );
-
-    verify(componentDao, times(1)).getNullableByKey(eq(session), anyString());
-    verify(componentDao, times(1)).getById(anyLong(), eq(session));
   }
 
   @Test

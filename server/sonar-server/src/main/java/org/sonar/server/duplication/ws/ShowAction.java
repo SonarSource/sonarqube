@@ -49,14 +49,14 @@ public class ShowAction implements RequestHandler {
   private final ComponentDao componentDao;
   private final MeasureDao measureDao;
   private final DuplicationsParser parser;
-  private final DuplicationsWriter duplicationsWriter;
+  private final DuplicationsJsonWriter duplicationsJsonWriter;
 
-  public ShowAction(DbClient dbClient, ComponentDao componentDao, MeasureDao measureDao, DuplicationsParser parser, DuplicationsWriter duplicationsWriter) {
+  public ShowAction(DbClient dbClient, ComponentDao componentDao, MeasureDao measureDao, DuplicationsParser parser, DuplicationsJsonWriter duplicationsJsonWriter) {
     this.dbClient = dbClient;
     this.componentDao = componentDao;
     this.measureDao = measureDao;
     this.parser = parser;
-    this.duplicationsWriter = duplicationsWriter;
+    this.duplicationsJsonWriter = duplicationsJsonWriter;
   }
 
   void define(WebService.NewController controller) {
@@ -84,7 +84,7 @@ public class ShowAction implements RequestHandler {
       JsonWriter json = response.newJsonWriter().beginObject();
       String duplications = findDataFromComponent(fileKey, CoreMetrics.DUPLICATIONS_DATA_KEY, session);
       List<DuplicationsParser.Block> blocks = parser.parse(component, duplications, session);
-      duplicationsWriter.write(blocks, json, session);
+      duplicationsJsonWriter.write(blocks, json, session);
       json.endObject().close();
     } finally {
       MyBatis.closeQuietly(session);

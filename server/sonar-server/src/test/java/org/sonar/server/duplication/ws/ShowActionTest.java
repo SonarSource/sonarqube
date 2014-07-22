@@ -67,14 +67,14 @@ public class ShowActionTest {
   DuplicationsParser parser;
 
   @Mock
-  DuplicationsWriter duplicationsWriter;
+  DuplicationsJsonWriter duplicationsJsonWriter;
 
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new DuplicationsWs(new ShowAction(dbClient, componentDao, measureDao, parser, duplicationsWriter)));
+    tester = new WsTester(new DuplicationsWs(new ShowAction(dbClient, componentDao, measureDao, parser, duplicationsJsonWriter)));
   }
 
   @Test
@@ -97,7 +97,7 @@ public class ShowActionTest {
     WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
     request.execute();
 
-    verify(duplicationsWriter).write(eq(blocks), any(JsonWriter.class), eq(session));
+    verify(duplicationsJsonWriter).write(eq(blocks), any(JsonWriter.class), eq(session));
   }
 
   @Test
@@ -114,7 +114,7 @@ public class ShowActionTest {
     WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
     request.execute();
 
-    verify(duplicationsWriter).write(eq(Lists.<DuplicationsParser.Block>newArrayList()), any(JsonWriter.class), eq(session));
+    verify(duplicationsJsonWriter).write(eq(Lists.<DuplicationsParser.Block>newArrayList()), any(JsonWriter.class), eq(session));
   }
 
   @Test(expected = NotFoundException.class)
