@@ -51,7 +51,7 @@ public class StartServer {
       .addJavaOpts("-Djava.io.tmpdir=" + installation.tempDir().getAbsolutePath())
       .addJavaOpts("-Dsonar.path.logs=" + installation.logsDir().getAbsolutePath())
       .setClassName("org.sonar.search.ElasticSearch")
-      .setProperties(installation.props())
+      .setProperties(installation.props().cryptedProperties())
       .addClasspath(installation.starPath("lib/common"))
       .addClasspath(installation.starPath("lib/search"))
       .execute();
@@ -67,7 +67,7 @@ public class StartServer {
       .addJavaOpts("-Djava.io.tmpdir=" + installation.tempDir().getAbsolutePath())
       .addJavaOpts("-Dsonar.path.logs=" + installation.logsDir().getAbsolutePath())
       .setClassName("org.sonar.server.app.ServerProcess")
-      .setProperties(installation.props())
+      .setProperties(installation.props().cryptedProperties())
       .addClasspath(installation.starPath("extensions/jdbc-driver/mysql"))
       .addClasspath(installation.starPath("extensions/jdbc-driver/mssql"))
       .addClasspath(installation.starPath("extensions/jdbc-driver/oracle"))

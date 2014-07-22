@@ -27,7 +27,6 @@ public class ServerProcess extends org.sonar.process.Process {
     super(args);
     Logging.init();
     Env env = new Env(props);
-    env.verifyWritableTempDir();
     this.tomcat = new EmbeddedTomcat(env);
   }
 

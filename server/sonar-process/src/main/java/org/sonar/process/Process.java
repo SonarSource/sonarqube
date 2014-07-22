@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,24 +42,16 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class Process implements ProcessMXBean {
 
-  public static final String SONAR_HOME = "SONAR_HOME";
-
-  public static final String JAVA_OPS = "javaOps";
   public static final String NAME_PROPERTY = "pName";
   public static final String PORT_PROPERTY = "pPort";
-
   public static final String MISSING_NAME_ARGUMENT = "Missing Name argument";
-  public static final String SONAR_HOME_IS_NOT_SET = "variable SONAR_HOME is not set.";
-  public static final String SONAR_HOME_DOES_NOT_EXIST = "Directory SONAR_HOME does not exist";
-  public static final String SONAR_HOME_IS_NOT_WRITABLE = "Directory SONAR_HOME is not writable";
-
 
   private final static Logger LOGGER = LoggerFactory.getLogger(Process.class);
 
-  protected Long lastPing;
+  private Long lastPing;
 
-  String name;
-  Integer port;
+  private String name;
+  private Integer port;
 
   protected final Props props;
   private Thread shutdownHook;
@@ -89,10 +82,14 @@ public abstract class Process implements ProcessMXBean {
     }
 
     Properties properties = new Properties();
+    FileReader reader = null;
     try {
-      properties.load(new FileReader(propertyFile));
+      reader = new FileReader(propertyFile);
+      properties.load(reader);
     } catch (IOException e) {
       throw new IllegalStateException("Could not read properties from file '" + args[0] + "'", e);
+    } finally {
+      IOUtils.closeQuietly(reader);
     }
     props = new Props(properties);
     init();
@@ -104,7 +101,6 @@ public abstract class Process implements ProcessMXBean {
   }
 
   private void init() {
-    // Loading all Properties from file
     this.name = props.of(NAME_PROPERTY, null);
     this.port = props.intOf(PORT_PROPERTY);
 
@@ -123,7 +119,6 @@ public abstract class Process implements ProcessMXBean {
     } catch (NotCompliantMBeanException e) {
       throw new IllegalStateException("Process is not a compliant MBean", e);
     }
-
 
     shutdownHook = new Thread(new Runnable() {
       @Override

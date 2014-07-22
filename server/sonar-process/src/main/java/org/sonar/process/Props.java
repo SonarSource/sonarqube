@@ -19,20 +19,27 @@
  */
 package org.sonar.process;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.Properties;
 
 public class Props {
 
   private final Properties props;
+  private final Encryption encryption;
 
   public Props(Properties props) {
     this.props = props;
+    this.encryption = new Encryption(props.getProperty(AesCipher.ENCRYPTION_SECRET_KEY_PATH));
   }
 
+  @CheckForNull
   public String of(String key) {
-    return props.getProperty(key);
+    String value = props.getProperty(key);
+    if (value != null && encryption.isEncrypted(value)) {
+      value = encryption.decrypt(value);
+    }
+    return value;
   }
 
   public String of(String key, @Nullable String defaultValue) {
@@ -67,23 +74,12 @@ public class Props {
     return i == null ? defaultValue : i;
   }
 
-  public Properties properties() {
+  public Properties cryptedProperties() {
     return props;
   }
 
-
-  static Properties decrypt(Properties properties) {
-    Encryption encryption = new Encryption(properties.getProperty(AesCipher.ENCRYPTION_SECRET_KEY_PATH));
-    Properties result = new Properties();
-
-    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-      String key = (String) entry.getKey();
-      String value = (String) entry.getValue();
-      if (encryption.isEncrypted(value)) {
-        value = encryption.decrypt(value);
-      }
-      result.setProperty(key, value);
-    }
-    return result;
+  public Props set(String key, @Nullable String value) {
+    props.setProperty(key, value);
+    return this;
   }
 }

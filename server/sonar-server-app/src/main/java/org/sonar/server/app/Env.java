@@ -23,7 +23,6 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.process.Props;
 
 import java.io.File;
-import java.io.IOException;
 
 class Env {
 
@@ -50,20 +49,5 @@ class Env {
     FileUtils.deleteQuietly(dir);
     dir.mkdirs();
     return dir;
-  }
-
-  /**
-   * This check is required in order to provide more meaningful message than JRuby - see SONAR-2715
-   */
-  void verifyWritableTempDir() {
-    File file = null;
-    try {
-      file = File.createTempFile("sonarqube-check", "tmp");
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to create file in temporary directory, please check existence " +
-        "and permissions of: " + FileUtils.getTempDirectory(), e);
-    } finally {
-      FileUtils.deleteQuietly(file);
-    }
   }
 }

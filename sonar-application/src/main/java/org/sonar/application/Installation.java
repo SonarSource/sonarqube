@@ -24,8 +24,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.NetworkUtils;
+import org.sonar.process.Props;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -33,8 +33,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 public class Installation {
@@ -42,7 +40,7 @@ public class Installation {
 
   private final File homeDir;
   private final File tempDir, dataDir, logsDir, webDir;
-  private final Map<String, String> props;
+  private final Props props;
 
   Installation() throws URISyntaxException, IOException {
     // home dir guessed with location of lib/sonar-application.jar
@@ -52,8 +50,8 @@ public class Installation {
     props = initProps(homeDir);
 
     // init file system
+    this.tempDir = initTempDir("sonar.path.temp", "temp");
     this.dataDir = existingDir("sonar.path.data", "data");
-    this.tempDir = freshDir("sonar.path.temp", "temp");
     this.logsDir = existingDir("sonar.path.logs", "logs");
     this.webDir = existingDir("sonar.path.web", "web");
 
@@ -63,7 +61,7 @@ public class Installation {
   /**
    * Load conf/sonar.properties
    */
-  private static Map<String, String> initProps(File homeDir) throws IOException {
+  private static Props initProps(File homeDir) throws IOException {
     Properties p = new Properties();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     if (propsFile.exists()) {
@@ -78,27 +76,19 @@ public class Installation {
     }
     p.putAll(System.getenv());
     p.putAll(System.getProperties());
-    p = ConfigurationUtils.interpolateEnvVariables(p);
-    Map<String, String> result = new HashMap<String, String>();
-    for (Map.Entry<Object, Object> entry : p.entrySet()) {
-      Object val = entry.getValue();
-      if (val != null) {
-        result.put(entry.getKey().toString(), val.toString());
-      }
-    }
-    result.put("sonar.path.home", homeDir.getAbsolutePath());
-    return result;
+    p.setProperty("sonar.path.home", homeDir.getAbsolutePath());
+    return new Props(p);
   }
 
   private void initElasticsearch() {
-    String port = props.get("sonar.es.port");
-    if (port == null || "".equals(port) || "0".equals(port)) {
-      props.put("sonar.es.port", String.valueOf(NetworkUtils.freePort()));
+    int port = props.intOf("sonar.es.port", 0);
+    if (port <= 0) {
+      props.set("sonar.es.port", String.valueOf(NetworkUtils.freePort()));
     }
-    if (props.get("sonar.es.cluster.name") == null) {
-      props.put("sonar.es.cluster.name", "sonarqube");
+    if (props.of("sonar.es.cluster.name") == null) {
+      props.set("sonar.es.cluster.name", "sonarqube");
     }
-    props.put("sonar.es.type", "TRANSPORT");
+    props.set("sonar.es.type", "TRANSPORT");
   }
 
   File homeDir() {
@@ -118,10 +108,15 @@ public class Installation {
     return FilenameUtils.concat(dir.getAbsolutePath(), "*");
   }
 
-  private File freshDir(String propKey, String defaultRelativePath) throws IOException {
+  private File initTempDir(String propKey, String defaultRelativePath) throws IOException {
     File dir = configuredDir(propKey, defaultRelativePath);
     FileUtils.deleteQuietly(dir);
     FileUtils.forceMkdir(dir);
+
+    // verify that temp directory is writable
+    File tempFile = File.createTempFile("check", "tmp", dir);
+    FileUtils.deleteQuietly(tempFile);
+
     return dir;
   }
 
@@ -142,25 +137,16 @@ public class Installation {
     if (!d.isAbsolute()) {
       d = new File(homeDir, path);
     }
-    props.put(propKey, d.getAbsolutePath());
+    props.set(propKey, d.getAbsolutePath());
     return d;
-  }
-
-  Map<String, String> props() {
-    return props;
   }
 
   @CheckForNull
   String prop(String key, @Nullable String defaultValue) {
-    String s = props.get(key);
-    return s != null ? s : defaultValue;
+    return props.of(key, defaultValue);
   }
 
-  void logInfo(String message) {
-    System.out.println(message);
-  }
-
-  void logError(String message) {
-    System.err.println(message);
+  public Props props() {
+    return props;
   }
 }

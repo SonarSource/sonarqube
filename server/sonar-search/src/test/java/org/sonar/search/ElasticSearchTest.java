@@ -82,7 +82,6 @@ public class ElasticSearchTest {
   @Test
   public void can_connect() throws SocketException {
     Properties properties = new Properties();
-    properties.setProperty(Process.SONAR_HOME, FileUtils.getTempDirectoryPath());
     properties.setProperty(Process.NAME_PROPERTY, "ES");
     properties.setProperty("sonar.path.data", tempDirectory.getAbsolutePath());
     properties.setProperty(ElasticSearch.ES_PORT_PROPERTY, Integer.toString(freeESPort));

@@ -60,7 +60,7 @@ public class ProcessWrapper extends Thread {
   private final List<String> javaOpts = new ArrayList<String>();
   private final List<String> classpath = new ArrayList<String>();
   private final Map<String, String> envProperties = new HashMap<String, String>();
-  private final Map<String, String> properties = new HashMap<String, String>();
+  private final Properties properties = new Properties();
   private File workDir;
   private File propertiesFile;
   private java.lang.Process process;
@@ -82,21 +82,9 @@ public class ProcessWrapper extends Thread {
     return this;
   }
 
-  public ProcessWrapper setProperty(String key, String value) {
-    properties.put(key, value);
-    return this;
-  }
-
-  public ProcessWrapper setProperties(Map<String, String> args) {
+  public ProcessWrapper setProperties(Properties p) {
     properties.clear();
-    properties.putAll(args);
-    return this;
-  }
-
-  public ProcessWrapper setJavaOpts(List<String> opts) {
-    for (String command : opts) {
-      addJavaOpts(command);
-    }
+    properties.putAll(p);
     return this;
   }
 
