@@ -15,7 +15,8 @@
       <tr class="property">
         <th><h3>{{t 'name'}} <em class="mandatory">*</em></h3></th>
         <td>
-          <input type="text" name="name" id="coding-rules-manual-rule-creation-name" value="{{name}}"/>
+          <input type="text" name="name" id="coding-rules-manual-rule-creation-name"
+            class="coding-rules-name-key" value="{{name}}"/>
         </td>
       </tr>
       <tr class="property">
@@ -24,7 +25,8 @@
           {{#if change}}
             {{key}}
           {{else}}
-            <input type="text" name="key" id="coding-rules-manual-rule-creation-key" value="{{internalKey}}"/>
+            <input type="text" name="key" id="coding-rules-manual-rule-creation-key"
+              class="coding-rules-name-key" value="{{internalKey}}"/>
           {{/if}}
         </td>
       </tr>
@@ -32,7 +34,7 @@
         <th><h3>{{t 'description'}} <em class="mandatory">*</em></h3></th>
         <td>
           <textarea type="textarea" name="markdown_description" id="coding-rules-manual-rule-creation-html-description"
-            rows="4" style="width: 100%; margin-bottom: 4px;">{{{mdDesc}}}</textarea>
+            class="coding-rules-markdown-description" rows="4">{{{mdDesc}}}</textarea>
         </td>
       </tr>
     </table>
