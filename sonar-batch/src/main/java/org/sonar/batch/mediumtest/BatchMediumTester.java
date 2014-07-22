@@ -35,7 +35,9 @@ import org.sonar.batch.bootstrap.PluginsReferential;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.protocol.input.GlobalReferentials;
 import org.sonar.batch.protocol.input.ProjectReferentials;
+import org.sonar.batch.referential.GlobalReferentialsLoader;
 import org.sonar.batch.referential.ProjectReferentialsLoader;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan2.AnalyzerIssueCache;
@@ -65,7 +67,8 @@ public class BatchMediumTester {
   }
 
   public static class BatchMediumTesterBuilder {
-    private final FakeProjectReferentialsLoader refProvider = new FakeProjectReferentialsLoader();
+    private final FakeGlobalReferentialsLoader globalRefProvider = new FakeGlobalReferentialsLoader();
+    private final FakeProjectReferentialsLoader projectRefProvider = new FakeProjectReferentialsLoader();
     private final FakeSettingsReferential settingsReferential = new FakeSettingsReferential();
     private final FackPluginsReferential pluginsReferential = new FackPluginsReferential();
     private final Map<String, String> bootstrapProperties = new HashMap<String, String>();
@@ -92,12 +95,12 @@ public class BatchMediumTester {
     }
 
     public BatchMediumTesterBuilder registerMetric(Metric<?> metric) {
-      refProvider.add(metric);
+      globalRefProvider.add(metric);
       return this;
     }
 
     public BatchMediumTesterBuilder addQProfile(String language, String name) {
-      refProvider.addQProfile(language, name);
+      projectRefProvider.addQProfile(language, name);
       return this;
     }
 
@@ -113,7 +116,7 @@ public class BatchMediumTester {
     }
 
     public BatchMediumTesterBuilder activateRule(ActiveRule activeRule) {
-      refProvider.addActiveRule(activeRule);
+      projectRefProvider.addActiveRule(activeRule);
       return this;
     }
 
@@ -134,7 +137,8 @@ public class BatchMediumTester {
         new EnvironmentInformation("mediumTest", "1.0"),
         builder.settingsReferential,
         builder.pluginsReferential,
-        builder.refProvider,
+        builder.globalRefProvider,
+        builder.projectRefProvider,
         new DefaultDebtModel())
       .setBootstrapProperties(builder.bootstrapProperties)
       .build();
@@ -228,23 +232,18 @@ public class BatchMediumTester {
 
   }
 
-  private static class FakeProjectReferentialsLoader implements ProjectReferentialsLoader {
+  private static class FakeGlobalReferentialsLoader implements GlobalReferentialsLoader {
 
     private int metricId = 1;
 
-    private ProjectReferentials ref = new ProjectReferentials();
+    private GlobalReferentials ref = new GlobalReferentials();
 
     @Override
-    public ProjectReferentials load(ProjectReactor reactor, Settings settings, Languages languages) {
+    public GlobalReferentials load() {
       return ref;
     }
 
-    public FakeProjectReferentialsLoader addQProfile(String language, String name) {
-      ref.addQProfile(new org.sonar.batch.protocol.input.QProfile(name, name, language, new Date()));
-      return this;
-    }
-
-    public FakeProjectReferentialsLoader add(Metric metric) {
+    public FakeGlobalReferentialsLoader add(Metric metric) {
       ref.metrics().add(new org.sonar.batch.protocol.input.Metric(metricId,
         metric.key(),
         metric.getType().name(),
@@ -257,6 +256,21 @@ public class BatchMediumTester {
         metric.getBestValue(),
         metric.isOptimizedBestValue()));
       metricId++;
+      return this;
+    }
+  }
+
+  private static class FakeProjectReferentialsLoader implements ProjectReferentialsLoader {
+
+    private ProjectReferentials ref = new ProjectReferentials();
+
+    @Override
+    public ProjectReferentials load(ProjectReactor reactor, Settings settings, Languages languages) {
+      return ref;
+    }
+
+    public FakeProjectReferentialsLoader addQProfile(String language, String name) {
+      ref.addQProfile(new org.sonar.batch.protocol.input.QProfile(name, name, language, new Date()));
       return this;
     }
 

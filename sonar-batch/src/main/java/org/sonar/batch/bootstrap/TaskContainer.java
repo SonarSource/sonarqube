@@ -31,6 +31,8 @@ import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.scan.DeprecatedProjectReactorBuilder;
 import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.batch.scan.ScanTask;
+import org.sonar.batch.scan.measure.DefaultMetricFinder;
+import org.sonar.batch.scan.measure.DeprecatedMetricFinder;
 import org.sonar.batch.tasks.ListTask;
 import org.sonar.batch.tasks.Tasks;
 import org.sonar.core.permission.PermissionFacade;
@@ -54,9 +56,19 @@ public class TaskContainer extends ComponentContainer {
     installCoreTasks();
     installTaskExtensions();
     installComponentsUsingTaskExtensions();
+    addCoreComponents();
     for (Object component : components) {
       add(component);
     }
+  }
+
+  private void addCoreComponents() {
+    // Metrics
+    if (!getParent().getComponentByType(AnalysisMode.class).isSensorMode()) {
+      add(DeprecatedMetricFinder.class);
+    }
+    add(DefaultMetricFinder.class);
+
   }
 
   void installCoreTasks() {

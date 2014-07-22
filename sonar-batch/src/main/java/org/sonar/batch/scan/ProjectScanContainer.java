@@ -70,8 +70,6 @@ import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
-import org.sonar.batch.scan.measure.DefaultMetricFinder;
-import org.sonar.batch.scan.measure.DeprecatedMetricFinder;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
@@ -192,8 +190,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Measures
       MeasureCache.class,
-      DeprecatedMetricFinder.class,
-      DefaultMetricFinder.class,
       PastMeasuresLoader.class,
 
       // Rules

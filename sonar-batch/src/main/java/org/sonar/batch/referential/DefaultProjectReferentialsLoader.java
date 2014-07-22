@@ -24,7 +24,6 @@ import com.google.common.collect.ListMultimap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rules.Rule;
@@ -41,11 +40,8 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 
 import javax.annotation.CheckForNull;
-
-import java.util.Collection;
 
 /**
  * TODO This is currently implemented by accessing DB but should be replaced by WS call
@@ -54,14 +50,12 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
 
   private static final String ENABLED = "enabled";
 
-  private final DatabaseSessionFactory sessionFactory;
   private final QualityProfileDao qualityProfileDao;
   private final ActiveRuleDao activeRuleDao;
   private final RuleFinder ruleFinder;
 
-  public DefaultProjectReferentialsLoader(DatabaseSessionFactory sessionFactory, QualityProfileDao qualityProfileDao,
+  public DefaultProjectReferentialsLoader(QualityProfileDao qualityProfileDao,
     ActiveRuleDao activeRuleDao, RuleFinder ruleFinder) {
-    this.sessionFactory = sessionFactory;
     this.qualityProfileDao = qualityProfileDao;
     this.activeRuleDao = activeRuleDao;
     this.ruleFinder = ruleFinder;
@@ -70,22 +64,6 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
   @Override
   public ProjectReferentials load(ProjectReactor reactor, Settings settings, Languages languages) {
     ProjectReferentials ref = new ProjectReferentials();
-    for (Metric m : sessionFactory.getSession().getResults(Metric.class, ENABLED, true)) {
-      Boolean optimizedBestValue = m.isOptimizedBestValue();
-      Boolean qualitative = m.getQualitative();
-      Boolean userManaged = m.getUserManaged();
-      ref.metrics().add(
-        new org.sonar.batch.protocol.input.Metric(m.getId(), m.getKey(),
-          m.getType().name(),
-          m.getDescription(),
-          m.getDirection(),
-          m.getName(),
-          qualitative != null ? m.getQualitative() : false,
-          userManaged != null ? m.getUserManaged() : false,
-          m.getWorstValue(),
-          m.getBestValue(),
-          optimizedBestValue != null ? optimizedBestValue : false));
-    }
 
     String defaultName = settings.getString(ModuleQProfiles.SONAR_PROFILE_PROP);
 
@@ -156,10 +134,6 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
   @CheckForNull
   private QProfile loadDefaultQProfile(String profileName, String language) {
     return get(language, profileName);
-  }
-
-  protected Collection<Metric> doFindAll() {
-    return sessionFactory.getSession().getResults(Metric.class, ENABLED, true);
   }
 
   public QProfile get(String language, String name) {

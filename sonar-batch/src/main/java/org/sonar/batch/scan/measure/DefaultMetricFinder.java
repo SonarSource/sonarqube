@@ -24,7 +24,7 @@ import com.google.common.collect.Maps;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.batch.protocol.input.ProjectReferentials;
+import org.sonar.batch.protocol.input.GlobalReferentials;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,8 +34,8 @@ public class DefaultMetricFinder implements MetricFinder {
 
   private Map<String, Metric> metricsByKey = Maps.newLinkedHashMap();
 
-  public DefaultMetricFinder(ProjectReferentials projectReferentials) {
-    for (org.sonar.batch.protocol.input.Metric metric : projectReferentials.metrics()) {
+  public DefaultMetricFinder(GlobalReferentials globalReferentials) {
+    for (org.sonar.batch.protocol.input.Metric metric : globalReferentials.metrics()) {
       metricsByKey.put(metric.key(), new org.sonar.api.measures.Metric.Builder(metric.key(), metric.key(), ValueType.valueOf(metric.valueType())).create());
     }
   }

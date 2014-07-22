@@ -36,7 +36,10 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
+import org.sonar.batch.referential.DefaultGlobalReferentialsLoader;
 import org.sonar.batch.referential.DefaultProjectReferentialsLoader;
+import org.sonar.batch.referential.GlobalReferentialsLoader;
+import org.sonar.batch.referential.GlobalReferentialsProvider;
 import org.sonar.batch.referential.ProjectReferentialsLoader;
 import org.sonar.batch.settings.DefaultSettingsReferential;
 import org.sonar.batch.settings.SettingsReferential;
@@ -103,12 +106,16 @@ public class BootstrapContainer extends ComponentContainer {
       HttpDownloader.class,
       UriReader.class,
       new FileCacheProvider(),
-      System2.INSTANCE);
+      System2.INSTANCE,
+      new GlobalReferentialsProvider());
     if (getComponentByType(SettingsReferential.class) == null) {
       add(DefaultSettingsReferential.class);
     }
     if (getComponentByType(PluginsReferential.class) == null) {
       add(DefaultPluginsReferential.class);
+    }
+    if (getComponentByType(GlobalReferentialsLoader.class) == null) {
+      add(DefaultGlobalReferentialsLoader.class);
     }
     if (getComponentByType(ProjectReferentialsLoader.class) == null) {
       add(DefaultProjectReferentialsLoader.class);

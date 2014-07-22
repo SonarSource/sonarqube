@@ -44,7 +44,6 @@ import org.sonar.batch.scan.ProjectSettings;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
-import org.sonar.batch.scan.measure.DefaultMetricFinder;
 
 public class ProjectScanContainer extends ComponentContainer {
   public ProjectScanContainer(ComponentContainer taskContainer) {
@@ -96,7 +95,6 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultLanguagesReferential.class,
 
       // Measures
-      DefaultMetricFinder.class,
       AnalyzerMeasureCache.class,
 
       // file system

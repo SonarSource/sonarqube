@@ -28,41 +28,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Container for all project data going from server to batch.
+ * Container for all global data going from server to batch.
  * This is not an API since server and batch always share the same version.
  */
-public class ProjectReferentials {
+public class GlobalReferentials {
 
   private long timestamp;
-  private Map<String, QProfile> qprofilesByLanguage = new HashMap<String, QProfile>();
-  private Collection<ActiveRule> activeRules = new ArrayList<ActiveRule>();
-  private Map<String, Map<String, String>> settingsByModule = new HashMap<String, Map<String, String>>();
+  private Collection<Metric> metrics = new ArrayList<Metric>();
+  private Map<String, String> globalSettings = new HashMap<String, String>();
 
-  public Map<String, String> settings(String projectKey) {
-    return settingsByModule.get(projectKey);
+  public Map<String, String> globalSettings() {
+    return globalSettings;
   }
 
-  public ProjectReferentials addSettings(String projectKey, Map<String, String> settings) {
-    settingsByModule.put(projectKey, settings);
-    return this;
-  }
-
-  public Collection<QProfile> qProfiles() {
-    return qprofilesByLanguage.values();
-  }
-
-  public ProjectReferentials addQProfile(QProfile qProfile) {
-    qprofilesByLanguage.put(qProfile.language(), qProfile);
-    return this;
-  }
-
-  public Collection<ActiveRule> activeRules() {
-    return activeRules;
-  }
-
-  public ProjectReferentials addActiveRule(ActiveRule activeRule) {
-    activeRules.add(activeRule);
-    return this;
+  public Collection<Metric> metrics() {
+    return metrics;
   }
 
   public long timestamp() {
@@ -77,8 +57,8 @@ public class ProjectReferentials {
     return new Gson().toJson(this);
   }
 
-  public static ProjectReferentials fromJson(Reader input) {
-    return new Gson().fromJson(input, ProjectReferentials.class);
+  public static GlobalReferentials fromJson(Reader input) {
+    return new Gson().fromJson(input, GlobalReferentials.class);
   }
 
 }
