@@ -22,6 +22,7 @@ package org.sonar.api.resources;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.WildcardPattern;
 
@@ -162,7 +163,9 @@ public class File extends Resource {
    * @param file absolute path to a file
    * @param module
    * @return null if the file is not under module basedir.
+   * @deprecated since 4.5 use {@link FileSystem#inputFile(org.sonar.api.batch.fs.FilePredicate)}
    */
+  @Deprecated
   @CheckForNull
   public static File fromIOFile(java.io.File file, Project module) {
     String relativePathFromBasedir = new PathResolver().relativePath(module.getFileSystem().getBasedir(), file);

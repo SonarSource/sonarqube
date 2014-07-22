@@ -23,6 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -202,6 +203,7 @@ public class BatchMediumTester {
     private List<Issue> issues = new ArrayList<Issue>();
     private List<Measure> measures = new ArrayList<Measure>();
     private List<InputFile> inputFiles = new ArrayList<InputFile>();
+    private List<InputDir> inputDirs = new ArrayList<InputDir>();
 
     @Override
     public void scanTaskCompleted(ProjectScanContainer container) {
@@ -217,6 +219,8 @@ public class BatchMediumTester {
       for (InputPath inputPath : inputFileCache.all()) {
         if (inputPath instanceof InputFile) {
           inputFiles.add((InputFile) inputPath);
+        } else {
+          inputDirs.add((InputDir) inputPath);
         }
       }
     }
@@ -233,6 +237,9 @@ public class BatchMediumTester {
       return inputFiles;
     }
 
+    public List<InputDir> inputDirs() {
+      return inputDirs;
+    }
   }
 
   private static class FakeGlobalReferentialsLoader implements GlobalReferentialsLoader {

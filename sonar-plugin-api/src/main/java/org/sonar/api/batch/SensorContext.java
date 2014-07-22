@@ -40,6 +40,7 @@ import java.util.Set;
  * @since 1.10
  * @deprecated since 4.5
  */
+@Deprecated
 public interface SensorContext {
 
   /**

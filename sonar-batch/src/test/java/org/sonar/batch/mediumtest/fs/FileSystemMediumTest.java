@@ -93,7 +93,10 @@ public class FileSystemMediumTest {
       .start();
 
     assertThat(result.inputFiles()).hasSize(1);
+    assertThat(result.inputDirs()).hasSize(1);
     assertThat(result.inputFiles().get(0).type()).isEqualTo(InputFile.Type.MAIN);
+    assertThat(result.inputFiles().get(0).relativePath()).isEqualTo("src/sample.xoo");
+    assertThat(result.inputDirs().get(0).relativePath()).isEqualTo("src");
   }
 
   @Test
@@ -112,7 +115,7 @@ public class FileSystemMediumTest {
       .start();
 
     assertThat(result.inputFiles()).hasSize(1);
-    // assertThat(result.inputPaths().get(0).type()).isEqualTo(InputFile.Type.TEST);
+    assertThat(result.inputFiles().get(0).type()).isEqualTo(InputFile.Type.TEST);
   }
 
   /**
