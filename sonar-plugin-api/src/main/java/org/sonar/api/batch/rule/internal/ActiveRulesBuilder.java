@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class ActiveRulesBuilder {
 
-  private final Map<RuleKey, NewActiveRule> map = Maps.newHashMap();
+  private final Map<RuleKey, NewActiveRule> map = Maps.newLinkedHashMap();
 
   public NewActiveRule create(RuleKey ruleKey) {
     return new NewActiveRule(this, ruleKey);
