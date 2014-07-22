@@ -64,13 +64,11 @@ public class ProcessWrapper extends Thread {
   private File workDir;
   private File propertiesFile;
   private java.lang.Process process;
-  private volatile Thread processThread;
   private StreamGobbler errorGobbler;
   private StreamGobbler outputGobbler;
   private ProcessMXBean processMXBean;
 
   public ProcessWrapper(String processName) {
-    this.processThread = this;
     this.processName = processName;
   }
 
@@ -163,10 +161,10 @@ public class ProcessWrapper extends Thread {
     } catch (InterruptedException e) {
       e.printStackTrace();
     } finally {
+      process.destroy();
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
       closeStreams(process);
-      ProcessWrapper.this.processThread = null;
     }
     LOGGER.trace("ProcessWrapper::run() END");
   }
@@ -179,12 +177,9 @@ public class ProcessWrapper extends Thread {
     return processMXBean;
   }
 
-  public Object getThread() {
-    return this.processThread;
-  }
-
   private void waitUntilFinish(@Nullable Thread thread) {
     if (thread != null) {
+      //TODO kill after X amount of time (if process does not exit by itself).
       try {
         thread.join();
       } catch (InterruptedException e) {

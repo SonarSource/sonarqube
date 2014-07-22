@@ -46,9 +46,7 @@ public class StartServer {
     shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
-        monitor.interrupt();
-        terminateAndWait(elasticsearch);
-        terminateAndWait(server);
+        stop();
       }
     });
 
@@ -76,6 +74,10 @@ public class StartServer {
       .setEnvProperty("SONAR_HOME", installation.homeDir().getAbsolutePath())
       .setArguments(installation.props())
       .setArgument("sonar.es.type", "TRANSPORT")
+      .addClasspath(installation.starPath("extensions/jdbc-driver/mysql"))
+      .addClasspath(installation.starPath("extensions/jdbc-driver/mssql"))
+      .addClasspath(installation.starPath("extensions/jdbc-driver/oracle"))
+      .addClasspath(installation.starPath("extensions/jdbc-driver/postgresql"))
       .addClasspath(installation.starPath("lib/common"))
       .addClasspath(installation.starPath("lib/server"));
     monitor.registerProcess(server);
@@ -83,27 +85,28 @@ public class StartServer {
     monitor.start();
     try {
       monitor.join();
-    } catch (InterruptedException e) {
-      stop(true);
+    } finally {
+      stop();
     }
-    stop(true);
   }
 
-  public void stop(boolean waitForCompletion) {
-    Runtime.getRuntime().removeShutdownHook(shutdownHook);
-    shutdownHook.start();
-    if (waitForCompletion) {
-      try {
-        shutdownHook.join();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+  public void stop() {
+    if (monitor != null) {
+      monitor.interrupt();
+      terminateAndWait(elasticsearch);
+      terminateAndWait(server);
+      monitor = null;
     }
   }
 
   private void terminateAndWait(@Nullable ProcessWrapper process) {
-    if (process != null && process.getThread() != null) {
+    if (process != null) {
       process.terminate();
+      try {
+        process.join();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     }
   }
 
