@@ -27,14 +27,14 @@
           {{t 'component_viewer.measure_section.overall'}}
         </div>
         <ul class="component-viewer-header-expanded-bar-section-list">
-          {{{componentViewerHeaderItem overall_coverage 'coverage'}}}
-          {{{componentViewerHeaderItem overall_line_coverage 'line_coverage'}}}
+          {{{componentViewerHeaderItem overall_coverage 'overall_coverage'}}}
+          {{{componentViewerHeaderItem overall_line_coverage 'overall_line_coverage'}}}
           {{#if ../../state.hasSource}}
-            {{{componentViewerHeaderLink overall_lines_to_cover 'lines_to_cover' 'js-filter-lines-to-cover-overall'}}}
-            {{{componentViewerHeaderLink overall_uncovered_lines 'uncovered_lines' 'js-filter-uncovered-lines-overall'}}}
+            {{{componentViewerHeaderLink overall_lines_to_cover 'overall_lines_to_cover' 'js-filter-lines-to-cover-overall'}}}
+            {{{componentViewerHeaderLink overall_uncovered_lines 'overall_uncovered_lines' 'js-filter-uncovered-lines-overall'}}}
           {{else}}
-            {{{componentViewerHeaderItem overall_lines_to_cover 'lines_to_cover'}}}
-            {{{componentViewerHeaderItem overall_uncovered_lines 'uncovered_lines'}}}
+            {{{componentViewerHeaderItem overall_lines_to_cover 'overall_lines_to_cover'}}}
+            {{{componentViewerHeaderItem overall_uncovered_lines 'overall_uncovered_lines'}}}
           {{/if}}
         </ul>
       </div>
@@ -53,13 +53,13 @@
           {{#any overall_coverage overall_line_coverage overall_lines_to_cover overall_covered_lines overall_uncovered_lines}}
             <li><span class="item">&nbsp;</span></li>
           {{/any}}
-          {{{componentViewerHeaderItem overall_branch_coverage 'branch_coverage'}}}
+          {{{componentViewerHeaderItem overall_branch_coverage 'overall_branch_coverage'}}}
           {{#if ../../state.hasSource}}
-            {{{componentViewerHeaderLink overall_conditions_to_cover 'conditions_to_cover' 'js-filter-branches-to-cover-overall'}}}
-            {{{componentViewerHeaderLink overall_uncovered_conditions 'uncovered_conditions' 'js-filter-uncovered-branches-overall'}}}
+            {{{componentViewerHeaderLink overall_conditions_to_cover 'overall_conditions_to_cover' 'js-filter-branches-to-cover-overall'}}}
+            {{{componentViewerHeaderLink overall_uncovered_conditions 'overall_uncovered_conditions' 'js-filter-uncovered-branches-overall'}}}
           {{else}}
-            {{{componentViewerHeaderItem overall_conditions_to_cover 'conditions_to_cover'}}}
-            {{{componentViewerHeaderItem overall_uncovered_conditions 'uncovered_conditions'}}}
+            {{{componentViewerHeaderItem overall_conditions_to_cover 'overall_conditions_to_cover'}}}
+            {{{componentViewerHeaderItem overall_uncovered_conditions 'overall_uncovered_conditions'}}}
           {{/if}}
         </ul>
       </div>
@@ -119,14 +119,14 @@
           {{t 'component_viewer.measure_section.integration_tests'}}
         </div>
         <ul class="component-viewer-header-expanded-bar-section-list">
-          {{{componentViewerHeaderItem it_coverage 'coverage'}}}
-          {{{componentViewerHeaderItem it_line_coverage 'line_coverage'}}}
+          {{{componentViewerHeaderItem it_coverage 'it_coverage'}}}
+          {{{componentViewerHeaderItem it_line_coverage 'it_line_coverage'}}}
           {{#if ../../state.hasSource}}
-            {{{componentViewerHeaderLink it_lines_to_cover 'lines_to_cover' 'js-filter-lines-to-cover-it'}}}
-            {{{componentViewerHeaderLink it_uncovered_lines 'uncovered_lines' 'js-filter-uncovered-lines-it'}}}
+            {{{componentViewerHeaderLink it_lines_to_cover 'it_lines_to_cover' 'js-filter-lines-to-cover-it'}}}
+            {{{componentViewerHeaderLink it_uncovered_lines 'it_uncovered_lines' 'js-filter-uncovered-lines-it'}}}
           {{else}}
-            {{{componentViewerHeaderItem it_lines_to_cover 'lines_to_cover'}}}
-            {{{componentViewerHeaderItem it_uncovered_lines 'uncovered_lines'}}}
+            {{{componentViewerHeaderItem it_lines_to_cover 'it_lines_to_cover'}}}
+            {{{componentViewerHeaderItem it_uncovered_lines 'it_uncovered_lines'}}}
           {{/if}}
         </ul>
       </div>
@@ -145,13 +145,13 @@
           {{#any it_coverage it_line_coverage it_lines_to_cover it_covered_lines it_uncovered_lines}}
               <li><span class="item">&nbsp;</span></li>
           {{/any}}
-          {{{componentViewerHeaderItem it_branch_coverage 'branch_coverage'}}}
+          {{{componentViewerHeaderItem it_branch_coverage 'it_branch_coverage'}}}
           {{#if ../../state.hasSource}}
-            {{{componentViewerHeaderLink it_conditions_to_cover 'conditions_to_cover' 'js-filter-branches-to-cover-it'}}}
-            {{{componentViewerHeaderLink it_uncovered_conditions 'uncovered_conditions' 'js-filter-uncovered-branches-it'}}}
+            {{{componentViewerHeaderLink it_conditions_to_cover 'it_conditions_to_cover' 'js-filter-branches-to-cover-it'}}}
+            {{{componentViewerHeaderLink it_uncovered_conditions 'it_uncovered_conditions' 'js-filter-uncovered-branches-it'}}}
           {{else}}
-            {{{componentViewerHeaderItem it_conditions_to_cover 'conditions_to_cover'}}}
-            {{{componentViewerHeaderItem it_uncovered_conditions 'uncovered_conditions'}}}
+            {{{componentViewerHeaderItem it_conditions_to_cover 'it_conditions_to_cover'}}}
+            {{{componentViewerHeaderItem it_uncovered_conditions 'it_uncovered_conditions'}}}
           {{/if}}
         </ul>
       </div>
