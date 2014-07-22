@@ -124,4 +124,9 @@ public class MeasureDaoTest extends AbstractDaoTestCase {
     assertThat(dao.existsByKey(MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc"), session)).isTrue();
     assertThat(dao.existsByKey(MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "unknown"), session)).isFalse();
   }
+
+  @Test(expected = IllegalStateException.class)
+  public void insert() throws Exception {
+    dao.insert(session, MeasureDto.createFor(MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc")));
+  }
 }

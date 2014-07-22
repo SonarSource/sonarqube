@@ -31,19 +31,22 @@ import java.io.IOException;
 public class BatchWs implements WebService {
 
   private final BatchIndex batchIndex;
+  private final GlobalReferentialsAction globalReferentialsAction;
 
-  public BatchWs(BatchIndex batchIndex) {
+  public BatchWs(BatchIndex batchIndex, GlobalReferentialsAction globalReferentialsAction) {
     this.batchIndex = batchIndex;
+    this.globalReferentialsAction = globalReferentialsAction;
   }
 
   @Override
   public void define(Context context) {
     NewController controller = context.createController("batch")
       .setSince("4.4")
-      .setDescription("Get JAR files for batch");
+      .setDescription("Get JAR files and referentials for batch");
 
     defineIndexAction(controller);
     defineFileAction(controller);
+    globalReferentialsAction.define(controller);
 
     controller.done();
   }
@@ -59,7 +62,7 @@ public class BatchWs implements WebService {
             response.stream().setMediaType("text/plain");
             IOUtils.write(batchIndex.getIndex(), response.stream().output());
           } catch (IOException e) {
-            throw new IllegalStateException("Fail to send batch index", e);
+            throw new IllegalStateException(e);
           }
         }
       })
@@ -78,7 +81,7 @@ public class BatchWs implements WebService {
             response.stream().setMediaType("application/java-archive");
             FileUtils.copyFile(batchIndex.getFile(filename), response.stream().output());
           } catch (IOException e) {
-            throw new IllegalStateException("Fail to send batch file " + filename, e);
+            throw new IllegalStateException(e);
           }
         }
       })

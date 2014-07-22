@@ -17,64 +17,52 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.batch;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.core.measure.db.MetricDto;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.measure.persistence.MetricDao;
 import org.sonar.server.ws.WsTester;
 
-import java.io.File;
-import java.io.IOException;
-
-import static org.fest.assertions.Assertions.assertThat;
+import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BatchWsTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+public class GlobalReferentialsActionTest {
 
   @Mock
-  BatchIndex batchIndex;
+  DbSession session;
+
+  @Mock
+  MetricDao metricDao;
 
   WsTester tester;
 
   @Before
-  public void before() throws IOException {
-    tester = new WsTester(new BatchWs(batchIndex, new GlobalReferentialsAction(mock(DbClient.class))));
+  public void setUp() throws Exception {
+    DbClient dbClient = mock(DbClient.class);
+    when(dbClient.openSession(false)).thenReturn(session);
+    when(dbClient.metricDao()).thenReturn(metricDao);
+
+    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalReferentialsAction(dbClient)));
   }
 
   @Test
-  public void download_index() throws Exception {
-    when(batchIndex.getIndex()).thenReturn("sonar-batch.jar|acbd18db4cc2f85cedef654fccc4a4d8");
-
-    String index = tester.newGetRequest("batch", "index").execute().outputAsString();
-    assertThat(index).isEqualTo("sonar-batch.jar|acbd18db4cc2f85cedef654fccc4a4d8");
+  public void return_global_referentials() throws Exception {
+    when(metricDao.findEnabled(session)).thenReturn(newArrayList(
+      MetricDto.createFor("coverage").setDescription("Coverage by unit tests").setValueType("PERCENT").setQualitative(true)
+        .setWorstValue(0d).setBestValue(100d).setOptimizedBestValue(false).setDirection(1).setEnabled(true)
+    ));    
+    
+    WsTester.TestRequest request = tester.newGetRequest("batch", "global");
+    request.execute().assertJson(getClass(), "return_global_referentials.json");
   }
-
-  @Test
-  public void download_file() throws Exception {
-    String filename = "sonar-batch.jar";
-
-    File file = temp.newFile(filename);
-    FileUtils.writeStringToFile(file, "foo");
-    when(batchIndex.getFile(filename)).thenReturn(file);
-
-    String jar = tester.newGetRequest("batch", "file").setParam("name", filename).execute().outputAsString();
-    assertThat(jar).isEqualTo("foo");
-  }
-
 }

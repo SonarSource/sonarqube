@@ -80,6 +80,7 @@ import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.batch.BatchIndex;
 import org.sonar.server.batch.BatchWs;
+import org.sonar.server.batch.GlobalReferentialsAction;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
@@ -110,6 +111,7 @@ import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterExecutor;
 import org.sonar.server.measure.MeasureFilterFactory;
 import org.sonar.server.measure.persistence.MeasureDao;
+import org.sonar.server.measure.persistence.MetricDao;
 import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
@@ -203,6 +205,7 @@ class ServerComponents {
       RuleDao.class,
       ActiveRuleDao.class,
       MeasureDao.class,
+      MetricDao.class,
       ComponentDao.class,
       DbClient.class,
       MeasureFilterDao.class,
@@ -237,10 +240,6 @@ class ServerComponents {
     return Lists.newArrayList(
       DefaultServerUpgradeStatus.class,
       DatabaseMigrator.class,
-
-      // batch
-      BatchIndex.class,
-      BatchWs.class,
 
       // plugins
       ServerPluginJarsInstaller.class,
@@ -293,6 +292,11 @@ class ServerComponents {
     pico.addSingleton(DefaultResourcePermissions.class);
     pico.addSingleton(Periods.class);
     pico.addSingleton(ServerWs.class);
+
+    // batch
+    pico.addSingleton(BatchIndex.class);
+    pico.addSingleton(GlobalReferentialsAction.class);
+    pico.addSingleton(BatchWs.class);
 
     // update center
     pico.addSingleton(UpdateCenterClient.class);

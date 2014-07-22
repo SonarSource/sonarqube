@@ -21,70 +21,49 @@
 package org.sonar.server.measure.persistence;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
-import org.sonar.core.measure.db.MeasureDto;
-import org.sonar.core.measure.db.MeasureKey;
-import org.sonar.core.measure.db.MeasureMapper;
+import org.sonar.core.measure.db.MetricDto;
+import org.sonar.core.measure.db.MetricMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
+public class MetricDao extends BaseDao<MetricMapper, MetricDto, String> implements ServerComponent, DaoComponent {
 
-public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> implements ServerComponent, DaoComponent {
-
-  public MeasureDao() {
+  public MetricDao() {
     this(System2.INSTANCE);
   }
 
   @VisibleForTesting
-  public MeasureDao(System2 system) {
-    super(MeasureMapper.class, system);
+  public MetricDao(System2 system) {
+    super(MetricMapper.class, system);
   }
 
   @Override
-  protected MeasureDto doGetNullableByKey(DbSession session, MeasureKey key) {
+  protected MetricDto doGetNullableByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
   }
 
-  public boolean existsByKey(MeasureKey key, DbSession session) {
-    return mapper(session).countByKey(key) > 0;
-  }
-
-  public List<MeasureDto> findByComponentKeyAndMetricKeys(String componentKey, List<String> metricKeys, DbSession session) {
-    if (metricKeys.isEmpty()) {
-      return Collections.emptyList();
-    }
-    List<MeasureDto> dtos = newArrayList();
-    List<List<String>> partitions = Lists.partition(newArrayList(metricKeys), 1000);
-    for (List<String> partition : partitions) {
-      dtos.addAll(mapper(session).selectByComponentAndMetrics(componentKey, partition));
-    }
-    return dtos;
-  }
-
-  public MeasureDto findByComponentKeyAndMetricKey(String componentKey, String metricKey, DbSession session) {
-    return mapper(session).selectByComponentAndMetric(componentKey, metricKey);
+  public List<MetricDto> findEnabled(DbSession session) {
+    return mapper(session).selectAllEnabled();
   }
 
   @Override
-  protected MeasureDto doInsert(DbSession session, MeasureDto item) {
+  protected MetricDto doInsert(DbSession session, MetricDto item) {
     throw notImplemented();
   }
 
   @Override
-  protected MeasureDto doUpdate(DbSession session, MeasureDto item) {
+  protected MetricDto doUpdate(DbSession session, MetricDto item) {
     throw notImplemented();
   }
 
   @Override
-  protected void doDeleteByKey(DbSession session, MeasureKey key) {
+  protected void doDeleteByKey(DbSession session, String key) {
     throw notImplemented();
   }
 

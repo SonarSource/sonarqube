@@ -35,6 +35,10 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-batch-protocol</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-deprecated</artifactId>
       <exclusions>
         <exclusion>
