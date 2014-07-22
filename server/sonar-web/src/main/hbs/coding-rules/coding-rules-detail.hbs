@@ -137,30 +137,25 @@
 
 {{#if params}}
   <h3 class="coding-rules-detail-title">{{t 'coding_rules.parameters'}}</h3>
-  <ul class="coding-rules-detail-parameters">
+  <div class="coding-rules-detail-parameters">
     {{#each params}}
-      <li class="coding-rules-detail-parameter" data-key="{{key}}">
-        <h3 class="coding-rules-detail-parameter-name">{{key}}</h3>
-
-        <div class="coding-rules-detail-parameter-description">
-          {{#if ../../templateKey}}
-            <span class="value">{{defaultValue}}</span>
-          {{else}}
-            {{{htmlDesc}}}
-            {{#if defaultValue}}
-              <div>
-                {{t 'coding_rules.parameters.default_value'}} {{defaultValue}}
-              </div>
-            {{/if}}
+    <dl class="coding-rules-detail-parameter">
+      <dt class="coding-rules-detail-parameter-name">{{key}}</dt>
+      <dd class="coding-rules-detail-parameter-description" data-key="{{key}}">
+        {{#if ../../templateKey}}
+          <span class="value">{{defaultValue}}</span>
+        {{else}}
+          {{{htmlDesc}}}
+          {{#if defaultValue}}
+          <div class="subtitle">{{t 'coding_rules.parameters.default_value'}} <span class="value">{{defaultValue}}</span></div>
           {{/if}}
-        </div>
-        {{#if showMoreLink}}
-          <a href="#" class="coding-rules-detail-parameter-details">{{t 'more'}}</a>
         {{/if}}
-      </li>
+      </dd>
+    </dl>
     {{/each}}
-  </ul>
+  </div>
 {{/if}}
+
 
 {{#if isTemplate}}
 <div class="coding-rules-detail-custom-rules-section">
@@ -172,6 +167,7 @@
   <div id="coding-rules-detail-custom-rules"></div>
 </div>
 {{/if}}
+
 
 {{#if qualityProfilesVisible}}
 <div class="coding-rules-detail-quality-profiles-section">

@@ -74,7 +74,6 @@ define [
       'click @ui.changeManualRule': 'changeManualRule'
       'click @ui.deleteCustomRule': 'deleteRule'
 
-      'click .coding-rules-detail-parameter-details': 'showParamPopup'
       'click .coding-rules-subcharacteristic': 'toggleDebtInfo'
 
     initialize: (options) ->
@@ -82,8 +81,6 @@ define [
 
       if @model.get 'params'
         origParams = @model.get('params')
-        _.map origParams, (param) =>
-          _.extend param, showMoreLink: (param.htmlDesc and param.htmlDesc.indexOf('<') >= 0)
         @model.set 'params', _.sortBy(origParams, 'key')
 
       _.map options.actives, (active) =>
@@ -173,17 +170,6 @@ define [
 
       @ui.extendDescriptionForm.hide()
       @ui.extendDescriptionSpinner.hide()
-
-
-    showParamPopup: (e) ->
-      e.stopPropagation()
-      jQuery('body').click()
-      key = jQuery(e.currentTarget).closest('.coding-rules-detail-parameter').data 'key'
-      popup = new CodingRulesParameterPopupView
-        model: new Backbone.Model _.findWhere(@model.get('params'), key: key)
-        triggerEl: jQuery(e.currentTarget)
-      popup.render()
-      false
 
 
     toggleDebtInfo: (e) ->

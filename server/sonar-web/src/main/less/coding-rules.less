@@ -195,16 +195,12 @@
 
 .coding-rules-detail-parameter {
   margin: @navigatorPadding 0;
-  font-size: 0;
 }
 
 .coding-rules-detail-parameter-name {
-  display: inline-block;
-  vertical-align: top;
-  width: 20%;
-  font-size: @baseFontSize;
-  font-weight: normal;
-  text-align: right;
+  display: block;
+  margin-left: 2 * @navigatorPadding;
+  font-weight: bold;
 }
 
 .coding-rules-detail-parameter-description {
@@ -212,27 +208,19 @@
   text-overflow: ellipsis;
   vertical-align: top;
   max-width: 75%;
-  padding-left: 2 * @navigatorPadding;
+  margin-left: 2 * @navigatorPadding;
+  padding: @navigatorPadding;
   .box-sizing(border-box);
+
+  .subtitle {
+    font-size: @baseFontSize;
+  }
 }
 
 .coding-rules-detail-parameter-details {
   display: inline-block;
   font-size: @baseFontSize;
   padding-left: 5px;
-}
-
-.coding-rules-detail-parameter-description:first-line, .coding-rules-detail-parameter-description :first-child {
-  display: block;
-  font-size: @baseFontSize;
-}
-
-.coding-rules-detail-parameter-description * {
-  display: none;
-}
-
-.coding-rules-parameter-full-description {
-  padding: 1px;
 }
 
 .coding-rules-detail-parameter-original {
