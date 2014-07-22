@@ -56,4 +56,12 @@ public class AddMissingRuleParameterDefaultValuesMigrationTest {
     db.assertDbUnit(getClass(), "after.xml", "rules_parameters", "active_rules", "active_rule_parameters");
   }
 
+  @Test
+  public void no_changes() throws Exception {
+    db.prepareDbUnit(getClass(), "no_changes.xml");
+
+    migration.execute();
+
+    db.assertDbUnit(getClass(), "no_changes.xml", "rules_parameters", "active_rules", "active_rule_parameters");
+  }
 }
