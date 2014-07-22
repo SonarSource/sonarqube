@@ -31,7 +31,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.scan.filesystem.InputFileCache;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.source.SnapshotDataTypes;
 
 import java.util.Collections;
@@ -51,13 +51,13 @@ public class FileHashSensorTest {
   public ExpectedException thrown = ExpectedException.none();
 
   Project project = new Project("struts");
-  InputFileCache fileCache = mock(InputFileCache.class);
+  InputPathCache fileCache = mock(InputPathCache.class);
   ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
   FileHashSensor sensor = new FileHashSensor(fileCache, componentDataCache);
 
   @Test
   public void store_file_hashes() throws Exception {
-    when(fileCache.byModule("struts")).thenReturn(Lists.<InputFile>newArrayList(
+    when(fileCache.filesByModule("struts")).thenReturn(Lists.<InputFile>newArrayList(
       new DeprecatedDefaultInputFile("src/Foo.java").setFile(temp.newFile()).setHash("ABC"),
       new DeprecatedDefaultInputFile("src/Bar.java").setFile(temp.newFile()).setHash("DEF")));
 
@@ -71,7 +71,7 @@ public class FileHashSensorTest {
   @Test
   public void store_file_hashes_for_branches() throws Exception {
     project = new Project("struts", "branch-2.x", "Struts 2.x");
-    when(fileCache.byModule("struts:branch-2.x")).thenReturn(Lists.<InputFile>newArrayList(
+    when(fileCache.filesByModule("struts:branch-2.x")).thenReturn(Lists.<InputFile>newArrayList(
       new DeprecatedDefaultInputFile("src/Foo.java").setFile(temp.newFile()).setHash("ABC"),
       new DeprecatedDefaultInputFile("src/Bar.java").setFile(temp.newFile()).setHash("DEF")));
 
@@ -90,7 +90,7 @@ public class FileHashSensorTest {
 
   @Test
   public void dont_save_hashes_if_no_files() throws Exception {
-    when(fileCache.byModule("struts")).thenReturn(Collections.<InputFile>emptyList());
+    when(fileCache.filesByModule("struts")).thenReturn(Collections.<InputFile>emptyList());
 
     SensorContext sensorContext = mock(SensorContext.class);
     sensor.analyse(project, sensorContext);

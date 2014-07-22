@@ -39,7 +39,7 @@ import org.sonar.batch.protocol.input.GlobalReferentials;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.batch.referential.GlobalReferentialsLoader;
 import org.sonar.batch.referential.ProjectReferentialsLoader;
-import org.sonar.batch.scan.filesystem.InputFileCache;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan2.AnalyzerIssueCache;
 import org.sonar.batch.scan2.AnalyzerMeasureCache;
 import org.sonar.batch.scan2.ProjectScanContainer;
@@ -212,7 +212,7 @@ public class BatchMediumTester {
         measures.add(measure);
       }
 
-      InputFileCache inputFileCache = container.getComponentByType(InputFileCache.class);
+      InputPathCache inputFileCache = container.getComponentByType(InputPathCache.class);
       for (InputFile inputFile : inputFileCache.all()) {
         inputFiles.add(inputFile);
       }

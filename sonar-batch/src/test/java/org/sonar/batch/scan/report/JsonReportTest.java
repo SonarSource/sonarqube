@@ -44,7 +44,7 @@ import org.sonar.api.user.UserFinder;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.scan.filesystem.InputFileCache;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.user.DefaultUser;
 
 import java.io.File;
@@ -88,7 +88,7 @@ public class JsonReportTest {
     DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("src/main/java/org/apache/struts/Action.java");
     inputFile.setKey("struts:src/main/java/org/apache/struts/Action.java");
     inputFile.setStatus(InputFile.Status.CHANGED);
-    InputFileCache fileCache = mock(InputFileCache.class);
+    InputPathCache fileCache = mock(InputPathCache.class);
     when(fileCache.all()).thenReturn(Arrays.<InputFile>asList(inputFile));
     Project rootModule = new Project("struts");
     Project moduleA = new Project("struts-core");

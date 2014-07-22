@@ -32,7 +32,7 @@ import org.sonar.batch.index.CachesTest;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class InputFileCacheTest {
+public class InputPathCacheTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -52,16 +52,16 @@ public class InputFileCacheTest {
 
   @Test
   public void should_add_input_file() throws Exception {
-    InputFileCache cache = new InputFileCache(caches);
+    InputPathCache cache = new InputPathCache(caches);
     DefaultInputFile fooFile = new DefaultInputFile("src/main/java/Foo.java").setFile(temp.newFile("Foo.java"));
     cache.put("struts", fooFile);
     cache.put("struts-core", new DeprecatedDefaultInputFile("src/main/java/Bar.java").setFile(temp.newFile("Bar.java")));
 
-    assertThat(cache.get("struts", "src/main/java/Foo.java").relativePath())
+    assertThat(cache.getFile("struts", "src/main/java/Foo.java").relativePath())
       .isEqualTo("src/main/java/Foo.java");
 
-    assertThat(cache.byModule("struts")).hasSize(1);
-    assertThat(cache.byModule("struts-core")).hasSize(1);
+    assertThat(cache.filesByModule("struts")).hasSize(1);
+    assertThat(cache.filesByModule("struts-core")).hasSize(1);
     assertThat(cache.all()).hasSize(2);
     for (InputFile inputFile : cache.all()) {
       assertThat(inputFile.relativePath()).startsWith("src/main/java/");
@@ -71,8 +71,8 @@ public class InputFileCacheTest {
     assertThat(cache.all()).hasSize(1);
 
     cache.removeModule("struts");
-    assertThat(cache.byModule("struts")).hasSize(0);
-    assertThat(cache.byModule("struts-core")).hasSize(1);
+    assertThat(cache.filesByModule("struts")).hasSize(0);
+    assertThat(cache.filesByModule("struts-core")).hasSize(1);
     assertThat(cache.all()).hasSize(1);
   }
 

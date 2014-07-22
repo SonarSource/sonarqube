@@ -96,6 +96,16 @@ public interface FileSystem extends BatchComponent {
   InputFile inputFile(FilePredicate predicate);
 
   /**
+   * Returns {@link InputDir} matching the current {@link File}.
+   * @return null if directory is not indexed.
+   * @throw {@link IllegalArgumentException} is File is null or not a directory.
+   * 
+   * @since 4.5
+   */
+  @CheckForNull
+  InputDir inputDir(File dir);
+
+  /**
    * Input files matching the given attributes. Return all the files if the parameter
    * <code>attributes</code> is empty.
    * <p/>

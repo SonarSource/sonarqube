@@ -20,7 +20,9 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 
@@ -30,45 +32,50 @@ import javax.annotation.CheckForNull;
  * Cache of all files. This cache is shared amongst all project modules. Inclusion and
  * exclusion patterns are already applied.
  */
-public class InputFileCache implements BatchComponent {
+public class InputPathCache implements BatchComponent {
 
-  // [path type | module key | path] -> InputFile
+  private static final String DIR = "DIR";
+  private static final String FILE = "FILE";
+  // [module key | type | path] -> InputPath
   // For example:
-  // [rel | struts-core | src/main/java/Action.java] -> InputFile
-  // [rel | struts-core | src/main/java/Filter.java] -> InputFile
-  // [abs | struts-core | /absolute/path/to/src/main/java/Action.java] -> InputFile
-  // [abs | struts-core | /absolute/path/to/src/main/java/Filter.java] -> InputFile
-  private final Cache<InputFile> cache;
+  // [struts-core | FILE | src/main/java/Action.java] -> InputFile
+  // [struts-core | FILE | src/main/java/Filter.java] -> InputFile
+  // [struts-core | DIR | src/main/java] -> InputDir
+  private final Cache<InputPath> cache;
 
-  public InputFileCache(Caches caches) {
+  public InputPathCache(Caches caches) {
     cache = caches.createCache("inputFiles");
   }
 
-  public Iterable<InputFile> all() {
+  public Iterable<InputPath> all() {
     return cache.values();
   }
 
-  public Iterable<InputFile> byModule(String moduleKey) {
-    return cache.values(moduleKey);
+  public Iterable<InputFile> filesByModule(String moduleKey) {
+    return (Iterable) cache.values(moduleKey, FILE);
   }
 
-  public InputFileCache removeModule(String moduleKey) {
+  public InputPathCache removeModule(String moduleKey) {
     cache.clear(moduleKey);
     return this;
   }
 
-  public InputFileCache remove(String moduleKey, InputFile inputFile) {
-    cache.remove(moduleKey, inputFile.relativePath());
+  public InputPathCache remove(String moduleKey, InputFile inputFile) {
+    cache.remove(moduleKey, FILE, inputFile.relativePath());
     return this;
   }
 
-  public InputFileCache put(String moduleKey, InputFile inputFile) {
-    cache.put(moduleKey, inputFile.relativePath(), inputFile);
+  public InputPathCache put(String moduleKey, InputFile inputFile) {
+    cache.put(moduleKey, FILE, inputFile.relativePath(), inputFile);
     return this;
   }
 
   @CheckForNull
-  public InputFile get(String moduleKey, String relativePath) {
-    return cache.get(moduleKey, relativePath);
+  public InputFile getFile(String moduleKey, String relativePath) {
+    return (InputFile) cache.get(moduleKey, FILE, relativePath);
+  }
+
+  public InputDir getDir(String moduleKey, String relativePath) {
+    return (InputDir) cache.get(moduleKey, DIR, relativePath);
   }
 }

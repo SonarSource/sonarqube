@@ -41,7 +41,7 @@ import org.sonar.batch.referential.ProjectReferentialsLoader;
 import org.sonar.batch.referential.ProjectReferentialsProvider;
 import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.batch.scan.ProjectSettings;
-import org.sonar.batch.scan.filesystem.InputFileCache;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 
@@ -98,7 +98,7 @@ public class ProjectScanContainer extends ComponentContainer {
       AnalyzerMeasureCache.class,
 
       // file system
-      InputFileCache.class,
+      InputPathCache.class,
       PathResolver.class,
 
       // issues

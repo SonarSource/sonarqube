@@ -46,7 +46,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
- * Index input files into {@link InputFileCache}.
+ * Index input files into {@link InputPathCache}.
  */
 public class FileIndexer implements BatchComponent {
 
@@ -56,18 +56,18 @@ public class FileIndexer implements BatchComponent {
   private static final IOFileFilter FILE_FILTER = HiddenFileFilter.VISIBLE;
 
   private final List<InputFileFilter> filters;
-  private final InputFileCache fileCache;
+  private final InputPathCache fileCache;
   private final boolean isAggregator;
   private final ExclusionFilters exclusionFilters;
   private final InputFileBuilderFactory inputFileBuilderFactory;
 
   public FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-    InputFileCache cache, ProjectDefinition def) {
+    InputPathCache cache, ProjectDefinition def) {
     this(filters, exclusionFilters, inputFileBuilderFactory, cache, !def.getSubProjects().isEmpty());
   }
 
   private FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-    InputFileCache cache, boolean isAggregator) {
+    InputPathCache cache, boolean isAggregator) {
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
     this.inputFileBuilderFactory = inputFileBuilderFactory;
@@ -83,7 +83,7 @@ public class FileIndexer implements BatchComponent {
     LOG.info("Index files");
     exclusionFilters.prepare();
 
-    Progress progress = new Progress(fileCache.byModule(fileSystem.moduleKey()));
+    Progress progress = new Progress(fileCache.filesByModule(fileSystem.moduleKey()));
 
     InputFileBuilder inputFileBuilder = inputFileBuilderFactory.create(fileSystem);
     indexFiles(fileSystem, progress, inputFileBuilder, fileSystem.sources(), InputFile.Type.MAIN);

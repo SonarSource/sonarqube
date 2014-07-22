@@ -27,7 +27,7 @@ import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.scan.filesystem.InputFileCache;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.DryRunIncompatible;
 import org.sonar.core.source.SnapshotDataTypes;
 
@@ -43,10 +43,10 @@ import java.util.Map;
 @DryRunIncompatible
 public final class FileHashSensor implements Sensor {
 
-  private final InputFileCache fileCache;
+  private final InputPathCache fileCache;
   private final ComponentDataCache componentDataCache;
 
-  public FileHashSensor(InputFileCache fileCache, ComponentDataCache componentDataCache) {
+  public FileHashSensor(InputPathCache fileCache, ComponentDataCache componentDataCache) {
     this.fileCache = fileCache;
     this.componentDataCache = componentDataCache;
   }
@@ -58,7 +58,7 @@ public final class FileHashSensor implements Sensor {
   @Override
   public void analyse(Project project, SensorContext context) {
     Map<String, String> map = Maps.newHashMap();
-    for (InputFile inputFile : fileCache.byModule(project.key())) {
+    for (InputFile inputFile : fileCache.filesByModule(project.key())) {
       String hash = ((DeprecatedDefaultInputFile) inputFile).hash();
       if (hash != null) {
         map.put(inputFile.relativePath(), hash);

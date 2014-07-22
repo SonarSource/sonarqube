@@ -22,31 +22,20 @@ package org.sonar.api.batch.fs;
 import java.io.File;
 
 /**
- * This layer over {@link java.io.File} adds information for code analyzers.
+ * Layer over {@link java.io.File} for directories.
  *
- * @since 4.2
+ * @since 4.5
  */
-public interface InputFile extends InputPath {
-
-  enum Type {
-    MAIN, TEST
-  }
-
-  /** 
-   * Status regarding previous analysis
-   */
-  enum Status {
-    SAME, CHANGED, ADDED
-  }
+public interface InputDir extends InputPath {
 
   /**
-   * Path relative to module base directory. Path is unique and identifies file
+   * Path relative to module base directory. Path is unique and identifies directory
    * within given <code>{@link FileSystem}</code>. File separator is the forward
    * slash ('/'), even on Microsoft Windows.
    * <p/>
-   * Returns <code>src/main/java/com/Foo.java</code> if module base dir is
-   * <code>/path/to/module</code> and if file is
-   * <code>/path/to/module/src/main/java/com/Foo.java</code>.
+   * Returns <code>src/main/java/com</code> if module base dir is
+   * <code>/path/to/module</code> and if directory is
+   * <code>/path/to/module/src/main/java/com</code>.
    * <p/>
    * Relative path is not null and is normalized ('foo/../foo' is replaced by 'foo').
    */
@@ -57,7 +46,7 @@ public interface InputFile extends InputPath {
    * Normalized absolute path. File separator is forward slash ('/'), even on Microsoft Windows.
    * <p/>
    * This is not canonical path. Symbolic links are not resolved. For example if /project/src links
-   * to /tmp/src and basedir is /project, then this method returns /project/src/index.php. Use
+   * to /tmp/src and basedir is /project, then this method returns /project/src. Use
    * {@code file().getCanonicalPath()} to resolve symbolic link.
    */
   @Override
@@ -69,25 +58,4 @@ public interface InputFile extends InputPath {
   @Override
   File file();
 
-  /**
-   * Language, for example "java" or "php". It's automatically guessed if it is not
-   * set in project settings.
-   */
-  String language();
-
-  /**
-   * Does it contain main or test code ?
-   */
-  Type type();
-
-  /**
-   * Status regarding previous analysis
-   */
-  Status status();
-
-  /**
-   * Number of physical lines. This method supports all end-of-line characters. Returns
-   * zero if the file is empty.
-   */
-  int lines();
 }

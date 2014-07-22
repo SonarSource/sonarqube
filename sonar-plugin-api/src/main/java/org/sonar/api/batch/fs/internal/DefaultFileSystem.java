@@ -19,10 +19,13 @@
  */
 package org.sonar.api.batch.fs.internal;
 
+import org.sonar.api.utils.PathUtils;
+
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 
 import javax.annotation.CheckForNull;
@@ -155,6 +158,12 @@ public class DefaultFileSystem implements FileSystem {
     return result;
   }
 
+  @Override
+  public InputDir inputDir(File dir) {
+    doPreloadFiles();
+    return cache.inputDir(PathUtils.sanitize(new RelativeP));
+  }
+
   public static Collection<InputFile> filter(Iterable<InputFile> target, FilePredicate predicate) {
     Collection<InputFile> result = new ArrayList<InputFile>();
     for (InputFile element : target) {
@@ -210,6 +219,9 @@ public class DefaultFileSystem implements FileSystem {
     @CheckForNull
     protected abstract InputFile inputFile(RelativePathPredicate predicate);
 
+    @CheckForNull
+    protected abstract InputDir inputDir(String relativePath);
+
     protected abstract void doAdd(InputFile inputFile);
 
     final void add(InputFile inputFile) {
@@ -222,6 +234,7 @@ public class DefaultFileSystem implements FileSystem {
    */
   private static class MapCache extends Cache {
     private final Map<String, InputFile> fileMap = new HashMap<String, InputFile>();
+    private final Map<String, InputDir> dirMap = new HashMap<String, InputDir>();
 
     @Override
     public Iterable<InputFile> inputFiles() {
@@ -231,6 +244,11 @@ public class DefaultFileSystem implements FileSystem {
     @Override
     public InputFile inputFile(RelativePathPredicate predicate) {
       return fileMap.get(predicate.path());
+    }
+
+    @Override
+    protected InputDir inputDir(String relativePath) {
+      return dirMap.get(relativePath);
     }
 
     @Override

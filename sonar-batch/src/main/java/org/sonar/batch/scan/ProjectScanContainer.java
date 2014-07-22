@@ -67,7 +67,7 @@ import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.referential.ProjectReferentialsProvider;
 import org.sonar.batch.rule.RulesProvider;
-import org.sonar.batch.scan.filesystem.InputFileCache;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.scan.measure.MeasureCache;
@@ -153,7 +153,7 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultUserFinder.class,
 
       // file system
-      InputFileCache.class,
+      InputPathCache.class,
       PathResolver.class,
 
       // issues
