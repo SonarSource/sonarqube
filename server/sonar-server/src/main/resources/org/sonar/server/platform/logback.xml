@@ -52,6 +52,8 @@
   <logger name="org.hibernate">
     <level value="WARN"/>
   </logger>
+    <level value="WARN"/>
+  </logger>
 
   <!-- Display SQL requests and results by setting the following loggers to level DEBUG -->
   <logger name="org.hibernate.SQL">

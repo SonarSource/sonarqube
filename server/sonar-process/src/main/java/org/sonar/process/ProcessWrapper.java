@@ -157,7 +157,9 @@ public class ProcessWrapper extends Thread {
   private List<String> getClassPath() {
     // java specification : "multiple path entries are separated by semi-colons", not by
     // system file separator,
-    return ImmutableList.of("-cp", StringUtils.join(classPath, ";"));
+    String separator = System.getProperty("file.separator");
+
+    return ImmutableList.of("-cp", StringUtils.join(classPath, ":"));
   }
 
   private String getPropertyFile() {

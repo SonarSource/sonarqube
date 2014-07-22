@@ -188,6 +188,7 @@ public abstract class Process implements ProcessMXBean {
       }
     }
     LOGGER.trace("Process[{}]::terminate() END", name);
+    System.exit(1);
   }
 
   public final void terminate() {

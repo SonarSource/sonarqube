@@ -64,6 +64,7 @@ public class ForkProcesses {
       "org.sonar.search.ElasticSearch",
       installation.props(),
       "ES",
+      installation.starPath("lib/proc"),
       installation.starPath("lib/search"));
     monitor.registerProcess(elasticsearch);
 
@@ -74,6 +75,7 @@ public class ForkProcesses {
       "org.sonar.server.app.ServerProcess",
       installation.props(),
       "SQ",
+      installation.starPath("lib/proc"),
       installation.starPath("lib"));
     monitor.registerProcess(server);
 

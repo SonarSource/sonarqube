@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mvn clean install -DskipTests -Denforcer.skip=true $*
+mvn clean install -DskipTests -Denforcer.skip=true -pl server/sonar-process,sonar-application
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
   OS='macosx-universal-64'

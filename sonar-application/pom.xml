@@ -91,6 +91,7 @@
       <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
+
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-web</artifactId>
