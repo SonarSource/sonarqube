@@ -36,7 +36,7 @@ public class ElasticSearch extends Process {
 
   public static final String ES_DEBUG_PROPERTY = "esDebug";
   public static final String ES_PORT_PROPERTY = "sonar.es.node.port";
-  public static final String ES_CLUSTER_PROPERTY = "esCluster";
+  public static final String ES_CLUSTER_PROPERTY = "sonar.es.cluster.name";
 
   public static final String DEFAULT_CLUSTER_NAME = "sonarqube";
 

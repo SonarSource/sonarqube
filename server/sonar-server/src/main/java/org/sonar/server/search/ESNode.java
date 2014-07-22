@@ -89,7 +89,9 @@ public class ESNode implements Startable {
       .put("indices.store.throttle.max_bytes_per_sec", "200mb")
 
       .put("script.default_lang", "native")
-      .put("script.native." + ListUpdate.NAME + ".type", UpdateListScriptFactory.class.getName());
+      .put("script.native." + ListUpdate.NAME + ".type", UpdateListScriptFactory.class.getName())
+
+      .put("cluster.name", settings.getString(IndexProperties.CLUSTER_NAME));
 
     initAnalysis(esSettings);
 
