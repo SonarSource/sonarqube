@@ -24,10 +24,16 @@ define [
       'click .js-filter-uncovered-lines': 'filterByUncoveredLines'
       'click .js-filter-branches-to-cover': 'filterByBranchesToCover'
       'click .js-filter-uncovered-branches': 'filterByUncoveredBranches'
+
       'click .js-filter-lines-to-cover-it': 'filterByLinesToCoverIT'
       'click .js-filter-uncovered-lines-it': 'filterByUncoveredLinesIT'
       'click .js-filter-branches-to-cover-it': 'filterByBranchesToCoverIT'
       'click .js-filter-uncovered-branches-it': 'filterByUncoveredBranchesIT'
+
+      'click .js-filter-lines-to-cover-overall': 'filterByLinesToCoverOverall'
+      'click .js-filter-uncovered-lines-overall': 'filterByUncoveredLinesOverall'
+      'click .js-filter-branches-to-cover-overall': 'filterByBranchesToCoverOverall'
+      'click .js-filter-uncovered-branches-overall': 'filterByUncoveredBranchesOverall'
 
 
     coverageTimeChanges: (e) ->
@@ -79,6 +85,26 @@ define [
     filterByUncoveredBranchesIT: (e) ->
       @header.filterLines e, 'filterByUncoveredBranchesIT'
       @state.set 'activeHeaderItem', '.js-filter-uncovered-branches-it'
+
+
+    filterByLinesToCoverOverall: (e) ->
+      @header.filterLines e, 'filterByLinesToCoverOverall'
+      @state.set 'activeHeaderItem', '.js-filter-lines-to-cover-overall'
+
+
+    filterByUncoveredLinesOverall: (e) ->
+      @header.filterLines e, 'filterByUncoveredLinesOverall'
+      @state.set 'activeHeaderItem', '.js-filter-uncovered-lines-overall'
+
+
+    filterByBranchesToCoverOverall: (e) ->
+      @header.filterLines e, 'filterByBranchesToCoverOverall'
+      @state.set 'activeHeaderItem', '.js-filter-branches-to-cover-overall'
+
+
+    filterByUncoveredBranchesOverall: (e) ->
+      @header.filterLines e, 'filterByUncoveredBranchesOverall'
+      @state.set 'activeHeaderItem', '.js-filter-uncovered-branches-overall'
 
 
     serializeData: ->

@@ -54,7 +54,9 @@ define [
   COVERAGE_METRIC_LIST = 'coverage,line_coverage,lines_to_cover,covered_lines,uncovered_lines,' +
     'branch_coverage,conditions_to_cover,uncovered_conditions,' +
     'it_coverage,it_line_coverage,it_lines_to_cover,it_covered_lines,it_uncovered_lines,' +
-    'it_branch_coverage,it_conditions_to_cover,it_uncovered_conditions'
+    'it_branch_coverage,it_conditions_to_cover,it_uncovered_conditions,' +
+    'overall_coverage,overall_line_coverage,overall_lines_to_cover,overall_covered_lines,overall_uncovered_lines,' +
+    'overall_branch_coverage,overall_conditions_to_cover,overall_uncovered_conditions'
 
   ISSUES_METRIC_LIST = 'blocker_violations,critical_violations,major_violations,minor_violations,info_violations,' +
     'false_positive_issues'

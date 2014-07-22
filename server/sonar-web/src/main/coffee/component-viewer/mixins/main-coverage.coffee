@@ -62,6 +62,14 @@ define [], () ->
         @_filterByCoverage(predicate)
 
 
+    filterByCoverageOverall: (predicate) ->
+      requests = [@requestCoverage(@key, 'OVERALL')]
+      if @settings.get('issues') && !@state.get('hasIssues')
+        requests.push @requestIssues @key
+      $.when.apply($, requests).done =>
+        @_filterByCoverage(predicate)
+
+
     _filterByCoverage: (predicate) ->
       period = @state.get('period')
       if period
@@ -113,4 +121,22 @@ define [], () ->
 
     filterByUncoveredBranchesIT: ->
       @filterByCoverageIT (line) -> line?.coverage?.branches? && line.coverage.coveredBranches? &&
+          line.coverage.branches > line.coverage.coveredBranches
+
+
+    # Overall
+    filterByLinesToCoverOverall: ->
+      @filterByCoverageOverall (line) -> line?.coverage?.covered?
+
+
+    filterByUncoveredLinesOverall: ->
+      @filterByCoverageOverall (line) -> line?.coverage?.covered? && !line.coverage.covered
+
+
+    filterByBranchesToCoverOverall: ->
+      @filterByCoverageOverall (line) -> line?.coverage?.branches?
+
+
+    filterByUncoveredBranchesOverall: ->
+      @filterByCoverageOverall (line) -> line?.coverage?.branches? && line.coverage.coveredBranches? &&
           line.coverage.branches > line.coverage.coveredBranches
