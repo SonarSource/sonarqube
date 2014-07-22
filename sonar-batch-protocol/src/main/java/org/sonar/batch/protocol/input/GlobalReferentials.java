@@ -41,8 +41,18 @@ public class GlobalReferentials {
     return globalSettings;
   }
 
+  public GlobalReferentials addGlobalSetting(String key, String value){
+    globalSettings.put(key, value);
+    return this;
+  }
+
   public Collection<Metric> metrics() {
     return metrics;
+  }
+
+  public GlobalReferentials addMetric(Metric metric){
+    metrics.add(metric);
+    return this;
   }
 
   public long timestamp() {

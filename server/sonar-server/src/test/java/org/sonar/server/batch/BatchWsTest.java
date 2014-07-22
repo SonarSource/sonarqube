@@ -28,6 +28,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.config.Settings;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.ws.WsTester;
 
@@ -54,7 +55,7 @@ public class BatchWsTest {
 
   @Before
   public void before() throws IOException {
-    tester = new WsTester(new BatchWs(batchIndex, new GlobalReferentialsAction(mock(DbClient.class))));
+    tester = new WsTester(new BatchWs(batchIndex, new GlobalReferentialsAction(mock(DbClient.class), mock(Settings.class))));
   }
 
   @Test

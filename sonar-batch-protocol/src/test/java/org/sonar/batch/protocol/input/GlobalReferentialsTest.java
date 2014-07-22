@@ -31,13 +31,12 @@ import static org.fest.assertions.Assertions.assertThat;
 public class GlobalReferentialsTest {
 
   @Test
-  public void testToJson() throws Exception {
+  public void to_json() throws Exception {
     GlobalReferentials ref = new GlobalReferentials();
-    ref.metrics().add(new Metric(1, "ncloc", "INT", "Description", -1, "NCLOC", true, false, 2.0, 1.0, true));
-    ref.globalSettings().put("prop", "value");
+    ref.addMetric(new Metric(1, "ncloc", "INT", "Description", -1, "NCLOC", true, false, 2.0, 1.0, true));
+    ref.addGlobalSetting("prop", "value");
     ref.setTimestamp(10);
 
-    System.out.println(ref.toJson());
     JSONAssert
       .assertEquals(
         "{timestamp:10,"
@@ -47,7 +46,7 @@ public class GlobalReferentialsTest {
   }
 
   @Test
-  public void testFromJson() throws JSONException {
+  public void from_json() throws JSONException {
     GlobalReferentials ref = GlobalReferentials
       .fromJson(new StringReader(
         "{timestamp:1,"
