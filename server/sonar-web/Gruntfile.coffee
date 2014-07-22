@@ -70,6 +70,17 @@ module.exports = (grunt) ->
         ]
 
 
+    traceur:
+      build:
+        files: [
+          expand: true
+          cwd: '<%= pkg.sources %>es6'
+          src: ['**/*.js']
+          dest: '<%= pkg.assets %>js'
+          ext: '.js'
+        ]
+
+
     concat:
       dev:
         files:
@@ -83,6 +94,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/third-party/select2.js'
             '<%= pkg.assets %>js/third-party/keymaster.js'
             '<%= pkg.assets %>js/third-party/moment.js'
+            '<%= pkg.assets %>js/third-party/traceur-runtime.js'
             '<%= pkg.assets %>js/select2-jquery-ui-fix.js'
             '<%= pkg.assets %>js/widgets/base.js'
             '<%= pkg.assets %>js/widgets/widget.js'
@@ -116,6 +128,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/third-party/select2.js'
             '<%= pkg.assets %>js/third-party/keymaster.js'
             '<%= pkg.assets %>js/third-party/moment.js'
+            '<%= pkg.assets %>js/third-party/traceur-runtime.js'
             '<%= pkg.assets %>js/select2-jquery-ui-fix.js'
             '<%= pkg.assets %>js/widgets/base.js'
             '<%= pkg.assets %>js/widgets/widget.js'
@@ -306,6 +319,10 @@ module.exports = (grunt) ->
         files: '<%= pkg.sources %>coffee/**/*.coffee'
         tasks: ['coffee:build', 'copy:js', 'concat:dev']
 
+      traceur:
+        files: '<%= pkg.sources %>es6/**/*.js'
+        tasks: ['traceur:build', 'copy:js', 'concat:dev']
+
       js:
         files: '<%= pkg.sources %>js/**/*.js'
         tasks: ['copy:js', 'concat:dev']
@@ -329,23 +346,24 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-concat'
   grunt.loadNpmTasks 'grunt-express-server'
   grunt.loadNpmTasks 'grunt-casper'
+  grunt.loadNpmTasks 'grunt-traceur'
 
 
   # Define tasks
   grunt.registerTask 'dev', ['clean:css', 'clean:js',
                              'less:dev',
-                             'coffee:build', 'handlebars:build', 'copy:js',
+                             'coffee:build', 'traceur:build', 'handlebars:build', 'copy:js',
                              'concat:dev']
 
 
   grunt.registerTask 'default', ['clean:css', 'clean:js',
                                  'less:build', 'cssUrlRewrite:build'
-                                 'coffee:build', 'handlebars:build', 'copy:js',
+                                 'coffee:build', 'traceur:build', 'handlebars:build', 'copy:js',
                                  'concat:build',
                                  'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'clean:build']
 
-  grunt.registerTask 'test', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
+  grunt.registerTask 'test', ['clean:js', 'coffee:build', 'traceur:build', 'handlebars:build', 'copy:js', 'concat:dev',
                               'express:test', 'casper:test']
 
-  grunt.registerTask 'single', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
+  grunt.registerTask 'single', ['clean:js', 'coffee:build', 'traceur:build', 'handlebars:build', 'copy:js', 'concat:dev',
                             'express:test', 'casper:single']
