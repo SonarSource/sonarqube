@@ -60,7 +60,7 @@ public class ProcessWrapper extends Thread {
   private final List<String> javaOpts = new ArrayList<String>();
   private final List<String> classpath = new ArrayList<String>();
   private final Map<String, String> envProperties = new HashMap<String, String>();
-  private final Map<String, String> arguments = new HashMap<String, String>();
+  private final Map<String, String> properties = new HashMap<String, String>();
   private File workDir;
   private File propertiesFile;
   private java.lang.Process process;
@@ -82,14 +82,14 @@ public class ProcessWrapper extends Thread {
     return this;
   }
 
-  public ProcessWrapper setArgument(String key, String value) {
-    arguments.put(key, value);
+  public ProcessWrapper setProperty(String key, String value) {
+    properties.put(key, value);
     return this;
   }
 
-  public ProcessWrapper setArguments(Map<String, String> args) {
-    arguments.clear();
-    arguments.putAll(args);
+  public ProcessWrapper setProperties(Map<String, String> args) {
+    properties.clear();
+    properties.putAll(args);
     return this;
   }
 
@@ -125,7 +125,7 @@ public class ProcessWrapper extends Thread {
     return this;
   }
 
-  public void execute() {
+  public ProcessWrapper execute() {
     List<String> command = new ArrayList<String>();
     command.add(buildJavaCommand());
     command.addAll(javaOpts);
@@ -137,6 +137,7 @@ public class ProcessWrapper extends Thread {
     ProcessBuilder processBuilder = new ProcessBuilder();
     processBuilder.command(command);
     processBuilder.directory(workDir);
+    processBuilder.environment().putAll(envProperties);
 
     try {
       LOGGER.debug("ProcessWrapper::executeProcess() -- Starting process with command '{}'", StringUtils.join(command, " "));
@@ -147,6 +148,7 @@ public class ProcessWrapper extends Thread {
       outputGobbler.start();
       errorGobbler.start();
       processMXBean = waitForJMX();
+      return this;
 
     } catch (IOException e) {
       throw new IllegalStateException("Fail to start process: " + StringUtils.join(command, " "), e);
@@ -214,14 +216,14 @@ public class ProcessWrapper extends Thread {
   }
 
   private List<String> buildClasspath() {
-    return Arrays.asList("-cp", StringUtils.join(classpath, ";"));
+    return Arrays.asList("-cp", StringUtils.join(classpath, System.getProperty("path.separator")));
   }
 
   private File buildPropertiesFile() {
     try {
       propertiesFile = File.createTempFile("sq-conf", "properties");
       Properties props = new Properties();
-      props.putAll(arguments);
+      props.putAll(properties);
       props.put(Process.NAME_PROPERTY, processName);
       props.put(Process.PORT_PROPERTY, String.valueOf(jmxPort));
       OutputStream out = new FileOutputStream(propertiesFile);

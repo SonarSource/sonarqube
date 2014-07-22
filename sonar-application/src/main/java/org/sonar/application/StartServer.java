@@ -34,15 +34,6 @@ public class StartServer {
   public StartServer() throws Exception {
     Installation installation = new Installation();
 
-    String esPort = installation.prop("sonar.es.node.port", null);
-    if (esPort == null) {
-      esPort = String.valueOf(NetworkUtils.freePort());
-    }
-    String esCluster = installation.prop("sonar.es.cluster.name", null);
-    if (esCluster == null) {
-      installation.setProp("sonar.es.cluster.name", "sonarqube");
-    }
-
     shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
@@ -57,29 +48,35 @@ public class StartServer {
     String opts = installation.prop("sonar.es.javaOpts", "-server -Xmx256m -Xms128m -Xss256k -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly");
     elasticsearch = new ProcessWrapper("ES")
       .setWorkDir(installation.homeDir())
+      .setJmxPort(NetworkUtils.freePort())
       .addJavaOpts(opts)
+      .addJavaOpts("-Djava.io.tmpdir=" + installation.tempDir().getAbsolutePath())
+      .setEnvProperty("SONAR_HOME", installation.homeDir().getAbsolutePath())
       .setClassName("org.sonar.search.ElasticSearch")
-      .setArguments(installation.props())
-      .setArgument("sonar.es.node.port", esPort)
+      .setProperties(installation.props())
       .addClasspath(installation.starPath("lib/common"))
-      .addClasspath(installation.starPath("lib/search"));
+      .addClasspath(installation.starPath("lib/search"))
+      .execute();
     monitor.registerProcess(elasticsearch);
 
 
-    opts = installation.prop("sonar.web.javaOpts", "-Xmx768m -server -XX:MaxPermSize=160m -Djava.awt.headless=true -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -Djruby.management.enabled=false");
+    opts = installation.prop("sonar.web.javaOpts", "-Xmx768m -server -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError");
     server = new ProcessWrapper("SQ")
       .setWorkDir(installation.homeDir())
+      .setJmxPort(NetworkUtils.freePort())
       .addJavaOpts(opts)
+      .addJavaOpts("-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false")
+      .addJavaOpts("-Djava.io.tmpdir=" + installation.tempDir().getAbsolutePath())
       .setClassName("org.sonar.server.app.ServerProcess")
       .setEnvProperty("SONAR_HOME", installation.homeDir().getAbsolutePath())
-      .setArguments(installation.props())
-      .setArgument("sonar.es.type", "TRANSPORT")
+      .setProperties(installation.props())
       .addClasspath(installation.starPath("extensions/jdbc-driver/mysql"))
       .addClasspath(installation.starPath("extensions/jdbc-driver/mssql"))
       .addClasspath(installation.starPath("extensions/jdbc-driver/oracle"))
       .addClasspath(installation.starPath("extensions/jdbc-driver/postgresql"))
       .addClasspath(installation.starPath("lib/common"))
-      .addClasspath(installation.starPath("lib/server"));
+      .addClasspath(installation.starPath("lib/server"))
+      .execute();
     monitor.registerProcess(server);
 
     monitor.start();

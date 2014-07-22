@@ -34,10 +34,8 @@ import java.io.File;
 public class ElasticSearch extends Process {
 
   public static final String ES_DEBUG_PROPERTY = "esDebug";
-  public static final String ES_PORT_PROPERTY = "sonar.es.node.port";
+  public static final String ES_PORT_PROPERTY = "sonar.es.port";
   public static final String ES_CLUSTER_PROPERTY = "sonar.es.cluster.name";
-
-  public static final String DEFAULT_CLUSTER_NAME = "sonarqube";
 
   private Node node;
 
@@ -121,7 +119,7 @@ public class ElasticSearch extends Process {
   public void onStart() {
     String dataDir = props.of("sonar.path.data");
     Integer port = props.intOf(ES_PORT_PROPERTY);
-    String clusterName = props.of(ES_CLUSTER_PROPERTY, DEFAULT_CLUSTER_NAME);
+    String clusterName = props.of(ES_CLUSTER_PROPERTY);
 
     LoggerFactory.getLogger(ElasticSearch.class).info("Starting ES[{}] on port: {}", clusterName, port);
 

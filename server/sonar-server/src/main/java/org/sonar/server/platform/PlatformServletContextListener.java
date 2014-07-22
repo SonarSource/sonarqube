@@ -100,7 +100,6 @@ public final class PlatformServletContextListener implements ServletContextListe
       // Line below used in last resort
       "false");
     Map<String, String> variables = ImmutableMap.of(
-      "RAILS_LOGGER_LEVEL", profilingLevel == Profiling.Level.FULL ? "DEBUG" : "WARN",
       "LOGFILE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? LOGFILE_FULL_LOGGING_FORMAT : LOGFILE_STANDARD_LOGGING_FORMAT,
       "CONSOLE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? CONSOLE_FULL_LOGGING_FORMAT : CONSOLE_STANDARD_LOGGING_FORMAT,
       "CONSOLE_ENABLED", consoleEnabled);

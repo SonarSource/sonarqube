@@ -22,6 +22,9 @@ package org.sonar.application;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.process.NetworkUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -34,18 +37,34 @@ import java.util.Map;
 import java.util.Properties;
 
 public class Installation {
+  private static final Logger LOG = LoggerFactory.getLogger(Installation.class);
 
   // guessed from location of sonar-application.jar
   private final File homeDir;
   private final File tempDir, dataDir, logsDir, webDir;
-  private final Map<String, String> props = new HashMap<String, String>();
+  private final Map<String, String> props;
 
   Installation() throws URISyntaxException, IOException {
-    // TODO make it configurable with sonar.path.home ?
     // lib/sonar-application.jar
     File appJar = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
     homeDir = appJar.getParentFile().getParentFile();
 
+    props = initProps(homeDir);
+
+    // init file system
+    props.put("sonar.path.home", homeDir.getAbsolutePath());
+    this.dataDir = existingDir("sonar.path.data", "data");
+    this.tempDir = freshDir("sonar.path.temp", "temp");
+    this.logsDir = existingDir("sonar.path.logs", "logs");
+    this.webDir = existingDir("sonar.path.web", "web");
+
+    initElasticsearch();
+  }
+
+  /**
+   * Load conf/sonar.properties
+   */
+  private static Map<String, String> initProps(File homeDir) throws IOException {
     Properties p = new Properties();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     if (propsFile.exists()) {
@@ -55,22 +74,31 @@ public class Installation {
       } finally {
         IOUtils.closeQuietly(reader);
       }
+    } else {
+      LOG.info("Configuration file not found: " + propsFile.getAbsolutePath());
     }
     p.putAll(System.getenv());
     p.putAll(System.getProperties());
     p = ConfigurationUtils.interpolateEnvVariables(p);
+    Map<String, String> result = new HashMap<String, String>();
     for (Map.Entry<Object, Object> entry : p.entrySet()) {
       Object val = entry.getValue();
       if (val != null) {
-        this.props.put(entry.getKey().toString(), val.toString());
+        result.put(entry.getKey().toString(), val.toString());
       }
     }
+    return result;
+  }
 
-    props.put("sonar.path.home", homeDir.getAbsolutePath());
-    this.dataDir = existingDir("sonar.path.data", "data");
-    this.tempDir = freshDir("sonar.path.temp", "temp");
-    this.logsDir = existingDir("sonar.path.logs", "logs");
-    this.webDir = existingDir("sonar.path.web", "web");
+  private void initElasticsearch() {
+    // init Elasticsearch
+    if (props.get("sonar.es.port") == null) {
+      props.put("sonar.es.port", String.valueOf(NetworkUtils.freePort()));
+    }
+    if (props.get("sonar.es.cluster.name") == null) {
+      props.put("sonar.es.cluster.name", "sonarqube");
+    }
+    props.put("sonar.es.type", "TRANSPORT");
   }
 
   File homeDir() {
@@ -126,6 +154,10 @@ public class Installation {
 
   Map<String, String> props() {
     return props;
+  }
+
+  String prop(String key) {
+    return props.get(key);
   }
 
   @CheckForNull

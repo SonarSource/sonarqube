@@ -24,7 +24,6 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerFileSystem;
@@ -32,7 +31,6 @@ import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.dialect.H2;
 
 import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -71,16 +69,10 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
   @Override
   public void start() {
     LOGGER.info("SonarQube home: " + homeDir.getAbsolutePath());
-    if (!homeDir.isDirectory() || !homeDir.exists()) {
-      throw new IllegalStateException("SonarQube home directory does not exist");
-    }
-
     try {
       if (getDeployDir() == null) {
         throw new IllegalArgumentException("Web app directory does not exist: " + getDeployDir());
       }
-
-      LOGGER.info("Deploy dir: " + getDeployDir().getAbsolutePath());
       FileUtils.forceMkdir(getDeployDir());
       for (File subDirectory : getDeployDir().listFiles((FileFilter) FileFilterUtils.directoryFileFilter())) {
         FileUtils.cleanDirectory(subDirectory);
