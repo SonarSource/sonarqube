@@ -35,7 +35,7 @@ public class ElasticSearch extends Process {
 
   public static final String ES_DEBUG_PROPERTY = "esDebug";
   public static final String ES_PORT_PROPERTY = "sonar.es.port";
-  public static final String ES_CLUSTER_PROPERTY = "sonar.es.cluster.name";
+  public static final String ES_CLUSTER_PROPERTY = "sonar.es.clusterName";
 
   private Node node;
 
@@ -164,7 +164,7 @@ public class ElasticSearch extends Process {
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {
-
+        // TODO
       }
     }
   }

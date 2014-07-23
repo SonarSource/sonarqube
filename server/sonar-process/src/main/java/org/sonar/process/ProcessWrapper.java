@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -131,22 +132,19 @@ public class ProcessWrapper extends Thread {
     try {
       LOGGER.debug("ProcessWrapper::executeProcess() -- Starting process with command '{}'", StringUtils.join(command, " "));
       process = processBuilder.start();
-      LOGGER.debug("ProcessWrapper::executeProcess() -- Process started: {}", process.toString());
       errorGobbler = new StreamGobbler(process.getErrorStream(), this.getName() + "-ERROR");
       outputGobbler = new StreamGobbler(process.getInputStream(), this.getName());
       outputGobbler.start();
       errorGobbler.start();
       processMXBean = waitForJMX();
       return this;
-
     } catch (IOException e) {
-      throw new IllegalStateException("Fail to start process: " + StringUtils.join(command, " "), e);
+      throw new IllegalStateException("Fail to start command: " + StringUtils.join(command, " "), e);
     }
   }
 
   @Override
   public void run() {
-    LOGGER.trace("ProcessWrapper::run() START");
     try {
       process.waitFor();
     } catch (InterruptedException e) {
@@ -156,6 +154,7 @@ public class ProcessWrapper extends Thread {
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
       closeStreams(process);
+      FileUtils.deleteQuietly(propertiesFile);
     }
     //process.destroy(); //Uncertain if this is required or not...
     LOGGER.trace("ProcessWrapper::run() END");

@@ -33,6 +33,10 @@ public class Props {
     this.encryption = new Encryption(props.getProperty(AesCipher.ENCRYPTION_SECRET_KEY_PATH));
   }
 
+  public boolean contains(String key) {
+    return props.containsKey(key);
+  }
+
   @CheckForNull
   public String of(String key) {
     String value = props.getProperty(key);
@@ -81,5 +85,11 @@ public class Props {
   public Props set(String key, @Nullable String value) {
     props.setProperty(key, value);
     return this;
+  }
+
+  public void setDefault(String propKey, String defaultValue) {
+    if (!props.contains(propKey)) {
+      props.setProperty(propKey, defaultValue);
+    }
   }
 }

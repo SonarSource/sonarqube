@@ -24,7 +24,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.NetworkUtils;
 import org.sonar.process.Props;
 
 import javax.annotation.CheckForNull;
@@ -39,7 +38,7 @@ public class Installation {
   private static final Logger LOG = LoggerFactory.getLogger(Installation.class);
 
   private final File homeDir;
-  private final File tempDir, dataDir, logsDir, webDir;
+  private final File tempDir, logsDir;
   private final Props props;
 
   Installation() throws URISyntaxException, IOException {
@@ -48,14 +47,13 @@ public class Installation {
     homeDir = appJar.getParentFile().getParentFile();
 
     props = initProps(homeDir);
+    DefaultSettings.initDefaults(props);
 
     // init file system
+    initExistingDir("sonar.path.data", "data");
+    initExistingDir("sonar.path.web", "lib/web");
     this.tempDir = initTempDir("sonar.path.temp", "temp");
-    this.dataDir = existingDir("sonar.path.data", "data");
-    this.logsDir = existingDir("sonar.path.logs", "logs");
-    this.webDir = existingDir("sonar.path.web", "web");
-
-    initElasticsearch();
+    this.logsDir = initExistingDir("sonar.path.logs", "logs");
   }
 
   /**
@@ -78,17 +76,6 @@ public class Installation {
     p.putAll(System.getProperties());
     p.setProperty("sonar.path.home", homeDir.getAbsolutePath());
     return new Props(p);
-  }
-
-  private void initElasticsearch() {
-    int port = props.intOf("sonar.es.port", 0);
-    if (port <= 0) {
-      props.set("sonar.es.port", String.valueOf(NetworkUtils.freePort()));
-    }
-    if (props.of("sonar.es.cluster.name") == null) {
-      props.set("sonar.es.cluster.name", "sonarqube");
-    }
-    props.set("sonar.es.type", "TRANSPORT");
   }
 
   File homeDir() {
@@ -120,7 +107,7 @@ public class Installation {
     return dir;
   }
 
-  private File existingDir(String propKey, String defaultRelativePath) throws IOException {
+  private File initExistingDir(String propKey, String defaultRelativePath) throws IOException {
     File dir = configuredDir(propKey, defaultRelativePath);
     if (!dir.exists()) {
       throw new IllegalStateException(String.format("Directory does not exist: %s. Please check property %s", dir.getAbsolutePath(), propKey));
@@ -144,6 +131,11 @@ public class Installation {
   @CheckForNull
   String prop(String key, @Nullable String defaultValue) {
     return props.of(key, defaultValue);
+  }
+
+  @CheckForNull
+  String prop(String key) {
+    return props.of(key);
   }
 
   public Props props() {

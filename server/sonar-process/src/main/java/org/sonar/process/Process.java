@@ -54,7 +54,6 @@ public abstract class Process implements ProcessMXBean {
   private Integer port;
 
   protected final Props props;
-  private Thread shutdownHook;
 
   private static final long MAX_ALLOWED_TIME = 15000L;
   private ScheduledFuture<?> pingTask = null;
@@ -120,7 +119,7 @@ public abstract class Process implements ProcessMXBean {
       throw new IllegalStateException("Process is not a compliant MBean", e);
     }
 
-    shutdownHook = new Thread(new Runnable() {
+    Thread shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
         terminate();

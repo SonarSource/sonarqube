@@ -38,4 +38,4 @@ echo ''
 echo ''
 echo ''
 
-mvn clean install -DskipTests $*
+mvn clean install -DskipTests -Pdev $*

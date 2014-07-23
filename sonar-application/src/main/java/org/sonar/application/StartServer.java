@@ -22,7 +22,6 @@ package org.sonar.application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Monitor;
-import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessWrapper;
 
 import javax.annotation.Nullable;
@@ -49,11 +48,10 @@ public class StartServer {
 
     monitor = new Monitor();
 
-    String opts = installation.prop("sonar.es.javaOpts", "-server -Xmx256m -Xms128m -Xss256k -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly");
     elasticsearch = new ProcessWrapper("ES")
       .setWorkDir(installation.homeDir())
-      .setJmxPort(NetworkUtils.freePort())
-      .addJavaOpts(opts)
+      .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.ES_JMX_PORT_KEY)))
+      .addJavaOpts(installation.prop(DefaultSettings.ES_JAVA_OPTS_KEY))
       .addJavaOpts("-Djava.io.tmpdir=" + installation.tempDir().getAbsolutePath())
       .addJavaOpts("-Dsonar.path.logs=" + installation.logsDir().getAbsolutePath())
       .setClassName("org.sonar.search.ElasticSearch")
@@ -64,12 +62,11 @@ public class StartServer {
     monitor.registerProcess(elasticsearch);
 
 
-    opts = installation.prop("sonar.web.javaOpts", "-Xmx768m -server -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError");
     server = new ProcessWrapper("SQ")
       .setWorkDir(installation.homeDir())
-      .setJmxPort(NetworkUtils.freePort())
-      .addJavaOpts(opts)
-      .addJavaOpts("-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false")
+      .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.WEB_JMX_PORT_KEY)))
+      .addJavaOpts(installation.prop(DefaultSettings.WEB_JAVA_OPTS_KEY))
+      .addJavaOpts(DefaultSettings.WEB_JAVA_OPTS_APPENDED_VAL)
       .addJavaOpts("-Djava.io.tmpdir=" + installation.tempDir().getAbsolutePath())
       .addJavaOpts("-Dsonar.path.logs=" + installation.logsDir().getAbsolutePath())
       .setClassName("org.sonar.server.app.ServerProcess")
@@ -114,7 +111,7 @@ public class StartServer {
       try {
         process.join();
       } catch (InterruptedException e) {
-        process = null;
+        // TODO
       }
     }
   }

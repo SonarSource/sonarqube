@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -10,19 +11,21 @@
 
   <artifactId>sonar-application</artifactId>
   <packaging>jar</packaging>
-
   <name>SonarQube :: Application</name>
   <description>Package the standalone distribution</description>
 
+  <properties>
+    <assembly.recompressZippedFiles>true</assembly.recompressZippedFiles>
+  </properties>
+
+
   <dependencies>
-
-
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-process</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
@@ -145,8 +148,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-        <groupId>org.sonatype.jsw-binaries</groupId>
-        <artifactId>jsw-binaries</artifactId>
+      <groupId>org.sonatype.jsw-binaries</groupId>
+      <artifactId>jsw-binaries</artifactId>
       <version>3.2.3.6</version>
       <type>tar.gz</type>
       <scope>provided</scope>
@@ -236,7 +239,7 @@
               <descriptors>
                 <descriptor>assembly.xml</descriptor>
               </descriptors>
-              <recompressZippedFiles>true</recompressZippedFiles>
+              <recompressZippedFiles>${assembly.recompressZippedFiles}</recompressZippedFiles>
             </configuration>
           </execution>
         </executions>
@@ -248,8 +251,8 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="md5" />
-                <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="sha" />
+                <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="md5"/>
+                <checksum file="${project.build.directory}/sonarqube-${project.version}.zip" algorithm="sha"/>
               </target>
             </configuration>
             <goals>
@@ -297,6 +300,12 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>dev</id>
+      <properties>
+        <assembly.recompressZippedFiles>false</assembly.recompressZippedFiles>
+      </properties>
     </profile>
   </profiles>
 
