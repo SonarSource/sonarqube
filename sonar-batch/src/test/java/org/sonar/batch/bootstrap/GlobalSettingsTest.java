@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
@@ -28,20 +27,19 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.batch.settings.SettingsReferential;
+import org.sonar.batch.protocol.input.GlobalReferentials;
 
 import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class GlobalSettingsTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  SettingsReferential settingsRef = mock(SettingsReferential.class);
+  GlobalReferentials globalRef;
   ProjectDefinition project = ProjectDefinition.create().setKey("struts");
   Configuration deprecatedConf = new BaseConfiguration();
   BootstrapProperties bootstrapProps;
@@ -50,15 +48,16 @@ public class GlobalSettingsTest {
 
   @Before
   public void prepare() {
+    globalRef = new GlobalReferentials();
     bootstrapProps = new BootstrapProperties(Collections.<String, String>emptyMap());
     mode = mock(AnalysisMode.class);
   }
 
   @Test
   public void should_load_global_settings() {
-    when(settingsRef.globalSettings()).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true"));
+    globalRef.globalSettings().put("sonar.cpd.cross", "true");
 
-    GlobalSettings batchSettings = new GlobalSettings(bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
+    GlobalSettings batchSettings = new GlobalSettings(bootstrapProps, new PropertyDefinitions(), globalRef, deprecatedConf, mode);
 
     assertThat(batchSettings.getBoolean("sonar.cpd.cross")).isTrue();
   }

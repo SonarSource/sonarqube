@@ -20,11 +20,21 @@
 package org.sonar.batch.referential;
 
 import org.picocontainer.injectors.ProviderAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.protocol.input.GlobalReferentials;
 
 public class GlobalReferentialsProvider extends ProviderAdapter {
 
+  private static final Logger LOG = LoggerFactory.getLogger(GlobalReferentialsProvider.class);
+
   public GlobalReferentials provide(GlobalReferentialsLoader loader) {
-    return loader.load();
+    TimeProfiler profiler = new TimeProfiler(LOG).start("Load global referentials");
+    try {
+      return loader.load();
+    } finally {
+      profiler.stop();
+    }
   }
 }

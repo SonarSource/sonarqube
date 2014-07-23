@@ -34,6 +34,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.GlobalSettings;
+import org.sonar.batch.protocol.input.GlobalReferentials;
 import org.sonar.batch.settings.SettingsReferential;
 
 import java.util.Collections;
@@ -57,7 +58,7 @@ public class ProjectSettingsTest {
   @Before
   public void prepare() {
     mode = mock(AnalysisMode.class);
-    bootstrapProps = new GlobalSettings(new BootstrapProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
+    bootstrapProps = new GlobalSettings(new BootstrapProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), new GlobalReferentials(), deprecatedConf, mode);
   }
 
   @Test

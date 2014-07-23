@@ -47,11 +47,6 @@ public class DefaultSettingsReferential implements SettingsReferential {
   }
 
   @Override
-  public Map<String, String> globalSettings() {
-    return downloadSettings(null);
-  }
-
-  @Override
   public Map<String, String> projectSettings(String moduleKey) {
     return downloadSettings(moduleKey);
   }

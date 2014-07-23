@@ -92,7 +92,7 @@ public class ServerClient implements BatchComponent {
     }
   }
 
-  private InputSupplier<InputStream> doRequest(String pathStartingWithSlash, @Nullable Integer timeoutMillis) {
+  public InputSupplier<InputStream> doRequest(String pathStartingWithSlash, @Nullable Integer timeoutMillis) {
     Preconditions.checkArgument(pathStartingWithSlash.startsWith("/"), "Path must start with slash /");
     String path = StringEscapeUtils.escapeHtml(pathStartingWithSlash);
 

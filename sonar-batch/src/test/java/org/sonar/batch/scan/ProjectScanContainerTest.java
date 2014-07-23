@@ -40,6 +40,7 @@ import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
+import org.sonar.batch.protocol.input.GlobalReferentials;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.batch.referential.ProjectReferentialsLoader;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
@@ -70,10 +71,10 @@ public class ProjectScanContainerTest {
     parentContainer.add(bootstrapProperties);
     parentContainer.add(analysisMode);
     parentContainer.add(new PropertiesConfiguration());
-    SettingsReferential settingsReferential = mock(SettingsReferential.class);
-    settings = new GlobalSettings(bootstrapProperties, new PropertyDefinitions(), settingsReferential, new PropertiesConfiguration(), analysisMode);
+    GlobalReferentials globalRef = new GlobalReferentials();
+    settings = new GlobalSettings(bootstrapProperties, new PropertyDefinitions(), globalRef, new PropertiesConfiguration(), analysisMode);
     parentContainer.add(settings);
-    parentContainer.add(settingsReferential);
+    parentContainer.add(mock(SettingsReferential.class));
     ProjectReferentialsLoader projectReferentialsLoader = new ProjectReferentialsLoader() {
       @Override
       public ProjectReferentials load(ProjectReactor reactor, Settings settings, Languages languages) {

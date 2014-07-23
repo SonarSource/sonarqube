@@ -36,8 +36,6 @@ public class DefaultSettingsReferentialTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private static final String JSON_RESPONSE = "[{\"k\":\"sonar.cpd.cross\",\"v\":\"true\"}]";
-
   private static final String REACTOR_JSON_RESPONSE = "[{\"k\":\"sonar.cpd.cross\",\"v\":\"true\"}," +
     "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"jacoco\"}]";
 
@@ -60,10 +58,4 @@ public class DefaultSettingsReferentialTest {
     assertThat(ref.projectSettings("struts")).hasSize(2).includes(MapAssert.entry("sonar.cpd.cross", "true"));
   }
 
-  @Test
-  public void should_load_global_settings() {
-    when(client.request("/batch_bootstrap/properties?dryRun=false")).thenReturn(JSON_RESPONSE);
-
-    assertThat(ref.globalSettings()).hasSize(1).includes(MapAssert.entry("sonar.cpd.cross", "true"));
-  }
 }

@@ -20,41 +20,36 @@
 package org.sonar.batch.bootstrap;
 
 import org.apache.commons.configuration.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.settings.SettingsReferential;
+import org.sonar.batch.protocol.input.GlobalReferentials;
 
 import javax.annotation.Nullable;
 
 public class GlobalSettings extends Settings {
 
-  private static final Logger LOG = LoggerFactory.getLogger(GlobalSettings.class);
-
   private Configuration deprecatedConfiguration;
 
   private final BootstrapProperties bootstrapProps;
-  private final SettingsReferential settingsReferential;
+  private final GlobalReferentials globalReferentials;
   private final AnalysisMode mode;
 
   public GlobalSettings(BootstrapProperties bootstrapProps, PropertyDefinitions propertyDefinitions,
-    SettingsReferential settingsReferential, Configuration deprecatedConfiguration, AnalysisMode mode) {
+    GlobalReferentials globalReferentials, Configuration deprecatedConfiguration, AnalysisMode mode) {
 
     super(propertyDefinitions);
     this.mode = mode;
     getEncryption().setPathToSecretKey(bootstrapProps.property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     this.bootstrapProps = bootstrapProps;
-    this.settingsReferential = settingsReferential;
+    this.globalReferentials = globalReferentials;
     this.deprecatedConfiguration = deprecatedConfiguration;
     init();
   }
 
   private void init() {
-    LOG.info("Load global settings");
-    addProperties(settingsReferential.globalSettings());
+    addProperties(globalReferentials.globalSettings());
     addProperties(bootstrapProps.properties());
   }
 

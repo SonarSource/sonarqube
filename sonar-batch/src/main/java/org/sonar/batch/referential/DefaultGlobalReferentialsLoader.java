@@ -19,49 +19,33 @@
  */
 package org.sonar.batch.referential;
 
-import org.sonar.api.measures.Metric;
+import com.google.common.base.Charsets;
+import com.google.common.io.InputSupplier;
+import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.input.GlobalReferentials;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 
-import java.util.Collection;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
-/**
- * TODO This is currently implemented by accessing DB but should be replaced by WS call
- */
 public class DefaultGlobalReferentialsLoader implements GlobalReferentialsLoader {
 
-  private static final String ENABLED = "enabled";
+  private static final String BATCH_GLOBAL_URL = "/batch/global";
 
-  private final DatabaseSessionFactory sessionFactory;
+  private final ServerClient serverClient;
 
-  public DefaultGlobalReferentialsLoader(DatabaseSessionFactory sessionFactory) {
-    this.sessionFactory = sessionFactory;
+  public DefaultGlobalReferentialsLoader(ServerClient serverClient) {
+    this.serverClient = serverClient;
   }
 
   @Override
   public GlobalReferentials load() {
-    GlobalReferentials ref = new GlobalReferentials();
-    for (Metric m : sessionFactory.getSession().getResults(Metric.class, ENABLED, true)) {
-      Boolean optimizedBestValue = m.isOptimizedBestValue();
-      Boolean qualitative = m.getQualitative();
-      Boolean userManaged = m.getUserManaged();
-      ref.metrics().add(
-        new org.sonar.batch.protocol.input.Metric(m.getId(), m.getKey(),
-          m.getType().name(),
-          m.getDescription(),
-          m.getDirection(),
-          m.getName(),
-          qualitative != null ? m.getQualitative() : false,
-          userManaged != null ? m.getUserManaged() : false,
-          m.getWorstValue(),
-          m.getBestValue(),
-          optimizedBestValue != null ? optimizedBestValue : false));
+    InputSupplier<InputStream> jsonStream = serverClient.doRequest(BATCH_GLOBAL_URL, null);
+    try {
+      return GlobalReferentials.fromJson(new InputStreamReader(jsonStream.getInput(), Charsets.UTF_8));
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to load global referentials", e);
     }
-
-    return ref;
   }
 
-  private Collection<Metric> doFindAll() {
-    return sessionFactory.getSession().getResults(Metric.class, ENABLED, true);
-  }
 }

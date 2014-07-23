@@ -30,11 +30,6 @@ import java.util.Map;
 public interface SettingsReferential extends BatchComponent {
 
   /**
-   * Provide global settings
-   */
-  Map<String, String> globalSettings();
-
-  /**
    * Provide settings for a given project or sub-project (includes global settings)
    * @param projectKey
    */

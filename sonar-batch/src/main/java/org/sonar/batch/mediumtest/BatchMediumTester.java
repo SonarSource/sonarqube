@@ -108,7 +108,7 @@ public class BatchMediumTester {
 
     public BatchMediumTesterBuilder addDefaultQProfile(String language, String name) {
       addQProfile(language, name);
-      settingsReferential.globalSettings().put("sonar.profile." + language, name);
+      globalRefProvider.globalSettings().put("sonar.profile." + language, name);
       return this;
     }
 
@@ -253,6 +253,10 @@ public class BatchMediumTester {
       return ref;
     }
 
+    public Map<String, String> globalSettings() {
+      return ref.globalSettings();
+    }
+
     public FakeGlobalReferentialsLoader add(Metric metric) {
       ref.metrics().add(new org.sonar.batch.protocol.input.Metric(metricId,
         metric.key(),
@@ -292,13 +296,7 @@ public class BatchMediumTester {
 
   private static class FakeSettingsReferential implements SettingsReferential {
 
-    private Map<String, String> globalSettings = new HashMap<String, String>();
     private Map<String, Map<String, String>> projectSettings = new HashMap<String, Map<String, String>>();
-
-    @Override
-    public Map<String, String> globalSettings() {
-      return globalSettings;
-    }
 
     @Override
     public Map<String, String> projectSettings(String projectKey) {
