@@ -23,20 +23,19 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
+import org.sonar.process.Props;
 
 import java.io.File;
 
 class EmbeddedTomcat {
 
-  public static final String TEMP_RELATIVE_PATH = "temp/tomcat";
-
-  private final Env env;
+  private final Props props;
   private Tomcat tomcat = null;
   private Thread hook = null;
   private boolean stopping = false, ready = false;
 
-  EmbeddedTomcat(Env env) {
-    this.env = env;
+  EmbeddedTomcat(Props props) {
+    this.props = props;
   }
 
   void start() {
@@ -54,16 +53,17 @@ class EmbeddedTomcat {
       tomcat = new Tomcat();
 
       // Initialize directories
-      String basedir = env.freshDir(TEMP_RELATIVE_PATH).getCanonicalPath();
+      File tomcatDir = tomcatBasedir();
+      String basedir = tomcatDir.getAbsolutePath();
       tomcat.setBaseDir(basedir);
       tomcat.getHost().setAppBase(basedir);
       tomcat.getHost().setAutoDeploy(false);
       tomcat.getHost().setCreateDirs(false);
       tomcat.getHost().setDeployOnStartup(true);
 
-      Logging.configure(tomcat, env, env.props());
-      Connectors.configure(tomcat, env.props());
-      Webapp.configure(tomcat, env, env.props());
+      Logging.configure(tomcat, props);
+      Connectors.configure(tomcat, props);
+      Webapp.configure(tomcat, props);
       tomcat.start();
       addShutdownHook();
       ready = true;
@@ -73,6 +73,10 @@ class EmbeddedTomcat {
     }
     // Shutdown command received
     stop();
+  }
+
+  private File tomcatBasedir() {
+    return new File(props.of("sonar.path.temp"), "tomcat");
   }
 
   private void addShutdownHook() {
@@ -101,8 +105,7 @@ class EmbeddedTomcat {
       tomcat = null;
       stopping = false;
       ready = false;
-      File tempDir = env.file(TEMP_RELATIVE_PATH);
-      FileUtils.deleteQuietly(tempDir);
+      FileUtils.deleteQuietly(tomcatBasedir());
 
     } catch (LifecycleException e) {
       throw new IllegalStateException("Fail to stop web server", e);
@@ -116,7 +119,7 @@ class EmbeddedTomcat {
     }
   }
 
-  boolean isReady( ){
+  boolean isReady() {
     return ready;
   }
 

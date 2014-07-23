@@ -28,11 +28,12 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.process.Props;
 
+import java.io.File;
 import java.util.logging.LogManager;
 
 class Logging {
 
-  static final String ACCESS_RELATIVE_PATH = "web/WEB-INF/config/logback-access.xml";
+  static final String ACCESS_RELATIVE_PATH = "WEB-INF/config/logback-access.xml";
   static final String PROPERTY_ENABLE_ACCESS_LOGS = "sonar.web.accessLogs.enable";
 
   static void init() {
@@ -41,21 +42,21 @@ class Logging {
     SLF4JBridgeHandler.install();
   }
 
-  static void configure(Tomcat tomcat, Env env, Props props) {
+  static void configure(Tomcat tomcat, Props props) {
     tomcat.setSilent(false);
     tomcat.getService().addLifecycleListener(new LifecycleLogger(console()));
-    configureLogbackAccess(tomcat, env, props);
+    configureLogbackAccess(tomcat, props);
   }
 
   static Logger console() {
     return LoggerFactory.getLogger("console");
   }
 
-  private static void configureLogbackAccess(Tomcat tomcat, Env env, Props props) {
+  private static void configureLogbackAccess(Tomcat tomcat, Props props) {
     if (props.booleanOf(PROPERTY_ENABLE_ACCESS_LOGS, true)) {
       LogbackValve valve = new LogbackValve();
       valve.setQuiet(true);
-      valve.setFilename(env.file(ACCESS_RELATIVE_PATH).getAbsolutePath());
+      valve.setFilename(new File(props.of("sonar.path.web"), ACCESS_RELATIVE_PATH).getAbsolutePath());
       tomcat.getHost().getPipeline().addValve(valve);
     }
   }

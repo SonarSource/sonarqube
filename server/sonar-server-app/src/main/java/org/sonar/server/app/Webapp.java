@@ -24,6 +24,7 @@ import org.apache.catalina.startup.Tomcat;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Props;
 
+import java.io.File;
 import java.util.Map;
 
 class Webapp {
@@ -34,10 +35,11 @@ class Webapp {
   private static final String PROPERTY_LOG_PROFILING_LEVEL = "sonar.log.profilingLevel";
   private static final String PROPERTY_LOG_CONSOLE = "sonar.log.console";
 
-  static void configure(Tomcat tomcat, Env env, Props props) {
+  static void configure(Tomcat tomcat, Props props) {
     try {
-      Context context = tomcat.addWebapp(getContextPath(props), env.file("web").getAbsolutePath());
-      context.setConfigFile(env.file("web/META-INF/context.xml").toURI().toURL());
+      String webDir = props.of("sonar.path.web");
+      Context context = tomcat.addWebapp(getContextPath(props), webDir);
+      context.setConfigFile(new File(webDir, "META-INF/context.xml").toURI().toURL());
       context.addParameter(PROPERTY_LOG_PROFILING_LEVEL, props.of(PROPERTY_LOG_PROFILING_LEVEL, "NONE"));
       context.addParameter(PROPERTY_LOG_CONSOLE, props.of(PROPERTY_LOG_CONSOLE, "false"));
       for (Map.Entry<Object, Object> entry : props.cryptedProperties().entrySet()) {

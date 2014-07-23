@@ -31,10 +31,6 @@ public final class ConfigurationUtils {
     // Utility class
   }
 
-  public static Properties interpolateEnvVariables(Properties properties) {
-    return interpolateVariables(properties, System.getenv());
-  }
-
   public static Properties interpolateVariables(Properties properties, Map<String, String> variables) {
     Properties result = new Properties();
     Enumeration keys = properties.keys();

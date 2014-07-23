@@ -26,8 +26,7 @@ public class ServerProcess extends org.sonar.process.Process {
   public ServerProcess(String[] args) {
     super(args);
     Logging.init();
-    Env env = new Env(props);
-    this.tomcat = new EmbeddedTomcat(env);
+    this.tomcat = new EmbeddedTomcat(props);
   }
 
   @Override
