@@ -1,37 +1,16 @@
-// Dump log messages
-casper.on('remote.message', function(message) {
-  this.echo('Log: '+ message, 'LOG');
-});
+var lib = require('../lib');
 
-// Dump uncaught errors
-casper.on('page.error', function(msg, trace) {
-  this.echo('Error: ' + msg, 'ERROR');
-});
-
-var fs = require('fs');
-var utils = require('utils');
-
-// Since Casper has control, the invoked script is deep in the argument stack
-var currentFile = require('system').args[4];
-var curFilePath = fs.absolute(currentFile).split(fs.separator);
-if (curFilePath.length > 1) {
-  curFilePath.pop(); // PhantomJS does not have an equivalent path.baseName()-like method
-  curFilePath.push('treemap-spec');
-  fs.changeWorkingDirectory(curFilePath.join(fs.separator));
-}
+lib.initMessages();
+lib.changeWorkingDirectory('treemap-spec');
 
 
-casper.test.begin('Treemap', function suite(test) {
-
-  // Load MockJax responses from FS
+casper.test.begin('Treemap', function (test) {
   var treemapData = JSON.parse(fs.read('treemap.json'));
-  var resourceResponse = fs.read('treemap-resources.json');
 
+  casper.start(lib.buildUrl('treemap'), function () {
+    lib.mockRequestFromFile('/api/resources/index', 'treemap-resources.json');
 
-  casper.start('http://localhost:3000/pages/treemap.html', function () {
-    casper.evaluate(function (treemapData, resourceResponse) {
-      jQuery.mockjaxSettings.contentType = 'text/json';
-      jQuery.mockjax({ url: '/api/resources/index', responseText: resourceResponse });
+    casper.evaluate(function (treemapData) {
       var widget = new SonarWidgets.Treemap();
       widget
           .metrics(treemapData.metrics)
@@ -46,7 +25,7 @@ casper.test.begin('Treemap', function suite(test) {
             resource: ''
           })
           .render('#container');
-    }, treemapData, resourceResponse)
+    }, treemapData)
   });
 
   casper

@@ -68,7 +68,6 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
     byte[] db = createDb(null);
     dataSource = createDatabase(db);
 
-    assertThat(rowCount("metrics")).isEqualTo(2);
     assertThat(rowCount("projects")).isZero();
     assertThat(rowCount("events")).isZero();
     assertThat(rowCount("users")).isEqualTo(3);
@@ -87,7 +86,6 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
     byte[] database = createDb(123L);
     dataSource = createDatabase(database);
 
-    assertThat(rowCount("metrics")).isEqualTo(2);
     assertThat(rowCount("projects")).isEqualTo(1);
     assertThat(rowCount("snapshots")).isEqualTo(1);
     assertThat(rowCount("project_measures")).isEqualTo(1);

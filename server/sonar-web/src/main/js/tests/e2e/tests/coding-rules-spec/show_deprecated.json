@@ -1,0 +1,37 @@
+{
+  "rule": {
+    "key": "squid:S0001",
+    "repo": "squid",
+    "name": "Deprecated rule",
+    "createdAt": "2014-07-23T11:17:26+0200",
+    "severity": "MINOR",
+    "status": "DEPRECATED",
+    "isTemplate": false,
+    "tags": [
+      "convention"
+    ],
+    "sysTags": [
+      "pitfall"
+    ],
+    "lang": "java",
+    "langName": "Java",
+    "htmlDesc": "Deprecated rule",
+    "mdDesc": "Deprecated rule",
+    "defaultDebtChar": "TESTABILITY",
+    "defaultDebtSubChar": "INTEGRATION_TESTABILITY",
+    "debtChar": "TESTABILITY",
+    "debtSubChar": "INTEGRATION_TESTABILITY",
+    "debtCharName": "Testability",
+    "debtSubCharName": "Integration level",
+    "debtRemFnType": "LINEAR_OFFSET",
+    "debtRemFnCoeff": "1h",
+    "debtRemFnOffset": "30min",
+    "defaultDebtRemFnType": "LINEAR_OFFSET",
+    "defaultDebtRemFnCoeff": "1h",
+    "defaultDebtRemFnOffset": "30min",
+    "effortToFixDescription": "Effort to fix issue on one line",
+    "debtOverloaded": false,
+    "params": [ ]
+  },
+  "actives": [ ]
+}

@@ -1,0 +1,17 @@
+html
+  head
+    meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
+    link(href='/css/sonar.css', rel='stylesheet', media='all')
+    script(src='/js/sonar.js')
+    script(src='/js/third-party/jquery.mockjax.js')
+    script.
+      var baseUrl = '';
+      var $j = jQuery.noConflict();
+      window.suppressTranslationWarnings = true;
+      jQuery.mockjaxSettings.contentType = 'text/json';
+      jQuery.mockjaxSettings.responseTime = 250;
+      $j(document).ready(function () { $j('.open-modal').modal(); });
+    block header
+  body
+    #body
+      block body

@@ -1,23 +1,16 @@
 var lib = require('../lib');
 
-
 lib.initMessages();
 lib.changeWorkingDirectory('component-viewer-spec');
 
 
 casper.test.begin('Component Viewer Base Tests', function (test) {
-
-  casper.options.onResourceRequested = function (instance, requestData) {
-    if (requestData.url.indexOf('require') >= 0) {
-      lib.mockRequest('../api/l10n/index', '{}');
-      lib.mockRequestFromFile('../api/components/app', 'app.json');
-      lib.mockRequestFromFile('../api/sources/show', 'source.json');
-    }
-  };
-
-
-  casper.start(lib.buildUrl('component-viewer.html#component=component'), function () {
+  casper.start(lib.buildUrl('component-viewer#component=component'), function () {
     lib.setDefaultViewport();
+
+    lib.mockRequest('/api/l10n/index', '{}');
+    lib.mockRequestFromFile('/api/components/app', 'app.json');
+    lib.mockRequestFromFile('/api/sources/show', 'source.json');
   });
 
   casper.wait(1000, function () {

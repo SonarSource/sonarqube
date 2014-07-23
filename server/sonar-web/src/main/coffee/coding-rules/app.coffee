@@ -5,7 +5,6 @@ requirejs.config
     'backbone': 'third-party/backbone'
     'backbone.marionette': 'third-party/backbone.marionette'
     'handlebars': 'third-party/handlebars'
-    'jquery.mockjax': 'third-party/jquery.mockjax'
 
   shim:
     'backbone.marionette':
@@ -52,7 +51,6 @@ requirejs [
   'coding-rules/views/filters/tag-filter-view',
   'coding-rules/views/filters/language-filter-view',
 
-  'coding-rules/mockjax',
   'common/handlebars-extensions'
 ], (
   Backbone, Marionette,

@@ -8,11 +8,13 @@ var BASE_URL = 'http://localhost:3000/pages/',
 
 exports.initMessages = function () {
   // Dump log messages
+  casper.removeAllListeners('remote.message');
   casper.on('remote.message', function(message) {
     this.echo('Log: '+ message, 'LOG');
   });
 
   // Dump uncaught errors
+  casper.removeAllListeners('page.error');
   casper.on('page.error', function(msg) {
     this.echo('Error: ' + msg, 'ERROR');
   });
@@ -32,8 +34,8 @@ exports.changeWorkingDirectory = function (dir) {
 
 
 var mockRequest = function (url, response) {
-  casper.evaluate(function (url, response) {
-    jQuery.mockjax({ url: url, responseText: response});
+  return casper.evaluate(function (url, response) {
+    return jQuery.mockjax({ url: url, responseText: response});
   }, url, response);
 };
 exports.mockRequest = mockRequest;
@@ -41,8 +43,22 @@ exports.mockRequest = mockRequest;
 
 exports.mockRequestFromFile = function (url, fileName) {
   var response = fs.read(fileName);
-  mockRequest(url, response);
+  return mockRequest(url, response);
 };
+
+
+exports.clearRequestMocks = function () {
+  casper.evaluate(function() {
+    jQuery.mockjaxClear();
+  });
+}
+
+
+exports.clearRequestMock = function (mockId) {
+  casper.evaluate(function(mockId) {
+    jQuery.mockjaxClear(mockId);
+  }, mockId);
+}
 
 
 exports.buildUrl = function (urlTail) {
@@ -58,4 +74,3 @@ exports.setDefaultViewport = function () {
 exports.capture = function (fileName) {
   casper.capture(fileName, { top: 0, left: 0, width: WINDOW_WIDTH, height: WINDOW_HEIGHT });
 };
-
