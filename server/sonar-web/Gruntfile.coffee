@@ -261,11 +261,11 @@ module.exports = (grunt) ->
     express:
       test:
         options:
-          script: '<%= pkg.assets %>js/tests/e2e/server.js'
+          script: '<%= pkg.sources %>js/tests/e2e/server.js'
       dev:
         options:
           background: false
-          script: '<%= pkg.assets %>js/tests/e2e/server.js'
+          script: '<%= pkg.sources %>js/tests/e2e/server.js'
 
 
     casper:
