@@ -88,7 +88,6 @@ public class PreviewDatabaseFactory implements ServerComponent {
       .copyTable(source, dest, "active_rules")
       .copyTable(source, dest, "active_rule_parameters")
       .copyTable(source, dest, "characteristics")
-      .copyTable(source, dest, "metrics")
       .copyTable(source, dest, "permission_templates")
       .copyTable(source, dest, "perm_templates_users")
       .copyTable(source, dest, "perm_templates_groups")
