@@ -97,11 +97,4 @@ public class DefaultServerFileSystemTest {
     List<File> jars = fs.getExtensions("checkstyle");
     assertThat(jars).isEmpty();
   }
-
-  @Test(expected = IllegalStateException.class)
-  public void fail_if_home_directory_not_exists() {
-    DefaultServerFileSystem fs = new DefaultServerFileSystem(null, new File("/notexists"), null);
-    fs.start();
-  }
-
 }
