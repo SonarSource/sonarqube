@@ -22,6 +22,7 @@
       <artifactId>sonar-process</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
@@ -32,42 +33,42 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-server-app</artifactId>
       <version>${project.version}</version>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-search</artifactId>
       <version>${project.version}</version>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-batch-maven-compat</artifactId>
       <version>${project.version}</version>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-web</artifactId>
       <version>${project.version}</version>
       <type>war</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>net.sourceforge.jtds</groupId>
       <artifactId>jtds</artifactId>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
 
     <!-- core plugins -->
@@ -76,76 +77,76 @@
       <artifactId>sonar-core-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-design-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-findbugs-plugin</artifactId>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-dbcleaner-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-squid-java-plugin</artifactId>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-surefire-plugin</artifactId>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-cpd-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-l10n-en-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-email-notifications-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-jacoco-plugin</artifactId>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-java-plugin</artifactId>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.sonatype.jsw-binaries</groupId>
-      <artifactId>jsw-binaries</artifactId>
+        <groupId>org.sonatype.jsw-binaries</groupId>
+        <artifactId>jsw-binaries</artifactId>
       <version>3.2.3.6</version>
       <type>tar.gz</type>
       <scope>provided</scope>
@@ -155,7 +156,7 @@
       <groupId>tanukisoft</groupId>
       <artifactId>wrapper</artifactId>
       <version>3.2.3</version>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
 
     <!-- unit tests -->
@@ -188,6 +189,39 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.5</version>
+        <configuration>
+          <archive>
+            <index>true</index>
+            <manifest>
+              <addClasspath>false</addClasspath>
+              <mainClass>org.sonar.application.StartServer</mainClass>
+            </manifest>
+            <manifestEntries>
+              <mode>distribution</mode>
+              <url>${project.url}</url>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
@@ -250,7 +284,6 @@
       </plugin>
     </plugins>
   </build>
-
   <profiles>
     <profile>
       <id>release</id>
