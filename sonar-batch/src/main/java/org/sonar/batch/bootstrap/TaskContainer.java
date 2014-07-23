@@ -28,6 +28,7 @@ import org.sonar.api.task.TaskComponent;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.scan.DeprecatedProjectReactorBuilder;
 import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.batch.scan.ScanTask;
@@ -65,7 +66,9 @@ public class TaskContainer extends ComponentContainer {
   private void addCoreComponents() {
     // Metrics
     if (!getParent().getComponentByType(AnalysisMode.class).isSensorMode()) {
-      add(DeprecatedMetricFinder.class);
+      // Needed by dev cockpit task
+      add(DeprecatedMetricFinder.class,
+        PastMeasuresLoader.class);
     }
     add(DefaultMetricFinder.class);
 

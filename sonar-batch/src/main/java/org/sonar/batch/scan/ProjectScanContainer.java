@@ -39,7 +39,6 @@ import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
-import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PeriodsDefinition;
 import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
@@ -190,7 +189,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Measures
       MeasureCache.class,
-      PastMeasuresLoader.class,
 
       // Rules
       new RulesProvider(),
