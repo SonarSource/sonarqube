@@ -1,8 +1,9 @@
-extends .layouts/main
+extends ./layouts/main
 
 block header
   script(data-main='/js/quality-gate/app', src='../js/require.js')
 
 block body
-  #quality-gate-page-loader.navigator-page-loader
-    i.spinner
+  #content
+    #quality-gate-page-loader.navigator-page-loader
+      i.spinner
