@@ -31,7 +31,7 @@ define [
         main: @options.main
         bottom: true
       popup.render()
-      popup.on 'change', (period) => @main.enablePeriod period
+      popup.on 'change', (period) => @main.enablePeriod period, '.js-filter-modified-lines'
 
 
     filterByModifiedLines: (e) ->
