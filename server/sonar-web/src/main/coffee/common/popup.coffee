@@ -29,7 +29,9 @@ define [
           top: @options.triggerEl.offset().top
           left: @options.triggerEl.offset().left + @options.triggerEl.outerWidth()
 
+      @attachCloseEvents()
 
+    attachCloseEvents: ->
       $('body').on 'click.bubble-popup', =>
         $('body').off 'click.bubble-popup'
         @close()

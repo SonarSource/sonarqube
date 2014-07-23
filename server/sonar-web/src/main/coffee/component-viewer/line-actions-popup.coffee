@@ -22,6 +22,17 @@ define [
       'click .js-add-manual-issue': 'addManualIssue'
 
 
+    onRender: ->
+      source = @options.main.sourceView.$el
+      sourceOffset = source.offset()
+      trigger = @options.triggerEl
+      triggerOffset = trigger.offset()
+      @$el.detach().appendTo(source).css
+        top: triggerOffset.top - sourceOffset.top + source.scrollTop()
+        left: triggerOffset.left - sourceOffset.left + source.scrollLeft() + trigger.outerWidth()
+      @attachCloseEvents()
+
+
     getPermalink: (e) ->
       e.preventDefault()
       @options.main.headerView.getPermalink()

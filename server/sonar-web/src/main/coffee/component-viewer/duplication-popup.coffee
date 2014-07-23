@@ -21,6 +21,17 @@ define [
       'click a[data-key]': 'goToFile'
 
 
+    onRender: ->
+      source = @options.main.sourceView.$el
+      sourceOffset = source.offset()
+      trigger = @options.triggerEl
+      triggerOffset = trigger.offset()
+      @$el.detach().appendTo(source).css
+        top: triggerOffset.top - sourceOffset.top + source.scrollTop()
+        left: triggerOffset.left - sourceOffset.left + source.scrollLeft() + trigger.outerWidth()
+      @attachCloseEvents()
+
+
     goToFile: (e) ->
       key = $(e.currentTarget).data 'key'
       line = $(e.currentTarget).data 'line'
