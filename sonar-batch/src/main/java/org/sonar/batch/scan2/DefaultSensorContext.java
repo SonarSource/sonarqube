@@ -26,7 +26,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
@@ -129,22 +128,16 @@ public class DefaultSensorContext implements SensorContext {
       resourceKey = def.getKey();
     }
     RuleKey ruleKey = issue.ruleKey();
-    // TODO we need a Rule referential on batch side
-    Rule rule = null;
-    // Rule rule = rules.find(ruleKey);
-    // if (rule == null) {
-    // throw MessageException.of(String.format("The rule '%s' does not exist.", ruleKey));
-    // }
     ActiveRule activeRule = activeRules.find(ruleKey);
     if (activeRule == null) {
       // rule does not exist or is not enabled -> ignore the issue
       return false;
     }
-    if (/* Strings.isNullOrEmpty(rule.name()) && */Strings.isNullOrEmpty(issue.message())) {
+    if (Strings.isNullOrEmpty(activeRule.name()) && Strings.isNullOrEmpty(issue.message())) {
       throw MessageException.of(String.format("The rule '%s' has no name and the related issue has no message.", ruleKey));
     }
 
-    updateIssue((DefaultIssue) issue, activeRule, rule);
+    updateIssue((DefaultIssue) issue, activeRule);
 
     if (issueFilters.accept(SensorContextAdaptor.toDefaultIssue(def.getKey(), resourceKey, issue), null)) {
       issueCache.put(def.getKey(), resourceKey, (DefaultIssue) issue);
@@ -154,9 +147,9 @@ public class DefaultSensorContext implements SensorContext {
     return false;
   }
 
-  private void updateIssue(DefaultIssue issue, ActiveRule activeRule, Rule rule) {
+  private void updateIssue(DefaultIssue issue, ActiveRule activeRule) {
     if (Strings.isNullOrEmpty(issue.message())) {
-      issue.setMessage(rule.name());
+      issue.setMessage(activeRule.name());
     }
 
     if (issue.severity() == null) {

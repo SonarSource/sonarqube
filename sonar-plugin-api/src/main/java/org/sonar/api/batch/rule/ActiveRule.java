@@ -22,6 +22,7 @@ package org.sonar.api.batch.rule;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Map;
 
 /**
@@ -31,6 +32,12 @@ import java.util.Map;
 public interface ActiveRule {
 
   RuleKey ruleKey();
+
+  /**
+   * Name of the rule.
+   * @since 4.5
+   */
+  String name();
 
   /**
    * Non-null severity.

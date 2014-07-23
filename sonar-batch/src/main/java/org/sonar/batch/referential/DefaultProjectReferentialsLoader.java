@@ -96,7 +96,7 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
           } else {
             internalKey = rule.getConfigKey();
           }
-          ActiveRule activeRule = new ActiveRule(rule.ruleKey().repository(), rule.ruleKey().rule(), activeDto.getSeverityString(), internalKey, rule.getLanguage());
+          ActiveRule activeRule = new ActiveRule(rule.ruleKey().repository(), rule.ruleKey().rule(), rule.getName(), activeDto.getSeverityString(), internalKey, rule.getLanguage());
 
           // load parameter values
           for (ActiveRuleParamDto paramDto : paramDtosByActiveRuleId.get(activeDto.getId())) {

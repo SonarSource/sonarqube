@@ -50,7 +50,7 @@ public class FileSystemMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", "MAJOR", "xoo", "xoo"))
+    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", "One issue per line", "MAJOR", "xoo", "xoo"))
     .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     .build();
 

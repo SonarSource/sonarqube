@@ -38,7 +38,7 @@ public class ProjectReferentialsTest {
     ref.addQProfile(new QProfile("squid-java", "Java", "java", new SimpleDateFormat("dd/MM/yyyy").parse("14/03/1984")));
     ref.addSettings("foo", new HashMap<String, String>());
     ref.settings("foo").put("prop", "value");
-    ref.addActiveRule(new ActiveRule("repo", "rule", "MAJOR", "rule", "java"));
+    ref.addActiveRule(new ActiveRule("repo", "rule", "Rule", "MAJOR", "rule", "java"));
     ref.setTimestamp(10);
 
     System.out.println(ref.toJson());
@@ -46,7 +46,7 @@ public class ProjectReferentialsTest {
       .assertEquals(
         "{timestamp:10,"
           + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
-          + "activeRules:[{repositoryKey:repo,ruleKey:rule,severity:MAJOR,internalKey:rule,language:java,params:{}}],"
+          + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule,language:java,params:{}}],"
           + "settingsByModule:{foo:{prop:value}}}",
         ref.toJson(), true);
   }
