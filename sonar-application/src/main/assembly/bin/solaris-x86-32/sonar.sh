@@ -23,7 +23,7 @@ APP_LONG_NAME="${DEF_APP_LONG_NAME}"
 
 # Wrapper
 WRAPPER_CMD="./wrapper"
-WRAPPER_CONF="../../conf/wrapper.conf"
+WRAPPER_CONF="../../lib/jsw/wrapper.conf"
 
 # Priority at which to run the wrapper.  See "man nice" for valid priorities.
 #  nice is only used if a priority is specified.

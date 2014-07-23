@@ -7,7 +7,6 @@
   <includeBaseDirectory>true</includeBaseDirectory>
   <dependencySets>
     <!-- Libraries -->
-
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
@@ -15,6 +14,15 @@
       <useProjectArtifact>true</useProjectArtifact>
       <includes>
         <include>org.codehaus.sonar:sonar-application</include>
+      </includes>
+    </dependencySet>
+
+    <dependencySet>
+      <outputDirectory>lib/jsw</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+      <useProjectArtifact>false</useProjectArtifact>
+      <includes>
         <include>tanukisoft:wrapper</include>
       </includes>
     </dependencySet>
