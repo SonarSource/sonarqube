@@ -7,6 +7,7 @@ lib.changeWorkingDirectory('coding-rules-spec');
 
 casper.test.begin('Coding Rules - Readonly Tests', function suite(test) {
 
+  var appId = null;
   var showId = null;
 
   casper.start(lib.buildUrl('coding-rules'), function() {
@@ -17,17 +18,6 @@ casper.test.begin('Coding Rules - Readonly Tests', function suite(test) {
     showId = lib.mockRequestFromFile('/api/rules/show', 'show_x1.json');
   });
 
-/*
-  jQuery.mockjax({ url: '../api/rules/search', data: {
-    'p': 1, 'ps': 25, 'facets': true, 's': 'createdAt', 'asc': false, 'f': 'name,lang,status'
-  }, responseText: searchInitialResponse});
-  jQuery.mockjax({ url: '../api/rules/show', data: {
-    'key': 'squid-xoo:x1', 'actives': true
-  }, responseText: showX1Response});
-  jQuery.mockjax({ url: '../api/rules/show', data: {
-    'key': 'squid:S0001', 'actives': true
-  }, responseText: showDeprecatedResponse});
-*/
 
   casper.waitWhileSelector("div#coding-rules-page-loader", function checkInitialPageLoad() {
 
@@ -62,6 +52,8 @@ casper.test.begin('Coding Rules - Readonly Tests', function suite(test) {
       test.assertSelectorHasText('.coding-rules-detail-property:nth-child(3)', 'convention, pitfall');
       test.assertSelectorHasText('.coding-rules-detail-property:nth-child(4)', 'Testability > Integration level testability');
       test.assertSelectorHasText('.coding-rules-detail-property:nth-child(6)', 'SonarQube (Xoo)');
+
+      test.assertDoesntExist('button#coding-rules-detail-extend-description');
     });
   });
 
@@ -77,6 +69,56 @@ casper.test.begin('Coding Rules - Readonly Tests', function suite(test) {
     });
 
   });
+
+  casper.run(function() {
+    test.done();
+  });
+});
+
+casper.test.begin('Coding Rules - Admin Tests', function suite(test) {
+
+  var showId = null;
+  var updateId = null;
+
+  casper.start(lib.buildUrl('coding-rules'), function() {
+    lib.mockRequest('/api/l10n/index', '{}');
+    lib.mockRequestFromFile('/api/rules/app', 'app_admin.json');
+    lib.mockRequestFromFile('/api/rules/tags', 'tags.json');
+    lib.mockRequestFromFile('/api/rules/search', 'search_initial.json');
+    showId = lib.mockRequestFromFile('/api/rules/show', 'show_x1.json');
+  });
+
+
+  casper.waitWhileSelector("div#coding-rules-page-loader", function checkInitialPageLoad() {
+
+    casper.waitForSelector('.navigator-header', function checkAdminHeader() {
+      test.assertExist('button#coding-rules-create-rule');
+    });
+
+
+    casper.waitForSelector('h3.coding-rules-detail-header', function showFirstRule() {
+      test.assertSelectorHasText('.coding-rules-detail-description-extra', 'Xoo shall not pass');
+
+      test.assertExists('button#coding-rules-detail-extend-description');
+    });
+
+
+    casper.then(function editNote() {
+      casper.click('button#coding-rules-detail-extend-description');
+      test.assertSelectorHasText('textarea#coding-rules-detail-extend-description-text', 'As per the [Book of Xoo](http://xoo.sonarsource.com/book):\n> Xoo shall not pass!');
+
+      casper.sendKeys('textarea#coding-rules-detail-extend-description-text', 'Xoo must pass');
+
+      updateId = lib.mockRequestFromFile('/api/rules/update', 'edit_note_x1.json');
+      casper.click('button#coding-rules-detail-extend-description-submit');
+
+      casper.wait(500, function showUpdatedRule() {
+        test.assertSelectorHasText('.coding-rules-detail-description-extra', 'Xoo must pass');
+      });
+
+    });
+  });
+
 
   casper.run(function() {
     test.done();
