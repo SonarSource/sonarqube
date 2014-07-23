@@ -81,7 +81,7 @@ public class EmbeddedDatabaseTest {
   @Test
   public void should_return_sonar_home_directory() throws Exception {
     Settings settings = testSettings(0);
-    settings.setProperty(CoreProperties.SONAR_HOME, ".");
+    settings.setProperty("sonar.path.home", ".");
     settings.setProperty(DatabaseProperties.PROP_EMBEDDED_DATA_DIR, "");
 
     EmbeddedDatabase database = new EmbeddedDatabase(settings);
@@ -98,7 +98,7 @@ public class EmbeddedDatabaseTest {
     String testPath = getClass().getResource(".").getPath();
 
     Settings settings = testSettings(0);
-    settings.setProperty(CoreProperties.SONAR_HOME, testPath + "/unmatched_directory");
+    settings.setProperty("sonar.path.home", testPath + "/unmatched_directory");
     settings.setProperty(DatabaseProperties.PROP_EMBEDDED_DATA_DIR, "");
 
     EmbeddedDatabase database = new EmbeddedDatabase(settings);

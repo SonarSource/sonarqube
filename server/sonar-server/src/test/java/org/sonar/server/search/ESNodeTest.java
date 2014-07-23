@@ -124,11 +124,6 @@ public class ESNodeTest {
   }
 
   @Test
-  public void check_word_analyzer() throws Exception {
-
-  }
-
-  @Test
   public void check_sortable_analyzer() throws Exception {
     ESNode node = new ESNode(settings);
     node.start();
@@ -169,7 +164,7 @@ public class ESNodeTest {
   @Test
   public void should_restore_status_on_startup() throws Exception {
     File zip = new File(Resources.getResource(getClass(), "ESNodeTest/data-es-clean.zip").toURI());
-    ZipUtils.unzip(zip, dataDir);
+    ZipUtils.unzip(zip, new File(dataDir, "es"));
 
     ESNode node = new ESNode(settings);
     node.start();
@@ -182,10 +177,9 @@ public class ESNodeTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  @Ignore("Need to update this test for remote ES.")
   public void should_fail_on_corrupt_index() throws Exception {
     File zip = new File(Resources.getResource(getClass(), "ESNodeTest/data-es-corrupt.zip").toURI());
-    ZipUtils.unzip(zip, dataDir);
+    ZipUtils.unzip(zip, new File(dataDir, "es"));
 
     ESNode node = new ESNode(settings, "5s");
     try {

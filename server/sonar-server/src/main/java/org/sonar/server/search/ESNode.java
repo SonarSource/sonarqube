@@ -22,6 +22,7 @@ package org.sonar.server.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -36,7 +37,6 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.MessageException;
 import org.sonar.server.search.es.ListUpdate;
 import org.sonar.server.search.es.ListUpdate.UpdateListScriptFactory;
 
@@ -88,7 +88,7 @@ public class ESNode implements Startable {
       .put("script.default_lang", "native")
       .put("script.native." + ListUpdate.NAME + ".type", UpdateListScriptFactory.class.getName())
 
-      .put("cluster.name", settings.getString(IndexProperties.CLUSTER_NAME));
+      .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(IndexProperties.CLUSTER_NAME), "sonarqube"));
 
     initAnalysis(esSettings);
 
@@ -103,7 +103,7 @@ public class ESNode implements Startable {
       .setTimeout(healthTimeout)
       .get()
       .getStatus() == ClusterHealthStatus.RED) {
-      throw MessageException.of(String.format("Elasticsearch index is corrupt, please delete directory '%s' " +
+      throw new IllegalStateException(String.format("Elasticsearch index is corrupt, please delete directory '%s' " +
         "and relaunch the SonarQube server.", esDataDir()));
     }
 
@@ -249,7 +249,7 @@ public class ESNode implements Startable {
     File esDir = esDataDir();
     try {
       FileUtils.forceMkdir(esDir);
-      esSettings.put("path.home", esDir.getAbsolutePath());
+      esSettings.put("path.data", esDir.getAbsolutePath());
       LOG.debug("Elasticsearch data stored in {}", esDir.getAbsolutePath());
     } catch (Exception e) {
       throw new IllegalStateException("Fail to create directory " + esDir, e);
