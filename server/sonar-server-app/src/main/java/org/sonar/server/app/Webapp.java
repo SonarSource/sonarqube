@@ -32,16 +32,12 @@ class Webapp {
   private static final String JRUBY_MAX_RUNTIMES = "jruby.max.runtimes";
   private static final String RAILS_ENV = "rails.env";
   private static final String PROPERTY_CONTEXT = "sonar.web.context";
-  private static final String PROPERTY_LOG_PROFILING_LEVEL = "sonar.log.profilingLevel";
-  private static final String PROPERTY_LOG_CONSOLE = "sonar.log.console";
 
   static void configure(Tomcat tomcat, Props props) {
     try {
       String webDir = props.of("sonar.path.web");
       Context context = tomcat.addWebapp(getContextPath(props), webDir);
       context.setConfigFile(new File(webDir, "META-INF/context.xml").toURI().toURL());
-      context.addParameter(PROPERTY_LOG_PROFILING_LEVEL, props.of(PROPERTY_LOG_PROFILING_LEVEL, "NONE"));
-      context.addParameter(PROPERTY_LOG_CONSOLE, props.of(PROPERTY_LOG_CONSOLE, "false"));
       for (Map.Entry<Object, Object> entry : props.cryptedProperties().entrySet()) {
         String key = entry.getKey().toString();
         if (key.startsWith("sonar.")) {

@@ -91,14 +91,10 @@ public final class PlatformServletContextListener implements ServletContextListe
    */
   private void configureLogback(ServletContextEvent event) {
     String configProfilingLevel = defaultIfEmpty(
-      event.getServletContext().getInitParameter(Profiling.CONFIG_PROFILING_LEVEL),
-      System.getProperty(Profiling.CONFIG_PROFILING_LEVEL));
+      event.getServletContext().getInitParameter(Profiling.CONFIG_PROFILING_LEVEL), "NONE");
     Profiling.Level profilingLevel = Profiling.Level.fromConfigString(configProfilingLevel);
-    String consoleEnabled = defaultIfEmpty(defaultIfEmpty(
-        event.getServletContext().getInitParameter(CONFIG_LOG_CONSOLE),
-        System.getProperty(CONFIG_LOG_CONSOLE)),
-      // Line below used in last resort
-      "false");
+    String consoleEnabled = defaultIfEmpty(
+        event.getServletContext().getInitParameter(CONFIG_LOG_CONSOLE), "false");
     Map<String, String> variables = ImmutableMap.of(
       "LOGFILE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? LOGFILE_FULL_LOGGING_FORMAT : LOGFILE_STANDARD_LOGGING_FORMAT,
       "CONSOLE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? CONSOLE_FULL_LOGGING_FORMAT : CONSOLE_STANDARD_LOGGING_FORMAT,
