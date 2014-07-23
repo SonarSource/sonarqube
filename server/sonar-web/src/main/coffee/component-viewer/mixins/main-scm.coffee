@@ -47,6 +47,10 @@ define [], () ->
       @sourceView.render()
 
 
+    filterByModifiedLines: ->
+      @filterBySCM()
+
+
     filterBySCM: ->
       requests = [@requestSCM(@key)]
       if @settings.get('issues') && !@state.get('hasIssues')

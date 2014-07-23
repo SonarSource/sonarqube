@@ -117,6 +117,20 @@ public class TestsShowActionTest {
     request.execute().assertJson(getClass(), "show_from_test_data.json");
   }
 
+  @Test
+  public void show_from_test_data_with_a_time_in_float() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", TEST_PLAN_KEY);
+
+    when(measureDao.findByComponentKeyAndMetricKey(TEST_PLAN_KEY, "test_data", session)).thenReturn(MeasureDto.createFor(MeasureKey.of(TEST_PLAN_KEY, "test_data"))
+      .setTextValue("<tests-details>" +
+        "<testcase status=\"ok\" time=\"12.5\" name=\"test1\"/>" +
+        "</tests-details>"));
+
+    WsTester.TestRequest request = tester.newGetRequest("api/tests", "show").setParam("key", TEST_PLAN_KEY);
+
+    request.execute().assertJson(getClass(), "show_from_test_data_with_a_time_in_float.json");
+  }
+
   private MutableTestCase testCase(String name, TestCase.Status status, Long durationInMs, int coveredLines, @Nullable String message, @Nullable String stackTrace) {
     MutableTestCase testCase = mock(MutableTestCase.class);
     when(testCase.name()).thenReturn(name);

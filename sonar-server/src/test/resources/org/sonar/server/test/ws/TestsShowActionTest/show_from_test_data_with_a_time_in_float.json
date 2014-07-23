@@ -1,0 +1,9 @@
+{
+  "tests": [
+    {
+      "name": "test1",
+      "status": "OK",
+      "durationInMs": 12
+    }
+  ]
+}
