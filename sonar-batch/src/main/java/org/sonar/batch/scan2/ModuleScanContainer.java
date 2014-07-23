@@ -82,7 +82,6 @@ public class ModuleScanContainer extends ComponentContainer {
       ModuleScanExecutor.class,
       ModuleScanExecutor.getPhaseClasses(),
       moduleDefinition.getContainerExtensions(),
-      AnalyzersExecutor.class,
 
       // file system
       ModuleInputFileCache.class,

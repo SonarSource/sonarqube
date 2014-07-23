@@ -30,14 +30,14 @@ import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 
 import java.util.Collection;
 
-public class AnalyzersExecutor implements BatchComponent {
+public class SensorsExecutor implements BatchComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AnalyzersExecutor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SensorsExecutor.class);
 
   private BatchExtensionDictionnary selector;
   private AnalyzerOptimizer optimizer;
 
-  public AnalyzersExecutor(BatchExtensionDictionnary selector, AnalyzerOptimizer optimizer) {
+  public SensorsExecutor(BatchExtensionDictionnary selector, AnalyzerOptimizer optimizer) {
     this.selector = selector;
     this.optimizer = optimizer;
   }
