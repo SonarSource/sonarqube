@@ -153,11 +153,11 @@ public class ProcessWrapper extends Thread {
       e.printStackTrace();
     } finally {
       LOGGER.info("ProcessThread has been interrupted. Killing process.");
-      process.destroy();
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
       closeStreams(process);
     }
+    //process.destroy(); //Uncertain if this is required or not...
     LOGGER.trace("ProcessWrapper::run() END");
   }
 
@@ -171,7 +171,6 @@ public class ProcessWrapper extends Thread {
 
   private void waitUntilFinish(@Nullable Thread thread) {
     if (thread != null) {
-      //TODO kill after X amount of time (if process does not exit by itself).
       try {
         thread.join();
       } catch (InterruptedException e) {

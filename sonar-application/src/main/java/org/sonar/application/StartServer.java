@@ -19,6 +19,8 @@
  */
 package org.sonar.application;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.process.Monitor;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessWrapper;
@@ -30,13 +32,17 @@ public class StartServer {
   private ProcessWrapper elasticsearch;
   private ProcessWrapper server;
 
+  private static Logger LOGGER = LoggerFactory.getLogger(StartServer.class);
+
   public StartServer() throws Exception {
     Installation installation = new Installation();
 
     Thread shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
+        LOGGER.info("JVM Shutdown start");
         stop();
+        LOGGER.info("JVM Shutdown end");
       }
     });
     Runtime.getRuntime().addShutdownHook(shutdownHook);
@@ -86,12 +92,20 @@ public class StartServer {
   }
 
   public void stop() {
+    LOGGER.debug("StartServer::stop() START");
     if (monitor != null) {
+      LOGGER.trace("StartServer::stop() STOP MONITOR");
       monitor.interrupt();
-      terminateAndWait(elasticsearch);
-      terminateAndWait(server);
       monitor = null;
+
+      LOGGER.trace("StartServer::stop() STOP ES");
+      terminateAndWait(elasticsearch);
+
+      LOGGER.trace("StartServer::stop() STOP SQ");
+      terminateAndWait(server);
     }
+    LOGGER.trace("StartServer::stop() END");
+
   }
 
   private void terminateAndWait(@Nullable ProcessWrapper process) {

@@ -151,7 +151,7 @@ public abstract class Process implements ProcessMXBean {
   public abstract void onTerminate();
 
   public final void start() {
-    LOGGER.trace("Process[{}]::start() START", name);
+    LOGGER.debug("Process[{}]::start() START", name);
     if (this.port != null) {
       lastPing = System.currentTimeMillis();
       pingTask = monitor.scheduleWithFixedDelay(breakOnMissingPing, 5, 5, TimeUnit.SECONDS);
@@ -171,6 +171,6 @@ public abstract class Process implements ProcessMXBean {
       }
       this.onTerminate();
     }
-    LOGGER.debug("Process[{}]::terminate() END", name);
+    LOGGER.trace("Process[{}]::terminate() END", name);
   }
 }
