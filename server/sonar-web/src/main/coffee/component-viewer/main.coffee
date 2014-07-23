@@ -47,7 +47,7 @@ define [
   API_TESTS = "#{baseUrl}/api/tests/show"
 
   SOURCE_METRIC_LIST = 'accessors,classes,functions,statements,' +
-    'ncloc,lines,generated_ncloc,generated_lines,' +
+    'ncloc,ncloc_data,lines,generated_ncloc,generated_lines,' +
     'complexity,function_complexity,' +
     'comment_lines,comment_lines_density,public_api,public_undocumented_api,public_documented_api_density'
 
@@ -204,8 +204,9 @@ define [
         measuresList = data[0].msr || []
         measures = @component.get 'measures'
         measuresList.forEach (m) ->
-          measures[m.key] = m.frmt_val
+          measures[m.key] = m.frmt_val || m.data
         @component.set 'measures', measures
+        @augmentWithNclocData()
 
 
     requestTrends: (key, period) ->
@@ -232,6 +233,20 @@ define [
         @source.set
           source: data.sources
           formattedSource: formattedSource
+
+
+    augmentWithNclocData: ->
+      nclocDataRaw = @component.has('measures') && @component.get('measures')['ncloc_data']
+      if nclocDataRaw?
+        formattedSource = @source.get 'formattedSource'
+        nclocData = nclocDataRaw.split(';').map (item) ->
+          tokens = item.split '='
+          lineNumber: +tokens[0]
+          executable: tokens[1] == '1'
+        nclocData.forEach (n) ->
+          line = _.findWhere formattedSource, lineNumber: n.lineNumber
+          line.executable = n.executable
+        @source.set 'formattedSource', formattedSource
 
 
     requestTests: (key) ->
@@ -363,3 +378,21 @@ define [
 
     scrollPlusDelta: (delta) ->
       @$(@sourceRegion.$el).scrollTop delta
+
+
+    _filterByLines: (predicate) ->
+      formattedSource = @source.get 'formattedSource'
+      @sourceView.resetShowBlocks()
+      formattedSource.forEach (line) =>
+        if predicate line
+          ln = line.lineNumber
+          @sourceView.addShowBlock ln, ln
+      @sourceView.render()
+
+
+    filterByLines: ->
+      @showAllLines()
+
+
+    filterByNcloc: ->
+      @_filterByLines (line) -> line?.executable

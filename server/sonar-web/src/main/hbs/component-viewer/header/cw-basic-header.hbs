@@ -4,8 +4,12 @@
       {{t 'component_viewer.measure_section.size'}}
     </div>
     <ul class="component-viewer-header-expanded-bar-section-list">
-      {{{componentViewerHeaderItem lines 'lines'}}}
-      {{{componentViewerHeaderItem ncloc 'ncloc'}}}
+      {{{componentViewerHeaderLink lines 'lines' 'js-filter-lines'}}}
+      {{#if 'ncloc_data'}}
+        {{{componentViewerHeaderLink ncloc 'ncloc' 'js-filter-ncloc'}}}
+      {{else}}
+        {{{componentViewerHeaderItem ncloc 'ncloc'}}}
+      {{/if}}
       {{{componentViewerHeaderItem generated_lines 'generated_lines'}}}
       {{{componentViewerHeaderItem generated_ncloc 'generated_ncloc'}}}
     </ul>
