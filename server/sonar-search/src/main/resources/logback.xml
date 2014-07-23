@@ -45,5 +45,5 @@
     <appender-ref ref="LOGFILE"/>
     <appender-ref ref="CONSOLE"/>
   </root>
-
+  <logger name="org.sonar.process" level="debug"/>
 </configuration>

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mvn clean install -DskipTests -Denforcer.skip=true -pl server/sonar-process,sonar-application
+mvn clean install -DskipTests -Denforcer.skip=true -pl server/sonar-search,server/sonar-process,server/sonar-server-app,sonar-application
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
   OS='macosx-universal-64'
@@ -12,6 +12,7 @@ cd sonar-application/target/
 if ! ls sonarqube-*/bin/$OS/sonar.sh &> /dev/null; then
   unzip sonarqube-*.zip
 fi
+
 cd sonarqube-*
 bin/$OS/sonar.sh stop
 killall -9 java

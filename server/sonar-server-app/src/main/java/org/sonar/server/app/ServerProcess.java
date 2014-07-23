@@ -47,5 +47,6 @@ public class ServerProcess extends org.sonar.process.Process {
 
   public static void main(String[] args) {
     new ServerProcess(args).start();
+    LOGGER.info("ServerProcess is done");
   }
 }

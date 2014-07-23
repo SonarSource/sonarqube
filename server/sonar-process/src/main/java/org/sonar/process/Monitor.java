@@ -33,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Monitor extends Thread {
 
+  private static final long MAX_TIME = 15000L;
+
   private final static Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
 
   private volatile List<ProcessWrapper> processes;
@@ -52,8 +54,8 @@ public class Monitor extends Thread {
     processes.add(processWrapper);
     pings.put(processWrapper.getName(), System.currentTimeMillis());
     processWrapper.start();
-    for(int i=0; i<10; i++){
-      if(processWrapper.getProcessMXBean() == null || !processWrapper.getProcessMXBean().isReady()){
+    for (int i = 0; i < 10; i++) {
+      if (processWrapper.getProcessMXBean() == null || !processWrapper.getProcessMXBean().isReady()) {
         try {
           Thread.sleep(500L);
         } catch (InterruptedException e) {
@@ -82,30 +84,30 @@ public class Monitor extends Thread {
     long now = System.currentTimeMillis();
     LOGGER.debug("Monitor::processIsValid() -- Time since last ping for '{}': {}ms",
       process.getName(), (now - pings.get(process.getName())));
-    return (now - pings.get(process.getName())) < 5000L;
+    return (now - pings.get(process.getName())) < MAX_TIME;
   }
 
   public void run() {
-    LOGGER.trace("Monitor::run() START");
+    LOGGER.debug("Monitor::run() START");
     boolean everythingOK = true;
-    while (everythingOK) {
-      for(ProcessWrapper process: processes){
-        if(!processIsValid(process)){
-          LOGGER.warn("Monitor::run() -- Process '{}' is not valid. Exiting monitor", process.getName());
-          everythingOK = false;
-          break;
+    try {
+      while (everythingOK) {
+        for (ProcessWrapper process : processes) {
+          if (!processIsValid(process)) {
+            LOGGER.warn("Monitor::run() -- Process '{}' is not valid. Exiting monitor", process.getName());
+            everythingOK = false;
+            break;
+          }
         }
+        Thread.sleep(3000L);
       }
-      try {
-        Thread.sleep(1000);
-      } catch (InterruptedException e) {
-        LOGGER.warn("Monitoring thread has been interrupted. Closing");
-        watch.cancel(true);
-        monitor.shutdownNow();
-      }
+
+    } catch (InterruptedException e) {
+      LOGGER.info("Monitoring thread is interrupted.");
+    } finally {
+      watch.cancel(true);
+      monitor.shutdownNow();
     }
-    watch.cancel(true);
-    monitor.shutdownNow();
-    LOGGER.trace("Monitor::run() END");
+    LOGGER.debug("Monitor::run() END");
   }
 }

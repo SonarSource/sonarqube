@@ -164,23 +164,21 @@ public class ElasticSearch extends Process {
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {
-        node.close();
+        ;
       }
     }
-    terminate();
   }
 
   public void onTerminate() {
     if (node != null && !node.isClosed()) {
       node.close();
-    }
-    if (node != null) {
-      node.stop();
+      node = null;
     }
   }
 
   public static void main(String... args) throws InterruptedException {
     final ElasticSearch elasticSearch = new ElasticSearch(args);
     elasticSearch.start();
+    LOGGER.info("ElasticSearch is done.");
   }
 }

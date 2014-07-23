@@ -46,7 +46,7 @@ public abstract class Process implements ProcessMXBean {
   public static final String PORT_PROPERTY = "pPort";
   public static final String MISSING_NAME_ARGUMENT = "Missing Name argument";
 
-  private final static Logger LOGGER = LoggerFactory.getLogger(Process.class);
+  protected final static Logger LOGGER = LoggerFactory.getLogger(Process.class);
 
   private Long lastPing;
 
@@ -56,9 +56,9 @@ public abstract class Process implements ProcessMXBean {
   protected final Props props;
   private Thread shutdownHook;
 
-  private static final long MAX_ALLOWED_TIME = 3000L;
+  private static final long MAX_ALLOWED_TIME = 15000L;
   private ScheduledFuture<?> pingTask = null;
-  final ScheduledExecutorService monitor = Executors.newScheduledThreadPool(1);
+  private ScheduledExecutorService monitor = Executors.newScheduledThreadPool(1);
   final Runnable breakOnMissingPing = new Runnable() {
     public void run() {
       long time = System.currentTimeMillis();
@@ -123,13 +123,7 @@ public abstract class Process implements ProcessMXBean {
     shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
-        LOGGER.trace("Process[{}]::ShutdownHook::run() START", name);
-        Process.this.onTerminate();
-        if (Process.this.pingTask != null) {
-          Process.this.pingTask.cancel(true);
-        }
-        Process.this.monitor.shutdownNow();
-        LOGGER.trace("Process[{}]::ShutdownHook::run() END", name);
+        terminate();
       }
     });
     Runtime.getRuntime().addShutdownHook(shutdownHook);
@@ -166,22 +160,17 @@ public abstract class Process implements ProcessMXBean {
     LOGGER.trace("Process[{}]::start() END", name);
   }
 
-  public final void terminate(boolean waitForTermination) {
-    LOGGER.trace("Process[{}]::terminate() START", name);
-    Runtime.getRuntime().removeShutdownHook(shutdownHook);
-    shutdownHook.start();
-    if (waitForTermination) {
-      try {
-        shutdownHook.join();
-      } catch (InterruptedException e) {
-        System.exit(-1);
-      }
-    }
-    LOGGER.trace("Process[{}]::terminate() END", name);
-    System.exit(1);
-  }
-
   public final void terminate() {
-    terminate(false);
+    LOGGER.debug("Process[{}]::terminate() START", name);
+    if (monitor != null) {
+      this.monitor.shutdownNow();
+      this.monitor = null;
+      if (this.pingTask != null) {
+        this.pingTask.cancel(true);
+        this.pingTask = null;
+      }
+      this.onTerminate();
+    }
+    LOGGER.debug("Process[{}]::terminate() END", name);
   }
 }

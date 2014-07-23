@@ -100,7 +100,7 @@ public class StartServer {
       try {
         process.join();
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        process = null;
       }
     }
   }

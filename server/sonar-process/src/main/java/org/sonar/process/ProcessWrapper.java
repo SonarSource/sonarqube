@@ -69,6 +69,7 @@ public class ProcessWrapper extends Thread {
   private ProcessMXBean processMXBean;
 
   public ProcessWrapper(String processName) {
+    super(processName);
     this.processName = processName;
   }
 
@@ -151,6 +152,7 @@ public class ProcessWrapper extends Thread {
     } catch (InterruptedException e) {
       e.printStackTrace();
     } finally {
+      LOGGER.info("ProcessThread has been interrupted. Killing process.");
       process.destroy();
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
@@ -173,7 +175,7 @@ public class ProcessWrapper extends Thread {
       try {
         thread.join();
       } catch (InterruptedException e) {
-        LOGGER.error("InterruptedException while waiting finish of " + thread.toString(), e);
+        LOGGER.error("InterruptedException while waiting finish of " + thread.getName() + " in process '" + getName() + "'", e);
       }
     }
   }
@@ -255,7 +257,12 @@ public class ProcessWrapper extends Thread {
   public void terminate() {
     if (processMXBean != null) {
       processMXBean.terminate();
-      waitUntilFinish(this);
+      try {
+        Thread.sleep(10000L);
+      } catch (InterruptedException e) {
+        LOGGER.warn("Could bnit", e);
+      }
+      this.interrupt();
     }
   }
 
