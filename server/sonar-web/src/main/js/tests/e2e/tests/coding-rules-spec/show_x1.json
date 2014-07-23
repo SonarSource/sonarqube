@@ -1,0 +1,59 @@
+{
+
+  "rule": {
+    "key": "squid-xoo:x1",
+    "repo": "squid-xoo",
+    "name": "No empty line",
+    "createdAt": "2014-07-23T11:17:26+0200",
+    "severity": "MINOR",
+    "status": "BETA",
+    "isTemplate": false,
+    "tags": [ ],
+    "sysTags": [
+      "convention",
+      "pitfall"
+    ],
+    "lang": "xoo",
+    "langName": "Xoo",
+    "htmlDesc": "Generate an issue on <em>empty</em> lines of Xoo source files",
+    "mdDesc": "Generate an issue on *empty* lines of Xoo source files",
+    "noteLogin": "admin",
+    "mdNote": "As per the [Book of Xoo](http://xoo.sonarsource.com/book):\n> Xoo shall not pass!",
+    "htmlNote": "As per the <a href=\"http://xoo.sonarsource.com/book\" target=\"_blank\">Book of Xoo</a>:<br/><blockquote>Xoo shall not pass!<br/></blockquote>",
+    "defaultDebtChar": "TESTABILITY",
+    "defaultDebtSubChar": "INTEGRATION_TESTABILITY",
+    "debtChar": "TESTABILITY",
+    "debtSubChar": "INTEGRATION_TESTABILITY",
+    "debtCharName": "Testability",
+    "debtSubCharName": "Integration level",
+    "debtRemFnType": "LINEAR_OFFSET",
+    "debtRemFnCoeff": "1h",
+    "debtRemFnOffset": "30min",
+    "defaultDebtRemFnType": "LINEAR_OFFSET",
+    "defaultDebtRemFnCoeff": "1h",
+    "defaultDebtRemFnOffset": "30min",
+    "effortToFixDescription": "Effort to fix issue on one line",
+    "debtOverloaded": false,
+    "params": [
+      {
+        "key": "acceptWhitespace",
+        "htmlDesc": "<h1>Accept whitespace (<code>\\s|\\t</code>) on the line\n</h1>This property is available so that a line containing only whitespace is not considered empty.<br/><h2>Example with property set to ``false``\n</h2><pre lang=\"xoo\"><code> &lt;- One issue here\n&lt;- And one here</code></pre><br/><br/><h2>Example with property set to ``true``\n</h2><pre lang=\"xoo\"><code> &lt;- No issue here\n&lt;- But one here</code></pre><br/>",
+        "defaultValue": "false"
+      }
+    ]
+  },
+  "actives": [
+    {
+      "qProfile": "xoo-sonar-way",
+      "inherit": "NONE",
+      "severity": "MAJOR",
+      "params": [
+        {
+          "key": "acceptWhitespace",
+          "value": "true"
+        }
+      ]
+    }
+  ]
+
+}

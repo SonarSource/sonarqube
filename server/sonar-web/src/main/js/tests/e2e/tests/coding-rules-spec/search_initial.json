@@ -1,0 +1,133 @@
+{
+
+  "total": 10,
+  "p": 1,
+  "ps": 25,
+  "rules": [
+    {
+      "key": "squid-xoo:x1",
+      "name": "No empty line",
+      "lang": "xoo",
+      "status": "BETA"
+    },
+    {
+      "key": "squid:S0001",
+      "name": "Deprecated rule",
+      "lang": "java",
+      "status": "DEPRECATED"
+    },
+    {
+      "key": "squid-coffee:S0001",
+      "name": "First rule of Coffee is: you don't talk about Coffee",
+      "lang": "coffee",
+      "status": "READY"
+    },
+    {
+      "key": "squid-coffee:S0002",
+      "name": "Second rule of Coffee is: you DO NOT talk about Coffee",
+      "lang": "coffee",
+      "status": "READY"
+    },
+    {
+      "key": "common-coffee:TrailingWhitespace",
+      "name": "Avoid trailing whitespace on lines",
+      "lang": "coffee",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S0002",
+      "name": "Deprecating rule",
+      "lang": "java",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S0003",
+      "name": "Always put a newline at end of file",
+      "lang": "java",
+      "status": "READY"
+    },
+    {
+      "key": "common-java:TrailingWhitespace",
+      "name": "Avoid trailing whitespace on lines",
+      "lang": "java",
+      "status": "READY"
+    },
+    {
+      "key": "common-java:ConvertSingleMethodInterfacesToLambdas",
+      "name": "Single method interfaces should be converted to lambdas",
+      "lang": "java",
+      "status": "READY"
+    },
+    {
+      "key": "common-java:LambdaOneStatementBlock",
+      "name": "Lamdbas containing only one statement should not nest this statement in a block ",
+      "lang": "java",
+      "status": "READY"
+    }
+  ],
+  "facets": [
+    {
+      "property": "tags",
+      "values": [
+        {
+          "val": "java8",
+          "count": 5
+        },
+        {
+          "val": "pitfall",
+          "count": 4
+        },
+        {
+          "val": "convention",
+          "count": 3
+        },
+        {
+          "val": "multithreading",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "property": "languages",
+      "values": [
+        {
+          "val": "java",
+          "count": 6
+        },
+        {
+          "val": "coffee",
+          "count": 3
+        },
+        {
+          "val": "xoo",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "property": "repositories",
+      "values": [
+        {
+          "val": "squid",
+          "count": 3
+        },
+        {
+          "val": "common-java",
+          "count": 3
+        },
+        {
+          "val": "squid-coffee",
+          "count": 2
+        },
+        {
+          "val": "common-coffee",
+          "count": 1
+        },
+        {
+          "val": "squid-xoo",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

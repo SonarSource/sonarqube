@@ -1,0 +1,9 @@
+extends ./layouts/main
+
+block header
+  script(data-main='/js/coding-rules/app', src='../js/require.js')
+
+block body
+  #content
+    #coding-rules-page-loader.navigator-page-loader
+      i.spinner
