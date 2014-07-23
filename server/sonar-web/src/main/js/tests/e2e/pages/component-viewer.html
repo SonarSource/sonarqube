@@ -4,10 +4,13 @@
   <link href="../css/sonar.css" rel="stylesheet" media="all">
 
   <script src="../js/sonar.js"></script>
+  <script src="../js/third-party/jquery.mockjax.js"></script>
   <script>
     var baseUrl = '..';
     var $j = jQuery.noConflict();
     window.suppressTranslationWarnings = true;
+    jQuery.mockjaxSettings.contentType = 'text/json';
+    jQuery.mockjaxSettings.responseTime = 250;
     $j(document).ready(function () {
       $j('.open-modal').modal();
       $j('<scr' + 'ipt data-main="../js/component-viewer/app" src="../js/require.js"></scr' + 'ipt>').appendTo('body');
@@ -25,4 +28,4 @@
 </div>
 
 </body>
-</htmlf
+</html>

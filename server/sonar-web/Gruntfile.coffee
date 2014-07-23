@@ -242,9 +242,8 @@ module.exports = (grunt) ->
 
 
     clean:
-      options: {
+      options:
         force: true
-      },
       css: ['<%= pkg.assets %>css/']
       js: ['<%= pkg.assets %>js/']
       build: ['<%= pkg.assets %>build/']
@@ -278,7 +277,6 @@ module.exports = (grunt) ->
       cw:
         options:
           test: true
-          'no-colors': true
         src: ['<%= pkg.sources %>js/tests/e2e/tests/component-viewer-spec.js']
 
 
