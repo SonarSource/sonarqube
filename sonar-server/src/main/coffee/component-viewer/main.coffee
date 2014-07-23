@@ -301,8 +301,7 @@ define [
       $.when(@requestMeasures(@key, period?.get('key')), @requestIssuesPeriod(@key, period?.get('key')), @requestSCM(@key)).done =>
         if activeHeaderItem?
           @state.set 'activeHeaderItem', activeHeaderItem
-          @headerView.render()
-        else @filterBySCM()
+        @headerView.render()
 
 
     addTransition: (transition, options) ->

@@ -20,6 +20,8 @@ define [
     events:
       'click .js-scm-time-changes': 'scmTimeChanges'
 
+      'click .js-filter-modified-lines': 'filterByModifiedLines'
+
 
     scmTimeChanges: (e) ->
       e.stopPropagation()
@@ -30,6 +32,11 @@ define [
         bottom: true
       popup.render()
       popup.on 'change', (period) => @main.enablePeriod period
+
+
+    filterByModifiedLines: (e) ->
+      @header.filterLines e, 'filterByModifiedLines'
+      @state.set 'activeHeaderItem', '.js-filter-modified-lines'
 
 
     serializeData: ->
