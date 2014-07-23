@@ -21,7 +21,6 @@
 package org.sonar.server.batch;
 
 import org.apache.commons.io.IOUtils;
-import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -31,25 +30,25 @@ import org.sonar.core.measure.db.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.user.UserSession;
 
-import java.util.Map;
-
 public class GlobalReferentialsAction implements RequestHandler {
 
   private final DbClient dbClient;
-  private final Settings settings;
+  private final PropertiesDao propertiesDao;
 
-  public GlobalReferentialsAction(DbClient dbClient, Settings settings) {
+  public GlobalReferentialsAction(DbClient dbClient, PropertiesDao propertiesDao) {
     this.dbClient = dbClient;
-    this.settings = settings;
+    this.propertiesDao = propertiesDao;
   }
 
   void define(WebService.NewController controller) {
     controller.createAction("global")
-      .setDescription("Return global referentials")
+      .setDescription("Return metrics and global properties")
       .setSince("4.5")
       .setInternal(true)
       .setHandler(this);
@@ -65,7 +64,7 @@ public class GlobalReferentialsAction implements RequestHandler {
     try {
       GlobalReferentials ref = new GlobalReferentials();
       addMetrics(ref, session);
-      addSettings(ref, hasScanPerm, hasDryRunPerm);
+      addSettings(ref, hasScanPerm, hasDryRunPerm, session);
 
       response.stream().setMediaType(MimeTypes.JSON);
       IOUtils.write(ref.toJson(), response.stream().output());
@@ -91,10 +90,10 @@ public class GlobalReferentialsAction implements RequestHandler {
     }
   }
 
-  private void addSettings(GlobalReferentials ref, boolean hasScanPerm, boolean hasDryRunPerm) {
-    for (Map.Entry<String, String> entry : settings.getProperties().entrySet()) {
-      String key = entry.getKey();
-      String value = entry.getValue();
+  private void addSettings(GlobalReferentials ref, boolean hasScanPerm, boolean hasDryRunPerm, DbSession session) {
+    for (PropertyDto propertyDto : propertiesDao.selectGlobalProperties(session)) {
+      String key = propertyDto.getKey();
+      String value = propertyDto.getValue();
 
       if (isPropertyAllowed(key, hasScanPerm, hasDryRunPerm)) {
         ref.addGlobalSetting(key, value);

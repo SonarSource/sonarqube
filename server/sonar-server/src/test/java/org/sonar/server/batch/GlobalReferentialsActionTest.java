@@ -25,10 +25,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.config.Settings;
 import org.sonar.core.measure.db.MetricDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MetricDao;
 import org.sonar.server.user.MockUserSession;
@@ -47,7 +48,8 @@ public class GlobalReferentialsActionTest {
   @Mock
   MetricDao metricDao;
 
-  Settings settings;
+  @Mock
+  PropertiesDao propertiesDao;
 
   WsTester tester;
 
@@ -57,9 +59,7 @@ public class GlobalReferentialsActionTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.metricDao()).thenReturn(metricDao);
 
-    settings = new Settings();
-
-    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalReferentialsAction(dbClient, settings)));
+    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalReferentialsAction(dbClient, propertiesDao)));
   }
 
   @Test
@@ -77,9 +77,11 @@ public class GlobalReferentialsActionTest {
   public void return_global_settings() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
 
-    settings.setProperty("foo", "bar");
-    settings.setProperty("foo.secured", "1234");
-    settings.setProperty("foo.license.secured", "5678");
+    when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("foo").setValue("bar"),
+      new PropertyDto().setKey("foo.secured").setValue("1234"),
+      new PropertyDto().setKey("foo.license.secured").setValue("5678")
+    ));
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "global");
     request.execute().assertJson(getClass(), "return_global_settings.json");
@@ -89,9 +91,11 @@ public class GlobalReferentialsActionTest {
   public void return_only_license_settings_without_scan_but_with_preview_permission() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.DRY_RUN_EXECUTION);
 
-    settings.setProperty("foo", "bar");
-    settings.setProperty("foo.secured", "1234");
-    settings.setProperty("foo.license.secured", "5678");
+    when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("foo").setValue("bar"),
+      new PropertyDto().setKey("foo.secured").setValue("1234"),
+      new PropertyDto().setKey("foo.license.secured").setValue("5678")
+    ));
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "global");
     request.execute().assertJson(getClass(), "return_only_license_settings_without_scan_but_with_preview_permission.json");
@@ -101,9 +105,11 @@ public class GlobalReferentialsActionTest {
   public void return_no_secured_settings_without_scan_and_preview_permission() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions();
 
-    settings.setProperty("foo", "bar");
-    settings.setProperty("foo.secured", "1234");
-    settings.setProperty("foo.license.secured", "5678");
+    when(propertiesDao.selectGlobalProperties(session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("foo").setValue("bar"),
+      new PropertyDto().setKey("foo.secured").setValue("1234"),
+      new PropertyDto().setKey("foo.license.secured").setValue("5678")
+    ));
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "global");
     request.execute().assertJson(getClass(), "return_no_secured_settings_without_scan_and_preview_permission.json");

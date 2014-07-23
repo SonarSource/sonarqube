@@ -24,8 +24,8 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
-import org.sonar.core.persistence.DaoComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
@@ -74,12 +74,15 @@ public class PropertiesDao implements BatchComponent, ServerComponent, DaoCompon
 
   public List<PropertyDto> selectGlobalProperties() {
     SqlSession session = mybatis.openSession(false);
-    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
-      return mapper.selectGlobalProperties();
+      return selectGlobalProperties(session);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public List<PropertyDto> selectGlobalProperties(SqlSession session) {
+    return session.getMapper(PropertiesMapper.class).selectGlobalProperties();
   }
 
   public PropertyDto selectGlobalProperty(String propertyKey) {
