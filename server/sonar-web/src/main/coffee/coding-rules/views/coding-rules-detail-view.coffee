@@ -75,6 +75,7 @@ define [
       'click @ui.deleteCustomRule': 'deleteRule'
 
       'click .coding-rules-subcharacteristic': 'toggleDebtInfo'
+      'click .coding-rules-detail-parameter-name': 'toggleParameterDescription'
 
     initialize: (options) ->
       super options
@@ -175,6 +176,10 @@ define [
     toggleDebtInfo: (e) ->
       @ui.subcharacteristicMore.toggle()
       false
+
+
+    toggleParameterDescription: (e) ->
+      jQuery(e.currentTarget).next('.coding-rules-detail-parameter-description').toggle();
 
 
     hideContext: ->
