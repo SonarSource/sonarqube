@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -108,8 +107,21 @@ public class DefaultIssueBuilder implements IssueBuilder {
   }
 
   @Override
-  public Issue build() {
-    return new DefaultIssue(this);
+  public DefaultIssue build() {
+    DefaultIssue result = new DefaultIssue(this);
+    reset();
+    return result;
+  }
+
+  private void reset() {
+    key = null;
+    onProject = false;
+    path = null;
+    ruleKey = null;
+    message = null;
+    line = null;
+    effortToFix = null;
+    severity = null;
   }
 
 }

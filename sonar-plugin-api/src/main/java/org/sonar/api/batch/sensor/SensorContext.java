@@ -19,16 +19,15 @@
  */
 package org.sonar.api.batch.sensor;
 
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.issue.IssueBuilder;
-import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.measure.MeasureBuilder;
-
 import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.IssueBuilder;
+import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.measure.MeasureBuilder;
 import org.sonar.api.config.Settings;
 
 import javax.annotation.CheckForNull;
@@ -101,7 +100,11 @@ public interface SensorContext {
 
   /**
    * Add an issue. Use {@link #issueBuilder()} to create the new issue.
-   * @return true if the new issue is registered, false if the related rule does not exist or is disabled in the Quality profile.
+   * @return <code>true</code> if the new issue is registered, <code>false</code> if:
+   * <ul>
+   * <li>the rule does not exist</li>
+   * <li>the rule is disabled in the Quality profile</li>
+   * </ul>
    */
   boolean addIssue(Issue issue);
 

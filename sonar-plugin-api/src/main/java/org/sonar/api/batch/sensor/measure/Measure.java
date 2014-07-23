@@ -19,13 +19,12 @@
  */
 package org.sonar.api.batch.sensor.measure;
 
-import org.sonar.api.batch.sensor.Sensor;
-
 import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
+import org.sonar.api.batch.sensor.Sensor;
 
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
 
@@ -39,7 +38,7 @@ public interface Measure<G extends Serializable> {
   /**
    * The {@link InputFile} this measure belongs to. Returns null if measure is global to the project.
    */
-  @Nullable
+  @CheckForNull
   InputFile inputFile();
 
   Metric<G> metric();

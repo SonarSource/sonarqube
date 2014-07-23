@@ -19,10 +19,9 @@
  */
 package org.sonar.api.batch.sensor.measure;
 
-import org.sonar.api.batch.measure.Metric;
-
 import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.Metric;
 
 import java.io.Serializable;
 
@@ -54,7 +53,7 @@ public interface MeasureBuilder<G extends Serializable> {
   MeasureBuilder<G> withValue(G value);
 
   /**
-   * Build the measure.
+   * Build the measure. After call of this method the builder is cleaned and can be used to build another measure.
    */
   Measure<G> build();
 }

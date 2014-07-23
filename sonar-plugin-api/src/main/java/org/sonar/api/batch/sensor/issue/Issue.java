@@ -48,6 +48,7 @@ public interface Issue {
   /**
    * Message of the issue.
    */
+  @CheckForNull
   String message();
 
   /**
@@ -65,7 +66,7 @@ public interface Issue {
 
   /**
    * See constants in {@link org.sonar.api.rule.Severity}.
-   * Can be null before issue is saved to tell to use severity configured in quality profile.
+   * Can be null before issue is saved. Means to use severity configured in quality profile.
    */
   @CheckForNull
   String severity();
