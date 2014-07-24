@@ -155,9 +155,9 @@
                if update_center_activated %>
               <li class="<%= 'active' if controller.controller_path=='updatecenter' -%>">
                 <a href="<%= ApplicationController.root_context -%>/updatecenter"><%= message('update_center.page') -%></a></li>
-              <li class="<%= 'active' if controller.controller_path=='system' -%>">
-                <a href="<%= ApplicationController.root_context -%>/system"><%= message('system_info.page') -%></a></li>
             <% end %>
+            <li class="<%= 'active' if controller.controller_path=='system' -%>">
+              <a href="<%= ApplicationController.root_context -%>/system"><%= message('system_info.page') -%></a></li>
 
             <% end #of admin part %>
 
