@@ -28,10 +28,8 @@
   </appender>
 
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <filter class="ch.qos.logback.classic.filter.LevelFilter">
-      <level>INFO</level>
-      <onMatch>ACCEPT</onMatch>
-      <onMismatch>DENY</onMismatch>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>warn</level>
     </filter>
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>
