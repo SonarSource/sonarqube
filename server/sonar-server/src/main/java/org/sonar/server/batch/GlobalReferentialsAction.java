@@ -101,7 +101,7 @@ public class GlobalReferentialsAction implements RequestHandler {
     }
   }
 
-  private boolean isPropertyAllowed(String key, boolean hasScanPerm, boolean hasDryRunPerm){
+  private static boolean isPropertyAllowed(String key, boolean hasScanPerm, boolean hasDryRunPerm) {
     return !key.contains(".secured") || hasScanPerm || (key.contains(".license") && hasDryRunPerm);
   }
 

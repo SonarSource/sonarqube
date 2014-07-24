@@ -18,21 +18,41 @@
   <select id="selectByKey" parameterType="String" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
-    INNER JOIN snapshots s on s.project_id=p.id and s.islast=${_true}
-    WHERE p.enabled=${_true} AND p.kee=#{key}
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    <where>
+      AND p.enabled=${_true}
+      AND p.kee=#{key}
+    </where>
   </select>
 
   <select id="selectById" parameterType="long" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
-    INNER JOIN snapshots s on s.project_id=p.id and s.islast=${_true}
-    WHERE p.enabled=${_true} AND p.id=#{id}
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    <where>
+      AND p.enabled=${_true}
+      AND p.id=#{id}
+    </where>
   </select>
 
   <select id="countById" parameterType="long" resultType="long">
     SELECT count(p.id)
     FROM projects p
-    WHERE p.enabled=${_true} AND p.id=#{id}
+    <where>
+      AND p.enabled=${_true}
+      AND p.id=#{id}
+    </where>
+  </select>
+
+  <select id="findModulesByProject" parameterType="String" resultType="Component">
+    SELECT <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN projects root ON root.id=p.root_id AND root.enabled=${_true} AND root.kee=#{projectKey}
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    <where>
+      AND p.enabled=${_true}
+      AND p.scope='PRJ'
+    </where>
   </select>
 
   <sql id="insertColumns">

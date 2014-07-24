@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
@@ -35,6 +37,7 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
+import org.sonar.server.user.MockUserSession;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -298,6 +301,31 @@ public class QProfileFactoryMediumTest {
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Quality profile not found: " + XOO_P1_KEY);
     }
+  }
+
+  @Test
+  public void get_profile_by_project_and_language() {
+    ComponentDto project = new ComponentDto()
+      .setId(1L)
+      .setKey("org.codehaus.sonar:sonar")
+      .setName("SonarQube")
+      .setLongName("SonarQube")
+      .setQualifier("TRK")
+      .setScope("TRK")
+      .setEnabled(true);
+    db.componentDao().insert(dbSession, project);
+
+    QualityProfileDto profileDto = QProfileTesting.newXooP1();
+    db.qualityProfileDao().insert(dbSession, profileDto);
+    dbSession.commit();
+    dbSession.clearCache();
+    assertThat(factory.getByProjectAndLanguage("org.codehaus.sonar:sonar", "xoo")).isNull();
+
+    tester.get(QProfileProjectOperations.class).addProject(profileDto.getId(), project.getId(),
+      MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN), dbSession);
+    dbSession.commit();
+    dbSession.clearCache();
+    assertThat(factory.getByProjectAndLanguage("org.codehaus.sonar:sonar", "xoo").getKey()).isEqualTo(XOO_P1_KEY);
   }
 
   private void initRules() {

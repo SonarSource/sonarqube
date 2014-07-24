@@ -19,7 +19,10 @@
  */
 package org.sonar.core.component.db;
 
+import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.ComponentDto;
+
+import java.util.List;
 
 /**
  * @since 4.3
@@ -29,6 +32,8 @@ public interface ComponentMapper {
   ComponentDto selectByKey(String key);
 
   ComponentDto selectById(long id);
+
+  List<ComponentDto> findModulesByProject(@Param("projectKey") String projectKey);
 
   long countById(long id);
 
