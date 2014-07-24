@@ -132,8 +132,9 @@ public final class AnalysisPublisher {
       for (Measure<?> measure : measureCache.byModule(def.getKey())) {
         jsonWriter.beginObject()
           .prop("metricKey", measure.metric().key());
-        if (measure.inputFile() != null) {
-          jsonWriter.prop("filePath", measure.inputFile().relativePath());
+        InputFile inputFile = measure.inputFile();
+        if (inputFile != null) {
+          jsonWriter.prop("filePath", inputFile.relativePath());
         }
         jsonWriter.prop("value", String.valueOf(measure.value()))
           .endObject();
