@@ -67,11 +67,10 @@ public class Monitor extends Thread {
 
   private class ProcessWatch implements Runnable {
     public void run() {
-      LOGGER.trace("Monitor::ProcessWatch PINGING for map: {}", processes);
       for (ProcessWrapper process : processes) {
         try {
           long time = process.getProcessMXBean().ping();
-          LOGGER.debug("Monitor::ProcessWatch PINGED '{}'", process.getName());
+          LOGGER.debug("PINGED '{}'", process.getName());
           pings.put(process.getName(), time);
         } catch (Exception e) {
           LOGGER.error("Error while pinging {}", process.getName(), e);
@@ -82,13 +81,10 @@ public class Monitor extends Thread {
 
   private boolean processIsValid(ProcessWrapper process) {
     long now = System.currentTimeMillis();
-    LOGGER.debug("Monitor::processIsValid() -- Time since last ping for '{}': {}ms",
-      process.getName(), (now - pings.get(process.getName())));
     return (now - pings.get(process.getName())) < MAX_TIME;
   }
 
   public void run() {
-    LOGGER.debug("Monitor::run() START");
     boolean everythingOK = true;
     try {
       while (everythingOK) {
@@ -108,6 +104,5 @@ public class Monitor extends Thread {
       watch.cancel(true);
       monitor.shutdownNow();
     }
-    LOGGER.debug("Monitor::run() END");
   }
 }

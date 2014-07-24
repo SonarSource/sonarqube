@@ -51,9 +51,7 @@ public class App implements ProcessMXBean {
     Thread shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
-        LOGGER.info("JVM Shutdown start");
         terminate();
-        LOGGER.info("JVM Shutdown end");
       }
     });
     Runtime.getRuntime().addShutdownHook(shutdownHook);
@@ -73,6 +71,9 @@ public class App implements ProcessMXBean {
   }
 
   public void start() {
+    Logger logger = LoggerFactory.getLogger(getClass());
+
+    logger.info("Starting Elasticsearch");
     elasticsearch = new ProcessWrapper("ES")
       .setWorkDir(installation.homeDir())
       .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.ES_JMX_PORT_KEY)))
@@ -86,6 +87,7 @@ public class App implements ProcessMXBean {
       .execute();
     monitor.registerProcess(elasticsearch);
 
+    logger.info("Starting HTTP server");
     server = new ProcessWrapper("SQ")
       .setWorkDir(installation.homeDir())
       .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.WEB_JMX_PORT_KEY)))
@@ -103,15 +105,14 @@ public class App implements ProcessMXBean {
       .addClasspath(installation.starPath("lib/server"))
       .execute();
     monitor.registerProcess(server);
-
+    logger.info("HTTP server is Ready");
     monitor.start();
 
     try {
-      try {
-        monitor.join();
-      } catch (InterruptedException e) {
-        LOGGER.info("Monitor interrupted. Shutting down...");
-      }
+      monitor.join();
+    } catch (InterruptedException e) {
+      // TODO ignore ?
+
     } finally {
       terminate();
     }
@@ -120,6 +121,8 @@ public class App implements ProcessMXBean {
   @Override
   public void terminate() {
     if (monitor != null) {
+      Logger logger = LoggerFactory.getLogger(getClass());
+      logger.info("Shutting down server");
       monitor.interrupt();
       monitor = null;
       terminateAndWait(elasticsearch);
