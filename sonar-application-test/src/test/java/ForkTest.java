@@ -49,7 +49,6 @@ public class ForkTest {
   @Test
   public void start_and_stop() {
     OrchestratorBuilder builder = Orchestrator.builderEnv();
-    builder.setOrchestratorProperty("orchestrator.configUrl", "http://infra/jenkins/orch-embedded.properties");
     builder.setSonarVersion("DEV");
     builder.addPlugin(MavenLocation.create("com.sonarsource.xoo", "sonar-xoo-plugin", "1.0-SNAPSHOT"));
     orchestrator = builder.build();
