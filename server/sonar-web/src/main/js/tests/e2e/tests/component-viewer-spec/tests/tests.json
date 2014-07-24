@@ -1,0 +1,14 @@
+{"tests": [
+  {
+    "name": "should_return_to_string",
+    "status": "OK",
+    "durationInMs": 1,
+    "coveredLines": 4
+  },
+  {
+    "name": "should_return_i",
+    "status": "OK",
+    "durationInMs": 11,
+    "coveredLines": 5
+  }
+]}

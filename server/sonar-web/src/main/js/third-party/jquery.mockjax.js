@@ -431,6 +431,8 @@
 			origSettings.url = url;
 		}
 
+    console.log('!!! AJAX REQUEST', origSettings.url);
+
 		// Extend the original settings for the request
 		requestSettings = $.extend(true, {}, $.ajaxSettings, origSettings);
 

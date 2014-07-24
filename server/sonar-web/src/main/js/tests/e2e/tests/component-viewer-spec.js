@@ -13,7 +13,6 @@ casper.test.begin(testName('Base'), function (test) {
         lib.mockRequest('/api/l10n/index', '{}');
         lib.mockRequestFromFile('/api/components/app', 'app.json');
         lib.mockRequestFromFile('/api/sources/show', 'source.json');
-        lib.mockRequest('*', '{}'); // Trick to see all ajax requests
       })
 
       .then(function () {
@@ -51,7 +50,6 @@ casper.test.begin(testName('Base'), function (test) {
 });
 
 
-
 casper.test.begin(testName('Decoration'), function (test) {
   casper
       .start(lib.buildUrl('component-viewer#component=component'), function () {
@@ -64,7 +62,6 @@ casper.test.begin(testName('Decoration'), function (test) {
         lib.mockRequestFromFile('/api/coverage/show', 'coverage.json');
         lib.mockRequestFromFile('/api/duplications/show', 'duplications.json');
         lib.mockRequestFromFile('/api/sources/scm', 'scm.json');
-        lib.mockRequest('*', '{}'); // Trick to see all ajax requests
       })
 
       .then(function () {
@@ -148,7 +145,6 @@ casper.test.begin(testName('Header'), function (test) {
         lib.mockRequestFromFile('/api/components/app', 'app.json');
         lib.mockRequestFromFile('/api/sources/show', 'source.json');
         lib.mockRequestFromFile('/api/resources', 'resources.json');
-        lib.mockRequest('*', '{}'); // Trick to see all ajax requests
       })
 
       .then(function () {
@@ -228,6 +224,96 @@ casper.test.begin(testName('Header'), function (test) {
           casper.click('.js-header-tab-scm');
           casper.waitWhileSelector('.js-filter-modified-lines', function () {
             test.assertDoesntExist('.js-scm-time-changes');
+          });
+        });
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Test File'), function (test) {
+  casper
+      .start(lib.buildUrl('component-viewer#component=component'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/components/app', 'tests/app.json');
+        lib.mockRequestFromFile('/api/sources/show', 'tests/source.json');
+        lib.mockRequestFromFile('/api/resources', 'tests/resources.json');
+        lib.mockRequestFromFile('/api/tests/show', 'tests/tests.json');
+        lib.mockRequestFromFile('/api/tests/covered_files', 'tests/covered-files.json');
+      })
+
+      .then(function () {
+        casper.waitForSelector('.component-viewer-source .row');
+      })
+
+      .then(function () {
+        // Check coverage header and filters
+        casper.click('.js-header-tab-tests');
+        casper.waitForSelector('.js-unit-test', function () {
+          test.assertSelectorContains('[data-metric="test_execution_time"]', '12');
+          test.assertElementCount('.js-unit-test', 2);
+          test.assertSelectorContains('.js-unit-test[data-name="should_return_i"]', 'should_return_i');
+          test.assertSelectorContains('.js-unit-test[data-name="should_return_i"]', '5');
+          test.assertSelectorContains('.js-unit-test[data-name="should_return_to_string"]', 'should_return_to_string');
+          test.assertSelectorContains('.js-unit-test[data-name="should_return_to_string"]', '4');
+
+          casper.click('.js-unit-test[data-name="should_return_to_string"]');
+          casper.waitForSelector('.bubble-popup', function () {
+            test.assertSelectorContains('.bubble-popup', 'Sample.java');
+            test.assertSelectorContains('.bubble-popup', 'src/main/java/sample');
+          });
+        });
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Coverage'), function (test) {
+  var appMock, sourceMock;
+
+  casper
+      .start(lib.buildUrl('component-viewer#component=component'), function () {
+        lib.setDefaultViewport();
+        lib.clearRequestMocks();
+
+        lib.mockRequest('/api/l10n/index', '{}');
+        appMock = lib.mockRequestFromFile('/api/components/app', 'app.json');
+        sourceMock = lib.mockRequestFromFile('/api/sources/show', 'source.json');
+        lib.mockRequestFromFile('/api/coverage/show', 'coverage.json');
+        lib.mockRequestFromFile('/api/tests/test_cases', 'test-cases.json');
+      })
+
+      .then(function () {
+        casper.waitForSelector('.component-viewer-source .row');
+      })
+
+      .then(function() {
+        casper.click('.js-toggle-coverage');
+        casper.waitForSelector('.coverage-green', function () {
+          casper.click('.coverage-green .coverage-tests');
+          casper.waitForSelector('.bubble-popup', function () {
+            test.assertSelectorContains('.bubble-popup', 'src/test/java/org/sonar/batch/issue/IssueCacheTest.java');
+            test.assertSelectorContains('.bubble-popup', 'should_update_existing_issue');
+            test.assertSelectorContains('.bubble-popup li[title="should_update_existing_issue"]', '293');
+
+            lib.clearRequestMocks();
+//            lib.mockRequestFromFile('/api/components/app', 'tests/app.json');
+//            lib.mockRequestFromFile('/api/sources/show', 'tests/source.json');
+//            lib.mockRequestFromFile('/api/resources', 'tests/resources.json');
+//            lib.mockRequestFromFile('/api/tests/show', 'tests/tests.json');
+            casper.click('.component-viewer-popup-test-file[data-key]');
+
+//            casper.waitForSelector('.js-unit-test', function () {
+//              test.assertElementCount('.js-unit-test', 2);
+//            });
           });
         });
       })
