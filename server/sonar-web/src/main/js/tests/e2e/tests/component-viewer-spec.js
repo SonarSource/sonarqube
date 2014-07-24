@@ -305,15 +305,15 @@ casper.test.begin(testName('Coverage'), function (test) {
             test.assertSelectorContains('.bubble-popup li[title="should_update_existing_issue"]', '293');
 
             lib.clearRequestMocks();
-//            lib.mockRequestFromFile('/api/components/app', 'tests/app.json');
-//            lib.mockRequestFromFile('/api/sources/show', 'tests/source.json');
-//            lib.mockRequestFromFile('/api/resources', 'tests/resources.json');
-//            lib.mockRequestFromFile('/api/tests/show', 'tests/tests.json');
+            lib.mockRequestFromFile('/api/components/app', 'tests/app.json');
+            lib.mockRequestFromFile('/api/sources/show', 'tests/source.json');
+            lib.mockRequestFromFile('/api/resources', 'tests/resources.json');
+            lib.mockRequestFromFile('/api/tests/show', 'tests/tests.json');
             casper.click('.component-viewer-popup-test-file[data-key]');
 
-//            casper.waitForSelector('.js-unit-test', function () {
-//              test.assertElementCount('.js-unit-test', 2);
-//            });
+            casper.waitForSelector('.js-unit-test', function () {
+              test.assertElementCount('.js-unit-test', 2);
+            });
           });
         });
       })

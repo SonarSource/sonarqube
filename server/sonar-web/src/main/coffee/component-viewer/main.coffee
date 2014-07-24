@@ -16,8 +16,6 @@ define [
   'component-viewer/source'
   'component-viewer/header'
   'component-viewer/utils'
-
-  'component-viewer/mockjax'
 ], (
   Backbone
   Marionette
