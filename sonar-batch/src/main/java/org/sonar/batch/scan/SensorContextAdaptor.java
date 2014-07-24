@@ -23,9 +23,11 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueBuilder;
@@ -46,6 +48,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
+import org.sonar.batch.index.ComponentDataCache;
 
 import java.io.Serializable;
 
@@ -62,9 +66,10 @@ public class SensorContextAdaptor implements SensorContext {
   private Settings settings;
   private FileSystem fs;
   private ActiveRules activeRules;
+  private ComponentDataCache componentDataCache;
 
   public SensorContextAdaptor(org.sonar.api.batch.SensorContext sensorContext, MetricFinder metricFinder, Project project, ResourcePerspectives perspectives,
-    Settings settings, FileSystem fs, ActiveRules activeRules) {
+    Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache) {
     this.sensorContext = sensorContext;
     this.metricFinder = metricFinder;
     this.project = project;
@@ -72,6 +77,7 @@ public class SensorContextAdaptor implements SensorContext {
     this.settings = settings;
     this.fs = fs;
     this.activeRules = activeRules;
+    this.componentDataCache = componentDataCache;
   }
 
   @Override
@@ -234,6 +240,11 @@ public class SensorContextAdaptor implements SensorContext {
       .message(issue.message())
       .severity(issue.severity())
       .build();
+  }
+
+  @Override
+  public HighlightingBuilder highlightingBuilder(InputFile inputFile) {
+    return new DefaultHighlightingBuilder(((DefaultInputFile) inputFile).key(), componentDataCache);
   }
 
 }

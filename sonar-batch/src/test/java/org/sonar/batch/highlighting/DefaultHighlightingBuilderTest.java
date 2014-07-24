@@ -17,14 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.source;
+package org.sonar.batch.highlighting;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.component.Component;
-import org.sonar.batch.highlighting.SyntaxHighlightingData;
+import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.source.SnapshotDataTypes;
 
@@ -32,32 +29,18 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-public class DefaultHighlightableTest {
-
-  @Rule
-  public ExpectedException throwable = ExpectedException.none();
-
-  @Test
-  public void should_store_highlighting_rules() throws Exception {
-    DefaultHighlightable highlightablePerspective = new DefaultHighlightable(mock(Component.class), null);
-    highlightablePerspective.newHighlighting().highlight(0, 10, "k").highlight(20, 30, "cppd");
-
-    assertThat(highlightablePerspective.getHighlightingRules().getSortedRules()).hasSize(2);
-  }
+public class DefaultHighlightingBuilderTest {
 
   @Test
   public void should_apply_registered_highlighting() throws Exception {
-    Component component = mock(Component.class);
-    when(component.key()).thenReturn("myComponent");
 
     ComponentDataCache cache = mock(ComponentDataCache.class);
 
-    DefaultHighlightable highlightable = new DefaultHighlightable(component, cache);
-    highlightable.newHighlighting()
-      .highlight(0, 10, "k")
-      .highlight(20, 30, "cppd")
+    DefaultHighlightingBuilder highlightable = new DefaultHighlightingBuilder("myComponent", cache);
+    highlightable
+      .highlight(0, 10, TypeOfText.KEYWORD)
+      .highlight(20, 30, TypeOfText.CPP_DOC)
       .done();
 
     ArgumentCaptor<SyntaxHighlightingData> argCaptor = ArgumentCaptor.forClass(SyntaxHighlightingData.class);

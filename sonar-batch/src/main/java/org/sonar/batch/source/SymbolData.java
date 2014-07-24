@@ -42,9 +42,9 @@ public class SymbolData implements Data {
   public String writeString() {
     StringBuilder sb = new StringBuilder();
 
-    Multimap<Symbol, Integer> referencesBySymbol = ((DefaultSymbolTable)symbolTable).getReferencesBySymbol();
+    Multimap<Symbol, Integer> referencesBySymbol = ((DefaultSymbolTable) symbolTable).getReferencesBySymbol();
 
-    for (Symbol symbol : ((DefaultSymbolTable)symbolTable).getReferencesBySymbol().keySet()) {
+    for (Symbol symbol : ((DefaultSymbolTable) symbolTable).getReferencesBySymbol().keySet()) {
 
       sb.append(symbol.getDeclarationStartOffset())
         .append(FIELD_SEPARATOR)
@@ -59,8 +59,4 @@ public class SymbolData implements Data {
     return sb.toString();
   }
 
-  @Override
-  public void readString(String s) {
-    throw new UnsupportedOperationException();
-  }
 }

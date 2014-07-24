@@ -23,6 +23,7 @@ import org.sonar.api.SonarPlugin;
 import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
 import org.sonar.batch.mediumtest.xoo.plugin.lang.MeasureSensor;
 import org.sonar.batch.mediumtest.xoo.plugin.lang.ScmActivitySensor;
+import org.sonar.batch.mediumtest.xoo.plugin.lang.SyntaxHighlightingSensor;
 import org.sonar.batch.mediumtest.xoo.plugin.rule.CreateIssueByInternalKeySensor;
 import org.sonar.batch.mediumtest.xoo.plugin.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.batch.mediumtest.xoo.plugin.rule.OneIssuePerLineSensor;
@@ -38,6 +39,7 @@ public final class XooPlugin extends SonarPlugin {
       // language
       MeasureSensor.class,
       ScmActivitySensor.class,
+      SyntaxHighlightingSensor.class,
       Xoo.class,
 
       // sensors

@@ -17,24 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.index;
-
-public class StringData implements Data {
-  private String data = null;
-
-  public StringData() {
-  }
-
-  public StringData(String s) {
-    this.data = s;
-  }
-
-  public String data() {
-    return data;
-  }
-
-  @Override
-  public String writeString() {
-    return data;
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.api.batch.sensor.highlighting;

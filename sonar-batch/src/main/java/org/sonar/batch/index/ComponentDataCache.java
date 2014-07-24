@@ -21,6 +21,8 @@ package org.sonar.batch.index;
 
 import org.sonar.api.BatchComponent;
 
+import javax.annotation.CheckForNull;
+
 public class ComponentDataCache implements BatchComponent {
   private final Cache cache;
 
@@ -37,10 +39,12 @@ public class ComponentDataCache implements BatchComponent {
     return setData(componentKey, dataType, new StringData(data));
   }
 
+  @CheckForNull
   public <D extends Data> D getData(String componentKey, String dataType) {
     return (D) cache.get(componentKey, dataType);
   }
 
+  @CheckForNull
   public String getStringData(String componentKey, String dataType) {
     Data data = (Data) cache.get(componentKey, dataType);
     return data == null ? null : ((StringData) data).data();

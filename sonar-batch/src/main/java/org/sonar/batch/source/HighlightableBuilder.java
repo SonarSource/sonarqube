@@ -28,11 +28,14 @@ import org.sonar.core.component.PerspectiveBuilder;
 import org.sonar.core.component.ResourceComponent;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Set;
 
 /**
  * @since 3.6
+ * @deprecated no more used in batch 2.0
  */
+@Deprecated
 public class HighlightableBuilder extends PerspectiveBuilder<Highlightable> {
 
   private static final Set<String> SUPPORTED_QUALIFIERS = ImmutableSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);

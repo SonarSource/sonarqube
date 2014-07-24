@@ -25,6 +25,4 @@ public interface Data extends Serializable {
 
   String writeString();
 
-  void readString(String s);
-
 }

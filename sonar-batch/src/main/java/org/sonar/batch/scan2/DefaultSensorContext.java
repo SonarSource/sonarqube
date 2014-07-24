@@ -23,10 +23,12 @@ import com.google.common.base.Strings;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
@@ -38,6 +40,8 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
+import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.scan.SensorContextAdaptor;
 import org.sonar.core.component.ComponentKeys;
@@ -53,9 +57,10 @@ public class DefaultSensorContext implements SensorContext {
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final IssueFilters issueFilters;
+  private final ComponentDataCache componentDataCache;
 
   public DefaultSensorContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, AnalyzerIssueCache issueCache,
-    Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters) {
+    Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters, ComponentDataCache componentDataCache) {
     this.def = def;
     this.measureCache = measureCache;
     this.issueCache = issueCache;
@@ -63,6 +68,7 @@ public class DefaultSensorContext implements SensorContext {
     this.fs = fs;
     this.activeRules = activeRules;
     this.issueFilters = issueFilters;
+    this.componentDataCache = componentDataCache;
   }
 
   @Override
@@ -155,7 +161,11 @@ public class DefaultSensorContext implements SensorContext {
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.severity());
     }
+  }
 
+  @Override
+  public HighlightingBuilder highlightingBuilder(InputFile inputFile) {
+    return new DefaultHighlightingBuilder(((DefaultInputFile) inputFile).key(), componentDataCache);
   }
 
 }

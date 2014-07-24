@@ -42,6 +42,7 @@ import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.batch.index.ComponentDataCache;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -69,8 +70,9 @@ public class SensorContextAdapterTest {
     sensorContext = mock(SensorContext.class);
     settings = new Settings();
     resourcePerspectives = mock(ResourcePerspectives.class);
+    ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
     adaptor = new SensorContextAdaptor(sensorContext, metricFinder, new Project("myProject"),
-      resourcePerspectives, settings, fs, activeRules);
+      resourcePerspectives, settings, fs, activeRules, componentDataCache);
   }
 
   @Test
