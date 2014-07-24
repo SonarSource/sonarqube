@@ -294,9 +294,10 @@ define [
 
 
     deleteRule: ->
+      ruleType = if @model.has('templateKey') then 'custom' else 'manual'
       confirmDialog
         title: t 'delete'
-        html: t 'are_you_sure'
+        html: tp "coding_rules.delete.#{ruleType}.confirm", @model.get('name')
         yesHandler: =>
           jQuery.ajax
             type: 'POST'
