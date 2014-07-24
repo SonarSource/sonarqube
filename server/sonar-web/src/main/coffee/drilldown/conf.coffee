@@ -34,20 +34,20 @@ define
   'new_it_uncovered_conditions':      { tab: 'coverage', item: '.js-filter-uncovered-branches-it' }
   
   # Overall
-  'overall_coverage':                 { tab: 'coverage', item: '.js-filter-lines-to-cover' }
-  'overall_lines_to_cover':           { tab: 'coverage', item: '.js-filter-lines-to-cover' }
-  'overall_uncovered_lines':          { tab: 'coverage', item: '.js-filter-uncovered-lines' }
-  'overall_line_coverage':            { tab: 'coverage', item: '.js-filter-lines-to-cover' }
-  'overall_conditions_to_cover':      { tab: 'coverage', item: '.js-filter-branches-to-cover' }
-  'overall_uncovered_conditions':     { tab: 'coverage', item: '.js-filter-uncovered-branches' }
-  'overall_branch_coverage':          { tab: 'coverage', item: '.js-filter-branches-to-cover' }
-  'new_overall_coverage':             { tab: 'coverage', item: '.js-filter-lines-to-cover' }
-  'new_overall_uncovered_lines':      { tab: 'coverage', item: '.js-filter-uncovered-lines' }
-  'new_overall_line_coverage':        { tab: 'coverage', item: '.js-filter-lines-to-cover' }
-  'new_overall_lines_to_cover':       { tab: 'coverage', item: '.js-filter-lines-to-cover' }
-  'new_overall_branch_coverage':      { tab: 'coverage', item: '.js-filter-branches-to-cover' }
-  'new_overall_conditions_to_cover':  { tab: 'coverage', item: '.js-filter-branches-to-cover' }
-  'new_overall_uncovered_conditions': { tab: 'coverage', item: '.js-filter-uncovered-branches' }
+  'overall_coverage':                 { tab: 'coverage', item: '.js-filter-lines-to-cover-overall' }
+  'overall_lines_to_cover':           { tab: 'coverage', item: '.js-filter-lines-to-cover-overall' }
+  'overall_uncovered_lines':          { tab: 'coverage', item: '.js-filter-uncovered-lines-overall' }
+  'overall_line_coverage':            { tab: 'coverage', item: '.js-filter-lines-to-cover-overall' }
+  'overall_conditions_to_cover':      { tab: 'coverage', item: '.js-filter-branches-to-cover-overall' }
+  'overall_uncovered_conditions':     { tab: 'coverage', item: '.js-filter-uncovered-branches-overall' }
+  'overall_branch_coverage':          { tab: 'coverage', item: '.js-filter-branches-to-cover-overall' }
+  'new_overall_coverage':             { tab: 'coverage', item: '.js-filter-lines-to-cover-overall' }
+  'new_overall_uncovered_lines':      { tab: 'coverage', item: '.js-filter-uncovered-lines-overall' }
+  'new_overall_line_coverage':        { tab: 'coverage', item: '.js-filter-lines-to-cover-overall' }
+  'new_overall_lines_to_cover':       { tab: 'coverage', item: '.js-filter-lines-to-cover-overall' }
+  'new_overall_branch_coverage':      { tab: 'coverage', item: '.js-filter-branches-to-cover-overall' }
+  'new_overall_conditions_to_cover':  { tab: 'coverage', item: '.js-filter-branches-to-cover-overall' }
+  'new_overall_uncovered_conditions': { tab: 'coverage', item: '.js-filter-uncovered-branches-overall' }
 
 
   # Issues
