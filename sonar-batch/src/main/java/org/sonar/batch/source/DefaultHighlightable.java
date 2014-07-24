@@ -27,7 +27,7 @@ import org.sonar.core.source.SnapshotDataTypes;
 
 /**
  * @since 3.6
- * @deprecated no more used in batch 2.0
+ * @deprecated since 4.5 no more used in batch 2.0
  */
 @Deprecated
 public class DefaultHighlightable implements Highlightable {

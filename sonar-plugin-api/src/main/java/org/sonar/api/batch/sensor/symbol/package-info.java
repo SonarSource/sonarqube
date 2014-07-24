@@ -17,38 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.batch.source;
-
-import com.google.common.base.Objects;
-import org.sonar.api.source.Symbol;
-
-public class DefaultSymbol implements Symbol {
-
-  private final int declarationStartOffset;
-  private final int declarationEndOffset;
-
-  public DefaultSymbol(int startOffset, int endOffset) {
-    this.declarationStartOffset = startOffset;
-    this.declarationEndOffset = endOffset;
-  }
-
-  public int getDeclarationStartOffset() {
-    return declarationStartOffset;
-  }
-
-  public int getDeclarationEndOffset() {
-    return declarationEndOffset;
-  }
-
-  public String getFullyQualifiedName() {
-    return null;
-  }
-
-  @Override
-  public String toString() {
-    return Objects.toStringHelper("Symbol")
-      .add("offset", String.format("%d-%d", declarationStartOffset, declarationEndOffset))
-      .toString();
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.api.batch.sensor.symbol;

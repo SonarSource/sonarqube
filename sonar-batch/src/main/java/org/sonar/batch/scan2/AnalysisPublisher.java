@@ -44,9 +44,11 @@ public final class AnalysisPublisher {
   private final FileSystem fs;
   private final AnalyzerMeasureCache measureCache;
   private final ProjectDefinition def;
-  private AnalyzerIssueCache issueCache;
+  private final AnalyzerIssueCache issueCache;
 
-  public AnalysisPublisher(ProjectDefinition def, Settings settings, FileSystem fs, AnalyzerMeasureCache measureCache, AnalyzerIssueCache analyzerIssueCache) {
+  public AnalysisPublisher(ProjectDefinition def, Settings settings, FileSystem fs,
+    AnalyzerMeasureCache measureCache,
+    AnalyzerIssueCache analyzerIssueCache) {
     this.def = def;
     this.settings = settings;
     this.fs = fs;

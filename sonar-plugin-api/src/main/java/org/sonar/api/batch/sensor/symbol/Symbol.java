@@ -17,37 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.source;
 
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.component.Perspective;
-
-import java.util.List;
+package org.sonar.api.batch.sensor.symbol;
 
 /**
- * @since 3.6
- * @deprecated since 4.5 use {@link SensorContext#symbolTableBuilder(org.sonar.api.batch.fs.InputFile)}
+ * Represent a symbol in a source file.
+ * @since 4.5
  */
-@Deprecated
-public interface Symbolizable extends Perspective {
+public interface Symbol {
 
-  interface SymbolTableBuilder {
+  int getDeclarationStartOffset();
 
-    Symbol newSymbol(int fromOffset, int toOffset);
+  int getDeclarationEndOffset();
 
-    void newReference(Symbol symbol, int fromOffset);
-
-    SymbolTable build();
-  }
-
-  interface SymbolTable {
-
-    List<Symbol> symbols();
-
-    List<Integer> references(Symbol symbol);
-  }
-
-  SymbolTableBuilder newSymbolTableBuilder();
-
-  void setSymbolTable(SymbolTable symbolTable);
 }

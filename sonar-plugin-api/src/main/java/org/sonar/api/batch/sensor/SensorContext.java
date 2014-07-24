@@ -29,6 +29,7 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.MeasureBuilder;
+import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.config.Settings;
 
 import javax.annotation.CheckForNull;
@@ -116,5 +117,13 @@ public interface SensorContext {
    * @since 4.5
    */
   HighlightingBuilder highlightingBuilder(InputFile inputFile);
+
+  // ------------ SYMBOL REFERENCES ------------
+
+  /**
+   * Builder to define symbol references in a file.
+   * @since 4.5
+   */
+  SymbolTableBuilder symbolTableBuilder(InputFile inputFile);
 
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.highlighting;
+package org.sonar.batch.mediumtest.symbol;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.batch.mediumtest.xoo.plugin.XooPlugin;
@@ -36,7 +35,7 @@ import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class HighlightingMediumTest {
+public class SymbolMediumTest {
 
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -65,9 +64,9 @@ public class HighlightingMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    File xoohighlightingFile = new File(srcDir, "sample.xoo.highlighting");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
-    FileUtils.write(xoohighlightingFile, "0:10:s\n11:18:k");
+    File xooSymbolFile = new File(srcDir, "sample.xoo.symbol");
+    FileUtils.write(xooFile, "Sample xoo\ncontent\nanother xoo");
+    FileUtils.write(xooSymbolFile, "7,10,27");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -82,11 +81,7 @@ public class HighlightingMediumTest {
       .start();
 
     InputFile file = result.inputFiles().get(0);
-    assertThat(result.highlightingTypeFor(file, 0)).isEqualTo(HighlightingBuilder.TypeOfText.STRING);
-    assertThat(result.highlightingTypeFor(file, 9)).isEqualTo(HighlightingBuilder.TypeOfText.STRING);
-    assertThat(result.highlightingTypeFor(file, 10)).isNull();
-    assertThat(result.highlightingTypeFor(file, 11)).isEqualTo(HighlightingBuilder.TypeOfText.KEYWORD);
-
+    assertThat(result.symbolReferencesFor(file, 7, 10)).containsOnly(7, 27);
   }
 
 }

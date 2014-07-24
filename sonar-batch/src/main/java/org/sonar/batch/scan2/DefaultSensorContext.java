@@ -37,6 +37,7 @@ import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.MeasureBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
+import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.MessageException;
@@ -44,6 +45,7 @@ import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.scan.SensorContextAdaptor;
+import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
 import org.sonar.core.component.ComponentKeys;
 
 import java.io.Serializable;
@@ -166,6 +168,11 @@ public class DefaultSensorContext implements SensorContext {
   @Override
   public HighlightingBuilder highlightingBuilder(InputFile inputFile) {
     return new DefaultHighlightingBuilder(((DefaultInputFile) inputFile).key(), componentDataCache);
+  }
+
+  @Override
+  public SymbolTableBuilder symbolTableBuilder(InputFile inputFile) {
+    return new DefaultSymbolTableBuilder(((DefaultInputFile) inputFile).key(), componentDataCache);
   }
 
 }

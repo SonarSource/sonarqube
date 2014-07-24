@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.batch.source;
+package org.sonar.batch.symbol;
 
-import com.google.common.collect.Multimap;
-import org.sonar.api.source.Symbol;
-import org.sonar.api.source.Symbolizable;
+import com.google.common.collect.SortedSetMultimap;
+import org.sonar.api.batch.sensor.symbol.Symbol;
 import org.sonar.batch.index.Data;
 
 import java.util.Collection;
@@ -32,19 +31,21 @@ public class SymbolData implements Data {
   private static final String FIELD_SEPARATOR = ",";
   private static final String SYMBOL_SEPARATOR = ";";
 
-  private final Symbolizable.SymbolTable symbolTable;
+  private final SortedSetMultimap<Symbol, Integer> referencesBySymbol;
 
-  public SymbolData(Symbolizable.SymbolTable symbolTable) {
-    this.symbolTable = symbolTable;
+  public SymbolData(SortedSetMultimap<Symbol, Integer> referencesBySymbol) {
+    this.referencesBySymbol = referencesBySymbol;
+  }
+
+  public SortedSetMultimap<Symbol, Integer> referencesBySymbol() {
+    return referencesBySymbol;
   }
 
   @Override
   public String writeString() {
     StringBuilder sb = new StringBuilder();
 
-    Multimap<Symbol, Integer> referencesBySymbol = ((DefaultSymbolTable) symbolTable).getReferencesBySymbol();
-
-    for (Symbol symbol : ((DefaultSymbolTable) symbolTable).getReferencesBySymbol().keySet()) {
+    for (Symbol symbol : referencesBySymbol.keySet()) {
 
       sb.append(symbol.getDeclarationStartOffset())
         .append(FIELD_SEPARATOR)

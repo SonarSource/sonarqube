@@ -32,6 +32,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.symbol.Symbol;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -54,6 +55,7 @@ import org.sonar.batch.scan2.AnalyzerMeasureCache;
 import org.sonar.batch.scan2.ProjectScanContainer;
 import org.sonar.batch.scan2.ScanTaskObserver;
 import org.sonar.batch.settings.SettingsReferential;
+import org.sonar.batch.symbol.SymbolData;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.core.source.SnapshotDataTypes;
@@ -69,6 +71,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 public class BatchMediumTester {
 
@@ -218,6 +221,7 @@ public class BatchMediumTester {
     private List<InputFile> inputFiles = new ArrayList<InputFile>();
     private List<InputDir> inputDirs = new ArrayList<InputDir>();
     private Map<InputFile, SyntaxHighlightingData> highlightingPerFile = new HashMap<InputFile, SyntaxHighlightingData>();
+    private Map<InputFile, SymbolData> symbolTablePerFile = new HashMap<InputFile, SymbolData>();
 
     @Override
     public void scanTaskCompleted(ProjectScanContainer container) {
@@ -245,6 +249,10 @@ public class BatchMediumTester {
         if (highlighting != null) {
           highlightingPerFile.put(file, highlighting);
         }
+        SymbolData symbolTable = componentDataCache.getData(((DefaultInputFile) file).key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING);
+        if (symbolTable != null) {
+          symbolTablePerFile.put(file, symbolTable);
+        }
       }
 
     }
@@ -270,10 +278,33 @@ public class BatchMediumTester {
      * @param charIndex 0-based offset in file
      */
     @CheckForNull
-    public HighlightingBuilder.TypeOfText highlightingTypeAt(InputFile file, int charIndex) {
-      for (SyntaxHighlightingRule sortedRule : highlightingPerFile.get(file).syntaxHighlightingRuleSet()) {
+    public HighlightingBuilder.TypeOfText highlightingTypeFor(InputFile file, int charIndex) {
+      SyntaxHighlightingData syntaxHighlightingData = highlightingPerFile.get(file);
+      if (syntaxHighlightingData == null) {
+        return null;
+      }
+      for (SyntaxHighlightingRule sortedRule : syntaxHighlightingData.syntaxHighlightingRuleSet()) {
         if (sortedRule.getStartPosition() <= charIndex && sortedRule.getEndPosition() > charIndex) {
           return HighlightingBuilder.TypeOfText.forCssClass(sortedRule.getTextType());
+        }
+      }
+      return null;
+    }
+
+    /**
+     * Get list of all positions of a symbol in an inputfile
+     * @param symbolStartOffset 0-based start offset for the symbol in file
+     * @param symbolEndOffset 0-based end offset for the symbol in file
+     */
+    @CheckForNull
+    public Set<Integer> symbolReferencesFor(InputFile file, int symbolStartOffset, int symbolEndOffset) {
+      SymbolData data = symbolTablePerFile.get(file);
+      if (data == null) {
+        return null;
+      }
+      for (Symbol symbol : data.referencesBySymbol().keySet()) {
+        if (symbol.getDeclarationStartOffset() == symbolStartOffset && symbol.getDeclarationEndOffset() == symbolEndOffset) {
+          return data.referencesBySymbol().get(symbol);
         }
       }
       return null;
