@@ -22,6 +22,7 @@
     <%
       filter = MeasureFilter.new
       filter.set_criteria_value(:base, @resource.key)
+      filter.set_criteria_value(:onBaseComponents, 'true')
       filter.set_criteria_value(:pageSize, 100)
       filter.set_criteria_value(:page, 1)
       filter.metrics=([sizeMetric, colorMetric].compact)
