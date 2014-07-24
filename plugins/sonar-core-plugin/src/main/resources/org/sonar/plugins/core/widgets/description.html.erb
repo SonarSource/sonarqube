@@ -45,7 +45,7 @@
        end %>
 
   <%
-     unless @resource.qualifier == 'DEV' or @resource.qualifier == 'SVW'
+     unless @resource.qualifier == 'DEV' or @resource.qualifier == 'VW' or @resource.qualifier == 'SVW'
        using_default=false
        quality_gate=Property.value('sonar.qualitygate', @resource && @resource.id, nil)
        unless quality_gate
