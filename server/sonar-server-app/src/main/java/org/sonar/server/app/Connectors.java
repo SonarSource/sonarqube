@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.Props;
 
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,11 +40,6 @@ class Connectors {
   static final String AJP_PROTOCOL = "AJP/1.3";
 
   static void configure(Tomcat tomcat, Props props) {
-    configureShutdown(tomcat, props);
-    configureConnectors(tomcat, props);
-  }
-
-  private static void configureConnectors(Tomcat tomcat, Props props) {
     List<Connector> connectors = new ArrayList<Connector>();
     connectors.addAll(Arrays.asList(newHttpConnector(props), newAjpConnector(props), newHttpsConnector(props)));
     connectors.removeAll(Collections.singleton(null));
@@ -67,16 +63,6 @@ class Connectors {
         throw new IllegalStateException(String.format("HTTP, AJP and HTTPS must not use the same port %d", port));
       }
       ports.add(port);
-    }
-  }
-
-  private static void configureShutdown(Tomcat tomcat, Props props) {
-    String shutdownToken = props.of("sonar.web.shutdown.token");
-    Integer shutdownPort = props.intOf("sonar.web.shutdown.port");
-    if (shutdownToken != null && !"".equals(shutdownToken) && shutdownPort != null) {
-      tomcat.getServer().setPort(shutdownPort);
-      tomcat.getServer().setShutdown(shutdownToken);
-      info("Shutdown command is enabled on port " + shutdownPort);
     }
   }
 
@@ -104,7 +90,7 @@ class Connectors {
     }
     return connector;
   }
-  
+
   @Nullable
   private static Connector newHttpsConnector(Props props) {
     Connector connector = null;
