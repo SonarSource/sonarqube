@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mvn clean install -DskipTests -Denforcer.skip=true -pl server/sonar-search,server/sonar-process,server/sonar-server-app,sonar-application
+mvn clean install -DskipTests -Denforcer.skip=true -pl server/sonar-search,server/sonar-process,server/sonar-server-app,server/sonar-server-app,sonar-application
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
   OS='macosx-universal-64'
@@ -14,10 +14,8 @@ if ! ls sonarqube-*/bin/$OS/sonar.sh &> /dev/null; then
 fi
 
 cd sonarqube-*
-bin/$OS/sonar.sh stop
-killall -9 java
 touch logs/application.log
 touch logs/search.log
 touch logs/sonar.log
-bin/$OS/sonar.sh start
-tmux new-session "tmux split-window -v 'tail -f logs/sonar.log'; tmux split-window -h 'tail -f logs/search.log'; tail -f logs/application.log"
+
+tmux new-session "tmux split-window -v 'tail -f logs/sonar.log'; tmux split-window -h 'tail -f logs/search.log'; java -jar lib/sonar-application*.jar"
