@@ -25,8 +25,10 @@ define [
 
 
     resetIssues: ->
-      @source.set
-        activeIssues: @source.get('issues').filter (issue) -> !issue.resolution
+      issues = @source.get('issues')
+      if _.isArray issues
+        @source.set
+          activeIssues: issues.filter (issue) -> !issue.resolution
 
 
     showIssues: (store = false, issue) ->
