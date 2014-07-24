@@ -26,12 +26,10 @@ import org.sonar.process.Process;
 import org.sonar.process.ProcessMXBean;
 import org.sonar.process.ProcessWrapper;
 
-import javax.annotation.Nullable;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.NotCompliantMBeanException;
-
 import java.lang.management.ManagementFactory;
 
 public class App implements ProcessMXBean {
@@ -114,6 +112,7 @@ public class App implements ProcessMXBean {
       // TODO ignore ?
 
     } finally {
+      LOGGER.debug("Closing App because monitor is gone.");
       terminate();
     }
   }
@@ -125,20 +124,8 @@ public class App implements ProcessMXBean {
       logger.info("Shutting down server");
       monitor.interrupt();
       monitor = null;
-      terminateAndWait(elasticsearch);
-      terminateAndWait(server);
-    }
-
-  }
-
-  private void terminateAndWait(@Nullable ProcessWrapper process) {
-    if (process != null) {
-      process.terminate();
-      try {
-        process.join();
-      } catch (InterruptedException e) {
-        LOGGER.warn("Process '{}' did not gracefully shutdown.", process.getName());
-      }
+      elasticsearch.terminate();
+      server.terminate();
     }
   }
 

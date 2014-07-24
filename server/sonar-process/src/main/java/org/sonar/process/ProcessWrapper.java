@@ -31,7 +31,6 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -155,6 +154,7 @@ public class ProcessWrapper extends Thread {
       waitUntilFinish(errorGobbler);
       closeStreams(process);
       FileUtils.deleteQuietly(propertiesFile);
+      processMXBean = null;
     }
     LOGGER.trace("ProcessWrapper::run() END");
   }
@@ -254,7 +254,12 @@ public class ProcessWrapper extends Thread {
   public void terminate() {
     if (processMXBean != null) {
       processMXBean.terminate();
-      this.interrupt();
+      try {
+        this.join();
+      } catch (InterruptedException e) {
+        // ignore
+      }
+      processMXBean = null;
     }
   }
 

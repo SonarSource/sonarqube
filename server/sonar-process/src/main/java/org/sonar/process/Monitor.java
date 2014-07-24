@@ -40,14 +40,16 @@ public class Monitor extends Thread {
   private volatile List<ProcessWrapper> processes;
   private volatile Map<String, Long> pings;
 
+  private ProcessWatch processWatch;
   private ScheduledFuture<?> watch;
-  private final ScheduledExecutorService monitor;
+  private ScheduledExecutorService monitor;
 
   public Monitor() {
     processes = new ArrayList<ProcessWrapper>();
     pings = new HashMap<String, Long>();
     monitor = Executors.newScheduledThreadPool(1);
-    watch = monitor.scheduleWithFixedDelay(new ProcessWatch(), 0, 3, TimeUnit.SECONDS);
+    processWatch = new ProcessWatch();
+    watch = monitor.scheduleWithFixedDelay(processWatch, 0, 3, TimeUnit.SECONDS);
   }
 
   public void registerProcess(ProcessWrapper processWrapper) {
@@ -69,9 +71,11 @@ public class Monitor extends Thread {
     public void run() {
       for (ProcessWrapper process : processes) {
         try {
-          long time = process.getProcessMXBean().ping();
-          LOGGER.debug("PINGED '{}'", process.getName());
-          pings.put(process.getName(), time);
+          if (process.getProcessMXBean() != null) {
+            long time = process.getProcessMXBean().ping();
+            LOGGER.debug("PINGED '{}'", process.getName());
+            pings.put(process.getName(), time);
+          }
         } catch (Exception e) {
           LOGGER.error("Error while pinging {}", process.getName(), e);
         }
@@ -85,24 +89,30 @@ public class Monitor extends Thread {
   }
 
   public void run() {
-    boolean everythingOK = true;
     try {
-      while (everythingOK) {
+      while (true) {
         for (ProcessWrapper process : processes) {
           if (!processIsValid(process)) {
             LOGGER.warn("Monitor::run() -- Process '{}' is not valid. Exiting monitor", process.getName());
-            everythingOK = false;
-            break;
+            this.interrupt();
           }
         }
         Thread.sleep(3000L);
       }
-
     } catch (InterruptedException e) {
-      LOGGER.info("Monitoring thread is interrupted.");
+      LOGGER.debug("Monitoring thread is interrupted.");
     } finally {
-      watch.cancel(true);
-      monitor.shutdownNow();
+      terminate();
     }
   }
+
+  public void terminate() {
+    if (monitor != null) {
+      monitor.shutdownNow();
+      watch.cancel(true);
+      watch = null;
+      processWatch = null;
+    }
+  }
+
 }
