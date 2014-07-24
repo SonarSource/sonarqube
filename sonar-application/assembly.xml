@@ -38,8 +38,7 @@
         <exclude>org.postgresql:postgresql</exclude>
         <exclude>net.sourceforge.jtds:jtds</exclude>
         <exclude>tanukisoft:wrapper</exclude>
-        <exclude>tanukisoft:wrapper</exclude>
-        <exclude>org.codehaus.sonar:sonar-server-app</exclude>
+        <exclude>org.codehaus.sonar:sonar-server</exclude>
         <exclude>org.codehaus.sonar:sonar-web</exclude>
         <exclude>org.codehaus.sonar:sonar-search</exclude>
         <exclude>org.codehaus.sonar.plugins:*</exclude>
@@ -49,12 +48,24 @@
       <scope>runtime</scope>
     </dependencySet>
 
+    <dependencySet>
+      <outputDirectory>lib/common</outputDirectory>
+      <useTransitiveFiltering>true</useTransitiveFiltering>
+      <useProjectArtifact>false</useProjectArtifact>
+      <includes>
+        <include>org.elasticsearch:elasticsearch</include>
+      </includes>
+      <scope>provided</scope>
+    </dependencySet>
+
+
+
 
     <dependencySet>
       <outputDirectory>lib/search</outputDirectory>
       <useProjectArtifact>false</useProjectArtifact>
       <useTransitiveDependencies>true</useTransitiveDependencies>
-      <useTransitiveFiltering>true</useTransitiveFiltering>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
       <includes>
         <include>org.codehaus.sonar:sonar-search</include>
       </includes>
@@ -63,14 +74,14 @@
 
     <dependencySet>
       <outputDirectory>lib/server</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
       <useTransitiveDependencies>true</useTransitiveDependencies>
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <includes>
-        <include>org.codehaus.sonar:sonar-server-app</include>
+        <include>org.codehaus.sonar:sonar-server</include>
       </includes>
       <scope>provided</scope>
     </dependencySet>
-
 
 
     <dependencySet>

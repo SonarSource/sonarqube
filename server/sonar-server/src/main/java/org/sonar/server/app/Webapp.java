@@ -20,11 +20,11 @@
 package org.sonar.server.app;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Props;
 
-import java.io.File;
 import java.util.Map;
 
 class Webapp {
@@ -36,8 +36,16 @@ class Webapp {
   static void configure(Tomcat tomcat, Props props) {
     try {
       String webDir = props.of("sonar.path.web");
-      Context context = tomcat.addWebapp(getContextPath(props), webDir);
-      context.setConfigFile(new File(webDir, "META-INF/context.xml").toURI().toURL());
+      StandardContext context = (StandardContext) tomcat.addWebapp(getContextPath(props), webDir);
+      context.setReloadable(false);
+      context.setUseHttpOnly(true);
+      context.setProcessTlds(false);
+      context.setTldValidation(false);
+      context.setTldNamespaceAware(false);
+      context.setXmlValidation(false);
+      context.setXmlNamespaceAware(false);
+      context.setUseNaming(false);
+      context.setDelegate(true);
       for (Map.Entry<Object, Object> entry : props.cryptedProperties().entrySet()) {
         String key = entry.getKey().toString();
         if (key.startsWith("sonar.")) {

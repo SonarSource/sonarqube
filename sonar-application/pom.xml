@@ -31,10 +31,15 @@
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-server-app</artifactId>
+      <artifactId>sonar-server</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -195,7 +200,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.5</version>
         <configuration>
           <archive>
             <index>true</index>
