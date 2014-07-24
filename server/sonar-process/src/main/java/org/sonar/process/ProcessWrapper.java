@@ -148,15 +148,13 @@ public class ProcessWrapper extends Thread {
     try {
       process.waitFor();
     } catch (InterruptedException e) {
-      e.printStackTrace();
-    } finally {
       LOGGER.info("ProcessThread has been interrupted. Killing process.");
+    } finally {
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
       closeStreams(process);
       FileUtils.deleteQuietly(propertiesFile);
     }
-    //process.destroy(); //Uncertain if this is required or not...
     LOGGER.trace("ProcessWrapper::run() END");
   }
 
@@ -255,11 +253,11 @@ public class ProcessWrapper extends Thread {
   public void terminate() {
     if (processMXBean != null) {
       processMXBean.terminate();
-      try {
-        Thread.sleep(10000L);
-      } catch (InterruptedException e) {
-        LOGGER.warn("Could bnit", e);
-      }
+//      try {
+//        Thread.sleep(10000L);
+//      } catch (InterruptedException e) {
+//        LOGGER.warn("Could bnit", e);
+//      }
       this.interrupt();
     }
   }
