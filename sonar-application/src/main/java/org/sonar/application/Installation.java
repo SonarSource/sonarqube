@@ -43,8 +43,7 @@ public class Installation {
 
   Installation() throws URISyntaxException, IOException {
     // home dir guessed with location of lib/sonar-application.jar
-    File appJar = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-    homeDir = appJar.getParentFile().getParentFile();
+    homeDir = detectHomeDir();
 
     props = initProps(homeDir);
     DefaultSettings.initDefaults(props);
@@ -54,6 +53,11 @@ public class Installation {
     initExistingDir("sonar.path.web", "lib/web");
     this.tempDir = initTempDir("sonar.path.temp", "temp");
     this.logsDir = initExistingDir("sonar.path.logs", "logs");
+  }
+
+  public File detectHomeDir() throws URISyntaxException {
+    File appJar = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+    return appJar.getParentFile().getParentFile();
   }
 
   /**

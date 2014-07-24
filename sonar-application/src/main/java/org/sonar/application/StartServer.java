@@ -19,14 +19,26 @@
  */
 package org.sonar.application;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Monitor;
+import org.sonar.process.Process;
+import org.sonar.process.ProcessMXBean;
 import org.sonar.process.ProcessWrapper;
 
 import javax.annotation.Nullable;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.NotCompliantMBeanException;
+import java.lang.management.ManagementFactory;
 
-public class StartServer {
+public class StartServer implements ProcessMXBean {
+
+  static final String PROCESS_NAME = "SonarQube";
+
+  private final Installation installation;
   private Monitor monitor;
   private ProcessWrapper elasticsearch;
   private ProcessWrapper server;
@@ -34,19 +46,39 @@ public class StartServer {
   private static Logger LOGGER = LoggerFactory.getLogger(StartServer.class);
 
   public StartServer() throws Exception {
-    Installation installation = new Installation();
+    this(new Installation());
+  }
+
+  @VisibleForTesting
+  StartServer(Installation installation) throws Exception {
+    this.installation = installation;
 
     Thread shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
         LOGGER.info("JVM Shutdown start");
-        stop();
+        terminate();
         LOGGER.info("JVM Shutdown end");
       }
     });
     Runtime.getRuntime().addShutdownHook(shutdownHook);
 
+    MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+    try {
+      mbeanServer.registerMBean(this, Process.objectNameFor(PROCESS_NAME));
+    } catch (InstanceAlreadyExistsException e) {
+      throw new IllegalStateException("Process already exists in current JVM", e);
+    } catch (MBeanRegistrationException e) {
+      throw new IllegalStateException("Could not register process as MBean", e);
+    } catch (NotCompliantMBeanException e) {
+      throw new IllegalStateException("Process is not a compliant MBean", e);
+    }
+
     monitor = new Monitor();
+
+  }
+
+  private void start(){
 
     elasticsearch = new ProcessWrapper("ES")
       .setWorkDir(installation.homeDir())
@@ -81,14 +113,19 @@ public class StartServer {
     monitor.registerProcess(server);
 
     monitor.start();
+
     try {
-      monitor.join();
+      try {
+        monitor.join();
+      } catch (InterruptedException e) {
+        LOGGER.info("Monitor interrupted. Shutting down...");
+      }
     } finally {
-      stop();
+      terminate();
     }
   }
 
-  public void stop() {
+  public void terminate() {
     LOGGER.debug("StartServer::stop() START");
     if (monitor != null) {
       LOGGER.trace("StartServer::stop() STOP MONITOR");
@@ -111,12 +148,22 @@ public class StartServer {
       try {
         process.join();
       } catch (InterruptedException e) {
-        // TODO
+        LOGGER.warn("Process '{}' did not gracefully shutdown.", process.getName());
       }
     }
   }
 
   public static void main(String[] args) throws Exception {
-    new StartServer();
+    new StartServer().start();
+  }
+
+  @Override
+  public boolean isReady() {
+    return monitor.isAlive();
+  }
+
+  @Override
+  public long ping() {
+    return System.currentTimeMillis();
   }
 }
