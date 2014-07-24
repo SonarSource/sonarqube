@@ -30,6 +30,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -150,17 +151,17 @@ public abstract class Process implements ProcessMXBean {
   public abstract void onTerminate();
 
   public final void start() {
-    LOGGER.debug("Process[{}]::start() START", name);
+    LOGGER.debug("Process[{}] starting", name);
     if (this.port != null) {
       lastPing = System.currentTimeMillis();
       pingTask = monitor.scheduleWithFixedDelay(breakOnMissingPing, 5, 5, TimeUnit.SECONDS);
     }
     this.onStart();
-    LOGGER.trace("Process[{}]::start() END", name);
+    LOGGER.debug("Process[{}] started", name);
   }
 
   public final void terminate() {
-    LOGGER.debug("Process[{}]::terminate() START", name);
+    LOGGER.debug("Process[{}] terminating", name);
     if (monitor != null) {
       this.monitor.shutdownNow();
       this.monitor = null;
@@ -170,6 +171,6 @@ public abstract class Process implements ProcessMXBean {
       }
       this.onTerminate();
     }
-    LOGGER.trace("Process[{}]::terminate() END", name);
+    LOGGER.debug("Process[{}] terminated", name);
   }
 }

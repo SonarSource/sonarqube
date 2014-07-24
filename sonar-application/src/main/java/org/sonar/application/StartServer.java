@@ -19,7 +19,6 @@
  */
 package org.sonar.application;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Monitor;
@@ -32,6 +31,7 @@ import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.NotCompliantMBeanException;
+
 import java.lang.management.ManagementFactory;
 
 public class StartServer implements ProcessMXBean {
@@ -45,11 +45,6 @@ public class StartServer implements ProcessMXBean {
 
   private static Logger LOGGER = LoggerFactory.getLogger(StartServer.class);
 
-  public StartServer() throws Exception {
-    this(new Installation());
-  }
-
-  @VisibleForTesting
   StartServer(Installation installation) throws Exception {
     this.installation = installation;
 
@@ -75,17 +70,15 @@ public class StartServer implements ProcessMXBean {
     }
 
     monitor = new Monitor();
-
   }
 
-  private void start(){
-
+  private void start() {
     elasticsearch = new ProcessWrapper("ES")
       .setWorkDir(installation.homeDir())
       .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.ES_JMX_PORT_KEY)))
       .addJavaOpts(installation.prop(DefaultSettings.ES_JAVA_OPTS_KEY))
-      .addJavaOpts("-Djava.io.tmpdir=" + installation.tempDir().getAbsolutePath())
-      .addJavaOpts("-Dsonar.path.logs=" + installation.logsDir().getAbsolutePath())
+      .addJavaOpts(String.format("-Djava.io.tmpdir=%s", installation.tempDir().getAbsolutePath()))
+      .addJavaOpts(String.format("-D%s=%s", DefaultSettings.PATH_LOGS_KEY, installation.logsDir().getAbsolutePath()))
       .setClassName("org.sonar.search.ElasticSearch")
       .setProperties(installation.props().cryptedProperties())
       .addClasspath(installation.starPath("lib/common"))
@@ -93,14 +86,13 @@ public class StartServer implements ProcessMXBean {
       .execute();
     monitor.registerProcess(elasticsearch);
 
-
     server = new ProcessWrapper("SQ")
       .setWorkDir(installation.homeDir())
       .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.WEB_JMX_PORT_KEY)))
       .addJavaOpts(installation.prop(DefaultSettings.WEB_JAVA_OPTS_KEY))
       .addJavaOpts(DefaultSettings.WEB_JAVA_OPTS_APPENDED_VAL)
-      .addJavaOpts("-Djava.io.tmpdir=" + installation.tempDir().getAbsolutePath())
-      .addJavaOpts("-Dsonar.path.logs=" + installation.logsDir().getAbsolutePath())
+      .addJavaOpts(String.format("-Djava.io.tmpdir=%s", installation.tempDir().getAbsolutePath()))
+      .addJavaOpts(String.format("-D%s=%s", DefaultSettings.PATH_LOGS_KEY, installation.logsDir().getAbsolutePath()))
       .setClassName("org.sonar.server.app.ServerProcess")
       .setProperties(installation.props().cryptedProperties())
       .addClasspath(installation.starPath("extensions/jdbc-driver/mysql"))
@@ -153,10 +145,6 @@ public class StartServer implements ProcessMXBean {
     }
   }
 
-  public static void main(String[] args) throws Exception {
-    new StartServer().start();
-  }
-
   @Override
   public boolean isReady() {
     return monitor.isAlive();
@@ -165,5 +153,11 @@ public class StartServer implements ProcessMXBean {
   @Override
   public long ping() {
     return System.currentTimeMillis();
+  }
+
+  public static void main(String[] args) throws Exception {
+    Installation installation = new Installation();
+    new AppLogging().configure(installation);
+    new StartServer(installation).start();
   }
 }

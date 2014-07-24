@@ -22,12 +22,11 @@ package org.sonar.application;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.process.Props;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -35,8 +34,6 @@ import java.net.URISyntaxException;
 import java.util.Properties;
 
 public class Installation {
-  private static final Logger LOG = LoggerFactory.getLogger(Installation.class);
-
   private final File homeDir;
   private final File tempDir, logsDir;
   private final Props props;
@@ -50,7 +47,7 @@ public class Installation {
 
     // init file system
     initExistingDir("sonar.path.data", "data");
-    initExistingDir("sonar.path.web", "lib/web");
+    initExistingDir("sonar.path.web", "web");
     this.tempDir = initTempDir("sonar.path.temp", "temp");
     this.logsDir = initExistingDir("sonar.path.logs", "logs");
   }
@@ -73,8 +70,6 @@ public class Installation {
       } finally {
         IOUtils.closeQuietly(reader);
       }
-    } else {
-      LOG.info("Configuration file not found: " + propsFile.getAbsolutePath());
     }
     p.putAll(System.getenv());
     p.putAll(System.getProperties());

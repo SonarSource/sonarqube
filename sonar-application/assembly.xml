@@ -100,7 +100,7 @@
     </dependencySet>
     <!-- Server -->
     <dependencySet>
-      <outputDirectory>lib/web</outputDirectory>
+      <outputDirectory>web</outputDirectory>
       <includes>
         <include>org.codehaus.sonar:sonar-web</include>
       </includes>

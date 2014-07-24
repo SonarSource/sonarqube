@@ -31,6 +31,7 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -130,7 +131,7 @@ public class ProcessWrapper extends Thread {
     processBuilder.environment().putAll(envProperties);
 
     try {
-      LOGGER.debug("ProcessWrapper::executeProcess() -- Starting process with command '{}'", StringUtils.join(command, " "));
+      LOGGER.debug("Execute command: {}", StringUtils.join(command, " "));
       process = processBuilder.start();
       errorGobbler = new StreamGobbler(process.getErrorStream(), this.getName() + "-ERROR");
       outputGobbler = new StreamGobbler(process.getInputStream(), this.getName());
@@ -253,11 +254,6 @@ public class ProcessWrapper extends Thread {
   public void terminate() {
     if (processMXBean != null) {
       processMXBean.terminate();
-//      try {
-//        Thread.sleep(10000L);
-//      } catch (InterruptedException e) {
-//        LOGGER.warn("Could bnit", e);
-//      }
       this.interrupt();
     }
   }

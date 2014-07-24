@@ -28,6 +28,8 @@ class DefaultSettings {
     // only static stuff
   }
 
+  static final String PATH_LOGS_KEY = "sonar.path.logs";
+
   static final String ES_PORT_KEY = "sonar.es.port";
   private static final int ES_PORT_DEFVAL = 9001;
 

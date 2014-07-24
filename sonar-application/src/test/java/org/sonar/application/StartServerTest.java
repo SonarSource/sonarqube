@@ -58,7 +58,6 @@ public class StartServerTest {
 
   @Test
   public void should_register_mbean() throws Exception {
-
     Installation installation = mock(Installation.class);
     when(installation.detectHomeDir()).thenReturn(sonarHome.getRoot());
 
