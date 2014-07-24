@@ -33,6 +33,16 @@ exports.changeWorkingDirectory = function (dir) {
 };
 
 
+exports.testName = function () {
+  var head = Array.prototype.slice.call(arguments, 0);
+  return function () {
+    var tail = Array.prototype.slice.call(arguments, 0),
+        body = head.concat(tail);
+    return body.join(' :: ');
+  };
+};
+
+
 var mockRequest = function (url, response) {
   return casper.evaluate(function (url, response) {
     return jQuery.mockjax({ url: url, responseText: response});
