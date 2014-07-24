@@ -38,7 +38,7 @@ public class Installation {
   private final File tempDir, logsDir;
   private final Props props;
 
-  Installation() throws URISyntaxException, IOException {
+  public Installation() throws URISyntaxException, IOException {
     // home dir guessed with location of lib/sonar-application.jar
     homeDir = detectHomeDir();
 

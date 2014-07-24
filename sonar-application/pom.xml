@@ -201,7 +201,7 @@
             <index>true</index>
             <manifest>
               <addClasspath>false</addClasspath>
-              <mainClass>org.sonar.application.StartServer</mainClass>
+              <mainClass>org.sonar.application.App</mainClass>
             </manifest>
             <manifestEntries>
               <mode>distribution</mode>

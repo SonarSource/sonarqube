@@ -34,7 +34,7 @@ import javax.management.NotCompliantMBeanException;
 
 import java.lang.management.ManagementFactory;
 
-public class StartServer implements ProcessMXBean {
+public class App implements ProcessMXBean {
 
   static final String PROCESS_NAME = "SonarQube";
 
@@ -43,9 +43,9 @@ public class StartServer implements ProcessMXBean {
   private ProcessWrapper elasticsearch;
   private ProcessWrapper server;
 
-  private static Logger LOGGER = LoggerFactory.getLogger(StartServer.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(App.class);
 
-  StartServer(Installation installation) throws Exception {
+  public App(Installation installation) throws Exception {
     this.installation = installation;
 
     Thread shutdownHook = new Thread(new Runnable() {
@@ -72,7 +72,7 @@ public class StartServer implements ProcessMXBean {
     monitor = new Monitor();
   }
 
-  private void start() {
+  public void start() {
     elasticsearch = new ProcessWrapper("ES")
       .setWorkDir(installation.homeDir())
       .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.ES_JMX_PORT_KEY)))
@@ -117,20 +117,14 @@ public class StartServer implements ProcessMXBean {
     }
   }
 
+  @Override
   public void terminate() {
-    LOGGER.debug("StartServer::stop() START");
     if (monitor != null) {
-      LOGGER.trace("StartServer::stop() STOP MONITOR");
       monitor.interrupt();
       monitor = null;
-
-      LOGGER.trace("StartServer::stop() STOP ES");
       terminateAndWait(elasticsearch);
-
-      LOGGER.trace("StartServer::stop() STOP SQ");
       terminateAndWait(server);
     }
-    LOGGER.trace("StartServer::stop() END");
 
   }
 
@@ -158,6 +152,6 @@ public class StartServer implements ProcessMXBean {
   public static void main(String[] args) throws Exception {
     Installation installation = new Installation();
     new AppLogging().configure(installation);
-    new StartServer(installation).start();
+    new App(installation).start();
   }
 }

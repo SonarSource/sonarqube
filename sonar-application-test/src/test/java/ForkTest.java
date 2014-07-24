@@ -19,11 +19,14 @@
  */
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
+import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.locator.MavenLocation;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
 import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -46,11 +49,16 @@ public class ForkTest {
   @Test
   public void start_and_stop() {
     OrchestratorBuilder builder = Orchestrator.builderEnv();
+    builder.addPlugin(MavenLocation.create("com.sonarsource.xoo", "sonar-xoo-plugin", "1.0-SNAPSHOT"));
     orchestrator = builder.build();
     orchestrator.start();
 
+    // verify web service that requests elasticsearch
     String json = orchestrator.getServer().wsClient().get("/api/rules/search", Collections.<String, Object>emptyMap());
     assertThat(json).startsWith("{").endsWith("}");
+
+    // project analysis
+    orchestrator.executeBuild(SonarRunner.create(new File("src/test/projects/xoo-sample")));
 
     orchestrator.stop();
     try {

@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
-public class StartServerTest {
+public class AppTest {
 
   @Rule
   public TemporaryFolder sonarHome = new TemporaryFolder();
@@ -63,13 +63,13 @@ public class StartServerTest {
 
     MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
-    StartServer server = new StartServer(installation);
+    App server = new App(installation);
 
     // 0 Can have a valid ObjectName
     assertThat(server).isNotNull();
 
     // 1 assert that process MBean is registered
-    ObjectName serverObjectName = Process.objectNameFor(StartServer.PROCESS_NAME);
+    ObjectName serverObjectName = Process.objectNameFor(App.PROCESS_NAME);
     assertThat(mbeanServer.isRegistered(serverObjectName)).isTrue();
 
     // 2 assert that we can remotely call ping
