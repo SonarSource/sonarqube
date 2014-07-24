@@ -21,6 +21,11 @@ package org.sonar.process;
 
 public interface ProcessMXBean {
 
+  public static final String IS_READY = "isReady";
+  public static final String PING = "ping";
+  public static final String TERMINATE = "terminate";
+
+
   boolean isReady();
 
   long ping();

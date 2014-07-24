@@ -7,14 +7,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.Process;
+import org.sonar.process.ProcessMXBean;
 
 import javax.management.MBeanServer;
-import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,22 +54,27 @@ public class StartServerTest {
     ObjectName serverObjectName = Process.objectNameFor(StartServer.PROCESS_NAME);
     assertThat(mbeanServer.isRegistered(serverObjectName)).isTrue();
 
-    ObjectInstance serverMXBean = mbeanServer.getObjectInstance(serverObjectName);
+    // 2 assert that we can remotely call ping
+    Long now = System.currentTimeMillis();
+    Long ping = (Long) mbeanServer.invoke(serverObjectName, ProcessMXBean.PING, null, null);
+    assertThat(ping).isNotNull();
+    assertThat(ping - now).isLessThanOrEqualTo(3000L);
 
+    // 3 assert that we can remotely call isReady
+    //TODO this method is for some reason not available...
+//    Boolean isReady = (Boolean) mbeanServer.invoke(serverObjectName, ProcessMXBean.IS_READY, null, null);
+//    assertThat(isReady).isFalse();
 
-    System.out.println("serverMXBean.getClassName() = " + serverMXBean.getClassName());
+    // 4 assert that we can remotely call terminate
+    mbeanServer.invoke(serverObjectName, ProcessMXBean.TERMINATE, null, null);
 
-//    Class<?> processClass = serverMXBean.getClassName();
-//
-//    Method method =
-//    Reflection.invoke(serverMXBean, "ping", Long.class);
-//
-//    // 2 assert that we cannot make another Process in the same JVM
-//    try {
-//      process = new TestProcess(props);
-//      fail();
-//    } catch (IllegalStateException e) {
-//      assertThat(e.getMessage()).isEqualTo("Process already exists in current JVM");
-//    }
+    // 5 assert that we can remotely call terminate
+    try {
+      mbeanServer.invoke(serverObjectName, "xoxo", null, null);
+      fail();
+    } catch (Exception e) {
+      assertThat(e.getMessage()).isEqualTo("No such operation: xoxo");
+    }
+
   }
 }
