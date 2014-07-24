@@ -141,7 +141,7 @@ public class QProfileFactory implements ServerComponent {
   }
 
   @CheckForNull
-  QualityProfileDto getDefault(DbSession session, String language) {
+  public QualityProfileDto getDefault(DbSession session, String language) {
     return db.qualityProfileDao().getDefaultProfile(language, session);
   }
 
@@ -166,6 +166,19 @@ public class QProfileFactory implements ServerComponent {
       .setKey(PROFILE_PROPERTY_PREFIX + profile.getLanguage())
       .setValue(profile.getName());
     db.propertiesDao().setProperty(property, session);
+  }
+
+  QualityProfileDto getByProjectAndLanguage(String projectKey, String language) {
+    DbSession dbSession = db.openSession(false);
+    try {
+      return getByProjectAndLanguage(dbSession, projectKey, language);
+    } finally {
+      dbSession.close();
+    }
+  }
+
+  public QualityProfileDto getByProjectAndLanguage(DbSession session, String projectKey, String language) {
+    return db.qualityProfileDao().getByProjectAndLanguage(projectKey, language, PROFILE_PROPERTY_PREFIX + language, session);
   }
 
   private void checkNotDefault(@Nullable QualityProfileDto defaultProfile, QualityProfileDto p) {

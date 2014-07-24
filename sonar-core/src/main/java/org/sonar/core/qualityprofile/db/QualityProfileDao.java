@@ -187,10 +187,15 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   public QualityProfileDto getByProjectAndLanguage(long projectId, String language, String key) {
     DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(QualityProfileMapper.class).selectByProjectAndLanguage(projectId, language, key);
+      return session.getMapper(QualityProfileMapper.class).selectByProjectIdAndLanguage(projectId, language, key);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  @CheckForNull
+  public QualityProfileDto getByProjectAndLanguage(String projectKey, String language, String propertyKeyPrefix, DbSession session) {
+    return session.getMapper(QualityProfileMapper.class).selectByProjectAndLanguage(projectKey, language, propertyKeyPrefix);
   }
 
   public List<QualityProfileDto> findByLanguage(String language) {

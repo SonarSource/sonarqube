@@ -44,15 +44,21 @@ public class QProfileProjectOperations implements ServerComponent {
     checkPermission(userSession);
     DbSession session = db.openSession(false);
     try {
+      addProject(profileId, projectId, userSession, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  void addProject(int profileId, long projectId, UserSession userSession, DbSession session) {
+    checkPermission(userSession);
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
       db.propertiesDao().setProperty(new PropertyDto().setKey(
         QProfileProjectLookup.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(project.getId()), session);
       session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public void removeProject(int profileId, long projectId, UserSession userSession) {

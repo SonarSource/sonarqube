@@ -33,6 +33,7 @@ import java.util.Map;
  */
 public class NewActiveRule {
   final RuleKey ruleKey;
+  String name;
   String severity = Severity.defaultSeverity();
   Map<String, String> params = new HashMap<String, String>();
   String internalKey, language;
@@ -41,6 +42,11 @@ public class NewActiveRule {
   NewActiveRule(ActiveRulesBuilder builder, RuleKey ruleKey) {
     this.builder = builder;
     this.ruleKey = ruleKey;
+  }
+
+  public NewActiveRule setName(String name) {
+    this.name = name;
+    return this;
   }
 
   public NewActiveRule setSeverity(@Nullable String severity) {

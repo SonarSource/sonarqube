@@ -19,14 +19,13 @@
  */
 package org.sonar.api.batch.sensor.measure.internal;
 
-import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.measures.CoreMetrics;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultMeasureTest {
@@ -63,7 +62,7 @@ public class DefaultMeasureTest {
   @Test
   public void not_allowed_to_call_onFile_and_onProject() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("onFile or onProject can be called only once");
+    thrown.expectMessage("onProject already called");
     new DefaultMeasureBuilder<Integer>()
       .onProject()
       .onFile(new DefaultInputFile("src/Foo.php"))

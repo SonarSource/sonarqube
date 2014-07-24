@@ -20,6 +20,7 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -36,12 +37,19 @@ import static org.mockito.Mockito.when;
 public class QualityProfileDaoTest extends AbstractDaoTestCase {
 
   QualityProfileDao dao;
+  DbSession session;
   System2 system = mock(System2.class);
 
   @Before
   public void createDao() {
+    this.session = getMyBatis().openSession(false);
     dao = new QualityProfileDao(getMyBatis(), system);
     when(system.now()).thenReturn(UtcDateUtils.parseDateTime("2014-01-20T12:00:00+0000").getTime());
+  }
+
+  @After
+  public void after() {
+    this.session.close();
   }
 
   @Test
@@ -217,10 +225,21 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_by_project_and_language() {
+  public void select_by_project_id_and_language() {
     setupData("projects");
 
     QualityProfileDto dto = dao.getByProjectAndLanguage(1L, "java", "sonar.profile.java");
     assertThat(dto.getId()).isEqualTo(1);
+  }
+
+  @Test
+  public void select_by_project_key_and_language() {
+    setupData("projects");
+
+    QualityProfileDto dto = dao.getByProjectAndLanguage("org.codehaus.sonar:sonar", "java", "sonar.profile.java", session);
+    assertThat(dto.getId()).isEqualTo(1);
+
+    assertThat(dao.getByProjectAndLanguage("org.codehaus.sonar:sonar", "unkown", "sonar.profile.java", session)).isNull();
+    assertThat(dao.getByProjectAndLanguage("unknown", "java", "sonar.profile.java", session)).isNull();
   }
 }

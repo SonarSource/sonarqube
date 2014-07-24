@@ -29,6 +29,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
 import java.util.Date;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -104,6 +105,17 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
 
     assertThat(dao.existsById(4L, session)).isTrue();
     assertThat(dao.existsById(111L, session)).isFalse();
+  }
+
+  @Test
+  public void find_modules_by_project() throws Exception {
+    setupData("shared");
+
+    List<ComponentDto> results = dao.findModulesByProject("org.struts:struts", session);
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-core");
+
+    assertThat(dao.findModulesByProject("unknown", session)).isEmpty();
   }
 
   @Test

@@ -19,39 +19,35 @@
  */
 package org.sonar.api.batch.sensor.measure.internal;
 
-import org.sonar.api.batch.sensor.measure.MeasureBuilder;
-
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
+import org.sonar.api.batch.sensor.measure.MeasureBuilder;
 
 import java.io.Serializable;
 
 public class DefaultMeasureBuilder<G extends Serializable> implements MeasureBuilder<G> {
 
-  Boolean onProject = null;
+  boolean onProject = false;
   InputFile file;
   Metric<G> metric;
   G value;
 
   @Override
   public DefaultMeasureBuilder<G> onFile(InputFile inputFile) {
-    onProject(false);
-    Preconditions.checkNotNull(inputFile, "inputFile should be non null");
+    Preconditions.checkState(!this.onProject, "onProject already called");
+    Preconditions.checkState(this.file == null, "onFile already called");
+    Preconditions.checkNotNull(inputFile, "InputFile should be non null");
     this.file = inputFile;
     return this;
   }
 
   @Override
   public DefaultMeasureBuilder<G> onProject() {
-    onProject(true);
-    this.file = null;
+    Preconditions.checkState(!this.onProject, "onProject already called");
+    Preconditions.checkState(this.file == null, "onFile already called");
+    this.onProject = true;
     return this;
-  }
-
-  private void onProject(boolean isOnProject) {
-    Preconditions.checkState(this.onProject == null, "onFile or onProject can be called only once");
-    this.onProject = isOnProject;
   }
 
   @Override
@@ -72,6 +68,15 @@ public class DefaultMeasureBuilder<G extends Serializable> implements MeasureBui
 
   @Override
   public DefaultMeasure<G> build() {
-    return new DefaultMeasure<G>(this);
+    DefaultMeasure<G> result = new DefaultMeasure<G>(this);
+    reset();
+    return result;
+  }
+
+  private void reset() {
+    onProject = false;
+    file = null;
+    metric = null;
+    value = null;
   }
 }

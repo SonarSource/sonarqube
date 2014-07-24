@@ -6,6 +6,7 @@ define [
   'coding-rules/views/coding-rules-detail-custom-rules-view'
   'coding-rules/views/coding-rules-detail-custom-rule-view'
   'coding-rules/views/coding-rules-parameter-popup-view'
+  'coding-rules/views/coding-rules-debt-popup-view'
   'templates/coding-rules'
 ], (
   Backbone
@@ -15,6 +16,7 @@ define [
   CodingRulesDetailCustomRulesView
   CodingRulesDetailCustomRuleView
   CodingRulesParameterPopupView
+  CodingRulesDebtPopupView
   Templates
 ) ->
 
@@ -37,7 +39,6 @@ define [
       tagsList: '.coding-rules-detail-tag-list'
 
       subcharacteristic: '.coding-rules-subcharacteristic'
-      subcharacteristicMore: '.coding-rules-subcharacteristic-more'
 
       descriptionExtra: '#coding-rules-detail-description-extra'
       extendDescriptionLink: '#coding-rules-detail-extend-description'
@@ -74,7 +75,8 @@ define [
       'click @ui.changeManualRule': 'changeManualRule'
       'click @ui.deleteCustomRule': 'deleteRule'
 
-      'click .coding-rules-subcharacteristic': 'toggleDebtInfo'
+      'click .coding-rules-detail-parameter-name': 'toggleParameterDescription'
+      'click .coding-rules-subcharacteristic': 'showDebtPopup'
 
     initialize: (options) ->
       super options
@@ -172,8 +174,18 @@ define [
       @ui.extendDescriptionSpinner.hide()
 
 
-    toggleDebtInfo: (e) ->
-      @ui.subcharacteristicMore.toggle()
+    toggleParameterDescription: (e) ->
+      jQuery(e.currentTarget).next('.coding-rules-detail-parameter-description').toggle();
+
+
+    showDebtPopup: (e) ->
+      e.stopPropagation()
+      jQuery('body').click()
+      popup = new CodingRulesDebtPopupView
+        model: @model
+        app: @options.app
+        triggerEl: jQuery(e.currentTarget)
+      popup.render()
       false
 
 
@@ -282,9 +294,10 @@ define [
 
 
     deleteRule: ->
+      ruleType = if @model.has('templateKey') then 'custom' else 'manual'
       confirmDialog
         title: t 'delete'
-        html: t 'are_you_sure'
+        html: tp "coding_rules.delete.#{ruleType}.confirm", @model.get('name')
         yesHandler: =>
           jQuery.ajax
             type: 'POST'

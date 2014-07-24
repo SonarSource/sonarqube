@@ -31,6 +31,10 @@ import javax.annotation.CheckForNull;
 
 import java.util.List;
 
+/**
+ * Use {@link org.sonar.server.qualityprofile.QProfileService} instead
+ */
+@Deprecated
 public class QProfiles implements ServerComponent {
 
   private static final String LANGUAGE_PARAM = "language";
@@ -90,7 +94,7 @@ public class QProfiles implements ServerComponent {
   }
 
   /**
-   * Used in /project/profile
+   * Used in /project/profile and in /api/profiles
    */
   @CheckForNull
   public QProfile findProfileByProjectAndLanguage(long projectId, String language) {

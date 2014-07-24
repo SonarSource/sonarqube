@@ -24,6 +24,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.issue.IssueBuilder;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
@@ -58,8 +59,9 @@ public class OneIssuePerLineSensor implements Sensor {
     if (linesMeasure == null) {
       LoggerFactory.getLogger(getClass()).warn("Missing measure " + CoreMetrics.LINES_KEY + " on " + file);
     } else {
+      IssueBuilder issueBuilder = context.issueBuilder();
       for (int line = 1; line <= (Integer) linesMeasure.value(); line++) {
-        context.addIssue(context.issueBuilder()
+        context.addIssue(issueBuilder
           .ruleKey(ruleKey)
           .onFile(file)
           .atLine(line)

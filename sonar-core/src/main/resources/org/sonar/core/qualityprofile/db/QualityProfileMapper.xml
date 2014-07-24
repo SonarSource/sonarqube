@@ -114,13 +114,25 @@
     </where>
   </select>
 
-  <select id="selectByProjectAndLanguage" parameterType="map" resultType="QualityProfile">
+  <select id="selectByProjectIdAndLanguage" parameterType="map" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
     INNER JOIN properties prop ON prop.resource_id=#{projectId}
       AND prop.prop_key LIKE #{key}
       AND prop.text_value LIKE p.name
     WHERE p.language=#{language}
+  </select>
+
+  <select id="selectByProjectAndLanguage" parameterType="map" resultType="QualityProfile">
+    SELECT <include refid="profilesColumns"/>
+    FROM rules_profiles p, projects project
+    INNER JOIN properties prop ON prop.resource_id=project.id
+    <where>
+      AND p.language=#{language}
+      AND prop.prop_key LIKE #{propertyKey}
+      AND prop.text_value LIKE p.name
+      AND project.kee=#{projectKey}
+    </where>
   </select>
 
 </mapper>

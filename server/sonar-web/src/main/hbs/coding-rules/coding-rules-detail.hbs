@@ -34,9 +34,7 @@
   </li>{{/if}}
 
   {{#if subcharacteristic}}
-    <li class="coding-rules-detail-property">
-      <a class="link-action coding-rules-subcharacteristic">{{subcharacteristic}}</a>
-    </li>
+    <li class="coding-rules-detail-property coding-rules-subcharacteristic">{{subcharacteristic}}</li>
   {{/if}}
   <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
   <li class="coding-rules-detail-property">{{repository}}{{#unless isManual}} ({{language}}){{/unless}}</li>

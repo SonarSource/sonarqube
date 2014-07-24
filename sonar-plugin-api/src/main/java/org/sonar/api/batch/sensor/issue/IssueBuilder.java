@@ -56,7 +56,8 @@ public interface IssueBuilder {
   IssueBuilder onProject();
 
   /**
-   * Line of the issue. Only available for {@link #onFile(InputFile)} issues. If no line is specified then issue is supposed to be global to the file.
+   * Line of the issue. Only available for {@link #onFile(InputFile)} issues. 
+   * If no line is specified it means that issue is global to the file.
    */
   IssueBuilder atLine(int line);
 
@@ -77,7 +78,7 @@ public interface IssueBuilder {
   IssueBuilder severity(@Nullable String severity);
 
   /**
-   * Build the issue.
+   * Build the issue. After call of this method the builder is cleaned and can be used to build another issue.
    */
   Issue build();
 

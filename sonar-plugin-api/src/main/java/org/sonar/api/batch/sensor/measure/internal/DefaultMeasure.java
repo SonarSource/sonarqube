@@ -19,8 +19,6 @@
  */
 package org.sonar.api.batch.sensor.measure.internal;
 
-import org.sonar.api.batch.sensor.measure.Measure;
-
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -28,8 +26,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
+import org.sonar.api.batch.sensor.measure.Measure;
 
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
 
@@ -48,7 +47,7 @@ public class DefaultMeasure<G extends Serializable> implements Measure<G>, Seria
     this.value = builder.value;
   }
 
-  @Nullable
+  @CheckForNull
   @Override
   public InputFile inputFile() {
     return inputFile;

@@ -26,12 +26,13 @@ import java.util.Map;
 
 public class ActiveRule {
   private final String repositoryKey, ruleKey;
-  private final String severity, internalKey, language;
+  private final String name, severity, internalKey, language;
   private final Map<String, String> params = new HashMap<String, String>();
 
-  public ActiveRule(String repositoryKey, String ruleKey, String severity, String internalKey, String language) {
+  public ActiveRule(String repositoryKey, String ruleKey, String name, String severity, String internalKey, String language) {
     this.repositoryKey = repositoryKey;
     this.ruleKey = ruleKey;
+    this.name = name;
     this.severity = severity;
     this.internalKey = internalKey;
     this.language = language;
@@ -43,6 +44,10 @@ public class ActiveRule {
 
   public String ruleKey() {
     return ruleKey;
+  }
+
+  public String name() {
+    return name;
   }
 
   public String severity() {

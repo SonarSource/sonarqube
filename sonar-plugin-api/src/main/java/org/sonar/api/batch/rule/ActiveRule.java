@@ -22,6 +22,7 @@ package org.sonar.api.batch.rule;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Map;
 
 /**

@@ -59,7 +59,7 @@ public class GlobalReferentialsActionTest {
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.metricDao()).thenReturn(metricDao);
 
-    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalReferentialsAction(dbClient, propertiesDao)));
+    tester = new WsTester(new BatchWs(mock(BatchIndex.class), new GlobalReferentialsAction(dbClient, propertiesDao), mock(ProjectReferentialsAction.class)));
   }
 
   @Test

@@ -1,0 +1,25 @@
+{"duplications": [
+  {
+    "blocks": [
+      {
+        "from": 404,
+        "size": 15,
+        "_ref": "1"
+      },
+      {
+        "from": 455,
+        "size": 15,
+        "_ref": "1"
+      }
+    ]
+  }
+], "files": {
+  "1": {
+    "key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "name": "src/main/java/org/sonar/batch/index/Cache.java",
+    "project": "org.codehaus.sonar:sonar",
+    "projectName": "SonarQube",
+    "subProject": "org.codehaus.sonar:sonar-batch",
+    "subProjectName": "SonarQube :: Batch"
+  }
+}}

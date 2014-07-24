@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.persistence;
 
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
@@ -29,6 +28,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @since 4.3
@@ -39,26 +39,26 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     super(ComponentMapper.class, system);
   }
 
-  public ComponentDto getById(Long id, SqlSession session) {
-    return getMapper(session).selectById(id);
+  public ComponentDto getById(Long id, DbSession session) {
+    return mapper(session).selectById(id);
   }
 
-  public boolean existsById(Long id, SqlSession session) {
-    return getMapper(session).countById(id) > 0;
+  public boolean existsById(Long id, DbSession session) {
+    return mapper(session).countById(id) > 0;
   }
 
-  private ComponentMapper getMapper(SqlSession session) {
-    return session.getMapper(ComponentMapper.class);
+  public List<ComponentDto> findModulesByProject(String projectKey, DbSession session) {
+    return mapper(session).findModulesByProject(projectKey);
   }
 
   @Override
   protected ComponentDto doGetNullableByKey(DbSession session, String key) {
-    return getMapper(session).selectByKey(key);
+    return mapper(session).selectByKey(key);
   }
 
   @Override
   protected ComponentDto doInsert(DbSession session, ComponentDto item) {
-    getMapper(session).insert(item);
+    mapper(session).insert(item);
     return item;
   }
 

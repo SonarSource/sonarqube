@@ -70,6 +70,7 @@ public class DefaultIssue implements Issue, Serializable {
     return ruleKey;
   }
 
+  @CheckForNull
   @Override
   public String message() {
     return message;
