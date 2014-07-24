@@ -1,3 +1,3 @@
 #!/bin/sh
 
-mvn clean install -Pdev $*
+mvn clean install $*
