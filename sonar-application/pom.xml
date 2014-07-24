@@ -278,8 +278,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>103000000</minsize>
-                  <maxsize>107000000</maxsize>
+                  <minsize>84000000</minsize>
+                  <maxsize>90000000</maxsize>
                   <files>
                     <file>${project.build.directory}/sonarqube-${project.version}.zip</file>
                   </files>

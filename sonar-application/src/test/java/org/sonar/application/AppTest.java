@@ -22,6 +22,7 @@ package org.sonar.application;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -57,6 +58,7 @@ public class AppTest {
   }
 
   @Test
+  @Ignore
   public void should_register_mbean() throws Exception {
     Installation installation = mock(Installation.class);
     when(installation.detectHomeDir()).thenReturn(sonarHome.getRoot());
