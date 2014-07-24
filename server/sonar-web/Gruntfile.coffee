@@ -1,8 +1,4 @@
 module.exports = (grunt) ->
-  grunt.loadNpmTasks('grunt-karma')
-  grunt.loadNpmTasks('grunt-express-server')
-  grunt.loadNpmTasks('grunt-casper')
-
   pkg = grunt.file.readJSON('package.json')
 
   grunt.initConfig
@@ -277,6 +273,8 @@ module.exports = (grunt) ->
       cw:
         options:
           test: true
+          parallel: true,
+          concurrency: 5
         src: ['<%= pkg.sources %>js/tests/e2e/tests/component-viewer-spec.js']
 
 
@@ -313,6 +311,8 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-contrib-concat'
+  grunt.loadNpmTasks 'grunt-express-server'
+  grunt.loadNpmTasks 'grunt-casper'
 
 
   # Define tasks
