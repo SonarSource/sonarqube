@@ -34,12 +34,6 @@ public interface ActiveRule {
   RuleKey ruleKey();
 
   /**
-   * Name of the rule.
-   * @since 4.5
-   */
-  String name();
-
-  /**
    * Non-null severity.
    * @see org.sonar.api.rule.Severity
    */

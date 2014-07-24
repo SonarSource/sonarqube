@@ -28,7 +28,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Map;
 
 @Immutable
-class DefaultActiveRule implements ActiveRule {
+public class DefaultActiveRule implements ActiveRule {
   private final RuleKey ruleKey;
   private final String name;
   private final String severity, internalKey, language;
@@ -48,7 +48,6 @@ class DefaultActiveRule implements ActiveRule {
     return ruleKey;
   }
 
-  @Override
   public String name() {
     return name;
   }

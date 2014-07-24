@@ -24,8 +24,8 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
-import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
@@ -128,7 +128,7 @@ public class DefaultSensorContext implements SensorContext {
       resourceKey = def.getKey();
     }
     RuleKey ruleKey = issue.ruleKey();
-    ActiveRule activeRule = activeRules.find(ruleKey);
+    DefaultActiveRule activeRule = (DefaultActiveRule) activeRules.find(ruleKey);
     if (activeRule == null) {
       // rule does not exist or is not enabled -> ignore the issue
       return false;
@@ -147,7 +147,7 @@ public class DefaultSensorContext implements SensorContext {
     return false;
   }
 
-  private void updateIssue(DefaultIssue issue, ActiveRule activeRule) {
+  private void updateIssue(DefaultIssue issue, DefaultActiveRule activeRule) {
     if (Strings.isNullOrEmpty(issue.message())) {
       issue.setMessage(activeRule.name());
     }

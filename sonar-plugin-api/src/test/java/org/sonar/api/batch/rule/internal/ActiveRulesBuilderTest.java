@@ -59,7 +59,7 @@ public class ActiveRulesBuilderTest {
     ActiveRule squid1 = activeRules.find(RuleKey.of("squid", "S0001"));
     assertThat(squid1.ruleKey().repository()).isEqualTo("squid");
     assertThat(squid1.ruleKey().rule()).isEqualTo("S0001");
-    assertThat(squid1.name()).isEqualTo("My Rule");
+    assertThat(((DefaultActiveRule) squid1).name()).isEqualTo("My Rule");
     assertThat(squid1.severity()).isEqualTo(Severity.CRITICAL);
     assertThat(squid1.internalKey()).isEqualTo("__S0001__");
     assertThat(squid1.params()).hasSize(1);
