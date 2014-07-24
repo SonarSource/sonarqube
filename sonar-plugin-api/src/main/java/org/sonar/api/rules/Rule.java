@@ -48,6 +48,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -195,7 +196,6 @@ public class Rule {
     this.id = id;
   }
 
-  @CheckForNull
   public String getName() {
     return name;
   }
@@ -203,7 +203,7 @@ public class Rule {
   /**
    * Sets the rule name
    */
-  public Rule setName(@Nullable String name) {
+  public Rule setName(String name) {
     this.name = removeNewLineCharacters(name);
     return this;
   }
