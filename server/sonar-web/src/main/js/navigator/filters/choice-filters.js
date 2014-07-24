@@ -31,7 +31,7 @@ define([
       collection.each(function (item) {
         container.append(
           that.itemTemplate(_.extend(item.toJSON(), {
-            multiple: that.model.get('multiple')
+            multiple: that.model.get('multiple') && item.get('id')[0] !== '!'
           }))
         );
       });
