@@ -244,7 +244,13 @@ public class RuleUpdaterMediumTest {
     assertThat(indexedRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
     assertThat(indexedRule.debtRemediationFunction().coefficient()).isNull();
     assertThat(indexedRule.debtRemediationFunction().offset()).isEqualTo("1min");
+
     assertThat(indexedRule.debtOverloaded()).isTrue();
+    assertThat(indexedRule.defaultDebtCharacteristicKey()).isEqualTo("RELIABILITY");
+    assertThat(indexedRule.defaultDebtSubCharacteristicKey()).isEqualTo("HARD_RELIABILITY");
+    assertThat(indexedRule.defaultDebtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(indexedRule.defaultDebtRemediationFunction().coefficient()).isEqualTo("1d");
+    assertThat(indexedRule.defaultDebtRemediationFunction().offset()).isEqualTo("5min");
   }
 
   @Test
@@ -272,7 +278,47 @@ public class RuleUpdaterMediumTest {
     assertThat(indexedRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
     assertThat(indexedRule.debtRemediationFunction().coefficient()).isEqualTo("2d");
     assertThat(indexedRule.debtRemediationFunction().offset()).isNull();
+
     assertThat(indexedRule.debtOverloaded()).isTrue();
+    assertThat(indexedRule.defaultDebtCharacteristicKey()).isEqualTo("RELIABILITY");
+    assertThat(indexedRule.defaultDebtSubCharacteristicKey()).isEqualTo("HARD_RELIABILITY");
+    assertThat(indexedRule.defaultDebtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
+    assertThat(indexedRule.defaultDebtRemediationFunction().coefficient()).isEqualTo("1d");
+    assertThat(indexedRule.defaultDebtRemediationFunction().offset()).isNull();
+  }
+
+  @Test
+  public void override_debt_from_linear_with_offset_to_constant() throws Exception {
+    insertDebtCharacteristics(dbSession);
+    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
+      .setDefaultSubCharacteristicId(hardReliabilityId)
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationCoefficient("1d")
+      .setDefaultRemediationOffset("5min")
+      .setRemediationFunction(null)
+      .setRemediationCoefficient(null)
+      .setRemediationOffset(null));
+    dbSession.commit();
+
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
+      .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "10min"));
+    updater.update(update, UserSession.get());
+    dbSession.clearCache();
+
+    // verify debt is overridden
+    Rule indexedRule = tester.get(RuleIndex.class).getByKey(RULE_KEY);
+    assertThat(indexedRule.debtCharacteristicKey()).isEqualTo("RELIABILITY");
+    assertThat(indexedRule.debtSubCharacteristicKey()).isEqualTo("HARD_RELIABILITY");
+    assertThat(indexedRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
+    assertThat(indexedRule.debtRemediationFunction().coefficient()).isNull();
+    assertThat(indexedRule.debtRemediationFunction().offset()).isEqualTo("10min");
+
+    assertThat(indexedRule.debtOverloaded()).isTrue();
+    assertThat(indexedRule.defaultDebtCharacteristicKey()).isEqualTo("RELIABILITY");
+    assertThat(indexedRule.defaultDebtSubCharacteristicKey()).isEqualTo("HARD_RELIABILITY");
+    assertThat(indexedRule.defaultDebtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(indexedRule.defaultDebtRemediationFunction().coefficient()).isEqualTo("1d");
+    assertThat(indexedRule.defaultDebtRemediationFunction().offset()).isEqualTo("5min");
   }
 
   @Test
@@ -301,7 +347,13 @@ public class RuleUpdaterMediumTest {
     assertThat(indexedRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
     assertThat(indexedRule.debtRemediationFunction().coefficient()).isEqualTo("1d");
     assertThat(indexedRule.debtRemediationFunction().offset()).isEqualTo("5min");
+
     assertThat(indexedRule.debtOverloaded()).isFalse();
+    assertThat(indexedRule.defaultDebtCharacteristicKey()).isEqualTo("RELIABILITY");
+    assertThat(indexedRule.defaultDebtSubCharacteristicKey()).isEqualTo("HARD_RELIABILITY");
+    assertThat(indexedRule.defaultDebtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
+    assertThat(indexedRule.defaultDebtRemediationFunction().coefficient()).isEqualTo("1d");
+    assertThat(indexedRule.defaultDebtRemediationFunction().offset()).isEqualTo("5min");
   }
 
   @Test
