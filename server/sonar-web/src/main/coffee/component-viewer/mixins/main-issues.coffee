@@ -20,9 +20,13 @@ define [
       $.get API_ISSUES, options, (data) =>
         @state.set 'hasIssues', true
         issues = _.sortBy data.issues, (issue) -> "#{issue.rule}_____#{issue.message}"
-        @source.set
-          issues: issues
-          activeIssues: issues.filter (issue) -> !issue.resolution
+        @source.set issues: issues
+        @resetIssues()
+
+
+    resetIssues: ->
+      @source.set
+        activeIssues: @source.get('issues').filter (issue) -> !issue.resolution
 
 
     showIssues: (store = false, issue) ->

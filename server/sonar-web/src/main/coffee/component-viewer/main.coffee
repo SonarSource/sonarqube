@@ -389,8 +389,10 @@ define [
 
 
     filterByLines: ->
+      @resetIssues()
       @showAllLines()
 
 
     filterByNcloc: ->
+      @resetIssues()
       @_filterByLines (line) -> line?.executable
