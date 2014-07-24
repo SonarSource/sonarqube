@@ -19,13 +19,12 @@
  */
 package org.sonar.batch.scan2;
 
-import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 
 import java.util.Collection;
@@ -51,7 +50,6 @@ public class SensorsExecutor implements BatchComponent {
       analyzer.describe(descriptor);
 
       if (!optimizer.shouldExecute(descriptor)) {
-        LOG.debug("Analyzer skipped: " + descriptor.name());
         continue;
       }
 

@@ -19,15 +19,18 @@
  */
 package org.sonar.batch.scan2;
 
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 
 public class AnalyzerOptimizer implements BatchComponent {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AnalyzerOptimizer.class);
 
   private final FileSystem fs;
   private final ActiveRules activeRules;
@@ -41,10 +44,15 @@ public class AnalyzerOptimizer implements BatchComponent {
    * Decide if the given Analyzer should be executed.
    */
   public boolean shouldExecute(DefaultSensorDescriptor descriptor) {
-    // FS Conditions
-    boolean fsCondition = fsCondition(descriptor);
-    boolean activeRulesCondition = activeRulesCondition(descriptor);
-    return fsCondition && activeRulesCondition;
+    if (!fsCondition(descriptor)) {
+      LOG.debug("'{}' skipped because there is no related file in current project", descriptor.name());
+      return false;
+    }
+    if (!activeRulesCondition(descriptor)) {
+      LOG.debug("'{}' skipped because there is no related rule activated in the quality profile", descriptor.name());
+      return false;
+    }
+    return true;
   }
 
   private boolean activeRulesCondition(DefaultSensorDescriptor descriptor) {
