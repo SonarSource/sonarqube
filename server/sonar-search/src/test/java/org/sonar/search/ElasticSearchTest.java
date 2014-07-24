@@ -84,6 +84,7 @@ public class ElasticSearchTest {
     Properties properties = new Properties();
     properties.setProperty(Process.NAME_PROPERTY, "ES");
     properties.setProperty("sonar.path.data", tempDirectory.getAbsolutePath());
+    properties.setProperty("sonar.path.logs", tempDirectory.getAbsolutePath());
     properties.setProperty(ElasticSearch.ES_PORT_PROPERTY, Integer.toString(freeESPort));
     properties.setProperty(ElasticSearch.ES_CLUSTER_PROPERTY, "sonarqube");
 
