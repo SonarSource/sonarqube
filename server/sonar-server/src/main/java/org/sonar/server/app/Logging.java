@@ -20,26 +20,60 @@
 package org.sonar.server.app;
 
 import ch.qos.logback.access.tomcat.LogbackValve;
+import com.google.common.collect.ImmutableMap;
 import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.startup.Tomcat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.sonar.core.config.Logback;
+import org.sonar.core.profiling.Profiling;
 import org.sonar.process.Props;
 
 import java.io.File;
+import java.util.Map;
 import java.util.logging.LogManager;
 
 class Logging {
 
+  private static final String CONFIG_LOG_CONSOLE = "sonar.log.console";
+
+  private static final String LOG_COMMON_PREFIX = "%d{yyyy.MM.dd HH:mm:ss} %-5level ";
+  private static final String LOG_COMMON_SUFFIX = "%msg%n";
+
+  private static final String LOG_LOGFILE_SPECIFIC_PART = "[%logger{20}] %X ";
+  private static final String LOG_FULL_SPECIFIC_PART = "%thread ";
+
+  private static final String LOGFILE_STANDARD_LOGGING_FORMAT = LOG_COMMON_PREFIX + LOG_LOGFILE_SPECIFIC_PART + LOG_COMMON_SUFFIX;
+  private static final String LOGFILE_FULL_LOGGING_FORMAT = LOG_COMMON_PREFIX + LOG_FULL_SPECIFIC_PART + LOG_LOGFILE_SPECIFIC_PART + LOG_COMMON_SUFFIX;
+
+  private static final String CONSOLE_STANDARD_LOGGING_FORMAT = LOG_COMMON_PREFIX + LOG_COMMON_SUFFIX;
+  private static final String CONSOLE_FULL_LOGGING_FORMAT = LOG_COMMON_PREFIX + LOG_FULL_SPECIFIC_PART + LOG_COMMON_SUFFIX;
+
   static final String ACCESS_RELATIVE_PATH = "WEB-INF/config/logback-access.xml";
   static final String PROPERTY_ENABLE_ACCESS_LOGS = "sonar.web.accessLogs.enable";
 
-  static void init() {
+  static void init(Props props) {
     // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
     LogManager.getLogManager().reset();
     SLF4JBridgeHandler.install();
+    configureLogback(props);
+  }
+
+  /**
+   * Configure Logback from classpath, with configuration from sonar.properties
+   */
+  private static void configureLogback(Props props) {
+    String configProfilingLevel = props.of(Profiling.CONFIG_PROFILING_LEVEL, "NONE");
+    Profiling.Level profilingLevel = Profiling.Level.fromConfigString(configProfilingLevel);
+    String consoleEnabled = props.of(CONFIG_LOG_CONSOLE, "false");
+    Map<String, String> variables = ImmutableMap.of(
+      "sonar.path.logs", props.of("sonar.path.logs"),
+      "LOGFILE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? LOGFILE_FULL_LOGGING_FORMAT : LOGFILE_STANDARD_LOGGING_FORMAT,
+      "CONSOLE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? CONSOLE_FULL_LOGGING_FORMAT : CONSOLE_STANDARD_LOGGING_FORMAT,
+      "CONSOLE_ENABLED", consoleEnabled);
+    Logback.configure("/org/sonar/server/platform/logback.xml", variables);
   }
 
   static void configure(Tomcat tomcat, Props props) {

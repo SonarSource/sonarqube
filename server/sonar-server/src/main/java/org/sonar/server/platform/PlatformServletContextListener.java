@@ -51,7 +51,7 @@ public final class PlatformServletContextListener implements ServletContextListe
 
   public void contextInitialized(ServletContextEvent event) {
     try {
-      configureLogback(event);
+      //configureLogback(event);
       Properties props = new Properties();
       ServletContext context = event.getServletContext();
       Enumeration<String> paramKeys = context.getInitParameterNames();
