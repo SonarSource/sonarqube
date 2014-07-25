@@ -503,3 +503,31 @@ casper.test.begin(testName('Cross-Project Duplications'), function (test) {
         test.done();
       });
 });
+
+
+casper.test.begin(testName('Duplications in Deleted Files'), function (test) {
+  casper
+      .start(lib.buildUrl('component-viewer#component=component'), function () {
+        lib.setDefaultViewport();
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/components/app', 'app.json');
+        lib.mockRequestFromFile('/api/sources/show', 'source.json');
+        lib.mockRequestFromFile('/api/resources', 'resources.json');
+        lib.mockRequestFromFile('/api/duplications/show', 'duplications-in-deleted-files.json');
+      })
+
+      .then(function () {
+        casper.waitForSelector('.component-viewer-source .row');
+      })
+
+      .then(function () {
+        casper.click('.js-toggle-duplications');
+        casper.waitForSelector('.duplication-exists', function () {
+          test.assertExists('.js-duplications-in-deleted-files');
+        });
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
