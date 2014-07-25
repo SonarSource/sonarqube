@@ -397,7 +397,6 @@ casper.test.begin(testName('Ability to Deselect Filters'), function (test) {
         lib.mockRequestFromFile('/api/issues/search', 'issues.json');
         lib.mockRequestFromFile('/api/coverage/show', 'coverage.json');
         lib.mockRequestFromFile('/api/duplications/show', 'duplications.json');
-        lib.mockRequestFromFile('/api/sources/scm', 'scm.json');
       })
 
       .then(function () {
@@ -458,6 +457,45 @@ casper.test.begin(testName('Ability to Deselect Filters'), function (test) {
               });
             });
           })
+        });
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Cross-Project Duplications'), function (test) {
+  casper
+      .start(lib.buildUrl('component-viewer#component=component'), function () {
+        lib.setDefaultViewport();
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/components/app', 'app.json');
+        lib.mockRequestFromFile('/api/sources/show', 'source.json');
+        lib.mockRequestFromFile('/api/resources', 'resources.json');
+        lib.mockRequestFromFile('/api/duplications/show', 'cross-project-duplications.json');
+      })
+
+      .then(function () {
+        casper.waitForSelector('.component-viewer-source .row');
+      })
+
+      .then(function () {
+        casper.click('.js-header-tab-duplications');
+        casper.waitForSelector('.js-filter-duplications', function () {
+          casper.click('.js-filter-duplications');
+          casper.waitForSelector('.duplication-exists', function () {
+            casper.click('.duplication-exists');
+            casper.waitForSelector('.bubble-popup', function () {
+              test.assertSelectorContains('.bubble-popup', 'JavaScript');
+              test.assertSelectorContains('.bubble-popup', 'JavaScript :: Sonar Plugin');
+              test.assertExists('a[data-key="org.codehaus.sonar-plugins.javascript:sonar-javascript-plugin:src/main/java/org/sonar/plugins/javascript/core/JavaScript.java"]');
+              test.assertSelectorContains('.bubble-popup', 'src/main/java/org/sonar/plugins/javascript/core/JavaScript.java');
+              test.assertSelectorContains('.bubble-popup', '455'); // Line from
+              test.assertSelectorContains('.bubble-popup', '470'); // Line to
+            });
+          });
         });
       })
 

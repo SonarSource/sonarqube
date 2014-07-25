@@ -1,0 +1,33 @@
+{"duplications": [
+  {
+    "blocks": [
+      {
+        "from": 404,
+        "size": 15,
+        "_ref": "1"
+      },
+      {
+        "from": 455,
+        "size": 15,
+        "_ref": "2"
+      }
+    ]
+  }
+], "files": {
+  "1": {
+    "key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "name": "src/main/java/org/sonar/batch/index/Cache.java",
+    "project": "org.codehaus.sonar:sonar",
+    "projectName": "SonarQube",
+    "subProject": "org.codehaus.sonar:sonar-batch",
+    "subProjectName": "SonarQube :: Batch"
+  },
+  "2": {
+    "key": "org.codehaus.sonar-plugins.javascript:sonar-javascript-plugin:src/main/java/org/sonar/plugins/javascript/core/JavaScript.java",
+    "name": "src/main/java/org/sonar/plugins/javascript/core/JavaScript.java",
+    "project": "org.codehaus.sonar-plugins.javascript:javascript",
+    "projectName": "JavaScript",
+    "subProject": "org.codehaus.sonar-plugins.javascript:sonar-javascript-plugin",
+    "subProjectName": "JavaScript :: Sonar Plugin"
+  }
+}}
