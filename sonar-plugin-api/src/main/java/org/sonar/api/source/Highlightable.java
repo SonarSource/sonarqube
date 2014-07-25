@@ -19,11 +19,14 @@
  */
 package org.sonar.api.source;
 
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.component.Perspective;
 
 /**
  * @since 3.6
+ * @deprecated since 4.5 use {@link SensorContext#highlightingBuilder(org.sonar.api.batch.fs.InputFile)}
  */
+@Deprecated
 public interface Highlightable extends Perspective {
 
   interface HighlightingBuilder {

@@ -17,38 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.source;
-
-import java.io.Serializable;
-
-/**
- * @since 3.6
- */
-public class SyntaxHighlightingRule implements Serializable {
-
-  private final int startPosition;
-  private final int endPosition;
-  private final String textType;
-
-  private SyntaxHighlightingRule(int startPosition, int endPosition, String textType) {
-    this.startPosition = startPosition;
-    this.endPosition = endPosition;
-    this.textType = textType;
-  }
-
-  public static SyntaxHighlightingRule create(int startPosition, int endPosition, String textType) {
-    return new SyntaxHighlightingRule(startPosition, endPosition, textType);
-  }
-
-  public int getStartPosition() {
-    return startPosition;
-  }
-
-  public int getEndPosition() {
-    return endPosition;
-  }
-
-  public String getTextType() {
-    return textType;
-  }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.api.batch.sensor.symbol;

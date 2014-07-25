@@ -20,35 +20,35 @@
 
 package org.sonar.batch.source;
 
-import com.google.common.collect.Multimap;
+import com.google.common.collect.SortedSetMultimap;
 import com.google.common.collect.TreeMultimap;
+import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbol;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
+import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
-  private Multimap<Symbol, Integer> referencesBySymbol;
+  private SortedSetMultimap<org.sonar.api.batch.sensor.symbol.Symbol, Integer> referencesBySymbol;
 
-  private DefaultSymbolTable(Multimap<Symbol, Integer> referencesBySymbol) {
+  private DefaultSymbolTable(SortedSetMultimap<org.sonar.api.batch.sensor.symbol.Symbol, Integer> referencesBySymbol) {
     this.referencesBySymbol = referencesBySymbol;
   }
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public Multimap<Symbol, Integer> getReferencesBySymbol() {
+  public SortedSetMultimap<org.sonar.api.batch.sensor.symbol.Symbol, Integer> getReferencesBySymbol() {
     return referencesBySymbol;
   }
 
   @Override
   public List<Symbol> symbols() {
-    return new ArrayList<Symbol>(referencesBySymbol.keySet());
+    List<Symbol> result = new ArrayList<Symbol>();
+    for (org.sonar.api.batch.sensor.symbol.Symbol symbol : referencesBySymbol.keySet()) {
+      result.add((Symbol) symbol);
+    }
+    return result;
   }
 
   @Override
@@ -58,15 +58,17 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
   public static class Builder implements Symbolizable.SymbolTableBuilder {
 
-    private final Multimap<Symbol, Integer> referencesBySymbol;
+    private final SortedSetMultimap<org.sonar.api.batch.sensor.symbol.Symbol, Integer> referencesBySymbol;
+    private final String componentKey;
 
-    public Builder() {
-      referencesBySymbol = TreeMultimap.create(new SymbolComparator(), new ReferenceComparator());
+    public Builder(String componentKey) {
+      this.componentKey = componentKey;
+      referencesBySymbol = TreeMultimap.create(new DefaultSymbolTableBuilder.SymbolComparator(), new DefaultSymbolTableBuilder.ReferenceComparator());
     }
 
     @Override
     public Symbol newSymbol(int fromOffset, int toOffset) {
-      Symbol symbol = new DefaultSymbol(fromOffset, toOffset);
+      Symbol symbol = new DefaultSymbol(componentKey, fromOffset, toOffset);
       referencesBySymbol.put(symbol, symbol.getDeclarationStartOffset());
       return symbol;
     }
@@ -84,24 +86,5 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
       return new DefaultSymbolTable(referencesBySymbol);
     }
 
-    private static class SymbolComparator implements Comparator<Symbol>, Serializable {
-      @Override
-      public int compare(Symbol left, Symbol right) {
-        return left.getDeclarationStartOffset() - right.getDeclarationStartOffset();
-      }
-    }
-
-    private static class ReferenceComparator implements Comparator<Integer>, Serializable {
-      @Override
-      public int compare(Integer left, Integer right) {
-        int result;
-        if (left != null & right != null) {
-          result = left - right;
-        } else {
-          result = left == null ? -1 : 1;
-        }
-        return result;
-      }
-    }
   }
 }

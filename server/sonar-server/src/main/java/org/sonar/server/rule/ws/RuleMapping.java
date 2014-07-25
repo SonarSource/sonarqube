@@ -105,23 +105,44 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
   private void mapDebtFields() {
     map("defaultDebtChar", new IndexStringMapper("defaultDebtChar", RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field()));
     map("defaultDebtSubChar", new IndexStringMapper("defaultDebtSubChar", RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
+
     map("debtChar", new IndexStringMapper("debtChar", RuleNormalizer.RuleField.CHARACTERISTIC.field(),
       RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field()));
     map("debtSubChar", new IndexStringMapper("debtSubChar", RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
       RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
+
     map("debtCharName", new CharacteristicNameMapper());
     map("debtSubCharName", new SubCharacteristicNameMapper());
-    map("debtRemFn", new IndexStringMapper("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field(),
-      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field()));
-    map("debtRemFn", new IndexStringMapper("debtRemFnCoeff", RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field(),
-      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field()));
-    map("debtRemFn", new IndexStringMapper("debtRemFnOffset", RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field(),
-      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field()));
+
     map("defaultDebtRemFn", new IndexStringMapper("defaultDebtRemFnType", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field()));
     map("defaultDebtRemFn", new IndexStringMapper("defaultDebtRemFnCoeff", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field()));
     map("defaultDebtRemFn", new IndexStringMapper("defaultDebtRemFnOffset", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field()));
     map("effortToFixDescription", RuleNormalizer.RuleField.FIX_DESCRIPTION.field());
     map("debtOverloaded", new OverriddenMapper());
+
+    map("debtRemFn", new EffectiveDebtRemFn("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field(),
+      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field()));
+    map("debtRemFn", new EffectiveDebtRemFn("debtRemFnCoeff", RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field(),
+      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field()));
+    map("debtRemFn", new EffectiveDebtRemFn("debtRemFnOffset", RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field(),
+      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field()));
+  }
+
+  public static class EffectiveDebtRemFn extends IndexStringMapper<RuleDoc,RuleMappingContext> {
+
+    public EffectiveDebtRemFn(String key, String indexKey, String defaultIndexKey) {
+      super(key, indexKey, defaultIndexKey);
+    }
+
+    @Override
+    public void write(JsonWriter json, RuleDoc doc, RuleMappingContext context) {
+      if(doc.debtOverloaded()){
+        Object val = doc.getNullableField(indexFields[0]);
+        json.prop(key, val != null ? val.toString() : null);
+      } else {
+        super.write(json,doc,context);
+      }
+    }
   }
 
   private void mapParamFields() {
@@ -144,14 +165,12 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
 
   public void write(Rule rule, JsonWriter json, @Nullable SearchOptions options) {
     RuleMappingContext context = new RuleMappingContext();
-    String characteristicKey;
-    if (needDebtCharacteristicNames(options) && (characteristicKey = rule.debtCharacteristicKey()) != null) {
+    if (needDebtCharacteristicNames(options) && rule.debtCharacteristicKey() != null) {
       // load debt characteristics if requested
-      context.add(debtModel.characteristicByKey(characteristicKey));
+      context.add(debtModel.characteristicByKey(rule.debtCharacteristicKey()));
     }
-    String subCharacteristicKey;
-    if (needDebtSubCharacteristicNames(options) && (subCharacteristicKey = rule.debtSubCharacteristicKey()) != null) {
-      context.add(debtModel.characteristicByKey(subCharacteristicKey));
+    if (needDebtSubCharacteristicNames(options) && rule.debtSubCharacteristicKey() != null) {
+      context.add(debtModel.characteristicByKey(rule.debtSubCharacteristicKey()));
     }
     doWrite((RuleDoc) rule, context, json, options);
   }

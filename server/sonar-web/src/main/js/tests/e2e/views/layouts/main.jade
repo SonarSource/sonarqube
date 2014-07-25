@@ -9,7 +9,8 @@ html
       var $j = jQuery.noConflict();
       window.suppressTranslationWarnings = true;
       jQuery.mockjaxSettings.contentType = 'text/json';
-      jQuery.mockjaxSettings.responseTime = 250;
+      jQuery.mockjaxSettings.responseTime = 50;
+      jQuery.mockjaxSettings.throwUnmocked = true;
       $j(document).ready(function () { $j('.open-modal').modal(); });
     block header
   body

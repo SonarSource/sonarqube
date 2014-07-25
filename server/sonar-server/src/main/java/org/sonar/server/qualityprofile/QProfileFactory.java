@@ -63,7 +63,7 @@ public class QProfileFactory implements ServerComponent {
     return profile;
   }
 
-  QualityProfileDto create(DbSession dbSession, QProfileName name) {
+  public QualityProfileDto create(DbSession dbSession, QProfileName name) {
     QualityProfileDto dto = db.qualityProfileDao().getByNameAndLanguage(name.getName(), name.getLanguage(), dbSession);
     if (dto != null) {
       throw new BadRequestException("Quality profile already exists: " + name);

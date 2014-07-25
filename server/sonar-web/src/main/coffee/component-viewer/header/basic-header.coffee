@@ -19,10 +19,12 @@ define [
 
 
     filterByLines: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByLines'
       @state.set 'activeHeaderItem', '.js-filter-lines'
 
 
     filterByNcloc: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByNcloc'
       @state.set 'activeHeaderItem', '.js-filter-ncloc'

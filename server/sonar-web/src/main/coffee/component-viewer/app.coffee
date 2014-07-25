@@ -5,7 +5,6 @@ requirejs.config
     'backbone': 'third-party/backbone'
     'backbone.marionette': 'third-party/backbone.marionette'
     'handlebars': 'third-party/handlebars'
-    'jquery.mockjax': 'third-party/jquery.mockjax'
 
   shim:
     'backbone.marionette':

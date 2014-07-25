@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.source;
+package org.sonar.batch.highlighting;
 
 import org.sonar.batch.index.Data;
 
@@ -32,6 +32,10 @@ public class SyntaxHighlightingData implements Data {
 
   public SyntaxHighlightingData(List<SyntaxHighlightingRule> syntaxHighlightingRuleSet) {
     this.syntaxHighlightingRuleSet = syntaxHighlightingRuleSet;
+  }
+
+  public List<SyntaxHighlightingRule> syntaxHighlightingRuleSet() {
+    return syntaxHighlightingRuleSet;
   }
 
   @Override
@@ -51,8 +55,4 @@ public class SyntaxHighlightingData implements Data {
     return sb.toString();
   }
 
-  @Override
-  public void readString(String s) {
-    throw new UnsupportedOperationException();
-  }
 }

@@ -20,6 +20,7 @@
 
 package org.sonar.server.batch;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,15 +28,22 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileLoader;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleService;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
@@ -59,6 +67,12 @@ public class ProjectReferentialsActionTest {
   QProfileFactory qProfileFactory;
 
   @Mock
+  QProfileLoader qProfileLoader;
+
+  @Mock
+  RuleService ruleService;
+
+  @Mock
   Languages languages;
 
   @Mock
@@ -75,7 +89,8 @@ public class ProjectReferentialsActionTest {
     when(language.getKey()).thenReturn("java");
     when(languages.all()).thenReturn(new Language[]{language});
 
-    tester = new WsTester(new BatchWs(mock(BatchIndex.class), mock(GlobalReferentialsAction.class), new ProjectReferentialsAction(dbClient, propertiesDao, qProfileFactory, languages)));
+    tester = new WsTester(new BatchWs(mock(BatchIndex.class), mock(GlobalReferentialsAction.class),
+      new ProjectReferentialsAction(dbClient, propertiesDao, qProfileFactory, qProfileLoader, ruleService, languages)));
   }
 
   @Test
@@ -126,7 +141,6 @@ public class ProjectReferentialsActionTest {
   @Test
   public void return_quality_profiles() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
-
     String projectKey = "org.codehaus.sonar:sonar";
 
     when(qProfileFactory.getByProjectAndLanguage(session, projectKey, "java")).thenReturn(
@@ -140,7 +154,6 @@ public class ProjectReferentialsActionTest {
   @Test
   public void return_quality_profile_from_default_profile() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
-
     String projectKey = "org.codehaus.sonar:sonar";
 
     when(qProfileFactory.getDefault(session, "java")).thenReturn(
@@ -149,6 +162,31 @@ public class ProjectReferentialsActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
     request.execute().assertJson(getClass(), "return_quality_profile_from_default_profile.json");
+  }
+
+  @Test
+  public void return_active_rules() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    String projectKey = "org.codehaus.sonar:sonar";
+
+    when(qProfileFactory.getByProjectAndLanguage(session, projectKey, "java")).thenReturn(
+      QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
+    );
+
+    RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
+    ActiveRule activeRule = mock(ActiveRule.class);
+    when(activeRule.key()).thenReturn(ActiveRuleKey.of("abcd", ruleKey));
+    when(activeRule.severity()).thenReturn(Severity.MINOR);
+    when(activeRule.params()).thenReturn(ImmutableMap.of("max", "2"));
+    when(qProfileLoader.findActiveRulesByProfile("abcd")).thenReturn(newArrayList(activeRule));
+
+    Rule rule = mock(Rule.class);
+    when(rule.name()).thenReturn("Avoid Cycle");
+    when(rule.internalKey()).thenReturn("squid-1");
+    when(ruleService.getByKey(ruleKey)).thenReturn(rule);
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
+    request.execute().assertJson(getClass(), "return_active_rules.json");
   }
 
 }

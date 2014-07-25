@@ -133,7 +133,7 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> implements ServerCom
    * String field
    */
   public static class IndexStringMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC,CTX> {
-    private final String key;
+    protected final String key;
 
     public IndexStringMapper(String key, String indexKey, String defaultIndexKey) {
       super(indexKey, defaultIndexKey);

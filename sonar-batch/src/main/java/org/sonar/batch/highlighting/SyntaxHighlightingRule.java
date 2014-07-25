@@ -17,38 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.batch.highlighting;
 
-package org.sonar.batch.source;
+import java.io.Serializable;
 
-import com.google.common.base.Objects;
-import org.sonar.api.source.Symbol;
+/**
+ * @since 3.6
+ */
+public class SyntaxHighlightingRule implements Serializable {
 
-public class DefaultSymbol implements Symbol {
+  private final int startPosition;
+  private final int endPosition;
+  private final String textType;
 
-  private final int declarationStartOffset;
-  private final int declarationEndOffset;
-
-  public DefaultSymbol(int startOffset, int endOffset) {
-    this.declarationStartOffset = startOffset;
-    this.declarationEndOffset = endOffset;
+  private SyntaxHighlightingRule(int startPosition, int endPosition, String textType) {
+    this.startPosition = startPosition;
+    this.endPosition = endPosition;
+    this.textType = textType;
   }
 
-  public int getDeclarationStartOffset() {
-    return declarationStartOffset;
+  public static SyntaxHighlightingRule create(int startPosition, int endPosition, String textType) {
+    return new SyntaxHighlightingRule(startPosition, endPosition, textType);
   }
 
-  public int getDeclarationEndOffset() {
-    return declarationEndOffset;
+  public int getStartPosition() {
+    return startPosition;
   }
 
-  public String getFullyQualifiedName() {
-    return null;
+  public int getEndPosition() {
+    return endPosition;
   }
 
-  @Override
-  public String toString() {
-    return Objects.toStringHelper("Symbol")
-      .add("offset", String.format("%d-%d", declarationStartOffset, declarationEndOffset))
-      .toString();
+  public String getTextType() {
+    return textType;
   }
 }

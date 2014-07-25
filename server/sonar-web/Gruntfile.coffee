@@ -1,8 +1,4 @@
 module.exports = (grunt) ->
-  grunt.loadNpmTasks('grunt-karma')
-  grunt.loadNpmTasks('grunt-express-server')
-  grunt.loadNpmTasks('grunt-casper')
-
   pkg = grunt.file.readJSON('package.json')
 
   grunt.initConfig
@@ -273,11 +269,20 @@ module.exports = (grunt) ->
         options:
           test: true
           'no-colors': true
+          concise: true
         src: ['<%= pkg.sources %>js/tests/e2e/tests/**/*.js']
       cw:
         options:
           test: true
+          parallel: true,
+          concurrency: 5
         src: ['<%= pkg.sources %>js/tests/e2e/tests/component-viewer-spec.js']
+      single:
+        options:
+          test: true
+          parallel: true,
+          concurrency: 5
+        src: ['<%= pkg.sources %>js/tests/e2e/tests/<%= grunt.option("spec") %>-spec.js']
 
 
     watch:
@@ -313,6 +318,8 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-contrib-concat'
+  grunt.loadNpmTasks 'grunt-express-server'
+  grunt.loadNpmTasks 'grunt-casper'
 
 
   # Define tasks
@@ -333,3 +340,6 @@ module.exports = (grunt) ->
 
   grunt.registerTask 'cw', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
                             'express:test', 'casper:cw']
+
+  grunt.registerTask 'single', ['clean:js', 'coffee:build', 'handlebars:build', 'copy:js', 'concat:dev',
+                            'express:test', 'casper:single']

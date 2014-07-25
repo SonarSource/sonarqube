@@ -1,11 +1,12 @@
-var lib = require('../lib');
+var lib = require('../lib'),
+    testName = lib.testName('Coding Rules');
 
 
 lib.initMessages();
 lib.changeWorkingDirectory('coding-rules-spec');
 
 
-casper.test.begin('Coding Rules - Readonly Tests', function suite(test) {
+casper.test.begin(testName('Readonly Tests'), function suite(test) {
 
   var appId = null;
   var showId = null;
@@ -44,6 +45,7 @@ casper.test.begin('Coding Rules - Readonly Tests', function suite(test) {
       test.assertSelectorHasText('ol.navigator-results-list li.active', 'BETA');
     });
 
+
     casper.waitForSelector('h3.coding-rules-detail-header', function showFirstRule() {
       test.assertSelectorHasText('h3.coding-rules-detail-header', 'No empty line');
       test.assertSelectorHasText('.navigator-details .subtitle', 'squid-xoo:x1');
@@ -53,7 +55,28 @@ casper.test.begin('Coding Rules - Readonly Tests', function suite(test) {
       test.assertSelectorHasText('.coding-rules-detail-property:nth-child(4)', 'Testability > Integration level testability');
       test.assertSelectorHasText('.coding-rules-detail-property:nth-child(6)', 'SonarQube (Xoo)');
 
+
+      casper.click('.coding-rules-subcharacteristic');
+      casper.waitForSelector('.coding-rules-debt-popup', function checkDebtPopup() {
+        test.assertElementCount('ul.bubble-popup-list li', 3);
+        test.assertSelectorHasText('.bubble-popup-list li:nth-child(1)', 'LINEAR_OFFSET');
+        test.assertSelectorHasText('.bubble-popup-list li:nth-child(2)', '1h');
+        test.assertSelectorHasText('.bubble-popup-list li:nth-child(3)', '30min');
+      });
+
+
       test.assertDoesntExist('button#coding-rules-detail-extend-description');
+
+
+      casper.then(function checkParameters() {
+        test.assertElementCount('.coding-rules-detail-parameter', 3);
+        test.assertVisible('.coding-rules-detail-parameter-description[data-key=acceptWhitespace]');
+        test.assertSelectorHasText('.coding-rules-detail-parameter-description[data-key=acceptWhitespace]', 'Accept whitespace');
+        casper.click('.coding-rules-detail-parameter:nth-child(1) .coding-rules-detail-parameter-name');
+        test.assertNotVisible('.coding-rules-detail-parameter-description[data-key=acceptWhitespace]');
+        casper.click('.coding-rules-detail-parameter:nth-child(1) .coding-rules-detail-parameter-name');
+        test.assertVisible('.coding-rules-detail-parameter-description[data-key=acceptWhitespace]');
+      });
     });
   });
 
@@ -75,7 +98,7 @@ casper.test.begin('Coding Rules - Readonly Tests', function suite(test) {
   });
 });
 
-casper.test.begin('Coding Rules - Admin Tests', function suite(test) {
+casper.test.begin(testName('Admin Tests'), function suite(test) {
 
   var showId = null;
   var updateId = null;

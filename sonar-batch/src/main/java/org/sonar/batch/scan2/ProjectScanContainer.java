@@ -34,6 +34,7 @@ import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.index.Caches;
+import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.languages.DefaultLanguagesReferential;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.referential.DefaultProjectReferentialsLoader;
@@ -103,6 +104,8 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // issues
       AnalyzerIssueCache.class,
+
+      ComponentDataCache.class,
 
       ScanTaskObservers.class);
   }

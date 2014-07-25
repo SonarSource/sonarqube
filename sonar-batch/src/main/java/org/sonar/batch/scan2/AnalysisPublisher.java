@@ -44,9 +44,11 @@ public final class AnalysisPublisher {
   private final FileSystem fs;
   private final AnalyzerMeasureCache measureCache;
   private final ProjectDefinition def;
-  private AnalyzerIssueCache issueCache;
+  private final AnalyzerIssueCache issueCache;
 
-  public AnalysisPublisher(ProjectDefinition def, Settings settings, FileSystem fs, AnalyzerMeasureCache measureCache, AnalyzerIssueCache analyzerIssueCache) {
+  public AnalysisPublisher(ProjectDefinition def, Settings settings, FileSystem fs,
+    AnalyzerMeasureCache measureCache,
+    AnalyzerIssueCache analyzerIssueCache) {
     this.def = def;
     this.settings = settings;
     this.fs = fs;
@@ -132,8 +134,9 @@ public final class AnalysisPublisher {
       for (Measure<?> measure : measureCache.byModule(def.getKey())) {
         jsonWriter.beginObject()
           .prop("metricKey", measure.metric().key());
-        if (measure.inputFile() != null) {
-          jsonWriter.prop("filePath", measure.inputFile().relativePath());
+        InputFile inputFile = measure.inputFile();
+        if (inputFile != null) {
+          jsonWriter.prop("filePath", inputFile.relativePath());
         }
         jsonWriter.prop("value", String.valueOf(measure.value()))
           .endObject();

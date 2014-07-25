@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.source;
+package org.sonar.batch.highlighting;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
@@ -26,6 +26,7 @@ import com.google.common.collect.Ordering;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -83,11 +84,11 @@ public class SyntaxHighlightingDataBuilder {
   }
 
   @VisibleForTesting
-  protected List<SyntaxHighlightingRule> getSortedRules() {
+  public List<SyntaxHighlightingRule> getSortedRules() {
     Ordering<SyntaxHighlightingRule> ruleOrdering = new Ordering<SyntaxHighlightingRule>() {
       @Override
       public int compare(@Nullable SyntaxHighlightingRule left,
-                         @Nullable SyntaxHighlightingRule right) {
+        @Nullable SyntaxHighlightingRule right) {
         int result;
         if (left != null && right != null) {
           result = left.getStartPosition() - right.getStartPosition();
@@ -100,6 +101,6 @@ public class SyntaxHighlightingDataBuilder {
       }
     };
 
-    return ruleOrdering.immutableSortedCopy(syntaxHighlightingRuleSet);
+    return ruleOrdering.sortedCopy(syntaxHighlightingRuleSet);
   }
 }

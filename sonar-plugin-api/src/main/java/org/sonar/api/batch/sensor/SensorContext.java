@@ -24,10 +24,12 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.MeasureBuilder;
+import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.config.Settings;
 
 import javax.annotation.CheckForNull;
@@ -107,5 +109,21 @@ public interface SensorContext {
    * </ul>
    */
   boolean addIssue(Issue issue);
+
+  // ------------ HIGHLIGHTING ------------
+
+  /**
+   * Builder to define highlighting of a file.
+   * @since 4.5
+   */
+  HighlightingBuilder highlightingBuilder(InputFile inputFile);
+
+  // ------------ SYMBOL REFERENCES ------------
+
+  /**
+   * Builder to define symbol references in a file.
+   * @since 4.5
+   */
+  SymbolTableBuilder symbolTableBuilder(InputFile inputFile);
 
 }

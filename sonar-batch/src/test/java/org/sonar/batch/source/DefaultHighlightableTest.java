@@ -22,12 +22,17 @@ package org.sonar.batch.source;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.component.Component;
+import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.source.SnapshotDataTypes;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultHighlightableTest {
 
@@ -36,7 +41,7 @@ public class DefaultHighlightableTest {
 
   @Test
   public void should_store_highlighting_rules() throws Exception {
-    DefaultHighlightable highlightablePerspective = new DefaultHighlightable(null, null);
+    DefaultHighlightable highlightablePerspective = new DefaultHighlightable(mock(Component.class), null);
     highlightablePerspective.newHighlighting().highlight(0, 10, "k").highlight(20, 30, "cppd");
 
     assertThat(highlightablePerspective.getHighlightingRules().getSortedRules()).hasSize(2);
@@ -55,6 +60,8 @@ public class DefaultHighlightableTest {
       .highlight(20, 30, "cppd")
       .done();
 
-    verify(cache).setStringData("myComponent", SnapshotDataTypes.SYNTAX_HIGHLIGHTING, "0,10,k;20,30,cppd;");
+    ArgumentCaptor<SyntaxHighlightingData> argCaptor = ArgumentCaptor.forClass(SyntaxHighlightingData.class);
+    verify(cache).setData(eq("myComponent"), eq(SnapshotDataTypes.SYNTAX_HIGHLIGHTING), argCaptor.capture());
+    assertThat(argCaptor.getValue().writeString()).isEqualTo("0,10,k;20,30,cppd;");
   }
 }

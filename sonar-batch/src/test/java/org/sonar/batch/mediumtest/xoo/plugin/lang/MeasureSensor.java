@@ -104,7 +104,7 @@ public class MeasureSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .name("Xoo Measure Analyzer")
+      .name("Xoo Measure Sensor")
       .provides(CoreMetrics.LINES)
       .workOnLanguages(Xoo.KEY)
       .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);

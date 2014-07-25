@@ -22,14 +22,26 @@ exports.initMessages = function () {
 
 
 exports.changeWorkingDirectory = function (dir) {
+  var commandLineArgs = require('system').args;
   // Since Casper has control, the invoked script is deep in the argument stack
-  var currentFile = require('system').args[4];
+  // commandLineArgs = casper/bin/bootstrap.js,--casper-path=.../casperjs,--cli,--test,[file(s) under test],[options]
+  var currentFile = commandLineArgs[4];
   var curFilePath = fs.absolute(currentFile).split(fs.separator);
   if (curFilePath.length > 1) {
     curFilePath.pop(); // PhantomJS does not have an equivalent path.baseName()-like method
     curFilePath.push(dir);
     fs.changeWorkingDirectory(curFilePath.join(fs.separator));
   }
+};
+
+
+exports.testName = function () {
+  var head = Array.prototype.slice.call(arguments, 0);
+  return function () {
+    var tail = Array.prototype.slice.call(arguments, 0),
+        body = head.concat(tail);
+    return body.join(' :: ');
+  };
 };
 
 
@@ -73,4 +85,13 @@ exports.setDefaultViewport = function () {
 
 exports.capture = function (fileName) {
   casper.capture(fileName, { top: 0, left: 0, width: WINDOW_WIDTH, height: WINDOW_HEIGHT });
+};
+
+
+exports.waitForElementCount = function (selector, count, callback) {
+  return casper.waitFor(function () {
+    return casper.evaluate(function (selector, count) {
+      return document.querySelectorAll(selector).length === count;
+    }, selector, count)
+  }, callback);
 };

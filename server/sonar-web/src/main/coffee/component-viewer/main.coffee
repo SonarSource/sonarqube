@@ -16,8 +16,6 @@ define [
   'component-viewer/source'
   'component-viewer/header'
   'component-viewer/utils'
-
-  'component-viewer/mockjax'
 ], (
   Backbone
   Marionette
@@ -352,8 +350,7 @@ define [
       $.when(@requestMeasures(@key, period?.get('key')), @requestIssuesPeriod(@key, period?.get('key')), @requestSCM(@key)).done =>
         if activeHeaderItem?
           @state.set 'activeHeaderItem', activeHeaderItem
-          @headerView.render()
-        else @filterBySCM()
+        @headerView.render()
 
 
     addTransition: (transition, options) ->
@@ -391,8 +388,10 @@ define [
 
 
     filterByLines: ->
+      @resetIssues()
       @showAllLines()
 
 
     filterByNcloc: ->
+      @resetIssues()
       @_filterByLines (line) -> line?.executable

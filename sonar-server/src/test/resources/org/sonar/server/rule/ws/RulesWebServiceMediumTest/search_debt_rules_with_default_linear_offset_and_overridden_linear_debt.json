@@ -1,0 +1,17 @@
+{"total": 1, "p": 1, "ps": 10, "rules": [
+  {
+    "key": "xoo:x1",
+    "debtChar": "RELIABILITY",
+    "debtCharName": "Reliability",
+    "debtSubChar": "SOFT_RELIABILITY",
+    "debtSubCharName": "Soft Reliability",
+    "debtRemFnType": "LINEAR",
+    "debtRemFnCoeff": "1h",
+    "debtOverloaded": true,
+    "defaultDebtChar": "RELIABILITY",
+    "defaultDebtSubChar": "HARD_RELIABILITY",
+    "defaultDebtRemFnType": "LINEAR_OFFSET",
+    "defaultDebtRemFnCoeff": "1h",
+    "defaultDebtRemFnOffset": "15min"
+  }
+]}

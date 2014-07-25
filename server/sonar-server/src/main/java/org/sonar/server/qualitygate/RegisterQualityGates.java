@@ -58,7 +58,7 @@ public class RegisterQualityGates implements Startable {
   private void createBuiltinQualityGate() {
     QualityGateDto builtin = qualityGates.create(BUILTIN_QUALITY_GATE);
     qualityGates.createCondition(builtin.getId(), CoreMetrics.BLOCKER_VIOLATIONS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", null);
-    qualityGates.createCondition(builtin.getId(), CoreMetrics.CRITICAL_VIOLATIONS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", null);
+    qualityGates.createCondition(builtin.getId(), CoreMetrics.CRITICAL_VIOLATIONS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", 3);
     qualityGates.createCondition(builtin.getId(), CoreMetrics.TEST_ERRORS_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", null);
     qualityGates.createCondition(builtin.getId(), CoreMetrics.TEST_FAILURES_KEY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "0", null);
     qualityGates.createCondition(builtin.getId(), CoreMetrics.NEW_COVERAGE_KEY, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "80", 3);
