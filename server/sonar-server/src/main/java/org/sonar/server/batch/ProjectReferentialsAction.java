@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.ProjectReferentials;
-import org.sonar.batch.protocol.input.QProfile;
 import org.sonar.core.UtcDateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -39,7 +38,11 @@ import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.plugins.MimeTypes;
+import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileFactory;
+import org.sonar.server.qualityprofile.QProfileLoader;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleService;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -54,12 +57,17 @@ public class ProjectReferentialsAction implements RequestHandler {
   private final DbClient dbClient;
   private final PropertiesDao propertiesDao;
   private final QProfileFactory qProfileFactory;
+  private final QProfileLoader qProfileLoader;
+  private final RuleService ruleService;
   private final Languages languages;
 
-  public ProjectReferentialsAction(DbClient dbClient, PropertiesDao propertiesDao, QProfileFactory qProfileFactory, Languages languages) {
+  public ProjectReferentialsAction(DbClient dbClient, PropertiesDao propertiesDao, QProfileFactory qProfileFactory, QProfileLoader qProfileLoader,
+    RuleService ruleService, Languages languages) {
     this.dbClient = dbClient;
     this.propertiesDao = propertiesDao;
     this.qProfileFactory = qProfileFactory;
+    this.qProfileLoader = qProfileLoader;
+    this.ruleService = ruleService;
     this.languages = languages;
   }
 
@@ -88,6 +96,7 @@ public class ProjectReferentialsAction implements RequestHandler {
       String projectKey = request.mandatoryParam(PARAM_KEY);
       addSettings(ref, projectKey, hasScanPerm, session);
       addProfiles(ref, projectKey, session);
+      addActiveRules(ref);
 
       response.stream().setMediaType(MimeTypes.JSON);
       IOUtils.write(ref.toJson(), response.stream().output());
@@ -127,9 +136,31 @@ public class ProjectReferentialsAction implements RequestHandler {
       QualityProfileDto qualityProfileDto = qProfileFactory.getByProjectAndLanguage(session, projectKey, languageKey);
       qualityProfileDto = qualityProfileDto != null ? qualityProfileDto : qProfileFactory.getDefault(session, languageKey);
       if (qualityProfileDto != null) {
-        QProfile profile = new QProfile(qualityProfileDto.getKey(), qualityProfileDto.getName(), qualityProfileDto.getLanguage(),
-          UtcDateUtils.parseDateTime(qualityProfileDto.getRulesUpdatedAt()));
-        ref.addQProfile(profile);
+        ref.addQProfile(new org.sonar.batch.protocol.input.QProfile(
+          qualityProfileDto.getKey(),
+          qualityProfileDto.getName(),
+          qualityProfileDto.getLanguage(),
+          UtcDateUtils.parseDateTime(qualityProfileDto.getRulesUpdatedAt())));
+      }
+    }
+  }
+
+  private void addActiveRules(ProjectReferentials ref) {
+    for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
+      for (ActiveRule activeRule : qProfileLoader.findActiveRulesByProfile(qProfile.key())) {
+        Rule rule = ruleService.getByKey(activeRule.key().ruleKey());
+        org.sonar.batch.protocol.input.ActiveRule inputActiveRule = new org.sonar.batch.protocol.input.ActiveRule(
+          activeRule.key().ruleKey().repository(),
+          activeRule.key().ruleKey().rule(),
+          rule.name(),
+          activeRule.severity(),
+          rule.internalKey(),
+          qProfile.language()
+          );
+        for (Map.Entry<String, String> entry : activeRule.params().entrySet()) {
+          inputActiveRule.addParam(entry.getKey(), entry.getValue());
+        }
+        ref.addActiveRule(inputActiveRule);
       }
     }
   }

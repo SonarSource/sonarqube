@@ -1,0 +1,25 @@
+{
+  "timestamp": 0,
+  "qprofilesByLanguage": {
+    "java": {
+      "key": "abcd",
+      "name": "Default",
+      "language": "java",
+      "rulesUpdatedAt": "Jan 14, 2014 1:00:00 PM"
+    }
+  },
+  "activeRules": [
+    {
+      "repositoryKey": "squid",
+      "ruleKey": "AvoidCycle",
+      "name": "Avoid Cycle",
+      "severity": "MINOR",
+      "internalKey": "squid-1",
+      "language": "java",
+      "params": {
+        "max" : "2"
+      }
+    }
+  ],
+  "settingsByModule": {}
+}
