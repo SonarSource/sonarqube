@@ -38,11 +38,11 @@ public class SensorWrapper implements org.sonar.api.batch.Sensor {
   private DefaultSensorDescriptor descriptor;
   private AnalyzerOptimizer optimizer;
 
-  public SensorWrapper(Sensor analyzer, SensorContext adaptor, AnalyzerOptimizer optimizer) {
-    this.analyzer = analyzer;
+  public SensorWrapper(Sensor newSensor, SensorContext adaptor, AnalyzerOptimizer optimizer) {
+    this.analyzer = newSensor;
     this.optimizer = optimizer;
     descriptor = new DefaultSensorDescriptor();
-    analyzer.describe(descriptor);
+    newSensor.describe(descriptor);
     this.adaptor = adaptor;
   }
 
@@ -64,5 +64,10 @@ public class SensorWrapper implements org.sonar.api.batch.Sensor {
   @Override
   public void analyse(Project module, org.sonar.api.batch.SensorContext context) {
     analyzer.execute(adaptor);
+  }
+
+  @Override
+  public String toString() {
+    return descriptor.name() + " (wrapped)";
   }
 }
