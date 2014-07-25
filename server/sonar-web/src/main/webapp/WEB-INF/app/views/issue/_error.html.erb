@@ -1,0 +1,6 @@
+<div class="error">
+  <% @errors.each do |msg| %>
+    <div><%= h (msg.text ? msg.text : Api::Utils.message(msg.l10nKey, :params => msg.l10nParams)) -%></div>
+  <% end %>
+  <%= link_to_function message('hide'), 'refreshIssue(this)' -%>
+</div>

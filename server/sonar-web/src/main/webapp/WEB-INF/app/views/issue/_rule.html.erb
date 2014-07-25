@@ -1,0 +1,25 @@
+<h1 class="marginbottom10"><%= h @rule.name() -%></h1>
+
+<div class="marginbottom10">
+  <% if @rule.htmlDescription.strip.start_with?('<p>') %>
+    <%= Internal.text.interpretMacros(@rule.htmlDescription) %>
+  <% else %>
+    <p><%= Internal.text.interpretMacros(@rule.htmlDescription) %></p>
+  <% end %>
+</div>
+
+<% if @rule.markdownNote() %>
+  <div class="marginbottom10">
+    <%= Api::Utils.markdown_to_html(@rule.markdownNote()) -%>
+  </div>
+<% end %>
+
+<p class="note">
+  <span class="spacer-right"><%= h @rule.key() -%></span>
+  <%= image_tag 'sep12.png', :class => 'spacer-right' -%>
+  <% if @characteristic && @sub_characteristic %>
+    <%= @characteristic.name -%>&nbsp;&gt;&nbsp;<%= @sub_characteristic.name -%>
+  <% else %>
+    <%= message 'issue.technical_debt_deleted' %>
+  <% end %>
+</p>

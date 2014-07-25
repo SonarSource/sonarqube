@@ -1,0 +1,25 @@
+<form action="">
+  <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
+  <input type="hidden" name="id" value="comment"/>
+  <table class="width100">
+    <tr>
+      <td style="vertical-align:top" colspan="2">
+        <textarea rows="4"
+                  name="text"
+                  style="width: 100%"
+                  autofocus="autofocus"
+                  onkeyup="if (this.value == null || this.value=='') $j('#submit-comment').attr('disabled', 'true'); else $j('#submit-comment').attr('disabled', null);"></textarea>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding-top: 5px">
+        <input type="submit" value="<%= message('issue.comment.submit') -%>" onclick="return submitIssueForm(this)" id="submit-comment" disabled="disabled"/>
+        &nbsp;<%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
+        <span class="loading hidden"></span>
+      </td>
+      <td align="right">
+        <%= render :partial => 'markdown/tips' -%>
+      </td>
+    </tr>
+  </table>
+</form>

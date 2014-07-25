@@ -1,0 +1,54 @@
+<%
+   manual_rules = Rule.manual_rules
+   is_admin = has_role?(:admin)
+   form_id = "create-issue-#{params[:component]}-#{params[:line]}"
+   rule_select_id = "#{form_id}-rules"
+%>
+<form action="" class="code-issue-create-form" id="<%= form_id -%>">
+  <%
+     if manual_rules.empty?
+  %>
+    <div class="warning" style="margin: 10px">
+
+      <% if is_admin %>
+        <%= message('issue.manual.no_rules.admin') -%>
+        &nbsp;<a href="<%= ApplicationController.root_context -%>/manual_rules/index"><%= message('manage') -%></a>
+      <% else %>
+        <%= message('issue.manual.no_rules.non_admin') -%>
+      <% end %>
+
+      &nbsp;<%= link_to_function message('cancel'), 'closeCreateIssueForm(this)' -%>
+    </div>
+
+  <% else %>
+
+    <input type="hidden" name="line" value="<%= params[:line] -%>"/>
+    <input type="hidden" name="component" value="<%= params[:component] -%>"/>
+
+    <div class="code-issue">
+      <div class="code-issue-name">
+        <%= dropdown_tag 'rule',
+                         options_for_select([[]].concat(manual_rules.map { |rule| [rule.name, rule.key] })),
+                         {:show_search_box => true, :placeholder => 'Select a Rule'},
+                         {:html_id => rule_select_id} -%>
+      </div>
+      <div class="code-issue-msg">
+        <table class="width100">
+          <tr>
+            <td>
+              <textarea rows="4" name="message" class="width100 marginbottom5"></textarea>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input type="submit" value="Create" onclick="return submitCreateIssueForm(this);"> &nbsp;
+              <%= link_to_function message('cancel'), 'closeCreateIssueForm(this)' -%> &nbsp;
+              <span class="loading hidden"></span>
+            </td>
+          </tr>
+        </table>
+        <div class="code-issue-errors hidden"></div>
+      </div>
+    </div>
+  <% end %>
+</form>

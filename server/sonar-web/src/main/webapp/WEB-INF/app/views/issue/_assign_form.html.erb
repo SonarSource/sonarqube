@@ -1,0 +1,23 @@
+<% user_select_box_id = "assignee-#{params[:issue]}" %>
+<form action="">
+  <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
+  <input type="hidden" name="id" value="assign"/>
+  <table class="width100">
+    <tr>
+      <td style="vertical-align:top">
+        <%
+           choices = {}
+           choices[current_user.login] = escape_javascript(message('assigned_to_me')) if !@issue.assignee || @issue.assignee != current_user.login
+           choices[''] = escape_javascript(message('unassigned')) if @issue.assignee
+        %>
+        <%=
+            user_select_tag('assignee', :html_id => user_select_box_id, :open => true, :include_choices => choices)
+        -%>
+        <input type="button" value="<%= message('issue.assign.submit') -%>" onclick="submitIssueForm(this)">
+        &nbsp;
+        <%= link_to_function message('cancel'), 'closeIssueForm(this)', :class => 'action' -%>&nbsp;
+        <span class="loading hidden"></span>
+      </td>
+    </tr>
+  </table>
+</form>

@@ -1,0 +1,19 @@
+<form action="">
+  <input type="hidden" name="issue" value="<%= params[:issue] -%>"/>
+  <input type="hidden" name="id" value="severity"/>
+  <table class="width100">
+    <tr>
+      <td style="vertical-align:top">
+        <select name="severity" class="withIcons" id="severity" autofocus="autofocus">
+          <% Severity::KEYS.each do |severity| %>
+            <option class="sev_<%= severity -%>" value="<%= severity -%>" <%= 'selected' if severity==Severity::MAJOR -%>><%= message("severity.#{severity}") -%></option>
+          <% end %>
+        </select>
+
+        <input type="submit" value="<%= message('issue.set_severity.submit') -%>" onclick="return submitIssueForm(this)">
+        &nbsp;<%= link_to_function message('cancel'), 'closeIssueForm(this)' -%>&nbsp;
+        <span class="loading hidden"></span>
+      </td>
+    </tr>
+  </table>
+</form>

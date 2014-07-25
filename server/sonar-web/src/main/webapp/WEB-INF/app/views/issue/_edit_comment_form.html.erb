@@ -1,0 +1,26 @@
+<form action="">
+  <input type="hidden" name="key" value="<%= @comment.key -%>"/>
+  <table class="width100">
+    <tr>
+      <td style="vertical-align:top" colspan="2">
+        <textarea
+          rows="4"
+          name="text"
+          style="width: 100%"
+          autofocus="autofocus"
+          onkeyup="if (this.value == null || this.value=='') $j('#submit-comment').attr('disabled', 'true'); else $j('#submit-comment').attr('disabled', null);"><%= @comment.markdownText -%></textarea>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding-top: 5px">
+        <input type="submit" value="<%= message('save') -%>"
+               onclick="doEditIssueComment(this);return false" id="submit-comment">
+        &nbsp;<%= link_to_function message('cancel'), 'refreshIssue(this)' -%>&nbsp;
+        <span class="loading hidden"></span>
+      </td>
+      <td align="right">
+        <%= render :partial => 'markdown/tips' -%>
+      </td>
+    </tr>
+  </table>
+</form>
