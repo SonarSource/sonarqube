@@ -22,6 +22,7 @@ package org.sonar.server.platform;
 import com.google.common.collect.Lists;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
@@ -39,6 +40,8 @@ import java.util.regex.Pattern;
 public class ServerIdGenerator {
 
   private static final Pattern ORGANIZATION_PATTERN = Pattern.compile("[a-zA-Z0-9]+[a-zA-Z0-9 ]*");
+
+  private static final Logger LOG = LoggerFactory.getLogger(ServerIdGenerator.class);
 
   /**
    * Increment this version each time the algorithm is changed. Do not exceed 9.
@@ -67,6 +70,7 @@ public class ServerIdGenerator {
         id = toId(organisation, inetAddress);
       }
     }
+    LOG.info("Generated new server ID=" + id);
     return id;
   }
 
