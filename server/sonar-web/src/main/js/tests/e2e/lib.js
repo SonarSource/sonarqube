@@ -22,8 +22,10 @@ exports.initMessages = function () {
 
 
 exports.changeWorkingDirectory = function (dir) {
+  var commandLineArgs = require('system').args;
   // Since Casper has control, the invoked script is deep in the argument stack
-  var currentFile = require('system').args[4];
+  // commandLineArgs = casper/bin/bootstrap.js,--casper-path=.../casperjs,--cli,--test,[file(s) under test],[options]
+  var currentFile = commandLineArgs[4];
   var curFilePath = fs.absolute(currentFile).split(fs.separator);
   if (curFilePath.length > 1) {
     curFilePath.pop(); // PhantomJS does not have an equivalent path.baseName()-like method
