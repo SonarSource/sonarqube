@@ -20,7 +20,10 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableSet;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
@@ -220,7 +223,6 @@ public class RulesWebServiceMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed")
   public void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() throws Exception {
     insertDebtCharacteristics(session);
 
@@ -245,7 +247,6 @@ public class RulesWebServiceMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed")
   public void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() throws Exception {
     insertDebtCharacteristics(session);
 
