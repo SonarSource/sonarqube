@@ -124,8 +124,12 @@ public class App implements ProcessMXBean {
       logger.info("Shutting down server");
       monitor.interrupt();
       monitor = null;
-      elasticsearch.terminate();
-      server.terminate();
+      if (elasticsearch != null) {
+        elasticsearch.terminate();
+      }
+      if (server != null) {
+        server.terminate();
+      }
     }
   }
 
