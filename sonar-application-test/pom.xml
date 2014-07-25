@@ -20,6 +20,13 @@
   </properties>
 
   <dependencies>
+    <!-- Force dependency on sonar-application -->
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-application</artifactId>
+      <version>${sonar.buildVersion}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-ws-client</artifactId>
