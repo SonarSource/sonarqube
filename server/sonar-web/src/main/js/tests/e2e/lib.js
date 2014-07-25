@@ -84,3 +84,12 @@ exports.setDefaultViewport = function () {
 exports.capture = function (fileName) {
   casper.capture(fileName, { top: 0, left: 0, width: WINDOW_WIDTH, height: WINDOW_HEIGHT });
 };
+
+
+exports.waitForElementCount = function (selector, count, callback) {
+  return casper.waitFor(function () {
+    return casper.evaluate(function (selector, count) {
+      return document.querySelectorAll(selector).length === count;
+    }, selector, count)
+  }, callback);
+};

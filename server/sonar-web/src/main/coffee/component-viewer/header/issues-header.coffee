@@ -63,62 +63,74 @@ define [
 
 
     filterByCurrentIssue: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByCurrentIssue'
       @state.set 'activeHeaderItem', '.js-filter-current-issues'
 
 
     filterByAllIssues: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByAllIssues'
       @state.set 'activeHeaderItem', '.js-filter-all-issues'
 
 
     filterByFixedIssues: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByFixedIssues'
       @state.set 'activeHeaderItem', '.js-filter-fixed-issues'
 
 
     filterByUnresolvedIssues: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByUnresolvedIssues'
       @state.set 'activeHeaderItem', '.js-filter-unresolved-issues'
 
 
     filterByFalsePositiveIssues: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByFalsePositiveIssues'
       @state.set 'activeHeaderItem', '.js-filter-false-positive-issues'
 
 
     filterByOpenIssues: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByOpenIssues'
       @state.set 'activeHeaderItem', '.js-filter-open-issues'
 
 
     filterByRule: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       rule = $(e.currentTarget).data 'rule'
       @header.filterLines e, 'filterByRule', rule
       @state.set 'activeHeaderItem', ".js-filter-rule[data-rule='#{rule}']"
 
 
     filterByBlockerIssues: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByBlockerIssues'
       @state.set 'activeHeaderItem', '.js-filter-BLOCKER-issues'
 
 
     filterByCriticalIssues: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByCriticalIssues'
       @state.set 'activeHeaderItem', '.js-filter-CRITICAL-issues'
 
 
     filterByMajorIssues: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByMajorIssues'
       @state.set 'activeHeaderItem', '.js-filter-MAJOR-issues'
 
 
     filterByMinorIssues: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByMinorIssues'
       @state.set 'activeHeaderItem', '.js-filter-MINOR-issues'
 
 
     filterByInfoIssues: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByInfoIssues'
       @state.set 'activeHeaderItem', '.js-filter-INFO-issues'
 

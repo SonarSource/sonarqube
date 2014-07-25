@@ -48,61 +48,73 @@ define [
 
 
     filterByLinesToCover: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByLinesToCover'
       @state.set 'activeHeaderItem', '.js-filter-lines-to-cover'
 
 
     filterByUncoveredLines: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByUncoveredLines'
       @state.set 'activeHeaderItem', '.js-filter-uncovered-lines'
 
 
     filterByBranchesToCover: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByBranchesToCover'
       @state.set 'activeHeaderItem', '.js-filter-branches-to-cover'
 
 
     filterByUncoveredBranches: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByUncoveredBranches'
       @state.set 'activeHeaderItem', '.js-filter-uncovered-branches'
 
 
     filterByLinesToCoverIT: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByLinesToCoverIT'
       @state.set 'activeHeaderItem', '.js-filter-lines-to-cover-it'
 
 
     filterByUncoveredLinesIT: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByUncoveredLinesIT'
       @state.set 'activeHeaderItem', '.js-filter-uncovered-lines-it'
 
 
     filterByBranchesToCoverIT: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByBranchesToCoverIT'
       @state.set 'activeHeaderItem', '.js-filter-branches-to-cover-it'
 
 
     filterByUncoveredBranchesIT: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByUncoveredBranchesIT'
       @state.set 'activeHeaderItem', '.js-filter-uncovered-branches-it'
 
 
     filterByLinesToCoverOverall: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByLinesToCoverOverall'
       @state.set 'activeHeaderItem', '.js-filter-lines-to-cover-overall'
 
 
     filterByUncoveredLinesOverall: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByUncoveredLinesOverall'
       @state.set 'activeHeaderItem', '.js-filter-uncovered-lines-overall'
 
 
     filterByBranchesToCoverOverall: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByBranchesToCoverOverall'
       @state.set 'activeHeaderItem', '.js-filter-branches-to-cover-overall'
 
 
     filterByUncoveredBranchesOverall: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByUncoveredBranchesOverall'
       @state.set 'activeHeaderItem', '.js-filter-uncovered-branches-overall'
 

@@ -19,6 +19,7 @@ define [
 
     events:
       'click .js-scm-time-changes': 'scmTimeChanges'
+      'click .js-filter-modified-lines': 'filterBySCM'
 
 
     scmTimeChanges: (e) ->
@@ -29,7 +30,13 @@ define [
         main: @options.main
         bottom: true
       popup.render()
-      popup.on 'change', (period) => @main.enablePeriod period
+      popup.on 'change', (period) => @main.enablePeriod period, '.js-filter-modified-lines'
+
+
+    filterBySCM: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
+      @header.filterLines e, 'filterBySCM'
+      @state.set 'activeHeaderItem', '.js-filter-modified-lines'
 
 
     serializeData: ->

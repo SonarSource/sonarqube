@@ -8,6 +8,8 @@ define [
   BaseHeaderView
 ) ->
 
+  $ = jQuery
+
 
   class extends BaseHeaderView
     template: Templates['cw-duplications-header']
@@ -18,5 +20,6 @@ define [
 
 
     filterByDuplications: (e) ->
+      return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByDuplications'
       @state.set 'activeHeaderItem', '.js-filter-duplications'

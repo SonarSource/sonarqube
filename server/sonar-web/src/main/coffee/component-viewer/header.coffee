@@ -155,16 +155,14 @@ define [
           main: @options.main, state: @state, component: @component, settings: @settings, source: @model, header: @
         @ui.expandedBar.addClass 'active'
         @ui.expandLinks.filter("[data-scope=#{scope}]").addClass 'active'
-        activeHeaderItem = @state.get 'activeHeaderItem'
-        if activeHeaderItem
-          @$(activeHeaderItem).addClass 'active'
         @options.main.fitIntoElement()
 
 
     enableBarItem: (item, silent = false) ->
       $item = @$(item)
+      console.log item, $item
       if $item.length > 0
-        if silent then @$(item).addClass('active') else  @$(item).click()
+        if silent then @$(item).addClass('active') else @$(item).click()
       else
         @options.main.hideAllLines()
 
@@ -204,6 +202,14 @@ define [
 
     showTimeChangesSpinner: ->
       @$('.component-viewer-header-time-changes').html '<i class="spinner spinner-margin"></i>'
+
+
+    unsetFilter: ->
+      @options.main.resetIssues()
+      @options.main.showAllLines()
+      @state.unset 'activeHeaderItem'
+      @$('.item.active').removeClass 'active'
+      @render()
 
 
     filterLines: (e, methodName, extra) ->
