@@ -19,7 +19,8 @@
       {
         "key": "regex",
         "desc": "Reg ex",
-        "defaultValue": "a.*"
+        "defaultValue": "a.*",
+        "type": "STRING"
       }
     ]
   }

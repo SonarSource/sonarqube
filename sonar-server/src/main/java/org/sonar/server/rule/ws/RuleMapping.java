@@ -159,6 +159,7 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
             .beginObject()
             .prop("key", param.key())
             .prop("desc", param.description())
+            .prop("type", param.type().type())
             .prop("defaultValue", param.defaultValue())
             .endObject();
         }
