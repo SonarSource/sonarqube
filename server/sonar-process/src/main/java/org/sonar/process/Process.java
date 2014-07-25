@@ -19,7 +19,6 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +29,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -70,32 +64,7 @@ public abstract class Process implements ProcessMXBean {
     }
   };
 
-  public Process(String[] args) {
-    // loading arguments from file and system.
-    if (args.length < 1) {
-      throw new IllegalStateException("Process is missing argument!");
-    }
-
-    File propertyFile = new File(args[0]);
-    if (!propertyFile.exists()) {
-      throw new IllegalStateException("Property file '" + args[0] + "' does not exist! ");
-    }
-
-    Properties properties = new Properties();
-    FileReader reader = null;
-    try {
-      reader = new FileReader(propertyFile);
-      properties.load(reader);
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not read properties from file '" + args[0] + "'", e);
-    } finally {
-      IOUtils.closeQuietly(reader);
-    }
-    props = new Props(properties);
-    init();
-  }
-
-  public Process(Props props) {
+  protected Process(Props props) {
     this.props = props;
     init();
   }

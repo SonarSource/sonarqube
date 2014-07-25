@@ -25,6 +25,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.Process;
 import org.sonar.process.Props;
 import org.sonar.search.script.ListUpdate;
@@ -39,11 +40,7 @@ public class ElasticSearch extends Process {
 
   private Node node;
 
-  public ElasticSearch(String... args) {
-    super(args);
-  }
-
-  public ElasticSearch(Props props) {
+  ElasticSearch(Props props) {
     super(props);
   }
 
@@ -56,7 +53,6 @@ public class ElasticSearch extends Process {
         .get()
         .getStatus() != ClusterHealthStatus.RED);
     } catch (Exception e) {
-      //LOGGER.warn("ES is not ready yet.", e);
       return false;
     }
   }
@@ -177,8 +173,7 @@ public class ElasticSearch extends Process {
   }
 
   public static void main(String... args) throws InterruptedException {
-    final ElasticSearch elasticSearch = new ElasticSearch(args);
-    elasticSearch.start();
-    LOGGER.info("ElasticSearch is done.");
+    Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
+    new ElasticSearch(props).start();
   }
 }

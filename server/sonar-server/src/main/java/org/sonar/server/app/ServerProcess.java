@@ -19,13 +19,15 @@
  */
 package org.sonar.server.app;
 
+import org.sonar.process.ConfigurationUtils;
+import org.sonar.process.Props;
+
 public class ServerProcess extends org.sonar.process.Process {
 
   private final EmbeddedTomcat tomcat;
 
-  public ServerProcess(String[] args) {
-    super(args);
-    Logging.init(props);
+  ServerProcess(Props props) {
+    super(props);
     this.tomcat = new EmbeddedTomcat(props);
   }
 
@@ -45,7 +47,9 @@ public class ServerProcess extends org.sonar.process.Process {
   }
 
   public static void main(String[] args) {
-    new ServerProcess(args).start();
+    Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
+    Logging.init(props);
+    new ServerProcess(props).start();
     LOGGER.info("ServerProcess is done");
   }
 }
