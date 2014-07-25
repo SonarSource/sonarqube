@@ -27,6 +27,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
+import org.sonar.api.batch.sensor.duplication.TokenBuilder;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
@@ -49,9 +51,14 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.batch.duplication.BlockCache;
+import org.sonar.batch.duplication.DefaultDuplicationBuilder;
+import org.sonar.batch.duplication.DefaultTokenBuilder;
+import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
+import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 
 import java.io.Serializable;
 
@@ -61,17 +68,20 @@ import java.io.Serializable;
  */
 public class SensorContextAdaptor implements SensorContext {
 
-  private org.sonar.api.batch.SensorContext sensorContext;
-  private MetricFinder metricFinder;
-  private Project project;
-  private ResourcePerspectives perspectives;
-  private Settings settings;
-  private FileSystem fs;
-  private ActiveRules activeRules;
-  private ComponentDataCache componentDataCache;
+  private final org.sonar.api.batch.SensorContext sensorContext;
+  private final MetricFinder metricFinder;
+  private final Project project;
+  private final ResourcePerspectives perspectives;
+  private final Settings settings;
+  private final FileSystem fs;
+  private final ActiveRules activeRules;
+  private final ComponentDataCache componentDataCache;
+  private final BlockCache blockCache;
+  private final DuplicationCache duplicationCache;
 
   public SensorContextAdaptor(org.sonar.api.batch.SensorContext sensorContext, MetricFinder metricFinder, Project project, ResourcePerspectives perspectives,
-    Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache) {
+    Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache, BlockCache blockCache,
+    DuplicationCache duplicationCache) {
     this.sensorContext = sensorContext;
     this.metricFinder = metricFinder;
     this.project = project;
@@ -80,6 +90,8 @@ public class SensorContextAdaptor implements SensorContext {
     this.fs = fs;
     this.activeRules = activeRules;
     this.componentDataCache = componentDataCache;
+    this.blockCache = blockCache;
+    this.duplicationCache = duplicationCache;
   }
 
   @Override
@@ -252,6 +264,35 @@ public class SensorContextAdaptor implements SensorContext {
   @Override
   public SymbolTableBuilder symbolTableBuilder(InputFile inputFile) {
     return new DefaultSymbolTableBuilder(((DefaultInputFile) inputFile).key(), componentDataCache);
+  }
+
+  @Override
+  public TokenBuilder tokenBuilder(InputFile inputFile) {
+    PmdBlockChunker blockChunker = new PmdBlockChunker(getBlockSize(inputFile.language()));
+    return new DefaultTokenBuilder(inputFile, blockCache, blockChunker);
+  }
+
+  @Override
+  public DuplicationBuilder duplicationBuilder(InputFile inputFile) {
+    return new DefaultDuplicationBuilder(inputFile, duplicationCache);
+  }
+
+  private int getBlockSize(String languageKey) {
+    int blockSize = settings.getInt("sonar.cpd." + languageKey + ".minimumLines");
+    if (blockSize == 0) {
+      blockSize = getDefaultBlockSize(languageKey);
+    }
+    return blockSize;
+  }
+
+  private static int getDefaultBlockSize(String languageKey) {
+    if ("cobol".equals(languageKey)) {
+      return 30;
+    } else if ("abap".equals(languageKey) || "natur".equals(languageKey)) {
+      return 20;
+    } else {
+      return 10;
+    }
   }
 
 }

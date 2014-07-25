@@ -19,10 +19,10 @@
  */
 package org.sonar.batch.scan2;
 
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-
 import com.google.common.base.Preconditions;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.Caches;
@@ -35,7 +35,8 @@ public class AnalyzerMeasureCache implements BatchComponent {
   // project key -> component key -> metric key -> measure
   private final Cache<DefaultMeasure> cache;
 
-  public AnalyzerMeasureCache(Caches caches) {
+  public AnalyzerMeasureCache(Caches caches, MetricFinder metricFinder) {
+    caches.registerValueCoder(DefaultMeasure.class, new DefaultMeasureValueCoder(metricFinder));
     cache = caches.createCache("measures");
   }
 

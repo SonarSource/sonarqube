@@ -42,6 +42,8 @@ import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.components.PeriodsDefinition;
 import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
+import org.sonar.batch.duplication.BlockCache;
+import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.ComponentDataPersister;
@@ -193,6 +195,10 @@ public class ProjectScanContainer extends ComponentContainer {
       // Rules
       new RulesProvider(),
       new DebtModelProvider(),
+
+      // Duplications
+      BlockCache.class,
+      DuplicationCache.class,
 
       ProjectSettings.class);
   }

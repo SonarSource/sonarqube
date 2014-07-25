@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.xoo.plugin.rule;
+package org.sonar.xoo.rule;
 
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -25,8 +25,8 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
-import org.sonar.batch.mediumtest.xoo.plugin.base.XooConstants;
+import org.sonar.xoo.Xoo;
+import org.sonar.xoo.XooConstants;
 
 public class OneIssueOnDirPerFileSensor implements Sensor {
 
@@ -37,6 +37,7 @@ public class OneIssueOnDirPerFileSensor implements Sensor {
     descriptor
       .name("One Issue On Dir Per File")
       .workOnLanguages(Xoo.KEY)
+      .createIssuesForRuleRepositories(XooConstants.REPOSITORY_KEY)
       .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);
   }
 

@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.duplication.BlockCache;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -33,15 +34,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class SonarBridgeEngineTest {
+public class DefaultCpdEngineTest {
 
-  private SonarBridgeEngine engine;
+  private DefaultCpdEngine engine;
   private Settings settings;
 
   @Before
   public void init() {
     settings = new Settings();
-    engine = new SonarBridgeEngine(null, null, null, settings);
+    engine = new DefaultCpdEngine(null, null, null, settings, mock(BlockCache.class));
   }
 
   @Test
@@ -61,53 +62,46 @@ public class SonarBridgeEngineTest {
 
   @Test
   public void shouldReturnDefaultBlockSize() {
-    assertThat(SonarBridgeEngine.getDefaultBlockSize("cobol")).isEqualTo(30);
-    assertThat(SonarBridgeEngine.getDefaultBlockSize("natur")).isEqualTo(20);
-    assertThat(SonarBridgeEngine.getDefaultBlockSize("abap")).isEqualTo(20);
-    assertThat(SonarBridgeEngine.getDefaultBlockSize("other")).isEqualTo(10);
+    assertThat(DefaultCpdEngine.getDefaultBlockSize("cobol")).isEqualTo(30);
+    assertThat(DefaultCpdEngine.getDefaultBlockSize("natur")).isEqualTo(20);
+    assertThat(DefaultCpdEngine.getDefaultBlockSize("abap")).isEqualTo(20);
+    assertThat(DefaultCpdEngine.getDefaultBlockSize("other")).isEqualTo(10);
   }
 
   @Test
   public void defaultBlockSize() {
-    Project project = newProject("foo");
 
-    assertThat(engine.getBlockSize(project, "java")).isEqualTo(10);
+    assertThat(engine.getBlockSize("java")).isEqualTo(10);
   }
 
   @Test
   public void blockSizeForCobol() {
-    Project project = newProject("foo");
     settings.setProperty("sonar.cpd.cobol.minimumLines", "42");
 
-    assertThat(engine.getBlockSize(project, "cobol")).isEqualTo(42);
+    assertThat(engine.getBlockSize("cobol")).isEqualTo(42);
   }
 
   @Test
   public void defaultMinimumTokens() {
-    Project project = newProject("foo");
-
-    assertThat(engine.getMinimumTokens(project, "java")).isEqualTo(CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE);
+    assertThat(engine.getMinimumTokens("java")).isEqualTo(CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE);
   }
 
   @Test
   public void generalMinimumTokens() {
-    Project project = newProject("foo");
     settings.setProperty("sonar.cpd.minimumTokens", 33);
 
-    assertThat(engine.getMinimumTokens(project, "java")).isEqualTo(33);
+    assertThat(engine.getMinimumTokens("java")).isEqualTo(33);
   }
 
   @Test
   public void minimumTokensByLanguage() {
-    Project javaProject = newProject("foo");
     settings.setProperty("sonar.cpd.java.minimumTokens", "42");
     settings.setProperty("sonar.cpd.php.minimumTokens", "33");
-    assertThat(engine.getMinimumTokens(javaProject, "java")).isEqualTo(42);
+    assertThat(engine.getMinimumTokens("java")).isEqualTo(42);
 
-    Project phpProject = newProject("foo");
     settings.setProperty("sonar.cpd.java.minimumTokens", "42");
     settings.setProperty("sonar.cpd.php.minimumTokens", "33");
-    assertThat(engine.getMinimumTokens(phpProject, "php")).isEqualTo(33);
+    assertThat(engine.getMinimumTokens("php")).isEqualTo(33);
   }
 
   private static Project newProject(String key) {

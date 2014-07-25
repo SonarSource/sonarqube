@@ -344,10 +344,10 @@ public interface CoreProperties {
   /**
    * @since 2.11
    */
-  String CPD_CROSS_RPOJECT = "sonar.cpd.cross_project";
+  String CPD_CROSS_PROJECT = "sonar.cpd.cross_project";
 
   /**
-   * @see #CPD_CROSS_RPOJECT
+   * @see #CPD_CROSS_PROJECT
    * @since 2.11
    */
   boolean CPD_CROSS_RPOJECT_DEFAULT_VALUE = false;

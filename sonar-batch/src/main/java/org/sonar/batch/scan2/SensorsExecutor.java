@@ -53,7 +53,7 @@ public class SensorsExecutor implements BatchComponent {
         continue;
       }
 
-      LOG.info("Execute analyzer: " + descriptor.name());
+      LOG.info("Execute sensor: " + descriptor.name());
 
       executeSensor(context, analyzer);
     }

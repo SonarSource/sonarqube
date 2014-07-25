@@ -17,24 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.xoo.plugin.base;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.duplication;
 
-import org.sonar.api.resources.AbstractLanguage;
-
-public class Xoo extends AbstractLanguage {
-
-  public static final String KEY = "xoo";
-  public static final String NAME = "Xoo";
-
-  public Xoo() {
-    super(KEY, NAME);
-  }
-
-  /**
-   * ${@inheritDoc}
-   */
-  public String[] getFileSuffixes() {
-    return XooConstants.FILE_SUFFIXES;
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

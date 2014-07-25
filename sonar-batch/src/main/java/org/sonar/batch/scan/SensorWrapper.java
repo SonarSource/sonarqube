@@ -33,17 +33,21 @@ import java.util.List;
 
 public class SensorWrapper implements org.sonar.api.batch.Sensor {
 
-  private Sensor analyzer;
+  private Sensor wrappedSensor;
   private SensorContext adaptor;
   private DefaultSensorDescriptor descriptor;
   private AnalyzerOptimizer optimizer;
 
   public SensorWrapper(Sensor newSensor, SensorContext adaptor, AnalyzerOptimizer optimizer) {
-    this.analyzer = newSensor;
+    this.wrappedSensor = newSensor;
     this.optimizer = optimizer;
     descriptor = new DefaultSensorDescriptor();
     newSensor.describe(descriptor);
     this.adaptor = adaptor;
+  }
+
+  public Sensor wrappedSensor() {
+    return wrappedSensor;
   }
 
   @DependedUpon
@@ -63,7 +67,7 @@ public class SensorWrapper implements org.sonar.api.batch.Sensor {
 
   @Override
   public void analyse(Project module, org.sonar.api.batch.SensorContext context) {
-    analyzer.execute(adaptor);
+    wrappedSensor.execute(adaptor);
   }
 
   @Override

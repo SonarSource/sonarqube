@@ -50,8 +50,9 @@ public class DeprecatedDefaultInputFile extends DefaultInputFile implements org.
     return new File(basedir);
   }
 
-  public void setBasedir(File basedir) {
+  public DeprecatedDefaultInputFile setBasedir(File basedir) {
     this.basedir = PathUtils.sanitize(basedir.getAbsolutePath());
+    return this;
   }
 
   /**

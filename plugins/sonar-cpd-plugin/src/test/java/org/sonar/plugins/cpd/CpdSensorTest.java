@@ -25,6 +25,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
+import org.sonar.batch.duplication.BlockCache;
 import org.sonar.plugins.cpd.index.IndexFactory;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -32,16 +33,16 @@ import static org.mockito.Mockito.mock;
 
 public class CpdSensorTest {
 
-  SonarEngine sonarEngine;
-  SonarBridgeEngine sonarBridgeEngine;
+  JavaCpdEngine sonarEngine;
+  DefaultCpdEngine sonarBridgeEngine;
   CpdSensor sensor;
   Settings settings;
 
   @Before
   public void setUp() {
     IndexFactory indexFactory = mock(IndexFactory.class);
-    sonarEngine = new SonarEngine(indexFactory, null, null);
-    sonarBridgeEngine = new SonarBridgeEngine(indexFactory, null, null);
+    sonarEngine = new JavaCpdEngine(indexFactory, null, null);
+    sonarBridgeEngine = new DefaultCpdEngine(indexFactory, new CpdMappings(), null, null, mock(BlockCache.class));
     settings = new Settings(new PropertyDefinitions(CpdPlugin.class));
 
     DefaultFileSystem fs = new DefaultFileSystem();

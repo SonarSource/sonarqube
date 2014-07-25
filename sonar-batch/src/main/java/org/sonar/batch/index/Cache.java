@@ -28,7 +28,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.annotation.CheckForNull;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -38,7 +37,7 @@ import java.util.Set;
  * This cache is not thread-safe, due to direct usage of {@link com.persistit.Exchange}
  * </p>
  */
-public class Cache<V extends Serializable> {
+public class Cache<V> {
 
   private final String name;
   private final Exchange exchange;
@@ -383,7 +382,7 @@ public class Cache<V extends Serializable> {
   // LAZY ITERATORS AND ITERABLES
   //
 
-  private static class ValueIterable<T extends Serializable> implements Iterable<T> {
+  private static class ValueIterable<T> implements Iterable<T> {
     private final Iterator<T> iterator;
 
     private ValueIterable(Exchange exchange, KeyFilter keyFilter) {
@@ -396,7 +395,7 @@ public class Cache<V extends Serializable> {
     }
   }
 
-  private static class ValueIterator<T extends Serializable> implements Iterator<T> {
+  private static class ValueIterator<T> implements Iterator<T> {
     private final Exchange exchange;
     private final KeyFilter keyFilter;
 
@@ -434,7 +433,7 @@ public class Cache<V extends Serializable> {
     }
   }
 
-  private static class EntryIterable<T extends Serializable> implements Iterable<Entry<T>> {
+  private static class EntryIterable<T> implements Iterable<Entry<T>> {
     private final EntryIterator<T> it;
 
     private EntryIterable(Exchange exchange, KeyFilter keyFilter) {
@@ -447,7 +446,7 @@ public class Cache<V extends Serializable> {
     }
   }
 
-  private static class EntryIterator<T extends Serializable> implements Iterator<Entry<T>> {
+  private static class EntryIterator<T> implements Iterator<Entry<T>> {
     private final Exchange exchange;
     private final KeyFilter keyFilter;
 
@@ -491,7 +490,7 @@ public class Cache<V extends Serializable> {
     }
   }
 
-  public static class Entry<V extends Serializable> {
+  public static class Entry<V> {
     private final Object[] key;
     private final V value;
 

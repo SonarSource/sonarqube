@@ -41,8 +41,11 @@ import org.sonar.api.resources.Languages;
 import org.sonar.batch.bootstrap.PluginsReferential;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.duplication.DuplicationCache;
+import org.sonar.batch.duplication.DuplicationGroup;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.highlighting.SyntaxHighlightingRule;
+import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.batch.protocol.input.GlobalReferentials;
@@ -222,6 +225,7 @@ public class BatchMediumTester {
 
     private List<Issue> issues = new ArrayList<Issue>();
     private List<Measure> measures = new ArrayList<Measure>();
+    private Map<String, List<DuplicationGroup>> duplications = new HashMap<String, List<DuplicationGroup>>();
     private List<InputFile> inputFiles = new ArrayList<InputFile>();
     private List<InputDir> inputDirs = new ArrayList<InputDir>();
     private Map<InputFile, SyntaxHighlightingData> highlightingPerFile = new HashMap<InputFile, SyntaxHighlightingData>();
@@ -259,6 +263,12 @@ public class BatchMediumTester {
         }
       }
 
+      DuplicationCache duplicationCache = container.getComponentByType(DuplicationCache.class);
+      for (Entry<ArrayList<DuplicationGroup>> entry : duplicationCache.entries()) {
+        String effectiveKey = entry.key()[0].toString();
+        duplications.put(effectiveKey, entry.value());
+      }
+
     }
 
     public List<Issue> issues() {
@@ -275,6 +285,10 @@ public class BatchMediumTester {
 
     public List<InputDir> inputDirs() {
       return inputDirs;
+    }
+
+    public List<DuplicationGroup> duplicationsFor(InputFile inputFile) {
+      return duplications.get(((DefaultInputFile) inputFile).key());
     }
 
     /**

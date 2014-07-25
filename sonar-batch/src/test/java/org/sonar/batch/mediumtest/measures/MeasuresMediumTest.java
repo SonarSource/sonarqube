@@ -30,7 +30,7 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
-import org.sonar.batch.mediumtest.xoo.plugin.XooPlugin;
+import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
 import java.io.IOException;

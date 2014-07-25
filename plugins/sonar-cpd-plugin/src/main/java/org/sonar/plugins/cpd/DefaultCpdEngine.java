@@ -27,22 +27,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.CpdMapping;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.duplication.BlockCache;
 import org.sonar.duplications.DuplicationPredicates;
 import org.sonar.duplications.block.Block;
+import org.sonar.duplications.block.FileBlocks;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.internal.pmd.TokenizerBridge;
 import org.sonar.plugins.cpd.index.IndexFactory;
 import org.sonar.plugins.cpd.index.SonarDuplicationsIndex;
 
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -51,9 +54,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class SonarBridgeEngine extends CpdEngine {
+public class DefaultCpdEngine extends CpdEngine {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SonarBridgeEngine.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultCpdEngine.class);
 
   /**
    * Limit of time to analyse one file (in seconds).
@@ -61,28 +64,32 @@ public class SonarBridgeEngine extends CpdEngine {
   private static final int TIMEOUT = 5 * 60;
 
   private final IndexFactory indexFactory;
-  private final CpdMapping[] mappings;
+  private final CpdMappings mappings;
   private final FileSystem fs;
   private final Settings settings;
+  private final BlockCache duplicationCache;
+  private final Project project;
 
-  public SonarBridgeEngine(IndexFactory indexFactory, CpdMapping[] mappings, FileSystem fs, Settings settings) {
+  public DefaultCpdEngine(@Nullable Project project, IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings, BlockCache duplicationCache) {
+    this.project = project;
     this.indexFactory = indexFactory;
     this.mappings = mappings;
     this.fs = fs;
     this.settings = settings;
+    this.duplicationCache = duplicationCache;
   }
 
-  public SonarBridgeEngine(IndexFactory indexFactory, FileSystem fs, Settings settings) {
-    this(indexFactory, new CpdMapping[0], fs, settings);
+  public DefaultCpdEngine(IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings, BlockCache duplicationCache) {
+    this(null, indexFactory, mappings, fs, settings, duplicationCache);
   }
 
   @Override
   public boolean isLanguageSupported(String language) {
-    return getMapping(language) != null;
+    return true;
   }
 
   @Override
-  public void analyse(Project project, String languageKey, SensorContext context) {
+  public void analyse(String languageKey, SensorContext context) {
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     logExclusions(cpdExclusions, LOG);
     FilePredicates p = fs.predicates();
@@ -90,29 +97,34 @@ public class SonarBridgeEngine extends CpdEngine {
       p.hasType(InputFile.Type.MAIN),
       p.hasLanguage(languageKey),
       p.doesNotMatchPathPatterns(cpdExclusions)
-    )));
+      )));
     if (sourceFiles.isEmpty()) {
       return;
     }
 
-    CpdMapping mapping = getMapping(languageKey);
-    if (mapping == null) {
-      return;
-    }
+    CpdMapping mapping = mappings.getMapping(languageKey);
 
     // Create index
     SonarDuplicationsIndex index = indexFactory.create(project, languageKey);
 
-    TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fs.encoding().name(), getBlockSize(project, languageKey));
+    TokenizerBridge bridge = null;
+    if (mapping != null) {
+      bridge = new TokenizerBridge(mapping.getTokenizer(), fs.encoding().name(), getBlockSize(languageKey));
+    }
     for (InputFile inputFile : sourceFiles) {
       LOG.debug("Populating index from {}", inputFile);
       String resourceEffectiveKey = ((DeprecatedDefaultInputFile) inputFile).key();
-      List<Block> blocks = bridge.chunk(resourceEffectiveKey, inputFile.file());
-      index.insert(inputFile, blocks);
+      FileBlocks fileBlocks = duplicationCache.byComponent(resourceEffectiveKey);
+      if (fileBlocks != null) {
+        index.insert(inputFile, fileBlocks.blocks());
+      } else if (bridge != null) {
+        List<Block> blocks2 = bridge.chunk(resourceEffectiveKey, inputFile.file());
+        index.insert(inputFile, blocks2);
+      }
     }
 
     // Detect
-    Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(getMinimumTokens(project, languageKey));
+    Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(getMinimumTokens(languageKey));
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     try {
@@ -123,7 +135,7 @@ public class SonarBridgeEngine extends CpdEngine {
 
         Iterable<CloneGroup> filtered;
         try {
-          List<CloneGroup> duplications = executorService.submit(new SonarEngine.Task(index, fileBlocks)).get(TIMEOUT, TimeUnit.SECONDS);
+          List<CloneGroup> duplications = executorService.submit(new JavaCpdEngine.Task(index, fileBlocks)).get(TIMEOUT, TimeUnit.SECONDS);
           filtered = Iterables.filter(duplications, minimumTokensPredicate);
         } catch (TimeoutException e) {
           filtered = null;
@@ -134,7 +146,7 @@ public class SonarBridgeEngine extends CpdEngine {
           throw new SonarException("Fail during detection of duplication for " + inputFile, e);
         }
 
-        SonarEngine.save(context, inputFile, filtered);
+        JavaCpdEngine.save(context, inputFile, filtered);
       }
     } finally {
       executorService.shutdown();
@@ -142,7 +154,7 @@ public class SonarBridgeEngine extends CpdEngine {
   }
 
   @VisibleForTesting
-  int getBlockSize(Project project, String languageKey) {
+  int getBlockSize(String languageKey) {
     int blockSize = settings.getInt("sonar.cpd." + languageKey + ".minimumLines");
     if (blockSize == 0) {
       blockSize = getDefaultBlockSize(languageKey);
@@ -162,7 +174,7 @@ public class SonarBridgeEngine extends CpdEngine {
   }
 
   @VisibleForTesting
-  int getMinimumTokens(Project project, String languageKey) {
+  int getMinimumTokens(String languageKey) {
     int minimumTokens = settings.getInt("sonar.cpd." + languageKey + ".minimumTokens");
     if (minimumTokens == 0) {
       minimumTokens = settings.getInt(CoreProperties.CPD_MINIMUM_TOKENS_PROPERTY);
@@ -172,18 +184,6 @@ public class SonarBridgeEngine extends CpdEngine {
     }
 
     return minimumTokens;
-  }
-
-  @CheckForNull
-  private CpdMapping getMapping(String language) {
-    if (mappings != null) {
-      for (CpdMapping cpdMapping : mappings) {
-        if (cpdMapping.getLanguage().getKey().equals(language)) {
-          return cpdMapping;
-        }
-      }
-    }
-    return null;
   }
 
 }

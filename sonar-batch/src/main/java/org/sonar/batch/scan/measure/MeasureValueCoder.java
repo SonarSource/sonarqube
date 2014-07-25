@@ -30,6 +30,8 @@ import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.Requirement;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 
+import javax.annotation.Nullable;
+
 class MeasureValueCoder implements ValueCoder {
 
   private final MetricFinder metricFinder;
@@ -42,12 +44,12 @@ class MeasureValueCoder implements ValueCoder {
 
   public void put(Value value, Object object, CoderContext context) {
     Measure<?> m = (Measure) object;
-    value.putString(m.getMetricKey());
+    value.putUTF(m.getMetricKey());
     value.put(m.getValue());
-    value.putString(m.getData());
-    value.putString(m.getDescription());
-    value.putString(m.getAlertStatus() != null ? m.getAlertStatus().name() : null);
-    value.putString(m.getAlertText());
+    putUTFOrNull(value, m.getData());
+    putUTFOrNull(value, m.getDescription());
+    putUTFOrNull(value, m.getAlertStatus() != null ? m.getAlertStatus().name() : null);
+    putUTFOrNull(value, m.getAlertText());
     value.put(m.getTendency());
     value.putDate(m.getDate());
     value.put(m.getVariation1());
@@ -55,7 +57,7 @@ class MeasureValueCoder implements ValueCoder {
     value.put(m.getVariation3());
     value.put(m.getVariation4());
     value.put(m.getVariation5());
-    value.putString(m.getUrl());
+    putUTFOrNull(value, m.getUrl());
     Characteristic characteristic = m.getCharacteristic();
     value.put(characteristic != null ? characteristic.id() : null);
     Requirement requirement = m.getRequirement();
@@ -63,7 +65,15 @@ class MeasureValueCoder implements ValueCoder {
     Integer personId = m.getPersonId();
     value.put(personId != null ? personId.intValue() : null);
     PersistenceMode persistenceMode = m.getPersistenceMode();
-    value.putString(persistenceMode != null ? persistenceMode.name() : null);
+    putUTFOrNull(value, persistenceMode != null ? persistenceMode.name() : null);
+  }
+
+  private void putUTFOrNull(Value value, @Nullable String utfOrNull) {
+    if (utfOrNull != null) {
+      value.putUTF(utfOrNull);
+    } else {
+      value.putNull();
+    }
   }
 
   public Object get(Value value, Class clazz, CoderContext context) {
