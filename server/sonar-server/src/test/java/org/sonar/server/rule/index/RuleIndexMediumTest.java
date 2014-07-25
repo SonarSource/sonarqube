@@ -50,8 +50,12 @@ import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -609,7 +613,7 @@ public class RuleIndexMediumTest {
 
     // 4. get all active rules on profile
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey()),
+        .setQProfileKey(qualityProfileDto2.getKey()),
       new QueryOptions());
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule1.getName());
@@ -646,7 +650,7 @@ public class RuleIndexMediumTest {
       ActiveRuleDto.createFor(qualityProfileDto2, rule3)
         .setSeverity("BLOCKER")
         .setInheritance(ActiveRule.Inheritance.INHERITED.name())
-      );
+    );
 
     dbSession.commit();
 
@@ -668,77 +672,77 @@ public class RuleIndexMediumTest {
 
     // 3. get Inherited Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey())
-      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
+        .setQProfileKey(qualityProfileDto1.getKey())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(0);
 
     // 4. get Inherited Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey())
-      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
+        .setQProfileKey(qualityProfileDto2.getKey())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(2);
 
     // 5. get Overridden Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey())
-      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
+        .setQProfileKey(qualityProfileDto1.getKey())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(0);
 
     // 6. get Overridden Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey())
-      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
+        .setQProfileKey(qualityProfileDto2.getKey())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(1);
 
     // 7. get Inherited AND Overridden Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey())
-      .setInheritance(ImmutableSet.of(
-        ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+        .setQProfileKey(qualityProfileDto1.getKey())
+        .setInheritance(ImmutableSet.of(
+          ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(0);
 
     // 8. get Inherited AND Overridden Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey())
-      .setInheritance(ImmutableSet.of(
-        ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+        .setQProfileKey(qualityProfileDto2.getKey())
+        .setInheritance(ImmutableSet.of(
+          ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(3);
 
     // 9. get rules active on profile1 with active severity BLOCKER
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey())
-      .setActiveSeverities(ImmutableSet.of(
-        Severity.BLOCKER.toString())),
+        .setQProfileKey(qualityProfileDto1.getKey())
+        .setActiveSeverities(ImmutableSet.of(
+          Severity.BLOCKER.toString())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(3);
 
     // 10. get rules active on profile2 with active severity MINOR, then BLOCKER + MINOR
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey())
-      .setActiveSeverities(ImmutableSet.of(
-        Severity.MINOR.toString())),
+        .setQProfileKey(qualityProfileDto2.getKey())
+        .setActiveSeverities(ImmutableSet.of(
+          Severity.MINOR.toString())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(1);
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey())
-      .setActiveSeverities(ImmutableSet.of(
-        Severity.BLOCKER.toString(), Severity.MINOR.toString())),
+        .setQProfileKey(qualityProfileDto2.getKey())
+        .setActiveSeverities(ImmutableSet.of(
+          Severity.BLOCKER.toString(), Severity.MINOR.toString())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(3);
   }
 
@@ -951,7 +955,24 @@ public class RuleIndexMediumTest {
     assertThat(index.search(availableSinceNowQuery, new QueryOptions()).getHits()).hasSize(0);
   }
 
-  private static List<String> ruleKeys(List<Rule> rules){
+  @Test
+  public void search_protected_chars() throws InterruptedException {
+    String nameWithProtectedChars = "ja#va&sc\"r:ipt";
+
+    RuleDto ruleDto = RuleTesting.newXooX1().setName(nameWithProtectedChars);
+    dao.insert(dbSession, ruleDto);
+    dbSession.commit();
+
+    Rule rule = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(rule.name()).isEqualTo(nameWithProtectedChars);
+
+    RuleQuery protectedCharsQuery = new RuleQuery().setQueryText(nameWithProtectedChars);
+    List<Rule> results = index.search(protectedCharsQuery, new QueryOptions()).getHits();
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).key()).isEqualTo(RuleTesting.XOO_X1);
+  }
+
+  private static List<String> ruleKeys(List<Rule> rules) {
     return newArrayList(Iterables.transform(rules, new Function<Rule, String>() {
       @Override
       public String apply(@Nullable Rule input) {
