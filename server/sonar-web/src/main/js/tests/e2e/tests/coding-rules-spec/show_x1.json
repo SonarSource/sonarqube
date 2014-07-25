@@ -38,7 +38,20 @@
       {
         "key": "acceptWhitespace",
         "htmlDesc": "<h1>Accept whitespace (<code>\\s|\\t</code>) on the line\n</h1>This property is available so that a line containing only whitespace is not considered empty.<br/><h2>Example with property set to ``false``\n</h2><pre lang=\"xoo\"><code> &lt;- One issue here\n&lt;- And one here</code></pre><br/><br/><h2>Example with property set to ``true``\n</h2><pre lang=\"xoo\"><code> &lt;- No issue here\n&lt;- But one here</code></pre><br/>",
+        "type": "BOOLEAN",
         "defaultValue": "false"
+      },
+      {
+        "key": "textParameter",
+        "htmlDesc": "This is a parameter of type TEXT",
+        "type": "TEXT",
+        "defaultValue": "false"
+      },
+      {
+        "key": "skipLines",
+        "htmlDesc": "Skip a number of lines at the beginning of the file",
+        "type": "INTEGER",
+        "defaultValue": "0"
       }
     ]
   },
