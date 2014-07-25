@@ -220,7 +220,6 @@ public class RulesWebServiceMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed")
   public void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() throws Exception {
     insertDebtCharacteristics(session);
 
@@ -245,7 +244,6 @@ public class RulesWebServiceMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed")
   public void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() throws Exception {
     insertDebtCharacteristics(session);
 
