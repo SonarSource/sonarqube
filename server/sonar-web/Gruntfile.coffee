@@ -274,14 +274,11 @@ module.exports = (grunt) ->
       cw:
         options:
           test: true
-          parallel: true,
-          concurrency: 5
         src: ['<%= pkg.sources %>js/tests/e2e/tests/component-viewer-spec.js']
       single:
         options:
           test: true
-          parallel: true,
-          concurrency: 5
+          verbose: true
         src: ['<%= pkg.sources %>js/tests/e2e/tests/<%= grunt.option("spec") %>-spec.js']
 
 
