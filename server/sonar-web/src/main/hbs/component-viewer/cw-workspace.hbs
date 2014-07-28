@@ -14,8 +14,8 @@
 <ul class="component-viewer-workspace-list">
   {{#eachReverse workspace}}
     <li class="component-viewer-workspace-item {{#if active}}active{{/if}}">
-      <div class="text-ellipsis subtitle" title="{{component.projectName}} / {{component.subProjectName}}">
-        {{component.projectName}} / {{component.subProjectName}}
+      <div class="text-ellipsis subtitle" title="{{component.projectName}}{{#if component.subProjectName}} / {{component.subProjectName}}{{/if}}">
+        {{component.projectName}}{{#if component.subProjectName}} / {{component.subProjectName}}{{/if}}
       </div>
       {{#if component.dir}}<div class="text-ellipsis subtitle">{{component.dir}}</div>{{/if}}
       {{qualifierIcon component.q}} <a class="link-action" data-key="{{component.key}}">{{component.name}}</a>
@@ -26,8 +26,8 @@
           {{#each options}}
             <li class="component-viewer-workspace-option text-ellipsis {{#if active}}active{{/if}}" title="{{name}}">
               {{#if component}}
-                <div class="text-ellipsis subtitle" title="{{component.projectName}} / {{component.subProjectName}}">
-                  {{component.projectName}} / {{component.subProjectName}}
+                <div class="text-ellipsis subtitle" title="{{component.projectName}}{{#if component.subProjectName}} / {{component.subProjectName}}{{/if}}">
+                  {{component.projectName}}{{#if component.subProjectName}} / {{component.subProjectName}}{{/if}}
                 </div>
               {{/if}}
               {{#if subname}}<div class="text-ellipsis subtitle" title="{{subname}}">{{subname}}</div>{{/if}}
