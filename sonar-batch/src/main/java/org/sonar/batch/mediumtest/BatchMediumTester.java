@@ -34,12 +34,11 @@ import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.symbol.Symbol;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.platform.PluginMetadata;
-import org.sonar.api.resources.Languages;
 import org.sonar.batch.bootstrap.PluginsReferential;
+import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.duplication.DuplicationCache;
@@ -57,7 +56,6 @@ import org.sonar.batch.scan2.AnalyzerIssueCache;
 import org.sonar.batch.scan2.AnalyzerMeasureCache;
 import org.sonar.batch.scan2.ProjectScanContainer;
 import org.sonar.batch.scan2.ScanTaskObserver;
-import org.sonar.batch.settings.SettingsReferential;
 import org.sonar.batch.symbol.SymbolData;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.RemotePlugin;
@@ -68,7 +66,6 @@ import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -91,7 +88,6 @@ public class BatchMediumTester {
   public static class BatchMediumTesterBuilder {
     private final FakeGlobalReferentialsLoader globalRefProvider = new FakeGlobalReferentialsLoader();
     private final FakeProjectReferentialsLoader projectRefProvider = new FakeProjectReferentialsLoader();
-    private final FakeSettingsReferential settingsReferential = new FakeSettingsReferential();
     private final FackPluginsReferential pluginsReferential = new FackPluginsReferential();
     private final Map<String, String> bootstrapProperties = new HashMap<String, String>();
 
@@ -157,7 +153,6 @@ public class BatchMediumTester {
       .setEnableLoggingConfiguration(true)
       .addComponents(
         new EnvironmentInformation("mediumTest", "1.0"),
-        builder.settingsReferential,
         builder.pluginsReferential,
         builder.globalRefProvider,
         builder.projectRefProvider,
@@ -366,7 +361,7 @@ public class BatchMediumTester {
     private ProjectReferentials ref = new ProjectReferentials();
 
     @Override
-    public ProjectReferentials load(ProjectReactor reactor, Settings settings, Languages languages) {
+    public ProjectReferentials load(ProjectReactor reactor, TaskProperties taskProperties) {
       return ref;
     }
 
@@ -379,17 +374,6 @@ public class BatchMediumTester {
       ref.addActiveRule(activeRule);
       return this;
     }
-  }
-
-  private static class FakeSettingsReferential implements SettingsReferential {
-
-    private Map<String, Map<String, String>> projectSettings = new HashMap<String, Map<String, String>>();
-
-    @Override
-    public Map<String, String> projectSettings(String projectKey) {
-      return projectSettings.containsKey(projectKey) ? projectSettings.get(projectKey) : Collections.<String, String>emptyMap();
-    }
-
   }
 
   private static class FackPluginsReferential implements PluginsReferential {

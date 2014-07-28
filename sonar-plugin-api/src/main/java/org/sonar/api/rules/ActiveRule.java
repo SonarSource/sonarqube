@@ -26,6 +26,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.profiles.RulesProfile;
 
 import javax.annotation.CheckForNull;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

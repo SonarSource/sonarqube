@@ -23,9 +23,8 @@ import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 
 public class ProjectReferentialsProvider extends ProviderAdapter {
@@ -34,11 +33,11 @@ public class ProjectReferentialsProvider extends ProviderAdapter {
 
   private ProjectReferentials projectReferentials;
 
-  public ProjectReferentials provide(ProjectReferentialsLoader loader, ProjectReactor reactor, Settings settings, Languages languages) {
+  public ProjectReferentials provide(ProjectReferentialsLoader loader, ProjectReactor reactor, TaskProperties taskProps) {
     if (projectReferentials == null) {
       TimeProfiler profiler = new TimeProfiler(LOG).start("Load project referentials");
       try {
-        projectReferentials = loader.load(reactor, settings, languages);
+        projectReferentials = loader.load(reactor, taskProps);
       } finally {
         profiler.stop();
       }

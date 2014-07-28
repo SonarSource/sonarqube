@@ -31,7 +31,7 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
-import org.sonar.batch.settings.SettingsReferential;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 
 import java.util.List;
 
@@ -44,11 +44,12 @@ public class ModuleSettingsTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  SettingsReferential settingsRef = mock(SettingsReferential.class);
+  ProjectReferentials projectRef;
   private AnalysisMode mode;
 
   @Before
   public void before() {
+    projectRef = new ProjectReferentials();
     mode = mock(AnalysisMode.class);
   }
 
@@ -74,12 +75,12 @@ public class ModuleSettingsTest {
       "overridding", "batch",
       "on-batch", "true"
       ));
-    when(settingsRef.projectSettings("struts-core")).thenReturn(ImmutableMap.of("on-module", "true", "overridding", "module"));
+    projectRef.addSettings("struts-core", ImmutableMap.of("on-module", "true", "overridding", "module"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
     Configuration deprecatedConf = new PropertiesConfiguration();
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, settingsRef, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, projectRef, mode);
 
     assertThat(moduleSettings.getString("overridding")).isEqualTo("module");
     assertThat(moduleSettings.getString("on-batch")).isEqualTo("true");
@@ -97,12 +98,12 @@ public class ModuleSettingsTest {
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
       "sonar.foo.secured", "bar"
       ));
-    when(settingsRef.projectSettings("struts-core")).thenReturn(ImmutableMap.of("sonar.foo.license.secured", "bar2"));
+    projectRef.addSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
     Configuration deprecatedConf = new PropertiesConfiguration();
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, settingsRef, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, projectRef, mode);
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(moduleSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -115,14 +116,14 @@ public class ModuleSettingsTest {
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
       "sonar.foo.secured", "bar"
       ));
-    when(settingsRef.projectSettings("struts-core")).thenReturn(ImmutableMap.of("sonar.foo.license.secured", "bar2"));
+    projectRef.addSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
     when(mode.isPreview()).thenReturn(true);
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
     Configuration deprecatedConf = new PropertiesConfiguration();
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, settingsRef, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, projectRef, mode);
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
 

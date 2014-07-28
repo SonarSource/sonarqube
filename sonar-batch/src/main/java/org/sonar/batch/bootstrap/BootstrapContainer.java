@@ -41,8 +41,6 @@ import org.sonar.batch.referential.DefaultProjectReferentialsLoader;
 import org.sonar.batch.referential.GlobalReferentialsLoader;
 import org.sonar.batch.referential.GlobalReferentialsProvider;
 import org.sonar.batch.referential.ProjectReferentialsLoader;
-import org.sonar.batch.settings.DefaultSettingsReferential;
-import org.sonar.batch.settings.SettingsReferential;
 import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
@@ -108,9 +106,6 @@ public class BootstrapContainer extends ComponentContainer {
       new FileCacheProvider(),
       System2.INSTANCE,
       new GlobalReferentialsProvider());
-    if (getComponentByType(SettingsReferential.class) == null) {
-      add(DefaultSettingsReferential.class);
-    }
     if (getComponentByType(PluginsReferential.class) == null) {
       add(DefaultPluginsReferential.class);
     }

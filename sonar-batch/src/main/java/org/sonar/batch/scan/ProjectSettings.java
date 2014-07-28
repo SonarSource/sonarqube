@@ -29,7 +29,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
-import org.sonar.batch.settings.SettingsReferential;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 
 import javax.annotation.Nullable;
 
@@ -40,16 +40,16 @@ public class ProjectSettings extends Settings {
   private Configuration deprecatedConfiguration;
 
   private final GlobalSettings globalSettings;
-  private final SettingsReferential settingsReferential;
+  private final ProjectReferentials projectReferentials;
   private final AnalysisMode mode;
 
   public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, PropertyDefinitions propertyDefinitions,
-    SettingsReferential settingsReferential, Configuration deprecatedConfiguration, AnalysisMode mode) {
+    ProjectReferentials projectReferentials, Configuration deprecatedConfiguration, AnalysisMode mode) {
     super(propertyDefinitions);
     this.mode = mode;
     getEncryption().setPathToSecretKey(globalSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     this.globalSettings = globalSettings;
-    this.settingsReferential = settingsReferential;
+    this.projectReferentials = projectReferentials;
     this.deprecatedConfiguration = deprecatedConfiguration;
     init(reactor);
   }
@@ -59,7 +59,7 @@ public class ProjectSettings extends Settings {
 
     addProperties(globalSettings.getProperties());
 
-    addProperties(settingsReferential.projectSettings(reactor.getRoot().getKeyWithBranch()));
+    addProperties(projectReferentials.settings(reactor.getRoot().getKeyWithBranch()));
 
     addProperties(reactor.getRoot().getProperties());
   }

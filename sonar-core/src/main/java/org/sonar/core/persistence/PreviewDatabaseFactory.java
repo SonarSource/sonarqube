@@ -85,15 +85,12 @@ public class PreviewDatabaseFactory implements ServerComponent {
   private void copy(DataSource source, DataSource dest, @Nullable Long projectId) {
     DbTemplate template = new DbTemplate(profiling);
     template
-      .copyTable(source, dest, "active_rules")
-      .copyTable(source, dest, "active_rule_parameters")
       .copyTable(source, dest, "characteristics")
       .copyTable(source, dest, "permission_templates")
       .copyTable(source, dest, "perm_templates_users")
       .copyTable(source, dest, "perm_templates_groups")
       .copyTable(source, dest, "rules")
       .copyTable(source, dest, "rules_parameters")
-      .copyTable(source, dest, "rules_profiles")
       .copyTableColumns(source, dest, "users", new String[] {"id", "login", "name", "active"});
     if (projectId != null) {
       template.copyTable(source, dest, "projects", projectQuery(projectId, false));

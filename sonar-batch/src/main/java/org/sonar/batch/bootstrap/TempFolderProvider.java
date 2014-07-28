@@ -31,16 +31,21 @@ import java.io.IOException;
 
 public class TempFolderProvider extends ProviderAdapter {
 
+  private TempFolder tempFolder;
+
   public TempFolder provide(BootstrapProperties bootstrapProps) {
-    String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
-    File workingDir = new File(workingDirPath);
-    File tempDir = new File(workingDir, ".sonartmp");
-    try {
-      FileUtils.forceMkdir(tempDir);
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
+    if (tempFolder == null) {
+      String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
+      File workingDir = new File(workingDirPath);
+      File tempDir = new File(workingDir, ".sonartmp");
+      try {
+        FileUtils.forceMkdir(tempDir);
+      } catch (IOException e) {
+        throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
+      }
+      tempFolder = new DefaultTempFolder(tempDir);
     }
-    return new DefaultTempFolder(tempDir);
+    return tempFolder;
   }
 
 }

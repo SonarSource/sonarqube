@@ -35,7 +35,7 @@ import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.GlobalReferentials;
-import org.sonar.batch.settings.SettingsReferential;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 
 import java.util.Collections;
 
@@ -48,7 +48,7 @@ public class ProjectSettingsTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  SettingsReferential settingsRef = mock(SettingsReferential.class);
+  ProjectReferentials projectRef;
   ProjectDefinition project = ProjectDefinition.create().setKey("struts");
   Configuration deprecatedConf = new BaseConfiguration();
   GlobalSettings bootstrapProps;
@@ -57,6 +57,7 @@ public class ProjectSettingsTest {
 
   @Before
   public void prepare() {
+    projectRef = new ProjectReferentials();
     mode = mock(AnalysisMode.class);
     bootstrapProps = new GlobalSettings(new BootstrapProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), new GlobalReferentials(), deprecatedConf, mode);
   }
@@ -65,16 +66,16 @@ public class ProjectSettingsTest {
   public void should_load_project_props() {
     project.setProperty("project.prop", "project");
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, deprecatedConf, mode);
 
     assertThat(batchSettings.getString("project.prop")).isEqualTo("project");
   }
 
   @Test
   public void should_load_project_root_settings() {
-    when(settingsRef.projectSettings("struts")).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true", "sonar.java.coveragePlugin", "jacoco"));
+    projectRef.addSettings("struts", ImmutableMap.of("sonar.cpd.cross", "true", "sonar.java.coveragePlugin", "jacoco"));
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, deprecatedConf, mode);
 
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
@@ -83,18 +84,18 @@ public class ProjectSettingsTest {
   public void should_load_project_root_settings_on_branch() {
     project.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "mybranch");
 
-    when(settingsRef.projectSettings("struts:mybranch")).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true", "sonar.java.coveragePlugin", "jacoco"));
+    projectRef.addSettings("struts:mybranch", ImmutableMap.of("sonar.cpd.cross", "true", "sonar.java.coveragePlugin", "jacoco"));
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, deprecatedConf, mode);
 
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
 
   @Test
   public void should_not_fail_when_accessing_secured_properties() {
-    when(settingsRef.projectSettings("struts")).thenReturn(ImmutableMap.of("sonar.foo.secured", "bar", "sonar.foo.license.secured", "bar2"));
+    projectRef.addSettings("struts", ImmutableMap.of("sonar.foo.secured", "bar", "sonar.foo.license.secured", "bar2"));
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, deprecatedConf, mode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(batchSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -102,11 +103,11 @@ public class ProjectSettingsTest {
 
   @Test
   public void should_fail_when_accessing_secured_properties_in_dryrun() {
-    when(settingsRef.projectSettings("struts")).thenReturn(ImmutableMap.of("sonar.foo.secured", "bar", "sonar.foo.license.secured", "bar2"));
+    projectRef.addSettings("struts", ImmutableMap.of("sonar.foo.secured", "bar", "sonar.foo.license.secured", "bar2"));
 
     when(mode.isPreview()).thenReturn(true);
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, deprecatedConf, mode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     thrown.expect(MessageException.class);
@@ -117,9 +118,9 @@ public class ProjectSettingsTest {
 
   @Test
   public void should_forward_to_deprecated_commons_configuration() {
-    when(settingsRef.projectSettings("struts")).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true", "sonar.java.coveragePlugin", "jacoco"));
+    projectRef.addSettings("struts", ImmutableMap.of("sonar.cpd.cross", "true", "sonar.java.coveragePlugin", "jacoco"));
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, deprecatedConf, mode);
 
     assertThat(deprecatedConf.getString("sonar.cpd.cross")).isEqualTo("true");
     assertThat(deprecatedConf.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");

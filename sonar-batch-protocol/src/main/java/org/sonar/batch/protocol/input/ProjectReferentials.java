@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ public class ProjectReferentials {
   private Map<String, Map<String, String>> settingsByModule = new HashMap<String, Map<String, String>>();
 
   public Map<String, String> settings(String projectKey) {
-    return settingsByModule.get(projectKey);
+    return settingsByModule.containsKey(projectKey) ? settingsByModule.get(projectKey) : Collections.<String, String>emptyMap();
   }
 
   public ProjectReferentials addSettings(String projectKey, Map<String, String> settings) {

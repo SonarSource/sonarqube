@@ -20,12 +20,11 @@
 package org.sonar.batch.referential;
 
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Languages;
+import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 
 public interface ProjectReferentialsLoader {
 
-  ProjectReferentials load(ProjectReactor reactor, Settings settings, Languages languages);
+  ProjectReferentials load(ProjectReactor reactor, TaskProperties taskProperties);
 
 }

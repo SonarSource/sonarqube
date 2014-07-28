@@ -28,7 +28,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
-import org.sonar.batch.settings.SettingsReferential;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 
 import javax.annotation.Nullable;
 
@@ -40,13 +40,13 @@ import java.util.List;
 public class ModuleSettings extends Settings {
 
   private final Configuration deprecatedCommonsConf;
-  private final SettingsReferential settingsReferential;
+  private final ProjectReferentials projectReferentials;
   private AnalysisMode analysisMode;
 
-  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf, SettingsReferential settingsReferential,
+  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf, ProjectReferentials projectReferentials,
     AnalysisMode analysisMode) {
     super(batchSettings.getDefinitions());
-    this.settingsReferential = settingsReferential;
+    this.projectReferentials = projectReferentials;
     this.analysisMode = analysisMode;
     getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
 
@@ -63,7 +63,7 @@ public class ModuleSettings extends Settings {
 
   private void addProjectProperties(ProjectDefinition project, GlobalSettings batchSettings) {
     addProperties(batchSettings.getProperties());
-    addProperties(settingsReferential.projectSettings(project.getKeyWithBranch()));
+    addProperties(projectReferentials.settings(project.getKeyWithBranch()));
   }
 
   private void addBuildProperties(ProjectDefinition project) {

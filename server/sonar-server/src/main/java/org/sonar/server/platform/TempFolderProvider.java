@@ -30,14 +30,19 @@ import java.io.IOException;
 
 public class TempFolderProvider extends ProviderAdapter {
 
+  private TempFolder tempFolder;
+
   public TempFolder provide(ServerFileSystem fs) {
-    File tempDir = new File(fs.getTempDir(), "tmp");
-    try {
-      FileUtils.forceMkdir(tempDir);
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
+    if (tempFolder == null) {
+      File tempDir = new File(fs.getTempDir(), "tmp");
+      try {
+        FileUtils.forceMkdir(tempDir);
+      } catch (IOException e) {
+        throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
+      }
+      tempFolder = new DefaultTempFolder(tempDir);
     }
-    return new DefaultTempFolder(tempDir);
+    return tempFolder;
   }
 
 }

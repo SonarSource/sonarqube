@@ -19,128 +19,39 @@
  */
 package org.sonar.batch.referential;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import org.apache.commons.lang.StringUtils;
+import com.google.common.base.Charsets;
+import com.google.common.io.InputSupplier;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RuleParam;
-import org.sonar.api.utils.MessageException;
-import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.protocol.input.ProjectReferentials;
-import org.sonar.batch.protocol.input.QProfile;
 import org.sonar.batch.rule.ModuleQProfiles;
-import org.sonar.core.UtcDateUtils;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
-import javax.annotation.CheckForNull;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
-/**
- * TODO This is currently implemented by accessing DB but should be replaced by WS call
- */
 public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoader {
 
-  private static final String ENABLED = "enabled";
+  private static final String BATCH_PROJECT_URL = "/batch/project";
 
-  private final QualityProfileDao qualityProfileDao;
-  private final ActiveRuleDao activeRuleDao;
-  private final RuleFinder ruleFinder;
+  private final ServerClient serverClient;
 
-  public DefaultProjectReferentialsLoader(QualityProfileDao qualityProfileDao,
-    ActiveRuleDao activeRuleDao, RuleFinder ruleFinder) {
-    this.qualityProfileDao = qualityProfileDao;
-    this.activeRuleDao = activeRuleDao;
-    this.ruleFinder = ruleFinder;
+  public DefaultProjectReferentialsLoader(ServerClient serverClient) {
+    this.serverClient = serverClient;
   }
 
   @Override
-  public ProjectReferentials load(ProjectReactor reactor, Settings settings, Languages languages) {
-    ProjectReferentials ref = new ProjectReferentials();
-
-    String defaultName = settings.getString(ModuleQProfiles.SONAR_PROFILE_PROP);
-
-    for (Language language : languages.all()) {
-      org.sonar.batch.protocol.input.QProfile profile = null;
-      if (StringUtils.isNotBlank(defaultName)) {
-        profile = loadDefaultQProfile(defaultName, language.getKey());
-      }
-      if (profile == null) {
-        profile = loadQProfile(settings, language.getKey());
-      }
-      if (profile != null) {
-        ref.addQProfile(profile);
-      }
+  public ProjectReferentials load(ProjectReactor reactor, TaskProperties taskProperties) {
+    String url = BATCH_PROJECT_URL + "?key=" + reactor.getRoot().getKeyWithBranch();
+    if (taskProperties.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {
+      url += "&profile=" + taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP);
     }
-
-    for (QProfile qProfile : ref.qProfiles()) {
-      ListMultimap<Integer, ActiveRuleParamDto> paramDtosByActiveRuleId = ArrayListMultimap.create();
-      for (ActiveRuleParamDto dto : activeRuleDao.selectParamsByProfileKey(qProfile.key())) {
-        paramDtosByActiveRuleId.put(dto.getActiveRuleId(), dto);
-      }
-
-      for (ActiveRuleDto activeDto : activeRuleDao.selectByProfileKey(qProfile.key())) {
-        Rule rule = ruleFinder.findById(activeDto.getRuleId());
-        if (rule != null) {
-          String internalKey;
-          Rule template = rule.getTemplate();
-          if (template != null) {
-            internalKey = template.getConfigKey();
-          } else {
-            internalKey = rule.getConfigKey();
-          }
-          ActiveRule activeRule = new ActiveRule(rule.ruleKey().repository(), rule.ruleKey().rule(), rule.getName(), activeDto.getSeverityString(), internalKey, rule.getLanguage());
-
-          // load parameter values
-          for (ActiveRuleParamDto paramDto : paramDtosByActiveRuleId.get(activeDto.getId())) {
-            activeRule.params().put(paramDto.getKey(), paramDto.getValue());
-          }
-
-          // load default values
-          for (RuleParam param : rule.getParams()) {
-            if (!activeRule.params().containsKey(param.getKey())) {
-              activeRule.params().put(param.getKey(), param.getDefaultValue());
-            }
-          }
-
-          ref.addActiveRule(activeRule);
-        }
-      }
+    InputSupplier<InputStream> jsonStream = serverClient.doRequest(url, null);
+    try {
+      return ProjectReferentials.fromJson(new InputStreamReader(jsonStream.getInput(), Charsets.UTF_8));
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to load project referentials", e);
     }
-
-    return ref;
-  }
-
-  @CheckForNull
-  private QProfile loadQProfile(Settings settings, String language) {
-    String profileName = settings.getString("sonar.profile." + language);
-    if (profileName != null) {
-      QProfile dto = get(language, profileName);
-      if (dto == null) {
-        throw MessageException.of(String.format("Quality profile not found : '%s' on language '%s'", profileName, language));
-      }
-      return dto;
-    }
-    return null;
-  }
-
-  @CheckForNull
-  private QProfile loadDefaultQProfile(String profileName, String language) {
-    return get(language, profileName);
-  }
-
-  public QProfile get(String language, String name) {
-    QualityProfileDto dto = qualityProfileDao.getByNameAndLanguage(name, language);
-    if (dto == null) {
-      return null;
-    }
-    return new org.sonar.batch.protocol.input.QProfile(dto.getKey(), dto.getName(), dto.getLanguage(), UtcDateUtils.parseDateTime(dto.getRulesUpdatedAt()));
   }
 }

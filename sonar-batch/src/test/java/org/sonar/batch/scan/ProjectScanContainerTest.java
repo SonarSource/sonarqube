@@ -32,19 +32,18 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.GlobalSettings;
+import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.protocol.input.GlobalReferentials;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.batch.referential.ProjectReferentialsLoader;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
-import org.sonar.batch.settings.SettingsReferential;
 
 import java.util.Collections;
 
@@ -74,14 +73,14 @@ public class ProjectScanContainerTest {
     GlobalReferentials globalRef = new GlobalReferentials();
     settings = new GlobalSettings(bootstrapProperties, new PropertyDefinitions(), globalRef, new PropertiesConfiguration(), analysisMode);
     parentContainer.add(settings);
-    parentContainer.add(mock(SettingsReferential.class));
     ProjectReferentialsLoader projectReferentialsLoader = new ProjectReferentialsLoader() {
       @Override
-      public ProjectReferentials load(ProjectReactor reactor, Settings settings, Languages languages) {
+      public ProjectReferentials load(ProjectReactor reactor, TaskProperties taskProperties) {
         return new ProjectReferentials();
       }
     };
     parentContainer.add(projectReferentialsLoader);
+    parentContainer.add(mock(TaskProperties.class));
     container = new ProjectScanContainer(parentContainer);
   }
 
