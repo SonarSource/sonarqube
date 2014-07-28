@@ -35,6 +35,7 @@ import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
+import org.sonar.core.profiling.StopWatch;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.ESNode;
 import org.sonar.server.search.IndexDefinition;
@@ -90,11 +91,16 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
   }
 
   public Result<Activity> findAll() {
-    return new Result<Activity>(this, getClient().prepareSearch(this.getIndexName())
+    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
+    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
+    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
       .setQuery(QueryBuilders.matchAllQuery())
       .setTypes(this.getIndexType())
-      .setSize(Integer.MAX_VALUE)
-      .get());
+      .setSize(Integer.MAX_VALUE);
+    basicProfile.stop(request.toString());
+    SearchResponse response = request.get();
+    fullProfile.stop(response.toString());
+    return new Result<Activity>(this, response);
   }
 
   public SearchResponse search(ActivityQuery query, QueryOptions options) {
@@ -103,6 +109,9 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
 
   public SearchResponse search(ActivityQuery query, QueryOptions options,
                                @Nullable FilterBuilder domainFilter) {
+
+    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
+    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
 
     // Prepare query
     SearchRequestBuilder esSearch = getClient()
@@ -144,6 +153,10 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
       esSearch.setScroll(TimeValue.timeValueMinutes(3));
     }
 
-    return esSearch.get();
+    basicProfile.stop(esSearch.toString());
+    SearchResponse response = esSearch.get();
+    fullProfile.stop(response.toString());
+
+    return response;
   }
 }
