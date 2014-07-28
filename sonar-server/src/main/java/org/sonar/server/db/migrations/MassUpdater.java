@@ -24,17 +24,17 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.dbutils.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.dialect.MySql;
 
-
 import javax.annotation.CheckForNull;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Update a table by iterating a sub-set of rows. For each row a SQL UPDATE request
@@ -43,11 +43,17 @@ import java.sql.Statement;
 public class MassUpdater {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MassUpdater.class);
-  private static final int GROUP_SIZE = 1000;
+  private static final int DEFAULT_GROUP_SIZE = 250;
   private final Database db;
+  private final int groupSize;
 
   public MassUpdater(Database db) {
+    this(db, DEFAULT_GROUP_SIZE);
+  }
+
+  public MassUpdater(Database db, int groupSize) {
     this.db = db;
+    this.groupSize = groupSize;
   }
 
   public static interface InputLoader<S> {
@@ -66,25 +72,53 @@ public class MassUpdater {
     boolean convert(S input, PreparedStatement updateStatement) throws SQLException;
   }
 
-  public <S> void execute(InputLoader<S> inputLoader, InputConverter<S> converter) {
-    long count = 0;
+  public static interface PeriodicUpdater {
+
+    /**
+     * Return false if you do not want to update this statement
+     */
+    boolean update(Connection writeConnection) throws SQLException;
+  }
+
+  public List<Long> selectLong(String sql) {
     Connection readConnection = null;
-    Statement stmt = null;
+    PreparedStatement stmt = null;
     ResultSet rs = null;
-    Connection writeConnection = null;
-    PreparedStatement writeStatement = null;
     try {
       readConnection = db.getDataSource().getConnection();
       readConnection.setAutoCommit(false);
 
-      stmt = readConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-      stmt.setFetchSize(GROUP_SIZE);
-      if (db.getDialect().getId().equals(MySql.ID)) {
-        stmt.setFetchSize(Integer.MIN_VALUE);
-      } else {
-        stmt.setFetchSize(GROUP_SIZE);
+      stmt = initStatement(sql, readConnection);
+      rs = stmt.executeQuery();
+      List<Long> rows = new ArrayList<Long>();
+      while (rs.next()) {
+        if (!rs.wasNull()) {
+          rows.add(rs.getLong(1));
+        }
       }
-      rs = stmt.executeQuery(convertSelectSql(inputLoader.selectSql(), db));
+      return rows;
+    } catch (Exception e) {
+      throw processError(e);
+    } finally {
+      DbUtils.closeQuietly(readConnection, stmt, rs);
+    }
+  }
+
+  public <S> void execute(InputLoader<S> inputLoader, InputConverter<S> converter) {
+    long count = 0;
+    Connection readConnection = null, writeConnection = null;
+    PreparedStatement stmt = null;
+    ResultSet rs = null;
+    PreparedStatement writeStatement = null;
+    try {
+      readConnection = db.getDataSource().getConnection();
+      readConnection.setAutoCommit(false);
+      if (readConnection.getMetaData().supportsTransactionIsolationLevel(Connection.TRANSACTION_READ_UNCOMMITTED)) {
+        readConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+      }
+
+      stmt = initStatement(convertSelectSql(inputLoader.selectSql(), db), readConnection);
+      rs = stmt.executeQuery();
 
       int cursor = 0;
       while (rs.next()) {
@@ -93,7 +127,7 @@ public class MassUpdater {
           continue;
         }
 
-        if (writeConnection==null) {
+        if (writeConnection == null) {
           // do not open the write connection too early
           // else if the select  on read connection is long, then mysql
           // write connection fails with communication failure error because
@@ -105,19 +139,18 @@ public class MassUpdater {
 
         if (converter.convert(row, writeStatement)) {
           writeStatement.addBatch();
+          writeStatement.clearParameters();
           cursor++;
           count++;
         }
 
-        if (cursor == GROUP_SIZE) {
-          writeStatement.executeBatch();
-          writeConnection.commit();
+        if (cursor == groupSize) {
+          commit(writeStatement);
           cursor = 0;
         }
       }
       if (cursor > 0) {
-        writeStatement.executeBatch();
-        writeConnection.commit();
+        commit(writeStatement);
       }
 
     } catch (SQLException e) {
@@ -129,19 +162,31 @@ public class MassUpdater {
       DbUtils.closeQuietly(writeStatement);
       DbUtils.closeQuietly(writeConnection);
       DbUtils.closeQuietly(readConnection, stmt, rs);
-
       LOGGER.info("{} rows have been updated", count);
     }
   }
 
-  private static MessageException processError(Exception e) {
-    String message = String.format("Fail to migrate data, error is : %s", e.getMessage());
-    LOGGER.error(message, e);
-    throw MessageException.of(message);
+  private PreparedStatement initStatement(String sql, Connection readConnection) throws SQLException {
+    PreparedStatement stmt = readConnection.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+    if (db.getDialect().getId().equals(MySql.ID)) {
+      stmt.setFetchSize(Integer.MIN_VALUE);
+    } else {
+      stmt.setFetchSize(1000);
+    }
+    return stmt;
+  }
+
+  private void commit(PreparedStatement writeStatement) throws SQLException {
+    writeStatement.executeBatch();
+    writeStatement.getConnection().commit();
+  }
+
+  private static RuntimeException processError(Exception e) {
+    throw new IllegalStateException(e);
   }
 
   @VisibleForTesting
-  static String convertSelectSql(String selectSql, Database db){
+  static String convertSelectSql(String selectSql, Database db) {
     String newSelectSql = selectSql;
     newSelectSql = newSelectSql.replace("${_true}", db.getDialect().getTrueSqlValue());
     newSelectSql = newSelectSql.replace("${_false}", db.getDialect().getFalseSqlValue());
