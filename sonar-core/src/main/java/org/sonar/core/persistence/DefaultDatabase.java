@@ -36,7 +36,6 @@ import org.sonar.core.persistence.profiling.PersistenceProfiling;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
 import javax.sql.DataSource;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -55,7 +54,6 @@ public class DefaultDatabase implements Database {
   private static final String SONAR_HIBERNATE = "sonar.hibernate.";
   private static final String SONAR_JDBC_DIALECT = "sonar.jdbc.dialect";
   private static final String SONAR_JDBC_URL = "sonar.jdbc.url";
-  private static final String SONAR_JDBC_DRIVER_CLASS_NAME = "sonar.jdbc.driverClassName";
   private static final String VALIDATE = "validate";
 
   private Settings settings;
@@ -107,9 +105,7 @@ public class DefaultDatabase implements Database {
       throw new IllegalStateException("Can not guess the JDBC dialect. Please check the property " + SONAR_JDBC_URL + ".");
     }
     checkH2Database();
-    if (!properties.containsKey(SONAR_JDBC_DRIVER_CLASS_NAME)) {
-      properties.setProperty(SONAR_JDBC_DRIVER_CLASS_NAME, dialect.getDefaultDriverClassName());
-    }
+    properties.setProperty(DatabaseProperties.PROP_DRIVER, dialect.getDefaultDriverClassName());
   }
 
   protected void checkH2Database() {
@@ -205,7 +201,6 @@ public class DefaultDatabase implements Database {
   }
 
   private static void completeDefaultProperties(Properties props) {
-    completeDefaultProperty(props, DatabaseProperties.PROP_DRIVER, props.getProperty(DatabaseProperties.PROP_DRIVER_DEPRECATED));
     completeDefaultProperty(props, DatabaseProperties.PROP_URL, DEFAULT_URL);
     completeDefaultProperty(props, DatabaseProperties.PROP_USER, props.getProperty(DatabaseProperties.PROP_USER_DEPRECATED, DatabaseProperties.PROP_USER_DEFAULT_VALUE));
     completeDefaultProperty(props, DatabaseProperties.PROP_PASSWORD, DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE);

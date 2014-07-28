@@ -45,9 +45,8 @@ public class DefaultDatabaseTest {
   }
 
   @Test
-  public void shouldSupportDeprecatedProperties() {
+  public void shouldSupportDeprecatedUserProperty() {
     Settings settings = new Settings();
-    settings.setProperty("sonar.jdbc.driver", "my.Driver");
     settings.setProperty("sonar.jdbc.user", "me");
 
     DefaultDatabase db = new DefaultDatabase(settings);
@@ -55,7 +54,6 @@ public class DefaultDatabaseTest {
     Properties props = db.getProperties();
 
     assertThat(props.getProperty("sonar.jdbc.username")).isEqualTo("me");
-    assertThat(props.getProperty("sonar.jdbc.driverClassName")).isEqualTo("my.Driver");
   }
 
   @Test
