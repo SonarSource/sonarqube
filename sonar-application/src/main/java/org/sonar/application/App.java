@@ -72,7 +72,9 @@ public class App implements ProcessMXBean {
 
   public void start() {
 
-    LOGGER.info("Starting search server");
+    Logger logger = LoggerFactory.getLogger(getClass());
+
+    logger.info("Starting search server");
     elasticsearch = new ProcessWrapper(SONAR_SEARCH_PROCESS)
       .setWorkDir(installation.homeDir())
       .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.ES_JMX_PORT_KEY)))
@@ -85,9 +87,9 @@ public class App implements ProcessMXBean {
       .addClasspath(installation.starPath("lib/search"))
       .execute();
     monitor.registerProcess(elasticsearch);
-    LOGGER.info("Search server is ready");
+    logger.info("Search server is ready");
 
-    LOGGER.info("Starting web server");
+    logger.info("Starting web server");
     server = new ProcessWrapper(SONAR_WEB_PROCESS)
       .setWorkDir(installation.homeDir())
       .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.WEB_JMX_PORT_KEY)))
@@ -105,7 +107,7 @@ public class App implements ProcessMXBean {
       .addClasspath(installation.starPath("lib/server"))
       .execute();
     monitor.registerProcess(server);
-    LOGGER.info("Web server is ready");
+    logger.info("Web server is ready");
 
     monitor.start();
 
@@ -122,6 +124,8 @@ public class App implements ProcessMXBean {
 
   @Override
   public void terminate() {
+    Logger logger = LoggerFactory.getLogger(getClass());
+
     if (monitor != null) {
       monitor.interrupt();
       monitor = null;
@@ -131,7 +135,7 @@ public class App implements ProcessMXBean {
       if (server != null) {
         server.terminate();
       }
-      LOGGER.info("Stopping SonarQube main process");
+      logger.info("Stopping SonarQube main process");
     }
   }
 
