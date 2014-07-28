@@ -42,6 +42,9 @@ define [
         key: file.key
         name: x.name
         subname: x.dir
+        component:
+          projectName: file.projectName
+          subProjectName: file.subProjectName
         active: file.key == key
       if key == @options.main.component.get 'key'
         @options.main.scrollToLine line
