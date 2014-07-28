@@ -29,7 +29,7 @@
 
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>warn</level>
+      <level>WARN</level>
     </filter>
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>
@@ -86,9 +86,15 @@
     <level value="INFO"/>
   </logger>
 
+  <!-- LOG level for logback itself -->
+  <logger name="ch.qos.logback">
+    <level value="WARN"/>
+  </logger>
+
   <root>
     <level value="INFO"/>
     <appender-ref ref="LOGFILE"/>
+    <appender-ref ref="CONSOLE"/>
   </root>
 
 </configuration>

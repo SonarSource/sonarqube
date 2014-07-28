@@ -36,6 +36,10 @@ public class App implements ProcessMXBean {
 
   static final String PROCESS_NAME = "SonarQube";
 
+  static final String SONAR_WEB_PROCESS = "web";
+  static final String SONAR_SEARCH_PROCESS = "search";
+
+
   private final Installation installation;
   private Monitor monitor;
   private ProcessWrapper elasticsearch;
@@ -69,10 +73,9 @@ public class App implements ProcessMXBean {
   }
 
   public void start() {
-    Logger logger = LoggerFactory.getLogger(getClass());
 
-    logger.info("Starting Elasticsearch");
-    elasticsearch = new ProcessWrapper("ES")
+    LOGGER.info("Starting search server");
+    elasticsearch = new ProcessWrapper(SONAR_SEARCH_PROCESS)
       .setWorkDir(installation.homeDir())
       .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.ES_JMX_PORT_KEY)))
       .addJavaOpts(installation.prop(DefaultSettings.ES_JAVA_OPTS_KEY))
@@ -84,9 +87,10 @@ public class App implements ProcessMXBean {
       .addClasspath(installation.starPath("lib/search"))
       .execute();
     monitor.registerProcess(elasticsearch);
+    LOGGER.info("Search server is ready");
 
-    logger.info("Starting HTTP server");
-    server = new ProcessWrapper("SQ")
+    LOGGER.info("Starting web server");
+    server = new ProcessWrapper(SONAR_WEB_PROCESS)
       .setWorkDir(installation.homeDir())
       .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.WEB_JMX_PORT_KEY)))
       .addJavaOpts(installation.prop(DefaultSettings.WEB_JAVA_OPTS_KEY))
@@ -103,7 +107,8 @@ public class App implements ProcessMXBean {
       .addClasspath(installation.starPath("lib/server"))
       .execute();
     monitor.registerProcess(server);
-    logger.info("HTTP server is Ready");
+    LOGGER.info("Web server is ready");
+
     monitor.start();
 
     try {
@@ -120,8 +125,6 @@ public class App implements ProcessMXBean {
   @Override
   public void terminate() {
     if (monitor != null) {
-      Logger logger = LoggerFactory.getLogger(getClass());
-      logger.info("Shutting down server");
       monitor.interrupt();
       monitor = null;
       if (elasticsearch != null) {
@@ -130,6 +133,7 @@ public class App implements ProcessMXBean {
       if (server != null) {
         server.terminate();
       }
+      LOGGER.info("Stopping SonarQube main process");
     }
   }
 

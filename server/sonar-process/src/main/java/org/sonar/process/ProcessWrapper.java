@@ -130,7 +130,7 @@ public class ProcessWrapper extends Thread {
     processBuilder.environment().putAll(envProperties);
 
     try {
-      LOGGER.debug("Execute command: {}", StringUtils.join(command, " "));
+      LOGGER.info("Starting {} process with command line: {}", getName(), StringUtils.join(command, " "));
       process = processBuilder.start();
       errorGobbler = new StreamGobbler(process.getErrorStream(), this.getName() + "-ERROR");
       outputGobbler = new StreamGobbler(process.getInputStream(), this.getName());
@@ -238,7 +238,7 @@ public class ProcessWrapper extends Thread {
         JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, null);
         MBeanServerConnection mBeanServer = jmxConnector.getMBeanServerConnection();
         ProcessMXBean bean = JMX.newMBeanProxy(mBeanServer, Process.objectNameFor(processName), ProcessMXBean.class);
-        LOGGER.info("ProcessWrapper::waitForJMX -- Connected to JMX Server with URL: {}", jmxUrl.toString());
+        LOGGER.info("{} process up and running, listening to its state with url: '{}'", getName(), jmxUrl.toString());
         return bean;
       } catch (MalformedURLException e) {
         throw new IllegalStateException("JMXUrl is not valid", e);
@@ -253,6 +253,7 @@ public class ProcessWrapper extends Thread {
 
   public void terminate() {
     if (processMXBean != null) {
+      LOGGER.info("Stopping {} process", getName());
       processMXBean.terminate();
       try {
         this.join();
@@ -260,6 +261,7 @@ public class ProcessWrapper extends Thread {
         // ignore
       }
       processMXBean = null;
+      LOGGER.info("{} process stopped", getName());
     }
   }
 
