@@ -346,8 +346,8 @@
                 <rails.env>development</rails.env>
                 <jruby.max.runtimes>3</jruby.max.runtimes>
                 <sonar.jdbc.url>${sonar.jdbc.url}</sonar.jdbc.url>
-                <sonar.es.http.host>127.0.0.1</sonar.es.http.host>
-                <sonar.es.http.port>9200</sonar.es.http.port>
+                <sonar.search.http.host>127.0.0.1</sonar.search.http.host>
+                <sonar.search.http.port>9200</sonar.search.http.port>
                 <sonar.log.console>true</sonar.log.console>
                 <sonar.log.profilingLevel>BASIC</sonar.log.profilingLevel>
                 <sonar.web.context>/dev</sonar.web.context>

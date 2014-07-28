@@ -30,16 +30,16 @@ class DefaultSettings {
 
   static final String PATH_LOGS_KEY = "sonar.path.logs";
 
-  static final String ES_PORT_KEY = "sonar.es.port";
+  static final String ES_PORT_KEY = "sonar.search.port";
   private static final int ES_PORT_DEFVAL = 9001;
 
-  static final String ES_CLUSTER_NAME_KEY = "sonar.es.clusterName";
+  static final String ES_CLUSTER_NAME_KEY = "sonar.search.clusterName";
   private static final String ES_CLUSTER_NAME_DEFVAL = "sonarqube";
 
-  static final String ES_JMX_PORT_KEY = "sonar.es.jmxPort";
+  static final String ES_JMX_PORT_KEY = "sonar.search.jmxPort";
   private static final int ES_JMX_PORT_DEFVAL = 9002;
 
-  static final String ES_JAVA_OPTS_KEY = "sonar.es.javaOpts";
+  static final String ES_JAVA_OPTS_KEY = "sonar.search.javaOpts";
   private static final String ES_JAVA_OPTS_DEFVAL = "-server -Xmx256m -Xms256m -Xss256k -Djava.net.preferIPv4Stack=true " +
     "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +
     "-XX:+HeapDumpOnOutOfMemoryError";
@@ -59,7 +59,7 @@ class DefaultSettings {
 
   static void initDefaults(Props props) {
     // elasticsearch
-    props.set("sonar.es.type", "TRANSPORT");
+    props.set("sonar.search.type", "TRANSPORT");
     props.setDefault(DefaultSettings.ES_CLUSTER_NAME_KEY, DefaultSettings.ES_CLUSTER_NAME_DEFVAL);
     setDefaultPort(props, DefaultSettings.ES_PORT_KEY, DefaultSettings.ES_PORT_DEFVAL, "Elasticsearch");
     setDefaultPort(props, DefaultSettings.ES_JMX_PORT_KEY, DefaultSettings.ES_JMX_PORT_DEFVAL, "Elasticsearch JMX");

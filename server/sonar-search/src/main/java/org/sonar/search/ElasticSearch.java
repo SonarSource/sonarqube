@@ -35,8 +35,8 @@ import java.io.File;
 public class ElasticSearch extends Process {
 
   public static final String ES_DEBUG_PROPERTY = "esDebug";
-  public static final String ES_PORT_PROPERTY = "sonar.es.port";
-  public static final String ES_CLUSTER_PROPERTY = "sonar.es.clusterName";
+  public static final String ES_PORT_PROPERTY = "sonar.search.port";
+  public static final String ES_CLUSTER_PROPERTY = "sonar.search.clusterName";
 
   private Node node;
 

@@ -29,9 +29,9 @@ public final class IndexProperties {
     MEMORY, TRANSPORT, DATA
   }
 
-  public static final String TYPE = "sonar.es.type";
-  public static final String HTTP_PORT = "sonar.es.http.port";
-  public static final String NODE_PORT = "sonar.es.port";
-  public static final String CLUSTER_NAME = "sonar.es.cluster.name";
+  public static final String TYPE = "sonar.search.type";
+  public static final String HTTP_PORT = "sonar.search.http.port";
+  public static final String NODE_PORT = "sonar.search.port";
+  public static final String CLUSTER_NAME = "sonar.search.cluster.name";
 
 }

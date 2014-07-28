@@ -17,6 +17,6 @@ if ! ls sonarqube-*/bin/$OS/sonar.sh &> /dev/null; then
 fi
 cd sonarqube-*
 bin/$OS/sonar.sh restart
-echo "sonar.es.http.port=9200" >>  conf/sonar.properties
+echo "sonar.search.http.port=9200" >>  conf/sonar.properties
 sleep 1
 tail -100f logs/sonar.log
