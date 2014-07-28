@@ -63,15 +63,15 @@
       "params": [
         {
           "key": "acceptWhitespace",
-          "value": "true"
+          "value": "false"
         },
         {
           "key": "textParameter",
-          "value": "A nice\ntext parameter\nwith newlines."
+          "value": "A nice\ntext parameter\nwith newlines.\nUpdated"
         },
         {
           "key": "skipLines",
-          "value": "0"
+          "value": "5"
         }
       ]
     }
