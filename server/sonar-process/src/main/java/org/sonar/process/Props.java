@@ -78,7 +78,7 @@ public class Props {
     return i == null ? defaultValue : i;
   }
 
-  public Properties cryptedProperties() {
+  public Properties encryptedProperties() {
     return props;
   }
 
@@ -88,7 +88,7 @@ public class Props {
   }
 
   public void setDefault(String propKey, String defaultValue) {
-    if (!props.contains(propKey)) {
+    if (!props.containsKey(propKey)) {
       props.setProperty(propKey, defaultValue);
     }
   }

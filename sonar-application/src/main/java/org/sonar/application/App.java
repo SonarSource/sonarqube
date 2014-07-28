@@ -82,7 +82,7 @@ public class App implements ProcessMXBean {
       .addJavaOpts(String.format("-Djava.io.tmpdir=%s", installation.tempDir().getAbsolutePath()))
       .addJavaOpts(String.format("-D%s=%s", DefaultSettings.PATH_LOGS_KEY, installation.logsDir().getAbsolutePath()))
       .setClassName("org.sonar.search.ElasticSearch")
-      .setProperties(installation.props().cryptedProperties())
+      .setProperties(installation.props().encryptedProperties())
       .addClasspath(installation.starPath("lib/common"))
       .addClasspath(installation.starPath("lib/search"))
       .execute();
@@ -98,7 +98,7 @@ public class App implements ProcessMXBean {
       .addJavaOpts(String.format("-Djava.io.tmpdir=%s", installation.tempDir().getAbsolutePath()))
       .addJavaOpts(String.format("-D%s=%s", DefaultSettings.PATH_LOGS_KEY, installation.logsDir().getAbsolutePath()))
       .setClassName("org.sonar.server.app.ServerProcess")
-      .setProperties(installation.props().cryptedProperties())
+      .setProperties(installation.props().encryptedProperties())
       .addClasspath(installation.starPath("extensions/jdbc-driver/mysql"))
       .addClasspath(installation.starPath("extensions/jdbc-driver/mssql"))
       .addClasspath(installation.starPath("extensions/jdbc-driver/oracle"))

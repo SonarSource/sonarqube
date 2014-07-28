@@ -34,15 +34,26 @@ import java.net.URISyntaxException;
 import java.util.Properties;
 
 public class Installation {
-  private final File homeDir;
-  private final File tempDir, logsDir;
-  private final Props props;
+  private File homeDir, tempDir, logsDir;
+  private Props props;
 
   public Installation() throws URISyntaxException, IOException {
-    // home dir guessed with location of lib/sonar-application.jar
-    homeDir = detectHomeDir();
+    Properties systemProperties = new Properties();
+    systemProperties.putAll(System.getenv());
+    systemProperties.putAll(System.getProperties());
 
-    props = initProps(homeDir);
+    init(new SystemChecks(), detectHomeDir(), systemProperties);
+  }
+
+  Installation(SystemChecks systemChecks, File homeDir, Properties systemProperties) throws URISyntaxException, IOException {
+    init(systemChecks, homeDir, systemProperties);
+  }
+
+  void init(SystemChecks systemChecks, File homeDir, Properties systemProperties) throws URISyntaxException, IOException {
+    systemChecks.checkJavaVersion();
+
+    this.homeDir = homeDir;
+    props = initProps(homeDir, systemProperties);
     DefaultSettings.initDefaults(props);
 
     // init file system
@@ -52,7 +63,7 @@ public class Installation {
     this.logsDir = initExistingDir("sonar.path.logs", "logs");
   }
 
-  public File detectHomeDir() throws URISyntaxException {
+  private File detectHomeDir() throws URISyntaxException {
     File appJar = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
     return appJar.getParentFile().getParentFile();
   }
@@ -60,7 +71,7 @@ public class Installation {
   /**
    * Load conf/sonar.properties
    */
-  private static Props initProps(File homeDir) throws IOException {
+  private static Props initProps(File homeDir, Properties systemProperties) throws IOException {
     Properties p = new Properties();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     if (propsFile.exists()) {
@@ -71,8 +82,7 @@ public class Installation {
         IOUtils.closeQuietly(reader);
       }
     }
-    p.putAll(System.getenv());
-    p.putAll(System.getProperties());
+    p.putAll(systemProperties);
     p.setProperty("sonar.path.home", homeDir.getAbsolutePath());
     return new Props(p);
   }
@@ -109,10 +119,12 @@ public class Installation {
   private File initExistingDir(String propKey, String defaultRelativePath) throws IOException {
     File dir = configuredDir(propKey, defaultRelativePath);
     if (!dir.exists()) {
-      throw new IllegalStateException(String.format("Directory does not exist: %s. Please check property %s", dir.getAbsolutePath(), propKey));
+      throw new IllegalStateException(String.format("Property '%s' is not valid, directory does not exist: %s",
+        propKey, dir.getAbsolutePath()));
     }
     if (!dir.isDirectory()) {
-      throw new IllegalStateException(String.format("Not a directory: %s. Please check property %s", dir.getAbsolutePath(), propKey));
+      throw new IllegalStateException(String.format("Property '%s' is not valid, not a directory: %s",
+        propKey, dir.getAbsolutePath()));
     }
     return dir;
   }

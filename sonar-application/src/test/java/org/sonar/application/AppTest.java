@@ -57,43 +57,43 @@ public class AppTest {
     sonarHome.delete();
   }
 
-  @Test
-  @Ignore
-  public void should_register_mbean() throws Exception {
-    Installation installation = mock(Installation.class);
-    when(installation.detectHomeDir()).thenReturn(sonarHome.getRoot());
-
-    MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
-
-    App server = new App(installation);
-
-    // 0 Can have a valid ObjectName
-    assertThat(server).isNotNull();
-
-    // 1 assert that process MBean is registered
-    ObjectName serverObjectName = Process.objectNameFor(App.PROCESS_NAME);
-    assertThat(mbeanServer.isRegistered(serverObjectName)).isTrue();
-
-    // 2 assert that we can remotely call ping
-    Long now = System.currentTimeMillis();
-    Long ping = (Long) mbeanServer.invoke(serverObjectName, ProcessMXBean.PING, null, null);
-    assertThat(ping).isNotNull();
-    assertThat(ping - now).isLessThanOrEqualTo(3000L);
-
-    // 3 assert that we can remotely call isReady
-    //TODO this method is for some reason not available...
-//    Boolean isReady = (Boolean) mbeanServer.invoke(serverObjectName, ProcessMXBean.IS_READY, null, null);
-//    assertThat(isReady).isFalse();
-
-    // 4 assert that we can remotely call terminate
-    mbeanServer.invoke(serverObjectName, ProcessMXBean.TERMINATE, null, null);
-
-    // 5 assert that we can remotely call terminate
-    try {
-      mbeanServer.invoke(serverObjectName, "xoxo", null, null);
-      fail();
-    } catch (Exception e) {
-      assertThat(e.getMessage()).isEqualTo("No such operation: xoxo");
-    }
-  }
+//  @Test
+//  @Ignore
+//  public void should_register_mbean() throws Exception {
+//    Installation installation = mock(Installation.class);
+//    when(installation.detectHomeDir()).thenReturn(sonarHome.getRoot());
+//
+//    MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+//
+//    App server = new App(installation);
+//
+//    // 0 Can have a valid ObjectName
+//    assertThat(server).isNotNull();
+//
+//    // 1 assert that process MBean is registered
+//    ObjectName serverObjectName = Process.objectNameFor(App.PROCESS_NAME);
+//    assertThat(mbeanServer.isRegistered(serverObjectName)).isTrue();
+//
+//    // 2 assert that we can remotely call ping
+//    Long now = System.currentTimeMillis();
+//    Long ping = (Long) mbeanServer.invoke(serverObjectName, ProcessMXBean.PING, null, null);
+//    assertThat(ping).isNotNull();
+//    assertThat(ping - now).isLessThanOrEqualTo(3000L);
+//
+//    // 3 assert that we can remotely call isReady
+//    //TODO this method is for some reason not available...
+////    Boolean isReady = (Boolean) mbeanServer.invoke(serverObjectName, ProcessMXBean.IS_READY, null, null);
+////    assertThat(isReady).isFalse();
+//
+//    // 4 assert that we can remotely call terminate
+//    mbeanServer.invoke(serverObjectName, ProcessMXBean.TERMINATE, null, null);
+//
+//    // 5 assert that we can remotely call terminate
+//    try {
+//      mbeanServer.invoke(serverObjectName, "xoxo", null, null);
+//      fail();
+//    } catch (Exception e) {
+//      assertThat(e.getMessage()).isEqualTo("No such operation: xoxo");
+//    }
+//  }
 }

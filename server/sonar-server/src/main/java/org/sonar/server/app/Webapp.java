@@ -47,7 +47,7 @@ class Webapp {
       context.setXmlNamespaceAware(false);
       context.setUseNaming(false);
       context.setDelegate(true);
-      for (Map.Entry<Object, Object> entry : props.cryptedProperties().entrySet()) {
+      for (Map.Entry<Object, Object> entry : props.encryptedProperties().entrySet()) {
         String key = entry.getKey().toString();
         if (key.startsWith("sonar.")) {
           context.addParameter(key, entry.getValue().toString());
