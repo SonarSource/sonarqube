@@ -30,23 +30,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.List;
 
 /**
  * Used in the Active Record Migration 515
+ *
  * @since 4.3
  */
 public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
-
-  private static final String SELECT_SQL = "SELECT pm.id, pm.value " +
-    ", pm.variation_value_1 , pm.variation_value_2, pm.variation_value_3 " +
-    ", pm.variation_value_4 , pm.variation_value_5 " +
-    " FROM project_measures pm INNER JOIN metrics m on m.id=pm.metric_id " +
-    " WHERE (m.name='sqale_index' or m.name='new_technical_debt' " +
-    // SQALE measures
-    " or m.name='sqale_effort_to_grade_a' or m.name='sqale_effort_to_grade_b' or m.name='sqale_effort_to_grade_c' or m.name='sqale_effort_to_grade_d' " +
-    " or m.name='blocker_remediation_cost' or m.name='critical_remediation_cost' or m.name='major_remediation_cost' or m.name='minor_remediation_cost' " +
-    " or m.name='info_remediation_cost' " +
-    ")";
 
   private static final String UPDATE_SQL = "UPDATE project_measures SET value=?," +
     "variation_value_1=?,variation_value_2=?,variation_value_3=?,variation_value_4=?,variation_value_5=? WHERE id=?";
@@ -63,45 +54,67 @@ public class TechnicalDebtMeasuresMigration implements DatabaseMigration {
   public void execute() {
     workDurationConvertor.init();
 
-    new MassUpdater(db).execute(
-      new MassUpdater.InputLoader<Row>() {
-        @Override
-        public String selectSql() {
-          return SELECT_SQL;
-        }
+    MassUpdater massUpdater = new MassUpdater(db);
 
-        @Override
-        public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.id = SqlUtil.getLong(rs, 1);
-          row.value = SqlUtil.getDouble(rs, 2);
-          row.var1 = SqlUtil.getDouble(rs, 3);
-          row.var2 = SqlUtil.getDouble(rs, 4);
-          row.var3 = SqlUtil.getDouble(rs, 5);
-          row.var4 = SqlUtil.getDouble(rs, 6);
-          row.var5 = SqlUtil.getDouble(rs, 7);
-          return row;
-        }
-      },
-      new MassUpdater.InputConverter<Row>() {
-        @Override
-        public String updateSql() {
-          return UPDATE_SQL;
-        }
+    final List<Long> metricIds = massUpdater.selectLong("select id from metrics " +
+      "where name='sqale_index' or name='new_technical_debt' " +
+      "or name='sqale_effort_to_grade_a' or name='sqale_effort_to_grade_b' or name='sqale_effort_to_grade_c' " +
+      "or name='sqale_effort_to_grade_d' or name='blocker_remediation_cost' or name='critical_remediation_cost' " +
+      "or name='major_remediation_cost' or name='minor_remediation_cost' or name='info_remediation_cost'");
 
-        @Override
-        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          setDouble(updateStatement, 1, row.value);
-          setDouble(updateStatement, 2, row.var1);
-          setDouble(updateStatement, 3, row.var2);
-          setDouble(updateStatement, 4, row.var3);
-          setDouble(updateStatement, 5, row.var4);
-          setDouble(updateStatement, 6, row.var5);
-          updateStatement.setLong(7, row.id);
-          return true;
+    if (!metricIds.isEmpty()) {
+      massUpdater.execute(
+        new MassUpdater.InputLoader<Row>() {
+          @Override
+          public String selectSql() {
+            StringBuilder sql = new StringBuilder("SELECT pm.id, pm.value " +
+              ", pm.variation_value_1 , pm.variation_value_2, pm.variation_value_3 " +
+              ", pm.variation_value_4 , pm.variation_value_5 " +
+              " FROM project_measures pm " +
+              " WHERE pm.metric_id IN (");
+            for (int i = 0; i < metricIds.size(); i++) {
+              sql.append(Long.toString(metricIds.get(i)));
+              if (i < metricIds.size() - 1) {
+                sql.append(",");
+              }
+            }
+            sql.append(")");
+            return sql.toString();
+          }
+
+          @Override
+          public Row load(ResultSet rs) throws SQLException {
+            Row row = new Row();
+            row.id = SqlUtil.getLong(rs, 1);
+            row.value = SqlUtil.getDouble(rs, 2);
+            row.var1 = SqlUtil.getDouble(rs, 3);
+            row.var2 = SqlUtil.getDouble(rs, 4);
+            row.var3 = SqlUtil.getDouble(rs, 5);
+            row.var4 = SqlUtil.getDouble(rs, 6);
+            row.var5 = SqlUtil.getDouble(rs, 7);
+            return row;
+          }
+        },
+        new MassUpdater.InputConverter<Row>() {
+          @Override
+          public String updateSql() {
+            return UPDATE_SQL;
+          }
+
+          @Override
+          public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
+            setDouble(updateStatement, 1, row.value);
+            setDouble(updateStatement, 2, row.var1);
+            setDouble(updateStatement, 3, row.var2);
+            setDouble(updateStatement, 4, row.var3);
+            setDouble(updateStatement, 5, row.var4);
+            setDouble(updateStatement, 6, row.var5);
+            updateStatement.setLong(7, row.id);
+            return true;
+          }
         }
-      }
-    );
+      );
+    }
   }
 
   private void setDouble(PreparedStatement statement, int index, Double value) throws SQLException {

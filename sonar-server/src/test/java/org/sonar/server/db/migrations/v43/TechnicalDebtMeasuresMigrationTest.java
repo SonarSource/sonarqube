@@ -51,6 +51,15 @@ public class TechnicalDebtMeasuresMigrationTest {
   }
 
   @Test
+  public void migrate_nothing() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_nothing.xml");
+
+    migration.execute();
+
+    db.assertDbUnit(getClass(), "migrate_nothing.xml", "project_measures");
+  }
+
+  @Test
   public void migrate_technical_debt_measures() throws Exception {
     db.prepareDbUnit(getClass(), "migrate_technical_debt_measures.xml");
 
