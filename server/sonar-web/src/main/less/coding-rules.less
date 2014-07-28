@@ -11,6 +11,12 @@
     margin: @navigatorPadding;
   }
 
+  .navigator-results .line-right {
+    margin-top: -14px;
+    float: none;
+    text-align: right;
+  }
+
 }
 
 .navigator-filter-query {
@@ -371,4 +377,19 @@ textarea.coding-rules-markdown-description {
 
 .coding-rules-subcharacteristic-more {
   display: none;
+}
+
+.coding-rules-detail-not-ready {
+  color: @orange;
+}
+
+.coding-rules-list-tags {
+  display: inline-block;
+  vertical-align: top;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  .icon-tags:before { font-size: 12px; }
 }

@@ -1,5 +1,13 @@
 <div class="line line-small">
   <span class="coding-rules-detail-status">{{language}}</span>
-  <div class="line-right">{{#notEq status 'READY'}}{{status}}{{/notEq}}</div>
+
+  <div class="line-right">
+    <span class="coding-rules-list-tags">
+      <i class="icon-tags"></i>
+      <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
+    </span>
+
+    {{#notEq status 'READY'}}| <span class="coding-rules-detail-not-ready">{{status}}</span>{{/notEq}}
+  </div>
 </div>
-<div class="line line-nowrap" title="{{name}}" name="{{key}}">{{name}}</div>
+<div class="line" title="{{name}}" name="{{key}}">{{name}}</div>
