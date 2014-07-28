@@ -55,10 +55,11 @@ class Logging {
   static final String PROPERTY_ENABLE_ACCESS_LOGS = "sonar.web.accessLogs.enable";
 
   static void init(Props props) {
+    configureLogback(props);
+
     // Configure java.util.logging, used by Tomcat, in order to forward to slf4j
     LogManager.getLogManager().reset();
     SLF4JBridgeHandler.install();
-    configureLogback(props);
   }
 
   /**

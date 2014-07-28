@@ -50,6 +50,5 @@ public class ServerProcess extends org.sonar.process.Process {
     Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
     Logging.init(props);
     new ServerProcess(props).start();
-    LOGGER.info("ServerProcess is done");
   }
 }

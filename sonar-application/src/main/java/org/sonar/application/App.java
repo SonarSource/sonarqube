@@ -45,8 +45,6 @@ public class App implements ProcessMXBean {
   private ProcessWrapper elasticsearch;
   private ProcessWrapper server;
 
-  private static Logger LOGGER = LoggerFactory.getLogger(App.class);
-
   public App(Installation installation) throws Exception {
     this.installation = installation;
 
@@ -117,7 +115,7 @@ public class App implements ProcessMXBean {
       // TODO ignore ?
 
     } finally {
-      LOGGER.debug("Closing App because monitor is gone.");
+      logger.debug("Closing App because monitor is gone.");
       terminate();
     }
   }

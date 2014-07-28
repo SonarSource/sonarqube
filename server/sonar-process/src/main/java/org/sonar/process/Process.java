@@ -41,10 +41,7 @@ public abstract class Process implements ProcessMXBean {
   public static final String PORT_PROPERTY = "pPort";
   public static final String MISSING_NAME_ARGUMENT = "Missing Name argument";
 
-  protected final static Logger LOGGER = LoggerFactory.getLogger(Process.class);
-
   private Long lastPing;
-
   private String name;
   private Integer port;
 
@@ -56,9 +53,8 @@ public abstract class Process implements ProcessMXBean {
   final Runnable breakOnMissingPing = new Runnable() {
     public void run() {
       long time = System.currentTimeMillis();
-      LOGGER.debug("last check-in was {}ms ago.", time - lastPing);
       if (time - lastPing > MAX_ALLOWED_TIME) {
-        LOGGER.warn("Did not get a check-in since {}ms. Initiate shutdown", time - lastPing);
+        LoggerFactory.getLogger(getClass()).warn("Did not get a check-in for {}ms. Initiate shutdown", time - lastPing);
         terminate();
       }
     }
@@ -120,17 +116,19 @@ public abstract class Process implements ProcessMXBean {
   public abstract void onTerminate();
 
   public final void start() {
-    LOGGER.debug("Process[{}] starting", name);
+    Logger logger = LoggerFactory.getLogger(getClass());
+    logger.debug("Process[{}] starting", name);
     if (this.port != null) {
       lastPing = System.currentTimeMillis();
       pingTask = monitor.scheduleWithFixedDelay(breakOnMissingPing, 5, 5, TimeUnit.SECONDS);
     }
     this.onStart();
-    LOGGER.debug("Process[{}] started", name);
+    logger.debug("Process[{}] started", name);
   }
 
   public final void terminate() {
-    LOGGER.debug("Process[{}] terminating", name);
+    Logger logger = LoggerFactory.getLogger(getClass());
+    logger.debug("Process[{}] terminating", name);
     if (monitor != null) {
       this.monitor.shutdownNow();
       this.monitor = null;
@@ -140,6 +138,6 @@ public abstract class Process implements ProcessMXBean {
       }
       this.onTerminate();
     }
-    LOGGER.debug("Process[{}] terminated", name);
+    logger.debug("Process[{}] terminated", name);
   }
 }
