@@ -4,13 +4,13 @@
     "params": [
       {
         "key": "my_var",
-        "desc": "My small description",
+        "htmlDesc": "My small description",
         "defaultValue": "some value",
         "type": "string"
       },
       {
         "key": "the_var",
-        "desc": "My small description",
+        "htmlDesc": "My small description",
         "defaultValue": "other value",
         "type": "integer"
       }

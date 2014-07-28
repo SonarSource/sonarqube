@@ -18,7 +18,7 @@
     "params": [
       {
         "key": "regex",
-        "desc": "Reg ex",
+        "htmlDesc": "Reg ex",
         "defaultValue": "a.*",
         "type": "STRING"
       }
