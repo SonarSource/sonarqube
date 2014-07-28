@@ -49,17 +49,17 @@ exports.testName = function () {
 };
 
 
-var mockRequest = function (url, response) {
-  return casper.evaluate(function (url, response) {
-    return jQuery.mockjax({ url: url, responseText: response});
-  }, url, response);
+var mockRequest = function (url, response, options) {
+  return casper.evaluate(function (url, response, options) {
+    return jQuery.mockjax(_.extend({ url: url, responseText: response}, options));
+  }, url, response, options || {});
 };
 exports.mockRequest = mockRequest;
 
 
-exports.mockRequestFromFile = function (url, fileName) {
+exports.mockRequestFromFile = function (url, fileName, options) {
   var response = fs.read(fileName);
-  return mockRequest(url, response);
+  return mockRequest(url, response, options);
 };
 
 
