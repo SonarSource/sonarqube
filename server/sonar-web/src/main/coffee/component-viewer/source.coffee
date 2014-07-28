@@ -155,11 +155,13 @@ define [
 
 
     highlightLine: (e) ->
-      @$(".#{HIGHLIGHTED_ROW_CLASS}").removeClass HIGHLIGHTED_ROW_CLASS
       row = $(e.currentTarget).closest('.row')
-      row.addClass HIGHLIGHTED_ROW_CLASS
-      @highlightedLine = row.data 'line-number'
-      @showLineActionsPopup(e) if @options.main.state.get 'canCreateManualIssue'
+      highlighted = row.is ".#{HIGHLIGHTED_ROW_CLASS}"
+      @$(".#{HIGHLIGHTED_ROW_CLASS}").removeClass HIGHLIGHTED_ROW_CLASS
+      unless highlighted
+        row.addClass HIGHLIGHTED_ROW_CLASS
+        @highlightedLine = row.data 'line-number'
+        @showLineActionsPopup(e)
 
 
     highlightCurrentLine: ->
