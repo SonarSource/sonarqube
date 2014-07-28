@@ -19,10 +19,11 @@ casper.test.begin(testName('Link to Raw'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.js-actions');
-        casper.click('.js-actions');
-        casper.waitForSelector('.js-raw-source', function () {
-          casper.click('.js-raw-source');
+        casper.waitForSelector('.js-actions', function () {
+          casper.click('.js-actions');
+          casper.waitForSelector('.js-raw-source', function () {
+            casper.click('.js-raw-source');
+          });
         });
       })
 
