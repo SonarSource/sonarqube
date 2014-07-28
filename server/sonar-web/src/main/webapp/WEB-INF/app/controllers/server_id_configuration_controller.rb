@@ -33,7 +33,7 @@ class ServerIdConfigurationController < ApplicationController
     @address = Property.value(PROPERTY_IP_ADDRESS) || ''
     @valid_addresses = java_facade.getValidInetAddressesForServerId()
     @bad_id = false
-    
+
     if @server_id.present?
       id = java_facade.generateServerId(@organisation, @address)
       @bad_id = (@server_id != id)
@@ -54,6 +54,7 @@ class ServerIdConfigurationController < ApplicationController
     else
       id = java_facade.generateServerId(organisation, ip_address)
       if id
+        Java::OrgSlf4j::LoggerFactory::getLogger('root').info("Generated new server ID=" + id);
         # Success!
         Property.set(PROPERTY_SERVER_ID, id)
       else
@@ -62,7 +63,7 @@ class ServerIdConfigurationController < ApplicationController
         flash[:error] = Api::Utils.message('server_id_configuration.generation_error')
       end
     end
-    
+
     redirect_to :action => 'index'
   end
 end

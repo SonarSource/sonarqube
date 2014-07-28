@@ -70,7 +70,6 @@ public class ServerIdGenerator {
         id = toId(organisation, inetAddress);
       }
     }
-    LOG.info("Generated new server ID=" + id);
     return id;
   }
 
