@@ -1,11 +1,11 @@
 var lib = require('../lib'),
-    testName = lib.testName('Component Viewer');
+    testName = lib.testName('Component Viewer', 'Issues');
 
 lib.initMessages();
 lib.changeWorkingDirectory('component-viewer-spec');
 
 
-casper.test.begin(testName('Issues Filters'), function (test) {
+casper.test.begin(testName('Filters'), function (test) {
   casper
       .start(lib.buildUrl('component-viewer#component=component'), function () {
         lib.setDefaultViewport();
@@ -96,6 +96,72 @@ casper.test.begin(testName('Issues Filters'), function (test) {
           test.assertElementCount('.code-issue', 4);
           test.assertSelectorContains('.code-issue', 'Complete the task associated to this TODO comment');
         });
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('On File Level'), function (test) {
+  casper
+      .start(lib.buildUrl('component-viewer#component=component'), function () {
+        lib.setDefaultViewport();
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/components/app', 'app.json');
+        lib.mockRequestFromFile('/api/sources/show', 'source.json');
+        lib.mockRequestFromFile('/api/resources', 'resources.json');
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+      })
+
+      .then(function () {
+        casper.waitForSelector('.component-viewer-source .row');
+      })
+
+      .then(function () {
+        casper.click('.js-header-tab-issues');
+        casper.waitForSelector('.js-filter-unresolved-issues');
+      })
+
+      .then(function () {
+        casper.click('.js-filter-unresolved-issues');
+        casper.waitForSelector('.code-issue');
+      })
+
+      .then(function () {
+        test.assertVisible('.component-viewer-source .row[data-line-number="0"]');
+        test.assertExists('.code-issue[data-issue-key="20002ec7-b647-44da-bdf5-4d9fbf4b7c58"]');
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
+
+
+casper.test.begin(testName('Bulk Change Link Exists'), function (test) {
+  casper
+      .start(lib.buildUrl('component-viewer#component=component'), function () {
+        lib.setDefaultViewport();
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/components/app', 'app.json');
+        lib.mockRequestFromFile('/api/sources/show', 'source.json');
+        lib.mockRequestFromFile('/api/resources', 'resources.json');
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+      })
+
+      .then(function () {
+        casper.waitForSelector('.component-viewer-source .row');
+      })
+
+      .then(function () {
+        casper.click('.js-header-tab-issues');
+        casper.waitForSelector('.js-filter-unresolved-issues');
+      })
+
+      .then(function () {
+        test.assertExists('.js-issues-bulk-change');
       })
 
       .run(function () {
