@@ -23,6 +23,9 @@ package org.sonar.server.search;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.ActionRequestBuilder;
+import org.elasticsearch.action.ActionResponse;
+import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -37,6 +40,8 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
+import org.sonar.core.profiling.Profiling;
+import org.sonar.core.profiling.StopWatch;
 import org.sonar.server.search.es.ListUpdate;
 import org.sonar.server.search.es.ListUpdate.UpdateListScriptFactory;
 
@@ -57,6 +62,9 @@ public class ESNode implements Startable {
   // available only after startup
   private Client client;
   private Node node;
+  protected final Profiling profiling;
+  private final Profiling.Level profilingLevel;
+
 
   public ESNode(Settings settings) {
     this(settings, DEFAULT_HEALTH_TIMEOUT);
@@ -66,6 +74,9 @@ public class ESNode implements Startable {
   ESNode(Settings settings, String healthTimeout) {
     this.settings = settings;
     this.healthTimeout = healthTimeout;
+    this.profiling = new Profiling(settings);
+    String settingsValue = settings.getString(Profiling.CONFIG_PROFILING_LEVEL);
+    this.profilingLevel = Profiling.Level.fromConfigString(settingsValue);
   }
 
   @Override
@@ -277,5 +288,23 @@ public class ESNode implements Startable {
       throw new IllegalStateException("Elasticsearch is not started");
     }
     return client;
+  }
+
+  public <K extends ActionResponse> K execute(ActionRequestBuilder action) {
+    StopWatch requestProfile = null;
+    if (profilingLevel.ordinal() >= Profiling.Level.BASIC.ordinal()) {
+      requestProfile = profiling.start("search", Profiling.Level.BASIC);
+    }
+    ListenableActionFuture acc = action.execute();
+    try {
+      K response = (K) acc.get();
+      return response;
+    } catch (Exception e) {
+      throw new IllegalStateException("ES error: ", e);
+    } finally {
+      if (requestProfile != null) {
+        requestProfile.stop(action.toString());
+      }
+    }
   }
 }

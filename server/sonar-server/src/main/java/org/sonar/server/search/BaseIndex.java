@@ -54,8 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.Dto;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -76,17 +74,15 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
-  private final ESNode node;
+  protected final ESNode node;
   private final BaseNormalizer<DTO, KEY> normalizer;
   private final IndexDefinition indexDefinition;
-  protected final Profiling profiling;
 
   protected BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<DTO, KEY> normalizer,
-                      WorkQueue workQueue, ESNode node, Profiling profiling) {
+                      WorkQueue workQueue, ESNode node) {
     this.normalizer = normalizer;
     this.node = node;
     this.indexDefinition = indexDefinition;
-    this.profiling = profiling;
   }
 
   @Override
@@ -127,7 +123,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         try {
           SearchScrollRequestBuilder esRequest = getClient().prepareSearchScroll(scrollId)
             .setScroll(TimeValue.timeValueMinutes(3));
-          Collections.addAll(hits, esRequest.get().getHits().getHits());
+          Collections.addAll(hits, ((SearchResponse) node.execute(esRequest)).getHits().getHits());
         } catch (Exception e) {
           throw new IllegalStateException("Error while filling in the scroll buffer", e);
         }
@@ -203,8 +199,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   @Override
   public Date getLastSynchronization() {
-    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
-    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
 
     Date date;
     SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
@@ -214,10 +208,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       .addAggregation(AggregationBuilders.max("latest")
         .field(BaseNormalizer.UPDATED_AT_FIELD));
 
-
-    basicProfile.stop(request.toString());
-    SearchResponse response = request.get();
-    fullProfile.stop(response.toString());
+    SearchResponse response = node.execute(request);
 
     Max max = (Max) response.getAggregations().get("latest");
 
@@ -378,13 +369,12 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   @Override
   public void refresh() {
-    getClient()
+    node.execute(getClient()
       .admin()
       .indices()
       .prepareRefresh(this.getIndexName())
       .setForce(false)
-      .setIndices(this.getIndexName())
-      .get();
+      .setIndices(this.getIndexName()));
   }
 
   /* Base CRUD methods */
@@ -392,18 +382,13 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected abstract DOMAIN toDoc(Map<String, Object> fields);
 
   public DOMAIN getByKey(KEY key) {
-    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
-    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
-
     GetRequestBuilder request = getClient().prepareGet()
       .setType(this.getIndexType())
       .setIndex(this.getIndexName())
       .setId(this.getKeyValue(key))
       .setRouting(this.getKeyValue(key));
-    basicProfile.stop(request.toString());
 
-    GetResponse response = request.get();
-    fullProfile.stop(response.toString());
+    GetResponse response = node.execute(request);
 
     if (response.isExists()) {
       return toDoc(response.getSource());
@@ -412,8 +397,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   protected void updateDocument(Collection<UpdateRequest> requests, KEY key) {
-    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
-    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
     LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
     BulkRequestBuilder bulkRequest = getClient().prepareBulk();
     for (UpdateRequest request : requests) {
@@ -430,9 +413,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
           .type(this.getIndexType()));
       }
     }
-    basicProfile.stop(bulkRequest.toString());
-    BulkResponse response = bulkRequest.get();
-    fullProfile.stop(response.toString());
+    BulkResponse response = node.execute(bulkRequest);
   }
 
   @Override
@@ -483,17 +464,13 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   private void deleteDocument(KEY key) throws ExecutionException, InterruptedException {
-    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
-    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
     LOG.debug("DELETE _id:{} in index {}", key, this.getIndexName());
     DeleteRequestBuilder request = getClient()
       .prepareDelete()
       .setIndex(this.getIndexName())
       .setType(this.getIndexType())
       .setId(this.getKeyValue(key));
-    basicProfile.stop(request.toString());
-    DeleteResponse response = request.get();
-    fullProfile.stop(response.toString());
+    DeleteResponse response = node.execute(request);
   }
 
   @Override
@@ -561,8 +538,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
 
   public Map<String, Long> countByField(IndexField indexField, FilterBuilder filter) {
-    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
-    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
     Map<String, Long> counts = new HashMap<String, Long>();
 
     SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
@@ -578,9 +553,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         .size(Integer.MAX_VALUE)
         .minDocCount(0));
 
-    basicProfile.stop(request.toString());
-    SearchResponse response = request.get();
-    fullProfile.stop(response.toString());
+    SearchResponse response = node.execute(request);
 
     Terms values =
       response.getAggregations().get(indexField.field());

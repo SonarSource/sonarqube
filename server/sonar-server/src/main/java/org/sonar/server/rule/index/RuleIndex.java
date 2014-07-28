@@ -44,8 +44,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.core.cluster.WorkQueue;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
@@ -70,8 +68,8 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
-  public RuleIndex(Profiling profiling, RuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
-    super(IndexDefinition.RULE, normalizer, workQueue, node, profiling);
+  public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
+    super(IndexDefinition.RULE, normalizer, workQueue, node);
   }
 
   protected String getKeyValue(RuleKey key) {
@@ -337,9 +335,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   public Result<Rule> search(RuleQuery query, QueryOptions options) {
-    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
-    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
-
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
@@ -359,9 +354,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     QueryBuilder qb = this.getQuery(query, options);
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
 
-    basicProfile.stop(esSearch.toString());
-    SearchResponse esResult = esSearch.get();
-    fullProfile.stop(esResult.toString());
+    SearchResponse esResult = node.execute(esSearch);
 
     return new Result<Rule>(this, esResult);
   }

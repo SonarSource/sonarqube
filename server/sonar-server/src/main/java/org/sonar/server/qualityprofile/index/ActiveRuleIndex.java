@@ -34,8 +34,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.cluster.WorkQueue;
-import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
@@ -54,8 +52,8 @@ import java.util.Map;
 
 public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
 
-  public ActiveRuleIndex(Profiling profiling, ActiveRuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
-    super(IndexDefinition.ACTIVE_RULE, normalizer, workQueue, node, profiling);
+  public ActiveRuleIndex(ActiveRuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
+    super(IndexDefinition.ACTIVE_RULE, normalizer, workQueue, node);
   }
 
   @Override
@@ -120,8 +118,6 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
    * finder methods
    */
   public List<ActiveRule> findByRule(RuleKey key) {
-    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
-    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
     SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
       .setQuery(QueryBuilders
         .hasParentQuery(this.getParentType(),
@@ -132,9 +128,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
         // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
 
-    basicProfile.stop(request.toString());
-    SearchResponse response = request.get();
-    fullProfile.stop(response.toString());
+    SearchResponse response = node.execute(request);
 
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
     for (SearchHit hit : response.getHits()) {
@@ -144,16 +138,12 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   public List<ActiveRule> findByProfile(String key) {
-    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
-    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
     SearchRequestBuilder request = getClient().prepareSearch(getIndexName())
       .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key))
       .setRouting(key)
         // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
-    basicProfile.stop(request.toString());
-    SearchResponse response = request.get();
-    fullProfile.stop(response.toString());
+    SearchResponse response = node.execute(request);
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
     for (SearchHit hit : response.getHits()) {
       activeRules.add(toDoc(hit.getSource()));
@@ -184,8 +174,6 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   public Map<String, Multimap<String, FacetValue>> getStatsByProfileKeys(List<String> keys) {
-    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
-    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
     SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
       .setQuery(QueryBuilders.filteredQuery(
         QueryBuilders.termsQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), keys),
@@ -201,9 +189,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
         .subAggregation(AggregationBuilders.count("countActiveRules")))
       .setSize(0)
       .setTypes(this.getIndexType());
-    basicProfile.stop(request.toString());
-    SearchResponse response = request.get();
-    fullProfile.stop(response.toString());
+    SearchResponse response = node.execute(request);
     Map<String, Multimap<String, FacetValue>> stats = new HashMap<String, Multimap<String, FacetValue>>();
     Aggregation aggregation = response.getAggregations().get(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field());
     for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
