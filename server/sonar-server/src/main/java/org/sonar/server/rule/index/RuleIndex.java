@@ -337,7 +337,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   public Result<Rule> search(RuleQuery query, QueryOptions options) {
-    StopWatch profile = profiling.start("es", Profiling.Level.FULL);
+    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
+    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
 
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
@@ -358,8 +359,9 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     QueryBuilder qb = this.getQuery(query, options);
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
 
+    basicProfile.stop(esSearch.toString());
     SearchResponse esResult = esSearch.get();
-    profile.stop("query: " + esSearch + "\nresult:" + esResult);
+    fullProfile.stop(esResult.toString());
 
     return new Result<Rule>(this, esResult);
   }

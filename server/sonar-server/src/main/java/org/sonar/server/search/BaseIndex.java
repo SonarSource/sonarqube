@@ -24,6 +24,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -33,7 +37,6 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
@@ -52,12 +55,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.Dto;
 import org.sonar.core.profiling.Profiling;
+import org.sonar.core.profiling.StopWatch;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -200,6 +203,9 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   @Override
   public Date getLastSynchronization() {
+    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
+    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
+
     Date date;
     SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
@@ -208,7 +214,10 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       .addAggregation(AggregationBuilders.max("latest")
         .field(BaseNormalizer.UPDATED_AT_FIELD));
 
+
+    basicProfile.stop(request.toString());
     SearchResponse response = request.get();
+    fullProfile.stop(response.toString());
 
     Max max = (Max) response.getAggregations().get("latest");
 
@@ -383,12 +392,19 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected abstract DOMAIN toDoc(Map<String, Object> fields);
 
   public DOMAIN getByKey(KEY key) {
-    GetResponse response = getClient().prepareGet()
+    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
+    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
+
+    GetRequestBuilder request = getClient().prepareGet()
       .setType(this.getIndexType())
       .setIndex(this.getIndexName())
       .setId(this.getKeyValue(key))
-      .setRouting(this.getKeyValue(key))
-      .get();
+      .setRouting(this.getKeyValue(key));
+    basicProfile.stop(request.toString());
+
+    GetResponse response = request.get();
+    fullProfile.stop(response.toString());
+
     if (response.isExists()) {
       return toDoc(response.getSource());
     }
@@ -396,6 +412,8 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   protected void updateDocument(Collection<UpdateRequest> requests, KEY key) {
+    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
+    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
     LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
     BulkRequestBuilder bulkRequest = getClient().prepareBulk();
     for (UpdateRequest request : requests) {
@@ -412,7 +430,9 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
           .type(this.getIndexType()));
       }
     }
-    bulkRequest.get();
+    basicProfile.stop(bulkRequest.toString());
+    BulkResponse response = bulkRequest.get();
+    fullProfile.stop(response.toString());
   }
 
   @Override
@@ -463,13 +483,17 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   private void deleteDocument(KEY key) throws ExecutionException, InterruptedException {
+    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
+    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
     LOG.debug("DELETE _id:{} in index {}", key, this.getIndexName());
-    getClient()
+    DeleteRequestBuilder request = getClient()
       .prepareDelete()
       .setIndex(this.getIndexName())
       .setType(this.getIndexType())
-      .setId(this.getKeyValue(key))
-      .get();
+      .setId(this.getKeyValue(key));
+    basicProfile.stop(request.toString());
+    DeleteResponse response = request.get();
+    fullProfile.stop(response.toString());
   }
 
   @Override
@@ -510,28 +534,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   /* ES QueryHelper Methods */
 
-  protected void addMatchField(XContentBuilder mapping, String field, String type) throws IOException {
-    mapping.startObject(field)
-      .field("type", type)
-      .field("index", "not_analyzed")
-      .endObject();
-  }
-
-  protected BoolFilterBuilder addMultiFieldTermFilter(BoolFilterBuilder filter, @Nullable Collection<String> values, String... fields) {
-    if (values != null && !values.isEmpty()) {
-      BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
-      for (String value : values) {
-        Collection<FilterBuilder> filterBuilders = new ArrayList<FilterBuilder>();
-        for (String field : fields) {
-          filterBuilders.add(FilterBuilders.termFilter(field, value));
-        }
-        valuesFilter.should(FilterBuilders.orFilter(filterBuilders.toArray(new FilterBuilder[filterBuilders.size()])));
-      }
-      filter.must(valuesFilter);
-    }
-    return filter;
-  }
-
   protected BoolFilterBuilder addTermFilter(BoolFilterBuilder filter, String field, @Nullable Collection<String> values) {
     if (values != null && !values.isEmpty()) {
       BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
@@ -559,8 +561,11 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
 
   public Map<String, Long> countByField(IndexField indexField, FilterBuilder filter) {
+    StopWatch fullProfile = profiling.start("es", Profiling.Level.FULL);
+    StopWatch basicProfile = profiling.start("es", Profiling.Level.BASIC);
     Map<String, Long> counts = new HashMap<String, Long>();
-    Terms values = getClient().prepareSearch(this.getIndexName())
+
+    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
       .setQuery(QueryBuilders.filteredQuery(
         QueryBuilders.matchAllQuery(),
@@ -571,8 +576,14 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         .field(indexField.field())
         .order(Terms.Order.count(false))
         .size(Integer.MAX_VALUE)
-        .minDocCount(0)).get()
-      .getAggregations().get(indexField.field());
+        .minDocCount(0));
+
+    basicProfile.stop(request.toString());
+    SearchResponse response = request.get();
+    fullProfile.stop(response.toString());
+
+    Terms values =
+      response.getAggregations().get(indexField.field());
 
     for (Terms.Bucket value : values.getBuckets()) {
       counts.put(value.getKey(), value.getDocCount());
