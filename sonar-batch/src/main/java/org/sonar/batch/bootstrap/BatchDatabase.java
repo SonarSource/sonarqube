@@ -29,10 +29,7 @@ import java.util.Properties;
  */
 public class BatchDatabase extends DefaultDatabase {
 
-  private final AnalysisMode analysisMode;
-
   public BatchDatabase(Settings settings,
-    AnalysisMode analysisMode,
     // The dependency on JdbcDriverHolder is required to be sure that the JDBC driver
     // has been downloaded and injected into classloader
     JdbcDriverHolder jdbcDriverHolder,
@@ -41,16 +38,13 @@ public class BatchDatabase extends DefaultDatabase {
     // changed settings
     PreviewDatabase dryRun) {
     super(settings);
-    this.analysisMode = analysisMode;
   }
 
   public BatchDatabase(Settings settings,
-    AnalysisMode analysisMode,
     // The dependency on JdbcDriverHolder is required to be sure that the JDBC driver
     // has been downloaded and injected into classloader
     JdbcDriverHolder jdbcDriverHolder) {
     super(settings);
-    this.analysisMode = analysisMode;
   }
 
   @Override
@@ -62,12 +56,5 @@ public class BatchDatabase extends DefaultDatabase {
     properties.setProperty("sonar.jdbc.maxActive", "3");
     // SONAR-2965
     properties.setProperty("sonar.jdbc.defaultAutoCommit", "false");
-  }
-
-  @Override
-  protected void checkH2Database() {
-    if (!analysisMode.isPreview()) {
-      super.checkH2Database();
-    }
   }
 }
