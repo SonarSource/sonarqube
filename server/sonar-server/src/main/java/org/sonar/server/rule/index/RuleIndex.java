@@ -377,7 +377,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         .size(Integer.MAX_VALUE)
         .minDocCount(1));
 
-    SearchResponse esResponse = request.get();
+    SearchResponse esResponse = node.execute(request);
 
     Terms aggregation = esResponse.getAggregations().get(key);
 
