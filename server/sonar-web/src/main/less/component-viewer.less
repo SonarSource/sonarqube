@@ -568,6 +568,7 @@
 
   & > li > a.item {
     color: @baseFontColor;
+    .link-no-underline;
     .trans;
 
     &:hover { background-color: @barBackgroundColor; }
@@ -592,6 +593,8 @@
 
 .component-viewer-header-time-changes {
   padding: 10px;
+
+  & > a { .link-no-underline; }
 }
 
 .component-viewer-header-sqale-rating {
