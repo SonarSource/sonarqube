@@ -5,7 +5,7 @@
     </div>
     <ul class="component-viewer-header-expanded-bar-section-list">
       {{{componentViewerHeaderLink lines 'lines' 'js-filter-lines'}}}
-      {{#if 'ncloc_data'}}
+      {{#if ncloc_data}}
         {{{componentViewerHeaderLink ncloc 'ncloc' 'js-filter-ncloc'}}}
       {{else}}
         {{{componentViewerHeaderItem ncloc 'ncloc'}}}
