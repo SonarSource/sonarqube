@@ -1,5 +1,6 @@
-@import "variables";
-@import "mixins";
+@import (reference) "variables";
+@import (reference) "mixins";
+@import (reference) "ui";
 
 @headerHeight: 60px;
 @workspaceWidth: 250px;
@@ -354,6 +355,7 @@
   position: relative;
   top: -2px;
   margin-left: 4px;
+  .link-no-underline;
 }
 
 .component-viewer-header-measures {
@@ -375,6 +377,7 @@
   border-left: 1px solid @barBackgroundColor;
   .box-sizing(border-box);
   background-color: lighten(@blue, 30%);
+  .link-no-underline;
   .transform-origin(0 0);
   .trans;
 
@@ -399,6 +402,7 @@
   display: block;
   padding: 11px 20px;
   white-space: nowrap;
+  .link-no-underline;
 
   a& {
     .trans(background);
@@ -481,6 +485,7 @@
   display: block;
   padding: 20px 10px;
   font-size: @iconFontSize;
+  .link-no-underline;
 }
 
 .component-viewer-header-more-actions {

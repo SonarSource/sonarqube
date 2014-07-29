@@ -196,7 +196,7 @@
             %>
               <th style="text-align: center; vertical-align: top; line-height: 1.5;">
                 <span class="no-transform">
-                  <a class="underlined-link" href="<%= ApplicationController.root_context -%>/dashboard/index/<%= s.resource.key -%>"><%= h s.resource.name(true) -%></a>
+                  <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= s.resource.key -%>"><%= h s.resource.name(true) -%></a>
                   <br/>
                   <span class="note"><b><%= event ? event.name : message('comparison.version.latest') -%></b></span>
                   <br/>

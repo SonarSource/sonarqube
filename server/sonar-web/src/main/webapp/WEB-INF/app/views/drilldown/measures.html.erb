@@ -77,7 +77,7 @@
                 <% if resource.source_code? %>
                   <a href="<%= url_for :controller => 'dashboard', :action => 'index', :id => resource.id, :period => @period, :metric => (@metric && @metric.key), :rule => @rule ? @rule.id : @severity -%>"
                      onclick="window.open(this.href,'resource-<%= resource.key.parameterize -%>','scrollbars=1,resizable=1');return false;"
-                     id="popup-<%= resource.key.parameterize -%>"
+                     id="popup-<%= resource.key.parameterize -%>" class="nolink"
                      target="_blank"><i class="icon-detach" title="<%= message('new_window') -%>"></i></a>
                 <% else %>
                   <%= link_to(image_tag('zoom.png'), {:id => resource.id, :metric => @metric.id}, {:class => 'nolink'}) -%>
@@ -85,9 +85,9 @@
                 <%= qualifier_icon(resource) -%>&nbsp;
                 <% if resource.source_code? %>
                   <a href="#" title="<%= h resource.name(true) -%>" data-key="<%= resource.key -%>"
-                     class="js-drilldown-link underlined-link"><%= h resource.name(false) %></a>
+                     class="js-drilldown-link"><%= h resource.name(false) %></a>
                 <% else %>
-                  <%= link_to(h(resource.name), params.merge({:only_path => true, :rids => (selected ? rids-[resource.id] : rids+[resource.id])}), :class => 'underlined-link') -%>
+                  <%= link_to(h(resource.name), params.merge({:only_path => true, :rids => (selected ? rids-[resource.id] : rids+[resource.id])})) -%>
                 <% end %>
               </td>
               <td class="right">

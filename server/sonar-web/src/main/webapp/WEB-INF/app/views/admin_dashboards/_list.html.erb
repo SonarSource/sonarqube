@@ -24,12 +24,12 @@
         </td>
         <td class="order">
           <% if index > 0 %>
-            <%= link_to image_tag('blue-up.png'), {:action => :up, :id => active.id}, :method => :post, :id => "up-#{u active.name}" %>
+            <%= link_to '', {:action => :up, :id => active.id}, :method => :post, :id => "up-#{u active.name}", :class => 'icon-move-up' %>
           <% else %>
             <%= image_tag('transparent_16.gif') %>
           <% end %>
           <% if index < active_dashboards.size-1 %>
-            <%= link_to image_tag('blue-down.png'), {:action => :down, :id => active.id}, :method => :post, :id => "down-#{u active.name}" %>
+            <%= link_to '', {:action => :down, :id => active.id}, :method => :post, :id => "down-#{u active.name}", :class => 'icon-move-down' %>
           <% else %>
             <%= image_tag('transparent_16.gif') %>
         <% end %>

@@ -1,6 +1,6 @@
-@import "mixins";
-@import "variables";
-@import "ui";
+@import (reference) "mixins";
+@import (reference) "variables";
+@import (reference) "ui";
 
 .dashboard-page {
   background-color: @barBackgroundColor;
@@ -74,7 +74,7 @@
 }
 
 #dashboard .widget-title a {
-  .highlighted-link;
+  .link-no-underline;
 }
 
 /*CONFIGURATION*/

@@ -1,6 +1,6 @@
-@import "mixins";
-@import "variables";
-@import "ui";
+@import (reference) "mixins";
+@import (reference) "variables";
+@import (reference) "ui";
 
 @media print {
   /* ------------------- PRINT ------------------- */
@@ -70,8 +70,8 @@ body, a {
 }
 
 #hd a {
-  .base-link;
-  color: #e5e5e5;
+  color: #fff;
+  .link-no-underline;
 
   &.selected { color: @blue; }
 }
@@ -145,11 +145,7 @@ body, a {
 }
 
 #bc li a {
-  text-decoration: none;
-}
-
-#bc li a:hover, #bc li a:focus {
-  text-decoration: underline;
+  .link-no-underline;
 }
 
 #crumbs-ops {
@@ -163,11 +159,7 @@ body, a {
 }
 
 #crumbs-ops li a {
-  text-decoration: none;
-}
-
-#crumbs-ops li a:hover, #crumbs-ops li a:focus {
-  text-decoration: underline;
+  .link-no-underline;
 }
 
 #hd .dropdown-menu a {
@@ -224,7 +216,7 @@ ul.sidebar li {
 }
 
 ul.sidebar li > a {
-  .highlighted-link;
+  .link-no-underline;
 }
 
 ul.sidebar li.active {

@@ -1,5 +1,6 @@
-@import "variables";
-@import "mixins";
+@import (reference) "variables";
+@import (reference) "mixins";
+@import (reference) "ui";
 
 @font-face {
 	font-family: 'sonar';
@@ -28,7 +29,7 @@
 }
 
 a[class^="icon-"], a[class*=" icon-"] {
-  text-decoration: none !important;
+  .link-no-underline;
 }
 
 
