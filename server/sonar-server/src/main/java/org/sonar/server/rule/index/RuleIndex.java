@@ -395,11 +395,12 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   @Deprecated
   @CheckForNull
   public Rule getById(int id) {
-    SearchResponse response = getClient().prepareSearch(this.getIndexName())
+    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
       .setQuery(QueryBuilders.termQuery(RuleNormalizer.RuleField.ID.field(), id))
-      .setSize(1)
-      .get();
+      .setSize(1);
+    SearchResponse response = node.execute(request);
+
     SearchHit hit = response.getHits().getAt(0);
     if (hit == null) {
       return null;
@@ -413,10 +414,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
    */
   @Deprecated
   public List<Rule> getByIds(Collection<Integer> ids) {
-    SearchResponse response = getClient().prepareSearch(this.getIndexName())
+    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
-      .setQuery(QueryBuilders.termsQuery(RuleNormalizer.RuleField.ID.field(), ids))
-      .get();
+      .setQuery(QueryBuilders.termsQuery(RuleNormalizer.RuleField.ID.field(), ids));
+    SearchResponse response = node.execute(request);
+
     List<Rule> rules = newArrayList();
     for (SearchHit hit : response.getHits()) {
       rules.add(toDoc(hit.getSource()));
