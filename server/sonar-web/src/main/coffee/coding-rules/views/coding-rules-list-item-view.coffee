@@ -25,4 +25,5 @@ define [
 
     serializeData: ->
       _.extend super,
+        manualRuleLabel: t 'coding_rules.manual_rule'
         allTags: _.union @model.get('sysTags'), @model.get('tags')

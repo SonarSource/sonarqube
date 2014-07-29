@@ -1,13 +1,16 @@
 <div class="line line-small">
-  <span class="coding-rules-detail-status">{{language}}</span>
+  <span class="coding-rules-detail-status">{{default language manualRuleLabel}}</span>
 
   <div class="line-right">
-    <span class="coding-rules-list-tags">
-      <i class="icon-tags"></i>
-      <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
-    </span>
+    {{#if allTags}}
+      <span class="coding-rules-list-tags">
+        <i class="icon-tags"></i>
+        <span>{{join allTags ', '}}</span>
+      </span>
+      &nbsp;&nbsp;
+    {{/if}}
 
-    {{#notEq status 'READY'}}| <span class="coding-rules-detail-not-ready">{{status}}</span>{{/notEq}}
+    {{#notEq status 'READY'}}<span class="coding-rules-detail-not-ready">{{status}}</span>{{/notEq}}
   </div>
 </div>
 <div class="line" title="{{name}}" name="{{key}}">{{name}}</div>
