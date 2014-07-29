@@ -36,7 +36,12 @@ define [
 
     onRender: ->
       @header.enableUnitTest = (testName) =>
-        @ui.unitTests.filter("[data-name=#{testName}]").click()
+        test = @ui.unitTests.filter("[data-name=#{testName}]")
+        container = test.closest '.component-viewer-header-expanded-bar-section-list'
+        topOffset = test.offset().top - container.offset().top
+        if topOffset > container.height()
+          container.scrollTop topOffset
+        test.click()
       @$(@activeSort).addClass 'active-link' if @activeSort
 
 
