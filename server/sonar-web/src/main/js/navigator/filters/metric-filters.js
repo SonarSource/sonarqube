@@ -92,7 +92,9 @@ define([
 
     onShow: function() {
       var select = this.$('[name=metric]');
-      select.select2('open');
+      if (this.model.get('value')['metric'] === '') {
+        select.select2('open');
+      }
     }
 
   });
