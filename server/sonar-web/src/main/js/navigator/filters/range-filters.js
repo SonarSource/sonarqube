@@ -171,12 +171,14 @@ define([
     render: function() {
       RangeFilterView.prototype.render.apply(this, arguments);
       this.detailsView.$('input')
-          .prop('readonly', true)
           .prop('placeholder', '1970-01-31')
           .datepicker({
             dateFormat: 'yy-mm-dd',
             changeMonth: true,
             changeYear: true
+          })
+          .on('change', function () {
+            jQuery(this).datepicker('setDate', jQuery(this).val());
           });
     },
 
