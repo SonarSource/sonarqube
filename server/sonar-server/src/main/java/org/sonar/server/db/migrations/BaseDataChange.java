@@ -39,6 +39,10 @@ public abstract class BaseDataChange implements DataChange, DatabaseMigration {
     try {
       readConnection = db.getDataSource().getConnection();
       readConnection.setAutoCommit(false);
+      if (readConnection.getMetaData().supportsTransactionIsolationLevel(Connection.TRANSACTION_READ_UNCOMMITTED)) {
+        readConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+      }
+
       writeConnection = db.getDataSource().getConnection();
       writeConnection.setAutoCommit(false);
       Context context = new Context(db, readConnection, writeConnection);
