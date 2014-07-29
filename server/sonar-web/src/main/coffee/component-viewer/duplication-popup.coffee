@@ -36,7 +36,7 @@ define [
       key = $(e.currentTarget).data 'key'
       line = $(e.currentTarget).data 'line'
       files = @options.main.source.get('duplicationFiles')
-      @options.main.addTransition 'duplication', @collection.map (item) ->
+      options =  @collection.map (item) ->
         file = files[item.get('_ref')]
         x = utils.splitLongName file.name
         key: file.key
@@ -46,6 +46,8 @@ define [
           projectName: file.projectName
           subProjectName: file.subProjectName
         active: file.key == key
+      options = _.uniq options, (item) -> item.key
+      @options.main.addTransition 'duplication', options
       if key == @options.main.component.get 'key'
         @options.main.scrollToLine line
         @options.main.workspaceView.render()
