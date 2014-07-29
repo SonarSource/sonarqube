@@ -98,6 +98,7 @@ casper.test.begin(testName('Readonly Tests'), function suite(test) {
   });
 });
 
+
 casper.test.begin(testName('Admin Tests'), function suite(test) {
 
   var showId = null;
@@ -140,6 +141,118 @@ casper.test.begin(testName('Admin Tests'), function suite(test) {
       });
 
     });
+  });
+
+  casper.run(function() {
+    test.done();
+  });
+});
+
+
+casper.test.begin(testName('Activation Tests'), function suite(test) {
+
+  var showId = null;
+  var activateId = null;
+
+  casper.start(lib.buildUrl('coding-rules#rule_key=squid-xoo:x1'), function() {
+    lib.clearRequestMocks();
+    lib.mockRequest('/api/l10n/index', '{}');
+    lib.mockRequestFromFile('/api/rules/app', 'app_admin.json');
+    lib.mockRequestFromFile('/api/rules/tags', 'tags.json');
+    lib.mockRequestFromFile('/api/rules/search', 'search_x1.json');
+    showId = lib.mockRequestFromFile('/api/rules/show', 'show_x1.json');
+  });
+
+
+  casper.waitWhileSelector("div#coding-rules-page-loader", function checkRuleActivation() {
+
+    casper.waitForSelector('div.coding-rules-detail-quality-profiles-section', function showRuleActivation() {
+      test.assertExists('#coding-rules-detail-quality-profiles');
+
+      test.assertElementCount('.coding-rules-detail-quality-profile', 1);
+
+      test.assertSelectorHasText('.coding-rules-detail-quality-profile-parameter', 'A nice');
+      test.assertSelectorHasText('.coding-rules-detail-quality-profile-parameter', 'true');
+      test.assertSelectorHasText('.coding-rules-detail-quality-profile-parameter', '0');
+    });
+
+
+    casper.then(function editActiveRule() {
+      casper.click('button.coding-rules-detail-quality-profile-change');
+
+      casper.waitForSelector('button#coding-rules-quality-profile-activation-activate', function checkActivationPopup() {
+        test.assertElementCount('.modal-body .property', 5 /* quality profile, severity, 3 parameters */);
+
+        test.assertSelectorHasText('.modal-body .property textarea[name="textParameter"]', 'A nice\ntext parameter\nwith newlines.');
+        test.assertSelectorHasText('.modal-body .property input[name="skipLines"]', '');
+        test.assertEval(function checkPlaceHolder() {
+          return $j('.modal-body .property input[name="skipLines"]').attr('placeholder') === '0'
+        });
+        test.assertEval(function checkTrueIsSelected() {
+          return $j('.modal-body .property select[name="acceptWhitespace"]').val() === 'true'
+        });
+      });
+    });
+
+    casper.then(function updateParameters() {
+      casper.sendKeys('textarea[name="textParameter"]', '\nUpdated');
+      casper.sendKeys('input[name="skipLines"]', '5');
+      casper.evaluate(function selectDefault() {
+          $j('select[name="acceptWhitespace"]').val('false').change();
+      });
+
+      lib.clearRequestMock(showId);
+      showId = lib.mockRequestFromFile('/api/rules/show', 'update_parameters_x1.json');
+      activateId = lib.mockRequest('/api/qualityprofiles/activate_rule', '');
+
+      casper.click('button#coding-rules-quality-profile-activation-activate');
+
+      casper.wait(500, function showUpdatedParameters() {
+        test.assertSelectorHasText('.coding-rules-detail-quality-profile-parameter', 'A nice');
+        test.assertSelectorHasText('.coding-rules-detail-quality-profile-parameter', 'false');
+        test.assertSelectorHasText('.coding-rules-detail-quality-profile-parameter', '5');
+      });
+
+    });
+
+    casper.then(function deactivateRule() {
+      casper.click('button.coding-rules-detail-quality-profile-deactivate');
+
+      casper.waitForSelector('button[data-confirm="yes"]', function checkConfirmPopup() {
+        lib.clearRequestMock(showId);
+        showId = lib.mockRequestFromFile('/api/rules/show', 'deactivate_x1.json');
+        lib.mockRequest('/api/qualityprofiles/deactivate_rule', '');
+
+        casper.click('button[data-confirm="yes"]');
+      });
+
+      casper.wait(500, function showUpdatedParameters() {
+        test.assertElementCount('.coding-rules-detail-quality-profile', 0);
+      });
+    });
+
+    casper.then(function activateRule() {
+      casper.click('button#coding-rules-quality-profile-activate');
+
+      casper.waitForSelector('button#coding-rules-quality-profile-activation-activate', function checkActivationPopup() {
+
+        lib.clearRequestMock(showId);
+        showId = lib.mockRequestFromFile('/api/rules/show', 'show_x1.json');
+        lib.clearRequestMock(activateId);
+        activateId = lib.mockRequest('/api/qualityprofiles/activate_rule', '');
+
+        casper.click('button#coding-rules-quality-profile-activation-activate');
+
+        casper.wait(500, function showUpdatedParameters() {
+          test.assertSelectorHasText('.coding-rules-detail-quality-profile-parameter', 'A nice');
+          test.assertSelectorHasText('.coding-rules-detail-quality-profile-parameter', 'true');
+          test.assertSelectorHasText('.coding-rules-detail-quality-profile-parameter', '0');
+        });
+
+      });
+
+    });
+
   });
 
 

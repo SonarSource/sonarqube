@@ -181,6 +181,19 @@ public class QProfileFactory implements ServerComponent {
     return db.qualityProfileDao().getByProjectAndLanguage(projectKey, language, PROFILE_PROPERTY_PREFIX + language, session);
   }
 
+  QualityProfileDto getByNameAndLanguage(String name, String language) {
+    DbSession dbSession = db.openSession(false);
+    try {
+      return getByNameAndLanguage(dbSession, name, language);
+    } finally {
+      dbSession.close();
+    }
+  }
+
+  public QualityProfileDto getByNameAndLanguage(DbSession session, String name, String language) {
+    return db.qualityProfileDao().getByNameAndLanguage(name, language, session);
+  }
+
   private void checkNotDefault(@Nullable QualityProfileDto defaultProfile, QualityProfileDto p) {
     if (defaultProfile != null && defaultProfile.getKey().equals(p.getKey())) {
       throw new BadRequestException("The profile marked as default can not be deleted: " + p.getKey());

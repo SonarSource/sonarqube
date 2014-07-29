@@ -159,7 +159,7 @@ requirejs [
     @storeQuery pristineQuery, @codingRules.sorting
 
     # Optimize requested fields
-    _.extend fetchQuery, f: 'name,lang,status'
+    _.extend fetchQuery, f: 'name,lang,status,tags,sysTags'
 
     if @codingRulesListView
       scrollOffset = jQuery('.navigator-results')[0].scrollTop

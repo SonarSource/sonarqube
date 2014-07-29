@@ -36,7 +36,6 @@ import org.sonar.server.text.MacroInterpreter;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Map;
 
@@ -155,6 +154,7 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
             .beginObject()
             .prop("key", param.key())
             .prop("htmlDesc", param.description() == null ? null : Markdown.convertToHtml(param.description()))
+            .prop("type", param.type().type())
             .prop("defaultValue", param.defaultValue())
             .endObject();
         }

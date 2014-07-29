@@ -43,7 +43,15 @@
             {{#eq type 'TEXT'}}
               <textarea class="width100" rows="3" name="{{key}}" placeholder="{{defaultValue}}">{{value}}</textarea>
             {{else}}
+              {{#eq type 'BOOLEAN'}}
+              <select name="{{key}}" value="{{value}}">
+                <option value="{{defaultValue}}">{{t 'default'}}</option>
+                <option value="true"{{#eq value 'true'}} selected="selected"{{/eq}}>{{t 'true'}}</option>
+                <option value="false"{{#eq value 'false'}} selected="selected"{{/eq}}>{{t 'false'}}</option>
+              </select>
+              {{else}}
               <input type="text" name="{{key}}" value="{{value}}" placeholder="{{defaultValue}}">
+              {{/eq}}
             {{/eq}}
             <div class="note">{{description}}</div>
             {{#if extra}}

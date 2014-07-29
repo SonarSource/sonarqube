@@ -1,5 +1,5 @@
 <li>
-  <a href="#" onclick="showDropdownMenu('project-settings-menu'); return false;" class="link-more" id="project-settings-menu-link"><%= message('layout.configuration') -%></a>
+  <a href="#" onclick="showDropdownMenu('project-settings-menu'); return false;" class="link-more" id="project-settings-menu-link"><%= message('qualifier.configuration.' + @project.qualifier) -%></a>
 
   <div id="project-settings-menu" class="dropdown-menu" style="display: none">
     <% is_admin = has_role?(:admin, @project) %>

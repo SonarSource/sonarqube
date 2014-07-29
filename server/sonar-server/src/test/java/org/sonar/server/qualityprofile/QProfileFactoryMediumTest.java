@@ -328,6 +328,18 @@ public class QProfileFactoryMediumTest {
     assertThat(factory.getByProjectAndLanguage("org.codehaus.sonar:sonar", "xoo").getKey()).isEqualTo(XOO_P1_KEY);
   }
 
+  @Test
+  public void get_profile_by_name_and_language() {
+    QualityProfileDto profileDto = QProfileTesting.newDto(new QProfileName("xoo", "SonarQube way"), "abcd");
+    db.qualityProfileDao().insert(dbSession, profileDto);
+    dbSession.commit();
+    dbSession.clearCache();
+
+    assertThat(factory.getByNameAndLanguage("SonarQube way", "xoo").getKey()).isEqualTo("abcd");
+    assertThat(factory.getByNameAndLanguage("SonarQube way", "java")).isNull();
+    assertThat(factory.getByNameAndLanguage("Unfound", "xoo")).isNull();
+  }
+
   private void initRules() {
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1();

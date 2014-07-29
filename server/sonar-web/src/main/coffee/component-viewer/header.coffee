@@ -160,7 +160,6 @@ define [
 
     enableBarItem: (item, silent = false) ->
       $item = @$(item)
-      console.log item, $item
       if $item.length > 0
         if silent then @$(item).addClass('active') else @$(item).click()
       else

@@ -8,6 +8,8 @@ define [
   BaseHeaderView
 ) ->
 
+  $ = jQuery
+
 
   class extends BaseHeaderView
     template: Templates['cw-basic-header']

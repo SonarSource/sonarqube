@@ -31,7 +31,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.DialectUtils;
-import org.sonar.core.persistence.dialect.H2;
 import org.sonar.core.persistence.profiling.PersistenceProfiling;
 import org.sonar.jpa.session.CustomHibernateConnectionProvider;
 
@@ -55,7 +54,6 @@ public class DefaultDatabase implements Database {
   private static final String SONAR_HIBERNATE = "sonar.hibernate.";
   private static final String SONAR_JDBC_DIALECT = "sonar.jdbc.dialect";
   private static final String SONAR_JDBC_URL = "sonar.jdbc.url";
-  private static final String SONAR_JDBC_DRIVER_CLASS_NAME = "sonar.jdbc.driverClassName";
   private static final String VALIDATE = "validate";
 
   private Settings settings;
@@ -89,33 +87,17 @@ public class DefaultDatabase implements Database {
 
   @VisibleForTesting
   void initSettings() {
-    initProperties();
-    initDialect();
-  }
-
-  private void initProperties() {
     properties = new Properties();
     completeProperties(settings, properties, SONAR_JDBC);
     completeProperties(settings, properties, SONAR_HIBERNATE);
     completeDefaultProperties(properties);
     doCompleteProperties(properties);
-  }
 
-  private void initDialect() {
     dialect = DialectUtils.find(properties.getProperty(SONAR_JDBC_DIALECT), properties.getProperty(SONAR_JDBC_URL));
     if (dialect == null) {
-      throw new IllegalStateException("Can not guess the JDBC dialect. Please check the property " + SONAR_JDBC_URL + ".");
+      throw new IllegalStateException(String.format("Can not guess the JDBC dialect. Please check the property %s.", SONAR_JDBC_URL));
     }
-    checkH2Database();
-    if (!properties.containsKey(SONAR_JDBC_DRIVER_CLASS_NAME)) {
-      properties.setProperty(SONAR_JDBC_DRIVER_CLASS_NAME, dialect.getDefaultDriverClassName());
-    }
-  }
-
-  protected void checkH2Database() {
-    if (H2.ID.equals(dialect.getId())) {
-      LoggerFactory.getLogger(DefaultDatabase.class).warn("H2 database should be used for evaluation purpose only");
-    }
+    properties.setProperty(DatabaseProperties.PROP_DRIVER, dialect.getDefaultDriverClassName());
   }
 
   private void initDatasource() throws Exception {// NOSONAR this exception is thrown by BasicDataSourceFactory
@@ -205,7 +187,6 @@ public class DefaultDatabase implements Database {
   }
 
   private static void completeDefaultProperties(Properties props) {
-    completeDefaultProperty(props, DatabaseProperties.PROP_DRIVER, props.getProperty(DatabaseProperties.PROP_DRIVER_DEPRECATED));
     completeDefaultProperty(props, DatabaseProperties.PROP_URL, DEFAULT_URL);
     completeDefaultProperty(props, DatabaseProperties.PROP_USER, props.getProperty(DatabaseProperties.PROP_USER_DEPRECATED, DatabaseProperties.PROP_USER_DEFAULT_VALUE));
     completeDefaultProperty(props, DatabaseProperties.PROP_PASSWORD, DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE);

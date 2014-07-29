@@ -90,6 +90,7 @@ import org.sonar.server.component.ws.ComponentAppAction;
 import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.ProjectsWs;
 import org.sonar.server.component.ws.ResourcesWs;
+import org.sonar.server.db.DatabaseChecker;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.DatabaseMigrations;
@@ -191,6 +192,7 @@ class ServerComponents {
       JRubyProfiling.class,
       EmbeddedDatabaseFactory.class,
       DefaultDatabase.class,
+      DatabaseChecker.class,
       MyBatis.class,
       IndexQueue.class,
       DatabaseServerCompatibility.class,

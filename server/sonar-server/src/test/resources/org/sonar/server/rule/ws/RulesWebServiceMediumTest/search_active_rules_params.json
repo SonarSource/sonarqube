@@ -5,12 +5,14 @@
       {
         "key": "my_var",
         "htmlDesc": "My small description",
-        "defaultValue": "some value"
+        "defaultValue": "some value",
+        "type": "string"
       },
       {
         "key": "the_var",
         "htmlDesc": "My small description",
-        "defaultValue": "other value"
+        "defaultValue": "other value",
+        "type": "integer"
       }
     ]
   }

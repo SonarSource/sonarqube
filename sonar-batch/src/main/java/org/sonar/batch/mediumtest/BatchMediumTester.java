@@ -73,6 +73,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+/**
+ * Main utility class for writing batch medium tests.
+ * 
+ */
 public class BatchMediumTester {
 
   private Batch batch;

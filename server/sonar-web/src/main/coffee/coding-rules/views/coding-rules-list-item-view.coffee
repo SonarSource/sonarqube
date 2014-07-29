@@ -21,3 +21,8 @@ define [
     showDetail: ->
       @options.listView.selectIssue @$el
       @options.app.showRule @model.get('key')
+
+
+    serializeData: ->
+      _.extend super,
+        allTags: _.union @model.get('sysTags'), @model.get('tags')

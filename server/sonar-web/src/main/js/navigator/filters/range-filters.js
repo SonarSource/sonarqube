@@ -171,6 +171,7 @@ define([
     render: function() {
       RangeFilterView.prototype.render.apply(this, arguments);
       this.detailsView.$('input')
+          .prop('readonly', true)
           .prop('placeholder', '1970-01-31')
           .datepicker({
             dateFormat: 'yy-mm-dd',

@@ -45,6 +45,8 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +55,7 @@ import static com.google.common.collect.Maps.newHashMap;
 public class ProjectReferentialsAction implements RequestHandler {
 
   private static final String PARAM_KEY = "key";
+  private static final String PARAM_PROFILE = "profile";
 
   private final DbClient dbClient;
   private final PropertiesDao propertiesDao;
@@ -83,6 +86,11 @@ public class ProjectReferentialsAction implements RequestHandler {
       .setRequired(true)
       .setDescription("Project key")
       .setExampleValue("org.codehaus.sonar:sonar");
+
+    action
+      .createParam(PARAM_PROFILE)
+      .setDescription("Profile name")
+      .setExampleValue("SonarQube Way");
   }
 
   @Override
@@ -94,8 +102,9 @@ public class ProjectReferentialsAction implements RequestHandler {
     try {
       ProjectReferentials ref = new ProjectReferentials();
       String projectKey = request.mandatoryParam(PARAM_KEY);
+      String profileName = request.param(PARAM_PROFILE);
       addSettings(ref, projectKey, hasScanPerm, session);
-      addProfiles(ref, projectKey, session);
+      addProfiles(ref, projectKey, profileName, session);
       addActiveRules(ref);
 
       response.stream().setMediaType(MimeTypes.JSON);
@@ -130,18 +139,31 @@ public class ProjectReferentialsAction implements RequestHandler {
     return !key.contains(".secured") || hasScanPerm;
   }
 
-  private void addProfiles(ProjectReferentials ref, String projectKey, DbSession session) {
+  private void addProfiles(ProjectReferentials ref, String projectKey, @Nullable String profileName, DbSession session) {
     for (Language language : languages.all()) {
       String languageKey = language.getKey();
-      QualityProfileDto qualityProfileDto = qProfileFactory.getByProjectAndLanguage(session, projectKey, languageKey);
-      qualityProfileDto = qualityProfileDto != null ? qualityProfileDto : qProfileFactory.getDefault(session, languageKey);
-      if (qualityProfileDto != null) {
-        ref.addQProfile(new org.sonar.batch.protocol.input.QProfile(
-          qualityProfileDto.getKey(),
-          qualityProfileDto.getName(),
-          qualityProfileDto.getLanguage(),
-          UtcDateUtils.parseDateTime(qualityProfileDto.getRulesUpdatedAt())));
-      }
+      QualityProfileDto qualityProfileDto = getProfile(languageKey, projectKey, profileName, session);
+      ref.addQProfile(new org.sonar.batch.protocol.input.QProfile(
+        qualityProfileDto.getKey(),
+        qualityProfileDto.getName(),
+        qualityProfileDto.getLanguage(),
+        UtcDateUtils.parseDateTime(qualityProfileDto.getRulesUpdatedAt())));
+    }
+  }
+
+  /**
+   * First try to find a quality profile matching the given name (if provided) and current language
+   * If null, try to find the quality profile set on the project
+   * If null, try to find the default profile of the language
+   */
+  private QualityProfileDto getProfile(String languageKey, String projectKey, @Nullable String profileName, DbSession session) {
+    QualityProfileDto qualityProfileDto = profileName != null ? qProfileFactory.getByNameAndLanguage(session, profileName, languageKey) : null;
+    qualityProfileDto = qualityProfileDto != null ? qualityProfileDto : qProfileFactory.getByProjectAndLanguage(session, projectKey, languageKey);
+    qualityProfileDto = qualityProfileDto != null ? qualityProfileDto : qProfileFactory.getDefault(session, languageKey);
+    if (qualityProfileDto != null) {
+      return qualityProfileDto;
+    } else {
+      throw new IllegalStateException(String.format("No quality profile can been found on language '%s' for project '%s'", languageKey, projectKey));
     }
   }
 

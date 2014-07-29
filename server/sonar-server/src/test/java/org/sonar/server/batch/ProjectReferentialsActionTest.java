@@ -48,6 +48,7 @@ import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -113,6 +114,10 @@ public class ProjectReferentialsActionTest {
       new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
     ));
 
+    when(qProfileFactory.getDefault(session, "java")).thenReturn(
+      QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
+    );
+
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
     request.execute().assertJson(getClass(), "return_settings_by_modules.json");
   }
@@ -134,6 +139,10 @@ public class ProjectReferentialsActionTest {
     ));
     // No property on module
 
+    when(qProfileFactory.getDefault(session, "java")).thenReturn(
+      QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
+    );
+
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
     request.execute().assertJson(getClass(), "return_settings_by_modules_without_empty_module_settings.json");
   }
@@ -152,6 +161,19 @@ public class ProjectReferentialsActionTest {
   }
 
   @Test
+  public void fail_when_quality_profile_for_a_language() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", "org.codehaus.sonar:sonar");
+
+    try {
+      request.execute();
+    } catch (Exception e){
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("No quality profile can been found on language 'java' for project 'org.codehaus.sonar:sonar'");
+    }
+  }
+
+  @Test
   public void return_quality_profile_from_default_profile() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
     String projectKey = "org.codehaus.sonar:sonar";
@@ -162,6 +184,19 @@ public class ProjectReferentialsActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
     request.execute().assertJson(getClass(), "return_quality_profile_from_default_profile.json");
+  }
+
+  @Test
+  public void return_quality_profile_from_given_profile_name() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    String projectKey = "org.codehaus.sonar:sonar";
+
+    when(qProfileFactory.getByNameAndLanguage(session, "Default", "java")).thenReturn(
+      QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
+    );
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey).setParam("profile", "Default");
+    request.execute().assertJson(getClass(), "return_quality_profile_from_given_profile_name.json");
   }
 
   @Test

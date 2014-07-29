@@ -19,7 +19,8 @@
       {
         "key": "regex",
         "htmlDesc": "Reg ex",
-        "defaultValue": "a.*"
+        "defaultValue": "a.*",
+        "type": "STRING"
       }
     ]
   }

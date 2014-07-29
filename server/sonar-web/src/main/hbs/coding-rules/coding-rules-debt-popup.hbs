@@ -14,7 +14,12 @@
     {{/if}}
     {{#if debtRemFnOffset}}
     <li>
-      <h3>{{t 'coding_rules.remediation_function.offset'}}</h3>
+      <h3>{{#eq debtRemFnType 'CONSTANT_ISSUE'}}
+        {{t 'coding_rules.remediation_function.constant'}}
+        {{else}}
+        {{t 'coding_rules.remediation_function.offset'}}
+        {{/eq}}
+      </h3>
       {{debtRemFnOffset}}
     </li>
     {{/if}}

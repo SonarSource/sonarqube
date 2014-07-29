@@ -55,26 +55,6 @@
       }
     ]
   },
-  "actives": [
-    {
-      "qProfile": "xoo-sonar-way",
-      "inherit": "NONE",
-      "severity": "MAJOR",
-      "params": [
-        {
-          "key": "acceptWhitespace",
-          "value": "true"
-        },
-        {
-          "key": "textParameter",
-          "value": "A nice\ntext parameter\nwith newlines."
-        },
-        {
-          "key": "skipLines",
-          "value": "0"
-        }
-      ]
-    }
-  ]
+  "actives": [ ]
 
 }

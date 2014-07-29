@@ -9,15 +9,19 @@ var BASE_URL = 'http://localhost:3000/pages/',
 exports.initMessages = function () {
   // Dump log messages
   casper.removeAllListeners('remote.message');
-  casper.on('remote.message', function(message) {
-    this.echo('Log: '+ message, 'LOG');
-  });
+  if (casper.cli.get('verbose')) {
+    casper.on('remote.message', function(message) {
+      this.echo('Log: '+ message, 'LOG');
+    });
+  }
 
   // Dump uncaught errors
   casper.removeAllListeners('page.error');
-  casper.on('page.error', function(msg) {
-    this.echo('Error: ' + msg, 'ERROR');
-  });
+  if (casper.verbose) {
+    casper.on('page.error', function(msg) {
+      this.echo('Error: ' + msg, 'ERROR');
+    });
+  }
 };
 
 
@@ -45,17 +49,17 @@ exports.testName = function () {
 };
 
 
-var mockRequest = function (url, response) {
-  return casper.evaluate(function (url, response) {
-    return jQuery.mockjax({ url: url, responseText: response});
-  }, url, response);
+var mockRequest = function (url, response, options) {
+  return casper.evaluate(function (url, response, options) {
+    return jQuery.mockjax(_.extend({ url: url, responseText: response}, options));
+  }, url, response, options || {});
 };
 exports.mockRequest = mockRequest;
 
 
-exports.mockRequestFromFile = function (url, fileName) {
+exports.mockRequestFromFile = function (url, fileName, options) {
   var response = fs.read(fileName);
-  return mockRequest(url, response);
+  return mockRequest(url, response, options);
 };
 
 

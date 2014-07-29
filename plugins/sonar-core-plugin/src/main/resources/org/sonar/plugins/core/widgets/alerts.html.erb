@@ -2,7 +2,16 @@
    if m && !m.data.blank?
      details = JSON.parse m.data
      m.alert_status = details['level']
-     conditions = details['conditions']
+     raw_conditions = details['conditions']
+     conditions = []
+     missing_metric = false
+     raw_conditions.each do |condition|
+       if metric(condition['metric']).nil?
+         missing_metric = true
+       else
+         conditions << condition
+       end
+     end
      alert_metric = metric(Metric::ALERT_STATUS)
 
      warn_message = message('measure_filter.criteria.alert.warn')
@@ -19,7 +28,7 @@
 -%><div class="widget <%= css_class -%>" style="color: black !important" id="quality_gate_widget_<%= widget.id -%>">
   <div><%= format_measure(measure(Metric::ALERT_STATUS)) -%> <%= label -%></div>
   <% if conditions.any? {|condition| condition['level'] != 'OK'} || widget_properties['show_ok'] && !conditions.empty? -%>
-    <% details['conditions'].sort_by {|condition| [ -condition['level'].length, metric(condition['metric']).short_name] }.each do |condition|
+    <% conditions.sort_by {|condition| [ -condition['level'].length, metric(condition['metric']).short_name] }.each do |condition|
 
       level = condition['level']
       condition_metric = metric(condition['metric'])
@@ -53,7 +62,10 @@
       </div>
     <% end
      end
-   end -%>
+   end
+   if missing_metric -%>
+   <div class="warning" style="clear: left"><%= message('widget.alerts.missing_metric') -%></div>
+   <% end -%>
 </div>
 <% else -%>
 <% m=measure(Metric::ALERT_STATUS)

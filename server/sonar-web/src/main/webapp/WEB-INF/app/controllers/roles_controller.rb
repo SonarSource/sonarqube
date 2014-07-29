@@ -45,7 +45,7 @@ class RolesController < ApplicationController
         :include => ['user_roles','group_roles'],
         :conditions => ['kee in (?)', @query_result.components().to_a.collect{|component| component.key()}],
         # Even if components are already sorted, we must sort them again as this SQL query will not keep order
-        :order => 'name'
+        :order => 'lower(name)'
     )
     @components_names = params[:names]
     @components_keys = params[:keys]
