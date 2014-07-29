@@ -165,6 +165,7 @@ class MeasuresController < ApplicationController
   def copy_form
     require_parameters :id
     @filter = find_filter(params[:id])
+    @filter.shared = false
     render :partial => 'measures/copy_form'
   end
 
