@@ -423,13 +423,27 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
    */
   @Deprecated
   public List<Rule> getByIds(Collection<Integer> ids) {
-    SearchResponse response = getClient().prepareSearch(this.getIndexName())
+    SearchResponse scrollResp = getClient().prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
+      .setSearchType(SearchType.SCAN)
+      .setScroll(TimeValue.timeValueSeconds(3L))
+      .setSize(100)
       .setQuery(QueryBuilders.termsQuery(RuleNormalizer.RuleField.ID.field(), ids))
       .get();
+
     List<Rule> rules = newArrayList();
-    for (SearchHit hit : response.getHits()) {
-      rules.add(toDoc(hit.getSource()));
+    while (true) {
+      scrollResp = getClient()
+        .prepareSearchScroll(scrollResp.getScrollId())
+        .setScroll(TimeValue.timeValueSeconds(3L))
+        .get();
+      for (SearchHit hit : scrollResp.getHits()) {
+        rules.add(toDoc(hit.getSource()));
+      }
+      //Break condition: No hits are returned
+      if (scrollResp.getHits().getHits().length == 0) {
+        break;
+      }
     }
     return rules;
   }

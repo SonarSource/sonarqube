@@ -54,8 +54,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -928,6 +930,19 @@ public class RuleIndexMediumTest {
     RuleQuery availableSinceNowQuery = new RuleQuery()
       .setAvailableSince(DateUtils.addDays(since, 1));
     assertThat(index.search(availableSinceNowQuery, new QueryOptions()).getHits()).hasSize(0);
+  }
+
+  @Test
+  public void scroll_byIds() throws Exception {
+    Set<Integer> ids = new HashSet<Integer>();
+    for (int i = 0; i < 150; i++) {
+      RuleDto rule = RuleTesting.newDto(RuleKey.of("scroll", "r_" + i));
+      dao.insert(dbSession, rule);
+      dbSession.commit();
+      ids.add(rule.getId());
+    }
+    List<Rule> rules = index.getByIds(ids);
+    assertThat(rules).hasSize(ids.size());
   }
 
   private static List<String> ruleKeys(List<Rule> rules){
