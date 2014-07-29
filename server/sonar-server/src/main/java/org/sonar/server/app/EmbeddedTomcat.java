@@ -70,9 +70,10 @@ class EmbeddedTomcat {
       tomcat.getServer().await();
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start web server", e);
+    } finally {
+      // Shutdown command received
+      stop();
     }
-    // Shutdown command received
-    stop();
   }
 
   private File tomcatBasedir() {
@@ -120,7 +121,7 @@ class EmbeddedTomcat {
   }
 
   boolean isReady() {
-    return ready;
+    return ready && tomcat != null;
   }
 
   int port() {

@@ -49,7 +49,7 @@ public final class PlatformServletContextListener implements ServletContextListe
       // unexpected errors
       LoggerFactory.getLogger(getClass()).error("Fail to start server", t);
       stopQuietly();
-      System.exit(1);
+      throw new IllegalStateException("Fail to start server", t);
     }
   }
 
