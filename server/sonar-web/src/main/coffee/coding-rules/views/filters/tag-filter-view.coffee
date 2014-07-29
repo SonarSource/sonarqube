@@ -15,6 +15,7 @@ define [
     loadTags: ->
       tagsXHR = jQuery.ajax
         url: "#{baseUrl}/api/rules/tags"
+        async: false
 
       jQuery.when(tagsXHR).done (r) =>
         @choices = new Backbone.Collection(
