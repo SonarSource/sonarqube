@@ -62,7 +62,9 @@ public class DatabaseCheckerTest {
   @Test
   public void log_warning_if_h2() throws Exception {
     Database db = mockDb(new H2(), "13.4");
-    new DatabaseChecker(db).start();
+    DatabaseChecker checker = new DatabaseChecker(db);
+    checker.start();
+    checker.stop();
     // TODO test log
   }
 

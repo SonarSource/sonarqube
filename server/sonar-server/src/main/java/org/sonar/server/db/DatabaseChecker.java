@@ -19,8 +19,10 @@
  */
 package org.sonar.server.db;
 
+import com.google.common.base.Throwables;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
+import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Database;
@@ -30,7 +32,7 @@ import org.sonar.core.persistence.dialect.Oracle;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class DatabaseChecker implements ServerComponent {
+public class DatabaseChecker implements ServerComponent, Startable {
 
   private final Database db;
 
@@ -38,12 +40,22 @@ public class DatabaseChecker implements ServerComponent {
     this.db = db;
   }
 
-  public void start() throws SQLException {
-    if (H2.ID.equals(db.getDialect().getId())) {
-      LoggerFactory.getLogger(DatabaseChecker.class).warn("H2 database should be used for evaluation purpose only");
-    } else if (Oracle.ID.equals(db.getDialect().getId())) {
-      checkOracleDriverVersion();
+  @Override
+  public void start() {
+    try {
+      if (H2.ID.equals(db.getDialect().getId())) {
+        LoggerFactory.getLogger(DatabaseChecker.class).warn("H2 database should be used for evaluation purpose only");
+      } else if (Oracle.ID.equals(db.getDialect().getId())) {
+        checkOracleDriverVersion();
+      }
+    } catch (Exception e) {
+      Throwables.propagate(e);
     }
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 
   private void checkOracleDriverVersion() throws SQLException {
