@@ -71,6 +71,7 @@ class EmbeddedTomcat {
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start web server", e);
     }
+    stop();
   }
 
   private File tomcatBasedir() {
