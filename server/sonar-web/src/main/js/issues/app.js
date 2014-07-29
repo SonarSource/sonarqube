@@ -111,6 +111,13 @@ requirejs(
           });
         this.filters.add(projectFilter);
 
+        var assigneeChoices = {
+          '!assigned': window.SS.phrases.unassigned
+        };
+        if (window.SS.currentUser) {
+          assigneeChoices[window.SS.currentUser] = window.SS.currentUserName + ' (' + window.SS.currentUser + ')';
+        }
+
         this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.severity,
@@ -162,9 +169,7 @@ requirejs(
             type: AjaxSelectFilters.AssigneeFilterView,
             enabled: true,
             optional: false,
-            choices: {
-              '!assigned': window.SS.phrases.unassigned
-            }
+            choices: assigneeChoices
           }),
 
           new BaseFilters.Filter({
