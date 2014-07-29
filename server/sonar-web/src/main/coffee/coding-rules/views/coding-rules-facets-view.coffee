@@ -24,7 +24,8 @@ define [
       that = @
       @options.collection.each (facet) ->
         property = facet.get 'property'
-        facet.set 'property_message', 'coding_rules.facets.' + property
+        facet.set 'property_message', t 'coding_rules.facets.' + property
+        facet.set 'limitReached', facet.get('values').length >= 10
         _.each(facet.get('values'), (value) ->
           value.text = that.options.app.facetLabel(property, value.val)
         )
