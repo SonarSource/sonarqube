@@ -70,9 +70,6 @@ class EmbeddedTomcat {
       tomcat.getServer().await();
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start web server", e);
-    } finally {
-      // Shutdown command received
-      stop();
     }
   }
 

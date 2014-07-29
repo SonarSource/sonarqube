@@ -55,7 +55,6 @@ public class Monitor extends Thread {
   public void registerProcess(ProcessWrapper processWrapper) {
     processes.add(processWrapper);
     pings.put(processWrapper.getName(), System.currentTimeMillis());
-    processWrapper.start();
     for (int i = 0; i < 10; i++) {
       if (processWrapper.getProcessMXBean() == null || !processWrapper.getProcessMXBean().isReady()) {
         try {
@@ -65,6 +64,7 @@ public class Monitor extends Thread {
         }
       }
     }
+    processWrapper.start();
   }
 
   private class ProcessWatch implements Runnable {
@@ -78,6 +78,7 @@ public class Monitor extends Thread {
           }
         } catch (Exception e) {
           LOGGER.error("Error while pinging {}", process.getName(), e);
+          terminate();
         }
       }
     }

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.app;
 
+import org.slf4j.LoggerFactory;
 import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.Props;
 
@@ -33,7 +34,13 @@ public class ServerProcess extends org.sonar.process.Process {
 
   @Override
   public void onStart() {
-    tomcat.start();
+    try {
+      tomcat.start();
+    } catch (Exception e) {
+      LoggerFactory.getLogger(getClass()).error("TC error", e);
+    } finally {
+      terminate();
+    }
   }
 
   @Override
