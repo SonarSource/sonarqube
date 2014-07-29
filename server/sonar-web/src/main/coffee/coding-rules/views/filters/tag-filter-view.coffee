@@ -16,19 +16,19 @@ define [
       tagsXHR = jQuery.ajax
         url: "#{baseUrl}/api/rules/tags"
 
-      that = @
-      jQuery.when(tagsXHR).done (r) ->
-        that.choices = new Backbone.Collection(
+      jQuery.when(tagsXHR).done (r) =>
+        @choices = new Backbone.Collection(
           _.map(r.tags, (tag) ->
             new Backbone.Model
               id: tag
               text: tag
-          ))
+          ),
+          comparator: 'text')
 
-        if that.tagToRestore
-          that.restore(that.tagToRestore)
-          that.tagToRestore = null
-        that.render()
+        if @tagToRestore
+          @restore(@tagToRestore)
+          @tagToRestore = null
+        @render()
 
     restore: (value) ->
       unless @choices.isEmpty()
