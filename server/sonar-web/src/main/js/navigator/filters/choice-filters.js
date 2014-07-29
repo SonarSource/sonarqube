@@ -57,7 +57,7 @@ define([
     onCheck: function(e) {
       var checkbox = jQuery(e.currentTarget),
           id = checkbox.data('id'),
-          checked = checkbox.children('.icon-checkbox-checked').length > 0;
+          checked = checkbox.find('.icon-checkbox-checked').length > 0;
 
       if (this.model.get('multiple')) {
         if (checkbox.closest('.opposite').length > 0) {
