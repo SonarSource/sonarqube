@@ -39,6 +39,7 @@ public class UpsertImpl extends BaseSqlStatement<Upsert> implements Upsert {
     batchCount++;
     if (batchCount % BatchSession.MAX_BATCH_SIZE == 0L) {
       pstmt.executeBatch();
+      pstmt.clearParameters();
       pstmt.getConnection().commit();
     }
     return this;
