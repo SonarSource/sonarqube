@@ -24,6 +24,8 @@ define [
 
 
     serializeData: ->
+      tags = _.union @model.get('sysTags'), @model.get('tags')
       _.extend super,
         manualRuleLabel: t 'coding_rules.manual_rule'
-        allTags: _.union @model.get('sysTags'), @model.get('tags')
+        allTags: tags
+        showDetails: (@model.get('status') != 'READY') || (_.isArray(tags) && tags.length > 0)
