@@ -43,7 +43,7 @@ public class RulesAggregationTest {
     rulesAggregation.add(ruleDto);
     rulesAggregation.add(ruleDto);
 
-    RulesAggregation.Rule rule = new RulesAggregation.Rule().setRuleKey(ruleKey).setName("Rule name");
+    RulesAggregation.Rule rule = new RulesAggregation.Rule(ruleKey, "Rule name");
 
     assertThat(rulesAggregation.rules()).hasSize(1);
     assertThat(rulesAggregation.rules().iterator().next().name()).isEqualTo("Rule name");
@@ -60,5 +60,20 @@ public class RulesAggregationTest {
     rulesAggregation.add(RuleTesting.newDto(RuleKey.of("xoo", "S002")).setName("Rule name 2"));
 
     assertThat(rulesAggregation.rules()).hasSize(2);
+  }
+
+  @Test
+  public void test_equals_and_hash_code() throws Exception {
+    RulesAggregation.Rule rule = new RulesAggregation.Rule(RuleKey.of("xoo", "S001"), "S001");
+    RulesAggregation.Rule ruleSameRuleKey = new RulesAggregation.Rule(RuleKey.of("xoo", "S001"), "S001");
+    RulesAggregation.Rule ruleWithDifferentRuleKey = new RulesAggregation.Rule(RuleKey.of("xoo", "S002"), "S002");
+
+    assertThat(rule).isEqualTo(rule);
+    assertThat(rule).isEqualTo(ruleSameRuleKey);
+    assertThat(rule).isNotEqualTo(ruleWithDifferentRuleKey);
+
+    assertThat(rule.hashCode()).isEqualTo(rule.hashCode());
+    assertThat(rule.hashCode()).isEqualTo(ruleSameRuleKey.hashCode());
+    assertThat(rule.hashCode()).isNotEqualTo(ruleWithDifferentRuleKey.hashCode());
   }
 }

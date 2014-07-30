@@ -53,12 +53,12 @@ public class QProfileProjectOperations implements ServerComponent {
 
   void addProject(int profileId, long projectId, UserSession userSession, DbSession session) {
     checkPermission(userSession);
-      ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
-      QualityProfileDto qualityProfile = findNotNull(profileId, session);
+    ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
+    QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
-      db.propertiesDao().setProperty(new PropertyDto().setKey(
-        QProfileProjectLookup.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(project.getId()), session);
-      session.commit();
+    db.propertiesDao().setProperty(new PropertyDto().setKey(
+      QProfileProjectLookup.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(project.getId()), session);
+    session.commit();
   }
 
   public void removeProject(int profileId, long projectId, UserSession userSession) {

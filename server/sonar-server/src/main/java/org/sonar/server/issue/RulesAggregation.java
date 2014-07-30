@@ -36,7 +36,7 @@ public class RulesAggregation {
   }
 
   public RulesAggregation add(RuleDto ruleDto) {
-    rules.add(new Rule().setRuleKey(ruleDto.getKey()).setName(ruleDto.getName()));
+    rules.add(new Rule(ruleDto.getKey(), ruleDto.getName()));
     return this;
   }
 
@@ -53,22 +53,17 @@ public class RulesAggregation {
     private RuleKey ruleKey;
     private String name;
 
+    public Rule(RuleKey ruleKey, String name) {
+      this.ruleKey = ruleKey;
+      this.name = name;
+    }
+
     public RuleKey ruleKey() {
       return ruleKey;
     }
 
-    public Rule setRuleKey(RuleKey ruleKey) {
-      this.ruleKey = ruleKey;
-      return this;
-    }
-
     public String name() {
       return name;
-    }
-
-    public Rule setName(String name) {
-      this.name = name;
-      return this;
     }
 
     @Override

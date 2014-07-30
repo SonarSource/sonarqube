@@ -215,8 +215,7 @@ public class ProjectReferentialsAction implements RequestHandler {
           rule.name(),
           activeRule.severity(),
           rule.internalKey(),
-          qProfile.language()
-          );
+          qProfile.language());
         for (Map.Entry<String, String> entry : activeRule.params().entrySet()) {
           inputActiveRule.addParam(entry.getKey(), entry.getValue());
         }
