@@ -94,6 +94,8 @@ define([
       var select = this.$('[name=metric]');
       if (this.model.get('value')['metric'] === '') {
         select.select2('open');
+      } else {
+        select.select2('focus');
       }
     }
 
