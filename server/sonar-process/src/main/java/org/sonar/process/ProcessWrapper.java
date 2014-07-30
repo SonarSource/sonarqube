@@ -278,8 +278,8 @@ public class ProcessWrapper extends Thread implements Terminable {
         killerFuture.cancel(true);
         LOGGER.info("{} process stopped", getName());
 
-      } catch (Exception e) {
-        LOGGER.warn("Failed to terminate " + getName(), e);
+      } catch (Exception ignored) {
+        // ignore
       } finally {
         killer.shutdownNow();
       }
