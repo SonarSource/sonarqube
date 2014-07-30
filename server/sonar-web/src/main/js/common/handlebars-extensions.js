@@ -1,20 +1,16 @@
 requirejs.config({
   paths: {
-    'moment': 'third-party/moment',
     'handlebars': 'third-party/handlebars'
   },
 
   shim: {
-    'moment': {
-      exports: 'moment'
-    },
     'handlebars': {
       exports: 'Handlebars'
     }
   }
 });
 
-define(['handlebars', 'moment'], function (Handlebars, moment) {
+define(['handlebars'], function (Handlebars) {
 
   /*
    * Shortcut for templates retrieving
