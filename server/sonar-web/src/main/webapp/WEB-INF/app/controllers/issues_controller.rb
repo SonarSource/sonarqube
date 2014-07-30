@@ -109,6 +109,7 @@ class IssuesController < ApplicationController
   def copy_form
     require_parameters :id
     @filter = find_filter(params[:id].to_i)
+    @filter.setUser(nil)
     @filter.setShared(false)
     render :partial => 'issues/filter_copy_form'
   end
