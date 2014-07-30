@@ -315,10 +315,18 @@ define([
           item.set('checked', false);
         });
 
+        var unknownValues = [];
+
         _.each(value, function(v) {
           var cModel = that.choices.findWhere({ id: v });
-          cModel.set('checked', true);
+          if (cModel) {
+            cModel.set('checked', true);
+          } else {
+            unknownValues.push(v);
+          }
         });
+
+        value = _.difference(value, unknownValues);
 
         this.model.set({
           value: value,
