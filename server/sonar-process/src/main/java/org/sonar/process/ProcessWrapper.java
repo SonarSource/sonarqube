@@ -58,7 +58,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Fork and monitor a new process
  */
-public class ProcessWrapper extends Thread implements Terminatable {
+public class ProcessWrapper extends Thread implements Terminable {
 
   private final static Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
   public static final long READY_TIMEOUT_MS = 120000L;

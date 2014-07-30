@@ -50,11 +50,11 @@ public class ProcessUtils {
     }
   }
 
-  public static void addSelfShutdownHook(final Terminatable terminatable) {
+  public static void addSelfShutdownHook(final Terminable terminable) {
     Thread shutdownHook = new Thread(new Runnable() {
       @Override
       public void run() {
-        terminatable.terminate();
+        terminable.terminate();
       }
     });
     Runtime.getRuntime().addShutdownHook(shutdownHook);

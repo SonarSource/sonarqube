@@ -20,9 +20,9 @@
 package org.sonar.process;
 
 /**
- * This interface was not named Stopable in order to not conflict with {@link Thread#stop()}.
+ * This term "terminate" is used in order to not conflict with {@link Thread#stop()}.
  */
-public interface Terminatable {
+public interface Terminable {
   /**
    * Stops pending work. Must <b>not</b> throw an exception on error.
    */

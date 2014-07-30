@@ -19,7 +19,7 @@
  */
 package org.sonar.process;
 
-public interface ProcessMXBean extends Terminatable {
+public interface ProcessMXBean extends Terminable {
 
   boolean isReady();
 

@@ -25,11 +25,11 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ProcessUtils;
 import org.sonar.process.Props;
-import org.sonar.process.Terminatable;
+import org.sonar.process.Terminable;
 
 import java.io.File;
 
-class EmbeddedTomcat implements Terminatable {
+class EmbeddedTomcat implements Terminable {
 
   private final Props props;
   private Tomcat tomcat = null;

@@ -31,7 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class Monitor extends Thread implements Terminatable {
+public class Monitor extends Thread implements Terminable {
 
   private static final long PING_DELAY_MS = 3000L;
   private static final long TIMEOUT_MS = 15000L;
