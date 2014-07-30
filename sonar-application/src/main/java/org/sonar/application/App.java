@@ -34,6 +34,7 @@ public class App implements ProcessMXBean {
   private Monitor monitor = new Monitor();
   private ProcessWrapper elasticsearch;
   private ProcessWrapper server;
+  private boolean success = false;
 
   public App(Installation installation) throws Exception {
     this.installation = installation;
@@ -79,6 +80,7 @@ public class App implements ProcessMXBean {
           if (server.execute()) {
             monitor.registerProcess(server);
             if (server.waitForReady()) {
+              success = true;
               logger.info("Web server is ready");
               monitor.join();
             }
@@ -118,11 +120,15 @@ public class App implements ProcessMXBean {
     }
   }
 
+  private boolean isSuccess() {
+    return success;
+  }
+
   public static void main(String[] args) throws Exception {
     Installation installation = new Installation();
     new AppLogging().configure(installation);
     App app = new App(installation);
     app.start();
-    System.exit(0);
+    System.exit(app.isSuccess() ? 0 : 1);
   }
 }
