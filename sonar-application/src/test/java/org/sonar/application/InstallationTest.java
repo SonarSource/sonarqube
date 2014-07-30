@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.process.MinimumViableEnvironment;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class InstallationTest {
 
     Properties initialProps = new Properties();
     initialProps.setProperty("foo", "bar");
-    Installation installation = new Installation(new SystemChecks(), homeDir, initialProps);
+    Installation installation = new Installation(new MinimumViableEnvironment(), homeDir, initialProps);
     assertThat(installation.logsDir()).isEqualTo(logsDir);
     assertThat(installation.homeDir()).isEqualTo(homeDir);
 
@@ -85,7 +86,7 @@ public class InstallationTest {
 
     File dataDir = new File(homeDir, "data");
     try {
-      new Installation(new SystemChecks(), homeDir, new Properties());
+      new Installation(new MinimumViableEnvironment(), homeDir, new Properties());
       fail();
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).startsWith("Property 'sonar.path.data' is not valid, directory does not exist: " + dataDir.getAbsolutePath());
@@ -93,7 +94,7 @@ public class InstallationTest {
 
     try {
       FileUtils.touch(dataDir);
-      new Installation(new SystemChecks(), homeDir, new Properties());
+      new Installation(new MinimumViableEnvironment(), homeDir, new Properties());
       fail();
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).startsWith("Property 'sonar.path.data' is not valid, not a directory: " + dataDir.getAbsolutePath());
@@ -107,7 +108,7 @@ public class InstallationTest {
     FileUtils.forceMkdir(webDir);
     FileUtils.forceMkdir(logsDir);
 
-    Installation installation = new Installation(new SystemChecks(), homeDir, new Properties());
+    Installation installation = new Installation(new MinimumViableEnvironment(), homeDir, new Properties());
     assertThat(installation.prop("sonar.jdbc.username")).isEqualTo("angela");
   }
 }

@@ -21,6 +21,7 @@ package org.sonar.server.app;
 
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ConfigurationUtils;
+import org.sonar.process.MinimumViableEnvironment;
 import org.sonar.process.MonitoredProcess;
 import org.sonar.process.Props;
 
@@ -30,6 +31,9 @@ public class WebServer extends MonitoredProcess {
 
   WebServer(Props props) throws Exception {
     super(props);
+    new MinimumViableEnvironment()
+      .setRequiredJavaOption("file.encoding", "UTF-8")
+      .check();
     this.tomcat = new EmbeddedTomcat(props);
   }
 
@@ -54,6 +58,9 @@ public class WebServer extends MonitoredProcess {
     return tomcat.isReady();
   }
 
+  /**
+   * Can't be started as is. Needs to be bootstrapped by sonar-application
+   */
   public static void main(String[] args) throws Exception {
     Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
     Logging.init(props);

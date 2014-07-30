@@ -26,6 +26,7 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ConfigurationUtils;
+import org.sonar.process.MinimumViableEnvironment;
 import org.sonar.process.MonitoredProcess;
 import org.sonar.process.Props;
 import org.sonar.search.script.ListUpdate;
@@ -42,6 +43,7 @@ public class SearchServer extends MonitoredProcess {
 
   SearchServer(Props props) throws Exception {
     super(props);
+    new MinimumViableEnvironment().check();
   }
 
   @Override

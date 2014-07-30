@@ -22,6 +22,7 @@ package org.sonar.application;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.sonar.process.MinimumViableEnvironment;
 import org.sonar.process.Props;
 
 import javax.annotation.CheckForNull;
@@ -42,15 +43,15 @@ public class Installation {
     systemProperties.putAll(System.getenv());
     systemProperties.putAll(System.getProperties());
 
-    init(new SystemChecks(), detectHomeDir(), systemProperties);
+    init(new MinimumViableEnvironment(), detectHomeDir(), systemProperties);
   }
 
-  Installation(SystemChecks systemChecks, File homeDir, Properties systemProperties) throws URISyntaxException, IOException {
-    init(systemChecks, homeDir, systemProperties);
+  Installation(MinimumViableEnvironment minimumViableEnvironment, File homeDir, Properties systemProperties) throws URISyntaxException, IOException {
+    init(minimumViableEnvironment, homeDir, systemProperties);
   }
 
-  void init(SystemChecks systemChecks, File homeDir, Properties systemProperties) throws URISyntaxException, IOException {
-    systemChecks.checkJavaVersion();
+  void init(MinimumViableEnvironment minViableEnv, File homeDir, Properties systemProperties) throws URISyntaxException, IOException {
+    minViableEnv.check();
 
     this.homeDir = homeDir;
     props = initProps(homeDir, systemProperties);
@@ -108,11 +109,6 @@ public class Installation {
     File dir = configuredDir(propKey, defaultRelativePath);
     FileUtils.deleteQuietly(dir);
     FileUtils.forceMkdir(dir);
-
-    // verify that temp directory is writable
-    File tempFile = File.createTempFile("check", "tmp", dir);
-    FileUtils.deleteQuietly(tempFile);
-
     return dir;
   }
 

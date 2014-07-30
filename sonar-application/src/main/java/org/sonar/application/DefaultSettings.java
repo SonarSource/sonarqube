@@ -49,8 +49,7 @@ class DefaultSettings {
   private static final int WEB_JMX_PORT_DEFVAL = 9003;
 
   static final String WEB_JAVA_OPTS_KEY = "sonar.web.javaOpts";
-  private static final String WEB_JAVA_OPTS_DEFVAL = "-server -Xmx768m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError";
-  static final String WEB_JAVA_OPTS_APPENDED_VAL = "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false";
+  private static final String WEB_JAVA_OPTS_DEFVAL = "-Xmx768m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false";
 
   static final String JDBC_LOGIN_KEY = "sonar.jdbc.username";
   private static final String JDBC_LOGIN_DEFVAL = "sonar";
