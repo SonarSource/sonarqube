@@ -274,10 +274,8 @@ public class ProcessWrapper extends Thread implements Terminable {
         };
 
         ScheduledFuture killerFuture = killer.schedule(killerTask, 30, TimeUnit.SECONDS);
-        LOGGER.info("Stopping {} process", getName());
         processMXBean.terminate();
         killerFuture.cancel(true);
-        processMXBean = null;
         LOGGER.info("{} process stopped", getName());
 
       } catch (Exception e) {

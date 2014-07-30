@@ -70,6 +70,7 @@ public class App implements ProcessMXBean {
             .addJavaOpts(installation.prop(DefaultSettings.WEB_JAVA_OPTS_KEY))
             .addJavaOpts(DefaultSettings.WEB_JAVA_OPTS_APPENDED_VAL)
             .addJavaOpts(String.format("-Djava.io.tmpdir=%s", installation.tempDir().getAbsolutePath()))
+            .addJavaOpts(String.format("-Dsonar.path.logs=%s", installation.logsDir().getAbsolutePath()))
             .setClassName("org.sonar.server.app.WebServer")
             .setProperties(installation.props().encryptedProperties())
             .addClasspath(installation.starPath("extensions/jdbc-driver/mysql"))
