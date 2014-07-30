@@ -158,6 +158,7 @@ define [
       row = $(e.currentTarget).closest('.row')
       highlighted = row.is ".#{HIGHLIGHTED_ROW_CLASS}"
       @$(".#{HIGHLIGHTED_ROW_CLASS}").removeClass HIGHLIGHTED_ROW_CLASS
+      @highlightedLine = null
       unless highlighted
         row.addClass HIGHLIGHTED_ROW_CLASS
         @highlightedLine = row.data 'line-number'
