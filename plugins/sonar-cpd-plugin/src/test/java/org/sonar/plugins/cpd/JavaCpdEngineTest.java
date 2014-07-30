@@ -23,11 +23,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.batch.duplication.DefaultDuplicationBuilder;
+import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 
@@ -36,7 +40,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -48,11 +54,15 @@ public class JavaCpdEngineTest {
 
   SensorContext context = mock(SensorContext.class);
   DeprecatedDefaultInputFile inputFile;
+  private DefaultDuplicationBuilder duplicationBuilder;
 
   @Before
   public void before() throws IOException {
     when(context.measureBuilder()).thenReturn(new DefaultMeasureBuilder());
     inputFile = new DeprecatedDefaultInputFile("src/main/java/Foo.java");
+    DuplicationCache duplicationCache = mock(DuplicationCache.class);
+    duplicationBuilder = spy(new DefaultDuplicationBuilder(inputFile, duplicationCache));
+    when(context.duplicationBuilder(any(InputFile.class))).thenReturn(duplicationBuilder);
     inputFile.setFile(temp.newFile("Foo.java"));
   }
 
@@ -73,10 +83,11 @@ public class JavaCpdEngineTest {
     verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1).build());
     verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(1).build());
     verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(200).build());
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATIONS_DATA).onFile(inputFile).withValue("<duplications><g>"
-      + "<b s=\"5\" l=\"200\" r=\"key1\"/>"
-      + "<b s=\"15\" l=\"200\" r=\"key2\"/>"
-      + "</g></duplications>").build());
+
+    InOrder inOrder = Mockito.inOrder(duplicationBuilder);
+    inOrder.verify(duplicationBuilder).originBlock(5, 204);
+    inOrder.verify(duplicationBuilder).isDuplicatedBy("key2", 15, 214);
+    inOrder.verify(duplicationBuilder).done();
   }
 
   @Test
@@ -87,11 +98,11 @@ public class JavaCpdEngineTest {
     verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1).build());
     verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(2).build());
     verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(400).build());
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATIONS_DATA).onFile(inputFile).withValue("<duplications><g>"
-      + "<b s=\"5\" l=\"200\" r=\"key1\"/>"
-      + "<b s=\"215\" l=\"200\" r=\"key1\"/>"
-      + "</g></duplications>").build());
 
+    InOrder inOrder = Mockito.inOrder(duplicationBuilder);
+    inOrder.verify(duplicationBuilder).originBlock(5, 204);
+    inOrder.verify(duplicationBuilder).isDuplicatedBy("key1", 215, 414);
+    inOrder.verify(duplicationBuilder).done();
   }
 
   @Test
@@ -102,12 +113,12 @@ public class JavaCpdEngineTest {
     verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1).build());
     verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(1).build());
     verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(200).build());
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATIONS_DATA).onFile(inputFile).withValue("<duplications><g>"
-      + "<b s=\"5\" l=\"200\" r=\"key1\"/>"
-      + "<b s=\"15\" l=\"200\" r=\"key2\"/>"
-      + "<b s=\"25\" l=\"200\" r=\"key3\"/>"
-      + "</g></duplications>").build());
 
+    InOrder inOrder = Mockito.inOrder(duplicationBuilder);
+    inOrder.verify(duplicationBuilder).originBlock(5, 204);
+    inOrder.verify(duplicationBuilder).isDuplicatedBy("key2", 15, 214);
+    inOrder.verify(duplicationBuilder).isDuplicatedBy("key3", 25, 224);
+    inOrder.verify(duplicationBuilder).done();
   }
 
   @Test
@@ -120,32 +131,13 @@ public class JavaCpdEngineTest {
     verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1).build());
     verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(2).build());
     verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(210).build());
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATIONS_DATA).onFile(inputFile).withValue("<duplications>"
-      + "<g>"
-      + "<b s=\"5\" l=\"200\" r=\"key1\"/>"
-      + "<b s=\"15\" l=\"200\" r=\"key2\"/>"
-      + "</g>"
-      + "<g>"
-      + "<b s=\"15\" l=\"200\" r=\"key1\"/>"
-      + "<b s=\"15\" l=\"200\" r=\"key3\"/>"
-      + "</g>"
-      + "</duplications>").build());
 
-  }
-
-  @Test
-  public void shouldEscapeXmlEntities() throws IOException {
-    InputFile csharpFile = new DeprecatedDefaultInputFile("Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs")
-      .setFile(temp.newFile("SubsRedsDelivery.cs"));
-    List<CloneGroup> groups = Arrays.asList(newCloneGroup(
-      new ClonePart("Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs", 0, 5, 204),
-      new ClonePart("Loads/File Loads/Subs & Reds/SubsRedsDelivery2.cs", 0, 15, 214)));
-    JavaCpdEngine.save(context, csharpFile, groups);
-
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATIONS_DATA).onFile(csharpFile).withValue("<duplications><g>"
-      + "<b s=\"5\" l=\"200\" r=\"Loads/File Loads/Subs &amp; Reds/SubsRedsDelivery.cs\"/>"
-      + "<b s=\"15\" l=\"200\" r=\"Loads/File Loads/Subs &amp; Reds/SubsRedsDelivery2.cs\"/>"
-      + "</g></duplications>").build());
+    InOrder inOrder = Mockito.inOrder(duplicationBuilder);
+    inOrder.verify(duplicationBuilder).originBlock(5, 204);
+    inOrder.verify(duplicationBuilder).isDuplicatedBy("key2", 15, 214);
+    inOrder.verify(duplicationBuilder).originBlock(15, 214);
+    inOrder.verify(duplicationBuilder).isDuplicatedBy("key3", 15, 214);
+    inOrder.verify(duplicationBuilder).done();
   }
 
   private CloneGroup newCloneGroup(ClonePart... parts) {
