@@ -74,8 +74,6 @@ define [
 
     onRender: ->
       @delegateEvents()
-      @cutComponentName()
-      $(window).on 'resize.componentViewerHeader', => @cutComponentName()
       activeHeaderTab = @state.get 'activeHeaderTab'
       activeHeaderItem = @state.get 'activeHeaderItem'
       if activeHeaderTab
@@ -86,27 +84,6 @@ define [
         else
           @showExtension activeHeaderTab
       @silentUpdate = false
-
-
-    onClose: ->
-      $(window).off 'resize.componentViewerHeader'
-
-
-    cutComponentName: ->
-      totalWidth = @$el.width() - @$('.component-viewer-header-measures').width() - 150
-      componentName = @$('.component-viewer-header-component-name span')
-      componentName.text componentName.prop 'title'
-      tokens = (@options.main.component.get('path') || '').split '/'
-      while componentName.width() > totalWidth
-        break if tokens.length == 1
-        tokens.shift()
-        componentName.text '.../' + tokens.join('/')
-      if componentName.width() > totalWidth
-        componentName.text '.../' + tokens.join('/')
-
-      # If measures wraps
-      if @$el.height() > 80
-        componentName.text componentName.prop 'title'
 
 
     toggleFavorite: ->

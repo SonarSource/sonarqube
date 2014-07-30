@@ -12,7 +12,7 @@
       {{/if}}
 
       <div class="component-viewer-header-component-name">
-        {{qualifierIcon component.q}} <span title="{{default component.path component.longName}}">{{default component.path component.longName}}</span>
+        {{qualifierIcon component.q}} {{default component.path component.longName}}
 
         {{#if state.canMarkAsFavourite}}
           <a class="js-favorite component-viewer-header-favorite"
