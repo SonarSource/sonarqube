@@ -15,7 +15,7 @@ define([
 
     inputChanged: function() {
       var metric = this.$('[name=metric]').val(),
-          isDifferentialMetric = metric.startsWith('new_'),
+          isDifferentialMetric = metric.indexOf('new_') === 0,
           periodSelect = this.$('[name=period]'),
           period = periodSelect.val(),
           optionZero = periodSelect.children('[value="0"]'),

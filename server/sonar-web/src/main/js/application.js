@@ -58,7 +58,7 @@ function resourceViewerOnBulkIssues() {
     }
   } else {
     // No tab selected, see how to add tab parameter
-    if (window.location.search.startsWith('?')) {
+    if (window.location.search.indexOf('?') === 0) {
       window.location.search += ('&' + issuesTab);
     } else {
       window.location.search += ('?' + issuesTab);
