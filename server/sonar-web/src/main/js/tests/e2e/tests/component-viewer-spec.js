@@ -21,7 +21,8 @@ casper.test.begin(testName('Base'), function (test) {
           test.assertExists('.component-viewer-header');
           test.assertSelectorContains('.component-viewer-header-component-project', 'SonarQube');
           test.assertSelectorContains('.component-viewer-header-component-project', 'SonarQube :: Batch');
-          test.assertSelectorContains('.component-viewer-header-component-name', 'Cache.java');
+          test.assertSelectorContains('.component-viewer-header-component-name',
+              'src/main/java/org/sonar/batch/index/Cache.java');
           test.assertExists('.component-viewer-header-favorite');
           test.assertExists('.component-viewer-header-actions');
 
