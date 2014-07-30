@@ -48,9 +48,6 @@
                   <td class="thin right nowrap">
                     <%= ncloc.format_numeric_value(language_ncloc) %>
                   </td>
-                  <td>
-                    <%= barchart(:width => 50, :percent => (40 * Math.sqrt(language_ncloc.to_i) / max).to_i) %>
-                  </td>
                 </tr>
               <% end %>
             </table>
