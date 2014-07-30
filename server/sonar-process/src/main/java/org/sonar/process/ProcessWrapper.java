@@ -176,9 +176,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       waitUntilFinish(errorGobbler);
       ProcessUtils.closeStreams(process);
       FileUtils.deleteQuietly(propertiesFile);
-      processMXBean = null;
     }
-    LOGGER.trace("ProcessWrapper::run() END");
   }
 
   public boolean isReady() {
@@ -261,7 +259,7 @@ public class ProcessWrapper extends Thread implements Terminable {
 
   @Override
   public void terminate() {
-    if (processMXBean != null) {
+    if (processMXBean != null && process != null) {
       // Send the terminate command to process in order to gracefully shutdown.
       // Then hardly kill it if it didn't terminate in 30 seconds
       ScheduledExecutorService killer = Executors.newScheduledThreadPool(1);
@@ -280,6 +278,7 @@ public class ProcessWrapper extends Thread implements Terminable {
 
       } catch (Exception ignored) {
         // ignore
+        ignored.printStackTrace();
       } finally {
         killer.shutdownNow();
       }
@@ -287,6 +286,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       // process is not monitored through JMX, but killing it though
       ProcessUtils.destroyQuietly(process);
     }
+    processMXBean = null;
   }
 
   public boolean waitForReady() throws InterruptedException {
@@ -297,6 +297,9 @@ public class ProcessWrapper extends Thread implements Terminable {
     long wait = 500L;
     while (now < READY_TIMEOUT_MS) {
       try {
+        if (processMXBean == null) {
+          return false;
+        }
         if (processMXBean.isReady()) {
           return true;
         }

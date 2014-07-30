@@ -33,7 +33,7 @@ class Webapp {
   private static final String RAILS_ENV = "rails.env";
   private static final String PROPERTY_CONTEXT = "sonar.web.context";
 
-  static void configure(Tomcat tomcat, Props props) {
+  static StandardContext configure(Tomcat tomcat, Props props) {
     try {
       String webDir = props.of("sonar.path.web");
       LoggerFactory.getLogger(Webapp.class).info("Webapp directory: " + webDir);
@@ -55,6 +55,7 @@ class Webapp {
       }
       configureRailsMode(props, context);
       context.setJarScanner(new NullJarScanner());
+      return context;
 
     } catch (Exception e) {
       throw new IllegalStateException("Fail to configure webapp", e);

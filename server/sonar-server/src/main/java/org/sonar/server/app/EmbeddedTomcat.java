@@ -20,6 +20,7 @@
 package org.sonar.server.app;
 
 import org.apache.catalina.connector.Connector;
+import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ class EmbeddedTomcat implements Terminable {
   private final Props props;
   private Tomcat tomcat = null;
   private Thread hook = null;
-  private boolean stopping = false, ready = false;
+  private boolean ready = false;
 
   EmbeddedTomcat(Props props) {
     this.props = props;
@@ -65,11 +66,14 @@ class EmbeddedTomcat implements Terminable {
 
       Logging.configure(tomcat, props);
       Connectors.configure(tomcat, props);
-      Webapp.configure(tomcat, props);
+      StandardContext webappContext = Webapp.configure(tomcat, props);
       ProcessUtils.addSelfShutdownHook(this);
       tomcat.start();
-      ready = true;
-      tomcat.getServer().await();
+
+      if (webappContext.getState().isAvailable()) {
+        ready = true;
+        tomcat.getServer().await();
+      }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start web server", e);
     } finally {
@@ -96,17 +100,18 @@ class EmbeddedTomcat implements Terminable {
 
   @Override
   public void terminate() {
-    if (tomcat != null && !stopping) {
-      try {
-        stopping = true;
-        tomcat.stop();
-        tomcat.destroy();
-      } catch (Exception e) {
-        LoggerFactory.getLogger(EmbeddedTomcat.class).error("Fail to stop web service", e);
+    if (tomcat != null) {
+      synchronized (tomcat) {
+        if (tomcat.getServer().getState().isAvailable()) {
+          try {
+            tomcat.stop();
+            tomcat.destroy();
+          } catch (Exception e) {
+            LoggerFactory.getLogger(EmbeddedTomcat.class).error("Fail to stop web service", e);
+          }
+        }
       }
     }
-    tomcat = null;
-    stopping = false;
     ready = false;
     FileUtils.deleteQuietly(tomcatBasedir());
   }

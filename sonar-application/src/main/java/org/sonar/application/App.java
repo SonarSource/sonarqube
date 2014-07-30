@@ -29,9 +29,6 @@ import org.sonar.process.ProcessWrapper;
 
 public class App implements ProcessMXBean {
 
-  static final String SONAR_WEB_PROCESS = "web";
-  static final String SONAR_SEARCH_PROCESS = "search";
-
   private final Installation installation;
 
   private final Monitor monitor = new Monitor();
@@ -49,7 +46,7 @@ public class App implements ProcessMXBean {
       Logger logger = LoggerFactory.getLogger(getClass());
       monitor.start();
 
-      elasticsearch = new ProcessWrapper(SONAR_SEARCH_PROCESS)
+      elasticsearch = new ProcessWrapper(JmxUtils.SEARCH_SERVER_NAME)
         .setWorkDir(installation.homeDir())
         .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.ES_JMX_PORT_KEY)))
         .addJavaOpts(installation.prop(DefaultSettings.ES_JAVA_OPTS_KEY))
@@ -64,7 +61,7 @@ public class App implements ProcessMXBean {
         if (elasticsearch.waitForReady()) {
           logger.info("Search server is ready");
 
-          server = new ProcessWrapper(SONAR_WEB_PROCESS)
+          server = new ProcessWrapper(JmxUtils.WEB_SERVER_NAME)
             .setWorkDir(installation.homeDir())
             .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.WEB_JMX_PORT_KEY)))
             .addJavaOpts(installation.prop(DefaultSettings.WEB_JAVA_OPTS_KEY))
@@ -105,8 +102,11 @@ public class App implements ProcessMXBean {
 
   @Override
   public void terminate() {
-    monitor.terminate();
-    monitor.interrupt();
+    LoggerFactory.getLogger(App.class).info("Stopping");
+    if (monitor.isAlive()) {
+      monitor.terminate();
+      monitor.interrupt();
+    }
     if (server != null) {
       server.terminate();
     }

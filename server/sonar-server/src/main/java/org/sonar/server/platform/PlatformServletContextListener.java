@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -49,7 +50,7 @@ public final class PlatformServletContextListener implements ServletContextListe
       // unexpected errors
       LoggerFactory.getLogger(getClass()).error("Fail to start server", t);
       stopQuietly();
-      throw new IllegalStateException("Fail to start server", t);
+      throw new IllegalStateException("Fail to start webapp", t);
     }
   }
 

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -38,7 +39,7 @@ public class Monitor extends Thread implements Terminable {
   private final static Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
 
   private volatile List<ProcessWrapper> processes;
-  private volatile Map<String, Long> pings;
+  private final Map<String, Long> pings;
   private final ScheduledFuture<?> watch;
   private final ScheduledExecutorService monitor;
 
@@ -48,7 +49,7 @@ public class Monitor extends Thread implements Terminable {
   public Monitor() {
     super("Process Monitor");
     processes = new ArrayList<ProcessWrapper>();
-    pings = new HashMap<String, Long>();
+    pings = new ConcurrentHashMap<String, Long>();
     monitor = Executors.newScheduledThreadPool(1);
     watch = monitor.scheduleWithFixedDelay(new ProcessWatch(), 0L, PING_DELAY_MS, TimeUnit.MILLISECONDS);
   }
@@ -99,14 +100,17 @@ public class Monitor extends Thread implements Terminable {
   @Override
   public void run() {
     try {
-      while (true) {
+      boolean ok = true;
+      while (ok) {
         for (ProcessWrapper process : processes) {
           if (!processIsValid(process)) {
-            LOGGER.warn("Monitor::run() -- Process '{}' is not valid. Exiting monitor", process.getName());
+            ok = false;
             interrupt();
           }
         }
-        Thread.sleep(PING_DELAY_MS);
+        if (ok) {
+          Thread.sleep(PING_DELAY_MS);
+        }
       }
     } catch (InterruptedException e) {
       LOGGER.debug("Monitoring thread is interrupted");
@@ -117,12 +121,17 @@ public class Monitor extends Thread implements Terminable {
 
   @Override
   public void terminate() {
-    processes.clear();
     if (!monitor.isShutdown()) {
       monitor.shutdownNow();
     }
     if (!watch.isCancelled()) {
       watch.cancel(true);
     }
+
+    for (int i=processes.size()-1 ; i>=0 ; i--) {
+      processes.get(i).terminate();
+    }
+    processes.clear();
+    interrupt();
   }
 }

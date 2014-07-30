@@ -20,7 +20,6 @@
 package org.sonar.server.plugins;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
@@ -53,7 +52,7 @@ public class ServerPluginJarsInstaller {
   private final ServerUpgradeStatus serverUpgradeStatus;
 
   public ServerPluginJarsInstaller(Server server, ServerUpgradeStatus serverUpgradeStatus,
-                                   DefaultServerFileSystem fs, ServerPluginJarInstaller installer) {
+    DefaultServerFileSystem fs, ServerPluginJarInstaller installer) {
     this.server = server;
     this.serverUpgradeStatus = serverUpgradeStatus;
     this.fs = fs;
@@ -97,7 +96,7 @@ public class ServerPluginJarsInstaller {
 
   private void moveDownloadedPlugins() {
     if (fs.getDownloadedPluginsDir().exists()) {
-      Collection<File> sourceFiles = FileUtils.listFiles(fs.getDownloadedPluginsDir(), new String[]{"jar"}, false);
+      Collection<File> sourceFiles = FileUtils.listFiles(fs.getDownloadedPluginsDir(), new String[] {"jar"}, false);
       for (File sourceFile : sourceFiles) {
         overridePlugin(sourceFile, true);
       }
@@ -116,7 +115,6 @@ public class ServerPluginJarsInstaller {
       }
     }
   }
-
 
   private void overridePlugin(File sourceFile, boolean deleteSource) {
     File destDir = fs.getUserPluginsDir();
@@ -181,7 +179,7 @@ public class ServerPluginJarsInstaller {
   public List<String> getUninstalls() {
     List<String> names = Lists.newArrayList();
     if (fs.getTrashPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fs.getTrashPluginsDir(), new String[]{"jar"}, false);
+      List<File> files = (List<File>) FileUtils.listFiles(fs.getTrashPluginsDir(), new String[] {"jar"}, false);
       for (File file : files) {
         names.add(file.getName());
       }
@@ -191,7 +189,7 @@ public class ServerPluginJarsInstaller {
 
   public void cancelUninstalls() {
     if (fs.getTrashPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fs.getTrashPluginsDir(), new String[]{"jar"}, false);
+      List<File> files = (List<File>) FileUtils.listFiles(fs.getTrashPluginsDir(), new String[] {"jar"}, false);
       for (File file : files) {
         try {
           FileUtils.moveFileToDirectory(file, fs.getUserPluginsDir(), false);
@@ -211,9 +209,10 @@ public class ServerPluginJarsInstaller {
   private void deploy(DefaultPluginMetadata plugin) {
     LOG.info("Deploy plugin {}", Joiner.on(" / ").skipNulls().join(plugin.getName(), plugin.getVersion(), plugin.getImplementationBuild()));
 
-    Preconditions.checkState(plugin.isCompatibleWith(server.getVersion()),
-      "Plugin %s needs a more recent version of SonarQube than %s. At least %s is expected",
-      plugin.getKey(), server.getVersion(), plugin.getSonarVersion());
+    if (!plugin.isCompatibleWith(server.getVersion())) {
+      throw MessageException.of(String.format("Plugin %s needs a more recent version of SonarQube than %s. At least %s is expected",
+        plugin.getKey(), server.getVersion(), plugin.getSonarVersion()));
+    }
 
     try {
       File pluginDeployDir = new File(fs.getDeployedPluginsDir(), plugin.getKey());

@@ -30,6 +30,9 @@ public class JmxUtils {
     // only static stuff
   }
 
+  public static final String WEB_SERVER_NAME = "web";
+  public static final String SEARCH_SERVER_NAME = "search";
+
   public static ObjectName objectName(String name) {
     try {
       return new ObjectName("org.sonar", "name", name);
