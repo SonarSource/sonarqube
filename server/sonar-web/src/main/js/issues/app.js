@@ -108,10 +108,12 @@ requirejs(
         this.filters.add(projectFilter);
 
         var assigneeChoices = {
-          '!assigned': window.SS.phrases.unassigned
-        };
+              '!assigned': window.SS.phrases.unassigned
+            },
+            reporterChoices = {};
         if (window.SS.currentUser) {
           assigneeChoices[window.SS.currentUser] = window.SS.currentUserName + ' (' + window.SS.currentUser + ')';
+          reporterChoices[window.SS.currentUser] = window.SS.currentUserName + ' (' + window.SS.currentUser + ')';
         }
 
         this.filters.add([
@@ -227,7 +229,8 @@ requirejs(
             property: 'reporters',
             type: AjaxSelectFilters.ReporterFilterView,
             enabled: false,
-            optional: true
+            optional: true,
+            choices: reporterChoices
           }),
 
           new BaseFilters.Filter({
