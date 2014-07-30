@@ -175,7 +175,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       widget.infoMetrics.push(infoMetric);
 
       if (i % 3 === 2) {
-        prevX += (infoMetricText.node().getComputedTextLength() + 60);
+        prevX += (infoMetricText.node().getComputedTextLength() + 70);
       }
     });
 
