@@ -23,6 +23,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.SonarException;
 
 import javax.annotation.CheckForNull;
 import java.util.Date;
@@ -188,7 +189,15 @@ public abstract class Request {
   public Date paramAsDateTime(String key) {
     String s = param(key);
     if (s != null) {
-      return DateUtils.parseDateTime(s);
+      try {
+        return DateUtils.parseDateTime(s);
+      } catch(SonarException notDateTime) {
+        try {
+          return DateUtils.parseDate(s);
+        } catch (SonarException notDateEither) {
+          throw new SonarException(String.format("'%s' cannot be parsed as either a date or date+time", s));
+        }
+      }
     }
     return null;
   }
