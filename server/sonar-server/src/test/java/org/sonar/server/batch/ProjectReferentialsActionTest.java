@@ -191,7 +191,49 @@ public class ProjectReferentialsActionTest {
   }
 
   @Test
-  public void return_sub_module_settings_inherited_from_project() throws Exception {
+  public void return_sub_module_settings() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+
+    when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
+    when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
+    when(componentDao.getParentModuleByKey(subModule.key(), session)).thenReturn(module);
+
+    when(propertiesDao.selectProjectProperties(subModule.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
+      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john"),
+      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
+    ));
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", subModule.key());
+    request.execute().assertJson(getClass(), "return_sub_module_settings.json");
+  }
+
+  @Test
+  public void return_sub_module_settings_including_settings_from_parent_modules() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+
+    when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
+    when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
+    when(componentDao.getParentModuleByKey(subModule.key(), session)).thenReturn(module);
+
+    when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR")
+    ));
+
+    when(propertiesDao.selectProjectProperties(module.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
+    ));
+
+    when(propertiesDao.selectProjectProperties(subModule.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
+    ));
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", subModule.key());
+    request.execute().assertJson(getClass(), "return_sub_module_settings_including_settings_from_parent_modules.json");
+  }
+
+  @Test
+  public void return_sub_module_settings_only_inherited_from_project() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
 
     when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
@@ -210,7 +252,7 @@ public class ProjectReferentialsActionTest {
   }
 
   @Test
-  public void return_sub_module_settings_inherited_from_module() throws Exception {
+  public void return_sub_module_settings_inherited_from_project_and_module() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
 
     when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
@@ -229,49 +271,7 @@ public class ProjectReferentialsActionTest {
     // No settings on sub module -> All setting should come from the project and the module
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", subModule.key());
-    request.execute().assertJson(getClass(), "return_sub_module_settings_inherited_from_module.json");
-  }
-
-  @Test
-  public void return_sub_module_settings() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
-
-    when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
-    when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
-    when(componentDao.getParentModuleByKey(subModule.key(), session)).thenReturn(module);
-
-    when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
-      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR")
-      ));
-
-    when(propertiesDao.selectProjectProperties(module.key(), session)).thenReturn(newArrayList(
-      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
-      ));
-
-    when(propertiesDao.selectProjectProperties(subModule.key(), session)).thenReturn(newArrayList(
-      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
-      ));
-
-    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", subModule.key());
-    request.execute().assertJson(getClass(), "return_sub_module_settings.json");
-  }
-
-  @Test
-  public void return_sub_module_settings_without_settings_from_parent() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
-
-    when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
-    when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
-    when(componentDao.getParentModuleByKey(subModule.key(), session)).thenReturn(module);
-
-    when(propertiesDao.selectProjectProperties(subModule.key(), session)).thenReturn(newArrayList(
-      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
-      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john"),
-      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
-      ));
-
-    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", subModule.key());
-    request.execute().assertJson(getClass(), "return_sub_module_settings_without_settings_from_parent.json");
+    request.execute().assertJson(getClass(), "return_sub_module_settings_inherited_from_project_and_module.json");
   }
 
   @Test
