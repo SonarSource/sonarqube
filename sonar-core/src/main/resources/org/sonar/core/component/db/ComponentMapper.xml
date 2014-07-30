@@ -44,11 +44,34 @@
     </where>
   </select>
 
+  <select id="selectRootProjectByKey" parameterType="String" resultType="Component">
+    SELECT rootProject.*
+    FROM projects p
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    INNER JOIN projects rootProject ON rootProject.id=s.root_project_id
+    <where>
+      AND p.kee=#{componentKey}
+    </where>
+  </select>
+
+  <select id="selectParentModuleByKey" parameterType="String" resultType="Component">
+    SELECT <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    INNER JOIN snapshots child_snapshots ON child_snapshots.parent_snapshot_id=s.id AND s.islast=${_true}
+    INNER JOIN projects child ON child.id=child_snapshots.project_id AND child.enabled=${_true} AND child.kee=#{key}
+    <where>
+      AND p.enabled=${_true}
+      AND p.scope='PRJ'
+    </where>
+  </select>
+
   <select id="findModulesByProject" parameterType="String" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
-    INNER JOIN projects root ON root.id=p.root_id AND root.enabled=${_true} AND root.kee=#{projectKey}
     INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    INNER JOIN snapshots parent_snapshots ON parent_snapshots.id=s.parent_snapshot_id AND s.islast=${_true}
+    INNER JOIN projects parent ON parent.id=parent_snapshots.project_id AND parent.enabled=${_true} AND parent.kee=#{projectKey}
     <where>
       AND p.enabled=${_true}
       AND p.scope='PRJ'

@@ -43,7 +43,12 @@ public class ProjectReferentials {
   }
 
   public ProjectReferentials addSettings(String projectKey, Map<String, String> settings) {
-    settingsByModule.put(projectKey, settings);
+    Map<String, String> existingSettings = settingsByModule.get(projectKey);
+    if (existingSettings == null) {
+      existingSettings = new HashMap<String, String>();
+    }
+    existingSettings.putAll(settings);
+    settingsByModule.put(projectKey, existingSettings);
     return this;
   }
 

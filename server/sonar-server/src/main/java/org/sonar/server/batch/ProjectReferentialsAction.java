@@ -20,9 +20,11 @@
 
 package org.sonar.server.batch;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -47,9 +49,11 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 public class ProjectReferentialsAction implements RequestHandler {
@@ -84,7 +88,7 @@ public class ProjectReferentialsAction implements RequestHandler {
     action
       .createParam(PARAM_KEY)
       .setRequired(true)
-      .setDescription("Project key")
+      .setDescription("Project or module key")
       .setExampleValue("org.codehaus.sonar:sonar");
 
     action
@@ -100,11 +104,18 @@ public class ProjectReferentialsAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ProjectReferentials ref = new ProjectReferentials();
-      String projectKey = request.mandatoryParam(PARAM_KEY);
+      String projectOrModuleKey = request.mandatoryParam(PARAM_KEY);
       String profileName = request.param(PARAM_PROFILE);
-      addSettings(ref, projectKey, hasScanPerm, session);
-      addProfiles(ref, projectKey, profileName, session);
+      ProjectReferentials ref = new ProjectReferentials();
+
+      ComponentDto module = dbClient.componentDao().getByKey(session, projectOrModuleKey);
+      ComponentDto project = !module.qualifier().equals(Qualifiers.PROJECT) ? dbClient.componentDao().getRootProjectByKey(projectOrModuleKey, session) : module;
+      if (!project.key().equals(module.key())) {
+        addSettings(ref, module.getKey(), getSettingsFromParentModules(module.key(), hasScanPerm, session));
+      }
+      addSettingsToChildrenModules(ref, projectOrModuleKey, Maps.<String, String>newHashMap(), hasScanPerm, session);
+
+      addProfiles(ref, project.key(), profileName, session);
       addActiveRules(ref);
 
       response.stream().setMediaType(MimeTypes.JSON);
@@ -114,14 +125,43 @@ public class ProjectReferentialsAction implements RequestHandler {
     }
   }
 
-  private void addSettings(ProjectReferentials ref, String projectKey, boolean hasScanPerm, DbSession session) {
-    addSettings(ref, projectKey, propertiesDao.selectProjectProperties(projectKey, session), hasScanPerm);
-    for (ComponentDto module : dbClient.componentDao().findModulesByProject(projectKey, session)) {
-      addSettings(ref, module.getKey(), propertiesDao.selectProjectProperties(module.getKey(), session), hasScanPerm);
+  private Map<String, String> getSettingsFromParentModules(String moduleKey, boolean hasScanPerm, DbSession session) {
+    List<ComponentDto> parents = newArrayList();
+    aggregateParentModules(moduleKey, parents, session);
+    Collections.reverse(parents);
+
+    Map<String, String> parentProperties = newHashMap();
+    for (ComponentDto parent : parents) {
+      parentProperties.putAll(getPropertiesMap(propertiesDao.selectProjectProperties(parent.key(), session), hasScanPerm));
+    }
+    return parentProperties;
+  }
+
+  private void aggregateParentModules(String component, List<ComponentDto> parents, DbSession session){
+    ComponentDto parent = dbClient.componentDao().getParentModuleByKey(component, session);
+    if (parent != null) {
+      parents.add(parent);
+      aggregateParentModules(parent.key(), parents, session);
     }
   }
 
-  private void addSettings(ProjectReferentials ref, String projectOrModuleKey, List<PropertyDto> propertyDtos, boolean hasScanPerm) {
+  private void addSettingsToChildrenModules(ProjectReferentials ref, String projectKey, Map<String, String> parentProperties, boolean hasScanPerm, DbSession session) {
+    parentProperties.putAll(getPropertiesMap(propertiesDao.selectProjectProperties(projectKey, session), hasScanPerm));
+    addSettings(ref, projectKey, parentProperties);
+
+    for (ComponentDto module : dbClient.componentDao().findModulesByProject(projectKey, session)) {
+      addSettings(ref, module.key(), parentProperties);
+      addSettingsToChildrenModules(ref, module.key(), parentProperties, hasScanPerm, session);
+    }
+  }
+
+  private void addSettings(ProjectReferentials ref, String module, Map<String, String> properties) {
+    if (!properties.isEmpty()) {
+      ref.addSettings(module, properties);
+    }
+  }
+
+  private Map<String, String> getPropertiesMap(List<PropertyDto> propertyDtos, boolean hasScanPerm) {
     Map<String, String> properties = newHashMap();
     for (PropertyDto propertyDto : propertyDtos) {
       String key = propertyDto.getKey();
@@ -130,9 +170,7 @@ public class ProjectReferentialsAction implements RequestHandler {
         properties.put(key, value);
       }
     }
-    if (!properties.isEmpty()) {
-      ref.addSettings(projectOrModuleKey, properties);
-    }
+    return properties;
   }
 
   private static boolean isPropertyAllowed(String key, boolean hasScanPerm) {

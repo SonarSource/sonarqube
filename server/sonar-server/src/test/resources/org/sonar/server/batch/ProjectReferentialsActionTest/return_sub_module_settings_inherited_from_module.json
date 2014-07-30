@@ -10,11 +10,9 @@
   },
   "activeRules": [],
   "settingsByModule": {
-    "org.codehaus.sonar:sonar": {
-      "sonar.jira.project.key": "SONAR",
-      "sonar.jira.login.secured": "john"
-    },
-    "org.codehaus.sonar:sonar-server": {
+    "org.codehaus.sonar:sonar-server-dao": {
+      "sonar.jira.project.key": "SONAR-SERVER",
+      "sonar.jira.login.secured": "john",
       "sonar.coverage.exclusions": "**/*.java"
     }
   }

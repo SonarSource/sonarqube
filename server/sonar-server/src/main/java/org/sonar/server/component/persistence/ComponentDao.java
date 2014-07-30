@@ -26,6 +26,9 @@ import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
+import org.sonar.server.exceptions.NotFoundException;
+
+import javax.annotation.CheckForNull;
 
 import java.util.Date;
 import java.util.List;
@@ -45,6 +48,19 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
 
   public boolean existsById(Long id, DbSession session) {
     return mapper(session).countById(id) > 0;
+  }
+
+  public ComponentDto getRootProjectByKey(String componentKey, DbSession session) {
+    ComponentDto componentDto = mapper(session).selectRootProjectByKey(componentKey);
+    if (componentDto == null) {
+      throw new NotFoundException(String.format("Root project for project '%s' not found", componentKey));
+    }
+    return componentDto;
+  }
+
+  @CheckForNull
+  public ComponentDto getParentModuleByKey(String componentKey, DbSession session) {
+    return mapper(session).selectParentModuleByKey(componentKey);
   }
 
   public List<ComponentDto> findModulesByProject(String projectKey, DbSession session) {

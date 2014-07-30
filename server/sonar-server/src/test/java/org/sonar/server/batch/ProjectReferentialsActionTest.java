@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.component.ComponentDto;
@@ -46,6 +47,8 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
+
+import java.util.Collections;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -81,70 +84,194 @@ public class ProjectReferentialsActionTest {
 
   WsTester tester;
 
+  ComponentDto project;
+  ComponentDto module;
+  ComponentDto subModule;
+
   @Before
   public void setUp() throws Exception {
     DbClient dbClient = mock(DbClient.class);
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.componentDao()).thenReturn(componentDao);
 
+    project = new ComponentDto().setKey("org.codehaus.sonar:sonar").setQualifier(Qualifiers.PROJECT);
+    module = new ComponentDto().setKey("org.codehaus.sonar:sonar-server").setQualifier(Qualifiers.MODULE);
+    subModule = new ComponentDto().setKey("org.codehaus.sonar:sonar-server-dao").setQualifier(Qualifiers.MODULE);
+
+    when(componentDao.getByKey(session, project.key())).thenReturn(project);
+    when(componentDao.getByKey(session, module.key())).thenReturn(module);
+    when(componentDao.getByKey(session, subModule.key())).thenReturn(subModule);
+
     when(language.getKey()).thenReturn("java");
-    when(languages.all()).thenReturn(new Language[]{language});
+    when(languages.all()).thenReturn(new Language[] {language});
+
+    when(qProfileFactory.getDefault(session, "java")).thenReturn(
+      QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
+      );
 
     tester = new WsTester(new BatchWs(mock(BatchIndex.class), mock(GlobalReferentialsAction.class),
       new ProjectReferentialsAction(dbClient, propertiesDao, qProfileFactory, qProfileLoader, ruleService, languages)));
   }
 
   @Test
-  public void return_settings_by_modules() throws Exception {
+  public void return_project_settings() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
-    String projectKey = "org.codehaus.sonar:sonar";
-    String moduleKey = "org.codehaus.sonar:sonar-server";
 
-    when(componentDao.findModulesByProject(projectKey, session)).thenReturn(newArrayList(
-      new ComponentDto().setKey(projectKey),
-      new ComponentDto().setKey(moduleKey)
-      ));
+    // Project without modules
+    when(componentDao.findModulesByProject(project.key(), session)).thenReturn(Collections.<ComponentDto>emptyList());
 
-    when(propertiesDao.selectProjectProperties(projectKey, session)).thenReturn(newArrayList(
+    when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
       new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
       ));
 
-    when(propertiesDao.selectProjectProperties(moduleKey, session)).thenReturn(newArrayList(
-      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
-    ));
-
-    when(qProfileFactory.getDefault(session, "java")).thenReturn(
-      QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
-    );
-
-    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
-    request.execute().assertJson(getClass(), "return_settings_by_modules.json");
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
+    request.execute().assertJson(getClass(), "return_project_settings.json");
   }
 
   @Test
-  public void return_settings_by_modules_without_empty_module_settings() throws Exception {
+  public void return_project_with_module_settings() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
-    String projectKey = "org.codehaus.sonar:sonar";
-    String moduleKey = "org.codehaus.sonar:sonar-server";
 
-    when(componentDao.findModulesByProject(projectKey, session)).thenReturn(newArrayList(
-      new ComponentDto().setKey(projectKey),
-      new ComponentDto().setKey(moduleKey)
-    ));
+    when(componentDao.findModulesByProject(project.key(), session)).thenReturn(newArrayList(module));
 
-    when(propertiesDao.selectProjectProperties(projectKey, session)).thenReturn(newArrayList(
+    when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
       new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
+      ));
+
+    when(propertiesDao.selectProjectProperties(module.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER"),
+      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
+      ));
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
+    request.execute().assertJson(getClass(), "return_project_with_module_settings.json");
+  }
+
+  @Test
+  public void return_project_with_module_settings_inherited_from_project() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+
+    when(componentDao.findModulesByProject(project.key(), session)).thenReturn(newArrayList(module));
+
+    when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
+      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
+      ));
+    // No property on module -> should have the same than project
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
+    request.execute().assertJson(getClass(), "return_project_with_module_settings_inherited_from_project.json");
+  }
+
+  @Test
+  public void return_project_with_module_with_sub_module() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+
+    when(componentDao.findModulesByProject(project.key(), session)).thenReturn(newArrayList(module));
+    when(componentDao.findModulesByProject(module.key(), session)).thenReturn(newArrayList(subModule));
+
+    when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
+      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
+      ));
+
+    when(propertiesDao.selectProjectProperties(module.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER"),
+      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
+      ));
+
+    when(propertiesDao.selectProjectProperties(subModule.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER-DAO")
+      ));
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
+    request.execute().assertJson(getClass(), "return_project_with_module_with_sub_module.json");
+  }
+
+  @Test
+  public void return_sub_module_settings_inherited_from_project() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+
+    when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
+    when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
+    when(componentDao.getParentModuleByKey(subModule.key(), session)).thenReturn(module);
+
+    when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
+      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john"),
+      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
+      ));
+    // No settings on module or sub module -> All setting should come from the project
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", subModule.key());
+    request.execute().assertJson(getClass(), "return_sub_module_settings_inherited_from_project.json");
+  }
+
+  @Test
+  public void return_sub_module_settings_inherited_from_module() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+
+    when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
+    when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
+    when(componentDao.getParentModuleByKey(subModule.key(), session)).thenReturn(module);
+
+    when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john"),
+      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
     ));
-    // No property on module
 
-    when(qProfileFactory.getDefault(session, "java")).thenReturn(
-      QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
-    );
+    when(propertiesDao.selectProjectProperties(module.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER")
+    ));
 
-    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
-    request.execute().assertJson(getClass(), "return_settings_by_modules_without_empty_module_settings.json");
+    // No settings on sub module -> All setting should come from the project and the module
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", subModule.key());
+    request.execute().assertJson(getClass(), "return_sub_module_settings_inherited_from_module.json");
+  }
+
+  @Test
+  public void return_sub_module_settings() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+
+    when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
+    when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
+    when(componentDao.getParentModuleByKey(subModule.key(), session)).thenReturn(module);
+
+    when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR")
+      ));
+
+    when(propertiesDao.selectProjectProperties(module.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
+      ));
+
+    when(propertiesDao.selectProjectProperties(subModule.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
+      ));
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", subModule.key());
+    request.execute().assertJson(getClass(), "return_sub_module_settings.json");
+  }
+
+  @Test
+  public void return_sub_module_settings_without_settings_from_parent() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+
+    when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
+    when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
+    when(componentDao.getParentModuleByKey(subModule.key(), session)).thenReturn(module);
+
+    when(propertiesDao.selectProjectProperties(subModule.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
+      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john"),
+      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
+      ));
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", subModule.key());
+    request.execute().assertJson(getClass(), "return_sub_module_settings_without_settings_from_parent.json");
   }
 
   @Test
@@ -154,7 +281,7 @@ public class ProjectReferentialsActionTest {
 
     when(qProfileFactory.getByProjectAndLanguage(session, projectKey, "java")).thenReturn(
       QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
-    );
+      );
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
     request.execute().assertJson(getClass(), "return_quality_profiles.json");
@@ -168,7 +295,7 @@ public class ProjectReferentialsActionTest {
 
     try {
       request.execute();
-    } catch (Exception e){
+    } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("No quality profile can been found on language 'java' for project 'org.codehaus.sonar:sonar'");
     }
   }
@@ -180,7 +307,7 @@ public class ProjectReferentialsActionTest {
 
     when(qProfileFactory.getDefault(session, "java")).thenReturn(
       QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
-    );
+      );
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
     request.execute().assertJson(getClass(), "return_quality_profile_from_default_profile.json");
@@ -193,7 +320,7 @@ public class ProjectReferentialsActionTest {
 
     when(qProfileFactory.getByNameAndLanguage(session, "Default", "java")).thenReturn(
       QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
-    );
+      );
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey).setParam("profile", "Default");
     request.execute().assertJson(getClass(), "return_quality_profile_from_given_profile_name.json");
@@ -206,7 +333,7 @@ public class ProjectReferentialsActionTest {
 
     when(qProfileFactory.getByProjectAndLanguage(session, projectKey, "java")).thenReturn(
       QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
-    );
+      );
 
     RuleKey ruleKey = RuleKey.of("squid", "AvoidCycle");
     ActiveRule activeRule = mock(ActiveRule.class);
