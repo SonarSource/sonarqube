@@ -68,7 +68,7 @@ define([
 
     onRender: function() {
       var periodZeroLabel = this.$('[name=period]').children('[value="0"]').html();
-      this.periodZeroOption = '<option value="0">' + periodZeroLabel + '</option>'
+      this.periodZeroOption = '<option value="0">' + periodZeroLabel + '</option>';
 
       var value = this.model.get('value') || {};
       this.$('[name=metric]').val(value.metric).select2({
