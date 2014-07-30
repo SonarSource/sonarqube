@@ -32,8 +32,17 @@ casper.test.begin(testName('Readonly Tests'), function suite(test) {
     casper.waitForSelector('.navigator-filters', function checkDefaultFilters() {
       test.assertVisible('input[type="text"].query-filter-input');
       test.assertElementCount('.navigator-filter', 15);
-    test.assertElementCount('.navigator-filter-optional', 12 /* Only query, qProfile and 'More' are visible by default */);
+      test.assertElementCount('.navigator-filter-optional', 12 /* Only query, qProfile and 'More' are visible by default */);
       test.assertVisible('button.navigator-filter-submit');
+
+
+      casper.click('.navigator-filter-more-criteria');
+      casper.waitUntilVisible('.navigator-filter-details.active', function checkTagsAreOrdered() {
+        casper.click('.navigator-filter-details.active li:nth-last-child(2) label');
+        test.assertSelectorHasText('.navigator-filter-details.active>.navigator-filter-select-list.choices>li:nth-child(1)', 'brain-overload');
+        test.assertSelectorHasText('.navigator-filter-details.active>.navigator-filter-select-list.choices>li:nth-child(11)', 'unused');
+        casper.click('.navigator-filter.active>.navigator-filter-disable');
+      });
     });
 
 
