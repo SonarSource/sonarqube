@@ -22,22 +22,14 @@ package org.sonar.application;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.process.Process;
-import org.sonar.process.ProcessMXBean;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.io.File;
-import java.lang.management.ManagementFactory;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 public class AppTest {

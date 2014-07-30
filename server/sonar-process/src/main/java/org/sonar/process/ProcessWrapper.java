@@ -25,12 +25,14 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,13 +50,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Fork and monitor a new process
  */
-public class ProcessWrapper extends Thread {
+public class ProcessWrapper extends Thread implements Terminatable {
 
   private final static Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
+  public static final long READY_TIMEOUT_MS = 120000L;
 
   private String processName, className;
   private int jmxPort = -1;
@@ -64,7 +71,7 @@ public class ProcessWrapper extends Thread {
   private final Properties properties = new Properties();
   private File workDir;
   private File propertiesFile;
-  private java.lang.Process process;
+  private Process process;
   private StreamGobbler errorGobbler;
   private StreamGobbler outputGobbler;
   private ProcessMXBean processMXBean;
@@ -115,7 +122,16 @@ public class ProcessWrapper extends Thread {
     return this;
   }
 
-  public ProcessWrapper execute() {
+  @CheckForNull
+  Process process() {
+    return process;
+  }
+
+  /**
+   * Execute command-line and connects to JMX RMI.
+   * @return true on success, false if bad command-line or process failed to start JMX RMI
+   */
+  public boolean execute() {
     List<String> command = new ArrayList<String>();
     command.add(buildJavaCommand());
     command.addAll(javaOpts);
@@ -137,7 +153,11 @@ public class ProcessWrapper extends Thread {
       outputGobbler.start();
       errorGobbler.start();
       processMXBean = waitForJMX();
-      return this;
+      if (processMXBean == null) {
+        terminate();
+        return false;
+      }
+      return true;
     } catch (IOException e) {
       throw new IllegalStateException("Fail to start command: " + StringUtils.join(command, " "), e);
     }
@@ -146,13 +166,15 @@ public class ProcessWrapper extends Thread {
   @Override
   public void run() {
     try {
-      process.waitFor();
-    } catch (InterruptedException e) {
+      if (ProcessUtils.isAlive(process)) {
+        process.waitFor();
+      }
+    } catch (Exception e) {
       LOGGER.info("ProcessThread has been interrupted. Killing process.");
     } finally {
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
-      closeStreams(process);
+      ProcessUtils.closeStreams(process);
       FileUtils.deleteQuietly(propertiesFile);
       processMXBean = null;
     }
@@ -174,14 +196,6 @@ public class ProcessWrapper extends Thread {
       } catch (InterruptedException e) {
         LOGGER.error("InterruptedException while waiting finish of " + thread.getName() + " in process '" + getName() + "'", e);
       }
-    }
-  }
-
-  private void closeStreams(@Nullable java.lang.Process process) {
-    if (process != null) {
-      IOUtils.closeQuietly(process.getInputStream());
-      IOUtils.closeQuietly(process.getOutputStream());
-      IOUtils.closeQuietly(process.getErrorStream());
     }
   }
 
@@ -211,8 +225,7 @@ public class ProcessWrapper extends Thread {
       propertiesFile = File.createTempFile("sq-conf", "properties");
       Properties props = new Properties();
       props.putAll(properties);
-      props.put(Process.NAME_PROPERTY, processName);
-      props.put(Process.PORT_PROPERTY, String.valueOf(jmxPort));
+      props.put(MonitoredProcess.NAME_PROPERTY, processName);
       OutputStream out = new FileOutputStream(propertiesFile);
       props.store(out, "Temporary properties file for Process [" + getName() + "]");
       out.close();
@@ -222,52 +235,84 @@ public class ProcessWrapper extends Thread {
     }
   }
 
-  private ProcessMXBean waitForJMX() {
-    Exception exception = null;
+  /**
+   * Wait for JMX RMI to be ready. Return <code>null</code>
+   */
+  @CheckForNull
+  private ProcessMXBean waitForJMX() throws UnknownHostException, MalformedURLException {
+    String path = "/jndi/rmi://" + InetAddress.getLocalHost().getHostName() + ":" + jmxPort + "/jmxrmi";
+    JMXServiceURL jmxUrl = new JMXServiceURL("rmi", InetAddress.getLocalHost().getHostAddress(), jmxPort, path);
+
     for (int i = 0; i < 5; i++) {
       try {
-        Thread.sleep(1000);
-      } catch (InterruptedException e) {
-        throw new IllegalStateException("Could not connect to JMX server", e);
-      }
-      LOGGER.debug("Try #{} to connect to JMX server for process '{}'", i, processName);
-      try {
-        String protocol = "rmi";
-        String path = "/jndi/rmi://" + InetAddress.getLocalHost().getHostName() + ":" + jmxPort + "/jmxrmi";
-        JMXServiceURL jmxUrl = new JMXServiceURL(protocol, InetAddress.getLocalHost().getHostAddress(), jmxPort, path);
+        Thread.sleep(1000L);
+        LOGGER.debug("Try #{} to connect to JMX server for process '{}'", i, processName);
         JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, null);
         MBeanServerConnection mBeanServer = jmxConnector.getMBeanServerConnection();
-        ProcessMXBean bean = JMX.newMBeanProxy(mBeanServer, Process.objectNameFor(processName), ProcessMXBean.class);
-        LOGGER.info("{} process up and running, listening to its state with url: '{}'", getName(), jmxUrl.toString());
+        ProcessMXBean bean = JMX.newMBeanProxy(mBeanServer, JmxUtils.objectName(processName), ProcessMXBean.class);
         return bean;
-      } catch (MalformedURLException e) {
-        throw new IllegalStateException("JMXUrl is not valid", e);
-      } catch (UnknownHostException e) {
-        throw new IllegalStateException("Could not get hostname", e);
-      } catch (IOException e) {
-        exception = e;
+      } catch (Exception ignored) {
+        // ignored
       }
     }
-    throw new IllegalStateException("Could not connect to JMX service", exception);
+    // failed to connect
+    return null;
   }
 
+  @Override
   public void terminate() {
     if (processMXBean != null) {
-      LOGGER.info("Stopping {} process", getName());
-      processMXBean.terminate();
+      // Send the terminate command to process in order to gracefully shutdown.
+      // Then hardly kill it if it didn't terminate in 30 seconds
+      ScheduledExecutorService killer = Executors.newScheduledThreadPool(1);
       try {
-        this.join();
-      } catch (InterruptedException e) {
+        Runnable killerTask = new Runnable() {
+          @Override
+          public void run() {
+            ProcessUtils.destroyQuietly(process);
+          }
+        };
+
+        ScheduledFuture killerFuture = killer.schedule(killerTask, 30, TimeUnit.SECONDS);
+        LOGGER.info("Stopping {} process", getName());
+        processMXBean.terminate();
+        killerFuture.cancel(true);
+        processMXBean = null;
+        LOGGER.info("{} process stopped", getName());
+
+      } catch (Exception e) {
+        LOGGER.warn("Failed to terminate " + getName(), e);
+      } finally {
+        killer.shutdownNow();
+      }
+    } else {
+      // process is not monitored through JMX, but killing it though
+      ProcessUtils.destroyQuietly(process);
+    }
+  }
+
+  public boolean waitForReady() throws InterruptedException {
+    if (processMXBean == null) {
+      return false;
+    }
+    long now = 0;
+    long wait = 500L;
+    while (now < READY_TIMEOUT_MS) {
+      try {
+        if (processMXBean.isReady()) {
+          return true;
+        }
+      } catch (Exception e) {
         // ignore
       }
-      processMXBean = null;
-      LOGGER.info("{} process stopped", getName());
+      Thread.sleep(wait);
+      now += wait;
     }
+    return false;
   }
 
   private static class StreamGobbler extends Thread {
     private final InputStream is;
-    private volatile Exception exception;
     private final String pName;
 
     StreamGobbler(InputStream is, String name) {
@@ -285,17 +330,13 @@ public class ProcessWrapper extends Thread {
         while ((line = br.readLine()) != null) {
           LOGGER.info(pName + " > " + line);
         }
-      } catch (IOException ioe) {
-        exception = ioe;
+      } catch (IOException ignored) {
+        // ignored
 
       } finally {
         IOUtils.closeQuietly(br);
         IOUtils.closeQuietly(isr);
       }
-    }
-
-    public Exception getException() {
-      return exception;
     }
   }
 }

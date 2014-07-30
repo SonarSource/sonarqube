@@ -31,89 +31,98 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class Monitor extends Thread {
+public class Monitor extends Thread implements Terminatable {
 
-  private static final long MAX_TIME = 15000L;
-
+  private static final long PING_DELAY_MS = 3000L;
+  private static final long TIMEOUT_MS = 15000L;
   private final static Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
 
   private volatile List<ProcessWrapper> processes;
   private volatile Map<String, Long> pings;
+  private final ScheduledFuture<?> watch;
+  private final ScheduledExecutorService monitor;
 
-  private ProcessWatch processWatch;
-  private ScheduledFuture<?> watch;
-  private ScheduledExecutorService monitor;
-
+  /**
+   * Starts another thread to send ping to all registered processes
+   */
   public Monitor() {
+    super("Process Monitor");
     processes = new ArrayList<ProcessWrapper>();
     pings = new HashMap<String, Long>();
     monitor = Executors.newScheduledThreadPool(1);
-    processWatch = new ProcessWatch();
-    watch = monitor.scheduleWithFixedDelay(processWatch, 0, 3, TimeUnit.SECONDS);
+    watch = monitor.scheduleWithFixedDelay(new ProcessWatch(), 0L, PING_DELAY_MS, TimeUnit.MILLISECONDS);
   }
 
-  public void registerProcess(ProcessWrapper processWrapper) {
-    processes.add(processWrapper);
-    pings.put(processWrapper.getName(), System.currentTimeMillis());
-    for (int i = 0; i < 10; i++) {
-      if (processWrapper.getProcessMXBean() == null || !processWrapper.getProcessMXBean().isReady()) {
-        try {
-          Thread.sleep(500L);
-        } catch (InterruptedException e) {
-          throw new IllegalStateException("Could not register process in Monitor", e);
-        }
-      }
+  private class ProcessWatch extends Thread {
+    private ProcessWatch() {
+      super("Process Ping");
     }
-    processWrapper.start();
-  }
 
-  private class ProcessWatch implements Runnable {
+    @Override
     public void run() {
       for (ProcessWrapper process : processes) {
         try {
-          if (process.getProcessMXBean() != null) {
-            long time = process.getProcessMXBean().ping();
-            LOGGER.debug("PINGED '{}'", process.getName());
+          ProcessMXBean mBean = process.getProcessMXBean();
+          if (mBean != null) {
+            long time = mBean.ping();
             pings.put(process.getName(), time);
           }
         } catch (Exception e) {
-          LOGGER.error("Error while pinging {}", process.getName(), e);
-          terminate();
+          // fail to ping, do nothing
         }
       }
     }
   }
 
-  private boolean processIsValid(ProcessWrapper process) {
-    long now = System.currentTimeMillis();
-    return (now - pings.get(process.getName())) < MAX_TIME;
+  /**
+   * Registers and monitors process. Note that process is probably not ready yet.
+   */
+  public void registerProcess(ProcessWrapper process) throws InterruptedException {
+    processes.add(process);
+    pings.put(process.getName(), System.currentTimeMillis());
+    // starts a monitoring thread
+    process.start();
   }
 
+  private boolean processIsValid(ProcessWrapper processWrapper) {
+    if (ProcessUtils.isAlive(processWrapper.process())) {
+      long now = System.currentTimeMillis();
+      return now - pings.get(processWrapper.getName()) < TIMEOUT_MS;
+    }
+    return false;
+  }
+
+  /**
+   * Check continuously that registered processes are still up. If any process is down or does not answer to pings
+   * during the max allowed period, then thread exits. 
+   */
+  @Override
   public void run() {
     try {
       while (true) {
         for (ProcessWrapper process : processes) {
           if (!processIsValid(process)) {
             LOGGER.warn("Monitor::run() -- Process '{}' is not valid. Exiting monitor", process.getName());
-            this.interrupt();
+            interrupt();
           }
         }
-        Thread.sleep(3000L);
+        Thread.sleep(PING_DELAY_MS);
       }
     } catch (InterruptedException e) {
-      LOGGER.debug("Monitoring thread is interrupted.");
+      LOGGER.debug("Monitoring thread is interrupted");
     } finally {
       terminate();
     }
   }
 
+  @Override
   public void terminate() {
-    if (monitor != null) {
+    processes.clear();
+    if (!monitor.isShutdown()) {
       monitor.shutdownNow();
+    }
+    if (!watch.isCancelled()) {
       watch.cancel(true);
-      watch = null;
-      processWatch = null;
     }
   }
-
 }

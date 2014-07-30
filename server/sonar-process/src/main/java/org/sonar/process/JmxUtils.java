@@ -19,9 +19,33 @@
  */
 package org.sonar.process;
 
-public interface ProcessMXBean extends Terminatable {
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 
-  boolean isReady();
+import java.lang.management.ManagementFactory;
 
-  long ping();
+public class JmxUtils {
+  private JmxUtils() {
+    // only static stuff
+  }
+
+  public static ObjectName objectName(String name) {
+    try {
+      return new ObjectName("org.sonar", "name", name);
+    } catch (MalformedObjectNameException e) {
+      throw new IllegalStateException("Cannot create ObjectName for " + name, e);
+    }
+  }
+
+  public static void registerMBean(Object mbean, String name) {
+    try {
+      MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+      mbeanServer.registerMBean(mbean, objectName(name));
+    } catch (RuntimeException re) {
+      throw re;
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to register JMX MBean named " + name, e);
+    }
+  }
 }

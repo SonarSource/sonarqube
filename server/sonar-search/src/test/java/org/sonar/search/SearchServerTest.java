@@ -28,26 +28,27 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.process.Process;
+import org.sonar.process.JmxUtils;
+import org.sonar.process.MonitoredProcess;
 import org.sonar.process.Props;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
-import java.net.SocketException;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class ElasticSearchTest {
+public class SearchServerTest {
 
   File tempDirectory;
-  ElasticSearch elasticSearch;
+  SearchServer searchServer;
   int freePort;
   int freeESPort;
 
@@ -64,7 +65,6 @@ public class ElasticSearchTest {
     socket.close();
   }
 
-
   @After
   public void tearDown() throws MBeanRegistrationException, InstanceNotFoundException {
     resetMBeanServer();
@@ -73,32 +73,32 @@ public class ElasticSearchTest {
   private void resetMBeanServer() throws MBeanRegistrationException, InstanceNotFoundException {
     try {
       MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
-      mbeanServer.unregisterMBean(Process.objectNameFor("ES"));
+      mbeanServer.unregisterMBean(JmxUtils.objectName("ES"));
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 
   @Test
-  public void can_connect() throws SocketException {
+  public void can_connect() throws Exception {
     Properties properties = new Properties();
-    properties.setProperty(Process.NAME_PROPERTY, "ES");
+    properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
     properties.setProperty("sonar.path.data", tempDirectory.getAbsolutePath());
     properties.setProperty("sonar.path.logs", tempDirectory.getAbsolutePath());
-    properties.setProperty(ElasticSearch.ES_PORT_PROPERTY, Integer.toString(freeESPort));
-    properties.setProperty(ElasticSearch.ES_CLUSTER_PROPERTY, "sonarqube");
+    properties.setProperty(SearchServer.ES_PORT_PROPERTY, Integer.toString(freeESPort));
+    properties.setProperty(SearchServer.ES_CLUSTER_PROPERTY, "sonarqube");
 
-    elasticSearch = new ElasticSearch(new Props(properties));
+    searchServer = new SearchServer(new Props(properties));
     new Thread(new Runnable() {
       @Override
       public void run() {
-        elasticSearch.start();
+        searchServer.start();
       }
     }).start();
-    assertThat(elasticSearch.isReady()).isFalse();
+    assertThat(searchServer.isReady()).isFalse();
 
     int count = 0;
-    while (!elasticSearch.isReady() && count < 100) {
+    while (!searchServer.isReady() && count < 100) {
       try {
         Thread.sleep(500);
       } catch (InterruptedException e) {
@@ -114,13 +114,11 @@ public class ElasticSearchTest {
     TransportClient client = new TransportClient(settings)
       .addTransportAddress(new InetSocketTransportAddress("localhost", freeESPort));
 
-
     // 0 assert that we have a OK cluster available
     assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
 
-
     // 2 assert that we can shut down ES
-    elasticSearch.terminate();
+    searchServer.terminate();
     try {
       client.admin().cluster().prepareClusterStats().get().getStatus();
       fail();

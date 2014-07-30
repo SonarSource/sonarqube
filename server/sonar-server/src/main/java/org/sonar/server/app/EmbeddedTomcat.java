@@ -19,15 +19,17 @@
  */
 package org.sonar.server.app;
 
-import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.LoggerFactory;
+import org.sonar.process.ProcessUtils;
 import org.sonar.process.Props;
+import org.sonar.process.Terminatable;
 
 import java.io.File;
 
-class EmbeddedTomcat {
+class EmbeddedTomcat implements Terminatable {
 
   private final Props props;
   private Tomcat tomcat = null;
@@ -64,58 +66,20 @@ class EmbeddedTomcat {
       Logging.configure(tomcat, props);
       Connectors.configure(tomcat, props);
       Webapp.configure(tomcat, props);
+      ProcessUtils.addSelfShutdownHook(this);
       tomcat.start();
-      addShutdownHook();
       ready = true;
       tomcat.getServer().await();
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start web server", e);
+    } finally {
+      // Failed to start or received a shutdown command (should never occur as shutdown port is disabled)
+      terminate();
     }
-    stop();
   }
 
   private File tomcatBasedir() {
     return new File(props.of("sonar.path.temp"), "tomcat");
-  }
-
-  private void addShutdownHook() {
-    hook = new Thread() {
-      @Override
-      public void run() {
-        EmbeddedTomcat.this.doStop();
-      }
-    };
-    Runtime.getRuntime().addShutdownHook(hook);
-  }
-
-
-  void stop() {
-    removeShutdownHook();
-    doStop();
-  }
-
-  private synchronized void doStop() {
-    try {
-      if (tomcat != null && !stopping) {
-        stopping = true;
-        tomcat.stop();
-        tomcat.destroy();
-      }
-      tomcat = null;
-      stopping = false;
-      ready = false;
-      FileUtils.deleteQuietly(tomcatBasedir());
-
-    } catch (LifecycleException e) {
-      throw new IllegalStateException("Fail to stop web server", e);
-    }
-  }
-
-  private void removeShutdownHook() {
-    if (hook != null && !hook.isAlive()) {
-      Runtime.getRuntime().removeShutdownHook(hook);
-      hook = null;
-    }
   }
 
   boolean isReady() {
@@ -128,5 +92,22 @@ class EmbeddedTomcat {
       return connectors[0].getLocalPort();
     }
     return -1;
+  }
+
+  @Override
+  public void terminate() {
+    if (tomcat != null && !stopping) {
+      try {
+        stopping = true;
+        tomcat.stop();
+        tomcat.destroy();
+      } catch (Exception e) {
+        LoggerFactory.getLogger(EmbeddedTomcat.class).error("Fail to stop web service", e);
+      }
+    }
+    tomcat = null;
+    stopping = false;
+    ready = false;
+    FileUtils.deleteQuietly(tomcatBasedir());
   }
 }

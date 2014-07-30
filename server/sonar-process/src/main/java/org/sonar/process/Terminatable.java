@@ -17,45 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.app;
+package org.sonar.process;
 
-import org.slf4j.LoggerFactory;
-import org.sonar.process.ConfigurationUtils;
-import org.sonar.process.Props;
-
-public class ServerProcess extends org.sonar.process.Process {
-
-  private final EmbeddedTomcat tomcat;
-
-  ServerProcess(Props props) {
-    super(props);
-    this.tomcat = new EmbeddedTomcat(props);
-  }
-
-  @Override
-  public void onStart() {
-    try {
-      tomcat.start();
-    } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).error("TC error", e);
-    } finally {
-      terminate();
-    }
-  }
-
-  @Override
-  public void onTerminate() {
-    tomcat.stop();
-  }
-
-  @Override
-  public boolean isReady() {
-    return tomcat.isReady();
-  }
-
-  public static void main(String[] args) {
-    Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
-    Logging.init(props);
-    new ServerProcess(props).start();
-  }
+/**
+ * This interface was not named Stopable in order to not conflict with {@link Thread#stop()}.
+ */
+public interface Terminatable {
+  /**
+   * Stops pending work. Must <b>not</b> throw an exception on error.
+   */
+  void terminate();
 }
