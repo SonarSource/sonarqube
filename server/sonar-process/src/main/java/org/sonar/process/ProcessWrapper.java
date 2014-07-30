@@ -146,7 +146,7 @@ public class ProcessWrapper extends Thread implements Terminable {
     processBuilder.environment().putAll(envProperties);
 
     try {
-      LOGGER.info("Starting {} process with command line: {}", getName(), StringUtils.join(command, " "));
+      LOGGER.info("starting {}: {}", getName(), StringUtils.join(command, " "));
       process = processBuilder.start();
       errorGobbler = new StreamGobbler(process.getErrorStream(), this.getName() + "-ERROR");
       outputGobbler = new StreamGobbler(process.getInputStream(), this.getName());
@@ -260,6 +260,7 @@ public class ProcessWrapper extends Thread implements Terminable {
   @Override
   public void terminate() {
     if (processMXBean != null && process != null) {
+      LOGGER.info("{} stopping", getName());
       // Send the terminate command to process in order to gracefully shutdown.
       // Then hardly kill it if it didn't terminate in 30 seconds
       ScheduledExecutorService killer = Executors.newScheduledThreadPool(1);
@@ -274,11 +275,11 @@ public class ProcessWrapper extends Thread implements Terminable {
         ScheduledFuture killerFuture = killer.schedule(killerTask, 30, TimeUnit.SECONDS);
         processMXBean.terminate();
         killerFuture.cancel(true);
-        LOGGER.info("{} process stopped", getName());
+        LOGGER.info("{} stopped", getName());
 
       } catch (Exception ignored) {
         // ignore
-        ignored.printStackTrace();
+
       } finally {
         killer.shutdownNow();
       }

@@ -60,7 +60,7 @@ public class App implements ProcessMXBean {
       if (elasticsearch.execute()) {
         monitor.registerProcess(elasticsearch);
         if (elasticsearch.waitForReady()) {
-          logger.info("Search server is ready");
+          logger.info("search server is up");
 
           server = new ProcessWrapper(JmxUtils.WEB_SERVER_NAME)
             .setWorkDir(installation.homeDir())
@@ -81,7 +81,7 @@ public class App implements ProcessMXBean {
             monitor.registerProcess(server);
             if (server.waitForReady()) {
               success = true;
-              logger.info("Web server is ready");
+              logger.info("web server is up");
               monitor.join();
             }
           }
@@ -104,7 +104,6 @@ public class App implements ProcessMXBean {
 
   @Override
   public void terminate() {
-    LoggerFactory.getLogger(App.class).info("Stopping");
     if (monitor != null && monitor.isAlive()) {
       monitor.terminate();
       monitor.interrupt();
@@ -128,7 +127,11 @@ public class App implements ProcessMXBean {
     Installation installation = new Installation();
     new AppLogging().configure(installation);
     App app = new App(installation);
+
+    // start and wait for shutdown command
     app.start();
+
+    LoggerFactory.getLogger(App.class).info("stopped");
     System.exit(app.isSuccess() ? 0 : 1);
   }
 }
