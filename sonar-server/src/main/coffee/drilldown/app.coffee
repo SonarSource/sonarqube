@@ -77,7 +77,9 @@ requirejs [
           viewer.render()
         else viewer.showAllLines()
 
-      viewer.open(key).done ->
+      viewer.open key
+      viewer.on 'loaded', ->
+        viewer.off 'loaded'
         if activeHeaderTab?
           viewer.headerView.enableBar(activeHeaderTab).done -> f()
         else f()
