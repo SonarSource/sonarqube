@@ -31,7 +31,7 @@ public class App implements ProcessMXBean {
 
   private final Installation installation;
 
-  private final Monitor monitor = new Monitor();
+  private Monitor monitor = new Monitor();
   private ProcessWrapper elasticsearch;
   private ProcessWrapper server;
 
@@ -103,21 +103,26 @@ public class App implements ProcessMXBean {
   @Override
   public void terminate() {
     LoggerFactory.getLogger(App.class).info("Stopping");
-    if (monitor.isAlive()) {
+    if (monitor != null && monitor.isAlive()) {
       monitor.terminate();
       monitor.interrupt();
+      monitor = null;
     }
     if (server != null) {
       server.terminate();
+      server = null;
     }
     if (elasticsearch != null) {
       elasticsearch.terminate();
+      elasticsearch = null;
     }
   }
 
   public static void main(String[] args) throws Exception {
     Installation installation = new Installation();
     new AppLogging().configure(installation);
-    new App(installation).start();
+    App app = new App(installation);
+    app.start();
+    System.exit(0);
   }
 }
