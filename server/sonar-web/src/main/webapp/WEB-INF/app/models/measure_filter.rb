@@ -258,7 +258,11 @@ class MeasureFilter < ActiveRecord::Base
 
     if !snapshot_ids.empty?
       rows_by_snapshot_id = {}
-      snapshots = Snapshot.all(:include => ['project'], :conditions => ['id in (?)', snapshot_ids])
+
+      snapshots = []
+      snapshot_ids.each_slice(999) do |safe_for_oracle_ids|
+        snapshots.concat(Snapshot.all(:include => ['project'], :conditions => ['id in (?)', safe_for_oracle_ids]))
+      end
       snapshots.each do |snapshot|
         row = Row.new(snapshot)
         rows_by_snapshot_id[snapshot.id] = row
@@ -270,9 +274,12 @@ class MeasureFilter < ActiveRecord::Base
       end
 
       unless metric_ids.empty?
-        measures = ProjectMeasure.all(:conditions =>
-          ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id in (?) and metric_id in (?)', snapshot_ids, metric_ids]
-        )
+        measures = []
+        snapshot_ids.each_slice(999) do |safe_for_oracle_ids|
+          measures.concat(ProjectMeasure.all(:conditions =>
+            ['rule_priority is null and rule_id is null and characteristic_id is null and person_id is null and snapshot_id in (?) and metric_id in (?)', safe_for_oracle_ids, metric_ids]
+          ))
+        end
         measures.each do |measure|
           row = rows_by_snapshot_id[measure.snapshot_id]
           row.add_measure(measure)
@@ -286,7 +293,11 @@ class MeasureFilter < ActiveRecord::Base
           project_ids << snapshot.project_id
           rows_by_project_id[snapshot.project_id] = rows_by_snapshot_id[snapshot.id]
         end
-        links = ProjectLink.all(:conditions => {:project_id => project_ids}, :order => 'link_type')
+
+        links = []
+        project_ids.each_slice(999) do |safe_for_oracle_ids|
+          links.concat(ProjectLink.all(:conditions => {:project_id => safe_for_oracle_ids}, :order => 'link_type'))
+        end
         links.each do |link|
           rows_by_project_id[link.project_id].add_link(link)
         end
