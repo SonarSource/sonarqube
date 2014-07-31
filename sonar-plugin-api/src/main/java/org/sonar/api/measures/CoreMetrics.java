@@ -1355,7 +1355,7 @@ public final class CoreMetrics {
    * @since 4.5 used by dev cockpit.
    */
   @Beta
-  public static final String DUPLICATION_LINES_DATA_KEY = "comment_lines_data";
+  public static final String DUPLICATION_LINES_DATA_KEY = "duplication_lines_data";
 
   /**
    * Information about duplication in file.
