@@ -35,14 +35,14 @@ class DefaultInputFileValueCoder implements ValueCoder {
   public void put(Value value, Object object, CoderContext context) {
     DeprecatedDefaultInputFile f = (DeprecatedDefaultInputFile) object;
     putUTFOrNull(value, f.relativePath());
-    putUTFOrNull(value, f.getFileBaseDir().toString());
+    value.putString(f.getFileBaseDir().toString());
     putUTFOrNull(value, f.deprecatedKey());
-    putUTFOrNull(value, f.sourceDirAbsolutePath());
+    value.putString(f.sourceDirAbsolutePath());
     putUTFOrNull(value, f.pathRelativeToSourceDir());
     putUTFOrNull(value, f.absolutePath());
-    putUTFOrNull(value, f.language());
-    putUTFOrNull(value, f.type().name());
-    putUTFOrNull(value, f.status().name());
+    value.putString(f.language());
+    value.putString(f.type().name());
+    value.putString(f.status().name());
     putUTFOrNull(value, f.hash());
     value.put(f.lines());
     putUTFOrNull(value, f.key());

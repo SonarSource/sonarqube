@@ -48,7 +48,7 @@ class MeasureValueCoder implements ValueCoder {
     value.put(m.getValue());
     putUTFOrNull(value, m.getData());
     putUTFOrNull(value, m.getDescription());
-    putUTFOrNull(value, m.getAlertStatus() != null ? m.getAlertStatus().name() : null);
+    value.putString(m.getAlertStatus() != null ? m.getAlertStatus().name() : null);
     putUTFOrNull(value, m.getAlertText());
     value.put(m.getTendency());
     value.putDate(m.getDate());
@@ -65,7 +65,7 @@ class MeasureValueCoder implements ValueCoder {
     Integer personId = m.getPersonId();
     value.put(personId != null ? personId.intValue() : null);
     PersistenceMode persistenceMode = m.getPersistenceMode();
-    putUTFOrNull(value, persistenceMode != null ? persistenceMode.name() : null);
+    value.putString(persistenceMode != null ? persistenceMode.name() : null);
   }
 
   private void putUTFOrNull(Value value, @Nullable String utfOrNull) {
