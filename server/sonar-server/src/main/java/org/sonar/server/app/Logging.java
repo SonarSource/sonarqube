@@ -78,13 +78,9 @@ class Logging {
   }
 
   static void configure(Tomcat tomcat, Props props) {
-    tomcat.setSilent(false);
-    tomcat.getService().addLifecycleListener(new LifecycleLogger(console()));
+    tomcat.setSilent(true);
+    tomcat.getService().addLifecycleListener(new LifecycleLogger(LoggerFactory.getLogger(Logging.class)));
     configureLogbackAccess(tomcat, props);
-  }
-
-  static Logger console() {
-    return LoggerFactory.getLogger("console");
   }
 
   private static void configureLogbackAccess(Tomcat tomcat, Props props) {

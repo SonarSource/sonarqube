@@ -38,6 +38,13 @@ class Webapp {
       String webDir = props.of("sonar.path.web");
       LoggerFactory.getLogger(Webapp.class).info("Webapp directory: " + webDir);
       StandardContext context = (StandardContext) tomcat.addWebapp(getContextPath(props), webDir);
+      context.setClearReferencesHttpClientKeepAliveThread(false);
+      context.setClearReferencesStatic(false);
+      context.setClearReferencesStopThreads(false);
+      context.setClearReferencesStopTimerThreads(false);
+      context.setClearReferencesStopTimerThreads(false);
+      context.setAntiResourceLocking(false);
+      context.setAntiJARLocking(false);
       context.setReloadable(false);
       context.setUseHttpOnly(true);
       context.setProcessTlds(false);

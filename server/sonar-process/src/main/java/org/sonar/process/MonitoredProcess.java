@@ -76,6 +76,8 @@ public abstract class MonitoredProcess implements ProcessMXBean {
       public void run() {
         long time = System.currentTimeMillis();
         if (time - lastPing > AUTOKILL_TIMEOUT_MS) {
+          LoggerFactory.getLogger(getClass()).info(String.format(
+            "Did not receive any ping during %d seconds. Shutting down.", AUTOKILL_TIMEOUT_MS / 1000));
           terminate();
         }
       }
