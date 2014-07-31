@@ -16,7 +16,7 @@ casper.test.begin(testName('Basic Tests'), function suite(test) {
     test.assertSelectorHasText('.navigator-filter-value', 'Not set');
 
     casper.click('.navigator-filter-label');
-    casper.waitUntilVisible('.navigator-filters', function checkFields() {
+    casper.waitUntilVisible('.navigator-filter-details', function checkFields() {
       test.assertElementCount('[name="metric"] [label="Issues"] option', 2);
       test.assertElementCount('[name="metric"] [label="Size"] option', 1);
 
@@ -60,6 +60,21 @@ casper.test.begin(testName('Basic Tests'), function suite(test) {
       casper.waitUntilVisible('.select2-results');
       // 'Issues' is selected => 'Value' is back
       test.assertElementCount('[name="period"] option', 4);
+    });
+  });
+
+  casper.then(function fillFilter() {
+    casper.sendKeys('[name="val"]', '0');
+
+    casper.click('.navigator-filter-label');
+
+    casper.waitWhileVisible('.navigator-filter-details', function checkMetricDropdownNotOpenOnEdition() {
+      casper.click('.navigator-filter-label');
+
+      casper.waitUntilVisible('.navigator-filter-details');
+      casper.wait(100, function checkDropdownNotOpen() {
+        test.assertNotVisible('.select2-results:nth-child(2) .select2-result-sub');
+      });
     });
   });
 
