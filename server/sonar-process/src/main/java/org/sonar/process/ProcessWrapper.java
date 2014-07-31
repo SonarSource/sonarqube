@@ -68,6 +68,7 @@ public class ProcessWrapper extends Thread implements Terminable {
   }
 
   private final static Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
+
   public static final long READY_TIMEOUT_MS = 120000L;
 
   private String processName, className;
@@ -322,12 +323,12 @@ public class ProcessWrapper extends Thread implements Terminable {
 
   private static class StreamGobbler extends Thread {
     private final InputStream is;
-    private final String pName;
+    private final Logger logger;
 
     StreamGobbler(InputStream is, String name) {
       super(name + "_ProcessStreamGobbler");
       this.is = is;
-      this.pName = name;
+      this.logger = LoggerFactory.getLogger(name);
     }
 
     @Override
@@ -337,9 +338,9 @@ public class ProcessWrapper extends Thread implements Terminable {
       try {
         String line;
         while ((line = br.readLine()) != null) {
-          LOGGER.info(pName + " > " + line);
+          logger.info(line);
         }
-      } catch (IOException ignored) {
+      } catch (Exception ignored) {
         // ignored
 
       } finally {
