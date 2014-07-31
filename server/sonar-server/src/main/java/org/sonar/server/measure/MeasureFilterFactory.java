@@ -62,7 +62,7 @@ public class MeasureFilterFactory implements ServerComponent {
     if (onBaseComponents != null) {
       filter.setOnBaseResourceChildren(Boolean.valueOf(onBaseComponents));
     }
-    filter.setResourceName((String) properties.get("nameSearch"));
+    filter.setResourceName(toString(properties.get("nameSearch")));
     filter.setResourceKey((String) properties.get("keySearch"));
     String onFavourites = (String) properties.get("onFavourites");
     if (onFavourites != null) {
@@ -200,6 +200,21 @@ public class MeasureFilterFactory implements ServerComponent {
       Date date = org.apache.commons.lang.time.DateUtils.truncate(new Date(system.now()), Calendar.DATE);
       date = org.apache.commons.lang.time.DateUtils.addDays(date, -days);
       return date;
+    }
+    return null;
+  }
+
+  @CheckForNull
+  public static String toString(@Nullable Object o) {
+    if (o != null) {
+      if (o instanceof List) {
+        return Joiner.on(",").join((List) o);
+      } else if (o instanceof String[]) {
+        // assume that it contains only strings
+        return Joiner.on(",").join((String[]) o);
+      } else {
+        return o.toString();
+      }
     }
     return null;
   }
