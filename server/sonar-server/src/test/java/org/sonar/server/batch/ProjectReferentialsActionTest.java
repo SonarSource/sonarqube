@@ -98,9 +98,9 @@ public class ProjectReferentialsActionTest {
     module = new ComponentDto().setKey("org.codehaus.sonar:sonar-server").setQualifier(Qualifiers.MODULE);
     subModule = new ComponentDto().setKey("org.codehaus.sonar:sonar-server-dao").setQualifier(Qualifiers.MODULE);
 
-    when(componentDao.getByKey(session, project.key())).thenReturn(project);
-    when(componentDao.getByKey(session, module.key())).thenReturn(module);
-    when(componentDao.getByKey(session, subModule.key())).thenReturn(subModule);
+    when(componentDao.getNullableByKey(session, project.key())).thenReturn(project);
+    when(componentDao.getNullableByKey(session, module.key())).thenReturn(module);
+    when(componentDao.getNullableByKey(session, subModule.key())).thenReturn(subModule);
 
     when(language.getKey()).thenReturn("java");
     when(languages.all()).thenReturn(new Language[] {language});
@@ -324,6 +324,20 @@ public class ProjectReferentialsActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey).setParam("profile", "Default");
     request.execute().assertJson(getClass(), "return_quality_profile_from_given_profile_name.json");
+  }
+
+  @Test
+  public void return_quality_profiles_even_when_project_does_not_exists() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    String projectKey = "org.codehaus.sonar:sonar";
+    when(componentDao.getNullableByKey(session, projectKey)).thenReturn(null);
+
+    when(qProfileFactory.getDefault(session, "java")).thenReturn(
+      QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
+    );
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
+    request.execute().assertJson(getClass(), "return_quality_profiles_even_when_project_does_not_exists.json");
   }
 
   @Test

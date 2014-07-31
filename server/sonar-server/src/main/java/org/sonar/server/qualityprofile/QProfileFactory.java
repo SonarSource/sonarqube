@@ -177,6 +177,7 @@ public class QProfileFactory implements ServerComponent {
     }
   }
 
+  @CheckForNull
   public QualityProfileDto getByProjectAndLanguage(DbSession session, String projectKey, String language) {
     return db.qualityProfileDao().getByProjectAndLanguage(projectKey, language, PROFILE_PROPERTY_PREFIX + language, session);
   }
@@ -190,6 +191,7 @@ public class QProfileFactory implements ServerComponent {
     }
   }
 
+  @CheckForNull
   public QualityProfileDto getByNameAndLanguage(DbSession session, String name, String language) {
     return db.qualityProfileDao().getByNameAndLanguage(name, language, session);
   }

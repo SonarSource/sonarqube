@@ -108,14 +108,18 @@ public class ProjectReferentialsAction implements RequestHandler {
       String profileName = request.param(PARAM_PROFILE);
       ProjectReferentials ref = new ProjectReferentials();
 
-      ComponentDto module = dbClient.componentDao().getByKey(session, projectOrModuleKey);
-      ComponentDto project = !module.qualifier().equals(Qualifiers.PROJECT) ? dbClient.componentDao().getRootProjectByKey(projectOrModuleKey, session) : module;
-      if (!project.key().equals(module.key())) {
-        addSettings(ref, module.getKey(), getSettingsFromParentModules(module.key(), hasScanPerm, session));
+      String projectKey = null;
+      ComponentDto module = dbClient.componentDao().getNullableByKey(session, projectOrModuleKey);
+      if (module != null) {
+        ComponentDto project = !module.qualifier().equals(Qualifiers.PROJECT) ? dbClient.componentDao().getRootProjectByKey(projectOrModuleKey, session) : module;
+        if (!project.key().equals(module.key())) {
+          addSettings(ref, module.getKey(), getSettingsFromParentModules(module.key(), hasScanPerm, session));
+        }
+        projectKey = project.key();
+        addSettingsToChildrenModules(ref, projectOrModuleKey, Maps.<String, String>newHashMap(), hasScanPerm, session);
       }
-      addSettingsToChildrenModules(ref, projectOrModuleKey, Maps.<String, String>newHashMap(), hasScanPerm, session);
 
-      addProfiles(ref, project.key(), profileName, session);
+      addProfiles(ref, projectKey, profileName, session);
       addActiveRules(ref);
 
       response.stream().setMediaType(MimeTypes.JSON);
@@ -177,7 +181,7 @@ public class ProjectReferentialsAction implements RequestHandler {
     return !key.contains(".secured") || hasScanPerm;
   }
 
-  private void addProfiles(ProjectReferentials ref, String projectKey, @Nullable String profileName, DbSession session) {
+  private void addProfiles(ProjectReferentials ref, @Nullable String projectKey, @Nullable String profileName, DbSession session) {
     for (Language language : languages.all()) {
       String languageKey = language.getKey();
       QualityProfileDto qualityProfileDto = getProfile(languageKey, projectKey, profileName, session);
@@ -191,12 +195,16 @@ public class ProjectReferentialsAction implements RequestHandler {
 
   /**
    * First try to find a quality profile matching the given name (if provided) and current language
-   * If null, try to find the quality profile set on the project
-   * If null, try to find the default profile of the language
+   * If no profile found, try to find the quality profile set on the project (if provided)
+   * If still no profile found, try to find the default profile of the language
+   *
+   * Never return null because a default profile should always be set on ech language
    */
-  private QualityProfileDto getProfile(String languageKey, String projectKey, @Nullable String profileName, DbSession session) {
+  private QualityProfileDto getProfile(String languageKey, @Nullable String projectKey, @Nullable String profileName, DbSession session) {
     QualityProfileDto qualityProfileDto = profileName != null ? qProfileFactory.getByNameAndLanguage(session, profileName, languageKey) : null;
-    qualityProfileDto = qualityProfileDto != null ? qualityProfileDto : qProfileFactory.getByProjectAndLanguage(session, projectKey, languageKey);
+    if (qualityProfileDto == null && projectKey != null) {
+      qualityProfileDto = qProfileFactory.getByProjectAndLanguage(session, projectKey, languageKey);
+    }
     qualityProfileDto = qualityProfileDto != null ? qualityProfileDto : qProfileFactory.getDefault(session, languageKey);
     if (qualityProfileDto != null) {
       return qualityProfileDto;
