@@ -20,10 +20,13 @@
 package org.sonar.batch.index;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -31,6 +34,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.batch.Characteristic;
+import org.sonar.batch.duplication.DuplicationCache;
+import org.sonar.batch.duplication.DuplicationGroup;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.persistence.DbSession;
@@ -38,20 +43,27 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
 
+import java.util.ArrayList;
+
 public final class MeasurePersister implements ScanPersister {
   private final MyBatis mybatis;
   private final RuleFinder ruleFinder;
   private final MeasureCache measureCache;
   private final SnapshotCache snapshotCache;
   private final ResourceCache resourceCache;
+  private final DuplicationCache duplicationCache;
+  private final org.sonar.api.measures.MetricFinder metricFinder;
 
   public MeasurePersister(MyBatis mybatis, RuleFinder ruleFinder,
-    MeasureCache measureCache, SnapshotCache snapshotCache, ResourceCache resourceCache) {
+    MeasureCache measureCache, SnapshotCache snapshotCache, ResourceCache resourceCache,
+    DuplicationCache duplicationCache, org.sonar.api.measures.MetricFinder metricFinder) {
     this.mybatis = mybatis;
     this.ruleFinder = ruleFinder;
     this.measureCache = measureCache;
     this.snapshotCache = snapshotCache;
     this.resourceCache = resourceCache;
+    this.duplicationCache = duplicationCache;
+    this.metricFinder = metricFinder;
   }
 
   @Override
@@ -72,12 +84,47 @@ public final class MeasurePersister implements ScanPersister {
         }
       }
 
+      org.sonar.api.measures.Metric duplicationMetricWithId = metricFinder.findByKey(CoreMetrics.DUPLICATIONS_DATA_KEY);
+      for (Entry<ArrayList<DuplicationGroup>> entry : duplicationCache.entries()) {
+        String effectiveKey = entry.key()[0].toString();
+        Measure measure = new Measure(duplicationMetricWithId, toXml(entry.value())).setPersistenceMode(PersistenceMode.DATABASE);
+        Resource resource = resourceCache.get(effectiveKey);
+
+        if (shouldPersistMeasure(resource, measure)) {
+          Snapshot snapshot = snapshotCache.get(effectiveKey);
+          MeasureModel measureModel = model(measure).setSnapshotId(snapshot.getId());
+          mapper.insert(measureModel);
+        }
+      }
+
       session.commit();
     } catch (Exception e) {
       throw new IllegalStateException("Unable to save some measures", e);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private static String toXml(Iterable<DuplicationGroup> duplications) {
+    StringBuilder xml = new StringBuilder();
+    xml.append("<duplications>");
+    for (DuplicationGroup duplication : duplications) {
+      xml.append("<g>");
+      toXml(xml, duplication.originBlock());
+      for (DuplicationGroup.Block part : duplication.duplicates()) {
+        toXml(xml, part);
+      }
+      xml.append("</g>");
+    }
+    xml.append("</duplications>");
+    return xml.toString();
+  }
+
+  private static void toXml(StringBuilder xml, DuplicationGroup.Block part) {
+    xml.append("<b s=\"").append(part.startLine())
+      .append("\" l=\"").append(part.length())
+      .append("\" r=\"").append(StringEscapeUtils.escapeXml(part.resourceKey()))
+      .append("\"/>");
   }
 
   @VisibleForTesting

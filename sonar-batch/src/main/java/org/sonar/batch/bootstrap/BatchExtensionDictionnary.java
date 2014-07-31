@@ -22,6 +22,7 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.batch.CheckProject;
+import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.platform.ComponentContainer;
@@ -54,6 +55,15 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
       return sort(result);
     }
     return result;
+  }
+
+  @Override
+  protected Phase.Name evaluatePhase(Object extension) {
+    if (extension instanceof SensorWrapper) {
+      return super.evaluatePhase(((SensorWrapper) extension).wrappedSensor());
+    } else {
+      return super.evaluatePhase(extension);
+    }
   }
 
   private <T> List<T> getFilteredExtensions(Class<T> type, @Nullable Project project, @Nullable ExtensionMatcher matcher) {

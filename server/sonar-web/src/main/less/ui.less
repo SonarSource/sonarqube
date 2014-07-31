@@ -1,5 +1,5 @@
-@import "variables";
-@import "mixins";
+@import (reference) "variables";
+@import (reference) "mixins";
 
 
 
@@ -107,12 +107,12 @@ select::-moz-focus-inner, input::-moz-focus-inner, button::-moz-focus-inner {
   .link;
 }
 
-.highlighted-link {
+.highlighted-link() {
   color: @darkBlue;
   .link;
 }
 
-.underlined-link {
+.underlined-link() {
   .highlighted-link;
   border-bottom: 1px solid @lightBlue;
 
@@ -139,14 +139,19 @@ select::-moz-focus-inner, input::-moz-focus-inner, button::-moz-focus-inner {
   }
 }
 
-.active-link {
+.link-no-underline() {
   border-bottom: none;
-  font-weight: 500;
 }
+
 
 a {
   cursor: pointer;
-  .highlighted-link;
+  .underlined-link;
+
+  &.active-link {
+    border-bottom: none;
+    font-weight: 500;
+  }
 }
 
 
@@ -238,6 +243,8 @@ input[type=button] {
   }
 }
 
+.button { line-height: 22px; }
+
 .button-red {
   &:hover, &:focus {
     border-color: #900;
@@ -267,7 +274,8 @@ input[type=button] {
   font-size: 0;
   white-space: nowrap;
 
-  & > button {
+  & > button,
+  & > .button {
     position: relative;
     z-index: 2;
     display: inline-block;
@@ -283,11 +291,16 @@ input[type=button] {
     }
   }
 
-  & > button + button {
+  & > .button { line-height: 16px; }
+
+  & > button + button,
+  & > button + .button,
+  & > .button + button,
+  & > .button + .button {
     margin-left: -1px;
   }
 
-  & > a {
+  & > a:not(.button) {
     vertical-align: middle;
     margin: 0 8px;
     font-size: @smallFontSize;
@@ -325,25 +338,38 @@ input[type=button] {
   color: #fff;
   font-weight: 300;
   text-align: center;
+
+  a > & {
+    margin-bottom: -1px;
+    border-bottom: 1px solid;
+    .trans;
+
+    &:hover { opacity: 0.8; }
+  }
 }
 
 .rating-A {
   background-color: #00AA00;
+  a & { border-bottom-color: #00AA00; }
 }
 
 .rating-B {
   background-color: #80CC00;
+  a & { border-bottom-color: #80CC00; }
 }
 
 .rating-C {
   background-color: #FFEE00;
   color: @baseFontColor;
+  a & { border-bottom-color: #FFEE00; }
 }
 
 .rating-D {
   background-color: #F77700;
+  a & { border-bottom-color: #F77700; }
 }
 
 .rating-E {
   background-color: #EE0000;
+  a & { border-bottom-color: #EE0000; }
 }

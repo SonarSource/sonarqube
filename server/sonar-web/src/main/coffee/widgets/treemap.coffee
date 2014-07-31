@@ -101,7 +101,6 @@ class Treemap extends window.SonarWidgets.BaseWidget
     breadcrumbsEnter.append('i').attr 'class', (d) ->
       if d.qualifier? then "icon-qualifier-#{d.qualifier.toLowerCase()}" else ''
     breadcrumbsEnterLinks = breadcrumbsEnter.append 'a'
-    breadcrumbsEnterLinks.classed 'underlined-link', (d, i) -> i > 0
     breadcrumbsEnterLinks.html (d) -> d.name
     breadcrumbsEnterLinks.on 'click', (d) =>
       @updateTreemap d.components, d.maxResultsReached

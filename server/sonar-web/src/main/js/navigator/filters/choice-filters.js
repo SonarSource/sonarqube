@@ -57,7 +57,7 @@ define([
     onCheck: function(e) {
       var checkbox = jQuery(e.currentTarget),
           id = checkbox.data('id'),
-          checked = checkbox.children('.icon-checkbox-checked').length > 0;
+          checked = checkbox.find('.icon-checkbox-checked').length > 0;
 
       if (this.model.get('multiple')) {
         if (checkbox.closest('.opposite').length > 0) {
@@ -315,10 +315,18 @@ define([
           item.set('checked', false);
         });
 
+        var unknownValues = [];
+
         _.each(value, function(v) {
           var cModel = that.choices.findWhere({ id: v });
-          cModel.set('checked', true);
+          if (cModel) {
+            cModel.set('checked', true);
+          } else {
+            unknownValues.push(v);
+          }
         });
+
+        value = _.difference(value, unknownValues);
 
         this.model.set({
           value: value,

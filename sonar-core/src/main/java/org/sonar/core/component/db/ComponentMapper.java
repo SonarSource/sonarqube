@@ -33,6 +33,13 @@ public interface ComponentMapper {
 
   ComponentDto selectById(long id);
 
+  ComponentDto selectRootProjectByKey(String key);
+
+  ComponentDto selectParentModuleByKey(String key);
+
+  /**
+   * Return direct modules from a project/module
+   */
   List<ComponentDto> findModulesByProject(@Param("projectKey") String projectKey);
 
   long countById(long id);

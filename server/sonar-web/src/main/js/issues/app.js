@@ -4,8 +4,7 @@ requirejs.config({
   paths: {
     'backbone': 'third-party/backbone',
     'backbone.marionette': 'third-party/backbone.marionette',
-    'handlebars': 'third-party/handlebars',
-    'moment': 'third-party/moment'
+    'handlebars': 'third-party/handlebars'
   },
 
   shim: {
@@ -18,9 +17,6 @@ requirejs.config({
     },
     'handlebars': {
       exports: 'Handlebars'
-    },
-    'moment': {
-      exports: 'moment'
     }
   }
 
@@ -28,7 +24,7 @@ requirejs.config({
 
 requirejs(
     [
-      'backbone', 'backbone.marionette', 'handlebars', 'moment',
+      'backbone', 'backbone.marionette', 'handlebars',
       'issues/extra',
       'navigator/filters/filter-bar',
       'navigator/filters/base-filters',
@@ -44,7 +40,7 @@ requirejs(
 
       'common/handlebars-extensions'
     ],
-    function (Backbone, Marionette, Handlebars, moment, Extra, FilterBar, BaseFilters, CheckboxFilterView,
+    function (Backbone, Marionette, Handlebars, Extra, FilterBar, BaseFilters, CheckboxFilterView,
               ChoiceFilters, AjaxSelectFilters, FavoriteFilters, RangeFilters, ContextFilterView,
               ReadOnlyFilterView, ActionPlanFilterView, RuleFilterView) {
       Handlebars.registerPartial('detailInnerTemplate', jQuery('#issue-detail-inner-template').html());
@@ -111,6 +107,15 @@ requirejs(
           });
         this.filters.add(projectFilter);
 
+        var assigneeChoices = {
+              '!assigned': window.SS.phrases.unassigned
+            },
+            reporterChoices = {};
+        if (window.SS.currentUser) {
+          assigneeChoices[window.SS.currentUser] = window.SS.currentUserName + ' (' + window.SS.currentUser + ')';
+          reporterChoices[window.SS.currentUser] = window.SS.currentUserName + ' (' + window.SS.currentUser + ')';
+        }
+
         this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.severity,
@@ -162,9 +167,7 @@ requirejs(
             type: AjaxSelectFilters.AssigneeFilterView,
             enabled: true,
             optional: false,
-            choices: {
-              '!assigned': window.SS.phrases.unassigned
-            }
+            choices: assigneeChoices
           }),
 
           new BaseFilters.Filter({
@@ -226,7 +229,8 @@ requirejs(
             property: 'reporters',
             type: AjaxSelectFilters.ReporterFilterView,
             enabled: false,
-            optional: true
+            optional: true,
+            choices: reporterChoices
           }),
 
           new BaseFilters.Filter({

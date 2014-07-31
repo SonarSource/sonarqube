@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.InputFile.Status;
+import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
@@ -55,7 +57,18 @@ public class InputPathCacheTest {
     InputPathCache cache = new InputPathCache(caches);
     DefaultInputFile fooFile = new DefaultInputFile("src/main/java/Foo.java").setFile(temp.newFile("Foo.java"));
     cache.put("struts", fooFile);
-    cache.put("struts-core", new DeprecatedDefaultInputFile("src/main/java/Bar.java").setFile(temp.newFile("Bar.java")));
+    cache.put("struts-core", new DeprecatedDefaultInputFile("src/main/java/Bar.java")
+      .setBasedir(temp.newFolder())
+      .setDeprecatedKey("foo")
+      .setSourceDirAbsolutePath("foo")
+      .setPathRelativeToSourceDir("foo")
+      .setLanguage("bla")
+      .setType(Type.MAIN)
+      .setStatus(Status.ADDED)
+      .setHash("xyz")
+      .setLines(1)
+      .setKey("foo")
+      .setFile(temp.newFile("Bar.java")));
 
     assertThat(cache.getFile("struts", "src/main/java/Foo.java").relativePath())
       .isEqualTo("src/main/java/Foo.java");
@@ -75,5 +88,4 @@ public class InputPathCacheTest {
     assertThat(cache.filesByModule("struts-core")).hasSize(1);
     assertThat(cache.all()).hasSize(1);
   }
-
 }

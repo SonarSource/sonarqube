@@ -19,9 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.batch.sensor.Sensor;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -29,6 +26,8 @@ import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.AnnotationUtils;

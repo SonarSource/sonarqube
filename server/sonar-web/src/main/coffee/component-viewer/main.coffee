@@ -135,7 +135,7 @@ define [
       availableHeight = height - @$(@headerRegion.$el).outerHeight(true)
 
       source.removeClass 'overflow'
-      source.width(availableWidth).css('max-height', availableHeight)
+      source.width(availableWidth).height availableHeight
       source.addClass 'overflow'
       workspace.removeClass 'overflow'
       workspace.height availableHeight

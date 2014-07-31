@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.exceptions.NotFoundException;
 
 import java.util.Date;
 import java.util.List;
@@ -109,13 +110,46 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void find_modules_by_project() throws Exception {
-    setupData("shared");
+    setupData("multi-modules");
 
     List<ComponentDto> results = dao.findModulesByProject("org.struts:struts", session);
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-core");
 
+    results = dao.findModulesByProject("org.struts:struts-core", session);
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-data");
+
+    assertThat(dao.findModulesByProject("org.struts:struts-data", session)).isEmpty();
+
     assertThat(dao.findModulesByProject("unknown", session)).isEmpty();
+  }
+
+  @Test
+  public void get_root_project_by_key() throws Exception {
+    setupData("multi-modules");
+
+    assertThat(dao.getRootProjectByKey("org.struts:struts-data", session).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByKey("org.struts:struts-core", session).getKey()).isEqualTo("org.struts:struts");
+
+    // Root project of a project is itself
+    assertThat(dao.getRootProjectByKey("org.struts:struts", session).getKey()).isEqualTo("org.struts:struts");
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void get_root_project_by_key_on_unknown_project() throws Exception {
+    dao.getRootProjectByKey("unknown", session);
+  }
+
+  @Test
+  public void get_parent_module_by_key() throws Exception {
+    setupData("multi-modules");
+
+    assertThat(dao.getParentModuleByKey("org.struts:struts-data", session).getKey()).isEqualTo("org.struts:struts-core");
+    assertThat(dao.getParentModuleByKey("org.struts:struts-core", session).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getParentModuleByKey("org.struts:struts", session)).isNull();
+
+    assertThat(dao.getParentModuleByKey("unknown", session)).isNull();
   }
 
   @Test

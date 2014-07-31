@@ -104,6 +104,7 @@ define([
 
       var title = this.model.get('name') + ': ' + this.renderValue();
       this.$el.prop('title', title);
+      this.$el.attr('data-property', this.model.get('property'));
     },
 
 

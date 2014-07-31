@@ -20,9 +20,11 @@
 
 package org.sonar.server.batch;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -47,9 +49,11 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 public class ProjectReferentialsAction implements RequestHandler {
@@ -84,7 +88,7 @@ public class ProjectReferentialsAction implements RequestHandler {
     action
       .createParam(PARAM_KEY)
       .setRequired(true)
-      .setDescription("Project key")
+      .setDescription("Project or module key")
       .setExampleValue("org.codehaus.sonar:sonar");
 
     action
@@ -100,10 +104,21 @@ public class ProjectReferentialsAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ProjectReferentials ref = new ProjectReferentials();
-      String projectKey = request.mandatoryParam(PARAM_KEY);
+      String projectOrModuleKey = request.mandatoryParam(PARAM_KEY);
       String profileName = request.param(PARAM_PROFILE);
-      addSettings(ref, projectKey, hasScanPerm, session);
+      ProjectReferentials ref = new ProjectReferentials();
+
+      String projectKey = null;
+      ComponentDto module = dbClient.componentDao().getNullableByKey(session, projectOrModuleKey);
+      if (module != null) {
+        ComponentDto project = !module.qualifier().equals(Qualifiers.PROJECT) ? dbClient.componentDao().getRootProjectByKey(projectOrModuleKey, session) : module;
+        if (!project.key().equals(module.key())) {
+          addSettings(ref, module.getKey(), getSettingsFromParentModules(module.key(), hasScanPerm, session));
+        }
+        projectKey = project.key();
+        addSettingsToChildrenModules(ref, projectOrModuleKey, Maps.<String, String>newHashMap(), hasScanPerm, session);
+      }
+
       addProfiles(ref, projectKey, profileName, session);
       addActiveRules(ref);
 
@@ -114,14 +129,43 @@ public class ProjectReferentialsAction implements RequestHandler {
     }
   }
 
-  private void addSettings(ProjectReferentials ref, String projectKey, boolean hasScanPerm, DbSession session) {
-    addSettings(ref, projectKey, propertiesDao.selectProjectProperties(projectKey, session), hasScanPerm);
-    for (ComponentDto module : dbClient.componentDao().findModulesByProject(projectKey, session)) {
-      addSettings(ref, module.getKey(), propertiesDao.selectProjectProperties(module.getKey(), session), hasScanPerm);
+  private Map<String, String> getSettingsFromParentModules(String moduleKey, boolean hasScanPerm, DbSession session) {
+    List<ComponentDto> parents = newArrayList();
+    aggregateParentModules(moduleKey, parents, session);
+    Collections.reverse(parents);
+
+    Map<String, String> parentProperties = newHashMap();
+    for (ComponentDto parent : parents) {
+      parentProperties.putAll(getPropertiesMap(propertiesDao.selectProjectProperties(parent.key(), session), hasScanPerm));
+    }
+    return parentProperties;
+  }
+
+  private void aggregateParentModules(String component, List<ComponentDto> parents, DbSession session){
+    ComponentDto parent = dbClient.componentDao().getParentModuleByKey(component, session);
+    if (parent != null) {
+      parents.add(parent);
+      aggregateParentModules(parent.key(), parents, session);
     }
   }
 
-  private void addSettings(ProjectReferentials ref, String projectOrModuleKey, List<PropertyDto> propertyDtos, boolean hasScanPerm) {
+  private void addSettingsToChildrenModules(ProjectReferentials ref, String projectKey, Map<String, String> parentProperties, boolean hasScanPerm, DbSession session) {
+    parentProperties.putAll(getPropertiesMap(propertiesDao.selectProjectProperties(projectKey, session), hasScanPerm));
+    addSettings(ref, projectKey, parentProperties);
+
+    for (ComponentDto module : dbClient.componentDao().findModulesByProject(projectKey, session)) {
+      addSettings(ref, module.key(), parentProperties);
+      addSettingsToChildrenModules(ref, module.key(), parentProperties, hasScanPerm, session);
+    }
+  }
+
+  private void addSettings(ProjectReferentials ref, String module, Map<String, String> properties) {
+    if (!properties.isEmpty()) {
+      ref.addSettings(module, properties);
+    }
+  }
+
+  private Map<String, String> getPropertiesMap(List<PropertyDto> propertyDtos, boolean hasScanPerm) {
     Map<String, String> properties = newHashMap();
     for (PropertyDto propertyDto : propertyDtos) {
       String key = propertyDto.getKey();
@@ -130,16 +174,14 @@ public class ProjectReferentialsAction implements RequestHandler {
         properties.put(key, value);
       }
     }
-    if (!properties.isEmpty()) {
-      ref.addSettings(projectOrModuleKey, properties);
-    }
+    return properties;
   }
 
   private static boolean isPropertyAllowed(String key, boolean hasScanPerm) {
     return !key.contains(".secured") || hasScanPerm;
   }
 
-  private void addProfiles(ProjectReferentials ref, String projectKey, @Nullable String profileName, DbSession session) {
+  private void addProfiles(ProjectReferentials ref, @Nullable String projectKey, @Nullable String profileName, DbSession session) {
     for (Language language : languages.all()) {
       String languageKey = language.getKey();
       QualityProfileDto qualityProfileDto = getProfile(languageKey, projectKey, profileName, session);
@@ -153,12 +195,16 @@ public class ProjectReferentialsAction implements RequestHandler {
 
   /**
    * First try to find a quality profile matching the given name (if provided) and current language
-   * If null, try to find the quality profile set on the project
-   * If null, try to find the default profile of the language
+   * If no profile found, try to find the quality profile set on the project (if provided)
+   * If still no profile found, try to find the default profile of the language
+   *
+   * Never return null because a default profile should always be set on ech language
    */
-  private QualityProfileDto getProfile(String languageKey, String projectKey, @Nullable String profileName, DbSession session) {
+  private QualityProfileDto getProfile(String languageKey, @Nullable String projectKey, @Nullable String profileName, DbSession session) {
     QualityProfileDto qualityProfileDto = profileName != null ? qProfileFactory.getByNameAndLanguage(session, profileName, languageKey) : null;
-    qualityProfileDto = qualityProfileDto != null ? qualityProfileDto : qProfileFactory.getByProjectAndLanguage(session, projectKey, languageKey);
+    if (qualityProfileDto == null && projectKey != null) {
+      qualityProfileDto = qProfileFactory.getByProjectAndLanguage(session, projectKey, languageKey);
+    }
     qualityProfileDto = qualityProfileDto != null ? qualityProfileDto : qProfileFactory.getDefault(session, languageKey);
     if (qualityProfileDto != null) {
       return qualityProfileDto;
@@ -177,8 +223,7 @@ public class ProjectReferentialsAction implements RequestHandler {
           rule.name(),
           activeRule.severity(),
           rule.internalKey(),
-          qProfile.language()
-          );
+          qProfile.language());
         for (Map.Entry<String, String> entry : activeRule.params().entrySet()) {
           inputActiveRule.addParam(entry.getKey(), entry.getValue());
         }

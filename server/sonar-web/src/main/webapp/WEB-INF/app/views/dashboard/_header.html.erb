@@ -2,16 +2,16 @@
 <div class="line-block">
 
   <% if logged_in? %>
-    <ul class="operations noprint">
+    <div class="operations noprint button-group">
       <% if back %>
-        <li><%= link_to message('dashboard.back_to_dashboard'), dashboard_action(:index) -%></li>
+        <%= link_to message('dashboard.back_to_dashboard'), dashboard_action(:index), :class => 'button' -%>
       <% else %>
         <% if @dashboard.editable_by?(current_user) %>
-          <li><%= link_to message('dashboard.configure_widgets'), dashboard_action(:configure) -%></li>
+          <%= link_to message('dashboard.configure_widgets'), dashboard_action(:configure), :class => 'button' -%>
         <% end %>
       <% end %>
-      <li class="last"><%= link_to message('dashboard.manage_dashboards'), {:controller => :dashboards, :action => :index, :resource => (@resource.id if @resource) } -%></li>
-    </ul>
+      <%= link_to message('dashboard.manage_dashboards'), {:controller => :dashboards, :action => :index, :resource => (@resource.id if @resource) }, :class => 'button' -%>
+    </div>
   <% end %>
 
   <% if @snapshot %>

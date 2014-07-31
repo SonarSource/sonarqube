@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -81,6 +82,18 @@ public class MeasureFilterFactoryTest {
     when(finder.findByKey(anyString())).thenReturn(null);
     MeasureFilterFactory factory = new MeasureFilterFactory(finder, system);
     Map<String, Object> props = ImmutableMap.<String, Object>of("sort", "metric:sqale_index");
+    MeasureFilter filter = factory.create(props);
+
+    assertThat(filter.sort().column()).isEqualTo("p.long_name");
+    assertThat(filter.sort().metric()).isNull();
+    assertThat(filter.sort().period()).isNull();
+    assertThat(filter.sort().isAsc()).isTrue();
+  }
+
+  @Test
+  public void fallback_on_name_sort_when_sort_is_unknown() {
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of("sort", "unknown");
     MeasureFilter filter = factory.create(props);
 
     assertThat(filter.sort().column()).isEqualTo("p.long_name");
@@ -193,6 +206,39 @@ public class MeasureFilterFactoryTest {
     assertThat(conditions.get(0).value()).isEqualTo(0);
     assertThat(conditions.get(0).textValue()).isEqualTo("('ERROR', 'WARN')");
     assertThat(conditions.get(0).period()).isNull();
+  }
+
+  @Test
+  public void name_conditions() {
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of(
+      "nameSearch", "SonarQube"
+    );
+    MeasureFilter filter = factory.create(props);
+
+    assertThat(filter.getResourceName()).isEqualTo("SonarQube");
+  }
+
+  @Test
+  public void not_fail_when_name_conditions_contains_array() {
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of(
+      "nameSearch", new String[]{"sonar", "qube"}
+    );
+    MeasureFilter filter = factory.create(props);
+
+    assertThat(filter.getResourceName()).isEqualTo("sonar,qube");
+  }
+
+  @Test
+  public void not_fail_when_name_conditions_contains_list() {
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of(
+      "nameSearch", newArrayList("sonar", "qube")
+    );
+    MeasureFilter filter = factory.create(props);
+
+    assertThat(filter.getResourceName()).isEqualTo("sonar,qube");
   }
 
   @Test

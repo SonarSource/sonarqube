@@ -1,6 +1,6 @@
-@import "mixins";
-@import "variables";
-@import "ui";
+@import (reference) "mixins";
+@import (reference) "variables";
+@import (reference) "ui";
 
 /*
  * SonarQube, open source software quality management tool.
@@ -40,6 +40,7 @@
   border-top: 1px solid #fff;
   font-size: 85%;
   padding: 10px 0;
+  line-height: 1.4;
 }
 
 .ie-warn {
@@ -53,15 +54,16 @@
   text-decoration: underline;
 }
 
-#ftlinks a {
-  color: #444;
-}
-
 /*
   GENERAL
 */
 a {
   cursor: pointer;
+}
+
+a.icon-favorite,
+a.icon-not-favorite {
+  .link-no-underline;
 }
 
 .loading {
@@ -386,6 +388,7 @@ table.data > thead > tr > th {
   vertical-align: top;
   font-size: 93%;
   padding: 4px 7px 4px 3px;
+  line-height: 1.4;
   text-transform: uppercase;
 
   & > .small {
@@ -471,7 +474,6 @@ table.sortable .sortcol {
   padding-left: 15px;
   background-repeat: no-repeat;
   background-position: right center;
-  text-decoration: underline;
 }
 
 table.sortable .sortasc {
@@ -1792,10 +1794,6 @@ ul.bullet li {
   padding: 0;
 }
 
-.tabs li a {
-  outline: none;
-}
-
 .tabs2 li a, .tabs li a {
   float: left;
   color: #777;
@@ -1803,6 +1801,7 @@ ul.bullet li {
   height: 17px;
   margin: 0 1px 0 0;
   padding: 1px 5px;
+  .link-no-underline;
 }
 
 .tabs2 li a.selected, .tabs li a.selected, .tabs .ui-tabs-active a {
@@ -1864,6 +1863,14 @@ ul.bullet li {
   color: #fff;
   margin: 0;
   padding: 0 3px;
+
+  a > & {
+    margin-bottom: -1px;
+    border-bottom: 1px solid @orange;
+    .trans;
+
+    &:hover { opacity: 0.8; }
+  }
 }
 
 .alert_ERROR {
@@ -1871,6 +1878,14 @@ ul.bullet li {
   color: #fff;
   margin: 0;
   padding: 0 3px;
+
+  a > & {
+    margin-bottom: -1px;
+    border-bottom: 1px solid @red;
+    .trans;
+
+    &:hover { opacity: 0.8; }
+  }
 }
 
 #comparison span.best {
@@ -2076,11 +2091,7 @@ table.matrix tbody td.title {
 }
 
 a.nolink {
-  text-decoration: none;
-}
-
-a.nolink:hover {
-  text-decoration: underline;
+  .link-no-underline;
 }
 
 h1 strong, .dashbox .title, .gwt-SourcePanel .sources .msg li strong {
@@ -2220,11 +2231,6 @@ table.nowrap td.small, td.nowrap.small, th.nowrap.small {
 
 .yellowHighlight {
   background: #FFFBCC;
-}
-
-.action {
-  text-decoration: underline;
-  cursor: pointer;
 }
 
 /* Used on links which are located inside a dense text place or in tables */
@@ -2850,6 +2856,7 @@ div.rule-title {
   line-height: @iconSmallFontSize;
   color: #fff;
   opacity: 0.5;
+  .link-no-underline;
 
   &:hover { opacity: 1; }
 }

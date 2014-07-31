@@ -149,5 +149,10 @@
       <artifactId>jsonassert</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar.plugins</groupId>
+      <artifactId>sonar-xoo-plugin</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

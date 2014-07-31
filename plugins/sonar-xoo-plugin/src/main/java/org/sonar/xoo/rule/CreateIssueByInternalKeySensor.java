@@ -17,32 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.xoo.plugin.rule;
+package org.sonar.xoo.rule;
 
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.issue.IssueBuilder;
-import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
-import org.sonar.batch.mediumtest.xoo.plugin.base.XooConstants;
+import org.sonar.xoo.Xoo;
+import org.sonar.xoo.XooConstants;
 
-public class OneIssuePerLineSensor implements Sensor {
+public class CreateIssueByInternalKeySensor implements Sensor {
 
-  public static final String RULE_KEY = "OneIssuePerLine";
-  private static final String EFFORT_TO_FIX_PROPERTY = "sonar.oneIssuePerLine.effortToFix";
-  private static final String FORCE_SEVERITY_PROPERTY = "sonar.oneIssuePerLine.forceSeverity";
+  private static final String INTERNAL_KEY_PROPERTY = "sonar.xoo.internalKey";
 
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .name("One Issue Per Line")
-      .dependsOn(CoreMetrics.LINES)
+      .name("CreateIssueByInternalKeySensor")
       .workOnLanguages(Xoo.KEY)
+      .createIssuesForRuleRepositories(XooConstants.REPOSITORY_KEY)
       .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);
   }
 
@@ -54,22 +48,14 @@ public class OneIssuePerLineSensor implements Sensor {
   }
 
   private void createIssues(InputFile file, SensorContext context) {
-    RuleKey ruleKey = RuleKey.of(XooConstants.REPOSITORY_KEY, RULE_KEY);
-    Measure<Integer> linesMeasure = context.getMeasure(file, CoreMetrics.LINES);
-    if (linesMeasure == null) {
-      LoggerFactory.getLogger(getClass()).warn("Missing measure " + CoreMetrics.LINES_KEY + " on " + file);
-    } else {
-      IssueBuilder issueBuilder = context.issueBuilder();
-      for (int line = 1; line <= (Integer) linesMeasure.value(); line++) {
-        context.addIssue(issueBuilder
-          .ruleKey(ruleKey)
-          .onFile(file)
-          .atLine(line)
-          .effortToFix(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY))
-          .severity(context.settings().getString(FORCE_SEVERITY_PROPERTY))
-          .message("This issue is generated on each line")
-          .build());
-      }
+    ActiveRule rule = context.activeRules().findByInternalKey(XooConstants.REPOSITORY_KEY,
+      context.settings().getString(INTERNAL_KEY_PROPERTY));
+    if (rule != null) {
+      context.addIssue(context.issueBuilder()
+        .ruleKey(rule.ruleKey())
+        .onFile(file)
+        .message("This issue is generated on each file")
+        .build());
     }
   }
 }

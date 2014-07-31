@@ -22,7 +22,7 @@
   <% end %>
   <% if Internal.issues.canUserShareIssueFilter() %>
     <div class="modal-field">
-      <% if !@filter || @filter.user == current_user.login %>
+      <% if !@filter || @filter.user.nil? || @filter.user == current_user.login %>
         <label for="shared"><%= message('issue_filter.form.share') -%></label>
         <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if (@filter && @filter.shared) -%>/>
       <% else %>

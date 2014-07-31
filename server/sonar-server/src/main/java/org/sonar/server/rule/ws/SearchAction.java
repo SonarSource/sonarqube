@@ -31,7 +31,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
-import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
@@ -259,7 +258,7 @@ public class SearchAction implements RequestHandler {
   private void writeRules(Result<Rule> result, JsonWriter json, SearchOptions options) {
     json.name("rules").beginArray();
     for (Rule rule : result.getHits()) {
-      mapping.write((RuleDoc) rule, json, options);
+      mapping.write(rule, json, options);
     }
     json.endArray();
   }

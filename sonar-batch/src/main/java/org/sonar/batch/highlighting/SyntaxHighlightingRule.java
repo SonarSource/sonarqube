@@ -21,9 +21,6 @@ package org.sonar.batch.highlighting;
 
 import java.io.Serializable;
 
-/**
- * @since 3.6
- */
 public class SyntaxHighlightingRule implements Serializable {
 
   private final int startPosition;

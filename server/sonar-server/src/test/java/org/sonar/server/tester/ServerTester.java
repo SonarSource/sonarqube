@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.search.IndexProperties;

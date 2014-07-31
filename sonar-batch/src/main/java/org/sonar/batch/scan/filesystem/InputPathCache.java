@@ -23,6 +23,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 
@@ -44,6 +45,7 @@ public class InputPathCache implements BatchComponent {
   private final Cache<InputPath> cache;
 
   public InputPathCache(Caches caches) {
+    caches.registerValueCoder(DeprecatedDefaultInputFile.class, new DefaultInputFileValueCoder());
     cache = caches.createCache("inputFiles");
   }
 

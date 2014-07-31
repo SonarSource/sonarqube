@@ -42,6 +42,8 @@ import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.batch.duplication.BlockCache;
+import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -71,8 +73,9 @@ public class SensorContextAdapterTest {
     settings = new Settings();
     resourcePerspectives = mock(ResourcePerspectives.class);
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
+    BlockCache blockCache = mock(BlockCache.class);
     adaptor = new SensorContextAdaptor(sensorContext, metricFinder, new Project("myProject"),
-      resourcePerspectives, settings, fs, activeRules, componentDataCache);
+      resourcePerspectives, settings, fs, activeRules, componentDataCache, blockCache, mock(DuplicationCache.class));
   }
 
   @Test

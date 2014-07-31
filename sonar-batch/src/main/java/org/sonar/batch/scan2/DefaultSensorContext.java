@@ -28,6 +28,8 @@ import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
+import org.sonar.api.batch.sensor.duplication.TokenBuilder;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
@@ -41,12 +43,17 @@ import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.duplication.BlockCache;
+import org.sonar.batch.duplication.DefaultDuplicationBuilder;
+import org.sonar.batch.duplication.DefaultTokenBuilder;
+import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.scan.SensorContextAdaptor;
 import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 
 import java.io.Serializable;
 
@@ -60,9 +67,12 @@ public class DefaultSensorContext implements SensorContext {
   private final ActiveRules activeRules;
   private final IssueFilters issueFilters;
   private final ComponentDataCache componentDataCache;
+  private final BlockCache blockCache;
+  private final DuplicationCache duplicationCache;
 
   public DefaultSensorContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, AnalyzerIssueCache issueCache,
-    Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters, ComponentDataCache componentDataCache) {
+    Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters, ComponentDataCache componentDataCache,
+    BlockCache blockCache, DuplicationCache duplicationCache) {
     this.def = def;
     this.measureCache = measureCache;
     this.issueCache = issueCache;
@@ -71,6 +81,8 @@ public class DefaultSensorContext implements SensorContext {
     this.activeRules = activeRules;
     this.issueFilters = issueFilters;
     this.componentDataCache = componentDataCache;
+    this.blockCache = blockCache;
+    this.duplicationCache = duplicationCache;
   }
 
   @Override
@@ -173,6 +185,36 @@ public class DefaultSensorContext implements SensorContext {
   @Override
   public SymbolTableBuilder symbolTableBuilder(InputFile inputFile) {
     return new DefaultSymbolTableBuilder(((DefaultInputFile) inputFile).key(), componentDataCache);
+  }
+
+  @Override
+  public TokenBuilder tokenBuilder(InputFile inputFile) {
+    PmdBlockChunker blockChunker = new PmdBlockChunker(getBlockSize(inputFile.language()));
+
+    return new DefaultTokenBuilder(inputFile, blockCache, blockChunker);
+  }
+
+  @Override
+  public DuplicationBuilder duplicationBuilder(InputFile inputFile) {
+    return new DefaultDuplicationBuilder(inputFile, duplicationCache);
+  }
+
+  private int getBlockSize(String languageKey) {
+    int blockSize = settings.getInt("sonar.cpd." + languageKey + ".minimumLines");
+    if (blockSize == 0) {
+      blockSize = getDefaultBlockSize(languageKey);
+    }
+    return blockSize;
+  }
+
+  private static int getDefaultBlockSize(String languageKey) {
+    if ("cobol".equals(languageKey)) {
+      return 30;
+    } else if ("abap".equals(languageKey) || "natur".equals(languageKey)) {
+      return 20;
+    } else {
+      return 10;
+    }
   }
 
 }

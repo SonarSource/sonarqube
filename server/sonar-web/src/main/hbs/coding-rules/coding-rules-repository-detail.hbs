@@ -1,12 +1,16 @@
 <li>
   <label title="{{id}}" data-id="{{id}}">
-    <i class="icon-checkbox {{#if checked}}icon-checkbox-checked{{/if}} {{#unless multiple}}icon-checkbox-single{{/unless}}"></i>
     <span>
+      <i class="icon-checkbox {{#if checked}}icon-checkbox-checked{{/if}} {{#unless multiple}}icon-checkbox-single{{/unless}}"></i>
       {{text}}
-      {{#if language}}
-        <br>
-        <span class="subtitle">{{language}}</span>
-      {{/if}}
     </span>
+
+    {{#if language}}
+      <br>
+      <span>
+        <i class="icon-checkbox icon-checkbox-invisible"></i>
+        <span class="subtitle">{{language}}</span>
+      </span>
+    {{/if}}
   </label>
 </li>

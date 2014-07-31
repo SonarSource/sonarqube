@@ -141,7 +141,9 @@ define([
               that.options.filterView.choices.unshift(item);
             });
             _.each(that.model.get('choices'), function(v, k) {
-              that.options.filterView.choices.add(new Backbone.Model({ id: k, text: v }));
+              if (k[0] === '!') {
+                that.options.filterView.choices.add(new Backbone.Model({ id: k, text: v }));
+              }
             });
             that.updateLists();
             that.$el.removeClass('fetching');

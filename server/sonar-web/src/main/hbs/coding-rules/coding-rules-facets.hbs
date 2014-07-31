@@ -4,7 +4,13 @@
   {{/unless}}
   {{#each items}}
     <div class="navigator-facets-list-item" data-property="{{property}}">
-      <div class="navigator-facets-list-item-name">{{t property_message}}</div>
+      <div class="navigator-facets-list-item-name">
+        {{#if limitReached}}
+          {{tp 'coding_rules.facets.top' property_message}}
+        {{else}}
+          {{property_message}}
+        {{/if}}
+      </div>
       <div class="navigator-facets-list-item-options">
         {{#each values}}
           {{#if count}}

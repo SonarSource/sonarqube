@@ -158,6 +158,7 @@ define [
       row = $(e.currentTarget).closest('.row')
       highlighted = row.is ".#{HIGHLIGHTED_ROW_CLASS}"
       @$(".#{HIGHLIGHTED_ROW_CLASS}").removeClass HIGHLIGHTED_ROW_CLASS
+      @highlightedLine = null
       unless highlighted
         row.addClass HIGHLIGHTED_ROW_CLASS
         @highlightedLine = row.data 'line-number'
@@ -170,9 +171,10 @@ define [
 
 
     highlightUsages: (e) ->
+      highlighted = $(e.currentTarget).is '.highlighted'
       key = e.currentTarget.className.split(/\s+/)[0]
       @$('.sym.highlighted').removeClass 'highlighted'
-      @$(".sym.#{key}").addClass 'highlighted'
+      @$(".sym.#{key}").addClass 'highlighted' unless highlighted
 
 
     toggleSettings: ->

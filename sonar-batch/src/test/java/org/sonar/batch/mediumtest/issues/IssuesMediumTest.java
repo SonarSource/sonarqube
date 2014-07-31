@@ -29,8 +29,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
-import org.sonar.batch.mediumtest.xoo.plugin.XooPlugin;
 import org.sonar.batch.protocol.input.ActiveRule;
+import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
 import java.io.IOException;

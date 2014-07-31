@@ -28,7 +28,7 @@ module MeasuresHelper
     if column.period
       html += "<br><span class='note'>#{Api::Utils.period_abbreviation(column.period)}</small>"
     end
-    if filter.sort_key==column.key
+    if column.sort? && filter.sort_key==column.key
       html << (filter.sort_asc? ? ' <i class="icon-sort-asc"></i>' : ' <i class="icon-sort-desc"></i>')
     end
     "<th class='#{column.align} #{column.title_css}'>#{html}</th>"
@@ -50,9 +50,9 @@ module MeasuresHelper
       end
 
     elsif column.key=='name'
-      "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(true)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, {:title => h(row.snapshot.resource.key), :class => 'underlined-link'})}"
+      "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(true)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, {:title => h(row.snapshot.resource.key)})}"
     elsif column.key=='short_name'
-      "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(false)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, {:title => h(row.snapshot.resource.key), :class => 'highlighted-link'})}"
+      "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(false)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, {:title => h(row.snapshot.resource.key)})}"
     elsif column.key=='date'
       human_short_date(row.snapshot.created_at)
     elsif column.key=='project_creation_date'

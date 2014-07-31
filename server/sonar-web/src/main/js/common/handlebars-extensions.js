@@ -1,20 +1,16 @@
 requirejs.config({
   paths: {
-    'moment': 'third-party/moment',
     'handlebars': 'third-party/handlebars'
   },
 
   shim: {
-    'moment': {
-      exports: 'moment'
-    },
     'handlebars': {
       exports: 'Handlebars'
     }
   }
 });
 
-define(['handlebars', 'moment'], function (Handlebars, moment) {
+define(['handlebars'], function (Handlebars) {
 
   /*
    * Shortcut for templates retrieving
@@ -339,6 +335,21 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
     } else {
       return options.inverse(this);
     }
+  });
+
+  Handlebars.registerHelper('eqComponents', function (a, b, options) {
+    var notEq = a && b && ((a.project !== b.project) || (a.subProject !== b.subProject));
+    return notEq ? options.inverse(this) : options.fn(this);
+  });
+
+  Handlebars.registerHelper('notEqComponents', function (a, b, options) {
+    var notEq = a && b && ((a.project !== b.project) || (a.subProject !== b.subProject));
+    return notEq ? options.fn(this) : options.inverse(this);
+  });
+
+  Handlebars.registerHelper('projectFullName', function (component) {
+    var name = component.projectName + (component.subProjectName ? (' / ' + component.subProjectName) : '');
+    return name;
   });
 
 });

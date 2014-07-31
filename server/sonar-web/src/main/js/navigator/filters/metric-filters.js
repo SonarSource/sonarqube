@@ -14,16 +14,37 @@ define([
 
 
     inputChanged: function() {
-      var value = {
-        metric: this.$('[name=metric]').val(),
+      var metric = this.$('[name=metric]').val(),
+          isDifferentialMetric = metric.indexOf('new_') === 0,
+          periodSelect = this.$('[name=period]'),
+          period = periodSelect.val(),
+          optionZero = periodSelect.children('[value="0"]'),
+          value = {
+        metric: metric,
         metricText: this.$('[name=metric] option:selected').text(),
-        period: this.$('[name=period]').val(),
+        period: period,
         periodText: this.$('[name=period] option:selected').text(),
         op: this.$('[name=op]').val(),
         opText: this.$('[name=op] option:selected').text(),
         val: this.$('[name=val]').val(),
         valText: this.$('[name=val]').originalVal()
       };
+
+      if (isDifferentialMetric) {
+        optionZero.remove();
+        if (period === '0') {
+          period = '1';
+        }
+      } else {
+        if (optionZero.length === 0) {
+          periodSelect.prepend(this.periodZeroOption);
+        }
+      }
+      periodSelect.select2('destroy').val(period).select2({
+        width: '100%',
+        minimumResultsForSearch: 100
+      });
+
       this.updateDataType(value);
       this.model.set('value', value);
     },
@@ -46,6 +67,9 @@ define([
 
 
     onRender: function() {
+      var periodZeroLabel = this.$('[name=period]').children('[value="0"]').html();
+      this.periodZeroOption = '<option value="0">' + periodZeroLabel + '</option>';
+
       var value = this.model.get('value') || {};
       this.$('[name=metric]').val(value.metric).select2({
         width: '100%',
@@ -68,7 +92,11 @@ define([
 
     onShow: function() {
       var select = this.$('[name=metric]');
-      select.select2('open');
+      if (this.model.get('value')['metric'] === '') {
+        select.select2('open');
+      } else {
+        select.select2('focus');
+      }
     }
 
   });

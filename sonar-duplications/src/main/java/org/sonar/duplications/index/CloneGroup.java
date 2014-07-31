@@ -20,8 +20,10 @@
 package org.sonar.duplications.index;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,6 +34,7 @@ public class CloneGroup {
   private final ClonePart originPart;
   private final int cloneLength;
   private final List<ClonePart> parts;
+  private int length;
 
   /**
    * Cache for hash code.
@@ -52,7 +55,7 @@ public class CloneGroup {
     private ClonePart origin;
     private int length;
     private int lengthInUnits;
-    private List<ClonePart> parts;
+    private List<ClonePart> parts = new ArrayList<ClonePart>();
 
     public Builder setLength(int length) {
       this.length = length;
@@ -66,6 +69,12 @@ public class CloneGroup {
 
     public Builder setParts(List<ClonePart> parts) {
       this.parts = ImmutableList.copyOf(parts);
+      return this;
+    }
+
+    public Builder addPart(ClonePart part) {
+      Preconditions.checkNotNull(part);
+      this.parts.add(part);
       return this;
     }
 
@@ -89,8 +98,6 @@ public class CloneGroup {
   public ClonePart getOriginPart() {
     return originPart;
   }
-
-  private int length;
 
   /**
    * Length of duplication measured in original units, e.g. for token-based detection - in tokens.

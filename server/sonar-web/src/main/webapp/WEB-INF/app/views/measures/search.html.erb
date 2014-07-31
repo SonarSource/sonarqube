@@ -127,6 +127,8 @@
       <% end %>
     <% end %>
 
-    { key: 'nameSearch', value: '<%= h @filter.criteria['nameSearch'] -%>' }
+      <% puts "### " +  @filter.criteria.inspect %>
+
+    { key: 'nameSearch', value: '<%= @filter.criteria['nameSearch'] -%>' }
   ];
 </script>

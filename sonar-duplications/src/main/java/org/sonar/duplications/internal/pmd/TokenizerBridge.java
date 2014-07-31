@@ -69,7 +69,7 @@ public class TokenizerBridge {
    * We expect that implementation of {@link Tokenizer} is correct:
    * tokens ordered by occurrence in source code and last token is EOF.
    */
-  private static List<TokensLine> convert(List<TokenEntry> tokens) {
+  public static List<TokensLine> convert(List<TokenEntry> tokens) {
     ImmutableList.Builder<TokensLine> result = ImmutableList.builder();
     StringBuilder sb = new StringBuilder();
     int startLine = Integer.MIN_VALUE;

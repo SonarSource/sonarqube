@@ -36,6 +36,7 @@ import org.sonar.server.text.MacroInterpreter;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -165,12 +166,18 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
 
   public void write(Rule rule, JsonWriter json, @Nullable SearchOptions options) {
     RuleMappingContext context = new RuleMappingContext();
-    if (needDebtCharacteristicNames(options) && rule.debtCharacteristicKey() != null) {
-      // load debt characteristics if requested
-      context.add(debtModel.characteristicByKey(rule.debtCharacteristicKey()));
+    if (needDebtCharacteristicNames(options)) {
+      String debtCharacteristicKey = rule.debtCharacteristicKey();
+      if (debtCharacteristicKey != null) {
+        // load debt characteristics if requested
+        context.add(debtModel.characteristicByKey(debtCharacteristicKey));
+      }
     }
-    if (needDebtSubCharacteristicNames(options) && rule.debtSubCharacteristicKey() != null) {
-      context.add(debtModel.characteristicByKey(rule.debtSubCharacteristicKey()));
+    if (needDebtSubCharacteristicNames(options)) {
+      String debtSubCharacteristicKey = rule.debtSubCharacteristicKey();
+      if (debtSubCharacteristicKey != null) {
+        context.add(debtModel.characteristicByKey(debtSubCharacteristicKey));
+      }
     }
     doWrite((RuleDoc) rule, context, json, options);
   }

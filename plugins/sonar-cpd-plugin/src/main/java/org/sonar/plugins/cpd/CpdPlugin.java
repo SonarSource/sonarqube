@@ -35,7 +35,7 @@ public final class CpdPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return ImmutableList.of(
-      PropertyDefinition.builder(CoreProperties.CPD_CROSS_RPOJECT)
+      PropertyDefinition.builder(CoreProperties.CPD_CROSS_PROJECT)
         .defaultValue(CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE + "")
         .name("Cross project duplication detection")
         .description("SonarQube supports the detection of cross project duplications. Activating this property will slightly increase each SonarQube analysis time.")
@@ -65,11 +65,12 @@ public final class CpdPlugin extends SonarPlugin {
         .build(),
 
       CpdSensor.class,
+      CpdMappings.class,
       SumDuplicationsDecorator.class,
       DuplicationDensityDecorator.class,
       IndexFactory.class,
-      SonarEngine.class,
-      SonarBridgeEngine.class);
+      JavaCpdEngine.class,
+      DefaultCpdEngine.class);
   }
 
 }

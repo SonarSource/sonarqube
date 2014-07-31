@@ -152,7 +152,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('transform', trans(0, 54));
 
     this.infoMetrics = [];
-    var prevX = 110;
+    var prevX = 120;
     this.metrics().forEach(function(d, i) {
       var infoMetric = widget.infoWrap.append('g');
 
@@ -175,7 +175,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       widget.infoMetrics.push(infoMetric);
 
       if (i % 3 === 2) {
-        prevX += (infoMetricText.node().getComputedTextLength() + 60);
+        prevX += (infoMetricText.node().getComputedTextLength() + 70);
       }
     });
 
@@ -232,7 +232,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
       // Update info
       widget.infoDate
-          .text(d3.time.format('%b %d, %Y')(widget.data()[0][cl].x));
+          .text(moment(widget.data()[0][cl].x).format('LL'));
 
       var snapshotValue = this.snapshots()[snapshotIndex].fy,
           totalValue = snapshotValue || (widget.stackDataTop[cl].y0 + widget.stackDataTop[cl].y);

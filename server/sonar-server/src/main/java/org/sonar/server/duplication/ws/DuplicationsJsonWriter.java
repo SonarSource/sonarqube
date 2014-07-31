@@ -27,6 +27,8 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.persistence.ComponentDao;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -90,42 +92,45 @@ public class DuplicationsJsonWriter implements ServerComponent {
       ComponentDto file = componentDao.getNullableByKey(session, componentKey);
       if (file != null) {
         json.name(ref).beginObject();
-        json.prop("key", file.key());
-        json.prop("name", file.longName());
 
-        Long projectId = file.projectId();
-        ComponentDto project = projectsById.get(file.projectId());
-        if (project == null && projectId != null) {
-          project = componentDao.getById(projectId, session);
-          if (project != null) {
-            projectsById.put(projectId, project);
-          }
-        }
-
-        Long subProjectId = file.subProjectId();
-        ComponentDto subProject = subProjectsById.get(subProjectId);
-        if (subProject == null && subProjectId != null) {
-          subProject = componentDao.getById(subProjectId, session);
-          if (subProject != null) {
-            subProjectsById.put(subProject.getId(), subProject);
-          }
-        }
-
-        if (project != null) {
-          json.prop("project", project.key());
-          json.prop("projectName", project.longName());
-
-          // Do not return sub project if sub project and project are the same
-          boolean displaySubProject = subProject != null && !subProject.getId().equals(project.getId());
-          if (displaySubProject) {
-            json.prop("subProject", subProject.key());
-            json.prop("subProjectName", subProject.longName());
-          }
-        }
+        addFile(json, file);
+        ComponentDto project = getProject(file.projectId(), projectsById, session);
+        ComponentDto subProject = getProject(file.subProjectId(), subProjectsById, session);
+        addProject(json, project, subProject);
 
         json.endObject();
       }
     }
+  }
+
+  private void addFile(JsonWriter json, ComponentDto file) {
+    json.prop("key", file.key());
+    json.prop("name", file.longName());
+  }
+
+  private void addProject(JsonWriter json, @Nullable ComponentDto project, @Nullable ComponentDto subProject) {
+    if (project != null) {
+      json.prop("project", project.key());
+      json.prop("projectName", project.longName());
+
+      // Do not return sub project if sub project and project are the same
+      boolean displaySubProject = subProject != null && !subProject.getId().equals(project.getId());
+      if (displaySubProject) {
+        json.prop("subProject", subProject.key());
+        json.prop("subProjectName", subProject.longName());
+      }
+    }
+  }
+
+  private ComponentDto getProject(@Nullable Long projectId, Map<Long, ComponentDto> projectsById, DbSession session) {
+    ComponentDto project = projectsById.get(projectId);
+    if (project == null && projectId != null) {
+      project = componentDao.getById(projectId, session);
+      if (project != null) {
+        projectsById.put(project.getId(), project);
+      }
+    }
+    return project;
   }
 
 }

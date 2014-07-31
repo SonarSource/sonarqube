@@ -209,10 +209,11 @@
   label {
     display: block;
     padding: 5px @navigatorFilterPadding;
-    transition: background 0.3s ease;
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
+    .trans(background);
 
     &:hover,
     &.current {
@@ -228,14 +229,14 @@
       vertical-align: text-bottom;
     }
 
-    & > span {
-      display: inline-block;
-      vertical-align: top;
-      width: 86%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+//    & > span {
+//      display: inline-block;
+//      vertical-align: top;
+//      width: 86%;
+//      white-space: nowrap;
+//      overflow: hidden;
+//      text-overflow: ellipsis;
+//    }
 
     &.special {
       font-style: italic;

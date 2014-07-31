@@ -1,5 +1,6 @@
-@import "variables";
-@import "mixins";
+@import (reference) "variables";
+@import (reference) "mixins";
+@import (reference) "ui";
 
 @font-face {
 	font-family: 'sonar';
@@ -28,7 +29,7 @@
 }
 
 a[class^="icon-"], a[class*=" icon-"] {
-  text-decoration: none !important;
+  .link-no-underline;
 }
 
 
@@ -275,6 +276,11 @@ a[class^="icon-"], a[class*=" icon-"] {
   &.icon-checkbox-single:after { content: "\e60e"; }
 }
 
+// Used for align elements
+.icon-checkbox-invisible {
+  visibility: hidden;
+}
+
 
 /*
  * Common
@@ -507,11 +513,6 @@ a[class^="icon-"], a[class*=" icon-"] {
 }
 .icon-home:before {
   content: "\f016";
-  font-size: @iconFontSize;
-}
-.icon-cross-project:before {
-  content: "\f0ec";
-  color: @purple;
   font-size: @iconFontSize;
 }
 

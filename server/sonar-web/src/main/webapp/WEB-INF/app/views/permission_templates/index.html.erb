@@ -8,15 +8,11 @@
 <%= render :partial => 'roles/tabs', :locals => {:selected_tab=>'Permission templates'} %>
 <br/>
 <div class="line-block marginbottom10">
-  <ul class="operations">
-    <li>
-      <%= link_to message('permission_template.set_default_templates'), {:action => :default_templates_form, :qualifiers => @root_qualifiers},
-                  :id => 'configure-defaults-permission-template', :class => 'open-modal link-action' %>
-    </li>
-    <li class="last">
-      <%= link_to message('create'), {:action => :create_form}, :id => 'create-link-permission-template', :class => 'open-modal link-action' %>
-    </li>
-  </ul>
+  <div class="button-group operations">
+    <%= link_to message('permission_template.set_default_templates'), {:action => :default_templates_form, :qualifiers => @root_qualifiers},
+                :id => 'configure-defaults-permission-template', :class => 'open-modal link-action button' %>
+    <%= link_to message('create'), {:action => :create_form}, :id => 'create-link-permission-template', :class => 'open-modal link-action button' %>
+  </div>
 </div>
 <table class="data width100" id="permission-templates">
   <thead>

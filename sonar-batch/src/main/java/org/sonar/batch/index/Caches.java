@@ -36,7 +36,6 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.utils.TempFolder;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.Properties;
 import java.util.Set;
 
@@ -85,7 +84,7 @@ public class Caches implements BatchComponent, Startable {
     cm.registerValueCoder(clazz, coder);
   }
 
-  public <V extends Serializable> Cache<V> createCache(String cacheName) {
+  public <V> Cache<V> createCache(String cacheName) {
     Preconditions.checkState(volume != null && volume.isOpened(), "Caches are not initialized");
     Preconditions.checkState(!cacheNames.contains(cacheName), "Cache is already created: " + cacheName);
     try {

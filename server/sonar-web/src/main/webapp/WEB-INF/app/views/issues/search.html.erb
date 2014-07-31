@@ -27,6 +27,7 @@
 
   _.extend(window.SS, {
     currentUser: '<%= current_user.login if current_user -%>',
+    currentUserName: '<%= current_user.name if current_user -%>',
     severities: <%= RulesConfigurationController::RULE_PRIORITIES.to_json.html_safe -%>,
     statuses: <%= @options_for_statuses.to_json.html_safe -%>,
     resolutions: <%= @options_for_resolutions.to_json.html_safe -%>,

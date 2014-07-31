@@ -24,6 +24,8 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
+import org.sonar.api.batch.sensor.duplication.TokenBuilder;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
@@ -125,5 +127,20 @@ public interface SensorContext {
    * @since 4.5
    */
   SymbolTableBuilder symbolTableBuilder(InputFile inputFile);
+
+  // ------------ DUPLICATIONS ------------
+
+  /**
+   * Builder to define tokens in a file. Tokens are used to compute duplication by the core.
+   * @since 4.5
+   */
+  TokenBuilder tokenBuilder(InputFile inputFile);
+
+  /**
+   * Builder to manually define duplications in a file. When duplication are manually computed then
+   * no need to use {@link #tokenBuilder(InputFile)}.
+   * @since 4.5
+   */
+  DuplicationBuilder duplicationBuilder(InputFile inputFile);
 
 }

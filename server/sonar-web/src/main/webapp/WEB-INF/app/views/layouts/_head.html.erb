@@ -22,6 +22,9 @@
   <link href="<%= ApplicationController.root_context -%>/css/sonar.css" rel="stylesheet" media="all">
   <%= yield :style -%>
 
+  <script>
+    var pageLang = '<%= I18n.locale.to_s.gsub(/-/, '_') -%>';
+  </script>
   <script src="<%= ApplicationController.root_context -%>/js/sonar.js"></script>
   <script>
     var baseUrl = '<%= ApplicationController.root_context -%>';

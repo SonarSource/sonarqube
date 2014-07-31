@@ -128,23 +128,29 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.y = this.yLog() ? d3.scale.log() : d3.scale.linear();
     this.size = d3.scale.linear();
 
-    this.x
-        .domain(d3.extent(this.components(), function (d) {
-          return widget.getXMetric(d);
-        }))
-        .range([0, this.availableWidth]);
+    this.x.range([0, this.availableWidth]);
+    this.y.range([this.availableHeight, 0]);
+    this.size.range([5, 45]);
 
-    this.y
-        .domain(d3.extent(this.components(), function (d) {
-          return widget.getYMetric(d);
-        }))
-        .range([this.availableHeight, 0]);
-
-    this.size
-        .domain(d3.extent(this.components(), function (d) {
-          return widget.getSizeMetric(d);
-        }))
-        .range([5, 45]);
+    if (this.components().length > 1) {
+      this.x.domain(d3.extent(this.components(), function (d) {
+        return widget.getXMetric(d);
+      }));
+      this.y.domain(d3.extent(this.components(), function (d) {
+        return widget.getYMetric(d);
+      }));
+      this.size.domain(d3.extent(this.components(), function (d) {
+        return widget.getSizeMetric(d);
+      }));
+    } else {
+      var singleComponent = this.components()[0],
+          xm = this.getXMetric(singleComponent),
+          ym = this.getYMetric(singleComponent),
+          sm = this.getSizeMetric(singleComponent);
+      this.x.domain([xm * 0.8, xm * 1.2]);
+      this.y.domain([ym * 0.8, ym * 1.2]);
+      this.size.domain([sm * 0.8, sm * 1.2]);
+    }
 
 
     // Create bubbles
@@ -318,17 +324,25 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Update scales
-    this.x
-        .domain(d3.extent(this.components(), function (d) {
-          return widget.getXMetric(d);
-        }))
-        .range([0, this.availableWidth]);
+    this.x.range([0, this.availableWidth]);
+    this.y.range([this.availableHeight, 0]);
 
-    this.y
-        .domain(d3.extent(this.components(), function (d) {
-          return widget.getYMetric(d);
-        }))
-        .range([this.availableHeight, 0]);
+    if (this.components().length > 1) {
+      this.x.domain(d3.extent(this.components(), function (d) {
+        return widget.getXMetric(d);
+      }));
+      this.y.domain(d3.extent(this.components(), function (d) {
+        return widget.getYMetric(d);
+      }))
+    } else {
+      var singleComponent = this.components()[0],
+          xm = this.getXMetric(singleComponent),
+          ym = this.getYMetric(singleComponent),
+          sm = this.getSizeMetric(singleComponent);
+      this.x.domain([xm * 0.8, xm * 1.2]);
+      this.y.domain([ym * 0.8, ym * 1.2]);
+      this.size.domain([sm * 0.8, sm * 1.2]);
+    }
 
 
     if (this.x.domain()[0] === 0 && this.x.domain()[1] === 0) {

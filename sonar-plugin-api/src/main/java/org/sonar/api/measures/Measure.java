@@ -343,6 +343,7 @@ public class Measure<G extends Serializable> implements Serializable {
   /**
    * @return the data field of the measure
    */
+  @CheckForNull
   public String getData() {
     return data;
   }

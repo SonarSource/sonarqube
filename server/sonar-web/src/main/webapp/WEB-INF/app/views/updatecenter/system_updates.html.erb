@@ -69,34 +69,25 @@
                       Follow those steps to upgrade SonarQube from version <%= sonar_version -%> to
                       version <%= release.getVersion() -%> :
                       <ol class="bulletpoints">
-                        <% update.getIncompatiblePlugins().each do |incompatible_plugin| %>
-                          <li>
-                            <form method="post"
-                                  action="<%= ApplicationController.root_context -%>/updatecenter/uninstall?key=<%= incompatible_plugin.getKey() -%>&amp;from=system_updates"
-                                  style="display: inline-block">
-                              <%= image_tag 'warning.png' -%>
-                              <input type="submit" value="Uninstall" class="red-button" onClick="return submitForm(this);"/>
-                              the plugin <%= incompatible_plugin.getName() -%> which is not compatible with
-                              SonarQube <%= release.getVersion() -%>.
-                            </form>
-                          </li>
-                        <% end %>
-                        <% update.getPluginsToUpgrade().each do |plugin_to_upgrade| %>
-                          <li>
-                            <form method="post" id="upgrade-form-<%= plugin_to_upgrade.getArtifact().getKey() -%>"
-                                  action="<%= ApplicationController.root_context -%>/updatecenter/install?key=<%= plugin_to_upgrade.getArtifact().getKey() -%>&amp;version=<%= plugin_to_upgrade.getVersion() -%>&amp;from=system_updates"
-                                  style="display: inline-block">
-                              <input type="submit" id="upgrade-submit-<%= plugin_to_upgrade.getArtifact().getKey() -%>" value="Upgrade" onClick="return submitForm(this);"/>
-                              the plugin <%= plugin_to_upgrade.getArtifact().getName() -%> to
-                              version <%= plugin_to_upgrade.getVersion() -%>
-                            </form>
-                          </li>
-                        <% end %>
-                        <li>Stop Sonar</li>
+                        <li>Stop SonarQube</li>
                         <li><%= link_to 'Download', release.getDownloadUrl(), :class => 'external' -%> and install
                           SonarQube <%= release.getVersion() -%> after having carefully read the <a href="http://docs.codehaus.org/display/SONAR/Upgrading" class="external">upgrade guide</a>.
                         </li>
-                        <li>Start Sonar</li>
+                        <% update.getIncompatiblePlugins().each do |incompatible_plugin| %>
+                        <li>
+                            Uninstall the plugin <%= incompatible_plugin.getName() -%> which is not compatible with
+                            SonarQube <%= release.getVersion() -%>.
+                          </form>
+                        </li>
+                        <% end %>
+                        <% update.getPluginsToUpgrade().each do |plugin_to_upgrade| %>
+                        <li>
+                            Replace current version of plugin <%= plugin_to_upgrade.getArtifact().getName() -%> by
+                            version <%= plugin_to_upgrade.getVersion() -%>
+                          </form>
+                        </li>
+                        <% end %>
+                        <li>Start SonarQube</li>
                       </ol>
 
                     <% else %>

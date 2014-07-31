@@ -49,7 +49,7 @@ public class Metric {
   public Metric(int id,
     String key,
     String valueType,
-    String description,
+    @Nullable String description,
     int direction,
     String name,
     boolean qualitative,
@@ -82,6 +82,7 @@ public class Metric {
     return valueType;
   }
 
+  @CheckForNull
   public String description() {
     return description;
   }

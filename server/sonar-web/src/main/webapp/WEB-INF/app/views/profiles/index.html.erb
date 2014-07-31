@@ -1,17 +1,11 @@
 <div class="page">
 <div class="line-block marginbottom10">
-  <ul style="float: right" class="operations">
-    <li>
-      <i class="icon-compare"></i>
-      <a href="profiles/compare" id="compare-link"><%= message('quality_profiles.compare_profiles') -%></a>
-    </li>
+  <div style="float: right" class="operations button-group">
+    <a href="profiles/compare" id="compare-link" class="button"><i class="icon-compare"></i> <%= message('quality_profiles.compare_profiles') -%></a>
     <% if profiles_administrator? %>
-      <li class="last">
-        <i class="icon-restore"></i>
-        <a href="profiles/restore_form" class="open-modal" id="restore-link"><%= message('quality_profiles.restore_profile') -%></a>
-      </li>
+      <a href="profiles/restore_form" class="open-modal button" id="restore-link"><i class="icon-restore"></i> <%= message('quality_profiles.restore_profile') -%></a>
     <% end %>
-  </ul>
+  </div>
 </div>
 
 <%

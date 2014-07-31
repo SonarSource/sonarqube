@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.xoo.plugin.lang;
+package org.sonar.xoo.lang;
 
 import com.google.common.base.Splitter;
 import org.apache.commons.io.FileUtils;
@@ -28,8 +28,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
-import org.sonar.batch.mediumtest.xoo.plugin.base.XooConstants;
+import org.sonar.xoo.Xoo;
+import org.sonar.xoo.XooConstants;
 
 import java.io.File;
 import java.io.IOException;

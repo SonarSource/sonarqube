@@ -32,8 +32,17 @@ casper.test.begin(testName('Readonly Tests'), function suite(test) {
     casper.waitForSelector('.navigator-filters', function checkDefaultFilters() {
       test.assertVisible('input[type="text"].query-filter-input');
       test.assertElementCount('.navigator-filter', 15);
-    test.assertElementCount('.navigator-filter-optional', 12 /* Only query, qProfile and 'More' are visible by default */);
+      test.assertElementCount('.navigator-filter-optional', 12 /* Only query, qProfile and 'More' are visible by default */);
       test.assertVisible('button.navigator-filter-submit');
+
+
+      casper.click('.navigator-filter-more-criteria');
+      casper.waitUntilVisible('.navigator-filter-details.active', function checkTagsAreOrdered() {
+        casper.click('.navigator-filter-details.active label[data-property="tags"]');
+        test.assertSelectorHasText('.navigator-filter[data-property="tags"] option:nth-child(1)', 'brain-overload');
+        test.assertSelectorHasText('.navigator-filter[data-property="tags"] option:nth-child(11)', 'unused');
+        casper.click('.navigator-filter.active>.navigator-filter-disable');
+      });
     });
 
 
@@ -255,6 +264,31 @@ casper.test.begin(testName('Activation Tests'), function suite(test) {
 
   });
 
+
+  casper.run(function() {
+    test.done();
+  });
+});
+
+
+casper.test.begin(testName('Tag Navigation Test'), function suite(test) {
+
+  casper.start(lib.buildUrl('coding-rules#tags=polop,bug,pilip,unused,palap'), function() {
+    lib.clearRequestMocks();
+    lib.mockRequest('/api/l10n/index', '{}');
+    lib.mockRequestFromFile('/api/rules/app', 'app_admin.json');
+    lib.mockRequestFromFile('/api/rules/tags', 'tags.json');
+    lib.mockRequestFromFile('/api/rules/search', 'search_x1.json');
+    lib.mockRequestFromFile('/api/rules/show', 'show_x1.json');
+  });
+
+
+  casper.waitWhileSelector("div#coding-rules-page-loader", function checkTagFilterRestored() {
+    casper.waitForSelector('.navigator-filters', function checkDefaultFilters() {
+      test.assertElementCount('.navigator-filter-disabled', 11 /* Tag is enabled */);
+      test.assertSelectorHasText('.navigator-filter[data-property="tags"] .navigator-filter-value', 'bug, unused');
+    });
+  });
 
   casper.run(function() {
     test.done();

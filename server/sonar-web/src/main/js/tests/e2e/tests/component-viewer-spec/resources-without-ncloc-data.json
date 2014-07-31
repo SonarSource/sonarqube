@@ -1,0 +1,150 @@
+[
+  {
+    "id": 19983,
+    "key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+    "name": "Cache.java",
+    "scope": "FIL",
+    "qualifier": "FIL",
+    "date": "2014-07-21T23:18:51+0200",
+    "creationDate": "2013-04-17T04:06:45+0200",
+    "lname": "src/main/java/org/sonar/batch/index/Cache.java",
+    "lang": "java",
+    "msr": [
+      {
+        "key": "lines",
+        "val": 519.0,
+        "frmt_val": "519"
+      },
+      {
+        "key": "ncloc",
+        "val": 379.0,
+        "frmt_val": "379"
+      },
+      {
+        "key": "classes",
+        "val": 6.0,
+        "frmt_val": "6"
+      },
+      {
+        "key": "functions",
+        "val": 56.0,
+        "frmt_val": "56"
+      },
+      {
+        "key": "accessors",
+        "val": 0.0,
+        "frmt_val": "0"
+      },
+      {
+        "key": "statements",
+        "val": 174.0,
+        "frmt_val": "174"
+      },
+      {
+        "key": "public_api",
+        "val": 33.0,
+        "frmt_val": "33"
+      },
+      {
+        "key": "comment_lines",
+        "val": 23.0,
+        "frmt_val": "23"
+      },
+      {
+        "key": "comment_lines_density",
+        "val": 5.7,
+        "frmt_val": "5.7%"
+      },
+      {
+        "key": "public_documented_api_density",
+        "val": 36.4,
+        "frmt_val": "36.4%"
+      },
+      {
+        "key": "public_undocumented_api",
+        "val": 21.0,
+        "frmt_val": "21"
+      },
+      {
+        "key": "complexity",
+        "val": 116.0,
+        "frmt_val": "116"
+      },
+      {
+        "key": "function_complexity",
+        "val": 2.1,
+        "frmt_val": "2.1"
+      },
+      {
+        "key": "coverage",
+        "val": 74.3,
+        "frmt_val": "74.3%"
+      },
+      {
+        "key": "lines_to_cover",
+        "val": 194.0,
+        "frmt_val": "194"
+      },
+      {
+        "key": "uncovered_lines",
+        "val": 50.0,
+        "frmt_val": "50"
+      },
+      {
+        "key": "line_coverage",
+        "val": 74.2,
+        "frmt_val": "74.2%"
+      },
+      {
+        "key": "conditions_to_cover",
+        "val": 16.0,
+        "frmt_val": "16"
+      },
+      {
+        "key": "uncovered_conditions",
+        "val": 4.0,
+        "frmt_val": "4"
+      },
+      {
+        "key": "branch_coverage",
+        "val": 75.0,
+        "frmt_val": "75.0%"
+      },
+      {
+        "key": "duplicated_lines",
+        "val": 30.0,
+        "frmt_val": "30"
+      },
+      {
+        "key": "duplicated_blocks",
+        "val": 2.0,
+        "frmt_val": "2"
+      },
+      {
+        "key": "duplicated_files",
+        "val": 1.0,
+        "frmt_val": "1"
+      },
+      {
+        "key": "duplicated_lines_density",
+        "val": 5.8,
+        "frmt_val": "5.8%"
+      },
+      {
+        "key": "major_violations",
+        "val": 1.0,
+        "frmt_val": "1"
+      },
+      {
+        "key": "minor_violations",
+        "val": 1.0,
+        "frmt_val": "1"
+      },
+      {
+        "key": "info_violations",
+        "val": 4.0,
+        "frmt_val": "4"
+      }
+    ]
+  }
+]

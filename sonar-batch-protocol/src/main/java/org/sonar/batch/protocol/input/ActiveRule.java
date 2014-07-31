@@ -20,6 +20,7 @@
 package org.sonar.batch.protocol.input;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class ActiveRule {
   private final String name, severity, internalKey, language;
   private final Map<String, String> params = new HashMap<String, String>();
 
-  public ActiveRule(String repositoryKey, String ruleKey, String name, String severity, String internalKey, String language) {
+  public ActiveRule(String repositoryKey, String ruleKey, String name, String severity, @Nullable String internalKey, String language) {
     this.repositoryKey = repositoryKey;
     this.ruleKey = ruleKey;
     this.name = name;
@@ -72,6 +73,7 @@ public class ActiveRule {
     return params;
   }
 
+  @CheckForNull
   public String internalKey() {
     return internalKey;
   }

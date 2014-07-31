@@ -408,7 +408,11 @@ class ProjectController < ApplicationController
     name = event.name
     resource_id = event.resource_id
     events = find_events(event)
-    Event.delete(events.map { |e| e.id })
+    Event.transaction do
+      events.map { |e| e.id }.each_slice(999) do |safe_for_oracle_ids|
+        Event.delete(safe_for_oracle_ids)
+      end
+    end
 
     flash[:notice] = message('project_history.event_deleted', :params => name)
     redirect_to :action => 'history', :id => resource_id

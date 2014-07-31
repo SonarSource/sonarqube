@@ -17,20 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.xoo.plugin.base;
+package org.sonar.api.batch.sensor.duplication;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.InputFile;
 
-public interface XooConstants {
+/**
+ * This builder is used to declare duplications on files of the project.
+ * @since 4.5
+ */
+public interface DuplicationBuilder {
 
-  String PLUGIN_KEY = "xoo";
-  String PLUGIN_NAME = "Xoo";
+  DuplicationBuilder originBlock(int startLine, int endLine);
 
-  String REPOSITORY_KEY = PLUGIN_KEY;
-  String REPOSITORY_NAME = PLUGIN_NAME;
+  DuplicationBuilder isDuplicatedBy(InputFile sameOrOtherFile, int startLine, int endLine);
 
-  String[] FILE_SUFFIXES = {"xoo"};
-
-  Logger LOG = LoggerFactory.getLogger("xoo");
+  /**
+   * Call this method only once when your are done with defining all duplicates of origin block.
+   */
+  void done();
 }

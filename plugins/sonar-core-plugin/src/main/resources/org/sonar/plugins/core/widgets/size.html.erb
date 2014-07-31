@@ -32,13 +32,13 @@
 
         <% if ncloc_language_dist_hash %>
           <% if ncloc_language_dist_hash.size > 1 %>
-            <table class="data widget-barchar">
+            <table class="data widget-barchar" id="size-widget-language-dist">
               <%
-                 max = ncloc_language_dist_hash.max_by{|_k,v| v.to_i}[1].to_i
+                 max = Math.sqrt(ncloc_language_dist_hash.max_by{|_k,v| v.to_i}[1].to_i)
 
-                 # Sort lines language distribution by language name
+                 # Sort lines language distribution by lines count
                  languages_by_key = Hash[languages.collect { |l| [l.getKey(), l.getName] }]
-                 ncloc_language_dist_hash.sort {|v1,v2| (languages_by_key[v1[0]] ? languages_by_key[v1[0]].to_s : v1[0]) <=> (languages_by_key[v2[0]] ? languages_by_key[v2[0]].to_s : v2[0]) }.each do |language_key, language_ncloc|
+                 ncloc_language_dist_hash.sort {|v1,v2| v2[1].to_i <=> v1[1].to_i }.each do |language_key, language_ncloc|
               %>
                 <tr>
                   <td>
@@ -48,12 +48,23 @@
                   <td class="thin right nowrap">
                     <%= ncloc.format_numeric_value(language_ncloc) %>
                   </td>
-                  <td>
-                    <%= barchart(:width => 70, :percent => (40 * language_ncloc.to_i / max).to_i) %>
-                  </td>
                 </tr>
               <% end %>
             </table>
+            <script>
+              jQuery(function () {
+                var chart = jQuery('#size-widget-language-dist'),
+                    count = chart.find('tr').length;
+                if (count > 3) {
+                  chart.find('tr:gt(2)').hide();
+                  var moreLinkBox = jQuery('<div></div>').addClass('widget-barchart-more').insertAfter(chart),
+                      moreLink = jQuery('<a><%= message('more') -%></a>').appendTo(moreLinkBox).on('click', function () {
+                    jQuery(this).hide();
+                    chart.find('tr').show();
+                  });
+                }
+              });
+            </script>
           <% else %>
             <%
               language_key = ncloc_language_dist_hash.first[0]

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.xoo.plugin.lang;
+package org.sonar.xoo.lang;
 
 import com.google.common.base.Splitter;
 import org.apache.commons.io.FileUtils;
@@ -29,8 +29,8 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.symbol.Symbol;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
-import org.sonar.batch.mediumtest.xoo.plugin.base.XooConstants;
+import org.sonar.xoo.Xoo;
+import org.sonar.xoo.XooConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,7 +83,7 @@ public class SymbolReferencesSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .name("Xoo Highlighting Sensor")
+      .name("Xoo Symbol Reference Sensor")
       .provides(CoreMetrics.LINES)
       .workOnLanguages(Xoo.KEY)
       .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);

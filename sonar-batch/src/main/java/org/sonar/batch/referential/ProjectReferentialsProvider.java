@@ -20,14 +20,24 @@
 package org.sonar.batch.referential;
 
 import org.picocontainer.injectors.ProviderAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 
 public class ProjectReferentialsProvider extends ProviderAdapter {
 
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectReferentialsProvider.class);
+
   public ProjectReferentials provide(ProjectReferentialsLoader loader, ProjectReactor reactor, Settings settings, Languages languages) {
-    return loader.load(reactor, settings, languages);
+    TimeProfiler profiler = new TimeProfiler(LOG).start("Load project referentials");
+    try {
+      return loader.load(reactor, settings, languages);
+    } finally {
+      profiler.stop();
+    }
   }
 }

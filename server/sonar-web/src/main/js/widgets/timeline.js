@@ -240,7 +240,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           .attr('x2', sx);
 
       widget.infoDate
-          .text(d3.time.format('%b %d, %Y')(widget.data()[0][cl].x));
+          .text(moment(widget.data()[0][cl].x).format('LL'));
 
       var metricsLines = widget.data().map(function(d, i) {
         return widget.metrics()[i] + ': ' + d[cl].yl;
@@ -298,12 +298,12 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Update metric lines
     var metricY = -1;
     this.infoMetrics.forEach(function(metric, i) {
-      var x = 110 + i * 170,
+      var x = 120 + i * 170,
           x2 = x + 170;
 
       if (x2 > widget.availableWidth) {
         metricY += 18;
-        x = 110;
+        x = 120;
       }
 
       metric
