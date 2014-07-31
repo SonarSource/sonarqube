@@ -171,9 +171,10 @@ define [
 
 
     highlightUsages: (e) ->
+      highlighted = $(e.currentTarget).is '.highlighted'
       key = e.currentTarget.className.split(/\s+/)[0]
       @$('.sym.highlighted').removeClass 'highlighted'
-      @$(".sym.#{key}").addClass 'highlighted'
+      @$(".sym.#{key}").addClass 'highlighted' unless highlighted
 
 
     toggleSettings: ->
