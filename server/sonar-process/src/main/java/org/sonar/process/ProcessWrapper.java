@@ -238,7 +238,7 @@ public class ProcessWrapper extends Thread implements Terminable {
    */
   @CheckForNull
   private ProcessMXBean waitForJMX() throws UnknownHostException, MalformedURLException {
-    String path = "/jndi/rmi://" + InetAddress.getLocalHost().getHostName() + ":" + jmxPort + "/jmxrmi";
+    String path = "/jndi/rmi://" + InetAddress.getLocalHost().getHostAddress() + ":" + jmxPort + "/jmxrmi";
     JMXServiceURL jmxUrl = new JMXServiceURL("rmi", InetAddress.getLocalHost().getHostAddress(), jmxPort, path);
 
     for (int i = 0; i < 5; i++) {
