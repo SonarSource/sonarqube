@@ -19,7 +19,7 @@ convertWorkDuration = (value) ->
   hours = if hours then +hours[1] else 0
   minutes = if minutes then +minutes[1] else 0
 
-  if !value || (value.length > 0 && days == 0 && hours == 0 && minutes == 0)
+  if !value
     value
   else
     (days * 8 + hours) * 60 + minutes

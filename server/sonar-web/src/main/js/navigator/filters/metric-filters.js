@@ -146,7 +146,7 @@ define([
       var that = this,
           value = this.model.get('value');
 
-      if (_.isObject(value) && value.metric && value.op && value.val) {
+      if (_.isObject(value) && value.metric && value.op && (value.val != null)) {
         _.each(['metric', 'period', 'op', 'val'], function(key) {
           var v = value[key];
           if (key === 'period' && v === '0') {
@@ -169,7 +169,7 @@ define([
       if (!_.isObject(value)) {
         return true;
       }
-      return !(value.metric && value.op && value.val);
+      return !(value.metric && value.op && (value.val != null));
     },
 
 
@@ -185,7 +185,7 @@ define([
         }
       });
 
-      if (value && value.metric && value.op && value.val) {
+      if (value && value.metric && value.op && (value.val != null)) {
         this.model.set({
           value: value,
           enabled: true
