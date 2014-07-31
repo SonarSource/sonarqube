@@ -13,19 +13,6 @@ Put your technical debt under control. For more information please see:
 * Install Maven 3.0.5 or greater
 * Execute `build.sh`. ZIP file of application is generated into sonar-application/target/
 
-### Edit Ruby Code
-
-The development mode is used to edit Ruby on Rails code. The application is automatically reloaded when Ruby files are saved. It avoids restarting the server. Changes are reloaded on the fly. Execute one of the following commands from the sonar-server/ directory to start server:
-
-    # for embedded database
-    server/sonar-web/h2-start.sh
-    
-    # or for other dbs
-    server/sonar-web/mysql-start.sh
-    server/sonar-web/postgresql-start.sh
-
-Then Ruby code can be directly edited from sonar-server/src/main/webapp/WEB-INF/app.
-
 ### Debug Maven Analysis
 
 Debug Maven analysis by executing `mvnDebug sonar:sonar`. Then attach your IDE to the remote process (the listening port is 8000).
@@ -49,4 +36,3 @@ Licensed under the GNU Lesser General Public License, Version 3.0: http://www.gn
  [1]: http://www.sonarqube.org/
  [2]: http://jira.codehaus.org/browse/SONAR
  [3]: http://docs.codehaus.org/display/SONAR
- 
