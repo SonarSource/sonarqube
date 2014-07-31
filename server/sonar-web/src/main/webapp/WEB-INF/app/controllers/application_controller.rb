@@ -257,12 +257,16 @@ class ApplicationController < ActionController::Base
 
   def init_resource_for_role(role, resource_param=:id)
     @resource=Project.by_key(params[resource_param])
-    not_found("Project not found") unless @resource
-    @resource=@resource.permanent_resource
+    unless @resource
+      flash[:error] = message('dashboard.project_not_found')
+      redirect_to :controller => :dashboard, :action => :index
+    else
+      @resource=@resource.permanent_resource
 
-    @snapshot=@resource.last_snapshot
+      @snapshot=@resource.last_snapshot
 
-    access_denied unless has_role?(role, @resource)
+      access_denied unless has_role?(role, @resource)
+    end
   end
 
 
