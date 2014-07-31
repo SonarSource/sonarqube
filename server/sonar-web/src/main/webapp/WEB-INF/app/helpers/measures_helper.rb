@@ -28,7 +28,7 @@ module MeasuresHelper
     if column.period
       html += "<br><span class='note'>#{Api::Utils.period_abbreviation(column.period)}</small>"
     end
-    if filter.sort_key==column.key
+    if column.sort? && filter.sort_key==column.key
       html << (filter.sort_asc? ? ' <i class="icon-sort-asc"></i>' : ' <i class="icon-sort-desc"></i>')
     end
     "<th class='#{column.align} #{column.title_css}'>#{html}</th>"

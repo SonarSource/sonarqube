@@ -22,6 +22,7 @@ package org.sonar.server.measure;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
@@ -33,11 +34,10 @@ import org.sonar.api.utils.System2;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class MeasureFilterFactory implements ServerComponent {
 
@@ -111,13 +111,25 @@ public class MeasureFilterFactory implements ServerComponent {
           }
         }
       } else {
-        filter.setSortOn(MeasureFilterSort.Field.valueOf(s.toUpperCase()));
+        String sort = s.toUpperCase();
+        if (sortFieldLabels().contains(sort)) {
+          filter.setSortOn(MeasureFilterSort.Field.valueOf(sort));
+        }
       }
     }
 
     if (properties.containsKey("asc")) {
       filter.setSortAsc(Boolean.valueOf((String) properties.get("asc")));
     }
+  }
+
+  private List<String> sortFieldLabels(){
+    return newArrayList(Iterables.transform(Arrays.asList(MeasureFilterSort.Field.values()), new Function<MeasureFilterSort.Field, String>() {
+      @Override
+      public String apply(@Nullable MeasureFilterSort.Field input) {
+        return input != null ? input.name() : null;
+      }
+    }));
   }
 
   @CheckForNull
@@ -139,7 +151,7 @@ public class MeasureFilterFactory implements ServerComponent {
   }
 
   @CheckForNull
-  private MeasureFilterCondition alertToCondition(List<String> alertLevels) {
+  private MeasureFilterCondition alertToCondition(@Nullable List<String> alertLevels) {
     if (alertLevels == null || alertLevels.isEmpty()) {
       return null;
     }
@@ -148,7 +160,7 @@ public class MeasureFilterFactory implements ServerComponent {
     String op = "in";
     List<String> alertLevelsUppercase = Lists.transform(alertLevels, new Function<String, String>() {
       @Override
-      public String apply(String input) {
+      public String apply(@Nullable String input) {
         return input != null ? input.toUpperCase() : "";
       }
     });

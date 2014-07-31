@@ -90,6 +90,18 @@ public class MeasureFilterFactoryTest {
   }
 
   @Test
+  public void fallback_on_name_sort_when_sort_is_unknown() {
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of("sort", "unknown");
+    MeasureFilter filter = factory.create(props);
+
+    assertThat(filter.sort().column()).isEqualTo("p.long_name");
+    assertThat(filter.sort().metric()).isNull();
+    assertThat(filter.sort().period()).isNull();
+    assertThat(filter.sort().isAsc()).isTrue();
+  }
+
+  @Test
   public void descending_sort() {
     MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
     Map<String, Object> props = ImmutableMap.<String, Object>of("asc", "false");
