@@ -41,8 +41,8 @@ public class CpdSensorTest {
   @Before
   public void setUp() {
     IndexFactory indexFactory = mock(IndexFactory.class);
-    sonarEngine = new JavaCpdEngine(indexFactory, null, null);
-    sonarBridgeEngine = new DefaultCpdEngine(indexFactory, new CpdMappings(), null, null, mock(BlockCache.class));
+    sonarEngine = new JavaCpdEngine(indexFactory, null, null, null);
+    sonarBridgeEngine = new DefaultCpdEngine(indexFactory, new CpdMappings(), null, null, mock(BlockCache.class), null);
     settings = new Settings(new PropertyDefinitions(CpdPlugin.class));
 
     DefaultFileSystem fs = new DefaultFileSystem();

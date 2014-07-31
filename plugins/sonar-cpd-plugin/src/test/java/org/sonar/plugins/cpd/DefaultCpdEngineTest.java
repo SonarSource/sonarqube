@@ -42,7 +42,7 @@ public class DefaultCpdEngineTest {
   @Before
   public void init() {
     settings = new Settings();
-    engine = new DefaultCpdEngine(null, null, null, settings, mock(BlockCache.class));
+    engine = new DefaultCpdEngine(null, null, null, settings, mock(BlockCache.class), null);
   }
 
   @Test

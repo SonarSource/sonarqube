@@ -1318,6 +1318,10 @@ public final class CoreMetrics {
     .setOptimizedBestValue(true)
     .create();
 
+  /**
+   * @deprecated since 4.5. Internal storage of duplication is not an API. No more available on batch side.
+   */
+  @Deprecated
   public static final String DUPLICATIONS_DATA_KEY = "duplications_data";
 
   /**
@@ -1336,13 +1340,34 @@ public final class CoreMetrics {
    *   </duplications>
    * </pre>
    * </p>
+   * @deprecated since 4.5. Internal storage of duplication is not an API. No more available on batch side.
    */
+  @Deprecated
   public static final Metric<String> DUPLICATIONS_DATA = new Metric.Builder(DUPLICATIONS_DATA_KEY, "Duplications details", Metric.ValueType.DATA)
     .setDescription("Duplications details")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(false)
     .setDomain(DOMAIN_DUPLICATION)
     .setDeleteHistoricalData(true)
+    .create();
+
+  /**
+   * @since 4.5 used by dev cockpit.
+   */
+  @Beta
+  public static final String DUPLICATION_LINES_DATA_KEY = "comment_lines_data";
+
+  /**
+   * Information about duplication in file.
+   * Key-value pairs, where key - is a number of line, and value - is an indicator of whether line is duplicated somewhere (1) or not (0).
+   *
+   * @see org.sonar.api.measures.FileLinesContext
+   * @since 4.5 used by dev cockpit
+   */
+  @Beta
+  public static final Metric<String> DUPLICATION_LINES_DATA = new Metric.Builder(DUPLICATION_LINES_DATA_KEY, "duplication_lines_data", Metric.ValueType.DATA)
+    .setHidden(true)
+    .setDomain(DOMAIN_DUPLICATION)
     .create();
 
   // --------------------------------------------------------------------------------------------------------------------

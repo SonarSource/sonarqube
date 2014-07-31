@@ -34,6 +34,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.duplication.DefaultDuplicationBuilder;
@@ -83,16 +85,18 @@ public class JavaCpdEngine extends CpdEngine {
   private final FileSystem fs;
   private final Settings settings;
   private final Project project;
+  private final FileLinesContextFactory contextFactory;
 
-  public JavaCpdEngine(@Nullable Project project, IndexFactory indexFactory, FileSystem fs, Settings settings) {
+  public JavaCpdEngine(@Nullable Project project, IndexFactory indexFactory, FileSystem fs, Settings settings, FileLinesContextFactory contextFactory) {
     this.project = project;
     this.indexFactory = indexFactory;
     this.fs = fs;
     this.settings = settings;
+    this.contextFactory = contextFactory;
   }
 
-  public JavaCpdEngine(IndexFactory indexFactory, FileSystem fs, Settings settings) {
-    this(null, indexFactory, fs, settings);
+  public JavaCpdEngine(IndexFactory indexFactory, FileSystem fs, Settings settings, FileLinesContextFactory contextFactory) {
+    this(null, indexFactory, fs, settings, contextFactory);
   }
 
   @Override
@@ -168,7 +172,7 @@ public class JavaCpdEngine extends CpdEngine {
           throw new SonarException("Fail during detection of duplication for " + inputFile, e);
         }
 
-        save(context, inputFile, clones);
+        save(context, inputFile, clones, contextFactory);
       }
     } finally {
       executorService.shutdown();
@@ -189,7 +193,8 @@ public class JavaCpdEngine extends CpdEngine {
     }
   }
 
-  static void save(org.sonar.api.batch.sensor.SensorContext context, InputFile inputFile, @Nullable Iterable<CloneGroup> duplications) {
+  static void save(org.sonar.api.batch.sensor.SensorContext context, InputFile inputFile, @Nullable Iterable<CloneGroup> duplications,
+    FileLinesContextFactory contextFactory) {
     if (duplications == null || Iterables.isEmpty(duplications)) {
       return;
     }
@@ -207,6 +212,11 @@ public class JavaCpdEngine extends CpdEngine {
         }
       }
     }
+    FileLinesContext linesContext = contextFactory.createFor(inputFile);
+    for (int i = 1; i <= inputFile.lines(); i++) {
+      linesContext.setIntValue(CoreMetrics.DUPLICATION_LINES_DATA_KEY, i, duplicatedLines.contains(i) ? 1 : 0);
+    }
+    linesContext.save();
     // Save
     context.addMeasure(context.<Integer>measureBuilder()
       .forMetric(CoreMetrics.DUPLICATED_FILES)
