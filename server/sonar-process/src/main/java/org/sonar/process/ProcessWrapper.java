@@ -60,6 +60,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class ProcessWrapper extends Thread implements Terminable {
 
+  static {
+    // by default there's no timeout on RMI calls on client-side
+    // http://docs.oracle.com/javase/6/docs/technotes/guides/rmi/sunrmiproperties.html
+    System.setProperty("sun.rmi.transport.tcp.responseTimeout", "5000");
+    System.setProperty("sun.rmi.transport.tcp.handshakeTimeout", "5000");
+  }
+
   private final static Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
   public static final long READY_TIMEOUT_MS = 120000L;
 
@@ -133,19 +140,18 @@ public class ProcessWrapper extends Thread implements Terminable {
    */
   public boolean execute() {
     List<String> command = new ArrayList<String>();
-    command.add(buildJavaCommand());
-    command.addAll(javaOpts);
-    command.addAll(buildJMXOptions());
-    command.addAll(buildClasspath());
-    command.add(className);
-    command.add(buildPropertiesFile().getAbsolutePath());
-
-    ProcessBuilder processBuilder = new ProcessBuilder();
-    processBuilder.command(command);
-    processBuilder.directory(workDir);
-    processBuilder.environment().putAll(envProperties);
-
     try {
+      command.add(buildJavaCommand());
+      command.addAll(javaOpts);
+      command.addAll(buildJMXOptions());
+      command.addAll(buildClasspath());
+      command.add(className);
+      command.add(buildPropertiesFile().getAbsolutePath());
+
+      ProcessBuilder processBuilder = new ProcessBuilder();
+      processBuilder.command(command);
+      processBuilder.directory(workDir);
+      processBuilder.environment().putAll(envProperties);
       LOGGER.info("starting {}: {}", getName(), StringUtils.join(command, " "));
       process = processBuilder.start();
       errorGobbler = new StreamGobbler(process.getErrorStream(), this.getName() + "-ERROR");
@@ -158,7 +164,7 @@ public class ProcessWrapper extends Thread implements Terminable {
         return false;
       }
       return true;
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new IllegalStateException("Fail to start command: " + StringUtils.join(command, " "), e);
     }
   }
@@ -203,7 +209,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       + separator + "bin" + separator + "java";
   }
 
-  private List<String> buildJMXOptions() {
+  private List<String> buildJMXOptions() throws UnknownHostException {
     if (jmxPort < 1) {
       throw new IllegalStateException("JMX port is not set");
     }
@@ -211,7 +217,8 @@ public class ProcessWrapper extends Thread implements Terminable {
       "-Dcom.sun.management.jmxremote",
       "-Dcom.sun.management.jmxremote.port=" + jmxPort,
       "-Dcom.sun.management.jmxremote.authenticate=false",
-      "-Dcom.sun.management.jmxremote.ssl=false");
+      "-Dcom.sun.management.jmxremote.ssl=false",
+      "-Djava.rmi.server.hostname=" + InetAddress.getLocalHost().getHostAddress());
   }
 
   private List<String> buildClasspath() {
