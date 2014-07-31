@@ -33,7 +33,7 @@ class DuplicationGroupValueCoder implements ValueCoder {
   @Override
   public void put(Value value, Object object, CoderContext context) {
     DuplicationGroup c = (DuplicationGroup) object;
-    value.put(c.originBlock());
+    blockCoder.put(value, c.originBlock(), context);
     value.put(c.duplicates().size());
     for (DuplicationGroup.Block block : c.duplicates()) {
       blockCoder.put(value, block, context);
@@ -42,7 +42,7 @@ class DuplicationGroupValueCoder implements ValueCoder {
 
   @Override
   public Object get(Value value, Class clazz, CoderContext context) {
-    DuplicationGroup g = new DuplicationGroup((DuplicationGroup.Block) value.get());
+    DuplicationGroup g = new DuplicationGroup((Block) blockCoder.get(value, DuplicationGroup.Block.class, context));
     int count = value.getInt();
     ArrayList<DuplicationGroup.Block> blocks = new ArrayList<DuplicationGroup.Block>(count);
     for (int i = 0; i < count; i++) {

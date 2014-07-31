@@ -27,7 +27,6 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Directory;
@@ -36,14 +35,10 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.duplication.DuplicationGroup;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -75,8 +70,6 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   public void mockResourcePersister() {
     snapshotCache = mock(SnapshotCache.class);
     measureCache = mock(MeasureCache.class);
-    DuplicationCache duplicationCache = mock(DuplicationCache.class);
-    when(duplicationCache.entries()).thenReturn(Collections.<Cache.Entry<ArrayList<DuplicationGroup>>>emptyList());
     ResourceCache resourceCache = mock(ResourceCache.class);
     when(snapshotCache.get("foo")).thenReturn(projectSnapshot);
     when(snapshotCache.get("foo:org/foo")).thenReturn(packageSnapshot);
@@ -84,7 +77,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     when(resourceCache.get("foo:org/foo/Bar.java")).thenReturn(aFile);
     when(resourceCache.get("foo:org/foo")).thenReturn(aDirectory);
 
-    measurePersister = new MeasurePersister(getMyBatis(), ruleFinder, measureCache, snapshotCache, resourceCache, duplicationCache, mock(MetricFinder.class));
+    measurePersister = new MeasurePersister(getMyBatis(), ruleFinder, measureCache, snapshotCache, resourceCache);
   }
 
   @Test
