@@ -40,8 +40,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -218,7 +216,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       "-Dcom.sun.management.jmxremote.port=" + jmxPort,
       "-Dcom.sun.management.jmxremote.authenticate=false",
       "-Dcom.sun.management.jmxremote.ssl=false",
-      "-Djava.rmi.server.hostname=" + loopbackAddress());
+      "-Djava.rmi.server.hostname=" + localAddress());
   }
 
   private List<String> buildClasspath() {
@@ -245,7 +243,7 @@ public class ProcessWrapper extends Thread implements Terminable {
    */
   @CheckForNull
   private ProcessMXBean waitForJMX() throws Exception {
-    String loopbackAddress = loopbackAddress();
+    String loopbackAddress = localAddress();
     String path = "/jndi/rmi://" + loopbackAddress + ":" + jmxPort + "/jmxrmi";
     JMXServiceURL jmxUrl = new JMXServiceURL("rmi", loopbackAddress, jmxPort, path);
 
@@ -265,11 +263,8 @@ public class ProcessWrapper extends Thread implements Terminable {
     return null;
   }
 
-  /**
-   * Should be replaced by InetAddress#getLoopbackAddress() in Java 7
-   */
-  private String loopbackAddress() throws UnknownHostException {
-    return InetAddress.getLocalHost().getHostAddress();
+  private String localAddress() {
+    return "127.0.0.1";
   }
 
   @Override
