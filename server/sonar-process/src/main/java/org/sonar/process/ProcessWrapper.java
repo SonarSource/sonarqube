@@ -69,7 +69,7 @@ public class ProcessWrapper extends Thread implements Terminable {
 
   private final static Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
 
-  public static final long READY_TIMEOUT_MS = 120000L;
+  public static final long READY_TIMEOUT_MS = 300000L;
 
   private String processName, className;
   private int jmxPort = -1;
