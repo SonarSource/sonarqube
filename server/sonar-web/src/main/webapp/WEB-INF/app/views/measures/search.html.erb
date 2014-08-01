@@ -126,9 +126,6 @@
       { key: '<%= "c#{i}_val" -%>', value: '<%= h @filter.criteria("c#{i}_val") -%>' },
       <% end %>
     <% end %>
-
-      <% puts "### " +  @filter.criteria.inspect %>
-
     { key: 'nameSearch', value: '<%= @filter.criteria['nameSearch'] -%>' }
   ];
 </script>
