@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.SonarException;
 
 import javax.annotation.Nullable;
 
@@ -191,6 +192,12 @@ public class RequestTest {
   @Test
   public void param_as_datetime() throws Exception {
     assertThat(request.setParam("a_datetime", "2014-05-27T15:50:45+0100").paramAsDateTime("a_datetime")).isEqualTo(DateUtils.parseDateTime("2014-05-27T15:50:45+0100"));
+    assertThat(request.setParam("a_datetime", "2014-05-27").paramAsDateTime("a_datetime")).isEqualTo(DateUtils.parseDate("2014-05-27"));
+    try {
+      request.setParam("a_datetime", "polop").paramAsDateTime("a_datetime");
+    } catch (SonarException error) {
+      assertThat(error.getMessage()).isEqualTo("'polop' cannot be parsed as either a date or date+time");
+    }
   }
 
   @Test
