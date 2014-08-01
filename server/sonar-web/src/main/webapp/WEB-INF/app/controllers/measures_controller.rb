@@ -181,8 +181,7 @@ class MeasuresController < ApplicationController
     target.name=params[:name]
     target.description=params[:description]
     target.user_id=current_user.id
-    # Copy of filter should never be shared
-    target.shared=false
+    target.shared=(params[:shared]=='true') && has_role?(:shareDashboard)
     target.data=source.data
     if target.save
       current_user.favourited_measure_filters << target
