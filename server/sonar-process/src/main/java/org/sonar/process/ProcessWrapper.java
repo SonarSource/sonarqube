@@ -219,7 +219,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       "-Dcom.sun.management.jmxremote.port=" + jmxPort,
       "-Dcom.sun.management.jmxremote.authenticate=false",
       "-Dcom.sun.management.jmxremote.ssl=false",
-      "-Djava.rmi.server.hostname=" + InetAddress.getLocalHost().getHostAddress());
+      "-Djava.rmi.server.hostname=" + localhost());
   }
 
   private List<String> buildClasspath() {
@@ -246,8 +246,8 @@ public class ProcessWrapper extends Thread implements Terminable {
    */
   @CheckForNull
   private ProcessMXBean waitForJMX() throws UnknownHostException, MalformedURLException {
-    String path = "/jndi/rmi://" + InetAddress.getLocalHost().getHostAddress() + ":" + jmxPort + "/jmxrmi";
-    JMXServiceURL jmxUrl = new JMXServiceURL("rmi", InetAddress.getLocalHost().getHostAddress(), jmxPort, path);
+    String path = "/jndi/rmi://" + localhost() + ":" + jmxPort + "/jmxrmi";
+    JMXServiceURL jmxUrl = new JMXServiceURL("rmi", localhost(), jmxPort, path);
 
     for (int i = 0; i < 5; i++) {
       try {
@@ -263,6 +263,10 @@ public class ProcessWrapper extends Thread implements Terminable {
     }
     // failed to connect
     return null;
+  }
+
+  private String localhost() {
+    return InetAddress.getLoopbackAddress().getHostAddress();
   }
 
   @Override
