@@ -45,7 +45,7 @@ public class TempFolderProviderTest {
     ServerFileSystem fs = mock(ServerFileSystem.class);
     File serverTempFolder = temp.newFolder();
     when(fs.getTempDir()).thenReturn(serverTempFolder);
-    TempFolderProvider tempFolderProvider = new TempFolderProvider();
+    TempFolderProvider tempFolderProvider = new TempFolderProvider(); 
     TempFolder tempUtils = tempFolderProvider.provide(fs);
     tempUtils.newDir();
     tempUtils.newFile();
