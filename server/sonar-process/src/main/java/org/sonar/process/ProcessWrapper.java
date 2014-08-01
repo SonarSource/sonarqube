@@ -60,8 +60,10 @@ public class ProcessWrapper extends Thread implements Terminable {
   static {
     // by default there's no timeout on RMI calls on client-side
     // http://docs.oracle.com/javase/6/docs/technotes/guides/rmi/sunrmiproperties.html
-    System.setProperty("sun.rmi.transport.tcp.responseTimeout", "5000");
+    System.setProperty("sun.rmi.transport.connectionTimeout", "5000");
     System.setProperty("sun.rmi.transport.tcp.handshakeTimeout", "5000");
+    System.setProperty("sun.rmi.transport.tcp.handshakeTimeout", "5000");
+    System.setProperty("sun.rmi.transport.tcp.readTimeout", "5000");
   }
 
   private final static Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
@@ -264,6 +266,7 @@ public class ProcessWrapper extends Thread implements Terminable {
   }
 
   private String localAddress() {
+    // TODO to be replaced by InetAddress.getLoopbackAddress() in Java 7
     return "127.0.0.1";
   }
 
