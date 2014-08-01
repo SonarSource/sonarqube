@@ -54,16 +54,13 @@ class EmbeddedTomcat implements Terminable {
       System.setProperty("org.apache.catalina.startup.EXIT_ON_INIT_FAILURE", "true");
 
       tomcat = new Tomcat();
-
       // Initialize directories
-      File tomcatDir = tomcatBasedir();
-      String basedir = tomcatDir.getAbsolutePath();
+      String basedir = tomcatBasedir().getAbsolutePath();
       tomcat.setBaseDir(basedir);
       tomcat.getHost().setAppBase(basedir);
       tomcat.getHost().setAutoDeploy(false);
       tomcat.getHost().setCreateDirs(false);
       tomcat.getHost().setDeployOnStartup(true);
-
       Logging.configure(tomcat, props);
       Connectors.configure(tomcat, props);
       StandardContext webappContext = Webapp.configure(tomcat, props);
@@ -83,7 +80,7 @@ class EmbeddedTomcat implements Terminable {
   }
 
   private File tomcatBasedir() {
-    return new File(props.of("sonar.path.temp"), "tomcat");
+    return new File(props.of("sonar.path.temp"), "tc");
   }
 
   boolean isReady() {

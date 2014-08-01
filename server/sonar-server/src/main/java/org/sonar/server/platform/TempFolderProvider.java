@@ -31,7 +31,7 @@ import java.io.IOException;
 public class TempFolderProvider extends ProviderAdapter {
 
   public TempFolder provide(ServerFileSystem fs) {
-    File tempDir = new File(fs.getTempDir(), "tmp");
+    File tempDir = new File(fs.getTempDir(), "server");
     try {
       FileUtils.forceMkdir(tempDir);
     } catch (IOException e) {
