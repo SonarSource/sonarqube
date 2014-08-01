@@ -49,7 +49,7 @@ public class TempFolderProviderTest {
     TempFolder tempUtils = tempFolderProvider.provide(fs);
     tempUtils.newDir();
     tempUtils.newFile();
-    assertThat(new File(serverTempFolder, "server")).exists();
-    assertThat(new File(serverTempFolder, "server").list()).hasSize(2);
+    assertThat(new File(serverTempFolder, "tmp")).exists();
+    assertThat(new File(serverTempFolder, "tmp").list()).hasSize(2);
   }
 }
