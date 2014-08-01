@@ -29,8 +29,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -209,11 +207,12 @@ public class QualityGates {
   }
 
   public void associateProject(Long qGateId, Long projectId) {
+    checkPermission(UserSession.get());
+
     DbSession session = myBatis.openSession(false);
     try {
       getNonNullQgate(qGateId);
-      ComponentDto project = componentDao.getById(projectId, session);
-      checkPermission(UserSession.get(), project.key());
+      checkNonNullProject(projectId, session);
       propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setResourceId(projectId).setValue(qGateId.toString()));
     } finally {
       MyBatis.closeQuietly(session);
@@ -221,11 +220,12 @@ public class QualityGates {
   }
 
   public void dissociateProject(Long qGateId, Long projectId) {
+    checkPermission(UserSession.get());
+
     DbSession session = myBatis.openSession(false);
     try {
       getNonNullQgate(qGateId);
-      ComponentDto project = componentDao.getById(projectId, session);
-      checkPermission(UserSession.get(), project.key());
+      checkNonNullProject(projectId, session);
       propertiesDao.deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, projectId);
     } finally {
       MyBatis.closeQuietly(session);
@@ -338,6 +338,12 @@ public class QualityGates {
     return condition;
   }
 
+  private void checkNonNullProject(long projectId, DbSession session) {
+    if (!componentDao.existsById(projectId, session)) {
+      throw new NotFoundException("There is no project with id=" + projectId);
+    }
+  }
+
   private void validateQualityGate(@Nullable Long updatingQgateId, @Nullable String name) {
     Errors errors = new Errors();
     if (Strings.isNullOrEmpty(name)) {
@@ -359,11 +365,5 @@ public class QualityGates {
 
   private void checkPermission(UserSession userSession) {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-  }
-
-  private void checkPermission(UserSession userSession, String projectKey) {
-    if (!userSession.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) && !userSession.hasProjectPermission(UserRole.ADMIN, projectKey)) {
-      throw new ForbiddenException("Insufficient privileges");
-    }
   }
 }

@@ -97,21 +97,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     assertThat(dao.getById(4L, session)).isNotNull();
-  }
-
-  @Test(expected = NotFoundException.class)
-  public void fail_to_get_by_id_when_project_not_found() {
-    setupData("shared");
-
-    dao.getById(111L, session);
-  }
-
-  @Test
-  public void get_nullable_by_id() {
-    setupData("shared");
-
-    assertThat(dao.getNullableById(4L, session)).isNotNull();
-    assertThat(dao.getNullableById(111L, session)).isNull();
+    assertThat(dao.getById(111L, session)).isNull();
   }
 
   @Test

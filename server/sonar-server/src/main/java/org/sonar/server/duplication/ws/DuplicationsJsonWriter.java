@@ -125,7 +125,7 @@ public class DuplicationsJsonWriter implements ServerComponent {
   private ComponentDto getProject(@Nullable Long projectId, Map<Long, ComponentDto> projectsById, DbSession session) {
     ComponentDto project = projectsById.get(projectId);
     if (project == null && projectId != null) {
-      project = componentDao.getNullableById(projectId, session);
+      project = componentDao.getById(projectId, session);
       if (project != null) {
         projectsById.put(project.getId(), project);
       }

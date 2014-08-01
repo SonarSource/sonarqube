@@ -43,15 +43,6 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   }
 
   public ComponentDto getById(Long id, DbSession session) {
-    ComponentDto componentDto = getNullableById(id, session);
-    if (componentDto == null) {
-      throw new NotFoundException(String.format("Project with id '%s' not found", id));
-    }
-    return componentDto;
-  }
-
-  @CheckForNull
-  public ComponentDto getNullableById(Long id, DbSession session) {
     return mapper(session).selectById(id);
   }
 
@@ -77,7 +68,6 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   }
 
   @Override
-  @CheckForNull
   protected ComponentDto doGetNullableByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
   }

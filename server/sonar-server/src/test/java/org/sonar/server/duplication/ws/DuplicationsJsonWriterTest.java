@@ -66,8 +66,8 @@ public class DuplicationsJsonWriterTest {
 
     when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
     when(componentDao.getNullableByKey(session, key2)).thenReturn(file2);
-    when(componentDao.getNullableById(1L, session)).thenReturn(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setLongName("SonarQube"));
-    when(componentDao.getNullableById(5L, session)).thenReturn(new ComponentDto().setId(5L).setKey("org.codehaus.sonar:sonar-ws-client").setLongName("SonarQube :: Web Service Client"));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setLongName("SonarQube"));
+    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setKey("org.codehaus.sonar:sonar-ws-client").setLongName("SonarQube :: Web Service Client"));
 
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
@@ -112,8 +112,8 @@ public class DuplicationsJsonWriterTest {
 
     verify(componentDao, times(2)).getNullableByKey(eq(session), anyString());
     // Verify call to dao is cached when searching for project / sub project
-    verify(componentDao, times(1)).getNullableById(eq(1L), eq(session));
-    verify(componentDao, times(1)).getNullableById(eq(5L), eq(session));
+    verify(componentDao, times(1)).getById(eq(1L), eq(session));
+    verify(componentDao, times(1)).getById(eq(5L), eq(session));
   }
 
   @Test
@@ -125,7 +125,7 @@ public class DuplicationsJsonWriterTest {
 
     when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
     when(componentDao.getNullableByKey(session, key2)).thenReturn(file2);
-    when(componentDao.getNullableById(1L, session)).thenReturn(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setLongName("SonarQube"));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setLongName("SonarQube"));
 
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
@@ -171,7 +171,7 @@ public class DuplicationsJsonWriterTest {
     ComponentDto file1 = new ComponentDto().setId(10L).setQualifier("FIL").setKey(key1).setLongName("PropertyDeleteQuery").setProjectId(1L);
 
     when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
-    when(componentDao.getNullableById(1L, session)).thenReturn(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setLongName("SonarQube"));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setLongName("SonarQube"));
 
     List<DuplicationsParser.Block> blocks = newArrayList();
 
