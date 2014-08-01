@@ -25,7 +25,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
-import org.sonar.api.batch.sensor.duplication.TokenBuilder;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
@@ -37,6 +38,7 @@ import org.sonar.api.config.Settings;
 import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @since 4.4
@@ -92,6 +94,7 @@ public interface SensorContext {
 
   /**
    * Add a measure. Use {@link #measureBuilder()} to create the new measure.
+   * A measure for a given metric can only be saved once for the same resource.
    */
   void addMeasure(Measure<?> measure);
 
@@ -134,13 +137,19 @@ public interface SensorContext {
    * Builder to define tokens in a file. Tokens are used to compute duplication by the core.
    * @since 4.5
    */
-  TokenBuilder tokenBuilder(InputFile inputFile);
+  DuplicationTokenBuilder duplicationTokenBuilder(InputFile inputFile);
 
   /**
    * Builder to manually define duplications in a file. When duplication are manually computed then
-   * no need to use {@link #tokenBuilder(InputFile)}.
+   * no need to use {@link #duplicationTokenBuilder(InputFile)}.
    * @since 4.5
    */
   DuplicationBuilder duplicationBuilder(InputFile inputFile);
+
+  /**
+   * Register all duplications of an {@link InputFile}. Use {@link #duplicationBuilder(InputFile)} to create
+   * list of duplications.
+   */
+  void saveDuplications(InputFile inputFile, List<DuplicationGroup> duplications);
 
 }

@@ -17,24 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.duplication;
-
-/**
- * This builder is used to define token on files. Tokens are later used to compute duplication.
- * Tokens should be declared in sequential order.
- * @since 4.5
- */
-public interface TokenBuilder {
-
-  /**
-   * Call this method to register a new token.
-   * @param line Line number of the token. Line starts at 1.
-   * @param image Text of the token.
-   */
-  TokenBuilder addToken(int line, String image);
-
-  /**
-   * Call this method only once when your are done with defining tokens of the file.
-   */
-  void done();
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.api.batch.sensor.duplication.internal;

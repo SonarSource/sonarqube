@@ -20,6 +20,7 @@
 package org.sonar.batch.index;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
@@ -29,12 +30,11 @@ import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.duplication.DuplicationGroup;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public final class DuplicationPersister implements ScanPersister {
   private final MyBatis mybatis;
@@ -62,7 +62,7 @@ public final class DuplicationPersister implements ScanPersister {
     try {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
       org.sonar.api.measures.Metric duplicationMetricWithId = metricFinder.findByKey(CoreMetrics.DUPLICATIONS_DATA_KEY);
-      for (Entry<ArrayList<DuplicationGroup>> entry : duplicationCache.entries()) {
+      for (Entry<List<DuplicationGroup>> entry : duplicationCache.entries()) {
         String effectiveKey = entry.key()[0].toString();
         Measure measure = new Measure(duplicationMetricWithId, toXml(entry.value())).setPersistenceMode(PersistenceMode.DATABASE);
         Resource resource = resourceCache.get(effectiveKey);

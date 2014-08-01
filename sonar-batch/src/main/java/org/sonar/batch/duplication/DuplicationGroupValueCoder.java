@@ -22,7 +22,8 @@ package org.sonar.batch.duplication;
 import com.persistit.Value;
 import com.persistit.encoding.CoderContext;
 import com.persistit.encoding.ValueCoder;
-import org.sonar.batch.duplication.DuplicationGroup.Block;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup.Block;
 
 import java.util.ArrayList;
 

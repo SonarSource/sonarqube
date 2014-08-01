@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan2;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
@@ -29,7 +30,9 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.DefaultActiveRule;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
-import org.sonar.api.batch.sensor.duplication.TokenBuilder;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplicationBuilder;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
@@ -44,7 +47,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.duplication.BlockCache;
-import org.sonar.batch.duplication.DefaultDuplicationBuilder;
 import org.sonar.batch.duplication.DefaultTokenBuilder;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
@@ -56,6 +58,7 @@ import org.sonar.core.component.ComponentKeys;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class DefaultSensorContext implements SensorContext {
 
@@ -188,7 +191,7 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   @Override
-  public TokenBuilder tokenBuilder(InputFile inputFile) {
+  public DuplicationTokenBuilder duplicationTokenBuilder(InputFile inputFile) {
     PmdBlockChunker blockChunker = new PmdBlockChunker(getBlockSize(inputFile.language()));
 
     return new DefaultTokenBuilder(inputFile, blockCache, blockChunker);
@@ -196,7 +199,17 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public DuplicationBuilder duplicationBuilder(InputFile inputFile) {
-    return new DefaultDuplicationBuilder(inputFile, duplicationCache);
+    return new DefaultDuplicationBuilder(inputFile);
+  }
+
+  @Override
+  public void saveDuplications(InputFile inputFile, List<DuplicationGroup> duplications) {
+    Preconditions.checkState(duplications.size() > 0, "Empty duplications");
+    String effectiveKey = ((DefaultInputFile) inputFile).key();
+    for (DuplicationGroup duplicationGroup : duplications) {
+      Preconditions.checkState(effectiveKey.equals(duplicationGroup.originBlock().resourceKey()), "Invalid duplication group");
+    }
+    duplicationCache.put(effectiveKey, duplications);
   }
 
   private int getBlockSize(String languageKey) {

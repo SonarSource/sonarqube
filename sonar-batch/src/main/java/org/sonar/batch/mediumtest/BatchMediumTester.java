@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -42,7 +43,6 @@ import org.sonar.batch.bootstrap.PluginsReferential;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.duplication.DuplicationGroup;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.highlighting.SyntaxHighlightingRule;
 import org.sonar.batch.index.Cache.Entry;
@@ -264,7 +264,7 @@ public class BatchMediumTester {
       }
 
       DuplicationCache duplicationCache = container.getComponentByType(DuplicationCache.class);
-      for (Entry<ArrayList<DuplicationGroup>> entry : duplicationCache.entries()) {
+      for (Entry<List<DuplicationGroup>> entry : duplicationCache.entries()) {
         String effectiveKey = entry.key()[0].toString();
         duplications.put(effectiveKey, entry.value());
       }

@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.duplication.TokenBuilder;
+import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.FileBlocks;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
@@ -35,7 +35,7 @@ import org.sonar.duplications.internal.pmd.TokensLine;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultTokenBuilder implements TokenBuilder {
+public class DefaultTokenBuilder implements DuplicationTokenBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultTokenBuilder.class);
 

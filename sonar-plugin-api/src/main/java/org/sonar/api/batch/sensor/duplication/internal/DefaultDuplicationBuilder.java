@@ -17,26 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.duplication;
+package org.sonar.api.batch.sensor.duplication.internal;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DefaultDuplicationBuilder implements DuplicationBuilder {
 
   private final InputFile inputFile;
-  private final DuplicationCache duplicationCache;
-  private boolean done = false;
   private DuplicationGroup current = null;
-  private ArrayList<DuplicationGroup> duplications;
+  private List<DuplicationGroup> duplications;
 
-  public DefaultDuplicationBuilder(InputFile inputFile, DuplicationCache duplicationCache) {
+  public DefaultDuplicationBuilder(InputFile inputFile) {
     this.inputFile = inputFile;
-    this.duplicationCache = duplicationCache;
     duplications = new ArrayList<DuplicationGroup>();
   }
 
@@ -65,10 +64,16 @@ public class DefaultDuplicationBuilder implements DuplicationBuilder {
   }
 
   @Override
-  public void done() {
-    Preconditions.checkState(!done, "done() already called");
+  public List<DuplicationGroup> build() {
     Preconditions.checkNotNull(current, "Call originBlock() first");
     duplications.add(current);
-    duplicationCache.put(((DefaultInputFile) inputFile).key(), duplications);
+    List<DuplicationGroup> result = duplications;
+    reset();
+    return result;
+  }
+
+  private void reset() {
+    duplications = new ArrayList<DuplicationGroup>();
+    current = null;
   }
 }

@@ -20,20 +20,21 @@
 package org.sonar.batch.duplication;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.Caches;
 
 import javax.annotation.CheckForNull;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Cache of duplication blocks. This cache is shared amongst all project modules.
  */
 public class DuplicationCache implements BatchComponent {
 
-  private final Cache<ArrayList<DuplicationGroup>> cache;
+  private final Cache<List<DuplicationGroup>> cache;
 
   public DuplicationCache(Caches caches) {
     caches.registerValueCoder(DuplicationGroup.class, new DuplicationGroupValueCoder());
@@ -41,16 +42,16 @@ public class DuplicationCache implements BatchComponent {
     cache = caches.createCache("duplications");
   }
 
-  public Iterable<Entry<ArrayList<DuplicationGroup>>> entries() {
+  public Iterable<Entry<List<DuplicationGroup>>> entries() {
     return cache.entries();
   }
 
   @CheckForNull
-  public ArrayList<DuplicationGroup> byComponent(String effectiveKey) {
+  public List<DuplicationGroup> byComponent(String effectiveKey) {
     return cache.get(effectiveKey);
   }
 
-  public DuplicationCache put(String effectiveKey, ArrayList<DuplicationGroup> blocks) {
+  public DuplicationCache put(String effectiveKey, List<DuplicationGroup> blocks) {
     cache.put(effectiveKey, blocks);
     return this;
   }

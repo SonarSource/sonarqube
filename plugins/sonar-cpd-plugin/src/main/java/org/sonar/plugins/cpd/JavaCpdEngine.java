@@ -32,13 +32,13 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplicationBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.duplication.DefaultDuplicationBuilder;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
@@ -243,7 +243,7 @@ public class JavaCpdEngine extends CpdEngine {
         }
       }
     }
-    builder.done();
+    context.saveDuplications(inputFile, builder.build());
   }
 
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -28,7 +29,9 @@ import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
-import org.sonar.api.batch.sensor.duplication.TokenBuilder;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
+import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplicationBuilder;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
@@ -52,7 +55,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.duplication.BlockCache;
-import org.sonar.batch.duplication.DefaultDuplicationBuilder;
 import org.sonar.batch.duplication.DefaultTokenBuilder;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
@@ -61,6 +63,7 @@ import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Implements {@link SensorContext} but forward everything to {@link org.sonar.api.batch.SensorContext} for backward compatibility.
@@ -267,14 +270,24 @@ public class SensorContextAdaptor implements SensorContext {
   }
 
   @Override
-  public TokenBuilder tokenBuilder(InputFile inputFile) {
+  public DuplicationTokenBuilder duplicationTokenBuilder(InputFile inputFile) {
     PmdBlockChunker blockChunker = new PmdBlockChunker(getBlockSize(inputFile.language()));
     return new DefaultTokenBuilder(inputFile, blockCache, blockChunker);
   }
 
   @Override
   public DuplicationBuilder duplicationBuilder(InputFile inputFile) {
-    return new DefaultDuplicationBuilder(inputFile, duplicationCache);
+    return new DefaultDuplicationBuilder(inputFile);
+  }
+
+  @Override
+  public void saveDuplications(InputFile inputFile, List<DuplicationGroup> duplications) {
+    Preconditions.checkState(duplications.size() > 0, "Empty duplications");
+    String effectiveKey = ((DefaultInputFile) inputFile).key();
+    for (DuplicationGroup duplicationGroup : duplications) {
+      Preconditions.checkState(effectiveKey.equals(duplicationGroup.originBlock().resourceKey()), "Invalid duplication group");
+    }
+    duplicationCache.put(effectiveKey, duplications);
   }
 
   private int getBlockSize(String languageKey) {

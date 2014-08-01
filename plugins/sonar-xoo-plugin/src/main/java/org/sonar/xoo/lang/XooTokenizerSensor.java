@@ -28,7 +28,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.duplication.TokenBuilder;
+import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
 import org.sonar.xoo.Xoo;
 
 import java.io.File;
@@ -41,7 +41,7 @@ import java.util.List;
 public class XooTokenizerSensor implements Sensor {
 
   private void computeTokens(InputFile inputFile, SensorContext context) {
-    TokenBuilder tokenBuilder = context.tokenBuilder(inputFile);
+    DuplicationTokenBuilder tokenBuilder = context.duplicationTokenBuilder(inputFile);
     File ioFile = inputFile.file();
     int lineId = 0;
     try {

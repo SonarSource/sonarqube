@@ -17,28 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.duplication;
+package org.sonar.api.batch.sensor.duplication;
 
-import com.persistit.Value;
-import com.persistit.encoding.CoderContext;
-import com.persistit.encoding.ValueCoder;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 
-class DuplicationBlockValueCoder implements ValueCoder {
+/**
+ * This builder is used to define token on files. Tokens are later used to compute duplication.
+ * Tokens should be declared in sequential order.
+ * Example:
+ * <code><pre>
+ * DuplicationTokenBuilder tokenBuilder = context.duplicationTokenBuilder(inputFile)
+ *  .addToken(1, "public")
+ *  .addToken(1, "class")
+ *  .addToken(1, "Foo")
+ *  .addToken(1, "{")
+ *  .addToken(2, "}")
+ *  .done();
+ * </pre></code>
+ * @since 4.5
+ */
+public interface DuplicationTokenBuilder {
 
-  @Override
-  public void put(Value value, Object object, CoderContext context) {
-    DuplicationGroup.Block b = (DuplicationGroup.Block) object;
-    value.putUTF(b.resourceKey());
-    value.put(b.startLine());
-    value.put(b.length());
-  }
+  /**
+   * Call this method to register a new token.
+   * @param line Line number of the token. Line starts at 1.
+   * @param image Text of the token.
+   */
+  DuplicationTokenBuilder addToken(int line, String image);
 
-  @Override
-  public Object get(Value value, Class clazz, CoderContext context) {
-    String resourceKey = value.getString();
-    int startLine = value.getInt();
-    int length = value.getInt();
-    return new DuplicationGroup.Block(resourceKey, startLine, length);
-  }
+  /**
+   * Call this method only once when your are done with defining tokens of the file.
+   */
+  void done();
 }

@@ -22,17 +22,17 @@ package org.sonar.batch.index;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.File;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.duplication.DuplicationGroup;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -77,7 +77,7 @@ public class DuplicationPersisterTest extends AbstractDaoTestCase {
       .addDuplicate(new DuplicationGroup.Block("foo:org/foo/Foo.java", 5, 9));
 
     when(duplicationCache.entries()).thenReturn(
-      Arrays.<Cache.Entry<ArrayList<DuplicationGroup>>>asList(new Cache.Entry(new String[] {"foo:org/foo/Bar.java"}, Arrays.asList(group))));
+      Arrays.<Cache.Entry<List<DuplicationGroup>>>asList(new Cache.Entry(new String[] {"foo:org/foo/Bar.java"}, Arrays.asList(group))));
 
     duplicationPersister.persist();
 

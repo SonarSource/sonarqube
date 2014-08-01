@@ -25,11 +25,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.CachesTest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -74,7 +76,7 @@ public class DuplicationCacheTest {
 
     assertThat(cache.entries()).hasSize(1);
 
-    ArrayList<DuplicationGroup> entry = cache.byComponent("foo");
+    List<DuplicationGroup> entry = cache.byComponent("foo");
     assertThat(entry.get(0).originBlock().resourceKey()).isEqualTo("foo");
 
   }

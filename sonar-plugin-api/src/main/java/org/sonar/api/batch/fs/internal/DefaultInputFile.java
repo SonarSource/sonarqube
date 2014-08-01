@@ -108,10 +108,8 @@ public class DefaultInputFile implements InputFile, Serializable {
   }
 
   /**
-   * Component key. It's marked as nullable just for the unit tests that
-   * do not previously call {@link #setKey(String)}.
+   * Component key.
    */
-  @CheckForNull
   public String key() {
     return key;
   }
