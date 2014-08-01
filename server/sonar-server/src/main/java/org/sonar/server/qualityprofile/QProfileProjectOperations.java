@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -29,8 +30,11 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
+
+import javax.annotation.Nullable;
 
 public class QProfileProjectOperations implements ServerComponent {
 
@@ -41,7 +45,6 @@ public class QProfileProjectOperations implements ServerComponent {
   }
 
   public void addProject(int profileId, long projectId, UserSession userSession) {
-    checkPermission(userSession);
     DbSession session = db.openSession(false);
     try {
       addProject(profileId, projectId, userSession, session);
@@ -52,8 +55,8 @@ public class QProfileProjectOperations implements ServerComponent {
   }
 
   void addProject(int profileId, long projectId, UserSession userSession, DbSession session) {
-    checkPermission(userSession);
     ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
+    checkPermission(userSession, project.key());
     QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
     db.propertiesDao().setProperty(new PropertyDto().setKey(
@@ -62,10 +65,10 @@ public class QProfileProjectOperations implements ServerComponent {
   }
 
   public void removeProject(int profileId, long projectId, UserSession userSession) {
-    checkPermission(userSession);
     DbSession session = db.openSession(false);
     try {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
+      checkPermission(userSession, project.key());
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
       db.propertiesDao().deleteProjectProperty(QProfileProjectLookup.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), project.getId(), session);
@@ -76,10 +79,10 @@ public class QProfileProjectOperations implements ServerComponent {
   }
 
   public void removeProject(String language, long projectId, UserSession userSession) {
-    checkPermission(userSession);
     DbSession session = db.openSession(false);
     try {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
+      checkPermission(userSession, project.key());
 
       db.propertiesDao().deleteProjectProperty(QProfileProjectLookup.PROFILE_PROPERTY_PREFIX + language, project.getId(), session);
       session.commit();
@@ -89,7 +92,7 @@ public class QProfileProjectOperations implements ServerComponent {
   }
 
   public void removeAllProjects(int profileId, UserSession userSession) {
-    checkPermission(userSession);
+    checkPermission(userSession, null);
     DbSession session = db.openSession(false);
     try {
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
@@ -114,8 +117,10 @@ public class QProfileProjectOperations implements ServerComponent {
     return component;
   }
 
-  private void checkPermission(UserSession userSession) {
-    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  private void checkPermission(UserSession userSession, @Nullable String projectKey) {
+    if (!userSession.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) && projectKey != null && !userSession.hasProjectPermission(UserRole.ADMIN, projectKey)) {
+      throw new ForbiddenException("Insufficient privileges");
+    }
   }
 
 }

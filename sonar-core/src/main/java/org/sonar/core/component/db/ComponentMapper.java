@@ -22,6 +22,8 @@ package org.sonar.core.component.db;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.ComponentDto;
 
+import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 /**
@@ -29,12 +31,16 @@ import java.util.List;
  */
 public interface ComponentMapper {
 
+  @CheckForNull
   ComponentDto selectByKey(String key);
 
+  @CheckForNull
   ComponentDto selectById(long id);
 
+  @CheckForNull
   ComponentDto selectRootProjectByKey(String key);
 
+  @CheckForNull
   ComponentDto selectParentModuleByKey(String key);
 
   /**
