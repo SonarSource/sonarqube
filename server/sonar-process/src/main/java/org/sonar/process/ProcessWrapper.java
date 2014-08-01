@@ -41,11 +41,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -210,7 +212,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       + separator + "bin" + separator + "java";
   }
 
-  private List<String> buildJMXOptions() throws UnknownHostException {
+  private List<String> buildJMXOptions() throws Exception {
     if (jmxPort < 1) {
       throw new IllegalStateException("JMX port is not set");
     }
@@ -219,7 +221,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       "-Dcom.sun.management.jmxremote.port=" + jmxPort,
       "-Dcom.sun.management.jmxremote.authenticate=false",
       "-Dcom.sun.management.jmxremote.ssl=false",
-      "-Djava.rmi.server.hostname=" + localhost());
+      "-Djava.rmi.server.hostname=" + loopbackAddress());
   }
 
   private List<String> buildClasspath() {
@@ -245,9 +247,10 @@ public class ProcessWrapper extends Thread implements Terminable {
    * Wait for JMX RMI to be ready. Return <code>null</code>
    */
   @CheckForNull
-  private ProcessMXBean waitForJMX() throws UnknownHostException, MalformedURLException {
-    String path = "/jndi/rmi://" + localhost() + ":" + jmxPort + "/jmxrmi";
-    JMXServiceURL jmxUrl = new JMXServiceURL("rmi", localhost(), jmxPort, path);
+  private ProcessMXBean waitForJMX() throws Exception {
+    String loopbackAddress = loopbackAddress();
+    String path = "/jndi/rmi://" + loopbackAddress + ":" + jmxPort + "/jmxrmi";
+    JMXServiceURL jmxUrl = new JMXServiceURL("rmi", loopbackAddress, jmxPort, path);
 
     for (int i = 0; i < 5; i++) {
       try {
@@ -265,8 +268,20 @@ public class ProcessWrapper extends Thread implements Terminable {
     return null;
   }
 
-  private String localhost() {
-    return InetAddress.getLoopbackAddress().getHostAddress();
+  private String loopbackAddress() throws SocketException {
+    Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
+    while (ifaces.hasMoreElements())
+    {
+      NetworkInterface iface = ifaces.nextElement();
+      Enumeration<InetAddress> addresses = iface.getInetAddresses();
+      while (addresses.hasMoreElements()) {
+        InetAddress addr = addresses.nextElement();
+        if (addr.isLoopbackAddress()) {
+          return addr.getHostAddress();
+        }
+      }
+    }
+    throw new IllegalStateException("Can not find loopback address");
   }
 
   @Override
