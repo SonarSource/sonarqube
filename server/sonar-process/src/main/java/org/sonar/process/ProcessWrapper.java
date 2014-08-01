@@ -41,13 +41,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -268,20 +265,11 @@ public class ProcessWrapper extends Thread implements Terminable {
     return null;
   }
 
-  private String loopbackAddress() throws SocketException {
-    Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
-    while (ifaces.hasMoreElements())
-    {
-      NetworkInterface iface = ifaces.nextElement();
-      Enumeration<InetAddress> addresses = iface.getInetAddresses();
-      while (addresses.hasMoreElements()) {
-        InetAddress addr = addresses.nextElement();
-        if (addr.isLoopbackAddress()) {
-          return addr.getHostAddress();
-        }
-      }
-    }
-    throw new IllegalStateException("Can not find loopback address");
+  /**
+   * Should be replaced by InetAddress#getLoopbackAddress() in Java 7
+   */
+  private String loopbackAddress() throws UnknownHostException {
+    return InetAddress.getLocalHost().getHostAddress();
   }
 
   @Override
