@@ -305,8 +305,8 @@ class Metric < ActiveRecord::Base
   end
 
   HUMANIZED_ATTRIBUTES = {
-      :name => "Key",
-      :short_name => "Name",
+      :name => "key",
+      :short_name => "name",
   }
 
   def self.human_attribute_name(attr)
