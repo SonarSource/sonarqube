@@ -108,6 +108,12 @@ class MetricsController < ApplicationController
         end
       end
     rescue
+      # If the key (name in db) is invalid, override error message to not display 'Key is invalid' but 'Name is invalid'
+      if metric.errors[:name]
+        metric.errors.clear
+        metric.errors.add_to_base('Name is invalid')
+      end
+
       @errors << metric.errors.full_messages.join("<br/>\n")
     end
     
