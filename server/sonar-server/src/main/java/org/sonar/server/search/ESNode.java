@@ -34,6 +34,9 @@ import org.elasticsearch.common.logging.slf4j.Slf4jESLoggerFactory;
 import org.elasticsearch.common.network.NetworkUtils;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.ToXContent;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.picocontainer.Startable;
@@ -287,17 +290,31 @@ public class ESNode implements Startable {
   }
 
   public <K extends ActionResponse> K execute(ActionRequestBuilder action) {
-    StopWatch requestProfile = profiling.start("search", Profiling.Level.BASIC);
+    StopWatch basicProfile = profiling.start("search", Profiling.Level.BASIC);
+    StopWatch fullProfile = profiling.start("search", Profiling.Level.FULL);
     ListenableActionFuture acc = action.execute();
     try {
+
+      if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
+        basicProfile.stop("ES Request: %s", action.toString().replaceAll("\n", ""));
+      }
       K response = (K) acc.get();
+
+      if (profiling.isProfilingEnabled(Profiling.Level.FULL)) {
+        if (ToXContent.class.isAssignableFrom(response.getClass())) {
+          XContentBuilder debugResponse = XContentFactory.jsonBuilder();
+          debugResponse.startObject();
+          ((ToXContent) response).toXContent(debugResponse, ToXContent.EMPTY_PARAMS);
+          debugResponse.endObject();
+          fullProfile.stop("ES Response: %s", debugResponse.string());
+        } else {
+          fullProfile.stop("ES Response: %s", response.toString());
+        }
+      }
+
       return response;
     } catch (Exception e) {
       throw new IllegalStateException("ES error: ", e);
-    } finally {
-      if (requestProfile != null) {
-        requestProfile.stop("Requested: ", action);
-      }
     }
   }
 }

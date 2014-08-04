@@ -71,7 +71,7 @@ public class Profiling {
     return watch;
   }
 
-  private boolean isProfilingEnabled(Level level) {
+  public boolean isProfilingEnabled(Level level) {
     String settingsValue = settings.getString(CONFIG_PROFILING_LEVEL);
     Level settingsLevel = Level.fromConfigString(settingsValue);
     return settingsLevel != Level.NONE && level.ordinal() <= settingsLevel.ordinal();
