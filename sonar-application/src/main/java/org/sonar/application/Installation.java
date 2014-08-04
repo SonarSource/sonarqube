@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.Properties;
 
 public class Installation {
@@ -149,7 +150,17 @@ public class Installation {
   }
 
   static Installation parseArguments(String[] args) throws Exception {
-    return new Installation(argumentsToProperties(args));
+    Properties props = argumentsToProperties(args);
+
+    // complete with only the system properties that start with "sonar."
+    for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
+      String key = entry.getKey().toString();
+      if (key.startsWith("sonar.")) {
+        props.setProperty(key, entry.getValue().toString());
+      }
+    }
+
+    return new Installation(props);
   }
 
   static Properties argumentsToProperties(String[] args) {
