@@ -22,9 +22,11 @@ package org.sonar.server.app;
 import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Props;
 
+import java.io.File;
 import java.util.Map;
 
 class Webapp {
@@ -35,7 +37,12 @@ class Webapp {
 
   static StandardContext configure(Tomcat tomcat, Props props) {
     try {
-      String webDir = props.of("sonar.path.web");
+      String webDir = props.of("sonar.web.dev.sources");
+      boolean dev = true;
+      if (StringUtils.isEmpty(webDir)) {
+        webDir = new File(props.of("sonar.path.home"), "web").getAbsolutePath();
+        dev = false;
+      }
       LoggerFactory.getLogger(Webapp.class).info("Webapp directory: " + webDir);
       StandardContext context = (StandardContext) tomcat.addWebapp(getContextPath(props), webDir);
       context.setClearReferencesHttpClientKeepAliveThread(false);
@@ -54,14 +61,15 @@ class Webapp {
       context.setXmlNamespaceAware(false);
       context.setUseNaming(false);
       context.setDelegate(true);
+      context.setJarScanner(new NullJarScanner());
       for (Map.Entry<Object, Object> entry : props.encryptedProperties().entrySet()) {
         String key = entry.getKey().toString();
         if (key.startsWith("sonar.")) {
           context.addParameter(key, entry.getValue().toString());
         }
       }
-      configureRailsMode(props, context);
-      context.setJarScanner(new NullJarScanner());
+      configureRails(props, context, dev);
+
       return context;
 
     } catch (Exception e) {
@@ -79,11 +87,11 @@ class Webapp {
     return context;
   }
 
-  static void configureRailsMode(Props props, Context context) {
-    if (props.booleanOf("sonar.rails.dev")) {
+  static void configureRails(Props props, Context context, boolean development) {
+    if (development) {
       context.addParameter(RAILS_ENV, "development");
       context.addParameter(JRUBY_MAX_RUNTIMES, "3");
-      LoggerFactory.getLogger(Webapp.class).warn("\n\n\n------ RAILS DEVELOPMENT MODE IS ENABLED ------\n\n\n");
+      LoggerFactory.getLogger(Webapp.class).warn("WEB DEVELOPMENT MODE IS ENABLED - DO NOT USE FOR PRODUCTION USAGE");
     } else {
       context.addParameter(RAILS_ENV, "production");
       context.addParameter(JRUBY_MAX_RUNTIMES, "1");
