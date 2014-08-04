@@ -57,11 +57,9 @@ class Webapp {
       context.setJarScanner(new NullJarScanner());
       configureRails(props, context);
 
-      for (Map.Entry<Object, Object> entry : props.encryptedProperties().entrySet()) {
+      for (Map.Entry<Object, Object> entry : props.rawProperties().entrySet()) {
         String key = entry.getKey().toString();
-        if (key.startsWith("sonar.")) {
-          context.addParameter(key, entry.getValue().toString());
-        }
+        context.addParameter(key, entry.getValue().toString());
       }
 
       return context;

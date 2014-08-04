@@ -78,7 +78,7 @@ public class Props {
     return i == null ? defaultValue : i;
   }
 
-  public Properties encryptedProperties() {
+  public Properties rawProperties() {
     return props;
   }
 

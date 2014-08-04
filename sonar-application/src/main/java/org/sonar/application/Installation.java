@@ -22,6 +22,8 @@ package org.sonar.application;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.MinimumViableEnvironment;
 import org.sonar.process.Props;
 
@@ -38,23 +40,19 @@ public class Installation {
   private File homeDir, tempDir, logsDir;
   private Props props;
 
-  public Installation() throws URISyntaxException, IOException {
-    Properties systemProperties = new Properties();
-    systemProperties.putAll(System.getenv());
-    systemProperties.putAll(System.getProperties());
-
-    init(new MinimumViableEnvironment(), detectHomeDir(), systemProperties);
+  public Installation(Properties rawProperties) throws Exception {
+    init(new MinimumViableEnvironment(), detectHomeDir(), rawProperties);
   }
 
-  Installation(MinimumViableEnvironment minimumViableEnvironment, File homeDir, Properties systemProperties) throws URISyntaxException, IOException {
-    init(minimumViableEnvironment, homeDir, systemProperties);
+  Installation(Properties rawProperties, MinimumViableEnvironment mve, File homeDir) throws Exception {
+    init(mve, homeDir, rawProperties);
   }
 
-  void init(MinimumViableEnvironment minViableEnv, File homeDir, Properties systemProperties) throws URISyntaxException, IOException {
+  void init(MinimumViableEnvironment minViableEnv, File homeDir, Properties rawProperties) throws URISyntaxException, IOException {
     minViableEnv.check();
 
     this.homeDir = homeDir;
-    props = initProps(homeDir, systemProperties);
+    props = initProps(homeDir, rawProperties);
     DefaultSettings.initDefaults(props);
 
     // init file system
@@ -70,9 +68,9 @@ public class Installation {
   }
 
   /**
-   * Load conf/sonar.properties
+   * Load optional conf/sonar.properties and interpolates environment variables
    */
-  private static Props initProps(File homeDir, Properties systemProperties) throws IOException {
+  private static Props initProps(File homeDir, Properties rawProperties) throws IOException {
     Properties p = new Properties();
     File propsFile = new File(homeDir, "conf/sonar.properties");
     if (propsFile.exists()) {
@@ -83,8 +81,9 @@ public class Installation {
         IOUtils.closeQuietly(reader);
       }
     }
-    p.putAll(systemProperties);
+    p.putAll(rawProperties);
     p.setProperty("sonar.path.home", homeDir.getAbsolutePath());
+    p = ConfigurationUtils.interpolateVariables(p, System.getenv());
     return new Props(p);
   }
 
@@ -146,6 +145,24 @@ public class Installation {
   }
 
   public Props props() {
+    return props;
+  }
+
+  static Installation parseArguments(String[] args) throws Exception {
+    return new Installation(argumentsToProperties(args));
+  }
+
+  static Properties argumentsToProperties(String[] args) {
+    Properties props = new Properties();
+    for (String arg : args) {
+      if (!arg.startsWith("-D") || !arg.contains("=")) {
+        throw new IllegalArgumentException(String.format(
+          "Command-line argument must start with -D, for example -Dsonar.jdbc.username=sonar. Got: %s", arg));
+      }
+      String key = StringUtils.substringBefore(arg, "=").substring(2);
+      String value = StringUtils.substringAfter(arg, "=");
+      props.setProperty(key, value);
+    }
     return props;
   }
 }

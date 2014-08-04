@@ -98,19 +98,18 @@ public class ProcessWrapper extends Thread implements Terminable {
     return this;
   }
 
-  public ProcessWrapper setProperties(Properties p) {
-    properties.clear();
+  public ProcessWrapper addProperties(Properties p) {
     properties.putAll(p);
+    return this;
+  }
+
+  public ProcessWrapper addProperty(String key, String value) {
+    properties.setProperty(key, value);
     return this;
   }
 
   public ProcessWrapper addJavaOpts(String s) {
     Collections.addAll(javaOpts, s.split(" "));
-    return this;
-  }
-
-  public ProcessWrapper setClasspath(List<String> l) {
-    classpath.addAll(l);
     return this;
   }
 

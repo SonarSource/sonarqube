@@ -33,6 +33,8 @@ import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class InstallationTest {
 
@@ -50,14 +52,17 @@ public class InstallationTest {
   }
 
   @Test
-  public void check_minimum_viable_environment() throws Exception {
+  public void create_installation() throws Exception {
     FileUtils.forceMkdir(dataDir);
     FileUtils.forceMkdir(webDir);
     FileUtils.forceMkdir(logsDir);
+    Properties rawProperties = new Properties();
+    rawProperties.setProperty("foo", "bar");
+    MinimumViableEnvironment mve = mock(MinimumViableEnvironment.class);
 
-    Properties initialProps = new Properties();
-    initialProps.setProperty("foo", "bar");
-    Installation installation = new Installation(new MinimumViableEnvironment(), homeDir, initialProps);
+    Installation installation = new Installation(rawProperties, mve, homeDir);
+
+    verify(mve).check();
     assertThat(installation.logsDir()).isEqualTo(logsDir);
     assertThat(installation.homeDir()).isEqualTo(homeDir);
 
@@ -70,12 +75,15 @@ public class InstallationTest {
     assertThat(FilenameUtils.normalize(startPath, true))
       .endsWith("*")
       .startsWith(FilenameUtils.normalize(homeDir.getAbsolutePath(), true));
-
     assertThat(installation.props()).isNotNull();
     assertThat(installation.prop("foo")).isEqualTo("bar");
     assertThat(installation.prop("unknown")).isNull();
-    assertThat(installation.prop("default", "value")).isEqualTo("value");
+
+    // hardcoded property
     assertThat(installation.prop("sonar.path.home")).isEqualTo(homeDir.getAbsolutePath());
+
+    // default properties
+    assertThat(installation.prop("sonar.search.port")).isEqualTo("9001");
   }
 
   @Test
@@ -86,7 +94,7 @@ public class InstallationTest {
 
     File dataDir = new File(homeDir, "data");
     try {
-      new Installation(new MinimumViableEnvironment(), homeDir, new Properties());
+      new Installation(new Properties(), mock(MinimumViableEnvironment.class), homeDir);
       fail();
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).startsWith("Property 'sonar.path.data' is not valid, directory does not exist: " + dataDir.getAbsolutePath());
@@ -94,7 +102,7 @@ public class InstallationTest {
 
     try {
       FileUtils.touch(dataDir);
-      new Installation(new MinimumViableEnvironment(), homeDir, new Properties());
+      new Installation(new Properties(), mock(MinimumViableEnvironment.class), homeDir);
       fail();
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).startsWith("Property 'sonar.path.data' is not valid, not a directory: " + dataDir.getAbsolutePath());
@@ -103,12 +111,38 @@ public class InstallationTest {
 
   @Test
   public void load_properties_file_if_exists() throws Exception {
-    FileUtils.write(new File(homeDir, "conf/sonar.properties"), "sonar.jdbc.username=angela");
+    FileUtils.write(new File(homeDir, "conf/sonar.properties"), "sonar.jdbc.username=angela\nsonar.origin=file");
     FileUtils.forceMkdir(dataDir);
     FileUtils.forceMkdir(webDir);
     FileUtils.forceMkdir(logsDir);
 
-    Installation installation = new Installation(new MinimumViableEnvironment(), homeDir, new Properties());
+    Properties rawProperties = new Properties();
+    rawProperties.setProperty("sonar.origin", "raw");
+    Installation installation = new Installation(rawProperties, mock(MinimumViableEnvironment.class), homeDir);
     assertThat(installation.prop("sonar.jdbc.username")).isEqualTo("angela");
+    // command-line arguments override sonar.properties file
+    assertThat(installation.prop("sonar.origin")).isEqualTo("raw");
+  }
+
+  @Test
+  public void parse_arguments() throws Exception {
+    String[] args = new String[] {"-Dsonar.foo=bar", "-Dsonar.whitespace=foo bar"};
+
+    Properties p = Installation.argumentsToProperties(args);
+    assertThat(p).hasSize(2);
+    assertThat(p.getProperty("sonar.foo")).isEqualTo("bar");
+    assertThat(p.getProperty("sonar.whitespace")).isEqualTo("foo bar");
+  }
+
+  @Test
+  public void fail_to_parse_arguments_if_bad_format() throws Exception {
+    String[] args = new String[] {"-Dsonar.foo=bar", "sonar.bad=true"};
+
+    try {
+      Installation.argumentsToProperties(args);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Command-line argument must start with -D, for example -Dsonar.jdbc.username=sonar. Got: sonar.bad=true");
+    }
   }
 }

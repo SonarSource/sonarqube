@@ -37,9 +37,7 @@ public final class PlatformServletContextListener implements ServletContextListe
       Enumeration<String> paramKeys = context.getInitParameterNames();
       while (paramKeys.hasMoreElements()) {
         String key = paramKeys.nextElement();
-        if (key.startsWith("sonar.")) {
-          props.put(key, context.getInitParameter(key));
-        }
+        props.put(key, context.getInitParameter(key));
       }
       Platform.getInstance().init(props);
       Platform.getInstance().doStart();
