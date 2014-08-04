@@ -49,7 +49,8 @@ public class BaseIndexTest {
   public void setup() throws IOException {
     File dataDir = temp.newFolder();
     Settings settings = new Settings();
-    settings.setProperty("sonar.path.data", dataDir.getAbsolutePath());
+    settings.setProperty("sonar.path.home", dataDir.getAbsolutePath());
+    settings.setProperty(IndexProperties.TYPE, IndexProperties.ES_TYPE.MEMORY.name());
     node = new ESNode(settings);
     node.start();
   }
