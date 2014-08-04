@@ -66,8 +66,6 @@ import static org.fest.assertions.Fail.fail;
 public class RuleIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.log.profilingLevel", "FULL");
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
