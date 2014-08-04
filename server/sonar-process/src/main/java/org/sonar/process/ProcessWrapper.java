@@ -19,7 +19,6 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -77,7 +76,6 @@ public class ProcessWrapper extends Thread implements Terminable {
   private final Map<String, String> envProperties = new HashMap<String, String>();
   private final Properties properties = new Properties();
   private File workDir;
-  private File propertiesFile;
   private Process process;
   private StreamGobbler errorGobbler;
   private StreamGobbler outputGobbler;
@@ -180,7 +178,6 @@ public class ProcessWrapper extends Thread implements Terminable {
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
       ProcessUtils.closeStreams(process);
-      FileUtils.deleteQuietly(propertiesFile);
     }
   }
 
@@ -225,6 +222,7 @@ public class ProcessWrapper extends Thread implements Terminable {
   }
 
   private File buildPropertiesFile() {
+    File propertiesFile = null;
     try {
       propertiesFile = File.createTempFile("sq-conf", "properties");
       Properties props = new Properties();

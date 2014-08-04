@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 
@@ -67,6 +68,7 @@ public final class ConfigurationUtils {
       throw new IllegalStateException("Could not read properties from file '" + args[0] + "'", e);
     } finally {
       IOUtils.closeQuietly(reader);
+      FileUtils.deleteQuietly(propertyFile);
     }
     return new Props(properties);
   }
