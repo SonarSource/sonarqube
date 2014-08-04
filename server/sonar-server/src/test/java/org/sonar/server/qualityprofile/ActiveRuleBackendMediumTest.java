@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -48,13 +47,6 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class ActiveRuleBackendMediumTest extends SearchMediumTest {
 
-  ActiveRuleIndex index;
-
-  @Before
-  public void before() {
-    index = tester.get(ActiveRuleIndex.class);
-  }
-
   @Test
   public void synchronize_index() throws Exception {
 
@@ -73,23 +65,23 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
 
     // 1. Synchronize since 0
     tester.clearIndexes();
-    assertThat(index.getByKey(activeRule.getKey())).isNull();
+    assertThat(index.get(ActiveRuleIndex.class).getByKey(activeRule.getKey())).isNull();
     db.activeRuleDao().synchronizeAfter(dbSession, new Date(0L));
-    assertThat(index.getByKey(activeRule.getKey())).isNotNull();
+    assertThat(index.get(ActiveRuleIndex.class).getByKey(activeRule.getKey())).isNotNull();
 
     // 2. Synchronize since beginning
     tester.clearIndexes();
-    assertThat(index.getByKey(activeRule.getKey())).isNull();
+    assertThat(index.get(ActiveRuleIndex.class).getByKey(activeRule.getKey())).isNull();
     db.activeRuleDao().synchronizeAfter(dbSession, beginning);
-    assertThat(index.getByKey(activeRule.getKey())).isNotNull();
+    assertThat(index.get(ActiveRuleIndex.class).getByKey(activeRule.getKey())).isNotNull();
 
 
     // 3. Assert startup picks it up
     tester.clearIndexes();
-    Date before = index.getLastSynchronization();
+    Date before = index.get(ActiveRuleIndex.class).getLastSynchronization();
     tester.get(Platform.class).executeStartupTasks();
-    assertThat(index.getByKey(activeRule.getKey())).isNotNull();
-    assertThat(before.before(index.getLastSynchronization())).isTrue();
+    assertThat(index.get(ActiveRuleIndex.class).getByKey(activeRule.getKey())).isNotNull();
+    assertThat(before.before(index.get(ActiveRuleIndex.class).getLastSynchronization())).isTrue();
   }
 
   @Test
@@ -112,7 +104,7 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
     assertThat(persistedDtos).hasSize(1);
 
     // verify es
-    ActiveRule hit = index.getByKey(activeRule.getKey());
+    ActiveRule hit = index.get(ActiveRuleIndex.class).getByKey(activeRule.getKey());
     assertThat(hit).isNotNull();
     assertThat(hit.key()).isEqualTo(activeRule.getKey());
     assertThat(hit.inheritance().name()).isEqualTo(activeRule.getInheritance());
@@ -160,7 +152,7 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
     assertThat(persistedDtos).hasSize(2);
 
     // verify es
-    ActiveRule rule = index.getByKey(activeRule.getKey());
+    ActiveRule rule = index.get(ActiveRuleIndex.class).getByKey(activeRule.getKey());
     assertThat(rule).isNotNull();
     assertThat(rule.params()).hasSize(2);
     assertThat(rule.params().keySet()).containsOnly("min", "max");
@@ -191,28 +183,28 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
     assertThat(db.activeRuleDao().findByRule(dbSession, rule2)).hasSize(2);
 
     // in es
-    List<ActiveRule> activeRules = index.findByRule(RuleTesting.XOO_X1);
+    List<ActiveRule> activeRules = index.get(ActiveRuleIndex.class).findByRule(RuleTesting.XOO_X1);
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).key().ruleKey()).isEqualTo(RuleTesting.XOO_X1);
 
-    activeRules = index.findByRule(RuleTesting.XOO_X2);
+    activeRules = index.get(ActiveRuleIndex.class).findByRule(RuleTesting.XOO_X2);
     assertThat(activeRules).hasSize(2);
     assertThat(activeRules.get(0).key().ruleKey()).isEqualTo(RuleTesting.XOO_X2);
 
-    activeRules = index.findByRule(RuleTesting.XOO_X3);
+    activeRules = index.get(ActiveRuleIndex.class).findByRule(RuleTesting.XOO_X3);
     assertThat(activeRules).isEmpty();
 
     // 2. find by profile
-    activeRules = index.findByProfile(profile1.getKey());
+    activeRules = index.get(ActiveRuleIndex.class).findByProfile(profile1.getKey());
     assertThat(activeRules).hasSize(2);
     assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile1.getKey());
     assertThat(activeRules.get(1).key().qProfile()).isEqualTo(profile1.getKey());
 
-    activeRules = index.findByProfile(profile2.getKey());
+    activeRules = index.get(ActiveRuleIndex.class).findByProfile(profile2.getKey());
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile2.getKey());
 
-    activeRules = index.findByProfile("unknown");
+    activeRules = index.get(ActiveRuleIndex.class).findByProfile("unknown");
     assertThat(activeRules).isEmpty();
   }
 
@@ -233,7 +225,7 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
     dbSession.clearCache();
 
     // verify index
-    Collection<ActiveRule> activeRules = index.findByProfile(profileDto.getKey());
+    Collection<ActiveRule> activeRules = index.get(ActiveRuleIndex.class).findByProfile(profileDto.getKey());
     assertThat(activeRules).hasSize(nb);
   }
 
@@ -253,13 +245,13 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
     dbSession.commit();
 
     // 0. Test base case
-    assertThat(index.countAll()).isEqualTo(2);
+    assertThat(index.get(ActiveRuleIndex.class).countAll()).isEqualTo(2);
 
     // 1. Assert by profileKey
-    assertThat(index.countByQualityProfileKey(profileDto1.getKey())).isEqualTo(1);
+    assertThat(index.get(ActiveRuleIndex.class).countByQualityProfileKey(profileDto1.getKey())).isEqualTo(1);
 
     // 2. Assert by term aggregation;
-    Map<String, Long> counts = index.countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY);
+    Map<String, Long> counts = index.get(ActiveRuleIndex.class).countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY);
     assertThat(counts).hasSize(2);
     assertThat(counts.values()).containsOnly(1L, 1L);
     assertThat(counts.keySet()).containsOnly(profileDto1.getKey().toString(), profileDto2.getKey().toString());
@@ -281,10 +273,10 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
     dbSession.commit();
 
     // 0. Test base case
-    assertThat(index.countAll()).isEqualTo(2);
+    assertThat(index.get(ActiveRuleIndex.class).countAll()).isEqualTo(2);
 
     // 1. Assert by term aggregation;
-    Map<String, Long> counts = index.countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY);
+    Map<String, Long> counts = index.get(ActiveRuleIndex.class).countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY);
     assertThat(counts).hasSize(2);
     assertThat(counts.values()).containsOnly(1L, 1L);
     assertThat(counts.keySet()).containsOnly(profileDto1.getKey(), profileDto2.getKey());
@@ -318,10 +310,10 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
     dbSession.clearCache();
 
     // 0. Test base case
-    assertThat(index.countAll()).isEqualTo(4);
+    assertThat(index.get(ActiveRuleIndex.class).countAll()).isEqualTo(4);
 
     // 1. Assert by term aggregation;
-    Map<String, Multimap<String, FacetValue>> stats = index.getStatsByProfileKeys(
+    Map<String, Multimap<String, FacetValue>> stats = index.get(ActiveRuleIndex.class).getStatsByProfileKeys(
       ImmutableList.of(profileDto1.getKey(),
         profileDto2.getKey()));
 
