@@ -70,6 +70,14 @@
     <level value="WARN"/>
   </logger>
 
+  <!-- noisy errors on webapp memory leaks:
+       "00:22:16 ERROR [o.a.c.l.WebappClassLoader] The web application [/sonar] appears to have started a thread named [Abandoned connection cleanup thread] but has failed to stop it. This is very likely to create a memory leak."
+       TODO should be replaced by warnings, but how to do that ?
+   -->
+  <logger name="org.apache.catalina.loader.WebappClassLoader">
+    <level value="OFF"/>
+  </logger>
+
   <!-- Execution of measure filters -->
   <logger name="org.sonar.MEASURE_FILTER">
     <level value="WARN"/>
