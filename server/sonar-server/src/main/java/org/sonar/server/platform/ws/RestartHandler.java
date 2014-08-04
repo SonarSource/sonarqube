@@ -44,7 +44,7 @@ public class RestartHandler implements RequestHandler {
 
   void define(WebService.NewController controller) {
     controller.createAction("restart")
-      .setDescription("Restart server. Available only on development mode (sonar.dev=true), except when using Java 6 " +
+      .setDescription("Restart server. Available only on development mode (sonar.web.dev=true), except when using Java 6 " +
         "on MS Windows. Ruby on Rails extensions are not reloaded")
       .setSince("4.3")
       .setPost(true)
@@ -66,7 +66,7 @@ public class RestartHandler implements RequestHandler {
   }
 
   private boolean canRestart() {
-    boolean ok = settings.getBoolean("sonar.dev");
+    boolean ok = settings.getBoolean("sonar.web.dev");
     if (ok) {
       ok = !system.isOsWindows() || system.isJavaAtLeast17();
     }

@@ -37,14 +37,7 @@ class Webapp {
 
   static StandardContext configure(Tomcat tomcat, Props props) {
     try {
-      String webDir = props.of("sonar.web.dev.sources");
-      boolean dev = true;
-      if (StringUtils.isEmpty(webDir)) {
-        webDir = new File(props.of("sonar.path.home"), "web").getAbsolutePath();
-        dev = false;
-      }
-      LoggerFactory.getLogger(Webapp.class).info("Webapp directory: " + webDir);
-      StandardContext context = (StandardContext) tomcat.addWebapp(getContextPath(props), webDir);
+      StandardContext context = (StandardContext) tomcat.addWebapp(getContextPath(props), webappPath(props));
       context.setClearReferencesHttpClientKeepAliveThread(false);
       context.setClearReferencesStatic(false);
       context.setClearReferencesStopThreads(false);
@@ -62,13 +55,14 @@ class Webapp {
       context.setUseNaming(false);
       context.setDelegate(true);
       context.setJarScanner(new NullJarScanner());
+      configureRails(props, context);
+
       for (Map.Entry<Object, Object> entry : props.encryptedProperties().entrySet()) {
         String key = entry.getKey().toString();
         if (key.startsWith("sonar.")) {
           context.addParameter(key, entry.getValue().toString());
         }
       }
-      configureRails(props, context, dev);
 
       return context;
 
@@ -87,8 +81,12 @@ class Webapp {
     return context;
   }
 
-  static void configureRails(Props props, Context context, boolean development) {
-    if (development) {
+  static void configureRails(Props props, Context context) {
+    // sonar.dev is kept for backward-compatibility
+    if (props.booleanOf("sonar.dev", false)) {
+      props.set("sonar.web.dev", "true");
+    }
+    if (props.booleanOf("sonar.web.dev", false)) {
       context.addParameter(RAILS_ENV, "development");
       context.addParameter(JRUBY_MAX_RUNTIMES, "3");
       LoggerFactory.getLogger(Webapp.class).warn("WEB DEVELOPMENT MODE IS ENABLED - DO NOT USE FOR PRODUCTION USAGE");
@@ -96,5 +94,14 @@ class Webapp {
       context.addParameter(RAILS_ENV, "production");
       context.addParameter(JRUBY_MAX_RUNTIMES, "1");
     }
+  }
+
+  static String webappPath(Props props) {
+    String webDir = props.of("sonar.web.dev.sources");
+    if (StringUtils.isEmpty(webDir)) {
+      webDir = new File(props.of("sonar.path.home"), "web").getAbsolutePath();
+    }
+    LoggerFactory.getLogger(Webapp.class).info(String.format("Webapp directory: %s", webDir));
+    return webDir;
   }
 }
