@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
 
 import java.lang.management.ManagementFactory;
@@ -39,23 +40,28 @@ public abstract class SearchMediumTest {
   public static ServerTester tester = new ServerTester();
 
   protected DbClient db;
+  protected IndexClient index;
   protected DbSession dbSession;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
+    index = tester.get(IndexClient.class);
     dbSession = tester.get(DbClient.class).openSession(false);
 
     ManagementFactory.getMemoryMXBean();
     LOGGER.info("* Environment ({})", ManagementFactory.getOperatingSystemMXBean().getName());
     LOGGER.info("* heap:\t{}", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
+    LOGGER.info("* #cpu:\t{}", ManagementFactory.getOperatingSystemMXBean().getAvailableProcessors());
     LOGGER.info("* load:\t{}", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());
   }
 
   @After
   public void after() {
-    dbSession.close();
+    if (dbSession != null) {
+      dbSession.close();
+    }
   }
 
 }
