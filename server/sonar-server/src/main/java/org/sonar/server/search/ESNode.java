@@ -21,7 +21,6 @@
 package org.sonar.server.search;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.ActionResponse;
@@ -98,7 +97,9 @@ public class ESNode implements Startable {
       .put("script.default_lang", "native")
       .put("script.native." + ListUpdate.NAME + ".type", UpdateListScriptFactory.class.getName())
 
-      .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(IndexProperties.CLUSTER_NAME), "sonarqube"));
+      .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(IndexProperties.CLUSTER_NAME), "sonarqube"))
+      .put("path.home", esHomeDir().getAbsolutePath());
+
 
     initAnalysis(esSettings);
 
@@ -133,10 +134,8 @@ public class ESNode implements Startable {
   private void initLocalClient(IndexProperties.ES_TYPE type, ImmutableSettings.Builder esSettings) {
     if (IndexProperties.ES_TYPE.MEMORY.equals(type)) {
       initMemoryES(esSettings);
-    } else if (IndexProperties.ES_TYPE.DATA.equals(type)) {
-      initDataES(esSettings);
     }
-    initDirs(esSettings);
+
     initRestConsole(esSettings);
     initNetwork(esSettings);
 
@@ -177,19 +176,13 @@ public class ESNode implements Startable {
         // Cannot use anything else but warn
       .put("index.indexing.slowlog.threshold.index.info", "10ms")
       .put("index.indexing.slowlog.threshold.index.debug", "10ms")
-      .put("index.indexing.slowlog.threshold.index.trace", "10ms");
-    ;
-  }
+      .put("index.indexing.slowlog.threshold.index.trace", "10ms")
 
-  private void initDataES(ImmutableSettings.Builder builder) {
-    builder
-      .put("node.name", "sonarqube-" + System.currentTimeMillis())
-      .put("node.data", true)
-      .put("node.local", true)
-      .put("index.store.type", "mmapfs")
-      .put("cluster.name", "sonarqube")
-      .put("index.number_of_shards", "1")
-      .put("index.number_of_replicas", "0");
+      .put("path.data", esDataDir().getAbsolutePath())
+
+      .put("path.logs", esLogDir().getAbsolutePath());
+
+
   }
 
   private void addIndexTemplates() {
@@ -274,19 +267,24 @@ public class ESNode implements Startable {
     }
   }
 
-  private void initDirs(ImmutableSettings.Builder esSettings) {
-    File esDir = esDataDir();
-    try {
-      FileUtils.forceMkdir(esDir);
-      esSettings.put("path.data", esDir.getAbsolutePath());
-      LOG.debug("Elasticsearch data stored in {}", esDir.getAbsolutePath());
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to create directory " + esDir, e);
-    }
+  private File esHomeDir() {
+    return new File(settings.getString("sonar.path.home"));
   }
 
   private File esDataDir() {
-    return new File(settings.getString("sonar.path.data"), "es");
+    if (settings.hasKey("sonar.path.data")) {
+      return new File(settings.getString("sonar.path.data"), "es");
+    } else {
+      return new File(settings.getString("sonar.path.home"), "data/es");
+    }
+  }
+
+  private File esLogDir() {
+    if (settings.hasKey("sonar.path.log")) {
+      return new File(settings.getString("sonar.path.log"));
+    } else {
+      return new File(settings.getString("sonar.path.home"), "log");
+    }
   }
 
   @Override
