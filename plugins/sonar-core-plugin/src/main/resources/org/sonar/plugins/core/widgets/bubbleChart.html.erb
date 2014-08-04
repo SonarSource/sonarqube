@@ -74,7 +74,9 @@
       .options({
         baseUrl: baseUrl + '/dashboard/index/',
         xLog: <%= xLog -%>,
-        yLog: <%= yLog -%>
+        yLog: <%= yLog -%>,
+        noData: '<%= message('no_data') -%>',
+        noMainMetric: '<%= message('widget.measure_filter.no_main_metric') -%>'
       })
       .render('#<%= containerId -%>');
 
@@ -84,4 +86,3 @@
   })();
 </script>
 <!--<![endif]-->
-

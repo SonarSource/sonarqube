@@ -70,9 +70,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     container = d3.select(container);
 
-    var validData = this.components().reduce(function(p, c) {
-      return p && !!c.measures[widget.metricsPriority()[0]] && !!c.measures[widget.metricsPriority()[1]];
-    }, true);
+    var noInvalidEntry = true,
+      atLeastOneValueOnX = false,
+      atLeastOneValueOnY = false;
+    this.components().forEach(function validateComponent(component) {
+      noInvalidEntry &= (!!component.measures[widget.metricsPriority()[0]] && !!component.measures[widget.metricsPriority()[1]]);
+      atLeastOneValueOnX |= (component.measures[widget.metricsPriority()[0]] || {}).fval != '-';
+      atLeastOneValueOnY |= (component.measures[widget.metricsPriority()[1]] || {}).fval != '-';
+    });
+    var validData = !!noInvalidEntry && !!atLeastOneValueOnX && !!atLeastOneValueOnY;
 
     if (!validData) {
       container.text(this.options().noMainMetric);
