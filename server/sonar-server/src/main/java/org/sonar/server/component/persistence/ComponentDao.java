@@ -21,6 +21,7 @@ package org.sonar.server.component.persistence;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
+import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.persistence.DaoComponent;
@@ -43,6 +44,15 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   }
 
   public ComponentDto getById(Long id, DbSession session) {
+    ComponentDto componentDto = getNullableById(id, session);
+    if (componentDto == null) {
+      throw new NotFoundException(String.format("Project with id '%s' not found", id));
+    }
+    return componentDto;
+  }
+
+  @CheckForNull
+  public ComponentDto getNullableById(Long id, DbSession session) {
     return mapper(session).selectById(id);
   }
 
@@ -67,7 +77,21 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).findModulesByProject(projectKey);
   }
 
+  @CheckForNull
+  public AuthorizedComponentDto getNullableAuthorizedComponentById(Long id, DbSession session) {
+    return mapper(session).selectAuthorizedComponentById(id);
+  }
+
+  public AuthorizedComponentDto getAuthorizedComponentById(Long id, DbSession session) {
+    AuthorizedComponentDto componentDto = getNullableAuthorizedComponentById(id, session);
+    if (componentDto == null) {
+      throw new NotFoundException(String.format("Project with id '%s' not found", id));
+    }
+    return componentDto;
+  }
+
   @Override
+  @CheckForNull
   protected ComponentDto doGetNullableByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
   }

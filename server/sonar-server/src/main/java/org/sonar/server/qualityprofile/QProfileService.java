@@ -193,8 +193,6 @@ public class QProfileService implements ServerComponent {
 
   /**
    * Used in /api/profiles and in /profiles/export
-   * @param language
-   * @return
    */
   @CheckForNull
   public QualityProfileDto getDefault(String language) {

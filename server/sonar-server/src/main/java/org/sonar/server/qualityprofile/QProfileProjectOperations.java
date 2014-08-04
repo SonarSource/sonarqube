@@ -21,17 +21,21 @@
 package org.sonar.server.qualityprofile;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.component.Component;
-import org.sonar.core.component.ComponentDto;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
+/**
+ * Should be refactored in order to use project key. Mabye should it be move to {@link QProfileFactory}
+ * Permission checks should also be done in the upper service.
+ */
 public class QProfileProjectOperations implements ServerComponent {
 
   private final DbClient db;
@@ -41,7 +45,6 @@ public class QProfileProjectOperations implements ServerComponent {
   }
 
   public void addProject(int profileId, long projectId, UserSession userSession) {
-    checkPermission(userSession);
     DbSession session = db.openSession(false);
     try {
       addProject(profileId, projectId, userSession, session);
@@ -52,8 +55,8 @@ public class QProfileProjectOperations implements ServerComponent {
   }
 
   void addProject(int profileId, long projectId, UserSession userSession, DbSession session) {
-    checkPermission(userSession);
-    ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
+    AuthorizedComponentDto project = db.componentDao().getAuthorizedComponentById(projectId, session);
+    checkPermission(userSession, project.key());
     QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
     db.propertiesDao().setProperty(new PropertyDto().setKey(
@@ -62,10 +65,10 @@ public class QProfileProjectOperations implements ServerComponent {
   }
 
   public void removeProject(int profileId, long projectId, UserSession userSession) {
-    checkPermission(userSession);
     DbSession session = db.openSession(false);
     try {
-      ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
+      AuthorizedComponentDto project = db.componentDao().getAuthorizedComponentById(projectId, session);
+      checkPermission(userSession, project.key());
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
       db.propertiesDao().deleteProjectProperty(QProfileProjectLookup.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), project.getId(), session);
@@ -76,10 +79,10 @@ public class QProfileProjectOperations implements ServerComponent {
   }
 
   public void removeProject(String language, long projectId, UserSession userSession) {
-    checkPermission(userSession);
     DbSession session = db.openSession(false);
     try {
-      ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
+      AuthorizedComponentDto project = db.componentDao().getAuthorizedComponentById(projectId, session);
+      checkPermission(userSession, project.key());
 
       db.propertiesDao().deleteProjectProperty(QProfileProjectLookup.PROFILE_PROPERTY_PREFIX + language, project.getId(), session);
       session.commit();
@@ -106,16 +109,14 @@ public class QProfileProjectOperations implements ServerComponent {
     return qualityProfile;
   }
 
-  private Component findProjectNotNull(long projectId, DbSession session) {
-    Component component = db.resourceDao().findById(projectId, session);
-    if (component == null) {
-      throw new NotFoundException("This project does not exist");
-    }
-    return component;
-  }
-
   private void checkPermission(UserSession userSession) {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  }
+
+  private void checkPermission(UserSession userSession, String projectKey) {
+    if (!userSession.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) && !userSession.hasProjectPermission(UserRole.ADMIN, projectKey)) {
+      throw new ForbiddenException("Insufficient privileges");
+    }
   }
 
 }

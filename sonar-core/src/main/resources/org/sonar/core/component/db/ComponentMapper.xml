@@ -15,6 +15,11 @@
     p.path as path
   </sql>
 
+  <sql id="authorizedComponentColumns">
+    p.id,
+    p.kee as kee
+  </sql>
+
   <select id="selectByKey" parameterType="String" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
@@ -75,6 +80,15 @@
     <where>
       AND p.enabled=${_true}
       AND p.scope='PRJ'
+    </where>
+  </select>
+
+  <select id="selectAuthorizedComponentById" parameterType="long" resultType="AuthorizedComponent">
+    SELECT <include refid="authorizedComponentColumns"/>
+    FROM projects p
+    <where>
+      AND p.enabled=${_true}
+      AND p.id=#{id}
     </where>
   </select>
 

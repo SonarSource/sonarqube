@@ -20,15 +20,12 @@
 package org.sonar.core.component;
 
 import org.sonar.api.component.Component;
-import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class ComponentDto extends Dto<String> implements Component {
+public class ComponentDto extends AuthorizedComponentDto implements Component {
 
-  private Long id;
-  private String kee;
   private String path;
   private String name;
   private String longName;
@@ -39,22 +36,13 @@ public class ComponentDto extends Dto<String> implements Component {
   private Long subProjectId;
   private boolean enabled = true;
 
-  public Long getId() {
-    return id;
-  }
-
   public ComponentDto setId(Long id) {
-    this.id = id;
+    super.setId(id);
     return this;
   }
 
-  @Override
-  public String key() {
-    return kee;
-  }
-
   public ComponentDto setKey(String key) {
-    this.kee = key;
+    super.setKey(key);
     return this;
   }
 
@@ -144,34 +132,6 @@ public class ComponentDto extends Dto<String> implements Component {
   public ComponentDto setEnabled(boolean enabled) {
     this.enabled = enabled;
     return this;
-  }
-
-  @Override
-  public String getKey() {
-    return kee;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    ComponentDto that = (ComponentDto) o;
-
-    if (!id.equals(that.id)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return id.hashCode();
   }
 
 }

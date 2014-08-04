@@ -20,7 +20,10 @@
 package org.sonar.core.component.db;
 
 import org.apache.ibatis.annotations.Param;
+import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
+
+import javax.annotation.CheckForNull;
 
 import java.util.List;
 
@@ -29,12 +32,16 @@ import java.util.List;
  */
 public interface ComponentMapper {
 
+  @CheckForNull
   ComponentDto selectByKey(String key);
 
+  @CheckForNull
   ComponentDto selectById(long id);
 
+  @CheckForNull
   ComponentDto selectRootProjectByKey(String key);
 
+  @CheckForNull
   ComponentDto selectParentModuleByKey(String key);
 
   /**
@@ -43,6 +50,9 @@ public interface ComponentMapper {
   List<ComponentDto> findModulesByProject(@Param("projectKey") String projectKey);
 
   long countById(long id);
+
+  @CheckForNull
+  AuthorizedComponentDto selectAuthorizedComponentById(long id);
 
   void insert(ComponentDto rule);
 }

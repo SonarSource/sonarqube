@@ -102,7 +102,6 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
     }
   }
 
-  @CheckForNull
   public UserDto insert(SqlSession session, UserDto dto) {
     session.getMapper(UserMapper.class).insert(dto);
     return dto;

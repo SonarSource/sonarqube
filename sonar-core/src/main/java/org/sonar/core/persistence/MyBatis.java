@@ -34,6 +34,7 @@ import org.sonar.api.database.model.MeasureModel;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.activity.db.ActivityMapper;
 import org.sonar.core.cluster.WorkQueue;
+import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.config.Logback;
@@ -104,6 +105,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "ActiveDashboard", ActiveDashboardDto.class);
     loadAlias(conf, "Author", AuthorDto.class);
     loadAlias(conf, "Component", ComponentDto.class);
+    loadAlias(conf, "AuthorizedComponent", AuthorizedComponentDto.class);
     loadAlias(conf, "Dashboard", DashboardDto.class);
     loadAlias(conf, "Dependency", DependencyDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
