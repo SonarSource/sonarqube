@@ -66,7 +66,8 @@ import static org.fest.assertions.Fail.fail;
 public class RuleIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.log.profilingLevel", "FULL");
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
@@ -615,7 +616,7 @@ public class RuleIndexMediumTest {
 
     // 4. get all active rules on profile
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey()),
+        .setQProfileKey(qualityProfileDto2.getKey()),
       new QueryOptions());
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule1.getName());
@@ -652,7 +653,7 @@ public class RuleIndexMediumTest {
       ActiveRuleDto.createFor(qualityProfileDto2, rule3)
         .setSeverity("BLOCKER")
         .setInheritance(ActiveRule.Inheritance.INHERITED.name())
-      );
+    );
 
     dbSession.commit();
 
@@ -674,52 +675,52 @@ public class RuleIndexMediumTest {
 
     // 3. get Inherited Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey())
-      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
+        .setQProfileKey(qualityProfileDto1.getKey())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(0);
 
     // 4. get Inherited Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey())
-      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
+        .setQProfileKey(qualityProfileDto2.getKey())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(2);
 
     // 5. get Overridden Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey())
-      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
+        .setQProfileKey(qualityProfileDto1.getKey())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(0);
 
     // 6. get Overridden Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey())
-      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
+        .setQProfileKey(qualityProfileDto2.getKey())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(1);
 
     // 7. get Inherited AND Overridden Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey())
-      .setInheritance(ImmutableSet.of(
-        ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+        .setQProfileKey(qualityProfileDto1.getKey())
+        .setInheritance(ImmutableSet.of(
+          ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(0);
 
     // 8. get Inherited AND Overridden Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey())
-      .setInheritance(ImmutableSet.of(
-        ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+        .setQProfileKey(qualityProfileDto2.getKey())
+        .setInheritance(ImmutableSet.of(
+          ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
-      );
+    );
     assertThat(result.getHits()).hasSize(3);
   }
 
