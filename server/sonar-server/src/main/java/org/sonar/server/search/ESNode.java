@@ -155,11 +155,30 @@ public class ESNode implements Startable {
       .put("cluster.name", "cluster-mem-" + NetworkUtils.getLocalAddress().getHostName())
       .put("index.store.type", "memory")
       .put("index.store.fs.memory.enabled", "true")
-      .put("gateway.type", "none")
+//      .put("gateway.type", "none")
       .put("index.number_of_shards", "1")
       .put("index.number_of_replicas", "0")
-      .put("cluster.routing.schedule", "50ms")
-      .put("node.local", true);
+//      .put("cluster.routing.schedule", "50ms")
+      .put("node.local", true)
+
+      .put("index.search.slowlog.threshold.query.warn", "10ms")
+        // Cannot use anything else but warn
+      .put("index.search.slowlog.threshold.query.info", "10ms")
+      .put("index.search.slowlog.threshold.query.debug", "10ms")
+      .put("index.search.slowlog.threshold.query.trace", "10ms")
+
+      .put("index.search.slowlog.threshold.fetch.warn", "10ms")
+        // Cannot use anything else but warn
+      .put("index.search.slowlog.threshold.fetch.info", "10ms")
+      .put("index.search.slowlog.threshold.fetch.debug", "10ms")
+      .put("index.search.slowlog.threshold.fetch.trace", "10ms")
+
+      .put("index.indexing.slowlog.threshold.index.warn", "10ms")
+        // Cannot use anything else but warn
+      .put("index.indexing.slowlog.threshold.index.info", "10ms")
+      .put("index.indexing.slowlog.threshold.index.debug", "10ms")
+      .put("index.indexing.slowlog.threshold.index.trace", "10ms");
+    ;
   }
 
   private void initDataES(ImmutableSettings.Builder builder) {

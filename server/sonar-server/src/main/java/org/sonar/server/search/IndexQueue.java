@@ -46,7 +46,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
   private static final int TIMEOUT = 30000;
 
   public IndexQueue() {
-    super(DEFAULT_QUEUE_SIZE);
+    super(IndexQueue.DEFAULT_QUEUE_SIZE);
   }
 
   @Override
@@ -73,7 +73,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
       action.setLatch(latch);
       try {
         indexTime = System.currentTimeMillis();
-        this.offer(action, TIMEOUT, TimeUnit.SECONDS);
+        this.offer(action, TIMEOUT, TimeUnit.MILLISECONDS);
         if (!latch.await(TIMEOUT, TimeUnit.MILLISECONDS)) {
           throw new IllegalStateException("ES update could not be completed within: " + TIMEOUT + "ms");
         }
@@ -115,7 +115,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
         indexTime = System.currentTimeMillis();
         for (IndexAction action : itemActions) {
           action.setLatch(itemLatch);
-          this.offer(action, TIMEOUT, TimeUnit.SECONDS);
+          this.offer(action, TIMEOUT, TimeUnit.MILLISECONDS);
           types.add(action.getPayloadClass().getSimpleName());
           bcount++;
 

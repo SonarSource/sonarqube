@@ -21,27 +21,23 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.server.activity.SearchMediumTest;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.search.FacetValue;
-import org.sonar.server.tester.ServerTester;
 
 import java.util.Collection;
 import java.util.Date;
@@ -50,26 +46,13 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ActiveRuleBackendMediumTest {
+public class ActiveRuleBackendMediumTest extends SearchMediumTest {
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
-
-  DbClient db;
-  DbSession dbSession;
   ActiveRuleIndex index;
 
   @Before
   public void before() {
-    tester.clearDbAndIndexes();
-    db = tester.get(DbClient.class);
-    dbSession = db.openSession(false);
     index = tester.get(ActiveRuleIndex.class);
-  }
-
-  @After
-  public void after() throws Exception {
-    dbSession.close();
   }
 
   @Test

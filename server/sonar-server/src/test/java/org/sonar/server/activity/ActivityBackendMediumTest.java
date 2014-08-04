@@ -23,51 +23,38 @@ package org.sonar.server.activity;
 import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.collect.Iterables;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.ActivityLog;
-import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityQuery;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
-import org.sonar.server.tester.ServerTester;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
 import java.util.Iterator;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ActivityBackendMediumTest {
+public class ActivityBackendMediumTest extends SearchMediumTest {
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
 
   ActivityService service = tester.get(ActivityService.class);
   ActivityDao dao = tester.get(ActivityDao.class);
   ActivityIndex index = tester.get(ActivityIndex.class);
-  DbClient db;
-  DbSession dbSession;
-
-  @Before
-  public void before() {
-    tester.clearDbAndIndexes();
-    db = tester.get(DbClient.class);
-    dbSession = tester.get(DbClient.class).openSession(false);
-  }
-
-  @After
-  public void after() {
-    dbSession.close();
-  }
 
   @Test
   public void insert_find_text_log() throws InterruptedException {
+
+
+    System.out.println("tester = " + ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());
+    MemoryMXBean mem = ManagementFactory.getMemoryMXBean();
+    System.out.println("mem.getNonHeapMemoryUsage() = " + mem.getNonHeapMemoryUsage());
+    System.out.println("mem.getHeapMemoryUsage() = " + mem.getHeapMemoryUsage());
+
     final String testValue = "hello world";
     service.write(dbSession, Activity.Type.QPROFILE, testValue);
     dbSession.commit();
