@@ -20,7 +20,6 @@
 package org.sonar.server.exceptions;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 
 public class Message {
@@ -42,8 +41,7 @@ public class Message {
   }
 
   public static Message of(String l10nKey, Object... l10nParams) {
-    Preconditions.checkArgument(StringUtils.isNotBlank(l10nKey));
-    return new Message(l10nKey, l10nParams);
+    return new Message(StringUtils.defaultString(l10nKey), l10nParams);
   }
 
   @Override
