@@ -268,6 +268,9 @@ public class ESNode implements Startable {
   }
 
   private File esHomeDir() {
+    if (!settings.hasKey("sonar.path.home")) {
+      throw new IllegalStateException("property 'sonar.path.home' is required");
+    }
     return new File(settings.getString("sonar.path.home"));
   }
 
