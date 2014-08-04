@@ -40,7 +40,7 @@ public class RestartHandlerTest {
   public void restart_if_dev_mode() throws Exception {
     Platform platform = mock(Platform.class);
     Settings settings = new Settings();
-    settings.setProperty("sonar.dev", true);
+    settings.setProperty("sonar.web.dev", true);
     when(system.isOsWindows()).thenReturn(false);
 
     RestartHandler restartHandler = new RestartHandler(settings, platform, system);
@@ -72,7 +72,7 @@ public class RestartHandlerTest {
   public void fail_if_windows_java_6() throws Exception {
     Platform platform = mock(Platform.class);
     Settings settings = new Settings();
-    settings.setProperty("sonar.dev", true);
+    settings.setProperty("sonar.web.dev", true);
     when(system.isOsWindows()).thenReturn(true);
     when(system.isJavaAtLeast17()).thenReturn(false);
 
