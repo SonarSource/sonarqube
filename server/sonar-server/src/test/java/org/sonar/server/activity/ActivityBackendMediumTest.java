@@ -29,6 +29,7 @@ import org.sonar.core.activity.ActivityLog;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityQuery;
+import org.sonar.server.platform.Platform;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 
@@ -95,7 +96,7 @@ public class ActivityBackendMediumTest extends SearchMediumTest {
 
     // 0 Assert no logs in DB
     assertThat(dao.findAll(dbSession)).hasSize(0);
-    int max = 200;
+    int max = 400;
     final String testValue = "hello world";
     for (int i = 0; i < max; i++) {
       service.write(dbSession, Activity.Type.QPROFILE, testValue + "_" + i);
@@ -112,6 +113,20 @@ public class ActivityBackendMediumTest extends SearchMediumTest {
     SearchResponse result = index.search(new ActivityQuery(), new QueryOptions().setScroll(true));
     Iterator<Activity> logs = new Result<Activity>(index, result).scroll();
 
+    while (logs.hasNext()) {
+      logs.next();
+      count++;
+    }
+    assertThat(count).isEqualTo(max);
+
+
+    // 3 assert synchronize above IndexQueue threshold
+    tester.clearIndexes();
+    tester.get(Platform.class).executeStartupTasks();
+
+    result = index.search(new ActivityQuery(), new QueryOptions().setScroll(true));
+    logs = new Result<Activity>(index, result).scroll();
+    count = 0;
     while (logs.hasNext()) {
       logs.next();
       count++;
