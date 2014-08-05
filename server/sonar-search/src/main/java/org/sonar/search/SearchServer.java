@@ -94,11 +94,8 @@ public class SearchServer extends MonitoredProcess {
       .put("path.logs", new File(logDir).getAbsolutePath());
 
     if (StringUtils.isNotEmpty(props.of(ES_CLUSTER_INNET, null))) {
-
-      System.out.println("props.of(ES_CLUSTER_INNET, null) = " + props.of(ES_CLUSTER_INNET, null));
       esSettings.put("discovery.zen.ping.unicast.hosts", props.of(ES_CLUSTER_INNET));
       esSettings.put("discovery.zen.minimum_master_nodes", "2");
-
     }
 
     initAnalysis(esSettings);
