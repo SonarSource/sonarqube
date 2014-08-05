@@ -30,8 +30,6 @@ import org.sonar.process.ProcessWrapper;
 
 public class App implements ProcessMXBean {
 
-  private static final String SONAR_CLUSTER_MASTER = "sonar.cluster.master";
-
   private final Installation installation;
 
   private Monitor monitor = new Monitor();
@@ -46,7 +44,6 @@ public class App implements ProcessMXBean {
   }
 
   public void start() throws InterruptedException {
-    System.out.println("installation = " + installation.prop(SONAR_CLUSTER_MASTER, null));
     try {
       Logger logger = LoggerFactory.getLogger(getClass());
       monitor.start();
@@ -67,7 +64,7 @@ public class App implements ProcessMXBean {
           logger.info("search server is up");
 
           //do not yet start SQ in cluster mode. See SONAR-5483 & SONAR-5391
-          if (StringUtils.isEmpty(installation.prop(SONAR_CLUSTER_MASTER, null))) {
+          if (StringUtils.isEmpty(installation.prop(DefaultSettings.SONAR_CLUSTER_MASTER, null))) {
             server = new ProcessWrapper(JmxUtils.WEB_SERVER_NAME)
               .setWorkDir(installation.homeDir())
               .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.WEB_JMX_PORT_KEY)))

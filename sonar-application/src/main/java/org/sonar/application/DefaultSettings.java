@@ -28,6 +28,8 @@ class DefaultSettings {
     // only static stuff
   }
 
+  static final String SONAR_CLUSTER_MASTER = "sonar.cluster.master";
+
   static final String PATH_LOGS_KEY = "sonar.path.logs";
 
   static final String ES_PORT_KEY = "sonar.search.port";
