@@ -51,13 +51,17 @@ public class ConvertProfileMeasuresMigration implements DatabaseMigration {
     DbSession session = db.openSession(false);
     try {
       int i = 0;
+      Date now = new Date();
       Migration44Mapper mapper = session.getMapper(Migration44Mapper.class);
       for (ProfileMeasure profileMeasure : mapper.selectProfileMeasures()) {
-        int version = mapper.selectProfileVersion(profileMeasure.getSnapshotId());
+        Integer version = mapper.selectProfileVersion(profileMeasure.getSnapshotId());
         QProfileDto44 profile = mapper.selectProfileById(profileMeasure.getProfileId());
         if (profile != null) {
-          Date date = (Date)ObjectUtils.defaultIfNull(mapper.selectProfileVersionDate(profileMeasure.getProfileId(), version),
-            new Date());
+          Date date = now;
+          if (version != null) {
+            date = (Date)ObjectUtils.defaultIfNull(
+              mapper.selectProfileVersionDate(profileMeasure.getProfileId(), version), now);
+          }
           // see format of JSON in org.sonar.batch.rule.UsedQProfiles
           StringWriter writer = new StringWriter();
           JsonWriter json = JsonWriter.of(writer);

@@ -32,7 +32,8 @@ public interface Migration44Mapper {
   // migration of measures "profile" and "profile_version"
   List<ProfileMeasure> selectProfileMeasures();
 
-  int selectProfileVersion(long snapshotId);
+  @CheckForNull
+  Integer selectProfileVersion(long snapshotId);
 
   @CheckForNull
   Date selectProfileVersionDate(@Param("profileId") int profileId, @Param("profileVersion") int profileVersion);

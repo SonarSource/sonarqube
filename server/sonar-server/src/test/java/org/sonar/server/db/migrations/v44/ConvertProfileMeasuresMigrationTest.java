@@ -64,4 +64,29 @@ public class ConvertProfileMeasuresMigrationTest {
       connection.close();
     }
   }
+
+  /**
+   * http://jira.codehaus.org/browse/SONAR-5515
+   * Version of quality profile was introduced in SQ 2.9. Migration must not fail
+   * when there are still some projects which last analysis was done with SQ <= 2.8.
+   */
+  @Test
+  public void missing_profile_version() throws Exception {
+    db.prepareDbUnit(getClass(), "missing_profile_version.xml");
+
+    migration.execute();
+
+    Connection connection = db.openConnection();
+    Statement stmt = connection.createStatement();
+    ResultSet rs = stmt.executeQuery("select text_value from project_measures where id=2");
+    try {
+      rs.next();
+      // pb of comparison of timezones..., so using startsWith instead of equals
+      assertThat(rs.getString(1)).startsWith("[{\"key\":\"java-sonar-way\",\"language\":\"java\",\"name\":\"Sonar way\",\"rulesUpdatedAt\":");
+    } finally {
+      rs.close();
+      stmt.close();
+      connection.close();
+    }
+  }
 }
