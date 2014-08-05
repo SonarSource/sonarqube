@@ -33,10 +33,10 @@ import org.sonar.process.Props;
 import org.sonar.search.script.ListUpdate;
 
 import java.io.File;
+import java.net.InetAddress;
 
 public class SearchServer extends MonitoredProcess {
 
-  public static final String ES_DEBUG_PROPERTY = "esDebug";
   public static final String ES_PORT_PROPERTY = "sonar.search.port";
   public static final String ES_CLUSTER_PROPERTY = "sonar.cluster.name";
   public static final String ES_CLUSTER_INNET = "sonar.cluster.master";
@@ -61,6 +61,18 @@ public class SearchServer extends MonitoredProcess {
   @Override
   protected void doStart() {
 
+    if (StringUtils.isEmpty(props.of("sonar.path.home"))) {
+      throw new IllegalStateException("Required property 'sonar.path.home' is not set");
+    }
+
+    if (StringUtils.isEmpty(props.of(ES_CLUSTER_PROPERTY))) {
+      throw new IllegalStateException("Required property '" + ES_CLUSTER_PROPERTY + "' is not set");
+    }
+
+    if (props.intOf(ES_PORT_PROPERTY) == null) {
+      throw new IllegalStateException("Required property '" + ES_PORT_PROPERTY + "' is not set");
+    }
+
     String homeDir = props.of("sonar.path.home");
     String dataDir = props.of("sonar.path.data", homeDir + "/data");
     String logDir = props.of("sonar.path.logs", homeDir + "/logs");
@@ -72,8 +84,10 @@ public class SearchServer extends MonitoredProcess {
 
     ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
 
+      // Disable MCast
       .put("discovery.zen.ping.multicast.enabled", "false")
 
+        // Index storage policies
       .put("index.merge.policy.max_merge_at_once", "200")
       .put("index.merge.policy.segments_per_tier", "200")
       .put("index.number_of_shards", "1")
@@ -82,32 +96,36 @@ public class SearchServer extends MonitoredProcess {
       .put("indices.store.throttle.type", "merge")
       .put("indices.store.throttle.max_bytes_per_sec", "200mb")
 
+        // Install our own listUpdate scripts
       .put("script.default_lang", "native")
       .put("script.native." + ListUpdate.NAME + ".type", ListUpdate.UpdateListScriptFactory.class.getName())
 
-      .put("cluster.name", clusterName)
-      .put("node.name", "sonarqube-" + System.currentTimeMillis())
-
+        // Node is pure transport
       .put("transport.tcp.port", port)
+
+        // Setting up ES paths
       .put("path.data", new File(dataDir, "es").getAbsolutePath())
       .put("path.work", new File(tempDir).getAbsolutePath())
       .put("path.logs", new File(logDir).getAbsolutePath());
 
     if (StringUtils.isNotEmpty(props.of(ES_CLUSTER_INNET, null))) {
+      LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster at: {}", props.of(ES_CLUSTER_INNET));
       esSettings.put("discovery.zen.ping.unicast.hosts", props.of(ES_CLUSTER_INNET));
       esSettings.put("discovery.zen.minimum_master_nodes", "2");
     }
 
-    initAnalysis(esSettings);
-
-    if (props.booleanOf(ES_DEBUG_PROPERTY, false)) {
-      esSettings
-        .put("http.enabled", true)
-        .put("http.port", 9200);
-    } else {
-      esSettings.put("http.enabled", false);
+    // Set cluster coordinates
+    esSettings.put("cluster.name", clusterName);
+    try {
+      esSettings.put("node.name", InetAddress.getLocalHost().getHostName());
+    } catch (Exception e) {
+      esSettings.put("node.name", "sq-" + System.currentTimeMillis());
     }
 
+    // Make sure the index settings are up to date.
+    initAnalysis(esSettings);
+
+    // And building our ES Node
     node = NodeBuilder.nodeBuilder()
       .settings(esSettings)
       .build().start();
@@ -116,13 +134,15 @@ public class SearchServer extends MonitoredProcess {
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {
-        // TODO
+        // Ignore
       }
     }
   }
 
   private void initAnalysis(ImmutableSettings.Builder esSettings) {
     esSettings
+
+      // Disallow dynamic mapping (too expensive)
       .put("index.mapper.dynamic", false)
 
         // Sortable text analyzer
