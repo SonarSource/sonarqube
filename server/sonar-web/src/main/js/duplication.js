@@ -11,7 +11,8 @@ function updateDuplicationLines(url, groupId, itemId, linesCount, fromLine, toLi
     toLine = fromLine + linesCount - 1;
   }
   $j.ajax({
-    url: url + "&to_line=" + toLine + "&from_line=" + fromLine + "&lines_count=" + linesCount + "&group_index=" + groupId,
+    url: url + "&to_line=" + toLine + "&from_line=" + fromLine + "&lines_count=" + linesCount +
+      "&group_index=" + groupId,
     success:function(response){
       $j('#source-' + groupId).html(response);
     },

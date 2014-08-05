@@ -227,7 +227,8 @@ Treemap.prototype.load = function () {
   var self = this;
   $j.ajax({
     type: "GET",
-    url: baseUrl + '/treemap/index?html_id=' + this.id + '&size_metric=' + this.sizeMetric + '&color_metric=' + this.colorMetric + '&resource=' + context.rid,
+    url: baseUrl + '/treemap/index?html_id=' + this.id + '&size_metric=' + this.sizeMetric +
+      '&color_metric=' + this.colorMetric + '&resource=' + context.rid,
     dataType: "html",
     success: function (data) {
       if (data.length > 1) {
@@ -385,7 +386,8 @@ function openAccordionItem(url) {
   var ajaxRequest = $j.ajax({
       url: url
       }).fail(function (jqXHR, textStatus) {
-        var error = "Server error. Please contact your administrator. The status of the error is : "+ jqXHR.status + ", textStatus is : "+ textStatus;
+        var error = "Server error. Please contact your administrator. The status of the error is : " +
+          jqXHR.status + ", textStatus is : " + textStatus;
         console.log(error);
         $j("#accordion-panel").append($j('<div class="error">').append(error));
       }).done(function (html) {
@@ -481,4 +483,3 @@ jQuery(function() {
     return false;
   });
 });
-

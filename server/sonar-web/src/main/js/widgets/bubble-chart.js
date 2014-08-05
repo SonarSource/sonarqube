@@ -73,10 +73,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     var noInvalidEntry = true,
       atLeastOneValueOnX = false,
       atLeastOneValueOnY = false;
-    this.components().forEach(function validateComponent(component) {
-      noInvalidEntry &= (!!component.measures[widget.metricsPriority()[0]] && !!component.measures[widget.metricsPriority()[1]]);
-      atLeastOneValueOnX |= (component.measures[widget.metricsPriority()[0]] || {}).fval != '-';
-      atLeastOneValueOnY |= (component.measures[widget.metricsPriority()[1]] || {}).fval != '-';
+    this.components().forEach(function(component) {
+      noInvalidEntry = noInvalidEntry &&
+        !!component.measures[widget.metricsPriority()[0]] &&
+        !!component.measures[widget.metricsPriority()[1]];
+      atLeastOneValueOnX = atLeastOneValueOnX ||
+        (component.measures[widget.metricsPriority()[0]] || {}).fval !== '-';
+      atLeastOneValueOnY = atLeastOneValueOnY ||
+        (component.measures[widget.metricsPriority()[1]] || {}).fval !== '-';
     });
     var validData = !!noInvalidEntry && !!atLeastOneValueOnX && !!atLeastOneValueOnY;
 
