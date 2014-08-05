@@ -23,39 +23,52 @@ package org.sonar.server.activity;
 import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.collect.Iterables;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.ActivityLog;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityQuery;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
+import org.sonar.server.tester.ServerTester;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
 import java.util.Iterator;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ActivityBackendMediumTest extends SearchMediumTest {
+public class ActivityBackendMediumTest {
 
+  @ClassRule
+  public static ServerTester tester = new ServerTester();
 
   ActivityService service = tester.get(ActivityService.class);
   ActivityDao dao = tester.get(ActivityDao.class);
   ActivityIndex index = tester.get(ActivityIndex.class);
+  DbClient db;
+  DbSession dbSession;
+
+  @Before
+  public void before() {
+    tester.clearDbAndIndexes();
+    db = tester.get(DbClient.class);
+    dbSession = tester.get(DbClient.class).openSession(false);
+  }
+
+  @After
+  public void after() {
+    dbSession.close();
+  }
 
   @Test
   public void insert_find_text_log() throws InterruptedException {
-
-
-    System.out.println("tester = " + ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());
-    MemoryMXBean mem = ManagementFactory.getMemoryMXBean();
-    System.out.println("mem.getNonHeapMemoryUsage() = " + mem.getNonHeapMemoryUsage());
-    System.out.println("mem.getHeapMemoryUsage() = " + mem.getHeapMemoryUsage());
-
     final String testValue = "hello world";
     service.write(dbSession, Activity.Type.QPROFILE, testValue);
     dbSession.commit();
@@ -91,6 +104,16 @@ public class ActivityBackendMediumTest extends SearchMediumTest {
     assertThat(activity.details().get(testKey)).isEqualTo(testValue);
   }
 
+
+  @Test
+  public void current_time_zone() {
+    service.write(dbSession, Activity.Type.QPROFILE, "now");
+    dbSession.commit();
+
+    Activity activity = service.search(new ActivityQuery(), new QueryOptions()).getHits().get(0);
+    assertThat(System.currentTimeMillis() - activity.time().getTime()).isLessThan(1000L);
+  }
+
   @Test
   public void massive_insert() {
 
@@ -99,6 +122,7 @@ public class ActivityBackendMediumTest extends SearchMediumTest {
     int max = 400;
     final String testValue = "hello world";
     for (int i = 0; i < max; i++) {
+
       service.write(dbSession, Activity.Type.QPROFILE, testValue + "_" + i);
     }
     dbSession.commit();
@@ -109,10 +133,8 @@ public class ActivityBackendMediumTest extends SearchMediumTest {
 
     // 2. assert scrollable
     int count = 0;
-
     SearchResponse result = index.search(new ActivityQuery(), new QueryOptions().setScroll(true));
     Iterator<Activity> logs = new Result<Activity>(index, result).scroll();
-
     while (logs.hasNext()) {
       logs.next();
       count++;
@@ -123,7 +145,6 @@ public class ActivityBackendMediumTest extends SearchMediumTest {
     // 3 assert synchronize above IndexQueue threshold
     tester.clearIndexes();
     tester.get(Platform.class).executeStartupTasks();
-
     result = index.search(new ActivityQuery(), new QueryOptions().setScroll(true));
     logs = new Result<Activity>(index, result).scroll();
     count = 0;
@@ -132,14 +153,70 @@ public class ActivityBackendMediumTest extends SearchMediumTest {
       count++;
     }
     assertThat(count).isEqualTo(max);
+
   }
 
   @Test
-  public void current_time_zone() {
-    service.write(dbSession, Activity.Type.QPROFILE, "now");
+  public void massive_log_insert() {
+
+    // 0 Assert no logs in DB
+    assertThat(dao.findAll(dbSession)).hasSize(0);
+    int max = 400;
+    final String testValue = "hello world";
+    for (int i = 0; i < max; i++) {
+      TestActivityLog log = new TestActivityLog(testValue + "_" + i, Activity.Type.QPROFILE.toString());
+      service.write(dbSession, Activity.Type.QPROFILE, log);
+    }
     dbSession.commit();
 
-    Activity activity = service.search(new ActivityQuery(), new QueryOptions()).getHits().get(0);
-    assertThat(System.currentTimeMillis() - activity.time().getTime()).isLessThan(1000L);
+    // 1. assert both backends have all logs
+    assertThat(dao.findAll(dbSession)).hasSize(max);
+    assertThat(index.findAll().getHits()).hasSize(max);
+
+    // 2. assert scrollable
+    int count = 0;
+    SearchResponse result = index.search(new ActivityQuery(), new QueryOptions().setScroll(true));
+    Iterator<Activity> logs = new Result<Activity>(index, result).scroll();
+    while (logs.hasNext()) {
+      logs.next();
+      count++;
+    }
+    assertThat(count).isEqualTo(max);
+
+
+    // 3 assert synchronize above IndexQueue threshold
+    tester.clearIndexes();
+    tester.get(Platform.class).executeStartupTasks();
+    result = index.search(new ActivityQuery(), new QueryOptions().setScroll(true));
+    logs = new Result<Activity>(index, result).scroll();
+    count = 0;
+    while (logs.hasNext()) {
+      logs.next();
+      count++;
+    }
+    assertThat(count).isEqualTo(max);
+
+  }
+
+
+  class TestActivityLog implements ActivityLog {
+
+    private final String name;
+    private final String action;
+
+    TestActivityLog(String name, String action) {
+      this.name = name;
+      this.action = action;
+    }
+
+    @Override
+    public Map<String, String> getDetails() {
+      return ImmutableMap.<String, String>of("name", name);
+    }
+
+    @Override
+    public String getAction() {
+      return action;
+    }
   }
 }
