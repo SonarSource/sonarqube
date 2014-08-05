@@ -29,6 +29,7 @@ public class GroupMembershipDto {
 
   private Long id;
   private String name;
+  private String description;
   private Long userId;
 
   public Long getId() {
@@ -50,6 +51,16 @@ public class GroupMembershipDto {
   }
 
   @CheckForNull
+  public String getDescription() {
+    return description;
+  }
+
+  public GroupMembershipDto setDescription(@Nullable String description) {
+    this.description = description;
+    return this;
+  }
+
+  @CheckForNull
   public Long getUserId() {
     return userId;
   }
@@ -63,6 +74,7 @@ public class GroupMembershipDto {
     return new GroupMembership()
       .setId(id)
       .setName(name)
+      .setDescription(description)
       .setMember(userId != null);
   }
 }

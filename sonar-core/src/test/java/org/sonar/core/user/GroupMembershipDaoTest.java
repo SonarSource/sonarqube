@@ -57,6 +57,7 @@ public class GroupMembershipDaoTest extends AbstractDaoTestCase {
     GroupMembershipDto dto = result.get(0);
     assertThat(dto.getId()).isEqualTo(101L);
     assertThat(dto.getName()).isEqualTo("sonar-users");
+    assertThat(dto.getDescription()).isEqualTo("Any new users created will automatically join this group");
     assertThat(dto.getUserId()).isEqualTo(201L);
   }
 

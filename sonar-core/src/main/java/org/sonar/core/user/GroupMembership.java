@@ -22,10 +22,14 @@ package org.sonar.core.user;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class GroupMembership {
 
   private Long id;
   private String name;
+  private String description;
   private boolean isMember;
 
   public Long id() {
@@ -43,6 +47,16 @@ public class GroupMembership {
 
   public GroupMembership setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  @CheckForNull
+  public String description() {
+    return description;
+  }
+
+  public GroupMembership setDescription(@Nullable String description) {
+    this.description = description;
     return this;
   }
 

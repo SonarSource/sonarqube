@@ -33,11 +33,15 @@ class UserGroupsController < ApplicationController
       format.json {
         render :json => {
             :more => more,
-            :results => groups.map { |group| {
-                :id => group.id(),
-                :name => group.name(),
-                :selected => group.isMember()
-            }}
+            :results => groups.map { |group|
+              hash = {
+                  :id => group.id(),
+                  :name => group.name(),
+                  :selected => group.isMember()
+              }
+              hash[:description] = group.description() if group.description() && !group.description().blank?
+              hash
+            }
         }
       }
     end

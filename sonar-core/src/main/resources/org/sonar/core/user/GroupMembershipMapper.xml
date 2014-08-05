@@ -4,7 +4,7 @@
 <mapper namespace="org.sonar.core.user.GroupMembershipMapper">
 
   <select id="selectGroups" parameterType="map" resultType="GroupMembership">
-    SELECT g.id as id, g.name as name, gu.user_id as userId
+    SELECT g.id as id, g.name as name, g.description as description, gu.user_id as userId
     FROM groups g
     LEFT JOIN groups_users gu ON gu.group_id=g.id AND gu.user_id=#{userId}
     <where>

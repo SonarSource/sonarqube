@@ -31,11 +31,13 @@ public class GroupMembershipDtoTest {
     GroupMembership group = new GroupMembershipDto()
       .setId(1L)
       .setName("users")
+      .setDescription("description")
       .setUserId(10L)
       .toGroupMembership();
 
     assertThat(group.id()).isEqualTo(1);
     assertThat(group.name()).isEqualTo("users");
+    assertThat(group.description()).isEqualTo("description");
     assertThat(group.isMember()).isTrue();
   }
 
@@ -44,11 +46,13 @@ public class GroupMembershipDtoTest {
     GroupMembership group = new GroupMembershipDto()
       .setId(1L)
       .setName("users")
+      .setDescription("description")
       .setUserId(null)
       .toGroupMembership();
 
     assertThat(group.id()).isEqualTo(1);
     assertThat(group.name()).isEqualTo("users");
+    assertThat(group.description()).isEqualTo("description");
     assertThat(group.isMember()).isFalse();
   }
 
