@@ -158,7 +158,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void getResourceIds_filter_by_qualifier() {
     setupData("fixture");
 
-    List<Long> ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[] {"TRK", "BRC"}));
+    List<Long> ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{"TRK", "BRC"}));
     assertThat(ids).containsOnly(1L, 2L);
 
     ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[] {"XXX"}));
@@ -235,31 +235,33 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_root_project_by_component_key() {
+  public void find_root_project_by_component_key() {
     setupData("fixture");
 
-    ResourceDto resource = dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(resource.getName()).isEqualTo("Struts");
-
-    resource = dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts");
-    assertThat(resource.getName()).isEqualTo("Struts");
-
-    resource = dao.getRootProjectByComponentKey("org.struts:struts-core");
-    assertThat(resource.getName()).isEqualTo("Struts");
+    assertThat(dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts/RequestContext.java").getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts").getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByComponentKey("org.struts:struts-core").getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByComponentKey("org.struts:struts").getKey()).isEqualTo("org.struts:struts");
   }
 
   @Test
-  public void should_find_root_project_by_component_Id() {
+  public void find_root_project_by_component_Id() {
     setupData("fixture");
 
-    ResourceDto resource = dao.getRootProjectByComponentId(4l);
-    assertThat(resource.getName()).isEqualTo("Struts");
+    assertThat(dao.getRootProjectByComponentId(4l).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByComponentId(3l).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByComponentId(2l).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByComponentId(1l).getKey()).isEqualTo("org.struts:struts");
+  }
 
-    resource = dao.getRootProjectByComponentId(3l);
-    assertThat(resource.getName()).isEqualTo("Struts");
+  @Test
+  public void find_parent_by_component_id() {
+    setupData("fixture");
 
-    resource = dao.getRootProjectByComponentId(2l);
-    assertThat(resource.getName()).isEqualTo("Struts");
+    assertThat(dao.getParentModuleByComponentId(4l, session).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getParentModuleByComponentId(3l, session).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getParentModuleByComponentId(2l, session).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getParentModuleByComponentId(1l, session).getKey()).isEqualTo("org.struts:struts");
   }
 
   @Test

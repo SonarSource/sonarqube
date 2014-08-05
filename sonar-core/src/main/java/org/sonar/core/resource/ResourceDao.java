@@ -23,9 +23,10 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.core.persistence.DaoComponent;
 import org.sonar.api.component.Component;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
@@ -198,21 +199,64 @@ public class ResourceDao implements DaoComponent {
     }
   }
 
+  /**
+   * Return the root project of a component.
+   * Will return the component itself if it's already the root project
+   * Can return null if the component that does exists.
+   *
+   * The implementation should rather use a new column already containing the root project, see https://jira.codehaus.org/browse/SONAR-5188.
+   */
   @CheckForNull
   public ResourceDto getRootProjectByComponentKey(String componentKey) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(ResourceMapper.class).selectRootProjectByComponentKey(componentKey);
+      ResourceDto component = getResource(ResourceQuery.create().setKey(componentKey), session);
+      if (component != null) {
+        Long rootId = component.getRootId();
+        if (rootId != null) {
+          return getParentModuleByComponentId(rootId, session);
+        } else {
+          return component;
+        }
+      }
+      return null;
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @CheckForNull
+  ResourceDto getParentModuleByComponentId(Long componentId, DbSession session) {
+    ResourceDto component = getResource(componentId, session);
+    if (component != null) {
+      Long rootId = component.getRootId();
+      if (rootId != null) {
+        return getParentModuleByComponentId(rootId, session);
+      } else {
+        return component;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Return the root project of a component.
+   * Will return the component itself if it's already the root project
+   * Can return null if the component that does exists.
+   *
+   * The implementation should rather use a new column already containing the root project, see https://jira.codehaus.org/browse/SONAR-5188.
+   */
+  @CheckForNull
   public ResourceDto getRootProjectByComponentId(long componentId) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(ResourceMapper.class).selectRootProjectByComponentId(componentId);
+      ResourceDto component = getParentModuleByComponentId(componentId, session);
+      Long rootId = component != null ? component.getRootId() : null;
+      if (rootId != null) {
+        return getParentModuleByComponentId(rootId, session);
+      } else {
+        return component;
+      }
     } finally {
       MyBatis.closeQuietly(session);
     }
