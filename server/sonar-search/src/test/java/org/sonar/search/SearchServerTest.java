@@ -35,7 +35,6 @@ import org.sonar.process.Props;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -83,8 +82,7 @@ public class SearchServerTest {
   public void can_connect() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
-    properties.setProperty("sonar.path.data", tempDirectory.getAbsolutePath());
-    properties.setProperty("sonar.path.logs", tempDirectory.getAbsolutePath());
+    properties.setProperty("sonar.path.home", tempDirectory.getAbsolutePath());
     properties.setProperty(SearchServer.ES_PORT_PROPERTY, Integer.toString(freeESPort));
     properties.setProperty(SearchServer.ES_CLUSTER_PROPERTY, "sonarqube");
 
