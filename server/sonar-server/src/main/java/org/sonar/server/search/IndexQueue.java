@@ -26,7 +26,10 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.config.Settings;
 import org.sonar.core.cluster.WorkQueue;
+import org.sonar.core.profiling.Profiling;
+import org.sonar.core.profiling.StopWatch;
 import org.sonar.server.search.action.EmbeddedIndexAction;
 import org.sonar.server.search.action.IndexAction;
 
@@ -40,13 +43,16 @@ import java.util.concurrent.TimeUnit;
 public class IndexQueue extends LinkedBlockingQueue<Runnable>
   implements ServerComponent, WorkQueue<IndexAction> {
 
+  protected final Profiling profiling;
+
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexQueue.class);
 
   private static final Integer DEFAULT_QUEUE_SIZE = 200;
   private static final int TIMEOUT = 30000;
 
-  public IndexQueue() {
-    super(IndexQueue.DEFAULT_QUEUE_SIZE);
+  public IndexQueue(Settings settings) {
+    super(DEFAULT_QUEUE_SIZE);
+    this.profiling = new Profiling(settings);
   }
 
   @Override
@@ -56,6 +62,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
 
   @Override
   public void enqueue(List<IndexAction> actions) {
+
 
     int bcount = 0;
     int ecount = 0;
@@ -92,6 +99,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
         throw new IllegalStateException("ES update has been interrupted", e);
       }
     } else if (actions.size() > 1) {
+      StopWatch basicProfile = profiling.start("search", Profiling.Level.BASIC);
 
       /* Purge actions that would be overridden  */
       Long purgeStart = System.currentTimeMillis();
@@ -154,7 +162,8 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
       } catch (InterruptedException e) {
         throw new IllegalStateException("ES update has been interrupted", e);
       }
-      LOGGER.debug("INDEX - time:{}ms ({}ms index, {}ms embedded, {}ms refresh)\ttypes:[{}],\tbulk:{}\tembedded:{}\trefresh:[{}]",
+
+      basicProfile.stop("INDEX - time:%sms (%sms index, %sms embedded, %sms refresh)\ttypes:[%s],\tbulk:%s\tembedded:%s\trefresh:[%s]",
         (System.currentTimeMillis() - all_start), indexTime, embeddedTime, refreshTime,
         StringUtils.join(types, ","),
         bcount, ecount, StringUtils.join(refreshes, ","));
