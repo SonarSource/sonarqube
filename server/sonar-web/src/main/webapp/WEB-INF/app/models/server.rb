@@ -67,6 +67,9 @@ class Server
     add_property(sonar_info, 'Database Login') { sonar_property('sonar.jdbc.username') }
     add_property(sonar_info, 'Database Driver') { "#{jdbc_metadata.getDriverName()} #{jdbc_metadata.getDriverVersion()}" }
     add_property(sonar_info, 'Database Dialect (Hibernate)') { "#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getId()} (#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getHibernateDialectClass().getName()})" }
+    add_property(sonar_info, 'Database Active Connections') { "#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDataSource().getNumActive()}" }
+    add_property(sonar_info, 'Database Max. Active Connections') { sonar_property('sonar.jdbc.maxActive') }
+    add_property(sonar_info, 'Database Max. Pool Wait') { sonar_property('sonar.jdbc.maxWait') }
     add_property(sonar_info, 'External User Authentication') { realm_name }
     add_property(sonar_info, 'Automatic User Creation') { sonar_property(org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS) }
     add_property(sonar_info, 'Allow Users to Sign Up') { sonar_property(org.sonar.api.CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY) }
