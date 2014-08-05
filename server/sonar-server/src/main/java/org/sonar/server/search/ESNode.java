@@ -136,7 +136,6 @@ public class ESNode implements Startable {
       initMemoryES(esSettings);
     }
 
-    initRestConsole(esSettings);
     initNetwork(esSettings);
 
     node = NodeBuilder.nodeBuilder()
@@ -182,7 +181,15 @@ public class ESNode implements Startable {
 
       .put("path.logs", esLogDir().getAbsolutePath());
 
-
+    int httpPort = settings.getInt(IndexProperties.HTTP_PORT);
+    if (httpPort > 0) {
+      LOG.warn("Elasticsearch HTTP console enabled on port {}. Only for debugging purpose.", httpPort);
+      builder.put(HTTP_ENABLED, true);
+      builder.put("http.host", "127.0.0.1");
+      builder.put("http.port", httpPort);
+    } else {
+      builder.put(HTTP_ENABLED, false);
+    }
   }
 
   private void addIndexTemplates() {
@@ -253,18 +260,6 @@ public class ESNode implements Startable {
 
   private void initNetwork(ImmutableSettings.Builder esSettings) {
     esSettings.put("network.bind_host", "127.0.0.1");
-  }
-
-  private void initRestConsole(ImmutableSettings.Builder esSettings) {
-    int httpPort = settings.getInt(IndexProperties.HTTP_PORT);
-    if (httpPort > 0) {
-      LOG.warn("Elasticsearch HTTP console enabled on port {}. Only for debugging purpose.", httpPort);
-      esSettings.put(HTTP_ENABLED, true);
-      esSettings.put("http.host", "127.0.0.1");
-      esSettings.put("http.port", httpPort);
-    } else {
-      esSettings.put(HTTP_ENABLED, false);
-    }
   }
 
   private File esHomeDir() {
