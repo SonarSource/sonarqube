@@ -87,17 +87,18 @@ public class SearchServer extends MonitoredProcess {
 
       .put("cluster.name", clusterName)
       .put("node.name", "sonarqube-" + System.currentTimeMillis())
-      .put("node.data", true)
-      .put("node.local", false)
-      .put("transport.tcp.port", port)
 
+      .put("transport.tcp.port", port)
       .put("path.data", new File(dataDir, "es").getAbsolutePath())
       .put("path.work", new File(tempDir).getAbsolutePath())
       .put("path.logs", new File(logDir).getAbsolutePath());
 
     if (StringUtils.isNotEmpty(props.of(ES_CLUSTER_INNET, null))) {
-      esSettings.put("discovery.zen.ping.unicast.hosts","[\""+props.of(ES_CLUSTER_INNET)+"\"]");
-      esSettings.put("discovery.zen.publish_timeout","10s");
+
+      System.out.println("props.of(ES_CLUSTER_INNET, null) = " + props.of(ES_CLUSTER_INNET, null));
+      esSettings.put("discovery.zen.ping.unicast.hosts", props.of(ES_CLUSTER_INNET));
+      esSettings.put("discovery.zen.minimum_master_nodes", "2");
+
     }
 
     initAnalysis(esSettings);
