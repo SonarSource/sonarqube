@@ -32,12 +32,17 @@ public class ProjectReferentialsProvider extends ProviderAdapter {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectReferentialsProvider.class);
 
+  private ProjectReferentials projectReferentials;
+
   public ProjectReferentials provide(ProjectReferentialsLoader loader, ProjectReactor reactor, Settings settings, Languages languages) {
-    TimeProfiler profiler = new TimeProfiler(LOG).start("Load project referentials");
-    try {
-      return loader.load(reactor, settings, languages);
-    } finally {
-      profiler.stop();
+    if (projectReferentials == null) {
+      TimeProfiler profiler = new TimeProfiler(LOG).start("Load project referentials");
+      try {
+        projectReferentials = loader.load(reactor, settings, languages);
+      } finally {
+        profiler.stop();
+      }
     }
+    return projectReferentials;
   }
 }

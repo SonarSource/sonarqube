@@ -29,12 +29,17 @@ public class GlobalReferentialsProvider extends ProviderAdapter {
 
   private static final Logger LOG = LoggerFactory.getLogger(GlobalReferentialsProvider.class);
 
+  private GlobalReferentials globalReferentials;
+
   public GlobalReferentials provide(GlobalReferentialsLoader loader) {
-    TimeProfiler profiler = new TimeProfiler(LOG).start("Load global referentials");
-    try {
-      return loader.load();
-    } finally {
-      profiler.stop();
+    if (globalReferentials == null) {
+      TimeProfiler profiler = new TimeProfiler(LOG).start("Load global referentials");
+      try {
+        globalReferentials = loader.load();
+      } finally {
+        profiler.stop();
+      }
     }
+    return globalReferentials;
   }
 }
