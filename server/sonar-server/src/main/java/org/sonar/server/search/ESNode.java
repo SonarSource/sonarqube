@@ -153,10 +153,9 @@ public class ESNode implements Startable {
       .put("cluster.name", "cluster-mem-" + NetworkUtils.getLocalAddress().getHostName())
       .put("index.store.type", "memory")
       .put("index.store.fs.memory.enabled", "true")
-//      .put("gateway.type", "none")
+      .put("gateway.type", "none")
       .put("index.number_of_shards", "1")
       .put("index.number_of_replicas", "0")
-//      .put("cluster.routing.schedule", "50ms")
       .put("node.local", true)
 
       .put("index.search.slowlog.threshold.query.warn", "10ms")
