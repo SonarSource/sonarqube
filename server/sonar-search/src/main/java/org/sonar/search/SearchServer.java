@@ -19,6 +19,7 @@
  */
 package org.sonar.search;
 
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
@@ -37,7 +38,9 @@ public class SearchServer extends MonitoredProcess {
 
   public static final String ES_DEBUG_PROPERTY = "esDebug";
   public static final String ES_PORT_PROPERTY = "sonar.search.port";
-  public static final String ES_CLUSTER_PROPERTY = "sonar.search.clusterName";
+  public static final String ES_CLUSTER_PROPERTY = "sonar.cluster.name";
+  public static final String ES_CLUSTER_INNET = "sonar.cluster.master";
+
 
   private Node node;
 
@@ -57,14 +60,17 @@ public class SearchServer extends MonitoredProcess {
 
   @Override
   protected void doStart() {
-    String dataDir = props.of("sonar.path.data");
+
+    String homeDir = props.of("sonar.path.home");
+    String dataDir = props.of("sonar.path.data", homeDir + "/data");
+    String logDir = props.of("sonar.path.logs", homeDir + "/logs");
+    String tempDir = props.of("sonar.path.temp", homeDir + "/temp");
     Integer port = props.intOf(ES_PORT_PROPERTY);
     String clusterName = props.of(ES_CLUSTER_PROPERTY);
 
     LoggerFactory.getLogger(SearchServer.class).info("Starting ES[{}] on port: {}", clusterName, port);
 
     ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
-      .put("es.foreground", "yes")
 
       .put("discovery.zen.ping.multicast.enabled", "false")
 
@@ -84,7 +90,15 @@ public class SearchServer extends MonitoredProcess {
       .put("node.data", true)
       .put("node.local", false)
       .put("transport.tcp.port", port)
-      .put("path.data", new File(dataDir, "es").getAbsolutePath());
+
+      .put("path.data", new File(dataDir, "es").getAbsolutePath())
+      .put("path.work", new File(tempDir).getAbsolutePath())
+      .put("path.logs", new File(logDir).getAbsolutePath());
+
+    if (StringUtils.isNotEmpty(props.of(ES_CLUSTER_INNET, null))) {
+      esSettings.put("discovery.zen.ping.unicast.hosts","[\""+props.of(ES_CLUSTER_INNET)+"\"]");
+      esSettings.put("discovery.zen.publish_timeout","10s");
+    }
 
     initAnalysis(esSettings);
 
@@ -113,40 +127,40 @@ public class SearchServer extends MonitoredProcess {
     esSettings
       .put("index.mapper.dynamic", false)
 
-      // Sortable text analyzer
+        // Sortable text analyzer
       .put("index.analysis.analyzer.sortable.type", "custom")
       .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
       .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase", "truncate")
 
-      // Edge NGram index-analyzer
+        // Edge NGram index-analyzer
       .put("index.analysis.analyzer.index_grams.type", "custom")
       .put("index.analysis.analyzer.index_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.index_grams.filter", "trim", "lowercase", "gram_filter")
 
-      // Edge NGram search-analyzer
+        // Edge NGram search-analyzer
       .put("index.analysis.analyzer.search_grams.type", "custom")
       .put("index.analysis.analyzer.search_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.search_grams.filter", "trim", "lowercase")
 
-      // Word index-analyzer
+        // Word index-analyzer
       .put("index.analysis.analyzer.index_words.type", "custom")
       .put("index.analysis.analyzer.index_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.index_words.filter",
         "standard", "word_filter", "lowercase", "stop", "asciifolding", "porter_stem")
 
-      // Word search-analyzer
+        // Word search-analyzer
       .put("index.analysis.analyzer.search_words.type", "custom")
       .put("index.analysis.analyzer.search_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.search_words.filter",
         "standard", "lowercase", "stop", "asciifolding", "porter_stem")
 
-      // Edge NGram filter
+        // Edge NGram filter
       .put("index.analysis.filter.gram_filter.type", "edgeNGram")
       .put("index.analysis.filter.gram_filter.min_gram", 2)
       .put("index.analysis.filter.gram_filter.max_gram", 15)
       .putArray("index.analysis.filter.gram_filter.token_chars", "letter", "digit", "punctuation", "symbol")
 
-      // Word filter
+        // Word filter
       .put("index.analysis.filter.word_filter.type", "word_delimiter")
       .put("index.analysis.filter.word_filter.generate_word_parts", true)
       .put("index.analysis.filter.word_filter.catenate_words", true)
@@ -157,7 +171,7 @@ public class SearchServer extends MonitoredProcess {
       .put("index.analysis.filter.word_filter.split_on_numerics", true)
       .put("index.analysis.filter.word_filter.stem_english_possessive", true)
 
-      // Path Analyzer
+        // Path Analyzer
       .put("index.analysis.analyzer.path_analyzer.type", "custom")
       .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy");
 
