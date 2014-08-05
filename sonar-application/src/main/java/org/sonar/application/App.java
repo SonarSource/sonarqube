@@ -19,6 +19,7 @@
  */
 package org.sonar.application;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.JmxUtils;
@@ -28,6 +29,8 @@ import org.sonar.process.ProcessUtils;
 import org.sonar.process.ProcessWrapper;
 
 public class App implements ProcessMXBean {
+
+  private static final String SONAR_CLUSTER_MASTER = "sonar.cluster.master";
 
   private final Installation installation;
 
@@ -43,6 +46,7 @@ public class App implements ProcessMXBean {
   }
 
   public void start() throws InterruptedException {
+    System.out.println("installation = " + installation.prop(SONAR_CLUSTER_MASTER, null));
     try {
       Logger logger = LoggerFactory.getLogger(getClass());
       monitor.start();
@@ -62,27 +66,33 @@ public class App implements ProcessMXBean {
         if (elasticsearch.waitForReady()) {
           logger.info("search server is up");
 
-          server = new ProcessWrapper(JmxUtils.WEB_SERVER_NAME)
-            .setWorkDir(installation.homeDir())
-            .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.WEB_JMX_PORT_KEY)))
-            .addJavaOpts(installation.prop(DefaultSettings.WEB_JAVA_OPTS_KEY))
-            .addJavaOpts(String.format("-Djava.io.tmpdir=%s", installation.tempDir().getAbsolutePath()))
-            .addJavaOpts(String.format("-Dsonar.path.logs=%s", installation.logsDir().getAbsolutePath()))
-            .setClassName("org.sonar.server.app.WebServer")
-            .addProperties(installation.props().rawProperties())
-            .addClasspath(installation.starPath("extensions/jdbc-driver/mysql"))
-            .addClasspath(installation.starPath("extensions/jdbc-driver/mssql"))
-            .addClasspath(installation.starPath("extensions/jdbc-driver/oracle"))
-            .addClasspath(installation.starPath("extensions/jdbc-driver/postgresql"))
-            .addClasspath(installation.starPath("lib/common"))
-            .addClasspath(installation.starPath("lib/server"));
-          if (server.execute()) {
-            monitor.registerProcess(server);
-            if (server.waitForReady()) {
-              success = true;
-              logger.info("web server is up");
-              monitor.join();
+          //do not yet start SQ in cluster mode. See SONAR-5483 & SONAR-5391
+          if (StringUtils.isEmpty(installation.prop(SONAR_CLUSTER_MASTER, null))) {
+            server = new ProcessWrapper(JmxUtils.WEB_SERVER_NAME)
+              .setWorkDir(installation.homeDir())
+              .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.WEB_JMX_PORT_KEY)))
+              .addJavaOpts(installation.prop(DefaultSettings.WEB_JAVA_OPTS_KEY))
+              .addJavaOpts(String.format("-Djava.io.tmpdir=%s", installation.tempDir().getAbsolutePath()))
+              .addJavaOpts(String.format("-Dsonar.path.logs=%s", installation.logsDir().getAbsolutePath()))
+              .setClassName("org.sonar.server.app.WebServer")
+              .addProperties(installation.props().rawProperties())
+              .addClasspath(installation.starPath("extensions/jdbc-driver/mysql"))
+              .addClasspath(installation.starPath("extensions/jdbc-driver/mssql"))
+              .addClasspath(installation.starPath("extensions/jdbc-driver/oracle"))
+              .addClasspath(installation.starPath("extensions/jdbc-driver/postgresql"))
+              .addClasspath(installation.starPath("lib/common"))
+              .addClasspath(installation.starPath("lib/server"));
+            if (server.execute()) {
+              monitor.registerProcess(server);
+              if (server.waitForReady()) {
+                success = true;
+                logger.info("web server is up");
+                monitor.join();
+              }
             }
+          } else {
+            success = true;
+            monitor.join();
           }
         }
       }
