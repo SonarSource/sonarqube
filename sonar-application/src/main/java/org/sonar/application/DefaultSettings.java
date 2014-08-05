@@ -35,7 +35,7 @@ class DefaultSettings {
   static final String ES_PORT_KEY = "sonar.search.port";
   private static final int ES_PORT_DEFVAL = 9001;
 
-  static final String ES_CLUSTER_NAME_KEY = "sonar.search.clusterName";
+  static final String ES_CLUSTER_NAME_KEY = "sonar.cluster.name";
   private static final String ES_CLUSTER_NAME_DEFVAL = "sonarqube";
 
   static final String ES_JMX_PORT_KEY = "sonar.search.jmxPort";
