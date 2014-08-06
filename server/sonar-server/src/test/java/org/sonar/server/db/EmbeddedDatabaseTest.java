@@ -91,7 +91,8 @@ public class EmbeddedDatabaseTest {
     return new Settings()
       .setProperty(DatabaseProperties.PROP_USER, "login")
       .setProperty(DatabaseProperties.PROP_PASSWORD, "pwd")
-      .setProperty(DatabaseProperties.PROP_EMBEDDED_PORT, "" + port);
+      .setProperty(DatabaseProperties.PROP_EMBEDDED_PORT, "" + port)
+      .setProperty("sonar.path.data", "./target/testDB");
   }
 
   static int freeServerPort() throws IOException {

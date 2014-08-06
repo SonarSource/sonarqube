@@ -27,13 +27,15 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ConfigurationUtils;
-import org.sonar.process.MinimumViableEnvironment;
+import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.MonitoredProcess;
+import org.sonar.process.ProcessLogging;
 import org.sonar.process.Props;
 import org.sonar.search.script.ListUpdate;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -52,12 +54,10 @@ public class SearchServer extends MonitoredProcess {
 
   SearchServer(Props props) throws Exception {
     super(props);
-    new MinimumViableEnvironment().check();
+    new MinimumViableSystem().check();
 
     if (StringUtils.isNotEmpty(props.of(ES_CLUSTER_INET, null))) {
-      for (String node : props.of(ES_CLUSTER_INET).split(",")) {
-        nodes.add(node);
-      }
+      Collections.addAll(nodes, props.of(ES_CLUSTER_INET).split(","));
     }
   }
 
@@ -72,19 +72,6 @@ public class SearchServer extends MonitoredProcess {
 
   @Override
   protected void doStart() {
-
-    if (StringUtils.isEmpty(props.of("sonar.path.home"))) {
-      throw new IllegalStateException("Required property 'sonar.path.home' is not set");
-    }
-
-    if (StringUtils.isEmpty(props.of(ES_CLUSTER_PROPERTY))) {
-      throw new IllegalStateException("Required property '" + ES_CLUSTER_PROPERTY + "' is not set");
-    }
-
-    if (props.intOf(ES_PORT_PROPERTY) == null) {
-      throw new IllegalStateException("Required property '" + ES_PORT_PROPERTY + "' is not set");
-    }
-
     String dataDir = props.of("sonar.path.data");
     String logDir = props.of("sonar.path.logs");
     String tempDir = props.of("sonar.path.temp");
@@ -98,7 +85,7 @@ public class SearchServer extends MonitoredProcess {
       // Disable MCast
       .put("discovery.zen.ping.multicast.enabled", "false")
 
-        // Index storage policies
+      // Index storage policies
       .put("index.merge.policy.max_merge_at_once", "200")
       .put("index.merge.policy.segments_per_tier", "200")
       .put("index.number_of_shards", "1")
@@ -107,19 +94,18 @@ public class SearchServer extends MonitoredProcess {
       .put("indices.store.throttle.type", "merge")
       .put("indices.store.throttle.max_bytes_per_sec", "200mb")
 
-        // Install our own listUpdate scripts
+      // Install our own listUpdate scripts
       .put("script.default_lang", "native")
       .put("script.native." + ListUpdate.NAME + ".type", ListUpdate.UpdateListScriptFactory.class.getName())
 
-        // Node is pure transport
+      // Node is pure transport
       .put("transport.tcp.port", port)
       .put("http.enabled", false)
 
-        // Setting up ES paths
+      // Setting up ES paths
       .put("path.data", new File(dataDir, "es").getAbsolutePath())
       .put("path.work", new File(tempDir).getAbsolutePath())
       .put("path.logs", new File(logDir).getAbsolutePath());
-
 
     if (!nodes.isEmpty()) {
       LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with masters: {}", nodes);
@@ -129,7 +115,6 @@ public class SearchServer extends MonitoredProcess {
       esSettings.put("discovery.zen.minimum_master_nodes",
         new Double(nodes.size() / 2.0).intValue() + 1);
     }
-
 
     // Set cluster coordinates
     esSettings.put("cluster.name", clusterName);
@@ -166,40 +151,40 @@ public class SearchServer extends MonitoredProcess {
       // Disallow dynamic mapping (too expensive)
       .put("index.mapper.dynamic", false)
 
-        // Sortable text analyzer
+      // Sortable text analyzer
       .put("index.analysis.analyzer.sortable.type", "custom")
       .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
       .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase", "truncate")
 
-        // Edge NGram index-analyzer
+      // Edge NGram index-analyzer
       .put("index.analysis.analyzer.index_grams.type", "custom")
       .put("index.analysis.analyzer.index_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.index_grams.filter", "trim", "lowercase", "gram_filter")
 
-        // Edge NGram search-analyzer
+      // Edge NGram search-analyzer
       .put("index.analysis.analyzer.search_grams.type", "custom")
       .put("index.analysis.analyzer.search_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.search_grams.filter", "trim", "lowercase")
 
-        // Word index-analyzer
+      // Word index-analyzer
       .put("index.analysis.analyzer.index_words.type", "custom")
       .put("index.analysis.analyzer.index_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.index_words.filter",
         "standard", "word_filter", "lowercase", "stop", "asciifolding", "porter_stem")
 
-        // Word search-analyzer
+      // Word search-analyzer
       .put("index.analysis.analyzer.search_words.type", "custom")
       .put("index.analysis.analyzer.search_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.search_words.filter",
         "standard", "lowercase", "stop", "asciifolding", "porter_stem")
 
-        // Edge NGram filter
+      // Edge NGram filter
       .put("index.analysis.filter.gram_filter.type", "edgeNGram")
       .put("index.analysis.filter.gram_filter.min_gram", 2)
       .put("index.analysis.filter.gram_filter.max_gram", 15)
       .putArray("index.analysis.filter.gram_filter.token_chars", "letter", "digit", "punctuation", "symbol")
 
-        // Word filter
+      // Word filter
       .put("index.analysis.filter.word_filter.type", "word_delimiter")
       .put("index.analysis.filter.word_filter.generate_word_parts", true)
       .put("index.analysis.filter.word_filter.catenate_words", true)
@@ -210,7 +195,7 @@ public class SearchServer extends MonitoredProcess {
       .put("index.analysis.filter.word_filter.split_on_numerics", true)
       .put("index.analysis.filter.word_filter.stem_english_possessive", true)
 
-        // Path Analyzer
+      // Path Analyzer
       .put("index.analysis.analyzer.path_analyzer.type", "custom")
       .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy");
 

@@ -19,7 +19,6 @@
  */
 package org.sonar.search;
 
-import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -27,7 +26,9 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.process.JmxUtils;
 import org.sonar.process.MonitoredProcess;
 import org.sonar.process.Props;
@@ -35,7 +36,7 @@ import org.sonar.process.Props;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
-import java.io.File;
+
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;
@@ -46,15 +47,15 @@ import static org.junit.Assert.fail;
 
 public class SearchServerTest {
 
-  File tempDirectory;
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   SearchServer searchServer;
   int freePort;
   int freeESPort;
 
   @Before
   public void setup() throws IOException {
-    tempDirectory = FileUtils.getTempDirectory();
-
     ServerSocket socket = new ServerSocket(0);
     freePort = socket.getLocalPort();
     socket.close();
@@ -82,7 +83,9 @@ public class SearchServerTest {
   public void can_connect() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
-    properties.setProperty("sonar.path.home", tempDirectory.getAbsolutePath());
+    properties.setProperty("sonar.path.data", temp.newFolder().getAbsolutePath());
+    properties.setProperty("sonar.path.logs", temp.newFolder().getAbsolutePath());
+    properties.setProperty("sonar.path.temp", temp.newFolder().getAbsolutePath());
     properties.setProperty(SearchServer.ES_PORT_PROPERTY, Integer.toString(freeESPort));
     properties.setProperty(SearchServer.ES_CLUSTER_PROPERTY, "sonarqube");
 

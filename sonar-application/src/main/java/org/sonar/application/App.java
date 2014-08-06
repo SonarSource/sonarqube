@@ -35,6 +35,9 @@ import org.sonar.process.Props;
 import java.io.File;
 import java.util.Properties;
 
+/**
+ * Entry-point of process that starts and monitors elasticsearch and web servers
+ */
 public class App implements ProcessMXBean {
 
   private Monitor monitor = new Monitor();
@@ -61,7 +64,6 @@ public class App implements ProcessMXBean {
         .addJavaOpts(String.format("-Djava.io.tmpdir=%s", tempDir))
         .setClassName("org.sonar.search.SearchServer")
         .addProperties(props.rawProperties())
-        .addProperty(DefaultSettings.SONAR_NODE_NAME, props.of(DefaultSettings.SONAR_NODE_NAME, DefaultSettings.getNonSetNodeName()))
         .addClasspath(starPath(homeDir, "lib/common"))
         .addClasspath(starPath(homeDir, "lib/search"));
       if (elasticsearch.execute()) {
@@ -80,7 +82,6 @@ public class App implements ProcessMXBean {
               .addJavaOpts(String.format("-Dsonar.path.logs=%s", props.of("sonar.path.logs")))
               .setClassName("org.sonar.server.app.WebServer")
               .addProperties(props.rawProperties())
-              .addProperty(DefaultSettings.SONAR_NODE_NAME, props.of(DefaultSettings.SONAR_NODE_NAME, DefaultSettings.getNonSetNodeName()))
               .addClasspath(starPath(homeDir, "lib/common"))
               .addClasspath(starPath(homeDir, "lib/server"));
             String driverPath = props.of(JdbcSettings.PROPERTY_DRIVER_PATH);
