@@ -56,6 +56,7 @@ public class App implements ProcessMXBean {
         .addJavaOpts(String.format("-Dsonar.path.logs=%s", installation.logsDir().getAbsolutePath()))
         .setClassName("org.sonar.search.SearchServer")
         .addProperties(installation.props().rawProperties())
+        .addProperty(DefaultSettings.SONAR_NODE_NAME, installation.prop(DefaultSettings.SONAR_NODE_NAME, DefaultSettings.getNonSetNodeName()))
         .addClasspath(installation.starPath("lib/common"))
         .addClasspath(installation.starPath("lib/search"));
       if (elasticsearch.execute()) {
@@ -73,6 +74,7 @@ public class App implements ProcessMXBean {
               .addJavaOpts(String.format("-Dsonar.path.logs=%s", installation.logsDir().getAbsolutePath()))
               .setClassName("org.sonar.server.app.WebServer")
               .addProperties(installation.props().rawProperties())
+              .addProperty(DefaultSettings.SONAR_NODE_NAME, installation.prop(DefaultSettings.SONAR_NODE_NAME, DefaultSettings.getNonSetNodeName()))
               .addClasspath(installation.starPath("extensions/jdbc-driver/mysql"))
               .addClasspath(installation.starPath("extensions/jdbc-driver/mssql"))
               .addClasspath(installation.starPath("extensions/jdbc-driver/oracle"))

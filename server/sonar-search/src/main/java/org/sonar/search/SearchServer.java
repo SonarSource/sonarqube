@@ -39,6 +39,7 @@ import java.util.Set;
 
 public class SearchServer extends MonitoredProcess {
 
+  public static final String SONAR_NODE_NAME = "sonar.node.name";
   public static final String ES_PORT_PROPERTY = "sonar.search.port";
   public static final String ES_CLUSTER_PROPERTY = "sonar.cluster.name";
   public static final String ES_CLUSTER_INET = "sonar.cluster.master";
@@ -133,10 +134,14 @@ public class SearchServer extends MonitoredProcess {
 
     // Set cluster coordinates
     esSettings.put("cluster.name", clusterName);
-    try {
-      esSettings.put("node.name", InetAddress.getLocalHost().getHostName());
-    } catch (Exception e) {
-      esSettings.put("node.name", "sq-" + System.currentTimeMillis());
+    if (props.contains(SONAR_NODE_NAME)) {
+      esSettings.put("node.name", props.of(SONAR_NODE_NAME));
+    } else {
+      try {
+        esSettings.put("node.name", InetAddress.getLocalHost().getHostName());
+      } catch (Exception e) {
+        esSettings.put("node.name", "sq-" + System.currentTimeMillis());
+      }
     }
 
     // Make sure the index settings are up to date.

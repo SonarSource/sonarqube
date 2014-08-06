@@ -28,6 +28,12 @@ class DefaultSettings {
     // only static stuff
   }
 
+  static final String SONAR_NODE_NAME = "sonar.node.name";
+
+  static String getNonSetNodeName() {
+    return "sonar-" + System.currentTimeMillis();
+  }
+
   static final String SONAR_CLUSTER_MASTER = "sonar.cluster.master";
 
   static final String PATH_LOGS_KEY = "sonar.path.logs";
