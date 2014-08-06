@@ -43,6 +43,7 @@ public class SearchServer extends MonitoredProcess {
   public static final String ES_CLUSTER_PROPERTY = "sonar.cluster.name";
   public static final String ES_CLUSTER_INNET = "sonar.cluster.master";
 
+  private static final Integer MINIMUM_INDEX_REPLICATION = 3;
 
   private final Set<String> nodes = new HashSet<String>();
 
@@ -101,7 +102,7 @@ public class SearchServer extends MonitoredProcess {
       .put("index.merge.policy.max_merge_at_once", "200")
       .put("index.merge.policy.segments_per_tier", "200")
       .put("index.number_of_shards", "1")
-      .put("index.number_of_replicas", "0")
+      .put("index.number_of_replicas", MINIMUM_INDEX_REPLICATION)
       .put("index.store.type", "mmapfs")
       .put("indices.store.throttle.type", "merge")
       .put("indices.store.throttle.max_bytes_per_sec", "200mb")
