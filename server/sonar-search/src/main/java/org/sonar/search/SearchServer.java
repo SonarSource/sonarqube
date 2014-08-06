@@ -34,6 +34,8 @@ import org.sonar.search.script.ListUpdate;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SearchServer extends MonitoredProcess {
 
@@ -42,11 +44,19 @@ public class SearchServer extends MonitoredProcess {
   public static final String ES_CLUSTER_INNET = "sonar.cluster.master";
 
 
+  private final Set<String> nodes = new HashSet<String>();
+
   private Node node;
 
   SearchServer(Props props) throws Exception {
     super(props);
     new MinimumViableEnvironment().check();
+
+    if (StringUtils.isNotEmpty(props.of(ES_CLUSTER_INNET, null))) {
+      for (String node : props.of(ES_CLUSTER_INNET).split(",")) {
+        nodes.add(node);
+      }
+    }
   }
 
   @Override
@@ -109,11 +119,13 @@ public class SearchServer extends MonitoredProcess {
       .put("path.work", new File(tempDir).getAbsolutePath())
       .put("path.logs", new File(logDir).getAbsolutePath());
 
-    if (StringUtils.isNotEmpty(props.of(ES_CLUSTER_INNET, null))) {
-      LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster at: {}", props.of(ES_CLUSTER_INNET));
-      esSettings.put("discovery.zen.ping.unicast.hosts", props.of(ES_CLUSTER_INNET));
-      esSettings.put("discovery.zen.minimum_master_nodes", "2");
+
+    if (!nodes.isEmpty()) {
+      LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with masters: {}", nodes);
+      esSettings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(nodes, ","));
     }
+    esSettings.put("discovery.zen.minimum_master_nodes",
+      new Double(nodes.size() / 2.0).intValue() + 1);
 
     // Set cluster coordinates
     esSettings.put("cluster.name", clusterName);
