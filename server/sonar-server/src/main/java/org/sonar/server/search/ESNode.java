@@ -26,6 +26,8 @@ import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
+import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodeResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.logging.ESLoggerFactory;
@@ -47,7 +49,9 @@ import org.sonar.core.profiling.StopWatch;
 import org.sonar.server.search.es.ListUpdate;
 import org.sonar.server.search.es.ListUpdate.UpdateListScriptFactory;
 
+import javax.annotation.CheckForNull;
 import java.io.File;
+import java.net.InetAddress;
 
 /**
  * ElasticSearch Node used to connect to index.
@@ -129,6 +133,35 @@ public class ESNode implements Startable {
       .addTransportAddress(new InetSocketTransportAddress("localhost",
         port));
     LOG.info("Elasticsearch port: " + port);
+  }
+
+  @CheckForNull
+  private NodeInfo getLocalNodeInfoByHostName(String hostname) {
+    for (ClusterStatsNodeResponse nodeResp : client().admin().cluster().prepareClusterStats().get().getNodes()) {
+      if (hostname.equals(nodeResp.nodeInfo().getHostname())) {
+        return nodeResp.nodeInfo();
+      }
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private NodeInfo getLocalNodeInfoByNodeName(String nodeName) {
+    return client().admin().cluster().prepareClusterStats().get().getNodesMap().get(nodeName).nodeInfo();
+  }
+
+  @CheckForNull
+  private NodeInfo getLocalNodeInfo() {
+    if (settings.hasKey(IndexProperties.NODE_NAME)) {
+      return getLocalNodeInfoByNodeName(settings.getString(IndexProperties.NODE_NAME));
+    } else {
+      try {
+        String LocalhostName = InetAddress.getLocalHost().getHostName();
+        return getLocalNodeInfoByHostName(LocalhostName);
+      } catch (Exception exception) {
+        throw new IllegalStateException("Could not get localhost hostname", exception);
+      }
+    }
   }
 
   private void initLocalClient(IndexProperties.ES_TYPE type, ImmutableSettings.Builder esSettings) {
