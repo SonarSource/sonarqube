@@ -60,6 +60,21 @@
 
 <br/>
 
+<table class="data width100" id="system_info">
+<thead>
+  <tr>
+    <th colspan="2"><h2>Search Info</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.search_info.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'search' } %>
+  <% end %>
+<tbody>
+</table>
+
+<br/>
+
 <table class="data width100" id="memory">
 <thead>
   <tr>

@@ -20,7 +20,7 @@
 class Server
 
   def info
-    system_info + sonar_info + system_statistics + sonar_plugins + system_properties
+    system_info + sonar_info + system_statistics + sonar_plugins + system_properties + search_info
   end
 
   def system_info
@@ -75,6 +75,20 @@ class Server
     add_property(sonar_info, 'Allow Users to Sign Up') { sonar_property(org.sonar.api.CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY) }
     add_property(sonar_info, 'Force Authentication') { sonar_property(org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY) }
     sonar_info
+  end
+
+  def search_info
+    search_info=[]
+    es_node = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerSearch::ESNode.java_class)
+    node_health = es_node.getNodeHealth()
+    add_property(search_info, 'Cluster State') { node_health.isClusterAvailable() ? 'Available' : 'Unavailable' }
+    add_property(search_info, 'JVM Heap Usage') { node_health.getJvmHeapUsedPercent() }
+    add_property(search_info, 'JVM Threads') { node_health.getJvmThreads() }
+    add_property(search_info, 'JVM Uptime') { Internal.i18n.ageFromNow(node_health.getJvmUpSince()) }
+    add_property(search_info, 'Disk Usage') { node_health.getFsUsedPercent() }
+    add_property(search_info, 'Open Files') { node_health.getOpenFiles() }
+    add_property(search_info, 'CPU Load Average') { node_health.getProcessCpuPercent() }
+    search_info
   end
 
   def sonar_plugins

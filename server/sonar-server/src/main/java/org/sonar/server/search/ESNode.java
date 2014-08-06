@@ -28,6 +28,8 @@ import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodeResponse;
+import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodes;
+import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.logging.ESLoggerFactory;
@@ -50,6 +52,7 @@ import org.sonar.server.search.es.ListUpdate;
 import org.sonar.server.search.es.ListUpdate.UpdateListScriptFactory;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.net.InetAddress;
 
@@ -113,11 +116,7 @@ public class ESNode implements Startable {
       initLocalClient(type, esSettings);
     }
 
-    if (client.admin().cluster().prepareHealth()
-      .setWaitForYellowStatus()
-      .setTimeout(healthTimeout)
-      .get()
-      .getStatus() == ClusterHealthStatus.RED) {
+    if (getClusterHealthStatus() == ClusterHealthStatus.RED) {
       throw new IllegalStateException(String.format("Elasticsearch index is corrupt, please delete directory '%s' " +
         "and relaunch the SonarQube server.", esDataDir()));
     }
@@ -125,6 +124,50 @@ public class ESNode implements Startable {
     addIndexTemplates();
 
     LOG.info("Elasticsearch started");
+  }
+
+  public NodeHealth getNodeHealth() {
+    NodeHealth health = new NodeHealth();
+    ClusterStatsResponse clusterStatsResponse = client().admin().cluster().prepareClusterStats().get();
+
+    // Cluster health
+    health.setClusterAvailable(clusterStatsResponse.getStatus() != ClusterHealthStatus.RED);
+
+    ClusterStatsNodes nodesStats = clusterStatsResponse.getNodesStats();
+
+    // JVM Heap Usage
+    health.setJvmHeapMax(nodesStats.getJvm().getHeapMax().bytes());
+    health.setJvmHeapUsed(nodesStats.getJvm().getHeapUsed().bytes());
+
+    // OS Memory Usage ?
+
+    // Disk Usage
+    health.setFsTotal(nodesStats.getFs().getTotal().bytes());
+    health.setFsAvailable(nodesStats.getFs().getAvailable().bytes());
+
+    // Ping ?
+
+    // Threads
+    health.setJvmThreads(nodesStats.getJvm().getThreads());
+
+    // CPU
+    health.setProcessCpuPercent(nodesStats.getProcess().getCpuPercent());
+
+    // Open Files
+    health.setOpenFiles(nodesStats.getProcess().getAvgOpenFileDescriptors());
+
+    // Uptime
+    health.setJvmUptimeMillis(nodesStats.getJvm().getMaxUpTime().getMillis());
+
+    return health;
+  }
+
+  private ClusterHealthStatus getClusterHealthStatus() {
+    return client.admin().cluster().prepareHealth()
+      .setWaitForYellowStatus()
+      .setTimeout(healthTimeout)
+      .get()
+      .getStatus();
   }
 
   private void initRemoteClient(ImmutableSettings.Builder esSettings) {
