@@ -85,10 +85,9 @@ public class SearchServer extends MonitoredProcess {
       throw new IllegalStateException("Required property '" + ES_PORT_PROPERTY + "' is not set");
     }
 
-    String homeDir = props.of("sonar.path.home");
-    String dataDir = props.of("sonar.path.data", homeDir + "/data");
-    String logDir = props.of("sonar.path.logs", homeDir + "/logs");
-    String tempDir = props.of("sonar.path.temp", homeDir + "/temp");
+    String dataDir = props.of("sonar.path.data");
+    String logDir = props.of("sonar.path.logs");
+    String tempDir = props.of("sonar.path.temp");
     Integer port = props.intOf(ES_PORT_PROPERTY);
     String clusterName = props.of(ES_CLUSTER_PROPERTY);
 
