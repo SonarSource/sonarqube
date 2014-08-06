@@ -2,7 +2,9 @@
   "name": "SonarQube",
   "version": "0.0.1",
   "devDependencies": {
-    "express": "3.4.4",
+    "express": "4.8.0",
+    "errorhandler": "1.1.1",
+    "serve-static": "1.5.0",
     "jade": "1.4.2",
     "phantomjs": "1.9.7-12",
     "casperjs": "1.1.0-beta3",
