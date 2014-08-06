@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mvn clean install -DskipTests -Denforcer.skip=true -pl :sonar-search,:sonar-application -amd
+mvn clean install -DskipTests -pl :sonar-search,:sonar-application -amd
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
   OS='macosx-universal-64'
@@ -18,7 +18,7 @@ touch logs/application.log
 touch logs/search.log
 touch logs/sonar.log
 
-#tmux new-session "tmux split-window -v 'tail -f logs/sonar.log'; tmux split-window -h 'tail -f logs/search.log'; java -jar lib/sonar-application*.jar"
-tmux new-session "tmux split-window -h 'tail -f logs/search.log'; java -jar lib/sonar-application*.jar"
+tmux new-session "tmux split-window -v 'tail -f logs/sonar.log'; tmux split-window -h 'tail -f logs/search.log'; java -jar lib/sonar-application*.jar"
+#tmux new-session "tmux split-window -h 'tail -f logs/search.log'; java -jar lib/sonar-application*.jar"
 
 #tmux new-session "tmux split-window -v 'tail -f logs/sonar.log'; tmux split-window -h 'tail -f logs/search.log'; tail -f logs/application.log"
