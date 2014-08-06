@@ -102,6 +102,7 @@ public class SearchServer extends MonitoredProcess {
 
         // Node is pure transport
       .put("transport.tcp.port", port)
+      .put("http.enabled", false)
 
         // Setting up ES paths
       .put("path.data", new File(dataDir, "es").getAbsolutePath())
