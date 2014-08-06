@@ -41,7 +41,7 @@ public class SearchServer extends MonitoredProcess {
 
   public static final String ES_PORT_PROPERTY = "sonar.search.port";
   public static final String ES_CLUSTER_PROPERTY = "sonar.cluster.name";
-  public static final String ES_CLUSTER_INNET = "sonar.cluster.master";
+  public static final String ES_CLUSTER_INET = "sonar.cluster.master";
 
   private static final Integer MINIMUM_INDEX_REPLICATION = 3;
 
@@ -53,8 +53,8 @@ public class SearchServer extends MonitoredProcess {
     super(props);
     new MinimumViableEnvironment().check();
 
-    if (StringUtils.isNotEmpty(props.of(ES_CLUSTER_INNET, null))) {
-      for (String node : props.of(ES_CLUSTER_INNET).split(",")) {
+    if (StringUtils.isNotEmpty(props.of(ES_CLUSTER_INET, null))) {
+      for (String node : props.of(ES_CLUSTER_INET).split(",")) {
         nodes.add(node);
       }
     }
@@ -125,6 +125,8 @@ public class SearchServer extends MonitoredProcess {
       LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with masters: {}", nodes);
       esSettings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(nodes, ","));
     }
+
+    // Enforce a N/2+1 number of masters in cluster
     esSettings.put("discovery.zen.minimum_master_nodes",
       new Double(nodes.size() / 2.0).intValue() + 1);
 
