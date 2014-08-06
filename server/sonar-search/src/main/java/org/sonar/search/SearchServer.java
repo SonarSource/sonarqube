@@ -43,7 +43,7 @@ public class SearchServer extends MonitoredProcess {
   public static final String ES_CLUSTER_PROPERTY = "sonar.cluster.name";
   public static final String ES_CLUSTER_INET = "sonar.cluster.master";
 
-  private static final Integer MINIMUM_INDEX_REPLICATION = 3;
+  private static final Integer MINIMUM_INDEX_REPLICATION = 1;
 
   private final Set<String> nodes = new HashSet<String>();
 
