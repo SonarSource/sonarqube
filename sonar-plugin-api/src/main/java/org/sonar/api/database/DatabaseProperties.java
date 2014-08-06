@@ -31,7 +31,6 @@ public interface DatabaseProperties {
   String PROP_PASSWORD = "sonar.jdbc.password";
   String PROP_PASSWORD_DEFAULT_VALUE = "sonar";
   String PROP_DIALECT = "sonar.jdbc.dialect";
-  String PROP_EMBEDDED_DATA_DIR = "sonar.embeddedDatabase.dataDir";
 
   /**
    * @since 3.2

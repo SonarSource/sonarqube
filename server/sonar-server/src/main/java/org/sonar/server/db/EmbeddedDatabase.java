@@ -26,7 +26,6 @@ import org.h2.tools.Server;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.SonarException;
@@ -35,7 +34,7 @@ import java.io.File;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class EmbeddedDatabase implements Startable  {
+public class EmbeddedDatabase implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(EmbeddedDatabase.class);
   private final Settings settings;
   private Server server;
@@ -84,27 +83,7 @@ public class EmbeddedDatabase implements Startable  {
 
   @VisibleForTesting
   File getDataDirectory(Settings settings) {
-    String dirName = settings.getString(DatabaseProperties.PROP_EMBEDDED_DATA_DIR);
-    if (!StringUtils.isBlank(dirName)) {
-      return getEmbeddedDataDirectory(dirName);
-    }
-    return getSonarHomeDataDirectory(settings);
-  }
-
-  private File getEmbeddedDataDirectory(String directoryName) {
-    File embeddedDataDirectory = new File(directoryName);
-    if(embeddedDataDirectory.exists() && !embeddedDataDirectory.isDirectory()) {
-      throw new SonarException("Database home " + embeddedDataDirectory.getAbsolutePath() + " is not a directory");
-    }
-    return embeddedDataDirectory;
-  }
-
-  private File getSonarHomeDataDirectory(Settings settings) {
-    File sonarHome = new File(settings.getString("sonar.path.home"));
-    if (!sonarHome.isDirectory()) {
-      throw new IllegalStateException("SonarQube home directory is not valid");
-    }
-    return new File(sonarHome, "data");
+    return new File(settings.getString("sonar.path.data"));
   }
 
   private String getSetting(String name, String defaultValue) {

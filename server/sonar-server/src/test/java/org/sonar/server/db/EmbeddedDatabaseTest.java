@@ -23,10 +23,8 @@ import org.h2.Driver;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
-import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +62,7 @@ public class EmbeddedDatabaseTest {
     int port = freeServerPort();
 
     EmbeddedDatabase database = new EmbeddedDatabase(testSettings(port)
-        .setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:tcp://localhost:" + port + "/mem:sonarIT;USER=sonar;PASSWORD=sonar"));
+      .setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:tcp://localhost:" + port + "/mem:sonarIT;USER=sonar;PASSWORD=sonar"));
     database.start();
 
     try {
@@ -79,33 +77,6 @@ public class EmbeddedDatabaseTest {
   }
 
   @Test
-  public void should_return_sonar_home_directory() throws Exception {
-    Settings settings = testSettings(0);
-    settings.setProperty("sonar.path.home", ".");
-    settings.setProperty(DatabaseProperties.PROP_EMBEDDED_DATA_DIR, "");
-
-    EmbeddedDatabase database = new EmbeddedDatabase(settings);
-
-    File dataDirectory = database.getDataDirectory(settings);
-    assertThat(dataDirectory).isNotNull();
-    assertThat(dataDirectory.getPath()).endsWith("data");
-  }
-
-  @Test
-  public void should_fail_on_invalid_sonar_home_directory() throws Exception {
-    throwable.expect(IllegalStateException.class);
-
-    String testPath = getClass().getResource(".").getPath();
-
-    Settings settings = testSettings(0);
-    settings.setProperty("sonar.path.home", testPath + "/unmatched_directory");
-    settings.setProperty(DatabaseProperties.PROP_EMBEDDED_DATA_DIR, "");
-
-    EmbeddedDatabase database = new EmbeddedDatabase(settings);
-    database.getDataDirectory(settings);
-  }
-
-  @Test
   public void should_return_embedded_data_directory() throws Exception {
 
     Settings settings = testSettings(0);
@@ -116,25 +87,11 @@ public class EmbeddedDatabaseTest {
     assertThat(dataDirectory.getPath()).endsWith("testDB");
   }
 
-  @Test
-  public void should_fail_on_invalid_data_directory() throws Exception {
-    throwable.expect(SonarException.class);
-
-    String testPath = getClass().getResource(".").getPath();
-
-    Settings settings = testSettings(0);
-    settings.setProperty(DatabaseProperties.PROP_EMBEDDED_DATA_DIR, testPath + "/invalid_db_data_file");
-
-    EmbeddedDatabase database = new EmbeddedDatabase(settings);
-    database.start();
-  }
-
   static Settings testSettings(int port) {
     return new Settings()
-        .setProperty(DatabaseProperties.PROP_USER, "login")
-        .setProperty(DatabaseProperties.PROP_PASSWORD, "pwd")
-        .setProperty(DatabaseProperties.PROP_EMBEDDED_PORT, "" + port)
-        .setProperty(DatabaseProperties.PROP_EMBEDDED_DATA_DIR, "./target/testDB");
+      .setProperty(DatabaseProperties.PROP_USER, "login")
+      .setProperty(DatabaseProperties.PROP_PASSWORD, "pwd")
+      .setProperty(DatabaseProperties.PROP_EMBEDDED_PORT, "" + port);
   }
 
   static int freeServerPort() throws IOException {
