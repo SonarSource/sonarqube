@@ -25,6 +25,7 @@ import com.google.common.io.Resources;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.config.Settings;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;
@@ -41,8 +42,9 @@ public class JdbcDriverDeployerTest {
   @Test
   public void test_deploy() throws Exception {
     DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class);
-    File initialDriver = new File(Resources.getResource(getClass(), "JdbcDriverDeployerTest/deploy/my-driver.jar").toURI());
-    when(fs.getJdbcDriver()).thenReturn(initialDriver);
+    File driver = new File(Resources.getResource(getClass(), "JdbcDriverDeployerTest/deploy/my-driver.jar").toURI());
+    Settings settings = new Settings();
+    settings.setProperty("sonar.jdbc.driverPath", driver.getAbsolutePath());
 
     File deployDir = temp.newFolder("deploy");
     when(fs.getDeployDir()).thenReturn(deployDir);
@@ -52,19 +54,19 @@ public class JdbcDriverDeployerTest {
     assertThat(deployedFile).doesNotExist();
     when(fs.getDeployedJdbcDriverIndex()).thenReturn(deployedIndex);
 
-    new JdbcDriverDeployer(fs).start();
+    new JdbcDriverDeployer(fs, settings).start();
 
     assertThat(deployedIndex).exists();
     assertThat(deployedFile).exists();
-    assertThat(deployedFile).hasSize(initialDriver.length());
+    assertThat(deployedFile).hasSize(driver.length());
 
     assertThat(Files.toString(deployedIndex, Charsets.UTF_8)).isEqualTo("my-driver.jar|02b97f7bc37b2b68fc847fcc3fc1c156");
   }
 
   @Test
   public void create_empty_file_when_no_jdbc_driver() throws Exception {
+    Settings settings = new Settings();
     DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class);
-    when(fs.getJdbcDriver()).thenReturn(null);
 
     File deployDir = temp.newFolder("deploy");
     when(fs.getDeployDir()).thenReturn(deployDir);
@@ -72,7 +74,7 @@ public class JdbcDriverDeployerTest {
     assertThat(deployedIndex).doesNotExist();
     when(fs.getDeployedJdbcDriverIndex()).thenReturn(deployedIndex);
 
-    new JdbcDriverDeployer(fs).start();
+    new JdbcDriverDeployer(fs, settings).start();
 
     assertThat(deployedIndex).exists();
     assertThat(Files.toString(deployedIndex, Charsets.UTF_8)).isEqualTo("");

@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import static org.fest.assertions.Fail.fail;
 
-public class MinimumViableEnvironmentTest {
+public class MinimumViableSystemTest {
 
   /**
    * Verifies that all checks can be verified without error.
@@ -32,19 +32,19 @@ public class MinimumViableEnvironmentTest {
    */
   @Test
   public void check() throws Exception {
-    MinimumViableEnvironment mve = new MinimumViableEnvironment();
+    MinimumViableSystem mve = new MinimumViableSystem();
 
     try {
       mve.check();
       // ok
-    } catch (MinimumViableEnvironment.MessageException e) {
+    } catch (MessageException e) {
       // also ok. All other exceptions are errors.
     }
   }
 
   @Test
   public void checkJavaVersion() throws Exception {
-    MinimumViableEnvironment mve = new MinimumViableEnvironment();
+    MinimumViableSystem mve = new MinimumViableSystem();
 
     // yes, sources are compiled with a supported Java version!
     mve.checkJavaVersion();
@@ -53,7 +53,7 @@ public class MinimumViableEnvironmentTest {
     try {
       mve.checkJavaVersion("1.5.2");
       fail();
-    } catch (MinimumViableEnvironment.MessageException e) {
+    } catch (MessageException e) {
       Assertions.assertThat(e).hasMessage("Minimal required Java version is 1.6. Got 1.5.2.");
     }
   }
@@ -61,14 +61,14 @@ public class MinimumViableEnvironmentTest {
   @Test
   public void checkJavaOption() throws Exception {
     String key = "MinimumViableEnvironmentTest.test.prop";
-    MinimumViableEnvironment mve = new MinimumViableEnvironment()
+    MinimumViableSystem mve = new MinimumViableSystem()
       .setRequiredJavaOption(key, "true");
 
     try {
       System.setProperty(key, "false");
       mve.checkJavaOptions();
       fail();
-    } catch (MinimumViableEnvironment.MessageException e) {
+    } catch (MessageException e) {
       Assertions.assertThat(e).hasMessage("JVM option '" + key + "' must be set to 'true'. Got 'false'");
     }
 

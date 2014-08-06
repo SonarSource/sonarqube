@@ -22,48 +22,15 @@ package org.sonar.server.platform;
 import com.google.common.io.Resources;
 import org.junit.Test;
 import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.dialect.Dialect;
-import org.sonar.core.persistence.dialect.H2;
-import org.sonar.core.persistence.dialect.MySql;
 
 import java.io.File;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class DefaultServerFileSystemTest {
 
   private static final String PATH = "org/sonar/server/platform/DefaultServerFileSystemTest/";
-
-  @Test
-  public void get_jdbc_driver() throws Exception {
-    Database database = mock(Database.class);
-    when(database.getDialect()).thenReturn(new MySql());
-    File file = new File(Resources.getResource(PATH + "testGetJdbcDriver").toURI());
-    File driver = new DefaultServerFileSystem(database, file, null).getJdbcDriver();
-    assertThat(driver).isNotNull();
-  }
-
-  @Test
-  public void get_jdbc_driver_return_null_when_h2() {
-    Database database = mock(Database.class);
-    when(database.getDialect()).thenReturn(new H2());
-    assertThat(new DefaultServerFileSystem(database, (File) null, null).getJdbcDriver()).isNull();
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void fail_if_jdbc_driver_not_found() throws Exception {
-    Database database = mock(Database.class);
-
-    Dialect fakeDialect = mock(Dialect.class);
-    when(fakeDialect.getId()).thenReturn("none");
-    when(database.getDialect()).thenReturn(fakeDialect);
-
-    new DefaultServerFileSystem(database, new File(Resources.getResource(PATH + "testGetJdbcDriver").toURI()), null).getJdbcDriver();
-  }
 
   @Test
   public void find_plugins() throws Exception {

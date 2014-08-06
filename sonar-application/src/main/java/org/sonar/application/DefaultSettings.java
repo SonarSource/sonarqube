@@ -22,70 +22,74 @@ package org.sonar.application;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.Props;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class DefaultSettings {
 
   private DefaultSettings() {
     // only static stuff
   }
 
+  static final String CLUSTER_MASTER = "sonar.cluster.master";
+  static final String CLUSTER_NAME = "sonar.cluster.name";
+  static final String PATH_LOGS = "sonar.path.logs";
+  static final String SEARCH_PORT = "sonar.search.port";
+  static final String SEARCH_JMX_PORT = "sonar.search.jmxPort";
+  static final String SEARCH_JAVA_OPTS = "sonar.search.javaOpts";
+  static final String WEB_JMX_PORT = "sonar.web.jmxPort";
+  static final String WEB_JAVA_OPTS = "sonar.web.javaOpts";
+  static final String JDBC_URL = "sonar.jdbc.url";
+  static final String JDBC_LOGIN = "sonar.jdbc.username";
+  static final String JDBC_PASSWORD = "sonar.jdbc.password";
   static final String SONAR_NODE_NAME = "sonar.node.name";
 
   static String getNonSetNodeName() {
     return "sonar-" + System.currentTimeMillis();
   }
 
-  static final String SONAR_CLUSTER_MASTER = "sonar.cluster.master";
-
-  static final String PATH_LOGS_KEY = "sonar.path.logs";
-
-  static final String ES_PORT_KEY = "sonar.search.port";
-  private static final int ES_PORT_DEFVAL = 9001;
-
-  static final String ES_CLUSTER_NAME_KEY = "sonar.cluster.name";
-  private static final String ES_CLUSTER_NAME_DEFVAL = "sonarqube";
-
-  static final String ES_JMX_PORT_KEY = "sonar.search.jmxPort";
-  private static final int ES_JMX_PORT_DEFVAL = 9002;
-
-  static final String ES_JAVA_OPTS_KEY = "sonar.search.javaOpts";
-  private static final String ES_JAVA_OPTS_DEFVAL = "-Xmx256m -Xms256m -Xss256k -Djava.net.preferIPv4Stack=true " +
-    "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +
-    "-XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true";
-
-
-  static final String WEB_JMX_PORT_KEY = "sonar.web.jmxPort";
-  private static final int WEB_JMX_PORT_DEFVAL = 9003;
-
-  static final String WEB_JAVA_OPTS_KEY = "sonar.web.javaOpts";
-  private static final String WEB_JAVA_OPTS_DEFVAL = "-Xmx768m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false";
-
-  static final String JDBC_LOGIN_KEY = "sonar.jdbc.username";
-  private static final String JDBC_LOGIN_DEFVAL = "sonar";
-  static final String JDBC_PASSWORD_KEY = "sonar.jdbc.password";
-  private static final String JDBC_PASSWORD_DEFVAL = "sonar";
-
-  static void initDefaults(Props props) {
-    // elasticsearch
+  static void init(Props props) {
+    // forced property
     props.set("sonar.search.type", "TRANSPORT");
-    props.setDefault(DefaultSettings.ES_CLUSTER_NAME_KEY, DefaultSettings.ES_CLUSTER_NAME_DEFVAL);
-    setDefaultPort(props, DefaultSettings.ES_PORT_KEY, DefaultSettings.ES_PORT_DEFVAL, "Elasticsearch");
-    setDefaultPort(props, DefaultSettings.ES_JMX_PORT_KEY, DefaultSettings.ES_JMX_PORT_DEFVAL, "Elasticsearch JMX");
-    props.setDefault(DefaultSettings.ES_JAVA_OPTS_KEY, DefaultSettings.ES_JAVA_OPTS_DEFVAL);
 
-    // web
-    setDefaultPort(props, DefaultSettings.WEB_JMX_PORT_KEY, DefaultSettings.WEB_JMX_PORT_DEFVAL, "HTTP Server JMX");
-    props.setDefault(DefaultSettings.WEB_JAVA_OPTS_KEY, DefaultSettings.WEB_JAVA_OPTS_DEFVAL);
-    props.setDefault(DefaultSettings.JDBC_LOGIN_KEY, DefaultSettings.JDBC_LOGIN_DEFVAL);
-    props.setDefault(DefaultSettings.JDBC_PASSWORD_KEY, DefaultSettings.JDBC_PASSWORD_DEFVAL);
+    // init string properties
+    for (Map.Entry<String, String> entry : defaults().entrySet()) {
+      props.setDefault(entry.getKey(), entry.getValue());
+    }
+
+    // init ports
+    for (Map.Entry<String, Integer> entry : defaultPorts().entrySet()) {
+      String key = entry.getKey();
+      int port = props.intOf(key, -1);
+      if (port == -1) {
+        // default port
+        props.set(key, String.valueOf((int) entry.getValue()));
+      } else if (port == 0) {
+        // pick one available port
+        props.set(key, String.valueOf(NetworkUtils.freePort()));
+      }
+    }
   }
 
-  private static void setDefaultPort(Props props, String propertyKey, int defaultPort, String label) {
-    int port = props.intOf(propertyKey, -1);
-    if (port == -1) {
-      port = defaultPort;
-    } else if (port == 0) {
-      port = NetworkUtils.freePort();
-    }
-    props.set(propertyKey, String.valueOf(port));
+  private static Map<String, String> defaults() {
+    Map<String, String> defaults = new HashMap<String, String>();
+    defaults.put(CLUSTER_NAME, "sonarqube");
+    defaults.put(SEARCH_JAVA_OPTS, "-Xmx256m -Xms256m -Xss256k -Djava.net.preferIPv4Stack=true " +
+      "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +
+      "-XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true");
+    defaults.put(WEB_JAVA_OPTS, "-Xmx768m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError " +
+      "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false");
+    defaults.put(JDBC_URL, "jdbc:h2:tcp://localhost:9092/sonar");
+    defaults.put(JDBC_LOGIN, "sonar");
+    defaults.put(JDBC_PASSWORD, "sonar");
+    return defaults;
+  }
+
+  private static Map<String, Integer> defaultPorts() {
+    Map<String, Integer> defaults = new HashMap<String, Integer>();
+    defaults.put(SEARCH_PORT, 9001);
+    defaults.put(SEARCH_JMX_PORT, 9002);
+    defaults.put(WEB_JMX_PORT, 9003);
+    return defaults;
   }
 }

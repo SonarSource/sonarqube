@@ -66,7 +66,6 @@ class Server
     add_property(sonar_info, 'Database URL') { sonar_property('sonar.jdbc.url') }
     add_property(sonar_info, 'Database Login') { sonar_property('sonar.jdbc.username') }
     add_property(sonar_info, 'Database Driver') { "#{jdbc_metadata.getDriverName()} #{jdbc_metadata.getDriverVersion()}" }
-    add_property(sonar_info, 'Database Dialect (Hibernate)') { "#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getId()} (#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDialect().getHibernateDialectClass().getName()})" }
     add_property(sonar_info, 'Database Active Connections') { "#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getDatabase().getDataSource().getNumActive()}" }
     add_property(sonar_info, 'Database Max. Active Connections') { sonar_property('sonar.jdbc.maxActive') }
     add_property(sonar_info, 'Database Max. Pool Wait') { sonar_property('sonar.jdbc.maxWait') }

@@ -28,9 +28,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.dialect.H2;
 
-import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -125,26 +123,6 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
 
   public File getTrashPluginsDir() {
     return new File(getHomeDir(), "extensions/trash");
-  }
-
-  /**
-   * Return null when database is H2, as batch is already containing H2 jar
-   */
-  @CheckForNull
-  public File getJdbcDriver() {
-    String dialect = database.getDialect().getId();
-    if (H2.ID.equals(dialect)) {
-      return null;
-    }
-    File dir = new File(getHomeDir(), "/extensions/jdbc-driver/" + dialect + "/");
-    List<File> jars = getFiles(dir, "jar");
-    if (jars.isEmpty()) {
-      throw new IllegalStateException("No JDBC driver found in " + dir.getAbsolutePath());
-    }
-    if (jars.size() > 1) {
-      throw new IllegalStateException("The directory " + dir.getAbsolutePath() + " accepts only a single JAR file");
-    }
-    return jars.get(0);
   }
 
   public List<File> getCorePlugins() {

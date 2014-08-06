@@ -227,6 +227,7 @@ public class SearchServer extends MonitoredProcess {
 
   public static void main(String... args) throws Exception {
     Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
+    new ProcessLogging().configure(props, "/org/sonar/search/logback.xml");
     new SearchServer(props).start();
   }
 }

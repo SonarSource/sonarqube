@@ -17,30 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application;
+package org.sonar.process;
 
-import org.apache.commons.io.FilenameUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
-import java.io.File;
-import java.io.IOException;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class AppTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  @Test
-  public void starPath() throws IOException {
-    File homeDir = temp.newFolder();
-    String startPath = App.starPath(homeDir, "lib/search");
-    assertThat(FilenameUtils.normalize(startPath, true))
-      .endsWith("*")
-      .startsWith(FilenameUtils.normalize(homeDir.getAbsolutePath(), true));
+public class MessageException extends RuntimeException {
+  public MessageException(String message) {
+    super(message);
   }
 
+  /**
+   * Does not fill in the stack trace
+   *
+   * @see Throwable#fillInStackTrace()
+   */
+  @Override
+  public synchronized Throwable fillInStackTrace() {
+    return this;
+  }
 }

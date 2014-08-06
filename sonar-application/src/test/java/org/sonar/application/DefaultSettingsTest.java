@@ -29,9 +29,9 @@ import static org.fest.assertions.Assertions.assertThat;
 public class DefaultSettingsTest {
 
   @Test
-  public void initDefaults() throws Exception {
+  public void init_defaults() throws Exception {
     Props props = new Props(new Properties());
-    DefaultSettings.initDefaults(props);
+    DefaultSettings.init(props);
 
     assertThat(props.of("sonar.search.javaOpts")).contains("-Xmx");
     assertThat(props.intOf("sonar.web.jmxPort")).isEqualTo(9003);
@@ -44,7 +44,7 @@ public class DefaultSettingsTest {
     Properties p = new Properties();
     p.setProperty("sonar.jdbc.username", "angela");
     Props props = new Props(p);
-    DefaultSettings.initDefaults(props);
+    DefaultSettings.init(props);
 
     assertThat(props.of("sonar.jdbc.username")).isEqualTo("angela");
   }
@@ -55,7 +55,7 @@ public class DefaultSettingsTest {
     p.setProperty("sonar.search.jmxPort", "0");
     Props props = new Props(p);
 
-    DefaultSettings.initDefaults(props);
+    DefaultSettings.init(props);
     assertThat(props.intOf("sonar.web.jmxPort")).isGreaterThan(0);
   }
 }

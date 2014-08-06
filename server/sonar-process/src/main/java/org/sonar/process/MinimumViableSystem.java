@@ -27,11 +27,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MinimumViableEnvironment {
+public class MinimumViableSystem {
 
   private final Map<String, String> requiredJavaOptions = new HashMap<String, String>();
 
-  public MinimumViableEnvironment setRequiredJavaOption(String propertyKey, String expectedValue) {
+  public MinimumViableSystem setRequiredJavaOption(String propertyKey, String expectedValue) {
     requiredJavaOptions.put(propertyKey, expectedValue);
     return this;
   }
@@ -81,19 +81,4 @@ public class MinimumViableEnvironment {
     }
   }
 
-  static class MessageException extends RuntimeException {
-    private MessageException(String message) {
-      super(message);
-    }
-
-    /**
-     * Does not fill in the stack trace
-     *
-     * @see java.lang.Throwable#fillInStackTrace()
-     */
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-      return this;
-    }
-  }
 }

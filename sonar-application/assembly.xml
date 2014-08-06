@@ -120,7 +120,7 @@
     </dependencySet>
     <!-- JDBC drivers -->
     <dependencySet>
-      <outputDirectory>extensions/jdbc-driver/mysql/</outputDirectory>
+      <outputDirectory>lib/jdbc/mysql/</outputDirectory>
       <includes>
         <include>mysql:mysql-connector-java</include>
       </includes>
@@ -128,7 +128,7 @@
       <scope>provided</scope>
     </dependencySet>
     <dependencySet>
-      <outputDirectory>extensions/jdbc-driver/postgresql/</outputDirectory>
+      <outputDirectory>lib/jdbc/postgresql/</outputDirectory>
       <includes>
         <include>org.postgresql:postgresql</include>
       </includes>
@@ -136,7 +136,7 @@
       <scope>provided</scope>
     </dependencySet>
     <dependencySet>
-      <outputDirectory>extensions/jdbc-driver/mssql/</outputDirectory>
+      <outputDirectory>lib/jdbc/jtds/</outputDirectory>
       <includes>
         <include>net.sourceforge.jtds:jtds</include>
       </includes>

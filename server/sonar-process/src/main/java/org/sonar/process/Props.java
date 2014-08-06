@@ -19,8 +19,12 @@
  */
 package org.sonar.process;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import java.io.File;
 import java.util.Properties;
 
 public class Props {
@@ -61,6 +65,12 @@ public class Props {
     return s != null ? Boolean.parseBoolean(s) : defaultValue;
   }
 
+  @CheckForNull
+  public File fileOf(String key) {
+    String s = of(key);
+    return s != null ? new File(s) : null;
+  }
+
   public Integer intOf(String key) {
     String s = of(key);
     if (s != null && !"".equals(s)) {
@@ -87,9 +97,10 @@ public class Props {
     return this;
   }
 
-  public void setDefault(String propKey, String defaultValue) {
-    if (!props.containsKey(propKey)) {
-      props.setProperty(propKey, defaultValue);
+  public void setDefault(String key, String value) {
+    String s = props.getProperty(key);
+    if (StringUtils.isBlank(s)) {
+      props.setProperty(key, value);
     }
   }
 }

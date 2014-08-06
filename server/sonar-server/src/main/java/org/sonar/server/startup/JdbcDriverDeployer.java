@@ -20,6 +20,7 @@
 package org.sonar.server.startup;
 
 import org.apache.commons.io.FileUtils;
+import org.sonar.api.config.Settings;
 import org.sonar.home.cache.FileHashes;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
@@ -31,23 +32,27 @@ import java.io.IOException;
 public class JdbcDriverDeployer {
 
   private final DefaultServerFileSystem fileSystem;
+  private final Settings settings;
 
-  public JdbcDriverDeployer(DefaultServerFileSystem fileSystem) {
+  public JdbcDriverDeployer(DefaultServerFileSystem fileSystem, Settings settings) {
     this.fileSystem = fileSystem;
+    this.settings = settings;
   }
 
   public void start() {
     File deployedDriver = null;
-    File driver = fileSystem.getJdbcDriver();
+    // see initialization of this property in sonar-application
+    String driverPath = settings.getString("sonar.jdbc.driverPath");
     // Driver can be null for H2, in that case we write an empty jdbc-driver.txt file
-    if (driver != null) {
+    if (driverPath != null) {
+      File driver = new File(driverPath);
       deployedDriver = new File(fileSystem.getDeployDir(), driver.getName());
-      if (!deployedDriver.exists() || deployedDriver.length() != driver.length()) {
+      if (!deployedDriver.exists() || FileUtils.sizeOf(deployedDriver) != FileUtils.sizeOf(driver)) {
         try {
           FileUtils.copyFile(driver, deployedDriver);
-
         } catch (IOException e) {
-          throw new IllegalStateException("Can not copy the JDBC driver from " + driver + " to " + deployedDriver, e);
+          throw new IllegalStateException(
+            String.format("Can not copy the JDBC driver from %s to %s", driver, deployedDriver), e);
         }
       }
     }

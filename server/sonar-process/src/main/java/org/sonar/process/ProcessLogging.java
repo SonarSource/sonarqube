@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application;
+package org.sonar.process;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -25,20 +25,29 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import org.slf4j.LoggerFactory;
 
-class AppLogging {
+public class ProcessLogging {
 
-  void configure(Installation installation) {
+  private static final String PATH_LOGS_PROPERTY = "sonar.path.logs";
+
+  public void configure(Props props, String logbackXmlResource) {
     LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
     try {
-      context.putProperty(DefaultSettings.PATH_LOGS_KEY, installation.logsDir().getAbsolutePath());
       JoranConfigurator configurator = new JoranConfigurator();
       configurator.setContext(context);
       context.reset();
-      configurator.doConfigure(getClass().getResource("/org/sonar/application/logback.xml"));
+      context.putProperty(PATH_LOGS_PROPERTY, props.of(PATH_LOGS_PROPERTY));
+      doConfigure(configurator, logbackXmlResource);
     } catch (JoranException je) {
       // StatusPrinter will handle this
     }
     StatusPrinter.printInCaseOfErrorsOrWarnings(context);
 
+  }
+
+  /**
+   * Extracted only for unit testing
+   */
+  void doConfigure(JoranConfigurator configurator, String logbackXmlResource) throws JoranException {
+    configurator.doConfigure(getClass().getResource(logbackXmlResource));
   }
 }

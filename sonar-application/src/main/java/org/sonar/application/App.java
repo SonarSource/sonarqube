@@ -19,68 +19,74 @@
  */
 package org.sonar.application;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.JmxUtils;
+import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitor;
+import org.sonar.process.ProcessLogging;
 import org.sonar.process.ProcessMXBean;
 import org.sonar.process.ProcessUtils;
 import org.sonar.process.ProcessWrapper;
+import org.sonar.process.Props;
+
+import java.io.File;
+import java.util.Properties;
 
 public class App implements ProcessMXBean {
-
-  private final Installation installation;
 
   private Monitor monitor = new Monitor();
   private ProcessWrapper elasticsearch;
   private ProcessWrapper server;
   private boolean success = false;
 
-  public App(Installation installation) throws Exception {
-    this.installation = installation;
+  public App() throws Exception {
     JmxUtils.registerMBean(this, "SonarQube");
     ProcessUtils.addSelfShutdownHook(this);
   }
 
-  public void start() throws InterruptedException {
+  public void start(Props props) throws InterruptedException {
     try {
       Logger logger = LoggerFactory.getLogger(getClass());
       monitor.start();
 
+      File homeDir = props.fileOf("sonar.path.home");
+      String tempDir = props.of("sonar.path.temp");
       elasticsearch = new ProcessWrapper(JmxUtils.SEARCH_SERVER_NAME)
-        .setWorkDir(installation.homeDir())
-        .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.ES_JMX_PORT_KEY)))
-        .addJavaOpts(installation.prop(DefaultSettings.ES_JAVA_OPTS_KEY))
-        .addJavaOpts(String.format("-Djava.io.tmpdir=%s", installation.tempDir().getAbsolutePath()))
-        .addJavaOpts(String.format("-Dsonar.path.logs=%s", installation.logsDir().getAbsolutePath()))
+        .setWorkDir(homeDir)
+        .setJmxPort(props.intOf(DefaultSettings.SEARCH_JMX_PORT))
+        .addJavaOpts(props.of(DefaultSettings.SEARCH_JAVA_OPTS))
+        .addJavaOpts(String.format("-Djava.io.tmpdir=%s", tempDir))
         .setClassName("org.sonar.search.SearchServer")
-        .addProperties(installation.props().rawProperties())
-        .addProperty(DefaultSettings.SONAR_NODE_NAME, installation.prop(DefaultSettings.SONAR_NODE_NAME, DefaultSettings.getNonSetNodeName()))
-        .addClasspath(installation.starPath("lib/common"))
-        .addClasspath(installation.starPath("lib/search"));
+        .addProperties(props.rawProperties())
+        .addProperty(DefaultSettings.SONAR_NODE_NAME, props.of(DefaultSettings.SONAR_NODE_NAME, DefaultSettings.getNonSetNodeName()))
+        .addClasspath(starPath(homeDir, "lib/common"))
+        .addClasspath(starPath(homeDir, "lib/search"));
       if (elasticsearch.execute()) {
         monitor.registerProcess(elasticsearch);
         if (elasticsearch.waitForReady()) {
           logger.info("search server is up");
 
-          //do not yet start SQ in cluster mode. See SONAR-5483 & SONAR-5391
-          if (StringUtils.isEmpty(installation.prop(DefaultSettings.SONAR_CLUSTER_MASTER, null))) {
+          // do not yet start SQ in cluster mode. See SONAR-5483 & SONAR-5391
+          if (StringUtils.isEmpty(props.of(DefaultSettings.CLUSTER_MASTER, null))) {
             server = new ProcessWrapper(JmxUtils.WEB_SERVER_NAME)
-              .setWorkDir(installation.homeDir())
-              .setJmxPort(Integer.parseInt(installation.prop(DefaultSettings.WEB_JMX_PORT_KEY)))
-              .addJavaOpts(installation.prop(DefaultSettings.WEB_JAVA_OPTS_KEY))
-              .addJavaOpts(String.format("-Djava.io.tmpdir=%s", installation.tempDir().getAbsolutePath()))
-              .addJavaOpts(String.format("-Dsonar.path.logs=%s", installation.logsDir().getAbsolutePath()))
+              .setWorkDir(homeDir)
+              .setJmxPort(props.intOf(DefaultSettings.WEB_JMX_PORT))
+              .addJavaOpts(props.of(DefaultSettings.WEB_JAVA_OPTS))
+              .addJavaOpts(String.format("-Djava.io.tmpdir=%s", tempDir))
+              // required for logback tomcat valve
+              .addJavaOpts(String.format("-Dsonar.path.logs=%s", props.of("sonar.path.logs")))
               .setClassName("org.sonar.server.app.WebServer")
-              .addProperties(installation.props().rawProperties())
-              .addProperty(DefaultSettings.SONAR_NODE_NAME, installation.prop(DefaultSettings.SONAR_NODE_NAME, DefaultSettings.getNonSetNodeName()))
-              .addClasspath(installation.starPath("extensions/jdbc-driver/mysql"))
-              .addClasspath(installation.starPath("extensions/jdbc-driver/mssql"))
-              .addClasspath(installation.starPath("extensions/jdbc-driver/oracle"))
-              .addClasspath(installation.starPath("extensions/jdbc-driver/postgresql"))
-              .addClasspath(installation.starPath("lib/common"))
-              .addClasspath(installation.starPath("lib/server"));
+              .addProperties(props.rawProperties())
+              .addProperty(DefaultSettings.SONAR_NODE_NAME, props.of(DefaultSettings.SONAR_NODE_NAME, DefaultSettings.getNonSetNodeName()))
+              .addClasspath(starPath(homeDir, "lib/common"))
+              .addClasspath(starPath(homeDir, "lib/server"));
+            String driverPath = props.of(JdbcSettings.PROPERTY_DRIVER_PATH);
+            if (driverPath != null) {
+              server.addClasspath(driverPath);
+            }
             if (server.execute()) {
               monitor.registerProcess(server);
               if (server.waitForReady()) {
@@ -98,6 +104,11 @@ public class App implements ProcessMXBean {
     } finally {
       terminate();
     }
+  }
+
+  static String starPath(File homeDir, String relativePath) {
+    File dir = new File(homeDir, relativePath);
+    return FilenameUtils.concat(dir.getAbsolutePath(), "*");
   }
 
   @Override
@@ -132,12 +143,15 @@ public class App implements ProcessMXBean {
   }
 
   public static void main(String[] args) throws Exception {
-    Installation installation = Installation.parseArguments(args);
-    new AppLogging().configure(installation);
-    App app = new App(installation);
+    new MinimumViableSystem().check();
+    CommandLineParser cli = new CommandLineParser();
+    Properties rawProperties = cli.parseArguments(args);
+    Props props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
+    new ProcessLogging().configure(props, "/org/sonar/application/logback.xml");
+    App app = new App();
 
     // start and wait for shutdown command
-    app.start();
+    app.start(props);
 
     LoggerFactory.getLogger(App.class).info("stopped");
     System.exit(app.isSuccess() ? 0 : 1);

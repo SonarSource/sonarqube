@@ -21,7 +21,7 @@ package org.sonar.server.app;
 
 import org.slf4j.LoggerFactory;
 import org.sonar.process.ConfigurationUtils;
-import org.sonar.process.MinimumViableEnvironment;
+import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.MonitoredProcess;
 import org.sonar.process.Props;
 
@@ -31,7 +31,7 @@ public class WebServer extends MonitoredProcess {
 
   WebServer(Props props) throws Exception {
     super(props);
-    new MinimumViableEnvironment()
+    new MinimumViableSystem()
       .setRequiredJavaOption("file.encoding", "UTF-8")
       .check();
     this.tomcat = new EmbeddedTomcat(props);
