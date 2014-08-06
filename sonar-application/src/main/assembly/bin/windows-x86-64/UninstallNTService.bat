@@ -38,7 +38,7 @@ rem
 :conf
 set _WRAPPER_CONF="%~f1"
 if not %_WRAPPER_CONF%=="" goto startup
-set _WRAPPER_CONF="%_REALPATH%..\..\lib\jsw\wrapper.conf"
+set _WRAPPER_CONF="%_REALPATH%..\..\conf\wrapper.conf"
 
 rem
 rem Uninstall the Wrapper as an NT service.
