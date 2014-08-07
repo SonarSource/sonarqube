@@ -51,7 +51,6 @@ import org.sonar.core.profiling.StopWatch;
 import org.sonar.server.search.es.ListUpdate;
 
 import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.net.InetAddress;
 
@@ -102,7 +101,7 @@ public class ESNode implements Startable {
 
       // Set cluster coordinates
       .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(IndexProperties.CLUSTER_NAME), "sonarqube"))
-      .put("node.rack_id", settings.hasKey(IndexProperties.NODE_NAME))
+      .put("node.rack_id", StringUtils.defaultIfEmpty(settings.getString(IndexProperties.NODE_NAME), "unknown"))
 
       .put("path.home", esHomeDir().getAbsolutePath());
 
