@@ -118,6 +118,8 @@ public class SearchServer extends MonitoredProcess {
 
     // Set cluster coordinates
     esSettings.put("cluster.name", clusterName);
+    esSettings.put("node.rack_id", props.of(SONAR_NODE_NAME));
+    esSettings.put("cluster.routing.allocation.awareness.attributes","rack_id");
     if (props.contains(SONAR_NODE_NAME)) {
       esSettings.put("node.name", props.of(SONAR_NODE_NAME));
     } else {

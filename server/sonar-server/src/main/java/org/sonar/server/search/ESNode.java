@@ -49,7 +49,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
 import org.sonar.server.search.es.ListUpdate;
-import org.sonar.server.search.es.ListUpdate.UpdateListScriptFactory;
 
 import javax.annotation.CheckForNull;
 
@@ -101,10 +100,10 @@ public class ESNode implements Startable {
       .put("indices.store.throttle.type", "merge")
       .put("indices.store.throttle.max_bytes_per_sec", "200mb")
 
-      .put("script.default_lang", "native")
-      .put("script.native." + ListUpdate.NAME + ".type", UpdateListScriptFactory.class.getName())
-
+      // Set cluster coordinates
       .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(IndexProperties.CLUSTER_NAME), "sonarqube"))
+      .put("node.rack_id", settings.hasKey(IndexProperties.NODE_NAME))
+
       .put("path.home", esHomeDir().getAbsolutePath());
 
 
@@ -233,6 +232,11 @@ public class ESNode implements Startable {
       .put("index.number_of_shards", "1")
       .put("index.number_of_replicas", "0")
       .put("node.local", true)
+
+        // Initialize our own ListUpdate
+      .put("script.default_lang", "native")
+      .put("script.native." + ListUpdate.NAME + ".type", ListUpdate.UpdateListScriptFactory.class.getName())
+
 
       .put("index.search.slowlog.threshold.query.warn", "10ms")
         // Cannot use anything else but warn
