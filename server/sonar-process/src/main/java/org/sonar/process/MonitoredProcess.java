@@ -96,6 +96,8 @@ public abstract class MonitoredProcess implements ProcessMXBean {
   @Override
   public final void terminate() {
     if (monitor != null) {
+      Logger logger = LoggerFactory.getLogger(getClass());
+      logger.debug("Process[{}] terminating", name);
       monitor.shutdownNow();
       monitor = null;
       if (pingTask != null) {
@@ -108,6 +110,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
         LoggerFactory.getLogger(getClass()).error("Fail to terminate " + name, e);
         // do not propagate exception
       }
+      logger.debug("Process[{}] terminated", name);
     }
   }
 

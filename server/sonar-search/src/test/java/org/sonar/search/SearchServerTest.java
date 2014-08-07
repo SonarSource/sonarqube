@@ -80,6 +80,34 @@ public class SearchServerTest {
   }
 
   @Test
+  public void server_fail_to_start() throws Exception {
+    Properties properties = new Properties();
+    properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
+
+
+    searchServer = new SearchServer(new Props(properties));
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        searchServer.start();
+      }
+    }).start();
+    assertThat(searchServer.isReady()).isFalse();
+
+    int count = 0;
+    while (!searchServer.isReady() && count < 100) {
+      try {
+        Thread.sleep(500);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      count++;
+    }
+    assertThat(count).isEqualTo(100);
+
+  }
+
+  @Test
   public void can_connect() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
