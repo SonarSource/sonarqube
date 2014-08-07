@@ -47,7 +47,8 @@ define [
             checked: false
             index: index
             language: languages[item.language]
-        comparator: 'index'
+        comparator: (item) ->
+          [item.get('text'), item.get('language')]
       )
       if currentValue
         @restore(currentValue)
