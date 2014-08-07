@@ -56,15 +56,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class ProcessWrapper extends Thread implements Terminable {
 
-  static {
-    // by default there's no timeout on RMI calls on client-side
-    // http://docs.oracle.com/javase/6/docs/technotes/guides/rmi/sunrmiproperties.html
-    System.setProperty("sun.rmi.transport.connectionTimeout", "5000");
-    System.setProperty("sun.rmi.transport.tcp.handshakeTimeout", "5000");
-    System.setProperty("sun.rmi.transport.tcp.handshakeTimeout", "5000");
-    System.setProperty("sun.rmi.transport.tcp.readTimeout", "5000");
-  }
-
   private final static Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
 
   public static final long READY_TIMEOUT_MS = 300000L;
