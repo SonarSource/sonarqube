@@ -77,18 +77,21 @@ public class PropsBuilderTest {
   }
 
   @Test
-  public void fail_if_missing_required_directory() throws Exception {
+  public void create_missing_required_directory() throws Exception {
     // <home>/data is missing
     FileUtils.forceMkdir(webDir);
     FileUtils.forceMkdir(logsDir);
 
     File dataDir = new File(homeDir, "data");
-    try {
-      new PropsBuilder(new Properties(), jdbcSettings, homeDir).build();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).startsWith("Property 'sonar.path.data' is not valid, directory does not exist: " + dataDir.getAbsolutePath());
-    }
+    new PropsBuilder(new Properties(), jdbcSettings, homeDir).build();
+    assertThat(dataDir).isDirectory().exists();
+  }
+
+  @Test
+  public void fail_if_required_directory_is_a_file() throws Exception {
+    // <home>/data is missing
+    FileUtils.forceMkdir(webDir);
+    FileUtils.forceMkdir(logsDir);
 
     try {
       FileUtils.touch(dataDir);

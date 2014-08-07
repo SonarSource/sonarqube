@@ -101,8 +101,7 @@ class PropsBuilder {
   private void initExistingDir(Props props, String propKey, String defaultRelativePath) throws IOException {
     File dir = configureDir(props, propKey, defaultRelativePath);
     if (!dir.exists()) {
-      throw new IllegalStateException(String.format("Property '%s' is not valid, directory does not exist: %s",
-        propKey, dir.getAbsolutePath()));
+      FileUtils.forceMkdir(dir);
     }
     if (!dir.isDirectory()) {
       throw new IllegalStateException(String.format("Property '%s' is not valid, not a directory: %s",
