@@ -26,7 +26,7 @@ class Group < ActiveRecord::Base
   
   validates_presence_of     :name
   validates_length_of       :name,    :within => 1..255
-  validates_length_of       :description,    :within => 0..200
+  validates_length_of       :description,    :maximum => 200, :allow_blank => true
   validates_uniqueness_of   :name
   validate       :name_cant_be_anyone
 
