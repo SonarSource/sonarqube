@@ -6,50 +6,58 @@
     comment_lines=measure('comment_lines')
     comment_lines_density=measure('comment_lines_density')
 %>
-<table width="100%">
-  <tbody>
-    <tr>
-      <% if public_documented_api_density || public_api || public_undocumented_api %>
-      <td valign="top" width="50%">
-        <div class="dashbox">
-          <p class="title"><%= message('widget.documentation_comments.documentation') -%></p>
-          <p>
-            <%
-            if public_documented_api_density
-            %>
-            <span class="big"><%= format_measure(public_documented_api_density, :url => url_for_drilldown(Metric::PUBLIC_UNDOCUMENTED_API, :highlight => Metric::PUBLIC_DOCUMENTED_API_DENSITY))%></span><%= message('widget.documentation_comments.docu_api.suffix') %>
-            <%= dashboard_configuration.selected_period? ? format_variation('public_documented_api_density') : trend_icon('public_documented_api_density') -%>
-            <% end %>
-          </p>
-          <p>
-            <%= format_measure(public_api,:url => url_for_drilldown(public_api), :suffix =>  message('widget.documentation_comments.public_api.suffix'))%>
-            <%= dashboard_configuration.selected_period? ? format_variation(public_api) : trend_icon(public_api) -%>
-          </p>
-          <p>
-            <%= format_measure(public_undocumented_api,:url => url_for_drilldown(public_undocumented_api), :suffix => message('widget.documentation_comments.undocu_api.suffix'))%>
-            <%= dashboard_configuration.selected_period? ? format_variation(public_undocumented_api) : trend_icon(public_undocumented_api) -%>
-          </p>
-        </div>
-      </td>
+<div class="widget-row">
+  <div class="widget-span widget-span-6">
+    <% if public_documented_api_density || public_api || public_undocumented_api %>
+    <div class="widget-measure-container">
+      <%
+        if public_documented_api_density
+      %>
+      <div class="widget-measure widget-measure-main">
+        <span class="widget-label"><%= message('widget.documentation_comments.documentation') -%></span>
+        <span class="nowrap">
+          <%= format_measure(public_documented_api_density, :url => url_for_drilldown(Metric::PUBLIC_UNDOCUMENTED_API, :highlight => Metric::PUBLIC_DOCUMENTED_API_DENSITY)) %>
+          <%= dashboard_configuration.selected_period? ? format_variation('public_documented_api_density') : trend_icon('public_documented_api_density') -%>
+        </span>
+      </div>
       <% end %>
-      <td valign="top" width="50%">
-        <div class="dashbox">
-          <p class="title"><%= message('widget.documentation_comments.comments') -%></p>
-          <p>
-            <span class="big">
-              <%= format_measure(comment_lines_density,:url => url_for_drilldown(comment_lines_density))%>
-            </span>
-            <%= dashboard_configuration.selected_period? ? format_variation(comment_lines_density) : trend_icon(comment_lines_density) -%>
-          </p>
-          <p>
-            <%= format_measure(comment_lines,:url => url_for_drilldown(comment_lines), :suffix =>  message('widget.documentation_comments.lines.suffix'))%>
-            <%= dashboard_configuration.selected_period? ? format_variation(comment_lines) : trend_icon(comment_lines) -%>
-          </p>
-        </div>
-      </td>
-    </tr>
-  </tbody>
-</table>
+      <div class="widget-measure">
+        <span class="widget-label"><%= message('metric.public_api.name') -%></span>
+        <span class="nowrap">
+          <%= format_measure(public_api,:url => url_for_drilldown(public_api)) %>
+          <%= dashboard_configuration.selected_period? ? format_variation(public_api) : trend_icon(public_api) -%>
+        </span>
+      </div>
+      <div class="widget-measure">
+        <span class="widget-label"><%= message('metric.public_undocumented_api.abbreviation') -%></span>
+        <span class="nowrap">
+          <%= format_measure(public_undocumented_api,:url => url_for_drilldown(public_undocumented_api)) %>
+          <%= dashboard_configuration.selected_period? ? format_variation(public_undocumented_api) : trend_icon(public_undocumented_api) -%>
+        </span>
+      </div>
+    </div>
+    <% end %>
+  </div>
+
+  <div class="widget-span widget-span-6">
+    <div class="widget-measure-container">
+      <div class="widget-measure widget-measure-main">
+        <span class="widget-label"><%= message('widget.documentation_comments.comments') -%></span>
+        <span class="nowrap">
+          <%= format_measure(comment_lines_density,:url => url_for_drilldown(comment_lines_density))%>
+          <%= dashboard_configuration.selected_period? ? format_variation(comment_lines_density) : trend_icon(comment_lines_density) -%>
+        </span>
+      </div>
+      <div class="widget-measure">
+        <span class="widget-label"><%= message('metric.comment_lines.name') -%></span>
+        <span class="nowrap">
+          <%= format_measure(comment_lines,:url => url_for_drilldown(comment_lines)) %>
+          <%= dashboard_configuration.selected_period? ? format_variation(comment_lines) : trend_icon(comment_lines) -%>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
 <%
   end
 %>
