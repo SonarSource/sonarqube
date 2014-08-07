@@ -85,7 +85,7 @@
 
   <!-- Turn off ElasticSearch logging -->
   <logger name="org.elasticsearch">
-    <level value="OFF"/>
+    <level value="INFO"/>
   </logger>
   <logger name="org.elasticsearch.node">
     <level value="INFO"/>
