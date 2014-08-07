@@ -370,7 +370,15 @@ public class ESNode implements Startable {
       client = null;
     }
     if (node != null) {
+      LoggerFactory.getLogger(this.getClass()).info("Shutting down In Memory ES");
       node.close();
+      while (!node.isClosed()) {
+        try {
+          Thread.sleep(100);
+        } catch (InterruptedException e) {
+          // ignore
+        }
+      }
       node = null;
     }
   }
