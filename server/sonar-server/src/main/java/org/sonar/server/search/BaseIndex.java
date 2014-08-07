@@ -25,6 +25,8 @@ import com.google.common.collect.Multimap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.count.CountRequestBuilder;
+import org.elasticsearch.action.count.CountResponse;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequestBuilder;
@@ -56,17 +58,10 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable>
@@ -185,10 +180,11 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     IndexStat stat = new IndexStat();
 
     /** get total document count */
-    stat.setDocumentCount(
-      getClient().prepareCount(this.getIndexName())
-        .setQuery(QueryBuilders.matchAllQuery())
-        .get().getCount());
+    CountRequestBuilder countRequest = getClient().prepareCount(this.getIndexName())
+      .setTypes(this.getIndexType())
+      .setQuery(QueryBuilders.matchAllQuery());
+    CountResponse response = node.execute(countRequest);
+    stat.setDocumentCount(response.getCount());
 
     /** get Management information */
     stat.setLastUpdate(getLastSynchronization());

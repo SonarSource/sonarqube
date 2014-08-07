@@ -224,6 +224,7 @@ class ServerComponents {
       IndexClient.class,
       ActivityNormalizer.class,
       ActivityIndex.class,
+      SearchHealth.class,
 
       // LogService
       ActivityService.class

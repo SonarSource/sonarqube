@@ -21,6 +21,7 @@ package org.sonar.server.search;
 
 import org.sonar.api.ServerComponent;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,5 +52,9 @@ public class IndexClient implements ServerComponent {
       }
     }
     throw new IllegalStateException("no index for type '"+indexType+"' is registered");
+  }
+
+  public Collection<Index<?, ?, ?>> allIndices() {
+    return indexComponents.values();
   }
 }

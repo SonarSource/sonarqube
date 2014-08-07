@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Date;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -34,15 +35,25 @@ public class SearchHealthMediumTest {
 
   @Test
   public void get_search_health(){
-    ESNode node = tester.get(ESNode.class);
-    NodeHealth nodeHealth = node.getNodeHealth();
+    SearchHealth health = tester.get(SearchHealth.class);
+    Date now = new Date();
+
+    NodeHealth nodeHealth = health.getNodeHealth();
     assertThat(nodeHealth.isClusterAvailable()).isTrue();
     assertThat(nodeHealth.getJvmHeapUsedPercent()).contains("%");
     assertThat(nodeHealth.getFsUsedPercent()).contains("%");
     assertThat(nodeHealth.getJvmThreads()).isGreaterThanOrEqualTo(0L);
     assertThat(nodeHealth.getProcessCpuPercent()).contains("%");
     assertThat(nodeHealth.getOpenFiles()).isGreaterThanOrEqualTo(0L);
-    assertThat(nodeHealth.getJvmUpSince().before(new Date())).isTrue();
+    assertThat(nodeHealth.getJvmUpSince().before(now)).isTrue();
+
+    Map<String, IndexHealth> indexHealth = health.getIndexHealth();
+    assertThat(indexHealth).isNotEmpty();
+    for(IndexHealth index: indexHealth.values()) {
+      assertThat(index.getDocumentCount()).isGreaterThanOrEqualTo(0L);
+      assertThat(index.getLastSynchronization().before(now)).isTrue();
+      assertThat(index.isOptimized()).isIn(true, false);
+    }
   }
 
 }

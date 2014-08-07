@@ -78,8 +78,8 @@ class Server
 
   def search_info
     search_info=[]
-    es_node = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerSearch::ESNode.java_class)
-    node_health = es_node.getNodeHealth()
+    search_health = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerSearch::SearchHealth.java_class)
+    node_health = search_health.getNodeHealth()
     add_property(search_info, 'Cluster State') { node_health.isClusterAvailable() ? 'Available' : 'Unavailable' }
     add_property(search_info, 'JVM Heap Usage') { node_health.getJvmHeapUsedPercent() }
     add_property(search_info, 'JVM Threads') { node_health.getJvmThreads() }
@@ -87,6 +87,13 @@ class Server
     add_property(search_info, 'Disk Usage') { node_health.getFsUsedPercent() }
     add_property(search_info, 'Open Files') { node_health.getOpenFiles() }
     add_property(search_info, 'CPU Load Average') { node_health.getProcessCpuPercent() }
+
+    search_health.getIndexHealth().each do |name, index_health|
+      add_property(search_info, "Document Count (#{name})") { index_health.getDocumentCount() }
+      add_property(search_info, "Last Sync (#{name})") { index_health.getLastSynchronization() }
+      add_property(search_info, "Optimization (#{name})") { index_health.isOptimized() ? 'Optimized' : "Unoptimized (Segments: #{index_health.getSegmentcount()}, Pending Deletions: #{index_health.getPendingDeletion()})" }
+    end
+
     search_info
   end
 
