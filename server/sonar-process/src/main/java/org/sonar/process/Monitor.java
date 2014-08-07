@@ -23,10 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -35,11 +32,9 @@ import java.util.concurrent.TimeUnit;
 public class Monitor extends Thread implements Terminable {
 
   private static final long PING_DELAY_MS = 3000L;
-  private static final long TIMEOUT_MS = 15000L;
   private final static Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
 
   private volatile List<ProcessWrapper> processes;
-  private final Map<String, Long> pings;
   private final ScheduledFuture<?> watch;
   private final ScheduledExecutorService monitor;
 
@@ -49,7 +44,6 @@ public class Monitor extends Thread implements Terminable {
   public Monitor() {
     super("Process Monitor");
     processes = new ArrayList<ProcessWrapper>();
-    pings = new ConcurrentHashMap<String, Long>();
     monitor = Executors.newScheduledThreadPool(1);
     watch = monitor.scheduleWithFixedDelay(new ProcessWatch(), 0L, PING_DELAY_MS, TimeUnit.MILLISECONDS);
   }
@@ -65,8 +59,7 @@ public class Monitor extends Thread implements Terminable {
         try {
           ProcessMXBean mBean = process.getProcessMXBean();
           if (mBean != null) {
-            long time = mBean.ping();
-            pings.put(process.getName(), time);
+            mBean.ping();
           }
         } catch (Exception e) {
           // fail to ping, do nothing
@@ -80,17 +73,8 @@ public class Monitor extends Thread implements Terminable {
    */
   public void registerProcess(ProcessWrapper process) throws InterruptedException {
     processes.add(process);
-    pings.put(process.getName(), System.currentTimeMillis());
     // starts a monitoring thread
     process.start();
-  }
-
-  private boolean processIsValid(ProcessWrapper processWrapper) {
-    if (ProcessUtils.isAlive(processWrapper.process())) {
-      long now = System.currentTimeMillis();
-      return now - pings.get(processWrapper.getName()) < TIMEOUT_MS;
-    }
-    return false;
   }
 
   /**
@@ -103,8 +87,8 @@ public class Monitor extends Thread implements Terminable {
       boolean ok = true;
       while (ok) {
         for (ProcessWrapper process : processes) {
-          if (!processIsValid(process)) {
-            LOGGER.info("{} is down, stopping processes", process.getName());
+          if (!ProcessUtils.isAlive(process.process())) {
+            LOGGER.info("{} is down, stopping all other processes", process.getName());
             ok = false;
             interrupt();
           }
@@ -129,7 +113,7 @@ public class Monitor extends Thread implements Terminable {
       watch.cancel(true);
     }
 
-    for (int i=processes.size()-1 ; i>=0 ; i--) {
+    for (int i = processes.size() - 1; i >= 0; i--) {
       processes.get(i).terminate();
     }
     processes.clear();
