@@ -39,9 +39,9 @@ public class SearchHealthMediumTest {
     assertThat(nodeHealth.isClusterAvailable()).isTrue();
     assertThat(nodeHealth.getJvmHeapUsedPercent()).contains("%");
     assertThat(nodeHealth.getFsUsedPercent()).contains("%");
-    assertThat(nodeHealth.getJvmThreads()).isGreaterThan(0L);
+    assertThat(nodeHealth.getJvmThreads()).isGreaterThanOrEqualTo(0L);
     assertThat(nodeHealth.getProcessCpuPercent()).contains("%");
-    assertThat(nodeHealth.getOpenFiles()).isGreaterThan(0L);
+    assertThat(nodeHealth.getOpenFiles()).isGreaterThanOrEqualTo(0L);
     assertThat(nodeHealth.getJvmUpSince().before(new Date())).isTrue();
   }
 
