@@ -1,5 +1,8 @@
 $ = jQuery
 
+window.SS = if typeof window.SS == 'object' then window.SS else {}
+window.SS.hoursInDay = window.SS.hoursInDay || 8
+
 transformPattern = (pattern) ->
   return pattern.replace /\{0\}/g, '(\\d+)'
 
@@ -22,15 +25,15 @@ convertWorkDuration = (value) ->
   if !value
     value
   else
-    (days * 8 + hours) * 60 + minutes
+    (days * window.SS.hoursInDay + hours) * 60 + minutes
 
 
 restoreWorkDuration = (value) ->
   return '0' if (value == '0' || value == 0)
   return value unless /^\d+$/.test value
 
-  days = Math.floor(value / (8 * 60))
-  hours = Math.floor((value - days * 8 * 60) / 60)
+  days = Math.floor(value / (window.SS.hoursInDay * 60))
+  hours = Math.floor((value - days * window.SS.hoursInDay * 60) / 60)
   minutes = value % 60
   result = []
   result.push t('work_duration.x_days').replace('{0}', days) if days > 0
@@ -85,4 +88,3 @@ $.fn.val = (value) ->
     convertValue originalVal.call(@), @
 
 $.fn.originalVal = originalVal
-
