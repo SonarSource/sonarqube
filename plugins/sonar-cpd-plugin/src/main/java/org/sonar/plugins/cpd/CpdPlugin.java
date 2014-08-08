@@ -38,7 +38,10 @@ public final class CpdPlugin extends SonarPlugin {
       PropertyDefinition.builder(CoreProperties.CPD_CROSS_PROJECT)
         .defaultValue(CoreProperties.CPD_CROSS_RPOJECT_DEFAULT_VALUE + "")
         .name("Cross project duplication detection")
-        .description("SonarQube supports the detection of cross project duplications. Activating this property will slightly increase each SonarQube analysis time.")
+        .description("By default, SonarQube detects duplications at sub-project level. This means that a block "
+          + "duplicated on two sub-projects of the same project won't be reported. Setting this parameter to \"true\" "
+          + "allows to detect duplicates across sub-projects and more generally across projects. Note that activating "
+          + "this property will slightly increase each SonarQube analysis time.")
         .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS)
