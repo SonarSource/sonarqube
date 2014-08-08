@@ -89,9 +89,9 @@ class Server
     add_property(search_info, 'CPU Load Average') { node_health.getProcessCpuPercent() }
 
     search_health.getIndexHealth().each do |name, index_health|
-      add_property(search_info, "Document Count (#{name})") { index_health.getDocumentCount() }
-      add_property(search_info, "Last Sync (#{name})") { index_health.getLastSynchronization() }
-      add_property(search_info, "Optimization (#{name})") { index_health.isOptimized() ? 'Optimized' : "Unoptimized (Segments: #{index_health.getSegmentcount()}, Pending Deletions: #{index_health.getPendingDeletion()})" }
+      add_property(search_info, "#{name} - Document Count") { index_health.getDocumentCount() }
+      add_property(search_info, "#{name} - Last Sync") { index_health.getLastSynchronization() }
+      add_property(search_info, "#{name} - Optimization") { index_health.isOptimized() ? 'Optimized' : "Unoptimized (Segments: #{index_health.getSegmentcount()}, Pending Deletions: #{index_health.getPendingDeletion()})" }
     end
 
     search_info
