@@ -43,6 +43,20 @@ casper.test.begin(testName('Readonly Tests'), function suite(test) {
         test.assertSelectorHasText('.navigator-filter[data-property="tags"] option:nth-child(11)', 'unused');
         casper.click('.navigator-filter.active>.navigator-filter-disable');
       });
+
+      // Check repositories are sorted by name, then language
+      test.assertSelectorHasText('#filter-repositories li:nth-child(1) span:nth-child(1)', 'Common SonarQube');
+      test.assertSelectorHasText('#filter-repositories li:nth-child(1) span:nth-child(2)', 'CoffeeScript');
+      test.assertSelectorHasText('#filter-repositories li:nth-child(2) span:nth-child(1)', 'Common SonarQube');
+      test.assertSelectorHasText('#filter-repositories li:nth-child(2) span:nth-child(2)', 'Java');
+      test.assertSelectorHasText('#filter-repositories li:nth-child(3) span:nth-child(1)', 'Manual Rules');
+      test.assertSelectorHasText('#filter-repositories li:nth-child(3) span:nth-child(2)', 'None');
+      test.assertSelectorHasText('#filter-repositories li:nth-child(4) span:nth-child(1)', 'SonarQube');
+      test.assertSelectorHasText('#filter-repositories li:nth-child(4) span:nth-child(2)', 'CoffeeScript');
+      test.assertSelectorHasText('#filter-repositories li:nth-child(5) span:nth-child(1)', 'SonarQube');
+      test.assertSelectorHasText('#filter-repositories li:nth-child(5) span:nth-child(2)', 'Java');
+      test.assertSelectorHasText('#filter-repositories li:nth-child(6) span:nth-child(1)', 'SonarQube');
+      test.assertSelectorHasText('#filter-repositories li:nth-child(6) span:nth-child(2)', 'Xoo');
     });
 
 
