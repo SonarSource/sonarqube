@@ -87,7 +87,7 @@ public class Monitor extends Thread implements Terminable {
       boolean ok = true;
       while (ok) {
         for (ProcessWrapper process : processes) {
-          if (process.isAlive()) {
+          if (!ProcessUtils.isAlive(process.process())) {
             LOGGER.info("{} is down, stopping all other processes", process.getName());
             ok = false;
             interrupt();
