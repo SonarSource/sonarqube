@@ -56,6 +56,7 @@ define [
     close: ->
       @options.app.fetchFirstPage()
       @hide()
+      false
 
 
     prepareQuery: ->
@@ -92,6 +93,7 @@ define [
         @$(@ui.codingRulesSubmitBulkChange.selector).hide()
         @$(@ui.codingRulesCancelBulkChange.selector).hide()
         @$(@ui.codingRulesCloseBulkChange.selector).show()
+        @$(@ui.codingRulesCloseBulkChange.selector).focus()
       .fail =>
         @ui.modalFooter.html origFooter
 
