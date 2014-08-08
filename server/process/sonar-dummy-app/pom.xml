@@ -4,23 +4,22 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>org.codehaus.sonar</groupId>
-    <artifactId>server</artifactId>
+    <artifactId>process</artifactId>
     <version>4.5-SNAPSHOT</version>
     <relativePath>../</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>sonar-process-test</artifactId>
+  <artifactId>sonar-dummy-app</artifactId>
   <packaging>jar</packaging>
-  <name>SonarQube :: Process :: Test</name>
-  <description>Wrapper to start Elasticsearch</description>
+  <name>SonarQube :: Process :: DummyApp</name>
+  <description>Dummy Application to test sonar-process</description>
 
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-process</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -86,7 +85,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
+              <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
               <minimizeJar>true</minimizeJar>
             </configuration>
           </execution>

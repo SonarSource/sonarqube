@@ -11,8 +11,7 @@
   <name>SonarQube :: Server :: Parent</name>
 
   <modules>
-    <module>sonar-process-test</module>
-    <module>sonar-process</module>
+    <module>process</module>
     <module>sonar-search</module>
     <module>sonar-server</module>
     <module>sonar-web</module>
