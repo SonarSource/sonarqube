@@ -20,6 +20,7 @@
 package org.sonar.process;
 
 import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -34,6 +35,13 @@ public class ProcessWrapperTest {
     freePort = socket.getLocalPort();
     socket.close();
   }
+
+
+  @Test
+  public void has_dummy_app(){
+    
+  }
+
 
 //  @Test
 //  @Ignore("Not a good idea to assert on # of VMs")

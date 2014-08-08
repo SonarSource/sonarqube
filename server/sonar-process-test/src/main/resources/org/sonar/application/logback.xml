@@ -10,19 +10,6 @@
   <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
 
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <filter class="ch.qos.logback.classic.filter.LevelFilter">
-      <level>INFO</level>
-      <onMatch>ACCEPT</onMatch>
-      <onMismatch>DENY</onMismatch>
-    </filter>
-    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>
-        %d{yyyy.MM.dd HH:mm:ss} %-5level %msg%n
-      </pattern>
-    </encoder>
-  </appender>
-
-  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>
         %d{yyyy.MM.dd HH:mm:ss} %-5level %msg%n
@@ -34,5 +21,4 @@
     <level value="DEBUG"/>
     <appender-ref ref="CONSOLE"/>
   </root>
-
 </configuration>

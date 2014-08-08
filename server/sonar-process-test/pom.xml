@@ -12,7 +12,7 @@
 
   <artifactId>sonar-process-test</artifactId>
   <packaging>jar</packaging>
-  <name>SonarQube :: Search</name>
+  <name>SonarQube :: Process :: Test</name>
   <description>Wrapper to start Elasticsearch</description>
 
   <dependencies>
@@ -20,10 +20,6 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-process</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -68,6 +64,18 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>false</addClasspath>
+              <mainClass>org.sonar.application.DummyOkApp</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>2.3</version>
         <executions>
@@ -77,6 +85,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
               <minimizeJar>true</minimizeJar>
             </configuration>
           </execution>

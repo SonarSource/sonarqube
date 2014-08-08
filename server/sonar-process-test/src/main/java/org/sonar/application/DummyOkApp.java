@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar;
+package org.sonar.application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +26,11 @@ import org.sonar.process.Props;
 
 import java.util.Properties;
 
-public class DummyOKApplication extends MonitoredProcess {
+public class DummyOkApp extends MonitoredProcess {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DummyOKApplication.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DummyOkApp.class);
 
-  protected DummyOKApplication(Props props) throws Exception {
+  protected DummyOkApp(Props props) throws Exception {
     super(props);
   }
 
@@ -49,10 +49,10 @@ public class DummyOKApplication extends MonitoredProcess {
     return false;
   }
 
-  public static void main(String... args) throws Exception {
+  public static void main(String[] args) throws Exception {
     Props props = new Props(new Properties());
-    props.set(MonitoredProcess.NAME_PROPERTY, DummyOKApplication.class.getSimpleName());
-    new DummyOKApplication(props).start();
+    props.set(MonitoredProcess.NAME_PROPERTY, DummyOkApp.class.getSimpleName());
+    new DummyOkApp(props).start();
     System.exit(1);
   }
 }
