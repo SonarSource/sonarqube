@@ -210,34 +210,24 @@ a.external {
 
 /* ------------------- PAGE ------------------- */
 h1, .h1 {
-  color: #444;
+  color: @baseFontColor;
   font-size: 16px;
 }
 
-h1 a {
-  color: #444;
-  text-decoration: none;
-  border-bottom: 1px dotted #2B547D;
-}
-
 h2, .h2 {
-  color: #2B547D;
+  color: @baseFontColor;
   font-size: 16px;
   font-weight: normal;
 }
 
-h2 a {
-  color: #2B547D;
-  text-decoration: none;
-  border-bottom: 1px dotted #2B547D;
-}
-
 h3, .h3 {
+  color: @baseFontColor;
   font-size: 100%;
   font-weight: bold;
 }
 
 h4, .h4 {
+  color: @baseFontColor;
   font-size: 85%;
   color: #777;
 }
@@ -338,6 +328,10 @@ h1 img, .h1 img, h2 img, .h2 img, h3 img, .h3 img, h4 img, .h4 img {
 
 #login_form p {
   padding: 3px 0 10px;
+}
+
+#login_form a {
+  border-bottom-color: @blue;
 }
 
 #login_form .desc {
@@ -813,6 +807,7 @@ th.operations, td.operations {
   margin: 0;
   font-size: 12px;
   padding: 0 0 10px 0;
+  .trans(border-color);
 
   .error {
     line-height: normal;

@@ -1,3 +1,6 @@
+@import (reference) 'variables';
+@import (reference) 'mixins';
+
 .select-list-container {
   min-width: 500px;
   -moz-box-sizing: border-box;
@@ -115,9 +118,9 @@
   width: 110px;
   height: 27px;
   line-height: 25px;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
+  .box-sizing(border-box);
   border: 1px solid #bfbfbf;
+  color: @baseFontColor;
   text-align: center;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -125,12 +128,14 @@
 
 .select-list-control-button:hover {
   background-color: #f6f6f6;
+  color: @baseFontColor;
 }
 
 .select-list-control-button:active,
 .select-list-control-button.active {
   z-index: 2;
   background-color: #efefef;
+  color: @baseFontColor;
 }
 
 .select-list-control-button + .select-list-control-button {
