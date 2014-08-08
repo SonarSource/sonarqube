@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Monitor extends Thread implements Terminable {
 
-  private static final long PING_DELAY_MS = 1000L;
+  private static final long PING_DELAY_MS = 3000L;
   private final static Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
 
   private volatile List<ProcessWrapper> processes;
@@ -45,7 +45,7 @@ public class Monitor extends Thread implements Terminable {
     super("Process Monitor");
     processes = new ArrayList<ProcessWrapper>();
     monitor = Executors.newScheduledThreadPool(1);
-    watch = monitor.scheduleWithFixedDelay(new ProcessWatch(), 0L, PING_DELAY_MS, TimeUnit.MILLISECONDS);
+    watch = monitor.scheduleAtFixedRate(new ProcessWatch(), 0L, PING_DELAY_MS, TimeUnit.MILLISECONDS);
   }
 
   private class ProcessWatch extends Thread {
@@ -56,6 +56,7 @@ public class Monitor extends Thread implements Terminable {
     @Override
     public void run() {
       for (ProcessWrapper process : processes) {
+        LOGGER.debug("Pinging process[{}]",process.getName());
         try {
           ProcessMXBean mBean = process.getProcessMXBean();
           if (mBean != null) {
