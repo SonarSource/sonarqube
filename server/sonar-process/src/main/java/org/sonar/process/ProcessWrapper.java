@@ -31,7 +31,6 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -169,6 +168,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
       ProcessUtils.closeStreams(process);
+      this.interrupt();
     }
   }
 

@@ -84,7 +84,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
     };
     lastPing = System.currentTimeMillis();
     monitor = Executors.newScheduledThreadPool(1);
-    pingTask = monitor.scheduleWithFixedDelay(breakOnMissingPing, AUTOKILL_CHECK_DELAY_MS, AUTOKILL_CHECK_DELAY_MS, TimeUnit.MILLISECONDS);
+    pingTask = monitor.scheduleAtFixedRate(breakOnMissingPing, AUTOKILL_CHECK_DELAY_MS, AUTOKILL_CHECK_DELAY_MS, TimeUnit.MILLISECONDS);
   }
 
   @Override

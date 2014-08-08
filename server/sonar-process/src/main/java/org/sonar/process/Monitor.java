@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Monitor extends Thread implements Terminable {
 
-  private static final long PING_DELAY_MS = 3000L;
+  private static final long PING_DELAY_MS = 1000L;
   private final static Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
 
   private volatile List<ProcessWrapper> processes;
@@ -87,7 +87,7 @@ public class Monitor extends Thread implements Terminable {
       boolean ok = true;
       while (ok) {
         for (ProcessWrapper process : processes) {
-          if (!ProcessUtils.isAlive(process.process())) {
+          if (process.isAlive()) {
             LOGGER.info("{} is down, stopping all other processes", process.getName());
             ok = false;
             interrupt();
