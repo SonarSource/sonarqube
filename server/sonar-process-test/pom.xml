@@ -20,6 +20,7 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-process</artifactId>
       <version>${project.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -85,7 +86,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
+              <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
               <minimizeJar>true</minimizeJar>
             </configuration>
           </execution>
