@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Inclient., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 package org.sonar.server.search;
 
@@ -36,7 +36,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolFilterBuilder;
@@ -69,14 +68,14 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
-  protected final ESNode node;
+  private final SearchClient client;
   private final BaseNormalizer<DTO, KEY> normalizer;
   private final IndexDefinition indexDefinition;
 
   protected BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<DTO, KEY> normalizer,
-                      WorkQueue workQueue, ESNode node) {
+                      WorkQueue workQueue, SearchClient client) {
     this.normalizer = normalizer;
-    this.node = node;
+    this.client = client;
     this.indexDefinition = indexDefinition;
   }
 
@@ -90,15 +89,10 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     return this.indexDefinition.getIndexType();
   }
 
-  protected final Client getClient() {
-    return node.client();
-  }
-
   /* Component Methods */
 
   @Override
   public void start() {
-
     /* Setup the index if necessary */
     initializeIndex();
   }
@@ -106,6 +100,10 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   @Override
   public void stop() {
     // nothing to do
+  }
+
+  public SearchClient getClient(){
+    return client;
   }
 
   // Scrolling within the index
@@ -116,9 +114,9 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
       private void fillQueue() {
         try {
-          SearchScrollRequestBuilder esRequest = getClient().prepareSearchScroll(scrollId)
+          SearchScrollRequestBuilder esRequest = client.prepareSearchScroll(scrollId)
             .setScroll(TimeValue.timeValueMinutes(3));
-          Collections.addAll(hits, ((SearchResponse) node.execute(esRequest)).getHits().getHits());
+          Collections.addAll(hits, ((SearchResponse) client.execute(esRequest)).getHits().getHits());
         } catch (Exception e) {
           throw new IllegalStateException("Error while filling in the scroll buffer", e);
         }
@@ -153,19 +151,19 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected void initializeIndex() {
     String index = this.getIndexName();
 
-    IndicesExistsResponse indexExistsResponse = getClient().admin().indices()
+    IndicesExistsResponse indexExistsResponse = client.admin().indices()
       .prepareExists(index).execute().actionGet();
     try {
 
       if (!indexExistsResponse.isExists()) {
         LOG.debug("Setup of {} for type {}", this.getIndexName(), this.getIndexType());
-        getClient().admin().indices().prepareCreate(index)
+        client.admin().indices().prepareCreate(index)
           .setSettings(getIndexSettings())
           .execute().actionGet();
       }
 
       LOG.debug("Update of index {} for type {}", this.getIndexName(), this.getIndexType());
-      getClient().admin().indices().preparePutMapping(index)
+      client.admin().indices().preparePutMapping(index)
         .setType(getIndexType())
         .setIgnoreConflicts(true)
         .setSource(mapDomain())
@@ -180,10 +178,10 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     IndexStat stat = new IndexStat();
 
     /** get total document count */
-    CountRequestBuilder countRequest = getClient().prepareCount(this.getIndexName())
+    CountRequestBuilder countRequest = client.prepareCount(this.getIndexName())
       .setTypes(this.getIndexType())
       .setQuery(QueryBuilders.matchAllQuery());
-    CountResponse response = node.execute(countRequest);
+    CountResponse response = client.execute(countRequest);
     stat.setDocumentCount(response.getCount());
 
     /** get Management information */
@@ -197,14 +195,14 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   public Date getLastSynchronization() {
 
     Date date;
-    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
+    SearchRequestBuilder request = client.prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
       .setQuery(QueryBuilders.matchAllQuery())
       .setSize(0)
       .addAggregation(AggregationBuilders.max("latest")
         .field(BaseNormalizer.UPDATED_AT_FIELD));
 
-    SearchResponse response = node.execute(request);
+    SearchResponse response = client.execute(request);
 
     Max max = (Max) response.getAggregations().get("latest");
 
@@ -365,7 +363,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   @Override
   public void refresh() {
-    node.execute(getClient()
+    client.execute(client
       .admin()
       .indices()
       .prepareRefresh(this.getIndexName())
@@ -378,13 +376,13 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected abstract DOMAIN toDoc(Map<String, Object> fields);
 
   public DOMAIN getByKey(KEY key) {
-    GetRequestBuilder request = getClient().prepareGet()
+    GetRequestBuilder request = client.prepareGet()
       .setType(this.getIndexType())
       .setIndex(this.getIndexName())
       .setId(this.getKeyValue(key))
       .setRouting(this.getKeyValue(key));
 
-    GetResponse response = node.execute(request);
+    GetResponse response = client.execute(request);
 
     if (response.isExists()) {
       return toDoc(response.getSource());
@@ -394,7 +392,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   protected void updateDocument(Collection<UpdateRequest> requests, KEY key) {
     LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
-    BulkRequestBuilder bulkRequest = getClient().prepareBulk();
+    BulkRequestBuilder bulkRequest = client.prepareBulk();
     for (UpdateRequest request : requests) {
       // if request has no ID then no upsert possible!
       if (request.id() == null || request.id().isEmpty()) {
@@ -409,7 +407,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
           .type(this.getIndexType()));
       }
     }
-    BulkResponse response = node.execute(bulkRequest);
+    BulkResponse response = client.execute(bulkRequest);
   }
 
   @Override
@@ -461,12 +459,12 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   private void deleteDocument(KEY key) throws ExecutionException, InterruptedException {
     LOG.debug("DELETE _id:{} in index {}", key, this.getIndexName());
-    DeleteRequestBuilder request = getClient()
+    DeleteRequestBuilder request = client
       .prepareDelete()
       .setIndex(this.getIndexName())
       .setType(this.getIndexType())
       .setId(this.getKeyValue(key));
-    DeleteResponse response = node.execute(request);
+    DeleteResponse response = client.execute(request);
   }
 
   @Override
@@ -527,7 +525,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   public Long countAll() {
-    return getClient().prepareCount(this.getIndexName())
+    return client.prepareCount(this.getIndexName())
       .setTypes(this.getIndexType())
       .get().getCount();
   }
@@ -536,7 +534,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   public Map<String, Long> countByField(IndexField indexField, FilterBuilder filter) {
     Map<String, Long> counts = new HashMap<String, Long>();
 
-    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
+    SearchRequestBuilder request = client.prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
       .setQuery(QueryBuilders.filteredQuery(
         QueryBuilders.matchAllQuery(),
@@ -549,7 +547,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         .size(Integer.MAX_VALUE)
         .minDocCount(0));
 
-    SearchResponse response = node.execute(request);
+    SearchResponse response = client.execute(request);
 
     Terms values =
       response.getAggregations().get(indexField.field());

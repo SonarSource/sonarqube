@@ -43,7 +43,7 @@ public class BaseIndexTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  ESNode node;
+  SearchClient node;
 
   @Before
   public void setup() throws IOException {
@@ -51,13 +51,13 @@ public class BaseIndexTest {
     Settings settings = new Settings();
     settings.setProperty("sonar.path.home", dataDir.getAbsolutePath());
     settings.setProperty(IndexProperties.TYPE, IndexProperties.ES_TYPE.MEMORY.name());
-    node = new ESNode(settings);
-    node.start();
+    node = new SearchClient(settings);
+    //node.start();
   }
 
   @After
   public void tearDown() {
-    node.stop();
+    //node.stop();
   }
 
   @Test
@@ -77,10 +77,10 @@ public class BaseIndexTest {
   }
 
 
-  private BaseIndex getIndex(final ESNode esNode) {
+  private BaseIndex getIndex(final SearchClient searchClient) {
     BaseIndex index = new BaseIndex(
       IndexDefinition.TEST,
-      null, new NullQueue(), esNode) {
+      null, new NullQueue(), searchClient) {
       @Override
       protected String getKeyValue(Serializable key) {
         return null;

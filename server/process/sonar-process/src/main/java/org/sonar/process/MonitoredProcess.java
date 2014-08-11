@@ -41,7 +41,14 @@ public abstract class MonitoredProcess implements ProcessMXBean {
   private ScheduledFuture<?> pingTask = null;
   private ScheduledExecutorService monitor;
 
+  private final boolean isMonitored;
+
   protected MonitoredProcess(Props props) throws Exception {
+    this(props, false);
+  }
+
+  protected MonitoredProcess(Props props, boolean monitor) throws Exception {
+    this.isMonitored = monitor;
     this.props = props;
     this.name = props.of(NAME_PROPERTY);
 
@@ -61,7 +68,9 @@ public abstract class MonitoredProcess implements ProcessMXBean {
 
     Logger logger = LoggerFactory.getLogger(getClass());
     logger.debug("Process[{}] starting", name);
-    scheduleAutokill();
+    if (this.isMonitored) {
+      scheduleAutokill();
+    }
     doStart();
     logger.debug("Process[{}] started", name);
   }

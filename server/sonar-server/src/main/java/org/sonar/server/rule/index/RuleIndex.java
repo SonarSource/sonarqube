@@ -49,7 +49,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.ESNode;
+import org.sonar.server.search.SearchClient;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.QueryOptions;
@@ -69,7 +69,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
-  public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
+  public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue, SearchClient node) {
     super(IndexDefinition.RULE, normalizer, workQueue, node);
   }
 
@@ -355,7 +355,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     QueryBuilder qb = this.getQuery(query, options);
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
 
-    SearchResponse esResult = node.execute(esSearch);
+    SearchResponse esResult = getClient().execute(esSearch);
 
     return new Result<Rule>(this, esResult);
   }
@@ -378,7 +378,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         .size(Integer.MAX_VALUE)
         .minDocCount(1));
 
-    SearchResponse esResponse = node.execute(request);
+    SearchResponse esResponse = getClient().execute(request);
 
     Terms aggregation = esResponse.getAggregations().get(key);
 
@@ -400,7 +400,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .setTypes(this.getIndexType())
       .setQuery(QueryBuilders.termQuery(RuleNormalizer.RuleField.ID.field(), id))
       .setSize(1);
-    SearchResponse response = node.execute(request);
+    SearchResponse response = getClient().execute(request);
 
     SearchHit hit = response.getHits().getAt(0);
     if (hit == null) {
@@ -421,7 +421,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .setScroll(TimeValue.timeValueSeconds(3L))
       .setSize(100)
       .setQuery(QueryBuilders.termsQuery(RuleNormalizer.RuleField.ID.field(), ids));
-    SearchResponse scrollResp = node.execute(request);
+    SearchResponse scrollResp = getClient().execute(request);
 
     List<Rule> rules = newArrayList();
     while (true) {
@@ -429,7 +429,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         .prepareSearchScroll(scrollResp.getScrollId())
         .setScroll(TimeValue.timeValueSeconds(3L));
 
-      scrollResp = node.execute(scrollRequest);
+      scrollResp = getClient().execute(scrollRequest);
 
       for (SearchHit hit : scrollResp.getHits()) {
         rules.add(toDoc(hit.getSource()));

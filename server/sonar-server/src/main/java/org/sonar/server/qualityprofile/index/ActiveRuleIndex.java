@@ -39,7 +39,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.ESNode;
+import org.sonar.server.search.SearchClient;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
@@ -52,7 +52,7 @@ import java.util.Map;
 
 public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
 
-  public ActiveRuleIndex(ActiveRuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
+  public ActiveRuleIndex(ActiveRuleNormalizer normalizer, WorkQueue workQueue, SearchClient node) {
     super(IndexDefinition.ACTIVE_RULE, normalizer, workQueue, node);
   }
 
@@ -128,7 +128,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
         // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
 
-    SearchResponse response = node.execute(request);
+    SearchResponse response = getClient().execute(request);
 
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
     for (SearchHit hit : response.getHits()) {
@@ -143,7 +143,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       .setRouting(key)
         // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
-    SearchResponse response = node.execute(request);
+    SearchResponse response = getClient().execute(request);
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
     for (SearchHit hit : response.getHits()) {
       activeRules.add(toDoc(hit.getSource()));
@@ -189,7 +189,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
         .subAggregation(AggregationBuilders.count("countActiveRules")))
       .setSize(0)
       .setTypes(this.getIndexType());
-    SearchResponse response = node.execute(request);
+    SearchResponse response = getClient().execute(request);
     Map<String, Multimap<String, FacetValue>> stats = new HashMap<String, Multimap<String, FacetValue>>();
     Aggregation aggregation = response.getAggregations().get(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field());
     for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {

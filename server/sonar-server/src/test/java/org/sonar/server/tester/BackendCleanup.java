@@ -19,23 +19,22 @@
  */
 package org.sonar.server.tester;
 
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.search.ESNode;
+import org.sonar.server.search.SearchClient;
 
 import java.sql.Connection;
 
 public class BackendCleanup implements ServerComponent {
 
-  private final ESNode esNode;
+  private final SearchClient searchClient;
   private final MyBatis myBatis;
 
-  public BackendCleanup(ESNode esNode, MyBatis myBatis) {
-    this.esNode = esNode;
+  public BackendCleanup(SearchClient searchClient, MyBatis myBatis) {
+    this.searchClient = searchClient;
     this.myBatis = myBatis;
   }
 
@@ -64,8 +63,7 @@ public class BackendCleanup implements ServerComponent {
   }
 
   public void clearIndexes() {
-    Client client = esNode.client();
-    client.prepareDeleteByQuery(client.admin().cluster().prepareState().get()
+    searchClient.prepareDeleteByQuery(searchClient.admin().cluster().prepareState().get()
       .getState().getMetaData().concreteAllIndices())
       .setQuery(QueryBuilders.matchAllQuery())
       .get();

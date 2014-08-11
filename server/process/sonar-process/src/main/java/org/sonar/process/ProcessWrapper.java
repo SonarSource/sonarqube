@@ -28,6 +28,8 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
+import javax.management.Notification;
+import javax.management.NotificationListener;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -242,6 +244,12 @@ public class ProcessWrapper extends Thread implements Terminable {
         Thread.sleep(1000L);
         LOGGER.debug("Try #{} to connect to JMX server for process '{}'", i, processName);
         JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, null);
+        jmxConnector.addConnectionNotificationListener(new NotificationListener() {
+          @Override
+          public void handleNotification(Notification notification, Object handback) {
+            LOGGER.info("JMX Connection Notification:{}",notification.getMessage());
+          }
+        }, null, null);
         MBeanServerConnection mBeanServer = jmxConnector.getMBeanServerConnection();
         ProcessMXBean bean = JMX.newMBeanProxy(mBeanServer, JmxUtils.objectName(processName), ProcessMXBean.class);
         return bean;

@@ -28,16 +28,16 @@ import java.util.Map;
 
 public class SearchHealth {
 
-  private ESNode node;
+  private SearchClient searchClient;
   private IndexClient indexClient;
 
-  public SearchHealth(ESNode node, IndexClient indexClient) {
-    this.node = node;
+  public SearchHealth(SearchClient searchClient, IndexClient indexClient) {
+    this.searchClient = searchClient;
     this.indexClient = indexClient;
   }
 
   public NodeHealth getNodeHealth() {
-    return node.getNodeHealth();
+    return searchClient.getNodeHealth();
   }
 
   public Map<String, IndexHealth> getIndexHealth() {
@@ -49,9 +49,9 @@ public class SearchHealth {
       newIndexHealth.documentCount = indexStat.getDocumentCount();
       newIndexHealth.lastSync = indexStat.getLastUpdate();
 
-      IndicesStatsRequestBuilder statRequest = node.client().admin().indices().prepareStats(index.getIndexName())
+      IndicesStatsRequestBuilder statRequest = searchClient.admin().indices().prepareStats(index.getIndexName())
         .setTypes(index.getIndexType());
-      IndicesStatsResponse indicesStatsResponse = node.execute(statRequest);
+      IndicesStatsResponse indicesStatsResponse = searchClient.execute(statRequest);
       newIndexHealth.segmentCount = indicesStatsResponse.getTotal().getSegments().getCount();
       newIndexHealth.pendingDeletion = indicesStatsResponse.getTotal().getDocs().getDeleted();
 

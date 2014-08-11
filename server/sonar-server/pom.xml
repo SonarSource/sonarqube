@@ -239,7 +239,12 @@
       <artifactId>http-request</artifactId>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-search</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

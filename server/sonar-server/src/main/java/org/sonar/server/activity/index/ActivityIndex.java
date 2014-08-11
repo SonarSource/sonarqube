@@ -35,7 +35,7 @@ import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.ESNode;
+import org.sonar.server.search.SearchClient;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.QueryOptions;
@@ -51,7 +51,7 @@ import java.util.Map;
  */
 public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
 
-  public ActivityIndex(ActivityNormalizer normalizer, WorkQueue workQueue, ESNode node) {
+  public ActivityIndex(ActivityNormalizer normalizer, WorkQueue workQueue, SearchClient node) {
     super(IndexDefinition.LOG, normalizer, workQueue, node);
   }
 
@@ -93,7 +93,7 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
       .setQuery(QueryBuilders.matchAllQuery())
       .setTypes(this.getIndexType())
       .setSize(Integer.MAX_VALUE);
-    SearchResponse response = node.execute(request);
+    SearchResponse response = getClient().execute(request);
     return new Result<Activity>(this, response);
   }
 
@@ -144,7 +144,7 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
       esSearch.setScroll(TimeValue.timeValueMinutes(3));
     }
 
-    SearchResponse response = node.execute(esSearch);
+    SearchResponse response = getClient().execute(esSearch);
 
     return response;
   }

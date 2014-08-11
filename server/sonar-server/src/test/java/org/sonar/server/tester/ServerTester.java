@@ -25,6 +25,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.process.MonitoredProcess;
+import org.sonar.process.NetworkUtils;
+import org.sonar.process.Props;
+import org.sonar.search.SearchServer;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.search.IndexProperties;
 import org.sonar.server.ws.WsTester;
@@ -48,6 +52,10 @@ public class ServerTester extends ExternalResource {
 
   private static final String PROP_PREFIX = "mediumTests.";
 
+  private final String clusterName;
+  private final Integer clusterPort;
+
+  private SearchServer searchServer;
   private final Platform platform;
   private final File homeDir;
   private final List components = Lists.newArrayList(BackendCleanup.class, WsTester.class);
@@ -56,6 +64,21 @@ public class ServerTester extends ExternalResource {
   public ServerTester() {
     homeDir = createTempDir();
     platform = new Platform();
+
+    clusterName = "cluster-mem-" + System.currentTimeMillis();
+    clusterPort = NetworkUtils.freePort();
+    Properties properties = new Properties();
+    properties.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
+    properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
+    properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
+    properties.setProperty("sonar.path.data", new File(homeDir, "data/es").getAbsolutePath());
+    properties.setProperty("sonar.path.logs", new File(homeDir, "logs").getAbsolutePath());
+    properties.setProperty("sonar.path.temp", new File(homeDir, "temp").getAbsolutePath());
+    try {
+      searchServer = new SearchServer(new Props(properties), false, false);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -74,7 +97,21 @@ public class ServerTester extends ExternalResource {
 
     Properties properties = new Properties();
     properties.putAll(initialProps);
-    properties.setProperty(IndexProperties.TYPE, IndexProperties.ES_TYPE.MEMORY.name());
+
+    try {
+      searchServer.start();
+      System.out.println("searchServer = " + searchServer.isReady());
+      while (!searchServer.isReady()) {
+        Thread.sleep(100);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    properties.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
+    properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
+    properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
+
     properties.setProperty("sonar.path.home", homeDir.getAbsolutePath());
     properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");
     for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
@@ -118,6 +155,7 @@ public class ServerTester extends ExternalResource {
    */
   public void stop() {
     platform.doStop();
+    searchServer.terminate();
     FileUtils.deleteQuietly(homeDir);
   }
 

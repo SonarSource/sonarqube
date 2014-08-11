@@ -215,7 +215,7 @@ class ServerComponents {
       ActivityDao.class,
 
       // Elasticsearch
-      ESNode.class,
+      SearchClient.class,
       RuleNormalizer.class,
       ActiveRuleNormalizer.class,
       RuleIndex.class,
