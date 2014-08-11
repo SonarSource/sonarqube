@@ -120,7 +120,7 @@ class UsersController < ApplicationController
     user = User.find(params[:id])
     @user = user
     if params[:user][:password].blank?
-      @errors = 'Password required.'
+      @errors = message('my_profile.password.empty')
       render :partial => 'users/change_password_form', :status => 400
     elsif user.update_attributes(:password => params[:user][:password], :password_confirmation => params[:user][:password_confirmation])
       flash[:notice] = 'Password was successfully updated.'

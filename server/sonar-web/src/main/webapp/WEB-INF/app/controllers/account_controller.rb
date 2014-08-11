@@ -43,17 +43,12 @@ class AccountController < ApplicationController
   def change_password
     verify_post_request
     if User.authenticate(current_user.login, params[:old_password], servlet_request)
-      if ((params[:password] == params[:password_confirmation]))
-        current_user.password = params[:password]
-        current_user.password_confirmation = params[:password]
-        @result = current_user.save
-        if @result
-          flash[:notice] = message('my_profile.password.changed')
-        else
-          flash[:error] = message('my_profile.password.empty')
-        end
+      if params[:password].blank?
+        flash[:error] = message('my_profile.password.empty')
+      elsif current_user.update_attributes(:password => params[:password], :password_confirmation => params[:password_confirmation])
+        flash[:notice] = message('my_profile.password.changed')
       else
-        flash[:error] = message('my_profile.password.mismatch')
+        flash[:error] = current_user.errors.full_messages.join("<br/>\n")
       end
     else
       flash[:error] = message('my_profile.password.wrong_old')
