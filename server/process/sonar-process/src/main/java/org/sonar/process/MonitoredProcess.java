@@ -68,9 +68,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
 
     Logger logger = LoggerFactory.getLogger(getClass());
     logger.debug("Process[{}] starting", name);
-    if (this.isMonitored) {
-      scheduleAutokill();
-    }
+    scheduleAutokill(this.isMonitored);
     doStart();
     logger.debug("Process[{}] started", name);
   }
@@ -79,7 +77,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
    * If the process does not receive pings during the max allowed period, then
    * process auto-kills
    */
-  private void scheduleAutokill() {
+  private void scheduleAutokill(final Boolean isMonitored) {
     final Runnable breakOnMissingPing = new Runnable() {
       @Override
       public void run() {
@@ -87,7 +85,9 @@ public abstract class MonitoredProcess implements ProcessMXBean {
         if (time - lastPing > AUTOKILL_TIMEOUT_MS) {
           LoggerFactory.getLogger(getClass()).info(String.format(
             "Did not receive any ping during %d seconds. Shutting down.", AUTOKILL_TIMEOUT_MS / 1000));
-          terminate();
+          if (isMonitored) {
+            terminate();
+          }
         }
       }
     };
