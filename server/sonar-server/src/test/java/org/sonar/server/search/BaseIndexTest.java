@@ -22,53 +22,82 @@ package org.sonar.server.search;
 
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.core.cluster.NullQueue;
+import org.sonar.process.MonitoredProcess;
+import org.sonar.process.NetworkUtils;
+import org.sonar.process.Props;
+import org.sonar.search.SearchServer;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class BaseIndexTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  @ClassRule
+  public static TemporaryFolder temp = new TemporaryFolder();
+  private static SearchServer searchServer;
 
-  SearchClient node;
+  SearchClient searchClient;
+  private static String clusterName;
+  private static Integer clusterPort;
+
+
+  @BeforeClass
+  public static void setupSearchEngine() {
+    clusterName = "cluster-mem-" + System.currentTimeMillis();
+    clusterPort = NetworkUtils.freePort();
+    Properties properties = new Properties();
+    properties.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
+    properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
+    properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
+    properties.setProperty("sonar.path.data", temp.getRoot().getAbsolutePath());
+    properties.setProperty("sonar.path.logs", temp.getRoot().getAbsolutePath());
+    properties.setProperty("sonar.path.temp", temp.getRoot().getAbsolutePath());
+    try {
+      searchServer = new SearchServer(new Props(properties), false, false);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    searchServer.start();
+  }
+
+  @AfterClass
+  public static void teardownSearchEngine() {
+    searchServer.terminate();
+  }
 
   @Before
   public void setup() throws IOException {
     File dataDir = temp.newFolder();
     Settings settings = new Settings();
+    settings.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
+    settings.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
     settings.setProperty("sonar.path.home", dataDir.getAbsolutePath());
-    settings.setProperty(IndexProperties.TYPE, IndexProperties.ES_TYPE.MEMORY.name());
-    node = new SearchClient(settings);
-    //node.start();
-  }
-
-  @After
-  public void tearDown() {
-    //node.stop();
+    searchClient = new SearchClient(settings);
   }
 
   @Test
   public void can_load() {
-    BaseIndex index = getIndex(this.node);
+    BaseIndex index = getIndex(this.searchClient);
     assertThat(index).isNotNull();
   }
 
   @Test
   public void creates_domain_index() {
-    BaseIndex index = getIndex(this.node);
+    BaseIndex index = getIndex(this.searchClient);
 
     IndicesExistsResponse indexExistsResponse = index.getClient().admin().indices()
       .prepareExists(IndexDefinition.TEST.getIndexName()).execute().actionGet();
