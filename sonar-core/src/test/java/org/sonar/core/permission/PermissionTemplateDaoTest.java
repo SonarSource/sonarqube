@@ -20,6 +20,7 @@
 
 package org.sonar.core.permission;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -33,21 +34,26 @@ import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
 
   Date now;
   PermissionTemplateDao permissionTemplateDao;
+  DbSession session;
   System2 system = mock(System2.class);
 
   @Before
   public void setUpDao() throws ParseException {
+    session = getMyBatis().openSession(false);
     now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2013-01-02 01:04:05");
     when(system.now()).thenReturn(now.getTime());
     permissionTemplateDao = new PermissionTemplateDao(getMyBatis(), system);
+  }
+
+  @After
+  public void after() {
+    this.session.close();
   }
 
   @Test
@@ -204,6 +210,15 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
     checkTable("removeGroupPermissionFromTemplate", "permission_templates", "id", "name", "description");
     checkTable("removeGroupPermissionFromTemplate", "perm_templates_users", "id", "template_id", "user_id", "permission_reference");
     checkTable("removeGroupPermissionFromTemplate", "perm_templates_groups", "id", "template_id", "group_id", "permission_reference");
+  }
+
+  @Test
+  public void remove_by_group() throws Exception {
+    setupData("remove_by_group");
+    permissionTemplateDao.removeByGroup(2L, session);
+    session.commit();
+
+    checkTable("remove_by_group", "perm_templates_groups", "id", "template_id", "group_id", "permission_reference");
   }
 
   @Test

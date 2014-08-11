@@ -48,4 +48,6 @@ public interface PermissionTemplateMapper {
   void insertGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
 
   void deleteGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
+
+  void deleteByGroupId(long groupId);
 }

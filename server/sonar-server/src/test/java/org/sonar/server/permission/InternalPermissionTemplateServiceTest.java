@@ -31,6 +31,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.*;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
@@ -61,6 +63,9 @@ public class InternalPermissionTemplateServiceTest {
   @Mock
   PermissionFinder finder;
 
+  @Mock
+  DbSession session;
+
   InternalPermissionTemplateService service;
 
   @Rule
@@ -69,7 +74,10 @@ public class InternalPermissionTemplateServiceTest {
   @Before
   public void setUp() {
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    service = new InternalPermissionTemplateService(permissionTemplateDao, userDao, finder);
+
+    MyBatis myBatis = mock(MyBatis.class);
+    when(myBatis.openSession(false)).thenReturn(session);
+    service = new InternalPermissionTemplateService(myBatis, permissionTemplateDao, userDao, finder);
   }
 
   @Test
@@ -337,6 +345,16 @@ public class InternalPermissionTemplateServiceTest {
 
     verify(permissionTemplateDao).removeGroupPermission(1L, null, DEFAULT_PERMISSION);
     verifyZeroInteractions(userDao);
+  }
+
+  @Test
+  public void should_remove_group_from_templates() throws Exception {
+    GroupDto groupDto = new GroupDto().setId(1L).setName("group");
+    when(userDao.selectGroupByName("group", session)).thenReturn(groupDto);
+
+    service.removeGroupFromTemplates("group");
+
+    verify(permissionTemplateDao).removeByGroup(eq(1L), eq(session));
   }
 
   private PermissionTemplateUserDto buildUserPermission(String userName, String permission) {

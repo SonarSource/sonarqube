@@ -23,13 +23,20 @@ package org.sonar.server.permission;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -40,11 +47,13 @@ import java.util.regex.PatternSyntaxException;
  */
 public class InternalPermissionTemplateService implements ServerComponent {
 
+  private final MyBatis myBatis;
   private final PermissionTemplateDao permissionTemplateDao;
   private final UserDao userDao;
   private final PermissionFinder finder;
 
-  public InternalPermissionTemplateService(PermissionTemplateDao permissionTemplateDao, UserDao userDao, PermissionFinder finder) {
+  public InternalPermissionTemplateService(MyBatis myBatis, PermissionTemplateDao permissionTemplateDao, UserDao userDao, PermissionFinder finder) {
+    this.myBatis = myBatis;
     this.permissionTemplateDao = permissionTemplateDao;
     this.userDao = userDao;
     this.finder = finder;
@@ -143,6 +152,21 @@ public class InternalPermissionTemplateService implements ServerComponent {
       }
     };
     updater.executeUpdate();
+  }
+
+  public void removeGroupFromTemplates(String groupName) {
+    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+    DbSession session = myBatis.openSession(false);
+    try {
+      GroupDto group = userDao.selectGroupByName(groupName, session);
+      if (group == null) {
+        throw new NotFoundException("Group does not exists : " + groupName);
+      }
+      permissionTemplateDao.removeByGroup(group.getId(), session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   private void validateTemplateName(@Nullable Long templateId, String templateName) {

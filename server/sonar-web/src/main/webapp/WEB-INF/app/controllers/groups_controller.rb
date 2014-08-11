@@ -75,8 +75,11 @@ class GroupsController < ApplicationController
     verify_post_request
     require_parameters :id
     group = Group.find(params[:id])
-    if group.destroy
-      flash[:notice] = 'Group is deleted.'
+    call_backend do
+      Internal.permission_templates.removeGroupFromTemplates(group.name)
+      if group.destroy
+        flash[:notice] = 'Group is deleted.'
+      end
     end
     to_index(group.errors, nil)
   end

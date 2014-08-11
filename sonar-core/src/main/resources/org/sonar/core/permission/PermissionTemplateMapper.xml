@@ -61,6 +61,11 @@
     </choose>
   </delete>
 
+  <delete id="deleteByGroupId" parameterType="long">
+    DELETE FROM perm_templates_groups
+    WHERE group_id = #{groupId}
+  </delete>
+
   <select id="selectUsers" parameterType="map" resultType="UserWithPermission">
     SELECT u.login as login, u.name as name, ptu.permission_reference as permission
     FROM users u
