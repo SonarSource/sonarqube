@@ -22,7 +22,6 @@ package org.sonar.process;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-
 import java.lang.management.ManagementFactory;
 
 public class JmxUtils {
@@ -44,21 +43,11 @@ public class JmxUtils {
   public static void registerMBean(Object mbean, String name) {
     try {
       MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
-      if(mbeanServer.isRegistered(objectName(name))){
+      // Check if already registered in JVM (might run multiple instance in JUnits)
+      if (mbeanServer.isRegistered(objectName(name))) {
         mbeanServer.unregisterMBean(objectName(name));
       }
       mbeanServer.registerMBean(mbean, objectName(name));
-    } catch (RuntimeException re) {
-      throw re;
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to register JMX MBean named " + name, e);
-    }
-  }
-
-  public static void deRegisterMBean(String name) {
-    try {
-      MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
-      mbeanServer.unregisterMBean(objectName(name));
     } catch (RuntimeException re) {
       throw re;
     } catch (Exception e) {

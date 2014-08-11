@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class MonitoredProcess implements ProcessMXBean {
 
   public static final String NAME_PROPERTY = "pName";
-  private static final long AUTOKILL_TIMEOUT_MS = 15000L;
+  private static final long AUTOKILL_TIMEOUT_MS = 30000L;
   private static final long AUTOKILL_CHECK_DELAY_MS = 5000L;
   public static final String MISSING_NAME_ARGUMENT = "Missing Name argument";
 
@@ -113,7 +113,6 @@ public abstract class MonitoredProcess implements ProcessMXBean {
         pingTask.cancel(true);
         pingTask = null;
       }
-      JmxUtils.deRegisterMBean(name);
       try {
         doTerminate();
       } catch (Exception e) {
