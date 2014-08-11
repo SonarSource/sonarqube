@@ -57,8 +57,8 @@ public class ProcessWrapperTest {
   }
 
   @After
-  public void tearDown(){
-    if(proc != null){
+  public void tearDown() {
+    if (proc != null) {
       proc.destroy();
     }
   }
@@ -76,13 +76,13 @@ public class ProcessWrapperTest {
 
   private void assertCanBeReady(ProcessWrapper process) throws InterruptedException {
     int count = 0;
-    while(!process.isReady() && count<5) {
+    while (!process.isReady() && count < 5) {
       Thread.sleep(500);
     }
     assertThat(process.getProcessMXBean().isReady()).isTrue();
   }
 
-  private void assertPing(ProcessWrapper process){
+  private void assertPing(ProcessWrapper process) {
     long now = System.currentTimeMillis();
     long ping = process.getProcessMXBean().ping();
     assertThat(ping - now).isLessThan(3000L);
@@ -109,7 +109,7 @@ public class ProcessWrapperTest {
     try {
       assertPing(process);
       fail();
-    } catch (Exception e){
+    } catch (Exception e) {
 
     }
   }

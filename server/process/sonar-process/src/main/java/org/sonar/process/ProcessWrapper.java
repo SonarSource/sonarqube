@@ -125,6 +125,7 @@ public class ProcessWrapper extends Thread implements Terminable {
 
   /**
    * Execute command-line and connects to JMX RMI.
+   *
    * @return true on success, false if bad command-line or process failed to start JMX RMI
    */
   public boolean execute() {
@@ -247,7 +248,7 @@ public class ProcessWrapper extends Thread implements Terminable {
         jmxConnector.addConnectionNotificationListener(new NotificationListener() {
           @Override
           public void handleNotification(Notification notification, Object handback) {
-            LOGGER.info("JMX Connection Notification:{}",notification.getMessage());
+            LOGGER.info("JMX Connection Notification:{}", notification.getMessage());
           }
         }, null, null);
         MBeanServerConnection mBeanServer = jmxConnector.getMBeanServerConnection();
