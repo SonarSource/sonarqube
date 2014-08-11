@@ -98,16 +98,6 @@ public class ServerTester extends ExternalResource {
     Properties properties = new Properties();
     properties.putAll(initialProps);
 
-    try {
-      searchServer.start();
-      System.out.println("searchServer = " + searchServer.isReady());
-      while (!searchServer.isReady()) {
-        Thread.sleep(100);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
     properties.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
     properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
     properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
@@ -121,6 +111,7 @@ public class ServerTester extends ExternalResource {
       }
     }
 
+    searchServer.start();
     platform.init(properties);
     platform.addComponents(components);
     platform.doStart();
