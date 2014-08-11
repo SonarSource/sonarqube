@@ -25,8 +25,8 @@ import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.*;
-import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
@@ -43,7 +43,7 @@ import static org.fest.assertions.Fail.fail;
 public class QProfileExportersTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().addComponents(
+  public static ServerTester tester = new ServerTester().addXoo().addComponents(
     XooRulesDefinition.class, XooProfileDefinition.class,
     XooExporter.class, StandardExporter.class);
 

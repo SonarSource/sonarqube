@@ -25,6 +25,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.resources.Language;
 import org.sonar.process.MonitoredProcess;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.Props;
@@ -34,6 +35,7 @@ import org.sonar.server.search.IndexProperties;
 import org.sonar.server.ws.WsTester;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -162,6 +164,11 @@ public class ServerTester extends ExternalResource {
     return this;
   }
 
+  public ServerTester addXoo() {
+    addComponents(Xoo.class);
+    return this;
+  }
+
   public ServerTester addPluginJar(File jar) {
     Preconditions.checkArgument(jar.exists() && jar.isFile(), "Plugin JAR file does not exist: " + jar.getAbsolutePath());
     try {
@@ -217,6 +224,32 @@ public class ServerTester extends ExternalResource {
   private void checkNotStarted() {
     if (platform.isStarted()) {
       throw new IllegalStateException("Already started");
+    }
+  }
+
+  public static class Xoo implements Language {
+
+    public static final String KEY = "xoo";
+    public static final String NAME = "Xoo";
+    public static final String FILE_SUFFIX = ".xoo";
+
+    private static final String[] XOO_SUFFIXES = {
+      FILE_SUFFIX
+    };
+
+    @Override
+    public String getKey() {
+      return KEY;
+    }
+
+    @Override
+    public String getName() {
+      return NAME;
+    }
+
+    @Override
+    public String[] getFileSuffixes() {
+      return XOO_SUFFIXES;
     }
   }
 

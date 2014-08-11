@@ -35,11 +35,7 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
@@ -69,7 +65,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void register_existing_profile_definitions() throws Exception {
-    tester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester = new ServerTester().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
     dbSession = dbClient().openSession(false);
 
@@ -112,7 +108,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void register_profile_definitions() throws Exception {
-    tester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester = new ServerTester().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
     dbSession = dbClient().openSession(false);
 
@@ -147,7 +143,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void fail_if_two_definitions_are_marked_as_default_on_the_same_language() throws Exception {
-    tester = new ServerTester().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", true));
+    tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", true));
 
     try {
       tester.start();
@@ -158,7 +154,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void mark_profile_as_default() throws Exception {
-    tester = new ServerTester().addComponents(new SimpleProfileDefinition("one", false), new SimpleProfileDefinition("two", true));
+    tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("one", false), new SimpleProfileDefinition("two", true));
 
     tester.start();
     verifyProperty("sonar.profile.xoo", "two");
@@ -166,7 +162,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void use_sonar_way_as_default_profile_if_none_are_marked_as_default() throws Exception {
-    tester = new ServerTester().addComponents(new SimpleProfileDefinition("Sonar way", false), new SimpleProfileDefinition("Other way", false));
+    tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("Sonar way", false), new SimpleProfileDefinition("Other way", false));
 
     tester.start();
     verifyProperty("sonar.profile.xoo", "Sonar way");
@@ -174,7 +170,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void fix_default_profile_if_invalid() throws Exception {
-    tester = new ServerTester().addComponents(new SimpleProfileDefinition("one", true));
+    tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("one", true));
     tester.start();
 
     PropertiesDao propertiesDao = dbClient().propertiesDao();
@@ -189,7 +185,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void do_not_reset_default_profile_if_still_valid() throws Exception {
-    tester = new ServerTester().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", false));
+    tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", false));
     tester.start();
 
     PropertiesDao propertiesDao = dbClient().propertiesDao();
@@ -206,7 +202,7 @@ public class RegisterQualityProfilesMediumTest {
    */
   @Test
   public void clean_up_profiles_if_missing_loaded_template() throws Exception {
-    tester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester = new ServerTester().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
 
     dbSession = dbClient().openSession(false);
@@ -234,7 +230,7 @@ public class RegisterQualityProfilesMediumTest {
   public static class XooProfileDefinition extends ProfileDefinition {
     @Override
     public RulesProfile createProfile(ValidationMessages validation) {
-      final RulesProfile profile = RulesProfile.create("Basic", "xoo");
+      final RulesProfile profile = RulesProfile.create("Basic", ServerTester.Xoo.KEY);
       ActiveRule activeRule1 = profile.activateRule(
         org.sonar.api.rules.Rule.create("xoo", "x1").setParams(newArrayList(new RuleParam().setKey("acceptWhitespace"))),
         RulePriority.CRITICAL);
@@ -248,7 +244,7 @@ public class RegisterQualityProfilesMediumTest {
   public static class XooRulesDefinition implements RulesDefinition {
     @Override
     public void define(Context context) {
-      NewRepository repository = context.createRepository("xoo", "xoo").setName("Xoo Repo");
+      NewRepository repository = context.createRepository("xoo", ServerTester.Xoo.KEY).setName("Xoo Repo");
       NewRule x1 = repository.createRule("x1")
         .setName("x1 name")
         .setHtmlDescription("x1 desc")

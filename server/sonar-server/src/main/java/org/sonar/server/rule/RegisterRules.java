@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -66,21 +67,23 @@ public class RegisterRules implements Startable {
   private final RuleDefinitionsLoader defLoader;
   private final RuleActivator ruleActivator;
   private final DbClient dbClient;
+  private final Languages languages;
   private final CharacteristicDao characteristicDao;
 
   /**
    * @param registerDebtModel used only to be started after init of the technical debt model
    */
-  public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, RegisterDebtModel registerDebtModel) {
-    this(defLoader, ruleActivator, dbClient, System2.INSTANCE);
+  public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, Languages languages, RegisterDebtModel registerDebtModel) {
+    this(defLoader, ruleActivator, dbClient, languages, System2.INSTANCE);
   }
 
   @VisibleForTesting
   RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator,
-    DbClient dbClient, System2 system) {
+    DbClient dbClient, Languages languages, System2 system) {
     this.defLoader = defLoader;
     this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
+    this.languages = languages;
     this.characteristicDao = dbClient.debtCharacteristicDao();
   }
 
@@ -94,32 +97,34 @@ public class RegisterRules implements Startable {
 
       RulesDefinition.Context context = defLoader.load();
       for (RulesDefinition.ExtendedRepository repoDef : getRepositories(context)) {
-        for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
-          RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
+        if (languages.get(repoDef.language()) != null) {
+          for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
+            RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
 
-          RuleDto rule = allRules.containsKey(ruleKey) ? allRules.remove(ruleKey) : createRuleDto(ruleDef, session);
+            RuleDto rule = allRules.containsKey(ruleKey) ? allRules.remove(ruleKey) : createRuleDto(ruleDef, session);
 
-          boolean executeUpdate = false;
-          if (mergeRule(ruleDef, rule)) {
-            executeUpdate = true;
+            boolean executeUpdate = false;
+            if (mergeRule(ruleDef, rule)) {
+              executeUpdate = true;
+            }
+
+            CharacteristicDto subCharacteristic = characteristic(ruleDef, rule.getSubCharacteristicId(), allCharacteristics);
+            if (mergeDebtDefinitions(ruleDef, rule, subCharacteristic)) {
+              executeUpdate = true;
+            }
+
+            if (mergeTags(ruleDef, rule)) {
+              executeUpdate = true;
+            }
+
+            if (executeUpdate) {
+              dbClient.ruleDao().update(session, rule);
+            }
+
+            mergeParams(ruleDef, rule, session);
           }
-
-          CharacteristicDto subCharacteristic = characteristic(ruleDef, rule.getSubCharacteristicId(), allCharacteristics);
-          if (mergeDebtDefinitions(ruleDef, rule, subCharacteristic)) {
-            executeUpdate = true;
-          }
-
-          if (mergeTags(ruleDef, rule)) {
-            executeUpdate = true;
-          }
-
-          if (executeUpdate) {
-            dbClient.ruleDao().update(session, rule);
-          }
-
-          mergeParams(ruleDef, rule, session);
+          session.commit();
         }
-        session.commit();
       }
       List<RuleDto> activeRules = processRemainingDbRules(allRules.values(), session);
       removeActiveRulesOnStillExistingRepositories(session, activeRules, context);

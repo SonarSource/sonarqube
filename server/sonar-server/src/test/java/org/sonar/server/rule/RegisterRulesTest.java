@@ -23,6 +23,8 @@ import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -199,7 +201,10 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
 
   private void execute(RulesDefinition... defs) {
     RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(RuleRepositories.class), defs);
-    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, system);
+    Languages languages = mock(Languages.class);
+    when(languages.get("java")).thenReturn(mock(Language.class));
+
+    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, languages, system);
     task.start();
   }
 

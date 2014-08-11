@@ -68,7 +68,7 @@ public class RegisterRulesMediumTest {
   static final XooRulesDefinition RULE_DEFS = new XooRulesDefinition();
 
   @ClassRule
-  public static final ServerTester TESTER = new ServerTester().addComponents(RULE_DEFS);
+  public static final ServerTester TESTER = new ServerTester().addXoo().addComponents(RULE_DEFS);
 
   RuleIndex ruleIndex;
   ActiveRuleIndex activeRuleIndex;
@@ -143,6 +143,7 @@ public class RegisterRulesMediumTest {
     assertThat(rule.name()).isEqualTo("x1 name");
     assertThat(rule.htmlDescription()).isEqualTo("x1 desc");
     assertThat(rule.systemTags()).contains("tag1");
+    assertThat(rule.language()).contains("xoo");
     assertThat(rule.params()).hasSize(2);
     assertThat(rule.param("acceptWhitespace").type()).isEqualTo(RuleParamType.BOOLEAN);
     assertThat(rule.param("acceptWhitespace").defaultValue()).isEqualTo("false");
@@ -658,11 +659,11 @@ public class RegisterRulesMediumTest {
     @Override
     public void define(Context context) {
       if (rules != null) {
-        NewRepository repository = context.createRepository("xoo", "xoo").setName("Xoo Repo");
+        NewRepository repository = context.createRepository("xoo", ServerTester.Xoo.KEY).setName("Xoo Repo");
         rules.init(repository);
         repository.done();
       }
     }
-
   }
+
 }
