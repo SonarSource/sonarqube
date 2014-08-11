@@ -30,23 +30,35 @@ public class DummyOkApp extends MonitoredProcess {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DummyOkApp.class);
 
+  private boolean isReady = false;
+  private boolean isRunning = true;
+
   protected DummyOkApp(Props props) throws Exception {
     super(props);
   }
 
   @Override
   protected void doStart() {
+    isReady = true;
     LOGGER.info("Starting Dummy OK Process");
+    while (isRunning) {
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        isRunning = false;
+      }
+    }
   }
 
   @Override
   protected void doTerminate() {
     LOGGER.info("Terminating Dummy OK Process");
+    this.isRunning = false;
   }
 
   @Override
   protected boolean doIsReady() {
-    return false;
+    return isReady;
   }
 
   public static void main(String[] args) throws Exception {

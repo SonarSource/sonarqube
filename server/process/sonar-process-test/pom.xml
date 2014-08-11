@@ -101,7 +101,8 @@
                   <artifactId>sonar-dummy-app</artifactId>
                   <version>${project.version}</version>
                   <type>jar</type>
-                  <outputDirectory>${project.build.directory}/dummyApp</outputDirectory>
+                  <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                  <destFileName>sonar-dummy-app.jar</destFileName>
                 </artifactItem>
               </artifactItems>
             </configuration>

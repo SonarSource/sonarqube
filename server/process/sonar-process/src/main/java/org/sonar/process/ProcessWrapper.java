@@ -119,7 +119,7 @@ public class ProcessWrapper extends Thread implements Terminable {
   }
 
   @CheckForNull
-  Process process() {
+  public Process process() {
     return process;
   }
 
