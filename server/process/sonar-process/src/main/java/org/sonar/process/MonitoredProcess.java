@@ -113,6 +113,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
         pingTask.cancel(true);
         pingTask = null;
       }
+      JmxUtils.deRegisterMBean(name);
       try {
         doTerminate();
       } catch (Exception e) {
