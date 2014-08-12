@@ -92,6 +92,15 @@
     </where>
   </select>
 
+  <select id="selectAuthorizedComponentByKey" parameterType="String" resultType="AuthorizedComponent">
+    SELECT <include refid="authorizedComponentColumns"/>
+    FROM projects p
+    <where>
+      AND p.enabled=${_true}
+      AND p.kee=#{key}
+    </where>
+  </select>
+
   <sql id="insertColumns">
     (kee, name, long_name, qualifier, scope, language, root_id, path, created_at)
   </sql>

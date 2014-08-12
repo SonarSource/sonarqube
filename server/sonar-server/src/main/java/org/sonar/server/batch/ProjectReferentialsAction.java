@@ -24,13 +24,13 @@ import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.core.UtcDateUtils;
+import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -109,14 +109,21 @@ public class ProjectReferentialsAction implements RequestHandler {
       ProjectReferentials ref = new ProjectReferentials();
 
       String projectKey = null;
-      ComponentDto module = dbClient.componentDao().getNullableByKey(session, projectOrModuleKey);
+      AuthorizedComponentDto module = dbClient.componentDao().getNullableAuthorizedComponentByKey(projectOrModuleKey, session);
+      // Current project can be null when analysing a new project
       if (module != null) {
-        ComponentDto project = !module.qualifier().equals(Qualifiers.PROJECT) ? dbClient.componentDao().getRootProjectByKey(projectOrModuleKey, session) : module;
-        if (!project.key().equals(module.key())) {
-          addSettings(ref, module.getKey(), getSettingsFromParentModules(module.key(), hasScanPerm, session));
+        ComponentDto project = dbClient.componentDao().getNullableRootProjectByKey(projectOrModuleKey, session);
+        // Can be null if the given project is a provisioned one
+        if (project != null) {
+          if (!project.key().equals(module.key())) {
+            addSettings(ref, module.getKey(), getSettingsFromParents(module.key(), hasScanPerm, session));
+          }
+          projectKey = project.key();
+          addSettingsToChildrenModules(ref, projectOrModuleKey, Maps.<String, String>newHashMap(), hasScanPerm, session);
+        } else {
+          // Add settings of the provisioned project
+          addSettings(ref, projectOrModuleKey, getPropertiesMap(propertiesDao.selectProjectProperties(projectOrModuleKey, session), hasScanPerm));
         }
-        projectKey = project.key();
-        addSettingsToChildrenModules(ref, projectOrModuleKey, Maps.<String, String>newHashMap(), hasScanPerm, session);
       }
 
       addProfiles(ref, projectKey, profileName, session);
@@ -129,7 +136,7 @@ public class ProjectReferentialsAction implements RequestHandler {
     }
   }
 
-  private Map<String, String> getSettingsFromParentModules(String moduleKey, boolean hasScanPerm, DbSession session) {
+  private Map<String, String> getSettingsFromParents(String moduleKey, boolean hasScanPerm, DbSession session) {
     List<ComponentDto> parents = newArrayList();
     aggregateParentModules(moduleKey, parents, session);
     Collections.reverse(parents);

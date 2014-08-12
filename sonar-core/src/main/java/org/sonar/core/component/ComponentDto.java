@@ -77,7 +77,6 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
     return this;
   }
 
-  @Override
   public String qualifier() {
     return qualifier;
   }

@@ -54,5 +54,7 @@ public interface ComponentMapper {
   @CheckForNull
   AuthorizedComponentDto selectAuthorizedComponentById(long id);
 
+  AuthorizedComponentDto selectAuthorizedComponentByKey(String key);
+
   void insert(ComponentDto rule);
 }

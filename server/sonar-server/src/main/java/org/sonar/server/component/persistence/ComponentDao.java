@@ -60,8 +60,17 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).countById(id) > 0;
   }
 
+  /**
+   * Return null only if the component does not exists.
+   * If the component if a root project, it will return itself.
+   */
+  @CheckForNull
+  public ComponentDto getNullableRootProjectByKey(String componentKey, DbSession session) {
+    return mapper(session).selectRootProjectByKey(componentKey);
+  }
+
   public ComponentDto getRootProjectByKey(String componentKey, DbSession session) {
-    ComponentDto componentDto = mapper(session).selectRootProjectByKey(componentKey);
+    ComponentDto componentDto = getNullableRootProjectByKey(componentKey, session);
     if (componentDto == null) {
       throw new NotFoundException(String.format("Root project for project '%s' not found", componentKey));
     }
@@ -86,6 +95,19 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     AuthorizedComponentDto componentDto = getNullableAuthorizedComponentById(id, session);
     if (componentDto == null) {
       throw new NotFoundException(String.format("Project with id '%s' not found", id));
+    }
+    return componentDto;
+  }
+
+  @CheckForNull
+  public AuthorizedComponentDto getNullableAuthorizedComponentByKey(String key, DbSession session) {
+    return mapper(session).selectAuthorizedComponentByKey(key);
+  }
+
+  public AuthorizedComponentDto getAuthorizedComponentByKey(String key, DbSession session) {
+    AuthorizedComponentDto componentDto = getNullableAuthorizedComponentByKey(key, session);
+    if (componentDto == null) {
+      throw new NotFoundException(String.format("Project with key '%s' not found", key));
     }
     return componentDto;
   }

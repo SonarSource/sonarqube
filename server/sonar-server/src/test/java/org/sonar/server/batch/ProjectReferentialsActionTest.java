@@ -98,9 +98,9 @@ public class ProjectReferentialsActionTest {
     module = new ComponentDto().setKey("org.codehaus.sonar:sonar-server").setQualifier(Qualifiers.MODULE);
     subModule = new ComponentDto().setKey("org.codehaus.sonar:sonar-server-dao").setQualifier(Qualifiers.MODULE);
 
-    when(componentDao.getNullableByKey(session, project.key())).thenReturn(project);
-    when(componentDao.getNullableByKey(session, module.key())).thenReturn(module);
-    when(componentDao.getNullableByKey(session, subModule.key())).thenReturn(subModule);
+    when(componentDao.getNullableAuthorizedComponentByKey(project.key(), session)).thenReturn(project);
+    when(componentDao.getNullableAuthorizedComponentByKey(module.key(), session)).thenReturn(module);
+    when(componentDao.getNullableAuthorizedComponentByKey(subModule.key(), session)).thenReturn(subModule);
 
     when(language.getKey()).thenReturn("java");
     when(languages.all()).thenReturn(new Language[] {language});
@@ -118,6 +118,7 @@ public class ProjectReferentialsActionTest {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
 
     // Project without modules
+    when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(project);
     when(componentDao.findModulesByProject(project.key(), session)).thenReturn(Collections.<ComponentDto>emptyList());
 
     when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
@@ -133,6 +134,7 @@ public class ProjectReferentialsActionTest {
   public void return_project_with_module_settings() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
 
+    when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(project);
     when(componentDao.findModulesByProject(project.key(), session)).thenReturn(newArrayList(module));
 
     when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
@@ -153,6 +155,7 @@ public class ProjectReferentialsActionTest {
   public void return_project_with_module_settings_inherited_from_project() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
 
+    when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(project);
     when(componentDao.findModulesByProject(project.key(), session)).thenReturn(newArrayList(module));
 
     when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
@@ -169,6 +172,7 @@ public class ProjectReferentialsActionTest {
   public void return_project_with_module_with_sub_module() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
 
+    when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(project);
     when(componentDao.findModulesByProject(project.key(), session)).thenReturn(newArrayList(module));
     when(componentDao.findModulesByProject(module.key(), session)).thenReturn(newArrayList(subModule));
 
@@ -191,10 +195,26 @@ public class ProjectReferentialsActionTest {
   }
 
   @Test
+  public void return_provisioned_project_settings() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+
+    // No root project will be found on provisioned project
+    when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(null);
+
+    when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
+      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
+    ));
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
+    request.execute().assertJson(getClass(), "return_project_settings.json");
+  }
+
+  @Test
   public void return_sub_module_settings() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
 
-    when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
+    when(componentDao.getNullableRootProjectByKey(subModule.key(), session)).thenReturn(project);
     when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
     when(componentDao.getParentModuleByKey(subModule.key(), session)).thenReturn(module);
 
@@ -212,7 +232,7 @@ public class ProjectReferentialsActionTest {
   public void return_sub_module_settings_including_settings_from_parent_modules() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
 
-    when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
+    when(componentDao.getNullableRootProjectByKey(subModule.key(), session)).thenReturn(project);
     when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
     when(componentDao.getParentModuleByKey(subModule.key(), session)).thenReturn(module);
 
@@ -236,7 +256,7 @@ public class ProjectReferentialsActionTest {
   public void return_sub_module_settings_only_inherited_from_project() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
 
-    when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
+    when(componentDao.getNullableRootProjectByKey(subModule.key(), session)).thenReturn(project);
     when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
     when(componentDao.getParentModuleByKey(subModule.key(), session)).thenReturn(module);
 
@@ -255,7 +275,7 @@ public class ProjectReferentialsActionTest {
   public void return_sub_module_settings_inherited_from_project_and_module() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
 
-    when(componentDao.getRootProjectByKey(subModule.key(), session)).thenReturn(project);
+    when(componentDao.getNullableRootProjectByKey(subModule.key(), session)).thenReturn(project);
     when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
     when(componentDao.getParentModuleByKey(subModule.key(), session)).thenReturn(module);
 

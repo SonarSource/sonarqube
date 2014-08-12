@@ -141,6 +141,19 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void get_nullable_root_project_by_key() throws Exception {
+    setupData("multi-modules");
+
+    assertThat(dao.getNullableRootProjectByKey("org.struts:struts-data", session).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getNullableRootProjectByKey("org.struts:struts-core", session).getKey()).isEqualTo("org.struts:struts");
+
+    // Root project of a project is itself
+    assertThat(dao.getNullableRootProjectByKey("org.struts:struts", session).getKey()).isEqualTo("org.struts:struts");
+
+    assertThat(dao.getNullableRootProjectByKey("unknown", session)).isNull();
+  }
+
+  @Test
   public void get_root_project_by_key() throws Exception {
     setupData("multi-modules");
 
@@ -190,6 +203,31 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     dao.getAuthorizedComponentById(111L, session);
+  }
+
+  @Test
+  public void get_nullable_authorized_component_by_key() {
+    setupData("shared");
+
+    AuthorizedComponentDto result = dao.getNullableAuthorizedComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java", session);
+    assertThat(result).isNotNull();
+    assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
+
+    assertThat(dao.getNullableAuthorizedComponentByKey("unknown", session)).isNull();
+  }
+
+  @Test
+  public void get_authorized_component_by_key() {
+    setupData("shared");
+
+    assertThat(dao.getAuthorizedComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java", session)).isNotNull();
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void fail_to_get_authorized_component_by_key_when_project_not_found() {
+    setupData("shared");
+
+    dao.getAuthorizedComponentByKey("unknown", session);
   }
 
   @Test
