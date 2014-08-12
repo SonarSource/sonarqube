@@ -24,9 +24,9 @@ class DependenciesController < ApplicationController
   SEARCH_MINIMUM_SIZE=3
   QUALIFIERS=['TRK', 'BRC', 'LIB']
 
-  def index  
+  def index
     @search=params[:search] || ''
-    @version=params[:version]  
+    @version=params[:version]
     @resources=nil
     @resource=nil
     @versions=nil
@@ -44,6 +44,8 @@ class DependenciesController < ApplicationController
       #
       @resources=Project.find(:all,
         :conditions => ["scope=? AND qualifier IN (?) AND enabled=? AND (UPPER(name) like ? OR kee like ?)", 'PRJ', QUALIFIERS, true, "%#{@search.upcase}%", "%#{@search}%"])
+      @resources = select_authorized(:user, @resources)
+
       Api::Utils.insensitive_sort!(@resources){|r| r.name}
 
       if params[:resource]
@@ -85,18 +87,19 @@ class DependenciesController < ApplicationController
       #
       # load all the projects defining the dependencies (third column)
       #
-      project_sids=deps.map{|dep| dep.project_snapshot_id}.compact.uniq[0..950]  # oracle issue with more than 1000 IN elements. Not annoying to truncate hundreds of results...
-      if project_sids.size>0
-        @project_snapshots=Snapshot.find(:all, :include => 'project', :conditions => ['id IN (?) AND islast=? AND status=?', project_sids, true, 'P'])
+      @project_snapshots=[]
+      snapshot_ids = deps.map{|dep| dep.project_snapshot_id}
+      if snapshot_ids.size>0
+        snapshot_ids.each_slice(999) do |safe_for_oracle_ids|
+          @project_snapshots.concat(Snapshot.all(:include => 'project', :conditions => ['id IN (?) AND islast=? AND status=?', safe_for_oracle_ids, true, 'P']))
+        end
+        @project_snapshots = select_authorized(:user, @project_snapshots)
         Api::Utils.insensitive_sort!(@project_snapshots) {|s| s.project.name}
-      else
-        @project_snapshots=[]
       end
 
     end
-    
+
   end
 
-  private
-  
+
 end
