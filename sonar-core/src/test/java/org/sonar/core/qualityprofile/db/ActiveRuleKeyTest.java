@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class ActiveRuleKeyTest {
 
@@ -36,11 +37,50 @@ public class ActiveRuleKeyTest {
   }
 
   @Test
+  public void rule_key_can_contain_colons() throws Exception {
+    RuleKey ruleKey = RuleKey.of("squid", "Key:With:Some::Colons");
+    ActiveRuleKey key = ActiveRuleKey.of("P1", ruleKey);
+    assertThat(key.qProfile()).isEqualTo("P1");
+    assertThat(key.ruleKey()).isSameAs(ruleKey);
+    assertThat(key.toString()).isEqualTo("P1:squid:Key:With:Some::Colons");
+  }
+
+  @Test
+  public void profile_must_not_be_null() throws Exception {
+    try {
+      ActiveRuleKey.of(null, RuleKey.of("xoo", "R1"));
+      fail();
+    } catch (NullPointerException e) {
+      assertThat(e).hasMessage("QProfile is missing");
+    }
+  }
+
+  @Test
+  public void rule_key_must_not_be_null() throws Exception {
+    try {
+      ActiveRuleKey.of("P1", null);
+      fail();
+    } catch (NullPointerException e) {
+      assertThat(e).hasMessage("RuleKey is missing");
+    }
+  }
+
+  @Test
   public void parse() throws Exception {
     ActiveRuleKey key = ActiveRuleKey.parse("P1:xoo:R1");
     assertThat(key.qProfile()).isEqualTo("P1");
     assertThat(key.ruleKey().repository()).isEqualTo("xoo");
     assertThat(key.ruleKey().rule()).isEqualTo("R1");
+  }
+
+  @Test
+  public void parse_fail_when_less_than_three_colons() throws Exception {
+    try {
+      ActiveRuleKey.parse("P1:xoo");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Bad format of activeRule key: P1:xoo");
+    }
   }
 
   @Test

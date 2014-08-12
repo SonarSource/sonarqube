@@ -43,7 +43,7 @@ public class ActiveRuleKey implements Serializable {
    */
   public static ActiveRuleKey of(String qualityProfileKey, RuleKey ruleKey) {
     Preconditions.checkNotNull(qualityProfileKey, "QProfile is missing");
-    Preconditions.checkNotNull(ruleKey, "RuleKey is missing key");
+    Preconditions.checkNotNull(ruleKey, "RuleKey is missing");
     return new ActiveRuleKey(qualityProfileKey, ruleKey);
   }
 
@@ -52,9 +52,11 @@ public class ActiveRuleKey implements Serializable {
    * if the format is not valid.
    */
   public static ActiveRuleKey parse(String s) {
-    String[] split = s.split(":");
-    Preconditions.checkArgument(split.length == 3, "Bad format of activeRule key: " + s);
-    return ActiveRuleKey.of(split[0], RuleKey.of(split[1], split[2]));
+    Preconditions.checkArgument(s.split(":").length >= 3, "Bad format of activeRule key: " + s);
+    int semiColonPos = s.indexOf(":");
+    String key = s.substring(0, semiColonPos);
+    String ruleKey = s.substring(semiColonPos + 1);
+    return ActiveRuleKey.of(key, RuleKey.parse(ruleKey));
   }
 
   /**
