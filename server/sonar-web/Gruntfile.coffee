@@ -198,6 +198,10 @@ module.exports = (grunt) ->
         name: 'component-viewer/app'
         out: '<%= pkg.assets %>build/js/component-viewer/app.js'
 
+      design: options:
+        name: 'design/app'
+        out: '<%= pkg.assets %>build/js/design/app.js'
+
 
     handlebars:
       options:
@@ -236,6 +240,9 @@ module.exports = (grunt) ->
           ]
           '<%= pkg.assets %>js/templates/api-documentation.js': [
             '<%= pkg.sources %>hbs/api-documentation/**/*.hbs'
+          ]
+          '<%= pkg.assets %>js/templates/design.js': [
+            '<%= pkg.sources %>hbs/design/**/*.hbs'
           ]
 
 

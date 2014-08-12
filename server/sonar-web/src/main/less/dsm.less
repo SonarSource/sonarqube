@@ -1,0 +1,93 @@
+@import (reference) 'variables';
+@import (reference) 'mixins';
+@import (reference) 'ui';
+
+@cellSize: 18px;
+
+.dsm {
+
+}
+
+
+.dsm-legend {
+  margin: 10px 0;
+
+  & > li {
+    display: inline-block;
+  }
+
+  & > li + li {
+    margin-left: 20px;
+  }
+}
+
+.dsm-legend-square {
+  display: inline-block;
+  vertical-align: middle;
+  .size(14px, 14px);
+
+  &.gray { background-color: @grey; }
+  &.red { background-color: @red; }
+  &.green { background-color: @green; }
+  &.blue { background-color: @blue; }
+  &.yellow { background-color: @orange; }
+}
+
+.dsm-legend-label {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: @baseFontSize;
+}
+
+
+.dsm-body {
+  td {
+    padding: 4px;
+    border: 1px solid @barBorderColor;
+    .trans(background-color);
+  }
+}
+
+.dsm-body-title {
+  position: relative;
+  display: block;
+  height: @cellSize + 8px;
+  line-height: @cellSize + 8px;
+  margin: -4px;
+  padding: 0 15px 0 5px;
+  color: @baseFontColor;
+  .link-no-underline;
+
+  &:hover, &:focus { background-color: @barBackgroundColor; }
+}
+
+.dsm-body-title-indicator {
+  position: absolute;
+  top: 0; right: 0;
+  .size(10px, 26px);
+
+  .dsm-body-usage & { background-color: @green; }
+  .dsm-body-dependency & { background-color: @orange; }
+  .dsm-body-usage.dsm-body-dependency & { background-color: @red; }
+}
+
+.dsm-body-cell {
+  min-width: @cellSize;
+  height: @cellSize;
+  line-height: @cellSize;
+  padding: 0 2px;
+  .box-sizing(border-box);
+  text-align: center;
+}
+
+.dsm-body-cell-dependency { background-color: @grey; }
+.dsm-body-cell-cycle { background-color: @red; color: #fff; }
+
+.dsm-body-highlighted {
+  background-color: @lightBlue;
+
+  .dsm-body-title:hover,
+  .dsm-body-title:focus {
+    background-color: @lightBlue;
+  }
+}
