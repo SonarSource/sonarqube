@@ -118,6 +118,17 @@ public class ProcessWrapper extends Thread implements Terminable {
     return this;
   }
 
+  public ProcessWrapper setTempDirectory(File tempDirectory) {
+    this.setEnvProperty("java.io.tmpdir", tempDirectory.getAbsolutePath());
+    return this;
+  }
+
+  public ProcessWrapper setLogDir(File logDirectory) {
+    this.setEnvProperty("sonar.path.logs",logDirectory.getAbsolutePath());
+    return this;
+  }
+
+
   @CheckForNull
   public Process process() {
     return process;
@@ -195,8 +206,8 @@ public class ProcessWrapper extends Thread implements Terminable {
 
   private String buildJavaCommand() {
     String separator = System.getProperty("file.separator");
-    return System.getProperty("java.home")
-      + separator + "bin" + separator + "java";
+    return new File(new File(System.getProperty("java.home")),
+      "bin" + separator + "java").getAbsolutePath();
   }
 
   private List<String> buildJMXOptions() throws Exception {

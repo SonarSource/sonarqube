@@ -56,16 +56,16 @@ public class App implements ProcessMXBean {
       monitor.start();
 
       File homeDir = props.fileOf("sonar.path.home");
-      String tempDir = props.of("sonar.path.temp");
+      File tempDir = props.fileOf("sonar.path.temp");
       elasticsearch = new ProcessWrapper(JmxUtils.SEARCH_SERVER_NAME)
         .setWorkDir(homeDir)
         .setJmxPort(props.intOf(DefaultSettings.SEARCH_JMX_PORT))
         .addJavaOpts(props.of(DefaultSettings.SEARCH_JAVA_OPTS))
-        .addJavaOpts(String.format("-Djava.io.tmpdir=%s", tempDir))
+        .setTempDirectory(tempDir.getAbsoluteFile())
         .setClassName("org.sonar.search.SearchServer")
         .addProperties(props.rawProperties())
-        .addClasspath(starPath(homeDir, "lib/common"))
-        .addClasspath(starPath(homeDir, "lib/search"));
+        .addClasspath("./lib/common/*")
+        .addClasspath("./lib/search/*");
       if (elasticsearch.execute()) {
         monitor.registerProcess(elasticsearch);
         if (elasticsearch.waitForReady()) {
@@ -77,13 +77,13 @@ public class App implements ProcessMXBean {
               .setWorkDir(homeDir)
               .setJmxPort(props.intOf(DefaultSettings.WEB_JMX_PORT))
               .addJavaOpts(props.of(DefaultSettings.WEB_JAVA_OPTS))
-              .addJavaOpts(String.format("-Djava.io.tmpdir=%s", tempDir))
+              .setTempDirectory(tempDir.getAbsoluteFile())
               // required for logback tomcat valve
-              .addJavaOpts(String.format("-Dsonar.path.logs=%s", props.of("sonar.path.logs")))
+              .setLogDir(props.fileOf("sonar.path.logs"))
               .setClassName("org.sonar.server.app.WebServer")
               .addProperties(props.rawProperties())
-              .addClasspath(starPath(homeDir, "lib/common"))
-              .addClasspath(starPath(homeDir, "lib/server"));
+              .addClasspath("./lib/common/*")
+              .addClasspath("./lib/server/*");
             String driverPath = props.of(JdbcSettings.PROPERTY_DRIVER_PATH);
             if (driverPath != null) {
               server.addClasspath(driverPath);

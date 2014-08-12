@@ -69,7 +69,7 @@
           <archive>
             <manifest>
               <addClasspath>false</addClasspath>
-              <mainClass>org.sonar.application.DummyOkApp</mainClass>
+              <mainClass>org.sonar.application.DummyOkProcess</mainClass>
             </manifest>
           </archive>
         </configuration>

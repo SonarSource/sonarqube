@@ -20,6 +20,7 @@
 package org.sonar.application;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,10 +28,12 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.MonitoredProcess;
 import org.sonar.process.ProcessWrapper;
+import org.sonar.process.Props;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -41,7 +44,7 @@ public class ProcessWrapperTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  private static final String DUMMY_OK_APP = "org.sonar.application.DummyOkApp";
+  private static final String DUMMY_OK_APP = "org.sonar.application.DummyOkProcess";
 
   int freePort;
   File dummyAppJar;
@@ -92,10 +95,11 @@ public class ProcessWrapperTest {
   @Test
   public void execute_dummy_app() throws Exception {
 
-    ProcessWrapper process = new ProcessWrapper("DummyOkApp")
-      .addProperty(MonitoredProcess.NAME_PROPERTY, "DummyOkApp")
+    ProcessWrapper process = new ProcessWrapper("DummyOkProcess")
+      .addProperty(MonitoredProcess.NAME_PROPERTY, "DummyOkProcess")
       .addClasspath(dummyAppJar.getAbsolutePath())
       .setWorkDir(temp.getRoot())
+      .setTempDirectory(temp.getRoot())
       .setJmxPort(freePort)
       .setClassName(DUMMY_OK_APP);
 
@@ -112,5 +116,37 @@ public class ProcessWrapperTest {
     } catch (Exception e) {
 
     }
+  }
+
+
+  @Test
+  public void execute_dummy_in_space_folder_app() throws Exception {
+
+    // 0 create a home with space...
+    File home = temp.newFolder("t est");
+    assertThat(home.canWrite()).isTrue();
+    File lib = new File(home, "lib");
+    File tempdir = new File(home, "temp");
+    FileUtils.copyFileToDirectory(dummyAppJar, lib);
+
+    // 1 Create Properties
+    Props props = new Props(new Properties());
+    props.set("spaceHome", home.getAbsolutePath());
+
+    // 3 start dummy app
+    File effectiveHome = props.fileOf("spaceHome");
+
+    String cp = FilenameUtils.concat(new File(effectiveHome, "lib").getAbsolutePath(), "*");
+    System.out.println("cp = " + cp);
+    ProcessWrapper process = new ProcessWrapper("DummyOkProcess")
+      .addProperty(MonitoredProcess.NAME_PROPERTY, "DummyOkProcess")
+      .setTempDirectory(tempdir)
+      .addClasspath(cp)
+      .setWorkDir(home)
+      .setJmxPort(freePort)
+      .setClassName(DUMMY_OK_APP);
+
+    assertThat(process.isAlive()).isFalse();
+    assertCanStart(process);
   }
 }

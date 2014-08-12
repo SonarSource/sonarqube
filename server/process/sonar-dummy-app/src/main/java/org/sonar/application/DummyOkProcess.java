@@ -24,17 +24,20 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.MonitoredProcess;
 import org.sonar.process.Props;
 
+import java.io.File;
 import java.util.Properties;
 
-public class DummyOkApp extends MonitoredProcess {
+public class DummyOkProcess extends MonitoredProcess {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DummyOkApp.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DummyOkProcess.class);
 
   private boolean isReady = false;
   private boolean isRunning = true;
 
-  protected DummyOkApp(Props props) throws Exception {
+  protected DummyOkProcess(Props props) throws Exception {
     super(props);
+    File temp = File.createTempFile("hello", ".tmp");
+
   }
 
   @Override
@@ -63,8 +66,8 @@ public class DummyOkApp extends MonitoredProcess {
 
   public static void main(String[] args) throws Exception {
     Props props = new Props(new Properties());
-    props.set(MonitoredProcess.NAME_PROPERTY, DummyOkApp.class.getSimpleName());
-    new DummyOkApp(props).start();
+    props.set(MonitoredProcess.NAME_PROPERTY, DummyOkProcess.class.getSimpleName());
+    new DummyOkProcess(props).start();
     System.exit(1);
   }
 }
