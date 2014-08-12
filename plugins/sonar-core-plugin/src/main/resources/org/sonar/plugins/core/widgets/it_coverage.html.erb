@@ -36,7 +36,7 @@
            if it_branch_coverage
         %>
           <div class="widget-measure">
-            <span class="widget-label"><%= message('widget.it-coverage.branch_coverage.suffix') -%></span>
+            <span class="widget-label"><%= message('widget.it-coverage.condition_coverage.suffix') -%></span>
               <span class="nowrap">
                 <%= format_measure(it_branch_coverage, :url => url_for_drilldown('it_uncovered_conditions', :highlight => 'it_branch_coverage')) %>
                 <%= dashboard_configuration.selected_period? ? format_variation(it_branch_coverage) : trend_icon(it_branch_coverage) -%>
@@ -87,7 +87,7 @@
 
                 <% if new_branch_coverage %>
                   <div class="widget-measure">
-                    <span class="widget-label"><%= message('widget.it-coverage.branch_coverage.suffix') -%></span>
+                    <span class="widget-label"><%= message('widget.it-coverage.condition_coverage.suffix') -%></span>
                       <span class="nowrap">
                         <%= format_measure(new_branch_coverage,
                                            :period => dashboard_configuration.period_index,
@@ -136,7 +136,7 @@
            if overall_branch_coverage
         %>
           <div class="widget-measure">
-            <span class="widget-label"><%= message('widget.overall-coverage.branch_coverage.suffix') -%></span>
+            <span class="widget-label"><%= message('widget.overall-coverage.condition_coverage.suffix') -%></span>
               <span class="nowrap">
                 <%= format_measure(overall_branch_coverage, :url => url_for_drilldown('overall_uncovered_conditions', :highlight => 'overall_branch_coverage')) %>
                 <%= dashboard_configuration.selected_period? ? format_variation(overall_branch_coverage) : trend_icon(overall_branch_coverage) -%>
@@ -189,7 +189,7 @@
 
                 <% if new_branch_coverage %>
                   <div class="widget-measure">
-                    <span class="widget-label"><%= message('widget.overall-coverage.branch_coverage.suffix') -%></span>
+                    <span class="widget-label"><%= message('widget.overall-coverage.condition_coverage.suffix') -%></span>
                       <span class="nowrap">
                         <%= format_measure(new_branch_coverage,
                                            :period => dashboard_configuration.period_index,

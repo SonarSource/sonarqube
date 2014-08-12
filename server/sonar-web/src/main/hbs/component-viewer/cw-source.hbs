@@ -65,7 +65,7 @@
             <td class="stat {{#if coverage}}{{#if coverage.branchCoverageStatus}}coverage-{{coverage.branchCoverageStatus}}{{/if}}{{/if}}">
               {{#if coverage}}
                 {{#if coverage.branches}}
-                  <span class="coverage-branches" title="{{tp 'coverage_viewer.x_covered_branches' coverage.coveredBranches}}">
+                  <span class="coverage-branches" title="{{tp 'coverage_viewer.x_covered_conditions' coverage.coveredBranches}}">
                     {{coverage.coveredBranches}}/{{coverage.branches}}
                   </span>
                 {{/if}}

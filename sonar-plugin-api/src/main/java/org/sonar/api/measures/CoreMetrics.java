@@ -646,8 +646,8 @@ public final class CoreMetrics {
     .create();
 
   public static final String BRANCH_COVERAGE_KEY = "branch_coverage";
-  public static final Metric<Double> BRANCH_COVERAGE = new Metric.Builder(BRANCH_COVERAGE_KEY, "Branch coverage", Metric.ValueType.PERCENT)
-    .setDescription("Branch coverage")
+  public static final Metric<Double> BRANCH_COVERAGE = new Metric.Builder(BRANCH_COVERAGE_KEY, "Condition coverage", Metric.ValueType.PERCENT)
+    .setDescription("Condition coverage")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setDomain(DOMAIN_TESTS)
@@ -656,8 +656,8 @@ public final class CoreMetrics {
     .create();
 
   public static final String NEW_BRANCH_COVERAGE_KEY = "new_branch_coverage";
-  public static final Metric<Double> NEW_BRANCH_COVERAGE = new Metric.Builder(NEW_BRANCH_COVERAGE_KEY, "Branch coverage on new code", Metric.ValueType.PERCENT)
-    .setDescription("Branch coverage of new/changed code")
+  public static final Metric<Double> NEW_BRANCH_COVERAGE = new Metric.Builder(NEW_BRANCH_COVERAGE_KEY, "Condition coverage on new code", Metric.ValueType.PERCENT)
+    .setDescription("Condition coverage of new/changed code")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setDomain(DOMAIN_TESTS)
@@ -922,8 +922,8 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric<Double> IT_BRANCH_COVERAGE = new Metric.Builder(IT_BRANCH_COVERAGE_KEY, "IT branch coverage", Metric.ValueType.PERCENT)
-    .setDescription("IT Branch coverage")
+  public static final Metric<Double> IT_BRANCH_COVERAGE = new Metric.Builder(IT_BRANCH_COVERAGE_KEY, "IT condition coverage", Metric.ValueType.PERCENT)
+    .setDescription("IT condition coverage")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
@@ -939,8 +939,8 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric<Double> NEW_IT_BRANCH_COVERAGE = new Metric.Builder(NEW_IT_BRANCH_COVERAGE_KEY, "Branch coverage by IT on new code", Metric.ValueType.PERCENT)
-    .setDescription("Branch coverage by Integration Tests of new/changed code")
+  public static final Metric<Double> NEW_IT_BRANCH_COVERAGE = new Metric.Builder(NEW_IT_BRANCH_COVERAGE_KEY, "Condition coverage by IT on new code", Metric.ValueType.PERCENT)
+    .setDescription("Condition coverage by Integration Tests of new/changed code")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
@@ -957,7 +957,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric<String> IT_CONDITIONS_BY_LINE = new Metric.Builder(IT_CONDITIONS_BY_LINE_KEY, "IT branches by line", Metric.ValueType.DATA)
+  public static final Metric<String> IT_CONDITIONS_BY_LINE = new Metric.Builder(IT_CONDITIONS_BY_LINE_KEY, "IT conditions by line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
     .setDeleteHistoricalData(true)
     .create();
@@ -970,7 +970,7 @@ public final class CoreMetrics {
   /**
    * @since 2.12
    */
-  public static final Metric<String> IT_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(IT_COVERED_CONDITIONS_BY_LINE_KEY, "IT covered branches by line", Metric.ValueType.DATA)
+  public static final Metric<String> IT_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(IT_COVERED_CONDITIONS_BY_LINE_KEY, "IT covered conditions by line", Metric.ValueType.DATA)
     .setDomain(DOMAIN_INTEGRATION_TESTS)
     .setDeleteHistoricalData(true)
     .create();
@@ -1209,8 +1209,8 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final Metric<Double> OVERALL_BRANCH_COVERAGE = new Metric.Builder(OVERALL_BRANCH_COVERAGE_KEY, "Overall branch coverage", Metric.ValueType.PERCENT)
-    .setDescription("Branch coverage by all tests")
+  public static final Metric<Double> OVERALL_BRANCH_COVERAGE = new Metric.Builder(OVERALL_BRANCH_COVERAGE_KEY, "Overall condition coverage", Metric.ValueType.PERCENT)
+    .setDescription("Condition coverage by all tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setDomain(DOMAIN_OVERALL_TESTS)
@@ -1226,9 +1226,9 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final Metric<Double> NEW_OVERALL_BRANCH_COVERAGE = new Metric.Builder(NEW_OVERALL_BRANCH_COVERAGE_KEY, "Overall branch coverage on new code",
+  public static final Metric<Double> NEW_OVERALL_BRANCH_COVERAGE = new Metric.Builder(NEW_OVERALL_BRANCH_COVERAGE_KEY, "Overall condition coverage on new code",
     Metric.ValueType.PERCENT)
-    .setDescription("Branch coverage of new/changed code by all tests")
+    .setDescription("Condition coverage of new/changed code by all tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setDomain(DOMAIN_OVERALL_TESTS)
@@ -1245,8 +1245,8 @@ public final class CoreMetrics {
   /**
    * @since 3.3
    */
-  public static final Metric<String> OVERALL_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_CONDITIONS_BY_LINE_KEY, "Overall branches by line", Metric.ValueType.DATA)
-    .setDescription("Overall branches by all tests and by line")
+  public static final Metric<String> OVERALL_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_CONDITIONS_BY_LINE_KEY, "Overall conditions by line", Metric.ValueType.DATA)
+    .setDescription("Overall conditions by all tests and by line")
     .setDomain(DOMAIN_OVERALL_TESTS)
     .setDeleteHistoricalData(true)
     .create();

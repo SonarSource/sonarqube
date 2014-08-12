@@ -7,7 +7,7 @@
   </td>
   <td class="ind <%= statuses[:conditions] -%>">
     <% if line.conditions && line.conditions>0 -%>
-      <span title="<%= h message('coverage_viewer.x_covered_branches', {:params => line.covered_conditions.to_s}) -%>"><%= line.covered_conditions -%>/<%= line.conditions -%></span>
+      <span title="<%= h message('coverage_viewer.x_covered_conditions', {:params => line.covered_conditions.to_s}) -%>"><%= line.covered_conditions -%>/<%= line.conditions -%></span>
     <% end %>
   </td>
 <% else %>

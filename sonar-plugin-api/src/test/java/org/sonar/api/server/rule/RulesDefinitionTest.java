@@ -107,8 +107,8 @@ public class RulesDefinitionTest {
   public void define_rules_with_technical_debt() {
     RulesDefinition.NewRepository newRepo = context.createRepository("common-java", "java");
     RulesDefinition.NewRule newRule = newRepo.createRule("InsufficientBranchCoverage")
-      .setName("Insufficient branch coverage")
-      .setHtmlDescription("Insufficient branch coverage by unit tests")
+      .setName("Insufficient condition coverage")
+      .setHtmlDescription("Insufficient condition coverage by unit tests")
       .setSeverity(Severity.MAJOR)
       .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTS)
       .setEffortToFixDescription("Effort to test one uncovered branch");

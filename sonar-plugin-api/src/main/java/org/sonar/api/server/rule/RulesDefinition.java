@@ -645,9 +645,9 @@ public interface RulesDefinition extends ServerExtension {
      * of the function parameter (= "effort to fix") must be set. This description
      * explains what 1 point of "effort to fix" represents for the rule.
      * <p/>
-     * Example : : for the "Insufficient branch coverage", this description for the
+     * Example : : for the "Insufficient condition coverage", this description for the
      * remediation function coefficient/offset would be something like
-     * "Effort to test one uncovered branch".
+     * "Effort to test one uncovered condition".
      */
     public NewRule setEffortToFixDescription(@Nullable String s) {
       this.effortToFixDescription = s;
