@@ -39,7 +39,6 @@ import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -85,17 +84,6 @@ public abstract class AbstractDaoTestCase {
   private static IDatabaseConnection connection;
   private WorkQueue queue = new NullQueue();
 
-  @AfterClass
-  public static void cleanUp(){
-    try {
-      if (connection != null) {
-        connection.close();
-      }
-    } catch (SQLException e) {
-      // ignore
-    }
-  }
-
   @Before
   public void startDatabase() throws Exception {
     if (database == null) {
@@ -117,10 +105,13 @@ public abstract class AbstractDaoTestCase {
 
       databaseCommands = DatabaseCommands.forDialect(database.getDialect());
       databaseTester = new MyDBTester(database.getDataSource());
-      connection = createConnection();
 
       myBatis = new MyBatis(database, new Logback(), queue);
       myBatis.start();
+    }
+
+    if(connection == null){
+      connection = createConnection();
     }
 
     databaseCommands.truncateDatabase(database.getDataSource());
