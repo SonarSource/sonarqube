@@ -39,6 +39,7 @@ import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -48,6 +49,7 @@ import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.config.Logback;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,13 +65,36 @@ import static org.junit.Assert.fail;
 
 public abstract class AbstractDaoTestCase {
 
+  public static class MyDBTester extends DataSourceDatabaseTester {
+
+    public MyDBTester(DataSource dataSource) {
+      super(dataSource);
+    }
+
+    @Override
+    public void closeConnection(IDatabaseConnection connection) throws Exception {
+
+    }
+  }
+
   private static final Logger LOG = LoggerFactory.getLogger(AbstractDaoTestCase.class);
   private static Database database;
   private static DatabaseCommands databaseCommands;
   private static IDatabaseTester databaseTester;
   private static MyBatis myBatis;
+  private static IDatabaseConnection connection;
   private WorkQueue queue = new NullQueue();
 
+  @AfterClass
+  public static void cleanUp(){
+    try {
+      if (connection != null) {
+        connection.close();
+      }
+    } catch (SQLException e) {
+      // ignore
+    }
+  }
 
   @Before
   public void startDatabase() throws Exception {
@@ -91,7 +116,8 @@ public abstract class AbstractDaoTestCase {
       LOG.info("Test Database: " + database);
 
       databaseCommands = DatabaseCommands.forDialect(database.getDialect());
-      databaseTester = new DataSourceDatabaseTester(database.getDataSource());
+      databaseTester = new MyDBTester(database.getDataSource());
+      connection = createConnection();
 
       myBatis = new MyBatis(database, new Logback(), queue);
       myBatis.start();
@@ -162,7 +188,6 @@ public abstract class AbstractDaoTestCase {
   }
 
   private void setupData(InputStream... dataSetStream) {
-    IDatabaseConnection connection = null;
     try {
       IDataSet[] dataSets = new IDataSet[dataSetStream.length];
       for (int i = 0; i < dataSetStream.length; i++) {
@@ -170,13 +195,11 @@ public abstract class AbstractDaoTestCase {
       }
       databaseTester.setDataSet(new CompositeDataSet(dataSets));
 
-      connection = createConnection();
-
       new InsertIdentityOperation(DatabaseOperation.INSERT).execute(connection, databaseTester.getDataSet());
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
     } finally {
-      closeQuietly(connection);
+      //closeQuietly(connection);
     }
   }
 
@@ -195,10 +218,7 @@ public abstract class AbstractDaoTestCase {
   }
 
   protected void checkTables(String testName, String[] excludedColumnNames, String... tables) {
-    IDatabaseConnection connection = null;
     try {
-      connection = createConnection();
-
       IDataSet dataSet = connection.createDataSet();
       IDataSet expectedDataSet = getExpectedData(testName);
       for (String table : tables) {
@@ -211,14 +231,12 @@ public abstract class AbstractDaoTestCase {
     } catch (SQLException e) {
       throw translateException("Error while checking results", e);
     } finally {
-      closeQuietly(connection);
+      //closeQuietly(connection);
     }
   }
 
   protected void checkTable(String testName, String table, String... columns) {
-    IDatabaseConnection connection = null;
     try {
-      connection = createConnection();
 
       IDataSet dataSet = connection.createDataSet();
       IDataSet expectedDataSet = getExpectedData(testName);
@@ -230,14 +248,12 @@ public abstract class AbstractDaoTestCase {
     } catch (SQLException e) {
       throw translateException("Error while checking results", e);
     } finally {
-      closeQuietly(connection);
+      //closeQuietly(connection);
     }
   }
 
   protected void assertEmptyTables(String... emptyTables) {
-    IDatabaseConnection connection = null;
     try {
-      connection = createConnection();
 
       IDataSet dataSet = connection.createDataSet();
       for (String table : emptyTables) {
@@ -250,15 +266,15 @@ public abstract class AbstractDaoTestCase {
     } catch (SQLException e) {
       throw translateException("Error while checking results", e);
     } finally {
-      closeQuietly(connection);
+      //closeQuietly(connection);
     }
   }
 
   private IDatabaseConnection createConnection() {
     try {
-      IDatabaseConnection connection = databaseTester.getConnection();
-      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, databaseCommands.getDbUnitFactory());
-      return connection;
+      IDatabaseConnection conn = databaseTester.getConnection();
+      conn.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, databaseCommands.getDbUnitFactory());
+      return conn;
     } catch (Exception e) {
       throw translateException("Error while getting connection", e);
     }
