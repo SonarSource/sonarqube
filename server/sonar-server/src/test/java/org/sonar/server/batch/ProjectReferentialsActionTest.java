@@ -379,7 +379,7 @@ public class ProjectReferentialsActionTest {
     Rule rule = mock(Rule.class);
     when(rule.name()).thenReturn("Avoid Cycle");
     when(rule.internalKey()).thenReturn("squid-1");
-    when(ruleService.getByKey(ruleKey)).thenReturn(rule);
+    when(ruleService.getNonNullByKey(ruleKey)).thenReturn(rule);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
     request.execute().assertJson(getClass(), "return_active_rules.json");

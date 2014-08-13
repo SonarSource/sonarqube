@@ -99,29 +99,7 @@ public class RegisterRules implements Startable {
       for (RulesDefinition.ExtendedRepository repoDef : getRepositories(context)) {
         if (languages.get(repoDef.language()) != null) {
           for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
-            RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
-
-            RuleDto rule = allRules.containsKey(ruleKey) ? allRules.remove(ruleKey) : createRuleDto(ruleDef, session);
-
-            boolean executeUpdate = false;
-            if (mergeRule(ruleDef, rule)) {
-              executeUpdate = true;
-            }
-
-            CharacteristicDto subCharacteristic = characteristic(ruleDef, rule.getSubCharacteristicId(), allCharacteristics);
-            if (mergeDebtDefinitions(ruleDef, rule, subCharacteristic)) {
-              executeUpdate = true;
-            }
-
-            if (mergeTags(ruleDef, rule)) {
-              executeUpdate = true;
-            }
-
-            if (executeUpdate) {
-              dbClient.ruleDao().update(session, rule);
-            }
-
-            mergeParams(ruleDef, rule, session);
+            registerRule(ruleDef, allRules, allCharacteristics, session);
           }
           session.commit();
         }
@@ -140,6 +118,32 @@ public class RegisterRules implements Startable {
   @Override
   public void stop() {
     // nothing
+  }
+
+  private void registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDto> allRules, Map<String, CharacteristicDto> allCharacteristics, DbSession session) {
+    RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
+
+    RuleDto rule = allRules.containsKey(ruleKey) ? allRules.remove(ruleKey) : createRuleDto(ruleDef, session);
+
+    boolean executeUpdate = false;
+    if (mergeRule(ruleDef, rule)) {
+      executeUpdate = true;
+    }
+
+    CharacteristicDto subCharacteristic = characteristic(ruleDef, rule.getSubCharacteristicId(), allCharacteristics);
+    if (mergeDebtDefinitions(ruleDef, rule, subCharacteristic)) {
+      executeUpdate = true;
+    }
+
+    if (mergeTags(ruleDef, rule)) {
+      executeUpdate = true;
+    }
+
+    if (executeUpdate) {
+      dbClient.ruleDao().update(session, rule);
+    }
+
+    mergeParams(ruleDef, rule, session);
   }
 
   private Map<RuleKey, RuleDto> loadRules(DbSession session) {

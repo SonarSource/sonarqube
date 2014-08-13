@@ -249,7 +249,7 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
    * Remove a group from all templates (used when removing a group)
    */
   public void removeByGroup(Long groupId, SqlSession session) {
-      session.getMapper(PermissionTemplateMapper.class).deleteByGroupId(groupId);
+    session.getMapper(PermissionTemplateMapper.class).deleteByGroupId(groupId);
   }
 
   private String generateTemplateKee(String name, Date timeStamp) {

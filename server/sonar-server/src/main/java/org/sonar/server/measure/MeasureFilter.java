@@ -98,11 +98,12 @@ public class MeasureFilter {
     return userFavourites;
   }
 
+  @CheckForNull
   public String getResourceName() {
     return resourceName;
   }
 
-  public MeasureFilter setResourceName(String s) {
+  public MeasureFilter setResourceName(@Nullable String s) {
     this.resourceName = s;
     return this;
   }

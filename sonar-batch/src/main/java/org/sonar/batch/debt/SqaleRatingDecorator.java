@@ -122,8 +122,9 @@ public final class SqaleRatingDecorator implements Decorator {
     }
     double sum = 0d;
     for (Measure measure : measures) {
-      if (measure.getData() != null) {
-        sum += Double.parseDouble(measure.getData());
+      String data = measure.getData();
+      if (data != null) {
+        sum += Double.parseDouble(data);
       }
     }
     return sum;

@@ -223,7 +223,7 @@ public class ProjectReferentialsAction implements RequestHandler {
   private void addActiveRules(ProjectReferentials ref) {
     for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
       for (ActiveRule activeRule : qProfileLoader.findActiveRulesByProfile(qProfile.key())) {
-        Rule rule = ruleService.getByKey(activeRule.key().ruleKey());
+        Rule rule = ruleService.getNonNullByKey(activeRule.key().ruleKey());
         org.sonar.batch.protocol.input.ActiveRule inputActiveRule = new org.sonar.batch.protocol.input.ActiveRule(
           activeRule.key().ruleKey().repository(),
           activeRule.key().ruleKey().rule(),
