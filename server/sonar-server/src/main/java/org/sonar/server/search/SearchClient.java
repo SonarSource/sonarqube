@@ -26,8 +26,6 @@ import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
-import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodeResponse;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodes;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.client.transport.TransportClient;
@@ -38,23 +36,21 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
 
-import javax.annotation.CheckForNull;
 import java.io.File;
-import java.net.InetAddress;
 
 /**
  * ElasticSearch Node used to connect to index.
  */
 public class SearchClient extends TransportClient {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SearchClient.class);
   private static final String DEFAULT_HEALTH_TIMEOUT = "30s";
+  private static final String SONAR_PATH_HOME = "sonar.path.home";
+  private static final String SONAR_PATH_DATA = "sonar.path.data";
+  private static final String SONAR_PATH_LOG = "sonar.path.log";
 
   private final Settings settings;
   private final String healthTimeout;
@@ -117,81 +113,34 @@ public class SearchClient extends TransportClient {
     return health;
   }
 
-  private ClusterHealthStatus getClusterHealthStatus() {
-    return this.admin().cluster().prepareHealth()
-      .setWaitForYellowStatus()
-      .setTimeout(healthTimeout)
-      .get()
-      .getStatus();
-  }
-
-  @CheckForNull
-  private NodeInfo getLocalNodeInfoByHostName(String hostname) {
-    for (ClusterStatsNodeResponse nodeResp : this.admin().cluster().prepareClusterStats().get().getNodes()) {
-      if (hostname.equals(nodeResp.nodeInfo().getHostname())) {
-        return nodeResp.nodeInfo();
-      }
-    }
-    return null;
-  }
-
-  @CheckForNull
-  private NodeInfo getLocalNodeInfoByNodeName(String nodeName) {
-    return this.admin().cluster().prepareClusterStats().get().getNodesMap().get(nodeName).nodeInfo();
-  }
-
-  @CheckForNull
-  private NodeInfo getLocalNodeInfo() {
-    if (settings.hasKey(IndexProperties.NODE_NAME)) {
-      return getLocalNodeInfoByNodeName(settings.getString(IndexProperties.NODE_NAME));
-    } else {
-      try {
-        String LocalhostName = InetAddress.getLocalHost().getHostName();
-        return getLocalNodeInfoByHostName(LocalhostName);
-      } catch (Exception exception) {
-        throw new IllegalStateException("Could not get localhost hostname", exception);
-      }
-    }
-  }
-
-  // TODO that has nothing to do here!!!
-  private void addIndexTemplates() {
-    this.admin().indices()
-      .preparePutTemplate("default")
-      .setTemplate("*")
-      .addMapping("_default_", "{\"dynamic\": \"strict\"}")
-      .get();
-  }
-
   private void initLogging() {
     ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
   }
 
   private File esHomeDir() {
-    if (!settings.hasKey("sonar.path.home")) {
+    if (!settings.hasKey(SONAR_PATH_HOME)) {
       throw new IllegalStateException("property 'sonar.path.home' is required");
     }
-    return new File(settings.getString("sonar.path.home"));
+    return new File(settings.getString(SONAR_PATH_HOME));
   }
 
   private File esDataDir() {
-    if (settings.hasKey("sonar.path.data")) {
-      return new File(settings.getString("sonar.path.data"), "es");
+    if (settings.hasKey(SONAR_PATH_DATA)) {
+      return new File(settings.getString(SONAR_PATH_DATA), "es");
     } else {
-      return new File(settings.getString("sonar.path.home"), "data/es");
+      return new File(settings.getString(SONAR_PATH_HOME), "data/es");
     }
   }
 
   private File esLogDir() {
-    if (settings.hasKey("sonar.path.log")) {
-      return new File(settings.getString("sonar.path.log"));
+    if (settings.hasKey(SONAR_PATH_LOG)) {
+      return new File(settings.getString(SONAR_PATH_LOG));
     } else {
-      return new File(settings.getString("sonar.path.home"), "log");
+      return new File(settings.getString(SONAR_PATH_HOME), "log");
     }
   }
 
   public <K extends ActionResponse> K execute(ActionRequestBuilder request) {
-    StopWatch basicProfile = profiling.start("search", Profiling.Level.BASIC);
     StopWatch fullProfile = profiling.start("search", Profiling.Level.FULL);
     ListenableActionFuture acc = request.execute();
     try {
@@ -221,71 +170,9 @@ public class SearchClient extends TransportClient {
           fullProfile.stop("ES Response: %s", response.toString());
         }
       }
-
       return response;
     } catch (Exception e) {
       throw new IllegalStateException("ES error: ", e);
     }
   }
-
-
-
-  static public ImmutableSettings.Builder getGlobalIndexSettings(ImmutableSettings.Builder builder) {
-    return builder
-
-      // Disable MCast
-      .put("discovery.zen.ping.multicast.enabled", "false")
-
-        // Disable dynamic mapping
-      .put("index.mapper.dynamic", false)
-
-        // Sortable text analyzer
-      .put("index.analysis.analyzer.sortable.type", "custom")
-      .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
-      .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase", "truncate")
-
-        // Edge NGram index-analyzer
-      .put("index.analysis.analyzer.index_grams.type", "custom")
-      .put("index.analysis.analyzer.index_grams.tokenizer", "whitespace")
-      .putArray("index.analysis.analyzer.index_grams.filter", "trim", "lowercase", "gram_filter")
-
-        // Edge NGram search-analyzer
-      .put("index.analysis.analyzer.search_grams.type", "custom")
-      .put("index.analysis.analyzer.search_grams.tokenizer", "whitespace")
-      .putArray("index.analysis.analyzer.search_grams.filter", "trim", "lowercase")
-
-        // Word index-analyzer
-      .put("index.analysis.analyzer.index_words.type", "custom")
-      .put("index.analysis.analyzer.index_words.tokenizer", "standard")
-      .putArray("index.analysis.analyzer.index_words.filter",
-        "standard", "word_filter", "lowercase", "stop", "asciifolding", "porter_stem")
-
-        // Word search-analyzer
-      .put("index.analysis.analyzer.search_words.type", "custom")
-      .put("index.analysis.analyzer.search_words.tokenizer", "standard")
-      .putArray("index.analysis.analyzer.search_words.filter",
-        "standard", "lowercase", "stop", "asciifolding", "porter_stem")
-
-        // Edge NGram filter
-      .put("index.analysis.filter.gram_filter.type", "edgeNGram")
-      .put("index.analysis.filter.gram_filter.min_gram", 2)
-      .put("index.analysis.filter.gram_filter.max_gram", 15)
-      .putArray("index.analysis.filter.gram_filter.token_chars", "letter", "digit", "punctuation", "symbol")
-
-        // Word filter
-      .put("index.analysis.filter.word_filter.type", "word_delimiter")
-      .put("index.analysis.filter.word_filter.generate_word_parts", true)
-      .put("index.analysis.filter.word_filter.catenate_words", true)
-      .put("index.analysis.filter.word_filter.catenate_numbers", true)
-      .put("index.analysis.filter.word_filter.catenate_all", true)
-      .put("index.analysis.filter.word_filter.split_on_case_change", true)
-      .put("index.analysis.filter.word_filter.preserve_original", true)
-      .put("index.analysis.filter.word_filter.split_on_numerics", true)
-      .put("index.analysis.filter.word_filter.stem_english_possessive", true)
-
-        // Path Analyzer
-      .put("index.analysis.analyzer.path_analyzer.type", "custom")
-      .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy");
-  }
-
 }

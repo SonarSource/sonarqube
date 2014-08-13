@@ -46,7 +46,6 @@ import java.util.Properties;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-@Ignore
 public class SearchServerTest {
 
   @Rule
@@ -82,6 +81,7 @@ public class SearchServerTest {
   }
 
   @Test
+  @Ignore
   public void server_fail_to_start() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
@@ -106,7 +106,6 @@ public class SearchServerTest {
       count++;
     }
     assertThat(count).isEqualTo(100);
-
   }
 
   @Test

@@ -144,6 +144,12 @@ public class SearchServer extends MonitoredProcess {
       .settings(esSettings)
       .build().start();
 
+    node.client().admin().indices()
+        .preparePutTemplate("default")
+        .setTemplate("*")
+        .addMapping("_default_", "{\"dynamic\": \"strict\"}")
+        .get();
+
     if (this.isBlocking) {
       while (node != null && !node.isClosed()) {
         try {
