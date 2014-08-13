@@ -19,10 +19,11 @@
 #
 class Drilldown
 
-  attr_reader :resource, :metric, :selected_resource_ids
+  attr_reader :resource, :metric, :selected_resource_ids, :controller
   attr_reader :snapshot, :columns, :highlighted_resource, :highlighted_snapshot
 
-  def initialize(resource, metric, selected_resource_ids, options={})
+  def initialize(resource, metric, selected_resource_ids, controller, options={})
+    @controller=controller
     @resource=resource
     @selected_resource_ids=selected_resource_ids||[]
     @metric=metric
@@ -140,7 +141,14 @@ class DrilldownColumn
     @resource_per_sid={}
     sids=@measures.map { |m| m.snapshot_id }.compact.uniq
     unless sids.empty?
-      Snapshot.all(:include => :project, :conditions => {'snapshots.id' => sids}).each do |snapshot|
+      snapshots = Snapshot.all(:include => :project, :conditions => {'snapshots.id' => sids})
+
+      # User should only see projects he's authorized to see.
+      authorized_project_ids = snapshots.map{|s| s.project.copy_resource_id || s.resource_id_for_authorization}.compact
+      authorized_project_ids = @drilldown.controller.select_authorized(:user, authorized_project_ids) unless authorized_project_ids.empty?
+      authorized_snapshots = snapshots.select{|s| authorized_project_ids.include?(s.project.copy_resource_id || s.resource_id_for_authorization)}
+
+      authorized_snapshots.each do |snapshot|
         @resource_per_sid[snapshot.id]=snapshot.project
         if @drilldown.selected_resource_ids.include?(snapshot.project_id)
           @selected_snapshot=snapshot
@@ -149,6 +157,7 @@ class DrilldownColumn
     end
   end
 
+  # The resource can be null if it's linked to a copy (on a View or a Developer)
   def resource(measure)
     @resource_per_sid[measure.snapshot_id]
   end

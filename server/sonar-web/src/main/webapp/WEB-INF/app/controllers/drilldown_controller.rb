@@ -54,7 +54,7 @@ class DrilldownController < ApplicationController
     end
 
     # load data
-    @drilldown = Drilldown.new(@resource, @metric, selected_rids, options)
+    @drilldown = Drilldown.new(@resource, @metric, selected_rids, self, options)
 
     @highlighted_resource=@drilldown.highlighted_resource
     if @highlighted_resource.nil? && @drilldown.columns.empty?
@@ -110,7 +110,7 @@ class DrilldownController < ApplicationController
     end
 
     # load data
-    @drilldown = Drilldown.new(@resource, @metric, @selected_rids, options)
+    @drilldown = Drilldown.new(@resource, @metric, @selected_rids, self, options)
 
     @highlighted_resource=@drilldown.highlighted_resource
     if @highlighted_resource.nil? && @drilldown.columns.empty?

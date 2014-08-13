@@ -68,9 +68,10 @@
         <table class="spaced">
           <% column.measures.each_with_index do |measure, row_index|
             resource=column.resource(measure)
-            selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
-            clazz = cycle("even", "odd", :name => "col_#{index}")
-            clazz = clazz + ' selected' if selected
+            if resource
+              selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+              clazz = cycle("even", "odd", :name => "col_#{index}")
+              clazz = clazz + ' selected' if selected
           %>
             <tr class="<%= clazz -%>" id="row_<%= index -%>_<%= row_index -%>">
               <td nowrap>
@@ -94,7 +95,8 @@
                 <%= format_measure(measure, :skip_span_id => true, :period => @period) -%>
               </td>
             </tr>
-          <% end %>
+          <% end
+            end %>
         </table>
       </div>
     </td>

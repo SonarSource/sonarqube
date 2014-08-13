@@ -139,12 +139,13 @@
         <%
            column.measures.each_with_index do |measure, row_index|
              resource=column.resource(measure)
-             clazz = cycle('even', 'odd', :name => "col_#{index}")
-             selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
-             if selected
-               clazz += ' selected'
-               paths << [h(resource.name), @selected_rids-[resource.id]]
-             end
+             if resource
+               clazz = cycle('even', 'odd', :name => "col_#{index}")
+               selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+               if selected
+                 clazz += ' selected'
+                 paths << [h(resource.name), @selected_rids-[resource.id]]
+               end
         %>
           <tr class="<%= clazz -%>" id="row_<%= index -%>_<%= row_index -%>">
             <td nowrap>
@@ -169,7 +170,8 @@
               <%= @period ? format_variation(measure, :period => @period, :style => 'light') : measure.formatted_value -%>
             </td>
           </tr>
-        <% end %>
+          <% end
+             end %>
       </table>
     </div>
   </td>
