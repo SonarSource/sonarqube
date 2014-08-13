@@ -17,6 +17,5 @@
   <modules>
     <module>sonar-dummy-app</module>
     <module>sonar-process</module>
-    <module>sonar-process-test</module>
   </modules>
 </project>

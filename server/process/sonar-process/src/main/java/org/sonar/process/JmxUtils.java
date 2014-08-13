@@ -25,16 +25,20 @@ import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 
 public class JmxUtils {
+
   private JmxUtils() {
     // only static stuff
   }
+
+  public static final String DOMAIN = "org.sonar";
+  public static final String NAME_PROPERTY = "name";
 
   public static final String WEB_SERVER_NAME = "web";
   public static final String SEARCH_SERVER_NAME = "search";
 
   public static ObjectName objectName(String name) {
     try {
-      return new ObjectName("org.sonar", "name", name);
+      return new ObjectName(DOMAIN, NAME_PROPERTY, name);
     } catch (MalformedObjectNameException e) {
       throw new IllegalStateException("Cannot create ObjectName for " + name, e);
     }
