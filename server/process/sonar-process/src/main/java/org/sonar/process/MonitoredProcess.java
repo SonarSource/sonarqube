@@ -32,15 +32,19 @@ public abstract class MonitoredProcess implements ProcessMXBean {
 
   public static final String NAME_PROPERTY = "pName";
   private static final long AUTOKILL_TIMEOUT_MS = 30000L;
-  private static final long AUTOKILL_CHECK_DELAY_MS = 5000L;
+  private static final long AUTOKILL_CHECK_DELAY_MS = 2000L;
   public static final String MISSING_NAME_ARGUMENT = "Missing Name argument";
 
   private Long lastPing;
   private final String name;
+  private boolean terminated = false;
+  private long timeout = AUTOKILL_TIMEOUT_MS;
+  private long checkDelay = AUTOKILL_CHECK_DELAY_MS;
+
   protected final Props props;
   private ScheduledFuture<?> pingTask = null;
-  private ScheduledExecutorService monitor;
 
+  private ScheduledExecutorService monitor;
   private final boolean isMonitored;
 
   protected MonitoredProcess(Props props) throws Exception {
@@ -59,6 +63,24 @@ public abstract class MonitoredProcess implements ProcessMXBean {
 
     JmxUtils.registerMBean(this, name);
     ProcessUtils.addSelfShutdownHook(this);
+  }
+
+  public MonitoredProcess setTimeout(long timeout) {
+    this.timeout = timeout;
+    return this;
+  }
+
+  private long getTimeout() {
+    return timeout;
+  }
+
+  public MonitoredProcess setCheckDelay(long checkDelay) {
+    this.checkDelay = checkDelay;
+    return this;
+  }
+
+  private long getCheckDelay() {
+    return checkDelay;
   }
 
   public final void start() {
@@ -82,9 +104,9 @@ public abstract class MonitoredProcess implements ProcessMXBean {
       @Override
       public void run() {
         long time = System.currentTimeMillis();
-        if (time - lastPing > AUTOKILL_TIMEOUT_MS) {
+        if (time - lastPing > getTimeout()) {
           LoggerFactory.getLogger(getClass()).info(String.format(
-            "Did not receive any ping during %d seconds. Shutting down.", AUTOKILL_TIMEOUT_MS / 1000));
+            "Did not receive any ping during %d seconds. Shutting down.", getTimeout() / 1000));
           if (isMonitored) {
             terminate();
           }
@@ -93,7 +115,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
     };
     lastPing = System.currentTimeMillis();
     monitor = Executors.newScheduledThreadPool(1);
-    pingTask = monitor.scheduleAtFixedRate(breakOnMissingPing, AUTOKILL_CHECK_DELAY_MS, AUTOKILL_CHECK_DELAY_MS, TimeUnit.MILLISECONDS);
+    pingTask = monitor.scheduleAtFixedRate(breakOnMissingPing, getCheckDelay(), getCheckDelay(), TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -120,7 +142,12 @@ public abstract class MonitoredProcess implements ProcessMXBean {
         // do not propagate exception
       }
       logger.debug("Process[{}] terminated", name);
+      terminated = true;
     }
+  }
+
+  public boolean isTerminated() {
+    return terminated && monitor == null;
   }
 
   @Override
