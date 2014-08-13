@@ -124,7 +124,7 @@ public class ProcessWrapper extends Thread implements Terminable {
   }
 
   public ProcessWrapper setLogDir(File logDirectory) {
-    this.setEnvProperty("sonar.path.logs",logDirectory.getAbsolutePath());
+    this.setEnvProperty("sonar.path.logs", logDirectory.getAbsolutePath());
     return this;
   }
 

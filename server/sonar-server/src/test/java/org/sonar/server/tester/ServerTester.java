@@ -35,7 +35,6 @@ import org.sonar.server.search.IndexProperties;
 import org.sonar.server.ws.WsTester;
 
 import javax.annotation.Nullable;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;

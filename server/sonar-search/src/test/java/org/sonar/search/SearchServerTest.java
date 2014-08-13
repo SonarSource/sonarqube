@@ -37,7 +37,6 @@ import org.sonar.process.Props;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
-
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.ServerSocket;

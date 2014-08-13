@@ -32,7 +32,7 @@ public class IndexDefinition {
   private IndexDefinition(String indexName, String indexType) {
     this.indexName = indexName;
     this.indexType = indexType;
-}
+  }
 
   public String getIndexName() {
     return indexName;
@@ -50,11 +50,11 @@ public class IndexDefinition {
     return MANAGEMENT_TYPE;
   }
 
-  public static final IndexDefinition RULE = new IndexDefinition("rules","rules");
-  public static final IndexDefinition ACTIVE_RULE = new IndexDefinition("rules","activeRules");
-  public static final IndexDefinition LOG = new IndexDefinition("logs","sonarLogs");
+  public static final IndexDefinition RULE = new IndexDefinition("rules", "rules");
+  public static final IndexDefinition ACTIVE_RULE = new IndexDefinition("rules", "activeRules");
+  public static final IndexDefinition LOG = new IndexDefinition("logs", "sonarLogs");
 
 
   @VisibleForTesting
-  protected static IndexDefinition TEST = new IndexDefinition("test","test");
+  protected static IndexDefinition TEST = new IndexDefinition("test", "test");
 }
