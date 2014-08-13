@@ -26,6 +26,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -45,6 +46,7 @@ import java.util.Properties;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+@Ignore
 public class SearchServerTest {
 
   @Rule
