@@ -38,6 +38,7 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
+import org.dbunit.ext.mysql.MySqlMetadataHandler;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,6 +48,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.config.Logback;
+import org.sonar.core.persistence.dialect.MySql;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -120,8 +122,14 @@ public abstract class AbstractDaoTestCase {
       myBatis.start();
     }
 
-    if(connection == null){
-      connection = createConnection();
+
+    if (connection == null) {
+      connection = databaseTester.getConnection();
+      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, databaseCommands.getDbUnitFactory());
+      if (MySql.ID.equals(database.getDialect().getId())) {
+        connection.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, false);
+        connection.getConfig().setProperty(DatabaseConfig.PROPERTY_METADATA_HANDLER, new MySqlMetadataHandler());
+      }
     }
 
     databaseCommands.truncateDatabase(database.getDataSource());
@@ -199,18 +207,6 @@ public abstract class AbstractDaoTestCase {
       new InsertIdentityOperation(DatabaseOperation.INSERT).execute(connection, databaseTester.getDataSet());
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
-    } finally {
-      //closeQuietly(connection);
-    }
-  }
-
-  private void closeQuietly(IDatabaseConnection connection) {
-    try {
-      if (connection != null) {
-        connection.close();
-      }
-    } catch (SQLException e) {
-      // ignore
     }
   }
 
@@ -231,8 +227,6 @@ public abstract class AbstractDaoTestCase {
       fail(e.getMessage());
     } catch (SQLException e) {
       throw translateException("Error while checking results", e);
-    } finally {
-      //closeQuietly(connection);
     }
   }
 
@@ -248,8 +242,6 @@ public abstract class AbstractDaoTestCase {
       fail(e.getMessage());
     } catch (SQLException e) {
       throw translateException("Error while checking results", e);
-    } finally {
-      //closeQuietly(connection);
     }
   }
 
@@ -266,18 +258,6 @@ public abstract class AbstractDaoTestCase {
       }
     } catch (SQLException e) {
       throw translateException("Error while checking results", e);
-    } finally {
-      //closeQuietly(connection);
-    }
-  }
-
-  private IDatabaseConnection createConnection() {
-    try {
-      IDatabaseConnection conn = databaseTester.getConnection();
-      conn.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, databaseCommands.getDbUnitFactory());
-      return conn;
-    } catch (Exception e) {
-      throw translateException("Error while getting connection", e);
     }
   }
 
@@ -312,6 +292,6 @@ public abstract class AbstractDaoTestCase {
   }
 
   protected Connection getConnection() throws SQLException {
-    return database.getDataSource().getConnection();
+    return connection.getConnection();
   }
 }

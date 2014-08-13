@@ -104,7 +104,6 @@ public class ResourceIndexerDaoTest extends AbstractDaoTestCase {
       if (null != rs) {
         rs.close();
       }
-      connection.close();
     }
   }
 
