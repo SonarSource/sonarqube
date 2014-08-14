@@ -233,24 +233,27 @@ public class SearchServer extends MonitoredProcess {
   }
 
   private File esDataDir() {
-    if (props.contains(SONAR_PATH_DATA)) {
-      return new File(props.of(SONAR_PATH_DATA), "es");
+    String dataDir = props.of(SONAR_PATH_DATA);
+    if (StringUtils.isNotEmpty(dataDir)) {
+      return new File(dataDir, "es");
     } else {
       return new File(esHomeDir(), "data/es");
     }
   }
 
   private File esLogDir() {
-    if (props.contains(SONAR_PATH_LOG)) {
-      return new File(props.of(SONAR_PATH_LOG));
+    String logDir = props.of(SONAR_PATH_LOG);
+    if (StringUtils.isNotEmpty(logDir)) {
+      return new File(logDir);
     } else {
       return new File(esHomeDir(), "log");
     }
   }
 
   private File esWorkDir() {
-    if (props.contains(SONAR_PATH_TEMP)) {
-      return new File(props.of(SONAR_PATH_TEMP));
+    String workDir = props.of(SONAR_PATH_TEMP);
+    if (StringUtils.isNotEmpty(workDir)) {
+      return new File(workDir);
     } else {
       return new File(esHomeDir(), "temp");
     }
