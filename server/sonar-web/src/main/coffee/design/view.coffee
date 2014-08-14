@@ -105,6 +105,8 @@ define [
       $.get API_DEPENDECIES, parent: id, (data) =>
         @infoRegion.show new InfoView
           collection: new Backbone.Collection data
+          first: @collection.at(column).toJSON()
+          second: @collection.at(row).toJSON()
         @scrollToInfoView()
 
 

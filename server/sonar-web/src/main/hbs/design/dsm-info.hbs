@@ -1,17 +1,30 @@
 <table>
+  <thead>
+  <tr>
+    <th>{{qualifierIcon first.q}} {{first.n}}</th>
+    <th>&nbsp;</th>
+    <th>{{qualifierIcon second.q}} {{second.n}}</th>
+  </tr>
+  </thead>
   <tbody>
-  {{#each items}}
+  {{#eachChanged items 'fk'}}
     <tr>
-      <td>
-        {{qualifierIcon fq}}
-        <a href="/dashboard/index/{{fk}}">{{fn}}</a>
+      <td {{#if changed}}class="changed"{{/if}}>
+        {{#if changed}}
+          {{qualifierIcon fq}}
+          <a href="/dashboard/index/{{fk}}">{{fn}}</a>
+        {{/if}}
       </td>
-      <td>{{u}}</td>
-      <td>
+      <td {{#if changed}}class="changed"{{/if}}>
+        {{#if changed}}
+          {{u}}
+        {{/if}}
+      </td>
+      <td {{#if changed}}class="changed"{{/if}}>
         {{qualifierIcon tq}}
         <a href="/dashboard/index/{{tk}}"> {{tn}} </a>
       </td>
     </tr>
-  {{/each}}
+  {{/eachChanged}}
   </tbody>
 </table>
