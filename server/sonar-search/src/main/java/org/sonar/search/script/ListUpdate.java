@@ -83,7 +83,7 @@ public class ListUpdate extends AbstractExecutableScript {
 
   @Override
   public void setNextVar(String name, Object value) {
-    if (name.equals("ctx")) {
+    if ("ctx".equals(name)) {
       ctx = (Map<String, Object>) value;
     }
   }

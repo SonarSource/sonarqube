@@ -46,6 +46,11 @@ public class SearchServer extends MonitoredProcess {
   public static final String ES_CLUSTER_PROPERTY = "sonar.cluster.name";
   public static final String ES_CLUSTER_INET = "sonar.cluster.master";
 
+  private static final String SONAR_PATH_HOME = "sonar.path.home";
+  private static final String SONAR_PATH_DATA = "sonar.path.data";
+  private static final String SONAR_PATH_TEMP = "sonar.path.temp";
+  private static final String SONAR_PATH_LOG = "sonar.path.log";
+
   private static final Integer MINIMUM_INDEX_REPLICATION = 1;
 
   private final Set<String> nodes = new HashSet<String>();
@@ -59,13 +64,13 @@ public class SearchServer extends MonitoredProcess {
     this.isBlocking = blocking;
     new MinimumViableSystem().check();
 
-    String ESNodesInets = props.of(ES_CLUSTER_INET);
-    if (StringUtils.isNotEmpty(ESNodesInets)) {
-      Collections.addAll(nodes, ESNodesInets.split(","));
+    String esNodesInets = props.of(ES_CLUSTER_INET);
+    if (StringUtils.isNotEmpty(esNodesInets)) {
+      Collections.addAll(nodes, esNodesInets.split(","));
     }
   }
 
-  public SearchServer(Props props) throws Exception {
+  public SearchServer(Props props) {
     this(props, true, true);
   }
 
@@ -80,9 +85,7 @@ public class SearchServer extends MonitoredProcess {
 
   @Override
   protected void doStart() {
-    String dataDir = props.of("sonar.path.data");
-    String logDir = props.of("sonar.path.logs");
-    String tempDir = props.of("sonar.path.temp");
+
     Integer port = props.intOf(ES_PORT_PROPERTY);
     String clusterName = props.of(ES_CLUSTER_PROPERTY);
 
@@ -111,9 +114,9 @@ public class SearchServer extends MonitoredProcess {
       .put("http.enabled", false)
 
         // Setting up ES paths
-      .put("path.data", new File(dataDir, "es").getAbsolutePath())
-      .put("path.work", new File(tempDir).getAbsolutePath())
-      .put("path.logs", new File(logDir).getAbsolutePath());
+      .put("path.data", esDataDir().getAbsolutePath())
+      .put("path.work", esWorkDir().getAbsolutePath())
+      .put("path.logs", esLogDir().getAbsolutePath());
 
     if (!nodes.isEmpty()) {
       LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with masters: {}", nodes);
@@ -121,7 +124,7 @@ public class SearchServer extends MonitoredProcess {
 
       // Enforce a N/2+1 number of masters in cluster
       esSettings.put("discovery.zen.minimum_master_nodes",
-        new Double(nodes.size() / 2.0).intValue() + 1);
+        (int) Math.floor(nodes.size() / 2.0) + 1);
     }
 
     // Set cluster coordinates
@@ -134,6 +137,7 @@ public class SearchServer extends MonitoredProcess {
       try {
         esSettings.put("node.name", InetAddress.getLocalHost().getHostName());
       } catch (Exception e) {
+        LoggerFactory.getLogger(SearchServer.class).warn("Could not determine hostname", e);
         esSettings.put("node.name", "sq-" + System.currentTimeMillis());
       }
     }
@@ -219,6 +223,37 @@ public class SearchServer extends MonitoredProcess {
 
   }
 
+  private File esHomeDir() {
+    if (!props.contains(SONAR_PATH_HOME)) {
+      throw new IllegalStateException("property 'sonar.path.home' is required");
+    }
+    return new File(props.of(SONAR_PATH_HOME));
+  }
+
+  private File esDataDir() {
+    if (props.contains(SONAR_PATH_DATA)) {
+      return new File(props.of(SONAR_PATH_DATA), "es");
+    } else {
+      return new File(esHomeDir(), "data/es");
+    }
+  }
+
+  private File esLogDir() {
+    if (props.contains(SONAR_PATH_LOG)) {
+      return new File(props.of(SONAR_PATH_LOG));
+    } else {
+      return new File(esHomeDir(), "log");
+    }
+  }
+
+  private File esWorkDir() {
+    if (props.contains(SONAR_PATH_TEMP)) {
+      return new File(props.of(SONAR_PATH_TEMP));
+    } else {
+      return new File(esHomeDir(), "temp");
+    }
+  }
+
   @Override
   protected void doTerminate() {
     if (node != null && !node.isClosed()) {
@@ -227,7 +262,7 @@ public class SearchServer extends MonitoredProcess {
     }
   }
 
-  public static void main(String... args) throws Exception {
+  public static void main(String... args) {
     Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
     new ProcessLogging().configure(props, "/org/sonar/search/logback.xml");
     new SearchServer(props).start();

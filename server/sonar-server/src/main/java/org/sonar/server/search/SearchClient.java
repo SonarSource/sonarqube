@@ -40,17 +40,12 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
 
-import java.io.File;
-
 /**
  * ElasticSearch Node used to connect to index.
  */
 public class SearchClient extends TransportClient {
 
   private static final String DEFAULT_HEALTH_TIMEOUT = "30s";
-  private static final String SONAR_PATH_HOME = "sonar.path.home";
-  private static final String SONAR_PATH_DATA = "sonar.path.data";
-  private static final String SONAR_PATH_LOG = "sonar.path.log";
 
   private final Settings settings;
   private final String healthTimeout;
@@ -115,29 +110,6 @@ public class SearchClient extends TransportClient {
 
   private void initLogging() {
     ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
-  }
-
-  private File esHomeDir() {
-    if (!settings.hasKey(SONAR_PATH_HOME)) {
-      throw new IllegalStateException("property 'sonar.path.home' is required");
-    }
-    return new File(settings.getString(SONAR_PATH_HOME));
-  }
-
-  private File esDataDir() {
-    if (settings.hasKey(SONAR_PATH_DATA)) {
-      return new File(settings.getString(SONAR_PATH_DATA), "es");
-    } else {
-      return new File(settings.getString(SONAR_PATH_HOME), "data/es");
-    }
-  }
-
-  private File esLogDir() {
-    if (settings.hasKey(SONAR_PATH_LOG)) {
-      return new File(settings.getString(SONAR_PATH_LOG));
-    } else {
-      return new File(settings.getString(SONAR_PATH_HOME), "log");
-    }
   }
 
   public <K extends ActionResponse> K execute(ActionRequestBuilder request) {
