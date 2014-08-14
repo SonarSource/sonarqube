@@ -53,13 +53,15 @@ public class SearchServer extends MonitoredProcess {
 
   private Node node;
 
-  public SearchServer(Props props, boolean monitored, boolean blocking) throws Exception {
+  public SearchServer(final Props props, boolean monitored, boolean blocking) {
     super(props, monitored);
+
     this.isBlocking = blocking;
     new MinimumViableSystem().check();
 
-    if (StringUtils.isNotEmpty(props.of(ES_CLUSTER_INET, null))) {
-      Collections.addAll(nodes, props.of(ES_CLUSTER_INET).split(","));
+    String ESNodesInets = props.of(ES_CLUSTER_INET);
+    if (StringUtils.isNotEmpty(ESNodesInets)) {
+      Collections.addAll(nodes, ESNodesInets.split(","));
     }
   }
 

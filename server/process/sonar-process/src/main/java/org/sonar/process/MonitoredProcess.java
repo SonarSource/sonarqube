@@ -30,6 +30,8 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class MonitoredProcess implements ProcessMXBean {
 
+  private final static Logger LOGGER = LoggerFactory.getLogger(MonitoredProcess.class);
+
   public static final String NAME_PROPERTY = "pName";
   private static final long AUTOKILL_TIMEOUT_MS = 30000L;
   private static final long AUTOKILL_CHECK_DELAY_MS = 2000L;
@@ -47,11 +49,11 @@ public abstract class MonitoredProcess implements ProcessMXBean {
   private ScheduledExecutorService monitor;
   private final boolean isMonitored;
 
-  protected MonitoredProcess(Props props) throws Exception {
+  protected MonitoredProcess(Props props) {
     this(props, false);
   }
 
-  protected MonitoredProcess(Props props, boolean monitor) throws Exception {
+  protected MonitoredProcess(Props props, boolean monitor) {
     this.isMonitored = monitor;
     this.props = props;
     this.name = props.of(NAME_PROPERTY);
@@ -87,12 +89,10 @@ public abstract class MonitoredProcess implements ProcessMXBean {
     if (monitor != null) {
       throw new IllegalStateException("Already started");
     }
-
-    Logger logger = LoggerFactory.getLogger(getClass());
-    logger.debug("Process[{}] starting", name);
+    LOGGER.debug("Process[{}] starting", name);
     scheduleAutokill(this.isMonitored);
     doStart();
-    logger.debug("Process[{}] started", name);
+    LOGGER.debug("Process[{}] started", name);
   }
 
   /**
@@ -127,8 +127,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
   @Override
   public final void terminate() {
     if (monitor != null) {
-      Logger logger = LoggerFactory.getLogger(getClass());
-      logger.debug("Process[{}] terminating", name);
+      LOGGER.debug("Process[{}] terminating", name);
       monitor.shutdownNow();
       monitor = null;
       if (pingTask != null) {
@@ -138,10 +137,10 @@ public abstract class MonitoredProcess implements ProcessMXBean {
       try {
         doTerminate();
       } catch (Exception e) {
-        LoggerFactory.getLogger(getClass()).error("Fail to terminate " + name, e);
+        LOGGER.error("Fail to terminate " + name, e);
         // do not propagate exception
       }
-      logger.debug("Process[{}] terminated", name);
+      LOGGER.debug("Process[{}] terminated", name);
       terminated = true;
     }
   }

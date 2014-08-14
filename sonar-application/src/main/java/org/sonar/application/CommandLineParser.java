@@ -28,7 +28,7 @@ class CommandLineParser {
   /**
    * Build properties from command-line arguments and system properties
    */
-  Properties parseArguments(String[] args) throws Exception {
+  Properties parseArguments(String[] args) {
     Properties props = argumentsToProperties(args);
 
     // complete with only the system properties that start with "sonar."

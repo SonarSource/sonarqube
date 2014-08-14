@@ -33,6 +33,8 @@ import org.sonar.process.ProcessWrapper;
 import org.sonar.process.Props;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 /**
@@ -45,7 +47,7 @@ public class App implements ProcessMXBean {
   private ProcessWrapper server;
   private boolean success = false;
 
-  public App() throws Exception {
+  public App() {
     JmxUtils.registerMBean(this, "SonarQube");
     ProcessUtils.addSelfShutdownHook(this);
   }
@@ -57,7 +59,8 @@ public class App implements ProcessMXBean {
 
       File homeDir = props.fileOf("sonar.path.home");
       File tempDir = props.fileOf("sonar.path.temp");
-      elasticsearch = new ProcessWrapper(JmxUtils.SEARCH_SERVER_NAME)
+      elasticsearch = new ProcessWrapper(JmxUtils.SEARCH_SERVER_NAME);
+      elasticsearch
         .setWorkDir(homeDir)
         .setJmxPort(props.intOf(DefaultSettings.SEARCH_JMX_PORT))
         .addJavaOpts(props.of(DefaultSettings.SEARCH_JAVA_OPTS))
@@ -78,7 +81,7 @@ public class App implements ProcessMXBean {
               .setJmxPort(props.intOf(DefaultSettings.WEB_JMX_PORT))
               .addJavaOpts(props.of(DefaultSettings.WEB_JAVA_OPTS))
               .setTempDirectory(tempDir.getAbsoluteFile())
-              // required for logback tomcat valve
+                // required for logback tomcat valve
               .setLogDir(props.fileOf("sonar.path.logs"))
               .setClassName("org.sonar.server.app.WebServer")
               .addProperties(props.rawProperties())
@@ -143,18 +146,32 @@ public class App implements ProcessMXBean {
     return success;
   }
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
+
     new MinimumViableSystem().check();
     CommandLineParser cli = new CommandLineParser();
     Properties rawProperties = cli.parseArguments(args);
-    Props props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
-    new ProcessLogging().configure(props, "/org/sonar/application/logback.xml");
+    Props props = null;
+
+    try {
+      props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
+      new ProcessLogging().configure(props, "/org/sonar/application/logback.xml");
+    } catch (IOException e) {
+      throw new IllegalStateException(e.getMessage());
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException(e.getMessage());
+    }
+
     App app = new App();
 
-    // start and wait for shutdown command
-    app.start(props);
-
-    LoggerFactory.getLogger(App.class).info("stopped");
-    System.exit(app.isSuccess() ? 0 : 1);
+    try {
+      // start and wait for shutdown command
+      app.start(props);
+    } catch (InterruptedException e) {
+      LoggerFactory.getLogger(App.class).info("interrupted");
+    } finally {
+      LoggerFactory.getLogger(App.class).info("stopped");
+      System.exit(app.isSuccess() ? 0 : 1);
+    }
   }
 }

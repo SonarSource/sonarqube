@@ -27,6 +27,7 @@ import org.sonar.process.Props;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 class PropsBuilder {
@@ -41,7 +42,7 @@ class PropsBuilder {
     this.homeDir = homeDir;
   }
 
-  PropsBuilder(Properties rawProperties, JdbcSettings jdbcSettings) throws Exception {
+  PropsBuilder(Properties rawProperties, JdbcSettings jdbcSettings) throws URISyntaxException {
     this(rawProperties, jdbcSettings, detectHomeDir());
   }
 
@@ -49,7 +50,7 @@ class PropsBuilder {
    * Load optional conf/sonar.properties, interpolates environment variables and
    * initializes file system
    */
-  Props build() throws Exception {
+  Props build() throws IOException {
     Properties p = loadPropertiesFile(homeDir);
     p.putAll(rawProperties);
     p.setProperty("sonar.path.home", homeDir.getAbsolutePath());
@@ -73,7 +74,7 @@ class PropsBuilder {
     return props;
   }
 
-  static File detectHomeDir() throws Exception {
+  static File detectHomeDir() throws URISyntaxException {
     File appJar = new File(PropsBuilder.class.getProtectionDomain().getCodeSource().getLocation().toURI());
     return appJar.getParentFile().getParentFile();
   }
