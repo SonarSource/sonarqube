@@ -72,9 +72,7 @@ public class ServerTester extends ExternalResource {
     properties.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
     properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
     properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
-    properties.setProperty("sonar.path.data", new File(homeDir, "data/es").getAbsolutePath());
-    properties.setProperty("sonar.path.logs", new File(homeDir, "logs").getAbsolutePath());
-    properties.setProperty("sonar.path.temp", new File(homeDir, "temp").getAbsolutePath());
+    properties.setProperty(SearchServer.SONAR_PATH_HOME, homeDir.getAbsolutePath());
     try {
       searchServer = new SearchServer(new Props(properties), false, false);
     } catch (Exception e) {
