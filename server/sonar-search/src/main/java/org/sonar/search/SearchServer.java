@@ -224,10 +224,12 @@ public class SearchServer extends MonitoredProcess {
   }
 
   private File esHomeDir() {
-    if (!props.contains(SONAR_PATH_HOME)) {
+    String homeDir = props.of(SONAR_PATH_HOME);
+    if (StringUtils.isEmpty(homeDir)) {
       throw new IllegalStateException("property 'sonar.path.home' is required");
+    } else {
+      return new File(homeDir);
     }
-    return new File(props.of(SONAR_PATH_HOME));
   }
 
   private File esDataDir() {
