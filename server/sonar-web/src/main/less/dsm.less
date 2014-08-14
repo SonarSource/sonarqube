@@ -2,7 +2,7 @@
 @import (reference) 'mixins';
 @import (reference) 'ui';
 
-@cellSize: 18px;
+@cellSize: 22px;
 
 .dsm {
 
@@ -28,9 +28,9 @@
 
   &.gray { background-color: @grey; }
   &.red { background-color: @red; }
-  &.green { background-color: @green; }
+  &.green { .dsm-usage-mixin; }
   &.blue { background-color: @blue; }
-  &.yellow { background-color: @orange; }
+  &.yellow { .dsm-dependency-mixin; }
 }
 
 .dsm-legend-label {
@@ -40,54 +40,66 @@
 }
 
 
-.dsm-body {
-  td {
-    padding: 4px;
-    border: 1px solid @barBorderColor;
-    .trans(background-color);
-  }
+.dsm-body td {
+  border: 1px solid @barBorderColor;
 }
+
 
 .dsm-body-title {
   position: relative;
-  display: block;
-  height: @cellSize + 8px;
-  line-height: @cellSize + 8px;
-  margin: -4px;
-  padding: 0 15px 0 5px;
+  vertical-align: middle;
+  padding: 2px 15px 2px 4px;
+  border-right: 2px solid darken(@barBorderColor, 8%) !important;
   color: @baseFontColor;
+  cursor: pointer;
   .link-no-underline;
+  .trans(background-color);
 
-  &:hover, &:focus { background-color: @barBackgroundColor; }
-}
-
-.dsm-body-title-indicator {
-  position: absolute;
-  top: 0; right: 0;
-  .size(10px, 26px);
-
-  .dsm-body-usage & { background-color: @green; }
-  .dsm-body-dependency & { background-color: @orange; }
-  .dsm-body-usage.dsm-body-dependency & { background-color: @red; }
+  &:hover { background-color: @barBackgroundColor; }
 }
 
 .dsm-body-cell {
-  min-width: @cellSize;
-  height: @cellSize;
-  line-height: @cellSize;
-  padding: 0 2px;
+  min-width: 23px;
+  padding: 2px 4px;
   .box-sizing(border-box);
   text-align: center;
+  cursor: pointer;
+  .trans(background-color);
 }
 
-.dsm-body-cell-dependency { background-color: @grey; }
-.dsm-body-cell-cycle { background-color: @red; color: #fff; }
+.dsm-body-cell-dependency {
+  background-color: @grey;
+}
+
+.dsm-body-cell-cycle {
+  background-color: @red !important;
+  color: #fff !important;
+}
+
 
 .dsm-body-highlighted {
-  background-color: @lightBlue;
+  background-color: #dff2fd;
 
-  .dsm-body-title:hover,
-  .dsm-body-title:focus {
-    background-color: @lightBlue;
+  &:hover { background-color: #dff2fd; }
+}
+
+.dsm-body-usage, .dsm-body-usage:hover { .dsm-usage-mixin; }
+.dsm-body-dependency, .dsm-body-dependency:hover { .dsm-dependency-mixin; }
+
+
+.dsm-usage-mixin() {
+  background-color: #e2ffbe;
+}
+
+.dsm-dependency-mixin() {
+  background-color: #fde9cc;
+}
+
+
+.dsm-info {
+  margin-top: 15px;
+
+  td {
+    padding: 2px 5px;
   }
 }

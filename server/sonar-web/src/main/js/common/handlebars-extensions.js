@@ -88,6 +88,15 @@ define(['handlebars'], function (Handlebars) {
     }
   });
 
+  Handlebars.registerHelper('eachIndex', function (context, options) {
+    var ret = '';
+    context.forEach(function (d, i) {
+      var c = _.extend({ index: i }, d);
+      ret += options.fn(c);
+    });
+    return ret;
+  });
+
   Handlebars.registerHelper('eq', function(v1, v2, options) {
     return v1 == v2 ? options.fn(this) : options.inverse(this);
   });

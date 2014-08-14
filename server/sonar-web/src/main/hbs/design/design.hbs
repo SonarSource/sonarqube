@@ -23,23 +23,21 @@
 <div class="dsm-body">
   <table>
     <tbody>
-    {{#each items}}
+    {{#eachIndex items}}
       <tr>
-        <td>
-          <a class="dsm-body-title">
-            {{qualifierIcon q}} {{n}}
-            <span class="dsm-body-title-indicator"></span>
-          </a>
+        <td class="dsm-body-title">
+          {{qualifierIcon q}} {{n}}
+          <span class="dsm-body-title-indicator"></span>
         </td>
-        {{#each v}}
-          <td>
-            <div class="dsm-body-cell {{#if status}}dsm-body-cell-{{status}}{{/if}}">
-              {{w}}
-            </div>
+        {{#eachIndex v}}
+          <td class="dsm-body-cell {{#if status}}dsm-body-cell-{{status}}{{/if}}">
+            {{#eq index ../index}}–{{else}}{{w}}{{/eq}}
           </td>
-        {{/each}}
+        {{/eachIndex}}
       </tr>
-    {{/each}}
+    {{/eachIndex}}
     </tbody>
   </table>
 </div>
+
+<div class="dsm-info"></div>

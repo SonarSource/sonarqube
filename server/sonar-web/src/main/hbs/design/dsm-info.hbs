@@ -1,0 +1,17 @@
+<table>
+  <tbody>
+  {{#each items}}
+    <tr>
+      <td>
+        {{qualifierIcon fq}}
+        <a href="/dashboard/index/{{fk}}">{{fn}}</a>
+      </td>
+      <td>{{u}}</td>
+      <td>
+        {{qualifierIcon tq}}
+        <a href="/dashboard/index/{{tk}}"> {{tn}} </a>
+      </td>
+    </tr>
+  {{/each}}
+  </tbody>
+</table>
