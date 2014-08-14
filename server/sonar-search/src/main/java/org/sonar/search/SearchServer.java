@@ -46,10 +46,10 @@ public class SearchServer extends MonitoredProcess {
   public static final String ES_CLUSTER_PROPERTY = "sonar.cluster.name";
   public static final String ES_CLUSTER_INET = "sonar.cluster.master";
 
-  private static final String SONAR_PATH_HOME = "sonar.path.home";
-  private static final String SONAR_PATH_DATA = "sonar.path.data";
-  private static final String SONAR_PATH_TEMP = "sonar.path.temp";
-  private static final String SONAR_PATH_LOG = "sonar.path.log";
+  public static final String SONAR_PATH_HOME = "sonar.path.home";
+  public static final String SONAR_PATH_DATA = "sonar.path.data";
+  public static final String SONAR_PATH_TEMP = "sonar.path.temp";
+  public static final String SONAR_PATH_LOG = "sonar.path.log";
 
   private static final Integer MINIMUM_INDEX_REPLICATION = 1;
 

@@ -111,9 +111,9 @@ public class SearchServerTest {
   public void can_connect() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
-    properties.setProperty("sonar.path.data", temp.newFolder().getAbsolutePath());
-    properties.setProperty("sonar.path.logs", temp.newFolder().getAbsolutePath());
-    properties.setProperty("sonar.path.temp", temp.newFolder().getAbsolutePath());
+    properties.setProperty(SearchServer.SONAR_PATH_DATA, temp.newFolder().getAbsolutePath());
+    properties.setProperty(SearchServer.SONAR_PATH_TEMP, temp.newFolder().getAbsolutePath());
+    properties.setProperty(SearchServer.SONAR_PATH_LOG, temp.newFolder().getAbsolutePath());
     properties.setProperty(SearchServer.ES_PORT_PROPERTY, Integer.toString(freeESPort));
     properties.setProperty(SearchServer.ES_CLUSTER_PROPERTY, "sonarqube");
 
