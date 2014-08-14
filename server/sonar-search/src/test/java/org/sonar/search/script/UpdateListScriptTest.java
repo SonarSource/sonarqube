@@ -24,6 +24,7 @@ import org.elasticsearch.script.ExecutableScript;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -97,5 +98,85 @@ public class UpdateListScriptTest {
     } catch (Exception e) {
       assertThat(e.getMessage()).isEqualTo("Missing 'idField' parameter");
     }
+  }
+
+
+  @Test
+  public void update_list() throws Exception {
+
+    String listField = "listField";
+    Collection<Map<String, Object>> mapFields;
+    Map source = new HashMap<String, Object>();
+    source.put("field1", "value1");
+
+    // 0 Create list when field does not exists
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put(ListUpdate.FIELD, listField);
+    params.put(ListUpdate.ID_FIELD, "key");
+    params.put(ListUpdate.ID_VALUE, "1");
+    params.put(ListUpdate.VALUE, mapOf("key", "1", "value", "A"));
+
+    ExecutableScript script = factory.newScript(params);
+    script.setNextVar("ctx", ImmutableMap.of("_source",source));
+    script.run();
+
+    mapFields = (Collection)source.get(listField);
+    System.out.println("source = " + source);
+    assertThat(mapFields).hasSize(1);
+
+    // Add item to existing list
+    params = new HashMap<String, Object>();
+    params.put(ListUpdate.FIELD, listField);
+    params.put(ListUpdate.ID_FIELD, "key");
+    params.put(ListUpdate.ID_VALUE, "2");
+    params.put(ListUpdate.VALUE, mapOf("key", "2", "value", "B"));
+    script = factory.newScript(params);
+    script.setNextVar("ctx", ImmutableMap.of("_source",source));
+    script.run();
+    mapFields = (Collection)source.get(listField);
+    assertThat(mapFields).hasSize(2);
+
+    // updated first item in list
+    params = new HashMap<String, Object>();
+    params.put(ListUpdate.FIELD, listField);
+    params.put(ListUpdate.ID_FIELD, "key");
+    params.put(ListUpdate.ID_VALUE, "1");
+    params.put(ListUpdate.VALUE, mapOf("key", "1", "value", "a"));
+    script = factory.newScript(params);
+    script.setNextVar("ctx", ImmutableMap.of("_source",source));
+    script.run();
+    mapFields = (Collection)source.get(listField);
+    assertThat(mapFields).hasSize(2);
+
+    // updated second item in list
+    params = new HashMap<String, Object>();
+    params.put(ListUpdate.FIELD, listField);
+    params.put(ListUpdate.ID_FIELD, "key");
+    params.put(ListUpdate.ID_VALUE, "2");
+    params.put(ListUpdate.VALUE, mapOf("key", "2", "value","b"));
+    script = factory.newScript(params);
+    script.setNextVar("ctx", ImmutableMap.of("_source",source));
+    script.run();
+    mapFields = (Collection)source.get(listField);
+    assertThat(mapFields).hasSize(2);
+
+    // delete first item
+    params = new HashMap<String, Object>();
+    params.put(ListUpdate.FIELD, listField);
+    params.put(ListUpdate.ID_FIELD, "key");
+    params.put(ListUpdate.ID_VALUE, "1");
+    params.put(ListUpdate.VALUE, null);
+    script = factory.newScript(params);
+    script.setNextVar("ctx", ImmutableMap.of("_source",source));
+    script.run();
+    mapFields = (Collection)source.get(listField);
+    assertThat(mapFields).hasSize(1);
+  }
+
+  private Map<String, Object> mapOf(String k, String v, String k1, String v1) {
+    Map<String, Object> map = new HashMap<String, Object>();
+    map.put(k, v);
+    map.put(k1, v1);
+    return map;
   }
 }

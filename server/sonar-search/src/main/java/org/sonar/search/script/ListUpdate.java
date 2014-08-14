@@ -25,7 +25,9 @@ import org.elasticsearch.script.AbstractExecutableScript;
 import org.elasticsearch.script.ExecutableScript;
 import org.elasticsearch.script.NativeScriptFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class ListUpdate extends AbstractExecutableScript {
@@ -104,14 +106,19 @@ public class ListUpdate extends AbstractExecutableScript {
 
       if (fieldValue == null && value != null) {
         // 0. The field does not exist (this is a upsert then)
-        source.put(field, value);
+        List values = new ArrayList<Object>(1);
+        values.add(value);
+        source.put(field, values);
       } else if (!XContentMapValues.isArray(fieldValue) && value != null) {
         // 1. The field is not yet a list
         Map currentFieldValue = XContentMapValues.nodeMapValue(fieldValue, "current FieldValue");
         if (XContentMapValues.nodeStringValue(currentFieldValue.get(idField), null).equals(idValue)) {
           source.put(field, value);
         } else {
-          source.put(field, org.elasticsearch.common.collect.ImmutableSet.of(fieldValue, value));
+          List values = new ArrayList<Object>(2);
+          values.add(fieldValue);
+          values.add(value);
+          source.put(field, values);
         }
       } else {
         // 3. field is a list
