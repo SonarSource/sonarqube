@@ -360,7 +360,7 @@ public class ProcessWrapper extends Thread implements Terminable {
           logger.info(line);
         }
       } catch (Exception ignored) {
-        LOGGER.trace("Error while Gobbling", ignored);
+        logger.trace("Error while Gobbling", ignored);
       } finally {
         IOUtils.closeQuietly(br);
         IOUtils.closeQuietly(isr);

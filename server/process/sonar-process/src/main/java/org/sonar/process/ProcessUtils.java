@@ -20,10 +20,15 @@
 package org.sonar.process;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
 public class ProcessUtils {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ProcessUtils.class);
+
   private ProcessUtils() {
     // only static stuff
   }
@@ -36,6 +41,7 @@ public class ProcessUtils {
       process.exitValue();
       return false;
     } catch (IllegalThreadStateException e) {
+      LOGGER.trace("Process has no exit value yet", e);
       return true;
     }
   }
@@ -45,7 +51,7 @@ public class ProcessUtils {
       try {
         process.destroy();
       } catch (Exception ignored) {
-        // ignored
+        LOGGER.warn("Exception while destroying the process", ignored);
       }
     }
   }

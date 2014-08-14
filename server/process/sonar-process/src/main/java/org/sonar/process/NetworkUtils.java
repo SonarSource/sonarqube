@@ -24,6 +24,10 @@ import java.net.ServerSocket;
 
 public class NetworkUtils {
 
+  private NetworkUtils() {
+    // only static stuff
+  }
+
   public static int freePort() {
     try {
       ServerSocket s = new ServerSocket(0);

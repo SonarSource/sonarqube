@@ -76,11 +76,11 @@ public class SearchServer extends MonitoredProcess {
 
   @Override
   protected boolean doIsReady() {
-    return (node.client().admin().cluster().prepareHealth()
+    return node.client().admin().cluster().prepareHealth()
       .setWaitForYellowStatus()
       .setTimeout(TimeValue.timeValueSeconds(3L))
       .get()
-      .getStatus() != ClusterHealthStatus.RED);
+      .getStatus() != ClusterHealthStatus.RED;
   }
 
   @Override
