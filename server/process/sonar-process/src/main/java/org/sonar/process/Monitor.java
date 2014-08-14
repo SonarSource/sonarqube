@@ -31,12 +31,13 @@ import java.util.concurrent.TimeUnit;
 
 public class Monitor extends Thread implements Terminable {
 
-  private static final long PING_DELAY_MS = 3000L;
   private final static Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
+
+  private static final long PING_DELAY_MS = 3000L;
 
   private volatile List<ProcessWrapper> processes;
   private final ScheduledFuture<?> watch;
-  private final ScheduledExecutorService monitor;
+  private final ScheduledExecutorService monitorExecutionService;
 
   /**
    * Starts another thread to send ping to all registered processes
@@ -44,8 +45,8 @@ public class Monitor extends Thread implements Terminable {
   public Monitor() {
     super("Process Monitor");
     processes = new ArrayList<ProcessWrapper>();
-    monitor = Executors.newScheduledThreadPool(1);
-    watch = monitor.scheduleAtFixedRate(new ProcessWatch(), 0L, PING_DELAY_MS, TimeUnit.MILLISECONDS);
+    monitorExecutionService = Executors.newScheduledThreadPool(1);
+    watch = monitorExecutionService.scheduleAtFixedRate(new ProcessWatch(), 0L, PING_DELAY_MS, TimeUnit.MILLISECONDS);
   }
 
   private class ProcessWatch extends Thread {
@@ -63,7 +64,8 @@ public class Monitor extends Thread implements Terminable {
             mBean.ping();
           }
         } catch (Exception e) {
-          // fail to ping, do nothing
+          LOGGER.debug("Could not ping process[{}]", process.getName());
+          LOGGER.trace("Ping failure", e);
         }
       }
     }
@@ -107,8 +109,8 @@ public class Monitor extends Thread implements Terminable {
 
   @Override
   public void terminate() {
-    if (!monitor.isShutdown()) {
-      monitor.shutdownNow();
+    if (!monitorExecutionService.isShutdown()) {
+      monitorExecutionService.shutdownNow();
     }
     if (!watch.isCancelled()) {
       watch.cancel(true);

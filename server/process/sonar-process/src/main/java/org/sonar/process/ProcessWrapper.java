@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -178,6 +179,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       }
     } catch (Exception e) {
       LOGGER.info("ProcessThread has been interrupted. Killing process.");
+      LOGGER.trace("Process exception", e);
     } finally {
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
@@ -210,7 +212,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       "bin" + separator + "java").getAbsolutePath();
   }
 
-  private List<String> buildJMXOptions() throws Exception {
+  private List<String> buildJMXOptions() {
     if (jmxPort < 1) {
       throw new IllegalStateException("JMX port is not set");
     }
@@ -246,10 +248,15 @@ public class ProcessWrapper extends Thread implements Terminable {
    * Wait for JMX RMI to be ready. Return <code>null</code>
    */
   @CheckForNull
-  private ProcessMXBean waitForJMX() throws Exception {
+  private ProcessMXBean waitForJMX() {
     String loopbackAddress = localAddress();
     String path = "/jndi/rmi://" + loopbackAddress + ":" + jmxPort + "/jmxrmi";
-    JMXServiceURL jmxUrl = new JMXServiceURL("rmi", loopbackAddress, jmxPort, path);
+    JMXServiceURL jmxUrl = null;
+    try {
+      jmxUrl = new JMXServiceURL("rmi", loopbackAddress, jmxPort, path);
+    } catch (MalformedURLException e) {
+      throw new IllegalStateException("JMX url does not look well formed", e);
+    }
 
     for (int i = 0; i < 5; i++) {
       try {
@@ -266,7 +273,7 @@ public class ProcessWrapper extends Thread implements Terminable {
         ProcessMXBean bean = JMX.newMBeanProxy(mBeanServer, JmxUtils.objectName(processName), ProcessMXBean.class);
         return bean;
       } catch (Exception ignored) {
-        // ignored
+        LOGGER.trace("Could not connect JMX yet", ignored);
       }
     }
     // failed to connect
@@ -299,8 +306,7 @@ public class ProcessWrapper extends Thread implements Terminable {
         LOGGER.info("{} stopped", getName());
 
       } catch (Exception ignored) {
-        // ignore
-
+        LOGGER.trace("Could not terminate process", ignored);
       } finally {
         killer.shutdownNow();
       }
@@ -326,7 +332,7 @@ public class ProcessWrapper extends Thread implements Terminable {
           return true;
         }
       } catch (Exception e) {
-        // ignore
+        LOGGER.trace("Process is not ready yet", e);
       }
       Thread.sleep(wait);
       now += wait;
@@ -354,8 +360,7 @@ public class ProcessWrapper extends Thread implements Terminable {
           logger.info(line);
         }
       } catch (Exception ignored) {
-        // ignored
-
+        LOGGER.trace("Error while Gobbling", ignored);
       } finally {
         IOUtils.closeQuietly(br);
         IOUtils.closeQuietly(isr);

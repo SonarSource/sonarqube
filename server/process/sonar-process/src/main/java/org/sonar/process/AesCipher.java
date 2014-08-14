@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.security.Key;
 import java.security.SecureRandom;
 
-final class AesCipher extends Cipher {
+final class AesCipher implements Cipher {
 
   // Can't be increased because of Java 6 policy files :
   // https://confluence.terena.org/display/~visser/No+256+bit+ciphers+for+Java+apps
@@ -54,7 +54,7 @@ final class AesCipher extends Cipher {
   }
 
   @Override
-  String encrypt(String clearText) {
+  public String encrypt(String clearText) {
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, loadSecretFile());
@@ -67,7 +67,7 @@ final class AesCipher extends Cipher {
   }
 
   @Override
-  String decrypt(String encryptedText) {
+  public String decrypt(String encryptedText) {
     try {
       javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance(CRYPTO_KEY);
       cipher.init(javax.crypto.Cipher.DECRYPT_MODE, loadSecretFile());

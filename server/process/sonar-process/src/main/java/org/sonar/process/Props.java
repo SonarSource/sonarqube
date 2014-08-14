@@ -29,21 +29,21 @@ import java.util.Properties;
 
 public class Props {
 
-  private final Properties props;
+  private final Properties properties;
   private final Encryption encryption;
 
   public Props(Properties props) {
-    this.props = props;
+    this.properties = props;
     this.encryption = new Encryption(props.getProperty(AesCipher.ENCRYPTION_SECRET_KEY_PATH));
   }
 
   public boolean contains(String key) {
-    return props.containsKey(key);
+    return properties.containsKey(key);
   }
 
   @CheckForNull
   public String of(String key) {
-    String value = props.getProperty(key);
+    String value = properties.getProperty(key);
     if (value != null && encryption.isEncrypted(value)) {
       value = encryption.decrypt(value);
     }
@@ -89,18 +89,20 @@ public class Props {
   }
 
   public Properties rawProperties() {
-    return props;
+    return properties;
   }
 
   public Props set(String key, @Nullable String value) {
-    props.setProperty(key, value);
+    if (value != null) {
+      properties.setProperty(key, value);
+    }
     return this;
   }
 
   public void setDefault(String key, String value) {
-    String s = props.getProperty(key);
+    String s = properties.getProperty(key);
     if (StringUtils.isBlank(s)) {
-      props.setProperty(key, value);
+      properties.setProperty(key, value);
     }
   }
 }

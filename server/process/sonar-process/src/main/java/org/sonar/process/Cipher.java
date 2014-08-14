@@ -20,8 +20,8 @@
 
 package org.sonar.process;
 
-abstract class Cipher {
-  abstract String encrypt(String clearText);
+interface Cipher {
+  String encrypt(String clearText);
 
-  abstract String decrypt(String encryptedText);
+  String decrypt(String encryptedText);
 }

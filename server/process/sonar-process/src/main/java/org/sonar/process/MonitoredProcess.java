@@ -154,6 +154,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
     try {
       return doIsReady();
     } catch (Exception ignored) {
+      LOGGER.trace("Exception while checking if ready", ignored);
       return false;
     }
   }
