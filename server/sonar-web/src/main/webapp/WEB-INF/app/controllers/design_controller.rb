@@ -31,7 +31,8 @@ class DesignController < ApplicationController
 
   def load_resource
     @resource=Project.by_key(params[:id])
-    redirect_to(home_path) unless @resource
+    return redirect_to(home_path) unless @resource
+    @snapshot=@resource.last_snapshot
   end
 
 end
