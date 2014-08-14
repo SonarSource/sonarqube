@@ -19,6 +19,8 @@
  */
 package org.sonar.process;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.File;
@@ -94,5 +96,12 @@ public class Props {
       properties.setProperty(key, value);
     }
     return this;
+  }
+
+  public void setDefault(String key, String value) {
+    String s = properties.getProperty(key);
+    if (StringUtils.isBlank(s)) {
+      properties.setProperty(key, value);
+    }
   }
 }

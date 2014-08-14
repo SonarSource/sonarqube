@@ -49,7 +49,7 @@ class DefaultSettings {
 
     // init string properties
     for (Map.Entry<String, String> entry : defaults().entrySet()) {
-      props.set(entry.getKey(), entry.getValue());
+      props.setDefault(entry.getKey(), entry.getValue());
     }
 
     // init ports
