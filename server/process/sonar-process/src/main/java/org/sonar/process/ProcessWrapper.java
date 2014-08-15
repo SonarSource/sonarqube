@@ -184,7 +184,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
       ProcessUtils.closeStreams(process);
-      this.interrupt();
+      interruptAndWait();
     }
   }
 
@@ -310,6 +310,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       } finally {
         killer.shutdownNow();
       }
+      interruptAndWait();
     } else {
       // process is not monitored through JMX, but killing it though
       ProcessUtils.destroyQuietly(process);
@@ -338,6 +339,17 @@ public class ProcessWrapper extends Thread implements Terminable {
       now += wait;
     }
     return false;
+  }
+
+  private void interruptAndWait() {
+    this.interrupt();
+    try {
+      if (this.isAlive()) {
+        this.join();
+      }
+    } catch (InterruptedException e) {
+      //Expected to be interrupted :)
+    }
   }
 
   private static class StreamGobbler extends Thread {

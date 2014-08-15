@@ -21,47 +21,16 @@ package org.sonar.process;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 
-public class ProcessWrapperTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  private static final String DUMMY_OK_APP = "org.sonar.application.DummyOkProcess";
-
-  int freePort;
-  File dummyAppJar;
-  Process proc;
-
-  @Before
-  public void setup() throws IOException {
-    ServerSocket socket = new ServerSocket(0);
-    freePort = socket.getLocalPort();
-    socket.close();
-
-    dummyAppJar = FileUtils.toFile(getClass().getResource("/sonar-dummy-app.jar"));
-  }
-
-  @After
-  public void tearDown() {
-    if (proc != null) {
-      proc.destroy();
-    }
-  }
+public class ProcessWrapperTest extends ProcessTest {
 
   @Test
   public void has_dummy_app() {

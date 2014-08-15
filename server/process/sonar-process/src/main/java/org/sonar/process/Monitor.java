@@ -35,6 +35,7 @@ public class Monitor extends Thread implements Terminable {
 
   private static final long PING_DELAY_MS = 3000L;
 
+  private long pingDelayMs = PING_DELAY_MS;
   private volatile List<ProcessWrapper> processes;
   private final ScheduledFuture<?> watch;
   private final ScheduledExecutorService monitorExecutionService;
@@ -46,7 +47,16 @@ public class Monitor extends Thread implements Terminable {
     super("Process Monitor");
     processes = new ArrayList<ProcessWrapper>();
     monitorExecutionService = Executors.newScheduledThreadPool(1);
-    watch = monitorExecutionService.scheduleAtFixedRate(new ProcessWatch(), 0L, PING_DELAY_MS, TimeUnit.MILLISECONDS);
+    watch = monitorExecutionService.scheduleAtFixedRate(new ProcessWatch(), 0L, getPingDelayMs(), TimeUnit.MILLISECONDS);
+  }
+
+  private long getPingDelayMs() {
+    return pingDelayMs;
+  }
+
+  public Monitor setPingDelayMs(long pingDelayMs) {
+    this.pingDelayMs = pingDelayMs;
+    return this;
   }
 
   private class ProcessWatch extends Thread {
@@ -88,7 +98,7 @@ public class Monitor extends Thread implements Terminable {
   public void run() {
     try {
       boolean ok = true;
-      while (ok) {
+      while (isRunning && ok) {
         for (ProcessWrapper process : processes) {
           if (!ProcessUtils.isAlive(process.process())) {
             LOGGER.info("{} is down, stopping all other processes", process.getName());
@@ -107,8 +117,12 @@ public class Monitor extends Thread implements Terminable {
     }
   }
 
+  volatile Boolean isRunning = true;
+
   @Override
   public void terminate() {
+    LOGGER.debug("Monitoring thread is terminating");
+
     if (!monitorExecutionService.isShutdown()) {
       monitorExecutionService.shutdownNow();
     }
@@ -120,6 +134,17 @@ public class Monitor extends Thread implements Terminable {
       processes.get(i).terminate();
     }
     processes.clear();
-    interrupt();
+    interruptAndWait();
+  }
+
+  private void interruptAndWait() {
+    this.interrupt();
+    try {
+      if (this.isAlive()) {
+        this.join();
+      }
+    } catch (InterruptedException e) {
+      //Expected to be interrupted :)
+    }
   }
 }
