@@ -100,6 +100,7 @@ define [
       column = cell.parent().children().index(cell) - 1
       row = cell.parent().parent().children().index cell.parent()
       id = @collection.at(row).get('v')[column].i
+      return unless id
       @showInfoViewSpinner()
       @scrollToInfoView()
       $.get API_DEPENDECIES, parent: id, (data) =>
