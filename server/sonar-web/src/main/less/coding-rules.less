@@ -1,5 +1,6 @@
 @import (reference) 'mixins';
 @import (reference) 'variables';
+@import (reference) 'ui';
 @import (reference) 'navigator/config';
 
 @facetsHeight: 40px;
@@ -339,6 +340,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  .link-no-underline;
   .trans;
 
   &:hover { background-color: @navigatorBarBackground; }
