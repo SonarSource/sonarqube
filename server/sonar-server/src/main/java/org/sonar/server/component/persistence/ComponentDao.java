@@ -30,8 +30,6 @@ import org.sonar.server.db.BaseDao;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
-
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -122,24 +120,5 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   protected ComponentDto doInsert(DbSession session, ComponentDto item) {
     mapper(session).insert(item);
     return item;
-  }
-
-  @Override
-  protected ComponentDto doUpdate(DbSession session, ComponentDto item) {
-    throw notImplemented();
-  }
-
-  @Override
-  protected void doDeleteByKey(DbSession session, String key) {
-    throw notImplemented();
-  }
-
-  @Override
-  public void synchronizeAfter(DbSession session, Date timestamp) {
-    throw notImplemented();
-  }
-
-  private static IllegalStateException notImplemented() {
-    throw new IllegalStateException("Not implemented yet");
   }
 }

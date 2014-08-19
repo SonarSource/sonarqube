@@ -64,7 +64,5 @@ public abstract class BaseNormalizer<DTO extends Dto<KEY>, KEY extends Serializa
     throw new IllegalStateException("Nested Normalize not implemented in current normalizer!");
   }
 
-  public abstract List<UpdateRequest> normalize(KEY key);
-
   public abstract List<UpdateRequest> normalize(DTO dto);
 }

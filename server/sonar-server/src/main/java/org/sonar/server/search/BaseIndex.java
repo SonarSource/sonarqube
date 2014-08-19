@@ -425,7 +425,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   @Override
-  public void upsertByDto(DTO item, DTO... items) {
+  public void upsert(DTO item, DTO... items) {
     try {
       long t0 = System.currentTimeMillis();
       List<UpdateRequest> requests = normalizer.normalize(item);
@@ -437,20 +437,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       long t2 = System.currentTimeMillis();
       LOG.debug("UPSERT [dto] time:{}ms ({}ms normalize, {}ms elastic)",
         t2 - t0, t1 - t0, t2 - t1);
-    } catch (Exception e) {
-      LOG.error("Could not update document for index {}: {}",
-        this.getIndexName(), e.getMessage(), e);
-    }
-  }
-
-  @Override
-  public void upsertByKey(KEY key, KEY... keys) {
-    try {
-      List<UpdateRequest> requests = normalizer.normalize(key);
-      for (KEY additionalKey : keys) {
-        requests.addAll(normalizer.normalize(additionalKey));
-      }
-      this.updateDocument(requests, key);
     } catch (Exception e) {
       LOG.error("Could not update document for index {}: {}",
         this.getIndexName(), e.getMessage(), e);

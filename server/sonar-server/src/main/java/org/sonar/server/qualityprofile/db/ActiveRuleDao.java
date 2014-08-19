@@ -22,9 +22,6 @@ package org.sonar.server.qualityprofile.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -37,15 +34,11 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.action.IndexAction;
-import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.CheckForNull;
-
-import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, ActiveRuleKey> {
 
@@ -72,22 +65,6 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     super(IndexDefinition.ACTIVE_RULE, ActiveRuleMapper.class, system);
     this.ruleDao = ruleDao;
     this.profileDao = profileDao;
-  }
-
-  @Override
-  public void synchronizeAfter(final DbSession session, Date date) {
-    session.select("selectAllKeysAfterTimestamp", new Timestamp(date.getTime()), new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext context) {
-        Map<String, Object> fields = (Map<String, Object>) context.getResultObject();
-        // "rule" is a reserved keyword in SQLServer, so "rulefield" is used
-        ActiveRuleKey key = ActiveRuleKey.of(
-          (String) fields.get("profileKey"),
-          RuleKey.of((String) fields.get("repository"), (String) fields.get("rulefield")));
-        session.enqueue(new KeyIndexAction<ActiveRuleKey>(getIndexType(), IndexAction.Method.UPSERT, key));
-      }
-    });
-    session.commit();
   }
 
   /**
@@ -138,6 +115,26 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
       mapper(session).deleteParameters(activeRule.getId());
       mapper(session).delete(activeRule.getId());
     }
+  }
+
+  @Override
+  protected Iterable<ActiveRuleDto> findAfterDate(DbSession session, Date date) {
+//    @Override
+//    public void synchronizeAfter(final DbSession session, Date date) {
+//      session.select("selectAllKeysAfterTimestamp", new Timestamp(date.getTime()), new ResultHandler() {
+//        @Override
+//        public void handleResult(ResultContext context) {
+//          Map<String, Object> fields = (Map<String, Object>) context.getResultObject();
+//          // "rule" is a reserved keyword in SQLServer, so "rulefield" is used
+//          ActiveRuleKey key = ActiveRuleKey.of(
+//            (String) fields.get("profileKey"),
+//            RuleKey.of((String) fields.get("repository"), (String) fields.get("rulefield")));
+//          session.enqueue(new KeyIndexAction<ActiveRuleKey>(getIndexType(), IndexAction.Method.UPSERT, key));
+//        }
+//      });
+//      session.commit();
+//    }
+    return Collections.EMPTY_LIST;
   }
 
   /**

@@ -48,7 +48,7 @@ public class KeyIndexAction<K extends Serializable> extends IndexAction {
       if (this.getMethod().equals(Method.DELETE)) {
         index.deleteByKey(this.key, this.keys);
       } else if (this.getMethod().equals(Method.UPSERT)) {
-        index.upsertByKey(this.key, this.keys);
+        throw new IllegalStateException("Upsert by Key is not supported anymore");
       }
     } catch (Exception e) {
       throw new IllegalStateException(this.getClass().getSimpleName() +

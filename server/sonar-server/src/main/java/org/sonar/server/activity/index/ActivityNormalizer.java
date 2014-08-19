@@ -24,7 +24,6 @@ import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.activity.db.ActivityDto;
-import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexDefinition;
@@ -33,7 +32,6 @@ import org.sonar.server.search.Indexable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -76,18 +74,6 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, String> {
 
   public ActivityNormalizer(DbClient db) {
     super(IndexDefinition.LOG, db);
-  }
-
-  @Override
-  public List<UpdateRequest> normalize(String activityKey) {
-    DbSession dbSession = db.openSession(false);
-    List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
-    try {
-      requests.addAll(normalize(db.activityDao().getByKey(dbSession, activityKey)));
-    } finally {
-      dbSession.close();
-    }
-    return requests;
   }
 
   @Override

@@ -25,9 +25,8 @@ import org.sonar.core.activity.db.ActivityMapper;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.action.DtoIndexAction;
-import org.sonar.server.search.action.IndexAction;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -61,15 +60,16 @@ public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, String> {
     throw new IllegalStateException("Cannot delete Log!");
   }
 
-  public List<ActivityDto> findAll(DbSession session) {
-    return mapper(session).selectAll();
+  @Override
+  protected Iterable<ActivityDto> findAfterDate(DbSession session, Date date) {
+    //    for (ActivityDto activity : this.findAll(session)) {
+//      session.enqueue(new DtoIndexAction<ActivityDto>(this.getIndexType(), IndexAction.Method.UPSERT, activity));
+//    }
+//    session.commit();
+    return Collections.EMPTY_LIST;
   }
 
-  @Override
-  public void synchronizeAfter(DbSession session, Date time) {
-    for (ActivityDto activity : this.findAll(session)) {
-      session.enqueue(new DtoIndexAction<ActivityDto>(this.getIndexType(), IndexAction.Method.UPSERT, activity));
-    }
-    session.commit();
+  public List<ActivityDto> findAll(DbSession session) {
+    return mapper(session).selectAll();
   }
 }

@@ -28,55 +28,55 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 
-public interface Dao<E extends Dto<K>, K extends Serializable> extends ServerComponent {
+public interface Dao<DTO extends Dto<KEY>, KEY extends Serializable> extends ServerComponent {
 
   /**
    * Get a DTO by its key. Return <code>null</code> if the key does not exist.
    */
   @CheckForNull
-  E getNullableByKey(DbSession session, K key);
+  DTO getNullableByKey(DbSession session, KEY key);
 
   /**
    * Get a DTO by its key.
    *
    * @throws org.sonar.server.exceptions.NotFoundException if the key does not exist
    */
-  E getByKey(DbSession session, K key);
+  DTO getByKey(DbSession session, KEY key);
 
   /**
    * Update a table row. DTO id must be set. The field updatedAt
    * is changed by this method.
    */
-  E update(DbSession session, E dto);
+  DTO update(DbSession session, DTO dto);
 
   /**
    * Update one or more table rows. Note that the returned DTO is only
    * the first updated one.
    */
-  E update(DbSession session, E dto, E... others);
+  DTO update(DbSession session, DTO dto, DTO... others);
 
-  Collection<E> update(DbSession session, Collection<E> dtos);
+  Collection<DTO> update(DbSession session, Collection<DTO> dtos);
 
-  E insert(DbSession session, E dto);
+  DTO insert(DbSession session, DTO dto);
 
   /**
    * Insert one or more database rows. Note
    * that the returned DTO is only the first inserted one.
    */
-  E insert(DbSession session, E dto, E... others);
+  DTO insert(DbSession session, DTO dto, DTO... others);
 
-  Collection<E> insert(DbSession session, Collection<E> dtos);
+  Collection<DTO> insert(DbSession session, Collection<DTO> dtos);
 
-  void delete(DbSession session, E dto);
+  void delete(DbSession session, DTO dto);
 
   /**
    * Delete one or more table rows.
    */
-  void delete(DbSession session, E dto, E... others);
+  void delete(DbSession session, DTO dto, DTO... others);
 
-  void delete(DbSession session, Collection<E> dtos);
+  void delete(DbSession session, Collection<DTO> dtos);
 
-  void deleteByKey(DbSession session, K key);
+  void deleteByKey(DbSession session, KEY key);
 
   void synchronizeAfter(DbSession session, Date date);
 

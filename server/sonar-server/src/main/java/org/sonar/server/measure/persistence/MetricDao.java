@@ -29,7 +29,6 @@ import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
-import java.util.Date;
 import java.util.List;
 
 public class MetricDao extends BaseDao<MetricMapper, MetricDto, String> implements ServerComponent, DaoComponent {
@@ -50,29 +49,5 @@ public class MetricDao extends BaseDao<MetricMapper, MetricDto, String> implemen
 
   public List<MetricDto> findEnabled(DbSession session) {
     return mapper(session).selectAllEnabled();
-  }
-
-  @Override
-  protected MetricDto doInsert(DbSession session, MetricDto item) {
-    throw notImplemented();
-  }
-
-  @Override
-  protected MetricDto doUpdate(DbSession session, MetricDto item) {
-    throw notImplemented();
-  }
-
-  @Override
-  protected void doDeleteByKey(DbSession session, String key) {
-    throw notImplemented();
-  }
-
-  @Override
-  public void synchronizeAfter(DbSession session, Date date) {
-    throw notImplemented();
-  }
-
-  private static RuntimeException notImplemented() {
-    throw new IllegalStateException("Not implemented yet");
   }
 }

@@ -42,9 +42,7 @@ public interface Index<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable> e
 
   void upsert(KEY key, Object object, Object... objects) throws Exception;
 
-  void upsertByKey(KEY key, KEY... keys);
-
-  void upsertByDto(DTO dto, DTO... dtos);
+  void upsert(DTO dto, DTO... dtos);
 
   void delete(KEY key, Object object, Object... objects) throws Exception;
 

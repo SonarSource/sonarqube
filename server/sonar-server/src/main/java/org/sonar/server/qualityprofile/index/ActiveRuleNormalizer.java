@@ -102,23 +102,10 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
   }
 
   @Override
-  public List<UpdateRequest> normalize(ActiveRuleKey key) {
-    DbSession dbSession = db.openSession(false);
-    List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
-    try {
-      ActiveRuleDto activeRule = db.activeRuleDao().getByKey(dbSession, key);
-      requests.addAll(normalize(activeRule));
-      for (ActiveRuleParamDto param : db.activeRuleDao().findParamsByActiveRuleKey(dbSession, key)) {
-        requests.addAll(normalizeNested(param, key));
-      }
-    } finally {
-      dbSession.close();
-    }
-    return requests;
-  }
-
-  @Override
   public List<UpdateRequest> normalize(ActiveRuleDto activeRuleDto) {
+
+    List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
+
     ActiveRuleKey key = activeRuleDto.getKey();
     Preconditions.checkArgument(key != null, "Cannot normalize ActiveRuleDto with null key");
 
@@ -154,21 +141,27 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
           parentKey = parentDto.getKey().toString();
         }
       }
+
+      /* Creating updateRequest */
+      requests.add(new UpdateRequest()
+        .replicationType(ReplicationType.ASYNC)
+        .routing(key.ruleKey().toString())
+        .id(activeRuleDto.getKey().toString())
+        .parent(activeRuleDto.getKey().ruleKey().toString())
+        .doc(newRule)
+        .upsert(getUpsertFor(ActiveRuleField.ALL_FIELDS, newRule)));
+
+      //Get the RuleParameters
+      for (ActiveRuleParamDto param : db.activeRuleDao().findParamsByActiveRuleKey(session, key)) {
+        requests.addAll(normalizeNested(param, key));
+      }
+
       newRule.put(ActiveRuleField.PARENT_KEY.field(), parentKey);
     } finally {
       session.close();
     }
 
-    Map<String, Object> upsert = getUpsertFor(ActiveRuleField.ALL_FIELDS, newRule);
-
-    /* Creating updateRequest */
-    return ImmutableList.of(new UpdateRequest()
-      .replicationType(ReplicationType.ASYNC)
-      .routing(key.ruleKey().toString())
-      .id(activeRuleDto.getKey().toString())
-      .parent(activeRuleDto.getKey().ruleKey().toString())
-      .doc(newRule)
-      .upsert(upsert));
+    return requests;
   }
 
   @Override
@@ -199,27 +192,27 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     newParam.put(ActiveRuleParamField.VALUE.field(), param.getValue());
 
     return ImmutableList.of(new UpdateRequest()
-      .replicationType(ReplicationType.ASYNC)
-      .routing(key.ruleKey().toString())
-      .id(key.toString())
-      .script(ListUpdate.NAME)
-      .addScriptParam(ListUpdate.FIELD, ActiveRuleField.PARAMS.field())
-      .addScriptParam(ListUpdate.VALUE, newParam)
-      .addScriptParam(ListUpdate.ID_FIELD, ActiveRuleParamField.NAME.field())
-      .addScriptParam(ListUpdate.ID_VALUE, param.getKey())
-      );
+        .replicationType(ReplicationType.ASYNC)
+        .routing(key.ruleKey().toString())
+        .id(key.toString())
+        .script(ListUpdate.NAME)
+        .addScriptParam(ListUpdate.FIELD, ActiveRuleField.PARAMS.field())
+        .addScriptParam(ListUpdate.VALUE, newParam)
+        .addScriptParam(ListUpdate.ID_FIELD, ActiveRuleParamField.NAME.field())
+        .addScriptParam(ListUpdate.ID_VALUE, param.getKey())
+    );
   }
 
   private List<UpdateRequest> nestedDelete(ActiveRuleParamDto param, ActiveRuleKey key) {
     return ImmutableList.of(new UpdateRequest()
-      .replicationType(ReplicationType.ASYNC)
-      .routing(key.ruleKey().toString())
-      .id(key.toString())
-      .script(ListUpdate.NAME)
-      .addScriptParam(ListUpdate.FIELD, ActiveRuleField.PARAMS.field())
-      .addScriptParam(ListUpdate.VALUE, null)
-      .addScriptParam(ListUpdate.ID_FIELD, ActiveRuleParamField.NAME.field())
-      .addScriptParam(ListUpdate.ID_VALUE, param.getKey())
-      );
+        .replicationType(ReplicationType.ASYNC)
+        .routing(key.ruleKey().toString())
+        .id(key.toString())
+        .script(ListUpdate.NAME)
+        .addScriptParam(ListUpdate.FIELD, ActiveRuleField.PARAMS.field())
+        .addScriptParam(ListUpdate.VALUE, null)
+        .addScriptParam(ListUpdate.ID_FIELD, ActiveRuleParamField.NAME.field())
+        .addScriptParam(ListUpdate.ID_VALUE, param.getKey())
+    );
   }
 }

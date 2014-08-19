@@ -41,7 +41,12 @@ import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
@@ -145,23 +150,9 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   }
 
   @Override
-  public List<UpdateRequest> normalize(RuleKey key) {
-    DbSession dbSession = db.openSession(false);
-    List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
-    try {
-      RuleDto rule = db.ruleDao().getByKey(dbSession, key);
-      requests.addAll(normalize(rule));
-      for (RuleParamDto param : db.ruleDao().findRuleParamsByRuleKey(dbSession, key)) {
-        requests.addAll(normalizeNested(param, key));
-      }
-    } finally {
-      dbSession.close();
-    }
-    return requests;
-  }
-
-  @Override
   public List<UpdateRequest> normalize(RuleDto rule) {
+
+    List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
 
     DbSession session = db.openSession(false);
     try {
@@ -289,16 +280,22 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       upsert.put(RuleField.KEY.field(), rule.getKey().toString());
 
       /** Creating updateRequest */
-      return ImmutableList.of(new UpdateRequest()
+      requests.add(new UpdateRequest()
         .replicationType(ReplicationType.ASYNC)
         .consistencyLevel(WriteConsistencyLevel.QUORUM)
         .id(rule.getKey().toString())
         .doc(update)
         .upsert(upsert));
 
+      for (RuleParamDto param : db.ruleDao().findRuleParamsByRuleKey(session, rule.getKey())) {
+        requests.addAll(normalizeNested(param, rule.getKey()));
+      }
+
     } finally {
       session.close();
     }
+
+    return requests;
   }
 
   @Override

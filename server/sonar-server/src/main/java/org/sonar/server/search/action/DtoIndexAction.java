@@ -48,7 +48,7 @@ public class DtoIndexAction<E extends Dto> extends IndexAction {
       if (this.getMethod().equals(Method.DELETE)) {
         index.deleteByDto(this.item, this.items);
       } else if (this.getMethod().equals(Method.UPSERT)) {
-        index.upsertByDto(this.item, this.items);
+        index.upsert(this.item, this.items);
       }
     } catch (Exception e) {
       throw new IllegalStateException(this.getClass().getSimpleName() +

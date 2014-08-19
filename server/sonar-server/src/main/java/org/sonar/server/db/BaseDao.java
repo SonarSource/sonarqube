@@ -33,7 +33,6 @@ import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
@@ -130,15 +129,6 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     return indexDefinition != null ? this.indexDefinition.getIndexType() : null;
   }
 
-  @CheckForNull
-  protected abstract E doGetNullableByKey(DbSession session, K key);
-
-  protected abstract E doInsert(DbSession session, E item);
-
-  protected abstract E doUpdate(DbSession session, E item);
-
-  protected abstract void doDeleteByKey(DbSession session, K key);
-
   protected M mapper(DbSession session) {
     return session.getMapper(mapperClass);
   }
@@ -156,14 +146,14 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public E update(DbSession session, E item) {
+  public final E update(DbSession session, E item) {
     Date now = new Date(system2.now());
     update(session, item, now);
     return item;
   }
 
   @Override
-  public E update(DbSession session, E item, E... others) {
+  public final E update(DbSession session, E item, E... others) {
     Date now = new Date(system2.now());
     update(session, item, now);
     for (E other : others) {
@@ -194,13 +184,13 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public E insert(DbSession session, E item) {
+  public final E insert(DbSession session, E item) {
     insert(session, item, new Date(system2.now()));
     return item;
   }
 
   @Override
-  public Collection<E> insert(DbSession session, Collection<E> items) {
+  public final Collection<E> insert(DbSession session, Collection<E> items) {
     Date now = new Date(system2.now());
     for (E item : items) {
       insert(session, item, now);
@@ -286,5 +276,37 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
       session.enqueue(new EmbeddedIndexAction<K>(
         this.getIndexType(), IndexAction.Method.UPSERT, key, nestedItem));
     }
+  }
+
+  @Override
+  public final void synchronizeAfter(final DbSession session, Date date) {
+    for (E dto : this.findAfterDate(session, date)) {
+      session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT,
+        dto));
+    }
+    session.commit();
+  }
+
+  @CheckForNull
+  protected abstract E doGetNullableByKey(DbSession session, K key);
+
+  protected Iterable<E> findAfterDate(final DbSession session, Date date) {
+    throw notImplemented(this);
+  }
+
+  protected E doInsert(DbSession session, E item)  {
+    throw notImplemented(this);
+  }
+
+  protected E doUpdate(DbSession session, E item)  {
+    throw notImplemented(this);
+  }
+
+  protected void doDeleteByKey(DbSession session, K key)  {
+    throw notImplemented(this);
+  }
+
+  private static RuntimeException notImplemented(BaseDao baseDao) {
+    throw new IllegalStateException("Not implemented yet for class [" + baseDao.getClass().getSimpleName() +"]");
   }
 }

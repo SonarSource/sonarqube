@@ -177,11 +177,5 @@
       description=#{description}
     WHERE id=#{id}
   </update>
-
-  <select id="selectKeysOfRulesUpdatedSince" resultType="map" >
-    SELECT r.plugin_name as "repoField", r.plugin_rule_key as "ruleField"
-    FROM rules r
-    WHERE r.updated_at IS NULL or r.updated_at &gt;= #{id}
-  </select>
 </mapper>
 

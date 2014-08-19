@@ -32,7 +32,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -71,29 +70,5 @@ public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> i
 
   public MeasureDto findByComponentKeyAndMetricKey(String componentKey, String metricKey, DbSession session) {
     return mapper(session).selectByComponentAndMetric(componentKey, metricKey);
-  }
-
-  @Override
-  protected MeasureDto doInsert(DbSession session, MeasureDto item) {
-    throw notImplemented();
-  }
-
-  @Override
-  protected MeasureDto doUpdate(DbSession session, MeasureDto item) {
-    throw notImplemented();
-  }
-
-  @Override
-  protected void doDeleteByKey(DbSession session, MeasureKey key) {
-    throw notImplemented();
-  }
-
-  @Override
-  public void synchronizeAfter(DbSession session, Date date) {
-    throw notImplemented();
-  }
-
-  private static RuntimeException notImplemented() {
-    throw new IllegalStateException("Not implemented yet");
   }
 }

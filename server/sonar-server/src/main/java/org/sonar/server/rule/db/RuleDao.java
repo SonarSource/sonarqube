@@ -21,8 +21,6 @@ package org.sonar.server.rule.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
@@ -31,14 +29,11 @@ import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.action.IndexAction;
-import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.CheckForNull;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
 
@@ -77,6 +72,11 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
     throw new UnsupportedOperationException("Rules cannot be deleted");
   }
 
+  @Override
+  protected Iterable<RuleDto> findAfterDate(DbSession session, Date date) {
+    return mapper(session).selectAfterDate(new Timestamp(date.getTime()));
+  }
+
   /**
    * @deprecated use keys.
    */
@@ -90,19 +90,6 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
   public RuleDto getTemplate(RuleDto rule, DbSession session) {
     Preconditions.checkNotNull(rule.getTemplateId(), "Rule has no persisted template!");
     return mapper(session).selectById(rule.getTemplateId());
-  }
-
-  @Override
-  public void synchronizeAfter(final DbSession session, Date date) {
-    session.select("selectKeysOfRulesUpdatedSince", new Timestamp(date.getTime()), new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext context) {
-        Map<String, String> map = (Map) context.getResultObject();
-        session.enqueue(new KeyIndexAction<RuleKey>(getIndexType(), IndexAction.Method.UPSERT,
-          RuleKey.of(map.get("repoField"), map.get("ruleField"))));
-      }
-    });
-    session.commit();
   }
 
   /**

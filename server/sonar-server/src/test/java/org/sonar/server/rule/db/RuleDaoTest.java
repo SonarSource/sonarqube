@@ -34,7 +34,9 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleDto.Format;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.server.rule.RuleTesting;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -365,5 +367,32 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     session.commit();
 
     checkTables("update_parameter", "rules_parameters");
+  }
+
+  @Test
+  public void findAfterDate() throws Exception {
+    long t0 = DateUtils.parseDate("2014-01-01").getTime();
+    when(system2.now()).thenReturn(t0);
+    dao.insert(session, RuleTesting.newXooX1());
+    session.commit();
+    assertThat(dao.getByKey(session, RuleTesting.XOO_X1).getCreatedAt().after(new Date(t0)));
+
+
+    long t1 = DateUtils.parseDate("2014-02-01").getTime();
+    when(system2.now()).thenReturn(t1);
+    dao.insert(session, RuleTesting.newXooX2());
+    session.commit();
+    assertThat(dao.getByKey(session, RuleTesting.XOO_X2).getCreatedAt().after(new Date(t1)));
+
+    long t2 = DateUtils.parseDate("2014-03-01").getTime();
+    when(system2.now()).thenReturn(t2);
+    session.flushStatements();
+
+
+    assertThat(dao.findAll(session)).hasSize(2);
+    assertThat(dao.findAfterDate(session, new Date(0))).hasSize(2);
+    assertThat(dao.findAfterDate(session, new Date(t0))).hasSize(2);
+    assertThat(dao.findAfterDate(session, new Date(t1))).hasSize(1);
+    assertThat(dao.findAfterDate(session, new Date(t2))).hasSize(0);
   }
 }
