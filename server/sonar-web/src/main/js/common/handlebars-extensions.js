@@ -21,8 +21,9 @@ define(['handlebars'], function (Handlebars) {
 
   var defaultActions = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity'];
 
-  Handlebars.registerHelper('log', function(variable) {
-    console.log(variable);
+  Handlebars.registerHelper('log', function() {
+    var args = Array.prototype.slice.call(arguments, 0, -1);
+    console.log.apply(console, args);
   });
 
   Handlebars.registerHelper('capitalize', function(string) {
@@ -263,6 +264,21 @@ define(['handlebars'], function (Handlebars) {
     } else {
       return '';
     }
+  });
+
+  var audaciousFn;
+  Handlebars.registerHelper('recursive', function(children, options) {
+    var out = '';
+
+    if (options.fn !== undefined) {
+      audaciousFn = options.fn;
+    }
+
+    children.forEach(function(child){
+      out = out + audaciousFn(child);
+    });
+
+    return out;
   });
 
   Handlebars.registerHelper('sources', function(source, scm, options) {

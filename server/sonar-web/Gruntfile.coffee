@@ -202,6 +202,10 @@ module.exports = (grunt) ->
         name: 'design/app'
         out: '<%= pkg.assets %>build/js/design/app.js'
 
+      libraries: options:
+        name: 'libraries/app'
+        out: '<%= pkg.assets %>build/js/libraries/app.js'
+
 
     handlebars:
       options:
@@ -243,6 +247,9 @@ module.exports = (grunt) ->
           ]
           '<%= pkg.assets %>js/templates/design.js': [
             '<%= pkg.sources %>hbs/design/**/*.hbs'
+          ]
+          '<%= pkg.assets %>js/templates/libraries.js': [
+            '<%= pkg.sources %>hbs/libraries/**/*.hbs'
           ]
 
 

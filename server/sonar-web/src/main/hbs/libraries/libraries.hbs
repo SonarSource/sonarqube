@@ -1,0 +1,43 @@
+<div class="libraries-header">
+  <div class="libraries-header-filter">
+    <input type="text">
+    <button>Filter</button>
+  </div>
+
+  <div class="libraries-header-test">
+    <input type="checkbox" id="display-test-libraries">
+    <label for="display-test-libraries">Display test libraries</label>
+  </div>
+
+  <div class="libraries-header-actions">
+    <a>Collapse All</a>
+    <a>Expand All</a>
+    <a href="#">Usages</a>
+  </div>
+</div>
+
+<div class="libraries-tree">
+  <ul>
+    {{#each items}}
+      <li>
+        {{qualifierIcon qualifier}}
+        <span class="libraries-tree-name">{{lname}}</span>
+        <ul>
+          {{#recursive libraries}}
+            <li>
+              <i class="icon-dropdown" style="{{#unless to}}visibility: hidden;{{/unless}}"></i>&nbsp;
+              {{qualifierIcon q}}
+              <span class="libraries-tree-name">{{n}}</span>
+              {{#if u}}
+                <span class="subtitle">({{u}})</span>
+              {{/if}}
+              {{#if to}}
+                <ul>{{{recursive to}}}</ul>
+              {{/if}}
+            </li>
+          {{/recursive}}
+        </ul>
+      </li>
+    {{/each}}
+  </ul>
+</div>

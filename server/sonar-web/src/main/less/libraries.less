@@ -1,0 +1,52 @@
+@import (reference) "variables";
+@import (reference) "mixins";
+
+
+.libraries-header {
+  margin-bottom: 20px;
+  font-size: 0;
+}
+
+.libraries-header-filter,
+.libraries-header-test,
+.libraries-header-actions {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: @baseFontSize;
+}
+
+.libraries-header-test,
+.libraries-header-actions {
+  margin-left: 30px;
+}
+
+
+.libraries-tree {
+
+  & > ul ul {
+    padding-left: 24px;
+  }
+
+  & > ul ul ul {
+    margin-left: 3px;
+    padding-left: 20px;
+    border-left: 1px dashed #ddd;
+  }
+
+  & > ul > li + li {
+    margin-top: 15px;
+  }
+
+  & > ul > li > .libraries-tree-name {
+    font-weight: 500;
+  }
+
+  li {
+    padding: 3px 0;
+  }
+
+  li:last-child {
+    padding-bottom: 0;
+  }
+
+}
