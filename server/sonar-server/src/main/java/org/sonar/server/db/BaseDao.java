@@ -137,7 +137,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     return doGetNullableByKey(session, key);
   }
 
-  public E getByKey(DbSession session, K key) {
+  public final E getByKey(DbSession session, K key) {
     E value = doGetNullableByKey(session, key);
     if (value == null) {
       throw new NotFoundException(String.format("Key '%s' not found", key));
@@ -163,7 +163,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public Collection<E> update(DbSession session, Collection<E> items) {
+  public final Collection<E> update(DbSession session, Collection<E> items) {
     Date now = new Date(system2.now());
     for (E item : items) {
       update(session, item, now);
@@ -199,7 +199,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public E insert(DbSession session, E item, E... others) {
+  public final E insert(DbSession session, E item, E... others) {
     Date now = new Date(system2.now());
     insert(session, item, now);
     for (E other : others) {
