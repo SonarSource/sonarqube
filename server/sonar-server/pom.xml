@@ -243,6 +243,7 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-search</artifactId>
       <version>${project.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
