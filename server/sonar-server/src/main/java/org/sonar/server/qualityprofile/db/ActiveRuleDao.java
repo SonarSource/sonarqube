@@ -36,7 +36,7 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
 
 import javax.annotation.CheckForNull;
-import java.util.Collections;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -119,22 +119,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @Override
   protected Iterable<ActiveRuleDto> findAfterDate(DbSession session, Date date) {
-//    @Override
-//    public void synchronizeAfter(final DbSession session, Date date) {
-//      session.select("selectAllKeysAfterTimestamp", new Timestamp(date.getTime()), new ResultHandler() {
-//        @Override
-//        public void handleResult(ResultContext context) {
-//          Map<String, Object> fields = (Map<String, Object>) context.getResultObject();
-//          // "rule" is a reserved keyword in SQLServer, so "rulefield" is used
-//          ActiveRuleKey key = ActiveRuleKey.of(
-//            (String) fields.get("profileKey"),
-//            RuleKey.of((String) fields.get("repository"), (String) fields.get("rulefield")));
-//          session.enqueue(new KeyIndexAction<ActiveRuleKey>(getIndexType(), IndexAction.Method.UPSERT, key));
-//        }
-//      });
-//      session.commit();
-//    }
-    return Collections.EMPTY_LIST;
+    return mapper(session).selectAfterDate(new Timestamp(date.getTime()));
   }
 
   /**

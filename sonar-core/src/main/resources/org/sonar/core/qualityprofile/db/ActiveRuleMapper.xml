@@ -39,12 +39,10 @@
     LEFT JOIN active_rules active_rule_parent ON active_rule_parent.profile_id=profile_parent.id AND a.rule_id=active_rule_parent.rule_id
   </sql>
 
-  <select id="selectAllKeysAfterTimestamp" parameterType="Date" resultType="map">
-    SELECT
-    r.plugin_rule_key as "rulefield",
-    r.plugin_name as "repository",
-    qp.kee as "profileKey"
-    FROM active_rules a
+  <select id="selectAfterDate" parameterType="Date" resultType="ActiveRule" resultSetType="FORWARD_ONLY">
+    select
+    <include refid="activeRuleKeyColumns"/>
+    from active_rules a
     <include refid="activeRuleKeyJoin"/>
     <where>
       a.updated_at IS NULL or a.updated_at &gt;= #{id}
