@@ -137,7 +137,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     return doGetNullableByKey(session, key);
   }
 
-  public final E getByKey(DbSession session, K key) {
+  public E getByKey(DbSession session, K key) {
     E value = doGetNullableByKey(session, key);
     if (value == null) {
       throw new NotFoundException(String.format("Key '%s' not found", key));
@@ -146,14 +146,14 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public final E update(DbSession session, E item) {
+  public E update(DbSession session, E item) {
     Date now = new Date(system2.now());
     update(session, item, now);
     return item;
   }
 
   @Override
-  public final E update(DbSession session, E item, E... others) {
+  public E update(DbSession session, E item, E... others) {
     Date now = new Date(system2.now());
     update(session, item, now);
     for (E other : others) {
@@ -163,7 +163,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public final Collection<E> update(DbSession session, Collection<E> items) {
+  public Collection<E> update(DbSession session, Collection<E> items) {
     Date now = new Date(system2.now());
     for (E item : items) {
       update(session, item, now);
@@ -184,13 +184,13 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public final E insert(DbSession session, E item) {
+  public E insert(DbSession session, E item) {
     insert(session, item, new Date(system2.now()));
     return item;
   }
 
   @Override
-  public final Collection<E> insert(DbSession session, Collection<E> items) {
+  public Collection<E> insert(DbSession session, Collection<E> items) {
     Date now = new Date(system2.now());
     for (E item : items) {
       insert(session, item, now);
@@ -199,7 +199,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public final E insert(DbSession session, E item, E... others) {
+  public E insert(DbSession session, E item, E... others) {
     Date now = new Date(system2.now());
     insert(session, item, now);
     for (E other : others) {
@@ -224,12 +224,12 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public final void delete(DbSession session, E item) {
+  public void delete(DbSession session, E item) {
     deleteByKey(session, item.getKey());
   }
 
   @Override
-  public final void delete(DbSession session, E item, E... others) {
+  public void delete(DbSession session, E item, E... others) {
     delete(session, item);
     for (E e : others) {
       delete(session, e);
@@ -237,14 +237,14 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public final void delete(DbSession session, Collection<E> items) {
+  public void delete(DbSession session, Collection<E> items) {
     for (E item : items) {
       delete(session, item);
     }
   }
 
   @Override
-  public final void deleteByKey(DbSession session, K key) {
+  public void deleteByKey(DbSession session, K key) {
     Preconditions.checkNotNull(key, "Missing key");
     try {
       doDeleteByKey(session, key);
