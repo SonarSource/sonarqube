@@ -294,19 +294,19 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     throw notImplemented(this);
   }
 
-  protected E doInsert(DbSession session, E item)  {
+  protected E doInsert(DbSession session, E item) {
     throw notImplemented(this);
   }
 
-  protected E doUpdate(DbSession session, E item)  {
+  protected E doUpdate(DbSession session, E item) {
     throw notImplemented(this);
   }
 
-  protected void doDeleteByKey(DbSession session, K key)  {
+  protected void doDeleteByKey(DbSession session, K key) {
     throw notImplemented(this);
   }
 
   private static RuntimeException notImplemented(BaseDao baseDao) {
-    throw new IllegalStateException("Not implemented yet for class [" + baseDao.getClass().getSimpleName() +"]");
+    throw new IllegalStateException("Not implemented yet for class [" + baseDao.getClass().getSimpleName() + "]");
   }
 }
