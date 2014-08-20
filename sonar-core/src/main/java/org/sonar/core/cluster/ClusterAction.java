@@ -17,34 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.core.cluster;
 
-import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
-import org.sonar.core.persistence.Dto;
+import java.util.concurrent.Callable;
 
-import javax.annotation.CheckForNull;
+public interface ClusterAction<K> extends Callable<K> {
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Iterator;
-
-public interface Index<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable> extends Startable, ServerComponent {
-
-  @CheckForNull
-  DOMAIN getByKey(KEY item);
-
-  String getIndexType();
-
-  String getIndexName();
-
-  void refresh();
-
-  Date getLastSynchronization();
-
-  IndexStat getIndexStat();
-
-  Iterator<DOMAIN> scroll(String scrollId);
-
-  BaseNormalizer<DTO, KEY> getNormalizer();
+  @Override
+  public K call() throws Exception;
 }

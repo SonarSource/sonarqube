@@ -20,10 +20,9 @@
 package org.sonar.core.cluster;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
-public interface WorkQueue<K extends QueueAction> {
-
-  void enqueue(K action);
+public interface WorkQueue<K extends Callable> {
 
   void enqueue(List<K> actions);
 

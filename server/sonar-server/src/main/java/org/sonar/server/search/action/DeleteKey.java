@@ -19,47 +19,40 @@
  */
 package org.sonar.server.search.action;
 
-import java.io.Serializable;
+import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.client.Requests;
+import org.sonar.server.search.Index;
 
-public class EmbeddedIndexAction<K extends Serializable> extends IndexAction {
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+public class DeleteKey<K extends Serializable> extends IndexActionRequest {
 
   private final K key;
-  private final Object item;
-  private final Object[] items;
 
-  public EmbeddedIndexAction(String indexType, Method method, K key, Object item, Object... items) {
-    super(indexType, method);
-    this.indexType = indexType;
-    this.method = method;
+  public DeleteKey(String indexType, K key) {
+    super(indexType);
     this.key = key;
-    this.item = item;
-    this.items = items;
   }
 
   @Override
   public String getKey() {
-    return this.key.toString();
+    return key.toString();
   }
 
   @Override
   public Class<?> getPayloadClass() {
-    return item.getClass();
+    throw new IllegalStateException("Deletion by key does not have an object payload!");
   }
 
   @Override
-  public void doExecute() {
-
-    try {
-      if (this.getMethod().equals(Method.DELETE)) {
-        index.delete(this.key, this.item, this.items);
-      } else if (this.getMethod().equals(Method.UPSERT)) {
-        index.upsert(this.key, this.item, this.items);
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException(this.getClass().getSimpleName() +
-        "cannot execute " + this.getMethod() + " for " + this.item.getClass().getSimpleName() +
-        " as " + this.getIndexType() +
-        " on key: " + this.key, e);
-    }
+  public List<ActionRequest> doCall(Index index) throws Exception {
+    List<ActionRequest> requests = new ArrayList<ActionRequest>();
+    requests.add(Requests.deleteRequest(index.getIndexName())
+      .id(getKey())
+      .type(indexType));
+    return requests;
   }
+
 }

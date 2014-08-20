@@ -19,22 +19,24 @@
  */
 package org.sonar.server.search.action;
 
-import java.io.Serializable;
+import org.elasticsearch.action.ActionRequest;
+import org.sonar.server.search.Index;
 
-public class KeyIndexAction<K extends Serializable> extends IndexAction {
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+public class DeleteNestedItem<K extends Serializable> extends IndexActionRequest {
 
   private final K key;
-  private final K[] keys;
+  private final Object item;
+  private final Object[] items;
 
-  public KeyIndexAction(String indexType, Method method, K key, K... keys) {
-    super(indexType, method);
+  public DeleteNestedItem(String indexType, K key, Object item, Object... items) {
+    super(indexType);
     this.key = key;
-    this.keys = keys;
-  }
-
-  @Override
-  public Class<?> getPayloadClass() {
-    return String.class;
+    this.item = item;
+    this.items = items;
   }
 
   @Override
@@ -43,18 +45,21 @@ public class KeyIndexAction<K extends Serializable> extends IndexAction {
   }
 
   @Override
-  public void doExecute() {
-    try {
-      if (this.getMethod().equals(Method.DELETE)) {
-        index.deleteByKey(this.key, this.keys);
-      } else if (this.getMethod().equals(Method.UPSERT)) {
-        throw new IllegalStateException("Upsert by Key is not supported anymore");
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException(this.getClass().getSimpleName() +
-        "cannot execute " + this.getMethod() + " for " + this.key.getClass().getSimpleName() +
-        " on type: " + this.getIndexType() +
-        " on key: " + this.key, e);
+  public Class<?> getPayloadClass() {
+    return item.getClass();
+  }
+
+  @Override
+  public List<ActionRequest> doCall(Index index) throws Exception {
+    List<ActionRequest> updates = new ArrayList<ActionRequest>();
+    updates.addAll(deleteItem(index, item, key));
+    for (Object otherItem : items) {
+      updates.addAll(deleteItem(index, otherItem, key));
     }
+    return updates;
+  }
+
+  private List<ActionRequest> deleteItem(Index index, Object item, K key) {
+    return index.getNormalizer().deleteNested(item, key);
   }
 }

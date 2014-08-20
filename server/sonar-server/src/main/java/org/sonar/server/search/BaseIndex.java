@@ -23,19 +23,13 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.count.CountResponse;
-import org.elasticsearch.action.delete.DeleteRequestBuilder;
-import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolFilterBuilder;
@@ -53,15 +47,19 @@ import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCou
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.Nullable;
-
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Queue;
 
 public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable>
   implements Index<DOMAIN, DTO, KEY> {
@@ -72,11 +70,14 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   private final BaseNormalizer<DTO, KEY> normalizer;
   private final IndexDefinition indexDefinition;
 
-  protected BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<DTO, KEY> normalizer,
-                      WorkQueue workQueue, SearchClient client) {
+  protected BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<DTO, KEY> normalizer, SearchClient client) {
     this.normalizer = normalizer;
     this.client = client;
     this.indexDefinition = indexDefinition;
+  }
+
+  public BaseNormalizer<DTO, KEY> getNormalizer() {
+    return normalizer;
   }
 
   @Override
@@ -388,105 +389,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       return toDoc(response.getSource());
     }
     return null;
-  }
-
-  protected void updateDocument(Collection<UpdateRequest> requests, KEY key) {
-    LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
-    BulkRequestBuilder bulkRequest = client.prepareBulk();
-    for (UpdateRequest request : requests) {
-      // if request has no ID then no upsert possible!
-      if (request.id() == null || request.id().isEmpty()) {
-        bulkRequest.add(new IndexRequest()
-          .source(request.doc().sourceAsMap())
-          .type(this.getIndexType())
-          .index(this.getIndexName()));
-      } else {
-        bulkRequest.add(request
-          .id(this.getKeyValue(key))
-          .index(this.getIndexName())
-          .type(this.getIndexType()));
-      }
-    }
-    BulkResponse response = client.execute(bulkRequest);
-  }
-
-  @Override
-  public void upsert(KEY key, Object object, Object... objects) throws Exception {
-    long t0 = System.currentTimeMillis();
-    List<UpdateRequest> requests = this.normalizer.normalizeNested(object, key);
-    for (Object additionalObject : objects) {
-      requests.addAll(this.normalizer.normalizeNested(additionalObject, key));
-    }
-    long t1 = System.currentTimeMillis();
-    this.updateDocument(requests, key);
-    long t2 = System.currentTimeMillis();
-    LOG.debug("UPSERT [object] time:{}ms ({}ms normalize, {}ms elastic)",
-      t2 - t0, t1 - t0, t2 - t1);
-  }
-
-  @Override
-  public void upsert(DTO item, DTO... items) {
-    try {
-      long t0 = System.currentTimeMillis();
-      List<UpdateRequest> requests = normalizer.normalize(item);
-      for (DTO additionalItem : items) {
-        requests.addAll(normalizer.normalize(additionalItem));
-      }
-      long t1 = System.currentTimeMillis();
-      this.updateDocument(requests, item.getKey());
-      long t2 = System.currentTimeMillis();
-      LOG.debug("UPSERT [dto] time:{}ms ({}ms normalize, {}ms elastic)",
-        t2 - t0, t1 - t0, t2 - t1);
-    } catch (Exception e) {
-      LOG.error("Could not update document for index {}: {}",
-        this.getIndexName(), e.getMessage(), e);
-    }
-  }
-
-  private void deleteDocument(KEY key) throws ExecutionException, InterruptedException {
-    LOG.debug("DELETE _id:{} in index {}", key, this.getIndexName());
-    DeleteRequestBuilder request = client
-      .prepareDelete()
-      .setIndex(this.getIndexName())
-      .setType(this.getIndexType())
-      .setId(this.getKeyValue(key));
-    DeleteResponse response = client.execute(request);
-  }
-
-  @Override
-  public void delete(KEY key, Object object, Object... objects) throws Exception {
-    LOG.debug("DELETE NESTED _id:{} in index {}", key, this.getIndexName());
-    List<UpdateRequest> requests = this.normalizer.deleteNested(object, key);
-    for (Object additionalObject : objects) {
-      requests.addAll(this.normalizer.deleteNested(additionalObject, key));
-    }
-    this.updateDocument(requests, key);
-  }
-
-  @Override
-  public void deleteByKey(KEY key, KEY... keys) {
-    try {
-      this.deleteDocument(key);
-      for (KEY additionalKey : keys) {
-        this.deleteDocument(additionalKey);
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException(String.format("Could not DELETE _id = '%s' for index '%s",
-        getKeyValue(key), getIndexName()), e);
-    }
-  }
-
-  @Override
-  public void deleteByDto(DTO item, DTO... items) {
-    try {
-      this.deleteDocument(item.getKey());
-      for (DTO additionalItem : items) {
-        this.deleteDocument(additionalItem.getKey());
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException(String.format("Could not DELETE _id = '%s' for index '%s",
-        getKeyValue(item.getKey()), getIndexName()), e);
-    }
   }
 
   /* ES QueryHelper Methods */

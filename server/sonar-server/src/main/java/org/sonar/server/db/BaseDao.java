@@ -26,10 +26,10 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.Dto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.action.DtoIndexAction;
-import org.sonar.server.search.action.EmbeddedIndexAction;
-import org.sonar.server.search.action.IndexAction;
-import org.sonar.server.search.action.KeyIndexAction;
+import org.sonar.server.search.action.DeleteKey;
+import org.sonar.server.search.action.DeleteNestedItem;
+import org.sonar.server.search.action.UpsertDto;
+import org.sonar.server.search.action.UpsertNestedItem;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -176,7 +176,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
       item.setUpdatedAt(now);
       doUpdate(session, item);
       if (hasIndex()) {
-        session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT, item));
+        session.enqueue(new UpsertDto(getIndexType(), item));
       }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to update item in db: " + item, e);
@@ -216,7 +216,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     try {
       doInsert(session, item);
       if (hasIndex()) {
-        session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT, item));
+        session.enqueue(new UpsertDto<E>(getIndexType(), item));
       }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to insert item in db: " + item, e.getCause());
@@ -249,7 +249,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     try {
       doDeleteByKey(session, key);
       if (hasIndex()) {
-        session.enqueue(new KeyIndexAction<K>(getIndexType(), IndexAction.Method.DELETE, key));
+        session.enqueue(new DeleteKey<K>(getIndexType(), key));
       }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to delete item from db: " + key, e);
@@ -258,31 +258,29 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
 
   protected final void enqueueUpdate(Object nestedItem, K key, DbSession session) {
     if (hasIndex()) {
-      session.enqueue(new EmbeddedIndexAction<K>(
-        this.getIndexType(), IndexAction.Method.UPSERT, key, nestedItem));
+      session.enqueue(new UpsertNestedItem<K>(
+        this.getIndexType(), key, nestedItem));
     }
   }
 
   public void enqueueDelete(Object nestedItem, K key, DbSession session) {
     if (hasIndex()) {
-      session.enqueue(new EmbeddedIndexAction<K>(
-        this.getIndexType(), IndexAction.Method.DELETE, key, nestedItem));
+      session.enqueue(new DeleteNestedItem<K>(
+        this.getIndexType(), key, nestedItem));
       session.commit();
     }
   }
 
   public void enqueueInsert(Object nestedItem, K key, DbSession session) {
     if (hasIndex()) {
-      session.enqueue(new EmbeddedIndexAction<K>(
-        this.getIndexType(), IndexAction.Method.UPSERT, key, nestedItem));
+      this.enqueueUpdate(nestedItem, key, session);
     }
   }
 
   @Override
   public final void synchronizeAfter(final DbSession session, Date date) {
     for (E dto : this.findAfterDate(session, date)) {
-      session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT,
-        dto));
+      session.enqueue(new UpsertDto<E>(getIndexType(), dto));
     }
     session.commit();
   }

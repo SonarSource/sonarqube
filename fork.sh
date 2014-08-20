@@ -1,6 +1,6 @@
 #!/bin/sh
 
-mvn clean install -DskipTests -pl :sonar-process -amd
+mvn clean install -DskipTests -pl :sonar-core,sonar-search -amd
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
   OS='macosx-universal-64'

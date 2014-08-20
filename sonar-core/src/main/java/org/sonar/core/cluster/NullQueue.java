@@ -21,15 +21,10 @@ package org.sonar.core.cluster;
 
 import java.util.List;
 
-public class NullQueue implements WorkQueue<QueueAction> {
+public class NullQueue implements WorkQueue<ClusterAction> {
 
   @Override
-  public void enqueue(QueueAction action) {
-    // do nothing
-  }
-
-  @Override
-  public void enqueue(List<QueueAction> actions) {
+  public void enqueue(List<ClusterAction> actions) {
     // do nothing
   }
 }

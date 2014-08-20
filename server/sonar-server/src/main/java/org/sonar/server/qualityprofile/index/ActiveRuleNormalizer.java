@@ -28,13 +28,13 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.search.script.ListUpdate;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
-import org.sonar.server.search.es.ListUpdate;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

@@ -33,16 +33,15 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.SearchClient;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
+import org.sonar.server.search.SearchClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,8 +51,8 @@ import java.util.Map;
 
 public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
 
-  public ActiveRuleIndex(ActiveRuleNormalizer normalizer, WorkQueue workQueue, SearchClient node) {
-    super(IndexDefinition.ACTIVE_RULE, normalizer, workQueue, node);
+  public ActiveRuleIndex(ActiveRuleNormalizer normalizer, SearchClient node) {
+    super(IndexDefinition.ACTIVE_RULE, normalizer, node);
   }
 
   @Override

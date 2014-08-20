@@ -19,43 +19,33 @@
  */
 package org.sonar.server.search.action;
 
+import org.elasticsearch.action.ActionRequest;
 import org.sonar.core.persistence.Dto;
+import org.sonar.server.search.Index;
 
-public class DtoIndexAction<E extends Dto> extends IndexAction {
+import java.util.List;
 
-  private final E item;
-  private final E[] items;
+public class UpsertDto<DTO extends Dto> extends IndexActionRequest {
 
-  public DtoIndexAction(String indexType, Method method, E item, E... items) {
-    super(indexType, method);
-    this.item = item;
-    this.items = items;
-  }
+  private final DTO dto;
 
-  @Override
-  public Class<?> getPayloadClass() {
-    return item.getClass();
+  public UpsertDto(String indexType, DTO dto) {
+    super(indexType);
+    this.dto = dto;
   }
 
   @Override
   public String getKey() {
-    return item.getKey().toString();
+    return dto.getKey().toString();
   }
 
   @Override
-  public void doExecute() {
-    try {
-      if (this.getMethod().equals(Method.DELETE)) {
-        index.deleteByDto(this.item, this.items);
-      } else if (this.getMethod().equals(Method.UPSERT)) {
-        index.upsert(this.item, this.items);
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException(this.getClass().getSimpleName() +
-        " cannot execute " + this.getMethod() + " for " + this.item.getClass().getSimpleName() +
-        " as " + this.getIndexType() +
-        " on key: " + this.item.getKey(), e);
-    }
+  public Class<?> getPayloadClass() {
+    return dto.getClass();
+  }
+
+  @Override
+  public List<ActionRequest> doCall(Index index) throws Exception {
+    return index.getNormalizer().normalize(dto);
   }
 }
-

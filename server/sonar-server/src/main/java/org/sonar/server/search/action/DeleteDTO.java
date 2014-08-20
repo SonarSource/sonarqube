@@ -17,29 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.cluster;
+package org.sonar.server.search.action;
 
-import java.util.concurrent.CountDownLatch;
+import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.client.Requests;
+import org.sonar.core.persistence.Dto;
+import org.sonar.server.search.Index;
 
-public abstract class QueueAction implements Runnable {
+import java.util.ArrayList;
+import java.util.List;
 
-  protected CountDownLatch latch;
+public class DeleteDto<DTO extends Dto> extends IndexActionRequest {
 
-  public QueueAction() {
-    this.latch = null;
+  private final DTO dto;
+
+  public DeleteDto(String indexType, DTO dto) {
+    super(indexType);
+    this.dto = dto;
   }
-
-  public void setLatch(CountDownLatch latch){
-    this.latch = latch;
-  }
-
-  public abstract void doExecute();
 
   @Override
-  public void run(){
-    this.doExecute();
-    if (latch != null){
-      latch.countDown();
-    }
+  public String getKey() {
+    return dto.getKey().toString();
+  }
+
+  @Override
+  public Class<?> getPayloadClass() {
+    return dto.getClass();
+  }
+
+  @Override
+  public List<ActionRequest> doCall(Index index) throws Exception {
+    List<ActionRequest> requests = new ArrayList<ActionRequest>();
+    requests.add(Requests.deleteRequest(index.getIndexName())
+      .id(dto.getKey().toString())
+      .type(indexType));
+    return requests;
   }
 }

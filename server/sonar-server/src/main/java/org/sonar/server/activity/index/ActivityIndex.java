@@ -33,13 +33,12 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.SearchClient;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
+import org.sonar.server.search.SearchClient;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -51,8 +50,8 @@ import java.util.Map;
  */
 public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
 
-  public ActivityIndex(ActivityNormalizer normalizer, WorkQueue workQueue, SearchClient node) {
-    super(IndexDefinition.LOG, normalizer, workQueue, node);
+  public ActivityIndex(ActivityNormalizer normalizer, SearchClient node) {
+    super(IndexDefinition.LOG, normalizer, node);
   }
 
   @Override

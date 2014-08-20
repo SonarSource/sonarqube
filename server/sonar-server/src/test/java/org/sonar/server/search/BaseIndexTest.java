@@ -29,7 +29,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
-import org.sonar.core.cluster.NullQueue;
 import org.sonar.process.MonitoredProcess;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.Props;
@@ -107,7 +106,7 @@ public class BaseIndexTest {
   private BaseIndex getIndex(final SearchClient searchClient) {
     BaseIndex index = new BaseIndex(
       IndexDefinition.TEST,
-      null, new NullQueue(), searchClient) {
+      null, searchClient) {
       @Override
       protected String getKeyValue(Serializable key) {
         return null;

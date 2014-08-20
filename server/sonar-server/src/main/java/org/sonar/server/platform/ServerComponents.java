@@ -220,7 +220,7 @@ class ServerComponents {
       ActiveRuleNormalizer.class,
       RuleIndex.class,
       ActiveRuleIndex.class,
-      IndexQueueWorker.class,
+      //IndexQueueWorker.class,
       IndexClient.class,
       ActivityNormalizer.class,
       ActivityIndex.class,

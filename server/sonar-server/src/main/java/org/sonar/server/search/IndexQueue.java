@@ -19,154 +19,201 @@
  */
 package org.sonar.server.search;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
+import org.sonar.api.platform.ComponentContainer;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
-import org.sonar.server.search.action.EmbeddedIndexAction;
-import org.sonar.server.search.action.IndexAction;
+import org.sonar.server.search.action.IndexActionRequest;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 public class IndexQueue extends LinkedBlockingQueue<Runnable>
-  implements ServerComponent, WorkQueue<IndexAction> {
+  implements ServerComponent, WorkQueue<IndexActionRequest> {
 
   protected final Profiling profiling;
+
+  private final SearchClient searchClient;
+  private final ComponentContainer container;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexQueue.class);
 
   private static final Integer DEFAULT_QUEUE_SIZE = 200;
   private static final int TIMEOUT = 30000;
 
-  public IndexQueue(Settings settings) {
+  public IndexQueue(Settings settings, SearchClient searchClient, ComponentContainer container) {
     super(DEFAULT_QUEUE_SIZE);
+    this.searchClient = searchClient;
+    this.container = container;
     this.profiling = new Profiling(settings);
   }
 
   @Override
-  public void enqueue(IndexAction action) {
-    this.enqueue(ImmutableList.of(action));
-  }
+  public void enqueue(List<IndexActionRequest> actions) {
 
-  @Override
-  public void enqueue(List<IndexAction> actions) {
+    if (actions.isEmpty()) {
+      return;
+    }
+    try {
 
-
-    int bcount = 0;
-    int ecount = 0;
-    List<String> refreshes = Lists.newArrayList();
-    Set<String> types = Sets.newHashSet();
-    long all_start = System.currentTimeMillis();
-    long indexTime;
-    long refreshTime;
-    long embeddedTime;
-
-    if (actions.size() == 1) {
-      /* Atomic update here */
-      CountDownLatch latch = new CountDownLatch(1);
-      IndexAction action = actions.get(0);
-      action.setLatch(latch);
-      try {
-        indexTime = System.currentTimeMillis();
-        this.offer(action, TIMEOUT, TimeUnit.MILLISECONDS);
-        if (!latch.await(TIMEOUT, TimeUnit.MILLISECONDS)) {
-          throw new IllegalStateException("ES update could not be completed within: " + TIMEOUT + "ms");
-        }
-        bcount++;
-        indexTime = System.currentTimeMillis() - indexTime;
-        // refresh the index.
-        Index<?, ?, ?> index = action.getIndex();
-        if (index != null) {
-          refreshTime = System.currentTimeMillis();
-          index.refresh();
-          refreshTime = System.currentTimeMillis() - refreshTime;
-          refreshes.add(index.getIndexName());
-        }
-        types.add(action.getPayloadClass().getSimpleName());
-      } catch (InterruptedException e) {
-        throw new IllegalStateException("ES update has been interrupted", e);
-      }
-    } else if (actions.size() > 1) {
-      StopWatch basicProfile = profiling.start("search", Profiling.Level.BASIC);
-
-      /* Purge actions that would be overridden  */
-      Long purgeStart = System.currentTimeMillis();
-      List<IndexAction> itemActions = Lists.newArrayList();
-      List<IndexAction> embeddedActions = Lists.newArrayList();
-
-      for (IndexAction action : actions) {
-        if (action.getClass().isAssignableFrom(EmbeddedIndexAction.class)) {
-          embeddedActions.add(action);
-        } else {
-          itemActions.add(action);
-        }
+      BulkRequestBuilder bulkRequestBuilder = new BulkRequestBuilder(searchClient);
+      Map<String,Index> indexes = getIndexMap();
+      for (IndexActionRequest action : actions) {
+        action.setIndex(indexes.get(action.getIndexType()));
       }
 
-      LOGGER.debug("INDEX - compressed {} items into {} in {}ms,",
-        actions.size(), itemActions.size() + embeddedActions.size(), System.currentTimeMillis() - purgeStart);
+      ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-      try {
-        /* execute all item actions */
-        CountDownLatch itemLatch = new CountDownLatch(itemActions.size());
-        indexTime = System.currentTimeMillis();
-        for (IndexAction action : itemActions) {
-          action.setLatch(itemLatch);
-          this.offer(action, TIMEOUT, TimeUnit.MILLISECONDS);
-          types.add(action.getPayloadClass().getSimpleName());
-          bcount++;
-
-        }
-        if (!itemLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)) {
-          throw new IllegalStateException("ES update could not be completed within: " + TIMEOUT + "ms");
-        }
-        indexTime = System.currentTimeMillis() - indexTime;
-
-        /* and now push the embedded */
-        CountDownLatch embeddedLatch = new CountDownLatch(embeddedActions.size());
-        embeddedTime = System.currentTimeMillis();
-        for (IndexAction action : embeddedActions) {
-          action.setLatch(embeddedLatch);
-          this.offer(action, TIMEOUT, TimeUnit.SECONDS);
-          types.add(action.getPayloadClass().getSimpleName());
-          ecount++;
-        }
-        if (!embeddedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)) {
-          throw new IllegalStateException("ES embedded update could not be completed within: " + TIMEOUT + "ms");
-        }
-        embeddedTime = System.currentTimeMillis() - embeddedTime;
-
-        /* Finally refresh affected indexes */
-        Set<String> refreshedIndexes = new HashSet<String>();
-        refreshTime = System.currentTimeMillis();
-        for (IndexAction action : actions) {
-          if (action.getIndex() != null &&
-            !refreshedIndexes.contains(action.getIndex().getIndexName())) {
-            refreshedIndexes.add(action.getIndex().getIndexName());
-            action.getIndex().refresh();
-            refreshes.add(action.getIndex().getIndexName());
+      //invokeAll() blocks until ALL tasks submitted to executor complete
+      for (Future<List<ActionRequest>> updateRequests : executorService.invokeAll(actions)) {
+        for (ActionRequest update : updateRequests.get()) {
+          if (UpdateRequest.class.isAssignableFrom(update.getClass())) {
+            bulkRequestBuilder.add((UpdateRequest)update);
+          } else if (DeleteRequest.class.isAssignableFrom(update.getClass())) {
+            bulkRequestBuilder.add((DeleteRequest)update);
+          } else {
+            throw new IllegalStateException("Un-managed request type: " + update.getClass());
           }
         }
-        refreshTime = System.currentTimeMillis() - refreshTime;
-      } catch (InterruptedException e) {
-        throw new IllegalStateException("ES update has been interrupted", e);
       }
+      executorService.shutdown();
 
-      basicProfile.stop("INDEX - time:%sms (%sms index, %sms embedded, %sms refresh)\ttypes:[%s],\tbulk:%s\tembedded:%s\trefresh:[%s]",
-        (System.currentTimeMillis() - all_start), indexTime, embeddedTime, refreshTime,
-        StringUtils.join(types, ","),
-        bcount, ecount, StringUtils.join(refreshes, ","));
+      LOGGER.info("Executing batch request of size: " + bulkRequestBuilder.numberOfActions());
+
+      //execute the request
+      BulkResponse response = searchClient.execute(bulkRequestBuilder.setRefresh(true));
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
+
+  private Map<String, Index> getIndexMap() {
+    Map<String, Index> indexes = new HashMap<String, Index>();
+    for (Index index : container.getComponentsByType(Index.class)) {
+      indexes.put(index.getIndexType(), index);
+    }
+    return indexes;
+  }
+
+
+//
+//    int bcount = 0;
+//    int ecount = 0;
+//    List<String> refreshes = Lists.newArrayList();
+//    Set<String> types = Sets.newHashSet();
+//    long all_start = System.currentTimeMillis();
+//    long indexTime;
+//    long refreshTime;
+//    long embeddedTime;
+//
+//    if (actions.size() == 1) {
+//      /* Atomic update here */
+//      CountDownLatch latch = new CountDownLatch(1);
+//      IndexAction action = actions.get(0);
+//      action.setLatch(latch);
+//      try {
+//        indexTime = System.currentTimeMillis();
+//        this.offer(action, TIMEOUT, TimeUnit.MILLISECONDS);
+//        if (!latch.await(TIMEOUT, TimeUnit.MILLISECONDS)) {
+//          throw new IllegalStateException("ES update could not be completed within: " + TIMEOUT + "ms");
+//        }
+//        bcount++;
+//        indexTime = System.currentTimeMillis() - indexTime;
+//        // refresh the index.
+//        Index<?, ?, ?> index = action.getIndex();
+//        if (index != null) {
+//          refreshTime = System.currentTimeMillis();
+//          index.refresh();
+//          refreshTime = System.currentTimeMillis() - refreshTime;
+//          refreshes.add(index.getIndexName());
+//        }
+//        types.add(action.getPayloadClass().getSimpleName());
+//      } catch (InterruptedException e) {
+//        throw new IllegalStateException("ES update has been interrupted", e);
+//      }
+//    } else if (actions.size() > 1) {
+//      StopWatch basicProfile = profiling.start("search", Profiling.Level.BASIC);
+//
+//      /* Purge actions that would be overridden  */
+//      Long purgeStart = System.currentTimeMillis();
+//      List<IndexAction> itemActions = Lists.newArrayList();
+//      List<IndexAction> embeddedActions = Lists.newArrayList();
+//
+//      for (IndexAction action : actions) {
+//        if (action.getClass().isAssignableFrom(EmbeddedIndexAction.class)) {
+//          embeddedActions.add(action);
+//        } else {
+//          itemActions.add(action);
+//        }
+//      }
+//
+//      LOGGER.debug("INDEX - compressed {} items into {} in {}ms,",
+//        actions.size(), itemActions.size() + embeddedActions.size(), System.currentTimeMillis() - purgeStart);
+//
+//      try {
+//        /* execute all item actions */
+//        CountDownLatch itemLatch = new CountDownLatch(itemActions.size());
+//        indexTime = System.currentTimeMillis();
+//        for (IndexAction action : itemActions) {
+//          action.setLatch(itemLatch);
+//          this.offer(action, TIMEOUT, TimeUnit.MILLISECONDS);
+//          types.add(action.getPayloadClass().getSimpleName());
+//          bcount++;
+//
+//        }
+//        if (!itemLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)) {
+//          throw new IllegalStateException("ES update could not be completed within: " + TIMEOUT + "ms");
+//        }
+//        indexTime = System.currentTimeMillis() - indexTime;
+//
+//        /* and now push the embedded */
+//        CountDownLatch embeddedLatch = new CountDownLatch(embeddedActions.size());
+//        embeddedTime = System.currentTimeMillis();
+//        for (IndexAction action : embeddedActions) {
+//          action.setLatch(embeddedLatch);
+//          this.offer(action, TIMEOUT, TimeUnit.SECONDS);
+//          types.add(action.getPayloadClass().getSimpleName());
+//          ecount++;
+//        }
+//        if (!embeddedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)) {
+//          throw new IllegalStateException("ES embedded update could not be completed within: " + TIMEOUT + "ms");
+//        }
+//        embeddedTime = System.currentTimeMillis() - embeddedTime;
+//
+//        /* Finally refresh affected indexes */
+//        Set<String> refreshedIndexes = new HashSet<String>();
+//        refreshTime = System.currentTimeMillis();
+//        for (IndexAction action : actions) {
+//          if (action.getIndex() != null &&
+//            !refreshedIndexes.contains(action.getIndex().getIndexName())) {
+//            refreshedIndexes.add(action.getIndex().getIndexName());
+//            action.getIndex().refresh();
+//            refreshes.add(action.getIndex().getIndexName());
+//          }
+//        }
+//        refreshTime = System.currentTimeMillis() - refreshTime;
+//      } catch (InterruptedException e) {
+//        throw new IllegalStateException("ES update has been interrupted", e);
+//      }
+//
+//      basicProfile.stop("INDEX - time:%sms (%sms index, %sms embedded, %sms refresh)\ttypes:[%s],\tbulk:%s\tembedded:%s\trefresh:[%s]",
+//        (System.currentTimeMillis() - all_start), indexTime, embeddedTime, refreshTime,
+//        StringUtils.join(types, ","),
+//        bcount, ecount, StringUtils.join(refreshes, ","));
+//    }
+
+
 }

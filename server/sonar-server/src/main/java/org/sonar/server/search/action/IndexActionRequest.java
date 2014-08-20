@@ -19,47 +19,54 @@
  */
 package org.sonar.server.search.action;
 
-import org.sonar.core.cluster.QueueAction;
+
+import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.core.cluster.ClusterAction;
 import org.sonar.server.search.Index;
 
-public abstract class IndexAction extends QueueAction {
+import java.util.ArrayList;
+import java.util.List;
 
+public abstract class IndexActionRequest implements ClusterAction<List<ActionRequest>> {
 
-  public abstract Class<?> getPayloadClass();
+  protected final String indexType;
+  private Index index;
 
-  public enum Method {
-    UPSERT, DELETE
-  }
-
-  protected String indexType;
-  protected Method method;
-  protected Index index;
-
-  public IndexAction(String indexType, Method method) {
+  public IndexActionRequest(String indexType) {
     super();
     this.indexType = indexType;
-    this.method = method;
   }
 
   public abstract String getKey();
 
-  public Method getMethod() {
-    return this.method;
-  }
+  public abstract Class<?> getPayloadClass();
 
   public String getIndexType() {
     return indexType;
   }
 
-  public void setMethod(Method method) {
-    this.method = method;
-  }
 
   public void setIndex(Index index) {
     this.index = index;
   }
 
-  public Index getIndex() {
-    return index;
+  @Override
+  public final List<ActionRequest> call() throws Exception {
+    if (index == null) {
+      throw new IllegalStateException("Cannot execute request - Index is null");
+    }
+    List<ActionRequest> finalRequests = new ArrayList<ActionRequest>();
+    for (ActionRequest request : doCall(index)) {
+      if (request.getClass().isAssignableFrom(UpdateRequest.class)) {
+        ((UpdateRequest) request)
+          .type(index.getIndexType())
+          .index(index.getIndexName());
+      }
+      finalRequests.add(request);
+    }
+    return finalRequests;
   }
+
+  public abstract List<ActionRequest> doCall(Index index) throws Exception;
 }

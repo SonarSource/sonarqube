@@ -24,7 +24,6 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.ActionResponse;
-import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodes;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
@@ -36,6 +35,8 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
@@ -44,6 +45,8 @@ import org.sonar.core.profiling.StopWatch;
  * ElasticSearch Node used to connect to index.
  */
 public class SearchClient extends TransportClient {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchClient.class);
 
   private static final String DEFAULT_HEALTH_TIMEOUT = "30s";
 
@@ -114,10 +117,10 @@ public class SearchClient extends TransportClient {
 
   public <K extends ActionResponse> K execute(ActionRequestBuilder request) {
     StopWatch fullProfile = profiling.start("search", Profiling.Level.FULL);
-    ListenableActionFuture acc = request.execute();
+    K response = null;
     try {
 
-      K response = (K) acc.get();
+      response = (K) request.get();
 
       if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
         if (ToXContent.class.isAssignableFrom(request.getClass())) {
@@ -144,7 +147,9 @@ public class SearchClient extends TransportClient {
       }
       return response;
     } catch (Exception e) {
+      LOGGER.error("could not execute request: "   + response);
       throw new IllegalStateException("ES error: ", e);
+
     }
   }
 }

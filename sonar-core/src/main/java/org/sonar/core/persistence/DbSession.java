@@ -24,7 +24,7 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.core.cluster.QueueAction;
+import org.sonar.core.cluster.ClusterAction;
 import org.sonar.core.cluster.WorkQueue;
 
 import java.sql.Connection;
@@ -34,8 +34,8 @@ import java.util.Map;
 
 public class DbSession implements SqlSession {
 
-  private static final Integer IMPLICIT_COMMIT_SIZE = 200;
-  private List<QueueAction> actions;
+  private static final Integer IMPLICIT_COMMIT_SIZE = 1000;
+  private List<ClusterAction> actions;
 
   private WorkQueue queue;
   private SqlSession session;
@@ -43,10 +43,10 @@ public class DbSession implements SqlSession {
   DbSession(WorkQueue queue, SqlSession session) {
     this.session = session;
     this.queue = queue;
-    this.actions = new ArrayList<QueueAction>();
+    this.actions = new ArrayList<ClusterAction>();
   }
 
-  public void enqueue(QueueAction action) {
+  public void enqueue(ClusterAction action) {
     this.actions.add(action);
     if (this.actions.size() > IMPLICIT_COMMIT_SIZE) {
       this.commit();

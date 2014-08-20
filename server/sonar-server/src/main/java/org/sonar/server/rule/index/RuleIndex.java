@@ -44,16 +44,15 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.SearchClient;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
+import org.sonar.server.search.SearchClient;
 
 import javax.annotation.CheckForNull;
 import java.io.IOException;
@@ -69,8 +68,8 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
-  public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue, SearchClient node) {
-    super(IndexDefinition.RULE, normalizer, workQueue, node);
+  public RuleIndex(RuleNormalizer normalizer, SearchClient client) {
+    super(IndexDefinition.RULE, normalizer, client);
   }
 
   protected String getKeyValue(RuleKey key) {
