@@ -105,7 +105,6 @@ public class RuleIndexMediumTest extends SearchMediumTest {
       .setTags(ImmutableSet.of("tag1", "tag2")))
       .setSystemTags(ImmutableSet.<String>of());
     dbSession.commit();
-    index.refresh();
 
     // should not have any facet!
     RuleQuery query = new RuleQuery();
