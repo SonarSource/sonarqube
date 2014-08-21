@@ -56,7 +56,7 @@ public class IndexSynchronizer {
     session.close();
   }
 
-  private void synchronize(DbSession session, Dao dao, Index index) {
+  void synchronize(DbSession session, Dao dao, Index index) {
     dao.synchronizeAfter(session,
       index.getLastSynchronization());
   }

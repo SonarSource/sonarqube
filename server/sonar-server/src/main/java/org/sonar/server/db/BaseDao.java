@@ -219,6 +219,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
         session.enqueue(new UpsertDto<E>(getIndexType(), item));
       }
     } catch (Exception e) {
+      e.printStackTrace();
       throw new IllegalStateException("Fail to insert item in db: " + item, e.getCause());
     }
   }
@@ -280,7 +281,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   @Override
   public final void synchronizeAfter(final DbSession session, Date date) {
     for (E dto : this.findAfterDate(session, date)) {
-      session.enqueue(new UpsertDto<E>(getIndexType(), dto, false));
+      session.enqueue(new UpsertDto<E>(getIndexType(), dto, true));
     }
     session.commit();
   }
