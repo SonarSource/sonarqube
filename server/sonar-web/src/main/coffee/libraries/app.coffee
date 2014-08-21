@@ -40,6 +40,10 @@ requirejs [
           component.set 'libraries', data
 
       $.when.apply($, requests).done =>
+        components.reset components.reject (model) ->
+          (model.get('id') == window.resourceKey || model.get('key') == window.resourceKey) &&
+              model.get('libraries').length == 0
+
         @view = new LibrariesView app: @, collection: components
         $('#project-libraries').empty().append @view.render().el
 

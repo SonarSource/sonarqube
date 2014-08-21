@@ -121,6 +121,11 @@ define(['handlebars'], function (Handlebars) {
     return value != null ? options.fn(this) : options.inverse(this);
   });
 
+  Handlebars.registerHelper('notEmpty', function(array, options) {
+    var cond = _.isArray(array) && array.length > 0;
+    return cond ? options.fn(this) : options.inverse(this);
+  });
+
   Handlebars.registerHelper('all', function() {
     var args = Array.prototype.slice.call(arguments, 0, -1),
         options = arguments[arguments.length - 1],

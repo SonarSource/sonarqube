@@ -74,3 +74,8 @@ define [
       @ui.collapseAll.toggle subTreesCount > subTreesCollapsedCount
       @ui.expandAll.toggle subTreesCollapsedCount > 0
 
+
+    serializeData: ->
+      _.extend super,
+        usagesUrl: "#{baseUrl}/dependencies/index?search=#{window.resourceKey}"
+
