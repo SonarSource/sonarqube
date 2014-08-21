@@ -27,17 +27,18 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @since 3.6
  */
-public final class IssueDto implements Serializable {
+public final class IssueDto extends Dto<String> implements Serializable {
+
 
   private Long id;
   private String kee;
@@ -64,10 +65,6 @@ public final class IssueDto implements Serializable {
   private Date issueUpdateDate;
   private Date issueCloseDate;
 
-  // technical dates
-  private Date createdAt;
-  private Date updatedAt;
-
   /**
    * Temporary date used only during scan
    */
@@ -78,6 +75,12 @@ public final class IssueDto implements Serializable {
   private String ruleRepo;
   private String componentKey;
   private String rootComponentKey;
+
+
+  @Override
+  public String getKey() {
+    return kee;
+  }
 
   public Long getId() {
     return id;
@@ -261,21 +264,15 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public Date getCreatedAt() {
-    return createdAt;
-  }
-
+  @Override
   public IssueDto setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
+    super.setCreatedAt(createdAt);
     return this;
   }
 
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
-
+  @Override
   public IssueDto setUpdatedAt(@Nullable Date updatedAt) {
-    this.updatedAt = updatedAt;
+    super.setUpdatedAt(updatedAt);
     return this;
   }
 
