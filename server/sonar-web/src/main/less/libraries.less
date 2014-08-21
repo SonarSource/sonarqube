@@ -20,6 +20,12 @@
   margin-left: 30px;
 }
 
+.libraries-header-actions {
+  margin-right: -10px;
+
+  a { margin-right: 10px; }
+}
+
 
 .libraries-tree {
 
@@ -49,4 +55,45 @@
     padding-bottom: 0;
   }
 
+  .icon-dropdown {
+    display: inline-block;
+    width: 10px;
+    visibility: hidden;
+  }
+}
+
+.libraries-tree-subtree-hidden {
+  display: none;
+}
+
+.libraries-tree-with-subtree {
+
+  & > .libraries-tree-name {
+    border-bottom: 1px solid transparent;
+    cursor: pointer;
+    .trans;
+
+    &:hover { border-color: #ddd; }
+  }
+
+  & > .icon-dropdown {
+    visibility: visible;
+  }
+}
+
+.libraries-tree-subtree-collapsed {
+
+  & > ul {
+    display: none;
+  }
+
+  & > .icon-dropdown:before {
+    content: "\f0da";
+  }
+}
+
+.libraries-tree-test {
+  display: none;
+
+  .libraries-tree-show-tests & { display: list-item; }
 }

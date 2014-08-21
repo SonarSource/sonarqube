@@ -1,17 +1,20 @@
 <div class="libraries-header">
   <div class="libraries-header-filter">
-    <input type="text">
-    <button>Filter</button>
+    <label for="libraries-filter">Filter: </label>
+    <input id="libraries-filter" type="text" class="js-libraries-filter">
   </div>
 
   <div class="libraries-header-test">
-    <input type="checkbox" id="display-test-libraries">
+    <input type="checkbox" id="display-test-libraries" class="js-test-libraries">
     <label for="display-test-libraries">Display test libraries</label>
   </div>
 
   <div class="libraries-header-actions">
-    <a>Collapse All</a>
-    <a>Expand All</a>
+    <a class="js-libraries-collapse-all">Collapse All</a>
+    <a class="js-libraries-expand-all">Expand All</a>
+  </div>
+
+  <div class="libraries-header-actions">
     <a href="#">Usages</a>
   </div>
 </div>
@@ -24,8 +27,8 @@
         <span class="libraries-tree-name">{{lname}}</span>
         <ul>
           {{#recursive libraries}}
-            <li>
-              <i class="icon-dropdown" style="{{#unless to}}visibility: hidden;{{/unless}}"></i>&nbsp;
+            <li class="{{#if to}}libraries-tree-with-subtree libraries-tree-subtree-collapsed{{/if}} {{#eq u 'test'}}libraries-tree-test{{/eq}}">
+              <i class="icon-dropdown"></i>&nbsp;
               {{qualifierIcon q}}
               <span class="libraries-tree-name">{{n}}</span>
               {{#if u}}
