@@ -25,7 +25,7 @@ import org.sonar.server.search.Index;
 
 import java.util.List;
 
-public class UpsertDto<DTO extends Dto> extends IndexActionRequest {
+class UpsertDto<DTO extends Dto> extends IndexActionRequest {
 
   private final DTO dto;
 
