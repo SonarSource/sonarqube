@@ -30,7 +30,11 @@ public class UpsertDto<DTO extends Dto> extends IndexActionRequest {
   private final DTO dto;
 
   public UpsertDto(String indexType, DTO dto) {
-    super(indexType);
+    this(indexType, dto, true);
+  }
+
+  public UpsertDto(String indexType, DTO dto, boolean requiresRefresh) {
+    super(indexType, requiresRefresh);
     this.dto = dto;
   }
 

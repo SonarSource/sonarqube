@@ -280,7 +280,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   @Override
   public final void synchronizeAfter(final DbSession session, Date date) {
     for (E dto : this.findAfterDate(session, date)) {
-      session.enqueue(new UpsertDto<E>(getIndexType(), dto));
+      session.enqueue(new UpsertDto<E>(getIndexType(), dto, false));
     }
     session.commit();
   }

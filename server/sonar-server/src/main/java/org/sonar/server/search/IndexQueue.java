@@ -34,8 +34,10 @@ import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.action.IndexActionRequest;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -69,32 +71,56 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
     }
     try {
 
+      long normTime = System.currentTimeMillis();
       BulkRequestBuilder bulkRequestBuilder = new BulkRequestBuilder(searchClient);
       Map<String, Index> indexes = getIndexMap();
+      Set<String> indices = new HashSet<String>();
       for (IndexActionRequest action : actions) {
-        action.setIndex(indexes.get(action.getIndexType()));
+        Index index = indexes.get(action.getIndexType());
+        action.setIndex(index);
+        indices.add(index.getIndexName());
       }
 
-      ExecutorService executorService = Executors.newFixedThreadPool(4);
+      ExecutorService executorService = Executors.newFixedThreadPool(10);
+
+      // Do we need to refresh
+      boolean requiresRefresh = false;
+      for (IndexActionRequest action : actions) {
+        if (action.needsRefresh()) {
+          requiresRefresh = true;
+          break;
+        }
+      }
 
       //invokeAll() blocks until ALL tasks submitted to executor complete
       for (Future<List<ActionRequest>> updateRequests : executorService.invokeAll(actions)) {
         for (ActionRequest update : updateRequests.get()) {
           if (UpdateRequest.class.isAssignableFrom(update.getClass())) {
-            bulkRequestBuilder.add((UpdateRequest) update);
+            bulkRequestBuilder.add(((UpdateRequest) update).refresh(false));
           } else if (DeleteRequest.class.isAssignableFrom(update.getClass())) {
-            bulkRequestBuilder.add((DeleteRequest) update);
+            bulkRequestBuilder.add(((DeleteRequest) update).refresh(false));
           } else {
             throw new IllegalStateException("Un-managed request type: " + update.getClass());
           }
         }
       }
       executorService.shutdown();
-
-      LOGGER.info("Executing batch request of size: " + bulkRequestBuilder.numberOfActions());
+      normTime = System.currentTimeMillis() - normTime;
 
       //execute the request
-      BulkResponse response = searchClient.execute(bulkRequestBuilder.setRefresh(true));
+      long indexTime = System.currentTimeMillis();
+      BulkResponse response = searchClient.execute(bulkRequestBuilder.setRefresh(false));
+      indexTime = System.currentTimeMillis() - indexTime;
+
+      long refreshTime = System.currentTimeMillis();
+      if (requiresRefresh) {
+        searchClient.admin().indices().prepareRefresh(indices.toArray(new String[indices.size()])).setForce(false).get();
+      }
+      refreshTime = System.currentTimeMillis() - refreshTime;
+
+      LOGGER.info("-- submitted {} items with {}ms in normalization, {}ms indexing and {}ms refresh({}). Total: {}ms",
+        bulkRequestBuilder.numberOfActions(), normTime, indexTime, refreshTime, indices, (normTime + indexTime + refreshTime));
+
     } catch (Exception e) {
       e.printStackTrace();
     }

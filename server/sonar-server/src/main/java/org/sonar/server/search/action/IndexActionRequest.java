@@ -31,11 +31,17 @@ import java.util.List;
 public abstract class IndexActionRequest implements ClusterAction<List<ActionRequest>> {
 
   protected final String indexType;
+  private final boolean requiresRefresh;
   private Index index;
 
-  public IndexActionRequest(String indexType) {
+  protected IndexActionRequest(String indexType) {
+    this(indexType, true);
+  }
+
+  protected IndexActionRequest(String indexType, boolean requiresRefresh) {
     super();
     this.indexType = indexType;
+    this.requiresRefresh = requiresRefresh;
   }
 
   public abstract String getKey();
@@ -61,7 +67,8 @@ public abstract class IndexActionRequest implements ClusterAction<List<ActionReq
       if (request.getClass().isAssignableFrom(UpdateRequest.class)) {
         ((UpdateRequest) request)
           .type(index.getIndexType())
-          .index(index.getIndexName());
+          .index(index.getIndexName())
+          .refresh(false);
       }
       finalRequests.add(request);
     }
@@ -69,4 +76,8 @@ public abstract class IndexActionRequest implements ClusterAction<List<ActionReq
   }
 
   public abstract List<ActionRequest> doCall(Index index) throws Exception;
+
+  public boolean needsRefresh() {
+    return this.requiresRefresh;
+  }
 }
