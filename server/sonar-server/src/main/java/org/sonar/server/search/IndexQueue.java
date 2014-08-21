@@ -118,7 +118,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
       }
       refreshTime = System.currentTimeMillis() - refreshTime;
 
-      LOGGER.info("-- submitted {} items with {}ms in normalization, {}ms indexing and {}ms refresh({}). Total: {}ms",
+      LOGGER.debug("-- submitted {} items with {}ms in normalization, {}ms indexing and {}ms refresh({}). Total: {}ms",
         bulkRequestBuilder.numberOfActions(), normTime, indexTime, refreshTime, indices, (normTime + indexTime + refreshTime));
 
     } catch (Exception e) {
