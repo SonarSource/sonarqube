@@ -33,11 +33,16 @@ public class DummyOkProcess extends MonitoredProcess {
 
   private boolean isReady = false;
   private boolean isRunning = true;
+  private boolean isSuccess = true;
 
-  protected DummyOkProcess(Props props) throws Exception {
+  protected DummyOkProcess(Props props) {
     super(props);
-    File temp = File.createTempFile("hello", ".tmp");
-
+    try {
+      File.createTempFile("hello", ".tmp");
+    } catch (Exception e) {
+      LOGGER.error("Could not create file", e);
+      isSuccess = false;
+    }
   }
 
   @Override
@@ -64,10 +69,15 @@ public class DummyOkProcess extends MonitoredProcess {
     return isReady;
   }
 
-  public static void main(String[] args) throws Exception {
+  private boolean isSuccess() {
+    return isSuccess;
+  }
+
+  public static int main(String[] args) {
     Props props = new Props(new Properties());
     props.set(MonitoredProcess.NAME_PROPERTY, DummyOkProcess.class.getSimpleName());
-    new DummyOkProcess(props).start();
-    System.exit(1);
+    DummyOkProcess process = new DummyOkProcess(props);
+    process.start();
+    return (process.isSuccess()) ? 1 : 0;
   }
 }

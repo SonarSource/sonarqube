@@ -34,6 +34,7 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.component.persistence.ComponentDao;
+import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.measure.persistence.MetricDao;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
@@ -61,6 +62,7 @@ public class DbClient implements ServerComponent {
   private final ActivityDao activityDao;
   private final AuthorizationDao authorizationDao;
   private final UserDao userDao;
+  private final IssueDao issueDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -83,6 +85,7 @@ public class DbClient implements ServerComponent {
     activityDao = getDao(map, ActivityDao.class);
     authorizationDao = getDao(map, AuthorizationDao.class);
     userDao = getDao(map, UserDao.class);
+    issueDao = getDao(map, IssueDao.class);
   }
 
   public Database database() {
@@ -99,6 +102,10 @@ public class DbClient implements ServerComponent {
 
   public ActiveRuleDao activeRuleDao() {
     return activeRuleDao;
+  }
+
+  public IssueDao issueDao() {
+    return issueDao;
   }
 
   public QualityProfileDao qualityProfileDao() {

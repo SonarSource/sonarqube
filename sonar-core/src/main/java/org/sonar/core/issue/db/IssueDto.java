@@ -37,7 +37,7 @@ import java.util.Date;
 /**
  * @since 3.6
  */
-public final class IssueDto extends Dto<String> implements Serializable {
+public final class IssueDto extends Dto<IssueKey> implements Serializable {
 
 
   private Long id;
@@ -76,16 +76,17 @@ public final class IssueDto extends Dto<String> implements Serializable {
   private String componentKey;
   private String rootComponentKey;
 
-
   @Override
-  public String getKey() {
-    return kee;
+  public IssueKey getKey() {
+    return IssueKey.of(ruleKey, ruleRepo, rootComponentKey, componentKey);
   }
 
+  @Deprecated
   public Long getId() {
     return id;
   }
 
+  @Deprecated
   public IssueDto setId(@Nullable Long id) {
     this.id = id;
     return this;

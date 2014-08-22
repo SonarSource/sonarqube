@@ -20,6 +20,8 @@
 package org.sonar.server.search;
 
 import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
+import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -54,7 +56,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexQueue.class);
 
   private static final Integer DEFAULT_QUEUE_SIZE = 200;
-  private static final int TIMEOUT = 30000;
+  private static final Integer CONCURRENT_NORMALIZATION_FACTOR = 5;
 
   public IndexQueue(Settings settings, SearchClient searchClient, ComponentContainer container) {
     super(DEFAULT_QUEUE_SIZE);
@@ -71,28 +73,62 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
     }
     try {
 
-      long normTime = System.currentTimeMillis();
-      BulkRequestBuilder bulkRequestBuilder = new BulkRequestBuilder(searchClient);
       Map<String, Index> indexes = getIndexMap();
       Set<String> indices = new HashSet<String>();
       for (IndexActionRequest action : actions) {
         Index index = indexes.get(action.getIndexType());
         action.setIndex(index);
-        indices.add(index.getIndexName());
-      }
-
-      ExecutorService executorService = Executors.newFixedThreadPool(10);
-
-      // Do we need to refresh
-      boolean requiresRefresh = false;
-      for (IndexActionRequest action : actions) {
         if (action.needsRefresh()) {
-          requiresRefresh = true;
-          break;
+          indices.add(index.getIndexName());
         }
       }
 
-      //invokeAll() blocks until ALL tasks submitted to executor complete
+      BulkRequestBuilder bulkRequestBuilder = new BulkRequestBuilder(searchClient);
+
+      long normTime = executeNormalization(bulkRequestBuilder, actions);
+
+      //execute the request
+      long indexTime = System.currentTimeMillis();
+      BulkResponse response = searchClient.execute(bulkRequestBuilder.setRefresh(false));
+      indexTime = System.currentTimeMillis() - indexTime;
+
+      long refreshTime = this.refreshRequiredIndex(indices);
+
+      LOGGER.debug("-- submitted {} items with {}ms in normalization, {}ms indexing and {}ms refresh({}). Total: {}ms",
+        bulkRequestBuilder.numberOfActions(), normTime, indexTime, refreshTime, indices, (normTime + indexTime + refreshTime));
+
+      if (response.hasFailures()) {
+        throw new IllegalStateException("Errors while indexing stack: " + response.buildFailureMessage());
+      }
+
+    } catch (Exception e) {
+      LOGGER.error("Could not commit to ElasticSearch", e);
+    }
+  }
+
+
+  private long refreshRequiredIndex(Set<String> indices) {
+
+    long refreshTime = System.currentTimeMillis();
+    if (!indices.isEmpty()) {
+      RefreshRequestBuilder refreshRequest = searchClient.admin().indices()
+        .prepareRefresh(indices.toArray(new String[indices.size()]))
+        .setForce(false);
+
+      RefreshResponse refreshResponse = searchClient.execute(refreshRequest);
+
+      if (refreshResponse.getFailedShards() > 0) {
+        LOGGER.warn("{} Shard(s) did not refresh", refreshResponse.getFailedShards());
+      }
+    }
+    return System.currentTimeMillis() - refreshTime;
+  }
+
+  private long executeNormalization(BulkRequestBuilder bulkRequestBuilder, List<IndexActionRequest> actions) {
+    long normTime = System.currentTimeMillis();
+    ExecutorService executorService = Executors.newFixedThreadPool(CONCURRENT_NORMALIZATION_FACTOR);
+    //invokeAll() blocks until ALL tasks submitted to executor complete
+    try {
       for (Future<List<ActionRequest>> updateRequests : executorService.invokeAll(actions)) {
         for (ActionRequest update : updateRequests.get()) {
           if (UpdateRequest.class.isAssignableFrom(update.getClass())) {
@@ -104,26 +140,11 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
           }
         }
       }
-      executorService.shutdown();
-      normTime = System.currentTimeMillis() - normTime;
-
-      //execute the request
-      long indexTime = System.currentTimeMillis();
-      BulkResponse response = searchClient.execute(bulkRequestBuilder.setRefresh(false));
-      indexTime = System.currentTimeMillis() - indexTime;
-
-      long refreshTime = System.currentTimeMillis();
-      if (requiresRefresh) {
-        searchClient.admin().indices().prepareRefresh(indices.toArray(new String[indices.size()])).setForce(false).get();
-      }
-      refreshTime = System.currentTimeMillis() - refreshTime;
-
-      LOGGER.debug("-- submitted {} items with {}ms in normalization, {}ms indexing and {}ms refresh({}). Total: {}ms",
-        bulkRequestBuilder.numberOfActions(), normTime, indexTime, refreshTime, indices, (normTime + indexTime + refreshTime));
-
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new IllegalStateException("Could not execute normalization for stack", e);
     }
+    executorService.shutdown();
+    return System.currentTimeMillis() - normTime;
   }
 
   private Map<String, Index> getIndexMap() {

@@ -219,8 +219,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
         session.enqueue(new UpsertDto<E>(getIndexType(), item));
       }
     } catch (Exception e) {
-      e.printStackTrace();
-      throw new IllegalStateException("Fail to insert item in db: " + item, e.getCause());
+      throw new IllegalStateException("Fail to insert item in db: " + item, e);
     }
   }
 
