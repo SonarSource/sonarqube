@@ -90,7 +90,7 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexActionRequest
 
       long refreshTime = this.refreshRequiredIndex(indices);
 
-      LOGGER.info("-- submitted {} items with {}ms in normalization, {}ms indexing and {}ms refresh({}). Total: {}ms",
+      LOGGER.debug("-- submitted {} items with {}ms in normalization, {}ms indexing and {}ms refresh({}). Total: {}ms",
         bulkRequestBuilder.numberOfActions(), normTime, indexTime, refreshTime, indices, (normTime + indexTime + refreshTime));
 
       if (response.hasFailures()) {
