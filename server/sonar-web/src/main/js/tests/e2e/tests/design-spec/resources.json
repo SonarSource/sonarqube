@@ -1,0 +1,20 @@
+[
+  {
+    "id": 6924,
+    "key": "com.maif.sonar:maif-cobol-plugin",
+    "name": "MAIF :: Cobol plugin",
+    "scope": "PRJ",
+    "qualifier": "TRK",
+    "date": "2014-07-21T23:04:05+0600",
+    "creationDate": null,
+    "lname": "MAIF :: Cobol plugin",
+    "version": "2.7-SNAPSHOT",
+    "description": "",
+    "msr": [
+      {
+        "key": "dsm",
+        "data": "[{\"i\":24815,\"n\":\"src/test/java/com/maif/sonar/cobol/metrics\",\"q\":\"DIR\",\"v\":[{},{},{},{\"i\":14879223,\"w\":6},{},{}]},{\"i\":26762,\"n\":\"src/main/java/com/maif/sonar/cobol/plugin\",\"q\":\"DIR\",\"v\":[{},{},{},{},{},{}]},{\"i\":26758,\"n\":\"src/main/java/com/maif/sonar/cobol\",\"q\":\"DIR\",\"v\":[{\"i\":14879242,\"w\":1},{\"i\":14879258,\"w\":114},{},{},{},{}]},{\"i\":33690,\"n\":\"src/test/java/com/maif/sonar/cobol/api\",\"q\":\"DIR\",\"v\":[{\"i\":14879244,\"w\":6},{\"i\":14879373,\"w\":2},{\"i\":14879221,\"w\":1},{},{},{}]},{\"i\":24814,\"n\":\"src/test/java/com/maif/sonar/cobol/ids2\",\"q\":\"DIR\",\"v\":[{\"i\":14879237,\"w\":2},{},{\"i\":14879139,\"w\":24},{},{},{}]},{\"i\":24816,\"n\":\"src/test/java/com/maif/sonar/cobol/repository\",\"q\":\"DIR\",\"v\":[{\"i\":14879240,\"w\":1},{\"i\":14879251,\"w\":6},{\"i\":14879164,\"w\":56},{\"i\":14879230,\"w\":1},{\"i\":14879232,\"w\":4},{}]}]"
+      }
+    ]
+  }
+]

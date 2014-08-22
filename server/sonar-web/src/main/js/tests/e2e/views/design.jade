@@ -1,0 +1,11 @@
+extends ./layouts/main
+
+block header
+  script(data-main='/js/design/app', src='../js/require.js')
+
+block body
+  #container
+    #project-design: i.spinner
+
+  script.
+    window.resourceKey = 'com.maif.sonar:maif-cobol-plugin';
