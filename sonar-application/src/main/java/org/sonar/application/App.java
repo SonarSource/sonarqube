@@ -168,7 +168,7 @@ public class App implements ProcessMXBean {
     try {
       // start and wait for shutdown command
       if (props.contains(SearchServer.ES_CLUSTER_INET)) {
-        logger.info("SonarQube slave configured to join SonarQube master : {}", props.of(SearchServer.ES_CLUSTER_INET));
+        LoggerFactory.getLogger(App.class).info("SonarQube slave configured to join SonarQube master : {}", props.of(SearchServer.ES_CLUSTER_INET));
       }
       app.start(props);
     } catch (InterruptedException e) {
