@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.highlighting;
 
-
 /**
  * This builder is used to define syntax highlighting (aka code coloration) on files.
  * @since 4.5
@@ -73,6 +72,7 @@ public interface HighlightingBuilder {
 
   /**
    * Call this method only once when your are done with defining highlighting of the file.
+   * @throws IllegalStateException if you have defined overlapping highlighting
    */
   void done();
 }

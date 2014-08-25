@@ -19,20 +19,18 @@
  */
 package org.sonar.batch.highlighting;
 
-
-import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.List;
+import java.util.Collection;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SyntaxHighlightingDataBuilderTest {
 
-  private List<SyntaxHighlightingRule> highlightingRules;
+  private Collection<SyntaxHighlightingRule> highlightingRules;
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();
@@ -48,7 +46,7 @@ public class SyntaxHighlightingDataBuilderTest {
     highlightingDataBuilder.registerHighlightingRule(24, 65, "cppd");
     highlightingDataBuilder.registerHighlightingRule(12, 20, "cd");
 
-    highlightingRules = highlightingDataBuilder.getSortedRules();
+    highlightingRules = highlightingDataBuilder.getSyntaxHighlightingRuleSet();
   }
 
   @Test
@@ -58,17 +56,27 @@ public class SyntaxHighlightingDataBuilderTest {
 
   @Test
   public void should_order_by_start_then_end_offset() throws Exception {
-    assertThat(highlightingRules).onProperty("startPosition").containsExactly(0, 10, 12, 24, 24, 42);
-    assertThat(highlightingRules).onProperty("endPosition").containsExactly(10, 12, 20, 38, 65, 50);
-    assertThat(highlightingRules).onProperty("textType").containsExactly("cd", "k", "cd", "k", "cppd", "k");
+    assertThat(highlightingRules).onProperty("startPosition").containsOnly(0, 10, 12, 24, 24, 42);
+    assertThat(highlightingRules).onProperty("endPosition").containsOnly(10, 12, 20, 38, 65, 50);
+    assertThat(highlightingRules).onProperty("textType").containsOnly("cd", "k", "cd", "k", "cppd", "k");
   }
 
   @Test
-  public void should_prevent_rules_overlapping() throws Exception {
-    throwable.expect(UnsupportedOperationException.class);
+  public void should_suport_overlapping() throws Exception {
+    SyntaxHighlightingDataBuilder builder = new SyntaxHighlightingDataBuilder();
+    builder.registerHighlightingRule(0, 15, "k");
+    builder.registerHighlightingRule(8, 12, "cppd");
+    builder.build();
+  }
+
+  @Test
+  public void should_prevent_boudaries_overlapping() throws Exception {
+    throwable.expect(IllegalStateException.class);
+    throwable.expectMessage("Cannot register highlighting rule for characters from 8 to 15 as it overlaps at least one existing rule");
 
     SyntaxHighlightingDataBuilder builder = new SyntaxHighlightingDataBuilder();
     builder.registerHighlightingRule(0, 10, "k");
     builder.registerHighlightingRule(8, 15, "k");
+    builder.build();
   }
 }

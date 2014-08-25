@@ -21,29 +21,28 @@ package org.sonar.batch.highlighting;
 
 import org.sonar.batch.index.Data;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class SyntaxHighlightingData implements Data {
 
   private static final String FIELD_SEPARATOR = ",";
   private static final String RULE_SEPARATOR = ";";
 
-  private List<SyntaxHighlightingRule> syntaxHighlightingRuleSet;
+  private Collection<SyntaxHighlightingRule> syntaxHighlightingRuleSet;
 
-  public SyntaxHighlightingData(List<SyntaxHighlightingRule> syntaxHighlightingRuleSet) {
-    this.syntaxHighlightingRuleSet = syntaxHighlightingRuleSet;
+  public SyntaxHighlightingData(Collection<SyntaxHighlightingRule> syntaxHighlightingRuleSet) {
+    this.syntaxHighlightingRuleSet = new ArrayList<SyntaxHighlightingRule>(syntaxHighlightingRuleSet);
   }
 
-  public List<SyntaxHighlightingRule> syntaxHighlightingRuleSet() {
+  public Collection<SyntaxHighlightingRule> syntaxHighlightingRuleSet() {
     return syntaxHighlightingRuleSet;
   }
 
   @Override
   public String writeString() {
     StringBuilder sb = new StringBuilder();
-    List<SyntaxHighlightingRule> orderedRules = syntaxHighlightingRuleSet;
-
-    for (SyntaxHighlightingRule highlightingRule : orderedRules) {
+    for (SyntaxHighlightingRule highlightingRule : syntaxHighlightingRuleSet) {
       sb.append(highlightingRule.getStartPosition())
         .append(FIELD_SEPARATOR)
         .append(highlightingRule.getEndPosition())
