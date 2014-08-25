@@ -127,6 +127,7 @@
    rids=[]
    first_column=true
    last_base_snapshot=nil
+   last_column = nil
    @drilldown.columns.each_with_index do |column, index|
 %>
   <% if first_column %>
@@ -139,13 +140,12 @@
         <%
            column.measures.each_with_index do |measure, row_index|
              resource=column.resource(measure)
-             if resource
-               clazz = cycle('even', 'odd', :name => "col_#{index}")
-               selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
-               if selected
-                 clazz += ' selected'
-                 paths << [h(resource.name), @selected_rids-[resource.id]]
-               end
+             clazz = cycle('even', 'odd', :name => "col_#{index}")
+             selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+             if selected
+               clazz += ' selected'
+               paths << [h(resource.name), @selected_rids-[resource.id]]
+             end
         %>
           <tr class="<%= clazz -%>" id="row_<%= index -%>_<%= row_index -%>">
             <td nowrap>
@@ -170,8 +170,7 @@
               <%= @period ? format_variation(measure, :period => @period, :style => 'light') : measure.formatted_value -%>
             </td>
           </tr>
-          <% end
-             end %>
+        <% end %>
       </table>
     </div>
   </td>
@@ -181,11 +180,15 @@
   <% end
      first_column = column.switch?
      rids<<column.selected_snapshot.project_id if column.selected_snapshot
+     last_column = column
 
      # column.base_snapshot contain the real snapshot that is selected. We have to use in when loading issues in order to corretly load issues, for instance on views.
      last_base_snapshot = column.base_snapshot
      end
   %>
+  <% if last_column && @drilldown.selected_project_not_authorized %>
+    <p class="notes"><%= message('not_authorized_to_access_project', {:params => last_column.selected_snapshot.project.name}) -%></p>
+  <% end %>
 
 <script>
   $j('#col_rules tr.selected').each(function (index,item) {

@@ -56,6 +56,7 @@
   <%
      rids=[]
      first_column=true
+     last_column = nil
      @drilldown.columns.each_with_index do |column, index|
   %>
     <% if first_column %>
@@ -68,10 +69,9 @@
         <table class="spaced">
           <% column.measures.each_with_index do |measure, row_index|
             resource=column.resource(measure)
-            if resource
-              selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
-              clazz = cycle("even", "odd", :name => "col_#{index}")
-              clazz = clazz + ' selected' if selected
+            selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+            clazz = cycle("even", "odd", :name => "col_#{index}")
+            clazz = clazz + ' selected' if selected
           %>
             <tr class="<%= clazz -%>" id="row_<%= index -%>_<%= row_index -%>">
               <td nowrap>
@@ -95,8 +95,7 @@
                 <%= format_measure(measure, :skip_span_id => true, :period => @period) -%>
               </td>
             </tr>
-          <% end
-            end %>
+          <% end %>
         </table>
       </div>
     </td>
@@ -107,8 +106,12 @@
     <% end
        first_column = column.switch?
        rids<<column.selected_snapshot.project_id if column.selected_snapshot
+       last_column = column
        end
     %>
+    <% if last_column && @drilldown.selected_project_not_authorized %>
+      <p class="notes"><%= message('not_authorized_to_access_project', {:params => last_column.selected_snapshot.project.name}) -%></p>
+    <% end %>
 </div>
 <script>
   <% for i in 0...@drilldown.columns.size do  %>

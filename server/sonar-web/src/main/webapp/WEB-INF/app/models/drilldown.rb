@@ -19,7 +19,7 @@
 #
 class Drilldown
 
-  attr_reader :resource, :metric, :selected_resource_ids, :controller
+  attr_reader :resource, :metric, :selected_resource_ids, :controller, :selected_project_not_authorized
   attr_reader :snapshot, :columns, :highlighted_resource, :highlighted_snapshot
 
   def initialize(resource, metric, selected_resource_ids, controller, options={})
@@ -39,6 +39,11 @@ class Drilldown
           if column.selected_snapshot
             @highlighted_snapshot=column.selected_snapshot
             @highlighted_resource=column.selected_snapshot.project
+            # User should only access projects he's authorized to see.
+            unless controller.has_role?(:user, (column.selected_snapshot.project.copy_resource_id || column.selected_snapshot.resource_id_for_authorization))
+              @selected_project_not_authorized = true
+              break
+            end
           end
         end
         column=DrilldownColumn.new(self, column)
@@ -142,13 +147,7 @@ class DrilldownColumn
     sids=@measures.map { |m| m.snapshot_id }.compact.uniq
     unless sids.empty?
       snapshots = Snapshot.all(:include => :project, :conditions => {'snapshots.id' => sids})
-
-      # User should only see projects he's authorized to see.
-      authorized_project_ids = snapshots.map{|s| s.project.copy_resource_id || s.resource_id_for_authorization}.compact
-      authorized_project_ids = @drilldown.controller.select_authorized(:user, authorized_project_ids) unless authorized_project_ids.empty?
-      authorized_snapshots = snapshots.select{|s| authorized_project_ids.include?(s.project.copy_resource_id || s.resource_id_for_authorization)}
-
-      authorized_snapshots.each do |snapshot|
+      snapshots.each do |snapshot|
         @resource_per_sid[snapshot.id]=snapshot.project
         if @drilldown.selected_resource_ids.include?(snapshot.project_id)
           @selected_snapshot=snapshot
@@ -157,7 +156,6 @@ class DrilldownColumn
     end
   end
 
-  # The resource can be null if it's linked to a copy (on a View or a Developer)
   def resource(measure)
     @resource_per_sid[measure.snapshot_id]
   end
