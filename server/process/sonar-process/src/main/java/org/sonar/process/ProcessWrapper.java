@@ -251,7 +251,7 @@ public class ProcessWrapper extends Thread implements Terminable {
   private ProcessMXBean waitForJMX() {
     String loopbackAddress = localAddress();
     String path = "/jndi/rmi://" + loopbackAddress + ":" + jmxPort + "/jmxrmi";
-    JMXServiceURL jmxUrl = null;
+    JMXServiceURL jmxUrl;
     try {
       jmxUrl = new JMXServiceURL("rmi", loopbackAddress, jmxPort, path);
     } catch (MalformedURLException e) {
@@ -270,8 +270,7 @@ public class ProcessWrapper extends Thread implements Terminable {
           }
         }, null, null);
         MBeanServerConnection mBeanServer = jmxConnector.getMBeanServerConnection();
-        ProcessMXBean bean = JMX.newMBeanProxy(mBeanServer, JmxUtils.objectName(processName), ProcessMXBean.class);
-        return bean;
+        return JMX.newMBeanProxy(mBeanServer, JmxUtils.objectName(processName), ProcessMXBean.class);
       } catch (Exception ignored) {
         LOGGER.trace("Could not connect JMX yet", ignored);
       }
