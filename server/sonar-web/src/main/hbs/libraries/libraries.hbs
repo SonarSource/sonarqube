@@ -25,6 +25,9 @@
       <li>
         {{qualifierIcon qualifier}}
         <span class="libraries-tree-name">{{lname}}</span>
+        {{#if version}}
+          <span class="libraries-tree-version">{{version}}</span>
+        {{/if}}
         {{#notEmpty libraries}}
           <ul>
             {{#recursive libraries}}
@@ -32,6 +35,9 @@
                 <i class="icon-dropdown"></i>&nbsp;
                 {{qualifierIcon q}}
                 <span class="libraries-tree-name">{{n}}</span>
+                {{#if v}}
+                  <span class="libraries-tree-version">{{v}}</span>
+                {{/if}}
                 {{#if u}}
                   <span class="subtitle">({{u}})</span>
                 {{/if}}
