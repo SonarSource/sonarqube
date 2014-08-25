@@ -108,18 +108,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar-plugins.java</groupId>
-      <artifactId>sonar-squid-java-plugin</artifactId>
-      <type>sonar-plugin</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar-plugins.java</groupId>
-      <artifactId>sonar-surefire-plugin</artifactId>
-      <type>sonar-plugin</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-cpd-plugin</artifactId>
       <version>${project.version}</version>
@@ -137,12 +125,6 @@
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-email-notifications-plugin</artifactId>
       <version>${project.version}</version>
-      <type>sonar-plugin</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar-plugins.java</groupId>
-      <artifactId>sonar-jacoco-plugin</artifactId>
       <type>sonar-plugin</type>
       <scope>provided</scope>
     </dependency>
