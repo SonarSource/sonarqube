@@ -75,38 +75,15 @@ public class SearchClient extends TransportClient {
     this.profiling = new Profiling(settings);
   }
 
-  public NodeHealth getNodeHealth() {
-    NodeHealth health = new NodeHealth();
+  public ClusterHealth getClusterHealth() {
+    ClusterHealth health = new ClusterHealth();
     ClusterStatsResponse clusterStatsResponse = this.admin().cluster().prepareClusterStats().get();
 
     // Cluster health
     health.setClusterAvailable(clusterStatsResponse.getStatus() != ClusterHealthStatus.RED);
 
-    ClusterStatsNodes nodesStats = clusterStatsResponse.getNodesStats();
-
-    // JVM Heap Usage
-    health.setJvmHeapMax(nodesStats.getJvm().getHeapMax().bytes());
-    health.setJvmHeapUsed(nodesStats.getJvm().getHeapUsed().bytes());
-
-    // OS Memory Usage ?
-
-    // Disk Usage
-    health.setFsTotal(nodesStats.getFs().getTotal().bytes());
-    health.setFsAvailable(nodesStats.getFs().getAvailable().bytes());
-
-    // Ping ?
-
-    // Threads
-    health.setJvmThreads(nodesStats.getJvm().getThreads());
-
-    // CPU
-    health.setProcessCpuPercent(nodesStats.getProcess().getCpuPercent());
-
-    // Open Files
-    health.setOpenFiles(nodesStats.getProcess().getAvgOpenFileDescriptors());
-
-    // Uptime
-    health.setJvmUptimeMillis(nodesStats.getJvm().getMaxUpTime().getMillis());
+    // Number of nodes
+    health.setNumberOfNodes(clusterStatsResponse.getNodesStats().getCounts().getTotal());
 
     return health;
   }

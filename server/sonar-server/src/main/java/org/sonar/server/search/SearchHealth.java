@@ -21,10 +21,15 @@ package org.sonar.server.search;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.Maps;
+import org.elasticsearch.action.admin.cluster.node.stats.NodeStats;
+import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilder;
+import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequestBuilder;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class SearchHealth {
 
@@ -36,8 +41,8 @@ public class SearchHealth {
     this.indexClient = indexClient;
   }
 
-  public NodeHealth getNodeHealth() {
-    return searchClient.getNodeHealth();
+  public ClusterHealth getClusterHealth() {
+    return searchClient.getClusterHealth();
   }
 
   public Map<String, IndexHealth> getIndexHealth() {
@@ -60,4 +65,14 @@ public class SearchHealth {
     return builder.build();
   }
 
+  public Map<String, NodeHealth > getNodesHealth() {
+    NodesStatsRequestBuilder nodesStatsRequest = searchClient.admin().cluster().prepareNodesStats().all();
+    NodesStatsResponse nodesStats = searchClient.execute(nodesStatsRequest);
+
+    Map<String, NodeHealth> health = Maps.newHashMap();
+    for (Entry<String, NodeStats> nodeEntry: nodesStats.getNodesMap().entrySet()) {
+      health.put(nodeEntry.getKey(), new NodeHealth(nodeEntry.getValue()));
+    }
+    return ImmutableMap.copyOf(health);
+  }
 }

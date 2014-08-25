@@ -38,8 +38,12 @@ public class SearchHealthMediumTest {
     SearchHealth health = tester.get(SearchHealth.class);
     Date now = new Date();
 
-    NodeHealth nodeHealth = health.getNodeHealth();
-    assertThat(nodeHealth.isClusterAvailable()).isTrue();
+    ClusterHealth clusterHealth = health.getClusterHealth();
+    assertThat(clusterHealth.isClusterAvailable()).isTrue();
+    assertThat(clusterHealth.getNumberOfNodes()).isEqualTo(1);
+
+    NodeHealth nodeHealth = health.getNodesHealth().values().iterator().next();
+    assertThat(nodeHealth.isMaster()).isTrue();
     assertThat(nodeHealth.getJvmHeapUsedPercent()).contains("%");
     assertThat(nodeHealth.getFsUsedPercent()).contains("%");
     assertThat(nodeHealth.getJvmThreads()).isGreaterThanOrEqualTo(0L);

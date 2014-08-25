@@ -60,20 +60,37 @@
 
 <br/>
 
-<table class="data width100" id="search_info">
+<table class="data width100" id="cluster_info">
 <thead>
   <tr>
-    <th colspan="2"><h2>Search Info</h2></th>
+    <th colspan="2"><h2>Search Info - Cluster</h2></th>
   </tr>
 </thead>
 <tbody>
-  <% @server.search_info.each do |data| %>
-    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'search' } %>
+  <% @server.cluster_info.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'cluster' } %>
   <% end %>
 <tbody>
 </table>
 
 <br/>
+
+<% @server.nodes_info.each do |node_info| -%>
+<table class="data width100" id="cluster_info<%= node_info[0][1] -%>">
+<thead>
+  <tr>
+    <th colspan="2"><h2>Search Info - <%= node_info[0][1] -%></h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% node_info.drop(1).each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'node' } %>
+  <% end %>
+<tbody>
+</table>
+
+<br/>
+<% end -%>
 
 <table class="data width100" id="memory">
 <thead>

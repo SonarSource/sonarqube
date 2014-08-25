@@ -19,12 +19,14 @@
  */
 package org.sonar.server.search;
 
+import org.elasticsearch.action.admin.cluster.node.stats.NodeStats;
+
 import java.util.Calendar;
 import java.util.Date;
 
 public class NodeHealth {
 
-  private boolean clusterAvailable;
+  private boolean master;
   private long jvmHeapMax;
   private long jvmHeapUsed;
   private long fsAvailable;
@@ -34,12 +36,12 @@ public class NodeHealth {
   private long openFiles;
   private long jvmUptimeMillis;
 
-  void setClusterAvailable(boolean clusterAvailable) {
-    this.clusterAvailable = clusterAvailable;
+  public boolean isMaster() {
+    return master;
   }
 
-  public boolean isClusterAvailable() {
-    return clusterAvailable;
+  void setMaster(boolean master) {
+    this.master = master;
   }
 
   void setJvmHeapMax(long bytes) {
@@ -114,5 +116,37 @@ public class NodeHealth {
     Calendar calendar = Calendar.getInstance();
     calendar.setTimeInMillis(calendar.getTimeInMillis() - getJvmUptimeMillis());
     return calendar.getTime();
+  }
+
+  NodeHealth(NodeStats nodesStats) {
+    // Master/slave
+    setMaster(nodesStats.getNode().isMasterNode());
+
+    // JVM Heap Usage
+    setJvmHeapMax(nodesStats.getJvm().getMem().getHeapMax().bytes());
+    setJvmHeapUsed(nodesStats.getJvm().getMem().getHeapUsed().bytes());
+
+    // OS Memory Usage ?
+    // nodesStats.getOs().getMem().freePercent();
+
+    // Disk Usage
+    setFsTotal(nodesStats.getFs().getTotal().getTotal().bytes());
+    setFsAvailable(nodesStats.getFs().getTotal().getAvailable().bytes());
+
+    // Ping ?
+
+    // Threads
+    setJvmThreads(nodesStats.getJvm().getThreads().count());
+
+    // CPU
+    if(nodesStats.getProcess().getCpu() != null) {
+      setProcessCpuPercent(nodesStats.getProcess().cpu().getPercent());
+    }
+
+    // Open Files
+    setOpenFiles(nodesStats.getProcess().getOpenFileDescriptors());
+
+    // Uptime
+    setJvmUptimeMillis(nodesStats.getJvm().getUptime().getMillis());
   }
 }

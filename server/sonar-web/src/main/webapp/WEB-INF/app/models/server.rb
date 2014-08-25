@@ -76,17 +76,12 @@ class Server
     sonar_info
   end
 
-  def search_info
+  def cluster_info
     search_info=[]
     search_health = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerSearch::SearchHealth.java_class)
-    node_health = search_health.getNodeHealth()
+    node_health = search_health.getClusterHealth()
     add_property(search_info, 'Cluster State') { node_health.isClusterAvailable() ? 'Available' : 'Unavailable' }
-    add_property(search_info, 'JVM Heap Usage') { node_health.getJvmHeapUsedPercent() }
-    add_property(search_info, 'JVM Threads') { node_health.getJvmThreads() }
-    add_property(search_info, 'JVM Uptime') { Internal.i18n.ageFromNow(node_health.getJvmUpSince()) }
-    add_property(search_info, 'Disk Usage') { node_health.getFsUsedPercent() }
-    add_property(search_info, 'Open Files') { node_health.getOpenFiles() }
-    add_property(search_info, 'CPU Load Average') { node_health.getProcessCpuPercent() }
+    add_property(search_info, 'Number of Nodes') { node_health.getNumberOfNodes() }
 
     search_health.getIndexHealth().each do |name, index_health|
       add_property(search_info, "#{name} - Document Count") { index_health.getDocumentCount() }
@@ -95,6 +90,25 @@ class Server
     end
 
     search_info
+  end
+
+  def nodes_info
+    nodes_info=[]
+    search_health = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerSearch::SearchHealth.java_class)
+    search_health.getNodesHealth().each do |name, node_health|
+      node_info=[]
+      add_property(node_info, 'Node Name') { name }
+      add_property(node_info, 'Node Type') { node_health.isMaster() ? 'Master' : 'Slave' }
+      add_property(node_info, 'JVM Heap Usage') { node_health.getJvmHeapUsedPercent() }
+      add_property(node_info, 'JVM Threads') { node_health.getJvmThreads() }
+      add_property(node_info, 'JVM Uptime') { Internal.i18n.ageFromNow(node_health.getJvmUpSince()) }
+      add_property(node_info, 'Disk Usage') { node_health.getFsUsedPercent() }
+      add_property(node_info, 'Open Files') { node_health.getOpenFiles() }
+      add_property(node_info, 'CPU Load Average') { node_health.getProcessCpuPercent() }
+      nodes_info.push(node_info)
+    end
+
+    nodes_info
   end
 
   def sonar_plugins
