@@ -50,6 +50,6 @@ public class DefaultProjectClient implements ProjectClient {
   @SuppressWarnings({"rawtypes", "unchecked"})
   private Project jsonToProject(String json) {
     Map jsonRoot = (Map) JSONValue.parse(json);
-    return new DefaultProject((Map) jsonRoot);
+    return new DefaultProject(jsonRoot);
   }
 }

@@ -39,6 +39,8 @@ import org.sonar.wsclient.user.internal.DefaultUserClient;
 
 import javax.annotation.Nullable;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -63,7 +65,7 @@ public class SonarClient {
   final HttpRequestFactory requestFactory;
 
   private SonarClient(Builder builder) {
-    requestFactory = new HttpRequestFactory(builder.url)
+    this(new HttpRequestFactory(builder.url)
       .setLogin(builder.login)
       .setPassword(builder.password)
       .setProxyHost(builder.proxyHost)
@@ -71,7 +73,14 @@ public class SonarClient {
       .setProxyLogin(builder.proxyLogin)
       .setProxyPassword(builder.proxyPassword)
       .setConnectTimeoutInMilliseconds(builder.connectTimeoutMs)
-      .setReadTimeoutInMilliseconds(builder.readTimeoutMs);
+      .setReadTimeoutInMilliseconds(builder.readTimeoutMs));
+  }
+
+  /**
+   * Visible for testing
+   */
+  SonarClient(HttpRequestFactory requestFactory) {
+    this.requestFactory = requestFactory;
   }
 
   /**
@@ -117,7 +126,7 @@ public class SonarClient {
   }
 
   /**
-   * New client to interact with web services related to quality profilesgates
+   * New client to interact with web services related to quality profiles
    */
   public QProfileClient qProfileClient() {
     return new DefaultQProfileClient(requestFactory);
@@ -143,7 +152,15 @@ public class SonarClient {
   }
 
   /**
-   * Send a POST request on the given relativeUrl, with provided parameters (can be empty)
+   * Send a POST request on the given relativeUrl, with provided parameters (can be empty).
+   * The beginning slash (/) of relativeUrl is supported but not mandatory.
+   * <p/>
+   * Example:
+   * <pre>  {@code
+   *   Map<String,Object> params = new HashMap<>();
+   *   params.put("name", "My Quality Gate");
+   *   client.post("api/qualitygates/create", params);
+   * }</pre>
    * @since 4.5
    * @return the response body
    */
@@ -152,12 +169,46 @@ public class SonarClient {
   }
 
   /**
-   * Send a GET request on the given relativeUrl, with provided parameters (can be empty)
+   * Same as {@link #post(String, java.util.Map)} but parameters are defined as an array
+   * of even number of elements (key1, value1, key, value2, ...). Keys must not be null.
+   */
+  public String post(String relativeUrl, Object... params) {
+    return post(relativeUrl, paramsAsMap(params));
+  }
+
+  /**
+   * Send a GET request on the given relativeUrl, with provided parameters (can be empty).
+   * The beginning slash (/) of relativeUrl is supported but not mandatory.
    * @since 4.5
    * @return the response body
    */
   public String get(String relativeUrl, Map<String, Object> params) {
     return requestFactory.get(relativeUrl, params);
+  }
+
+  /**
+   * Same as {@link #get(String, java.util.Map)} but parameters are defined as an array
+   * of even number of elements (key1, value1, key, value2, ...). Keys must not be null.
+   */
+  public String get(String relativeUrl, Object... params) {
+    return get(relativeUrl, paramsAsMap(params));
+  }
+
+  private Map<String, Object> paramsAsMap(Object[] params) {
+    if (params.length % 2 == 1) {
+      throw new IllegalArgumentException(String.format(
+        "Expecting even number of elements. Got %s", Arrays.toString(params)));
+    }
+    Map<String, Object> map = new HashMap<String, Object>();
+    for (int index = 0; index < params.length; index++) {
+      if (params[index] == null) {
+        throw new IllegalArgumentException(String.format(
+          "Parameter key can't be null at index %d of %s", index, Arrays.toString(params)));
+      }
+      map.put(params[index].toString(), params[index + 1]);
+      index++;
+    }
+    return map;
   }
 
   public static class Builder {

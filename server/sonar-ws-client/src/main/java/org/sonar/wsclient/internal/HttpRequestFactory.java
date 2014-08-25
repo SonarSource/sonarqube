@@ -23,10 +23,13 @@ import com.github.kevinsawicki.http.HttpRequest;
 import org.sonar.wsclient.base.HttpException;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Map;
 
-import static java.net.HttpURLConnection.*;
+import static java.net.HttpURLConnection.HTTP_CREATED;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
 
 /**
  * Not an API. Please do not use this class, except maybe for unit tests.
@@ -122,13 +125,23 @@ public class HttpRequestFactory {
   }
 
   public String get(String wsUrl, Map<String, Object> queryParams) {
-    HttpRequest request = prepare(HttpRequest.get(baseUrl + wsUrl, queryParams, true));
+    HttpRequest request = prepare(HttpRequest.get(buildUrl(wsUrl), queryParams, true));
     return execute(request);
   }
 
   public String post(String wsUrl, Map<String, Object> queryParams) {
-    HttpRequest request = prepare(HttpRequest.post(baseUrl + wsUrl, true)).form(queryParams, HttpRequest.CHARSET_UTF8);
+    HttpRequest request = prepare(HttpRequest.post(buildUrl(wsUrl), true)).form(queryParams, HttpRequest.CHARSET_UTF8);
     return execute(request);
+  }
+
+  private String buildUrl(String part) {
+    StringBuilder url = new StringBuilder();
+    url.append(baseUrl);
+    if (!part.startsWith("/")) {
+      url.append('/');
+    }
+    url.append(part);
+    return url.toString();
   }
 
   private String execute(HttpRequest request) {

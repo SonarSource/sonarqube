@@ -123,6 +123,16 @@ public class HttpRequestFactoryTest {
   }
 
   @Test
+  public void beginning_slash_is_optional() throws Exception {
+    HttpRequestFactory factory = new HttpRequestFactory(httpServer.url());
+    factory.get("api/foo", Collections.<String, Object>emptyMap());
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/foo");
+
+    factory.get("/api/bar", Collections.<String, Object>emptyMap());
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/bar");
+  }
+
+  @Test
   public void should_encode_characters() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.stubResponseBody("{\"issues\": [{\"key\": \"ABCDE\"}]}");

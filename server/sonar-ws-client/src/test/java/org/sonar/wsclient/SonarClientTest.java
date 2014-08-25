@@ -19,7 +19,10 @@
  */
 package org.sonar.wsclient;
 
+import org.fest.assertions.MapAssert;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.issue.internal.DefaultActionPlanClient;
 import org.sonar.wsclient.issue.internal.DefaultIssueClient;
 import org.sonar.wsclient.permissions.internal.DefaultPermissionClient;
@@ -29,8 +32,13 @@ import org.sonar.wsclient.qualitygate.internal.DefaultQualityGateClient;
 import org.sonar.wsclient.system.internal.DefaultSystemClient;
 import org.sonar.wsclient.user.internal.DefaultUserClient;
 
+import java.util.Map;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class SonarClientTest {
   @Test
@@ -101,5 +109,60 @@ public class SonarClientTest {
     assertThat(client.requestFactory.getProxyPort()).isEqualTo(2052);
     assertThat(client.requestFactory.getProxyLogin()).isEqualTo("proxyLogin");
     assertThat(client.requestFactory.getProxyPassword()).isEqualTo("proxyPass");
+  }
+
+  @Test
+  public void get() throws Exception {
+    HttpRequestFactory requestFactory = mock(HttpRequestFactory.class);
+    SonarClient client = new SonarClient(requestFactory);
+
+    client.get("api/foo", "key", "the_key", "max", 10);
+
+    ArgumentCaptor<Map> paramsCapture = ArgumentCaptor.forClass(Map.class);
+    verify(requestFactory).get(eq("api/foo"), paramsCapture.capture());
+    Map params = paramsCapture.getValue();
+    assertThat(params).hasSize(2);
+    assertThat(params).includes(MapAssert.entry("key", "the_key"));
+    assertThat(params).includes(MapAssert.entry("max", 10));
+  }
+
+  @Test
+  public void post() throws Exception {
+    HttpRequestFactory requestFactory = mock(HttpRequestFactory.class);
+    SonarClient client = new SonarClient(requestFactory);
+
+    client.post("api/foo", "max", 10);
+
+    ArgumentCaptor<Map> paramsCapture = ArgumentCaptor.forClass(Map.class);
+    verify(requestFactory).post(eq("api/foo"), paramsCapture.capture());
+    Map params = paramsCapture.getValue();
+    assertThat(params).hasSize(1);
+    assertThat(params).includes(MapAssert.entry("max", 10));
+  }
+
+  @Test
+  public void fail_if_odd_number_arguments() throws Exception {
+    HttpRequestFactory requestFactory = mock(HttpRequestFactory.class);
+    SonarClient client = new SonarClient(requestFactory);
+
+    try {
+      client.post("api/foo", "max", 10, "min");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Expecting even number of elements. Got [max, 10, min]");
+    }
+  }
+
+  @Test
+  public void fail_if_null_property_key() throws Exception {
+    HttpRequestFactory requestFactory = mock(HttpRequestFactory.class);
+    SonarClient client = new SonarClient(requestFactory);
+
+    try {
+      client.post("api/foo", "max", 10, null, 5);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Parameter key can't be null at index 2 of [max, 10, null, 5]");
+    }
   }
 }
