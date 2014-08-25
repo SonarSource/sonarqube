@@ -14,7 +14,13 @@
   var selectList = new SelectList({
     el: '#select-list-user',
     width: '100%',
-    format: function (item) { return item.name + ' <div class="subtitle">' + item.description + '</div>'; },
+    format: function (item) {
+      var label = item.name;
+      if (item.description) {
+        label += ' <div class="subtitle">' + item.description + '</div>'
+      }
+      return label;
+    },
     searchUrl: baseUrl + '/user_groups/search?user=<%= @user.login -%>',
     selectUrl: baseUrl + '/groups/add_member',
     deselectUrl: baseUrl + '/groups/remove_member',
