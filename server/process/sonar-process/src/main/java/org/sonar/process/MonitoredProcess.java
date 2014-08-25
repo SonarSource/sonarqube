@@ -91,7 +91,12 @@ public abstract class MonitoredProcess implements ProcessMXBean {
     }
     LOGGER.debug("Process[{}] starting", name);
     scheduleAutokill(this.isMonitored);
-    doStart();
+    try {
+      doStart();
+    } catch (Exception e) {
+      LOGGER.error("Could not start process: {}", e);
+      this.terminate();
+    }
     LOGGER.debug("Process[{}] started", name);
   }
 

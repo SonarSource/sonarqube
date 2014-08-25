@@ -119,12 +119,14 @@ public class SearchServer extends MonitoredProcess {
       .put("path.logs", esLogDir().getAbsolutePath());
 
     if (!nodes.isEmpty()) {
+
       LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with masters: {}", nodes);
       esSettings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(nodes, ","));
-
+      esSettings.put("node.master", false);
       // Enforce a N/2+1 number of masters in cluster
-      esSettings.put("discovery.zen.minimum_master_nodes",
-        (int) Math.floor(nodes.size() / 2.0) + 1);
+      esSettings.put("discovery.zen.minimum_master_nodes", 1);
+      // Change master pool requirement when in distributed mode
+      // esSettings.put("discovery.zen.minimum_master_nodes", (int) Math.floor(nodes.size() / 2.0) + 1);
     }
 
     // Set cluster coordinates
