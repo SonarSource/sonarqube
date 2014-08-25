@@ -89,27 +89,19 @@
             <% end %>
 
             <% if @snapshot %>
-            <li class="spacer"></li>
-            <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
-            <li class="<%= 'active' if request.request_uri.include?('/components/index') -%>">
-              <a href="<%= ApplicationController.root_context -%>/components/index/<%= @project.id -%>"><%= message('components.page') -%></a>
-            </li>
-            <li class="<%= 'active' if request.request_uri.include?('/drilldown/issues') -%>">
-              <a href="<%= ApplicationController.root_context -%>/drilldown/issues/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('issues_drilldown.page') -%></a>
-            </li>
-              <% project_metrics = @project.last_snapshot.metric_keys.to_java(:string) if @project.last_snapshot
-                controller.java_facade.getPages(Navigation::SECTION_RESOURCE.key, @project.scope, @project.qualifier, @project.language, project_metrics).each do |page|
-                page_url = (page.isController() ? "#{page.getId()}?id=#{@project.id}" : "/plugins/resource/#{@project.id}?page=#{page.getId()}")
-              %>
-              <li class="<%= 'active' if request.request_uri.include?(page_url) -%>">
-                <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= h message(page.getId() + '.page', :default => page.getTitle()) -%></a>
+              <li class="spacer"></li>
+              <li class="sidebar-title"><%= message('sidebar.tools') -%></li>
+              <li class="<%= 'active' if request.request_uri.include?('/components/index') -%>">
+                <a href="<%= ApplicationController.root_context -%>/components/index/<%= @project.id -%>"><%= message('components.page') -%></a>
               </li>
-              <% end %>
+              <li class="<%= 'active' if request.request_uri.include?('/drilldown/issues') -%>">
+                <a href="<%= ApplicationController.root_context -%>/drilldown/issues/<%= @project.id -%><%= "?"+period_param if period_param -%>"><%= message('issues_drilldown.page') -%></a>
+              </li>
               <li class="<%= 'active' if request.request_uri.include?('/design/index') -%>">
-                <a href="<%= ApplicationController.root_context -%>/design/index/<%= @project.key -%>">Design (NEW)</a>
+                <a href="<%= ApplicationController.root_context -%>/design/index/<%= @project.key -%>"><%= message('design.page') -%></a>
               </li>
               <li class="<%= 'active' if request.request_uri.include?('/libraries/index') -%>">
-                <a href="<%= ApplicationController.root_context -%>/libraries/index/<%= @project.key -%>">Libraries (NEW)</a>
+                <a href="<%= ApplicationController.root_context -%>/libraries/index/<%= @project.key -%>"><%= message('libraries.page') -%></a>
               </li>
               <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'comparable') %>
               <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
