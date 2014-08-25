@@ -43,7 +43,7 @@ public class DummyProcess extends MonitoredProcess {
   }
 
   protected DummyProcess(Props props) throws Exception {
-    this(props, false);
+    super(props);
   }
 
   @Override

@@ -40,6 +40,15 @@ public class Props {
     return properties.containsKey(key);
   }
 
+  public boolean containsValue(String value) {
+    for (Object propertyValue : properties.values()) {
+      if (propertyValue.toString().contains(value)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @CheckForNull
   public String of(String key) {
     String value = properties.getProperty(key);

@@ -21,6 +21,7 @@ package org.sonar.search;
 
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.common.annotations.VisibleForTesting;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.Node;
@@ -58,7 +59,8 @@ public class SearchServer extends MonitoredProcess {
 
   private Node node;
 
-  public SearchServer(final Props props, boolean monitored, boolean blocking) {
+  @VisibleForTesting
+  SearchServer(final Props props, boolean monitored, boolean blocking) {
     super(props, monitored);
 
     this.isBlocking = blocking;
@@ -71,7 +73,14 @@ public class SearchServer extends MonitoredProcess {
   }
 
   public SearchServer(Props props) {
-    this(props, true, true);
+    super(props);
+    this.isBlocking = false;
+    new MinimumViableSystem().check();
+
+    String esNodesInets = props.of(ES_CLUSTER_INET);
+    if (StringUtils.isNotEmpty(esNodesInets)) {
+      Collections.addAll(nodes, esNodesInets.split(","));
+    }
   }
 
   @Override

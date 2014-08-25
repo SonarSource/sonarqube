@@ -32,9 +32,10 @@ public abstract class MonitoredProcess implements ProcessMXBean {
 
   private final static Logger LOGGER = LoggerFactory.getLogger(MonitoredProcess.class);
 
-  public static final String NAME_PROPERTY = "pName";
+  private static final String DEBUG_AGENT = "-agentlib:jdwp";
   private static final long AUTOKILL_TIMEOUT_MS = 30000L;
   private static final long AUTOKILL_CHECK_DELAY_MS = 2000L;
+  public static final String NAME_PROPERTY = "pName";
   public static final String MISSING_NAME_ARGUMENT = "Missing Name argument";
 
   private Long lastPing;
@@ -50,7 +51,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
   private final boolean isMonitored;
 
   protected MonitoredProcess(Props props) {
-    this(props, false);
+    this(props, !props.containsValue(DEBUG_AGENT));
   }
 
   protected MonitoredProcess(Props props, boolean monitor) {
@@ -152,6 +153,10 @@ public abstract class MonitoredProcess implements ProcessMXBean {
 
   public boolean isTerminated() {
     return terminated && monitor == null;
+  }
+
+  public boolean isMonitored() {
+    return this.isMonitored;
   }
 
   @Override

@@ -44,6 +44,27 @@ public class MonitoredProcessTest {
     assertThat(dummyProcess).isNotNull();
   }
 
+  @Test
+  public void should_not_monitor_debug() throws Exception {
+    Properties properties = new Properties();
+    properties.setProperty(MonitoredProcess.NAME_PROPERTY, DummyProcess.NAME);
+    properties.setProperty("sonar.search.javaOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005");
+    DummyProcess dummyProcess = new DummyProcess(new Props(properties));
+
+    assertThat(dummyProcess.isMonitored()).isFalse();
+  }
+
+  @Test
+  public void should_monitor_by_default() throws Exception {
+    Properties properties = new Properties();
+    properties.setProperty(MonitoredProcess.NAME_PROPERTY, DummyProcess.NAME);
+    properties.setProperty("sonar.search.javaOpts", "hello world");
+    DummyProcess dummyProcess = new DummyProcess(new Props(properties));
+
+    assertThat(dummyProcess.isMonitored()).isTrue();
+  }
+
+
   @Test(timeout = 3000L)
   public void monitor_dies_when_no_pings() throws Exception {
     Properties properties = new Properties();
