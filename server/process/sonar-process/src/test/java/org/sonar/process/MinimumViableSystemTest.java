@@ -48,13 +48,13 @@ public class MinimumViableSystemTest {
 
     // yes, sources are compiled with a supported Java version!
     mve.checkJavaVersion();
+    mve.checkJavaVersion("1.6");
 
-    mve.checkJavaVersion("1.6.1_b2");
     try {
-      mve.checkJavaVersion("1.5.2");
+      mve.checkJavaVersion("1.9");
       fail();
     } catch (MessageException e) {
-      Assertions.assertThat(e).hasMessage("Minimal required Java version is 1.6. Got 1.5.2.");
+      Assertions.assertThat(e).hasMessage("Supported versions of Java are 1.6, 1.7 and 1.8. Got 1.9.");
     }
   }
 

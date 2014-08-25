@@ -70,14 +70,14 @@ public class MinimumViableSystem {
   }
 
   void checkJavaVersion() {
-    String javaVersion = System.getProperty("java.version");
+    String javaVersion = System.getProperty("java.specification.version");
     checkJavaVersion(javaVersion);
   }
 
   void checkJavaVersion(String javaVersion) {
-    if (javaVersion.startsWith("1.3") || javaVersion.startsWith("1.4") || javaVersion.startsWith("1.5")) {
+    if (!javaVersion.startsWith("1.6") && !javaVersion.startsWith("1.7") && !javaVersion.startsWith("1.8")) {
       // still better than "java.lang.UnsupportedClassVersionError: Unsupported major.minor version 49.0
-      throw new MessageException(String.format("Minimal required Java version is 1.6. Got %s.", javaVersion));
+      throw new MessageException(String.format("Supported versions of Java are 1.6, 1.7 and 1.8. Got %s.", javaVersion));
     }
   }
 
