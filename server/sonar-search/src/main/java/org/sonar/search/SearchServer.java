@@ -120,7 +120,7 @@ public class SearchServer extends MonitoredProcess {
 
     if (!nodes.isEmpty()) {
 
-      LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with masters: {}", nodes);
+      LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with master: {}", nodes);
       esSettings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(nodes, ","));
       esSettings.put("node.master", false);
       // Enforce a N/2+1 number of masters in cluster
