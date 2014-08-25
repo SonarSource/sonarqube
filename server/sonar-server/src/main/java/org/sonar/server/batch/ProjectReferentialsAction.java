@@ -123,6 +123,7 @@ public class ProjectReferentialsAction implements RequestHandler {
         } else {
           // Add settings of the provisioned project
           addSettings(ref, projectOrModuleKey, getPropertiesMap(propertiesDao.selectProjectProperties(projectOrModuleKey, session), hasScanPerm));
+          projectKey = projectOrModuleKey;
         }
       }
 

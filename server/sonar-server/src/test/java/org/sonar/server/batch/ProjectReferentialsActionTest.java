@@ -211,6 +211,21 @@ public class ProjectReferentialsActionTest {
   }
 
   @Test
+  public void return_provisioned_project_profile() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+
+    // No root project will be found on provisioned project
+    when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(null);
+
+    when(qProfileFactory.getByProjectAndLanguage(session, project.key(), "java")).thenReturn(
+      QualityProfileDto.createFor("abcd").setName("SonarQube way").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
+    );
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
+    request.execute().assertJson(getClass(), "return_provisioned_project_profile.json");
+  }
+
+  @Test
   public void return_sub_module_settings() throws Exception {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
 
@@ -300,7 +315,7 @@ public class ProjectReferentialsActionTest {
     String projectKey = "org.codehaus.sonar:sonar";
 
     when(qProfileFactory.getByProjectAndLanguage(session, projectKey, "java")).thenReturn(
-      QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
+      QualityProfileDto.createFor("abcd").setName("SonarQube way").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
       );
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
