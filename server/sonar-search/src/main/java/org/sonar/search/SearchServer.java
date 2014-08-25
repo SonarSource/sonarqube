@@ -60,7 +60,7 @@ public class SearchServer extends MonitoredProcess {
   private Node node;
 
   @VisibleForTesting
-  SearchServer(final Props props, boolean monitored, boolean blocking) {
+  public SearchServer(final Props props, boolean monitored, boolean blocking) {
     super(props, monitored);
 
     this.isBlocking = blocking;
