@@ -101,9 +101,8 @@ define(['handlebars'], function (Handlebars) {
   Handlebars.registerHelper('eachChanged', function (context, property, options) {
     var ret = '';
     context.forEach(function (d, i) {
-      var changed = i > 0 ? d[property] !== context[i - 1][property] : true;
+      var changed = i > 0 ? d[property] !== context[i - 1][property] : true,
           c = _.extend({ changed: changed }, d);
-      console.log(d[property], i > 0 ? context[i - 1][property] : '');
       ret += options.fn(c);
     });
     return ret;
