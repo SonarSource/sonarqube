@@ -74,7 +74,7 @@ public class SearchServer extends MonitoredProcess {
 
   public SearchServer(Props props) {
     super(props);
-    this.isBlocking = false;
+    this.isBlocking = true;
     new MinimumViableSystem().check();
 
     String esNodesInets = props.of(ES_CLUSTER_INET);

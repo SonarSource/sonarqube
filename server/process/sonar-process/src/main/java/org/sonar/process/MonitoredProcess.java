@@ -32,7 +32,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
 
   private final static Logger LOGGER = LoggerFactory.getLogger(MonitoredProcess.class);
 
-  private static final String DEBUG_AGENT = "-agentlib:jdwp";
+  public static final String DEBUG_AGENT = "-agentlib:jdwp";
   private static final long AUTOKILL_TIMEOUT_MS = 30000L;
   private static final long AUTOKILL_CHECK_DELAY_MS = 2000L;
   public static final String NAME_PROPERTY = "pName";

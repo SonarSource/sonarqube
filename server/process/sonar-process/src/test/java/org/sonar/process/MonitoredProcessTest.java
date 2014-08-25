@@ -78,18 +78,12 @@ public class MonitoredProcessTest {
         dummyProcess.start();
       }
     });
-    assertThat(dummyProcess.isReady()).isFalse();
-    assertThat(dummyProcess.isTerminated()).isFalse();
+    assertProcessNotYetRunning(dummyProcess);
     process.start();
     Thread.sleep(100);
-    assertThat(dummyProcess.isReady()).isTrue();
-    assertThat(dummyProcess.isTerminated()).isFalse();
-    process.join();
-    assertThat(dummyProcess.isReady()).isTrue();
-    assertThat(dummyProcess.isTerminated()).isTrue();
 
-    assertThat(dummyProcess.getCheckFile()).isNotNull();
-    assertThat(dummyProcess.getCheckFile().getName()).isEqualTo(DummyProcess.CHECKFILE_NAME);
+    assertProcessRunning(dummyProcess);
+    assertJoinAndTerminate(dummyProcess, process);
   }
 
   @Test(timeout = 3000L)
@@ -105,30 +99,23 @@ public class MonitoredProcessTest {
         dummyProcess.start();
       }
     });
-    assertThat(dummyProcess.isReady()).isFalse();
-    assertThat(dummyProcess.isTerminated()).isFalse();
+    assertProcessNotYetRunning(dummyProcess);
     process.start();
     Thread.sleep(100);
 
     int count = 0;
     for (int i = 0; i < 3; i++) {
       dummyProcess.ping();
-      assertThat(dummyProcess.isReady()).isTrue();
-      assertThat(dummyProcess.isTerminated()).isFalse();
+      assertProcessRunning(dummyProcess);
       Thread.sleep(300);
       count++;
     }
     assertThat(count).isEqualTo(3);
-    process.join();
-    assertThat(dummyProcess.isReady()).isTrue();
-    assertThat(dummyProcess.isTerminated()).isTrue();
-
-    assertThat(dummyProcess.getCheckFile()).isNotNull();
-    assertThat(dummyProcess.getCheckFile().getName()).isEqualTo(DummyProcess.CHECKFILE_NAME);
+    assertJoinAndTerminate(dummyProcess, process);
   }
 
   @Test(timeout = 3000L)
-  public void monitor_explicitely_shutdown() throws Exception {
+  public void monitor_explicitly_shutdown() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(MonitoredProcess.NAME_PROPERTY, DummyProcess.NAME);
     final DummyProcess dummyProcess = new DummyProcess(new Props(properties), true);
@@ -139,17 +126,63 @@ public class MonitoredProcessTest {
         dummyProcess.start();
       }
     });
-    assertThat(dummyProcess.isReady()).isFalse();
-    assertThat(dummyProcess.isTerminated()).isFalse();
+    assertProcessNotYetRunning(dummyProcess);
     process.start();
     Thread.sleep(100);
-    assertThat(dummyProcess.isReady()).isTrue();
-    assertThat(dummyProcess.isTerminated()).isFalse();
+    assertProcessRunning(dummyProcess);
     dummyProcess.terminate();
     Thread.sleep(100);
+    assertProcessTerminated(dummyProcess);
+  }
+
+  @Test(timeout = 1000L)
+  public void process_does_not_die_when_debugged() throws Exception {
+    Properties properties = new Properties();
+    properties.setProperty(MonitoredProcess.NAME_PROPERTY, DummyProcess.NAME);
+    properties.setProperty("sonar.search.javaOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005");
+
+    final DummyProcess dummyProcess = new DummyProcess(new Props(properties));
+    assertThat(dummyProcess.isMonitored()).isFalse();
+
+    dummyProcess.setTimeout(100L).setCheckDelay(100L);
+    Thread process = new Thread(new Runnable() {
+      @Override
+      public void run() {
+        dummyProcess.start();
+      }
+    });
+    process.start();
+    Thread.sleep(600);
+
+    assertProcessRunning(dummyProcess);
+    dummyProcess.terminate();
+    assertProcessTerminated(dummyProcess);
+  }
+
+
+  private void assertJoinAndTerminate(DummyProcess dummyProcess, Thread process) throws InterruptedException {
+    process.join();
+    assertProcessTerminated(dummyProcess);
+  }
+
+  private void assertProcessTerminated(DummyProcess dummyProcess) {
     assertThat(dummyProcess.isReady()).isTrue();
     assertThat(dummyProcess.isTerminated()).isTrue();
+    assertProcessCreatedFile(dummyProcess);
+  }
 
+  private void assertProcessNotYetRunning(DummyProcess dummyProcess) {
+    assertThat(dummyProcess.isReady()).isFalse();
+    assertThat(dummyProcess.isTerminated()).isFalse();
+  }
+
+  private void assertProcessRunning(DummyProcess dummyProcess) throws InterruptedException {
+    assertThat(dummyProcess.isReady()).isTrue();
+    assertThat(dummyProcess.isTerminated()).isFalse();
+  }
+
+
+  private void assertProcessCreatedFile(DummyProcess dummyProcess) {
     assertThat(dummyProcess.getCheckFile()).isNotNull();
     assertThat(dummyProcess.getCheckFile().getName()).isEqualTo(DummyProcess.CHECKFILE_NAME);
   }

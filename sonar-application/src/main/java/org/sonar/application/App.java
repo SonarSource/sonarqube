@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.JmxUtils;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitor;
+import org.sonar.process.MonitoredProcess;
 import org.sonar.process.ProcessLogging;
 import org.sonar.process.ProcessMXBean;
 import org.sonar.process.ProcessUtils;
@@ -56,6 +57,12 @@ public class App implements ProcessMXBean {
   public void start(Props props) throws InterruptedException {
     try {
       Logger logger = LoggerFactory.getLogger(getClass());
+
+      if (props.containsValue(MonitoredProcess.DEBUG_AGENT)) {
+        logger.info("**********************************************************");
+        logger.info("*   sonarQube is running in debug mode. No monitoring    *");
+        logger.info("**********************************************************");
+      }
       monitor.start();
 
       File homeDir = props.fileOf("sonar.path.home");
