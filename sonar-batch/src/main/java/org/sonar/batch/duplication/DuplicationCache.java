@@ -38,7 +38,6 @@ public class DuplicationCache implements BatchComponent {
 
   public DuplicationCache(Caches caches) {
     caches.registerValueCoder(DuplicationGroup.class, new DuplicationGroupValueCoder());
-    caches.registerValueCoder(DuplicationGroup.Block.class, new DuplicationBlockValueCoder());
     cache = caches.createCache("duplications");
   }
 

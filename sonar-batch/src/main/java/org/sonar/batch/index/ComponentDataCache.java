@@ -20,6 +20,8 @@
 package org.sonar.batch.index;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.batch.highlighting.SyntaxHighlightingData;
+import org.sonar.batch.highlighting.SyntaxHighlightingDataValueCoder;
 
 import javax.annotation.CheckForNull;
 
@@ -27,6 +29,7 @@ public class ComponentDataCache implements BatchComponent {
   private final Cache cache;
 
   public ComponentDataCache(Caches caches) {
+    caches.registerValueCoder(SyntaxHighlightingData.class, new SyntaxHighlightingDataValueCoder());
     cache = caches.createCache("componentData");
   }
 

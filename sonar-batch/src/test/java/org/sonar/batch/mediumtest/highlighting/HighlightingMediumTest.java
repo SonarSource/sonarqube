@@ -104,13 +104,14 @@ public class HighlightingMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     File xoohighlightingFile = new File(srcDir, "sample.xoo.highlighting");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
-    int chunkSize = 10000;
+    int chunkSize = 100000;
     StringBuilder sb = new StringBuilder(16 * chunkSize);
     for (int i = 0; i < chunkSize; i++) {
       sb.append(i).append(":").append(i + 1).append(":s\n");
     }
     FileUtils.write(xoohighlightingFile, sb.toString());
 
+    long start = System.currentTimeMillis();
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
@@ -122,6 +123,7 @@ public class HighlightingMediumTest {
         .put("sonar.sources", "src")
         .build())
       .start();
+    System.out.println("Duration: " + (System.currentTimeMillis() - start));
 
     InputFile file = result.inputFiles().get(0);
     assertThat(result.highlightingTypeFor(file, 0)).isEqualTo(HighlightingBuilder.TypeOfText.STRING);
