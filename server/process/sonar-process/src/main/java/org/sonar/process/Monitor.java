@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Monitor extends Thread implements Terminable {
 
-  private final static Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
 
   private static final long PING_DELAY_MS = 3000L;
 

@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class MonitoredProcess implements ProcessMXBean {
 
-  private final static Logger LOGGER = LoggerFactory.getLogger(MonitoredProcess.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MonitoredProcess.class);
 
   private static final long AUTOKILL_TIMEOUT_MS = 30000L;
   private static final long AUTOKILL_CHECK_DELAY_MS = 2000L;
