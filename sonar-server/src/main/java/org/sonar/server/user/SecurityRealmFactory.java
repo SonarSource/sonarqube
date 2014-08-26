@@ -41,23 +41,24 @@ import org.sonar.api.utils.SonarException;
  * @since 2.14
  */
 public class SecurityRealmFactory implements ServerComponent, Startable {
+  
+  private final Logger logger = LoggerFactory.getLogger(SecurityRealmFactory.class.getName());
 
   private final boolean ignoreStartupFailure;
-  private final SecurityRealm realm;
+  private final Settings settings;
+  private final SecurityRealm[] availableSecurityRealms;
+  private final LoginPasswordAuthenticator[] loginPasswordAuthenticators;
+  private SecurityRealm realm;
 
   public SecurityRealmFactory(Settings settings,
       SecurityRealm[] realms,
       LoginPasswordAuthenticator[] loginPasswordAuthenticators) {
+    
+    this.settings = settings;
+    this.availableSecurityRealms = realms;
+    this.loginPasswordAuthenticators = loginPasswordAuthenticators;
+    
     ignoreStartupFailure = settings.getBoolean(CoreProperties.CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE);
-
-    SecurityRealm selectedRealm = selectExistingRealm(settings, realms);
-    if (selectedRealm == null) {
-      selectedRealm = selectLoginPasswordAuthenticator(settings, loginPasswordAuthenticators);
-    }
-    if (selectedRealm == null) {
-      selectedRealm = selectCustomSecurityRealm(settings, realms);
-    }
-    realm = selectedRealm;
   }
 
   public SecurityRealmFactory(Settings settings, LoginPasswordAuthenticator[] authenticators) {
@@ -74,19 +75,13 @@ public class SecurityRealmFactory implements ServerComponent, Startable {
 
   @Override
   public void start() {
-    Logger logger = LoggerFactory.getLogger(SecurityRealmFactory.class.getName());
+    initSecurityRealms();
+    initLoginPasswordAuthenticators();
+    logAvailableSecurityRealms(availableSecurityRealms);
+    
+    realm = determineMatchingSecurityRealm(settings, availableSecurityRealms, loginPasswordAuthenticators);
     if (realm != null) {
-      try {
-        logger.info("Security realm: " + realm.getName());
-        realm.init();
-        logger.info("Security realm started");
-      } catch (RuntimeException e) {
-        if (ignoreStartupFailure) {
-          logger.error("IGNORED - Security realm fails to start: " + e.getMessage());
-        } else {
-          throw new SonarException("Security realm fails to start: " + e.getMessage(), e);
-        }
-      }
+      logger.info("Using security realm: {}", realm);
     } else {
       logger.info("No security realm is set.");
     }
@@ -97,8 +92,90 @@ public class SecurityRealmFactory implements ServerComponent, Startable {
     // nothing
   }
 
+  private void initSecurityRealms() {
+    for (SecurityRealm securityRealm : availableSecurityRealms) {
+      try {
+        logger.info("Starting security realm: " + securityRealm.getName());
+        securityRealm.init();
+      } catch (RuntimeException e) {
+        if (ignoreStartupFailure) {
+          logger.error("IGNORED - Security realm fails to start: " + e.getMessage());
+        } else {
+          throw new SonarException("Security realm fails to start: " + e.getMessage(), e);
+        }
+      }
+    }
+    logger.info("Security realms started.");
+  }
+
+  private void initLoginPasswordAuthenticators() {
+    for (LoginPasswordAuthenticator loginPasswordAuthenticator : loginPasswordAuthenticators) {
+      try {
+        logger.info("Starting login password authenticator: " + loginPasswordAuthenticator.getClass().getName());
+        loginPasswordAuthenticator.init();
+      } catch (RuntimeException e) {
+        if (ignoreStartupFailure) {
+          logger.error("IGNORED - Login password authenticator fails to start: " + e.getMessage());
+        } else {
+          throw new SonarException("Login password authenticator fails to start: " + e.getMessage(), e);
+        }
+      }
+    }
+    logger.info("Login password authenticators started.");
+  }
+
+  private SecurityRealm determineMatchingSecurityRealm(Settings settings,
+      SecurityRealm[] realms,
+      LoginPasswordAuthenticator[] loginPasswordAuthenticators) {
+  
+    SecurityRealm selectedRealm = selectSecurityRealmFromSettings(settings, realms);
+    if (selectedRealm == null) {
+      selectedRealm = selectSecurityRealmFromCoreAuthenticatorClass(settings, loginPasswordAuthenticators);
+    }
+    if (selectedRealm == null) {
+      selectedRealm = selectCustomSecurityRealm(settings, realms);
+    }
+    return selectedRealm;
+  }
+
+  private void logAvailableSecurityRealms(SecurityRealm[] realms) {
+    StringBuilder sb = new StringBuilder("Available security realms: ");
+    for (SecurityRealm realm : realms) {
+      sb.append(realm.toString());
+      sb.append(", ");
+    }
+    logger.info(sb.toString());
+  }
+
   public SecurityRealm getRealm() {
     return realm;
+  }
+
+  private static SecurityRealm selectSecurityRealmFromSettings(Settings settings, SecurityRealm[] availableRealms) {
+    String realmName = settings.getString(CoreProperties.CORE_AUTHENTICATOR_REALM);
+    SecurityRealm selectedRealm = null;
+    if (!StringUtils.isEmpty(realmName)) {
+      selectedRealm = selectRealm(availableRealms, realmName);
+      if (selectedRealm == null) {
+        throw new SonarException(String.format(
+          "Realm '%s' not found. Please check the property '%s' in conf/sonar.properties", realmName, CoreProperties.CORE_AUTHENTICATOR_REALM));
+      }
+    }
+    return selectedRealm;
+  }
+
+  private static SecurityRealm selectSecurityRealmFromCoreAuthenticatorClass(Settings settings,
+      LoginPasswordAuthenticator[] loginPasswordAuthenticators) {
+    String className = settings.getString(CoreProperties.CORE_AUTHENTICATOR_CLASS);
+    if (!StringUtils.isEmpty(className)) {
+      LoginPasswordAuthenticator liPwAuthenticator = selectAuthenticator(loginPasswordAuthenticators, className);
+      if (liPwAuthenticator == null) {
+        throw new SonarException(String.format(
+          "Authenticator '%s' not found. Please check the property '%s' in conf/sonar.properties", className, CoreProperties.CORE_AUTHENTICATOR_CLASS));
+      }
+      return new CompatibilityRealm(liPwAuthenticator);
+    }
+    return null;
   }
 
   private static SecurityRealm selectCustomSecurityRealm(Settings settings, SecurityRealm[] realms) {
@@ -117,33 +194,6 @@ public class SecurityRealmFactory implements ServerComponent, Startable {
       selectGroupProvidersByName(groupProviderNames, groupProviders, realm);
     }
     return new CustomSecurityRealm(authenticators, userProviders, groupProviders);
-  }
-
-  private static SecurityRealm selectLoginPasswordAuthenticator(Settings settings,
-      LoginPasswordAuthenticator[] loginPasswordAuthenticators) {
-    String className = settings.getString(CoreProperties.CORE_AUTHENTICATOR_CLASS);
-    if (!StringUtils.isEmpty(className)) {
-      LoginPasswordAuthenticator liPwAuthenticator = selectAuthenticator(loginPasswordAuthenticators, className);
-      if (liPwAuthenticator == null) {
-        throw new SonarException(String.format(
-          "Authenticator '%s' not found. Please check the property '%s' in conf/sonar.properties", className, CoreProperties.CORE_AUTHENTICATOR_CLASS));
-      }
-      return new CompatibilityRealm(liPwAuthenticator);
-    }
-    return null;
-  }
-
-  private static SecurityRealm selectExistingRealm(Settings settings, SecurityRealm[] realms) {
-    String realmName = settings.getString(CoreProperties.CORE_AUTHENTICATOR_REALM);
-    SecurityRealm selectedRealm = null;
-    if (!StringUtils.isEmpty(realmName)) {
-      selectedRealm = selectRealm(realms, realmName);
-      if (selectedRealm == null) {
-        throw new SonarException(String.format(
-          "Realm '%s' not found. Please check the property '%s' in conf/sonar.properties", realmName, CoreProperties.CORE_AUTHENTICATOR_REALM));
-      }
-    }
-    return selectedRealm;
   }
 
   private static void selectGroupProvidersByName(List<String> groupProviderNames,

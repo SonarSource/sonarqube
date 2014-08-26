@@ -63,7 +63,7 @@ public class SecurityRealmFactoryTest {
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, "Fake");
 
     try {
-      new SecurityRealmFactory(settings);
+      new SecurityRealmFactory(settings).start();;
       fail();
     } catch (SonarException e) {
       assertThat(e.getMessage()).contains("Realm 'Fake' not found.");
@@ -76,6 +76,7 @@ public class SecurityRealmFactoryTest {
     LoginPasswordAuthenticator authenticator = new FakeAuthenticator();
 
     SecurityRealmFactory factory = new SecurityRealmFactory(settings, new LoginPasswordAuthenticator[]{authenticator});
+    factory.start();
     SecurityRealm realm = factory.getRealm();
     assertThat(realm).isInstanceOf(CompatibilityRealm.class);
   }
@@ -89,6 +90,7 @@ public class SecurityRealmFactoryTest {
 
     SecurityRealmFactory factory = new SecurityRealmFactory(settings, new SecurityRealm[]{realm},
       new LoginPasswordAuthenticator[]{authenticator});
+    factory.start();
     assertThat(factory.getRealm()).isSameAs(realm);
   }
 
@@ -97,7 +99,7 @@ public class SecurityRealmFactoryTest {
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, "Fake");
 
     try {
-      new SecurityRealmFactory(settings);
+      new SecurityRealmFactory(settings).start();
       fail();
     } catch (SonarException e) {
       assertThat(e.getMessage()).contains("Authenticator 'Fake' not found.");
