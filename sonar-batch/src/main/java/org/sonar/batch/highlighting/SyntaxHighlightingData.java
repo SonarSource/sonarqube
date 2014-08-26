@@ -47,7 +47,7 @@ public class SyntaxHighlightingData implements Data {
         .append(FIELD_SEPARATOR)
         .append(highlightingRule.getEndPosition())
         .append(FIELD_SEPARATOR)
-        .append(highlightingRule.getTextType())
+        .append(highlightingRule.getTextType().cssClass())
         .append(RULE_SEPARATOR);
     }
 

@@ -27,6 +27,9 @@ import org.junit.rules.ExpectedException;
 import java.util.Collection;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText.CLASSIC_COMMENT;
+import static org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText.CPP_DOC;
+import static org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText.KEYWORD;
 
 public class SyntaxHighlightingDataBuilderTest {
 
@@ -39,12 +42,12 @@ public class SyntaxHighlightingDataBuilderTest {
   public void setUpSampleRules() {
 
     SyntaxHighlightingDataBuilder highlightingDataBuilder = new SyntaxHighlightingDataBuilder();
-    highlightingDataBuilder.registerHighlightingRule(0, 10, "cd");
-    highlightingDataBuilder.registerHighlightingRule(10, 12, "k");
-    highlightingDataBuilder.registerHighlightingRule(24, 38, "k");
-    highlightingDataBuilder.registerHighlightingRule(42, 50, "k");
-    highlightingDataBuilder.registerHighlightingRule(24, 65, "cppd");
-    highlightingDataBuilder.registerHighlightingRule(12, 20, "cd");
+    highlightingDataBuilder.registerHighlightingRule(0, 10, CLASSIC_COMMENT);
+    highlightingDataBuilder.registerHighlightingRule(10, 12, KEYWORD);
+    highlightingDataBuilder.registerHighlightingRule(24, 38, KEYWORD);
+    highlightingDataBuilder.registerHighlightingRule(42, 50, KEYWORD);
+    highlightingDataBuilder.registerHighlightingRule(24, 65, CPP_DOC);
+    highlightingDataBuilder.registerHighlightingRule(12, 20, CLASSIC_COMMENT);
 
     highlightingRules = highlightingDataBuilder.getSyntaxHighlightingRuleSet();
   }
@@ -58,14 +61,14 @@ public class SyntaxHighlightingDataBuilderTest {
   public void should_order_by_start_then_end_offset() throws Exception {
     assertThat(highlightingRules).onProperty("startPosition").containsOnly(0, 10, 12, 24, 24, 42);
     assertThat(highlightingRules).onProperty("endPosition").containsOnly(10, 12, 20, 38, 65, 50);
-    assertThat(highlightingRules).onProperty("textType").containsOnly("cd", "k", "cd", "k", "cppd", "k");
+    assertThat(highlightingRules).onProperty("textType").containsOnly(CLASSIC_COMMENT, KEYWORD, CLASSIC_COMMENT, KEYWORD, CPP_DOC, KEYWORD);
   }
 
   @Test
   public void should_suport_overlapping() throws Exception {
     SyntaxHighlightingDataBuilder builder = new SyntaxHighlightingDataBuilder();
-    builder.registerHighlightingRule(0, 15, "k");
-    builder.registerHighlightingRule(8, 12, "cppd");
+    builder.registerHighlightingRule(0, 15, KEYWORD);
+    builder.registerHighlightingRule(8, 12, CPP_DOC);
     builder.build();
   }
 
@@ -75,8 +78,8 @@ public class SyntaxHighlightingDataBuilderTest {
     throwable.expectMessage("Cannot register highlighting rule for characters from 8 to 15 as it overlaps at least one existing rule");
 
     SyntaxHighlightingDataBuilder builder = new SyntaxHighlightingDataBuilder();
-    builder.registerHighlightingRule(0, 10, "k");
-    builder.registerHighlightingRule(8, 15, "k");
+    builder.registerHighlightingRule(0, 10, KEYWORD);
+    builder.registerHighlightingRule(8, 15, KEYWORD);
     builder.build();
   }
 }

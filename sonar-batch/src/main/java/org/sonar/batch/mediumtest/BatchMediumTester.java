@@ -287,21 +287,22 @@ public class BatchMediumTester {
     }
 
     /**
-     * Get highlighting type at a given position in an inputfile
+     * Get highlighting types at a given position in an inputfile
      * @param charIndex 0-based offset in file
      */
     @CheckForNull
-    public HighlightingBuilder.TypeOfText highlightingTypeFor(InputFile file, int charIndex) {
+    public List<HighlightingBuilder.TypeOfText> highlightingTypeFor(InputFile file, int charIndex) {
       SyntaxHighlightingData syntaxHighlightingData = highlightingPerFile.get(file);
       if (syntaxHighlightingData == null) {
         return null;
       }
+      List<HighlightingBuilder.TypeOfText> result = new ArrayList<HighlightingBuilder.TypeOfText>();
       for (SyntaxHighlightingRule sortedRule : syntaxHighlightingData.syntaxHighlightingRuleSet()) {
         if (sortedRule.getStartPosition() <= charIndex && sortedRule.getEndPosition() > charIndex) {
-          return HighlightingBuilder.TypeOfText.forCssClass(sortedRule.getTextType());
+          result.add(sortedRule.getTextType());
         }
       }
-      return null;
+      return result;
     }
 
     /**

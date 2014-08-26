@@ -22,6 +22,7 @@ package org.sonar.batch.highlighting;
 import com.persistit.Value;
 import com.persistit.encoding.CoderContext;
 import com.persistit.encoding.ValueCoder;
+import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 
 class SyntaxHighlightingRuleValueCoder implements ValueCoder {
 
@@ -30,14 +31,14 @@ class SyntaxHighlightingRuleValueCoder implements ValueCoder {
     SyntaxHighlightingRule rule = (SyntaxHighlightingRule) object;
     value.put(rule.getStartPosition());
     value.put(rule.getEndPosition());
-    value.put(rule.getTextType());
+    value.put(rule.getTextType().ordinal());
   }
 
   @Override
   public Object get(Value value, Class clazz, CoderContext context) {
     int startPosition = value.getInt();
     int endPosition = value.getInt();
-    String type = value.getString();
+    HighlightingBuilder.TypeOfText type = HighlightingBuilder.TypeOfText.values()[value.getInt()];
     return SyntaxHighlightingRule.create(startPosition, endPosition, type);
   }
 }

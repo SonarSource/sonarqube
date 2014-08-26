@@ -19,21 +19,23 @@
  */
 package org.sonar.batch.highlighting;
 
+import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
+
 import java.io.Serializable;
 
 public class SyntaxHighlightingRule implements Serializable {
 
   private final int startPosition;
   private final int endPosition;
-  private final String textType;
+  private final HighlightingBuilder.TypeOfText textType;
 
-  private SyntaxHighlightingRule(int startPosition, int endPosition, String textType) {
+  private SyntaxHighlightingRule(int startPosition, int endPosition, HighlightingBuilder.TypeOfText textType) {
     this.startPosition = startPosition;
     this.endPosition = endPosition;
     this.textType = textType;
   }
 
-  public static SyntaxHighlightingRule create(int startPosition, int endPosition, String textType) {
+  public static SyntaxHighlightingRule create(int startPosition, int endPosition, HighlightingBuilder.TypeOfText textType) {
     return new SyntaxHighlightingRule(startPosition, endPosition, textType);
   }
 
@@ -45,7 +47,7 @@ public class SyntaxHighlightingRule implements Serializable {
     return endPosition;
   }
 
-  public String getTextType() {
+  public HighlightingBuilder.TypeOfText getTextType() {
     return textType;
   }
 }

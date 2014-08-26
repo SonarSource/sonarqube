@@ -40,7 +40,7 @@ public class DefaultHighlightingBuilder implements HighlightingBuilder {
   @Override
   public HighlightingBuilder highlight(int startOffset, int endOffset, TypeOfText typeOfText) {
     Preconditions.checkState(!done, "done() already called");
-    builder.registerHighlightingRule(startOffset, endOffset, typeOfText.cssClass());
+    builder.registerHighlightingRule(startOffset, endOffset, typeOfText);
     return this;
   }
 
