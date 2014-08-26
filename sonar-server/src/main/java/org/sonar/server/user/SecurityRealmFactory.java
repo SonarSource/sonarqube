@@ -74,8 +74,8 @@ public class SecurityRealmFactory implements ServerComponent, Startable {
 
   @Override
   public void start() {
+    Logger logger = LoggerFactory.getLogger(SecurityRealmFactory.class.getName());
     if (realm != null) {
-      Logger logger = LoggerFactory.getLogger("org.sonar.INFO");
       try {
         logger.info("Security realm: " + realm.getName());
         realm.init();
@@ -87,6 +87,8 @@ public class SecurityRealmFactory implements ServerComponent, Startable {
           throw new SonarException("Security realm fails to start: " + e.getMessage(), e);
         }
       }
+    } else {
+      logger.info("No security realm is set.");
     }
   }
 
