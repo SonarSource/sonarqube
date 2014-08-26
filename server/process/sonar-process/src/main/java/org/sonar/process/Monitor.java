@@ -67,7 +67,7 @@ public class Monitor extends Thread implements Terminable {
     @Override
     public void run() {
       for (ProcessWrapper process : processes) {
-        LOGGER.debug("Pinging process[{}]",process.getName());
+        LOGGER.debug("Pinging process[{}]", process.getName());
         try {
           ProcessMXBean mBean = process.getProcessMXBean();
           if (mBean != null) {
@@ -85,25 +85,31 @@ public class Monitor extends Thread implements Terminable {
    * Registers and monitors process. Note that process is probably not ready yet.
    */
   public void registerProcess(ProcessWrapper process) throws InterruptedException {
-    processes.add(process);
+    LOGGER.info("Registering process[{}] for monitoring.", process.getName());
+    synchronized (processes) {
+      processes.add(process);
+    }
     // starts a monitoring thread
     process.start();
   }
 
   /**
    * Check continuously that registered processes are still up. If any process is down or does not answer to pings
-   * during the max allowed period, then thread exits. 
+   * during the max allowed period, then thread exits.
    */
   @Override
   public void run() {
     try {
       boolean ok = true;
       while (isRunning && ok) {
-        for (ProcessWrapper process : processes) {
-          if (!ProcessUtils.isAlive(process.process())) {
-            LOGGER.info("{} is down, stopping all other processes", process.getName());
-            ok = false;
-            interrupt();
+        synchronized (processes) {
+          LOGGER.debug("Monitoring {} processes.", processes.size());
+          for (ProcessWrapper process : processes) {
+            if (!ProcessUtils.isAlive(process.process())) {
+              LOGGER.info("{} is down, stopping all other processes", process.getName());
+              ok = false;
+              interrupt();
+            }
           }
         }
         if (ok) {
