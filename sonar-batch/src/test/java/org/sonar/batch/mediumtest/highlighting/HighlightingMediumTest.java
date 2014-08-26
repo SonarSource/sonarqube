@@ -104,14 +104,13 @@ public class HighlightingMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     File xoohighlightingFile = new File(srcDir, "sample.xoo.highlighting");
     FileUtils.write(xooFile, "Sample xoo\ncontent");
-    int chunkSize = 100000;
+    int chunkSize = 10000;
     StringBuilder sb = new StringBuilder(16 * chunkSize);
     for (int i = 0; i < chunkSize; i++) {
       sb.append(i).append(":").append(i + 1).append(":s\n");
     }
     FileUtils.write(xoohighlightingFile, sb.toString());
 
-    long start = System.currentTimeMillis();
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
@@ -123,17 +122,10 @@ public class HighlightingMediumTest {
         .put("sonar.sources", "src")
         .build())
       .start();
-    long duration = System.currentTimeMillis() - start;
-    assertDurationLessThan(duration, 20000L);
 
     InputFile file = result.inputFiles().get(0);
     assertThat(result.highlightingTypeFor(file, 0)).isEqualTo(HighlightingBuilder.TypeOfText.STRING);
 
-  }
-
-  void assertDurationLessThan(long duration, long maxDuration) {
-    assertThat(duration).as(String.format("Expected less than %d ms, got %d ms", maxDuration, duration)).isLessThanOrEqualTo(maxDuration);
-    System.out.printf("Test %s : %d ms (max allowed is %d)\n", testName.getMethodName(), duration, maxDuration);
   }
 
 }
