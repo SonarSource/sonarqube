@@ -49,18 +49,22 @@ public class GroupWithPermissionDaoTest extends AbstractDaoTestCase {
 
     GroupWithPermissionDto anyone = result.get(0);
     assertThat(anyone.getName()).isEqualTo("Anyone");
+    assertThat(anyone.getDescription()).isNull();
     assertThat(anyone.getPermission()).isNotNull();
 
     GroupWithPermissionDto group1 = result.get(1);
     assertThat(group1.getName()).isEqualTo("sonar-administrators");
+    assertThat(group1.getDescription()).isEqualTo("System administrators");
     assertThat(group1.getPermission()).isNotNull();
 
     GroupWithPermissionDto group2 = result.get(2);
     assertThat(group2.getName()).isEqualTo("sonar-reviewers");
+    assertThat(group2.getDescription()).isEqualTo("Reviewers");
     assertThat(group2.getPermission()).isNull();
 
     GroupWithPermissionDto group3 = result.get(3);
     assertThat(group3.getName()).isEqualTo("sonar-users");
+    assertThat(group3.getDescription()).isEqualTo("Any new users created will automatically join this group");
     assertThat(group3.getPermission()).isNotNull();
   }
 

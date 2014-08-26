@@ -23,9 +23,13 @@ package org.sonar.core.permission;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class GroupWithPermission {
 
   private String name;
+  private String description;
   private boolean hasPermission;
 
   public String name() {
@@ -34,6 +38,16 @@ public class GroupWithPermission {
 
   public GroupWithPermission setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  @CheckForNull
+  public String description() {
+    return description;
+  }
+
+  public GroupWithPermission setDescription(@Nullable String description) {
+    this.description = description;
     return this;
   }
 

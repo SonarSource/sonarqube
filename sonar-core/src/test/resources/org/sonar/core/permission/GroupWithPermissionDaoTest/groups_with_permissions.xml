@@ -1,8 +1,8 @@
 <dataset>
 
-  <groups id="200" name="sonar-administrators"/>
-  <groups id="201" name="sonar-users" />
-  <groups id="202" name="sonar-reviewers" />
+  <groups id="200" name="sonar-administrators" description="System administrators"/>
+  <groups id="201" name="sonar-users" description="Any new users created will automatically join this group"/>
+  <groups id="202" name="sonar-reviewers" description="Reviewers"/>
 
   <!-- Project permissions -->
   <group_roles id="1" group_id="200" resource_id="100" role="user"/>

@@ -31,8 +31,8 @@
   </select>
 
   <select id="selectGroups" parameterType="map" resultType="GroupWithPermission">
-    SELECT name, permission FROM
-    (SELECT g.name as name, group_role.role as permission
+    SELECT name, description, permission FROM
+    (SELECT g.name as name, g.description as description, group_role.role as permission
     FROM groups g
     LEFT JOIN group_roles group_role ON group_role.group_id=g.id
       AND group_role.role=#{query.permission}
@@ -44,7 +44,7 @@
     </if>
     UNION
     -- Add Anyone group permission
-    SELECT #{anyoneGroup} as name, group_role.role as permission
+    SELECT #{anyoneGroup} as name, NULL as description, group_role.role as permission
     FROM group_roles group_role
     <where>
       AND group_role.role=#{query.permission}
