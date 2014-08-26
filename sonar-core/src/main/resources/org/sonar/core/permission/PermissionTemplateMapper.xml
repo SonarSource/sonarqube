@@ -89,15 +89,15 @@
   </select>
 
   <select id="selectGroups" parameterType="map" resultType="GroupWithPermission">
-    SELECT name, permission FROM
-    (SELECT g.name as name, ptg.permission_reference as permission
+    SELECT name, description, permission FROM
+    (SELECT g.name as name, g.description as description, ptg.permission_reference as permission
     FROM groups g
     LEFT JOIN perm_templates_groups ptg ON ptg.group_id=g.id
       AND ptg.permission_reference=#{query.permission}
       AND ptg.template_id=#{templateId}
     UNION
     -- Add Anyone group permission
-    SELECT #{anyoneGroup} as name, ptg.permission_reference as permission
+    SELECT #{anyoneGroup} as name, NULL as description, ptg.permission_reference as permission
     FROM perm_templates_groups ptg
     <where>
       AND ptg.permission_reference=#{query.permission}

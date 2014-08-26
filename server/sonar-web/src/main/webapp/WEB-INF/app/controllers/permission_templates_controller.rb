@@ -102,10 +102,14 @@ class PermissionTemplatesController < ApplicationController
       format.json {
         render :json => {
             :more => more,
-            :results => groups.map { |group| {
-                :name => group.name(),
-                :selected => group.hasPermission()
-            }}
+            :results => groups.map { |group|
+              hash = {
+                  :name => group.name(),
+                  :selected => group.hasPermission()
+              }
+              hash[:description] = group.description() if group.description() && !group.description().blank?
+              hash
+            }
         }
       }
     end
