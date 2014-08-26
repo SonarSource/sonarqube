@@ -24,7 +24,7 @@ define [
       'change .js-test-libraries': 'toggleTestLibraries'
       'click @ui.collapseAll': 'collapseAll'
       'click @ui.expandAll': 'expandAll'
-      'click .libraries-tree-with-subtree > .libraries-tree-name': 'toggleSubTree'
+      'click .libraries-tree-with-subtree > a': 'toggleSubTree'
 
 
     onRender: ->

@@ -32,9 +32,9 @@
           <ul>
             {{#recursive libraries}}
               <li class="{{#if to}}libraries-tree-with-subtree libraries-tree-subtree-collapsed{{/if}} {{#eq u 'test'}}libraries-tree-test{{/eq}}">
-                <i class="icon-dropdown"></i>&nbsp;
+                {{#if to}}<a>{{/if}}
                 {{qualifierIcon q}}
-                <span class="libraries-tree-name">{{n}}</span>
+                <span class="libraries-tree-name">{{n}}</span>{{#if to}}</a>{{/if}}
                 {{#if v}}
                   <span class="libraries-tree-version">{{v}}</span>
                 {{/if}}
