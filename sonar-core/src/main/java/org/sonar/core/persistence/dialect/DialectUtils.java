@@ -22,10 +22,11 @@ package org.sonar.core.persistence.dialect;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.NoSuchElementException;
 
 public final class DialectUtils {
@@ -39,7 +40,7 @@ public final class DialectUtils {
   public static Dialect find(final String dialectId, final String jdbcConnectionUrl) {
     Dialect match = StringUtils.isNotBlank(dialectId) ? findById(dialectId) : findByJdbcUrl(jdbcConnectionUrl);
     if (match == null) {
-      throw new SonarException("Unable to determine database dialect to use within sonar with dialect " + dialectId + " jdbc url " + jdbcConnectionUrl);
+      throw MessageException.of("Unable to determine database dialect to use within sonar with dialect " + dialectId + " jdbc url " + jdbcConnectionUrl);
     }
     return match;
   }

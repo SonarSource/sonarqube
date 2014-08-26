@@ -94,9 +94,6 @@ public class DefaultDatabase implements Database {
     doCompleteProperties(properties);
 
     dialect = DialectUtils.find(properties.getProperty(SONAR_JDBC_DIALECT), properties.getProperty(SONAR_JDBC_URL));
-    if (dialect == null) {
-      throw new IllegalStateException(String.format("Can not guess the JDBC dialect. Please check the property %s.", SONAR_JDBC_URL));
-    }
     properties.setProperty(DatabaseProperties.PROP_DRIVER, dialect.getDefaultDriverClassName());
   }
 

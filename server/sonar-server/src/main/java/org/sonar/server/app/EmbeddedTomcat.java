@@ -19,7 +19,6 @@
  */
 package org.sonar.server.app;
 
-import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
@@ -85,14 +84,6 @@ class EmbeddedTomcat implements Terminable {
 
   boolean isReady() {
     return ready && tomcat != null;
-  }
-
-  int port() {
-    Connector[] connectors = tomcat.getService().findConnectors();
-    if (connectors.length > 0) {
-      return connectors[0].getLocalPort();
-    }
-    return -1;
   }
 
   @Override

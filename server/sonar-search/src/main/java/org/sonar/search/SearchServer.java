@@ -166,8 +166,8 @@ public class SearchServer extends MonitoredProcess {
       .addMapping("_default_", "{\"dynamic\": \"strict\"}")
       .get();
 
-    if (this.isBlocking) {
-      while (node != null && !node.isClosed()) {
+    if (isBlocking) {
+      while (!node.isClosed()) {
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {

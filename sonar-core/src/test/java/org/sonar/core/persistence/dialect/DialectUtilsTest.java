@@ -20,7 +20,7 @@
 package org.sonar.core.persistence.dialect;
 
 import org.junit.Test;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -38,7 +38,7 @@ public class DialectUtilsTest {
     assertThat(d).isInstanceOf(MySql.class);
   }
 
-  @Test(expected = SonarException.class)
+  @Test(expected = MessageException.class)
   public void testFindNoMatch() {
     DialectUtils.find("foo", "bar");
   }
