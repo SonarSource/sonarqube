@@ -93,4 +93,43 @@ public class PropsTest {
     assertThat(props.booleanOf("foo", false)).isTrue();
     assertThat(props.booleanOf("bar", true)).isFalse();
   }
+
+  @Test
+  public void setDefault() throws Exception {
+    Properties p = new Properties();
+    p.setProperty("foo", "foo_value");
+    Props props = new Props(p);
+    props.setDefault("foo", "foo_def");
+    props.setDefault("bar", "bar_def");
+
+    assertThat(props.of("foo")).isEqualTo("foo_value");
+    assertThat(props.of("bar")).isEqualTo("bar_def");
+    assertThat(props.of("other")).isNull();
+  }
+
+  @Test
+  public void set() throws Exception {
+    Properties p = new Properties();
+    p.setProperty("foo", "old_foo");
+    Props props = new Props(p);
+    props.set("foo", "new_foo");
+    props.set("bar", "new_bar");
+
+    assertThat(props.of("foo")).isEqualTo("new_foo");
+    assertThat(props.of("bar")).isEqualTo("new_bar");
+  }
+
+  @Test
+  public void raw_properties() throws Exception {
+    Properties p = new Properties();
+    p.setProperty("encrypted_prop", "{aes}abcde");
+    p.setProperty("clear_prop", "foo");
+    Props props = new Props(p);
+
+    assertThat(props.rawProperties()).hasSize(2);
+    // do not decrypt
+    assertThat(props.rawProperties().get("encrypted_prop")).isEqualTo("{aes}abcde");
+    assertThat(props.rawProperties().get("clear_prop")).isEqualTo("foo");
+
+  }
 }

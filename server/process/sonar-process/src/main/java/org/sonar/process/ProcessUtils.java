@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
+import java.lang.management.ManagementFactory;
+
 public class ProcessUtils {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcessUtils.class);
@@ -72,5 +74,9 @@ public class ProcessUtils {
       IOUtils.closeQuietly(process.getOutputStream());
       IOUtils.closeQuietly(process.getErrorStream());
     }
+  }
+
+  public static boolean isJvmDebugEnabled() {
+    return ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
   }
 }

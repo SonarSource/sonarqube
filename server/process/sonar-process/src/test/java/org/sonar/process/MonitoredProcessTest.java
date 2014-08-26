@@ -48,8 +48,7 @@ public class MonitoredProcessTest {
   public void should_not_monitor_debug() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(MonitoredProcess.NAME_PROPERTY, DummyProcess.NAME);
-    properties.setProperty("sonar.search.javaOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005");
-    DummyProcess dummyProcess = new DummyProcess(new Props(properties));
+    DummyProcess dummyProcess = new DummyProcess(new Props(properties), false);
 
     assertThat(dummyProcess.isMonitored()).isFalse();
   }
@@ -63,7 +62,6 @@ public class MonitoredProcessTest {
 
     assertThat(dummyProcess.isMonitored()).isTrue();
   }
-
 
   @Test(timeout = 3000L)
   public void monitor_dies_when_no_pings() throws Exception {
@@ -139,9 +137,8 @@ public class MonitoredProcessTest {
   public void process_does_not_die_when_debugged() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(MonitoredProcess.NAME_PROPERTY, DummyProcess.NAME);
-    properties.setProperty("sonar.search.javaOpts", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005");
 
-    final DummyProcess dummyProcess = new DummyProcess(new Props(properties));
+    final DummyProcess dummyProcess = new DummyProcess(new Props(properties), false);
     assertThat(dummyProcess.isMonitored()).isFalse();
 
     dummyProcess.setTimeout(100L).setCheckDelay(100L);
@@ -158,7 +155,6 @@ public class MonitoredProcessTest {
     dummyProcess.terminate();
     assertProcessTerminated(dummyProcess);
   }
-
 
   private void assertJoinAndTerminate(DummyProcess dummyProcess, Thread process) throws InterruptedException {
     process.join();
@@ -180,7 +176,6 @@ public class MonitoredProcessTest {
     assertThat(dummyProcess.isReady()).isTrue();
     assertThat(dummyProcess.isTerminated()).isFalse();
   }
-
 
   private void assertProcessCreatedFile(DummyProcess dummyProcess) {
     assertThat(dummyProcess.getCheckFile()).isNotNull();

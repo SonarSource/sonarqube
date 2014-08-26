@@ -58,7 +58,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ProcessWrapper extends Thread implements Terminable {
 
-  private final static Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
 
   public static final long READY_TIMEOUT_MS = 300000L;
 
@@ -280,7 +280,7 @@ public class ProcessWrapper extends Thread implements Terminable {
   }
 
   private String localAddress() {
-    // TODO to be replaced by InetAddress.getLoopbackAddress() in Java 7
+    // to be replaced by InetAddress.getLoopbackAddress() in Java 7 ?
     return "127.0.0.1";
   }
 
@@ -318,9 +318,6 @@ public class ProcessWrapper extends Thread implements Terminable {
   }
 
   public boolean waitForReady() throws InterruptedException {
-    if (processMXBean == null) {
-      return false;
-    }
     long now = 0;
     long wait = 500L;
     while (now < READY_TIMEOUT_MS) {

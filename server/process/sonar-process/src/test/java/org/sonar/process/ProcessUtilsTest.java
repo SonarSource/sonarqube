@@ -21,10 +21,12 @@ package org.sonar.process;
 
 import org.junit.Test;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 public class ProcessUtilsTest {
 
   @Test
-  public void check_process_alive() {
-    ProcessBuilder processBuilder = new ProcessBuilder();
+  public void isJvmDebugEnabled() {
+    assertThat(ProcessUtils.isJvmDebugEnabled()).isFalse();
   }
 }

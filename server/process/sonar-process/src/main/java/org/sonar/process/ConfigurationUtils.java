@@ -25,7 +25,6 @@ import org.apache.commons.lang.text.StrSubstitutor;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
@@ -50,22 +49,18 @@ public final class ConfigurationUtils {
 
   public static Props loadPropsFromCommandLineArgs(String[] args) {
     if (args.length != 1) {
-      throw new IllegalStateException("Only a single command-line argument is accepted " +
+      throw new IllegalArgumentException("Only a single command-line argument is accepted " +
         "(absolute path to configuration file)");
     }
 
     File propertyFile = new File(args[0]);
-    if (!propertyFile.exists()) {
-      throw new IllegalStateException("Property file '" + args[0] + "' does not exist! ");
-    }
-
     Properties properties = new Properties();
     FileReader reader = null;
     try {
       reader = new FileReader(propertyFile);
       properties.load(reader);
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not read properties from file '" + args[0] + "'", e);
+    } catch (Exception e) {
+      throw new IllegalStateException("Could not read properties from file: " + args[0], e);
     } finally {
       IOUtils.closeQuietly(reader);
       FileUtils.deleteQuietly(propertyFile);

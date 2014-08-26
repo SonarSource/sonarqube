@@ -20,11 +20,18 @@
 package org.sonar.process;
 
 import org.fest.assertions.Assertions;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.File;
 
 import static org.fest.assertions.Fail.fail;
 
 public class MinimumViableSystemTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   /**
    * Verifies that all checks can be verified without error.
@@ -75,5 +82,21 @@ public class MinimumViableSystemTest {
     System.setProperty(key, "true");
     mve.checkJavaOptions();
     // do not fail
+  }
+
+  @Test
+  public void checkWritableTempDir() throws Exception {
+    File dir = temp.newFolder();
+    MinimumViableSystem mve = new MinimumViableSystem();
+
+    mve.checkWritableDir(dir.getAbsolutePath());
+
+    dir.delete();
+    try {
+      mve.checkWritableDir(dir.getAbsolutePath());
+      fail();
+    } catch (IllegalStateException e) {
+      Assertions.assertThat(e).hasMessage("Temp directory is not writable: " + dir.getAbsolutePath());
+    }
   }
 }

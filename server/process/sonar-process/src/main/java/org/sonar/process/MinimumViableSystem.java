@@ -49,13 +49,15 @@ public class MinimumViableSystem {
    * Verify that temp directory is writable
    */
   private void checkWritableTempDir() {
-    String tempPath = System.getProperty("java.io.tmpdir");
+    checkWritableDir(System.getProperty("java.io.tmpdir"));
+  }
+
+  void checkWritableDir(String tempPath) {
     try {
       File tempFile = File.createTempFile("check", "tmp", new File(tempPath));
       FileUtils.deleteQuietly(tempFile);
     } catch (IOException e) {
-      throw new MessageException(String.format(
-        "Temp directory is not writable: %s. Reason: %s", tempPath, e.getMessage()));
+      throw new IllegalStateException(String.format("Temp directory is not writable: %s", tempPath), e);
     }
   }
 

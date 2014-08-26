@@ -97,7 +97,7 @@ final class AesCipher implements Cipher {
     return loadSecretFileFromFile(path);
   }
 
-  Key loadSecretFileFromFile(@Nullable String path) throws IOException {
+  Key loadSecretFileFromFile(String path) throws IOException {
     if (StringUtils.isBlank(path)) {
       throw new IllegalStateException("Secret key not found. Please set the property " + ENCRYPTION_SECRET_KEY_PATH);
     }
@@ -129,9 +129,5 @@ final class AesCipher implements Cipher {
       pathToSecretKey = new File(FileUtils.getUserDirectoryPath(), ".sonar/sonar-secret.txt").getPath();
     }
     return pathToSecretKey;
-  }
-
-  public void setPathToSecretKey(@Nullable String pathToSecretKey) {
-    this.pathToSecretKey = pathToSecretKey;
   }
 }

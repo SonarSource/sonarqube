@@ -58,11 +58,6 @@ public class App implements ProcessMXBean {
     try {
       Logger logger = LoggerFactory.getLogger(getClass());
 
-      if (props.containsValue(MonitoredProcess.DEBUG_AGENT)) {
-        logger.info("**********************************************************");
-        logger.info("*   sonarQube is running in debug mode. No monitoring    *");
-        logger.info("**********************************************************");
-      }
       monitor.start();
 
       File homeDir = props.fileOf("sonar.path.home");

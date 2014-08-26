@@ -32,7 +32,6 @@ public abstract class MonitoredProcess implements ProcessMXBean {
 
   private final static Logger LOGGER = LoggerFactory.getLogger(MonitoredProcess.class);
 
-  public static final String DEBUG_AGENT = "-agentlib:jdwp";
   private static final long AUTOKILL_TIMEOUT_MS = 30000L;
   private static final long AUTOKILL_CHECK_DELAY_MS = 2000L;
   public static final String NAME_PROPERTY = "pName";
@@ -51,7 +50,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
   private final boolean isMonitored;
 
   protected MonitoredProcess(Props props) {
-    this(props, !props.containsValue(DEBUG_AGENT));
+    this(props, !ProcessUtils.isJvmDebugEnabled());
   }
 
   protected MonitoredProcess(Props props, boolean monitor) {
@@ -91,7 +90,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
       throw new IllegalStateException("Already started");
     }
     LOGGER.debug("Process[{}] starting", name);
-    scheduleAutokill(this.isMonitored);
+    scheduleAutokill(isMonitored);
     try {
       doStart();
     } catch (Exception e) {
@@ -105,7 +104,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
    * If the process does not receive pings during the max allowed period, then
    * process auto-kills
    */
-  private void scheduleAutokill(final Boolean isMonitored) {
+  private void scheduleAutokill(final boolean isMonitored) {
     final Runnable breakOnMissingPing = new Runnable() {
       @Override
       public void run() {

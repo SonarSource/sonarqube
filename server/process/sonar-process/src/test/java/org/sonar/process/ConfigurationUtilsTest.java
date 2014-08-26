@@ -20,15 +20,23 @@
 package org.sonar.process;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class ConfigurationUtilsTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
   public void shouldInterpolateVariables() {
     Properties input = new Properties();
@@ -40,16 +48,48 @@ public class ConfigurationUtilsTest {
 
     Properties output = ConfigurationUtils.interpolateVariables(input, variables);
 
-    assertThat(output.size(), is(3));
-    assertThat(output.getProperty("hello"), is("world"));
-    assertThat(output.getProperty("url"), is("jdbc:h2:mem"));
-    assertThat(output.getProperty("do_not_change"), is("${SONAR_JDBC_URL}"));
+    assertThat(output).hasSize(3);
+    assertThat(output.getProperty("hello")).isEqualTo("world");
+    assertThat(output.getProperty("url")).isEqualTo("jdbc:h2:mem");
+    assertThat(output.getProperty("do_not_change")).isEqualTo("${SONAR_JDBC_URL}");
 
     // input is not changed
-    assertThat(input.size(), is(3));
-    assertThat(input.getProperty("hello"), is("world"));
-    assertThat(input.getProperty("url"), is("${env:SONAR_JDBC_URL}"));
-    assertThat(input.getProperty("do_not_change"), is("${SONAR_JDBC_URL}"));
+    assertThat(input).hasSize(3);
+    assertThat(input.getProperty("hello")).isEqualTo("world");
+    assertThat(input.getProperty("url")).isEqualTo("${env:SONAR_JDBC_URL}");
+    assertThat(input.getProperty("do_not_change")).isEqualTo("${SONAR_JDBC_URL}");
   }
 
+  @Test
+  public void loadPropsFromCommandLineArgs_missing_argument() throws Exception {
+    try {
+      ConfigurationUtils.loadPropsFromCommandLineArgs(new String[0]);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e.getMessage()).startsWith("Only a single command-line argument is accepted");
+    }
+  }
+
+  @Test
+  public void loadPropsFromCommandLineArgs_load_properties_from_file() throws Exception {
+    File propsFile = temp.newFile();
+    FileUtils.write(propsFile, "foo=bar");
+
+    Props result = ConfigurationUtils.loadPropsFromCommandLineArgs(new String[] {propsFile.getAbsolutePath()});
+    assertThat(result.of("foo")).isEqualTo("bar");
+    assertThat(result.rawProperties()).hasSize(1);
+  }
+
+  @Test
+  public void loadPropsFromCommandLineArgs_file_does_not_exist() throws Exception {
+    File propsFile = temp.newFile();
+    FileUtils.deleteQuietly(propsFile);
+
+    try {
+      ConfigurationUtils.loadPropsFromCommandLineArgs(new String[]{propsFile.getAbsolutePath()});
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Could not read properties from file: " + propsFile.getAbsolutePath());
+    }
+  }
 }
