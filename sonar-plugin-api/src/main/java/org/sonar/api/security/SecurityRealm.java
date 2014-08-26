@@ -114,4 +114,30 @@ public abstract class SecurityRealm implements ServerExtension {
     return Collections.singletonList(getGroupsProvider());
   }
 
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(getName()).append(": {");
+    
+    sb.append("authenticators: [");
+    for (Authenticator authenticator : getAuthenticators()) {
+      sb.append(authenticator.getClass().getSimpleName()).append(", ");
+    }
+    sb.append("]");
+    
+    sb.append("userProviders: [");
+    for (ExternalUsersProvider userProvider : getUsersProviders()) {
+      sb.append(userProvider.getClass().getSimpleName()).append(", ");
+    }
+    sb.append("]");
+    
+    sb.append("groupProviders: [");
+    for (ExternalGroupsProvider groupProvider : getGroupsProviders()) {
+      sb.append(groupProvider.getClass().getSimpleName()).append(", ");
+    }
+    sb.append("]");
+    
+    sb.append("}");
+    return sb.toString();
+  }
 }
