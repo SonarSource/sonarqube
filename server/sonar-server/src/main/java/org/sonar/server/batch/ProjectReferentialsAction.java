@@ -39,6 +39,7 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.MimeTypes;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileFactory;
@@ -60,6 +61,7 @@ public class ProjectReferentialsAction implements RequestHandler {
 
   private static final String PARAM_KEY = "key";
   private static final String PARAM_PROFILE = "profile";
+  private static final String PARAM_PREVIEW = "preview";
 
   private final DbClient dbClient;
   private final PropertiesDao propertiesDao;
@@ -95,18 +97,26 @@ public class ProjectReferentialsAction implements RequestHandler {
       .createParam(PARAM_PROFILE)
       .setDescription("Profile name")
       .setExampleValue("SonarQube Way");
+
+    action
+      .createParam(PARAM_PREVIEW)
+      .setDescription("Preview mode or not")
+      .setDefaultValue(false)
+      .setBooleanPossibleValues();
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    UserSession userSession = UserSession.get();
-    boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
+    boolean hasScanPerm = UserSession.get().hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
+    boolean preview = request.mandatoryParamAsBoolean(PARAM_PREVIEW);
+    checkPermission(preview);
 
     DbSession session = dbClient.openSession(false);
     try {
+      ProjectReferentials ref = new ProjectReferentials();
+
       String projectOrModuleKey = request.mandatoryParam(PARAM_KEY);
       String profileName = request.param(PARAM_PROFILE);
-      ProjectReferentials ref = new ProjectReferentials();
 
       String projectKey = null;
       AuthorizedComponentDto module = dbClient.componentDao().getNullableAuthorizedComponentByKey(projectOrModuleKey, session);
@@ -237,6 +247,19 @@ public class ProjectReferentialsAction implements RequestHandler {
         }
         ref.addActiveRule(inputActiveRule);
       }
+    }
+  }
+
+  private void checkPermission(boolean preview){
+    UserSession userSession = UserSession.get();
+    boolean hasScanPerm = userSession.hasGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
+    boolean hasPreviewPerm = userSession.hasGlobalPermission(GlobalPermissions.DRY_RUN_EXECUTION);
+    if (!hasPreviewPerm && !hasScanPerm) {
+      throw new ForbiddenException("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.");
+    }
+    if (!preview && !hasScanPerm) {
+      throw new ForbiddenException("You're only authorized to execute a local (dry run) SonarQube analysis without pushing the results to the SonarQube server. " +
+        "Please contact your SonarQube administrator.");
     }
   }
 

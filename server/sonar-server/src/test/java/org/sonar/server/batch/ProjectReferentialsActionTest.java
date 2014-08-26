@@ -40,6 +40,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
@@ -115,7 +116,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_project_settings() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     // Project without modules
     when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(project);
@@ -131,8 +132,25 @@ public class ProjectReferentialsActionTest {
   }
 
   @Test
+  public void not_returned_secured_settings_with_only_preview_permission() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.DRY_RUN_EXECUTION);
+
+    // Project without modules
+    when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(project);
+    when(componentDao.findModulesByProject(project.key(), session)).thenReturn(Collections.<ComponentDto>emptyList());
+
+    when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
+      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
+    ));
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key()).setParam("preview", "true");
+    request.execute().assertJson(getClass(), "not_returned_secured_settings_with_only_preview_permission.json");
+  }
+
+  @Test
   public void return_project_with_module_settings() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(project);
     when(componentDao.findModulesByProject(project.key(), session)).thenReturn(newArrayList(module));
@@ -153,7 +171,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_project_with_module_settings_inherited_from_project() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(project);
     when(componentDao.findModulesByProject(project.key(), session)).thenReturn(newArrayList(module));
@@ -170,7 +188,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_project_with_module_with_sub_module() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(project);
     when(componentDao.findModulesByProject(project.key(), session)).thenReturn(newArrayList(module));
@@ -196,7 +214,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_provisioned_project_settings() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     // No root project will be found on provisioned project
     when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(null);
@@ -212,7 +230,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_provisioned_project_profile() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     // No root project will be found on provisioned project
     when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(null);
@@ -227,7 +245,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_sub_module_settings() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     when(componentDao.getNullableRootProjectByKey(subModule.key(), session)).thenReturn(project);
     when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
@@ -245,7 +263,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_sub_module_settings_including_settings_from_parent_modules() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     when(componentDao.getNullableRootProjectByKey(subModule.key(), session)).thenReturn(project);
     when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
@@ -269,7 +287,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_sub_module_settings_only_inherited_from_project() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     when(componentDao.getNullableRootProjectByKey(subModule.key(), session)).thenReturn(project);
     when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
@@ -288,7 +306,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_sub_module_settings_inherited_from_project_and_module() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     when(componentDao.getNullableRootProjectByKey(subModule.key(), session)).thenReturn(project);
     when(componentDao.getParentModuleByKey(module.key(), session)).thenReturn(project);
@@ -311,7 +329,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_quality_profiles() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     String projectKey = "org.codehaus.sonar:sonar";
 
     when(qProfileFactory.getByProjectAndLanguage(session, projectKey, "java")).thenReturn(
@@ -324,7 +342,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void fail_when_quality_profile_for_a_language() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", "org.codehaus.sonar:sonar");
 
@@ -337,7 +355,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_quality_profile_from_default_profile() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     String projectKey = "org.codehaus.sonar:sonar";
 
     when(qProfileFactory.getDefault(session, "java")).thenReturn(
@@ -350,7 +368,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_quality_profile_from_given_profile_name() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     String projectKey = "org.codehaus.sonar:sonar";
 
     when(qProfileFactory.getByNameAndLanguage(session, "Default", "java")).thenReturn(
@@ -363,7 +381,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_quality_profiles_even_when_project_does_not_exists() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     String projectKey = "org.codehaus.sonar:sonar";
     when(componentDao.getNullableByKey(session, projectKey)).thenReturn(null);
 
@@ -377,7 +395,7 @@ public class ProjectReferentialsActionTest {
 
   @Test
   public void return_active_rules() throws Exception {
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION, GlobalPermissions.DRY_RUN_EXECUTION);
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     String projectKey = "org.codehaus.sonar:sonar";
 
     when(qProfileFactory.getByProjectAndLanguage(session, projectKey, "java")).thenReturn(
@@ -398,6 +416,31 @@ public class ProjectReferentialsActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
     request.execute().assertJson(getClass(), "return_active_rules.json");
+  }
+
+  @Test
+  public void fail_if_no_permission() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions();
+
+    try {
+      WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
+      request.execute();
+    } catch(Exception e){
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.");
+    }
+  }
+
+  @Test
+  public void fail_when_not_preview_and_only_dry_run_permission() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.DRY_RUN_EXECUTION);
+
+    try {
+      WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key()).setParam("preview", "false");
+      request.execute();
+    } catch(Exception e){
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("You're only authorized to execute a local (dry run) SonarQube analysis without pushing the results to the SonarQube server. " +
+        "Please contact your SonarQube administrator.");
+    }
   }
 
 }
