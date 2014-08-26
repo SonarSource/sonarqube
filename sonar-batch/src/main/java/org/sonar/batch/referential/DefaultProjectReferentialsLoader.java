@@ -22,6 +22,7 @@ package org.sonar.batch.referential;
 import com.google.common.base.Charsets;
 import com.google.common.io.InputSupplier;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.protocol.input.ProjectReferentials;
@@ -30,23 +31,32 @@ import org.sonar.batch.rule.ModuleQProfiles;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoader {
 
   private static final String BATCH_PROJECT_URL = "/batch/project";
 
   private final ServerClient serverClient;
+  private final AnalysisMode analysisMode;
 
-  public DefaultProjectReferentialsLoader(ServerClient serverClient) {
+  public DefaultProjectReferentialsLoader(ServerClient serverClient, AnalysisMode analysisMode) {
     this.serverClient = serverClient;
+    this.analysisMode = analysisMode;
   }
 
   @Override
   public ProjectReferentials load(ProjectReactor reactor, TaskProperties taskProperties) {
     String url = BATCH_PROJECT_URL + "?key=" + reactor.getRoot().getKeyWithBranch();
     if (taskProperties.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {
-      url += "&profile=" + taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP);
+      try {
+        url += "&profile=" + URLEncoder.encode(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP), "UTF-8");
+      } catch (UnsupportedEncodingException e) {
+        throw new IllegalStateException("Unable to encode URL", e);
+      }
     }
+    url += "&preview=" + analysisMode.isPreview();
     InputSupplier<InputStream> jsonStream = serverClient.doRequest(url, null);
     try {
       return ProjectReferentials.fromJson(new InputStreamReader(jsonStream.getInput(), Charsets.UTF_8));
