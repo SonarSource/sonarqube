@@ -35,7 +35,7 @@ public class ProcessLogging {
       JoranConfigurator configurator = new JoranConfigurator();
       configurator.setContext(context);
       context.reset();
-      context.putProperty(PATH_LOGS_PROPERTY, props.of(PATH_LOGS_PROPERTY));
+      context.putProperty(PATH_LOGS_PROPERTY, props.nonNullValue(PATH_LOGS_PROPERTY));
       doConfigure(configurator, logbackXmlResource);
     } catch (JoranException ignored) {
       // StatusPrinter will handle this

@@ -111,7 +111,7 @@ class PropsBuilder {
   }
 
   private File configureDir(Props props, String propKey, String defaultRelativePath) {
-    String path = props.of(propKey, defaultRelativePath);
+    String path = props.value(propKey, defaultRelativePath);
     File d = new File(path);
     if (!d.isAbsolute()) {
       d = new File(homeDir, path);

@@ -29,7 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-public abstract class ProcessTest {
+public abstract class BaseProcessTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -49,11 +49,10 @@ public abstract class ProcessTest {
     dummyAppJar = FileUtils.toFile(getClass().getResource("/sonar-dummy-app.jar"));
   }
 
-
   @After
   public void tearDown() {
     if (proc != null) {
-      proc.destroy();
+      ProcessUtils.destroyQuietly(proc);
     }
   }
 

@@ -25,7 +25,7 @@ import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class MonitorTest extends ProcessTest {
+public class MonitorTestBase extends BaseProcessTest {
 
 
   Monitor monitor;

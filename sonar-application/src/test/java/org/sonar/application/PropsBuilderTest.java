@@ -60,20 +60,20 @@ public class PropsBuilderTest {
 
     Props props = new PropsBuilder(rawProperties, jdbcSettings, homeDir).build();
 
-    assertThat(props.fileOf("sonar.path.logs")).isEqualTo(logsDir);
-    assertThat(props.fileOf("sonar.path.home")).isEqualTo(homeDir);
+    assertThat(props.nonNullValueAsFile("sonar.path.logs")).isEqualTo(logsDir);
+    assertThat(props.nonNullValueAsFile("sonar.path.home")).isEqualTo(homeDir);
 
     // create <HOME>/temp
-    File tempDir = props.fileOf("sonar.path.temp");
+    File tempDir = props.nonNullValueAsFile("sonar.path.temp");
     assertThat(tempDir).isDirectory().exists();
     assertThat(tempDir.getName()).isEqualTo("temp");
     assertThat(tempDir.getParentFile()).isEqualTo(homeDir);
 
-    assertThat(props.of("foo")).isEqualTo("bar");
-    assertThat(props.of("unknown")).isNull();
+    assertThat(props.value("foo")).isEqualTo("bar");
+    assertThat(props.value("unknown")).isNull();
 
     // default properties
-    assertThat(props.intOf("sonar.search.port")).isEqualTo(9001);
+    assertThat(props.valueAsInt("sonar.search.port")).isEqualTo(9001);
   }
 
   @Test
@@ -113,8 +113,8 @@ public class PropsBuilderTest {
     rawProperties.setProperty("sonar.origin", "raw");
     Props props = new PropsBuilder(rawProperties, jdbcSettings, homeDir).build();
 
-    assertThat(props.of("sonar.jdbc.username")).isEqualTo("angela");
+    assertThat(props.value("sonar.jdbc.username")).isEqualTo("angela");
     // command-line arguments override sonar.properties file
-    assertThat(props.of("sonar.origin")).isEqualTo("raw");
+    assertThat(props.value("sonar.origin")).isEqualTo("raw");
   }
 }

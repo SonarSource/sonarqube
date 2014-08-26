@@ -66,11 +66,11 @@ class Logging {
    * Configure Logback from classpath, with configuration from sonar.properties
    */
   private static void configureLogback(Props props) {
-    String configProfilingLevel = props.of(Profiling.CONFIG_PROFILING_LEVEL, "NONE");
+    String configProfilingLevel = props.value(Profiling.CONFIG_PROFILING_LEVEL, "NONE");
     Profiling.Level profilingLevel = Profiling.Level.fromConfigString(configProfilingLevel);
-    String consoleEnabled = props.of(CONFIG_LOG_CONSOLE, "false");
+    String consoleEnabled = props.value(CONFIG_LOG_CONSOLE, "false");
     Map<String, String> variables = ImmutableMap.of(
-      "sonar.path.logs", props.of("sonar.path.logs"),
+      "sonar.path.logs", props.nonNullValue("sonar.path.logs"),
       "LOGFILE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? LOGFILE_FULL_LOGGING_FORMAT : LOGFILE_STANDARD_LOGGING_FORMAT,
       "CONSOLE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? CONSOLE_FULL_LOGGING_FORMAT : CONSOLE_STANDARD_LOGGING_FORMAT,
       "CONSOLE_ENABLED", consoleEnabled);
@@ -84,10 +84,10 @@ class Logging {
   }
 
   private static void configureLogbackAccess(Tomcat tomcat, Props props) {
-    if (props.booleanOf(PROPERTY_ENABLE_ACCESS_LOGS, true)) {
+    if (props.valueAsBoolean(PROPERTY_ENABLE_ACCESS_LOGS, true)) {
       LogbackValve valve = new LogbackValve();
       valve.setQuiet(true);
-      valve.setFilename(new File(props.of("sonar.path.web"), ACCESS_RELATIVE_PATH).getAbsolutePath());
+      valve.setFilename(new File(props.nonNullValue("sonar.path.web"), ACCESS_RELATIVE_PATH).getAbsolutePath());
       tomcat.getHost().getPipeline().addValve(valve);
     }
   }

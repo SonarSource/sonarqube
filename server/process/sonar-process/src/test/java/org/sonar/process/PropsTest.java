@@ -34,10 +34,10 @@ public class PropsTest {
     p.setProperty("foo", "bar");
     Props props = new Props(p);
 
-    assertThat(props.of("foo")).isEqualTo("bar");
-    assertThat(props.of("foo", "default value")).isEqualTo("bar");
-    assertThat(props.of("unknown")).isNull();
-    assertThat(props.of("unknown", "default value")).isEqualTo("default value");
+    assertThat(props.value("foo")).isEqualTo("bar");
+    assertThat(props.value("foo", "default value")).isEqualTo("bar");
+    assertThat(props.value("unknown")).isNull();
+    assertThat(props.value("unknown", "default value")).isEqualTo("default value");
   }
 
   @Test
@@ -47,12 +47,12 @@ public class PropsTest {
     p.setProperty("blank", "");
     Props props = new Props(p);
 
-    assertThat(props.intOf("foo")).isEqualTo(33);
-    assertThat(props.intOf("foo", 44)).isEqualTo(33);
-    assertThat(props.intOf("blank")).isNull();
-    assertThat(props.intOf("blank", 55)).isEqualTo(55);
-    assertThat(props.intOf("unknown")).isNull();
-    assertThat(props.intOf("unknown", 44)).isEqualTo(44);
+    assertThat(props.valueAsInt("foo")).isEqualTo(33);
+    assertThat(props.valueAsInt("foo", 44)).isEqualTo(33);
+    assertThat(props.valueAsInt("blank")).isNull();
+    assertThat(props.valueAsInt("blank", 55)).isEqualTo(55);
+    assertThat(props.valueAsInt("unknown")).isNull();
+    assertThat(props.valueAsInt("unknown", 44)).isEqualTo(44);
   }
 
   @Test
@@ -62,7 +62,7 @@ public class PropsTest {
     Props props = new Props(p);
 
     try {
-      props.intOf("foo");
+      props.valueAsInt("foo");
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Value of property foo is not an integer: bar");
@@ -76,9 +76,9 @@ public class PropsTest {
     p.setProperty("bar", "false");
     Props props = new Props(p);
 
-    assertThat(props.booleanOf("foo")).isTrue();
-    assertThat(props.booleanOf("bar")).isFalse();
-    assertThat(props.booleanOf("unknown")).isFalse();
+    assertThat(props.valueAsBoolean("foo")).isTrue();
+    assertThat(props.valueAsBoolean("bar")).isFalse();
+    assertThat(props.valueAsBoolean("unknown")).isFalse();
   }
 
   @Test
@@ -88,10 +88,10 @@ public class PropsTest {
     p.setProperty("bar", "false");
     Props props = new Props(p);
 
-    assertThat(props.booleanOf("unset", false)).isFalse();
-    assertThat(props.booleanOf("unset", true)).isTrue();
-    assertThat(props.booleanOf("foo", false)).isTrue();
-    assertThat(props.booleanOf("bar", true)).isFalse();
+    assertThat(props.valueAsBoolean("unset", false)).isFalse();
+    assertThat(props.valueAsBoolean("unset", true)).isTrue();
+    assertThat(props.valueAsBoolean("foo", false)).isTrue();
+    assertThat(props.valueAsBoolean("bar", true)).isFalse();
   }
 
   @Test
@@ -102,9 +102,9 @@ public class PropsTest {
     props.setDefault("foo", "foo_def");
     props.setDefault("bar", "bar_def");
 
-    assertThat(props.of("foo")).isEqualTo("foo_value");
-    assertThat(props.of("bar")).isEqualTo("bar_def");
-    assertThat(props.of("other")).isNull();
+    assertThat(props.value("foo")).isEqualTo("foo_value");
+    assertThat(props.value("bar")).isEqualTo("bar_def");
+    assertThat(props.value("other")).isNull();
   }
 
   @Test
@@ -115,8 +115,8 @@ public class PropsTest {
     props.set("foo", "new_foo");
     props.set("bar", "new_bar");
 
-    assertThat(props.of("foo")).isEqualTo("new_foo");
-    assertThat(props.of("bar")).isEqualTo("new_bar");
+    assertThat(props.value("foo")).isEqualTo("new_foo");
+    assertThat(props.value("bar")).isEqualTo("new_bar");
   }
 
   @Test

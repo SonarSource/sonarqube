@@ -19,7 +19,6 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,6 @@ public abstract class MonitoredProcess implements ProcessMXBean {
   private static final long AUTOKILL_TIMEOUT_MS = 30000L;
   private static final long AUTOKILL_CHECK_DELAY_MS = 2000L;
   public static final String NAME_PROPERTY = "pName";
-  public static final String MISSING_NAME_ARGUMENT = "Missing Name argument";
 
   private Long lastPing;
   private final String name;
@@ -56,12 +54,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
   protected MonitoredProcess(Props props, boolean monitor) {
     this.isMonitored = monitor;
     this.props = props;
-    this.name = props.of(NAME_PROPERTY);
-
-    // Testing required properties
-    if (StringUtils.isEmpty(name)) {
-      throw new IllegalStateException(MISSING_NAME_ARGUMENT);
-    }
+    this.name = props.nonNullValue(NAME_PROPERTY);
 
     JmxUtils.registerMBean(this, name);
     ProcessUtils.addSelfShutdownHook(this);

@@ -70,7 +70,7 @@ class Webapp {
   }
 
   static String getContextPath(Props props) {
-    String context = props.of(PROPERTY_CONTEXT, "");
+    String context = props.value(PROPERTY_CONTEXT, "");
     if ("/".equals(context)) {
       context = "";
     } else if (!"".equals(context) && !context.startsWith("/")) {
@@ -81,10 +81,10 @@ class Webapp {
 
   static void configureRails(Props props, Context context) {
     // sonar.dev is kept for backward-compatibility
-    if (props.booleanOf("sonar.dev", false)) {
+    if (props.valueAsBoolean("sonar.dev", false)) {
       props.set("sonar.web.dev", "true");
     }
-    if (props.booleanOf("sonar.web.dev", false)) {
+    if (props.valueAsBoolean("sonar.web.dev", false)) {
       context.addParameter(RAILS_ENV, "development");
       context.addParameter(JRUBY_MAX_RUNTIMES, "3");
       LoggerFactory.getLogger(Webapp.class).warn("WEB DEVELOPMENT MODE IS ENABLED - DO NOT USE FOR PRODUCTION USAGE");
@@ -95,9 +95,9 @@ class Webapp {
   }
 
   static String webappPath(Props props) {
-    String webDir = props.of("sonar.web.dev.sources");
+    String webDir = props.value("sonar.web.dev.sources");
     if (StringUtils.isEmpty(webDir)) {
-      webDir = new File(props.of("sonar.path.home"), "web").getAbsolutePath();
+      webDir = new File(props.value("sonar.path.home"), "web").getAbsolutePath();
     }
     LoggerFactory.getLogger(Webapp.class).info(String.format("Webapp directory: %s", webDir));
     return webDir;

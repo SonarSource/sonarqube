@@ -50,7 +50,7 @@ public class JdbcSettings {
   }
 
   public void checkAndComplete(File homeDir, Props props) {
-    String url = props.of(DefaultSettings.JDBC_URL);
+    String url = props.value(DefaultSettings.JDBC_URL);
     Provider provider = driverProvider(url);
     checkUrlParameters(provider, url);
     String driverPath = driverPath(homeDir, provider);

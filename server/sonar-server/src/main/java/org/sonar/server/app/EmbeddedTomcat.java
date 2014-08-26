@@ -80,7 +80,7 @@ class EmbeddedTomcat implements Terminable {
   }
 
   private File tomcatBasedir() {
-    return new File(props.of("sonar.path.temp"), "tc");
+    return new File(props.value("sonar.path.temp"), "tc");
   }
 
   boolean isReady() {

@@ -66,7 +66,7 @@ public class SearchServer extends MonitoredProcess {
     this.isBlocking = blocking;
     new MinimumViableSystem().check();
 
-    String esNodesInets = props.of(ES_CLUSTER_INET);
+    String esNodesInets = props.value(ES_CLUSTER_INET);
     if (StringUtils.isNotEmpty(esNodesInets)) {
       Collections.addAll(nodes, esNodesInets.split(","));
     }
@@ -77,7 +77,7 @@ public class SearchServer extends MonitoredProcess {
     this.isBlocking = true;
     new MinimumViableSystem().check();
 
-    String esNodesInets = props.of(ES_CLUSTER_INET);
+    String esNodesInets = props.value(ES_CLUSTER_INET);
     if (StringUtils.isNotEmpty(esNodesInets)) {
       Collections.addAll(nodes, esNodesInets.split(","));
     }
@@ -94,9 +94,8 @@ public class SearchServer extends MonitoredProcess {
 
   @Override
   protected void doStart() {
-
-    Integer port = props.intOf(ES_PORT_PROPERTY);
-    String clusterName = props.of(ES_CLUSTER_PROPERTY);
+    Integer port = props.valueAsInt(ES_PORT_PROPERTY);
+    String clusterName = props.value(ES_CLUSTER_PROPERTY);
 
     LoggerFactory.getLogger(SearchServer.class).info("Starting ES[{}] on port: {}", clusterName, port);
 
@@ -105,7 +104,7 @@ public class SearchServer extends MonitoredProcess {
       // Disable MCast
       .put("discovery.zen.ping.multicast.enabled", "false")
 
-        // Index storage policies
+      // Index storage policies
       .put("index.merge.policy.max_merge_at_once", "200")
       .put("index.merge.policy.segments_per_tier", "200")
       .put("index.number_of_shards", "1")
@@ -114,15 +113,15 @@ public class SearchServer extends MonitoredProcess {
       .put("indices.store.throttle.type", "merge")
       .put("indices.store.throttle.max_bytes_per_sec", "200mb")
 
-        // Install our own listUpdate scripts
+      // Install our own listUpdate scripts
       .put("script.default_lang", "native")
       .put("script.native." + ListUpdate.NAME + ".type", ListUpdate.UpdateListScriptFactory.class.getName())
 
-        // Node is pure transport
+      // Node is pure transport
       .put("transport.tcp.port", port)
       .put("http.enabled", false)
 
-        // Setting up ES paths
+      // Setting up ES paths
       .put("path.data", esDataDir().getAbsolutePath())
       .put("path.work", esWorkDir().getAbsolutePath())
       .put("path.logs", esLogDir().getAbsolutePath());
@@ -140,10 +139,10 @@ public class SearchServer extends MonitoredProcess {
 
     // Set cluster coordinates
     esSettings.put("cluster.name", clusterName);
-    esSettings.put("node.rack_id", StringUtils.defaultIfEmpty(props.of(SONAR_NODE_NAME), "unknown"));
+    esSettings.put("node.rack_id", props.value(SONAR_NODE_NAME, "unknown"));
     esSettings.put("cluster.routing.allocation.awareness.attributes", "rack_id");
     if (props.contains(SONAR_NODE_NAME)) {
-      esSettings.put("node.name", props.of(SONAR_NODE_NAME));
+      esSettings.put("node.name", props.value(SONAR_NODE_NAME));
     } else {
       try {
         esSettings.put("node.name", InetAddress.getLocalHost().getHostName());
@@ -184,40 +183,40 @@ public class SearchServer extends MonitoredProcess {
       // Disallow dynamic mapping (too expensive)
       .put("index.mapper.dynamic", false)
 
-        // Sortable text analyzer
+      // Sortable text analyzer
       .put("index.analysis.analyzer.sortable.type", "custom")
       .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
       .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase", "truncate")
 
-        // Edge NGram index-analyzer
+      // Edge NGram index-analyzer
       .put("index.analysis.analyzer.index_grams.type", "custom")
       .put("index.analysis.analyzer.index_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.index_grams.filter", "trim", "lowercase", "gram_filter")
 
-        // Edge NGram search-analyzer
+      // Edge NGram search-analyzer
       .put("index.analysis.analyzer.search_grams.type", "custom")
       .put("index.analysis.analyzer.search_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.search_grams.filter", "trim", "lowercase")
 
-        // Word index-analyzer
+      // Word index-analyzer
       .put("index.analysis.analyzer.index_words.type", "custom")
       .put("index.analysis.analyzer.index_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.index_words.filter",
         "standard", "word_filter", "lowercase", "stop", "asciifolding", "porter_stem")
 
-        // Word search-analyzer
+      // Word search-analyzer
       .put("index.analysis.analyzer.search_words.type", "custom")
       .put("index.analysis.analyzer.search_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.search_words.filter",
         "standard", "lowercase", "stop", "asciifolding", "porter_stem")
 
-        // Edge NGram filter
+      // Edge NGram filter
       .put("index.analysis.filter.gram_filter.type", "edgeNGram")
       .put("index.analysis.filter.gram_filter.min_gram", 2)
       .put("index.analysis.filter.gram_filter.max_gram", 15)
       .putArray("index.analysis.filter.gram_filter.token_chars", "letter", "digit", "punctuation", "symbol")
 
-        // Word filter
+      // Word filter
       .put("index.analysis.filter.word_filter.type", "word_delimiter")
       .put("index.analysis.filter.word_filter.generate_word_parts", true)
       .put("index.analysis.filter.word_filter.catenate_words", true)
@@ -228,46 +227,38 @@ public class SearchServer extends MonitoredProcess {
       .put("index.analysis.filter.word_filter.split_on_numerics", true)
       .put("index.analysis.filter.word_filter.stem_english_possessive", true)
 
-        // Path Analyzer
+      // Path Analyzer
       .put("index.analysis.analyzer.path_analyzer.type", "custom")
       .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy");
 
   }
 
   private File esHomeDir() {
-    String homeDir = props.of(SONAR_PATH_HOME);
-    if (StringUtils.isEmpty(homeDir)) {
-      throw new IllegalStateException("property 'sonar.path.home' is required");
-    } else {
-      return new File(homeDir);
-    }
+    return props.nonNullValueAsFile(SONAR_PATH_HOME);
   }
 
   private File esDataDir() {
-    String dataDir = props.of(SONAR_PATH_DATA);
+    String dataDir = props.value(SONAR_PATH_DATA);
     if (StringUtils.isNotEmpty(dataDir)) {
       return new File(dataDir, "es");
-    } else {
-      return new File(esHomeDir(), "data/es");
     }
+    return new File(esHomeDir(), "data/es");
   }
 
   private File esLogDir() {
-    String logDir = props.of(SONAR_PATH_LOG);
+    String logDir = props.value(SONAR_PATH_LOG);
     if (StringUtils.isNotEmpty(logDir)) {
       return new File(logDir);
-    } else {
-      return new File(esHomeDir(), "log");
     }
+    return new File(esHomeDir(), "log");
   }
 
   private File esWorkDir() {
-    String workDir = props.of(SONAR_PATH_TEMP);
+    String workDir = props.value(SONAR_PATH_TEMP);
     if (StringUtils.isNotEmpty(workDir)) {
       return new File(workDir);
-    } else {
-      return new File(esHomeDir(), "temp");
     }
+    return new File(esHomeDir(), "temp");
   }
 
   @Override

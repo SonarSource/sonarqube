@@ -30,7 +30,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 
-public class ProcessWrapperTest extends ProcessTest {
+public class BaseProcessWrapperTest extends BaseProcessTest {
 
   @Test
   public void has_dummy_app() {
@@ -100,7 +100,7 @@ public class ProcessWrapperTest extends ProcessTest {
     props.set("spaceHome", home.getAbsolutePath());
 
     // 3 start dummy app
-    File effectiveHome = props.fileOf("spaceHome");
+    File effectiveHome = props.nonNullValueAsFile("spaceHome");
 
     String cp = FilenameUtils.concat(new File(effectiveHome, "lib").getAbsolutePath(), "*");
     System.out.println("cp = " + cp);

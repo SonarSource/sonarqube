@@ -33,10 +33,10 @@ public class DefaultSettingsTest {
     Props props = new Props(new Properties());
     DefaultSettings.init(props);
 
-    assertThat(props.of("sonar.search.javaOpts")).contains("-Xmx");
-    assertThat(props.intOf("sonar.web.jmxPort")).isEqualTo(9003);
-    assertThat(props.intOf("sonar.search.jmxPort")).isEqualTo(9002);
-    assertThat(props.of("sonar.jdbc.username")).isEqualTo("sonar");
+    assertThat(props.value("sonar.search.javaOpts")).contains("-Xmx");
+    assertThat(props.valueAsInt("sonar.web.jmxPort")).isEqualTo(9003);
+    assertThat(props.valueAsInt("sonar.search.jmxPort")).isEqualTo(9002);
+    assertThat(props.value("sonar.jdbc.username")).isEqualTo("sonar");
   }
 
   @Test
@@ -46,7 +46,7 @@ public class DefaultSettingsTest {
     Props props = new Props(p);
     DefaultSettings.init(props);
 
-    assertThat(props.of("sonar.jdbc.username")).isEqualTo("angela");
+    assertThat(props.value("sonar.jdbc.username")).isEqualTo("angela");
   }
 
   @Test
@@ -56,6 +56,6 @@ public class DefaultSettingsTest {
     Props props = new Props(p);
 
     DefaultSettings.init(props);
-    assertThat(props.intOf("sonar.web.jmxPort")).isGreaterThan(0);
+    assertThat(props.valueAsInt("sonar.web.jmxPort")).isGreaterThan(0);
   }
 }

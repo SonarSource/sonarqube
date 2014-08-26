@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.util.Properties;
 
@@ -41,7 +42,7 @@ public class Props {
   }
 
   @CheckForNull
-  public String of(String key) {
+  public String value(String key) {
     String value = properties.getProperty(key);
     if (value != null && encryption.isEncrypted(value)) {
       value = encryption.decrypt(value);
@@ -49,29 +50,41 @@ public class Props {
     return value;
   }
 
-  public String of(String key, @Nullable String defaultValue) {
-    String s = of(key);
-    return s == null ? defaultValue : s;
-  }
-
-  public boolean booleanOf(String key) {
-    String s = of(key);
-    return s != null && Boolean.parseBoolean(s);
-  }
-
-  public boolean booleanOf(String key, boolean defaultValue) {
-    String s = of(key);
-    return s != null ? Boolean.parseBoolean(s) : defaultValue;
+  public String nonNullValue(String key) {
+    String value = value(key);
+    if (value == null) {
+      throw new IllegalArgumentException("Missing property: " + key);
+    }
+    return value;
   }
 
   @CheckForNull
-  public File fileOf(String key) {
-    String s = of(key);
-    return s != null ? new File(s) : null;
+  public String value(String key, @Nullable String defaultValue) {
+    String s = value(key);
+    return s == null ? defaultValue : s;
   }
 
-  public Integer intOf(String key) {
-    String s = of(key);
+  public boolean valueAsBoolean(String key) {
+    String s = value(key);
+    return s != null && Boolean.parseBoolean(s);
+  }
+
+  public boolean valueAsBoolean(String key, boolean defaultValue) {
+    String s = value(key);
+    return s != null ? Boolean.parseBoolean(s) : defaultValue;
+  }
+
+  public File nonNullValueAsFile(String key) {
+    String s = value(key);
+    if (s == null) {
+      throw new IllegalArgumentException("Property " + key + " is missing");
+    }
+    return new File(s);
+  }
+
+  @CheckForNull
+  public Integer valueAsInt(String key) {
+    String s = value(key);
     if (s != null && !"".equals(s)) {
       try {
         return Integer.parseInt(s);
@@ -82,8 +95,8 @@ public class Props {
     return null;
   }
 
-  public int intOf(String key, int defaultValue) {
-    Integer i = intOf(key);
+  public int valueAsInt(String key, int defaultValue) {
+    Integer i = valueAsInt(key);
     return i == null ? defaultValue : i;
   }
 

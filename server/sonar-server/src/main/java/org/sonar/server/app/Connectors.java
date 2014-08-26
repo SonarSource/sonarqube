@@ -70,7 +70,7 @@ class Connectors {
   private static Connector newHttpConnector(Props props) {
     Connector connector = null;
     // Not named "sonar.web.http.port" to keep backward-compatibility
-    int port = props.intOf("sonar.web.port", 9000);
+    int port = props.valueAsInt("sonar.web.port", 9000);
     if (port > DISABLED_PORT) {
       connector = newConnector(props, HTTP_PROTOCOL, "http");
       connector.setPort(port);
@@ -82,7 +82,7 @@ class Connectors {
   @Nullable
   private static Connector newAjpConnector(Props props) {
     Connector connector = null;
-    int port = props.intOf("sonar.ajp.port", DISABLED_PORT);
+    int port = props.valueAsInt("sonar.ajp.port", DISABLED_PORT);
     if (port > DISABLED_PORT) {
       connector = newConnector(props, AJP_PROTOCOL, "http");
       connector.setPort(port);
@@ -94,24 +94,24 @@ class Connectors {
   @Nullable
   private static Connector newHttpsConnector(Props props) {
     Connector connector = null;
-    int port = props.intOf("sonar.web.https.port", DISABLED_PORT);
+    int port = props.valueAsInt("sonar.web.https.port", DISABLED_PORT);
     if (port > DISABLED_PORT) {
       connector = newConnector(props, HTTP_PROTOCOL, "https");
       connector.setPort(port);
       connector.setSecure(true);
       connector.setScheme("https");
-      setConnectorAttribute(connector, "keyAlias", props.of("sonar.web.https.keyAlias"));
-      String keyPassword = props.of("sonar.web.https.keyPass", "changeit");
+      setConnectorAttribute(connector, "keyAlias", props.value("sonar.web.https.keyAlias"));
+      String keyPassword = props.value("sonar.web.https.keyPass", "changeit");
       setConnectorAttribute(connector, "keyPass", keyPassword);
-      setConnectorAttribute(connector, "keystorePass", props.of("sonar.web.https.keystorePass", keyPassword));
-      setConnectorAttribute(connector, "keystoreFile", props.of("sonar.web.https.keystoreFile"));
-      setConnectorAttribute(connector, "keystoreType", props.of("sonar.web.https.keystoreType", "JKS"));
-      setConnectorAttribute(connector, "keystoreProvider", props.of("sonar.web.https.keystoreProvider"));
-      setConnectorAttribute(connector, "truststorePass", props.of("sonar.web.https.truststorePass", "changeit"));
-      setConnectorAttribute(connector, "truststoreFile", props.of("sonar.web.https.truststoreFile"));
-      setConnectorAttribute(connector, "truststoreType", props.of("sonar.web.https.truststoreType", "JKS"));
-      setConnectorAttribute(connector, "truststoreProvider", props.of("sonar.web.https.truststoreProvider"));
-      setConnectorAttribute(connector, "clientAuth", props.of("sonar.web.https.clientAuth", "false"));
+      setConnectorAttribute(connector, "keystorePass", props.value("sonar.web.https.keystorePass", keyPassword));
+      setConnectorAttribute(connector, "keystoreFile", props.value("sonar.web.https.keystoreFile"));
+      setConnectorAttribute(connector, "keystoreType", props.value("sonar.web.https.keystoreType", "JKS"));
+      setConnectorAttribute(connector, "keystoreProvider", props.value("sonar.web.https.keystoreProvider"));
+      setConnectorAttribute(connector, "truststorePass", props.value("sonar.web.https.truststorePass", "changeit"));
+      setConnectorAttribute(connector, "truststoreFile", props.value("sonar.web.https.truststoreFile"));
+      setConnectorAttribute(connector, "truststoreType", props.value("sonar.web.https.truststoreType", "JKS"));
+      setConnectorAttribute(connector, "truststoreProvider", props.value("sonar.web.https.truststoreProvider"));
+      setConnectorAttribute(connector, "clientAuth", props.value("sonar.web.https.clientAuth", "false"));
       setConnectorAttribute(connector, "sslProtocol", "TLS");
       setConnectorAttribute(connector, "SSLEnabled", true);
       info("HTTPS connector is enabled on port " + port);
@@ -122,7 +122,7 @@ class Connectors {
   private static Connector newConnector(Props props, String protocol, String scheme) {
     Connector connector = new Connector(protocol);
     connector.setURIEncoding("UTF-8");
-    connector.setProperty("address", props.of("sonar.web.host", "0.0.0.0"));
+    connector.setProperty("address", props.value("sonar.web.host", "0.0.0.0"));
     configurePool(props, connector, scheme);
     configureCompression(connector);
     return connector;
@@ -130,9 +130,9 @@ class Connectors {
 
   private static void configurePool(Props props, Connector connector, String scheme) {
     connector.setProperty("acceptorThreadCount", String.valueOf(2));
-    connector.setProperty("minSpareThreads", String.valueOf(props.intOf("sonar.web." + scheme + ".minThreads", 5)));
-    connector.setProperty("maxThreads", String.valueOf(props.intOf("sonar.web." + scheme + ".maxThreads", 50)));
-    connector.setProperty("acceptCount", String.valueOf(props.intOf("sonar.web." + scheme + ".acceptCount", 25)));
+    connector.setProperty("minSpareThreads", String.valueOf(props.valueAsInt("sonar.web." + scheme + ".minThreads", 5)));
+    connector.setProperty("maxThreads", String.valueOf(props.valueAsInt("sonar.web." + scheme + ".maxThreads", 50)));
+    connector.setProperty("acceptCount", String.valueOf(props.valueAsInt("sonar.web." + scheme + ".acceptCount", 25)));
   }
 
   private static void configureCompression(Connector connector) {

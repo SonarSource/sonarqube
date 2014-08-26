@@ -35,8 +35,8 @@ public class MonitoredProcessTest {
     try {
       new DummyProcess(new Props(properties), true);
       fail();
-    } catch (Exception e) {
-      assertThat(e.getMessage()).isEqualTo("Missing Name argument");
+    } catch (IllegalArgumentException e) {
+      assertThat(e.getMessage()).isEqualTo("Missing property: pName");
     }
 
     properties.setProperty(MonitoredProcess.NAME_PROPERTY, DummyProcess.NAME);

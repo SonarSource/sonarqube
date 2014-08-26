@@ -76,7 +76,7 @@ public class ConfigurationUtilsTest {
     FileUtils.write(propsFile, "foo=bar");
 
     Props result = ConfigurationUtils.loadPropsFromCommandLineArgs(new String[] {propsFile.getAbsolutePath()});
-    assertThat(result.of("foo")).isEqualTo("bar");
+    assertThat(result.value("foo")).isEqualTo("bar");
     assertThat(result.rawProperties()).hasSize(1);
   }
 

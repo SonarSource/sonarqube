@@ -55,7 +55,7 @@ class DefaultSettings {
     // init ports
     for (Map.Entry<String, Integer> entry : defaultPorts().entrySet()) {
       String key = entry.getKey();
-      int port = props.intOf(key, -1);
+      int port = props.valueAsInt(key, -1);
       if (port == -1) {
         // default port
         props.set(key, String.valueOf((int) entry.getValue()));
