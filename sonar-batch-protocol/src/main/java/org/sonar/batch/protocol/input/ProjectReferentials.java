@@ -21,7 +21,6 @@ package org.sonar.batch.protocol.input;
 
 import com.google.gson.Gson;
 
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -83,8 +82,8 @@ public class ProjectReferentials {
     return new Gson().toJson(this);
   }
 
-  public static ProjectReferentials fromJson(Reader input) {
-    return new Gson().fromJson(input, ProjectReferentials.class);
+  public static ProjectReferentials fromJson(String json) {
+    return new Gson().fromJson(json, ProjectReferentials.class);
   }
 
 }

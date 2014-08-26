@@ -24,8 +24,6 @@ import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import java.io.StringReader;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class GlobalReferentialsTest {
@@ -48,10 +46,10 @@ public class GlobalReferentialsTest {
   @Test
   public void from_json() throws JSONException {
     GlobalReferentials ref = GlobalReferentials
-      .fromJson(new StringReader(
-        "{timestamp:1,"
-          + "metrics:[{id:1,key:ncloc,valueType:DATA,description:Description,direction:-1,name:NCLOC,qualitative:true,userManaged:false,worstValue:2.0,bestValue:1.0,optimizedBestValue:true}],"
-          + "globalSettings:{prop:value}}"));
+      .fromJson(
+      "{timestamp:1,"
+        + "metrics:[{id:1,key:ncloc,valueType:DATA,description:Description,direction:-1,name:NCLOC,qualitative:true,userManaged:false,worstValue:2.0,bestValue:1.0,optimizedBestValue:true}],"
+        + "globalSettings:{prop:value}}");
 
     assertThat(ref.timestamp()).isEqualTo(1);
     Metric metric = ref.metrics().iterator().next();

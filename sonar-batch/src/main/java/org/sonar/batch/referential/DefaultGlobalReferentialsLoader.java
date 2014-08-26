@@ -19,14 +19,8 @@
  */
 package org.sonar.batch.referential;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.InputSupplier;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.input.GlobalReferentials;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 public class DefaultGlobalReferentialsLoader implements GlobalReferentialsLoader {
 
@@ -40,12 +34,7 @@ public class DefaultGlobalReferentialsLoader implements GlobalReferentialsLoader
 
   @Override
   public GlobalReferentials load() {
-    InputSupplier<InputStream> jsonStream = serverClient.doRequest(BATCH_GLOBAL_URL, null);
-    try {
-      return GlobalReferentials.fromJson(new InputStreamReader(jsonStream.getInput(), Charsets.UTF_8));
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to load global referentials", e);
-    }
+    return GlobalReferentials.fromJson(serverClient.request(BATCH_GLOBAL_URL));
   }
 
 }

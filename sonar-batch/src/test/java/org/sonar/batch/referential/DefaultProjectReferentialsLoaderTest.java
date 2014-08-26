@@ -20,7 +20,6 @@
 package org.sonar.batch.referential;
 
 import com.google.common.collect.Maps;
-import com.google.common.io.InputSupplier;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -30,11 +29,6 @@ import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.rule.ModuleQProfiles;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -53,13 +47,7 @@ public class DefaultProjectReferentialsLoaderTest {
     serverClient = mock(ServerClient.class);
     analysisMode = mock(AnalysisMode.class);
     loader = new DefaultProjectReferentialsLoader(serverClient, analysisMode);
-    when(serverClient.doRequest(anyString(), anyInt())).thenReturn(new InputSupplier<InputStream>() {
-
-      @Override
-      public InputStream getInput() throws IOException {
-        return new ByteArrayInputStream(new byte[0]);
-      }
-    });
+    when(serverClient.request(anyString())).thenReturn("");
     reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
     taskProperties = new TaskProperties(Maps.<String, String>newHashMap(), "");
   }
@@ -68,18 +56,18 @@ public class DefaultProjectReferentialsLoaderTest {
   public void passPreviewParameter() {
     when(analysisMode.isPreview()).thenReturn(false);
     loader.load(reactor, taskProperties);
-    verify(serverClient).doRequest("/batch/project?key=foo&preview=false", null);
+    verify(serverClient).request("/batch/project?key=foo&preview=false");
 
     when(analysisMode.isPreview()).thenReturn(true);
     loader.load(reactor, taskProperties);
-    verify(serverClient).doRequest("/batch/project?key=foo&preview=true", null);
+    verify(serverClient).request("/batch/project?key=foo&preview=true");
   }
 
   @Test
   public void passProfileParameter() {
     taskProperties.properties().put(ModuleQProfiles.SONAR_PROFILE_PROP, "my-profile");
     loader.load(reactor, taskProperties);
-    verify(serverClient).doRequest("/batch/project?key=foo&profile=my-profile&preview=false", null);
+    verify(serverClient).request("/batch/project?key=foo&profile=my-profile&preview=false");
   }
 
 }

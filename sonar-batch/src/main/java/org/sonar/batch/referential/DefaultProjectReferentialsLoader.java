@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.referential;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.InputSupplier;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
@@ -28,9 +26,6 @@ import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.batch.rule.ModuleQProfiles;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -57,11 +52,6 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
       }
     }
     url += "&preview=" + analysisMode.isPreview();
-    InputSupplier<InputStream> jsonStream = serverClient.doRequest(url, null);
-    try {
-      return ProjectReferentials.fromJson(new InputStreamReader(jsonStream.getInput(), Charsets.UTF_8));
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to load project referentials", e);
-    }
+    return ProjectReferentials.fromJson(serverClient.request(url));
   }
 }

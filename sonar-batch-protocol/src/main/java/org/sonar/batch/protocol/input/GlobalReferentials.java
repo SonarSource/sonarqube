@@ -21,7 +21,6 @@ package org.sonar.batch.protocol.input;
 
 import com.google.gson.Gson;
 
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,7 +40,7 @@ public class GlobalReferentials {
     return globalSettings;
   }
 
-  public GlobalReferentials addGlobalSetting(String key, String value){
+  public GlobalReferentials addGlobalSetting(String key, String value) {
     globalSettings.put(key, value);
     return this;
   }
@@ -50,7 +49,7 @@ public class GlobalReferentials {
     return metrics;
   }
 
-  public GlobalReferentials addMetric(Metric metric){
+  public GlobalReferentials addMetric(Metric metric) {
     metrics.add(metric);
     return this;
   }
@@ -67,8 +66,8 @@ public class GlobalReferentials {
     return new Gson().toJson(this);
   }
 
-  public static GlobalReferentials fromJson(Reader input) {
-    return new Gson().fromJson(input, GlobalReferentials.class);
+  public static GlobalReferentials fromJson(String json) {
+    return new Gson().fromJson(json, GlobalReferentials.class);
   }
 
 }

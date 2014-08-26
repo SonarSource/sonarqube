@@ -24,7 +24,6 @@ import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
-import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
@@ -53,10 +52,10 @@ public class ProjectReferentialsTest {
 
   @Test
   public void testFromJson() throws JSONException {
-    ProjectReferentials ref = ProjectReferentials.fromJson(new StringReader("{timestamp:1,"
+    ProjectReferentials ref = ProjectReferentials.fromJson("{timestamp:1,"
       + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
       + "activeRules:[{repositoryKey:repo,ruleKey:rule,severity:MAJOR,internalKey:rule,language:java,params:{}}],"
-      + "settingsByModule:{foo:{prop:value}}}"));
+      + "settingsByModule:{foo:{prop:value}}}");
 
     assertThat(ref.timestamp()).isEqualTo(1);
 
