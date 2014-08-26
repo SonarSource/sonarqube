@@ -37,11 +37,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleNormalizer;
-import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.IndexField;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -138,7 +134,11 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
 
   public List<ActiveRule> findByProfile(String key) {
     SearchRequestBuilder request = getClient().prepareSearch(getIndexName())
-      .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key))
+      .setQuery(QueryBuilders.filteredQuery(
+        QueryBuilders.termsQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key),
+        FilterBuilders.boolFilter()
+          .mustNot(FilterBuilders.hasParentFilter(this.getParentType(),
+            FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), RuleStatus.REMOVED.name())))))
       .setRouting(key)
         // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);

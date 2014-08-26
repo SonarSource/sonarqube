@@ -168,11 +168,15 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
 
     RuleDto rule1 = RuleTesting.newXooX1().setSeverity(Severity.MAJOR);
     RuleDto rule2 = RuleTesting.newXooX2().setSeverity(Severity.MAJOR);
-    db.ruleDao().insert(dbSession, rule1, rule2);
+    RuleDto removedRule = RuleTesting.newDto(RuleKey.of("xoo", "removed")).setSeverity(Severity.MAJOR).setStatus(RuleStatus.REMOVED);
+    db.ruleDao().insert(dbSession, rule1, rule2, removedRule);
 
     db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule1).setSeverity(Severity.MINOR));
     db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule2).setSeverity(Severity.BLOCKER));
     db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, rule2).setSeverity(Severity.CRITICAL));
+    // Removed rule can still be activated for instance when removing the checkstyle plugin, active rules related on checkstyle are not removed
+    // because if the plugin is re-install, quality profiles using these rule are not changed.
+    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, removedRule).setSeverity(Severity.MAJOR));
     dbSession.commit();
 
     // 1. find by rule key

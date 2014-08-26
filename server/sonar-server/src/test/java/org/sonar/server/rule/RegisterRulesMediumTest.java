@@ -348,7 +348,7 @@ public class RegisterRulesMediumTest {
     // Restart without xoo
     register(null);
     assertThat(ruleIndex.getByKey(RuleTesting.XOO_X1).status()).isEqualTo(RuleStatus.REMOVED);
-    assertThat(activeRuleIndex.findByProfile(QProfileTesting.XOO_P1_KEY)).hasSize(1);
+    assertThat(activeRuleIndex.findByProfile(QProfileTesting.XOO_P1_KEY)).isEmpty();
 
     // Re-install
     register(rules);
