@@ -14,7 +14,13 @@
   var selectList = new SelectList({
     el: '#select-list-group',
     width: '100%',
-    format: function (item) { return item.name; },
+    format: function (item) {
+      var label = item.name;
+      if (item.description) {
+        label += ' <div class="subtitle">' + item.description + '</div>'
+      }
+      return label;
+    },
     searchUrl: baseUrl + '/permission_templates/search_groups?permission=<%= @permission -%>&template=<%= @permission_template.key -%>',
     selectUrl: baseUrl + '/permission_templates/add_group_permission',
     deselectUrl: baseUrl + '/permission_templates/remove_group_permission',

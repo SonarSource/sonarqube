@@ -14,7 +14,13 @@
   var selectList = new SelectList({
     el: '#select-users-permissions',
     width: '100%',
-    format: function (item) { return item.name; },
+    format: function (item) {
+      var label = item.name;
+      if (item.description) {
+        label += ' <div class="subtitle">' + item.description + '</div>'
+      }
+      return label;
+    },
     searchUrl: baseUrl + '/permissions/search_groups?permission=<%= @role -%><%= @project ? "&component=" + @project.key : "" -%>',
     selectUrl: baseUrl + '/api/permissions/add',
     deselectUrl: baseUrl + '/api/permissions/remove',
