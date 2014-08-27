@@ -302,6 +302,7 @@ module ApplicationHelper
   end
 
 
+
   #
   #
   # link to the current page with the given resource. If file, then open a popup to display resource viewers.
@@ -312,18 +313,29 @@ module ApplicationHelper
     period_index=nil if period_index && period_index<=0
     if resource.display_dashboard?
       if options[:dashboard]
-        link_to(name || resource.name, params.merge({:controller => 'dashboard', :action => 'index', :id => resource.id, :period => period_index,
-                                                     :tab => options[:tab], :rule => options[:rule]}), :title => options[:title], :class => options[:class])
+        url = "#{ApplicationController.root_context}/dashboard/index?id=#{u resource.id}"
+        url += "&period=#{u period_index}" if period_index
+        url += "&tab=#{u options[:tab]}" if options[:tab]
+        url += "&rule=#{u options[:rule]}" if options[:rule]
+        "<a class='#{options[:class]}' title='#{options[:title]}' href='#{url}'>#{name || resource.name}</a>"
       else
         # stay on the same page (for example components)
-        link_to(name || resource.name, params.merge({:id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule]}), :title => options[:title], :class => options[:class])
+        url = "#{ApplicationController.root_context}/#{u params[:controller]}/#{u params[:action]}?id=#{u resource.id}"
+        url += "&period=#{u period_index}" if period_index
+        url += "&tab=#{u options[:tab]}" if options[:tab]
+        url += "&rule=#{u options[:rule]}" if options[:rule]
+        "<a class='#{options[:class]}' title='#{options[:title]}' href='#{url}'>#{name || resource.name}</a>"
       end
     else
-      if options[:line]
-        anchor= 'L' + options[:line].to_s
-      end
-      link_to(name || resource.name, {:controller => 'dashboard', :action => 'index', :anchor => anchor, :id => resource.key, :period => period_index, :tab => options[:tab], :rule => options[:rule],
-                                      :metric => options[:metric]}, :popup => ["resource-#{resource.key.parameterize}", ''], :title => options[:title], :class => options[:class])
+      url = "#{ApplicationController.root_context}/dashboard/index?id=#{u resource.key}"
+      url += "&period=#{u period_index}" if period_index
+      url += "&tab=#{u options[:tab]}" if options[:tab]
+      url += "&rule=#{u options[:rule]}" if options[:rule]
+      url += "&metric=#{u options[:metric]}" if options[:metric]
+      url += '#L' + options[:line].to_s if options[:line]
+      "<a class='#{options[:class]}' title='#{options[:title]}' " +
+          "onclick='window.open(this.href,\"resource-#{resource.key.parameterize}\",\"\");return false;' " +
+          "href='#{url}'>#{name || resource.name}</a>"
     end
   end
 
