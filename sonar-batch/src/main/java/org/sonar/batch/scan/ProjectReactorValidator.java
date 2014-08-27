@@ -25,6 +25,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.resource.ResourceDao;
@@ -88,8 +89,8 @@ public class ProjectReactorValidator {
       // SONAR-4692 Validate root project is the same than previous analysis to avoid module with same key in different projects
       String moduleKey = ComponentKeys.createKey(moduleDef.getKey(), branch);
       ResourceDto rootInDB = resourceDao.getRootProjectByComponentKey(moduleKey);
-      if (rootInDB == null) {
-        // This is a new module so OK
+      if (rootInDB == null || Qualifiers.LIBRARY.equals(rootInDB.getQualifier())) {
+        // This is a new module or previously a library so OK
         return;
       }
       if (rootInDB.getKey().equals(moduleKey)) {

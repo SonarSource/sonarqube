@@ -202,7 +202,7 @@ public class ResourceDao implements DaoComponent {
   /**
    * Return the root project of a component.
    * Will return the component itself if it's already the root project
-   * Can return null if the component that does exists.
+   * Can return null if the component does not exists.
    *
    * The implementation should rather use a new column already containing the root project, see https://jira.codehaus.org/browse/SONAR-5188.
    */
