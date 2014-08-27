@@ -54,7 +54,7 @@
     </ul>
     <ul id="bc">
       <%
-         resource_link = {}
+         resource_link = {:controller => params[:controller], :action => params[:action]}
          if display_only_root
            resource_link = {:controller => 'dashboard', :action => 'index'}
          end
@@ -79,7 +79,11 @@
           <li>
             <%= qualifier_icon(resource) -%>
             &nbsp;
-            <%= link_to(h(resource.name), params.merge({:id => resource.key}.merge(resource_link))) -%>
+            <%=
+                query = request.query_parameters.merge({:id => resource.key})
+                url = URI::HTTP.build(:path => "#{ApplicationController.root_context}/#{u resource_link[:controller]}/#{u resource_link[:action]}", :query => query.to_query)
+                "<a href='#{url}'>#{h(resource.name)}</a>"
+            -%>
           </li>
         <%
            end
