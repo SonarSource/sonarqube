@@ -126,7 +126,7 @@ public class Monitor extends Thread implements Terminable {
   volatile Boolean isRunning = true;
 
   @Override
-  public void terminate() {
+  public synchronized void terminate() {
     LOGGER.debug("Monitoring thread is terminating");
 
     if (!monitorExecutionService.isShutdown()) {
