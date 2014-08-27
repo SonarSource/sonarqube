@@ -45,7 +45,7 @@ public class LoopbackAddressTest {
       LoopbackAddress.doGet(ifaces);
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Impossible to get a IP loopback address");
+      assertThat(e).hasMessage("Impossible to get a IPv4 loopback address");
     }
   }
 }

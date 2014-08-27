@@ -20,7 +20,6 @@
 package org.sonar.process;
 
 import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -35,8 +34,9 @@ public class LoopbackAddress {
   }
 
   /**
-   * Similar to InetAddress.getLoopbackAddress() which was introduced in Java 7. This
-   * method aims to support Java 6.
+   * Quite similar to InetAddress.getLoopbackAddress() which was introduced in Java 7. This
+   * method aims to support Java 6. It returns an IPv4 address, but not IPv6 in order to
+   * support -Djava.net.preferIPv4Stack=true recommended for Elasticsearch
    */
   public static InetAddress get() {
     if (instance == null) {
@@ -57,14 +57,14 @@ public class LoopbackAddress {
       Enumeration<InetAddress> addresses = iface.getInetAddresses();
       while (addresses.hasMoreElements()) {
         InetAddress addr = addresses.nextElement();
-        if (addr.isLoopbackAddress()) {
+        if (addr.isLoopbackAddress() && addr instanceof Inet4Address) {
           result = addr;
           break;
         }
       }
     }
     if (result == null) {
-      throw new IllegalStateException("Impossible to get a IP loopback address");
+      throw new IllegalStateException("Impossible to get a IPv4 loopback address");
     }
     return result;
   }
