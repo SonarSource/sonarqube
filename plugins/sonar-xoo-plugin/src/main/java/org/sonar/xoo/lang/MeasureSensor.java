@@ -60,28 +60,32 @@ public class MeasureSensor implements Sensor {
         int lineNumber = 0;
         for (String line : lines) {
           lineNumber++;
-          if (StringUtils.isBlank(line)) {
+          if (StringUtils.isBlank(line) || line.startsWith("#")) {
             continue;
           }
-          if (line.startsWith("#")) {
-            continue;
-          }
-          try {
-            String metricKey = StringUtils.substringBefore(line, ":");
-            String value = line.substring(metricKey.length() + 1);
-            context.addMeasure(createMeasure(context, inputFile, metricKey, value));
-          } catch (Exception e) {
-            throw new IllegalStateException("Error processing line " + lineNumber + " of file " + measureFile.getAbsolutePath(), e);
-          }
+          processMeasure(inputFile, context, measureFile, lineNumber, line);
         }
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new IllegalStateException(e);
       }
+    }
+  }
+
+  private void processMeasure(InputFile inputFile, SensorContext context, File measureFile, int lineNumber, String line) {
+    try {
+      String metricKey = StringUtils.substringBefore(line, ":");
+      String value = line.substring(metricKey.length() + 1);
+      context.addMeasure(createMeasure(context, inputFile, metricKey, value));
+    } catch (Exception e) {
+      throw new IllegalStateException("Error processing line " + lineNumber + " of file " + measureFile.getAbsolutePath(), e);
     }
   }
 
   private Measure<?> createMeasure(SensorContext context, InputFile xooFile, String metricKey, String value) {
     org.sonar.api.batch.measure.Metric<Serializable> metric = metricFinder.findByKey(metricKey);
+    if (metric == null) {
+      throw new IllegalStateException("Unknow metric with key: " + metricKey);
+    }
     MeasureBuilder<Serializable> builder = context.measureBuilder()
       .forMetric(metric)
       .onFile(xooFile);

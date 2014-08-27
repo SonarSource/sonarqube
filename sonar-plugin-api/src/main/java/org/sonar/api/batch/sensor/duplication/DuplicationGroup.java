@@ -20,6 +20,7 @@
 package org.sonar.api.batch.sensor.duplication;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -135,6 +136,17 @@ public class DuplicationGroup {
       equalsBuilder.append(duplicates.get(i), rhs.duplicates.get(i));
     }
     return equalsBuilder.isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    HashCodeBuilder hcBuilder = new HashCodeBuilder(17, 37)
+      .append(originBlock)
+      .append(duplicates.size());
+    for (int i = 0; i < duplicates.size(); i++) {
+      hcBuilder.append(duplicates.get(i));
+    }
+    return hcBuilder.toHashCode();
   }
 
   @Override

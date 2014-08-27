@@ -84,7 +84,20 @@ public class QProfileEventsDecorator implements Decorator {
     Measure currentMeasure = context.getMeasure(CoreMetrics.QUALITY_PROFILES);
     Map<String, QProfile> currentProfiles = UsedQProfiles.fromJson(currentMeasure.getData()).profilesByKey();
 
-    // Detect new profiles or updated profiles
+    detectNewOrUpdatedProfiles(context, previousProfiles, currentProfiles);
+
+    detectNoMoreUsedProfiles(context, previousProfiles, currentProfiles);
+  }
+
+  private void detectNoMoreUsedProfiles(DecoratorContext context, Map<String, QProfile> previousProfiles, Map<String, QProfile> currentProfiles) {
+    for (QProfile previousProfile : previousProfiles.values()) {
+      if (!currentProfiles.containsKey(previousProfile.getKey())) {
+        markAsRemoved(context, previousProfile);
+      }
+    }
+  }
+
+  private void detectNewOrUpdatedProfiles(DecoratorContext context, Map<String, QProfile> previousProfiles, Map<String, QProfile> currentProfiles) {
     for (QProfile profile : currentProfiles.values()) {
       QProfile previousProfile = previousProfiles.get(profile.getKey());
       if (previousProfile != null) {
@@ -93,13 +106,6 @@ public class QProfileEventsDecorator implements Decorator {
         }
       } else {
         markAsAdded(context, profile);
-      }
-    }
-
-    // Detect profiles that are not used anymore
-    for (QProfile previousProfile : previousProfiles.values()) {
-      if (!currentProfiles.containsKey(previousProfile.getKey())) {
-        markAsRemoved(context, previousProfile);
       }
     }
   }

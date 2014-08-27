@@ -134,7 +134,7 @@ public interface SensorContext {
   // ------------ DUPLICATIONS ------------
 
   /**
-   * Builder to define tokens in a file. Tokens are used to compute duplication by the core.
+   * Builder to define tokens in a file. Tokens are used to compute duplication using default SonarQube engine.
    * @since 4.5
    */
   DuplicationTokenBuilder duplicationTokenBuilder(InputFile inputFile);

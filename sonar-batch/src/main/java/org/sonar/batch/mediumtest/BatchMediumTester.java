@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest;
 
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
-import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.symbol.Symbol;
@@ -291,12 +292,12 @@ public class BatchMediumTester {
      * @param charIndex 0-based offset in file
      */
     @CheckForNull
-    public List<HighlightingBuilder.TypeOfText> highlightingTypeFor(InputFile file, int charIndex) {
+    public List<TypeOfText> highlightingTypeFor(InputFile file, int charIndex) {
       SyntaxHighlightingData syntaxHighlightingData = highlightingPerFile.get(file);
       if (syntaxHighlightingData == null) {
         return null;
       }
-      List<HighlightingBuilder.TypeOfText> result = new ArrayList<HighlightingBuilder.TypeOfText>();
+      List<TypeOfText> result = new ArrayList<TypeOfText>();
       for (SyntaxHighlightingRule sortedRule : syntaxHighlightingData.syntaxHighlightingRuleSet()) {
         if (sortedRule.getStartPosition() <= charIndex && sortedRule.getEndPosition() > charIndex) {
           result.add(sortedRule.getTextType());
@@ -341,6 +342,7 @@ public class BatchMediumTester {
     }
 
     public FakeGlobalReferentialsLoader add(Metric metric) {
+      Boolean optimizedBestValue = metric.isOptimizedBestValue();
       ref.metrics().add(new org.sonar.batch.protocol.input.Metric(metricId,
         metric.key(),
         metric.getType().name(),
@@ -351,7 +353,7 @@ public class BatchMediumTester {
         metric.getUserManaged(),
         metric.getWorstValue(),
         metric.getBestValue(),
-        metric.isOptimizedBestValue()));
+        optimizedBestValue != null ? optimizedBestValue : false));
       metricId++;
       return this;
     }

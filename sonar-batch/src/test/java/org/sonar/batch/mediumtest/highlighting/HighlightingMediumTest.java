@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.mediumtest.highlighting;
 
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -28,7 +30,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.xoo.XooPlugin;
@@ -87,10 +88,10 @@ public class HighlightingMediumTest {
       .start();
 
     InputFile file = result.inputFiles().get(0);
-    assertThat(result.highlightingTypeFor(file, 0)).containsExactly(HighlightingBuilder.TypeOfText.STRING);
-    assertThat(result.highlightingTypeFor(file, 9)).containsExactly(HighlightingBuilder.TypeOfText.STRING);
+    assertThat(result.highlightingTypeFor(file, 0)).containsExactly(TypeOfText.STRING);
+    assertThat(result.highlightingTypeFor(file, 9)).containsExactly(TypeOfText.STRING);
     assertThat(result.highlightingTypeFor(file, 10)).isEmpty();
-    assertThat(result.highlightingTypeFor(file, 11)).containsExactly(HighlightingBuilder.TypeOfText.KEYWORD);
+    assertThat(result.highlightingTypeFor(file, 11)).containsExactly(TypeOfText.KEYWORD);
 
   }
 
@@ -126,7 +127,7 @@ public class HighlightingMediumTest {
     System.out.println("Duration: " + (System.currentTimeMillis() - start));
 
     InputFile file = result.inputFiles().get(0);
-    assertThat(result.highlightingTypeFor(file, 0)).containsExactly(HighlightingBuilder.TypeOfText.STRING);
+    assertThat(result.highlightingTypeFor(file, 0)).containsExactly(TypeOfText.STRING);
 
   }
 

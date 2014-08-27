@@ -19,7 +19,8 @@
  */
 package org.sonar.batch.source;
 
-import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+
 import org.sonar.api.component.Component;
 import org.sonar.api.source.Highlightable;
 import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
@@ -71,7 +72,7 @@ public class DefaultHighlightable implements Highlightable {
 
     @Override
     public HighlightingBuilder highlight(int startOffset, int endOffset, String typeOfText) {
-      TypeOfText type = org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText.forCssClass(typeOfText);
+      TypeOfText type = org.sonar.api.batch.sensor.highlighting.TypeOfText.forCssClass(typeOfText);
       builder.registerHighlightingRule(startOffset, endOffset, type);
       return this;
     }

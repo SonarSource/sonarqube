@@ -20,22 +20,47 @@
 package org.sonar.api.batch.sensor.highlighting;
 
 /**
- * This builder is used to define syntax highlighting (aka code coloration) on files.
+ * Possible types for highlighting code.
+ * See sonar-colorizer.css
  * @since 4.5
  */
-public interface HighlightingBuilder {
+public enum TypeOfText {
+  ANNOTATION("a"),
+  CONSTANT("c"),
+  COMMENT("cd"),
+  /**
+   * @deprecated use {@link #COMMENT}
+   */
+  @Deprecated
+  CPP_DOC("cppd"),
+  /**
+   * For example Javadoc
+   */
+  STRUCTURED_COMMENT("j"),
+  KEYWORD("k"),
+  STRING("s"),
+  KEYWORD_LIGHT("h"),
+  PREPROCESS_DIRECTIVE("p");
+
+  private final String cssClass;
+
+  private TypeOfText(String cssClass) {
+    this.cssClass = cssClass;
+  }
+
+  public static TypeOfText forCssClass(String cssClass) {
+    for (TypeOfText typeOfText : TypeOfText.values()) {
+      if (typeOfText.cssClass().equals(cssClass)) {
+        return typeOfText;
+      }
+    }
+    throw new IllegalArgumentException("No TypeOfText for CSS class " + cssClass);
+  }
 
   /**
-   * Call this method to indicate the type of text in a range.
-   * @param startOffset Starting position in file for this type of text. Beginning of a file starts with offset '0'.
-   * @param endOffset End position in file for this type of text.
-   * @param typeOfText see {@link TypeOfText} values.
+   * For internal use
    */
-  HighlightingBuilder highlight(int startOffset, int endOffset, TypeOfText typeOfText);
-
-  /**
-   * Call this method only once when your are done with defining highlighting of the file.
-   * @throws IllegalStateException if you have defined overlapping highlighting
-   */
-  void done();
+  public String cssClass() {
+    return cssClass;
+  }
 }

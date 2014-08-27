@@ -130,8 +130,9 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public void addMeasure(Measure<?> measure) {
-    if (measure.inputFile() != null) {
-      measureCache.put(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), measure.inputFile()), (DefaultMeasure) measure);
+    InputFile inputFile = measure.inputFile();
+    if (inputFile != null) {
+      measureCache.put(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), inputFile), (DefaultMeasure) measure);
     } else {
       measureCache.put(def.getKey(), def.getKey(), (DefaultMeasure) measure);
     }

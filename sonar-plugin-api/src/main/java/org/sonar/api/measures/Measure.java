@@ -679,9 +679,10 @@ public class Measure<G extends Serializable> implements Serializable {
    * @since 3.2
    */
   public boolean isBestValue() {
+    Double bestValue = metric.getBestValue();
     return metric.isOptimizedBestValue() == Boolean.TRUE
-      && metric.getBestValue() != null
-      && (value == null || NumberUtils.compare(metric.getBestValue(), value) == 0)
+      && bestValue != null
+      && (value == null || NumberUtils.compare(bestValue, value) == 0)
       && allNull(alertStatus, description, tendency, url, data)
       && isZeroVariation(variation1, variation2, variation3, variation4, variation5);
   }

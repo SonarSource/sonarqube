@@ -19,6 +19,8 @@
  */
 package org.sonar.xoo.lang;
 
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+
 import com.google.common.base.Splitter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -64,7 +66,7 @@ public class SyntaxHighlightingSensor implements Sensor {
             Iterator<String> split = Splitter.on(":").split(line).iterator();
             int startOffset = Integer.parseInt(split.next());
             int endOffset = Integer.parseInt(split.next());
-            HighlightingBuilder.TypeOfText type = HighlightingBuilder.TypeOfText.forCssClass(split.next());
+            TypeOfText type = TypeOfText.forCssClass(split.next());
             highlightingBuilder.highlight(startOffset, endOffset, type);
           } catch (Exception e) {
             throw new IllegalStateException("Error processing line " + lineNumber + " of file " + highlightingFile.getAbsolutePath(), e);

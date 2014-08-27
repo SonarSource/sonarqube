@@ -19,10 +19,11 @@
  */
 package org.sonar.batch.highlighting;
 
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Ordering;
 import org.elasticsearch.common.collect.Sets;
-import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 
 import javax.annotation.Nullable;
 
@@ -52,7 +53,7 @@ public class SyntaxHighlightingDataBuilder {
     return syntaxHighlightingRuleSet;
   }
 
-  public SyntaxHighlightingDataBuilder registerHighlightingRule(int startOffset, int endOffset, HighlightingBuilder.TypeOfText typeOfText) {
+  public SyntaxHighlightingDataBuilder registerHighlightingRule(int startOffset, int endOffset, TypeOfText typeOfText) {
     SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(startOffset, endOffset,
       typeOfText);
     this.syntaxHighlightingRuleSet.add(syntaxHighlightingRule);

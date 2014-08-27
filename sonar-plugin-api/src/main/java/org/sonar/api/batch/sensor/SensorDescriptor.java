@@ -56,7 +56,7 @@ public interface SensorDescriptor {
   /**
    * List {@link InputFile.Type} this {@link Sensor} work on. May be used by the platform to skip execution of the {@link Sensor} when
    * no file for given type are present in the project.
-   * If not type is provided then it will be executed for all types.
+   * If you don't call this method then it means sensor is working on all input file types.
    */
   SensorDescriptor workOnFileTypes(InputFile.Type... types);
 

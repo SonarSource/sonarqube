@@ -27,9 +27,9 @@ import org.junit.rules.ExpectedException;
 import java.util.Collection;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText.CLASSIC_COMMENT;
-import static org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText.CPP_DOC;
-import static org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText.KEYWORD;
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.CPP_DOC;
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 
 public class SyntaxHighlightingDataBuilderTest {
 
@@ -42,12 +42,12 @@ public class SyntaxHighlightingDataBuilderTest {
   public void setUpSampleRules() {
 
     SyntaxHighlightingDataBuilder highlightingDataBuilder = new SyntaxHighlightingDataBuilder();
-    highlightingDataBuilder.registerHighlightingRule(0, 10, CLASSIC_COMMENT);
+    highlightingDataBuilder.registerHighlightingRule(0, 10, COMMENT);
     highlightingDataBuilder.registerHighlightingRule(10, 12, KEYWORD);
     highlightingDataBuilder.registerHighlightingRule(24, 38, KEYWORD);
     highlightingDataBuilder.registerHighlightingRule(42, 50, KEYWORD);
     highlightingDataBuilder.registerHighlightingRule(24, 65, CPP_DOC);
-    highlightingDataBuilder.registerHighlightingRule(12, 20, CLASSIC_COMMENT);
+    highlightingDataBuilder.registerHighlightingRule(12, 20, COMMENT);
 
     highlightingRules = highlightingDataBuilder.getSyntaxHighlightingRuleSet();
   }
@@ -61,7 +61,7 @@ public class SyntaxHighlightingDataBuilderTest {
   public void should_order_by_start_then_end_offset() throws Exception {
     assertThat(highlightingRules).onProperty("startPosition").containsOnly(0, 10, 12, 24, 24, 42);
     assertThat(highlightingRules).onProperty("endPosition").containsOnly(10, 12, 20, 38, 65, 50);
-    assertThat(highlightingRules).onProperty("textType").containsOnly(CLASSIC_COMMENT, KEYWORD, CLASSIC_COMMENT, KEYWORD, CPP_DOC, KEYWORD);
+    assertThat(highlightingRules).onProperty("textType").containsOnly(COMMENT, KEYWORD, COMMENT, KEYWORD, CPP_DOC, KEYWORD);
   }
 
   @Test

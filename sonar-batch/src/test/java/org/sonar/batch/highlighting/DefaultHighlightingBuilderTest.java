@@ -21,7 +21,7 @@ package org.sonar.batch.highlighting;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.source.SnapshotDataTypes;
 

@@ -475,7 +475,7 @@ public class Metric<G extends Serializable> implements ServerExtension, BatchExt
   /**
    * @return this
    */
-  public Metric setWorstValue(Double d) {
+  public Metric setWorstValue(@Nullable Double d) {
     this.worstValue = d;
     return this;
   }
@@ -484,7 +484,7 @@ public class Metric<G extends Serializable> implements ServerExtension, BatchExt
    * @param bestValue the best value. It can be null.
    * @return this
    */
-  public Metric setBestValue(Double bestValue) {
+  public Metric setBestValue(@Nullable Double bestValue) {
     this.bestValue = bestValue;
     return this;
   }
@@ -516,7 +516,7 @@ public class Metric<G extends Serializable> implements ServerExtension, BatchExt
     return ValueType.PERCENT.equals(type);
   }
 
-  public Metric setOptimizedBestValue(Boolean b) {
+  public Metric setOptimizedBestValue(@Nullable Boolean b) {
     this.optimizedBestValue = b;
     return this;
   }

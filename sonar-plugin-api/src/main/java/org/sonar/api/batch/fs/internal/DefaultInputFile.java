@@ -22,8 +22,6 @@ package org.sonar.api.batch.fs.internal;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.PathUtils;
 
-import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.io.Serializable;
 
@@ -50,12 +48,7 @@ public class DefaultInputFile implements InputFile, Serializable {
     return relativePath;
   }
 
-  /**
-   * Marked as nullable just for the unit tests that do not call {@link #setFile(java.io.File)}
-   * previously.
-   */
   @Override
-  @CheckForNull
   public String absolutePath() {
     return absolutePath;
   }
@@ -68,11 +61,6 @@ public class DefaultInputFile implements InputFile, Serializable {
     return new File(absolutePath);
   }
 
-  /**
-   * Marked as nullable just for the unit tests that do not call {@link #setLanguage(String)}
-   * previously.
-   */
-  @CheckForNull
   @Override
   public String language() {
     return language;
@@ -84,20 +72,16 @@ public class DefaultInputFile implements InputFile, Serializable {
   }
 
   /**
-   * Marked as nullable just for the unit tests that do not previously call
    * {@link #setStatus(org.sonar.api.batch.fs.InputFile.Status)}
    */
-  @CheckForNull
   @Override
   public Status status() {
     return status;
   }
 
   /**
-   * Digest hash of the file. Marked as nullable just for the unit tests
-   * that do not previously call {@link #setHash(String)}
+   * Digest hash of the file.
    */
-  @CheckForNull
   public String hash() {
     return hash;
   }

@@ -33,7 +33,9 @@ import java.util.List;
 
 /**
  * @since 2.2
+ * @deprecated since 4.5 this is some Java specific stuff that should by handled by SQ Java plugin
  */
+@Deprecated
 public class ProjectClasspath implements BatchComponent {
 
   protected MavenProject pom;

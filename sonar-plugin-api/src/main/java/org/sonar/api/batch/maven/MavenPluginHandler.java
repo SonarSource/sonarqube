@@ -27,7 +27,9 @@ import javax.annotation.Nullable;
 
 /**
  * @since 1.10
+ * @deprecated since 4.5 we don't want any dependency on Maven anymore
  */
+@Deprecated
 public interface MavenPluginHandler extends BatchExtension {
 
   /**

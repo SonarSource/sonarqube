@@ -25,9 +25,9 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText.CLASSIC_COMMENT;
-import static org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText.CPP_DOC;
-import static org.sonar.api.batch.sensor.highlighting.HighlightingBuilder.TypeOfText.KEYWORD;
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.CPP_DOC;
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
 
 public class SyntaxHighlightingDataTest {
 
@@ -35,9 +35,9 @@ public class SyntaxHighlightingDataTest {
   public void should_serialize_rules_to_string() throws Exception {
 
     List<SyntaxHighlightingRule> orderedHighlightingRules = Lists.newArrayList(
-      SyntaxHighlightingRule.create(0, 10, CLASSIC_COMMENT),
+      SyntaxHighlightingRule.create(0, 10, COMMENT),
       SyntaxHighlightingRule.create(10, 12, KEYWORD),
-      SyntaxHighlightingRule.create(12, 20, CLASSIC_COMMENT),
+      SyntaxHighlightingRule.create(12, 20, COMMENT),
       SyntaxHighlightingRule.create(24, 38, KEYWORD),
       SyntaxHighlightingRule.create(24, 65, CPP_DOC),
       SyntaxHighlightingRule.create(42, 50, KEYWORD)

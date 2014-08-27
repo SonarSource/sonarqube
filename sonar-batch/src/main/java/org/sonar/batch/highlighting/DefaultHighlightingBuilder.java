@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.highlighting;
 
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.batch.index.ComponentDataCache;
