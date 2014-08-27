@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
@@ -34,10 +35,19 @@ public class ProjectReferentialsTest {
   @Test
   public void testToJson() throws Exception {
     ProjectReferentials ref = new ProjectReferentials();
+    assertThat(ref.settings("foo")).isEmpty();
+
     ref.addQProfile(new QProfile("squid-java", "Java", "java", new SimpleDateFormat("dd/MM/yyyy").parse("14/03/1984")));
-    ref.addSettings("foo", new HashMap<String, String>());
+    HashMap<String, String> settings = new HashMap<String, String>();
+    settings.put("prop1", "value1");
+    ref.addSettings("foo", settings);
+    settings = new HashMap<String, String>();
+    settings.put("prop2", "value2");
+    ref.addSettings("foo", settings);
     ref.settings("foo").put("prop", "value");
-    ref.addActiveRule(new ActiveRule("repo", "rule", "Rule", "MAJOR", "rule", "java"));
+    ActiveRule activeRule = new ActiveRule("repo", "rule", "Rule", "MAJOR", "rule", "java");
+    activeRule.addParam("param1", "value1");
+    ref.addActiveRule(activeRule);
     ref.setTimestamp(10);
 
     System.out.println(ref.toJson());
@@ -45,22 +55,33 @@ public class ProjectReferentialsTest {
       .assertEquals(
         "{timestamp:10,"
           + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
-          + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule,language:java,params:{}}],"
-          + "settingsByModule:{foo:{prop:value}}}",
+          + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule,language:java,params:{param1:value1}}],"
+          + "settingsByModule:{foo:{prop1:value1,prop2:value2,prop:value}}}",
         ref.toJson(), true);
   }
 
   @Test
-  public void testFromJson() throws JSONException {
+  public void testFromJson() throws JSONException, ParseException {
     ProjectReferentials ref = ProjectReferentials.fromJson("{timestamp:1,"
       + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
-      + "activeRules:[{repositoryKey:repo,ruleKey:rule,severity:MAJOR,internalKey:rule,language:java,params:{}}],"
+      + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule1,language:java,params:{param1:value1}}],"
       + "settingsByModule:{foo:{prop:value}}}");
 
     assertThat(ref.timestamp()).isEqualTo(1);
 
-    assertThat(ref.activeRules().iterator().next().ruleKey()).isEqualTo("rule");
-    assertThat(ref.qProfiles().iterator().next().name()).isEqualTo("Java");
+    ActiveRule activeRule = ref.activeRules().iterator().next();
+    assertThat(activeRule.ruleKey()).isEqualTo("rule");
+    assertThat(activeRule.repositoryKey()).isEqualTo("repo");
+    assertThat(activeRule.name()).isEqualTo("Rule");
+    assertThat(activeRule.severity()).isEqualTo("MAJOR");
+    assertThat(activeRule.internalKey()).isEqualTo("rule1");
+    assertThat(activeRule.language()).isEqualTo("java");
+    assertThat(activeRule.params()).includes(MapAssert.entry("param1", "value1"));
+    assertThat(activeRule.param("param1")).isEqualTo("value1");
+    QProfile qProfile = ref.qProfiles().iterator().next();
+    assertThat(qProfile.key()).isEqualTo("squid-java");
+    assertThat(qProfile.name()).isEqualTo("Java");
+    assertThat(qProfile.rulesUpdatedAt()).isEqualTo(new SimpleDateFormat("dd/MM/yyyy").parse("14/03/1984"));
     assertThat(ref.settings("foo")).includes(MapAssert.entry("prop", "value"));
   }
 }

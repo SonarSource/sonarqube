@@ -56,6 +56,14 @@ public class GlobalReferentialsTest {
     assertThat(metric.id()).isEqualTo(1);
     assertThat(metric.key()).isEqualTo("ncloc");
     assertThat(metric.valueType()).isEqualTo("DATA");
+    assertThat(metric.description()).isEqualTo("Description");
+    assertThat(metric.direction()).isEqualTo(-1);
+    assertThat(metric.name()).isEqualTo("NCLOC");
+    assertThat(metric.isQualitative()).isTrue();
+    assertThat(metric.isUserManaged()).isFalse();
+    assertThat(metric.worstValue()).isEqualTo(2.0);
+    assertThat(metric.bestValue()).isEqualTo(1.0);
+    assertThat(metric.isOptimizedBestValue()).isTrue();
 
     assertThat(ref.globalSettings()).includes(MapAssert.entry("prop", "value"));
   }
