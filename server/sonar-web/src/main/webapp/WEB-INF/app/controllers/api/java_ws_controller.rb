@@ -21,7 +21,7 @@
 # since 4.2
 class Api::JavaWsController < Api::ApiController
 
-  skip_before_filter :check_authentication, :except => 'skip_authentication_check_for_batch_index'
+  before_filter :check_authentication, :unless => ['skip_authentication_check_for_batch_index']
 
   def index
     ws_request = Java::OrgSonarServerWs::ServletRequest.new(servlet_request, params.to_java)
@@ -39,7 +39,6 @@ class Api::JavaWsController < Api::ApiController
     redirect_to :action => 'index', :wspath => 'api/webservices', :wsaction => 'list'
   end
 
-  private
 
   def skip_authentication_check_for_batch_index
     params[:wspath]=='batch' && params[:wsaction]=='index'
