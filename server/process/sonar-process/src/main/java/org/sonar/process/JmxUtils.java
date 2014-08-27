@@ -22,7 +22,12 @@ package org.sonar.process;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.remote.JMXServiceURL;
+
 import java.lang.management.ManagementFactory;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
 
 public class JmxUtils {
 
@@ -56,6 +61,20 @@ public class JmxUtils {
       throw re;
     } catch (Exception e) {
       throw new IllegalStateException("Fail to register JMX MBean named " + name, e);
+    }
+  }
+
+  public static JMXServiceURL serviceUrl(InetAddress host, int port) {
+    String address = host.getHostAddress();
+    if (host instanceof Inet6Address) {
+      // See http://docs.oracle.com/javase/7/docs/api/javax/management/remote/JMXServiceURL.html
+      // "The host is a host name, an IPv4 numeric host address, or an IPv6 numeric address enclosed in square brackets."
+      address = String.format("[%s]", address);
+    }
+    try {
+      return new JMXServiceURL("rmi", address, port, String.format("/jndi/rmi://%s:%d/jmxrmi", address, port));
+    } catch (MalformedURLException e) {
+      throw new IllegalStateException("JMX url does not look well formed", e);
     }
   }
 }

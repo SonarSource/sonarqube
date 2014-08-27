@@ -1,0 +1,71 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.process;
+
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
+
+public class LoopbackAddress {
+
+  private static InetAddress instance;
+
+  private LoopbackAddress() {
+    // only static stuff
+  }
+
+  /**
+   * Similar to InetAddress.getLoopbackAddress() which was introduced in Java 7. This
+   * method aims to support Java 6.
+   */
+  public static InetAddress get() {
+    if (instance == null) {
+      try {
+        instance = doGet(NetworkInterface.getNetworkInterfaces());
+      } catch (SocketException e) {
+        throw new IllegalStateException("Fail to browse network interfaces", e);
+      }
+
+    }
+    return instance;
+  }
+
+  static InetAddress doGet(Enumeration<NetworkInterface> ifaces) {
+    InetAddress result = null;
+    while (ifaces.hasMoreElements() && result == null) {
+      NetworkInterface iface = ifaces.nextElement();
+      Enumeration<InetAddress> addresses = iface.getInetAddresses();
+      while (addresses.hasMoreElements()) {
+        InetAddress addr = addresses.nextElement();
+        if (addr.isLoopbackAddress()) {
+          result = addr;
+          break;
+        }
+      }
+    }
+    if (result == null) {
+      throw new IllegalStateException("Impossible to get a IP loopback address");
+    }
+    return result;
+  }
+}

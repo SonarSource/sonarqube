@@ -23,8 +23,15 @@ import org.junit.Test;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.remote.JMXServiceURL;
 
 import java.lang.management.ManagementFactory;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -61,7 +68,7 @@ public class JmxUtilsTest {
   @Test
   public void fail_jmx_objectName() throws Exception {
     try {
-      ObjectName objectName = JmxUtils.objectName(":");
+      JmxUtils.objectName(":");
       fail();
     } catch (Exception e) {
       assertThat(e.getMessage()).isEqualTo("Cannot create ObjectName for :");
@@ -85,5 +92,34 @@ public class JmxUtilsTest {
     assertThat(mbeanServer.isRegistered(objectName)).isTrue();
     JmxUtils.registerMBean(mxBean, mxBean.getClass().getSimpleName());
     assertThat(mbeanServer.isRegistered(objectName)).isTrue();
+  }
+
+  @Test
+  public void serviceUrl_ipv4() throws Exception {
+    JMXServiceURL url = JmxUtils.serviceUrl(ip(Inet4Address.class), 1234);
+    assertThat(url).isNotNull();
+    assertThat(url.getPort()).isEqualTo(1234);
+  }
+
+  @Test
+  public void serviceUrl_ipv6() throws Exception {
+    JMXServiceURL url = JmxUtils.serviceUrl(ip(Inet6Address.class), 1234);
+    assertThat(url).isNotNull();
+    assertThat(url.getPort()).isEqualTo(1234);
+  }
+
+  private static InetAddress ip(Class inetAddressClass) throws SocketException {
+    Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
+    while (ifaces.hasMoreElements()) {
+      NetworkInterface iface = ifaces.nextElement();
+      Enumeration<InetAddress> addresses = iface.getInetAddresses();
+      while (addresses.hasMoreElements()) {
+        InetAddress addr = addresses.nextElement();
+        if (addr.getClass().isAssignableFrom(inetAddressClass)) {
+          return addr;
+        }
+      }
+    }
+    throw new IllegalStateException("no ipv4 address");
   }
 }

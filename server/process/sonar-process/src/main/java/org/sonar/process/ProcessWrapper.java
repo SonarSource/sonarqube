@@ -33,6 +33,7 @@ import javax.management.NotificationListener;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,7 +41,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -128,7 +128,6 @@ public class ProcessWrapper extends Thread implements Terminable {
     this.setEnvProperty("sonar.path.logs", logDirectory.getAbsolutePath());
     return this;
   }
-
 
   @CheckForNull
   public Process process() {
@@ -221,7 +220,7 @@ public class ProcessWrapper extends Thread implements Terminable {
       "-Dcom.sun.management.jmxremote.port=" + jmxPort,
       "-Dcom.sun.management.jmxremote.authenticate=false",
       "-Dcom.sun.management.jmxremote.ssl=false",
-      "-Djava.rmi.server.hostname=" + localAddress());
+      "-Djava.rmi.server.hostname=" + LoopbackAddress.get().getHostAddress());
   }
 
   private List<String> buildClasspath() {
@@ -249,39 +248,25 @@ public class ProcessWrapper extends Thread implements Terminable {
    */
   @CheckForNull
   private ProcessMXBean waitForJMX() {
-    String loopbackAddress = localAddress();
-    String path = "/jndi/rmi://" + loopbackAddress + ":" + jmxPort + "/jmxrmi";
-    JMXServiceURL jmxUrl;
-    try {
-      jmxUrl = new JMXServiceURL("rmi", loopbackAddress, jmxPort, path);
-    } catch (MalformedURLException e) {
-      throw new IllegalStateException("JMX url does not look well formed", e);
-    }
-
+    JMXServiceURL jmxUrl = JmxUtils.serviceUrl(LoopbackAddress.get(), jmxPort);
     for (int i = 0; i < 5; i++) {
       try {
         Thread.sleep(1000L);
-        LOGGER.debug("Try #{} to connect to JMX server for process '{}'", i, processName);
         JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, null);
         jmxConnector.addConnectionNotificationListener(new NotificationListener() {
           @Override
           public void handleNotification(Notification notification, Object handback) {
-            LOGGER.info("JMX Connection Notification:{}", notification.getMessage());
+            LOGGER.debug("JMX Connection Notification:{}", notification.getMessage());
           }
         }, null, null);
         MBeanServerConnection mBeanServer = jmxConnector.getMBeanServerConnection();
         return JMX.newMBeanProxy(mBeanServer, JmxUtils.objectName(processName), ProcessMXBean.class);
       } catch (Exception ignored) {
-        LOGGER.trace("Could not connect JMX yet", ignored);
+        LOGGER.info(String.format("Could not connect to JMX (attempt %d). Trying again.", i), ignored);
       }
     }
     // failed to connect
     return null;
-  }
-
-  private String localAddress() {
-    // to be replaced by InetAddress.getLoopbackAddress() in Java 7 ?
-    return "127.0.0.1";
   }
 
   @Override
@@ -344,7 +329,7 @@ public class ProcessWrapper extends Thread implements Terminable {
         this.join();
       }
     } catch (InterruptedException e) {
-      //Expected to be interrupted :)
+      // Expected to be interrupted :)
     }
   }
 
