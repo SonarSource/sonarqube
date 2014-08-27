@@ -99,10 +99,16 @@ public class DuplicationGroup {
     this.originBlock = originBlock;
   }
 
+  /**
+   * For unit test and internal use only.
+   */
   public void setDuplicates(List<Block> duplicates) {
     this.duplicates = duplicates;
   }
 
+  /**
+   * For unit test and internal use only.
+   */
   public DuplicationGroup addDuplicate(Block anotherBlock) {
     this.duplicates.add(anotherBlock);
     return this;
