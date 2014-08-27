@@ -21,6 +21,11 @@ package org.sonar.server.search;
 
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Date;
@@ -35,6 +40,10 @@ public class SearchHealthMediumTest {
 
   @Test
   public void get_search_health(){
+    DbSession dbSession = tester.get(DbClient.class).openSession(false);
+    tester.get(RuleDao.class).insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S001")));
+    dbSession.commit();
+
     SearchHealth health = tester.get(SearchHealth.class);
     Date now = new Date();
 
@@ -44,6 +53,8 @@ public class SearchHealthMediumTest {
 
     NodeHealth nodeHealth = health.getNodesHealth().values().iterator().next();
     assertThat(nodeHealth.isMaster()).isTrue();
+    System.out.println(nodeHealth.getAddress());
+    assertThat(nodeHealth.getAddress()).contains(":");
     assertThat(nodeHealth.getJvmHeapUsedPercent()).contains("%");
     assertThat(nodeHealth.getFsUsedPercent()).contains("%");
     assertThat(nodeHealth.getJvmThreads()).isGreaterThanOrEqualTo(0L);

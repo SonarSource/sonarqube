@@ -27,6 +27,7 @@ import java.util.Date;
 public class NodeHealth {
 
   private boolean master;
+  private String address;
   private long jvmHeapMax;
   private long jvmHeapUsed;
   private long fsAvailable;
@@ -42,6 +43,14 @@ public class NodeHealth {
 
   void setMaster(boolean master) {
     this.master = master;
+  }
+
+  public String getAddress() {
+    return address;
+  }
+
+  void setAddress(String address) {
+    this.address = address;
   }
 
   void setJvmHeapMax(long bytes) {
@@ -122,12 +131,12 @@ public class NodeHealth {
     // Master/slave
     setMaster(nodesStats.getNode().isMasterNode());
 
+    // Host IP and port
+    setAddress(nodesStats.getNode().getAddress().toString());
+
     // JVM Heap Usage
     setJvmHeapMax(nodesStats.getJvm().getMem().getHeapMax().bytes());
     setJvmHeapUsed(nodesStats.getJvm().getMem().getHeapUsed().bytes());
-
-    // OS Memory Usage ?
-    // nodesStats.getOs().getMem().freePercent();
 
     // Disk Usage
     setFsTotal(nodesStats.getFs().getTotal().getTotal().bytes());

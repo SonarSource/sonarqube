@@ -99,6 +99,7 @@ class Server
       node_info=[]
       add_property(node_info, 'Node Name') { name }
       add_property(node_info, 'Node Type') { node_health.isMaster() ? 'Master' : 'Slave' }
+      add_property(node_info, 'Node Address') { node_health.getAddress() }
       add_property(node_info, 'JVM Heap Usage') { node_health.getJvmHeapUsedPercent() }
       add_property(node_info, 'JVM Threads') { node_health.getJvmThreads() }
       add_property(node_info, 'JVM Uptime') { Internal.i18n.ageFromNow(node_health.getJvmUpSince()) }
