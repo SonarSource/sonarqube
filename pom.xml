@@ -849,11 +849,6 @@
         <version>9.3-1101-jdbc4</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-gwt-pages</artifactId>
-        <version>4.0</version>
-      </dependency>
-      <dependency>
         <groupId>net.sourceforge.jtds</groupId>
         <artifactId>jtds</artifactId>
         <!-- versions 1.3.x require java 7 -->

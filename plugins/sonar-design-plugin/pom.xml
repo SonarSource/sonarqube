@@ -15,10 +15,6 @@
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-gwt-pages</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-core</artifactId>
       <scope>provided</scope>
     </dependency>
