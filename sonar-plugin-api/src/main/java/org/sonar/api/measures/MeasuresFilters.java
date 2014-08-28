@@ -153,8 +153,12 @@ public final class MeasuresFilters {
     };
   }
 
+  public static MeasuresFilter<RuleMeasure> rule(final Metric metric, final RuleKey ruleKey) {
+    return new RuleFilter(metric, ruleKey);
+  }
+
   public static MeasuresFilter<RuleMeasure> rule(final Metric metric, final Rule rule) {
-    return new RuleFilter(metric, rule.ruleKey());
+    return rule(metric, rule.ruleKey());
   }
 
   public static MeasuresFilter<Collection<RuleMeasure>> rules(final Metric metric) {
