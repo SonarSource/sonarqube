@@ -24,7 +24,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multiset;
 import com.google.common.io.Resources;
-import org.elasticsearch.common.inject.internal.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
@@ -227,7 +227,7 @@ public class ComponentAppAction implements RequestHandler {
 
     json.prop("fIssues", i18n.formatInteger(UserSession.get().locale(), severitiesAggregation.size()));
     for (String severity : severitiesAggregation.elementSet()) {
-      json.prop("f" + Strings.capitalize(severity.toLowerCase()) + "Issues", i18n.formatInteger(UserSession.get().locale(), severitiesAggregation.count(severity)));
+      json.prop("f" + StringUtils.capitalize(severity.toLowerCase()) + "Issues", i18n.formatInteger(UserSession.get().locale(), severitiesAggregation.count(severity)));
     }
     json.endObject();
   }

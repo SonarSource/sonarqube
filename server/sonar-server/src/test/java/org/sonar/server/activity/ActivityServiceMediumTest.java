@@ -21,8 +21,8 @@ package org.sonar.server.activity;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.collect.Iterables;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -70,7 +70,6 @@ public class ActivityServiceMediumTest {
 
   @Test
   public void find_all() throws InterruptedException {
-
     service.write(dbSession, Activity.Type.QPROFILE, testValue);
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
@@ -92,7 +91,6 @@ public class ActivityServiceMediumTest {
     assertThat(activityResult.getHits().get(0).message()).isEqualTo(testValue);
   }
 
-
   @Test
   public void search_activity_log() throws InterruptedException {
 
@@ -106,7 +104,6 @@ public class ActivityServiceMediumTest {
     assertThat(activityResult.getHits().get(0).details().get(test_key)).isEqualTo(test_value);
   }
 
-
   @Test
   public void filter_by_type() {
     service.write(dbSession, Activity.Type.NONE, getActivity());
@@ -119,11 +116,11 @@ public class ActivityServiceMediumTest {
       new QueryOptions()).getHits()).hasSize(4);
 
     assertThat(service.search(new ActivityQuery()
-        .setTypes(ImmutableSet.of(Activity.Type.SERVER)),
+      .setTypes(ImmutableSet.of(Activity.Type.SERVER)),
       new QueryOptions()).getHits()).hasSize(2);
 
     assertThat(service.search(new ActivityQuery()
-        .setTypes(ImmutableSet.of(Activity.Type.QPROFILE)),
+      .setTypes(ImmutableSet.of(Activity.Type.QPROFILE)),
       new QueryOptions()).getHits()).hasSize(1);
   }
 
@@ -145,29 +142,28 @@ public class ActivityServiceMediumTest {
     dbSession.commit();
     DateTime t2 = new DateTime().plusHours(1);
 
-
     assertThat(service.search(new ActivityQuery(),
       new QueryOptions()).getHits()).hasSize(3);
 
     assertThat(service.search(new ActivityQuery()
-        .setSince(t0.minusSeconds(5).toDate()),
+      .setSince(t0.minusSeconds(5).toDate()),
       new QueryOptions()).getHits()).hasSize(3);
 
     assertThat(service.search(new ActivityQuery()
-        .setSince(t1.minusSeconds(5).toDate()),
+      .setSince(t1.minusSeconds(5).toDate()),
       new QueryOptions()).getHits()).hasSize(1);
 
     assertThat(service.search(new ActivityQuery()
-        .setSince(t2.minusSeconds(5).toDate()),
+      .setSince(t2.minusSeconds(5).toDate()),
       new QueryOptions()).getHits()).hasSize(0);
 
     assertThat(service.search(new ActivityQuery()
-        .setTo(t1.minusSeconds(5).toDate()),
+      .setTo(t1.minusSeconds(5).toDate()),
       new QueryOptions()).getHits()).hasSize(2);
 
     assertThat(service.search(new ActivityQuery()
-        .setSince(t1.minusSeconds(5).toDate())
-        .setTo(t2.plusSeconds(5).toDate()),
+      .setSince(t1.minusSeconds(5).toDate())
+      .setTo(t2.plusSeconds(5).toDate()),
       new QueryOptions()).getHits()).hasSize(1);
   }
 
@@ -202,7 +198,6 @@ public class ActivityServiceMediumTest {
     }
     assertThat(count).isEqualTo(max);
   }
-
 
   final String test_key = "hello";
   final String test_value = "world";

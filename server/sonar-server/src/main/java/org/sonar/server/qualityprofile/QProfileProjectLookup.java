@@ -21,7 +21,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
-import org.elasticsearch.common.collect.Maps;
+import com.google.common.collect.Maps;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
 import org.sonar.api.web.UserRole;

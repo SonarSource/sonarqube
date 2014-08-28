@@ -20,7 +20,7 @@
 package org.sonar.server.qualitygate.ws;
 
 import com.google.common.collect.ImmutableList;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -218,7 +218,8 @@ public class QGatesWsTest {
     String name = "New QG";
     when(qGates.rename(id, name)).thenReturn(new QualityGateDto().setId(id).setName(name));
     tester.newPostRequest("api/qualitygates", "rename").setParam("id", id.toString()).setParam("name", name).execute()
-      .assertJson("{'id':42,'name':'New QG'}");;
+      .assertJson("{'id':42,'name':'New QG'}");
+    ;
   }
 
   @Test
@@ -259,7 +260,7 @@ public class QGatesWsTest {
       new QualityGateDto().setId(42L).setName("Golden"),
       new QualityGateDto().setId(43L).setName("Star"),
       new QualityGateDto().setId(666L).setName("Ninth")
-    ));
+      ));
     when(qGates.currentUserHasWritePermission()).thenReturn(false);
     tester.newGetRequest("api/qualitygates", "list").execute().assertJson(
       "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}]}");
@@ -272,7 +273,7 @@ public class QGatesWsTest {
       defaultQgate,
       new QualityGateDto().setId(43L).setName("Star"),
       new QualityGateDto().setId(666L).setName("Ninth")
-    ));
+      ));
     when(qGates.getDefault()).thenReturn(defaultQgate);
     tester.newGetRequest("api/qualitygates", "list").execute().assertJson(
       "{'qualitygates':[{'id':42,'name':'Golden'},{'id':43,'name':'Star'},{'id':666,'name':'Ninth'}],'default':42}");
@@ -293,13 +294,13 @@ public class QGatesWsTest {
     when(qGates.listConditions(gateId)).thenReturn(ImmutableList.of(
       new QualityGateConditionDto().setId(1L).setMetricKey("ncloc").setOperator("GT").setErrorThreshold("10000"),
       new QualityGateConditionDto().setId(2L).setMetricKey("new_coverage").setOperator("LT").setWarningThreshold("90").setPeriod(3)
-    ));
+      ));
     tester.newGetRequest("api/qualitygates", "show").setParam("id", Long.toString(gateId)).execute().assertJson(
       "{'id':12345,'name':'Golden','conditions':["
         + "{'id':1,'metric':'ncloc','op':'GT','error':'10000'},"
         + "{'id':2,'metric':'new_coverage','op':'LT','warning':'90','period':3}"
         + "]}"
-    );
+      );
   }
 
   @Test
@@ -310,13 +311,13 @@ public class QGatesWsTest {
     when(qGates.listConditions(qGateId)).thenReturn(ImmutableList.of(
       new QualityGateConditionDto().setId(1L).setMetricKey("ncloc").setOperator("GT").setErrorThreshold("10000"),
       new QualityGateConditionDto().setId(2L).setMetricKey("new_coverage").setOperator("LT").setWarningThreshold("90").setPeriod(3)
-    ));
+      ));
     tester.newGetRequest("api/qualitygates", "show").setParam("name", gateName).execute().assertJson(
       "{'id':12345,'name':'Golden','conditions':["
         + "{'id':1,'metric':'ncloc','op':'GT','error':'10000'},"
         + "{'id':2,'metric':'new_coverage','op':'LT','warning':'90','period':3}"
         + "]}"
-    );
+      );
   }
 
   @Test(expected = BadRequestException.class)
@@ -386,7 +387,7 @@ public class QGatesWsTest {
     List<ProjectQgateAssociation> projects = ImmutableList.of(
       new ProjectQgateAssociation().setId(42L).setName("Project One").setMember(false),
       new ProjectQgateAssociation().setId(24L).setName("Project Two").setMember(true)
-    );
+      );
     when(assoc.projects()).thenReturn(projects);
     when(projectFinder.find(any(ProjectQgateAssociationQuery.class))).thenReturn(assoc);
 
@@ -411,7 +412,7 @@ public class QGatesWsTest {
     when(assoc.hasMoreResults()).thenReturn(true);
     List<ProjectQgateAssociation> projects = ImmutableList.of(
       new ProjectQgateAssociation().setId(24L).setName("Project Two").setMember(true)
-    );
+      );
     when(assoc.projects()).thenReturn(projects);
     when(projectFinder.find(any(ProjectQgateAssociationQuery.class))).thenReturn(assoc);
 

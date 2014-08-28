@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.elasticsearch.common.collect.Iterables;
+import com.google.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;

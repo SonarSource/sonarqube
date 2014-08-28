@@ -19,10 +19,10 @@
  */
 package org.sonar.server.qualityprofile.index;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.collect.ImmutableList;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.FilterBuilders;

@@ -19,10 +19,9 @@
  */
 package org.sonar.server.activity;
 
-
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -104,7 +103,6 @@ public class ActivityBackendMediumTest {
     assertThat(activity.details().get(testKey)).isEqualTo(testValue);
   }
 
-
   @Test
   public void current_time_zone() {
     service.write(dbSession, Activity.Type.QPROFILE, "now");
@@ -140,7 +138,6 @@ public class ActivityBackendMediumTest {
       count++;
     }
     assertThat(count).isEqualTo(max);
-
 
     // 3 assert synchronize above IndexQueue threshold
     tester.clearIndexes();
@@ -183,7 +180,6 @@ public class ActivityBackendMediumTest {
     }
     assertThat(count).isEqualTo(max);
 
-
     // 3 assert synchronize above IndexQueue threshold
     tester.clearIndexes();
     tester.get(Platform.class).executeStartupTasks();
@@ -197,7 +193,6 @@ public class ActivityBackendMediumTest {
     assertThat(count).isEqualTo(max);
 
   }
-
 
   class TestActivityLog implements ActivityLog {
 

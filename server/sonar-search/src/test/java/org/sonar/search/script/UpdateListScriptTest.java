@@ -19,7 +19,7 @@
  */
 package org.sonar.search.script;
 
-import org.elasticsearch.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.script.ExecutableScript;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +34,6 @@ import static org.fest.assertions.Fail.fail;
 public class UpdateListScriptTest {
 
   ListUpdate.UpdateListScriptFactory factory;
-
 
   @Before
   public void setUp() throws Exception {
@@ -100,7 +99,6 @@ public class UpdateListScriptTest {
     }
   }
 
-
   @Test
   public void update_list() throws Exception {
 
@@ -117,10 +115,10 @@ public class UpdateListScriptTest {
     params.put(ListUpdate.VALUE, mapOf("key", "1", "value", "A"));
 
     ExecutableScript script = factory.newScript(params);
-    script.setNextVar("ctx", ImmutableMap.of("_source",source));
+    script.setNextVar("ctx", ImmutableMap.of("_source", source));
     script.run();
 
-    mapFields = (Collection)source.get(listField);
+    mapFields = (Collection) source.get(listField);
     System.out.println("source = " + source);
     assertThat(mapFields).hasSize(1);
 
@@ -131,9 +129,9 @@ public class UpdateListScriptTest {
     params.put(ListUpdate.ID_VALUE, "2");
     params.put(ListUpdate.VALUE, mapOf("key", "2", "value", "B"));
     script = factory.newScript(params);
-    script.setNextVar("ctx", ImmutableMap.of("_source",source));
+    script.setNextVar("ctx", ImmutableMap.of("_source", source));
     script.run();
-    mapFields = (Collection)source.get(listField);
+    mapFields = (Collection) source.get(listField);
     assertThat(mapFields).hasSize(2);
 
     // updated first item in list
@@ -143,9 +141,9 @@ public class UpdateListScriptTest {
     params.put(ListUpdate.ID_VALUE, "1");
     params.put(ListUpdate.VALUE, mapOf("key", "1", "value", "a"));
     script = factory.newScript(params);
-    script.setNextVar("ctx", ImmutableMap.of("_source",source));
+    script.setNextVar("ctx", ImmutableMap.of("_source", source));
     script.run();
-    mapFields = (Collection)source.get(listField);
+    mapFields = (Collection) source.get(listField);
     assertThat(mapFields).hasSize(2);
 
     // updated second item in list
@@ -153,11 +151,11 @@ public class UpdateListScriptTest {
     params.put(ListUpdate.FIELD, listField);
     params.put(ListUpdate.ID_FIELD, "key");
     params.put(ListUpdate.ID_VALUE, "2");
-    params.put(ListUpdate.VALUE, mapOf("key", "2", "value","b"));
+    params.put(ListUpdate.VALUE, mapOf("key", "2", "value", "b"));
     script = factory.newScript(params);
-    script.setNextVar("ctx", ImmutableMap.of("_source",source));
+    script.setNextVar("ctx", ImmutableMap.of("_source", source));
     script.run();
-    mapFields = (Collection)source.get(listField);
+    mapFields = (Collection) source.get(listField);
     assertThat(mapFields).hasSize(2);
 
     // delete first item
@@ -167,9 +165,9 @@ public class UpdateListScriptTest {
     params.put(ListUpdate.ID_VALUE, "1");
     params.put(ListUpdate.VALUE, null);
     script = factory.newScript(params);
-    script.setNextVar("ctx", ImmutableMap.of("_source",source));
+    script.setNextVar("ctx", ImmutableMap.of("_source", source));
     script.run();
-    mapFields = (Collection)source.get(listField);
+    mapFields = (Collection) source.get(listField);
     assertThat(mapFields).hasSize(1);
   }
 

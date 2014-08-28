@@ -19,9 +19,9 @@
  */
 package org.sonar.server.permission;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.common.base.Predicate;
-import org.elasticsearch.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.Paging;
