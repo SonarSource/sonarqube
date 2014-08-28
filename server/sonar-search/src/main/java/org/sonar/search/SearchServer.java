@@ -167,7 +167,7 @@ public class SearchServer extends MonitoredProcess {
       .get();
 
     if (isBlocking) {
-      while (!node.isClosed()) {
+      while (node != null && !node.isClosed()) {
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
