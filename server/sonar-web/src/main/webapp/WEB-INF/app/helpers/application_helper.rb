@@ -318,7 +318,6 @@ module ApplicationHelper
         query = request.query_parameters
         query[:id] = resource.id
         query[:period] = period_index if period_index
-        query[:tab] = options[:tab] if options[:tab]
         query[:rule] = options[:rule] if options[:rule]
         query.each do |key, value|
           path += '&' unless path.empty?
@@ -332,7 +331,6 @@ module ApplicationHelper
         query = request.query_parameters
         query[:id] = resource.id
         query[:period] = period_index if period_index
-        query[:tab] = options[:tab] if options[:tab]
         query[:rule] = options[:rule] if options[:rule]
         query.each do |key, value|
           path += '&' unless path.empty?
@@ -343,7 +341,6 @@ module ApplicationHelper
     else
       url = "#{ApplicationController.root_context}/dashboard/index?id=#{u resource.key}"
       url += "&period=#{u period_index}" if period_index
-      url += "&tab=#{u options[:tab]}" if options[:tab]
       url += "&rule=#{u options[:rule]}" if options[:rule]
       url += "&metric=#{u options[:metric]}" if options[:metric]
       url += '#L' + options[:line].to_s if options[:line]
