@@ -24,6 +24,7 @@ import com.persistit.encoding.CoderContext;
 import com.persistit.encoding.ValueCoder;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SyntaxHighlightingDataValueCoder implements ValueCoder {
 
@@ -41,7 +42,7 @@ public class SyntaxHighlightingDataValueCoder implements ValueCoder {
   @Override
   public Object get(Value value, Class clazz, CoderContext context) {
     int count = value.getInt();
-    ArrayList<SyntaxHighlightingRule> rules = new ArrayList<SyntaxHighlightingRule>(count);
+    List<SyntaxHighlightingRule> rules = new ArrayList<SyntaxHighlightingRule>(count);
     for (int i = 0; i < count; i++) {
       rules.add((SyntaxHighlightingRule) rulesCoder.get(value, SyntaxHighlightingRule.class, context));
     }

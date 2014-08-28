@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +30,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.symbol.Symbol;
@@ -67,6 +66,7 @@ import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -291,11 +291,10 @@ public class BatchMediumTester {
      * Get highlighting types at a given position in an inputfile
      * @param charIndex 0-based offset in file
      */
-    @CheckForNull
     public List<TypeOfText> highlightingTypeFor(InputFile file, int charIndex) {
       SyntaxHighlightingData syntaxHighlightingData = highlightingPerFile.get(file);
       if (syntaxHighlightingData == null) {
-        return null;
+        return Collections.emptyList();
       }
       List<TypeOfText> result = new ArrayList<TypeOfText>();
       for (SyntaxHighlightingRule sortedRule : syntaxHighlightingData.syntaxHighlightingRuleSet()) {
