@@ -20,12 +20,10 @@
 
 package org.sonar.server.search;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.ActionResponse;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodes;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.logging.ESLoggerFactory;
@@ -48,30 +46,17 @@ public class SearchClient extends TransportClient {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchClient.class);
 
-  private static final String DEFAULT_HEALTH_TIMEOUT = "30s";
-
-  private final Settings settings;
-  private final String healthTimeout;
-
-  protected final Profiling profiling;
+  private final Profiling profiling;
 
   public SearchClient(Settings settings) {
-    this(settings, DEFAULT_HEALTH_TIMEOUT);
-  }
-
-  @VisibleForTesting
-  SearchClient(Settings settings, String healthTimeout) {
     super(ImmutableSettings.settingsBuilder()
-        .put("network.bind_host", "localhost")
-        .put("node.rack_id", StringUtils.defaultIfEmpty(settings.getString(IndexProperties.NODE_NAME), "unknown"))
-        .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(IndexProperties.CLUSTER_NAME), "sonarqube"))
-        .build()
-    );
+      .put("network.bind_host", "localhost")
+      .put("node.rack_id", StringUtils.defaultIfEmpty(settings.getString(IndexProperties.NODE_NAME), "unknown"))
+      .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(IndexProperties.CLUSTER_NAME), "sonarqube"))
+      .build());
     initLogging();
     this.addTransportAddress(new InetSocketTransportAddress("localhost",
       settings.getInt(IndexProperties.NODE_PORT)));
-    this.settings = settings;
-    this.healthTimeout = healthTimeout;
     this.profiling = new Profiling(settings);
   }
 
@@ -124,7 +109,7 @@ public class SearchClient extends TransportClient {
       }
       return response;
     } catch (Exception e) {
-      LOGGER.error("could not execute request: "   + response);
+      LOGGER.error("could not execute request: " + response);
       throw new IllegalStateException("ES error: ", e);
 
     }
