@@ -51,44 +51,6 @@ class BatchBootstrapController < Api::ApiController
     end
   end
 
-  # GET /batch_bootstrap/properties?[project=<key or id>][&dryRun=true|false]
-  def properties
-    dryRun = params[:dryRun].present? && params[:dryRun] == "true"
-    has_dryrun_role = has_role?('dryRunScan')
-    has_scan_role = has_role?('scan')
-
-    return render_unauthorized("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.") if (!has_dryrun_role && !has_scan_role)
-    return render_unauthorized("You're only authorized to execute a local (dry run) SonarQube analysis without pushing the results to the SonarQube server. Please contact your SonarQube administrator.") if (!dryRun && !has_scan_role)
-
-    keys=Set.new
-    properties=[]
-
-    # project properties
-    root_project = load_project()
-    return render_unauthorized("You're not authorized to access to project '" + root_project.name + "', please contact your SonarQube administrator") if root_project && !has_scan_role && !has_role?(:user, root_project)
-
-    if root_project
-      # bottom-up projects
-      projects=[root_project].concat(root_project.ancestor_projects)
-      projects.each do |project|
-        Property.find(:all, :conditions => ['resource_id=? and user_id is null', project.id]).each do |prop|
-          properties<<prop if keys.add? prop.key
-        end
-      end
-    end
-
-    # global properties
-    Property.find(:all, :conditions => 'resource_id is null and user_id is null').each do |prop|
-      properties<<prop if keys.add? prop.key
-    end
-
-    # apply security
-    properties = properties.select{|prop| allowed?(prop.key, dryRun, has_scan_role)}
-
-    json_properties=properties.map { |property| to_json_property(property) }
-
-    render :json => JSON(json_properties)
-  end
 
   private
 
