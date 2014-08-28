@@ -126,17 +126,17 @@ public abstract class MonitoredProcess implements ProcessMXBean {
   public final void terminate() {
     if (monitor != null) {
       LOGGER.debug("Process[{}] terminating", name);
-      monitor.shutdownNow();
-      monitor = null;
-      if (pingTask != null) {
-        pingTask.cancel(true);
-        pingTask = null;
-      }
       try {
         doTerminate();
       } catch (Exception e) {
         LOGGER.error("Fail to terminate " + name, e);
         // do not propagate exception
+      }
+      monitor.shutdownNow();
+      monitor = null;
+      if (pingTask != null) {
+        pingTask.cancel(true);
+        pingTask = null;
       }
       LOGGER.debug("Process[{}] terminated", name);
       terminated = true;
