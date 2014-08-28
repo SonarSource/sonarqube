@@ -68,7 +68,7 @@ public class MonitorTestBase extends BaseProcessTest {
 
     // 1 start my monitor & register process
     monitor.start();
-    monitor.registerProcess(process);
+    monitor.monitor(process);
 
     // 2 terminate monitor, assert process is terminated
     monitor.terminate();

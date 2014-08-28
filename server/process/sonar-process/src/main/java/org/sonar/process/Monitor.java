@@ -22,8 +22,8 @@ package org.sonar.process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -36,7 +36,7 @@ public class Monitor extends Thread implements Terminable {
   private static final long PING_DELAY_MS = 3000L;
 
   private long pingDelayMs = PING_DELAY_MS;
-  private volatile List<ProcessWrapper> processes;
+  private final List<ProcessWrapper> processes = new CopyOnWriteArrayList<ProcessWrapper>();
   private final ScheduledFuture<?> watch;
   private final ScheduledExecutorService monitorExecutionService;
 
@@ -45,7 +45,6 @@ public class Monitor extends Thread implements Terminable {
    */
   public Monitor() {
     super("Process Monitor");
-    processes = new ArrayList<ProcessWrapper>();
     monitorExecutionService = Executors.newScheduledThreadPool(1);
     watch = monitorExecutionService.scheduleAtFixedRate(new ProcessWatch(), 0L, getPingDelayMs(), TimeUnit.MILLISECONDS);
   }
@@ -84,13 +83,11 @@ public class Monitor extends Thread implements Terminable {
   /**
    * Registers and monitors process. Note that process is probably not ready yet.
    */
-  public void registerProcess(ProcessWrapper process) throws InterruptedException {
-    LOGGER.info("Registering process[{}] for monitoring.", process.getName());
-    synchronized (processes) {
-      processes.add(process);
-    }
+  public void monitor(ProcessWrapper process) throws InterruptedException {
+    LOGGER.info("Monitoring process[{}]", process.getName());
     // starts a monitoring thread
     process.start();
+    processes.add(process);
   }
 
   /**
@@ -102,19 +99,17 @@ public class Monitor extends Thread implements Terminable {
     try {
       boolean ok = true;
       while (isRunning && ok) {
-        synchronized (processes) {
-          LOGGER.debug("Monitoring {} processes.", processes.size());
-          for (ProcessWrapper process : processes) {
-            if (!ProcessUtils.isAlive(process.process())) {
-              LOGGER.info("{} is down, stopping all other processes", process.getName());
-              ok = false;
-              interrupt();
-            }
+        LOGGER.debug("Monitoring {} processes.", processes.size());
+        for (ProcessWrapper process : processes) {
+          if (!ProcessUtils.isAlive(process.process())) {
+            LOGGER.info("{} is down, stopping all other processes", process.getName());
+            ok = false;
+            interrupt();
           }
         }
-        if (ok) {
-          Thread.sleep(PING_DELAY_MS);
-        }
+      }
+      if (ok) {
+        Thread.sleep(PING_DELAY_MS);
       }
     } catch (InterruptedException e) {
       LOGGER.debug("Monitoring thread is interrupted");
@@ -150,7 +145,7 @@ public class Monitor extends Thread implements Terminable {
         this.join();
       }
     } catch (InterruptedException e) {
-      //Expected to be interrupted :)
+      // Expected to be interrupted :)
     }
   }
 }

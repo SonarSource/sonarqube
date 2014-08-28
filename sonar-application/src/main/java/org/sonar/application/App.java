@@ -70,7 +70,7 @@ public class App implements ProcessMXBean {
         .addClasspath("./lib/common/*")
         .addClasspath("./lib/search/*");
       if (elasticsearch.execute()) {
-        monitor.registerProcess(elasticsearch);
+        monitor.monitor(elasticsearch);
         if (elasticsearch.waitForReady()) {
           logger.info("search server is up");
 
@@ -92,7 +92,7 @@ public class App implements ProcessMXBean {
               server.addClasspath(driverPath);
             }
             if (server.execute()) {
-              monitor.registerProcess(server);
+              monitor.monitor(server);
               if (server.waitForReady()) {
                 success = true;
                 logger.info("web server is up");

@@ -31,7 +31,7 @@ public abstract class MonitoredProcess implements ProcessMXBean {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MonitoredProcess.class);
 
-  private static final long AUTOKILL_TIMEOUT_MS = 30000L;
+  private static final long AUTOKILL_TIMEOUT_MS = 60000L;
   private static final long AUTOKILL_CHECK_DELAY_MS = 2000L;
   public static final String NAME_PROPERTY = "pName";
 
