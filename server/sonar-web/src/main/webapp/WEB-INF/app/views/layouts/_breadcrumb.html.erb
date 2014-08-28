@@ -80,9 +80,15 @@
             <%= qualifier_icon(resource) -%>
             &nbsp;
             <%=
-                query = request.query_parameters.merge({:id => resource.key})
-                url = URI::HTTP.build(:path => "#{ApplicationController.root_context}/#{u resource_link[:controller]}/#{u resource_link[:action]}", :query => query.to_query)
-                "<a href='#{url}'>#{h(resource.name)}</a>"
+                root = "#{ApplicationController.root_context}/#{u resource_link[:controller]}/#{u resource_link[:action]}?"
+                path = ''
+                query = request.query_parameters
+                query[:id] = resource.key
+                query.each do |key, value|
+                  path += '&' unless path.empty?
+                  path += "#{u key}=#{u value}"
+                end
+                "<a href='#{root + path}'>#{h(resource.name)}</a>"
             -%>
           </li>
         <%

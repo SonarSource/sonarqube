@@ -311,37 +311,46 @@ module ApplicationHelper
   def link_to_resource(resource, name=nil, options={})
     period_index=options[:period]
     period_index=nil if period_index && period_index<=0
-
     if resource.display_dashboard?
       if options[:dashboard]
-        query = request.query_parameters.merge({:id => resource.id})
+        root = "#{ApplicationController.root_context}/dashboard/index?"
+        path = ''
+        query = request.query_parameters
+        query[:id] = resource.id
         query[:period] = period_index if period_index
         query[:tab] = options[:tab] if options[:tab]
         query[:rule] = options[:rule] if options[:rule]
-        url = URI::HTTP.build(:path => "#{ApplicationController.root_context}/dashboard/index", :query => query.to_query)
-        "<a class='#{options[:class]}' title='#{options[:title]}' href='#{url}'>#{h(name || resource.name)}</a>"
+        query.each do |key, value|
+          path += '&' unless path.empty?
+          path += "#{u key}=#{u value}"
+        end
+        "<a class='#{options[:class]}' title='#{options[:title]}' href='#{root + path}'>#{name || resource.name}</a>"
       else
         # stay on the same page (for example components)
-        query = request.query_parameters.merge({:id => resource.id})
+        root = "#{ApplicationController.root_context}/#{u params[:controller]}/#{u params[:action]}?"
+        path = ''
+        query = request.query_parameters
+        query[:id] = resource.id
         query[:period] = period_index if period_index
         query[:tab] = options[:tab] if options[:tab]
         query[:rule] = options[:rule] if options[:rule]
-        url = URI::HTTP.build(:path => "#{ApplicationController.root_context}/#{u params[:controller]}/#{u params[:action]}", :query => query.to_query)
-        "<a class='#{options[:class]}' title='#{options[:title]}' href='#{url}'>#{h(name || resource.name)}</a>"
+        query.each do |key, value|
+          path += '&' unless path.empty?
+          path += "#{u key}=#{u value}"
+        end
+        "<a class='#{options[:class]}' title='#{options[:title]}' href='#{root + path}'>#{name || resource.name}</a>"
       end
     else
-      query = {:id => resource.id}
-      query[:period] = period_index if period_index
-      query[:tab] = options[:tab] if options[:tab]
-      query[:rule] = options[:rule] if options[:rule]
-      query[:metric] = options[:metric] if options[:metric]
-      url = URI::HTTP.build(:path => "#{ApplicationController.root_context}/dashboard/index", :query => query.to_query)
+      url = "#{ApplicationController.root_context}/dashboard/index?id=#{u resource.key}"
+      url += "&period=#{u period_index}" if period_index
+      url += "&tab=#{u options[:tab]}" if options[:tab]
+      url += "&rule=#{u options[:rule]}" if options[:rule]
+      url += "&metric=#{u options[:metric]}" if options[:metric]
       url += '#L' + options[:line].to_s if options[:line]
       "<a class='#{options[:class]}' title='#{options[:title]}' " +
           "onclick='window.open(this.href,\"resource-#{resource.key.parameterize}\",\"\");return false;' " +
-          "href='#{url}'>#{h(name || resource.name)}</a>"
+          "href='#{url}'>#{name || resource.name}</a>"
     end
-
   end
 
 
