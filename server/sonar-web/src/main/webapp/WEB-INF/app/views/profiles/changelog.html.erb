@@ -33,7 +33,14 @@
           <%
              action = change.action()
              action_message = message('quality_profiles.changelog.' + action.downcase) if action
-             author = change.authorName() ? change.authorName() : change.login() ? !change.login().empty? : 'System'
+
+             if change.authorName() && !change.authorName().empty()
+               author = change.authorName()
+             elsif change.login() && !change.login().empty()
+               author = change.login()
+             else
+               author = 'System'
+             end
              rule = change.ruleName() ? change.ruleName() : change.ruleKey()
           %>
           <td valign="top" width="1%" nowrap><%= Internal.i18n.formatDateTime(change.time()) -%></td>
