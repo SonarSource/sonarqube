@@ -107,9 +107,9 @@ public class Monitor extends Thread implements Terminable {
             interrupt();
           }
         }
-      }
-      if (ok) {
-        Thread.sleep(PING_DELAY_MS);
+        if (ok) {
+          Thread.sleep(PING_DELAY_MS);
+        }
       }
     } catch (InterruptedException e) {
       LOGGER.debug("Monitoring thread is interrupted");
