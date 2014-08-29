@@ -35,8 +35,8 @@ import java.util.Map;
  */
 public class QProfileActivity extends ActivityDoc implements Activity {
 
-  private String ruleName = "Not Yet Implemented";
-  private String authorName = "Not Yet Implemented";
+  private String ruleName = null;
+  private String authorName = null;
 
   protected QProfileActivity(Map<String, Object> fields) {
     super(fields);

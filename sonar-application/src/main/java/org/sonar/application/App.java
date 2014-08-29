@@ -126,6 +126,10 @@ public class App implements ProcessMXBean {
 
   @Override
   public void terminate() {
+    if (monitor != null && monitor.isAlive()) {
+      monitor.terminate();
+      monitor = null;
+    }
     if (server != null) {
       server.terminate();
       server = null;
@@ -133,11 +137,6 @@ public class App implements ProcessMXBean {
     if (elasticsearch != null) {
       elasticsearch.terminate();
       elasticsearch = null;
-    }
-    if (monitor != null && monitor.isAlive()) {
-      monitor.terminate();
-      monitor.interrupt();
-      monitor = null;
     }
   }
 
