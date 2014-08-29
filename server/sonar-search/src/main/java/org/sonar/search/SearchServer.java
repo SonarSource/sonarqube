@@ -58,6 +58,7 @@ public class SearchServer extends MonitoredProcess {
   private final boolean isBlocking;
 
   private Node node;
+  private final Integer lock = new Integer(1);
 
   @VisibleForTesting
   public SearchServer(final Props props, boolean monitored, boolean blocking) {
@@ -94,77 +95,81 @@ public class SearchServer extends MonitoredProcess {
 
   @Override
   protected void doStart() {
-    Integer port = props.valueAsInt(ES_PORT_PROPERTY);
-    String clusterName = props.value(ES_CLUSTER_PROPERTY);
+    synchronized (lock) {
 
-    LoggerFactory.getLogger(SearchServer.class).info("Starting ES[{}] on port: {}", clusterName, port);
 
-    ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
+      Integer port = props.valueAsInt(ES_PORT_PROPERTY);
+      String clusterName = props.value(ES_CLUSTER_PROPERTY);
 
-      // Disable MCast
-      .put("discovery.zen.ping.multicast.enabled", "false")
+      LoggerFactory.getLogger(SearchServer.class).info("Starting ES[{}] on port: {}", clusterName, port);
 
-      // Index storage policies
-      .put("index.merge.policy.max_merge_at_once", "200")
-      .put("index.merge.policy.segments_per_tier", "200")
-      .put("index.number_of_shards", "1")
-      .put("index.number_of_replicas", MINIMUM_INDEX_REPLICATION)
-      .put("index.store.type", "mmapfs")
-      .put("indices.store.throttle.type", "merge")
-      .put("indices.store.throttle.max_bytes_per_sec", "200mb")
+      ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
 
-      // Install our own listUpdate scripts
-      .put("script.default_lang", "native")
-      .put("script.native." + ListUpdate.NAME + ".type", ListUpdate.UpdateListScriptFactory.class.getName())
+        // Disable MCast
+        .put("discovery.zen.ping.multicast.enabled", "false")
 
-      // Node is pure transport
-      .put("transport.tcp.port", port)
-      .put("http.enabled", false)
+          // Index storage policies
+        .put("index.merge.policy.max_merge_at_once", "200")
+        .put("index.merge.policy.segments_per_tier", "200")
+        .put("index.number_of_shards", "1")
+        .put("index.number_of_replicas", MINIMUM_INDEX_REPLICATION)
+        .put("index.store.type", "mmapfs")
+        .put("indices.store.throttle.type", "merge")
+        .put("indices.store.throttle.max_bytes_per_sec", "200mb")
 
-      // Setting up ES paths
-      .put("path.data", esDataDir().getAbsolutePath())
-      .put("path.work", esWorkDir().getAbsolutePath())
-      .put("path.logs", esLogDir().getAbsolutePath());
+          // Install our own listUpdate scripts
+        .put("script.default_lang", "native")
+        .put("script.native." + ListUpdate.NAME + ".type", ListUpdate.UpdateListScriptFactory.class.getName())
 
-    if (!nodes.isEmpty()) {
+          // Node is pure transport
+        .put("transport.tcp.port", port)
+        .put("http.enabled", false)
 
-      LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with master: {}", nodes);
-      esSettings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(nodes, ","));
-      esSettings.put("node.master", false);
-      // Enforce a N/2+1 number of masters in cluster
-      esSettings.put("discovery.zen.minimum_master_nodes", 1);
-      // Change master pool requirement when in distributed mode
-      // esSettings.put("discovery.zen.minimum_master_nodes", (int) Math.floor(nodes.size() / 2.0) + 1);
-    }
+          // Setting up ES paths
+        .put("path.data", esDataDir().getAbsolutePath())
+        .put("path.work", esWorkDir().getAbsolutePath())
+        .put("path.logs", esLogDir().getAbsolutePath());
 
-    // Set cluster coordinates
-    esSettings.put("cluster.name", clusterName);
-    esSettings.put("node.rack_id", props.value(SONAR_NODE_NAME, "unknown"));
-    esSettings.put("cluster.routing.allocation.awareness.attributes", "rack_id");
-    if (props.contains(SONAR_NODE_NAME)) {
-      esSettings.put("node.name", props.value(SONAR_NODE_NAME));
-    } else {
-      try {
-        esSettings.put("node.name", InetAddress.getLocalHost().getHostName());
-      } catch (Exception e) {
-        LoggerFactory.getLogger(SearchServer.class).warn("Could not determine hostname", e);
-        esSettings.put("node.name", "sq-" + System.currentTimeMillis());
+      if (!nodes.isEmpty()) {
+
+        LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with master: {}", nodes);
+        esSettings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(nodes, ","));
+        esSettings.put("node.master", false);
+        // Enforce a N/2+1 number of masters in cluster
+        esSettings.put("discovery.zen.minimum_master_nodes", 1);
+        // Change master pool requirement when in distributed mode
+        // esSettings.put("discovery.zen.minimum_master_nodes", (int) Math.floor(nodes.size() / 2.0) + 1);
       }
+
+      // Set cluster coordinates
+      esSettings.put("cluster.name", clusterName);
+      esSettings.put("node.rack_id", props.value(SONAR_NODE_NAME, "unknown"));
+      esSettings.put("cluster.routing.allocation.awareness.attributes", "rack_id");
+      if (props.contains(SONAR_NODE_NAME)) {
+        esSettings.put("node.name", props.value(SONAR_NODE_NAME));
+      } else {
+        try {
+          esSettings.put("node.name", InetAddress.getLocalHost().getHostName());
+        } catch (Exception e) {
+          LoggerFactory.getLogger(SearchServer.class).warn("Could not determine hostname", e);
+          esSettings.put("node.name", "sq-" + System.currentTimeMillis());
+        }
+      }
+
+      // Make sure the index settings are up to date.
+      initAnalysis(esSettings);
+
+      // And building our ES Node
+      node = NodeBuilder.nodeBuilder()
+        .settings(esSettings)
+        .build().start();
+
+      node.client().admin().indices()
+        .preparePutTemplate("default")
+        .setTemplate("*")
+        .addMapping("_default_", "{\"dynamic\": \"strict\"}")
+        .get();
     }
-
-    // Make sure the index settings are up to date.
-    initAnalysis(esSettings);
-
-    // And building our ES Node
-    node = NodeBuilder.nodeBuilder()
-      .settings(esSettings)
-      .build().start();
-
-    node.client().admin().indices()
-      .preparePutTemplate("default")
-      .setTemplate("*")
-      .addMapping("_default_", "{\"dynamic\": \"strict\"}")
-      .get();
 
     if (isBlocking) {
       while (node != null && !node.isClosed()) {
@@ -175,6 +180,7 @@ public class SearchServer extends MonitoredProcess {
         }
       }
     }
+
   }
 
   private void initAnalysis(ImmutableSettings.Builder esSettings) {
@@ -183,40 +189,40 @@ public class SearchServer extends MonitoredProcess {
       // Disallow dynamic mapping (too expensive)
       .put("index.mapper.dynamic", false)
 
-      // Sortable text analyzer
+        // Sortable text analyzer
       .put("index.analysis.analyzer.sortable.type", "custom")
       .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
       .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase", "truncate")
 
-      // Edge NGram index-analyzer
+        // Edge NGram index-analyzer
       .put("index.analysis.analyzer.index_grams.type", "custom")
       .put("index.analysis.analyzer.index_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.index_grams.filter", "trim", "lowercase", "gram_filter")
 
-      // Edge NGram search-analyzer
+        // Edge NGram search-analyzer
       .put("index.analysis.analyzer.search_grams.type", "custom")
       .put("index.analysis.analyzer.search_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.search_grams.filter", "trim", "lowercase")
 
-      // Word index-analyzer
+        // Word index-analyzer
       .put("index.analysis.analyzer.index_words.type", "custom")
       .put("index.analysis.analyzer.index_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.index_words.filter",
         "standard", "word_filter", "lowercase", "stop", "asciifolding", "porter_stem")
 
-      // Word search-analyzer
+        // Word search-analyzer
       .put("index.analysis.analyzer.search_words.type", "custom")
       .put("index.analysis.analyzer.search_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.search_words.filter",
         "standard", "lowercase", "stop", "asciifolding", "porter_stem")
 
-      // Edge NGram filter
+        // Edge NGram filter
       .put("index.analysis.filter.gram_filter.type", "edgeNGram")
       .put("index.analysis.filter.gram_filter.min_gram", 2)
       .put("index.analysis.filter.gram_filter.max_gram", 15)
       .putArray("index.analysis.filter.gram_filter.token_chars", "letter", "digit", "punctuation", "symbol")
 
-      // Word filter
+        // Word filter
       .put("index.analysis.filter.word_filter.type", "word_delimiter")
       .put("index.analysis.filter.word_filter.generate_word_parts", true)
       .put("index.analysis.filter.word_filter.catenate_words", true)
@@ -227,7 +233,7 @@ public class SearchServer extends MonitoredProcess {
       .put("index.analysis.filter.word_filter.split_on_numerics", true)
       .put("index.analysis.filter.word_filter.stem_english_possessive", true)
 
-      // Path Analyzer
+        // Path Analyzer
       .put("index.analysis.analyzer.path_analyzer.type", "custom")
       .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy");
 
@@ -263,9 +269,11 @@ public class SearchServer extends MonitoredProcess {
 
   @Override
   protected void doTerminate() {
-    if (node != null && !node.isClosed()) {
-      node.close();
-      node = null;
+    synchronized (lock) {
+      if (node != null && !node.isClosed()) {
+        node.close();
+        node = null;
+      }
     }
   }
 

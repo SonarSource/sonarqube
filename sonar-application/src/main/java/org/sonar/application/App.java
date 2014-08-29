@@ -96,16 +96,15 @@ public class App implements ProcessMXBean {
               if (server.waitForReady()) {
                 success = true;
                 logger.info("web server is up");
-                monitor.join();
               }
             }
           } else {
             success = true;
-            monitor.join();
           }
         }
       }
     } finally {
+      monitor.join();
       terminate();
     }
   }
@@ -160,11 +159,12 @@ public class App implements ProcessMXBean {
     }
 
     App app = new App();
+    ProcessUtils.addSelfShutdownHook(app);
     try {
       // start and wait for shutdown command
       if (props.contains(SearchServer.ES_CLUSTER_INET)) {
         LoggerFactory.getLogger(App.class).info("SonarQube slave configured to join SonarQube master : {}", props.value(SearchServer.ES_CLUSTER_INET));
-      }
+    }
       app.start(props);
     } catch (InterruptedException e) {
       LoggerFactory.getLogger(App.class).info("interrupted");
