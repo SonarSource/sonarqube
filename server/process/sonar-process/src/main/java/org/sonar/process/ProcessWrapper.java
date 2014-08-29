@@ -177,13 +177,11 @@ public class ProcessWrapper extends Thread implements Terminable {
         process.waitFor();
       }
     } catch (Exception e) {
-      LOGGER.info("ProcessThread has been interrupted. Killing process.");
+      LOGGER.info("ProcessThread has been interrupted. Killing node.");
       LOGGER.trace("Process exception", e);
     } finally {
-      waitUntilFinish(outputGobbler);
-      waitUntilFinish(errorGobbler);
-      ProcessUtils.closeStreams(process);
-      interruptAndWait();
+      ;
+      ;
     }
   }
 
@@ -193,16 +191,6 @@ public class ProcessWrapper extends Thread implements Terminable {
 
   public ProcessMXBean getProcessMXBean() {
     return processMXBean;
-  }
-
-  private void waitUntilFinish(@Nullable Thread thread) {
-    if (thread != null) {
-      try {
-        thread.join();
-      } catch (InterruptedException e) {
-        LOGGER.error("InterruptedException while waiting finish of " + thread.getName() + " in process '" + getName() + "'", e);
-      }
-    }
   }
 
   private String buildJavaCommand() {
@@ -269,37 +257,41 @@ public class ProcessWrapper extends Thread implements Terminable {
     return null;
   }
 
+  private final Integer terminationLock = new Integer(1);
   @Override
   public void terminate() {
-    if (processMXBean != null && process != null) {
-      LOGGER.info("{} stopping", getName());
-      // Send the terminate command to process in order to gracefully shutdown.
-      // Then hardly kill it if it didn't terminate in 30 seconds
-      ScheduledExecutorService killer = Executors.newScheduledThreadPool(1);
-      try {
-        Runnable killerTask = new Runnable() {
-          @Override
-          public void run() {
-            ProcessUtils.destroyQuietly(process);
-          }
-        };
+    synchronized (terminationLock) {
+      if (processMXBean != null && process != null) {
+        LOGGER.info("{} stopping", getName());
+        // Send the terminate command to process in order to gracefully shutdown.
+        // Then hardly kill it if it didn't terminate in 30 seconds
+        ScheduledExecutorService killer = Executors.newScheduledThreadPool(1);
+        try {
+          Runnable killerTask = new Runnable() {
+            @Override
+            public void run() {
+              ProcessUtils.destroyQuietly(process);
+            }
+          };
 
-        ScheduledFuture killerFuture = killer.schedule(killerTask, 30, TimeUnit.SECONDS);
-        processMXBean.terminate();
-        killerFuture.cancel(true);
-        LOGGER.info("{} stopped", getName());
+          ScheduledFuture killerFuture = killer.schedule(killerTask, 30, TimeUnit.SECONDS);
+          processMXBean.terminate();
+          this.join();
+          killerFuture.cancel(true);
+          LOGGER.info("{} stopped", getName());
 
-      } catch (Exception ignored) {
-        LOGGER.trace("Could not terminate process", ignored);
-      } finally {
-        killer.shutdownNow();
+        } catch (Exception ignored) {
+          LOGGER.trace("Could not terminate process", ignored);
+        } finally {
+          killer.shutdownNow();
+          interruptAndWait();
+        }
+      } else {
+        // process is not monitored through JMX, but killing it though
+        ProcessUtils.destroyQuietly(process);
       }
-      interruptAndWait();
-    } else {
-      // process is not monitored through JMX, but killing it though
-      ProcessUtils.destroyQuietly(process);
+      processMXBean = null;
     }
-    processMXBean = null;
   }
 
   public boolean waitForReady() throws InterruptedException {
@@ -323,8 +315,20 @@ public class ProcessWrapper extends Thread implements Terminable {
   }
 
   private void interruptAndWait() {
-    this.interrupt();
     try {
+      //after being interrupted, finalize the goblins
+      if (outputGobbler != null && outputGobbler.isAlive()) {
+        waitUntilFinish(outputGobbler);
+      }
+
+      if (errorGobbler != null && errorGobbler.isAlive()) {
+        waitUntilFinish(errorGobbler);
+      }
+      if (process != null) {
+        ProcessUtils.closeStreams(process);
+      }
+
+      //Join while the main thread terminates
       if (this.isAlive()) {
         this.join();
       }
@@ -332,6 +336,17 @@ public class ProcessWrapper extends Thread implements Terminable {
       // Expected to be interrupted :)
     }
   }
+
+  private void waitUntilFinish(@Nullable Thread thread) {
+    if (thread != null && thread.isAlive()) {
+      try {
+        thread.join();
+      } catch (InterruptedException e) {
+        LOGGER.error("InterruptedException while waiting finish of " + thread.getName() + " in process '" + getName() + "'", e);
+      }
+    }
+  }
+
 
   private static class StreamGobbler extends Thread {
     private final InputStream is;

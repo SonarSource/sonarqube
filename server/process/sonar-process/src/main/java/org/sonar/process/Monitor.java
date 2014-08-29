@@ -122,6 +122,7 @@ public class Monitor extends Thread implements Terminable {
 
   @Override
   public synchronized void terminate() {
+
     LOGGER.debug("Monitoring thread is terminating");
 
     if (!monitorExecutionService.isShutdown()) {
@@ -131,9 +132,6 @@ public class Monitor extends Thread implements Terminable {
       watch.cancel(true);
     }
 
-    for (int i = processes.size() - 1; i >= 0; i--) {
-      processes.get(i).terminate();
-    }
     processes.clear();
     interruptAndWait();
   }
