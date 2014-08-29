@@ -22,13 +22,12 @@ package org.sonar.server.issue.db;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.issue.db.IssueKey;
 import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
-public class IssueDao extends BaseDao<IssueMapper, IssueDto, IssueKey> implements DaoComponent {
+public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements DaoComponent {
 
   public IssueDao() {
     this(System2.INSTANCE);
@@ -40,8 +39,7 @@ public class IssueDao extends BaseDao<IssueMapper, IssueDto, IssueKey> implement
   }
 
   @Override
-  protected IssueDto doGetNullableByKey(DbSession session, IssueKey key) {
-    //return mapper(session).selectByKey(key);
-    return null;
+  protected IssueDto doGetNullableByKey(DbSession session, String key) {
+    return mapper(session).selectByKey(key);
   }
 }
