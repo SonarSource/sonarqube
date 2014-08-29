@@ -73,8 +73,7 @@ public class ProjectReactorValidator {
 
   private void preventAutomaticProjectCreationIfNeeded(ProjectReactor reactor) {
     if (settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION)) {
-      // FIXME should we take branch into account here?
-      String projectKey = reactor.getRoot().getKey();
+      String projectKey = reactor.getRoot().getKeyWithBranch();
       if (resourceDao.findByKey(projectKey) == null) {
         throw new SonarException(String.format("Unable to scan non-existing project \"%s\"", projectKey));
       }
