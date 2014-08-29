@@ -97,7 +97,6 @@ public class SearchServer extends MonitoredProcess {
   protected void doStart() {
     synchronized (lock) {
 
-
       Integer port = props.valueAsInt(ES_PORT_PROPERTY);
       String clusterName = props.value(ES_CLUSTER_PROPERTY);
 

@@ -33,16 +33,18 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.process.LoopbackAddress;
 
 /**
  * ElasticSearch Node used to connect to index.
  */
-public class SearchClient extends TransportClient {
+public class SearchClient extends TransportClient implements Startable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SearchClient.class);
 
@@ -50,12 +52,13 @@ public class SearchClient extends TransportClient {
 
   public SearchClient(Settings settings) {
     super(ImmutableSettings.settingsBuilder()
+      .put("node.name", StringUtils.defaultIfEmpty(settings.getString(IndexProperties.NODE_NAME), "sq_local_client"))
       .put("network.bind_host", "localhost")
       .put("node.rack_id", StringUtils.defaultIfEmpty(settings.getString(IndexProperties.NODE_NAME), "unknown"))
       .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(IndexProperties.CLUSTER_NAME), "sonarqube"))
       .build());
     initLogging();
-    this.addTransportAddress(new InetSocketTransportAddress("localhost",
+    this.addTransportAddress(new InetSocketTransportAddress(LoopbackAddress.get().getHostAddress(),
       settings.getInt(IndexProperties.NODE_PORT)));
     this.profiling = new Profiling(settings);
   }
@@ -111,7 +114,16 @@ public class SearchClient extends TransportClient {
     } catch (Exception e) {
       LOGGER.error("could not execute request: " + response);
       throw new IllegalStateException("ES error: ", e);
-
     }
+  }
+
+  @Override
+  public void start() {
+
+  }
+
+  @Override
+  public void stop() {
+    super.close();
   }
 }
