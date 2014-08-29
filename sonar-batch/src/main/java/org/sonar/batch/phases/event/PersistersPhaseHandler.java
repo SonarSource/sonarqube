@@ -17,42 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.phases.event;
 
-import com.google.common.collect.Sets;
+import org.sonar.api.batch.events.EventHandler;
+import org.sonar.batch.index.ScanPersister;
 
-import java.util.Arrays;
-import java.util.Set;
+import java.util.List;
 
-public class Phases {
+public interface PersistersPhaseHandler extends EventHandler {
 
-  public static enum Phase {
-    MAVEN("Maven"), INIT("Initializers"), SENSOR("Sensors"), DECORATOR("Decorators"), PERSISTER("Persisters"), POSTJOB("Post-Jobs");
+  /**
+   * This interface is not intended to be implemented by clients.
+   */
+  interface PersistersPhaseEvent {
 
-    private final String label;
+    /**
+     * @return list of Persisters in the order of execution
+     */
+    List<ScanPersister> getPersisters();
 
-    private Phase(String label) {
-      this.label = label;
-    }
+    boolean isStart();
 
-    @Override
-    public String toString() {
-      return label;
-    }
+    boolean isEnd();
+
   }
 
-  private final Set<Phase> enabled = Sets.newHashSet();
+  /**
+   * Called before and after execution of all {@link ScanPersister}s.
+   */
+  void onPersistersPhase(PersistersPhaseEvent event);
 
-  public Phases enable(Phase... phases) {
-    enabled.addAll(Arrays.asList(phases));
-    return this;
-  }
-
-  public boolean isEnabled(Phase phase) {
-    return enabled.contains(phase);
-  }
-
-  public boolean isFullyEnabled() {
-    return enabled.containsAll(Arrays.asList(Phase.values()));
-  }
 }

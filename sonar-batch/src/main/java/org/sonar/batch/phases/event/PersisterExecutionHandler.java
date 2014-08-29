@@ -17,42 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.phases;
+package org.sonar.batch.phases.event;
 
-import com.google.common.collect.Sets;
+import org.sonar.api.batch.events.EventHandler;
+import org.sonar.batch.index.ScanPersister;
 
-import java.util.Arrays;
-import java.util.Set;
+public interface PersisterExecutionHandler extends EventHandler {
 
-public class Phases {
+  /**
+   * This interface is not intended to be implemented by clients.
+   */
+  interface PersisterExecutionEvent {
 
-  public static enum Phase {
-    MAVEN("Maven"), INIT("Initializers"), SENSOR("Sensors"), DECORATOR("Decorators"), PERSISTER("Persisters"), POSTJOB("Post-Jobs");
+    ScanPersister getPersister();
 
-    private final String label;
+    boolean isStart();
 
-    private Phase(String label) {
-      this.label = label;
-    }
+    boolean isEnd();
 
-    @Override
-    public String toString() {
-      return label;
-    }
   }
 
-  private final Set<Phase> enabled = Sets.newHashSet();
+  /**
+   * Called before and after execution of {@link ScanPersister}.
+   */
+  void onPersisterExecution(PersisterExecutionEvent event);
 
-  public Phases enable(Phase... phases) {
-    enabled.addAll(Arrays.asList(phases));
-    return this;
-  }
-
-  public boolean isEnabled(Phase phase) {
-    return enabled.contains(phase);
-  }
-
-  public boolean isFullyEnabled() {
-    return enabled.containsAll(Arrays.asList(Phase.values()));
-  }
 }

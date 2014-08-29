@@ -138,14 +138,15 @@ public final class PhaseExecutor {
 
   private void executePersisters() {
     LOGGER.info("Store results in database");
-    String persistersStep = "Persisters";
-    eventBus.fireEvent(new BatchStepEvent(persistersStep, true));
+    eventBus.fireEvent(new PersistersPhaseEvent(Lists.newArrayList(persisters), true));
     for (ScanPersister persister : persisters) {
       LOGGER.debug("Execute {}", persister.getClass().getName());
+      eventBus.fireEvent(new PersisterExecutionEvent(persister, true));
       persister.persist();
+      eventBus.fireEvent(new PersisterExecutionEvent(persister, false));
     }
 
-    eventBus.fireEvent(new BatchStepEvent(persistersStep, false));
+    eventBus.fireEvent(new PersistersPhaseEvent(Lists.newArrayList(persisters), false));
   }
 
   private void updateStatusJob() {
