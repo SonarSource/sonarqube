@@ -36,33 +36,54 @@
   </sql>
 
   <select id="selectAll" resultType="Rule">
-    select <include refid="selectColumns"/> from rules r
+    select
+    <include refid="selectColumns"/>
+    from rules r
+  </select>
+
+  <select id="selectAfterDate" resultType="Rule" resultSetType="FORWARD_ONLY" fetchSize="200">
+    select
+    <include refid="selectColumns"/>
+    from rules r
+    where r.updated_at IS NULL or r.updated_at &gt;= #{date}
   </select>
 
   <select id="selectEnablesAndNonManual" resultType="Rule">
-    select <include refid="selectColumns"/> from rules r
+    select
+    <include refid="selectColumns"/>
+    from rules r
     where r.status != 'REMOVED' and r.plugin_name != 'manual'
   </select>
 
   <select id="selectById" parameterType="Integer" resultType="Rule">
-    select <include refid="selectColumns"/> from rules r WHERE r.id=#{id}
+    select
+    <include refid="selectColumns"/>
+    from rules r WHERE r.id=#{id}
   </select>
 
   <select id="selectByKey" parameterType="map" resultType="Rule">
-    SELECT <include refid="selectColumns"/> FROM rules r WHERE r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
+    SELECT
+    <include refid="selectColumns"/>
+    FROM rules r WHERE r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
   </select>
 
   <select id="selectByName" parameterType="String" resultType="Rule">
-    select <include refid="selectColumns"/> from rules r WHERE r.name=#{name}
+    select
+    <include refid="selectColumns"/>
+    from rules r WHERE r.name=#{name}
   </select>
 
   <select id="selectNonManual" resultType="Rule">
-    select <include refid="selectColumns"/> from rules r
+    select
+    <include refid="selectColumns"/>
+    from rules r
     where r.plugin_name != 'manual'
   </select>
 
   <select id="selectBySubCharacteristicId" resultType="Rule">
-    select <include refid="selectColumns"/> from rules r
+    select
+    <include refid="selectColumns"/>
+    from rules r
     where (r.characteristic_id=#{subCharacteristicId} or r.default_characteristic_id=#{subCharacteristicId})
   </select>
 
@@ -99,7 +120,8 @@
   </update>
 
   <sql id="insertColumns">
-    (plugin_rule_key, plugin_name, description, description_format, status, name, plugin_config_key, priority, is_template, language, template_id,
+    (plugin_rule_key, plugin_name, description, description_format, status, name, plugin_config_key, priority,
+    is_template, language, template_id,
     characteristic_id, default_characteristic_id, remediation_function, default_remediation_function,
     remediation_coeff, default_remediation_coeff, remediation_offset, default_remediation_offset,
     effort_to_fix_description, tags, system_tags, note_data, note_user_login, note_created_at, note_updated_at,
@@ -107,17 +129,8 @@
   </sql>
 
   <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    insert into rules <include refid="insertColumns"/>
-    values (#{ruleKey}, #{repositoryKey}, #{description}, #{descriptionFormat}, #{status}, #{name}, #{configKey},
-      #{severity}, #{isTemplate}, #{language}, #{templateId},
-      #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
-      #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
-      #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
-      #{noteUpdatedAt}, #{createdAt}, #{updatedAt})
-  </insert>
-
-  <insert id="batchInsert" parameterType="Rule" useGeneratedKeys="false">
-    insert into rules <include refid="insertColumns"/>
+    insert into rules
+    <include refid="insertColumns"/>
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{descriptionFormat}, #{status}, #{name}, #{configKey},
     #{severity}, #{isTemplate}, #{language}, #{templateId},
     #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
@@ -126,7 +139,18 @@
     #{noteUpdatedAt}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <delete id="deleteParams" parameterType="Integer" >
+  <insert id="batchInsert" parameterType="Rule" useGeneratedKeys="false">
+    insert into rules
+    <include refid="insertColumns"/>
+    values (#{ruleKey}, #{repositoryKey}, #{description}, #{descriptionFormat}, #{status}, #{name}, #{configKey},
+    #{severity}, #{isTemplate}, #{language}, #{templateId},
+    #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
+    #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
+    #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
+    #{noteUpdatedAt}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <delete id="deleteParams" parameterType="Integer">
     delete from active_rule_parameters where rules_parameter_id=#{id}
   </delete>
 
@@ -136,45 +160,50 @@
   </sql>
 
   <select id="selectAllParams" resultType="RuleParam">
-    select <include refid="paramColumns"/>
+    select
+    <include refid="paramColumns"/>
     from rules_parameters p
   </select>
 
   <select id="selectParamsByRuleIds" resultType="RuleParam">
-    SELECT <include refid="paramColumns"/>
+    SELECT
+    <include refid="paramColumns"/>
     FROM rules_parameters p
     <where>
-      AND (<foreach item="id" index="index" collection="ruleIds" open="(" separator=" or " close=")">p.rule_id=#{id}</foreach>)
+      AND (<foreach item="id" index="index" collection="ruleIds" open="(" separator=" or " close=")">
+      p.rule_id=#{id}</foreach>)
     </where>
   </select>
 
   <select id="selectParamsByRuleKey" resultType="RuleParam" parameterType="org.sonar.api.rule.RuleKey">
-    SELECT <include refid="paramColumns"/>
+    SELECT
+    <include refid="paramColumns"/>
     FROM rules_parameters p, rules r
     WHERE p.rule_id=r.id
     AND r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
   </select>
 
   <select id="selectParamByRuleAndKey" resultType="RuleParam">
-    SELECT <include refid="paramColumns"/>
+    SELECT
+    <include refid="paramColumns"/>
     FROM rules_parameters p
     WHERE p.rule_id=#{ruleId} AND p.name=#{key}
   </select>
 
-  <delete id="deleteParameter" parameterType="Integer" >
+  <delete id="deleteParameter" parameterType="Integer">
     delete from rules_parameters where id=#{id}
   </delete>
 
-  <insert id="insertParameter" parameterType="RuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id" >
+  <insert id="insertParameter" parameterType="RuleParam" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO rules_parameters (rule_id, name, param_type, default_value, description)
     VALUES (#{ruleId}, #{name}, #{type}, #{defaultValue}, #{description})
   </insert>
 
-  <update id="updateParameter" parameterType="RuleParam" >
+  <update id="updateParameter" parameterType="RuleParam">
     UPDATE rules_parameters SET
-      param_type=#{type},
-      default_value=#{defaultValue},
-      description=#{description}
+    param_type=#{type},
+    default_value=#{defaultValue},
+    description=#{description}
     WHERE id=#{id}
   </update>
 </mapper>

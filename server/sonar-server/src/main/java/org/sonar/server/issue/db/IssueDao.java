@@ -20,12 +20,16 @@
 package org.sonar.server.issue.db;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
+
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements DaoComponent {
 
@@ -41,5 +45,24 @@ public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements 
   @Override
   protected IssueDto doGetNullableByKey(DbSession session, String key) {
     return mapper(session).selectByKey(key);
+  }
+
+  @Override
+  protected IssueDto doUpdate(DbSession session, IssueDto issue) {
+    mapper(session).update(issue);
+    return issue;
+  }
+
+  @Override
+  protected IssueDto doInsert(DbSession session, IssueDto issue) {
+    Preconditions.checkNotNull(issue.getKey(), "Cannot insert Issue with empty key!");
+    Preconditions.checkNotNull(issue.getComponentId(), "Cannot insert Issue with no Component!");
+    mapper(session).insert(issue);
+    return issue;
+  }
+
+  @Override
+  protected Iterable<IssueDto> findAfterDate(DbSession session, Date date) {
+    return mapper(session).selectAfterDate(new Timestamp(date.getTime()));
   }
 }

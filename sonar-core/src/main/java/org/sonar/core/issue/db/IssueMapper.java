@@ -25,6 +25,7 @@ import org.sonar.core.rule.RuleDto;
 
 import javax.annotation.Nullable;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -38,16 +39,15 @@ public interface IssueMapper {
    * If the role is null, then the authorisation check is disabled.
    */
   List<IssueDto> selectIssueIds(@Param("query") IssueQuery query, @Param("componentRootKeys") Collection<String> componentRootKeys,
-                                @Nullable @Param("userId") Integer userId, @Nullable @Param("role") String role,
-                                @Param("maxResults") Integer maxResult);
+    @Nullable @Param("userId") Integer userId, @Nullable @Param("role") String role,
+    @Param("maxResults") Integer maxResult);
 
   /**
    * Return a none paginated list of authorized issues for a user.
    * If the role is null, then the authorisation check is disabled.
    */
   List<IssueDto> selectIssues(@Param("query") IssueQuery query, @Param("componentRootKeys") Collection<String> componentRootKeys,
-                                @Nullable @Param("userId") Integer userId, @Nullable @Param("role") String role);
-
+    @Nullable @Param("userId") Integer userId, @Nullable @Param("role") String role);
 
   List<RuleDto> findRulesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Date createdAtOrAfter);
 
@@ -58,4 +58,6 @@ public interface IssueMapper {
   int update(IssueDto issue);
 
   int updateIfBeforeSelectedDate(IssueDto issue);
+
+  List<IssueDto> selectAfterDate(Timestamp timestamp);
 }
