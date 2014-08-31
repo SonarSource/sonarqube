@@ -46,8 +46,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class IssueBackendMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.log.profilingLevel", "FULL");
+  public static ServerTester tester = new ServerTester();
 
   DbClient dbClient;
   IndexClient indexClient;
