@@ -23,6 +23,9 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.server.search.BaseDoc;
+import org.sonar.server.search.IndexUtils;
+
+import javax.annotation.CheckForNull;
 
 import java.util.Date;
 import java.util.List;
@@ -41,70 +44,82 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public String componentKey() {
-    return null;
+    return getField(IssueNormalizer.IssueField.COMPONENT.field());
   }
 
   @Override
   public RuleKey ruleKey() {
-    return null;
+    return RuleKey.of(
+      (String) getField(IssueNormalizer.IssueField.REPOSITORY.field()),
+      (String) getField(IssueNormalizer.IssueField.RULE.field()));
   }
 
   @Override
   public String severity() {
-    return null;
+    return getField(IssueNormalizer.IssueField.SEVERITY.field());
   }
 
   @Override
+  @CheckForNull
   public String message() {
-    return null;
+    return getNullableField(IssueNormalizer.IssueField.MESSAGE.field());
   }
 
   @Override
+  @CheckForNull
   public Integer line() {
-    return null;
+    return getNullableField(IssueNormalizer.IssueField.LINE.field());
   }
 
   @Override
+  @CheckForNull
   public Double effortToFix() {
-    return null;
+    return getNullableField(IssueNormalizer.IssueField.EFFORT.field());
   }
 
   @Override
   public String status() {
-    return null;
+    return getField(IssueNormalizer.IssueField.STATUS.field());
   }
 
   @Override
+  @CheckForNull
   public String resolution() {
-    return null;
+    return getNullableField(IssueNormalizer.IssueField.RESOLUTION.field());
   }
 
   @Override
+  @CheckForNull
   public String reporter() {
-    return null;
+    return getNullableField(IssueNormalizer.IssueField.REPORTER.field());
   }
 
   @Override
+  @CheckForNull
   public String assignee() {
-    return null;
+    return getNullableField(IssueNormalizer.IssueField.ASSIGNEE.field());
   }
 
   @Override
   public Date creationDate() {
-    return null;
+    return IndexUtils.parseDateTime((String) getField(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field()));
   }
 
   @Override
   public Date updateDate() {
-    return null;
+    return IndexUtils.parseDateTime((String) getField(IssueNormalizer.IssueField.ISSUE_UPDATED_AT.field()));
   }
 
   @Override
+  @CheckForNull
   public Date closeDate() {
-    return null;
+    return getNullableField(IssueNormalizer.IssueField.ISSUE_CLOSE_DATE.field()) != null ?
+      IndexUtils.parseDateTime((String) getNullableField(IssueNormalizer.IssueField.ISSUE_CLOSE_DATE.field())) :
+      null;
   }
 
   @Override
+  @CheckForNull
   public String attribute(String key) {
     return null;
   }
@@ -115,13 +130,15 @@ public class IssueDoc extends BaseDoc implements Issue {
   }
 
   @Override
+  @CheckForNull
   public String authorLogin() {
-    return null;
+    return getNullableField(IssueNormalizer.IssueField.AUTHOR_LOGIN.field());
   }
 
   @Override
+  @CheckForNull
   public String actionPlanKey() {
-    return null;
+    return getNullableField(IssueNormalizer.IssueField.ACTION_PLAN.field());
   }
 
   @Override

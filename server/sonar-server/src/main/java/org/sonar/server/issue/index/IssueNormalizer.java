@@ -44,6 +44,26 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
   public static final class IssueField extends Indexable {
 
     public static final IndexField KEY = addSortable(IndexField.Type.STRING, "key");
+    public static final IndexField CREATED_AT = add(IndexField.Type.DATE, "createdAt");
+    public static final IndexField UPDATED_AT = add(IndexField.Type.DATE, "updatedAt");
+
+    public static final IndexField ACTION_PLAN = add(IndexField.Type.STRING, "actionPlan");
+    public static final IndexField ASSIGNEE = add(IndexField.Type.STRING, "assignee");
+    public static final IndexField AUTHOR_LOGIN = add(IndexField.Type.STRING, "authorLogin");
+    public static final IndexField ISSUE_CREATED_AT = add(IndexField.Type.DATE, "issueCreatedAt");
+    public static final IndexField ISSUE_UPDATED_AT = add(IndexField.Type.DATE, "issueUpdatedAt");
+    public static final IndexField ISSUE_CLOSE_DATE = add(IndexField.Type.DATE, "issueClosedAt");
+    public static final IndexField COMPONENT = add(IndexField.Type.STRING, "component");
+    public static final IndexField EFFORT = add(IndexField.Type.NUMERIC, "effort");
+    public static final IndexField RESOLUTION = add(IndexField.Type.STRING, "resolution");
+    public static final IndexField LINE = add(IndexField.Type.NUMERIC, "line");
+    public static final IndexField MESSAGE = add(IndexField.Type.STRING, "message");
+    public static final IndexField REPORTER = add(IndexField.Type.STRING, "reporter");
+    public static final IndexField STATUS = add(IndexField.Type.STRING, "status");
+    public static final IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
+
+    public static final IndexField RULE = addSearchable(IndexField.Type.STRING, "rule");
+    public static final IndexField REPOSITORY = addSearchable(IndexField.Type.STRING, "repository");
 
     public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
@@ -74,14 +94,44 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
   @Override
   public List<UpdateRequest> normalize(IssueDto dto) {
     Map<String, Object> update = new HashMap<String, Object>();
-    Map<String, Object> upsert = new HashMap<String, Object>();
 
     update.put(IssueField.KEY.field(), dto.getKey());
+    update.put(IssueField.UPDATED_AT.field(), dto.getUpdatedAt());
+    update.put(IssueField.CREATED_AT.field(), dto.getCreatedAt());
+
+    update.put(IssueField.ACTION_PLAN.field(), dto.getActionPlanKey());
+    update.put(IssueField.ASSIGNEE.field(), dto.getAssignee());
+    update.put(IssueField.AUTHOR_LOGIN.field(), dto.getAuthorLogin());
+    update.put(IssueField.ISSUE_CLOSE_DATE.field(), dto.getIssueCloseDate());
+    update.put(IssueField.COMPONENT.field(), dto.getComponentKey());
+    update.put(IssueField.ISSUE_CREATED_AT.field(), dto.getIssueCreationDate());
+    update.put(IssueField.ISSUE_UPDATED_AT.field(), dto.getIssueUpdateDate());
+    update.put(IssueField.EFFORT.field(), dto.getEffortToFix());
+    update.put(IssueField.RESOLUTION.field(), dto.getResolution());
+    update.put(IssueField.LINE.field(), dto.getLine());
+    update.put(IssueField.MESSAGE.field(), dto.getMessage());
+    update.put(IssueField.REPORTER.field(), dto.getReporter());
+    update.put(IssueField.STATUS.field(), dto.getStatus());
+    update.put(IssueField.SEVERITY.field(), dto.getSeverity());
+
+    // issueDoc.ruleKey();
+    update.put(IssueField.RULE.field(), dto.getRule());
+    update.put(IssueField.REPOSITORY.field(), dto.getRuleRepo());
+
+    // TODO Not yet normalized
+    // IssueDoc issueDoc = new IssueDoc(null);
+    // issueDoc.isNew();
+    // issueDoc.comments();
+    // issueDoc.attributes();
+
+    /** Upsert elements */
+    Map<String, Object> upsert = getUpsertFor(IssueField.ALL_FIELDS, update);
+    upsert.put(IssueField.KEY.field(), dto.getKey().toString());
 
     return ImmutableList.of(
       new UpdateRequest()
         .id(dto.getKey().toString())
         .doc(update)
-        .upsert(update));
-  }
+        .upsert(upsert));
+ }
 }

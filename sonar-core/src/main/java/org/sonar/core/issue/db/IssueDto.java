@@ -28,6 +28,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.Dto;
 import org.sonar.core.rule.RuleDto;
 
@@ -108,6 +109,16 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return componentId;
   }
 
+  public IssueDto setComponent(ComponentDto component) {
+    this.componentId = component.getId();
+    this.componentKey = component.getKey();
+    return this;
+  }
+
+  /**
+   * @deprecated please use setComponent(ComponentDto component)
+   */
+  @Deprecated
   public IssueDto setComponentId(Long componentId) {
     this.componentId = componentId;
     return this;
@@ -117,6 +128,16 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return rootComponentId;
   }
 
+  public IssueDto setRootComponent(ComponentDto rootComponent) {
+    this.rootComponentId = rootComponent.getId();
+    this.rootComponentKey = rootComponent.getKey();
+    return this;
+  }
+
+  /**
+   * @deprecated please use setRootComponent;
+   */
+  @Deprecated
   public IssueDto setRootComponentId(Long rootComponentId) {
     this.rootComponentId = rootComponentId;
     return this;
@@ -126,6 +147,18 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return ruleId;
   }
 
+  public IssueDto setRule(RuleDto rule) {
+    Preconditions.checkNotNull(rule.getId(), "Rule must be persisted.");
+    this.ruleId = rule.getId();
+    this.ruleKey = rule.getRuleKey();
+    this.ruleRepo = rule.getRepositoryKey();
+    return this;
+  }
+
+  /**
+   * @deprecated please use setRule(RuleDto rule)
+   */
+  @Deprecated
   public IssueDto setRuleId(Integer ruleId) {
     this.ruleId = ruleId;
     return this;

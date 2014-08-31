@@ -23,6 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.DbSession;
@@ -45,7 +46,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class IssueBackendMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.log.profilingLevel", "FULL");
 
   DbClient dbClient;
   IndexClient indexClient;
@@ -74,25 +76,29 @@ public class IssueBackendMediumTest {
     tester.get(RuleDao.class).insert(dbSession, rule);
 
     ComponentDto project = new ComponentDto()
-      .setId(1L)
+      .setKey("MyProject")
+  .setId(1L)
       .setProjectId(1L);
     tester.get(ComponentDao.class).insert(dbSession, project);
 
     ComponentDto resource = new ComponentDto()
+      .setKey("MyComponent")
       .setProjectId(1L)
       .setId(2L);
     tester.get(ComponentDao.class).insert(dbSession, resource);
 
-    IssueDto issue = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
-      .setRuleId(rule.getId())
-      .setRootComponentId(project.getId())
-      .setComponentId(resource.getId())
+    IssueDto issue = new IssueDto()
+      .setIssueCreationDate(new Date())
+      .setIssueUpdateDate(new Date())
+      .setRule(rule)
+      .setRootComponent(project)
+      .setComponent(resource)
       .setStatus("OPEN").setResolution("OPEN")
-      .setKee(UUID.randomUUID().toString());
+      .setKee(UUID.randomUUID().toString())
+      .setSeverity("MAJOR");
     dbClient.issueDao().insert(dbSession, issue);
 
     dbSession.commit();
-    assertThat(issue.getId()).isNotNull();
 
     // Check that Issue is in Index
     assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(1);
@@ -100,11 +106,32 @@ public class IssueBackendMediumTest {
     // should find by key
     IssueDoc issueDoc = indexClient.get(IssueIndex.class).getByKey(issue.getKey());
     assertThat(issueDoc).isNotNull();
+
+    // Check all normalized fields
+    assertThat(issueDoc.actionPlanKey()).isEqualTo(issue.getActionPlanKey());
+    assertThat(issueDoc.assignee()).isEqualTo(issue.getAssignee());
+    assertThat(issueDoc.authorLogin()).isEqualTo(issue.getAuthorLogin());
+    assertThat(issueDoc.closeDate()).isEqualTo(issue.getIssueCloseDate());
+    assertThat(issueDoc.componentKey()).isEqualTo(issue.getComponentKey());
+    assertThat(issueDoc.creationDate()).isEqualTo(issue.getCreatedAt());
+    assertThat(issueDoc.effortToFix()).isEqualTo(issue.getEffortToFix());
+    assertThat(issueDoc.resolution()).isEqualTo(issue.getResolution());
+    assertThat(issueDoc.ruleKey()).isEqualTo(RuleKey.of(issue.getRuleRepo(), issue.getRule()));
+    assertThat(issueDoc.line()).isEqualTo(issue.getLine());
+    assertThat(issueDoc.message()).isEqualTo(issue.getMessage());
+    assertThat(issueDoc.reporter()).isEqualTo(issue.getReporter());
     assertThat(issueDoc.key()).isEqualTo(issue.getKey());
+    assertThat(issueDoc.updateDate()).isEqualTo(issue.getIssueUpdateDate());
+    assertThat(issueDoc.status()).isEqualTo(issue.getStatus());
+    assertThat(issueDoc.severity()).isEqualTo(issue.getSeverity());
+
+    // assertThat(issueDoc.attributes()).isEqualTo(issue.getIssueAttributes());
+    // assertThat(issueDoc.isNew()).isEqualTo(issue.isN());
+    // assertThat(issueDoc.comments()).isEqualTo(issue.());
   }
 
   @Test
- public void insert_and_find_after_date() throws Exception {
+  public void insert_and_find_after_date() throws Exception {
 
     RuleDto rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(dbSession, rule);
