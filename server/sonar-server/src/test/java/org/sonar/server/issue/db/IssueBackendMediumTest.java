@@ -29,6 +29,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.index.IssueDoc;
+import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
@@ -67,7 +69,42 @@ public class IssueBackendMediumTest {
   }
 
   @Test
-  public void insert_and_find_after_date() throws Exception {
+  public void insert_and_find_by_key() throws Exception {
+    RuleDto rule = RuleTesting.newXooX1();
+    tester.get(RuleDao.class).insert(dbSession, rule);
+
+    ComponentDto project = new ComponentDto()
+      .setId(1L)
+      .setProjectId(1L);
+    tester.get(ComponentDao.class).insert(dbSession, project);
+
+    ComponentDto resource = new ComponentDto()
+      .setProjectId(1L)
+      .setId(2L);
+    tester.get(ComponentDao.class).insert(dbSession, resource);
+
+    IssueDto issue = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
+      .setRuleId(rule.getId())
+      .setRootComponentId(project.getId())
+      .setComponentId(resource.getId())
+      .setStatus("OPEN").setResolution("OPEN")
+      .setKee(UUID.randomUUID().toString());
+    dbClient.issueDao().insert(dbSession, issue);
+
+    dbSession.commit();
+    assertThat(issue.getId()).isNotNull();
+
+    // Check that Issue is in Index
+    assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(1);
+
+    // should find by key
+    IssueDoc issueDoc = indexClient.get(IssueIndex.class).getByKey(issue.getKey());
+    assertThat(issueDoc).isNotNull();
+    assertThat(issueDoc.key()).isEqualTo(issue.getKey());
+  }
+
+  @Test
+ public void insert_and_find_after_date() throws Exception {
 
     RuleDto rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(dbSession, rule);
@@ -100,5 +137,12 @@ public class IssueBackendMediumTest {
     // Should not find any new issues
     Date t1 = new Date();
     assertThat(dbClient.issueDao().findAfterDate(dbSession, t1)).hasSize(0);
+
+    // Should synchronise
+    tester.clearIndexes();
+    assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(0);
+    tester.get(Platform.class).executeStartupTasks();
+    assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(1);
+
   }
 }

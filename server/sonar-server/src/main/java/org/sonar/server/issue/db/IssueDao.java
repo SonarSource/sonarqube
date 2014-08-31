@@ -27,6 +27,7 @@ import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
+import org.sonar.server.search.IndexDefinition;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -39,7 +40,7 @@ public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements 
 
   @VisibleForTesting
   public IssueDao(System2 system) {
-    super(null, IssueMapper.class, system);
+    super(IndexDefinition.ISSUES, IssueMapper.class, system);
   }
 
   @Override

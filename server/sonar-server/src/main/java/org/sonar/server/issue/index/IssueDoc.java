@@ -36,7 +36,7 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public String key() {
-    return null;
+    return getField(IssueNormalizer.IssueField.KEY.field());
   }
 
   @Override
