@@ -22,19 +22,25 @@ package org.sonar.server.issue.db;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.sonar.api.resources.Project;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
 
-public class IssueBackendMediumTest {
+import java.util.Date;
+import java.util.UUID;
 
+import static org.fest.assertions.Assertions.assertThat;
+
+public class IssueBackendMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
@@ -61,14 +67,38 @@ public class IssueBackendMediumTest {
   }
 
   @Test
-  @Ignore("work in progress")
-  public void insert_select_issue() throws Exception {
-    Project project = new Project("my:project");
+  public void insert_and_find_after_date() throws Exception {
+
     RuleDto rule = RuleTesting.newXooX1();
-//    //IssueDto issue = IssueDto.createFor(project, rule);
-//    System.out.println("issue.getKey() = " + issue.getKey());
-//    dbClient.issueDao().insert(dbSession, issue);
-//
-//    assertThat(issue.getId()).isNotNull();
+    tester.get(RuleDao.class).insert(dbSession, rule);
+
+    ComponentDto project = new ComponentDto()
+      .setId(1L)
+      .setProjectId(1L);
+    tester.get(ComponentDao.class).insert(dbSession, project);
+
+    ComponentDto resource = new ComponentDto()
+      .setProjectId(1L)
+      .setId(2L);
+    tester.get(ComponentDao.class).insert(dbSession, resource);
+
+    IssueDto issue = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
+      .setRuleId(rule.getId())
+      .setRootComponentId(project.getId())
+      .setComponentId(resource.getId())
+      .setStatus("OPEN").setResolution("OPEN")
+      .setKee(UUID.randomUUID().toString());
+    dbClient.issueDao().insert(dbSession, issue);
+
+    dbSession.commit();
+    assertThat(issue.getId()).isNotNull();
+
+    // Find Issues since forever
+    Date t0 = new Date(0);
+    assertThat(dbClient.issueDao().findAfterDate(dbSession, t0)).hasSize(1);
+
+    // Should not find any new issues
+    Date t1 = new Date();
+    assertThat(dbClient.issueDao().findAfterDate(dbSession, t1)).hasSize(0);
   }
 }

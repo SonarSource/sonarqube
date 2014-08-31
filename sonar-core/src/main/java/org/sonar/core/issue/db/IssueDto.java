@@ -24,15 +24,18 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.persistence.Dto;
+import org.sonar.core.rule.RuleDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * @since 3.6
@@ -440,5 +443,12 @@ public final class IssueDto extends Dto<String> implements Serializable {
     issue.setUpdateDate(issueUpdateDate);
     issue.setSelectedAt(selectedAt);
     return issue;
+  }
+
+  public static IssueDto createFor(Project project, RuleDto rule) {
+    return new IssueDto()
+      .setRootComponentId(new Long(project.getId()))
+      .setRuleId(rule.getId())
+      .setKee(UUID.randomUUID().toString());
   }
 }
