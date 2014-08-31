@@ -103,7 +103,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     // nothing to do
   }
 
-  public SearchClient getClient(){
+  public SearchClient getClient() {
     return client;
   }
 
@@ -381,6 +381,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       .setType(this.getIndexType())
       .setIndex(this.getIndexName())
       .setId(this.getKeyValue(key))
+      .setFetchSource(true)
       .setRouting(this.getKeyValue(key));
 
     GetResponse response = client.execute(request);
@@ -417,7 +418,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       .setTypes(this.getIndexType())
       .get().getCount();
   }
-
 
   public Map<String, Long> countByField(IndexField indexField, FilterBuilder filter) {
     Map<String, Long> counts = new HashMap<String, Long>();
