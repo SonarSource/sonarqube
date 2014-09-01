@@ -33,7 +33,7 @@ define([
       this.$el.on('click', function(e) {
         e.stopPropagation();
       });
-      this.$el.attr('id', 'filter-' + this.model.get('property'))
+      this.$el.attr('id', 'filter-' + this.model.get('property'));
     },
 
 

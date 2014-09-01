@@ -44,7 +44,7 @@ public class SymbolReferencesSensor implements Sensor {
 
   private static final String SYMBOL_EXTENSION = ".symbol";
 
-  private void processFileHighlighting(InputFile inputFile, SensorContext context) {
+  private void processFileSymbol(InputFile inputFile, SensorContext context) {
     File ioFile = inputFile.file();
     File symbolFile = new File(ioFile.getParentFile(), ioFile.getName() + SYMBOL_EXTENSION);
     if (symbolFile.exists()) {
@@ -92,7 +92,7 @@ public class SymbolReferencesSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     for (InputFile file : context.fileSystem().inputFiles(context.fileSystem().predicates().hasLanguages(Xoo.KEY))) {
-      processFileHighlighting(file, context);
+      processFileSymbol(file, context);
     }
   }
 }
