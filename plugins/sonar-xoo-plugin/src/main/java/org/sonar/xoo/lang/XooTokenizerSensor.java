@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Parse files *.xoo.highlighting
+ * Tokenize xoo files (separator is whitespace) for duplication detection
  */
 public class XooTokenizerSensor implements Sensor {
 
