@@ -35,6 +35,9 @@ class Webapp {
   private static final String RAILS_ENV = "rails.env";
   private static final String PROPERTY_CONTEXT = "sonar.web.context";
 
+  private Webapp() {
+  }
+
   static StandardContext configure(Tomcat tomcat, Props props) {
     try {
       StandardContext context = (StandardContext) tomcat.addWebapp(getContextPath(props), webappPath(props));

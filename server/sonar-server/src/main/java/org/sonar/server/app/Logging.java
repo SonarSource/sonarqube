@@ -54,6 +54,9 @@ class Logging {
   static final String ACCESS_RELATIVE_PATH = "WEB-INF/config/logback-access.xml";
   static final String PROPERTY_ENABLE_ACCESS_LOGS = "sonar.web.accessLogs.enable";
 
+  private Logging() {
+  }
+
   static void init(Props props) {
     configureLogback(props);
 

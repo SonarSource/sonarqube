@@ -39,6 +39,9 @@ class Connectors {
   static final String HTTP_PROTOCOL = "HTTP/1.1";
   static final String AJP_PROTOCOL = "AJP/1.3";
 
+  private Connectors() {
+  }
+
   static void configure(Tomcat tomcat, Props props) {
     List<Connector> connectors = new ArrayList<Connector>();
     connectors.addAll(Arrays.asList(newHttpConnector(props), newAjpConnector(props), newHttpsConnector(props)));
