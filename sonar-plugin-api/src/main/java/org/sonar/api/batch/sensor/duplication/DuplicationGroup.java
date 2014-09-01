@@ -146,8 +146,10 @@ public class DuplicationGroup {
     EqualsBuilder equalsBuilder = new EqualsBuilder()
       .append(originBlock, rhs.originBlock)
       .append(duplicates.size(), rhs.duplicates.size());
-    for (int i = 0; i < duplicates.size(); i++) {
-      equalsBuilder.append(duplicates.get(i), rhs.duplicates.get(i));
+    if (duplicates.size() == rhs.duplicates.size()) {
+      for (int i = 0; i < duplicates.size(); i++) {
+        equalsBuilder.append(duplicates.get(i), rhs.duplicates.get(i));
+      }
     }
     return equalsBuilder.isEquals();
   }
