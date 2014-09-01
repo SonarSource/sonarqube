@@ -58,7 +58,7 @@ public class SearchServer extends MonitoredProcess {
   private final boolean isBlocking;
 
   private Node node;
-  private final Integer lock = new Integer(1);
+  private final Object lock = new Object();
 
   @VisibleForTesting
   public SearchServer(final Props props, boolean monitored, boolean blocking) {
