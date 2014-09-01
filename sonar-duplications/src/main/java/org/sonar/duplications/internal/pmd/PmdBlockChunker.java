@@ -51,7 +51,7 @@ public class PmdBlockChunker {
   /**
    * @return ArrayList as we need a serializable object
    */
-  public ArrayList<Block> chunk(String resourceId, List<TokensLine> fragments) {
+  public List<Block> chunk(String resourceId, List<TokensLine> fragments) {
     List<TokensLine> filtered = Lists.newArrayList();
     int i = 0;
     while (i < fragments.size()) {

@@ -26,6 +26,7 @@ import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup.Block;
 
 import java.util.ArrayList;
+import java.util.List;
 
 class DuplicationGroupValueCoder implements ValueCoder {
 
@@ -45,7 +46,7 @@ class DuplicationGroupValueCoder implements ValueCoder {
   public Object get(Value value, Class clazz, CoderContext context) {
     DuplicationGroup g = new DuplicationGroup((Block) blockCoder.get(value, DuplicationGroup.Block.class, context));
     int count = value.getInt();
-    ArrayList<DuplicationGroup.Block> blocks = new ArrayList<DuplicationGroup.Block>(count);
+    List<DuplicationGroup.Block> blocks = new ArrayList<DuplicationGroup.Block>(count);
     for (int i = 0; i < count; i++) {
       blocks.add((Block) blockCoder.get(value, DuplicationGroup.Block.class, context));
     }

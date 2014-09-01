@@ -29,7 +29,6 @@ import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
-import org.sonar.xoo.XooConstants;
 
 public class OneIssuePerLineSensor implements Sensor {
 
@@ -43,7 +42,7 @@ public class OneIssuePerLineSensor implements Sensor {
       .name("One Issue Per Line")
       .dependsOn(CoreMetrics.LINES)
       .workOnLanguages(Xoo.KEY)
-      .createIssuesForRuleRepositories(XooConstants.REPOSITORY_KEY)
+      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY)
       .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);
   }
 
@@ -55,7 +54,7 @@ public class OneIssuePerLineSensor implements Sensor {
   }
 
   private void createIssues(InputFile file, SensorContext context) {
-    RuleKey ruleKey = RuleKey.of(XooConstants.REPOSITORY_KEY, RULE_KEY);
+    RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
     Measure<Integer> linesMeasure = context.getMeasure(file, CoreMetrics.LINES);
     if (linesMeasure == null) {
       LoggerFactory.getLogger(getClass()).warn("Missing measure " + CoreMetrics.LINES_KEY + " on " + file);

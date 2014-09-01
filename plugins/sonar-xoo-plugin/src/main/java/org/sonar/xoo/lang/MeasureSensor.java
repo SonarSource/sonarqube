@@ -21,6 +21,8 @@ package org.sonar.xoo.lang;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.Sensor;
@@ -30,7 +32,6 @@ import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.MeasureBuilder;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.xoo.Xoo;
-import org.sonar.xoo.XooConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +42,8 @@ import java.util.List;
  * Parse files *.xoo.measures
  */
 public class MeasureSensor implements Sensor {
+
+  private static final Logger LOG = LoggerFactory.getLogger(MeasureSensor.class);
 
   private static final String MEASURES_EXTENSION = ".measures";
 
@@ -54,7 +57,7 @@ public class MeasureSensor implements Sensor {
     File ioFile = inputFile.file();
     File measureFile = new File(ioFile.getParentFile(), ioFile.getName() + MEASURES_EXTENSION);
     if (measureFile.exists()) {
-      XooConstants.LOG.debug("Processing " + measureFile.getAbsolutePath());
+      LOG.debug("Processing " + measureFile.getAbsolutePath());
       try {
         List<String> lines = FileUtils.readLines(measureFile, context.fileSystem().encoding().name());
         int lineNumber = 0;
@@ -81,7 +84,7 @@ public class MeasureSensor implements Sensor {
     }
   }
 
-  private Measure<?> createMeasure(SensorContext context, InputFile xooFile, String metricKey, String value) {
+  private Measure createMeasure(SensorContext context, InputFile xooFile, String metricKey, String value) {
     org.sonar.api.batch.measure.Metric<Serializable> metric = metricFinder.findByKey(metricKey);
     if (metric == null) {
       throw new IllegalStateException("Unknow metric with key: " + metricKey);

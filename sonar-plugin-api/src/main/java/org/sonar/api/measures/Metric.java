@@ -341,6 +341,7 @@ public class Metric<G extends Serializable> implements ServerExtension, BatchExt
   /**
    * @return the metric description
    */
+  @CheckForNull
   public String getDescription() {
     return description;
   }
@@ -351,7 +352,7 @@ public class Metric<G extends Serializable> implements ServerExtension, BatchExt
    * @param description the description
    * @return this
    */
-  public Metric setDescription(String description) {
+  public Metric setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }

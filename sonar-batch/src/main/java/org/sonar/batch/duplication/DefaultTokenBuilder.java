@@ -21,8 +21,6 @@ package org.sonar.batch.duplication;
 
 import com.google.common.base.Preconditions;
 import net.sourceforge.pmd.cpd.TokenEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
@@ -36,8 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultTokenBuilder implements DuplicationTokenBuilder {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultTokenBuilder.class);
 
   private final BlockCache cache;
   private final InputFile inputFile;
@@ -69,7 +65,7 @@ public class DefaultTokenBuilder implements DuplicationTokenBuilder {
     tokens.add(TokenEntry.getEOF());
     TokenEntry.clearImages();
     List<TokensLine> tokensLines = TokenizerBridge.convert(tokens);
-    ArrayList<Block> blocks = blockChunker.chunk(((DefaultInputFile) inputFile).key(), tokensLines);
+    List<Block> blocks = blockChunker.chunk(((DefaultInputFile) inputFile).key(), tokensLines);
 
     cache.put(((DefaultInputFile) inputFile).key(), new FileBlocks(((DefaultInputFile) inputFile).key(), blocks));
     tokens.clear();

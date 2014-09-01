@@ -64,7 +64,7 @@ public class IndexFactory implements BatchComponent {
   }
 
   @VisibleForTesting
-  boolean verifyCrossProject(Project project, Logger logger) {
+  boolean verifyCrossProject(@Nullable Project project, Logger logger) {
     boolean crossProject = false;
 
     if (settings.getBoolean(CoreProperties.CPD_CROSS_PROJECT)) {

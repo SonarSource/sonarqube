@@ -42,13 +42,13 @@ public class XooRulesDefinition implements RulesDefinition {
       .setName("No empty line")
       .setMarkdownDescription("Generate an issue on *empty* lines of Xoo source files")
 
-        // optional tags
+      // optional tags
       .setTags("style", "security")
 
-        // optional status. Default value is READY.
+      // optional status. Default value is READY.
       .setStatus(RuleStatus.BETA)
 
-        // default severity when the rule is activated on a Quality profile. Default value is MAJOR.
+      // default severity when the rule is activated on a Quality profile. Default value is MAJOR.
       .setSeverity(Severity.MINOR);
 
     // debt-related information
