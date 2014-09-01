@@ -78,6 +78,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/third-party/jquery.js'
             '<%= pkg.assets %>js/third-party/jquery-ui.js'
             '<%= pkg.assets %>js/third-party/d3.js'
+            '<%= pkg.assets %>js/third-party/latinize.js'
             '<%= pkg.assets %>js/third-party/underscore.js'
             '<%= pkg.assets %>js/third-party/select2.js'
             '<%= pkg.assets %>js/third-party/keymaster.js'
@@ -102,7 +103,6 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/resource.js'
             '<%= pkg.assets %>js/issue.js'
             '<%= pkg.assets %>js/recent-history.js'
-            '<%= pkg.assets %>js/latinize.js'
           ]
       build:
         files:
@@ -111,6 +111,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/third-party/jquery.js'
             '<%= pkg.assets %>js/third-party/jquery-ui.js'
             '<%= pkg.assets %>js/third-party/d3.js'
+            '<%= pkg.assets %>js/third-party/latinize.js'
             '<%= pkg.assets %>js/third-party/underscore.js'
             '<%= pkg.assets %>js/third-party/select2.js'
             '<%= pkg.assets %>js/third-party/keymaster.js'
@@ -135,7 +136,6 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/resource.js'
             '<%= pkg.assets %>js/issue.js'
             '<%= pkg.assets %>js/recent-history.js'
-            '<%= pkg.assets %>js/latinize.js'
           ]
 
 
