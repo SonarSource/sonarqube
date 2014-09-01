@@ -46,7 +46,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.scan2.CommonSensorContext;
+import org.sonar.batch.scan2.BaseSensorContext;
 
 import java.io.Serializable;
 
@@ -55,7 +55,7 @@ import java.io.Serializable;
  * Will be dropped once old {@link Sensor} API is dropped.
  *
  */
-public class SensorContextAdaptor extends CommonSensorContext {
+public class SensorContextAdaptor extends BaseSensorContext {
 
   private final org.sonar.api.batch.SensorContext sensorContext;
   private final MetricFinder metricFinder;

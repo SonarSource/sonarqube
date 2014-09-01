@@ -53,7 +53,7 @@ import java.util.List;
  * @author julien
  *
  */
-public abstract class CommonSensorContext implements SensorContext {
+public abstract class BaseSensorContext implements SensorContext {
 
   private final Settings settings;
   private final FileSystem fs;
@@ -62,7 +62,7 @@ public abstract class CommonSensorContext implements SensorContext {
   private final BlockCache blockCache;
   private final DuplicationCache duplicationCache;
 
-  protected CommonSensorContext(Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache,
+  protected BaseSensorContext(Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache,
     BlockCache blockCache, DuplicationCache duplicationCache) {
     this.settings = settings;
     this.fs = fs;

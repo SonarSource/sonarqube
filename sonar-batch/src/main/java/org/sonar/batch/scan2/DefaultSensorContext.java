@@ -42,7 +42,7 @@ import org.sonar.core.component.ComponentKeys;
 
 import java.io.Serializable;
 
-public class DefaultSensorContext extends CommonSensorContext {
+public class DefaultSensorContext extends BaseSensorContext {
 
   private final AnalyzerMeasureCache measureCache;
   private final AnalyzerIssueCache issueCache;
