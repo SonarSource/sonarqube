@@ -26,7 +26,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -80,11 +79,9 @@ public class SearchServerTest {
   }
 
   @Test
-  @Ignore
   public void server_fail_to_start() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
-
 
     searchServer = new SearchServer(new Props(properties));
     new Thread(new Runnable() {
@@ -96,15 +93,15 @@ public class SearchServerTest {
     assertThat(searchServer.isReady()).isFalse();
 
     int count = 0;
-    while (!searchServer.isReady() && count < 100) {
+    while (!searchServer.isReady() && count < 5) {
       try {
-        Thread.sleep(500);
+        Thread.sleep(100);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
       count++;
     }
-    assertThat(count).isEqualTo(100);
+    assertThat(count).isEqualTo(5);
   }
 
   @Test

@@ -22,19 +22,13 @@ package org.sonar.server.issue.db;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.sonar.api.resources.Project;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
 
 public class IssueBackendMediumTest {
-
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
@@ -58,17 +52,5 @@ public class IssueBackendMediumTest {
     if (dbSession != null) {
       dbSession.close();
     }
-  }
-
-  @Test
-  @Ignore("work in progress")
-  public void insert_select_issue() throws Exception {
-    Project project = new Project("my:project");
-    RuleDto rule = RuleTesting.newXooX1();
-//    //IssueDto issue = IssueDto.createFor(project, rule);
-//    System.out.println("issue.getKey() = " + issue.getKey());
-//    dbClient.issueDao().insert(dbSession, issue);
-//
-//    assertThat(issue.getId()).isNotNull();
   }
 }
