@@ -343,7 +343,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       }));
       this.y.domain(d3.extent(this.components(), function (d) {
         return widget.getYMetric(d);
-      }))
+      }));
     } else {
       var singleComponent = this.components()[0],
           xm = this.getXMetric(singleComponent),
