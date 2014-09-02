@@ -168,12 +168,14 @@ public class ProjectReferentialsAction implements RequestHandler {
   }
 
   private void addSettingsToChildrenModules(ProjectReferentials ref, String projectKey, Map<String, String> parentProperties, boolean hasScanPerm, DbSession session) {
-    parentProperties.putAll(getPropertiesMap(propertiesDao.selectProjectProperties(projectKey, session), hasScanPerm));
-    addSettings(ref, projectKey, parentProperties);
+    Map<String, String> currentParentProperties = newHashMap();
+    currentParentProperties.putAll(parentProperties);
+    currentParentProperties.putAll(getPropertiesMap(propertiesDao.selectProjectProperties(projectKey, session), hasScanPerm));
+    addSettings(ref, projectKey, currentParentProperties);
 
     for (ComponentDto module : dbClient.componentDao().findModulesByProject(projectKey, session)) {
-      addSettings(ref, module.key(), parentProperties);
-      addSettingsToChildrenModules(ref, module.key(), parentProperties, hasScanPerm, session);
+      addSettings(ref, module.key(), currentParentProperties);
+      addSettingsToChildrenModules(ref, module.key(), currentParentProperties, hasScanPerm, session);
     }
   }
 
