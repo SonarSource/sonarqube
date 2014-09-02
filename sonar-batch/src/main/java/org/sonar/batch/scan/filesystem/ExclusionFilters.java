@@ -28,6 +28,9 @@ import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.scan.filesystem.FileExclusions;
 
 public class ExclusionFilters implements BatchComponent {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ExclusionFilters.class);
+
   private final FileExclusions exclusionSettings;
 
   private PathPattern[] mainInclusions;
@@ -52,10 +55,9 @@ public class ExclusionFilters implements BatchComponent {
 
   private void log(String title, PathPattern[] patterns) {
     if (patterns.length > 0) {
-      Logger log = LoggerFactory.getLogger(ExclusionFilters.class);
-      log.info(title);
+      LOG.info(title);
       for (PathPattern pattern : patterns) {
-        log.info("  " + pattern);
+        LOG.info("  " + pattern);
       }
     }
   }
