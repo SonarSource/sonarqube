@@ -103,9 +103,9 @@ public abstract class MonitoredProcess implements ProcessMXBean {
       public void run() {
         long time = System.currentTimeMillis();
         if (time - lastPing > getTimeout()) {
-          LoggerFactory.getLogger(getClass()).info(String.format(
-            "Did not receive any ping during %d seconds. Shutting down.", getTimeout() / 1000));
           if (isMonitored) {
+            LoggerFactory.getLogger(getClass()).info(String.format(
+              "Did not receive any ping during %d seconds. Shutting down.", getTimeout() / 1000));
             terminate();
           }
         }
