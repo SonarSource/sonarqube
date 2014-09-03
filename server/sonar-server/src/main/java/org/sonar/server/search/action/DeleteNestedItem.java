@@ -45,7 +45,7 @@ public class DeleteNestedItem<K extends Serializable> extends IndexActionRequest
   }
 
   @Override
-  public Class<?> getPayloadClass() {
+  public Class getPayloadClass() {
     return item.getClass();
   }
 

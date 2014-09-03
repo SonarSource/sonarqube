@@ -75,23 +75,27 @@ public class FacetValue implements Comparable<FacetValue> {
   public int compareTo(FacetValue other) {
     if (this.sort.equals(Sort.BY_KEY)) {
       return this.getKey().compareTo(other.getKey());
-    } else {
-      return this.getValue().compareTo(other.getValue());
     }
+    return this.getValue().compareTo(other.getValue());
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof FacetValue)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof FacetValue)) {
+      return false;
+    }
 
     FacetValue that = (FacetValue) o;
-
-    if (!key.equals(that.key)) return false;
-    if (subFacets != null ? !subFacets.equals(that.subFacets) : that.subFacets != null) return false;
-    if (!value.equals(that.value)) return false;
-
-    return true;
+    if (!key.equals(that.key)) {
+      return false;
+    }
+    if (subFacets != null ? !subFacets.equals(that.subFacets) : that.subFacets != null) {
+      return false;
+    }
+    return value.equals(that.value);
   }
 
   @Override

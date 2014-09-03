@@ -44,7 +44,7 @@ public class UpsertDto<DTO extends Dto> extends IndexActionRequest {
   }
 
   @Override
-  public Class<?> getPayloadClass() {
+  public Class getPayloadClass() {
     return dto.getClass();
   }
 
