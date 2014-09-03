@@ -19,17 +19,27 @@
  */
 package org.sonar.server.user;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.security.Authenticator;
+import org.sonar.api.security.ExternalGroupsProvider;
+import org.sonar.api.security.ExternalUsersProvider;
 import org.sonar.api.security.LoginPasswordAuthenticator;
 import org.sonar.api.security.SecurityRealm;
+import org.sonar.api.security.UserDetails;
 import org.sonar.api.utils.SonarException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SecurityRealmFactoryTest {
 
@@ -72,8 +82,8 @@ public class SecurityRealmFactoryTest {
 
   @Test
   public void should_provide_compatibility_for_authenticator() {
-    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeAuthenticator.class.getName());
-    LoginPasswordAuthenticator authenticator = new FakeAuthenticator();
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeLoginPasswordAuthenticator.class.getName());
+    LoginPasswordAuthenticator authenticator = new FakeLoginPasswordAuthenticator();
 
     SecurityRealmFactory factory = new SecurityRealmFactory(settings, new LoginPasswordAuthenticator[]{authenticator});
     factory.start();
@@ -85,13 +95,47 @@ public class SecurityRealmFactoryTest {
   public void should_take_precedence_over_authenticator() {
     SecurityRealm realm = new FakeRealm();
     settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_REALM, realm.getName());
-    LoginPasswordAuthenticator authenticator = new FakeAuthenticator();
-    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeAuthenticator.class.getName());
+    LoginPasswordAuthenticator authenticator = new FakeLoginPasswordAuthenticator();
+    settings.setProperty(CoreProperties.CORE_AUTHENTICATOR_CLASS, FakeLoginPasswordAuthenticator.class.getName());
 
     SecurityRealmFactory factory = new SecurityRealmFactory(settings, new SecurityRealm[]{realm},
       new LoginPasswordAuthenticator[]{authenticator});
     factory.start();
     assertThat(factory.getRealm()).isSameAs(realm);
+  }
+  
+  @Test
+  public void should_allow_custom_realm_for_authentication() {
+    settings.setProperty(CoreProperties.CORE_SECURITY_AUTHENTICATORS, FakeAuthenticator.class.getName());
+    settings.setProperty(CoreProperties.CORE_SECURITY_USER_PROVIDERS, FakeUsersProvider.class.getName());
+    settings.setProperty(CoreProperties.CORE_SECURITY_GROUP_PROVIDERS, FakeGroupsProvider.class.getName());
+    
+    SecurityRealm realmWithAuthenticator = mock(SecurityRealm.class);
+    FakeAuthenticator authenticator = new FakeAuthenticator();
+    List authenticators = Collections.singletonList(authenticator);
+    when(realmWithAuthenticator.getAuthenticators()).thenReturn(authenticators);
+    
+    SecurityRealm realmWithUsersProvider = mock(SecurityRealm.class);
+    FakeUsersProvider userProvider = new FakeUsersProvider();
+    List usersProviders = Collections.singletonList(userProvider);
+    when(realmWithUsersProvider.getUsersProviders()).thenReturn(usersProviders);
+    
+    SecurityRealm realmWithGroupsProvider = mock(SecurityRealm.class);
+    FakeGroupsProvider gruopProvider = new FakeGroupsProvider();
+    List gruopsProviders = Collections.singletonList(gruopProvider);
+    when(realmWithGroupsProvider.getGroupsProviders()).thenReturn(gruopsProviders);
+    
+    SecurityRealm[] realms = new SecurityRealm[3];
+    realms[0] = realmWithAuthenticator;
+    realms[1] = realmWithUsersProvider;
+    realms[2] = realmWithGroupsProvider;
+    SecurityRealmFactory factory = new SecurityRealmFactory(settings, realms);
+    factory.start();
+    SecurityRealm realm = factory.getRealm();
+    assertThat(realm).isInstanceOf(CustomSecurityRealm.class);
+    assertThat(realm.getAuthenticators()).contains(authenticator);
+    assertThat(realm.getUsersProviders()).contains(userProvider);
+    assertThat(realm.getGroupsProviders()).contains(gruopProvider);
   }
 
   @Test
@@ -144,13 +188,42 @@ public class SecurityRealmFactoryTest {
     }
   }
 
-  private static class FakeAuthenticator implements LoginPasswordAuthenticator {
+  
+  
+  private static class FakeAuthenticator extends Authenticator {
+
+    @Override
+    public boolean doAuthenticate(Context context) {
+      return false;
+    }
+    
+  }
+  
+  private static class FakeLoginPasswordAuthenticator implements LoginPasswordAuthenticator {
     public void init() {
     }
 
     public boolean authenticate(String login, String password) {
       return false;
     }
+  }
+  
+  private static class FakeGroupsProvider extends ExternalGroupsProvider {
+
+    @Override
+    public Collection<String> doGetGroups(String username) {
+      return Collections.emptyList();
+    }
+    
+  }
+  
+  private static class FakeUsersProvider extends ExternalUsersProvider {
+    
+    @Override
+    public UserDetails doGetUserDetails(Context context) {
+      return null;
+    }
+
   }
 
 }
