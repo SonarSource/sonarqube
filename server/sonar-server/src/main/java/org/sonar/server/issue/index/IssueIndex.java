@@ -61,6 +61,34 @@ public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
   }
 
   @Override
+  protected Map mapDomain() {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("dynamic", false);
+    mapping.put("_id", mapKey());
+    mapping.put("_parent", mapParent());
+    mapping.put("_routing", mapRouting());
+    mapping.put("properties", mapProperties());
+    return mapping;
+  }
+
+  private Object mapParent() {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", getParentType());
+    return mapping;
+  }
+
+  private String getParentType() {
+    return IndexDefinition.ISSUES_AUTHENTICATION.getIndexType();
+  }
+
+  private Map mapRouting() {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("required", true);
+    mapping.put("path", IssueNormalizer.IssueField.PROJECT.field());
+    return mapping;
+  }
+
+  @Override
   protected Map mapKey() {
     Map<String, Object> mapping = new HashMap<String, Object>();
     mapping.put("path", IssueNormalizer.IssueField.KEY.field());

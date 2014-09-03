@@ -29,11 +29,7 @@ import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
 
@@ -53,6 +49,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField ISSUE_CREATED_AT = add(IndexField.Type.DATE, "issueCreatedAt");
     public static final IndexField ISSUE_UPDATED_AT = add(IndexField.Type.DATE, "issueUpdatedAt");
     public static final IndexField ISSUE_CLOSE_DATE = add(IndexField.Type.DATE, "issueClosedAt");
+    public static final IndexField PROJECT = add(IndexField.Type.STRING, "project");
     public static final IndexField COMPONENT = add(IndexField.Type.STRING, "component");
     public static final IndexField EFFORT = add(IndexField.Type.NUMERIC, "effort");
     public static final IndexField RESOLUTION = add(IndexField.Type.STRING, "resolution");
@@ -95,6 +92,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
   public List<UpdateRequest> normalize(IssueDto dto) {
     Map<String, Object> update = new HashMap<String, Object>();
 
+    update.put("_parent", dto.getRootComponentKey());
     update.put(IssueField.KEY.field(), dto.getKey());
     update.put(IssueField.UPDATED_AT.field(), dto.getUpdatedAt());
     update.put(IssueField.CREATED_AT.field(), dto.getCreatedAt());
@@ -103,6 +101,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     update.put(IssueField.ASSIGNEE.field(), dto.getAssignee());
     update.put(IssueField.AUTHOR_LOGIN.field(), dto.getAuthorLogin());
     update.put(IssueField.ISSUE_CLOSE_DATE.field(), dto.getIssueCloseDate());
+    update.put(IssueField.PROJECT.field(), dto.getRootComponentKey());
     update.put(IssueField.COMPONENT.field(), dto.getComponentKey());
     update.put(IssueField.ISSUE_CREATED_AT.field(), dto.getIssueCreationDate());
     update.put(IssueField.ISSUE_UPDATED_AT.field(), dto.getIssueUpdateDate());
@@ -131,6 +130,8 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     return ImmutableList.of(
       new UpdateRequest()
         .id(dto.getKey().toString())
+        .routing(dto.getRootComponentKey())
+        .parent(dto.getRootComponentKey())
         .doc(update)
         .upsert(upsert));
  }

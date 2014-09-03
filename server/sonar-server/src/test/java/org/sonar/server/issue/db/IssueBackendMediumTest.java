@@ -19,6 +19,12 @@
  */
 package org.sonar.server.issue.db;
 
+import com.google.common.collect.ImmutableMap;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -35,11 +41,15 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.IndexClient;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.SearchClient;
 import org.sonar.server.tester.ServerTester;
 
-import java.util.Date;
-import java.util.UUID;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -75,14 +85,14 @@ public class IssueBackendMediumTest {
     tester.get(RuleDao.class).insert(dbSession, rule);
 
     ComponentDto project = new ComponentDto()
+      .setId(1L)
       .setKey("MyProject")
-  .setId(1L)
       .setProjectId(1L);
     tester.get(ComponentDao.class).insert(dbSession, project);
 
     ComponentDto resource = new ComponentDto()
-      .setKey("MyComponent")
       .setProjectId(1L)
+      .setKey("MyComponent")
       .setId(2L);
     tester.get(ComponentDao.class).insert(dbSession, resource);
 
@@ -137,18 +147,22 @@ public class IssueBackendMediumTest {
 
     ComponentDto project = new ComponentDto()
       .setId(1L)
+      .setKey("MyProject")
       .setProjectId(1L);
     tester.get(ComponentDao.class).insert(dbSession, project);
 
     ComponentDto resource = new ComponentDto()
-      .setProjectId(1L)
-      .setId(2L);
+      .setId(2L)
+      .setKey("MyComponent")
+      .setProjectId(1L);
     tester.get(ComponentDao.class).insert(dbSession, resource);
 
-    IssueDto issue = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
+    IssueDto issue = new IssueDto().setId(1L)
       .setRuleId(rule.getId())
       .setRootComponentId(project.getId())
+      .setRootComponentKey_unit_test_only(project.key())
       .setComponentId(resource.getId())
+      .setComponentKey_unit_test_only(resource.key())
       .setStatus("OPEN").setResolution("OPEN")
       .setKee(UUID.randomUUID().toString());
     dbClient.issueDao().insert(dbSession, issue);
@@ -169,6 +183,161 @@ public class IssueBackendMediumTest {
     assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(0);
     tester.get(Platform.class).executeStartupTasks();
     assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(1);
+  }
 
+  @Test
+  public void issue_authorization_on_group() throws Exception {
+    SearchClient searchClient = tester.get(SearchClient.class);
+    createIssueAuthorizationIndex(searchClient, IndexDefinition.ISSUES_AUTHENTICATION.getIndexName(), IndexDefinition.ISSUES_AUTHENTICATION.getIndexType());
+
+    RuleDto rule = RuleTesting.newXooX1();
+    tester.get(RuleDao.class).insert(dbSession, rule);
+
+    ComponentDto project = new ComponentDto()
+      .setId(1L)
+      .setProjectId(1L)
+      .setKey("SonarQube");
+    tester.get(ComponentDao.class).insert(dbSession, project);
+
+    ComponentDto resource = new ComponentDto()
+      .setProjectId(1L)
+      .setId(2L)
+      .setKey("IssueAction.java");
+    tester.get(ComponentDao.class).insert(dbSession, resource);
+
+    IssueDto issue = new IssueDto().setId(1L)
+      .setRuleId(rule.getId())
+      .setRootComponentKey_unit_test_only(project.key())
+      .setRootComponentId(project.getId())
+      .setComponentKey_unit_test_only(resource.key())
+      .setComponentId(resource.getId())
+      .setStatus("OPEN").setResolution("OPEN")
+      .setKee(UUID.randomUUID().toString());
+    dbClient.issueDao().insert(dbSession, issue);
+
+    dbSession.commit();
+
+    searchClient.prepareIndex(IndexDefinition.ISSUES_AUTHENTICATION.getIndexName(), IndexDefinition.ISSUES_AUTHENTICATION.getIndexType())
+      .setId(project.key())
+      .setSource(ImmutableMap.<String, Object>of("permission", "read", "project", project.key(), "group", "user"))
+      .setRefresh(true)
+      .get();
+
+    // The issue is only visible for group user
+    assertThat(searchIssueWithAuthorization(searchClient, "user", "").getHits().getTotalHits()).isEqualTo(1);
+    // The issue is not visible for group reviewer
+    assertThat(searchIssueWithAuthorization(searchClient, "reviewer", "").getHits().getTotalHits()).isEqualTo(0);
+  }
+
+  @Test
+  public void issue_authorization_on_user() throws Exception {
+    SearchClient searchClient = tester.get(SearchClient.class);
+    createIssueAuthorizationIndex(searchClient, IndexDefinition.ISSUES_AUTHENTICATION.getIndexName(), IndexDefinition.ISSUES_AUTHENTICATION.getIndexType());
+
+    RuleDto rule = RuleTesting.newXooX1();
+    tester.get(RuleDao.class).insert(dbSession, rule);
+
+    ComponentDto project = new ComponentDto()
+      .setId(1L)
+      .setProjectId(1L)
+      .setKey("SonarQube");
+    tester.get(ComponentDao.class).insert(dbSession, project);
+
+    ComponentDto resource = new ComponentDto()
+      .setProjectId(1L)
+      .setId(2L)
+      .setKey("IssueAction.java");
+    tester.get(ComponentDao.class).insert(dbSession, resource);
+
+    IssueDto issue = new IssueDto().setId(1L)
+      .setRuleId(rule.getId())
+      .setRootComponentKey_unit_test_only(project.key())
+      .setRootComponentId(project.getId())
+      .setComponentKey_unit_test_only(resource.key())
+      .setComponentId(resource.getId())
+      .setStatus("OPEN").setResolution("OPEN")
+      .setKee(UUID.randomUUID().toString());
+    dbClient.issueDao().insert(dbSession, issue);
+
+    dbSession.commit();
+
+    searchClient.prepareIndex(IndexDefinition.ISSUES_AUTHENTICATION.getIndexName(), IndexDefinition.ISSUES_AUTHENTICATION.getIndexType())
+      .setId(project.key())
+      .setSource(ImmutableMap.<String, Object>of("permission", "read", "project", project.key(), "user", "julien"))
+      .setRefresh(true)
+      .get();
+
+    // The issue is visible for user julien
+    assertThat(searchIssueWithAuthorization(searchClient, "", "julien").getHits().getTotalHits()).isEqualTo(1);
+    // The issue is not visible for user simon
+    assertThat(searchIssueWithAuthorization(searchClient, "", "simon").getHits().getTotalHits()).isEqualTo(0);
+  }
+
+  private SearchResponse searchIssueWithAuthorization(SearchClient searchClient, String group, String user){
+    SearchRequestBuilder request = searchClient.prepareSearch(IndexDefinition.ISSUES.getIndexName())
+      .setQuery(
+        QueryBuilders.filteredQuery(
+          QueryBuilders.matchAllQuery(),
+          FilterBuilders.hasParentFilter(
+            IndexDefinition.ISSUES_AUTHENTICATION.getIndexType(),
+            FilterBuilders.boolFilter().must(
+              FilterBuilders.termFilter("permission", "read"),
+              FilterBuilders.orFilter(
+                FilterBuilders.termFilter("group", group),
+                FilterBuilders.termFilter("user", user)
+              )
+            ).cache(true)
+          )
+        )
+      )
+      .setSize(Integer.MAX_VALUE);
+    return searchClient.execute(request);
+  }
+
+  private BaseIndex createIssueAuthorizationIndex(final SearchClient searchClient, String index, String type) {
+    BaseIndex baseIndex = new BaseIndex(
+      IndexDefinition.createFor(index, type),
+      null, searchClient) {
+      @Override
+      protected String getKeyValue(Serializable key) {
+        return null;
+      }
+
+      @Override
+      protected org.elasticsearch.common.settings.Settings getIndexSettings() throws IOException {
+        return ImmutableSettings.builder().build();
+      }
+
+      @Override
+      protected Map mapProperties() {
+        Map<String, Object> mapping = new HashMap<String, Object>();
+        mapping.put("permission", mapStringField());
+        mapping.put("project", mapStringField());
+        mapping.put("group", mapStringField());
+        mapping.put("user", mapStringField());
+        return mapping;
+      }
+
+      protected Map mapStringField() {
+        Map<String, Object> mapping = new HashMap<String, Object>();
+        mapping.put("type", "string");
+        mapping.put("index", "analyzed");
+        mapping.put("index_analyzer", "keyword");
+        mapping.put("search_analyzer", "whitespace");
+        return mapping;
+      }
+
+      @Override
+      protected Map mapKey() {
+        return Collections.emptyMap();
+      }
+
+      @Override
+      public Object toDoc(Map fields) {
+        return null;
+      }
+    };
+    baseIndex.start();
+    return baseIndex;
   }
 }

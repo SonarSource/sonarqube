@@ -52,9 +52,14 @@ public class IndexDefinition {
 
   public static final IndexDefinition RULE = new IndexDefinition("rules", "rule");
   public static final IndexDefinition ACTIVE_RULE = new IndexDefinition("rules", "activeRule");
+  public static final IndexDefinition ISSUES_AUTHENTICATION = new IndexDefinition("issues", "issuesAuthorization");
   public static final IndexDefinition ISSUES = new IndexDefinition("issues", "issue");
   public static final IndexDefinition LOG = new IndexDefinition("logs", "sonarLog");
 
   @VisibleForTesting
   protected static IndexDefinition TEST = new IndexDefinition("test", "test");
+
+  public static IndexDefinition createFor(String indexName, String indexType) {
+    return new IndexDefinition(indexName, indexType);
+  }
 }
