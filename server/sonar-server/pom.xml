@@ -268,18 +268,6 @@
           </archive>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>*_javassist_*</exclude>
-          </excludes>
-          <includes>
-            <include>org.sonar.server.*</include>
-          </includes>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 
