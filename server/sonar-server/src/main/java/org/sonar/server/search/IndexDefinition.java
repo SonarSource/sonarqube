@@ -52,7 +52,8 @@ public class IndexDefinition {
 
   public static final IndexDefinition RULE = new IndexDefinition("rules", "rule");
   public static final IndexDefinition ACTIVE_RULE = new IndexDefinition("rules", "activeRule");
-  public static final IndexDefinition ISSUES_AUTHENTICATION = new IndexDefinition("issues", "issuesAuthorization");
+  public static final IndexDefinition ISSUES_PROJECT = new IndexDefinition("issues", "issueProject");
+  public static final IndexDefinition ISSUES_PERMISSION = new IndexDefinition("issues", "issuePermission");
   public static final IndexDefinition ISSUES = new IndexDefinition("issues", "issue");
   public static final IndexDefinition LOG = new IndexDefinition("logs", "sonarLog");
 

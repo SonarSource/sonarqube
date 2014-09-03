@@ -78,7 +78,7 @@ public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
   }
 
   private String getParentType() {
-    return IndexDefinition.ISSUES_AUTHENTICATION.getIndexType();
+    return IndexDefinition.ISSUES_PROJECT.getIndexType();
   }
 
   private Map mapRouting() {
