@@ -54,10 +54,9 @@ public class DuplicationGroupTest {
     assertThat(d1).isNotEqualTo(new DuplicationGroup(new DuplicationGroup.Block("foo", 1, 10)));
 
     assertThat(d1.hashCode()).isEqualTo(578909124);
-    assertThat(d1.toString()).contains("[\n" +
-      "  origin=DuplicationGroup.Block[resourceKey=foo,startLine=1,length=10]\n" +
-      "  duplicates=[DuplicationGroup.Block[resourceKey=foo,startLine=20,length=10], DuplicationGroup.Block[resourceKey=foo2,startLine=1,length=10]]\n" +
-      "]");
+    assertThat(d1.toString()).contains("origin=DuplicationGroup.Block[resourceKey=foo,startLine=1,length=10]");
+    assertThat(d1.toString()).contains(
+      "duplicates=[DuplicationGroup.Block[resourceKey=foo,startLine=20,length=10], DuplicationGroup.Block[resourceKey=foo2,startLine=1,length=10]]");
   }
 
 }
