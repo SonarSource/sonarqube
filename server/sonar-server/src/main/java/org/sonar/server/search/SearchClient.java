@@ -119,11 +119,11 @@ public class SearchClient extends TransportClient implements Startable {
 
   @Override
   public void start() {
-
+    // nothing to do
   }
 
   @Override
   public void stop() {
-    super.close();
+    close();
   }
 }

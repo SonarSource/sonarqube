@@ -73,6 +73,7 @@ public class ProcessWrapper extends Thread implements Terminable {
   private StreamGobbler errorGobbler;
   private StreamGobbler outputGobbler;
   private ProcessMXBean processMXBean;
+  private final Object terminationLock = new Object();
 
   public ProcessWrapper(String processName) {
     super(processName);
@@ -179,9 +180,6 @@ public class ProcessWrapper extends Thread implements Terminable {
     } catch (Exception e) {
       LOGGER.info("ProcessThread has been interrupted. Killing node.");
       LOGGER.trace("Process exception", e);
-    } finally {
-      ;
-      ;
     }
   }
 
@@ -257,7 +255,6 @@ public class ProcessWrapper extends Thread implements Terminable {
     return null;
   }
 
-  private final Integer terminationLock = new Integer(1);
   @Override
   public void terminate() {
     synchronized (terminationLock) {

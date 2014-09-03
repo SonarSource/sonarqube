@@ -22,6 +22,7 @@ package org.sonar.server.search;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.RuleTesting;
@@ -59,7 +60,10 @@ public class SearchHealthMediumTest {
     assertThat(nodeHealth.getFsUsedPercent()).contains("%");
     assertThat(nodeHealth.getJvmThreads()).isGreaterThanOrEqualTo(0L);
     assertThat(nodeHealth.getProcessCpuPercent()).contains("%");
-    assertThat(nodeHealth.getOpenFiles()).isGreaterThanOrEqualTo(0L);
+    long openFiles = nodeHealth.getOpenFiles();
+    if (!tester.get(System2.class).isOsWindows()) {
+      assertThat(openFiles).isGreaterThanOrEqualTo(0L);
+    }
     assertThat(nodeHealth.getJvmUpSince().before(now)).isTrue();
 
     Map<String, IndexHealth> indexHealth = health.getIndexHealth();

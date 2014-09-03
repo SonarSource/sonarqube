@@ -34,9 +34,9 @@
              action = change.action()
              action_message = message('quality_profiles.changelog.' + action.downcase) if action
 
-             if change.authorName() && !change.authorName().empty()
+             if change.authorName() && !change.authorName().empty?()
                author = change.authorName()
-             elsif change.login() && !change.login().empty()
+             elsif change.login() && !change.login().empty?()
                author = change.login()
              else
                author = 'System'
