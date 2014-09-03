@@ -93,4 +93,8 @@
       </plugin>
     </plugins>
   </build>
+
+  <properties>
+    <sonar.exclusions>**/*.java</sonar.exclusions>
+  </properties>
 </project>
