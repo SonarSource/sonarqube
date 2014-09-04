@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -43,16 +44,22 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   @Rule
   public ExpectedException throwable = ExpectedException.none();
 
+  private System2 system2;
   private PermissionFacade permissionFacade;
   private PermissionTemplateDao permissionTemplateDao;
+  private ResourceDao resourceDao;
 
   @Before
   public void setUp() {
+    system2 = mock(System2.class);
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-03").getTime());
+
     RoleDao roleDao = new RoleDao(getMyBatis());
     UserDao userDao = new UserDao(getMyBatis());
     permissionTemplateDao = new PermissionTemplateDao(getMyBatis(), System2.INSTANCE);
     Settings settings = new Settings();
-    permissionFacade = new PermissionFacade(getMyBatis(), roleDao, userDao, new ResourceDao(getMyBatis()), permissionTemplateDao, settings);
+    resourceDao = new ResourceDao(getMyBatis(), system2);
+    permissionFacade = new PermissionFacade(getMyBatis(), roleDao, userDao, resourceDao, permissionTemplateDao, settings);
   }
 
   @Test
@@ -71,6 +78,8 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     assertThat(permissionFacade.selectGroupPermissions("Anyone", 123L)).containsOnly("user", "codeviewer");
 
     assertThat(permissionFacade.selectUserPermissions("marius", 123L)).containsOnly("admin");
+
+    assertThat(resourceDao.getResource(123L).getAuthorizationUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-03"));
   }
 
   @Test
@@ -87,6 +96,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     permissionFacade.insertUserPermission(123L, 200L, UserRole.ADMIN);
 
     checkTable("should_add_user_permission", "user_roles", "user_id", "resource_id", "role");
+    checkTable("should_add_user_permission", "projects", "authorization_updated_at");
   }
 
   @Test
@@ -96,6 +106,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     permissionFacade.deleteUserPermission(123L, 200L, UserRole.ADMIN);
 
     checkTable("should_delete_user_permission", "user_roles", "user_id", "resource_id", "role");
+    checkTable("should_delete_user_permission", "projects", "authorization_updated_at");
   }
 
   @Test
@@ -111,6 +122,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     }
 
     checkTable("should_insert_group_permission", "group_roles", "group_id", "resource_id", "role");
+    checkTable("should_insert_group_permission", "projects", "authorization_updated_at");
   }
 
   @Test
@@ -126,6 +138,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     }
 
     checkTable("should_insert_group_permission", "group_roles", "group_id", "resource_id", "role");
+    checkTable("should_insert_group_permission", "projects", "authorization_updated_at");
   }
 
   @Test
@@ -141,6 +154,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     }
 
     checkTable("should_insert_anyone_group_permission", "group_roles", "group_id", "resource_id", "role");
+    checkTable("should_insert_anyone_group_permission", "projects", "authorization_updated_at");
   }
 
   @Test
@@ -150,6 +164,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     permissionFacade.deleteGroupPermission(123L, 100L, UserRole.USER);
 
     checkTable("should_delete_group_permission", "group_roles", "group_id", "resource_id", "role");
+    checkTable("should_delete_group_permission", "projects", "authorization_updated_at");
   }
 
   @Test
@@ -165,6 +180,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     }
 
     checkTable("should_delete_group_permission", "group_roles", "group_id", "resource_id", "role");
+    checkTable("should_delete_group_permission", "projects", "authorization_updated_at");
   }
 
   @Test

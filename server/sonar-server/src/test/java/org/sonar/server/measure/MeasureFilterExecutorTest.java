@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.SnapshotDto;
@@ -59,7 +60,7 @@ public class MeasureFilterExecutorTest {
 
   @Before
   public void before() {
-    executor = new MeasureFilterExecutor(db.myBatis(), db.database(), new ResourceDao(db.myBatis()));
+    executor = new MeasureFilterExecutor(db.myBatis(), db.database(), new ResourceDao(db.myBatis(), System2.INSTANCE));
   }
 
   @Test

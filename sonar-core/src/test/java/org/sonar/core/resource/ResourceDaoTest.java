@@ -29,6 +29,7 @@ import org.sonar.api.component.Component;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
@@ -41,17 +42,22 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ResourceDaoTest extends AbstractDaoTestCase {
 
   private DbSession session;
 
   private ResourceDao dao;
+  private System2 system2;
 
   @Before
   public void createDao() {
     session = getMyBatis().openSession(false);
-    dao = new ResourceDao(getMyBatis());
+    system2 = mock(System2.class);
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-03").getTime());
+    dao = new ResourceDao(getMyBatis(), system2);
   }
 
   @After
@@ -90,6 +96,8 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(resource.getDescription()).isEqualTo("the description");
     assertThat(resource.getLanguage()).isEqualTo("java");
     assertThat(resource.isEnabled()).isTrue();
+    assertThat(resource.getAuthorizationUpdatedAt()).isNotNull();
+    assertThat(resource.getCreatedAt()).isNotNull();
   }
 
   @Test
@@ -298,11 +306,12 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     assertThat(file1.getId()).isNotNull();
     assertThat(file2.getId()).isNotNull();
-    checkTables("insert", new String[] {"created_at"}, "projects");
+    checkTables("insert", "projects");
 
     // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
     ResourceDto fileLoadedFromDB = dao.getResource(file1.getId());
     assertThat(fileLoadedFromDB.getCreatedAt()).isNotNull();
+    assertThat(fileLoadedFromDB.getAuthorizationUpdatedAt()).isNotNull();
   }
 
   @Test
@@ -478,6 +487,16 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(snapshotDto.getId()).isEqualTo(3L);
 
     assertThat(dao.getLastSnapshotByResourceId(42L, session)).isNull();
+  }
+
+  @Test
+  public void update_authorization_date() {
+    setupData("update_authorization_date");
+
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-03").getTime());
+    dao.updateAuthorizationDate(1L);
+
+    checkTables("update_authorization_date", "projects");
   }
 
   private List<String> getKeys(final List<Component> components) {

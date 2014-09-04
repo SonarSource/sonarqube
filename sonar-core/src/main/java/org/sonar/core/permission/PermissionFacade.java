@@ -30,11 +30,7 @@ import org.sonar.api.task.TaskComponent;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.GroupRoleDto;
-import org.sonar.core.user.RoleDao;
-import org.sonar.core.user.UserDao;
-import org.sonar.core.user.UserRoleDto;
+import org.sonar.core.user.*;
 
 import javax.annotation.Nullable;
 
@@ -68,16 +64,23 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     this.settings = settings;
   }
 
-  public void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, @Nullable SqlSession session) {
+  private void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, boolean updateProjectAuthorizationDate, @Nullable SqlSession session) {
     UserRoleDto userRoleDto = new UserRoleDto()
       .setRole(permission)
       .setUserId(userId)
       .setResourceId(resourceId);
+    if (updateProjectAuthorizationDate) {
+      updateProjectAuthorizationDate(resourceId, session);
+    }
     if (session != null) {
       roleDao.insertUserRole(userRoleDto, session);
     } else {
       roleDao.insertUserRole(userRoleDto);
     }
+  }
+
+  public void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, @Nullable SqlSession session) {
+    insertUserPermission(resourceId, userId, permission, true, session);
   }
 
   public void insertUserPermission(@Nullable Long resourceId, Long userId, String permission) {
@@ -89,6 +92,7 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
       .setRole(permission)
       .setUserId(userId)
       .setResourceId(resourceId);
+    updateProjectAuthorizationDate(resourceId, session);
     if (session != null) {
       roleDao.deleteUserRole(userRoleDto, session);
     } else {
@@ -100,16 +104,21 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     deleteUserPermission(resourceId, userId, permission, null);
   }
 
-  public void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, @Nullable SqlSession session) {
+  private void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, boolean updateProjectAuthorizationDate, @Nullable SqlSession session) {
     GroupRoleDto groupRole = new GroupRoleDto()
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(resourceId);
+    updateProjectAuthorizationDate(resourceId, session);
     if (session != null) {
       roleDao.insertGroupRole(groupRole, session);
     } else {
       roleDao.insertGroupRole(groupRole);
     }
+  }
+
+  private void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, @Nullable SqlSession session) {
+    insertGroupPermission(resourceId, groupId, permission, true, session);
   }
 
   public void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission) {
@@ -132,6 +141,7 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(resourceId);
+    updateProjectAuthorizationDate(resourceId, session);
     if (session != null) {
       roleDao.deleteGroupRole(groupRole, session);
     } else {
@@ -150,6 +160,19 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
       GroupDto group = userDao.selectGroupByName(groupName, session);
       if (group != null) {
         deleteGroupPermission(resourceId, group.getId(), permission, session);
+      }
+    }
+  }
+
+  /**
+   * For each modification of permission on a project, update the authorization_updated_at to help ES reindex only relevant changes
+   */
+  private void updateProjectAuthorizationDate(@Nullable Long projectId, @Nullable SqlSession session){
+    if (projectId != null) {
+      if (session != null) {
+        resourceDao.updateAuthorizationDate(projectId, session);
+      } else {
+        resourceDao.updateAuthorizationDate(projectId);
       }
     }
   }
@@ -174,18 +197,19 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     PermissionTemplateDto permissionTemplate = getPermissionTemplateWithPermissions(templateKey);
     SqlSession session = myBatis.openSession(false);
     try {
+      updateProjectAuthorizationDate(resourceId, session);
       removeAllPermissions(resourceId, session);
       List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
       if (usersPermissions != null) {
         for (PermissionTemplateUserDto userPermission : usersPermissions) {
-          insertUserPermission(resourceId, userPermission.getUserId(), userPermission.getPermission(), session);
+          insertUserPermission(resourceId, userPermission.getUserId(), userPermission.getPermission(), false, session);
         }
       }
       List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupsPermissions();
       if (groupsPermissions != null) {
         for (PermissionTemplateGroupDto groupPermission : groupsPermissions) {
           Long groupId = groupPermission.getGroupId() == null ? null : groupPermission.getGroupId();
-          insertGroupPermission(resourceId, groupId, groupPermission.getPermission(), session);
+          insertGroupPermission(resourceId, groupId, groupPermission.getPermission(), false, session);
         }
       }
       session.commit();
@@ -198,7 +222,7 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     return roleDao.countResourceGroupRoles(resourceId) + roleDao.countResourceUserRoles(resourceId);
   }
 
-  public void removeAllPermissions(Long resourceId, SqlSession session) {
+  protected void removeAllPermissions(Long resourceId, SqlSession session) {
     roleDao.deleteGroupRolesByResourceId(resourceId, session);
     roleDao.deleteUserRolesByResourceId(resourceId, session);
   }

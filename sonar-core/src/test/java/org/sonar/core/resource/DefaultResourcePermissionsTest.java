@@ -53,7 +53,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
     project = new Project("project").setId(PROJECT_ID.intValue());
     settings = new Settings();
     permissionFacade = new PermissionFacade(getMyBatis(),
-      new RoleDao(getMyBatis()), new UserDao(getMyBatis()), new ResourceDao(getMyBatis()), new PermissionTemplateDao(getMyBatis(), System2.INSTANCE), settings);
+      new RoleDao(getMyBatis()), new UserDao(getMyBatis()), new ResourceDao(getMyBatis(), System2.INSTANCE), new PermissionTemplateDao(getMyBatis(), System2.INSTANCE), settings);
     permissions = new DefaultResourcePermissions(getMyBatis(), permissionFacade);
   }
 

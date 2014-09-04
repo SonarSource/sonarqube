@@ -18,7 +18,8 @@
     p.language as language,
     p.copy_resource_id as copyResourceId,
     p.person_id as personId,
-    p.created_at as createdAt
+    p.created_at as createdAt,
+    p.authorization_updated_at as authorizationUpdatedAt
   </sql>
 
   <sql id="componentColumns">
@@ -81,6 +82,7 @@
     <result property="copyResourceId" column="copy_resource_id"/>
     <result property="personId" column="person_id"/>
     <result property="createdAt" column="created_at"/>
+    <result property="authorizationUpdatedAt" column="authorization_updated_at"/>
   </resultMap>
 
   <select id="selectResources" parameterType="map" resultMap="resourceResultMap">
@@ -291,11 +293,11 @@
 
   <insert id="insert" parameterType="Resource" keyColumn="id" useGeneratedKeys="true" keyProperty="id" >
     insert into projects
-    (name, long_name, description, scope, qualifier, kee, deprecated_kee, path, language, root_id, copy_resource_id, person_id, enabled, created_at)
+    (name, long_name, description, scope, qualifier, kee, deprecated_kee, path, language, root_id, copy_resource_id, person_id, enabled, authorization_updated_at, created_at)
     values (
     #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
     #{key}, #{deprecatedKey}, #{path}, #{language}, #{rootId}, #{copyResourceId},
-    #{personId}, #{enabled}, #{createdAt}
+    #{personId}, #{enabled}, #{authorizationUpdatedAt}, #{createdAt}
     )
   </insert>
 
@@ -305,5 +307,13 @@
     language=#{language}, root_id=#{rootId}, copy_resource_id=#{copyResourceId},
     person_id=#{personId}, enabled=#{enabled} where id=#{id}
   </update>
+
+  <update id="updateAuthorizationDate" parameterType="map">
+    update projects set authorization_updated_at=#{authorizationDate}
+    <where>
+      AND id=#{projectId}
+    </where>
+  </update>
+
 </mapper>
 

@@ -24,6 +24,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.component.Component;
+import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
@@ -41,9 +42,11 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class ResourceDao implements DaoComponent {
   private MyBatis mybatis;
+  private System2 system2;
 
-  public ResourceDao(MyBatis mybatis) {
+  public ResourceDao(MyBatis mybatis, System2 system2) {
     this.mybatis = mybatis;
+    this.system2 = system2;
   }
 
   public List<ResourceDto> getResources(ResourceQuery query) {
@@ -141,10 +144,12 @@ public class ResourceDao implements DaoComponent {
   public ResourceDao insertOrUpdate(ResourceDto... resources) {
     SqlSession session = mybatis.openSession(false);
     ResourceMapper mapper = session.getMapper(ResourceMapper.class);
+    Date now = new Date(system2.now());
     try {
       for (ResourceDto resource : resources) {
         if (resource.getId() == null) {
-          resource.setCreatedAt(new Date());
+          resource.setCreatedAt(now);
+          resource.setAuthorizationUpdatedAt(now);
           mapper.insert(resource);
         } else {
           mapper.update(resource);
@@ -155,6 +160,23 @@ public class ResourceDao implements DaoComponent {
       MyBatis.closeQuietly(session);
     }
     return this;
+  }
+
+  public void updateAuthorizationDate(Long projectId, SqlSession session) {
+    session.getMapper(ResourceMapper.class).updateAuthorizationDate(projectId, new Date(system2.now()));
+  }
+
+  /**
+   * Should not be called from batch side (used to reindex permission in E/S)
+   */
+  public void updateAuthorizationDate(Long projectId) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      updateAuthorizationDate(projectId, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public Collection<ComponentDto> selectComponentsByIds(Collection<Long> ids) {

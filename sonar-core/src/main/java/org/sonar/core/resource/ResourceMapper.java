@@ -26,6 +26,7 @@ import org.sonar.core.component.ComponentDto;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 public interface ResourceMapper {
@@ -85,5 +86,7 @@ public interface ResourceMapper {
   void insert(ResourceDto resource);
 
   void update(ResourceDto resource);
+
+  void updateAuthorizationDate(@Param("projectId") Long projectId, @Param("authorizationDate") Date authorizationDate);
 
 }

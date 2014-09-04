@@ -21,6 +21,7 @@ package org.sonar.core.user;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -34,7 +35,7 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
 
   @Before
   public void setUp() {
-    dao = new AuthorDao(getMyBatis(), new ResourceDao(getMyBatis()));
+    dao = new AuthorDao(getMyBatis(), new ResourceDao(getMyBatis(), System2.INSTANCE));
   }
 
   @Test

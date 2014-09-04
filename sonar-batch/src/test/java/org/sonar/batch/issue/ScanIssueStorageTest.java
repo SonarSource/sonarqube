@@ -31,6 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.index.SnapshotCache;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -55,7 +56,7 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
 
   @Before
   public void setUp() throws Exception {
-    storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), snapshotCache, new ResourceDao(getMyBatis()), projectTree);
+    storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), snapshotCache, new ResourceDao(getMyBatis(), System2.INSTANCE), projectTree);
   }
 
   @Test
