@@ -49,7 +49,7 @@ public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
   Paging paging;
 
   public IssueResult(SearchResponse response) {
-    super(response);
+    this(null, response);
   }
 
   public IssueResult(@Nullable BaseIndex<IssueDoc, ?, ?> index, SearchResponse response) {
@@ -58,7 +58,7 @@ public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
 
   @Override
   public List<Issue> issues() {
-    return ImmutableList.<Issue>copyOf(this.getHits());
+    return ImmutableList.<Issue>builder().addAll(this.getHits()).build();
   }
 
   @Override

@@ -20,12 +20,16 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.SearchClient;
 
 import java.io.IOException;
@@ -99,5 +103,14 @@ public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
   protected IssueDoc toDoc(Map<String, Object> fields) {
     Preconditions.checkNotNull(fields, "Cannot construct Issue with null response");
     return new IssueDoc(fields);
+  }
+
+  public SearchResponse search(IssueQuery query, QueryOptions options) {
+
+    // TODO implement filters and search
+
+    return getClient().execute(
+      getClient().prepareSearch(getIndexName())
+        .setQuery(QueryBuilders.matchAllQuery()));
   }
 }

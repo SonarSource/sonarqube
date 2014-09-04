@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.search.SearchResponse;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
@@ -54,7 +55,10 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.actionplan.ActionPlanService;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueResult;
 import org.sonar.server.search.IndexClient;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
@@ -324,4 +328,20 @@ public class IssueService implements ServerComponent {
     return aggregation;
   }
 
+  public Issue getByKey(String key) {
+    return indexClient.get(IssueIndex.class).getByKey(key);
+  }
+
+  public IssueResult search(IssueQuery query, QueryOptions options) {
+
+    IssueIndex issueIndex = indexClient.get(IssueIndex.class);
+
+    SearchResponse esResults = issueIndex.search(query, options);
+
+    // Extend the content of the resultSet to make an actual IssueResponse
+    IssueResult results = new IssueResult(issueIndex, esResults);
+
+    // TODO Implement the logic of search here!!!
+    return results;
+  }
 }

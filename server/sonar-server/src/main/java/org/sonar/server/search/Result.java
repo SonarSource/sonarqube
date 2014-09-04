@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 
 import java.util.*;
 
-public class Result<K extends BaseDoc> {
+public class Result<K> {
 
   private final List<K> hits;
   private final Multimap<String, FacetValue> facets;
