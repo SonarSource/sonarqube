@@ -38,6 +38,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
+import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueNotifications;
@@ -340,6 +341,10 @@ public class IssueService implements ServerComponent {
 
     // Extend the content of the resultSet to make an actual IssueResponse
     IssueResult results = new IssueResult(issueIndex, esResults);
+    results.setPaging(Paging.create(
+      options.getLimit(),
+      (options.getOffset() * options.getLimit()) + 1,
+      new Long(esResults.getHits().getTotalHits()).intValue()));
 
     // TODO Implement the logic of search here!!!
     return results;

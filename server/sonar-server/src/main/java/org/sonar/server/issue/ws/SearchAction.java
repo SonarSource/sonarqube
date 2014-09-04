@@ -57,6 +57,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +101,7 @@ public class SearchAction implements RequestHandler {
     // Add globalized search options. Will also support legacy params
     // Generic search parameters
     SearchOptions.definePageParams(action);
+    SearchOptions.defineFieldsParam(action, Collections.<String>emptyList());
 
     // Issue-specific search parameters
     defineIssueSearchParameters(action);

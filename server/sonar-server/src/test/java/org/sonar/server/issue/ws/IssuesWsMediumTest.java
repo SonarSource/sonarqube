@@ -87,24 +87,14 @@ public class IssuesWsMediumTest {
   }
 
   @Test
-  public void deactivate_rule() throws Exception {
-    // QualityProfileDto profile = createProfile("java");
-    // RuleDto rule = createRule(profile.getLanguage(), "toto");
-    // createActiveRule(rule, profile);
-    // session.commit();
-    //
-    // // 0. Assert No Active Rule for profile
-    // assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).hasSize(1);
-    //
-    // // 1. Deactivate Rule
-    // WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.DEACTIVATE_ACTION);
-    // request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
-    // request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
-    // request.execute();
-    // session.clearCache();
-    //
-    // // 2. Assert ActiveRule in DAO
-    // assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).isEmpty();
+  public void empty_search() throws Exception {
+
+    WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
+    // request.setParam()
+    WsTester.Result result = request.execute();
+
+    assertThat(result).isNotNull();
+    result.assertJson(this.getClass(), "empty_result.json", false);
   }
 
 }

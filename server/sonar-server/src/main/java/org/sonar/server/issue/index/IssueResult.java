@@ -33,18 +33,18 @@ import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.Result;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
 
-  Map<String, Rule> rules;
-  Map<String, Component> components;
-  Map<String, Component> projects;
-  Map<String, ActionPlan> actionPlans;
-  Map<String, User> usersByLogin;
+  private final Map<String, Rule> rules;
+  private final Map<String, Component> components;
+  private final Map<String, Component> projects;
+  private final Map<String, ActionPlan> actionPlans;
+  private final Map<String, User> usersByLogin;
 
   Paging paging;
 
@@ -54,6 +54,11 @@ public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
 
   public IssueResult(@Nullable BaseIndex<IssueDoc, ?, ?> index, SearchResponse response) {
     super(index, response);
+    rules = new HashMap<String, Rule>();
+    components = new HashMap<String, Component>();
+    projects = new HashMap<String, Component>();
+    actionPlans = new HashMap<String, ActionPlan>();
+    usersByLogin = new HashMap<String, User>();
   }
 
   @Override
@@ -119,6 +124,10 @@ public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
   @Override
   public Paging paging() {
     return paging;
+  }
+
+  public void setPaging(Paging paging) {
+    this.paging = paging;
   }
 
   @Override
