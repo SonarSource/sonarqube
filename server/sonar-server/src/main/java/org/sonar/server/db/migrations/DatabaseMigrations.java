@@ -23,19 +23,10 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.server.db.migrations.v36.ViolationMigration;
 import org.sonar.server.db.migrations.v42.CompleteIssueMessageMigration;
 import org.sonar.server.db.migrations.v42.PackageKeysMigration;
-import org.sonar.server.db.migrations.v43.ConvertIssueDebtToMinutesMigration;
-import org.sonar.server.db.migrations.v43.DevelopmentCostMeasuresMigration;
-import org.sonar.server.db.migrations.v43.IssueChangelogMigration;
-import org.sonar.server.db.migrations.v43.NotResolvedIssuesOnRemovedComponentsMigration;
-import org.sonar.server.db.migrations.v43.RequirementMeasuresMigration;
-import org.sonar.server.db.migrations.v43.TechnicalDebtMeasuresMigration;
-import org.sonar.server.db.migrations.v44.ChangeLogMigration;
-import org.sonar.server.db.migrations.v44.ConvertProfileMeasuresMigration;
-import org.sonar.server.db.migrations.v44.FeedQProfileDatesMigration;
-import org.sonar.server.db.migrations.v44.FeedQProfileKeysMigration;
-import org.sonar.server.db.migrations.v44.IssueActionPlanKeyMigration;
-import org.sonar.server.db.migrations.v44.MeasureDataMigration;
+import org.sonar.server.db.migrations.v43.*;
+import org.sonar.server.db.migrations.v44.*;
 import org.sonar.server.db.migrations.v45.AddMissingRuleParameterDefaultValuesMigration;
+import org.sonar.server.db.migrations.v50.InsertProjectsAuthorizationUpdatedAtMigration;
 
 import java.util.List;
 
@@ -65,7 +56,10 @@ public interface DatabaseMigrations {
     ConvertProfileMeasuresMigration.class,
 
     // 4.5
-    AddMissingRuleParameterDefaultValuesMigration.class
+    AddMissingRuleParameterDefaultValuesMigration.class,
+
+    // 5.0
+    InsertProjectsAuthorizationUpdatedAtMigration.class
   );
 
 }

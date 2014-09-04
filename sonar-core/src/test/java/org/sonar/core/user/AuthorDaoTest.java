@@ -76,7 +76,7 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
 
     checkTables("shouldInsertAuthorAndDeveloper",
       new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
-        "scope"},
+        "scope", "authorization_updated_at"},
       "authors", "projects");
   }
 
@@ -108,7 +108,7 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
 
     checkTables("shouldPreventAuthorsAndDevelopersDuplication",
       new String[] {"created_at", "updated_at", "copy_resource_id", "description", "enabled", "kee", "deprecated_kee", "path", "language", "long_name", "person_id", "root_id",
-        "scope"},
+        "scope", "authorization_updated_at"},
       "authors", "projects");
   }
 }

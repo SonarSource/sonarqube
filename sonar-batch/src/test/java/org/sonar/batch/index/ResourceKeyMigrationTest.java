@@ -112,7 +112,7 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
     verify(logger).info("Component {} changed to {}", "b:org/foo", "b:src/main/java/org/foo");
     verify(logger).info("Component {} changed to {}", "b:[root]", "b:src/main/java");
 
-    checkTables("shouldMigrateResourceKeys", new String[] {"build_date", "created_at"}, "projects");
+    checkTables("shouldMigrateResourceKeys", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects");
   }
 
   private static Project newProject(String key, String language) {

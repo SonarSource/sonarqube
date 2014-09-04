@@ -8,7 +8,7 @@ Snapshot 2 has been deleted
   <!-- the project -->
   <projects id="1" enabled="[true]" root_id="[null]"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
-            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]" />
+            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"  authorization_updated_at="[null]"/>
 
   <!-- past snapshot with status "processed" and already purged -->
   <snapshots id="1"
