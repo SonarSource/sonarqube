@@ -103,7 +103,9 @@ public class IssueSearchActionTest {
     result.setPaging(Paging.create(100, 1, 2));
     when(i18n.formatInteger(any(Locale.class), eq(2))).thenReturn("2");
 
-    tester = new WsTester(new IssuesWs(mock(IssueShowAction.class), new IssueSearchAction(issueFinder, new IssueActionsWriter(issueService, actionService), i18n, durations)));
+    tester = new WsTester(new IssuesWs(mock(IssueShowAction.class),
+      mock(SearchAction.class),
+      new IssueSearchAction(issueFinder, new IssueActionsWriter(issueService, actionService), i18n, durations)));
   }
 
   @Test

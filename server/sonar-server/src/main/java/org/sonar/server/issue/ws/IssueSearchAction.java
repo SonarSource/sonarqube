@@ -58,7 +58,10 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+@Deprecated
 public class IssueSearchAction implements RequestHandler {
+
+  public static final String SEARCH_ACTION = "search";
 
   private static final String ACTIONS_EXTRA_FIELD = "actions";
   private static final String TRANSITIONS_EXTRA_FIELD = "transitions";
@@ -81,7 +84,7 @@ public class IssueSearchAction implements RequestHandler {
   }
 
   void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("search")
+    WebService.NewAction action = controller.createAction(SEARCH_ACTION)
       .setDescription("Get a list of issues. If the number of issues is greater than 10,000, only the first 10,000 ones are returned by the web service. " +
         "Requires Browse permission on project(s)")
       .setSince("3.6")
@@ -191,7 +194,7 @@ public class IssueSearchAction implements RequestHandler {
 
   private void checkFormatParameter(Request request) {
     String format = request.param("format");
-    if (!Strings.isNullOrEmpty(format) && !"json".equals(format)){
+    if (!Strings.isNullOrEmpty(format) && !"json".equals(format)) {
       throw new BadRequestException("Only json format is supported.");
     }
   }
@@ -320,7 +323,7 @@ public class IssueSearchAction implements RequestHandler {
         .prop("name", component.name())
         .prop("longName", component.longName())
         .prop("path", component.path())
-          // On a root project, subProjectId is null but projectId is equal to itself, which make no sense.
+        // On a root project, subProjectId is null but projectId is equal to itself, which make no sense.
         .prop("projectId", (componentDto.projectId() != null && componentDto.subProjectId() != null) ? componentDto.projectId() : null)
         .prop("subProjectId", componentDto.subProjectId())
         .endObject();

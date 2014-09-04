@@ -113,6 +113,7 @@ public class IssueShowActionTest {
     when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
     tester = new WsTester(new IssuesWs(new IssueShowAction(issueFinder, issueChangelogService, new IssueActionsWriter(issueService, actionService), debtModel, i18n, durations),
+      mock(SearchAction.class),
       mock(IssueSearchAction.class)));
   }
 

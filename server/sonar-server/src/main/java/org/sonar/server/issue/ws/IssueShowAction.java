@@ -60,6 +60,8 @@ import java.util.List;
 
 public class IssueShowAction implements RequestHandler {
 
+  public static final String SHOW_ACTION = "show";
+
   private final IssueFinder issueFinder;
   private final IssueChangelogService issueChangelogService;
   private final IssueActionsWriter actionsWriter;
@@ -68,7 +70,7 @@ public class IssueShowAction implements RequestHandler {
   private final Durations durations;
 
   public IssueShowAction(IssueFinder issueFinder, IssueChangelogService issueChangelogService, IssueActionsWriter actionsWriter,
-                         DebtModelService debtModel, I18n i18n, Durations durations) {
+    DebtModelService debtModel, I18n i18n, Durations durations) {
     this.issueFinder = issueFinder;
     this.issueChangelogService = issueChangelogService;
     this.actionsWriter = actionsWriter;
@@ -78,7 +80,7 @@ public class IssueShowAction implements RequestHandler {
   }
 
   void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("show")
+    WebService.NewAction action = controller.createAction(SHOW_ACTION)
       .setDescription("Detail of issue")
       .setSince("4.2")
       .setInternal(true)
@@ -163,8 +165,7 @@ public class IssueShowAction implements RequestHandler {
       .prop("componentQualifier", component != null ? component.qualifier() : null)
       .prop("project", issue.projectKey())
       .prop("projectName", projectName)
-      .prop("subProjectName", subProjectName)
-    ;
+      .prop("subProjectName", subProjectName);
   }
 
   private void writeComments(IssueQueryResult queryResult, Issue issue, JsonWriter json) {

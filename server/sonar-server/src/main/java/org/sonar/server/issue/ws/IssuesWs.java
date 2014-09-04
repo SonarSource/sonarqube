@@ -27,21 +27,40 @@ import org.sonar.api.server.ws.WebService;
 
 public class IssuesWs implements WebService {
 
-  private final IssueShowAction showAction;
-  private final IssueSearchAction searchAction;
+  public static final String API_ENDPOINT = "api/issues";
 
-  public IssuesWs(IssueShowAction showAction, IssueSearchAction searchAction) {
+  public static final String CHANGELOG_ACTION = "changelog";
+  public static final String ASSIGN_ACTION = "assign";
+  public static final String ADD_COMMENT_ACTION = "add_comment";
+  public static final String DELETE_COMMENT_ACTION = "delete_comment";
+  public static final String EDIT_COMMENT_ACTION = "edit_comment";
+  public static final String SET_SEVERITY_ACTION = "set_severity";
+  public static final String PLAN_ACTION = "plan";
+  public static final String DO_TRANSITION_ACTION = "do_transition";
+  public static final String TRANSITIONS_ACTION = "transitions";
+  public static final String CREATE_ACTION = "create";
+  public static final String DO_ACTION_ACTION = "do_action";
+  public static final String BULK_CHANGE_ACTION = "bulk_change";
+
+  private final IssueShowAction showAction;
+  private final IssueSearchAction previousSearchAction;
+  private final SearchAction searchAction;
+
+  public IssuesWs(IssueShowAction showAction, SearchAction searchAction, IssueSearchAction previousSearchAction) {
     this.showAction = showAction;
+    this.previousSearchAction = previousSearchAction;
     this.searchAction = searchAction;
   }
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/issues");
+    NewController controller = context.createController(API_ENDPOINT);
     controller.setDescription("Coding rule issues");
     controller.setSince("3.6");
 
     showAction.define(controller);
+
+    previousSearchAction.define(controller);
     searchAction.define(controller);
 
     defineChangelogAction(controller);
@@ -61,7 +80,7 @@ public class IssuesWs implements WebService {
   }
 
   private void defineChangelogAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("changelog")
+    WebService.NewAction action = controller.createAction(CHANGELOG_ACTION)
       .setDescription("Display changelog of an issue")
       .setSince("4.1")
       .setHandler(RailsHandler.INSTANCE)
@@ -75,7 +94,7 @@ public class IssuesWs implements WebService {
   }
 
   private void defineAssignAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("assign")
+    WebService.NewAction action = controller.createAction(ASSIGN_ACTION)
       .setDescription("Assign/Unassign an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
@@ -92,7 +111,7 @@ public class IssuesWs implements WebService {
   }
 
   private void defineAddCommentAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("add_comment")
+    WebService.NewAction action = controller.createAction(ADD_COMMENT_ACTION)
       .setDescription("Add a comment. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
@@ -109,7 +128,7 @@ public class IssuesWs implements WebService {
   }
 
   private void defineDeleteCommentAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("delete_comment")
+    WebService.NewAction action = controller.createAction(DELETE_COMMENT_ACTION)
       .setDescription("Delete a comment. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
@@ -122,7 +141,7 @@ public class IssuesWs implements WebService {
   }
 
   private void defineEditCommentAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("edit_comment")
+    WebService.NewAction action = controller.createAction(EDIT_COMMENT_ACTION)
       .setDescription("Edit a comment. Requires authentication and User role on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
@@ -139,7 +158,7 @@ public class IssuesWs implements WebService {
   }
 
   private void defineSetSeverityAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("set_severity")
+    WebService.NewAction action = controller.createAction(SET_SEVERITY_ACTION)
       .setDescription("Change severity. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
@@ -157,7 +176,7 @@ public class IssuesWs implements WebService {
   }
 
   private void definePlanAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("plan")
+    WebService.NewAction action = controller.createAction(PLAN_ACTION)
       .setDescription("Plan/Unplan an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
@@ -174,7 +193,7 @@ public class IssuesWs implements WebService {
   }
 
   private void defineDoTransitionAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("do_transition")
+    WebService.NewAction action = controller.createAction(DO_TRANSITION_ACTION)
       .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
@@ -192,7 +211,7 @@ public class IssuesWs implements WebService {
   }
 
   private void defineTransitionsAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("transitions")
+    WebService.NewAction action = controller.createAction(TRANSITIONS_ACTION)
       .setDescription("Get Possible Workflow Transitions for an Issue. Requires Browse permission on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
@@ -205,7 +224,7 @@ public class IssuesWs implements WebService {
   }
 
   private void defineCreateAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("create")
+    WebService.NewAction action = controller.createAction(CREATE_ACTION)
       .setDescription("Create a manual issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
@@ -234,7 +253,7 @@ public class IssuesWs implements WebService {
   }
 
   private void defineDoActionAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("do_action")
+    WebService.NewAction action = controller.createAction(DO_ACTION_ACTION)
       .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
@@ -251,7 +270,7 @@ public class IssuesWs implements WebService {
   }
 
   private void defineBulkChangeAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("bulk_change")
+    WebService.NewAction action = controller.createAction(BULK_CHANGE_ACTION)
       .setDescription("Bulk change on issues. Requires authentication and User role on project(s)")
       .setSince("3.7")
       .setHandler(RailsHandler.INSTANCE)
