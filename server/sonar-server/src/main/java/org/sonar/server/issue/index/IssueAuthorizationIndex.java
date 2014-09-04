@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
-import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.issue.db.IssueAuthorizationDto;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
@@ -32,15 +33,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
+public class IssueAuthorizationIndex extends BaseIndex<IssueAuthorizationDoc, IssueAuthorizationDto, String> {
 
-  public IssueIndex(IssueNormalizer normalizer, SearchClient client) {
-    super(IndexDefinition.ISSUES, normalizer, client);
+  public IssueAuthorizationIndex(IssueAuthorizationNormalizer normalizer, SearchClient client) {
+    super(IndexDefinition.ISSUES_AUTHORIZATION, normalizer, client);
   }
 
   @Override
-  protected String getKeyValue(String keyString) {
-    return keyString;
+  protected String getKeyValue(String s) {
+    return s;
   }
 
   @Override
@@ -54,50 +55,22 @@ public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
   @Override
   protected Map mapProperties() {
     Map<String, Object> mapping = new HashMap<String, Object>();
-    for (IndexField field : IssueNormalizer.IssueField.ALL_FIELDS) {
+    for (IndexField field : IssueAuthorizationNormalizer.IssueAuthorizationField.ALL_FIELDS) {
       mapping.put(field.field(), mapField(field));
     }
     return mapping;
   }
 
   @Override
-  protected Map mapDomain() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("dynamic", false);
-    mapping.put("_id", mapKey());
-    mapping.put("_parent", mapParent());
-    mapping.put("_routing", mapRouting());
-    mapping.put("properties", mapProperties());
-    return mapping;
-  }
-
-  private Object mapParent() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("type", getParentType());
-    return mapping;
-  }
-
-  private String getParentType() {
-    return IndexDefinition.ISSUES_AUTHORIZATION.getIndexType();
-  }
-
-  private Map mapRouting() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("required", true);
-    mapping.put("path", IssueNormalizer.IssueField.PROJECT.field());
-    return mapping;
-  }
-
-  @Override
   protected Map mapKey() {
     Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("path", IssueNormalizer.IssueField.KEY.field());
+    mapping.put("path", IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field());
     return mapping;
   }
 
   @Override
-  protected IssueDoc toDoc(Map<String, Object> fields) {
-    Preconditions.checkNotNull(fields, "Cannot construct Issue with null response");
-    return new IssueDoc(fields);
+  public IssueAuthorizationDoc toDoc(Map fields) {
+    Preconditions.checkNotNull(fields, "Cannot construct IssueAuthorization with null response");
+    return new IssueAuthorizationDoc(fields);
   }
 }

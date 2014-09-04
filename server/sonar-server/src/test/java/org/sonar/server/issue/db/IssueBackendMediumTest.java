@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.issue.db;
 
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.OrFilterBuilder;
@@ -44,16 +44,17 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.SearchClient;
 import org.sonar.server.tester.ServerTester;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -192,8 +193,6 @@ public class IssueBackendMediumTest {
   @Test
   public void issue_authorization_on_group() throws Exception {
     SearchClient searchClient = tester.get(SearchClient.class);
-    createIssuePermissionIndex(searchClient);
-    createIssueProjectIndex(searchClient);
 
     RuleDto rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(dbSession, rule);
@@ -201,18 +200,17 @@ public class IssueBackendMediumTest {
     ComponentDto project1 = addComponent(1L, 1L, "SonarQube :: Server");
     ComponentDto file1 = addComponent(2L, 1L, "IssueAction.java");
     addIssue(rule, project1, file1);
-    addIssueAuthorization(searchClient, project1, null, "user");
+    addIssueAuthorization(searchClient, project1, null, newArrayList("user")).get();
 
     ComponentDto project2 = addComponent(10L, 10L, "SonarQube :: Core");
     ComponentDto file2 = addComponent(11L, 10L, "IssueDao.java");
     addIssue(rule, project2, file2);
-    addIssueAuthorization(searchClient, project2, null, "reviewer");
+    addIssueAuthorization(searchClient, project2, null, newArrayList("reviewer")).get();
 
     ComponentDto project3 = addComponent(20L, 20L, "SonarQube :: WS");
     ComponentDto file3 = addComponent(21L, 20L, "IssueWS.java");
     addIssue(rule, project3, file3);
-    addIssueAuthorization(searchClient, project3, null, "user");
-    addIssueAuthorization(searchClient, project3, null, "reviewer");
+    addIssueAuthorization(searchClient, project3, null, newArrayList("user", "reviewer")).get();
 
     dbSession.commit();
 
@@ -225,8 +223,6 @@ public class IssueBackendMediumTest {
   @Test
   public void issue_authorization_on_user() throws Exception {
     SearchClient searchClient = tester.get(SearchClient.class);
-    createIssuePermissionIndex(searchClient);
-    createIssueProjectIndex(searchClient);
 
     RuleDto rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(dbSession, rule);
@@ -234,7 +230,7 @@ public class IssueBackendMediumTest {
     ComponentDto project = addComponent(1L, 1L, "SonarQube");
     ComponentDto file = addComponent(2L, 1L, "IssueAction.java");
     addIssue(rule, project, file);
-    addIssueAuthorization(searchClient, project, "julien", null);
+    addIssueAuthorization(searchClient, project, newArrayList("julien"), null).get();
 
     dbSession.commit();
 
@@ -242,15 +238,11 @@ public class IssueBackendMediumTest {
     assertThat(searchIssueWithAuthorization(searchClient, "julien", "user").getHits().getTotalHits()).isEqualTo(1);
     // The issue is not visible for user simon
     assertThat(searchIssueWithAuthorization(searchClient, "simon", "user").getHits().getTotalHits()).isEqualTo(0);
-
-//    Thread.sleep(Integer.MAX_VALUE);
   }
 
   @Test
   public void issue_authorization_with_a_lot_of_issues() throws Exception {
     SearchClient searchClient = tester.get(SearchClient.class);
-    createIssuePermissionIndex(searchClient);
-    createIssueProjectIndex(searchClient);
 
     RuleDto rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(dbSession, rule);
@@ -261,17 +253,23 @@ public class IssueBackendMediumTest {
 
     Long projectId = 1L;
     Long componentId = 1L;
-    BulkRequestBuilder bulkRequestBuilder = new BulkRequestBuilder(searchClient);
+
+    List<String> users = newArrayList();
+    for (int u = 0; u < nbUser; u++) {
+      users.add("user-" + u);
+    }
+
+    BulkRequestBuilder bulkRequestBuilder = new BulkRequestBuilder(searchClient).setRefresh(true);
     for (int p = 0; p < nbProject; p++) {
       ComponentDto project = addComponent(projectId, projectId, "Project-" + projectId.toString());
 
-      addIssueAuthorization(searchClient, bulkRequestBuilder, project, null, "anyone");
+      List<String> groups = newArrayList();
+      groups.add("anyone");
       if (p % 2 == 0) {
-        addIssueAuthorization(searchClient, bulkRequestBuilder, project, null, "user");
+        groups.add("user");
       }
-      for (int u = 0; u < nbUser; u++) {
-        addIssueAuthorization(searchClient, bulkRequestBuilder, project, "user-" + u, null);
-      }
+
+      bulkRequestBuilder.add(addIssueAuthorization(searchClient, project, users, groups, false));
       for (int c = 0; c < componentPerProject; c++) {
         ComponentDto file = addComponent(componentId, projectId, "Component-" + componentId.toString());
         addIssue(rule, project, file);
@@ -294,15 +292,15 @@ public class IssueBackendMediumTest {
     // user-1 should see all issues
     assertThat(searchIssueWithAuthorization(searchClient, "user-1", "").getHits().getTotalHits()).isEqualTo(nbProject * componentPerProject);
 
-//    Thread.sleep(Integer.MAX_VALUE);
+    // Thread.sleep(Integer.MAX_VALUE);
   }
 
   private SearchResponse searchIssueWithAuthorization(SearchClient searchClient, String user, String... groups) {
     BoolFilterBuilder fb = FilterBuilders.boolFilter();
 
-    OrFilterBuilder or = FilterBuilders.orFilter(FilterBuilders.termFilter("user", user));
+    OrFilterBuilder or = FilterBuilders.orFilter(FilterBuilders.termFilter("users", user));
     for (String group : groups) {
-      or.add(FilterBuilders.termFilter("group", group));
+      or.add(FilterBuilders.termFilter("groups", group));
     }
     fb.must(FilterBuilders.termFilter("permission", "read"), or).cache(true);
     // fb.must(FilterBuilders.termFilter("permission", "read"), or);
@@ -311,11 +309,9 @@ public class IssueBackendMediumTest {
       .setQuery(
         QueryBuilders.filteredQuery(
           QueryBuilders.matchAllQuery(),
-          FilterBuilders.hasParentFilter(IndexDefinition.ISSUES_PROJECT.getIndexType(),
-            QueryBuilders.hasChildQuery(IndexDefinition.ISSUES_PERMISSION.getIndexType(),
-              QueryBuilders.filteredQuery(
-                QueryBuilders.matchAllQuery(), fb)
-            )
+          FilterBuilders.hasParentFilter(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType(),
+            QueryBuilders.filteredQuery(
+              QueryBuilders.matchAllQuery(), fb)
             )
           )
       )
@@ -346,159 +342,26 @@ public class IssueBackendMediumTest {
     return issue;
   }
 
-  private void addIssueAuthorization(SearchClient searchClient, ComponentDto project, String user, String group) {
-    addIssueAuthorization(searchClient, null, project, user, group);
+  private IndexRequestBuilder addIssueAuthorization(final SearchClient searchClient, ComponentDto project, List<String> users, List<String> groups) {
+    return addIssueAuthorization(searchClient, project, users, groups, true);
   }
 
-  private void addIssueAuthorization(SearchClient searchClient, BulkRequestBuilder bulkRequestBuilder, ComponentDto project, String user, String group) {
+  private IndexRequestBuilder addIssueAuthorization(final SearchClient searchClient, ComponentDto project, List<String> users, List<String> groups, boolean refresh) {
     Map<String, Object> permissionSource = newHashMap();
     permissionSource.put("_parent", project.key());
     permissionSource.put("permission", "read");
     permissionSource.put("project", project.key());
-    if (user != null) {
-      permissionSource.put("user", user);
+    if (users != null) {
+      permissionSource.put("users", users);
     }
-    if (group != null) {
-      permissionSource.put("group", group);
-    }
-
-    IndexRequestBuilder permissionRequestBuilder = searchClient.prepareIndex(IndexDefinition.ISSUES_PERMISSION.getIndexName(), IndexDefinition.ISSUES_PERMISSION.getIndexType())
-      .setSource(permissionSource);
-    if (bulkRequestBuilder != null) {
-      bulkRequestBuilder.add(permissionRequestBuilder);
-    } else {
-      permissionRequestBuilder.setRefresh(true).get();
+    if (groups != null) {
+      permissionSource.put("groups", groups);
     }
 
-    Map<String, Object> projectSource = newHashMap();
-    projectSource.put("key", project.key());
-
-    IndexRequestBuilder projectRequestBuilder = searchClient.prepareIndex(IndexDefinition.ISSUES_PROJECT.getIndexName(), IndexDefinition.ISSUES_PROJECT.getIndexType())
+    return searchClient.prepareIndex(IndexDefinition.ISSUES_AUTHORIZATION.getIndexName(), IndexDefinition.ISSUES_AUTHORIZATION.getIndexType())
       .setId(project.key())
-      .setSource(projectSource);
-    if (bulkRequestBuilder != null) {
-      bulkRequestBuilder.add(projectRequestBuilder);
-    } else {
-      projectRequestBuilder.setRefresh(true).get();
-    }
+      .setSource(permissionSource)
+      .setRefresh(refresh);
   }
 
-  private BaseIndex createIssueProjectIndex(final SearchClient searchClient) {
-    BaseIndex baseIndex = new BaseIndex(
-      IndexDefinition.createFor(IndexDefinition.ISSUES_PROJECT.getIndexName(), IndexDefinition.ISSUES_PROJECT.getIndexType()),
-      null, searchClient) {
-      @Override
-      protected String getKeyValue(Serializable key) {
-        return null;
-      }
-
-      @Override
-      protected org.elasticsearch.common.settings.Settings getIndexSettings() throws IOException {
-        return ImmutableSettings.builder().build();
-      }
-
-      @Override
-      protected Map mapProperties() {
-        Map<String, Object> mapping = new HashMap<String, Object>();
-        mapping.put("project", mapStringField());
-        return mapping;
-      }
-
-      protected Map mapStringField() {
-        Map<String, Object> mapping = new HashMap<String, Object>();
-        mapping.put("type", "string");
-        mapping.put("index", "analyzed");
-        mapping.put("index_analyzer", "keyword");
-        mapping.put("search_analyzer", "whitespace");
-        return mapping;
-      }
-
-      @Override
-      protected Map mapKey() {
-        return Collections.emptyMap();
-      }
-
-      @Override
-      public Object toDoc(Map fields) {
-        return null;
-      }
-    };
-    baseIndex.start();
-    return baseIndex;
-  }
-
-  private BaseIndex createIssuePermissionIndex(final SearchClient searchClient) {
-    BaseIndex baseIndex = new BaseIndex(
-      IndexDefinition.createFor(IndexDefinition.ISSUES_PERMISSION.getIndexName(), IndexDefinition.ISSUES_PERMISSION.getIndexType()),
-      null, searchClient) {
-      @Override
-      protected String getKeyValue(Serializable key) {
-        return null;
-      }
-
-      @Override
-      protected org.elasticsearch.common.settings.Settings getIndexSettings() throws IOException {
-        return ImmutableSettings.builder().build();
-      }
-
-      @Override
-      protected Map mapDomain() {
-        Map<String, Object> mapping = new HashMap<String, Object>();
-        mapping.put("dynamic", false);
-        mapping.put("_parent", mapParent());
-        mapping.put("_routing", mapRouting());
-        mapping.put("properties", mapProperties());
-        return mapping;
-      }
-
-      private Object mapParent() {
-        Map<String, Object> mapping = new HashMap<String, Object>();
-        mapping.put("type", getParentType());
-        return mapping;
-      }
-
-      private String getParentType() {
-        return IndexDefinition.ISSUES_PROJECT.getIndexType();
-      }
-
-      private Map mapRouting() {
-        Map<String, Object> mapping = new HashMap<String, Object>();
-        mapping.put("required", true);
-        mapping.put("path", "project");
-        return mapping;
-      }
-
-      @Override
-      protected Map mapProperties() {
-        Map<String, Object> mapping = new HashMap<String, Object>();
-        mapping.put("permission", mapStringField());
-        mapping.put("project", mapStringField());
-        mapping.put("group", mapStringField());
-        mapping.put("user", mapStringField());
-        return mapping;
-      }
-
-      protected Map mapStringField() {
-        Map<String, Object> mapping = new HashMap<String, Object>();
-        mapping.put("type", "string");
-        mapping.put("index", "analyzed");
-        mapping.put("index_analyzer", "keyword");
-        mapping.put("search_analyzer", "whitespace");
-        return mapping;
-      }
-
-      @Override
-      protected Map mapKey() {
-        Map<String, Object> mapping = new HashMap<String, Object>();
-        return mapping;
-      }
-
-      @Override
-      public Object toDoc(Map fields) {
-        return null;
-      }
-    };
-    baseIndex.start();
-    return baseIndex;
-  }
 }

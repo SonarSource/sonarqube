@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mappei.dtd">
+
+<mapper namespace="org.sonar.core.issue.db.IssueAuthorizationMapper">
+
+  <select id="selectByKey" parameterType="String" resultType="IssueAuthorization">
+    select *
+    from issues i
+    inner join rules r on r.id=i.rule_id
+    inner join projects p on p.id=i.component_id
+    inner join projects root on root.id=i.root_component_id
+    where i.kee=#{kee}
+  </select>
+
+</mapper>
+
