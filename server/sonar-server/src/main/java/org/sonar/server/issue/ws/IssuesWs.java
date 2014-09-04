@@ -43,12 +43,16 @@ public class IssuesWs implements WebService {
   public static final String BULK_CHANGE_ACTION = "bulk_change";
 
   private final IssueShowAction showAction;
-  private final IssueSearchAction previousSearchAction;
-  private final SearchAction searchAction;
+  private final IssueSearchAction searchAction;
+  private final SearchAction esSearchAction;
 
-  public IssuesWs(IssueShowAction showAction, SearchAction searchAction, IssueSearchAction previousSearchAction) {
+  public IssuesWs(IssueShowAction showAction, IssueSearchAction searchAction) {
+    this(showAction, null, searchAction);
+  }
+
+  public IssuesWs(IssueShowAction showAction, SearchAction esSearchAction, IssueSearchAction searchAction) {
     this.showAction = showAction;
-    this.previousSearchAction = previousSearchAction;
+    this.esSearchAction = esSearchAction;
     this.searchAction = searchAction;
   }
 
@@ -60,7 +64,10 @@ public class IssuesWs implements WebService {
 
     showAction.define(controller);
 
-    previousSearchAction.define(controller);
+    // TODO remove after transition
+    if (esSearchAction != null) {
+      esSearchAction.define(controller);
+    }
     searchAction.define(controller);
 
     defineChangelogAction(controller);

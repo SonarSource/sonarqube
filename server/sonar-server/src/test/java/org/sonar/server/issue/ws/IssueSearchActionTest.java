@@ -104,7 +104,6 @@ public class IssueSearchActionTest {
     when(i18n.formatInteger(any(Locale.class), eq(2))).thenReturn("2");
 
     tester = new WsTester(new IssuesWs(mock(IssueShowAction.class),
-      mock(SearchAction.class),
       new IssueSearchAction(issueFinder, new IssueActionsWriter(issueService, actionService), i18n, durations)));
   }
 
@@ -190,7 +189,7 @@ public class IssueSearchActionTest {
         .setDeadLine(deadLine)
         .setCreatedAt(createdAt)
         .setUpdatedAt(updatedAt)
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
     request.execute().assertJson(getClass(), "issues_with_action_plans.json");
@@ -219,7 +218,7 @@ public class IssueSearchActionTest {
     result.addUsers(Lists.<User>newArrayList(
       new DefaultUser().setName("John Smith").setLogin("john"),
       new DefaultUser().setName("Arthur McEnroy").setLogin("arthur")
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
     request.execute().assertJson(getClass(), "issues_with_comments.json");
@@ -251,7 +250,7 @@ public class IssueSearchActionTest {
     result.addUsers(Lists.<User>newArrayList(
       new DefaultUser().setName("John").setLogin("john"),
       new DefaultUser().setName("Henry").setLogin("henry")
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "search").setParam("extra_fields", "actions,transitions,assigneeName,reporterName,actionPlanName");
     request.execute().assertJson(getClass(), "issues_with_extra_fields.json");
@@ -334,7 +333,7 @@ public class IssueSearchActionTest {
 
     result.addRules(newArrayList(
       Rule.create("squid", "AvoidCycle").setName("Avoid cycle").setDescription("Avoid cycle description")
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
     request.execute().assertJson(getClass(), "issues_with_rules.json");
@@ -350,7 +349,7 @@ public class IssueSearchActionTest {
 
     result.addUsers(Lists.<User>newArrayList(
       new DefaultUser().setName("John").setLogin("john").setActive(true).setEmail("john@email.com")
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
     request.execute().assertJson(getClass(), "issues_with_users.json");

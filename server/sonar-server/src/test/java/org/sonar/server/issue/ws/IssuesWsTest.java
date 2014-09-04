@@ -52,7 +52,7 @@ public class IssuesWsTest {
 
     showAction = new IssueShowAction(issueFinder, issueChangelogService, actionsWriter, debtModelService, i18n, durations);
     searchAction = new IssueSearchAction(issueFinder, actionsWriter, i18n, durations);
-    tester = new WsTester(new IssuesWs(showAction, mock(SearchAction.class), searchAction));
+    tester = new WsTester(new IssuesWs(showAction, searchAction));
   }
 
   @Test
