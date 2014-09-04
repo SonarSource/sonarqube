@@ -52,7 +52,9 @@ import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.AuthorizationDao;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.actionplan.ActionPlanService;
+import org.sonar.server.search.IndexClient;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
@@ -67,6 +69,9 @@ import java.util.List;
  */
 public class IssueService implements ServerComponent {
 
+  private final DbClient dbClient;
+  private final IndexClient indexClient;
+
   private final DefaultIssueFinder finder;
   private final IssueWorkflow workflow;
   private final IssueUpdater issueUpdater;
@@ -80,19 +85,38 @@ public class IssueService implements ServerComponent {
   private final UserFinder userFinder;
   private final PreviewCache dryRunCache;
 
-
+  @Deprecated
   public IssueService(DefaultIssueFinder finder,
-                      IssueWorkflow workflow,
-                      IssueStorage issueStorage,
-                      IssueUpdater issueUpdater,
-                      IssueNotifications issueNotifications,
-                      ActionPlanService actionPlanService,
-                      RuleFinder ruleFinder,
-                      ResourceDao resourceDao,
-                      IssueDao issueDao,
-                      AuthorizationDao authorizationDao,
-                      UserFinder userFinder,
-                      PreviewCache dryRunCache) {
+    IssueWorkflow workflow,
+    IssueStorage issueStorage,
+    IssueUpdater issueUpdater,
+    IssueNotifications issueNotifications,
+    ActionPlanService actionPlanService,
+    RuleFinder ruleFinder,
+    ResourceDao resourceDao,
+    IssueDao issueDao,
+    AuthorizationDao authorizationDao,
+    UserFinder userFinder,
+    PreviewCache dryRunCache) {
+    this(null, null, finder, workflow, issueStorage, issueUpdater, issueNotifications, actionPlanService,
+      ruleFinder, resourceDao, issueDao, authorizationDao, userFinder, dryRunCache);
+  }
+
+  public IssueService(DbClient dbClient, IndexClient indexClient,
+    DefaultIssueFinder finder,
+    IssueWorkflow workflow,
+    IssueStorage issueStorage,
+    IssueUpdater issueUpdater,
+    IssueNotifications issueNotifications,
+    ActionPlanService actionPlanService,
+    RuleFinder ruleFinder,
+    ResourceDao resourceDao,
+    IssueDao issueDao,
+    AuthorizationDao authorizationDao,
+    UserFinder userFinder,
+    PreviewCache dryRunCache) {
+    this.dbClient = dbClient;
+    this.indexClient = indexClient;
     this.finder = finder;
     this.workflow = workflow;
     this.issueStorage = issueStorage;
@@ -219,7 +243,7 @@ public class IssueService implements ServerComponent {
   }
 
   public DefaultIssue createManualIssue(String componentKey, RuleKey ruleKey, @Nullable Integer line, @Nullable String message, @Nullable String severity,
-                                        @Nullable Double effortToFix, UserSession userSession) {
+    @Nullable Double effortToFix, UserSession userSession) {
     verifyLoggedIn(userSession);
     ResourceDto component = resourceDao.getResource(ResourceQuery.create().setKey(componentKey));
     ResourceDto project = resourceDao.getRootProjectByComponentKey(componentKey);
