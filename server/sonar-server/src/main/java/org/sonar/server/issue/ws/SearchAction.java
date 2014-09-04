@@ -22,7 +22,6 @@ package org.sonar.server.issue.ws;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
 import org.sonar.api.component.Component;
@@ -50,7 +49,6 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
-import org.sonar.server.issue.index.IssueMapping;
 import org.sonar.server.issue.index.IssueResult;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.ws.SearchOptions;
@@ -80,14 +78,12 @@ public class SearchAction implements RequestHandler {
   public static final String PARAM_FACETS = "facets";
 
   private final IssueService service;
-  private final IssueMapping mapping;
   private final IssueActionsWriter actionsWriter;
   private final I18n i18n;
   private final Durations durations;
 
-  public SearchAction(IssueService service, IssueMapping mapping, IssueActionsWriter actionsWriter, I18n i18n, Durations durations) {
+  public SearchAction(IssueService service, IssueActionsWriter actionsWriter, I18n i18n, Durations durations) {
     this.service = service;
-    this.mapping = mapping;
     this.actionsWriter = actionsWriter;
     this.i18n = i18n;
     this.durations = durations;
@@ -103,8 +99,6 @@ public class SearchAction implements RequestHandler {
 
     // Add globalized search options. Will also support legacy params
     // Generic search parameters
-    SearchOptions.defineFieldsParam(action,
-      ImmutableList.<String>builder().addAll(mapping.supportedFields()).build());
     SearchOptions.definePageParams(action);
 
     // Issue-specific search parameters
@@ -206,7 +200,7 @@ public class SearchAction implements RequestHandler {
     IssueQuery query = createQuery(request);
     SearchOptions searchOptions = SearchOptions.create(request);
     QueryOptions queryOptions = new QueryOptions();
-    mapping.newQueryOptions(searchOptions);
+    queryOptions.setPage(searchOptions.page(), searchOptions.pageSize());
     queryOptions.setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
 
     IssueResult results = service.search(query, queryOptions);
