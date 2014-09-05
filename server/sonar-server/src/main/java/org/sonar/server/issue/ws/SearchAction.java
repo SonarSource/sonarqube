@@ -211,11 +211,16 @@ public class SearchAction implements RequestHandler {
 
     writePaging(results, json);
     writeIssues(results, request.paramAsStrings(EXTRA_FIELDS_PARAM), json);
+
+    // TODO normalize component name for snippet -- Mighty change over time (file move)
     writeComponents(results, json);
+    // TODO normalize project Name for snippet -- Carefull might change over time (Project Rename)
     writeProjects(results, json);
-    writeRules(results, json);
-    writeUsers(results, json);
-    writeActionPlans(results, json);
+
+    // TODO Not certain that this is required (Legacy)
+    // writeRules(results, json);
+    // writeUsers(results, json);
+    // writeActionPlans(results, json);
 
     json.endObject().close();
   }

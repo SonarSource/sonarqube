@@ -30,6 +30,7 @@ import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.search.BaseIndex;
@@ -176,6 +177,20 @@ public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
     } else {
       esSearch.setQuery(esQuery);
     }
+
+    // Execute Term aggregations
+    esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.SEVERITY.field())
+      .field(IssueNormalizer.IssueField.SEVERITY.field()));
+    esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.STATUS.field())
+      .field(IssueNormalizer.IssueField.STATUS.field()));
+    esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.RESOLUTION.field())
+      .field(IssueNormalizer.IssueField.RESOLUTION.field()));
+    esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.ACTION_PLAN.field())
+      .field(IssueNormalizer.IssueField.ACTION_PLAN.field()));
+
+    // Execute Function aggregation
+    esSearch.addAggregation(AggregationBuilders.sum("totalDuration")
+      .field(IssueNormalizer.IssueField.DEBT.field()));
 
     return getClient().execute(esSearch);
   }

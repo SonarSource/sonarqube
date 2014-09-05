@@ -27,13 +27,21 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class Result<K> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(Result.class);
 
   private final List<K> hits;
   private final Multimap<String, FacetValue> facets;
@@ -60,9 +68,13 @@ public class Result<K> {
     }
     if (response.getAggregations() != null) {
       for (Map.Entry<String, Aggregation> facet : response.getAggregations().asMap().entrySet()) {
-        Terms aggregation = (Terms) facet.getValue();
-        for (Terms.Bucket value : aggregation.getBuckets()) {
-          this.facets.put(facet.getKey(), new FacetValue(value.getKey(), (int) value.getDocCount()));
+        if (Terms.class.isAssignableFrom(facet.getValue().getClass())) {
+          Terms aggregation = (Terms) facet.getValue();
+          for (Terms.Bucket value : aggregation.getBuckets()) {
+            this.facets.put(facet.getKey(), new FacetValue(value.getKey(), (int) value.getDocCount()));
+          }
+        } else {
+          LOGGER.warn("Cannot process {} type of aggregation", facet.getValue().getClass());
         }
       }
     }

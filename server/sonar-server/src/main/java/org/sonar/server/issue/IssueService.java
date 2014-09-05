@@ -346,7 +346,6 @@ public class IssueService implements ServerComponent {
       (options.getOffset() * options.getLimit()) + 1,
       new Long(esResults.getHits().getTotalHits()).intValue()));
 
-    // TODO Implement the logic of search here!!!
     return results;
   }
 }
