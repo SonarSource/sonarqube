@@ -20,9 +20,15 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.issue.db.IssueDto;
@@ -33,6 +39,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.SearchClient;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -107,10 +114,75 @@ public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
 
   public SearchResponse search(IssueQuery query, QueryOptions options) {
 
-    // TODO implement filters and search
+    SearchRequestBuilder esSearch = getClient()
+      .prepareSearch(this.getIndexName())
+      .setTypes(this.getIndexType())
+      .setIndices(this.getIndexName());
 
-    return getClient().execute(
-      getClient().prepareSearch(getIndexName())
-        .setQuery(QueryBuilders.matchAllQuery()));
+    if (options.isScroll()) {
+      esSearch.setSearchType(SearchType.SCAN);
+      esSearch.setScroll(TimeValue.timeValueMinutes(3));
+    }
+
+    BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
+
+    // Issue is assigned Filter
+    if (query.assigned() != null && query.assigned()) {
+      esFilter.must(FilterBuilders.existsFilter(IssueNormalizer.IssueField.ASSIGNEE.field()));
+    }
+
+    // Issue is planned Filter
+    if (query.planned() != null && query.planned()) {
+      esFilter.must(FilterBuilders.existsFilter(IssueNormalizer.IssueField.ACTION_PLAN.field()));
+    }
+
+    // Issue is Resolved Filter
+    if (query.resolved() != null && query.resolved()) {
+      esFilter.must(FilterBuilders.existsFilter(IssueNormalizer.IssueField.RESOLUTION.field()));
+    }
+
+    // Field Filters
+    matchFilter(esFilter, IssueNormalizer.IssueField.ACTION_PLAN, query.actionPlans());
+    matchFilter(esFilter, IssueNormalizer.IssueField.ASSIGNEE, query.assignees());
+    matchFilter(esFilter, IssueNormalizer.IssueField.PROJECT, query.componentRoots());
+    matchFilter(esFilter, IssueNormalizer.IssueField.COMPONENT, query.components());
+    matchFilter(esFilter, IssueNormalizer.IssueField.KEY, query.issueKeys());
+    // TODO need to either materialize the language or join with rule
+    // query.languages(esFilter, IssueNormalizer.IssueField.L, query.issueKeys());
+    matchFilter(esFilter, IssueNormalizer.IssueField.RESOLUTION, query.resolutions());
+    matchFilter(esFilter, IssueNormalizer.IssueField.REPORTER, query.reporters());
+    matchFilter(esFilter, IssueNormalizer.IssueField.RULE, query.rules());
+    matchFilter(esFilter, IssueNormalizer.IssueField.SEVERITY, query.severities());
+    matchFilter(esFilter, IssueNormalizer.IssueField.STATUS, query.statuses());
+
+    // Date filters
+    if (query.createdAfter() != null) {
+      esFilter.must(FilterBuilders
+        .rangeFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field())
+        .gte(query.createdAfter()));
+    }
+    if (query.createdBefore() != null) {
+      esFilter.must(FilterBuilders
+        .rangeFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field())
+        .lte(query.createdBefore()));
+    }
+    // TODO match day bracket for day on createdAt
+    // query.createdAt();
+
+    QueryBuilder esQuery = QueryBuilders.matchAllQuery();
+
+    if (esFilter.hasClauses()) {
+      esSearch.setQuery(QueryBuilders.filteredQuery(esQuery, esFilter));
+    } else {
+      esSearch.setQuery(esQuery);
+    }
+
+    return getClient().execute(esSearch);
+  }
+
+  private void matchFilter(BoolFilterBuilder filter, IndexField field, Collection<?> values) {
+    if (values != null && !values.isEmpty()) {
+      filter.must(FilterBuilders.termsFilter(field.field(), values));
+    }
   }
 }
