@@ -340,12 +340,26 @@ public class IssueService implements ServerComponent {
     SearchResponse esResults = issueIndex.search(query, options);
 
     // Extend the content of the resultSet to make an actual IssueResponse
-    IssueResult results = new IssueResult(issueIndex, esResults);
-    results.setPaging(Paging.create(
+    IssueResult result = new IssueResult(issueIndex, esResults);
+    result.setPaging(Paging.create(
       options.getLimit(),
       (options.getOffset() * options.getLimit()) + 1,
       new Long(esResults.getHits().getTotalHits()).intValue()));
 
-    return results;
+    // TODO Optimise
+    // Insert the projects and component name;
+    DbSession session = dbClient.openSession(false);
+    try {
+      for (Issue issue : result.getHits()) {
+        result.addProject(issue.key(),
+          dbClient.componentDao().getByKey(session, issue.projectKey()));
+        result.addComponent(issue.key(),
+          dbClient.componentDao().getByKey(session, issue.componentKey()));
+      }
+    } finally {
+      session.close();
+    }
+
+    return result;
   }
 }

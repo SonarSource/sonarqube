@@ -29,6 +29,7 @@ import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.Paging;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.Result;
 
@@ -133,5 +134,13 @@ public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
   @Override
   public boolean maxResultsReached() {
     return false;
+  }
+
+  public void addProject(String key, ComponentDto project) {
+    this.projects.put(key, project);
+  }
+
+  public void addComponent(String key, ComponentDto project) {
+    this.components.put(key, project);
   }
 }
