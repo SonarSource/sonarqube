@@ -22,9 +22,9 @@ package org.sonar.server.issue.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -37,9 +37,6 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Date;
-import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -61,7 +58,6 @@ public class IssuesWsMediumTest {
     wsTester = tester.get(WsTester.class);
     session = db.openSession(false);
     MockUserSession.set().setLogin("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
   }
 
   @After
@@ -108,7 +104,6 @@ public class IssuesWsMediumTest {
   }
 
   @Test
-  @Ignore("Work in progress")
   public void find_single_result() throws Exception {
 
     RuleDto rule = RuleTesting.newXooX1();
@@ -127,13 +122,14 @@ public class IssuesWsMediumTest {
     tester.get(ComponentDao.class).insert(session, resource);
 
     IssueDto issue = new IssueDto()
-      .setIssueCreationDate(new Date())
-      .setIssueUpdateDate(new Date())
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
       .setRule(rule)
+      .setDebt(10L)
       .setRootComponent(project)
       .setComponent(resource)
       .setStatus("OPEN").setResolution("OPEN")
-      .setKee(UUID.randomUUID().toString())
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
 
@@ -144,8 +140,7 @@ public class IssuesWsMediumTest {
     WsTester.Result result = request.execute();
 
     assertThat(result).isNotNull();
-    System.out.println("result.outputAsString() = " + result.outputAsString());
-    result.assertJson(this.getClass(), "empty_result.json", false);
+    // TODO Date assertion is complex du to System2
+    result.assertJson(this.getClass(), "single_result.json", false);
   }
-
 }

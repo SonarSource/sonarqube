@@ -43,6 +43,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField CREATED_AT = add(IndexField.Type.DATE, "createdAt");
     public static final IndexField UPDATED_AT = add(IndexField.Type.DATE, "updatedAt");
 
+    public static final IndexField DEBT = add(IndexField.Type.NUMERIC, "debt");
     public static final IndexField ACTION_PLAN = add(IndexField.Type.STRING, "actionPlan");
     public static final IndexField ASSIGNEE = add(IndexField.Type.STRING, "assignee");
     public static final IndexField AUTHOR_LOGIN = add(IndexField.Type.STRING, "authorLogin");
@@ -112,6 +113,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     update.put(IssueField.REPORTER.field(), dto.getReporter());
     update.put(IssueField.STATUS.field(), dto.getStatus());
     update.put(IssueField.SEVERITY.field(), dto.getSeverity());
+    update.put(IssueField.DEBT.field(), dto.getDebt());
 
     // issueDoc.ruleKey();
     update.put(IssueField.RULE.field(), dto.getRule());

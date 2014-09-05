@@ -22,11 +22,12 @@ package org.sonar.server.issue.index;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Duration;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
-
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -121,12 +122,14 @@ public class IssueDoc extends BaseDoc implements Issue {
   @Override
   @CheckForNull
   public String attribute(String key) {
+    // TODO get the actual value
     return null;
   }
 
   @Override
   public Map<String, String> attributes() {
-    return null;
+    // TODO get the actual value
+    return Collections.emptyMap();
   }
 
   @Override
@@ -143,11 +146,25 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public List<IssueComment> comments() {
-    return null;
+    // TODO get the actual value
+    return Collections.emptyList();
   }
 
   @Override
   public boolean isNew() {
-    return false;
+    throw new IllegalStateException("Only available for batch");
+  }
+
+  @Override
+  @CheckForNull
+  public Duration debt() {
+    // TODO check long cast ?!?!?!?
+    Long debt = new Long((Integer) getNullableField(IssueNormalizer.IssueField.DEBT.field()));
+    return (debt != null) ? Duration.create(debt) : null;
+  }
+
+  @Override
+  public String projectKey() {
+    return getField(IssueNormalizer.IssueField.PROJECT.field());
   }
 }

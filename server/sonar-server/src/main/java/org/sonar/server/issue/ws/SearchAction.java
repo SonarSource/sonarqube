@@ -31,7 +31,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
-import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
@@ -227,6 +226,7 @@ public class SearchAction implements RequestHandler {
       .prop("pageIndex", result.paging().pageIndex())
       .prop("pageSize", result.paging().pageSize())
       .prop("total", result.paging().total())
+      // TODO Remove as part of Front-end rework on Issue Domain
       .prop("fTotal", i18n.formatInteger(UserSession.get().locale(), result.paging().total()))
       .prop("pages", result.paging().pages())
       .endObject();
@@ -235,10 +235,9 @@ public class SearchAction implements RequestHandler {
   private void writeIssues(IssueQueryResult result, @Nullable List<String> extraFields, JsonWriter json) {
     json.name("issues").beginArray();
 
-    for (Issue i : result.issues()) {
+    for (Issue issue : result.issues()) {
       json.beginObject();
 
-      DefaultIssue issue = (DefaultIssue) i;
       String actionPlanKey = issue.actionPlanKey();
       Duration debt = issue.debt();
       Date updateDate = issue.updateDate();
@@ -246,7 +245,6 @@ public class SearchAction implements RequestHandler {
       json
         .prop("key", issue.key())
         .prop("component", issue.componentKey())
-        .prop("componentId", issue.componentId())
         .prop("project", issue.projectKey())
         .prop("rule", issue.ruleKey().toString())
         .prop("status", issue.status())
@@ -261,6 +259,7 @@ public class SearchAction implements RequestHandler {
         .prop("actionPlan", actionPlanKey)
         .prop("creationDate", isoDate(issue.creationDate()))
         .prop("updateDate", isoDate(updateDate))
+        // TODO Remove as part of Front-end rework on Issue Domain
         .prop("fUpdateAge", formatAgeDate(updateDate))
         .prop("closeDate", isoDate(issue.closeDate()));
 

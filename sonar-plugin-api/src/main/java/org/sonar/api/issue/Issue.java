@@ -21,6 +21,7 @@ package org.sonar.api.issue;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Duration;
 
 import javax.annotation.CheckForNull;
 
@@ -171,4 +172,15 @@ public interface Issue extends Serializable {
    * @since 4.0
    */
   boolean isNew();
+
+  /**
+   * @since 5.0
+   */
+  @CheckForNull
+  Duration debt();
+
+  /**
+   * @since 5.0
+   */
+  String projectKey();
 }

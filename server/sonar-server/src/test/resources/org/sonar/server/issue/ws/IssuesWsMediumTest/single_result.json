@@ -1,0 +1,19 @@
+{"maxResultsReached": false, "paging": {
+  "pageIndex": 1,
+  "pageSize": 10,
+  "total": 1,
+  "fTotal": "1",
+  "pages": 1
+}, "issues": [
+  {
+    "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+    "component": "MyComponent",
+    "project": "MyProject",
+    "rule": "xoo:x1",
+    "status": "OPEN",
+    "resolution": "OPEN",
+    "severity": "MAJOR",
+    "debt": "10min",
+    "fUpdateAge": "less than a minute"
+  }
+], "components": [], "projects": [], "rules": [], "users": []}
