@@ -107,7 +107,7 @@ public class SensorContextAdapterTest {
 
   @Test
   public void shouldRedirectFileMeasuresToSensorContext() {
-    InputFile file = new DefaultInputFile("src/Foo.php");
+    InputFile file = new DefaultInputFile("foo", "src/Foo.php");
 
     Measure<Integer> measure = adaptor.getMeasure(file, CoreMetrics.NCLOC_KEY);
     assertThat(measure).isNull();
@@ -122,7 +122,7 @@ public class SensorContextAdapterTest {
 
   @Test
   public void shouldAddMeasureToSensorContext() {
-    InputFile file = new DefaultInputFile("src/Foo.php");
+    InputFile file = new DefaultInputFile("foo", "src/Foo.php");
 
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
     when(sensorContext.saveMeasure(eq(file), argumentCaptor.capture())).thenReturn(null);
@@ -140,7 +140,7 @@ public class SensorContextAdapterTest {
 
   @Test
   public void shouldAddIssue() {
-    InputFile file = new DefaultInputFile("src/Foo.php");
+    InputFile file = new DefaultInputFile("foo", "src/Foo.php");
 
     ArgumentCaptor<Issue> argumentCaptor = ArgumentCaptor.forClass(Issue.class);
 

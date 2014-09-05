@@ -36,14 +36,14 @@ public class DefaultIssueTest {
   @Test
   public void build_file_issue() {
     Issue issue = new DefaultIssueBuilder()
-      .onFile(new DefaultInputFile("src/Foo.php"))
+      .onFile(new DefaultInputFile("foo", "src/Foo.php"))
       .ruleKey(RuleKey.of("repo", "rule"))
       .atLine(1)
       .effortToFix(10.0)
       .message("Wrong way!")
       .build();
 
-    assertThat(issue.inputPath()).isEqualTo(new DefaultInputFile("src/Foo.php"));
+    assertThat(issue.inputPath()).isEqualTo(new DefaultInputFile("foo", "src/Foo.php"));
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(issue.line()).isEqualTo(1);
     assertThat(issue.effortToFix()).isEqualTo(10.0);
@@ -72,7 +72,7 @@ public class DefaultIssueTest {
     thrown.expectMessage("onProject already called");
     new DefaultIssueBuilder()
       .onProject()
-      .onFile(new DefaultInputFile("src/Foo.php"))
+      .onFile(new DefaultInputFile("foo", "src/Foo.php"))
       .ruleKey(RuleKey.of("repo", "rule"))
       .atLine(1)
       .effortToFix(10.0)

@@ -85,12 +85,10 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
 
   private DefaultInputFile newInputFile(Project module, String path, String deprecatedKey, boolean isTest) {
     File file = new File(baseDir, path);
-    String effectiveKey = module.getKey() + ":" + path;
     String deprecatedEffectiveKey = module.getKey() + ":" + deprecatedKey;
-    return new DeprecatedDefaultInputFile(path)
+    return new DeprecatedDefaultInputFile(module.getKey(), path)
       .setDeprecatedKey(deprecatedEffectiveKey)
       .setFile(file)
-      .setKey(effectiveKey)
       .setType(isTest ? InputFile.Type.TEST : InputFile.Type.MAIN);
   }
 

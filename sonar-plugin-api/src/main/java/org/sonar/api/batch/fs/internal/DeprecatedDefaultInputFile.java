@@ -37,8 +37,8 @@ public class DeprecatedDefaultInputFile extends DefaultInputFile implements org.
   private String sourceDirAbsolutePath;
   private String pathRelativeToSourceDir;
 
-  public DeprecatedDefaultInputFile(String relativePath) {
-    super(relativePath);
+  public DeprecatedDefaultInputFile(String moduleKey, String relativePath) {
+    super(moduleKey, relativePath);
   }
 
   /**

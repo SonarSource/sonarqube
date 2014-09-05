@@ -30,7 +30,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.xoo.Xoo;
 
 import java.io.File;
@@ -86,7 +85,6 @@ public class SyntaxHighlightingSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("Xoo Highlighting Sensor")
-      .provides(CoreMetrics.LINES)
       .workOnLanguages(Xoo.KEY)
       .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);
   }

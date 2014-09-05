@@ -36,11 +36,10 @@ public class DeprecatedDefaultInputFileTest {
 
   @Test
   public void test() throws Exception {
-    DeprecatedDefaultInputFile inputFile = (DeprecatedDefaultInputFile) new DeprecatedDefaultInputFile("src/Foo.php")
+    DeprecatedDefaultInputFile inputFile = (DeprecatedDefaultInputFile) new DeprecatedDefaultInputFile("ABCDE", "src/Foo.php")
       .setPathRelativeToSourceDir("Foo.php")
       .setDeprecatedKey("deprecated")
       .setFile(temp.newFile("Foo.php"))
-      .setKey("ABCDE")
       .setHash("1234")
       .setLines(42)
       .setLanguage("php")
@@ -62,9 +61,9 @@ public class DeprecatedDefaultInputFileTest {
 
   @Test
   public void test_equals_and_hashcode() throws Exception {
-    DefaultInputFile f1 = new DefaultInputFile("src/Foo.php");
-    DefaultInputFile f1a = new DefaultInputFile("src/Foo.php");
-    DefaultInputFile f2 = new DefaultInputFile("src/Bar.php");
+    DefaultInputFile f1 = new DefaultInputFile("ABCDE", "src/Foo.php");
+    DefaultInputFile f1a = new DefaultInputFile("ABCDE", "src/Foo.php");
+    DefaultInputFile f2 = new DefaultInputFile("ABCDE", "src/Bar.php");
 
     assertThat(f1).isEqualTo(f1);
     assertThat(f1).isEqualTo(f1a);
@@ -78,7 +77,7 @@ public class DeprecatedDefaultInputFileTest {
 
   @Test
   public void test_toString() throws Exception {
-    DefaultInputFile file = new DefaultInputFile("src/Foo.php").setAbsolutePath("/path/to/src/Foo.php");
-    assertThat(file.toString()).isEqualTo("[relative=src/Foo.php, abs=/path/to/src/Foo.php]");
+    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php").setAbsolutePath("/path/to/src/Foo.php");
+    assertThat(file.toString()).isEqualTo("[moduleKey=ABCDE, relative=src/Foo.php, abs=/path/to/src/Foo.php]");
   }
 }

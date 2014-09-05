@@ -82,7 +82,7 @@ class InputFileBuilder {
       LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", file.getAbsolutePath(), fs.baseDir());
       return null;
     }
-    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile(relativePath);
+    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile(moduleKey, relativePath);
     inputFile.setBasedir(fs.baseDir());
     inputFile.setFile(file);
     return inputFile;
@@ -94,7 +94,6 @@ class InputFileBuilder {
   @CheckForNull
   DeprecatedDefaultInputFile complete(DeprecatedDefaultInputFile inputFile, InputFile.Type type) {
     inputFile.setType(type);
-    inputFile.setKey(new StringBuilder().append(moduleKey).append(":").append(inputFile.relativePath()).toString());
     inputFile.setBasedir(fs.baseDir());
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(inputFile.file(), fs.encoding());
     inputFile.setLines(metadata.lines);

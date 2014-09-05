@@ -21,6 +21,10 @@ package org.sonar.api.test;
 
 import javax.annotation.Nullable;
 
+/**
+ * @deprecated since 5.0 see {@link org.sonar.api.batch.sensor.test.TestCase}
+ */
+@Deprecated
 public interface TestCase {
   enum Status {
     OK, FAILURE, ERROR, SKIPPED;

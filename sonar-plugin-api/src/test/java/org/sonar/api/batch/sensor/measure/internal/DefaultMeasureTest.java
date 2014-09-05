@@ -37,11 +37,11 @@ public class DefaultMeasureTest {
   public void build_file_measure() {
     Measure<Integer> issue = new DefaultMeasureBuilder<Integer>()
       .forMetric(CoreMetrics.LINES)
-      .onFile(new DefaultInputFile("src/Foo.php"))
+      .onFile(new DefaultInputFile("foo", "src/Foo.php"))
       .withValue(3)
       .build();
 
-    assertThat(issue.inputFile()).isEqualTo(new DefaultInputFile("src/Foo.php"));
+    assertThat(issue.inputFile()).isEqualTo(new DefaultInputFile("foo", "src/Foo.php"));
     assertThat(issue.metric()).isEqualTo(CoreMetrics.LINES);
     assertThat(issue.value()).isEqualTo(3);
   }
@@ -65,7 +65,7 @@ public class DefaultMeasureTest {
     thrown.expectMessage("onProject already called");
     new DefaultMeasureBuilder<Integer>()
       .onProject()
-      .onFile(new DefaultInputFile("src/Foo.php"))
+      .onFile(new DefaultInputFile("foo", "src/Foo.php"))
       .withValue(3)
       .build();
   }

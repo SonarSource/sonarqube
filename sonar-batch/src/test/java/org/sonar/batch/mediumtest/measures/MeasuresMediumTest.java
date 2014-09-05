@@ -97,7 +97,7 @@ public class MeasuresMediumTest {
 
     assertThat(result.measures()).contains(new DefaultMeasureBuilder<Integer>()
       .forMetric(CoreMetrics.LINES)
-      .onFile(new DefaultInputFile("src/sample.xoo"))
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
       .withValue(20)
       .build());
 
@@ -140,13 +140,13 @@ public class MeasuresMediumTest {
 
     assertThat(result.measures()).contains(new DefaultMeasureBuilder<Integer>()
       .forMetric(CoreMetrics.LINES)
-      .onFile(new DefaultInputFile("src/sample.xoo"))
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
       .withValue(5)
       .build());
 
     assertThat(result.measures()).contains(new DefaultMeasureBuilder<String>()
       .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
-      .onFile(new DefaultInputFile("src/sample.xoo"))
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
       .withValue("1=julien;2=julien;3=julien;4=julien;5=simon")
       .build());
   }

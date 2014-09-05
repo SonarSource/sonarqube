@@ -34,6 +34,7 @@ class DefaultInputFileValueCoder implements ValueCoder {
   @Override
   public void put(Value value, Object object, CoderContext context) {
     DeprecatedDefaultInputFile f = (DeprecatedDefaultInputFile) object;
+    putUTFOrNull(value, f.moduleKey());
     putUTFOrNull(value, f.relativePath());
     value.putString(f.getFileBaseDir().toString());
     putUTFOrNull(value, f.deprecatedKey());
@@ -45,7 +46,6 @@ class DefaultInputFileValueCoder implements ValueCoder {
     value.putString(f.status().name());
     putUTFOrNull(value, f.hash());
     value.put(f.lines());
-    putUTFOrNull(value, f.key());
   }
 
   private void putUTFOrNull(Value value, @Nullable String utfOrNull) {
@@ -58,7 +58,8 @@ class DefaultInputFileValueCoder implements ValueCoder {
 
   @Override
   public Object get(Value value, Class clazz, CoderContext context) {
-    DeprecatedDefaultInputFile file = new DeprecatedDefaultInputFile(value.getString());
+    String moduleKey = value.getString();
+    DeprecatedDefaultInputFile file = new DeprecatedDefaultInputFile(moduleKey, value.getString());
     file.setBasedir(new File(value.getString()));
     file.setDeprecatedKey(value.getString());
     file.setSourceDirAbsolutePath(value.getString());
@@ -69,7 +70,6 @@ class DefaultInputFileValueCoder implements ValueCoder {
     file.setStatus(InputFile.Status.valueOf(value.getString()));
     file.setHash(value.getString());
     file.setLines(value.getInt());
-    file.setKey(value.getString());
     return file;
   }
 

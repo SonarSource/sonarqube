@@ -31,15 +31,16 @@ import java.io.Serializable;
 public class DefaultInputFile implements InputFile, Serializable {
 
   private final String relativePath;
+  private final String moduleKey;
   private String absolutePath;
   private String language;
   private Type type = Type.MAIN;
   private Status status;
   private String hash;
   private int lines;
-  private String key;
 
-  public DefaultInputFile(String relativePath) {
+  public DefaultInputFile(String moduleKey, String relativePath) {
+    this.moduleKey = moduleKey;
     this.relativePath = PathUtils.sanitize(relativePath);
   }
 
@@ -95,7 +96,11 @@ public class DefaultInputFile implements InputFile, Serializable {
    * Component key.
    */
   public String key() {
-    return key;
+    return new StringBuilder().append(moduleKey).append(":").append(relativePath).toString();
+  }
+
+  public String moduleKey() {
+    return moduleKey;
   }
 
   public DefaultInputFile setAbsolutePath(String s) {
@@ -133,11 +138,6 @@ public class DefaultInputFile implements InputFile, Serializable {
     return this;
   }
 
-  public DefaultInputFile setKey(String s) {
-    this.key = s;
-    return this;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -148,16 +148,16 @@ public class DefaultInputFile implements InputFile, Serializable {
     }
 
     DefaultInputFile that = (DefaultInputFile) o;
-    return relativePath.equals(that.relativePath);
+    return moduleKey.equals(that.moduleKey) && relativePath.equals(that.relativePath);
   }
 
   @Override
   public int hashCode() {
-    return relativePath.hashCode();
+    return moduleKey.hashCode() + relativePath.hashCode() * 13;
   }
 
   @Override
   public String toString() {
-    return "[relative=" + relativePath + ", abs=" + absolutePath + "]";
+    return "[moduleKey=" + moduleKey + ", relative=" + relativePath + ", abs=" + absolutePath + "]";
   }
 }

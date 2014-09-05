@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.rule;
 
+import org.sonar.api.BatchComponent;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
@@ -28,7 +29,7 @@ import java.util.Collection;
 /**
  * @since 4.2
  */
-public interface Rules {
+public interface Rules extends BatchComponent {
 
   @CheckForNull
   Rule find(RuleKey key);

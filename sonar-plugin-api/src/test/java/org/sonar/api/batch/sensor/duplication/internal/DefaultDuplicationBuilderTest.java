@@ -32,13 +32,13 @@ public class DefaultDuplicationBuilderTest {
 
   @Test
   public void test() {
-    DefaultDuplicationBuilder builder = new DefaultDuplicationBuilder(new DefaultInputFile("foo.php").setKey("foo:foo.php"));
+    DefaultDuplicationBuilder builder = new DefaultDuplicationBuilder(new DefaultInputFile("foo", "foo.php"));
 
     List<DuplicationGroup> duplicationGroup = builder.originBlock(1, 11)
-      .isDuplicatedBy(new DefaultInputFile("foo.php"), 40, 50)
-      .isDuplicatedBy(new DefaultInputFile("foo2.php"), 1, 10)
+      .isDuplicatedBy(new DefaultInputFile("foo", "foo.php"), 40, 50)
+      .isDuplicatedBy(new DefaultInputFile("foo", "foo2.php"), 1, 10)
       .originBlock(20, 30)
-      .isDuplicatedBy(new DefaultInputFile("foo3.php"), 30, 40)
+      .isDuplicatedBy(new DefaultInputFile("foo", "foo3.php"), 30, 40)
       .build();
 
     assertThat(duplicationGroup).hasSize(2);

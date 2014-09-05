@@ -63,11 +63,10 @@ public class JavaCpdEngineTest {
   @Before
   public void before() throws IOException {
     when(context.measureBuilder()).thenReturn(new DefaultMeasureBuilder());
-    inputFile = new DeprecatedDefaultInputFile("src/main/java/Foo.java");
+    inputFile = new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java");
     duplicationBuilder = spy(new DefaultDuplicationBuilder(inputFile));
     when(context.duplicationBuilder(any(InputFile.class))).thenReturn(duplicationBuilder);
     inputFile.setFile(temp.newFile("Foo.java"));
-    inputFile.setKey("key1");
     contextFactory = mock(FileLinesContextFactory.class);
     linesContext = mock(FileLinesContext.class);
     when(contextFactory.createFor(inputFile)).thenReturn(linesContext);
@@ -135,7 +134,7 @@ public class JavaCpdEngineTest {
     inOrder.verify(duplicationBuilder).build();
 
     verify(context).saveDuplications(inputFile, Arrays.asList(
-      new DuplicationGroup(new DuplicationGroup.Block("key1", 5, 200))
+      new DuplicationGroup(new DuplicationGroup.Block("foo:src/main/java/Foo.java", 5, 200))
         .addDuplicate(new DuplicationGroup.Block("key2", 15, 200))
         .addDuplicate(new DuplicationGroup.Block("key3", 25, 200))
       ));

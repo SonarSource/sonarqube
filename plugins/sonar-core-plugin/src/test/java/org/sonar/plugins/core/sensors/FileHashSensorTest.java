@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,8 +56,8 @@ public class FileHashSensorTest {
   @Test
   public void store_file_hashes() throws Exception {
     when(fileCache.filesByModule("struts")).thenReturn(Lists.<InputFile>newArrayList(
-      new DeprecatedDefaultInputFile("src/Foo.java").setFile(temp.newFile()).setHash("ABC"),
-      new DeprecatedDefaultInputFile("src/Bar.java").setFile(temp.newFile()).setHash("DEF")));
+      new DeprecatedDefaultInputFile("foo", "src/Foo.java").setFile(temp.newFile()).setHash("ABC"),
+      new DeprecatedDefaultInputFile("foo", "src/Bar.java").setFile(temp.newFile()).setHash("DEF")));
 
     SensorContext sensorContext = mock(SensorContext.class);
     sensor.analyse(project, sensorContext);
@@ -72,8 +70,8 @@ public class FileHashSensorTest {
   public void store_file_hashes_for_branches() throws Exception {
     project = new Project("struts", "branch-2.x", "Struts 2.x");
     when(fileCache.filesByModule("struts:branch-2.x")).thenReturn(Lists.<InputFile>newArrayList(
-      new DeprecatedDefaultInputFile("src/Foo.java").setFile(temp.newFile()).setHash("ABC"),
-      new DeprecatedDefaultInputFile("src/Bar.java").setFile(temp.newFile()).setHash("DEF")));
+      new DeprecatedDefaultInputFile("foo", "src/Foo.java").setFile(temp.newFile()).setHash("ABC"),
+      new DeprecatedDefaultInputFile("foo", "src/Bar.java").setFile(temp.newFile()).setHash("DEF")));
 
     SensorContext sensorContext = mock(SensorContext.class);
     sensor.analyse(project, sensorContext);

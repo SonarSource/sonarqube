@@ -33,6 +33,8 @@ import org.sonar.api.batch.sensor.issue.IssueBuilder;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.MeasureBuilder;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
+import org.sonar.api.batch.sensor.test.TestCase;
+import org.sonar.api.batch.sensor.test.TestCaseBuilder;
 import org.sonar.api.config.Settings;
 
 import javax.annotation.CheckForNull;
@@ -149,7 +151,43 @@ public interface SensorContext {
   /**
    * Register all duplications of an {@link InputFile}. Use {@link #duplicationBuilder(InputFile)} to create
    * list of duplications.
+   * @since 4.5
    */
   void saveDuplications(InputFile inputFile, List<DuplicationGroup> duplications);
+
+  // ------------ TESTS ------------
+
+  /**
+   * Create a new test case for the given test file.
+   * @param testFile An {@link InputFile} with type {@link InputFile.Type#TEST}
+   * @param testCaseName name of the test case
+   * @since 5.0
+   */
+  TestCaseBuilder testCaseBuilder(InputFile testFile, String testCaseName);
+
+  /**
+   * Add a new test case.
+   * Use {@link #testCaseBuilder(InputFile, String)} to create a new {@link TestCase}
+   * @throws IllegalArgumentException if a test case with same name was already added on the same file.
+   * @since 5.0
+   */
+  void addTestCase(TestCase testCase);
+
+  /**
+   * Get a {@link TestCase} that has been previously added to the context with {@link #addTestCase(TestCase)}.
+   * @since 5.0
+   */
+  @CheckForNull
+  TestCase getTestCase(InputFile testFile, String testCaseName);
+
+  /**
+   * Register coverage of a given test case on another main file. TestCase should have been registered using {@link #testPlanBuilder(InputFile)}
+   * @param testFile test file containing the test case
+   * @param testCaseName name of the test case
+   * @param coveredFile main file that is covered
+   * @param coveredLines list of covered lines
+   * @since 5.0
+   */
+  void saveCoveragePerTest(TestCase testCase, InputFile coveredFile, List<Integer> coveredLines);
 
 }

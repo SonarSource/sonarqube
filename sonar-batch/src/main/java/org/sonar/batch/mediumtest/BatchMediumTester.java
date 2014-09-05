@@ -34,6 +34,7 @@ import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.symbol.Symbol;
+import org.sonar.api.batch.sensor.test.TestCase;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.platform.PluginMetadata;
@@ -57,6 +58,8 @@ import org.sonar.batch.scan2.AnalyzerMeasureCache;
 import org.sonar.batch.scan2.ProjectScanContainer;
 import org.sonar.batch.scan2.ScanTaskObserver;
 import org.sonar.batch.symbol.SymbolData;
+import org.sonar.batch.test.CoveragePerTestCache;
+import org.sonar.batch.test.TestCaseCache;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.core.source.SnapshotDataTypes;
@@ -66,6 +69,7 @@ import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -226,6 +230,8 @@ public class BatchMediumTester {
     private List<InputDir> inputDirs = new ArrayList<InputDir>();
     private Map<InputFile, SyntaxHighlightingData> highlightingPerFile = new HashMap<InputFile, SyntaxHighlightingData>();
     private Map<InputFile, SymbolData> symbolTablePerFile = new HashMap<InputFile, SymbolData>();
+    private Map<String, Map<String, TestCase>> testCasesPerFile = new HashMap<String, Map<String, TestCase>>();
+    private Map<String, Map<String, Map<String, List<Integer>>>> coveragePerTest = new HashMap<String, Map<String, Map<String, List<Integer>>>>();
 
     @Override
     public void scanTaskCompleted(ProjectScanContainer container) {
@@ -265,6 +271,27 @@ public class BatchMediumTester {
         duplications.put(effectiveKey, entry.value());
       }
 
+      TestCaseCache testCaseCache = container.getComponentByType(TestCaseCache.class);
+      for (Entry<TestCase> entry : testCaseCache.entries()) {
+        String effectiveKey = entry.key()[0].toString();
+        if (!testCasesPerFile.containsKey(effectiveKey)) {
+          testCasesPerFile.put(effectiveKey, new HashMap<String, TestCase>());
+        }
+        testCasesPerFile.get(effectiveKey).put(entry.value().name(), entry.value());
+      }
+
+      CoveragePerTestCache coveragePerTestCache = container.getComponentByType(CoveragePerTestCache.class);
+      for (Entry<List<Integer>> entry : coveragePerTestCache.entries()) {
+        String testFileKey = entry.key()[0].toString();
+        if (!coveragePerTest.containsKey(testFileKey)) {
+          coveragePerTest.put(testFileKey, new HashMap<String, Map<String, List<Integer>>>());
+        }
+        String testName = entry.key()[1].toString();
+        if (!coveragePerTest.get(testFileKey).containsKey(testName)) {
+          coveragePerTest.get(testFileKey).put(testName, new HashMap<String, List<Integer>>());
+        }
+        coveragePerTest.get(testFileKey).get(testName).put(entry.key()[2].toString(), entry.value());
+      }
     }
 
     public List<Issue> issues() {
@@ -285,6 +312,29 @@ public class BatchMediumTester {
 
     public List<DuplicationGroup> duplicationsFor(InputFile inputFile) {
       return duplications.get(((DefaultInputFile) inputFile).key());
+    }
+
+    public Collection<TestCase> testCasesFor(InputFile inputFile) {
+      String key = ((DefaultInputFile) inputFile).key();
+      if (testCasesPerFile.containsKey(key)) {
+        return testCasesPerFile.get(key).values();
+      } else {
+        return Collections.emptyList();
+      }
+    }
+
+    public TestCase testCase(InputFile inputFile, String testCaseName) {
+      return testCasesPerFile.get(((DefaultInputFile) inputFile).key()).get(testCaseName);
+    }
+
+    public List<Integer> coveragePerTest(InputFile testFile, String testCaseName, InputFile mainFile) {
+      String testKey = ((DefaultInputFile) testFile).key();
+      String mainKey = ((DefaultInputFile) mainFile).key();
+      if (coveragePerTest.containsKey(testKey) && coveragePerTest.get(testKey).containsKey(testCaseName) && coveragePerTest.get(testKey).get(testCaseName).containsKey(mainKey)) {
+        return coveragePerTest.get(testKey).get(testCaseName).get(mainKey);
+      } else {
+        return Collections.emptyList();
+      }
     }
 
     /**

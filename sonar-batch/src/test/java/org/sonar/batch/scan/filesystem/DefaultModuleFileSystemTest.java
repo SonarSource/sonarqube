@@ -163,8 +163,8 @@ public class DefaultModuleFileSystemTest {
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     File mainFile = temp.newFile();
-    InputFile mainInput = new DeprecatedDefaultInputFile("Main.java").setFile(mainFile).setType(InputFile.Type.MAIN);
-    InputFile testInput = new DeprecatedDefaultInputFile("Test.java").setFile(temp.newFile()).setType(InputFile.Type.TEST);
+    InputFile mainInput = new DeprecatedDefaultInputFile("foo", "Main.java").setFile(mainFile).setType(InputFile.Type.MAIN);
+    InputFile testInput = new DeprecatedDefaultInputFile("foo", "Test.java").setFile(temp.newFile()).setType(InputFile.Type.TEST);
     when(moduleInputFileCache.inputFiles()).thenReturn(Lists.newArrayList(mainInput, testInput));
 
     fs.index();

@@ -171,9 +171,8 @@ public class FileIndexer implements BatchComponent {
           File parentDir = inputFile.file().getParentFile();
           String relativePath = new PathResolver().relativePath(fs.baseDir(), parentDir);
           if (relativePath != null) {
-            DefaultInputDir inputDir = new DefaultInputDir(relativePath);
+            DefaultInputDir inputDir = new DefaultInputDir(fs.moduleKey(), relativePath);
             inputDir.setFile(parentDir);
-            inputDir.setKey(new StringBuilder().append(fs.moduleKey()).append(":").append(inputDir.relativePath()).toString());
             status.markAsIndexed(inputDir);
           }
         }

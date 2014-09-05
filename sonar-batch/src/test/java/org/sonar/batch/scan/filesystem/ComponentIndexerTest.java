@@ -161,7 +161,7 @@ public class ComponentIndexerTest {
 
     File javaFile1 = new File(baseDir, "src/main/java/foo/bar/Foo.java");
     FileUtils.write(javaFile1, "\uFEFFpublic class Test", Charsets.UTF_8);
-    fs.add(new DeprecatedDefaultInputFile("src/main/java/foo/bar/Foo.java")
+    fs.add(new DeprecatedDefaultInputFile("foo", "src/main/java/foo/bar/Foo.java")
       .setPathRelativeToSourceDir("foo/bar/Foo.java")
       .setFile(javaFile1)
       .setLanguage("java"));
@@ -186,7 +186,7 @@ public class ComponentIndexerTest {
 
     File javaFile1 = new File(baseDir, "src/main/java/foo/bar/Foo.java");
     FileUtils.copyFile(getFile(testFile), javaFile1);
-    fs.add(new DeprecatedDefaultInputFile("src/main/java/foo/bar/Foo.java")
+    fs.add(new DeprecatedDefaultInputFile("foo", "src/main/java/foo/bar/Foo.java")
       .setPathRelativeToSourceDir("foo/bar/Foo.java")
       .setFile(javaFile1)
       .setLanguage("java"));
@@ -212,7 +212,7 @@ public class ComponentIndexerTest {
   private DefaultInputFile newInputFile(String path, String content, String sourceRelativePath, String languageKey, boolean unitTest) throws IOException {
     File file = new File(baseDir, path);
     FileUtils.write(file, content);
-    return new DeprecatedDefaultInputFile(path)
+    return new DeprecatedDefaultInputFile("foo", path)
       .setPathRelativeToSourceDir(sourceRelativePath)
       .setFile(file)
       .setLanguage(languageKey)

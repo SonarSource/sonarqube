@@ -84,7 +84,7 @@ public class IssuesOnDirMediumTest {
       .start();
 
     assertThat(result.issues()).hasSize(2);
-    assertThat(result.issues().iterator().next().inputPath()).isEqualTo(new DefaultInputDir("src"));
+    assertThat(result.issues().iterator().next().inputPath()).isEqualTo(new DefaultInputDir("com.foo.project", "src"));
 
   }
 

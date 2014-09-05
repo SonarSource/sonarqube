@@ -87,10 +87,8 @@ public class JsonReportTest {
     mode = mock(AnalysisMode.class);
     when(mode.isPreview()).thenReturn(true);
     userFinder = mock(UserFinder.class);
-    DefaultInputDir inputDir = new DefaultInputDir("src/main/java/org/apache/struts");
-    inputDir.setKey("struts:src/main/java/org/apache/struts");
-    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("src/main/java/org/apache/struts/Action.java");
-    inputFile.setKey("struts:src/main/java/org/apache/struts/Action.java");
+    DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts");
+    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("struts", "src/main/java/org/apache/struts/Action.java");
     inputFile.setStatus(InputFile.Status.CHANGED);
     InputPathCache fileCache = mock(InputPathCache.class);
     when(fileCache.all()).thenReturn(Arrays.<InputPath>asList(inputDir, inputFile));

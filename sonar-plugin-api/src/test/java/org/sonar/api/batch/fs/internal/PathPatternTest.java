@@ -38,16 +38,16 @@ public class PathPatternTest {
     assertThat(pattern.toString()).isEqualTo("**/*Foo.java");
 
     File file = new File(temp.newFolder(), "src/main/java/org/MyFoo.java");
-    InputFile inputFile = new DefaultInputFile("src/main/java/org/MyFoo.java").setFile(file);
+    InputFile inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/MyFoo.java").setFile(file);
     assertThat(pattern.match(inputFile)).isTrue();
 
     // case sensitive by default
     file = new File(temp.newFolder(), "src/main/java/org/MyFoo.JAVA");
-    inputFile = new DefaultInputFile("src/main/java/org/MyFoo.JAVA").setFile(file);
+    inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/MyFoo.JAVA").setFile(file);
     assertThat(pattern.match(inputFile)).isFalse();
 
     file = new File(temp.newFolder(), "src/main/java/org/Other.java");
-    inputFile = new DefaultInputFile("src/main/java/org/Other.java").setFile(file);
+    inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/Other.java").setFile(file);
     assertThat(pattern.match(inputFile)).isFalse();
   }
 
@@ -56,11 +56,11 @@ public class PathPatternTest {
     PathPattern pattern = PathPattern.create("**/*Foo.java");
 
     File file = new File(temp.newFolder(), "src/main/java/org/MyFoo.JAVA");
-    InputFile inputFile = new DefaultInputFile("src/main/java/org/MyFoo.JAVA").setFile(file);
+    InputFile inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/MyFoo.JAVA").setFile(file);
     assertThat(pattern.match(inputFile, false)).isTrue();
 
     file = new File(temp.newFolder(), "src/main/java/org/Other.java");
-    inputFile = new DefaultInputFile("src/main/java/org/Other.java").setFile(file);
+    inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/Other.java").setFile(file);
     assertThat(pattern.match(inputFile, false)).isFalse();
   }
 
@@ -70,16 +70,16 @@ public class PathPatternTest {
     assertThat(pattern.toString()).isEqualTo("file:**/src/main/**Foo.java");
 
     File file = new File(temp.newFolder(), "src/main/java/org/MyFoo.java");
-    InputFile inputFile = new DefaultInputFile("src/main/java/org/MyFoo.java").setFile(file);
+    InputFile inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/MyFoo.java").setFile(file);
     assertThat(pattern.match(inputFile)).isTrue();
 
     // case sensitive by default
     file = new File(temp.newFolder(), "src/main/java/org/MyFoo.JAVA");
-    inputFile = new DefaultInputFile("src/main/java/org/MyFoo.JAVA").setFile(file);
+    inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/MyFoo.JAVA").setFile(file);
     assertThat(pattern.match(inputFile)).isFalse();
 
     file = new File(temp.newFolder(), "src/main/java/org/Other.java");
-    inputFile = new DefaultInputFile("src/main/java/org/Other.java").setFile(file);
+    inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/Other.java").setFile(file);
     assertThat(pattern.match(inputFile)).isFalse();
   }
 
@@ -89,17 +89,17 @@ public class PathPatternTest {
     assertThat(pattern.toString()).isEqualTo("file:**/src/main/**Foo.java");
 
     File file = new File(temp.newFolder(), "src/main/java/org/MyFoo.JAVA");
-    InputFile inputFile = new DefaultInputFile("src/main/java/org/MyFoo.JAVA").setFile(file);
+    InputFile inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/MyFoo.JAVA").setFile(file);
     assertThat(pattern.match(inputFile, false)).isTrue();
 
     file = new File(temp.newFolder(), "src/main/java/org/Other.JAVA");
-    inputFile = new DefaultInputFile("src/main/java/org/Other.JAVA").setFile(file);
+    inputFile = new DefaultInputFile("ABCDE", "src/main/java/org/Other.JAVA").setFile(file);
     assertThat(pattern.match(inputFile, false)).isFalse();
   }
 
   @Test
   public void create_array_of_patterns() throws Exception {
-    PathPattern[] patterns = PathPattern.create(new String[]{
+    PathPattern[] patterns = PathPattern.create(new String[] {
       "**/src/main/**Foo.java",
       "file:**/src/main/**Bar.java"
     });

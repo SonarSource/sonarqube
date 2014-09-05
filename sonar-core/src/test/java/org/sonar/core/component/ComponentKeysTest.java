@@ -41,7 +41,7 @@ public class ComponentKeysTest {
     Library library = new Library("junit:junit", "4.7");
     assertThat(ComponentKeys.createEffectiveKey(project, library)).isEqualTo("junit:junit");
 
-    InputFile file = new DefaultInputFile("foo/Bar.php");
+    InputFile file = new DefaultInputFile("foo", "foo/Bar.php");
     assertThat(ComponentKeys.createEffectiveKey("my_project", file)).isEqualTo("my_project:foo/Bar.php");
   }
 

@@ -55,9 +55,9 @@ public class InputPathCacheTest {
   @Test
   public void should_add_input_file() throws Exception {
     InputPathCache cache = new InputPathCache(caches);
-    DefaultInputFile fooFile = new DefaultInputFile("src/main/java/Foo.java").setFile(temp.newFile("Foo.java"));
+    DefaultInputFile fooFile = new DefaultInputFile("foo", "src/main/java/Foo.java").setFile(temp.newFile("Foo.java"));
     cache.put("struts", fooFile);
-    cache.put("struts-core", new DeprecatedDefaultInputFile("src/main/java/Bar.java")
+    cache.put("struts-core", new DeprecatedDefaultInputFile("foo", "src/main/java/Bar.java")
       .setBasedir(temp.newFolder())
       .setDeprecatedKey("foo")
       .setSourceDirAbsolutePath("foo")
@@ -67,7 +67,6 @@ public class InputPathCacheTest {
       .setStatus(Status.ADDED)
       .setHash("xyz")
       .setLines(1)
-      .setKey("foo")
       .setFile(temp.newFile("Bar.java")));
 
     assertThat(cache.getFile("struts", "src/main/java/Foo.java").relativePath())

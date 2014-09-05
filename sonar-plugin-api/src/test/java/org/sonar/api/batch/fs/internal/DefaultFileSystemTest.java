@@ -80,12 +80,12 @@ public class DefaultFileSystemTest {
 
     assertThat(fs.inputFiles(fs.predicates().all())).isEmpty();
 
-    fs.add(new DefaultInputFile("src/Foo.php").setLanguage("php").setFile(temp.newFile()));
-    fs.add(new DefaultInputFile("src/Bar.java").setLanguage("java").setFile(temp.newFile()));
-    fs.add(new DefaultInputFile("src/Baz.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Foo.php").setLanguage("php").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Baz.java").setLanguage("java").setFile(temp.newFile()));
 
     // no language
-    fs.add(new DefaultInputFile("src/readme.txt").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/readme.txt").setFile(temp.newFile()));
 
     assertThat(fs.inputFile(fs.predicates().hasRelativePath("src/Bar.java"))).isNotNull();
     assertThat(fs.inputFile(fs.predicates().hasRelativePath("does/not/exist"))).isNull();
@@ -119,8 +119,8 @@ public class DefaultFileSystemTest {
     thrown.expectMessage("expected one element");
 
     DefaultFileSystem fs = new DefaultFileSystem();
-    fs.add(new DefaultInputFile("src/Bar.java").setLanguage("java").setFile(temp.newFile()));
-    fs.add(new DefaultInputFile("src/Baz.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Baz.java").setLanguage("java").setFile(temp.newFile()));
 
     fs.inputFile(fs.predicates().all());
   }
@@ -128,7 +128,7 @@ public class DefaultFileSystemTest {
   @Test
   public void input_file_supports_non_indexed_predicates() throws Exception {
     DefaultFileSystem fs = new DefaultFileSystem();
-    fs.add(new DefaultInputFile("src/Bar.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java").setFile(temp.newFile()));
 
     // it would fail if more than one java file
     assertThat(fs.inputFile(fs.predicates().hasLanguage("java"))).isNotNull();

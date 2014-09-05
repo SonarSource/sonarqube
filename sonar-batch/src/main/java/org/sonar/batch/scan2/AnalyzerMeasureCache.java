@@ -26,6 +26,7 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.Caches;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 
 /**
  * Cache of all measures. This cache is shared amongst all project modules.
@@ -35,8 +36,8 @@ public class AnalyzerMeasureCache implements BatchComponent {
   // project key -> component key -> metric key -> measure
   private final Cache<DefaultMeasure> cache;
 
-  public AnalyzerMeasureCache(Caches caches, MetricFinder metricFinder) {
-    caches.registerValueCoder(DefaultMeasure.class, new DefaultMeasureValueCoder(metricFinder));
+  public AnalyzerMeasureCache(Caches caches, MetricFinder metricFinder, InputPathCache inputPathCache) {
+    caches.registerValueCoder(DefaultMeasure.class, new DefaultMeasureValueCoder(metricFinder, inputPathCache));
     cache = caches.createCache("measures");
   }
 

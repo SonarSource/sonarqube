@@ -19,16 +19,20 @@
  */
 package org.sonar.batch.scan;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.test.TestCase;
+import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
@@ -40,15 +44,21 @@ import org.sonar.api.measures.SumChildDistributionFormula;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.test.MutableTestCase;
+import org.sonar.api.test.MutableTestPlan;
+import org.sonar.api.test.MutableTestable;
+import org.sonar.api.test.Testable;
 import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.scan2.BaseSensorContext;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Implements {@link SensorContext} but forward everything to {@link org.sonar.api.batch.SensorContext} for backward compatibility.
@@ -207,6 +217,73 @@ public class SensorContextAdaptor extends BaseSensorContext {
       .message(issue.message())
       .severity(issue.severity())
       .build();
+  }
+
+  @Override
+  public void addTestCase(TestCase testCase) {
+    File testRes = getTestResource(((DefaultTestCase) testCase).testFile());
+    MutableTestPlan testPlan = perspectives.as(MutableTestPlan.class, testRes);
+    testPlan
+      .addTestCase(testCase.name())
+      .setDurationInMs(testCase.durationInMs())
+      .setType(testCase.type().name())
+      .setStatus(org.sonar.api.test.TestCase.Status.valueOf(testCase.status().name()))
+      .setMessage(testCase.message())
+      .setStackTrace(testCase.stackTrace());
+  }
+
+  @Override
+  public TestCase getTestCase(InputFile testFile, String testCaseName) {
+    File testRes = getTestResource(testFile);
+    MutableTestPlan testPlan = perspectives.as(MutableTestPlan.class, testRes);
+    Iterable<MutableTestCase> testCases = testPlan.testCasesByName(testCaseName);
+    if (testCases.iterator().hasNext()) {
+      MutableTestCase testCase = testCases.iterator().next();
+      return new DefaultTestCase(testFile, testCaseName, testCase.durationInMs(), TestCase.Status.of(testCase.status().name()), testCase.message(), TestCase.Type.valueOf(testCase
+        .type()), testCase.stackTrace());
+    }
+    return null;
+  }
+
+  @Override
+  public void saveCoveragePerTest(TestCase testCase, InputFile coveredFile, List<Integer> coveredLines) {
+    Preconditions.checkArgument(coveredFile.type() == Type.MAIN, "Should be a main file: " + coveredFile);
+    File testRes = getTestResource(((DefaultTestCase) testCase).testFile());
+    File mainRes = getMainResource(coveredFile);
+    Testable testAbleFile = perspectives.as(MutableTestable.class, mainRes);
+    if (testAbleFile != null) {
+      MutableTestPlan testPlan = perspectives.as(MutableTestPlan.class, testRes);
+      if (testPlan != null) {
+        for (MutableTestCase mutableTestCase : testPlan.testCasesByName(testCase.name())) {
+          mutableTestCase.setCoverageBlock(testAbleFile, coveredLines);
+        }
+      } else {
+        throw new IllegalStateException("Unable to get MutableTestPlan perspective from " + testRes);
+      }
+    } else {
+      throw new IllegalStateException("Unable to get MutableTestable perspective from " + mainRes);
+    }
+  }
+
+  private File getTestResource(InputFile testFile) {
+    File testRes = File.create(testFile.relativePath());
+    testRes.setQualifier(Qualifiers.UNIT_TEST_FILE);
+    // Reload
+    testRes = sensorContext.getResource(testRes);
+    if (testRes == null) {
+      throw new IllegalArgumentException("Provided input file is not indexed or not a test file: " + testFile);
+    }
+    return testRes;
+  }
+
+  private File getMainResource(InputFile mainFile) {
+    File mainRes = File.create(mainFile.relativePath());
+    // Reload
+    mainRes = sensorContext.getResource(mainRes);
+    if (mainRes == null) {
+      throw new IllegalArgumentException("Provided input file is not indexed or not a main file: " + mainRes);
+    }
+    return mainRes;
   }
 
 }

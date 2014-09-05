@@ -72,7 +72,7 @@ public class MeasureSensorTest {
 
   @Test
   public void testNoExecutionIfNoMeasureFile() {
-    DefaultInputFile inputFile = new DefaultInputFile("src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
     fileSystem.add(inputFile);
     sensor.execute(context);
   }
@@ -81,7 +81,7 @@ public class MeasureSensorTest {
   public void testExecution() throws IOException {
     File measures = new File(baseDir, "src/foo.xoo.measures");
     FileUtils.write(measures, "ncloc:12\nbranch_coverage:5.3\nsqale_index:300\nbool:true\ncomment_lines_data:1=1,2=1\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
     fileSystem.add(inputFile);
 
     Metric<Boolean> booleanMetric = new Metric.Builder("bool", "Bool", Metric.ValueType.BOOL)
@@ -108,7 +108,7 @@ public class MeasureSensorTest {
   public void failIfMetricNotFound() throws IOException {
     File measures = new File(baseDir, "src/foo.xoo.measures");
     FileUtils.write(measures, "unknow:12\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
     fileSystem.add(inputFile);
 
     when(context.measureBuilder()).thenReturn(new DefaultMeasureBuilder());

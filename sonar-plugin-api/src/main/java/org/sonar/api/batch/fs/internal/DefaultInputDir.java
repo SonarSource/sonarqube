@@ -22,8 +22,6 @@ package org.sonar.api.batch.fs.internal;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.utils.PathUtils;
 
-import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.io.Serializable;
 
@@ -33,10 +31,11 @@ import java.io.Serializable;
 public class DefaultInputDir implements InputDir, Serializable {
 
   private final String relativePath;
+  private final String moduleKey;
   private String absolutePath;
-  private String key;
 
-  public DefaultInputDir(String relativePath) {
+  public DefaultInputDir(String moduleKey, String relativePath) {
+    this.moduleKey = moduleKey;
     this.relativePath = PathUtils.sanitize(relativePath);
   }
 
@@ -45,12 +44,7 @@ public class DefaultInputDir implements InputDir, Serializable {
     return relativePath;
   }
 
-  /**
-   * Marked as nullable just for the unit tests that do not call {@link #setFile(java.io.File)}
-   * previously.
-   */
   @Override
-  @CheckForNull
   public String absolutePath() {
     return absolutePath;
   }
@@ -63,13 +57,12 @@ public class DefaultInputDir implements InputDir, Serializable {
     return new File(absolutePath);
   }
 
-  /**
-   * Component key. It's marked as nullable just for the unit tests that
-   * do not previously call {@link #setKey(String)}.
-   */
-  @CheckForNull
+  public String moduleKey() {
+    return moduleKey;
+  }
+
   public String key() {
-    return key;
+    return new StringBuilder().append(moduleKey).append(":").append(relativePath).toString();
   }
 
   public DefaultInputDir setAbsolutePath(String s) {
@@ -79,11 +72,6 @@ public class DefaultInputDir implements InputDir, Serializable {
 
   public DefaultInputDir setFile(File file) {
     setAbsolutePath(file.getAbsolutePath());
-    return this;
-  }
-
-  public DefaultInputDir setKey(String s) {
-    this.key = s;
     return this;
   }
 
@@ -97,16 +85,16 @@ public class DefaultInputDir implements InputDir, Serializable {
     }
 
     DefaultInputDir that = (DefaultInputDir) o;
-    return relativePath.equals(that.relativePath);
+    return moduleKey.equals(that.moduleKey) && relativePath.equals(that.relativePath);
   }
 
   @Override
   public int hashCode() {
-    return relativePath.hashCode();
+    return moduleKey.hashCode() + relativePath.hashCode() * 13;
   }
 
   @Override
   public String toString() {
-    return "[relative=" + relativePath + ", abs=" + absolutePath + "]";
+    return "[moduleKey=" + moduleKey + ", relative=" + relativePath + ", abs=" + absolutePath + "]";
   }
 }

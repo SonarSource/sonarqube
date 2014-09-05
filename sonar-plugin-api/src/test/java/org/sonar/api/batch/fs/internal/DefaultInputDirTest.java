@@ -35,11 +35,10 @@ public class DefaultInputDirTest {
   @Test
   public void test() throws Exception {
     File dir = temp.newFolder("src");
-    DefaultInputDir inputDir = new DefaultInputDir("src")
-      .setFile(dir)
-      .setKey("ABCDE");
+    DefaultInputDir inputDir = new DefaultInputDir("ABCDE", "src")
+      .setFile(dir);
 
-    assertThat(inputDir.key()).isEqualTo("ABCDE");
+    assertThat(inputDir.key()).isEqualTo("ABCDE:src");
     assertThat(inputDir.file().getAbsolutePath()).isEqualTo(dir.getAbsolutePath());
     assertThat(inputDir.relativePath()).isEqualTo("src");
     assertThat(new File(inputDir.relativePath())).isRelative();
@@ -50,22 +49,20 @@ public class DefaultInputDirTest {
   @Test
   public void testEqualsAndHashCode() throws Exception {
     File dir1 = temp.newFolder("src");
-    DefaultInputDir inputDir1 = new DefaultInputDir("src")
-      .setFile(dir1)
-      .setKey("ABCDE");
+    DefaultInputDir inputDir1 = new DefaultInputDir("ABCDE", "src")
+      .setFile(dir1);
 
     File dir2 = temp.newFolder("src2");
-    DefaultInputDir inputDir2 = new DefaultInputDir("src")
-      .setFile(dir2)
-      .setKey("ABCDE");
+    DefaultInputDir inputDir2 = new DefaultInputDir("ABCDE", "src")
+      .setFile(dir2);
 
     assertThat(inputDir1.equals(inputDir1)).isTrue();
     assertThat(inputDir1.equals(inputDir2)).isTrue();
     assertThat(inputDir1.equals("foo")).isFalse();
 
-    assertThat(inputDir1.hashCode()).isEqualTo(114148);
+    assertThat(inputDir1.hashCode()).isEqualTo(63545559);
 
-    assertThat(inputDir1.toString()).contains("[relative=src, abs=");
+    assertThat(inputDir1.toString()).contains("[moduleKey=ABCDE, relative=src, abs=");
 
   }
 

@@ -183,7 +183,7 @@ public class LanguageDetectionTest {
 
   private InputFile newInputFile(String path) throws IOException {
     File basedir = temp.newFolder();
-    return new DefaultInputFile(path).setFile(new File(basedir, path));
+    return new DefaultInputFile("foo", path).setFile(new File(basedir, path));
   }
 
   static class MockLanguage implements Language {

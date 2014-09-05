@@ -23,25 +23,35 @@ import com.persistit.Value;
 import com.persistit.encoding.CoderContext;
 import com.persistit.encoding.ValueCoder;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 
 import java.io.Serializable;
 
 class DefaultMeasureValueCoder implements ValueCoder {
 
-  private MetricFinder metricFinder;
+  private final MetricFinder metricFinder;
+  private final InputPathCache inputPathCache;
 
-  public DefaultMeasureValueCoder(MetricFinder metricFinder) {
+  public DefaultMeasureValueCoder(MetricFinder metricFinder, InputPathCache inputPathCache) {
     this.metricFinder = metricFinder;
+    this.inputPathCache = inputPathCache;
   }
 
   @Override
   public void put(Value value, Object object, CoderContext context) {
     DefaultMeasure m = (DefaultMeasure) object;
-    value.put(m.inputFile());
+    DefaultInputFile inputFile = (DefaultInputFile) m.inputFile();
+    if (inputFile != null) {
+      value.putString(inputFile.moduleKey());
+      value.putString(inputFile.relativePath());
+    } else {
+      value.putNull();
+    }
     value.putUTF(m.metric().key());
     value.put(m.value());
   }
@@ -49,8 +59,10 @@ class DefaultMeasureValueCoder implements ValueCoder {
   @Override
   public Object get(Value value, Class clazz, CoderContext context) {
     DefaultMeasureBuilder builder = new DefaultMeasureBuilder();
-    InputFile f = (InputFile) value.get();
-    if (f != null) {
+    String moduleKey = value.getString();
+    if (moduleKey != null) {
+      String relativePath = value.getString();
+      InputFile f = inputPathCache.getFile(moduleKey, relativePath);
       builder.onFile(f);
     } else {
       builder.onProject();

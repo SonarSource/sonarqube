@@ -35,6 +35,8 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultIssueBuilder;
 import org.sonar.api.batch.sensor.measure.MeasureBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
+import org.sonar.api.batch.sensor.test.TestCaseBuilder;
+import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DefaultTokenBuilder;
@@ -145,6 +147,11 @@ public abstract class BaseSensorContext implements SensorContext {
     } else {
       return 10;
     }
+  }
+
+  @Override
+  public TestCaseBuilder testCaseBuilder(InputFile testFile, String testCaseName) {
+    return new DefaultTestCaseBuilder(testFile, testCaseName);
   }
 
 }

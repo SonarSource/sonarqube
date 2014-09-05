@@ -63,7 +63,7 @@ public class SyntaxHighlightingSensorTest {
 
   @Test
   public void testNoExecutionIfNoSyntaxFile() {
-    DefaultInputFile inputFile = new DefaultInputFile("src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
     fileSystem.add(inputFile);
     sensor.execute(context);
   }
@@ -72,7 +72,7 @@ public class SyntaxHighlightingSensorTest {
   public void testExecution() throws IOException {
     File symbol = new File(baseDir, "src/foo.xoo.highlighting");
     FileUtils.write(symbol, "1:4:k\n12:15:cppd\n\n#comment");
-    DefaultInputFile inputFile = new DefaultInputFile("src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
     fileSystem.add(inputFile);
     HighlightingBuilder builder = mock(HighlightingBuilder.class);
     when(context.highlightingBuilder(inputFile)).thenReturn(builder);

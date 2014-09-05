@@ -40,7 +40,10 @@ import java.io.IOException;
 
 import static com.google.common.base.Charsets.UTF_8;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class IssueExclusionsLoaderTest {
 
@@ -101,15 +104,13 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldAnalyzeProject() throws IOException {
     File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
-    fs.add(new DeprecatedDefaultInputFile("src/main/java/Foo.java")
+    fs.add(new DeprecatedDefaultInputFile("polop", "src/main/java/Foo.java")
       .setFile(javaFile1)
-      .setType(InputFile.Type.MAIN)
-      .setKey("polop:src/main/java/Foo.java"));
+      .setType(InputFile.Type.MAIN));
     File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
-    fs.add(new DeprecatedDefaultInputFile("src/test/java/FooTest.java")
+    fs.add(new DeprecatedDefaultInputFile("polop", "src/test/java/FooTest.java")
       .setFile(javaTestFile1)
-      .setType(InputFile.Type.TEST)
-      .setKey("polop:src/test/java/FooTest.java"));
+      .setType(InputFile.Type.TEST));
 
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
 
@@ -126,15 +127,13 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldAnalyseFilesOnlyWhenRegexConfigured() throws IOException {
     File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
-    fs.add(new DeprecatedDefaultInputFile("src/main/java/Foo.java")
+    fs.add(new DeprecatedDefaultInputFile("polop", "src/main/java/Foo.java")
       .setFile(javaFile1)
-      .setType(InputFile.Type.MAIN)
-      .setKey("polop:src/main/java/Foo.java"));
+      .setType(InputFile.Type.MAIN));
     File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
-    fs.add(new DeprecatedDefaultInputFile("src/test/java/FooTest.java")
+    fs.add(new DeprecatedDefaultInputFile("polop", "src/test/java/FooTest.java")
       .setFile(javaTestFile1)
-      .setType(InputFile.Type.TEST)
-      .setKey("polop:src/test/java/FooTest.java"));
+      .setType(InputFile.Type.TEST));
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(false);
 
     scanner.execute();
@@ -149,10 +148,9 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldReportFailure() throws IOException {
     File phpFile1 = new File(baseDir, "src/Foo.php");
-    fs.add(new DeprecatedDefaultInputFile("src/Foo.php")
+    fs.add(new DeprecatedDefaultInputFile("polop", "src/Foo.php")
       .setFile(phpFile1)
-      .setType(InputFile.Type.MAIN)
-      .setKey("polop:src/Foo.php"));
+      .setType(InputFile.Type.MAIN));
 
     when(exclusionPatternInitializer.hasFileContentPattern()).thenReturn(true);
     doThrow(new IOException("BUG")).when(regexpScanner).scan("polop:src/Foo.php", phpFile1, UTF_8);

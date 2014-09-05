@@ -137,7 +137,7 @@ public class IssuesMediumTest {
     for (Issue issue : result.issues()) {
       if (issue.line() == 1) {
         foundIssueAtLine1 = true;
-        assertThat(issue.inputPath()).isEqualTo(new DefaultInputFile("src/sample.xoo"));
+        assertThat(issue.inputPath()).isEqualTo(new DefaultInputFile("com.foo.project", "src/sample.xoo"));
         assertThat(issue.message()).isEqualTo("This issue is generated on each line");
         assertThat(issue.effortToFix()).isNull();
       }
