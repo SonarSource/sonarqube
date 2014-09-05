@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,7 +39,6 @@ public class GlobalSettingsTest {
 
   GlobalReferentials globalRef;
   ProjectDefinition project = ProjectDefinition.create().setKey("struts");
-  Configuration deprecatedConf = new BaseConfiguration();
   BootstrapProperties bootstrapProps;
 
   private AnalysisMode mode;
@@ -57,7 +54,7 @@ public class GlobalSettingsTest {
   public void should_load_global_settings() {
     globalRef.globalSettings().put("sonar.cpd.cross", "true");
 
-    GlobalSettings batchSettings = new GlobalSettings(bootstrapProps, new PropertyDefinitions(), globalRef, deprecatedConf, mode);
+    GlobalSettings batchSettings = new GlobalSettings(bootstrapProps, new PropertyDefinitions(), globalRef, mode);
 
     assertThat(batchSettings.getBoolean("sonar.cpd.cross")).isTrue();
   }

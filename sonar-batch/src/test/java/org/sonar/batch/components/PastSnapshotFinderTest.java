@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.components;
 
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -96,30 +94,6 @@ public class PastSnapshotFinderTest {
   }
 
   @Test
-  public void should_find_with_configuration() {
-    Configuration conf = new BaseConfiguration();
-    conf.addProperty("sonar.timemachine.period1", "1.2");
-    conf.addProperty("sonar.timemachine.period2", "1.2");
-    conf.addProperty("sonar.timemachine.period3", "1.2");
-    conf.addProperty("sonar.timemachine.period4", "1.2");
-    conf.addProperty("sonar.timemachine.period5", "1.2");
-
-    when(finderByVersion.findByVersion(null, "1.2")).thenReturn(new PastSnapshot("version", new Date(), new Snapshot()));
-
-    PastSnapshot variationSnapshot = finder.find(null, conf, 1);
-
-    verify(finderByVersion).findByVersion(null, "1.2");
-    assertThat(variationSnapshot.getIndex(), is(1));
-    assertThat(variationSnapshot.getMode(), is("version"));
-    assertThat(variationSnapshot.getProjectSnapshot(), not(nullValue()));
-
-    assertThat(finder.find(null, conf, 2).getIndex(), is(2));
-    assertThat(finder.find(null, conf, 3).getIndex(), is(3));
-    assertThat(finder.find(null, conf, 4).getIndex(), is(4));
-    assertThat(finder.find(null, conf, 5).getIndex(), is(5));
-  }
-
-  @Test
   public void should_find_by_number_of_days() {
     when(finderByDays.findFromDays(null, 30)).thenReturn(new PastSnapshot("days", null).setModeParameter("30"));
 
@@ -144,7 +118,7 @@ public class PastSnapshotFinderTest {
   public void should_find_by_date() throws ParseException {
     final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     final Date date = format.parse("2010-05-18");
-    when(finderByDate.findByDate((Snapshot)null, date)).thenReturn(new PastSnapshot("date", date, new Snapshot()));
+    when(finderByDate.findByDate((Snapshot) null, date)).thenReturn(new PastSnapshot("date", date, new Snapshot()));
 
     PastSnapshot variationSnapshot = finder.find(null, 2, "2010-05-18");
 
@@ -247,6 +221,6 @@ public class PastSnapshotFinderTest {
     Settings settings = new Settings().setProperty("sonar.timemachine.period1", "5");
 
     assertThat(PastSnapshotFinder.getPropertyValue("FIL", settings, 1), is("5"));
-    assertThat(PastSnapshotFinder.getPropertyValue("FIL",settings, 999), nullValue());
+    assertThat(PastSnapshotFinder.getPropertyValue("FIL", settings, 999), nullValue());
   }
 }

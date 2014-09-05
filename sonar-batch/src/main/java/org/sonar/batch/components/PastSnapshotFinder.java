@@ -20,7 +20,6 @@
 package org.sonar.batch.components;
 
 import com.google.common.base.Strings;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 
 import javax.annotation.Nullable;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -45,52 +45,13 @@ public class PastSnapshotFinder implements BatchExtension {
   private PastSnapshotFinderByPreviousVersion finderByPreviousVersion;
 
   public PastSnapshotFinder(PastSnapshotFinderByDays finderByDays, PastSnapshotFinderByVersion finderByVersion,
-                            PastSnapshotFinderByDate finderByDate, PastSnapshotFinderByPreviousAnalysis finderByPreviousAnalysis,
-                            PastSnapshotFinderByPreviousVersion finderByPreviousVersion) {
+    PastSnapshotFinderByDate finderByDate, PastSnapshotFinderByPreviousAnalysis finderByPreviousAnalysis,
+    PastSnapshotFinderByPreviousVersion finderByPreviousVersion) {
     this.finderByDays = finderByDays;
     this.finderByVersion = finderByVersion;
     this.finderByDate = finderByDate;
     this.finderByPreviousAnalysis = finderByPreviousAnalysis;
     this.finderByPreviousVersion = finderByPreviousVersion;
-  }
-
-  /**
-   * @deprecated since 3.6. Replaced by {@link #find(Snapshot projectSnapshot, String rootQualifier, Settings settings, int index) }
-   */
-  @Deprecated
-  public PastSnapshot find(Snapshot projectSnapshot, Configuration conf, int index) {
-    String propertyValue = getPropertyValue(conf, index);
-    PastSnapshot pastSnapshot = find(projectSnapshot, index, propertyValue);
-    if (pastSnapshot == null && StringUtils.isNotBlank(propertyValue)) {
-      LoggerFactory.getLogger(PastSnapshotFinder.class).debug("Property " + CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index + " is not valid: " + propertyValue);
-    }
-    return pastSnapshot;
-  }
-
-  /**
-   * @deprecated since 3.6. Replace by {@link #getPropertyValue(String rootQualifier, Settings settings, int index) }
-   */
-  @Deprecated
-  static String getPropertyValue(Configuration conf, int index) {
-    String defaultValue = null;
-    switch (index) {
-      case 1:
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_1;
-        break;
-      case 2:
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_2;
-        break;
-      case 3:
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_3;
-        break;
-      case 4:
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_4;
-        break;
-      case 5:
-        defaultValue = CoreProperties.TIMEMACHINE_DEFAULT_PERIOD_5;
-        break;
-    }
-    return conf.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + index, defaultValue);
   }
 
   public PastSnapshot find(Snapshot projectSnapshot, @Nullable String rootQualifier, Settings settings, int index) {

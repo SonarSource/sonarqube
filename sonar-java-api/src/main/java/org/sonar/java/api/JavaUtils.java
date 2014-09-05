@@ -80,12 +80,12 @@ public final class JavaUtils {
   }
 
   public static String getSourceVersion(Project project) {
-    String version = project.getConfiguration() != null ? project.getConfiguration().getString(JAVA_SOURCE_PROPERTY) : null;
+    String version = project.getSettings() != null ? project.getSettings().getString(JAVA_SOURCE_PROPERTY) : null;
     return StringUtils.isNotBlank(version) ? version : JAVA_SOURCE_DEFAULT_VALUE;
   }
 
   public static String getTargetVersion(Project project) {
-    String version = project.getConfiguration() != null ? project.getConfiguration().getString(JAVA_TARGET_PROPERTY) : null;
+    String version = project.getSettings() != null ? project.getSettings().getString(JAVA_TARGET_PROPERTY) : null;
     return StringUtils.isNotBlank(version) ? version : JAVA_TARGET_DEFAULT_VALUE;
   }
 }

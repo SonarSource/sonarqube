@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -31,26 +30,21 @@ import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 
-import javax.annotation.Nullable;
-
 public class ProjectSettings extends Settings {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectSettings.class);
-
-  private Configuration deprecatedConfiguration;
 
   private final GlobalSettings globalSettings;
   private final ProjectReferentials projectReferentials;
   private final AnalysisMode mode;
 
   public ProjectSettings(ProjectReactor reactor, GlobalSettings globalSettings, PropertyDefinitions propertyDefinitions,
-    ProjectReferentials projectReferentials, Configuration deprecatedConfiguration, AnalysisMode mode) {
+    ProjectReferentials projectReferentials, AnalysisMode mode) {
     super(propertyDefinitions);
     this.mode = mode;
     getEncryption().setPathToSecretKey(globalSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     this.globalSettings = globalSettings;
     this.projectReferentials = projectReferentials;
-    this.deprecatedConfiguration = deprecatedConfiguration;
     init(reactor);
   }
 
@@ -62,21 +56,6 @@ public class ProjectSettings extends Settings {
     addProperties(projectReferentials.settings(reactor.getRoot().getKeyWithBranch()));
 
     addProperties(reactor.getRoot().getProperties());
-  }
-
-  @Override
-  protected void doOnSetProperty(String key, @Nullable String value) {
-    deprecatedConfiguration.setProperty(key, value);
-  }
-
-  @Override
-  protected void doOnRemoveProperty(String key) {
-    deprecatedConfiguration.clearProperty(key);
-  }
-
-  @Override
-  protected void doOnClearProperties() {
-    deprecatedConfiguration.clear();
   }
 
   @Override

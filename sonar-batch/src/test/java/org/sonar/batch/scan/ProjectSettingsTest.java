@@ -20,8 +20,6 @@
 package org.sonar.batch.scan;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,7 +48,6 @@ public class ProjectSettingsTest {
 
   ProjectReferentials projectRef;
   ProjectDefinition project = ProjectDefinition.create().setKey("struts");
-  Configuration deprecatedConf = new BaseConfiguration();
   GlobalSettings bootstrapProps;
 
   private AnalysisMode mode;
@@ -59,14 +56,14 @@ public class ProjectSettingsTest {
   public void prepare() {
     projectRef = new ProjectReferentials();
     mode = mock(AnalysisMode.class);
-    bootstrapProps = new GlobalSettings(new BootstrapProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), new GlobalReferentials(), deprecatedConf, mode);
+    bootstrapProps = new GlobalSettings(new BootstrapProperties(Collections.<String, String>emptyMap()), new PropertyDefinitions(), new GlobalReferentials(), mode);
   }
 
   @Test
   public void should_load_project_props() {
     project.setProperty("project.prop", "project");
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, deprecatedConf, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, mode);
 
     assertThat(batchSettings.getString("project.prop")).isEqualTo("project");
   }
@@ -75,7 +72,7 @@ public class ProjectSettingsTest {
   public void should_load_project_root_settings() {
     projectRef.addSettings("struts", ImmutableMap.of("sonar.cpd.cross", "true", "sonar.java.coveragePlugin", "jacoco"));
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, deprecatedConf, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, mode);
 
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
@@ -86,7 +83,7 @@ public class ProjectSettingsTest {
 
     projectRef.addSettings("struts:mybranch", ImmutableMap.of("sonar.cpd.cross", "true", "sonar.java.coveragePlugin", "jacoco"));
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, deprecatedConf, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, mode);
 
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
   }
@@ -95,7 +92,7 @@ public class ProjectSettingsTest {
   public void should_not_fail_when_accessing_secured_properties() {
     projectRef.addSettings("struts", ImmutableMap.of("sonar.foo.secured", "bar", "sonar.foo.license.secured", "bar2"));
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, deprecatedConf, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, mode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(batchSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -107,31 +104,13 @@ public class ProjectSettingsTest {
 
     when(mode.isPreview()).thenReturn(true);
 
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, deprecatedConf, mode);
+    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, mode);
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     thrown.expect(MessageException.class);
     thrown
       .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in preview mode. The SonarQube plugin which requires this property must be deactivated in preview mode.");
     batchSettings.getString("sonar.foo.secured");
-  }
-
-  @Test
-  public void should_forward_to_deprecated_commons_configuration() {
-    projectRef.addSettings("struts", ImmutableMap.of("sonar.cpd.cross", "true", "sonar.java.coveragePlugin", "jacoco"));
-
-    ProjectSettings batchSettings = new ProjectSettings(new ProjectReactor(project), bootstrapProps, new PropertyDefinitions(), projectRef, deprecatedConf, mode);
-
-    assertThat(deprecatedConf.getString("sonar.cpd.cross")).isEqualTo("true");
-    assertThat(deprecatedConf.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
-
-    batchSettings.removeProperty("sonar.cpd.cross");
-    assertThat(deprecatedConf.getString("sonar.cpd.cross")).isNull();
-    assertThat(deprecatedConf.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
-
-    batchSettings.clear();
-    assertThat(deprecatedConf.getString("sonar.cpd.cross")).isNull();
-    assertThat(deprecatedConf.getString("sonar.java.coveragePlugin")).isNull();
   }
 
 }

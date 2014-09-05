@@ -20,8 +20,6 @@
 package org.sonar.batch.scan;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -78,17 +76,13 @@ public class ModuleSettingsTest {
     projectRef.addSettings("struts-core", ImmutableMap.of("on-module", "true", "overridding", "module"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
-    Configuration deprecatedConf = new PropertiesConfiguration();
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, projectRef, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projectRef, mode);
 
     assertThat(moduleSettings.getString("overridding")).isEqualTo("module");
     assertThat(moduleSettings.getString("on-batch")).isEqualTo("true");
     assertThat(moduleSettings.getString("on-module")).isEqualTo("true");
 
-    assertThat(deprecatedConf.getString("overridding")).isEqualTo("module");
-    assertThat(deprecatedConf.getString("on-batch")).isEqualTo("true");
-    assertThat(deprecatedConf.getString("on-module")).isEqualTo("true");
   }
 
   @Test
@@ -101,9 +95,8 @@ public class ModuleSettingsTest {
     projectRef.addSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
-    Configuration deprecatedConf = new PropertiesConfiguration();
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, projectRef, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projectRef, mode);
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(moduleSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -121,9 +114,8 @@ public class ModuleSettingsTest {
     when(mode.isPreview()).thenReturn(true);
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
-    Configuration deprecatedConf = new PropertiesConfiguration();
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, projectRef, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projectRef, mode);
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
 

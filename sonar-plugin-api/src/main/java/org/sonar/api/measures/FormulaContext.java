@@ -19,7 +19,6 @@
  */
 package org.sonar.api.measures;
 
-import org.apache.commons.configuration.Configuration;
 import org.sonar.api.resources.Resource;
 
 /**
@@ -30,11 +29,5 @@ public interface FormulaContext {
   Metric getTargetMetric();
 
   Resource getResource();
-
-  /**
-   * @deprecated in 3.7. Use {@link org.sonar.api.config.Settings}.
-   */
-  @Deprecated
-  Configuration getConfiguration();
 
 }

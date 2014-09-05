@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.index;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
@@ -39,7 +40,10 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
@@ -210,15 +214,15 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   }
 
   private static Project newProject(String key, String language) {
-    PropertiesConfiguration configuration = new PropertiesConfiguration();
-    configuration.setProperty("sonar.language", language);
-    return new Project(key).setConfiguration(configuration).setAnalysisType(Project.AnalysisType.DYNAMIC);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, language);
+    return new Project(key).setSettings(settings).setAnalysisType(Project.AnalysisType.DYNAMIC);
   }
 
   private static Project newCopyProject(String key, String language, int copyResourceId) {
-    PropertiesConfiguration configuration = new PropertiesConfiguration();
-    configuration.setProperty("sonar.language", language);
-    return new CopyProject(key, copyResourceId).setConfiguration(configuration).setAnalysisType(Project.AnalysisType.DYNAMIC);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, language);
+    return new CopyProject(key, copyResourceId).setSettings(settings).setAnalysisType(Project.AnalysisType.DYNAMIC);
   }
 
   private static class CopyProject extends Project implements ResourceCopy {

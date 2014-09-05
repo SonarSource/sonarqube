@@ -33,7 +33,9 @@ import javax.persistence.Table;
  * This class is still used in some plugins.
  *
  * @since 1.10
+ * @deprecated since 5.0 Hibernate is deprecated
  */
+@Deprecated
 @Entity
 @Table(name = "properties")
 public class Property extends BaseIdentifiable {

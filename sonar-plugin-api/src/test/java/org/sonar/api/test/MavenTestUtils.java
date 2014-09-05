@@ -19,14 +19,11 @@
  */
 package org.sonar.api.test;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.project.MavenProject;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Language;
@@ -77,13 +74,11 @@ public final class MavenTestUtils {
 
   public static Project loadProjectFromPom(Class clazz, String path) {
     MavenProject pom = loadPom(clazz, path);
-    Configuration configuration = new MapConfiguration(pom.getProperties());
     Project project = new Project(pom.getGroupId() + ":" + pom.getArtifactId())
-      .setPom(pom)
-      .setConfiguration(configuration);
-    configuration.setProperty("sonar.java.source", MavenUtils.getJavaSourceVersion(pom));
-    configuration.setProperty("sonar.java.target", MavenUtils.getJavaVersion(pom));
-    configuration.setProperty(CoreProperties.ENCODING_PROPERTY, MavenUtils.getSourceEncoding(pom));
+      .setPom(pom);
+    // configuration.setProperty("sonar.java.source", MavenUtils.getJavaSourceVersion(pom));
+    // configuration.setProperty("sonar.java.target", MavenUtils.getJavaVersion(pom));
+    // configuration.setProperty(CoreProperties.ENCODING_PROPERTY, MavenUtils.getSourceEncoding(pom));
 
     project.setFileSystem(new MavenModuleFileSystem(pom));
     return project;
@@ -153,7 +148,7 @@ public final class MavenTestUtils {
     }
 
     public List<File> getSourceFiles(Language... langs) {
-      return new ArrayList(FileUtils.listFiles(getSourceDirs().get(0), new String[]{"java"}, true));
+      return new ArrayList(FileUtils.listFiles(getSourceDirs().get(0), new String[] {"java"}, true));
     }
 
     public List<File> getJavaSourceFiles() {
@@ -165,7 +160,7 @@ public final class MavenTestUtils {
     }
 
     public List<File> getTestFiles(Language... langs) {
-      return new ArrayList(FileUtils.listFiles(getTestDirs().get(0), new String[]{"java"}, true));
+      return new ArrayList(FileUtils.listFiles(getTestDirs().get(0), new String[] {"java"}, true));
     }
 
     public boolean hasTestFiles(Language lang) {

@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
@@ -88,7 +87,6 @@ public class BootstrapContainer extends ComponentContainer {
 
   private void addBootstrapComponents() {
     add(
-      new PropertiesConfiguration(),
       new BootstrapProperties(bootstrapProperties),
       AnalysisMode.class,
       BatchPluginRepository.class,

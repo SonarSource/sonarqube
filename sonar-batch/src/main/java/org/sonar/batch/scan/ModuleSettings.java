@@ -20,7 +20,6 @@
 package org.sonar.batch.scan;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -30,8 +29,6 @@ import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.GlobalSettings;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 
-import javax.annotation.Nullable;
-
 import java.util.List;
 
 /**
@@ -39,11 +36,10 @@ import java.util.List;
  */
 public class ModuleSettings extends Settings {
 
-  private final Configuration deprecatedCommonsConf;
   private final ProjectReferentials projectReferentials;
   private AnalysisMode analysisMode;
 
-  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition project, Configuration deprecatedCommonsConf, ProjectReferentials projectReferentials,
+  public ModuleSettings(GlobalSettings batchSettings, ProjectDefinition project, ProjectReferentials projectReferentials,
     AnalysisMode analysisMode) {
     super(batchSettings.getDefinitions());
     this.projectReferentials = projectReferentials;
@@ -51,7 +47,6 @@ public class ModuleSettings extends Settings {
     getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
 
     LoggerFactory.getLogger(ModuleSettings.class).info("Load module settings");
-    this.deprecatedCommonsConf = deprecatedCommonsConf;
     init(project, batchSettings);
   }
 
@@ -84,21 +79,6 @@ public class ModuleSettings extends Settings {
       p = p.getParent();
     }
     return result;
-  }
-
-  @Override
-  protected void doOnSetProperty(String key, @Nullable String value) {
-    deprecatedCommonsConf.setProperty(key, value);
-  }
-
-  @Override
-  protected void doOnRemoveProperty(String key) {
-    deprecatedCommonsConf.clearProperty(key);
-  }
-
-  @Override
-  protected void doOnClearProperties() {
-    deprecatedCommonsConf.clear();
   }
 
   @Override

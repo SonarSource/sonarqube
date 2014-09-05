@@ -19,12 +19,9 @@
  */
 package org.sonar.server.platform;
 
-import org.apache.commons.configuration.Configuration;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-
-import javax.annotation.Nullable;
 
 import java.util.Collections;
 import java.util.Map;
@@ -44,11 +41,9 @@ import java.util.Properties;
 public class ServerSettings extends Settings {
 
   private final Properties properties;
-  private Configuration deprecatedConfiguration;
 
-  public ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, Properties properties) {
+  public ServerSettings(PropertyDefinitions definitions, Properties properties) {
     super(definitions);
-    this.deprecatedConfiguration = deprecatedConfiguration;
     this.properties = properties;
     load(Collections.<String, String>emptyMap());
     // Secret key is loaded from conf/sonar.properties
@@ -67,20 +62,5 @@ public class ServerSettings extends Settings {
     addProperties(properties);
 
     return this;
-  }
-
-  @Override
-  protected void doOnSetProperty(String key, @Nullable String value) {
-    deprecatedConfiguration.setProperty(key, value);
-  }
-
-  @Override
-  protected void doOnRemoveProperty(String key) {
-    deprecatedConfiguration.clearProperty(key);
-  }
-
-  @Override
-  protected void doOnClearProperties() {
-    deprecatedConfiguration.clear();
   }
 }

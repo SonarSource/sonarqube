@@ -19,16 +19,17 @@
  */
 package org.sonar.batch.index;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
@@ -114,9 +115,9 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
   }
 
   private static Project newProject(String key, String language) {
-    PropertiesConfiguration configuration = new PropertiesConfiguration();
-    configuration.setProperty("sonar.language", language);
-    return new Project(key).setConfiguration(configuration).setAnalysisType(Project.AnalysisType.DYNAMIC);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, language);
+    return new Project(key).setSettings(settings).setAnalysisType(Project.AnalysisType.DYNAMIC);
   }
 
 }

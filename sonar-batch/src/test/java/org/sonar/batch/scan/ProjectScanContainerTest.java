@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
@@ -69,9 +68,8 @@ public class ProjectScanContainerTest {
     parentContainer.add(System2.INSTANCE);
     parentContainer.add(bootstrapProperties);
     parentContainer.add(analysisMode);
-    parentContainer.add(new PropertiesConfiguration());
     GlobalReferentials globalRef = new GlobalReferentials();
-    settings = new GlobalSettings(bootstrapProperties, new PropertyDefinitions(), globalRef, new PropertiesConfiguration(), analysisMode);
+    settings = new GlobalSettings(bootstrapProperties, new PropertyDefinitions(), globalRef, analysisMode);
     parentContainer.add(settings);
     ProjectReferentialsLoader projectReferentialsLoader = new ProjectReferentialsLoader() {
       @Override

@@ -19,12 +19,12 @@
  */
 package org.sonar.java.api;
 
+import org.junit.Test;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Project;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-
-import org.apache.commons.configuration.BaseConfiguration;
-import org.junit.Test;
-import org.sonar.api.resources.Project;
 
 public class JavaUtilsTest {
 
@@ -41,8 +41,8 @@ public class JavaUtilsTest {
 
   @Test
   public void shouldReturnDefaultJavaVersion() {
-    BaseConfiguration configuration = new BaseConfiguration();
-    Project project = new Project("").setConfiguration(configuration);
+    Settings configuration = new Settings();
+    Project project = new Project("").setSettings(configuration);
 
     assertThat(JavaUtils.getSourceVersion(project), is("1.5"));
     assertThat(JavaUtils.getTargetVersion(project), is("1.5"));
@@ -50,8 +50,8 @@ public class JavaUtilsTest {
 
   @Test
   public void shouldReturnSpecifiedJavaVersion() {
-    BaseConfiguration configuration = new BaseConfiguration();
-    Project project = new Project("").setConfiguration(configuration);
+    Settings configuration = new Settings();
+    Project project = new Project("").setSettings(configuration);
     configuration.setProperty(JavaUtils.JAVA_SOURCE_PROPERTY, "1.4");
     configuration.setProperty(JavaUtils.JAVA_TARGET_PROPERTY, "1.6");
 

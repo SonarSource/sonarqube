@@ -20,7 +20,6 @@
 package org.sonar.server.platform;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
@@ -42,7 +41,7 @@ public class ServerSettingsTest {
     properties.put("hello", "world");
     properties.put("in_file", "true");
     properties.put("ServerSettingsTestEnv", "in_file");
-    settings = new ServerSettings(new PropertyDefinitions(), new BaseConfiguration(), properties);
+    settings = new ServerSettings(new PropertyDefinitions(), properties);
   }
 
   @Test
@@ -68,18 +67,4 @@ public class ServerSettingsTest {
     assertThat(settings.getString("in_file")).isEqualTo("true");
   }
 
-  @Test
-  public void synchronize_deprecated_commons_configuration() {
-    BaseConfiguration deprecated = new BaseConfiguration();
-    ServerSettings settings = new ServerSettings(new PropertyDefinitions(), deprecated, properties);
-
-    assertThat(settings.getString("in_file")).isEqualTo("true");
-    assertThat(deprecated.getString("in_file")).isEqualTo("true");
-
-    assertThat(deprecated.getString("foo")).isNull();
-    settings.setProperty("foo", "bar");
-    assertThat(deprecated.getString("foo")).isEqualTo("bar");
-    settings.removeProperty("foo");
-    assertThat(deprecated.getString("foo")).isNull();
-  }
 }

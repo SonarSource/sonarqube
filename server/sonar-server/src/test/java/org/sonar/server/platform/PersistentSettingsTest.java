@@ -20,7 +20,6 @@
 package org.sonar.server.platform;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -34,7 +33,9 @@ import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PersistentSettingsTest {
 
@@ -47,7 +48,6 @@ public class PersistentSettingsTest {
 
     settings = new ServerSettings(
       new PropertyDefinitions(),
-      new PropertiesConfiguration(),
       new Properties());
   }
 
@@ -55,7 +55,7 @@ public class PersistentSettingsTest {
   public void load_database_properties_at_startup() {
     when(dao.selectGlobalProperties()).thenReturn(Arrays.asList(
       new PropertyDto().setKey("in_db").setValue("bar")
-    ));
+      ));
 
     PersistentSettings persistentSettings = new PersistentSettings(dao, settings);
     persistentSettings.start();
