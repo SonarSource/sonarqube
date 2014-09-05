@@ -98,24 +98,27 @@ requirejs(
 
 
       NavigatorApp.addInitializer(function () {
-        var projectFilter = new BaseFilters.Filter({
-            name: window.SS.phrases.project,
-            property: 'componentRoots',
-            type: AjaxSelectFilters.ProjectFilterView,
-            enabled: true,
-            optional: false
-          });
-        this.filters.add(projectFilter);
+        this.projectFilter = new BaseFilters.Filter({
+          name: window.SS.phrases.project,
+          property: 'componentRoots',
+          type: AjaxSelectFilters.ProjectFilterView,
+          enabled: true,
+          optional: false
+        });
+        this.filters.add(this.projectFilter);
 
-        var assigneeChoices = {
-              '!assigned': window.SS.phrases.unassigned
-            },
-            reporterChoices = {};
+        this.assigneeChoices = {
+          '!assigned': window.SS.phrases.unassigned
+        };
+        this.reporterChoices = {};
         if (window.SS.currentUser) {
-          assigneeChoices[window.SS.currentUser] = window.SS.currentUserName + ' (' + window.SS.currentUser + ')';
-          reporterChoices[window.SS.currentUser] = window.SS.currentUserName + ' (' + window.SS.currentUser + ')';
+          this.assigneeChoices[window.SS.currentUser] = window.SS.currentUserName + ' (' + window.SS.currentUser + ')';
+          this.reporterChoices[window.SS.currentUser] = window.SS.currentUserName + ' (' + window.SS.currentUser + ')';
         }
+      });
 
+
+      NavigatorApp.addInitializer(function () {
         this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.severity,
@@ -137,8 +140,13 @@ requirejs(
               'MINOR': 'severity-minor',
               'INFO': 'severity-info'
             }
-          }),
+          })
+        ]);
+      });
 
+
+      NavigatorApp.addInitializer(function () {
+        this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.status,
             property: 'statuses',
@@ -159,17 +167,27 @@ requirejs(
               'RESOLVED': 'status-resolved',
               'CLOSED': 'status-closed'
             }
-          }),
+          })
+        ]);
+      });
 
+
+      NavigatorApp.addInitializer(function () {
+        this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.assignee,
             property: 'assignees',
             type: AjaxSelectFilters.AssigneeFilterView,
             enabled: true,
             optional: false,
-            choices: assigneeChoices
-          }),
+            choices: this.assigneeChoices
+          })
+        ]);
+      });
 
+
+      NavigatorApp.addInitializer(function () {
+        this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.resolution,
             property: 'resolutions',
@@ -183,20 +201,30 @@ requirejs(
               'FIXED': window.SS.phrases.resolutions.FIXED,
               'REMOVED': window.SS.phrases.resolutions.REMOVED
             }
-          }),
+          })
+        ]);
+      });
 
+
+      NavigatorApp.addInitializer(function () {
+        this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.actionPlan,
             property: 'actionPlans',
             type: ActionPlanFilterView,
             enabled: false,
             optional: true,
-            projectFilter: projectFilter,
+            projectFilter: this.projectFilter,
             choices: {
               '!planned': window.SS.phrases.unplanned
             }
-          }),
+          })
+        ]);
+      });
 
+
+      NavigatorApp.addInitializer(function () {
+        this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.created,
             propertyFrom: 'createdAfter',
@@ -204,8 +232,13 @@ requirejs(
             type: RangeFilters.DateRangeFilterView,
             enabled: false,
             optional: true
-          }),
+          })
+        ]);
+      });
 
+
+      NavigatorApp.addInitializer(function () {
+        this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.createdAt,
             property: 'createdAt',
@@ -213,8 +246,13 @@ requirejs(
             enabled: false,
             optional: true,
             format: function(value) { return moment(value).format('YYYY-MM-DD HH:mm'); }
-          }),
+          })
+        ]);
+      });
 
+
+      NavigatorApp.addInitializer(function () {
+        this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.language,
             property: 'languages',
@@ -222,17 +260,27 @@ requirejs(
             enabled: false,
             optional: true,
             choices: window.SS.languages
-          }),
+          })
+        ]);
+      });
 
+
+      NavigatorApp.addInitializer(function () {
+        this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.reporter,
             property: 'reporters',
             type: AjaxSelectFilters.ReporterFilterView,
             enabled: false,
             optional: true,
-            choices: reporterChoices
-          }),
+            choices: this.reporterChoices
+          })
+        ]);
+      });
 
+
+      NavigatorApp.addInitializer(function () {
+        this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.rule,
             property: 'rules',
@@ -241,8 +289,10 @@ requirejs(
             optional: true
           })
         ]);
+      });
 
 
+      NavigatorApp.addInitializer(function () {
         this.filterBarView = new Extra.IssuesFilterBarView({
           app: this,
           collection: this.filters,

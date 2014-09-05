@@ -26,7 +26,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
-import org.sonar.xoo.XooConstants;
 
 public class OneIssueOnDirPerFileSensor implements Sensor {
 
@@ -37,7 +36,7 @@ public class OneIssueOnDirPerFileSensor implements Sensor {
     descriptor
       .name("One Issue On Dir Per File")
       .workOnLanguages(Xoo.KEY)
-      .createIssuesForRuleRepositories(XooConstants.REPOSITORY_KEY)
+      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY)
       .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);
   }
 
@@ -49,7 +48,7 @@ public class OneIssueOnDirPerFileSensor implements Sensor {
   }
 
   private void createIssues(InputFile file, SensorContext context) {
-    RuleKey ruleKey = RuleKey.of(XooConstants.REPOSITORY_KEY, RULE_KEY);
+    RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
     InputDir inputDir = context.fileSystem().inputDir(file.file().getParentFile());
     if (inputDir != null) {
       context.addIssue(context.issueBuilder()

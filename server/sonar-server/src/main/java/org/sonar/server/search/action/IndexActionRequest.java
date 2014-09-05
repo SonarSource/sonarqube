@@ -46,7 +46,7 @@ public abstract class IndexActionRequest implements ClusterAction<List<ActionReq
 
   public abstract String getKey();
 
-  public abstract Class<?> getPayloadClass();
+  public abstract Class getPayloadClass();
 
   public String getIndexType() {
     return indexType;

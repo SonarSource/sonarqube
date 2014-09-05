@@ -19,19 +19,19 @@
  */
 package org.sonar.xoo.lang;
 
-import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-
 import com.google.common.base.Splitter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.xoo.Xoo;
-import org.sonar.xoo.XooConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,39 +43,42 @@ import java.util.List;
  */
 public class SyntaxHighlightingSensor implements Sensor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(SyntaxHighlightingSensor.class);
+
   private static final String HIGHLIGHTING_EXTENSION = ".highlighting";
 
   private void processFileHighlighting(InputFile inputFile, SensorContext context) {
     File ioFile = inputFile.file();
     File highlightingFile = new File(ioFile.getParentFile(), ioFile.getName() + HIGHLIGHTING_EXTENSION);
     if (highlightingFile.exists()) {
-      XooConstants.LOG.debug("Processing " + highlightingFile.getAbsolutePath());
+      LOG.debug("Processing " + highlightingFile.getAbsolutePath());
       try {
         List<String> lines = FileUtils.readLines(highlightingFile, context.fileSystem().encoding().name());
         int lineNumber = 0;
         HighlightingBuilder highlightingBuilder = context.highlightingBuilder(inputFile);
         for (String line : lines) {
           lineNumber++;
-          if (StringUtils.isBlank(line)) {
+          if (StringUtils.isBlank(line) || line.startsWith("#")) {
             continue;
           }
-          if (line.startsWith("#")) {
-            continue;
-          }
-          try {
-            Iterator<String> split = Splitter.on(":").split(line).iterator();
-            int startOffset = Integer.parseInt(split.next());
-            int endOffset = Integer.parseInt(split.next());
-            TypeOfText type = TypeOfText.forCssClass(split.next());
-            highlightingBuilder.highlight(startOffset, endOffset, type);
-          } catch (Exception e) {
-            throw new IllegalStateException("Error processing line " + lineNumber + " of file " + highlightingFile.getAbsolutePath(), e);
-          }
+          processLine(highlightingFile, lineNumber, highlightingBuilder, line);
         }
         highlightingBuilder.done();
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new IllegalStateException(e);
       }
+    }
+  }
+
+  private void processLine(File highlightingFile, int lineNumber, HighlightingBuilder highlightingBuilder, String line) {
+    try {
+      Iterator<String> split = Splitter.on(":").split(line).iterator();
+      int startOffset = Integer.parseInt(split.next());
+      int endOffset = Integer.parseInt(split.next());
+      TypeOfText type = TypeOfText.forCssClass(split.next());
+      highlightingBuilder.highlight(startOffset, endOffset, type);
+    } catch (Exception e) {
+      throw new IllegalStateException("Error processing line " + lineNumber + " of file " + highlightingFile.getAbsolutePath(), e);
     }
   }
 

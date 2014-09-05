@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,7 +50,7 @@ public class PmdBlockChunker {
   /**
    * @return ArrayList as we need a serializable object
    */
-  public ArrayList<Block> chunk(String resourceId, List<TokensLine> fragments) {
+  public List<Block> chunk(String resourceId, List<TokensLine> fragments) {
     List<TokensLine> filtered = Lists.newArrayList();
     int i = 0;
     while (i < fragments.size()) {
@@ -72,7 +71,7 @@ public class PmdBlockChunker {
       return Lists.newArrayList();
     }
     TokensLine[] fragmentsArr = fragments.toArray(new TokensLine[fragments.size()]);
-    ArrayList<Block> blocks = Lists.newArrayListWithCapacity(fragmentsArr.length - blockSize + 1);
+    List<Block> blocks = Lists.newArrayListWithCapacity(fragmentsArr.length - blockSize + 1);
     long hash = 0;
     int first = 0;
     int last = 0;

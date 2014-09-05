@@ -158,7 +158,7 @@ public class ProjectReferentialsActionTest {
     when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
       new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
-      ));
+    ));
 
     when(propertiesDao.selectProjectProperties(module.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER"),
@@ -210,6 +210,34 @@ public class ProjectReferentialsActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
     request.execute().assertJson(getClass(), "return_project_with_module_with_sub_module.json");
+  }
+
+  @Test
+  public void return_project_with_two_modules() throws Exception {
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    ComponentDto module2 = new ComponentDto().setKey("org.codehaus.sonar:sonar-application").setQualifier(Qualifiers.MODULE);
+
+    when(componentDao.getNullableRootProjectByKey(project.key(), session)).thenReturn(project);
+    when(componentDao.findModulesByProject(project.key(), session)).thenReturn(newArrayList(module, module2));
+
+    when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
+      new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
+    ));
+
+    when(propertiesDao.selectProjectProperties(module.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER"),
+      // This property should not be found on the other module
+      new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
+    ));
+
+    when(propertiesDao.selectProjectProperties(module2.key(), session)).thenReturn(newArrayList(
+      new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-APPLICATION")
+    ));
+
+    WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
+    request.execute().assertJson(getClass(), "return_project_with_two_modules.json");
   }
 
   @Test

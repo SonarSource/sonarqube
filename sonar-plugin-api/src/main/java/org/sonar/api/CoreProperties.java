@@ -159,7 +159,7 @@ public interface CoreProperties {
   String PROJECT_DATE_PROPERTY = "sonar.projectDate";
 
   /**
-   * @deprecated since 4.2 project are now multi-language
+   * @deprecated since 4.2 projects are now multi-language
    */
   @Deprecated
   String PROJECT_LANGUAGE_PROPERTY = "sonar.language";
@@ -173,6 +173,9 @@ public interface CoreProperties {
   /* Exclusions */
   String PROJECT_INCLUSIONS_PROPERTY = "sonar.inclusions";
   String PROJECT_EXCLUSIONS_PROPERTY = "sonar.exclusions";
+
+  /* Coverage exclusions */
+  String PROJECT_COVERAGE_EXCLUSIONS_PROPERTY = "sonar.coverage.exclusions";
 
   /**
    * @since 3.3

@@ -198,20 +198,8 @@ public class JavaCpdEngine extends CpdEngine {
     if (duplications == null || Iterables.isEmpty(duplications)) {
       return;
     }
-    // Calculate number of lines and blocks
     Set<Integer> duplicatedLines = new HashSet<Integer>();
-    int duplicatedBlocks = 0;
-    for (CloneGroup clone : duplications) {
-      ClonePart origin = clone.getOriginPart();
-      for (ClonePart part : clone.getCloneParts()) {
-        if (part.getResourceId().equals(origin.getResourceId())) {
-          duplicatedBlocks++;
-          for (int duplicatedLine = part.getStartLine(); duplicatedLine < part.getStartLine() + part.getLines(); duplicatedLine++) {
-            duplicatedLines.add(duplicatedLine);
-          }
-        }
-      }
-    }
+    int duplicatedBlocks = computeBlockAndLineCount(duplications, duplicatedLines);
     FileLinesContext linesContext = contextFactory.createFor(inputFile);
     for (int i = 1; i <= inputFile.lines(); i++) {
       linesContext.setIntValue(CoreMetrics.DUPLICATION_LINES_DATA_KEY, i, duplicatedLines.contains(i) ? 1 : 0);
@@ -244,6 +232,22 @@ public class JavaCpdEngine extends CpdEngine {
       }
     }
     context.saveDuplications(inputFile, builder.build());
+  }
+
+  private static int computeBlockAndLineCount(Iterable<CloneGroup> duplications, Set<Integer> duplicatedLines) {
+    int duplicatedBlocks = 0;
+    for (CloneGroup clone : duplications) {
+      ClonePart origin = clone.getOriginPart();
+      for (ClonePart part : clone.getCloneParts()) {
+        if (part.getResourceId().equals(origin.getResourceId())) {
+          duplicatedBlocks++;
+          for (int duplicatedLine = part.getStartLine(); duplicatedLine < part.getStartLine() + part.getLines(); duplicatedLine++) {
+            duplicatedLines.add(duplicatedLine);
+          }
+        }
+      }
+    }
+    return duplicatedBlocks;
   }
 
 }

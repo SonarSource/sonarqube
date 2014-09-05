@@ -66,25 +66,29 @@ public class Hit implements Comparable<Hit> {
 
   @Override
   public int compareTo(Hit hit) {
-    if (this.getRank() != null) {
-      return this.getRank().compareTo(hit.getRank());
-    } else {
-      return this.getScore().compareTo(hit.getScore());
+    if (getRank() != null) {
+      return getRank().compareTo(hit.getRank());
     }
+    return getScore().compareTo(hit.getScore());
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Hit)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Hit)) {
+      return false;
+    }
 
     Hit hit = (Hit) o;
-
-    if (fields != null ? !fields.equals(hit.fields) : hit.fields != null) return false;
-    if (rank != null ? !rank.equals(hit.rank) : hit.rank != null) return false;
-    if (score != null ? !score.equals(hit.score) : hit.score != null) return false;
-
-    return true;
+    if (fields != null ? !fields.equals(hit.fields) : hit.fields != null) {
+      return false;
+    }
+    if (rank != null ? !rank.equals(hit.rank) : hit.rank != null) {
+      return false;
+    }
+    return !(score != null ? !score.equals(hit.score) : hit.score != null);
   }
 
   @Override

@@ -31,6 +31,10 @@ import javax.annotation.Nullable;
 
 public class DefaultIssueBuilder implements IssueBuilder {
 
+  private static final String INPUT_DIR_SHOULD_BE_NON_NULL = "InputDir should be non null";
+  private static final String INPUT_FILE_SHOULD_BE_NON_NULL = "InputFile should be non null";
+  private static final String ON_FILE_OR_ON_DIR_ALREADY_CALLED = "onFile or onDir already called";
+  private static final String ON_PROJECT_ALREADY_CALLED = "onProject already called";
   String key;
   boolean onProject = false;
   InputPath path;
@@ -48,26 +52,26 @@ public class DefaultIssueBuilder implements IssueBuilder {
 
   @Override
   public DefaultIssueBuilder onFile(InputFile file) {
-    Preconditions.checkState(!this.onProject, "onProject already called");
-    Preconditions.checkState(this.path == null, "onFile or onDir already called");
-    Preconditions.checkNotNull(file, "InputFile should be non null");
+    Preconditions.checkState(!this.onProject, ON_PROJECT_ALREADY_CALLED);
+    Preconditions.checkState(this.path == null, ON_FILE_OR_ON_DIR_ALREADY_CALLED);
+    Preconditions.checkNotNull(file, INPUT_FILE_SHOULD_BE_NON_NULL);
     this.path = file;
     return this;
   }
 
   @Override
   public DefaultIssueBuilder onDir(InputDir dir) {
-    Preconditions.checkState(!this.onProject, "onProject already called");
-    Preconditions.checkState(this.path == null, "onFile or onDir already called");
-    Preconditions.checkNotNull(dir, "InputDir should be non null");
+    Preconditions.checkState(!this.onProject, ON_PROJECT_ALREADY_CALLED);
+    Preconditions.checkState(this.path == null, ON_FILE_OR_ON_DIR_ALREADY_CALLED);
+    Preconditions.checkNotNull(dir, INPUT_DIR_SHOULD_BE_NON_NULL);
     this.path = dir;
     return this;
   }
 
   @Override
   public DefaultIssueBuilder onProject() {
-    Preconditions.checkState(!this.onProject, "onProject already called");
-    Preconditions.checkState(this.path == null, "onFile or onDir already called");
+    Preconditions.checkState(!this.onProject, ON_PROJECT_ALREADY_CALLED);
+    Preconditions.checkState(this.path == null, ON_FILE_OR_ON_DIR_ALREADY_CALLED);
     this.onProject = true;
     return this;
   }

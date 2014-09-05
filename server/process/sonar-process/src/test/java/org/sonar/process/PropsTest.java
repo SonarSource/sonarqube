@@ -29,7 +29,7 @@ import static org.fest.assertions.Fail.fail;
 public class PropsTest {
 
   @Test
-  public void of() throws Exception {
+  public void value() throws Exception {
     Properties p = new Properties();
     p.setProperty("foo", "bar");
     Props props = new Props(p);
@@ -41,7 +41,7 @@ public class PropsTest {
   }
 
   @Test
-  public void intOf() throws Exception {
+  public void valueAsInt() throws Exception {
     Properties p = new Properties();
     p.setProperty("foo", "33");
     p.setProperty("blank", "");
@@ -56,7 +56,7 @@ public class PropsTest {
   }
 
   @Test
-  public void intOf_not_integer() throws Exception {
+  public void valueAsInt_not_integer() throws Exception {
     Properties p = new Properties();
     p.setProperty("foo", "bar");
     Props props = new Props(p);
@@ -70,7 +70,7 @@ public class PropsTest {
   }
 
   @Test
-  public void booleanOf() throws Exception {
+  public void valueAsBoolean() throws Exception {
     Properties p = new Properties();
     p.setProperty("foo", "True");
     p.setProperty("bar", "false");
@@ -82,7 +82,7 @@ public class PropsTest {
   }
 
   @Test
-  public void booleanOf_default_value() throws Exception {
+  public void valueAsBoolean_default_value() throws Exception {
     Properties p = new Properties();
     p.setProperty("foo", "true");
     p.setProperty("bar", "false");
@@ -114,9 +114,11 @@ public class PropsTest {
     Props props = new Props(p);
     props.set("foo", "new_foo");
     props.set("bar", "new_bar");
+    props.set("null", null);
 
     assertThat(props.value("foo")).isEqualTo("new_foo");
     assertThat(props.value("bar")).isEqualTo("new_bar");
+    assertThat(props.value("null")).isNull();
   }
 
   @Test

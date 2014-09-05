@@ -23,6 +23,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -35,14 +38,16 @@ import java.util.Iterator;
 
 public class CoverageMeasurementFilter implements MeasurementFilter {
 
+  private static final Logger LOG = LoggerFactory.getLogger(CoverageMeasurementFilter.class);
+
   private final Settings settings;
   private final ImmutableSet<Metric> coverageMetrics;
   private Collection<WildcardPattern> resourcePatterns;
 
   public CoverageMeasurementFilter(Settings settings,
-                                   CoverageDecorator coverageDecorator,
-                                   LineCoverageDecorator lineCoverageDecorator,
-                                   BranchCoverageDecorator branchCoverageDecorator) {
+    CoverageDecorator coverageDecorator,
+    LineCoverageDecorator lineCoverageDecorator,
+    BranchCoverageDecorator branchCoverageDecorator) {
     this.settings = settings;
     this.coverageMetrics = ImmutableSet.<Metric>builder()
       .addAll(coverageDecorator.generatedMetrics())
@@ -81,9 +86,19 @@ public class CoverageMeasurementFilter implements MeasurementFilter {
   @VisibleForTesting
   final void initPatterns() {
     Builder<WildcardPattern> builder = ImmutableList.builder();
-    for (String pattern : settings.getStringArray("sonar.coverage.exclusions")) {
+    for (String pattern : settings.getStringArray(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY)) {
       builder.add(WildcardPattern.create(pattern));
     }
     resourcePatterns = builder.build();
+    log("Excluded sources for coverage: ", resourcePatterns);
+  }
+
+  private void log(String title, Collection<WildcardPattern> patterns) {
+    if (!patterns.isEmpty()) {
+      LOG.info(title);
+      for (WildcardPattern pattern : patterns) {
+        LOG.info("  " + pattern);
+      }
+    }
   }
 }

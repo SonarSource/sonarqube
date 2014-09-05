@@ -37,7 +37,7 @@ public class ExclusionProperties {
     return ImmutableList.of(
 
       // COVERAGE
-      PropertyDefinition.builder("sonar.coverage.exclusions")
+      PropertyDefinition.builder(CoreProperties.PROJECT_COVERAGE_EXCLUSIONS_PROPERTY)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_COVERAGE_EXCLUSIONS)
         .type(PropertyType.STRING)
@@ -110,6 +110,6 @@ public class ExclusionProperties {
         .onlyOnQualifiers(Qualifiers.PROJECT)
         .index(1)
         .build()
-    );
+      );
   }
 }

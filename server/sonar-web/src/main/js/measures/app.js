@@ -106,7 +106,9 @@ requirejs(
             optional: true
           })
         ]);
+      });
 
+      NavigatorApp.addInitializer(function () {
         this.filters.add([
           new BaseFilters.Filter({
             name: window.SS.phrases.lastAnalysis,

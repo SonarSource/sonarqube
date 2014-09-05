@@ -22,6 +22,7 @@ package org.sonar.api.batch.sensor.duplication.internal;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup.Block;
 
 import java.util.List;
 
@@ -41,9 +42,10 @@ public class DefaultDuplicationBuilderTest {
       .build();
 
     assertThat(duplicationGroup).hasSize(2);
-    assertThat(duplicationGroup.get(0).originBlock().resourceKey()).isEqualTo("foo:foo.php");
-    assertThat(duplicationGroup.get(0).originBlock().startLine()).isEqualTo(1);
-    assertThat(duplicationGroup.get(0).originBlock().length()).isEqualTo(11);
+    Block originBlock = duplicationGroup.get(0).originBlock();
+    assertThat(originBlock.resourceKey()).isEqualTo("foo:foo.php");
+    assertThat(originBlock.startLine()).isEqualTo(1);
+    assertThat(originBlock.length()).isEqualTo(11);
     assertThat(duplicationGroup.get(0).duplicates()).hasSize(2);
   }
 

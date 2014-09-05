@@ -282,4 +282,16 @@ public class QProfileServiceMediumTest {
       , new QueryOptions()).getHits()).hasSize(2);
   }
 
+  @Test
+  public void set_default() throws Exception {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
+
+    assertThat(service.getDefault("xoo")).isNull();
+
+    service.setDefault(XOO_P1_KEY);
+    dbSession.clearCache();
+
+    assertThat(service.getDefault("xoo").getKey()).isEqualTo(XOO_P1_KEY);
+  }
+
 }

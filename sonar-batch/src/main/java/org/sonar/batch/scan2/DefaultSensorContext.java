@@ -19,93 +19,46 @@
  */
 package org.sonar.batch.scan2;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.DefaultActiveRule;
-import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
-import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplicationBuilder;
-import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.issue.IssueBuilder;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueBuilder;
 import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.measure.MeasureBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
-import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.duplication.BlockCache;
-import org.sonar.batch.duplication.DefaultTokenBuilder;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.scan.SensorContextAdaptor;
-import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 
 import java.io.Serializable;
-import java.util.List;
 
-public class DefaultSensorContext implements SensorContext {
+public class DefaultSensorContext extends BaseSensorContext {
 
   private final AnalyzerMeasureCache measureCache;
   private final AnalyzerIssueCache issueCache;
   private final ProjectDefinition def;
-  private final Settings settings;
-  private final FileSystem fs;
   private final ActiveRules activeRules;
   private final IssueFilters issueFilters;
-  private final ComponentDataCache componentDataCache;
-  private final BlockCache blockCache;
-  private final DuplicationCache duplicationCache;
 
   public DefaultSensorContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, AnalyzerIssueCache issueCache,
     Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters, ComponentDataCache componentDataCache,
     BlockCache blockCache, DuplicationCache duplicationCache) {
+    super(settings, fs, activeRules, componentDataCache, blockCache, duplicationCache);
     this.def = def;
     this.measureCache = measureCache;
     this.issueCache = issueCache;
-    this.settings = settings;
-    this.fs = fs;
     this.activeRules = activeRules;
     this.issueFilters = issueFilters;
-    this.componentDataCache = componentDataCache;
-    this.blockCache = blockCache;
-    this.duplicationCache = duplicationCache;
-  }
-
-  @Override
-  public Settings settings() {
-    return settings;
-  }
-
-  @Override
-  public FileSystem fileSystem() {
-    return fs;
-  }
-
-  @Override
-  public ActiveRules activeRules() {
-    return activeRules;
-  }
-
-  @Override
-  public <G extends Serializable> MeasureBuilder<G> measureBuilder() {
-    return new DefaultMeasureBuilder<G>();
   }
 
   @Override
@@ -136,11 +89,6 @@ public class DefaultSensorContext implements SensorContext {
     } else {
       measureCache.put(def.getKey(), def.getKey(), (DefaultMeasure) measure);
     }
-  }
-
-  @Override
-  public IssueBuilder issueBuilder() {
-    return new DefaultIssueBuilder();
   }
 
   @Override
@@ -178,56 +126,6 @@ public class DefaultSensorContext implements SensorContext {
 
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.severity());
-    }
-  }
-
-  @Override
-  public HighlightingBuilder highlightingBuilder(InputFile inputFile) {
-    return new DefaultHighlightingBuilder(((DefaultInputFile) inputFile).key(), componentDataCache);
-  }
-
-  @Override
-  public SymbolTableBuilder symbolTableBuilder(InputFile inputFile) {
-    return new DefaultSymbolTableBuilder(((DefaultInputFile) inputFile).key(), componentDataCache);
-  }
-
-  @Override
-  public DuplicationTokenBuilder duplicationTokenBuilder(InputFile inputFile) {
-    PmdBlockChunker blockChunker = new PmdBlockChunker(getBlockSize(inputFile.language()));
-
-    return new DefaultTokenBuilder(inputFile, blockCache, blockChunker);
-  }
-
-  @Override
-  public DuplicationBuilder duplicationBuilder(InputFile inputFile) {
-    return new DefaultDuplicationBuilder(inputFile);
-  }
-
-  @Override
-  public void saveDuplications(InputFile inputFile, List<DuplicationGroup> duplications) {
-    Preconditions.checkState(duplications.size() > 0, "Empty duplications");
-    String effectiveKey = ((DefaultInputFile) inputFile).key();
-    for (DuplicationGroup duplicationGroup : duplications) {
-      Preconditions.checkState(effectiveKey.equals(duplicationGroup.originBlock().resourceKey()), "Invalid duplication group");
-    }
-    duplicationCache.put(effectiveKey, duplications);
-  }
-
-  private int getBlockSize(String languageKey) {
-    int blockSize = settings.getInt("sonar.cpd." + languageKey + ".minimumLines");
-    if (blockSize == 0) {
-      blockSize = getDefaultBlockSize(languageKey);
-    }
-    return blockSize;
-  }
-
-  private static int getDefaultBlockSize(String languageKey) {
-    if ("cobol".equals(languageKey)) {
-      return 30;
-    } else if ("abap".equals(languageKey) || "natur".equals(languageKey)) {
-      return 20;
-    } else {
-      return 10;
     }
   }
 

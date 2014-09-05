@@ -17,20 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo;
+package org.sonar.api.batch.sensor.highlighting;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Test;
 
-public interface XooConstants {
+import static org.fest.assertions.Assertions.assertThat;
 
-  String PLUGIN_KEY = "xoo";
-  String PLUGIN_NAME = "Xoo";
+public class TypeOfTextTest {
 
-  String REPOSITORY_KEY = PLUGIN_KEY;
-  String REPOSITORY_NAME = PLUGIN_NAME;
+  @Test
+  public void testForCss() {
+    assertThat(TypeOfText.forCssClass("k")).isEqualTo(TypeOfText.KEYWORD);
+    assertThat(TypeOfText.KEYWORD_LIGHT.cssClass()).isEqualTo("h");
+  }
 
-  String[] FILE_SUFFIXES = {"xoo"};
+  @Test(expected = IllegalArgumentException.class)
+  public void throwIfUnknowCss() {
+    TypeOfText.forCssClass("w");
+  }
 
-  Logger LOG = LoggerFactory.getLogger("xoo");
 }

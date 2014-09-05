@@ -110,22 +110,7 @@ public class DefaultCpdEngine extends CpdEngine {
 
     // Create index
     SonarDuplicationsIndex index = indexFactory.create(project, languageKey);
-
-    TokenizerBridge bridge = null;
-    if (mapping != null) {
-      bridge = new TokenizerBridge(mapping.getTokenizer(), fs.encoding().name(), getBlockSize(languageKey));
-    }
-    for (InputFile inputFile : sourceFiles) {
-      LOG.debug("Populating index from {}", inputFile);
-      String resourceEffectiveKey = ((DeprecatedDefaultInputFile) inputFile).key();
-      FileBlocks fileBlocks = duplicationCache.byComponent(resourceEffectiveKey);
-      if (fileBlocks != null) {
-        index.insert(inputFile, fileBlocks.blocks());
-      } else if (bridge != null) {
-        List<Block> blocks2 = bridge.chunk(resourceEffectiveKey, inputFile.file());
-        index.insert(inputFile, blocks2);
-      }
-    }
+    populateIndex(languageKey, sourceFiles, mapping, index);
 
     // Detect
     Predicate<CloneGroup> minimumTokensPredicate = DuplicationPredicates.numberOfUnitsNotLessThan(getMinimumTokens(languageKey));
@@ -154,6 +139,24 @@ public class DefaultCpdEngine extends CpdEngine {
       }
     } finally {
       executorService.shutdown();
+    }
+  }
+
+  private void populateIndex(String languageKey, List<InputFile> sourceFiles, CpdMapping mapping, SonarDuplicationsIndex index) {
+    TokenizerBridge bridge = null;
+    if (mapping != null) {
+      bridge = new TokenizerBridge(mapping.getTokenizer(), fs.encoding().name(), getBlockSize(languageKey));
+    }
+    for (InputFile inputFile : sourceFiles) {
+      LOG.debug("Populating index from {}", inputFile);
+      String resourceEffectiveKey = ((DeprecatedDefaultInputFile) inputFile).key();
+      FileBlocks fileBlocks = duplicationCache.byComponent(resourceEffectiveKey);
+      if (fileBlocks != null) {
+        index.insert(inputFile, fileBlocks.blocks());
+      } else if (bridge != null) {
+        List<Block> blocks2 = bridge.chunk(resourceEffectiveKey, inputFile.file());
+        index.insert(inputFile, blocks2);
+      }
     }
   }
 

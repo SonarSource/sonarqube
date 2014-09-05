@@ -19,27 +19,16 @@
  */
 package org.sonar.batch.scan;
 
-import com.google.common.base.Preconditions;
+import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
-import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
-import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
-import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplicationBuilder;
-import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.issue.IssueBuilder;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueBuilder;
 import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.measure.MeasureBuilder;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
-import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
@@ -55,66 +44,32 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.duplication.BlockCache;
-import org.sonar.batch.duplication.DefaultTokenBuilder;
 import org.sonar.batch.duplication.DuplicationCache;
-import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
-import org.sonar.duplications.internal.pmd.PmdBlockChunker;
+import org.sonar.batch.scan2.BaseSensorContext;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Implements {@link SensorContext} but forward everything to {@link org.sonar.api.batch.SensorContext} for backward compatibility.
+ * Will be dropped once old {@link Sensor} API is dropped.
  *
  */
-public class SensorContextAdaptor implements SensorContext {
+public class SensorContextAdaptor extends BaseSensorContext {
 
   private final org.sonar.api.batch.SensorContext sensorContext;
   private final MetricFinder metricFinder;
   private final Project project;
   private final ResourcePerspectives perspectives;
-  private final Settings settings;
-  private final FileSystem fs;
-  private final ActiveRules activeRules;
-  private final ComponentDataCache componentDataCache;
-  private final BlockCache blockCache;
-  private final DuplicationCache duplicationCache;
 
   public SensorContextAdaptor(org.sonar.api.batch.SensorContext sensorContext, MetricFinder metricFinder, Project project, ResourcePerspectives perspectives,
     Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache, BlockCache blockCache,
     DuplicationCache duplicationCache) {
+    super(settings, fs, activeRules, componentDataCache, blockCache, duplicationCache);
     this.sensorContext = sensorContext;
     this.metricFinder = metricFinder;
     this.project = project;
     this.perspectives = perspectives;
-    this.settings = settings;
-    this.fs = fs;
-    this.activeRules = activeRules;
-    this.componentDataCache = componentDataCache;
-    this.blockCache = blockCache;
-    this.duplicationCache = duplicationCache;
-  }
-
-  @Override
-  public Settings settings() {
-    return settings;
-  }
-
-  @Override
-  public FileSystem fileSystem() {
-    return fs;
-  }
-
-  @Override
-  public ActiveRules activeRules() {
-    return activeRules;
-  }
-
-  @Override
-  public <G extends Serializable> MeasureBuilder<G> measureBuilder() {
-    return new DefaultMeasureBuilder<G>();
   }
 
   @Override
@@ -143,7 +98,7 @@ public class SensorContextAdaptor implements SensorContext {
     return getMeasure(file, m);
   }
 
-  private Metric<?> findMetricOrFail(String metricKey) {
+  private Metric findMetricOrFail(String metricKey) {
     Metric<?> m = metricFinder.findByKey(metricKey);
     if (m == null) {
       throw new IllegalStateException("Unknow metric with key: " + metricKey);
@@ -223,11 +178,6 @@ public class SensorContextAdaptor implements SensorContext {
   }
 
   @Override
-  public IssueBuilder issueBuilder() {
-    return new DefaultIssueBuilder();
-  }
-
-  @Override
   public boolean addIssue(Issue issue) {
     Resource r;
     InputPath inputPath = issue.inputPath();
@@ -257,55 +207,6 @@ public class SensorContextAdaptor implements SensorContext {
       .message(issue.message())
       .severity(issue.severity())
       .build();
-  }
-
-  @Override
-  public HighlightingBuilder highlightingBuilder(InputFile inputFile) {
-    return new DefaultHighlightingBuilder(((DefaultInputFile) inputFile).key(), componentDataCache);
-  }
-
-  @Override
-  public SymbolTableBuilder symbolTableBuilder(InputFile inputFile) {
-    return new DefaultSymbolTableBuilder(((DefaultInputFile) inputFile).key(), componentDataCache);
-  }
-
-  @Override
-  public DuplicationTokenBuilder duplicationTokenBuilder(InputFile inputFile) {
-    PmdBlockChunker blockChunker = new PmdBlockChunker(getBlockSize(inputFile.language()));
-    return new DefaultTokenBuilder(inputFile, blockCache, blockChunker);
-  }
-
-  @Override
-  public DuplicationBuilder duplicationBuilder(InputFile inputFile) {
-    return new DefaultDuplicationBuilder(inputFile);
-  }
-
-  @Override
-  public void saveDuplications(InputFile inputFile, List<DuplicationGroup> duplications) {
-    Preconditions.checkState(duplications.size() > 0, "Empty duplications");
-    String effectiveKey = ((DefaultInputFile) inputFile).key();
-    for (DuplicationGroup duplicationGroup : duplications) {
-      Preconditions.checkState(effectiveKey.equals(duplicationGroup.originBlock().resourceKey()), "Invalid duplication group");
-    }
-    duplicationCache.put(effectiveKey, duplications);
-  }
-
-  private int getBlockSize(String languageKey) {
-    int blockSize = settings.getInt("sonar.cpd." + languageKey + ".minimumLines");
-    if (blockSize == 0) {
-      blockSize = getDefaultBlockSize(languageKey);
-    }
-    return blockSize;
-  }
-
-  private static int getDefaultBlockSize(String languageKey) {
-    if ("cobol".equals(languageKey)) {
-      return 30;
-    } else if ("abap".equals(languageKey) || "natur".equals(languageKey)) {
-      return 20;
-    } else {
-      return 10;
-    }
   }
 
 }

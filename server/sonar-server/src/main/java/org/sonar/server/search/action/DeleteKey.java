@@ -42,7 +42,7 @@ public class DeleteKey<K extends Serializable> extends IndexActionRequest {
   }
 
   @Override
-  public Class<?> getPayloadClass() {
+  public Class getPayloadClass() {
     throw new IllegalStateException("Deletion by key does not have an object payload!");
   }
 

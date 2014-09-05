@@ -25,7 +25,6 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.xoo.Xoo;
-import org.sonar.xoo.XooConstants;
 
 public class CreateIssueByInternalKeySensor implements Sensor {
 
@@ -36,7 +35,7 @@ public class CreateIssueByInternalKeySensor implements Sensor {
     descriptor
       .name("CreateIssueByInternalKeySensor")
       .workOnLanguages(Xoo.KEY)
-      .createIssuesForRuleRepositories(XooConstants.REPOSITORY_KEY)
+      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY)
       .workOnFileTypes(InputFile.Type.MAIN, InputFile.Type.TEST);
   }
 
@@ -48,7 +47,7 @@ public class CreateIssueByInternalKeySensor implements Sensor {
   }
 
   private void createIssues(InputFile file, SensorContext context) {
-    ActiveRule rule = context.activeRules().findByInternalKey(XooConstants.REPOSITORY_KEY,
+    ActiveRule rule = context.activeRules().findByInternalKey(XooRulesDefinition.XOO_REPOSITORY,
       context.settings().getString(INTERNAL_KEY_PROPERTY));
     if (rule != null) {
       context.addIssue(context.issueBuilder()

@@ -80,6 +80,14 @@ public class DuplicationGroup {
     }
 
     @Override
+    public int hashCode() {
+      return new HashCodeBuilder(13, 43)
+        .append(resourceKey)
+        .append(startLine)
+        .append(length).toHashCode();
+    }
+
+    @Override
     public String toString() {
       return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).
         append("resourceKey", resourceKey).
@@ -138,8 +146,10 @@ public class DuplicationGroup {
     EqualsBuilder equalsBuilder = new EqualsBuilder()
       .append(originBlock, rhs.originBlock)
       .append(duplicates.size(), rhs.duplicates.size());
-    for (int i = 0; i < duplicates.size(); i++) {
-      equalsBuilder.append(duplicates.get(i), rhs.duplicates.get(i));
+    if (duplicates.size() == rhs.duplicates.size()) {
+      for (int i = 0; i < duplicates.size(); i++) {
+        equalsBuilder.append(duplicates.get(i), rhs.duplicates.get(i));
+      }
     }
     return equalsBuilder.isEquals();
   }
