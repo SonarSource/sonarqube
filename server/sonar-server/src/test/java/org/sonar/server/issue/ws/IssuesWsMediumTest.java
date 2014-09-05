@@ -22,14 +22,24 @@ package org.sonar.server.issue.ws;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
+
+import java.util.Date;
+import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -94,6 +104,47 @@ public class IssuesWsMediumTest {
     WsTester.Result result = request.execute();
 
     assertThat(result).isNotNull();
+    result.assertJson(this.getClass(), "empty_result.json", false);
+  }
+
+  @Test
+  @Ignore("Work in progress")
+  public void find_single_result() throws Exception {
+
+    RuleDto rule = RuleTesting.newXooX1();
+    tester.get(RuleDao.class).insert(session, rule);
+
+    ComponentDto project = new ComponentDto()
+      .setId(1L)
+      .setKey("MyProject")
+      .setProjectId(1L);
+    tester.get(ComponentDao.class).insert(session, project);
+
+    ComponentDto resource = new ComponentDto()
+      .setProjectId(1L)
+      .setKey("MyComponent")
+      .setId(2L);
+    tester.get(ComponentDao.class).insert(session, resource);
+
+    IssueDto issue = new IssueDto()
+      .setIssueCreationDate(new Date())
+      .setIssueUpdateDate(new Date())
+      .setRule(rule)
+      .setRootComponent(project)
+      .setComponent(resource)
+      .setStatus("OPEN").setResolution("OPEN")
+      .setKee(UUID.randomUUID().toString())
+      .setSeverity("MAJOR");
+    db.issueDao().insert(session, issue);
+
+    session.commit();
+
+    WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
+    // request.setParam()
+    WsTester.Result result = request.execute();
+
+    assertThat(result).isNotNull();
+    System.out.println("result.outputAsString() = " + result.outputAsString());
     result.assertJson(this.getClass(), "empty_result.json", false);
   }
 
