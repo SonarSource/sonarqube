@@ -96,7 +96,6 @@ public class IssuesWsMediumTest {
   public void empty_search() throws Exception {
 
     WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
-    // request.setParam()
     WsTester.Result result = request.execute();
 
     assertThat(result).isNotNull();
@@ -138,8 +137,8 @@ public class IssuesWsMediumTest {
     WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
     request.setParam(SearchAction.PARAM_FACETS, "true");
     WsTester.Result result = request.execute();
-    System.out.println("result.outputAsString() = " + result.outputAsString());
     assertThat(result).isNotNull();
+
     // TODO Date assertion is complex du to System2
     result.assertJson(this.getClass(), "single_result.json", false);
   }
