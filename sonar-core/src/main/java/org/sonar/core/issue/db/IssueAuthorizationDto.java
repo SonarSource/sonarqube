@@ -25,16 +25,18 @@ import org.sonar.core.persistence.Dto;
 import java.io.Serializable;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public final class IssueAuthorizationDto extends Dto<String> implements Serializable {
 
   private String project;
   private String permission;
-  private List<String> groups;
-  private List<String> users;
+  private List<String> groups = newArrayList();
+  private List<String> users = newArrayList();
 
   @Override
   public String getKey() {
-    return null;
+    return project;
   }
 
   public String getProject() {
@@ -64,6 +66,11 @@ public final class IssueAuthorizationDto extends Dto<String> implements Serializ
     return this;
   }
 
+  public IssueAuthorizationDto addGroup(String group) {
+    groups.add(group);
+    return this;
+  }
+
   public List<String> getUsers() {
     return users;
   }
@@ -72,4 +79,10 @@ public final class IssueAuthorizationDto extends Dto<String> implements Serializ
     this.users = users;
     return this;
   }
+
+  public IssueAuthorizationDto addUser(String user) {
+    users.add(user);
+    return this;
+  }
+
 }

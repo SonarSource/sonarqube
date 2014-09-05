@@ -51,6 +51,8 @@ public class IndexSynchronizer {
     long start = System.currentTimeMillis();
     synchronize(session, db.ruleDao(), index.get(RuleIndex.class));
     synchronize(session, db.issueDao(), index.get(IssueIndex.class));
+    // TODO
+    //synchronize(session, db.issueAuthorizationDao(), index.get(IssueAuthorizationIndex.class));
     synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
     synchronize(session, db.activityDao(), index.get(ActivityIndex.class));
     session.commit();

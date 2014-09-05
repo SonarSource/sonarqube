@@ -49,6 +49,8 @@ import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.SearchClient;
 import org.sonar.server.tester.ServerTester;
 
+import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -187,6 +189,11 @@ public class IssueBackendMediumTest {
     assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(0);
     tester.get(Platform.class).executeStartupTasks();
     assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(1);
+  }
+
+  @Test
+  public void synchronize_issue_authorization_index() throws Exception {
+
   }
 
   @Test
@@ -341,11 +348,11 @@ public class IssueBackendMediumTest {
     return issue;
   }
 
-  private IndexRequestBuilder addIssueAuthorization(final SearchClient searchClient, ComponentDto project, List<String> users, List<String> groups) {
+  private IndexRequestBuilder addIssueAuthorization(final SearchClient searchClient, ComponentDto project, @Nullable List<String> users, @Nullable List<String> groups) {
     return addIssueAuthorization(searchClient, project, users, groups, true);
   }
 
-  private IndexRequestBuilder addIssueAuthorization(final SearchClient searchClient, ComponentDto project, List<String> users, List<String> groups, boolean refresh) {
+  private IndexRequestBuilder addIssueAuthorization(final SearchClient searchClient, ComponentDto project, @Nullable List<String> users, @Nullable List<String> groups, boolean refresh) {
     Map<String, Object> permissionSource = newHashMap();
     permissionSource.put("_parent", project.key());
     permissionSource.put("permission", "read");

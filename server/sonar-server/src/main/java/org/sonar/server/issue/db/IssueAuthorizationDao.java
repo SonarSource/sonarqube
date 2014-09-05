@@ -22,6 +22,7 @@ package org.sonar.server.issue.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueAuthorizationDto;
 import org.sonar.core.issue.db.IssueAuthorizationMapper;
 import org.sonar.core.persistence.DaoComponent;
@@ -30,6 +31,10 @@ import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, IssueAuthorizationDto, String> implements DaoComponent {
 
@@ -44,29 +49,38 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
 
   @Override
   protected IssueAuthorizationDto doGetNullableByKey(DbSession session, String key) {
-    return mapper(session).selectByKey(key);
-  }
-
-  @Override
-  protected IssueAuthorizationDto doUpdate(DbSession session, IssueAuthorizationDto issueAuthorization) {
-    // TODO ?
-    // mapper(session).update(issueAuthorization);
-    return issueAuthorization;
-  }
-
-  @Override
-  protected IssueAuthorizationDto doInsert(DbSession session, IssueAuthorizationDto issueAuthorization) {
-    // TODO ?
-    // Preconditions.checkNotNull(issueAuthorization.getKey(), "Cannot insert IssueAuthorization with empty key!");
-    // Preconditions.checkNotNull(issueAuthorization.getPermission(), "Cannot insert IssueAuthorization with no permission!");
-    // mapper(session).insert(issueAuthorization);
-    return issueAuthorization;
+    throw new IllegalStateException("Not implemented");
   }
 
   @Override
   protected Iterable<IssueAuthorizationDto> findAfterDate(DbSession session, Date date) {
-    // TODO ?
-    // return mapper(session).selectAfterDate(new Timestamp(date.getTime()));
-    return null;
+
+    Map<String, Object> params = newHashMap();
+    params.put("date", date);
+    params.put("permission", UserRole.USER);
+
+    Map<String, IssueAuthorizationDto> authorizationDtoMap = newHashMap();
+
+    List<Map<String, String>> rows = session.selectList("org.sonar.core.issue.db.IssueAuthorizationMapper.selectAfterDate", params);
+    for (Map<String, String> row : rows) {
+      String project = row.get("PROJECT");
+      String user = row.get("USER");
+      String group = row.get("PERMISSION_GROUP");
+      IssueAuthorizationDto issueAuthorizationDto = authorizationDtoMap.get(project);
+      if (issueAuthorizationDto == null) {
+        issueAuthorizationDto = new IssueAuthorizationDto()
+          .setProject(project)
+          .setPermission(UserRole.USER);
+      }
+      if (group != null) {
+        issueAuthorizationDto.addGroup(group);
+      }
+      if (user != null) {
+        issueAuthorizationDto.addUser(user);
+      }
+      authorizationDtoMap.put(project, issueAuthorizationDto);
+    }
+
+    return authorizationDtoMap.values();
   }
 }

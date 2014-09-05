@@ -62,6 +62,7 @@ public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements 
     return issue;
   }
 
+
   @Override
   protected Iterable<IssueDto> findAfterDate(DbSession session, Date date) {
     return mapper(session).selectAfterDate(new Timestamp(date.getTime()));

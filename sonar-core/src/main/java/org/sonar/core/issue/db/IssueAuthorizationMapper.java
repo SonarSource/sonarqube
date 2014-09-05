@@ -20,8 +20,14 @@
 
 package org.sonar.core.issue.db;
 
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Date;
+
 public interface IssueAuthorizationMapper {
 
   IssueAuthorizationDto selectByKey(String key);
+
+  IssueAuthorizationDto selectAfterDate(@Param("date") Date date, @Param("permission") String permission);
 
 }

@@ -4,13 +4,50 @@
 
 <mapper namespace="org.sonar.core.issue.db.IssueAuthorizationMapper">
 
-  <select id="selectByKey" parameterType="String" resultType="IssueAuthorization">
-    select *
-    from issues i
-    inner join rules r on r.id=i.rule_id
-    inner join projects p on p.id=i.component_id
-    inner join projects root on root.id=i.root_component_id
-    where i.kee=#{kee}
+  <select id="selectAfterDate" parameterType="map" resultType="map">
+    SELECT
+      project_authorization.project as project,
+      project_authorization.login as user,
+      project_authorization.permission_group as permission_group,
+      project_authorization.permission_role as permission_role
+    FROM (
+      -- users
+      SELECT
+      projects.kee AS project,
+      users.login  AS login,
+      NULL  AS permission_group,
+      user_roles.role as permission_role
+      FROM projects
+      INNER JOIN user_roles ON user_roles.resource_id = projects.id AND user_roles.role = #{permission}
+      INNER JOIN users ON users.id = user_roles.user_id
+      WHERE
+      projects.authorization_updated_at &gt;= #{date}
+      UNION
+      -- groups without Anyone
+      SELECT
+      projects.kee AS project,
+      NULL  AS login,
+      groups.name  AS permission_group,
+      group_roles.role as permission_role
+      FROM projects
+      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = #{permission}
+      INNER JOIN groups ON groups.id = group_roles.group_id
+      WHERE
+      projects.authorization_updated_at &gt;= #{date}
+      AND group_id IS NOT NULL
+      UNION
+      -- Anyone groups
+      SELECT
+      projects.kee AS project,
+      NULL         AS login,
+      'anyone'     AS permission_group,
+      group_roles.role as permission_role
+      FROM projects
+      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = #{permission}
+      WHERE
+      projects.authorization_updated_at &gt;= #{date}
+      AND group_roles.group_id IS NULL
+    ) AS project_authorization
   </select>
 
 </mapper>
