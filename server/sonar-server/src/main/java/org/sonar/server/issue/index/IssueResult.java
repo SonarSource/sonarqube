@@ -84,7 +84,7 @@ public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
 
   @Override
   public Component component(Issue issue) {
-    return components.get(issue.key());
+    return components.get(issue.componentKey());
   }
 
   @Override
@@ -94,7 +94,7 @@ public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
 
   @Override
   public Component project(Issue issue) {
-    return projects.get(issue.key());
+    return projects.get(issue.projectKey());
   }
 
   @Override
@@ -136,11 +136,11 @@ public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
     return false;
   }
 
-  public void addProject(String key, ComponentDto project) {
-    this.projects.put(key, project);
+  public void addProject(ComponentDto project) {
+    this.projects.put(project.key(), project);
   }
 
-  public void addComponent(String key, ComponentDto project) {
-    this.components.put(key, project);
+  public void addComponent(ComponentDto component) {
+    this.components.put(component.key(), component);
   }
 }

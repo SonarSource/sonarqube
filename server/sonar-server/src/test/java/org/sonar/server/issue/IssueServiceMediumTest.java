@@ -66,16 +66,19 @@ public class IssueServiceMediumTest {
     tester.get(RuleDao.class).insert(session, rule);
 
     project = new ComponentDto()
+      .setEnabled(true)
       .setId(1L)
       .setKey("MyProject")
       .setProjectId(1L);
     tester.get(ComponentDao.class).insert(session, project);
 
     resource = new ComponentDto()
+      .setEnabled(true)
       .setProjectId(1L)
       .setKey("MyComponent")
       .setId(2L);
     tester.get(ComponentDao.class).insert(session, resource);
+    session.commit();
   }
 
   @After
@@ -84,7 +87,7 @@ public class IssueServiceMediumTest {
   }
 
   @Test
-  public void has_facets() throws Exception {
+  public void can_facet() throws Exception {
     IssueDto issue1 = getIssue().setActionPlanKey("P1");
     IssueDto issue2 = getIssue().setActionPlanKey("P2");
     tester.get(IssueDao.class).insert(session, issue1, issue2);
@@ -92,8 +95,23 @@ public class IssueServiceMediumTest {
 
     IssueResult result = service.search(IssueQuery.builder().build(), new QueryOptions());
     assertThat(result.getHits()).hasSize(2);
+    assertThat(result.getFacets()).isEmpty();
+
+    result = service.search(IssueQuery.builder().build(), new QueryOptions().setFacet(true));
     assertThat(result.getFacets().keySet()).hasSize(4);
     assertThat(result.getFacetKeys("actionPlan")).hasSize(2);
+  }
+
+  @Test
+  public void has_component_and_project() throws Exception {
+    IssueDto issue1 = getIssue().setActionPlanKey("P1");
+    IssueDto issue2 = getIssue().setActionPlanKey("P2");
+    tester.get(IssueDao.class).insert(session, issue1, issue2);
+    session.commit();
+
+    IssueResult result = service.search(IssueQuery.builder().build(), new QueryOptions());
+    assertThat(result.projects()).hasSize(1);
+    assertThat(result.components()).hasSize(1);
   }
 
   private IssueDto getIssue() {

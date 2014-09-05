@@ -178,15 +178,17 @@ public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
       esSearch.setQuery(esQuery);
     }
 
-    // Execute Term aggregations
-    esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.SEVERITY.field())
-      .field(IssueNormalizer.IssueField.SEVERITY.field()));
-    esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.STATUS.field())
-      .field(IssueNormalizer.IssueField.STATUS.field()));
-    esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.RESOLUTION.field())
-      .field(IssueNormalizer.IssueField.RESOLUTION.field()));
-    esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.ACTION_PLAN.field())
-      .field(IssueNormalizer.IssueField.ACTION_PLAN.field()));
+    if (options.isFacet()) {
+      // Execute Term aggregations
+      esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.SEVERITY.field())
+        .field(IssueNormalizer.IssueField.SEVERITY.field()));
+      esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.STATUS.field())
+        .field(IssueNormalizer.IssueField.STATUS.field()));
+      esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.RESOLUTION.field())
+        .field(IssueNormalizer.IssueField.RESOLUTION.field()));
+      esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.ACTION_PLAN.field())
+        .field(IssueNormalizer.IssueField.ACTION_PLAN.field()));
+    }
 
     // Execute Function aggregation
     esSearch.addAggregation(AggregationBuilders.sum("totalDuration")

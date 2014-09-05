@@ -23,7 +23,7 @@
   <select id="selectByKey" parameterType="String" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
-    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    LEFT JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
     <where>
       AND p.enabled=${_true}
       AND p.kee=#{key}

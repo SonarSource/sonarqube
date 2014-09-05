@@ -351,10 +351,8 @@ public class IssueService implements ServerComponent {
     DbSession session = dbClient.openSession(false);
     try {
       for (Issue issue : result.getHits()) {
-        result.addProject(issue.key(),
-          dbClient.componentDao().getByKey(session, issue.projectKey()));
-        result.addComponent(issue.key(),
-          dbClient.componentDao().getByKey(session, issue.componentKey()));
+        result.addProject(dbClient.componentDao().getByKey(session, issue.projectKey()));
+        result.addComponent(dbClient.componentDao().getByKey(session, issue.componentKey()));
       }
     } finally {
       session.close();
