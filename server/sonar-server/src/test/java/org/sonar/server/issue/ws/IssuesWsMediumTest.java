@@ -136,9 +136,9 @@ public class IssuesWsMediumTest {
     session.commit();
 
     WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
-    // request.setParam()
+    request.setParam(SearchAction.PARAM_FACETS, "true");
     WsTester.Result result = request.execute();
-
+    System.out.println("result.outputAsString() = " + result.outputAsString());
     assertThat(result).isNotNull();
     // TODO Date assertion is complex du to System2
     result.assertJson(this.getClass(), "single_result.json", false);

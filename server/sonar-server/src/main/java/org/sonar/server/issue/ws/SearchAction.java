@@ -49,12 +49,15 @@ import org.sonar.markdown.Markdown;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueResult;
+import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -222,7 +225,28 @@ public class SearchAction implements RequestHandler {
     // writeUsers(results, json);
     // writeActionPlans(results, json);
 
+    if (queryOptions.isFacet()) {
+      writeFacets(results, json);
+    }
+
     json.endObject().close();
+  }
+
+  private void writeFacets(Result<?> results, JsonWriter json) {
+    json.name("facets").beginArray();
+    for (Map.Entry<String, Collection<FacetValue>> facet : results.getFacets().entrySet()) {
+      json.beginObject();
+      json.prop("property", facet.getKey());
+      json.name("values").beginArray();
+      for (FacetValue facetValue : facet.getValue()) {
+        json.beginObject();
+        json.prop("val", facetValue.getKey());
+        json.prop("count", facetValue.getValue());
+        json.endObject();
+      }
+      json.endArray().endObject();
+    }
+    json.endArray();
   }
 
   private void writePaging(IssueQueryResult result, JsonWriter json) {
