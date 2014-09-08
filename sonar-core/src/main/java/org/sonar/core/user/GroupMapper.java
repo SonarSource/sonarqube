@@ -17,50 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.core.user;
 
-import org.sonar.core.persistence.Dto;
-
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
-public class GroupDto extends Dto<String> {
-
-  private Long id;
-  private String name;
-  private String description;
-
-  public Long getId() {
-    return id;
-  }
-
-  public GroupDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public GroupDto setName(String name) {
-    this.name = name;
-    return this;
-  }
+public interface GroupMapper {
 
   @CheckForNull
-  public String getDescription() {
-    return description;
-  }
+  GroupDto selectByKey(String name);
 
-  public GroupDto setDescription(@Nullable String description) {
-    this.description = description;
-    return this;
-  }
-
-  @Override
-  public String getKey() {
-    return name;
-  }
+  void insert(GroupDto groupDto);
 
 }

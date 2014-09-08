@@ -63,9 +63,9 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
 
     List<Map<String, String>> rows = session.selectList("org.sonar.core.issue.db.IssueAuthorizationMapper.selectAfterDate", params);
     for (Map<String, String> row : rows) {
-      String project = row.get("PROJECT");
-      String user = row.get("USER");
-      String group = row.get("PERMISSION_GROUP");
+      String project = row.get("project");
+      String user = row.get("user");
+      String group = row.get("permission_group");
       IssueAuthorizationDto issueAuthorizationDto = authorizationDtoMap.get(project);
       if (issueAuthorizationDto == null) {
         issueAuthorizationDto = new IssueAuthorizationDto()

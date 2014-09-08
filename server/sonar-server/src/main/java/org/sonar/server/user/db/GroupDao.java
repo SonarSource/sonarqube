@@ -17,50 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.user;
 
-import org.sonar.core.persistence.Dto;
+package org.sonar.server.user.db;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import com.google.common.annotations.VisibleForTesting;
+import org.sonar.api.utils.System2;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.user.GroupDto;
+import org.sonar.core.user.GroupMapper;
+import org.sonar.server.db.BaseDao;
 
-public class GroupDto extends Dto<String> {
+/**
+ * @since 3.2
+ */
+public class GroupDao extends BaseDao<GroupMapper, GroupDto, String> {
 
-  private Long id;
-  private String name;
-  private String description;
-
-  public Long getId() {
-    return id;
+  public GroupDao() {
+    this(System2.INSTANCE);
   }
 
-  public GroupDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public GroupDto setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  @CheckForNull
-  public String getDescription() {
-    return description;
-  }
-
-  public GroupDto setDescription(@Nullable String description) {
-    this.description = description;
-    return this;
+  @VisibleForTesting
+  public GroupDao(System2 system) {
+    super(GroupMapper.class, system);
   }
 
   @Override
-  public String getKey() {
-    return name;
+  protected GroupDto doGetNullableByKey(DbSession session, String key) {
+    return mapper(session).selectByKey(key);
+  }
+
+  @Override
+  protected GroupDto doInsert(DbSession session, GroupDto item) {
+    mapper(session).insert(item);
+    return item;
   }
 
 }

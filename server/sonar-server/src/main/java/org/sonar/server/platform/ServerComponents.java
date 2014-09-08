@@ -165,6 +165,7 @@ import org.sonar.server.ui.PageDecorations;
 import org.sonar.server.ui.Views;
 import org.sonar.server.updatecenter.ws.UpdateCenterWs;
 import org.sonar.server.user.*;
+import org.sonar.server.user.db.GroupDao;
 import org.sonar.server.user.ws.FavoritesWs;
 import org.sonar.server.user.ws.UserPropertiesWs;
 import org.sonar.server.user.ws.UsersWs;
@@ -227,6 +228,7 @@ class ServerComponents {
       DbClient.class,
       MeasureFilterDao.class,
       ActivityDao.class,
+      GroupDao.class,
 
       // Elasticsearch
       SearchClient.class,

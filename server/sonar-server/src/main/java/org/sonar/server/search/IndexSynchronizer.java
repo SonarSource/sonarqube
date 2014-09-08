@@ -25,6 +25,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.Dao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
@@ -51,8 +52,7 @@ public class IndexSynchronizer {
     long start = System.currentTimeMillis();
     synchronize(session, db.ruleDao(), index.get(RuleIndex.class));
     synchronize(session, db.issueDao(), index.get(IssueIndex.class));
-    // TODO
-    //synchronize(session, db.issueAuthorizationDao(), index.get(IssueAuthorizationIndex.class));
+    synchronize(session, db.issueAuthorizationDao(), index.get(IssueAuthorizationIndex.class));
     synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
     synchronize(session, db.activityDao(), index.get(ActivityIndex.class));
     session.commit();

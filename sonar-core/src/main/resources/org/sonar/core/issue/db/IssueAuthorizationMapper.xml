@@ -6,10 +6,10 @@
 
   <select id="selectAfterDate" parameterType="map" resultType="map">
     SELECT
-      project_authorization.project as project,
-      project_authorization.login as user,
-      project_authorization.permission_group as permission_group,
-      project_authorization.permission_role as permission_role
+      project_authorization.project as "project",
+      project_authorization.login as "user",
+      project_authorization.permission_group as "permission_group",
+      project_authorization.permission_role as "permission_role"
     FROM (
       -- users
       SELECT

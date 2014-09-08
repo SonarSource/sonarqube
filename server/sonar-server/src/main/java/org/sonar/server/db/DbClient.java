@@ -40,6 +40,7 @@ import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.measure.persistence.MetricDao;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.user.db.GroupDao;
 
 import java.util.Map;
 
@@ -63,6 +64,7 @@ public class DbClient implements ServerComponent {
   private final ActivityDao activityDao;
   private final AuthorizationDao authorizationDao;
   private final UserDao userDao;
+  private final GroupDao groupDao;
   private final IssueDao issueDao;
   private final IssueAuthorizationDao issueAuthorizationDao;
 
@@ -87,6 +89,7 @@ public class DbClient implements ServerComponent {
     activityDao = getDao(map, ActivityDao.class);
     authorizationDao = getDao(map, AuthorizationDao.class);
     userDao = getDao(map, UserDao.class);
+    groupDao = getDao(map, GroupDao.class);
     issueDao = getDao(map, IssueDao.class);
     issueAuthorizationDao = getDao(map, IssueAuthorizationDao.class);
   }
@@ -157,6 +160,10 @@ public class DbClient implements ServerComponent {
 
   public UserDao userDao() {
     return userDao;
+  }
+
+  public GroupDao groupDao() {
+    return groupDao;
   }
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {
