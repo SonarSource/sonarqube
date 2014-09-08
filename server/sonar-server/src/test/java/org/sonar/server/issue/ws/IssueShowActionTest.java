@@ -113,7 +113,6 @@ public class IssueShowActionTest {
     when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
     tester = new WsTester(new IssuesWs(new IssueShowAction(issueFinder, issueChangelogService, new IssueActionsWriter(issueService, actionService), debtModel, i18n, durations),
-      mock(SearchAction.class),
       mock(IssueSearchAction.class)));
   }
 
@@ -134,22 +133,22 @@ public class IssueShowActionTest {
     issues.add(issue);
 
     result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
-        .setId(10L)
-        .setKey("org.sonar.server.issue.IssueClient")
-        .setLongName("SonarQube :: Issue Client")
-        .setName("SonarQube :: Issue Client")
-        .setQualifier("FIL")
-        .setSubProjectId(1L)
-        .setProjectId(1L)
-    ));
+      .setId(10L)
+      .setKey("org.sonar.server.issue.IssueClient")
+      .setLongName("SonarQube :: Issue Client")
+      .setName("SonarQube :: Issue Client")
+      .setQualifier("FIL")
+      .setSubProjectId(1L)
+      .setProjectId(1L)
+      ));
 
     result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
-        .setId(1L)
-        .setKey("org.sonar.Sonar")
-        .setLongName("SonarQube")
-        .setName("SonarQube")
-        .setProjectId(1L)
-    ));
+      .setId(1L)
+      .setKey("org.sonar.Sonar")
+      .setLongName("SonarQube")
+      .setName("SonarQube")
+      .setProjectId(1L)
+      ));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
@@ -298,7 +297,7 @@ public class IssueShowActionTest {
     result.addUsers(Lists.<User>newArrayList(
       new DefaultUser().setLogin("john").setName("John"),
       new DefaultUser().setLogin("steven").setName("Steven")
-    ));
+      ));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
@@ -415,7 +414,7 @@ public class IssueShowActionTest {
     result.addUsers(Lists.<User>newArrayList(
       new DefaultUser().setLogin("john").setName("John"),
       new DefaultUser().setLogin("arthur").setName("Arthur")
-    ));
+      ));
 
     when(i18n.ageFromNow(any(Locale.class), eq(date1))).thenReturn("9 days");
     when(i18n.ageFromNow(any(Locale.class), eq(date2))).thenReturn("10 days");
@@ -496,20 +495,20 @@ public class IssueShowActionTest {
 
   private void addComponentAndProject() {
     result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
-        .setId(10L)
-        .setKey("org.sonar.server.issue.IssueClient")
-        .setLongName("SonarQube :: Issue Client")
-        .setQualifier("FIL")
-        .setSubProjectId(1L)
-        .setProjectId(1L)
-    ));
+      .setId(10L)
+      .setKey("org.sonar.server.issue.IssueClient")
+      .setLongName("SonarQube :: Issue Client")
+      .setQualifier("FIL")
+      .setSubProjectId(1L)
+      .setProjectId(1L)
+      ));
 
     result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
-        .setId(1L)
-        .setKey("org.sonar.Sonar")
-        .setLongName("SonarQube")
-        .setProjectId(1L)
-    ));
+      .setId(1L)
+      .setKey("org.sonar.Sonar")
+      .setLongName("SonarQube")
+      .setProjectId(1L)
+      ));
   }
 
 }

@@ -50,7 +50,11 @@ public class IssuesWs implements WebService {
     this(showAction, null, searchAction);
   }
 
-  public IssuesWs(IssueShowAction showAction, SearchAction esSearchAction, IssueSearchAction searchAction) {
+  public IssuesWs(IssueShowAction showAction, SearchAction searchAction) {
+    this(showAction, searchAction, null);
+  }
+
+  private IssuesWs(IssueShowAction showAction, SearchAction esSearchAction, IssueSearchAction searchAction) {
     this.showAction = showAction;
     this.esSearchAction = esSearchAction;
     this.searchAction = searchAction;
@@ -67,8 +71,9 @@ public class IssuesWs implements WebService {
     // TODO remove after transition
     if (esSearchAction != null) {
       esSearchAction.define(controller);
+    } else if (searchAction != null) {
+      searchAction.define(controller);
     }
-    searchAction.define(controller);
 
     defineChangelogAction(controller);
     defineAssignAction(controller);

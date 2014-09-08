@@ -43,7 +43,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class IssuesWsMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.issues.use_es_backend", "true");
 
   IssuesWs ws;
   DbClient db;
@@ -74,7 +75,7 @@ public class IssuesWsMediumTest {
     WebService.Controller controller = context.controller(IssuesWs.API_ENDPOINT);
 
     assertThat(controller).isNotNull();
-    assertThat(controller.actions()).hasSize(15);
+    assertThat(controller.actions()).hasSize(14);
     assertThat(controller.action(IssuesWs.ADD_COMMENT_ACTION)).isNotNull();
     assertThat(controller.action(IssuesWs.ASSIGN_ACTION)).isNotNull();
     assertThat(controller.action(IssuesWs.BULK_CHANGE_ACTION)).isNotNull();
@@ -88,7 +89,6 @@ public class IssuesWsMediumTest {
     assertThat(controller.action(IssuesWs.SET_SEVERITY_ACTION)).isNotNull();
     assertThat(controller.action(IssuesWs.TRANSITIONS_ACTION)).isNotNull();
 
-    assertThat(controller.action(IssueSearchAction.SEARCH_ACTION)).isNotNull();
     assertThat(controller.action(SearchAction.SEARCH_ACTION)).isNotNull();
   }
 
