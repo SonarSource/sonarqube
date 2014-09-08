@@ -26,7 +26,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -60,8 +59,8 @@ public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, String> {
   }
 
   @Override
-  protected Iterable<ActivityDto> findAfterDate(DbSession session, Date date) {
-    return mapper(session).selectAll();
+  protected String getSynchronizationStatementName() {
+    return "selectAll";
   }
 
   public List<ActivityDto> findAll(DbSession session) {

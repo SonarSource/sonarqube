@@ -29,8 +29,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
 
-import java.util.Date;
-
 public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, IssueAuthorizationDto, String> implements DaoComponent {
 
   public IssueAuthorizationDao() {
@@ -63,10 +61,5 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
     return issueAuthorization;
   }
 
-  @Override
-  protected Iterable<IssueAuthorizationDto> findAfterDate(DbSession session, Date date) {
-    // TODO ?
-    // return mapper(session).selectAfterDate(new Timestamp(date.getTime()));
-    return null;
-  }
+  // TODO DO not forget to implement "selectAfterDate" In xml mapping file.
 }
