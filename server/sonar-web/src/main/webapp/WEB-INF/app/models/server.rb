@@ -156,7 +156,7 @@ class Server
   end
 
   def sonar_property(key)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponentByType(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue(key)
   end
 
   def realm_name
