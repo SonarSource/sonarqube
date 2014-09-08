@@ -127,7 +127,6 @@ public class IssueBackendMediumTest {
     assertThat(issueDoc.authorLogin()).isEqualTo(issue.getAuthorLogin());
     assertThat(issueDoc.closeDate()).isEqualTo(issue.getIssueCloseDate());
     assertThat(issueDoc.componentKey()).isEqualTo(issue.getComponentKey());
-    assertThat(issueDoc.creationDate()).isEqualTo(issue.getCreatedAt());
     assertThat(issueDoc.effortToFix()).isEqualTo(issue.getEffortToFix());
     assertThat(issueDoc.resolution()).isEqualTo(issue.getResolution());
     assertThat(issueDoc.ruleKey()).isEqualTo(RuleKey.of(issue.getRuleRepo(), issue.getRule()));
