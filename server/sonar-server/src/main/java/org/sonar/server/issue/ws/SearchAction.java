@@ -68,7 +68,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class SearchAction implements RequestHandler {
 
-  public static final String SEARCH_ACTION = "es-search";
+  public static final String SEARCH_ACTION = "search";
 
   private static final String ACTIONS_EXTRA_FIELD = "actions";
   private static final String TRANSITIONS_EXTRA_FIELD = "transitions";

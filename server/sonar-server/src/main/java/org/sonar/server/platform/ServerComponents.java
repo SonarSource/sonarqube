@@ -297,14 +297,18 @@ import org.sonar.server.ws.WebServiceEngine;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 class ServerComponents {
 
   private final Object[] rootComponents;
+  private final Properties properties;
   private List level4AddedComponents = Lists.newArrayList();
 
-  ServerComponents(Object... rootComponents) {
-    this.rootComponents = rootComponents;
+  ServerComponents(Properties properties, Object... rootComponents) {
+    this.properties = properties;
+    this.rootComponents = Lists.newArrayList(properties, rootComponents)
+      .toArray(new Object[rootComponents.length + 1]);
   }
 
   /**
@@ -491,6 +495,7 @@ class ServerComponents {
     pico.addSingleton(ActiveRuleCompleter.class);
     pico.addSingleton(AppAction.class);
 
+    // activity
     pico.addSingleton(ActivitiesWebService.class);
     pico.addSingleton(org.sonar.server.activity.ws.SearchAction.class);
     pico.addSingleton(ActivityMapping.class);
@@ -590,8 +595,13 @@ class ServerComponents {
     pico.addSingleton(IssueChangelogFormatter.class);
     pico.addSingleton(IssuesWs.class);
     pico.addSingleton(IssueShowAction.class);
-    pico.addSingleton(IssueSearchAction.class);
-    pico.addSingleton(org.sonar.server.issue.ws.SearchAction.class);
+
+    // Switch Issue search
+    if (properties.getProperty("sonar.issues.use_es_backend", null) != null) {
+      pico.addSingleton(org.sonar.server.issue.ws.SearchAction.class);
+    } else {
+      pico.addSingleton(IssueSearchAction.class);
+    }
     pico.addSingleton(IssueActionsWriter.class);
 
     // issue filters
