@@ -293,7 +293,6 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
       @Override
       public void handleResult(ResultContext resultContext) {
         DTO dto = (DTO) resultContext.getResultObject();
-        System.out.println("dto = " + dto);
         session.enqueue(new UpsertDto<DTO>(getIndexType(), dto, true));
       }
     };
