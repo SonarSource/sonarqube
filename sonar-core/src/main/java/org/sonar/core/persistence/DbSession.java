@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class DbSession implements SqlSession {
 
-  private static final Integer IMPLICIT_COMMIT_SIZE = 1000;
+  private static final Integer IMPLICIT_COMMIT_SIZE = 2000;
   private List<ClusterAction> actions;
 
   private WorkQueue queue;
