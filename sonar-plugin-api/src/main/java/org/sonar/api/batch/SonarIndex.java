@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch;
 
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
@@ -36,6 +37,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @deprecated since 5.0 should not be an API. Everything should be accessed using {@link SensorContext}.
+ */
+@Deprecated
 public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Dependency> {
 
   /**
