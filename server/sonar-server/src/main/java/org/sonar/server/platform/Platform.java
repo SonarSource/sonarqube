@@ -67,7 +67,7 @@ public class Platform {
   }
 
   public void init(Properties properties) {
-    serverComponents = new ServerComponents(properties, this);
+    serverComponents = new ServerComponents(this, properties);
     if (!dbConnected) {
       startLevel1Container();
       startLevel2Container();

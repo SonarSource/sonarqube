@@ -302,13 +302,15 @@ import java.util.Properties;
 class ServerComponents {
 
   private final Object[] rootComponents;
+  private final Platform platform;
   private final Properties properties;
   private List level4AddedComponents = Lists.newArrayList();
 
-  ServerComponents(Properties properties, Object... rootComponents) {
+  ServerComponents(Platform platform, Properties properties, Object... rootComponents) {
     this.properties = properties;
-    this.rootComponents = Lists.newArrayList(properties, rootComponents)
-      .toArray(new Object[rootComponents.length + 1]);
+    this.platform = platform;
+    this.rootComponents = Lists.newArrayList(properties, platform, rootComponents)
+      .toArray(new Object[rootComponents.length + 2]);
   }
 
   /**
