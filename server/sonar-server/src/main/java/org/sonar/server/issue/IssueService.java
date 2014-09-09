@@ -58,6 +58,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueResult;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.user.UserSession;
@@ -67,7 +68,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @since 3.6
@@ -348,13 +351,28 @@ public class IssueService implements ServerComponent {
 
     // TODO Optimise
     // Insert the projects and component name;
+    Set<RuleKey> ruleKeys = new HashSet<RuleKey>();
+    Set<String> projectKeys = new HashSet<String>();
+    Set<String> componentKeys = new HashSet<String>();
+    Set<String> actionPlanKeys = new HashSet<String>();
+    List<String> userLogins = new ArrayList<String>();
+
     DbSession session = dbClient.openSession(false);
+    for (Issue issue : result.getHits()) {
+      ruleKeys.add(issue.ruleKey());
+      projectKeys.add(issue.projectKey());
+      componentKeys.add(issue.componentKey());
+      actionPlanKeys.add(issue.actionPlanKey());
+      userLogins.add(issue.authorLogin());
+    }
+
     try {
-      for (Issue issue : result.getHits()) {
-        result.addProject(dbClient.componentDao().getByKey(session, issue.projectKey()));
-        result.addComponent(dbClient.componentDao().getByKey(session, issue.componentKey()));
-      }
-    } finally {
+      indexClient.get(RuleIndex.class).getByKeys(ruleKeys);
+      result.projects().addAll(dbClient.componentDao().getByKeys(session, projectKeys));
+      result.components().addAll(dbClient.componentDao().getByKeys(session, componentKeys));
+      dbClient.userDao().selectUsersByLogins(userLogins);
+      dbClient.actionPlanDao().findByKeys(actionPlanKeys);
+   } finally {
       session.close();
     }
 

@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
@@ -35,7 +36,7 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
-public class ActionPlanDao implements BatchComponent, ServerComponent {
+public class ActionPlanDao implements BatchComponent, ServerComponent, DaoComponent {
 
   private final MyBatis mybatis;
 

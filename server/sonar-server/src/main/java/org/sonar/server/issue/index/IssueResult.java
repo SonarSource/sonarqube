@@ -143,4 +143,16 @@ public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
   public void addComponent(ComponentDto component) {
     this.components.put(component.key(), component);
   }
+
+  public void addUser(User user) {
+    this.usersByLogin.put(user.login(), user);
+  }
+
+  public void addActionPlan(ActionPlan plan) {
+    this.actionPlans.put(plan.key(), plan);
+  }
+
+  public void addRule(Rule rule) {
+    this.rules.put(rule.getKey(), rule);
+  }
 }

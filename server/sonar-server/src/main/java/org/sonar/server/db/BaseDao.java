@@ -21,6 +21,7 @@ package org.sonar.server.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
@@ -39,6 +40,7 @@ import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -152,6 +154,18 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
       throw new NotFoundException(String.format("Key '%s' not found", key));
     }
     return value;
+  }
+
+  public Collection<DTO> getByKeys(DbSession session, KEY... keys) {
+    return getByKeys(session, ImmutableList.<KEY>copyOf(keys));
+  }
+
+  public Collection<DTO> getByKeys(DbSession session, Collection<KEY> keys) {
+    Collection<DTO> results = new ArrayList<DTO>();
+    for (KEY key : keys) {
+      results.add(this.getByKey(session, key));
+    }
+    return results;
   }
 
   @Override

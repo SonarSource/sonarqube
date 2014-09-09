@@ -21,6 +21,7 @@ package org.sonar.server.db;
 
 import com.google.common.collect.Maps;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DbSession;
@@ -65,6 +66,7 @@ public class DbClient implements ServerComponent {
   private final UserDao userDao;
   private final IssueDao issueDao;
   private final IssueAuthorizationDao issueAuthorizationDao;
+  private final ActionPlanDao actionPlanDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -89,6 +91,7 @@ public class DbClient implements ServerComponent {
     userDao = getDao(map, UserDao.class);
     issueDao = getDao(map, IssueDao.class);
     issueAuthorizationDao = getDao(map, IssueAuthorizationDao.class);
+    actionPlanDao = getDao(map, ActionPlanDao.class);
   }
 
   public Database database() {
@@ -157,6 +160,10 @@ public class DbClient implements ServerComponent {
 
   public UserDao userDao() {
     return userDao;
+  }
+
+  public ActionPlanDao actionPlanDao() {
+    return actionPlanDao;
   }
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {
