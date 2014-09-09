@@ -136,23 +136,27 @@ public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
     return false;
   }
 
-  public void addProject(ComponentDto project) {
-    this.projects.put(project.key(), project);
+  public void addProjects(Collection<ComponentDto> projects) {
+    for (ComponentDto project : projects) {
+      this.projects.put(project.key(), project);
+    }
   }
 
-  public void addComponent(ComponentDto component) {
-    this.components.put(component.key(), component);
+  public void addComponents(Collection<ComponentDto> components) {
+    for (ComponentDto component : components) {
+      this.components.put(component.key(), component);
+ }
   }
 
-  public void addUser(User user) {
+  public void addUsers(User user) {
     this.usersByLogin.put(user.login(), user);
   }
 
-  public void addActionPlan(ActionPlan plan) {
+  public void addActionPlans(ActionPlan plan) {
     this.actionPlans.put(plan.key(), plan);
   }
 
-  public void addRule(Rule rule) {
+  public void addRules(Rule rule) {
     this.rules.put(rule.getKey(), rule);
   }
 }

@@ -412,13 +412,18 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
           .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
     }
 
-    MultiGetResponse response = client.execute(request);
-    if (response.getResponses() != null) {
-      for (MultiGetItemResponse item : response.getResponses()) {
-        results.add(toDoc(item.getResponse().getSource()));
+    try {
+      MultiGetResponse response = client.execute(request);
+      if (response.getResponses() != null) {
+        for (MultiGetItemResponse item : response.getResponses()) {
+          results.add(toDoc(item.getResponse().getSource()));
+        }
       }
+    } catch (Exception e) {
+      LOG.debug("could not multi-get.", e);
+    } finally {
+      return results;
     }
-    return results;
   }
 
   public Collection<DOMAIN> getByKeys(KEY... keys) {

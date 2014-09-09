@@ -25,6 +25,8 @@ import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
@@ -64,6 +66,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -76,6 +79,8 @@ import java.util.Set;
  * @since 3.6
  */
 public class IssueService implements ServerComponent {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(IssueService.class);
 
   private final DbClient dbClient;
   private final IndexClient indexClient;
@@ -340,7 +345,6 @@ public class IssueService implements ServerComponent {
 
     IssueIndex issueIndex = indexClient.get(IssueIndex.class);
 
-    long t0 = System.currentTimeMillis();
     SearchResponse esResults = issueIndex.search(query, options);
 
     // Extend the content of the resultSet to make an actual IssueResponse
@@ -350,10 +354,7 @@ public class IssueService implements ServerComponent {
       (options.getOffset() * options.getLimit()) + 1,
       new Long(esResults.getHits().getTotalHits()).intValue()));
 
-    long t1 = System.currentTimeMillis();
-    long t2 = System.currentTimeMillis();
 
-    // TODO Optimise
     // Insert the projects and component name;
     Set<RuleKey> ruleKeys = new HashSet<RuleKey>();
     Set<String> projectKeys = new HashSet<String>();
@@ -372,14 +373,13 @@ public class IssueService implements ServerComponent {
 
     try {
       indexClient.get(RuleIndex.class).getByKeys(ruleKeys);
-      result.projects().addAll(dbClient.componentDao().getByKeys(session, projectKeys));
-      result.components().addAll(dbClient.componentDao().getByKeys(session, componentKeys));
-      dbClient.userDao().selectUsersByLogins(session, userLogins);
+      result.addProjects(dbClient.componentDao().getByKeys(session, projectKeys));
+      result.addComponents(dbClient.componentDao().getByKeys(session, componentKeys));
+   dbClient.userDao().selectUsersByLogins(session, userLogins);
       dbClient.actionPlanDao().findByKeys(actionPlanKeys);
     } finally {
       session.close();
     }
-    long t3 = System.currentTimeMillis();
 
     return result;
   }
