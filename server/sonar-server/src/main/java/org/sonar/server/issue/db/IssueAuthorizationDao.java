@@ -41,7 +41,6 @@ import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-
 public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, IssueAuthorizationDto, String> implements DaoComponent {
 
   public IssueAuthorizationDao() {
@@ -58,17 +57,15 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
     throw new IllegalStateException("Not implemented");
   }
 
-
   @Override
   protected ResultHandler getSynchronizationResultHandler(final DbSession session) {
     return new ResultHandler() {
       private final Map<String, IssueAuthorizationDto> authorizationDtoMap = new HashMap<String, IssueAuthorizationDto>();
       private int count = 0;
+
       @Override
       public void handleResult(ResultContext context) {
         Map<String, String> row = (Map<String, String>) context.getResultObject();
-        System.out.println(row);
-
         String project = row.get("project");
         String user = row.get("user");
         String group = row.get("permission_group");
@@ -87,10 +84,10 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
         authorizationDtoMap.put(project, issueAuthorizationDto);
         count++;
 
-        //TODO this sort of breaks the scrollable RS. Should be inline.
-        //Check if this is the last
+        // TODO this sort of breaks the scrollable RS. Should be inline.
+        // Check if this is the last
         if (count == context.getResultCount()) {
-          for(IssueAuthorizationDto authorization:authorizationDtoMap.values()){
+          for (IssueAuthorizationDto authorization : authorizationDtoMap.values()) {
             session.enqueue(new UpsertDto<IssueAuthorizationDto>(getIndexType(), authorization, true));
           }
         }
