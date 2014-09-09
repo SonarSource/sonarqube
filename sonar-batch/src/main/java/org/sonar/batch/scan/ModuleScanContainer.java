@@ -110,8 +110,9 @@ public class ModuleScanContainer extends ComponentContainer {
       module,
       ModuleSettings.class);
 
-    // hack to initialize commons-configuration before ExtensionProviders
-    getComponentByType(ModuleSettings.class);
+    // hack to initialize settings before ExtensionProviders
+    ModuleSettings moduleSettings = getComponentByType(ModuleSettings.class);
+    module.setSettings(moduleSettings);
 
     add(
       EventBus.class,

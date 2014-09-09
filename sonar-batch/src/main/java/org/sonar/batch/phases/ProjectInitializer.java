@@ -41,7 +41,6 @@ public class ProjectInitializer implements BatchComponent {
   }
 
   public void execute(Project project) {
-    project.setSettings(settings);
     if (project.getLanguage() == null) {
       initDeprecatedLanguage(project);
     }
