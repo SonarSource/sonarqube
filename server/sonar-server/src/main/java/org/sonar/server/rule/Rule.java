@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * @since 4.4
  */
-public interface Rule extends org.sonar.api.rules.Rule {
+public interface Rule {
 
   RuleKey key();
 
