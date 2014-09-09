@@ -40,6 +40,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
+import java.util.Collection;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -50,7 +51,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleBackendMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.log.profilingLevel", "FULL");
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
@@ -67,6 +69,19 @@ public class RuleBackendMediumTest {
   @After
   public void after() {
     dbSession.close();
+  }
+
+  @Test
+  public void insert_in_db_and_multiget_in_es() throws InterruptedException {
+    // insert db
+    RuleDto ruleDto = RuleTesting.newXooX1();
+    RuleDto ruleDto2 = RuleTesting.newXooX2();
+    dao.insert(dbSession, ruleDto, ruleDto2);
+    dbSession.commit();
+
+    // check that we get two rules
+    Collection<Rule> hits = index.getByKeys(RuleTesting.XOO_X1, RuleTesting.XOO_X2);
+    assertThat(hits).hasSize(2);
   }
 
   @Test
@@ -87,6 +102,16 @@ public class RuleBackendMediumTest {
 
     // verify that rule is indexed in es
     Rule hit = index.getByKey(RuleTesting.XOO_X1);
+    assertRuleEquivalent(ruleDto, hit);
+
+    // Verify Multi-get
+    Collection<Rule> hits = index.getByKeys(RuleTesting.XOO_X1);
+    assertThat(hits).hasSize(1);
+    assertRuleEquivalent(ruleDto, Iterables.getFirst(hits, null));
+
+  }
+
+  private void assertRuleEquivalent(RuleDto ruleDto, Rule hit) {
     assertThat(hit).isNotNull();
     assertThat(hit.key().repository()).isEqualTo(ruleDto.getRepositoryKey());
     assertThat(hit.key().rule()).isEqualTo(ruleDto.getRuleKey());
