@@ -29,9 +29,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
 
-import java.sql.Timestamp;
-import java.util.Date;
-
 public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements DaoComponent {
 
   public IssueDao() {
@@ -64,7 +61,7 @@ public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements 
 
 
   @Override
-  protected Iterable<IssueDto> findAfterDate(DbSession session, Date date) {
-    return mapper(session).selectAfterDate(new Timestamp(date.getTime()));
+  protected String getSynchronizationStatementName() {
+    return "selectAfterDate";
   }
 }

@@ -19,7 +19,11 @@
  */
 package org.sonar.server.db;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
@@ -34,8 +38,14 @@ import org.sonar.server.search.action.UpsertNestedItem;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * naming convention for DAO
@@ -101,27 +111,27 @@ import java.util.Date;
  * - RuleTagDto tag add(RuleTagDto tag, RuleKey key)
  * - RuleParamDto param add(RuleParamDto param, RuleDto rule)
  *
- * @param <M> iBatis Mapper class
- * @param <E> Produced DTO class from this dao
- * @param <K> DTO Key class
+ * @param <MAPPER> iBatis Mapper class
+ * @param <DTO> Produced DTO class from this dao
+ * @param <KEY> DTO Key class
  */
-public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> implements Dao<E, K>, DaoComponent {
+public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializable> implements Dao<DTO, KEY>, DaoComponent {
 
   protected IndexDefinition indexDefinition;
-  private Class<M> mapperClass;
+  private Class<MAPPER> mapperClass;
   private System2 system2;
 
   private boolean hasIndex() {
     return indexDefinition != null;
   }
 
-  protected BaseDao(@Nullable IndexDefinition indexDefinition, Class<M> mapperClass, System2 system2) {
+  protected BaseDao(@Nullable IndexDefinition indexDefinition, Class<MAPPER> mapperClass, System2 system2) {
     this.mapperClass = mapperClass;
     this.indexDefinition = indexDefinition;
     this.system2 = system2;
   }
 
-  protected BaseDao(Class<M> mapperClass, System2 system2) {
+  protected BaseDao(Class<MAPPER> mapperClass, System2 system2) {
     this(null, mapperClass, system2);
   }
 
@@ -129,49 +139,61 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     return indexDefinition != null ? this.indexDefinition.getIndexType() : null;
   }
 
-  protected M mapper(DbSession session) {
+  protected MAPPER mapper(DbSession session) {
     return session.getMapper(mapperClass);
   }
 
-  public E getNullableByKey(DbSession session, K key) {
+  public DTO getNullableByKey(DbSession session, KEY key) {
     return doGetNullableByKey(session, key);
   }
 
-  public E getByKey(DbSession session, K key) {
-    E value = doGetNullableByKey(session, key);
+  public DTO getByKey(DbSession session, KEY key) {
+    DTO value = doGetNullableByKey(session, key);
     if (value == null) {
       throw new NotFoundException(String.format("Key '%s' not found", key));
     }
     return value;
   }
 
+  public Collection<DTO> getByKeys(DbSession session, KEY... keys) {
+    return getByKeys(session, ImmutableList.<KEY>copyOf(keys));
+  }
+
+  public Collection<DTO> getByKeys(DbSession session, Collection<KEY> keys) {
+    Collection<DTO> results = new ArrayList<DTO>();
+    for (KEY key : keys) {
+      results.add(this.getByKey(session, key));
+    }
+    return results;
+  }
+
   @Override
-  public E update(DbSession session, E item) {
+  public DTO update(DbSession session, DTO item) {
     Date now = new Date(system2.now());
     update(session, item, now);
     return item;
   }
 
   @Override
-  public E update(DbSession session, E item, E... others) {
+  public DTO update(DbSession session, DTO item, DTO... others) {
     Date now = new Date(system2.now());
     update(session, item, now);
-    for (E other : others) {
+    for (DTO other : others) {
       update(session, other, now);
     }
     return item;
   }
 
   @Override
-  public Collection<E> update(DbSession session, Collection<E> items) {
+  public Collection<DTO> update(DbSession session, Collection<DTO> items) {
     Date now = new Date(system2.now());
-    for (E item : items) {
+    for (DTO item : items) {
       update(session, item, now);
     }
     return items;
   }
 
-  private void update(DbSession session, E item, Date now) {
+  private void update(DbSession session, DTO item, Date now) {
     try {
       item.setUpdatedAt(now);
       doUpdate(session, item);
@@ -184,31 +206,31 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public E insert(DbSession session, E item) {
+  public DTO insert(DbSession session, DTO item) {
     insert(session, item, new Date(system2.now()));
     return item;
   }
 
   @Override
-  public Collection<E> insert(DbSession session, Collection<E> items) {
+  public Collection<DTO> insert(DbSession session, Collection<DTO> items) {
     Date now = new Date(system2.now());
-    for (E item : items) {
+    for (DTO item : items) {
       insert(session, item, now);
     }
     return items;
   }
 
   @Override
-  public E insert(DbSession session, E item, E... others) {
+  public DTO insert(DbSession session, DTO item, DTO... others) {
     Date now = new Date(system2.now());
     insert(session, item, now);
-    for (E other : others) {
+    for (DTO other : others) {
       insert(session, other, now);
     }
     return item;
   }
 
-  private void insert(DbSession session, E item, Date now) {
+  private void insert(DbSession session, DTO item, Date now) {
     if (item.getCreatedAt() == null) {
       item.setCreatedAt(now);
     }
@@ -216,7 +238,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     try {
       doInsert(session, item);
       if (hasIndex()) {
-        session.enqueue(new UpsertDto<E>(getIndexType(), item));
+        session.enqueue(new UpsertDto<DTO>(getIndexType(), item));
       }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to insert item in db: " + item, e);
@@ -224,83 +246,112 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public void delete(DbSession session, E item) {
+  public void delete(DbSession session, DTO item) {
     deleteByKey(session, item.getKey());
   }
 
   @Override
-  public void delete(DbSession session, E item, E... others) {
+  public void delete(DbSession session, DTO item, DTO... others) {
     delete(session, item);
-    for (E e : others) {
+    for (DTO e : others) {
       delete(session, e);
     }
   }
 
   @Override
-  public void delete(DbSession session, Collection<E> items) {
-    for (E item : items) {
+  public void delete(DbSession session, Collection<DTO> items) {
+    for (DTO item : items) {
       delete(session, item);
     }
   }
 
   @Override
-  public void deleteByKey(DbSession session, K key) {
+  public void deleteByKey(DbSession session, KEY key) {
     Preconditions.checkNotNull(key, "Missing key");
     try {
       doDeleteByKey(session, key);
       if (hasIndex()) {
-        session.enqueue(new DeleteKey<K>(getIndexType(), key));
+        session.enqueue(new DeleteKey<KEY>(getIndexType(), key));
       }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to delete item from db: " + key, e);
     }
   }
 
-  protected final void enqueueUpdate(Object nestedItem, K key, DbSession session) {
+  protected final void enqueueUpdate(Object nestedItem, KEY key, DbSession session) {
     if (hasIndex()) {
-      session.enqueue(new UpsertNestedItem<K>(
+      session.enqueue(new UpsertNestedItem<KEY>(
         this.getIndexType(), key, nestedItem));
     }
   }
 
-  public void enqueueDelete(Object nestedItem, K key, DbSession session) {
+  public void enqueueDelete(Object nestedItem, KEY key, DbSession session) {
     if (hasIndex()) {
-      session.enqueue(new DeleteNestedItem<K>(
+      session.enqueue(new DeleteNestedItem<KEY>(
         this.getIndexType(), key, nestedItem));
       session.commit();
     }
   }
 
-  public void enqueueInsert(Object nestedItem, K key, DbSession session) {
+  public void enqueueInsert(Object nestedItem, KEY key, DbSession session) {
     if (hasIndex()) {
       this.enqueueUpdate(nestedItem, key, session);
     }
   }
 
+  @VisibleForTesting
+  public List<DTO> findAfterDate(final DbSession session, Date date) {
+    return session.selectList(getSynchronizeStatementFQN(), getSynchronizationParams(date));
+  }
+
+  // Synchronization methods
+
+  protected ResultHandler getSynchronizationResultHandler(final DbSession session){
+    return new ResultHandler() {
+      @Override
+      public void handleResult(ResultContext resultContext) {
+        DTO dto = (DTO) resultContext.getResultObject();
+        session.enqueue(new UpsertDto<DTO>(getIndexType(), dto, true));
+      }
+    };
+  }
+
+  protected Map getSynchronizationParams(Date date){
+    Map<String, Object> params = newHashMap();
+    params.put("date", new Timestamp(date.getTime()));
+    return params;
+  }
+
   @Override
   public final void synchronizeAfter(final DbSession session, Date date) {
-    for (E dto : this.findAfterDate(session, date)) {
-      session.enqueue(new UpsertDto<E>(getIndexType(), dto, true));
+    try {
+      session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date), getSynchronizationResultHandler(session));
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
     }
     session.commit();
   }
 
+  private String getSynchronizeStatementFQN() {
+    return mapperClass.getName() + "." + this.getSynchronizationStatementName();
+  }
+
   @CheckForNull
-  protected abstract E doGetNullableByKey(DbSession session, K key);
+  protected abstract DTO doGetNullableByKey(DbSession session, KEY key);
 
-  protected Iterable<E> findAfterDate(final DbSession session, Date date) {
+  protected String getSynchronizationStatementName() {
+    return "selectAfterDate";
+  }
+
+  protected DTO doInsert(DbSession session, DTO item) {
     throw notImplemented(this);
   }
 
-  protected E doInsert(DbSession session, E item) {
+  protected DTO doUpdate(DbSession session, DTO item) {
     throw notImplemented(this);
   }
 
-  protected E doUpdate(DbSession session, E item) {
-    throw notImplemented(this);
-  }
-
-  protected void doDeleteByKey(DbSession session, K key) {
+  protected void doDeleteByKey(DbSession session, KEY key) {
     throw notImplemented(this);
   }
 

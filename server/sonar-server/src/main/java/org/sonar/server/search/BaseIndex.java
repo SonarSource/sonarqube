@@ -21,12 +21,17 @@ package org.sonar.server.search;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.count.CountResponse;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetRequest;
+import org.elasticsearch.action.get.MultiGetRequestBuilder;
+import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
@@ -44,20 +49,24 @@ import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
+import org.elasticsearch.search.fetch.source.FetchSourceContext;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -390,6 +399,35 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       return toDoc(response.getSource());
     }
     return null;
+  }
+
+  public Collection<DOMAIN> getByKeys(Collection<KEY> keys) {
+    List<DOMAIN> results = new ArrayList<DOMAIN>();
+    MultiGetRequestBuilder request = client.prepareMultiGet()
+      .setPreference("_local");
+    for (KEY key : keys) {
+      request.add(new MultiGetRequest
+        .Item(getIndexName(), getIndexType(), getKeyValue(key))
+          .routing(getKeyValue(key))
+          .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
+    }
+
+    try {
+      MultiGetResponse response = client.execute(request);
+      if (response.getResponses() != null) {
+        for (MultiGetItemResponse item : response.getResponses()) {
+          results.add(toDoc(item.getResponse().getSource()));
+        }
+      }
+    } catch (Exception e) {
+      LOG.debug("could not multi-get.", e);
+    } finally {
+      return results;
+    }
+  }
+
+  public Collection<DOMAIN> getByKeys(KEY... keys) {
+    return getByKeys(ImmutableSet.<KEY>copyOf(keys));
   }
 
   /* ES QueryHelper Methods */

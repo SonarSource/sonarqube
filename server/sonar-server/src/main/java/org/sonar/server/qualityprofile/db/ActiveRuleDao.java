@@ -36,8 +36,6 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
 
 import javax.annotation.CheckForNull;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, ActiveRuleKey> {
@@ -115,11 +113,6 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
       mapper(session).deleteParameters(activeRule.getId());
       mapper(session).delete(activeRule.getId());
     }
-  }
-
-  @Override
-  protected Iterable<ActiveRuleDto> findAfterDate(DbSession session, Date date) {
-    return mapper(session).selectAfterDate(new Timestamp(date.getTime()));
   }
 
   /**

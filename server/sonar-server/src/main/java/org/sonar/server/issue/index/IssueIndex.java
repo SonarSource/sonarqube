@@ -190,9 +190,9 @@ public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
         .field(IssueNormalizer.IssueField.ACTION_PLAN.field()));
     }
 
-    // Execute Function aggregation
-    esSearch.addAggregation(AggregationBuilders.sum("totalDuration")
-      .field(IssueNormalizer.IssueField.DEBT.field()));
+    // Sample Functional aggregation
+    // esSearch.addAggregation(AggregationBuilders.sum("totalDuration")
+    // .field(IssueNormalizer.IssueField.DEBT.field()));
 
     return getClient().execute(esSearch);
   }

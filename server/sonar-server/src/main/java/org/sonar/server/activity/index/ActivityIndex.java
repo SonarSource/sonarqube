@@ -69,6 +69,8 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
   @Override
   protected Settings getIndexSettings() throws IOException {
     return ImmutableSettings.builder()
+      .put("index.number_of_replicas", 0)
+      .put("index.number_of_shards", 1)
       .put("analysis.analyzer.default.type", "keyword")
       .build();
   }
@@ -101,7 +103,7 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
   }
 
   public SearchResponse search(ActivityQuery query, QueryOptions options,
-                               @Nullable FilterBuilder domainFilter) {
+    @Nullable FilterBuilder domainFilter) {
 
     // Prepare query
     SearchRequestBuilder esSearch = getClient()
@@ -130,7 +132,7 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
       .from(query.getSince())
       .to(query.getTo()));
 
-    //Add any additional domain filter
+    // Add any additional domain filter
     if (domainFilter != null) {
       filter.add(domainFilter);
     }

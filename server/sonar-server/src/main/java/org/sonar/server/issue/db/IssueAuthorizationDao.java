@@ -21,6 +21,9 @@
 package org.sonar.server.issue.db;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueAuthorizationDto;
@@ -29,12 +32,15 @@ import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.action.UpsertDto;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
+
 
 public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, IssueAuthorizationDto, String> implements DaoComponent {
 
@@ -52,8 +58,48 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
     throw new IllegalStateException("Not implemented");
   }
 
+
   @Override
-  protected Iterable<IssueAuthorizationDto> findAfterDate(DbSession session, Date date) {
+  protected ResultHandler getSynchronizationResultHandler(final DbSession session) {
+    return new ResultHandler() {
+      private final Map<String, IssueAuthorizationDto> authorizationDtoMap = new HashMap<String, IssueAuthorizationDto>();
+      private int count = 0;
+      @Override
+      public void handleResult(ResultContext context) {
+        Map<String, String> row = (Map<String, String>) context.getResultObject();
+        System.out.println(row);
+
+        String project = row.get("project");
+        String user = row.get("user");
+        String group = row.get("permission_group");
+        IssueAuthorizationDto issueAuthorizationDto = authorizationDtoMap.get(project);
+        if (issueAuthorizationDto == null) {
+          issueAuthorizationDto = new IssueAuthorizationDto()
+            .setProject(project)
+            .setPermission(UserRole.USER);
+        }
+        if (group != null) {
+          issueAuthorizationDto.addGroup(group);
+        }
+        if (user != null) {
+          issueAuthorizationDto.addUser(user);
+        }
+        authorizationDtoMap.put(project, issueAuthorizationDto);
+        count++;
+
+        //TODO this sort of breaks the scrollable RS. Should be inline.
+        //Check if this is the last
+        if (count == context.getResultCount()) {
+          for(IssueAuthorizationDto authorization:authorizationDtoMap.values()){
+            session.enqueue(new UpsertDto<IssueAuthorizationDto>(getIndexType(), authorization, true));
+          }
+        }
+      }
+    };
+  }
+
+  @Override
+  public List<IssueAuthorizationDto> findAfterDate(DbSession session, Date date) {
 
     Map<String, Object> params = newHashMap();
     params.put("date", date);
@@ -81,6 +127,13 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
       authorizationDtoMap.put(project, issueAuthorizationDto);
     }
 
-    return authorizationDtoMap.values();
+    return ImmutableList.<IssueAuthorizationDto>copyOf(authorizationDtoMap.values());
+  }
+
+  @Override
+  protected Map getSynchronizationParams(Date date) {
+    Map<String, Object> params = super.getSynchronizationParams(date);
+    params.put("permission", UserRole.USER);
+    return params;
   }
 }

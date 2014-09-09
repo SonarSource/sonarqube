@@ -80,13 +80,21 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
     if (!logins.isEmpty()) {
       SqlSession session = mybatis.openSession(false);
       try {
-        UserMapper mapper = session.getMapper(UserMapper.class);
-        List<List<String>> partitions = Lists.partition(logins, 1000);
-        for (List<String> partition : partitions) {
-          users.addAll(mapper.selectUsersByLogins(partition));
-        }
+        selectUsersByLogins(session, logins);
       } finally {
         MyBatis.closeQuietly(session);
+      }
+    }
+    return users;
+  }
+
+  public List<UserDto> selectUsersByLogins(SqlSession session, List<String> logins) {
+    List<UserDto> users = Lists.newArrayList();
+    if (!logins.isEmpty()) {
+      UserMapper mapper = session.getMapper(UserMapper.class);
+      List<List<String>> partitions = Lists.partition(logins, 1000);
+      for (List<String> partition : partitions) {
+        users.addAll(mapper.selectUsersByLogins(partition));
       }
     }
     return users;

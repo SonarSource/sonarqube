@@ -135,8 +135,11 @@
     where i.kee=#{kee}
   </select>
 
-  <select id="selectAfterDate" resultType="Issue" resultSetType="FORWARD_ONLY" fetchSize="200">
-    select
+  <select id="selectAfterDate" resultType="Issue" timeout="10000"
+          fetchSize="2000"
+          statementType="PREPARED"
+          resultSetType="FORWARD_ONLY">
+  select
     <include refid="issueColumns"/>
     from issues i
     inner join rules r on r.id=i.rule_id

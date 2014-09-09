@@ -31,8 +31,6 @@ import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
 
 import javax.annotation.CheckForNull;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
@@ -70,11 +68,6 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
   @Override
   protected void doDeleteByKey(DbSession session, RuleKey key) {
     throw new UnsupportedOperationException("Rules cannot be deleted");
-  }
-
-  @Override
-  protected Iterable<RuleDto> findAfterDate(DbSession session, Date date) {
-    return mapper(session).selectAfterDate(new Timestamp(date.getTime()));
   }
 
   /**
