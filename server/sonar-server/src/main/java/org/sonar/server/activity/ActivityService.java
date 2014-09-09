@@ -27,7 +27,7 @@ import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityQuery;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
@@ -79,7 +79,7 @@ public class ActivityService {
     return new ActivityQuery();
   }
 
-  public Result<Activity> search(ActivityQuery query, QueryOptions options) {
+  public Result<Activity> search(ActivityQuery query, QueryContext options) {
     ActivityIndex index = indexClient.get(ActivityIndex.class);
     return new Result<Activity>(index, index.search(query, options));
   }

@@ -14,7 +14,20 @@
 
   <select id="selectByKey" parameterType="string" resultType="Group">
     SELECT <include refid="groupColumns"/>
-    FROM groups g WHERE g.name=#{id}
+    FROM groups g
+    <where>
+      g.name=#{id}
+    </where>
+  </select>
+
+  <select id="selectByUserLogin" parameterType="string" resultType="Group">
+    SELECT <include refid="groupColumns"/>
+    FROM groups g
+    INNER JOIN groups_users gu on gu.group_id=g.id
+    INNER JOIN users u on u.id=gu.user_id
+    <where>
+      u.login=#{login}
+    </where>
   </select>
 
   <insert id="insert" parameterType="Group" keyColumn="id" useGeneratedKeys="true" keyProperty="id">

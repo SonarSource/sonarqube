@@ -22,10 +22,14 @@ package org.sonar.core.user;
 
 import javax.annotation.CheckForNull;
 
+import java.util.List;
+
 public interface GroupMapper {
 
   @CheckForNull
   GroupDto selectByKey(String name);
+
+  List<GroupDto> selectByUserLogin(String userLogin);
 
   void insert(GroupDto groupDto);
 

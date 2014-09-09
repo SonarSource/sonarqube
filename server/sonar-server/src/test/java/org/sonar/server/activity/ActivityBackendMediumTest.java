@@ -34,7 +34,7 @@ import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityQuery;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
@@ -108,7 +108,7 @@ public class ActivityBackendMediumTest {
     service.write(dbSession, Activity.Type.QPROFILE, "now");
     dbSession.commit();
 
-    Activity activity = service.search(new ActivityQuery(), new QueryOptions()).getHits().get(0);
+    Activity activity = service.search(new ActivityQuery(), new QueryContext()).getHits().get(0);
     assertThat(System.currentTimeMillis() - activity.time().getTime()).isLessThan(1000L);
   }
 
@@ -131,7 +131,7 @@ public class ActivityBackendMediumTest {
 
     // 2. assert scrollable
     int count = 0;
-    SearchResponse result = index.search(new ActivityQuery(), new QueryOptions().setScroll(true));
+    SearchResponse result = index.search(new ActivityQuery(), new QueryContext().setScroll(true));
     Iterator<Activity> logs = new Result<Activity>(index, result).scroll();
     while (logs.hasNext()) {
       logs.next();
@@ -142,7 +142,7 @@ public class ActivityBackendMediumTest {
     // 3 assert synchronize above IndexQueue threshold
     tester.clearIndexes();
     tester.get(Platform.class).executeStartupTasks();
-    result = index.search(new ActivityQuery(), new QueryOptions().setScroll(true));
+    result = index.search(new ActivityQuery(), new QueryContext().setScroll(true));
     logs = new Result<Activity>(index, result).scroll();
     count = 0;
     while (logs.hasNext()) {
@@ -172,7 +172,7 @@ public class ActivityBackendMediumTest {
 
     // 2. assert scrollable
     int count = 0;
-    SearchResponse result = index.search(new ActivityQuery(), new QueryOptions().setScroll(true));
+    SearchResponse result = index.search(new ActivityQuery(), new QueryContext().setScroll(true));
     Iterator<Activity> logs = new Result<Activity>(index, result).scroll();
     while (logs.hasNext()) {
       logs.next();
@@ -183,7 +183,7 @@ public class ActivityBackendMediumTest {
     // 3 assert synchronize above IndexQueue threshold
     tester.clearIndexes();
     tester.get(Platform.class).executeStartupTasks();
-    result = index.search(new ActivityQuery(), new QueryOptions().setScroll(true));
+    result = index.search(new ActivityQuery(), new QueryContext().setScroll(true));
     logs = new Result<Activity>(index, result).scroll();
     count = 0;
     while (logs.hasNext()) {

@@ -21,16 +21,30 @@
 package org.sonar.server.search;
 
 import com.google.common.collect.ImmutableList;
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.server.user.MockUserSession;
 
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
-public class QueryOptionsTest {
+public class QueryContextTest {
 
-  QueryOptions options = new QueryOptions();
+  QueryContext options;
+
+  @Before
+  public void setUp() throws Exception {
+    MockUserSession.set().setLogin("john").setUserGroups("sonar-users");
+    options = new QueryContext();
+  }
+
+  @Test
+  public void user_and_groups() throws Exception {
+    assertThat(options.getUserLogin()).isEqualTo("john");
+    assertThat(options.getUserGroups()).containsOnly("sonar-users", "Anyone");
+  }
 
   @Test
   public void page_shortcut_for_limit_and_offset() throws Exception {
@@ -72,21 +86,21 @@ public class QueryOptionsTest {
     options.setLimit(42);
     assertThat(options.getLimit()).isEqualTo(42);
 
-    options.setLimit(QueryOptions.MAX_LIMIT + 10);
-    assertThat(options.getLimit()).isEqualTo(QueryOptions.MAX_LIMIT);
+    options.setLimit(QueryContext.MAX_LIMIT + 10);
+    assertThat(options.getLimit()).isEqualTo(QueryContext.MAX_LIMIT);
   }
 
   @Test
   public void set_max_limit() throws Exception {
     options.setMaxLimit();
-    assertThat(options.getLimit()).isEqualTo(QueryOptions.MAX_LIMIT);
+    assertThat(options.getLimit()).isEqualTo(QueryContext.MAX_LIMIT);
   }
 
   @Test
   public void max_page_size() throws Exception {
-    options.setPage(3, QueryOptions.MAX_LIMIT + 10);
-    assertThat(options.getOffset()).isEqualTo(QueryOptions.MAX_LIMIT * 2);
-    assertThat(options.getLimit()).isEqualTo(QueryOptions.MAX_LIMIT);
+    options.setPage(3, QueryContext.MAX_LIMIT + 10);
+    assertThat(options.getOffset()).isEqualTo(QueryContext.MAX_LIMIT * 2);
+    assertThat(options.getLimit()).isEqualTo(QueryContext.MAX_LIMIT);
   }
 
 

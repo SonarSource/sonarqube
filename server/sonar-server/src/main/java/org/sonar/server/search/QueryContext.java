@@ -20,19 +20,22 @@
 package org.sonar.server.search;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
+import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
+
+import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * Various Elasticsearch request options: paging, sorting, fields and facets
  *
  * @since 4.4
  */
-public class QueryOptions {
+public class QueryContext {
 
   public static final int DEFAULT_OFFSET = 0;
   public static final int DEFAULT_LIMIT = 10;
@@ -42,8 +45,15 @@ public class QueryOptions {
   private int offset = DEFAULT_OFFSET;
   private int limit = DEFAULT_LIMIT;
   private boolean facet = DEFAULT_FACET;
-  private Set<String> fieldsToReturn = Sets.newHashSet();
+  private Set<String> fieldsToReturn = newHashSet();
   private boolean scroll = false;
+  private String userLogin;
+  private Set<String> userGroups = newHashSet();
+
+  public QueryContext() {
+    this.userLogin = UserSession.get().login();
+    this.userGroups = UserSession.get().userGroups();
+  }
 
   /**
    * Whether or not the search returns facets for the domain. Defaults to {@link #DEFAULT_OFFSET}
@@ -55,7 +65,7 @@ public class QueryOptions {
   /**
    * Sets whether or not the search returns facets for the domain.
    */
-  public QueryOptions setFacet(boolean facet) {
+  public QueryContext setFacet(boolean facet) {
     this.facet = facet;
     return this;
   }
@@ -70,7 +80,7 @@ public class QueryOptions {
   /**
    * Sets whether or not the search result will be scrollable using an iterator
    */
-  public QueryOptions setScroll(boolean scroll) {
+  public QueryContext setScroll(boolean scroll) {
     this.scroll = scroll;
     return this;
   }
@@ -85,7 +95,7 @@ public class QueryOptions {
   /**
    * Sets the offset of the first result to return (zero-based).
    */
-  public QueryOptions setOffset(int offset) {
+  public QueryContext setOffset(int offset) {
     Preconditions.checkArgument(offset >= 0, "Offset must be positive");
     this.offset = offset;
     return this;
@@ -94,7 +104,7 @@ public class QueryOptions {
   /**
    * Set offset and limit according to page approach
    */
-  public QueryOptions setPage(int page, int pageSize) {
+  public QueryContext setPage(int page, int pageSize) {
     Preconditions.checkArgument(page >= 1, "Page must be greater or equal to 1 (got " + page + ")");
     Preconditions.checkArgument(pageSize >= 0, "Page size must be greater or equal to 0 (got " + pageSize + ")");
     setLimit(pageSize);
@@ -112,12 +122,12 @@ public class QueryOptions {
   /**
    * Sets the limit on the number of results to return.
    */
-  public QueryOptions setLimit(int limit) {
+  public QueryContext setLimit(int limit) {
     this.limit = Math.min(limit, MAX_LIMIT);
     return this;
   }
 
-  public QueryOptions setMaxLimit() {
+  public QueryContext setMaxLimit() {
     this.limit = MAX_LIMIT;
     return this;
   }
@@ -126,22 +136,31 @@ public class QueryOptions {
     return fieldsToReturn;
   }
 
-  public QueryOptions setFieldsToReturn(@Nullable Collection<String> c) {
+  public QueryContext setFieldsToReturn(@Nullable Collection<String> c) {
     fieldsToReturn.clear();
     if (c != null) {
-      this.fieldsToReturn = Sets.newHashSet(c);
+      this.fieldsToReturn = newHashSet(c);
     }
     return this;
   }
 
-  public QueryOptions addFieldsToReturn(@Nullable Collection<String> c) {
+  public QueryContext addFieldsToReturn(@Nullable Collection<String> c) {
     if (c != null) {
       fieldsToReturn.addAll(c);
     }
     return this;
   }
 
-  public QueryOptions addFieldsToReturn(String... c) {
+  public QueryContext addFieldsToReturn(String... c) {
     return addFieldsToReturn(Arrays.asList(c));
   }
+
+  public String getUserLogin() {
+    return userLogin;
+  }
+
+  public Set<String> getUserGroups() {
+    return userGroups;
+  }
+
 }

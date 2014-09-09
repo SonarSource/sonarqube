@@ -25,7 +25,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 
 import javax.annotation.Nullable;
 
@@ -48,8 +48,8 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> implements ServerCom
     return mappers.keySet();
   }
 
-  public QueryOptions newQueryOptions(SearchOptions options) {
-    QueryOptions result = new QueryOptions();
+  public QueryContext newQueryOptions(SearchOptions options) {
+    QueryContext result = new QueryContext();
     result.setPage(options.page(), options.pageSize());
     List<String> optionFields = options.fields();
     if (optionFields != null) {

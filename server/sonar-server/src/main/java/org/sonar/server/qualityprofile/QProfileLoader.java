@@ -33,9 +33,10 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 
 import javax.annotation.CheckForNull;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +127,7 @@ public class QProfileLoader implements ServerComponent {
         .setQProfileKey(key)
         .setActivation(true)
         .setStatuses(Lists.newArrayList(RuleStatus.DEPRECATED)),
-      new QueryOptions().setLimit(0)).getTotal();
+      new QueryContext().setLimit(0)).getTotal();
   }
 
 

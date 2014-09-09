@@ -28,7 +28,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.activity.Activity;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.activity.index.ActivityQuery;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
 
@@ -73,9 +73,9 @@ public class SearchAction implements RequestHandler {
   public void handle(Request request, Response response) {
     ActivityQuery query = logService.newActivityQuery();
     SearchOptions searchOptions = SearchOptions.create(request);
-    QueryOptions queryOptions = mapping.newQueryOptions(searchOptions);
+    QueryContext queryContext = mapping.newQueryOptions(searchOptions);
 
-    Result<Activity> results = logService.search(query, queryOptions);
+    Result<Activity> results = logService.search(query, queryContext);
 
     JsonWriter json = response.newJsonWriter().beginObject();
     searchOptions.writeStatistics(json, results);

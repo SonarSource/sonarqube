@@ -27,14 +27,7 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.SimpleQueryStringBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -47,22 +40,12 @@ import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
-import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.IndexField;
-import org.sonar.server.search.QueryOptions;
-import org.sonar.server.search.Result;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.*;
 
 import javax.annotation.CheckForNull;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -100,7 +83,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     return mapping;
   }
 
-  private void setFields(QueryOptions options, SearchRequestBuilder esSearch) {
+  private void setFields(QueryContext options, SearchRequestBuilder esSearch) {
     /* integrate Option's Fields */
     Set<String> fields = new HashSet<String>();
     if (!options.getFieldsToReturn().isEmpty()) {
@@ -120,7 +103,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     esSearch.setFetchSource(fields.toArray(new String[fields.size()]), null);
   }
 
-  private void setFacets(QueryOptions options, SearchRequestBuilder esSearch) {
+  private void setFacets(QueryContext options, SearchRequestBuilder esSearch) {
     /* Integrate Facets */
     if (options.isFacet()) {
       this.setFacets(esSearch);
@@ -148,7 +131,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
   }
 
-  protected void setPagination(QueryOptions options, SearchRequestBuilder esSearch) {
+  protected void setPagination(QueryContext options, SearchRequestBuilder esSearch) {
     esSearch.setFrom(options.getOffset());
     esSearch.setSize(options.getLimit());
   }
@@ -168,7 +151,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   /* Build main query (search based) */
-  protected QueryBuilder getQuery(RuleQuery query, QueryOptions options) {
+  protected QueryBuilder getQuery(RuleQuery query, QueryContext options) {
 
     // No contextual query case
     String queryText = query.getQueryText();
@@ -202,7 +185,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   /* Build main filter (match based) */
-  protected FilterBuilder getFilter(RuleQuery query, QueryOptions options) {
+  protected FilterBuilder getFilter(RuleQuery query, QueryContext options) {
 
     BoolFilterBuilder fb = FilterBuilders.boolFilter();
 
@@ -334,7 +317,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   }
 
-  public Result<Rule> search(RuleQuery query, QueryOptions options) {
+  public Result<Rule> search(RuleQuery query, QueryContext options) {
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())

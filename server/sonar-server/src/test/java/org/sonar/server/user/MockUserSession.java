@@ -75,6 +75,11 @@ public class MockUserSession extends UserSession {
     return this;
   }
 
+  public MockUserSession setUserGroups(@Nullable String... userGroups) {
+    super.setUserGroups(userGroups);
+    return this;
+  }
+
   public MockUserSession setGlobalPermissions(String... globalPermissions) {
     this.globalPermissions = Arrays.asList(globalPermissions);
     return this;

@@ -26,11 +26,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
 import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.issue.ActionPlan;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.IssueQueryResult;
+import org.sonar.api.issue.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
@@ -50,7 +46,7 @@ import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueResult;
 import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.user.UserSession;
@@ -58,11 +54,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -203,11 +195,11 @@ public class SearchAction implements RequestHandler {
   public void handle(Request request, Response response) {
     IssueQuery query = createQuery(request);
     SearchOptions searchOptions = SearchOptions.create(request);
-    QueryOptions queryOptions = new QueryOptions();
-    queryOptions.setPage(searchOptions.page(), searchOptions.pageSize());
-    queryOptions.setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
+    QueryContext queryContext = new QueryContext();
+    queryContext.setPage(searchOptions.page(), searchOptions.pageSize());
+    queryContext.setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
 
-    IssueResult results = service.search(query, queryOptions);
+    IssueResult results = service.search(query, queryContext);
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
@@ -225,7 +217,7 @@ public class SearchAction implements RequestHandler {
     // writeUsers(results, json);
     // writeActionPlans(results, json);
 
-    if (queryOptions.isFacet()) {
+    if (queryContext.isFacet()) {
       writeFacets(results, json);
     }
 

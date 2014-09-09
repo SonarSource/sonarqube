@@ -32,7 +32,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.server.paging.PagedResult;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
@@ -55,7 +55,7 @@ public class RubyRuleServiceTest {
   RuleUpdater updater;
 
   @Captor
-  ArgumentCaptor<QueryOptions> optionsCaptor;
+  ArgumentCaptor<QueryContext> optionsCaptor;
 
   @Captor
   ArgumentCaptor<RuleQuery> ruleQueryCaptor;
@@ -75,7 +75,7 @@ public class RubyRuleServiceTest {
 
   @Test
   public void search_rules() throws Exception {
-    when(ruleService.search(any(RuleQuery.class), any(QueryOptions.class))).thenReturn(mock(Result.class));
+    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
 
     HashMap<String, Object> params = newHashMap();
     params.put("searchQuery", "Exception");
@@ -110,7 +110,7 @@ public class RubyRuleServiceTest {
 
   @Test
   public void search_rules_without_page_size_param() throws Exception {
-    when(ruleService.search(any(RuleQuery.class), any(QueryOptions.class))).thenReturn(mock(Result.class));
+    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
 
     HashMap<String, Object> params = newHashMap();
     params.put("p", "1");
@@ -128,7 +128,7 @@ public class RubyRuleServiceTest {
     Result serviceResult = mock(Result.class);
     when(serviceResult.scroll()).thenReturn(rules.iterator());
 
-    when(ruleService.search(any(RuleQuery.class), any(QueryOptions.class))).thenReturn(serviceResult);
+    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(serviceResult);
 
     HashMap<String, Object> params = newHashMap();
     params.put("pageSize", "-1");
@@ -142,7 +142,7 @@ public class RubyRuleServiceTest {
 
   @Test
   public void update_rule() throws Exception {
-    when(ruleService.search(any(RuleQuery.class), any(QueryOptions.class))).thenReturn(mock(Result.class));
+    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
 
     service.updateRule(ImmutableMap.<String, Object>of("ruleKey", "squid:S001"));
 
@@ -151,11 +151,11 @@ public class RubyRuleServiceTest {
 
   @Test
   public void search_manual_rules() throws Exception {
-    when(ruleService.search(any(RuleQuery.class), any(QueryOptions.class))).thenReturn(mock(Result.class));
+    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
 
     service.searchManualRules();
 
-    verify(ruleService).search(any(RuleQuery.class), any(QueryOptions.class));
+    verify(ruleService).search(any(RuleQuery.class), any(QueryContext.class));
   }
 
   @Test

@@ -23,11 +23,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.persistence.ComponentDao;
@@ -37,6 +40,8 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
+
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -113,6 +118,10 @@ public class IssuesWsMediumTest {
       .setKey("MyProject")
       .setProjectId(1L);
     tester.get(ComponentDao.class).insert(session, project);
+
+    // project can be seen by anyone
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
     ComponentDto resource = new ComponentDto()
       .setProjectId(1L)

@@ -26,7 +26,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
@@ -68,7 +68,7 @@ public class RuleService implements ServerComponent {
     return new RuleQuery();
   }
 
-  public Result<Rule> search(RuleQuery query, QueryOptions options) {
+  public Result<Rule> search(RuleQuery query, QueryContext options) {
     return index.search(query, options);
   }
 

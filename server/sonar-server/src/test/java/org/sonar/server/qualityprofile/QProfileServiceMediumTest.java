@@ -39,7 +39,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
@@ -154,7 +154,7 @@ public class QProfileServiceMediumTest {
     );
     dbSession.commit();
 
-    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryOptions());
+    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryContext());
     assertThat(activities.getHits()).hasSize(1);
 
     QProfileActivity activity = activities.getHits().get(0);
@@ -183,7 +183,7 @@ public class QProfileServiceMediumTest {
     );
     dbSession.commit();
 
-    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryOptions());
+    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryContext());
     assertThat(activities.getHits()).hasSize(1);
 
     QProfileActivity activity = activities.getHits().get(0);
@@ -206,7 +206,7 @@ public class QProfileServiceMediumTest {
     );
     dbSession.commit();
 
-    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryOptions());
+    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryContext());
     assertThat(activities.getHits()).hasSize(1);
 
     QProfileActivity activity = activities.getHits().get(0);
@@ -227,7 +227,7 @@ public class QProfileServiceMediumTest {
     );
     dbSession.commit();
 
-    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryOptions());
+    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryContext());
     assertThat(activities.getHits()).hasSize(1);
 
     QProfileActivity activity = activities.getHits().get(0);
@@ -245,18 +245,18 @@ public class QProfileServiceMediumTest {
     dbSession.commit();
 
     // 0. Base case verify 2 activities in index
-    assertThat(service.searchActivities(new QProfileActivityQuery(), new QueryOptions()).getHits())
+    assertThat(service.searchActivities(new QProfileActivityQuery(), new QueryContext()).getHits())
       .hasSize(2);
 
     // 1. filter by QProfile
     List<QProfileActivity> result = service.searchActivities(new QProfileActivityQuery()
-      .setQprofileKeys(ImmutableSet.of(XOO_P1_KEY)), new QueryOptions()).getHits();
+      .setQprofileKeys(ImmutableSet.of(XOO_P1_KEY)), new QueryContext()).getHits();
     assertThat(result).hasSize(1);
 
     // 1. filter by QProfiles
     assertThat(service.searchActivities(new QProfileActivityQuery()
       .setQprofileKeys(ImmutableSet.of(XOO_P1_KEY, XOO_P2_KEY))
-      , new QueryOptions()).getHits()).hasSize(2);
+      , new QueryContext()).getHits()).hasSize(2);
   }
 
   @Test
@@ -268,18 +268,18 @@ public class QProfileServiceMediumTest {
     dbSession.commit();
 
     // 0. Base case verify 2 activities in index
-    assertThat(service.searchActivities(new QProfileActivityQuery(), new QueryOptions()).getHits())
+    assertThat(service.searchActivities(new QProfileActivityQuery(), new QueryContext()).getHits())
       .hasSize(2);
 
     // 1. filter by QProfile
     List<QProfileActivity> result = service.searchActivities(new QProfileActivityQuery()
-      .setQprofileKeys(ImmutableSet.of("java-default")), new QueryOptions()).getHits();
+      .setQprofileKeys(ImmutableSet.of("java-default")), new QueryContext()).getHits();
     assertThat(result).hasSize(1);
 
     // 1. filter by QProfiles
     assertThat(service.searchActivities(new QProfileActivityQuery()
       .setQprofileKeys(ImmutableSet.of("java-default", "java-toto"))
-      , new QueryOptions()).getHits()).hasSize(2);
+      , new QueryContext()).getHits()).hasSize(2);
   }
 
   @Test

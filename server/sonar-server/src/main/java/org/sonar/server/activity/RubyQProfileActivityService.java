@@ -26,7 +26,7 @@ import org.sonar.api.utils.Paging;
 import org.sonar.server.qualityprofile.QProfileActivity;
 import org.sonar.server.qualityprofile.QProfileActivityQuery;
 import org.sonar.server.qualityprofile.QProfileService;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.util.RubyUtils;
 
@@ -51,7 +51,7 @@ public class RubyQProfileActivityService implements ServerComponent, Startable {
    */
   public QProfileActivityResult search(Map<String, Object> params) {
     QProfileActivityQuery query = new QProfileActivityQuery();
-    QueryOptions queryOptions = new QueryOptions().setMaxLimit();
+    QueryContext queryContext = new QueryContext().setMaxLimit();
     List<String> profileKeys = RubyUtils.toStrings(params.get("profileKeys"));
     if (profileKeys != null) {
       query.setQprofileKeys(profileKeys);
@@ -66,10 +66,10 @@ public class RubyQProfileActivityService implements ServerComponent, Startable {
     }
     Integer page = RubyUtils.toInteger(params.get("p"));
     int pageIndex = page != null ? page : 1;
-    queryOptions.setPage(pageIndex, 50);
+    queryContext.setPage(pageIndex, 50);
 
-    Result<QProfileActivity> result = service.searchActivities(query, queryOptions);
-    return new QProfileActivityResult(result.getHits(), Paging.create(queryOptions.getLimit(), pageIndex, Long.valueOf(result.getTotal()).intValue()));
+    Result<QProfileActivity> result = service.searchActivities(query, queryContext);
+    return new QProfileActivityResult(result.getHits(), Paging.create(queryContext.getLimit(), pageIndex, Long.valueOf(result.getTotal()).intValue()));
   }
 
   @Override

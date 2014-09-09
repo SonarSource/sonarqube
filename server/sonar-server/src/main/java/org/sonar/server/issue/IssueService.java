@@ -62,18 +62,12 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueResult;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @since 3.6
@@ -341,7 +335,7 @@ public class IssueService implements ServerComponent {
     return indexClient.get(IssueIndex.class).getByKey(key);
   }
 
-  public IssueResult search(IssueQuery query, QueryOptions options) {
+  public IssueResult search(IssueQuery query, QueryContext options) {
 
     IssueIndex issueIndex = indexClient.get(IssueIndex.class);
 

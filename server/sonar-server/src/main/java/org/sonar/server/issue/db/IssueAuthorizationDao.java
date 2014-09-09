@@ -24,6 +24,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueAuthorizationDto;
@@ -101,6 +102,7 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
     Map<String, Object> params = newHashMap();
     params.put("date", date);
     params.put("permission", UserRole.USER);
+    params.put("anyone", DefaultGroups.ANYONE);
 
     Map<String, IssueAuthorizationDto> authorizationDtoMap = newHashMap();
 
@@ -131,6 +133,7 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
   protected Map getSynchronizationParams(Date date) {
     Map<String, Object> params = super.getSynchronizationParams(date);
     params.put("permission", UserRole.USER);
+    params.put("anyone", DefaultGroups.ANYONE);
     return params;
   }
 }

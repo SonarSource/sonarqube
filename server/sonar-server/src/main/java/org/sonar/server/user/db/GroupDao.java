@@ -27,6 +27,8 @@ import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.GroupMapper;
 import org.sonar.server.db.BaseDao;
 
+import java.util.List;
+
 /**
  * @since 3.2
  */
@@ -50,6 +52,10 @@ public class GroupDao extends BaseDao<GroupMapper, GroupDto, String> {
   protected GroupDto doInsert(DbSession session, GroupDto item) {
     mapper(session).insert(item);
     return item;
+  }
+
+  public List<GroupDto> findByUserLogin(DbSession session, String login){
+    return mapper(session).selectByUserLogin(login);
   }
 
 }

@@ -24,7 +24,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.server.rule.index.RuleNormalizer;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.text.MacroInterpreter;
 
@@ -43,9 +43,9 @@ public class RuleMappingTest {
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam("p", "1");
     request.setParam("ps", "10");
-    QueryOptions queryOptions = mapping.newQueryOptions(SearchOptions.create(request));
+    QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
-    assertThat(queryOptions.getFieldsToReturn()).isEmpty();
+    assertThat(queryContext.getFieldsToReturn()).isEmpty();
   }
 
   @Test
@@ -55,9 +55,9 @@ public class RuleMappingTest {
     request.setParam("p", "1");
     request.setParam("ps", "10");
     request.setParam("f", "repo,name,lang");
-    QueryOptions queryOptions = mapping.newQueryOptions(SearchOptions.create(request));
+    QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
-    assertThat(queryOptions.getFieldsToReturn()).containsOnly(
+    assertThat(queryContext.getFieldsToReturn()).containsOnly(
       RuleNormalizer.RuleField.REPOSITORY.field(),
       RuleNormalizer.RuleField.NAME.field(),
       RuleNormalizer.RuleField.LANGUAGE.field());
@@ -70,9 +70,9 @@ public class RuleMappingTest {
     request.setParam("p", "1");
     request.setParam("ps", "10");
     request.setParam("f", "langName");
-    QueryOptions queryOptions = mapping.newQueryOptions(SearchOptions.create(request));
+    QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
-    assertThat(queryOptions.getFieldsToReturn()).containsOnly(RuleNormalizer.RuleField.LANGUAGE.field());
+    assertThat(queryContext.getFieldsToReturn()).containsOnly(RuleNormalizer.RuleField.LANGUAGE.field());
   }
 
   @Test
@@ -82,9 +82,9 @@ public class RuleMappingTest {
     request.setParam("p", "1");
     request.setParam("ps", "10");
     request.setParam("f", "debtRemFn");
-    QueryOptions queryOptions = mapping.newQueryOptions(SearchOptions.create(request));
+    QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
-    assertThat(queryOptions.getFieldsToReturn()).containsOnly(
+    assertThat(queryContext.getFieldsToReturn()).containsOnly(
       RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field(),
       RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field(),
       RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field(),
@@ -100,9 +100,9 @@ public class RuleMappingTest {
     request.setParam("p", "1");
     request.setParam("ps", "10");
     request.setParam("f", "htmlNote");
-    QueryOptions queryOptions = mapping.newQueryOptions(SearchOptions.create(request));
+    QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
-    assertThat(queryOptions.getFieldsToReturn()).containsOnly(RuleNormalizer.RuleField.NOTE.field());
+    assertThat(queryContext.getFieldsToReturn()).containsOnly(RuleNormalizer.RuleField.NOTE.field());
   }
 
   @Test
@@ -112,9 +112,9 @@ public class RuleMappingTest {
     request.setParam("p", "1");
     request.setParam("ps", "10");
     request.setParam("f", "debtChar");
-    QueryOptions queryOptions = mapping.newQueryOptions(SearchOptions.create(request));
+    QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
-    assertThat(queryOptions.getFieldsToReturn()).containsOnly(
+    assertThat(queryContext.getFieldsToReturn()).containsOnly(
       RuleNormalizer.RuleField.CHARACTERISTIC.field(),
       RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field());
   }

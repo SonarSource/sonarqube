@@ -47,7 +47,7 @@ import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
@@ -135,7 +135,7 @@ public class RegisterRulesMediumTest {
     assertThat(ruleParams).hasSize(2);
 
     // verify es
-    Result<Rule> searchResult = ruleIndex.search(new RuleQuery(), new QueryOptions());
+    Result<Rule> searchResult = ruleIndex.search(new RuleQuery(), new QueryContext());
     assertThat(searchResult.getTotal()).isEqualTo(1);
     assertThat(searchResult.getHits()).hasSize(1);
     Rule rule = ruleIndex.getByKey(RuleKey.of("xoo", "x1"));
@@ -182,8 +182,8 @@ public class RegisterRulesMediumTest {
     register(rules);
 
     // verify that rules are indexed
-    Result<Rule> searchResult = ruleIndex.search(new RuleQuery(), new QueryOptions());
-    searchResult = ruleIndex.search(new RuleQuery().setKey("xoo:x1"), new QueryOptions());
+    Result<Rule> searchResult = ruleIndex.search(new RuleQuery(), new QueryContext());
+    searchResult = ruleIndex.search(new RuleQuery().setKey("xoo:x1"), new QueryContext());
     assertThat(searchResult.getTotal()).isEqualTo(1);
     assertThat(searchResult.getHits()).hasSize(1);
     assertThat(searchResult.getHits().get(0).key()).isEqualTo(RuleKey.of("xoo", "x1"));

@@ -42,7 +42,7 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.SearchAction;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
@@ -352,7 +352,7 @@ public class QProfilesWsMediumTest {
     // 2. Assert ActiveRule with BLOCKER severity
     assertThat(tester.get(RuleIndex.class).search(
       new RuleQuery().setSeverities(ImmutableSet.of("BLOCKER")),
-      new QueryOptions()).getHits()).hasSize(2);
+      new QueryContext()).getHits()).hasSize(2);
 
     // 1. Activate Rule with query returning 2 hits
     WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);

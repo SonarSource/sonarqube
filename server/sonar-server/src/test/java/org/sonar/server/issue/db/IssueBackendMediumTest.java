@@ -192,11 +192,6 @@ public class IssueBackendMediumTest {
   }
 
   @Test
-  public void synchronize_issue_authorization_index() throws Exception {
-
-  }
-
-  @Test
   public void issue_authorization_on_group() throws Exception {
     SearchClient searchClient = tester.get(SearchClient.class);
 
@@ -302,14 +297,13 @@ public class IssueBackendMediumTest {
   }
 
   private SearchResponse searchIssueWithAuthorization(SearchClient searchClient, String user, String... groups) {
-    BoolFilterBuilder fb = FilterBuilders.boolFilter();
+    BoolFilterBuilder permissionFilter = FilterBuilders.boolFilter();
 
     OrFilterBuilder or = FilterBuilders.orFilter(FilterBuilders.termFilter("users", user));
     for (String group : groups) {
       or.add(FilterBuilders.termFilter("groups", group));
     }
-    fb.must(FilterBuilders.termFilter("permission", "read"), or).cache(true);
-    // fb.must(FilterBuilders.termFilter("permission", "read"), or);
+    permissionFilter.must(FilterBuilders.termFilter("permission", "read"), or).cache(true);
 
     SearchRequestBuilder request = searchClient.prepareSearch(IndexDefinition.ISSUES.getIndexName()).setTypes(IndexDefinition.ISSUES.getIndexType())
       .setQuery(
@@ -317,7 +311,7 @@ public class IssueBackendMediumTest {
           QueryBuilders.matchAllQuery(),
           FilterBuilders.hasParentFilter(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType(),
             QueryBuilders.filteredQuery(
-              QueryBuilders.matchAllQuery(), fb)
+              QueryBuilders.matchAllQuery(), permissionFilter)
             )
           )
       )

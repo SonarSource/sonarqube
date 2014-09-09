@@ -100,9 +100,10 @@ class ApplicationController < ActionController::Base
     end
 
     if current_user && current_user.id
-      Java::OrgSonarServerUser::RubyUserSession.setSession(current_user.id.to_i, current_user.login, current_user.name, I18n.locale.to_s)
+      user_groups_name = current_user.groups.collect {|g| g.name}.to_a
+      Java::OrgSonarServerUser::RubyUserSession.setSession(current_user.id.to_i, current_user.login, current_user.name, user_groups_name, I18n.locale.to_s)
     else
-      Java::OrgSonarServerUser::RubyUserSession.setSession(nil, nil, nil, I18n.locale.to_s)
+      Java::OrgSonarServerUser::RubyUserSession.setSession(nil, nil, nil, nil, I18n.locale.to_s)
     end
   end
 

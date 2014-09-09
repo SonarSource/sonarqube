@@ -29,7 +29,7 @@ import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 
 import javax.annotation.CheckForNull;
@@ -87,7 +87,7 @@ public class DefaultRuleFinder implements RuleFinder {
   }
 
   public final org.sonar.api.rules.Rule find(org.sonar.api.rules.RuleQuery query) {
-    Result<Rule> result = index.search(toQuery(query), new QueryOptions());
+    Result<Rule> result = index.search(toQuery(query), new QueryContext());
     if (!result.getHits().isEmpty()) {
       return toRule(result.getHits().get(0));
     } else {
@@ -97,7 +97,7 @@ public class DefaultRuleFinder implements RuleFinder {
 
   public final Collection<org.sonar.api.rules.Rule> findAll(org.sonar.api.rules.RuleQuery query) {
     List<org.sonar.api.rules.Rule> rules = newArrayList();
-    for (Rule rule : index.search(toQuery(query), new QueryOptions()).getHits()) {
+    for (Rule rule : index.search(toQuery(query), new QueryContext()).getHits()) {
       rules.add(toRule(rule));
     }
     return rules;

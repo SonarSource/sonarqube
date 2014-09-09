@@ -34,7 +34,7 @@ import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
 
@@ -212,10 +212,10 @@ public class SearchAction implements RequestHandler {
   public void handle(Request request, Response response) {
     RuleQuery query = createRuleQuery(ruleService.newRuleQuery(), request);
     SearchOptions searchOptions = SearchOptions.create(request);
-    QueryOptions queryOptions = mapping.newQueryOptions(searchOptions);
-    queryOptions.setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
+    QueryContext queryContext = mapping.newQueryOptions(searchOptions);
+    queryContext.setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
 
-    Result<Rule> results = ruleService.search(query, queryOptions);
+    Result<Rule> results = ruleService.search(query, queryContext);
 
     JsonWriter json = response.newJsonWriter().beginObject();
     searchOptions.writeStatistics(json, results);
@@ -223,7 +223,7 @@ public class SearchAction implements RequestHandler {
     if (searchOptions.hasField("actives")) {
       activeRuleCompleter.completeSearch(query, results.getHits(), json);
     }
-    if (queryOptions.isFacet()) {
+    if (queryContext.isFacet()) {
       writeFacets(results, json);
     }
     json.endObject().close();

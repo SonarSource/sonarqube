@@ -37,7 +37,7 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Collection;
@@ -431,7 +431,7 @@ public class RuleBackendMediumTest {
     assertThat(index.getByKey(RuleTesting.XOO_X2)).isNotNull();
 
     // 2. assert find does not get REMOVED
-    List<Rule> rules = index.search(new RuleQuery(), new QueryOptions()).getHits();
+    List<Rule> rules = index.search(new RuleQuery(), new QueryContext()).getHits();
     assertThat(rules).hasSize(1);
     assertThat(rules.get(0).key()).isEqualTo(RuleTesting.XOO_X1);
   }

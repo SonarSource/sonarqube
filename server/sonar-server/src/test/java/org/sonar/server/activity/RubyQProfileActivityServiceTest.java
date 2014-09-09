@@ -34,7 +34,7 @@ import org.sonar.core.activity.Activity;
 import org.sonar.server.qualityprofile.QProfileActivity;
 import org.sonar.server.qualityprofile.QProfileActivityQuery;
 import org.sonar.server.qualityprofile.QProfileService;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 
 import java.util.Date;
@@ -53,7 +53,7 @@ public class RubyQProfileActivityServiceTest {
   ArgumentCaptor<QProfileActivityQuery> activityArgumentCaptor;
 
   @Captor
-  ArgumentCaptor<QueryOptions> queryOptionsArgumentCaptor;
+  ArgumentCaptor<QueryContext> queryOptionsArgumentCaptor;
 
   RubyQProfileActivityService rubyQProfileActivityService;
 
@@ -70,7 +70,7 @@ public class RubyQProfileActivityServiceTest {
     Result<QProfileActivity> result = mock(Result.class);
     when(result.getHits()).thenReturn(Lists.<QProfileActivity>newArrayList());
     when(result.getTotal()).thenReturn(10L);
-    when(service.searchActivities(any(QProfileActivityQuery.class), any(QueryOptions.class))).thenReturn(result);
+    when(service.searchActivities(any(QProfileActivityQuery.class), any(QueryContext.class))).thenReturn(result);
 
     rubyQProfileActivityService.search(ImmutableMap.<String, Object>of("profileKeys", "PROFILE_KEY", "since", since, "to", to));
 
@@ -89,7 +89,7 @@ public class RubyQProfileActivityServiceTest {
     Result<QProfileActivity> result = mock(Result.class);
     when(result.getHits()).thenReturn(Lists.<QProfileActivity>newArrayList());
     when(result.getTotal()).thenReturn(10L);
-    when(service.searchActivities(any(QProfileActivityQuery.class), any(QueryOptions.class))).thenReturn(result);
+    when(service.searchActivities(any(QProfileActivityQuery.class), any(QueryContext.class))).thenReturn(result);
 
     rubyQProfileActivityService.search(ImmutableMap.<String, Object>of());
 

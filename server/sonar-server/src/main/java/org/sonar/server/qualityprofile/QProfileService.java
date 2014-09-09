@@ -35,7 +35,7 @@ import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
@@ -204,7 +204,7 @@ public class QProfileService implements ServerComponent {
     UserSession.get().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
-  public Result<QProfileActivity> searchActivities(QProfileActivityQuery query, QueryOptions options) {
+  public Result<QProfileActivity> searchActivities(QProfileActivityQuery query, QueryContext options) {
     DbSession session = db.openSession(false);
     try {
       OrFilterBuilder activityFilter = FilterBuilders.orFilter();

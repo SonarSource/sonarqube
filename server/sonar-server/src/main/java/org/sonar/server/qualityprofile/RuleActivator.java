@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.activity.Activity;
@@ -42,7 +41,7 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.util.TypeValidations;
 
@@ -390,7 +389,7 @@ public class RuleActivator implements ServerComponent {
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     DbSession dbSession = db.openSession(false);
     try {
-      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true)
+      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryContext().setScroll(true)
         .setFieldsToReturn(Arrays.asList(RuleNormalizer.RuleField.KEY.field())));
       Iterator<Rule> rules = ruleSearchResult.scroll();
       while (rules.hasNext()) {
@@ -422,7 +421,7 @@ public class RuleActivator implements ServerComponent {
     try {
       RuleIndex ruleIndex = index.get(RuleIndex.class);
       BulkChangeResult result = new BulkChangeResult();
-      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true)
+      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryContext().setScroll(true)
         .setFieldsToReturn(Arrays.asList(RuleNormalizer.RuleField.KEY.field())));
       Iterator<Rule> rules = ruleSearchResult.scroll();
       while (rules.hasNext()) {

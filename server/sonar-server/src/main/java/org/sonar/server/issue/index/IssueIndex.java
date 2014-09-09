@@ -26,23 +26,18 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueDto;
-import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.IndexField;
-import org.sonar.server.search.QueryOptions;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.*;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
 
@@ -113,7 +108,7 @@ public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
     return new IssueDoc(fields);
   }
 
-  public SearchResponse search(IssueQuery query, QueryOptions options) {
+  public SearchResponse search(IssueQuery query, QueryContext options) {
 
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
@@ -126,6 +121,24 @@ public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
     }
 
     BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
+
+    // Authorization
+    String user = options.getUserLogin();
+    Set<String> groups = options.getUserGroups();
+    OrFilterBuilder groupsAndUser = FilterBuilders.orFilter();
+    if (user != null) {
+      groupsAndUser.add(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.USERS.field(), user));
+    }
+    for (String group : groups) {
+      groupsAndUser.add(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.GROUPS.field(), group));
+    }
+    esFilter.must(FilterBuilders.hasParentFilter(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType(),
+      QueryBuilders.filteredQuery(
+        QueryBuilders.matchAllQuery(),
+        FilterBuilders.boolFilter()
+          .must(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.PERMISSION.field(), UserRole.USER), groupsAndUser)
+          .cache(true))
+      ));
 
     // Issue is assigned Filter
     if (query.assigned() != null && query.assigned()) {

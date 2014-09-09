@@ -24,9 +24,12 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.persistence.ComponentDao;
@@ -35,9 +38,10 @@ import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.index.IssueResult;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 
+import java.util.Date;
 import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -78,6 +82,11 @@ public class IssueServiceMediumTest {
       .setKey("MyComponent")
       .setId(2L);
     tester.get(ComponentDao.class).insert(session, resource);
+
+    // project can be seen by anyone
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+
     session.commit();
   }
 
@@ -93,11 +102,11 @@ public class IssueServiceMediumTest {
     tester.get(IssueDao.class).insert(session, issue1, issue2);
     session.commit();
 
-    IssueResult result = service.search(IssueQuery.builder().build(), new QueryOptions());
+    IssueResult result = service.search(IssueQuery.builder().build(), new QueryContext());
     assertThat(result.getHits()).hasSize(2);
     assertThat(result.getFacets()).isEmpty();
 
-    result = service.search(IssueQuery.builder().build(), new QueryOptions().setFacet(true));
+    result = service.search(IssueQuery.builder().build(), new QueryContext().setFacet(true));
     assertThat(result.getFacets().keySet()).hasSize(4);
     assertThat(result.getFacetKeys("actionPlan")).hasSize(2);
   }
@@ -109,7 +118,7 @@ public class IssueServiceMediumTest {
     tester.get(IssueDao.class).insert(session, issue1, issue2);
     session.commit();
 
-    IssueResult result = service.search(IssueQuery.builder().build(), new QueryOptions());
+    IssueResult result = service.search(IssueQuery.builder().build(), new QueryContext());
     assertThat(result.projects()).hasSize(1);
     assertThat(result.components()).hasSize(1);
   }

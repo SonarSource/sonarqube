@@ -65,6 +65,14 @@ public class GroupDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void find_by_user_login() throws Exception {
+    setupData("find_by_user_login");
+
+    assertThat(dao.findByUserLogin(session, "john")).hasSize(2);
+    assertThat(dao.findByUserLogin(session, "max")).isEmpty();
+  }
+
+  @Test
   public void insert() throws Exception {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-08").getTime());
 

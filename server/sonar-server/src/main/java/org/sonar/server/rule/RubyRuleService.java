@@ -31,7 +31,7 @@ import org.sonar.server.paging.PagingResult;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
@@ -84,7 +84,7 @@ public class RubyRuleService implements ServerComponent, Startable {
     query.setHasDebtCharacteristic(RubyUtils.toBoolean(params.get("hasDebtCharacteristic")));
     query.setSortField(RuleNormalizer.RuleField.NAME);
 
-    QueryOptions options = new QueryOptions();
+    QueryContext options = new QueryContext();
     Integer pageSize = RubyUtils.toInteger(params.get("pageSize"));
     int size = pageSize != null ? pageSize : 50;
     if (size > -1) {
@@ -94,7 +94,7 @@ public class RubyRuleService implements ServerComponent, Startable {
       Result<Rule> result = service.search(query, options);
       return new PagedResult<Rule>(result.getHits(), PagingResult.create(options.getLimit(), pageIndex, result.getTotal()));
     } else {
-      options = new QueryOptions().setScroll(true);
+      options = new QueryContext().setScroll(true);
       List<Rule> rules = newArrayList(service.search(query, options).scroll());
       return new PagedResult<Rule>(rules, PagingResult.create(Integer.MAX_VALUE, 1, rules.size()));
     }
@@ -104,7 +104,7 @@ public class RubyRuleService implements ServerComponent, Startable {
    * Used in manual_rules_controller.rb
    */
   public List<Rule> searchManualRules() {
-    return service.search(new RuleQuery().setRepositories(newArrayList(RuleDoc.MANUAL_REPOSITORY)).setSortField(RuleNormalizer.RuleField.NAME), new QueryOptions()).getHits();
+    return service.search(new RuleQuery().setRepositories(newArrayList(RuleDoc.MANUAL_REPOSITORY)).setSortField(RuleNormalizer.RuleField.NAME), new QueryContext()).getHits();
   }
 
 

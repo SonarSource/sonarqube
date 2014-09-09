@@ -22,11 +22,12 @@ package org.sonar.server.search.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -126,6 +127,6 @@ public class SearchOptions {
       .createParam(PARAM_PAGE_SIZE)
       .setDescription("Page size. Must be greater than 0.")
       .setExampleValue("20")
-      .setDefaultValue(String.valueOf(QueryOptions.DEFAULT_LIMIT));
+      .setDefaultValue(String.valueOf(QueryContext.DEFAULT_LIMIT));
   }
 }

@@ -20,7 +20,10 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -38,7 +41,7 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
@@ -761,7 +764,7 @@ public class RuleActivatorMediumTest {
   @Test
   public void bulk_activation() {
     // Generate more rules than the search's max limit
-    int bulkSize = QueryOptions.MAX_LIMIT + 10;
+    int bulkSize = QueryContext.MAX_LIMIT + 10;
     for (int i = 0; i < bulkSize; i++) {
       db.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("bulk", "r_" + i)).setLanguage("xoo"));
     }
@@ -770,7 +773,7 @@ public class RuleActivatorMediumTest {
     // 0. No active rules so far (base case) and plenty rules available
     verifyZeroActiveRules(XOO_P1_KEY);
     assertThat(tester.get(RuleIndex.class)
-      .search(new RuleQuery().setRepositories(Arrays.asList("bulk")), new QueryOptions()).getTotal())
+      .search(new RuleQuery().setRepositories(Arrays.asList("bulk")), new QueryContext()).getTotal())
       .isEqualTo(bulkSize);
 
     // 1. bulk activate all the rules

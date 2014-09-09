@@ -26,10 +26,11 @@ import static org.fest.assertions.Assertions.assertThat;
 public class MockUserSessionTest {
   @Test
   public void set_mock_session() {
-    MockUserSession.set().setLogin("simon");
+    MockUserSession.set().setLogin("simon").setUserGroups("sonar-users");
 
     UserSession mock = UserSession.get();
     assertThat(mock.login()).isEqualTo("simon");
+    assertThat(mock.userGroups()).containsOnly("sonar-users", "Anyone");
     assertThat(mock.globalPermissions()).isEmpty();
     assertThat(mock.isLoggedIn()).isTrue();
   }

@@ -55,7 +55,7 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
@@ -281,7 +281,7 @@ public class ComponentAppAction implements RequestHandler {
   }
 
   private void appendManualRules(JsonWriter json) {
-    Result<Rule> result = ruleService.search(new RuleQuery().setRepositories(newArrayList(RuleDoc.MANUAL_REPOSITORY)), new QueryOptions().setMaxLimit());
+    Result<Rule> result = ruleService.search(new RuleQuery().setRepositories(newArrayList(RuleDoc.MANUAL_REPOSITORY)), new QueryContext().setMaxLimit());
     if (result != null && !result.getHits().isEmpty()) {
       List<Rule> manualRules = result.getHits();
       json.name("manual_rules").beginArray();

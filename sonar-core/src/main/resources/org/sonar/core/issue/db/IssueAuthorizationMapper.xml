@@ -40,7 +40,7 @@
       SELECT
       projects.kee AS project,
       NULL         AS login,
-      'anyone'     AS permission_group,
+      #{anyone}     AS permission_group,
       group_roles.role as permission_role
       FROM projects
       INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = #{permission}

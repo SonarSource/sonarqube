@@ -59,7 +59,7 @@ import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
@@ -470,7 +470,7 @@ public class ComponentAppActionTest {
     when(rule.key()).thenReturn(RuleKey.of("manual", "API"));
     when(rule.name()).thenReturn("API");
     when(result.getHits()).thenReturn(newArrayList(rule));
-    when(ruleService.search(any(RuleQuery.class), any(QueryOptions.class))).thenReturn(result);
+    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(result);
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
     request.execute().assertJson(getClass(), "app_with_manual_rules.json");

@@ -36,7 +36,7 @@ import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityQuery;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
@@ -85,7 +85,7 @@ public class ActivityServiceMediumTest {
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
 
-    SearchResponse result = index.search(service.newActivityQuery(), new QueryOptions());
+    SearchResponse result = index.search(service.newActivityQuery(), new QueryContext());
     assertThat(result.getHits().getTotalHits()).isEqualTo(1L);
     Result<Activity> activityResult = new Result<Activity>(index, result);
     assertThat(activityResult.getHits().get(0).message()).isEqualTo(testValue);
@@ -98,7 +98,7 @@ public class ActivityServiceMediumTest {
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
 
-    SearchResponse result = index.search(service.newActivityQuery(), new QueryOptions());
+    SearchResponse result = index.search(service.newActivityQuery(), new QueryContext());
     assertThat(result.getHits().getTotalHits()).isEqualTo(1L);
     Result<Activity> activityResult = new Result<Activity>(index, result);
     assertThat(activityResult.getHits().get(0).details().get(test_key)).isEqualTo(test_value);
@@ -113,15 +113,15 @@ public class ActivityServiceMediumTest {
     dbSession.commit();
 
     assertThat(service.search(new ActivityQuery(),
-      new QueryOptions()).getHits()).hasSize(4);
+      new QueryContext()).getHits()).hasSize(4);
 
     assertThat(service.search(new ActivityQuery()
       .setTypes(ImmutableSet.of(Activity.Type.SERVER)),
-      new QueryOptions()).getHits()).hasSize(2);
+      new QueryContext()).getHits()).hasSize(2);
 
     assertThat(service.search(new ActivityQuery()
       .setTypes(ImmutableSet.of(Activity.Type.QPROFILE)),
-      new QueryOptions()).getHits()).hasSize(1);
+      new QueryContext()).getHits()).hasSize(1);
   }
 
   @Test
@@ -143,28 +143,28 @@ public class ActivityServiceMediumTest {
     DateTime t2 = new DateTime().plusHours(1);
 
     assertThat(service.search(new ActivityQuery(),
-      new QueryOptions()).getHits()).hasSize(3);
+      new QueryContext()).getHits()).hasSize(3);
 
     assertThat(service.search(new ActivityQuery()
       .setSince(t0.minusSeconds(5).toDate()),
-      new QueryOptions()).getHits()).hasSize(3);
+      new QueryContext()).getHits()).hasSize(3);
 
     assertThat(service.search(new ActivityQuery()
       .setSince(t1.minusSeconds(5).toDate()),
-      new QueryOptions()).getHits()).hasSize(1);
+      new QueryContext()).getHits()).hasSize(1);
 
     assertThat(service.search(new ActivityQuery()
       .setSince(t2.minusSeconds(5).toDate()),
-      new QueryOptions()).getHits()).hasSize(0);
+      new QueryContext()).getHits()).hasSize(0);
 
     assertThat(service.search(new ActivityQuery()
       .setTo(t1.minusSeconds(5).toDate()),
-      new QueryOptions()).getHits()).hasSize(2);
+      new QueryContext()).getHits()).hasSize(2);
 
     assertThat(service.search(new ActivityQuery()
       .setSince(t1.minusSeconds(5).toDate())
       .setTo(t2.plusSeconds(5).toDate()),
-      new QueryOptions()).getHits()).hasSize(1);
+      new QueryContext()).getHits()).hasSize(1);
   }
 
   private ActivityDto getActivityDto() {
@@ -174,7 +174,7 @@ public class ActivityServiceMediumTest {
 
   @Test
   public void iterate_all() throws InterruptedException {
-    int max = QueryOptions.DEFAULT_LIMIT + 3;
+    int max = QueryContext.DEFAULT_LIMIT + 3;
     final String testValue = "hello world";
     for (int i = 0; i < max; i++) {
       service.write(dbSession, Activity.Type.QPROFILE, testValue + "_" + i);
@@ -184,7 +184,7 @@ public class ActivityServiceMediumTest {
     // 0. assert Base case
     assertThat(dao.findAll(dbSession)).hasSize(max);
 
-    SearchResponse result = index.search(service.newActivityQuery(), new QueryOptions().setScroll(true));
+    SearchResponse result = index.search(service.newActivityQuery(), new QueryContext().setScroll(true));
     assertThat(result.getHits().getTotalHits()).isEqualTo(max);
     Result<Activity> activityResult = new Result<Activity>(index, result);
 

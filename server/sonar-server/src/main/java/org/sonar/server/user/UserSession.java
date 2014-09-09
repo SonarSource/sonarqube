@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -35,14 +36,11 @@ import org.sonar.server.platform.Platform;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * Part of the current HTTP session
@@ -58,6 +56,7 @@ public class UserSession {
   private Integer userId;
   private String login;
   private String name;
+  private Set<String> userGroups;
   private Locale locale = Locale.ENGLISH;
   List<String> globalPermissions = null;
 
@@ -66,6 +65,8 @@ public class UserSession {
   List<String> projectPermissions = newArrayList();
 
   UserSession() {
+    // Do not forget that when forceAuthentication is set to true, the Anyone group should not be set (but this will be check when authentication will be done in Java)
+    userGroups = newHashSet(DefaultGroups.ANYONE);
   }
 
   @CheckForNull
@@ -95,6 +96,17 @@ public class UserSession {
 
   UserSession setUserId(@Nullable Integer userId) {
     this.userId = userId;
+    return this;
+  }
+
+  public Set<String> userGroups() {
+    return userGroups;
+  }
+
+  UserSession setUserGroups(@Nullable String... userGroups) {
+    if (userGroups != null) {
+      this.userGroups.addAll(Arrays.asList(userGroups));
+    }
     return this;
   }
 

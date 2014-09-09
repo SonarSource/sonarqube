@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 
 import java.io.StringWriter;
@@ -143,7 +143,7 @@ public class SearchOptionsTest {
     assertThat(page.defaultValue()).isEqualTo("1");
     WebService.Param pageSize = searchAction.param("ps");
     assertThat(pageSize).isNotNull();
-    assertThat(pageSize.defaultValue()).isEqualTo("" + QueryOptions.DEFAULT_LIMIT);
+    assertThat(pageSize.defaultValue()).isEqualTo("" + QueryContext.DEFAULT_LIMIT);
 
   }
 }
