@@ -28,7 +28,6 @@ import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 
 /**
@@ -80,7 +79,7 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
     if (!logins.isEmpty()) {
       SqlSession session = mybatis.openSession(false);
       try {
-        selectUsersByLogins(session, logins);
+        users.addAll(selectUsersByLogins(session, logins));
       } finally {
         MyBatis.closeQuietly(session);
       }
