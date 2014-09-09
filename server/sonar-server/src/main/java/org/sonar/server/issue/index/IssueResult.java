@@ -148,12 +148,16 @@ public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
  }
   }
 
-  public void addUsers(User user) {
-    this.usersByLogin.put(user.login(), user);
+  public void addUsers(Collection<User> users) {
+    for (User user : users) {
+      this.usersByLogin.put(user.login(), user);
+    }
   }
 
-  public void addActionPlans(ActionPlan plan) {
-    this.actionPlans.put(plan.key(), plan);
+  public void addActionPlans(Collection<ActionPlan> plans) {
+    for (ActionPlan plan : plans) {
+      this.actionPlans.put(plan.key(), plan);
+    }
   }
 
   public void addRules(Rule rule) {

@@ -354,7 +354,6 @@ public class IssueService implements ServerComponent {
       (options.getOffset() * options.getLimit()) + 1,
       new Long(esResults.getHits().getTotalHits()).intValue()));
 
-
     // Insert the projects and component name;
     Set<RuleKey> ruleKeys = new HashSet<RuleKey>();
     Set<String> projectKeys = new HashSet<String>();
@@ -372,11 +371,12 @@ public class IssueService implements ServerComponent {
     }
 
     try {
+      // TODO Rule vs Rule problem
       indexClient.get(RuleIndex.class).getByKeys(ruleKeys);
       result.addProjects(dbClient.componentDao().getByKeys(session, projectKeys));
       result.addComponents(dbClient.componentDao().getByKeys(session, componentKeys));
-   dbClient.userDao().selectUsersByLogins(session, userLogins);
-      dbClient.actionPlanDao().findByKeys(actionPlanKeys);
+      result.addUsers(userFinder.findByLogins(userLogins));
+      result.addActionPlans(actionPlanService.findByKeys(actionPlanKeys));
     } finally {
       session.close();
     }
