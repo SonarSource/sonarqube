@@ -340,6 +340,7 @@ public class IssueService implements ServerComponent {
 
     IssueIndex issueIndex = indexClient.get(IssueIndex.class);
 
+    long t0 = System.currentTimeMillis();
     SearchResponse esResults = issueIndex.search(query, options);
 
     // Extend the content of the resultSet to make an actual IssueResponse
@@ -348,6 +349,9 @@ public class IssueService implements ServerComponent {
       options.getLimit(),
       (options.getOffset() * options.getLimit()) + 1,
       new Long(esResults.getHits().getTotalHits()).intValue()));
+
+    long t1 = System.currentTimeMillis();
+    long t2 = System.currentTimeMillis();
 
     // TODO Optimise
     // Insert the projects and component name;
@@ -370,11 +374,12 @@ public class IssueService implements ServerComponent {
       indexClient.get(RuleIndex.class).getByKeys(ruleKeys);
       result.projects().addAll(dbClient.componentDao().getByKeys(session, projectKeys));
       result.components().addAll(dbClient.componentDao().getByKeys(session, componentKeys));
-      dbClient.userDao().selectUsersByLogins(userLogins);
+      dbClient.userDao().selectUsersByLogins(session, userLogins);
       dbClient.actionPlanDao().findByKeys(actionPlanKeys);
-   } finally {
+    } finally {
       session.close();
     }
+    long t3 = System.currentTimeMillis();
 
     return result;
   }
