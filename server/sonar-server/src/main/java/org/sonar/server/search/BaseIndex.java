@@ -21,6 +21,7 @@ package org.sonar.server.search;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.count.CountRequestBuilder;
@@ -400,8 +401,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     return null;
   }
 
-  public Collection<DOMAIN> getByKeys(KEY... keys) {
-
+  public Collection<DOMAIN> getByKeys(Collection<KEY> keys) {
     List<DOMAIN> results = new ArrayList<DOMAIN>();
     MultiGetRequestBuilder request = client.prepareMultiGet()
       .setPreference("_local");
@@ -419,6 +419,10 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       }
     }
     return results;
+  }
+
+  public Collection<DOMAIN> getByKeys(KEY... keys) {
+    return getByKeys(ImmutableSet.<KEY>copyOf(keys));
   }
 
   /* ES QueryHelper Methods */
