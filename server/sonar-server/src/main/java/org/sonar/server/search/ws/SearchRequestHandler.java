@@ -74,7 +74,8 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
   protected abstract void doDefinition(WebService.NewAction action);
 
   public final void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction(this.actionName);
+    WebService.NewAction action = controller.createAction(this.actionName)
+      .setHandler(this);
 
     action
       .createParam(PARAM_PAGE)

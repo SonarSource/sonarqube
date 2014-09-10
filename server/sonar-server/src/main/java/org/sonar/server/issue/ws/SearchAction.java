@@ -111,7 +111,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       "only the first 10,000 ones are returned by the web service. " +
       "Requires Browse permission on project(s)")
       .setSince("3.6")
-      .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
 
     action.createParam(IssueFilterParameters.ISSUES)
@@ -267,7 +266,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       writeComponents(json, dbClient.componentDao().getByKeys(session, componentKeys));
     } finally {
       session.close();
-   }
+    }
 
     // TODO remove legacy paging. Handled by the SearchRequestHandler
     writeLegacyPaging(context, json, result);
@@ -276,14 +275,14 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   private void writeLegacyPaging(QueryContext context, JsonWriter json, Result<?> result) {
     // TODO remove with stas on HTML side
     json.prop("maxResultsReached", false);
-   json.name("paging").beginObject()
+    json.name("paging").beginObject()
       .prop("pageIndex", context.getPage())
       .prop("pageSize", context.getLimit())
       .prop("total", result.getTotal())
-     // TODO Remove as part of Front-end rework on Issue Domain
+      // TODO Remove as part of Front-end rework on Issue Domain
       .prop("fTotal", i18n.formatInteger(UserSession.get().locale(), (int) result.getTotal()))
       .prop("pages", Math.ceil(result.getTotal() / (context.getLimit() * 1.0)))
-     .endObject();
+      .endObject();
   }
 
   // TODO change to use the RuleMapper
@@ -301,10 +300,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   private void writeIssues(Result<Issue> result, @Nullable List<String> extraFields, JsonWriter json) {
-  json.name("issues").beginArray();
+    json.name("issues").beginArray();
 
     for (Issue issue : result.getHits()) {
-   json.beginObject();
+      json.beginObject();
 
       String actionPlanKey = issue.actionPlanKey();
       Duration debt = issue.debt();
@@ -409,7 +408,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       json.beginObject()
         .prop("key", component.key())
         .prop("id", component.getId())
-  .prop("qualifier", component.qualifier())
+        .prop("qualifier", component.qualifier())
         .prop("name", component.name())
         .prop("longName", component.longName())
         .prop("path", component.path())
