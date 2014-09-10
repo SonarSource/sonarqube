@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
@@ -27,12 +29,15 @@ import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.HttpDownloader;
+import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 
 import javax.persistence.Query;
 
 public class LastSnapshots implements BatchComponent {
+
+  private static final Logger LOG = LoggerFactory.getLogger(LastSnapshots.class);
 
   private final AnalysisMode analysisMode;
   private final DatabaseSession session;
@@ -57,6 +62,7 @@ public class LastSnapshots implements BatchComponent {
   }
 
   private String loadSourceFromWs(Resource resource) {
+    TimeProfiler profiler = new TimeProfiler(LOG).start("Load previous source code of: " + resource.getEffectiveKey()).setLevelToDebug();
     try {
       return server.request("/api/sources?resource=" + resource.getEffectiveKey() + "&format=txt", false, analysisMode.getPreviewReadTimeoutSec() * 1000);
     } catch (HttpDownloader.HttpException he) {
@@ -64,6 +70,8 @@ public class LastSnapshots implements BatchComponent {
         return "";
       }
       throw he;
+    } finally {
+      profiler.stop();
     }
   }
 
