@@ -47,7 +47,7 @@
       WHERE
       projects.authorization_updated_at &gt;= #{date}
       AND group_roles.group_id IS NULL
-    ) AS project_authorization
+    ) project_authorization
   </select>
 
 </mapper>
