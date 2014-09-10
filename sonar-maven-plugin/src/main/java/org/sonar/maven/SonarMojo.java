@@ -181,8 +181,7 @@ public final class SonarMojo extends AbstractMojo {
         .mask("org.sonar.")
         // Include everything else
         .unmask("");
-      runner.addExtensions(session, getLog(), lifecycleExecutor, artifactFactory, localRepository, artifactMetadataSource, artifactCollector,
-        dependencyTreeBuilder, projectBuilder);
+      runner.addExtensions(session, getLog(), lifecycleExecutor, projectBuilder);
       if (getLog().isDebugEnabled()) {
         runner.setProperty("sonar.verbose", "true");
       }
@@ -300,9 +299,9 @@ public final class SonarMojo extends AbstractMojo {
 
   private void serializeDep(StringBuilder json, Dependency dependency) {
     json.append("{");
-    json.append("\"k\":");
+    json.append("\"k\":\"");
     json.append(dependency.key());
-    json.append(",\"v\":\"");
+    json.append("\",\"v\":\"");
     json.append(dependency.version());
     json.append("\",\"s\":\"");
     json.append(dependency.scope());
