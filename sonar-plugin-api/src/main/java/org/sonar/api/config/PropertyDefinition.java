@@ -45,7 +45,7 @@ import static com.google.common.collect.Lists.newArrayList;
  * testable and adds new features like sub-categories and ordering.
  * <p/>
  * Example:
- * <pre>
+ * <pre><code>
  *   public class MyPlugin extends SonarPlugin {
  *     public List getExtensions() {
  *       return Arrays.asList(
@@ -54,7 +54,7 @@ import static com.google.common.collect.Lists.newArrayList;
  *       );
  *     }
  *   }
- * </pre>
+ * </code></pre>
  * <p/>
  * Keys in localization bundles are:
  * <ul>
@@ -358,7 +358,6 @@ public final class PropertyDefinition implements BatchExtension, ServerExtension
       this.defaultValue = defaultValue;
       return this;
     }
-
 
     /**
      * @see PropertyDefinition#category()
