@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
@@ -31,7 +32,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.RuleTesting;
@@ -104,7 +104,7 @@ public class IssueBackendMediumTest {
     assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(1);
 
     // should find by key
-    IssueDoc issueDoc = indexClient.get(IssueIndex.class).getByKey(issue.getKey());
+    Issue issueDoc = indexClient.get(IssueIndex.class).getByKey(issue.getKey());
     assertThat(issueDoc).isNotNull();
 
     // Check all normalized fields

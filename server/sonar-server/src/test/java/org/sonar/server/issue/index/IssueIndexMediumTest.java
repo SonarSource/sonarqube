@@ -20,11 +20,11 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableList;
-import org.elasticsearch.action.search.SearchResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
@@ -41,6 +41,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -112,19 +113,19 @@ public class IssueIndexMediumTest {
 
     IssueQuery.Builder query = IssueQuery.builder();
     query.actionPlans(ImmutableList.of(plan1));
-    SearchResponse result = index.search(query.build(), new QueryContext());
+    Result<Issue> result = index.search(query.build(), new QueryContext());
 
-    assertThat(result.getHits().getTotalHits()).isEqualTo(1L);
+    assertThat(result.getHits()).hasSize(1);
 
     query = IssueQuery.builder();
     query.actionPlans(ImmutableList.of(plan2));
     result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits().getTotalHits()).isEqualTo(1L);
+    assertThat(result.getHits()).hasSize(1);
 
     query = IssueQuery.builder();
     query.actionPlans(ImmutableList.of(plan2, plan1));
     result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits().getTotalHits()).isEqualTo(2L);
+    assertThat(result.getHits()).hasSize(2);
   }
 
   @Test
@@ -137,13 +138,13 @@ public class IssueIndexMediumTest {
     session.commit();
 
     IssueQuery.Builder query = IssueQuery.builder();
-    SearchResponse result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits().getTotalHits()).isEqualTo(2L);
+    Result<Issue> result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits()).hasSize(2);
 
     query = IssueQuery.builder();
     query.assigned(true);
     result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits().getTotalHits()).isEqualTo(1L);
+    assertThat(result.getHits()).hasSize(1);
   }
 
   @Test
@@ -159,18 +160,18 @@ public class IssueIndexMediumTest {
     session.commit();
 
     IssueQuery.Builder query = IssueQuery.builder();
-    SearchResponse result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits().getTotalHits()).isEqualTo(3L);
+    Result<Issue> result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits()).hasSize(3);
 
     query = IssueQuery.builder();
     query.assignees(ImmutableList.of(assignee1));
     result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits().getTotalHits()).isEqualTo(1L);
+    assertThat(result.getHits()).hasSize(1);
 
     query = IssueQuery.builder();
     query.assignees(ImmutableList.of(assignee1, assignee2));
     result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits().getTotalHits()).isEqualTo(2L);
+    assertThat(result.getHits()).hasSize(2);
   }
 
   @Test
@@ -197,7 +198,6 @@ public class IssueIndexMediumTest {
     db.groupDao().insert(session, groupDto);
     tester.get(PermissionFacade.class).insertGroupPermission(project2.getId(), groupDto.getName(), UserRole.USER, session);
 
-
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
     session.commit();
@@ -206,16 +206,16 @@ public class IssueIndexMediumTest {
     IssueQuery.Builder query = IssueQuery.builder();
 
     MockUserSession.set().setUserGroups("sonar-users");
-    assertThat(index.search(query.build(), new QueryContext()).getHits().getTotalHits()).isEqualTo(1L);
+    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
 
     MockUserSession.set().setUserGroups("sonar-admins");
-    assertThat(index.search(query.build(), new QueryContext()).getHits().getTotalHits()).isEqualTo(1L);
+    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
 
     MockUserSession.set().setUserGroups("sonar-users", "sonar-admins");
-    assertThat(index.search(query.build(), new QueryContext()).getHits().getTotalHits()).isEqualTo(2L);
+    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(2);
 
     MockUserSession.set().setUserGroups("another group");
-    assertThat(index.search(query.build(), new QueryContext()).getHits().getTotalHits()).isEqualTo(0);
+    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(0);
   }
 
   @Test
@@ -250,13 +250,13 @@ public class IssueIndexMediumTest {
     IssueQuery.Builder query = IssueQuery.builder();
 
     MockUserSession.set().setLogin("john");
-    assertThat(index.search(query.build(), new QueryContext()).getHits().getTotalHits()).isEqualTo(1L);
+    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
 
     MockUserSession.set().setLogin("max");
-    assertThat(index.search(query.build(), new QueryContext()).getHits().getTotalHits()).isEqualTo(1L);
+    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
 
     MockUserSession.set().setLogin("another guy");
-    assertThat(index.search(query.build(), new QueryContext()).getHits().getTotalHits()).isEqualTo(0L);
+    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(0);
   }
 
   @Test
@@ -291,7 +291,7 @@ public class IssueIndexMediumTest {
     IssueQuery.Builder query = IssueQuery.builder();
 
     MockUserSession.set().setLogin("john").setUserGroups("sonar-users");
-    assertThat(index.search(query.build(), new QueryContext()).getHits().getTotalHits()).isEqualTo(1L);
+    assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
   }
 
   private IssueDto createIssue() {

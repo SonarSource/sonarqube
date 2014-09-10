@@ -401,7 +401,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     return null;
   }
 
-  public Collection<DOMAIN> getByKeys(Collection<KEY> keys) {
+  public List<DOMAIN> getByKeys(Collection<KEY> keys) {
     List<DOMAIN> results = new ArrayList<DOMAIN>();
     MultiGetRequestBuilder request = client.prepareMultiGet()
       .setPreference("_local");

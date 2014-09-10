@@ -32,6 +32,8 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -54,6 +56,10 @@ public class RuleService implements ServerComponent {
   @CheckForNull
   public Rule getByKey(RuleKey key) {
     return index.getByKey(key);
+  }
+
+  public List<Rule> getByKeys(Collection<RuleKey> keys) {
+    return index.getByKeys(keys);
   }
 
   public Rule getNonNullByKey(RuleKey key) {

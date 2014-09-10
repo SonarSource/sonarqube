@@ -112,6 +112,11 @@ public class QueryContext {
     return this;
   }
 
+  public int getPage() {
+    double page = new Double(getOffset() + 1) / new Double(getLimit());
+    return (int) Math.ceil(page);
+  }
+
   /**
    * Limit on the number of results to return. Defaults to {@link #DEFAULT_LIMIT}.
    */
@@ -162,5 +167,4 @@ public class QueryContext {
   public Set<String> getUserGroups() {
     return userGroups;
   }
-
 }

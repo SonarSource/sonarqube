@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
 
   private final Map<String, Rule> rules;
@@ -145,7 +146,7 @@ public class IssueResult extends Result<IssueDoc> implements IssueQueryResult {
   public void addComponents(Collection<ComponentDto> components) {
     for (ComponentDto component : components) {
       this.components.put(component.key(), component);
- }
+    }
   }
 
   public void addUsers(Collection<User> users) {

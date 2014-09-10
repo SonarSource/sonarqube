@@ -155,12 +155,12 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
     return value;
   }
 
-  public Collection<DTO> getByKeys(DbSession session, KEY... keys) {
+  public List<DTO> getByKeys(DbSession session, KEY... keys) {
     return getByKeys(session, ImmutableList.<KEY>copyOf(keys));
   }
 
-  public Collection<DTO> getByKeys(DbSession session, Collection<KEY> keys) {
-    Collection<DTO> results = new ArrayList<DTO>();
+  public List<DTO> getByKeys(DbSession session, Collection<KEY> keys) {
+    List<DTO> results = new ArrayList<DTO>();
     for (KEY key : keys) {
       results.add(this.getByKey(session, key));
     }
@@ -306,7 +306,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
 
   // Synchronization methods
 
-  protected ResultHandler getSynchronizationResultHandler(final DbSession session){
+  protected ResultHandler getSynchronizationResultHandler(final DbSession session) {
     return new ResultHandler() {
       @Override
       public void handleResult(ResultContext resultContext) {
@@ -316,7 +316,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
     };
   }
 
-  protected Map getSynchronizationParams(Date date){
+  protected Map getSynchronizationParams(Date date) {
     Map<String, Object> params = newHashMap();
     params.put("date", new Timestamp(date.getTime()));
     return params;

@@ -23,6 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
@@ -35,7 +36,6 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.db.IssueDao;
-import org.sonar.server.issue.index.IssueResult;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.QueryContext;
@@ -102,25 +102,13 @@ public class IssueServiceMediumTest {
     tester.get(IssueDao.class).insert(session, issue1, issue2);
     session.commit();
 
-    IssueResult result = service.search(IssueQuery.builder().build(), new QueryContext());
+    org.sonar.server.search.Result<Issue> result = service.search(IssueQuery.builder().build(), new QueryContext());
     assertThat(result.getHits()).hasSize(2);
     assertThat(result.getFacets()).isEmpty();
 
     result = service.search(IssueQuery.builder().build(), new QueryContext().setFacet(true));
     assertThat(result.getFacets().keySet()).hasSize(4);
     assertThat(result.getFacetKeys("actionPlan")).hasSize(2);
-  }
-
-  @Test
-  public void has_component_and_project() throws Exception {
-    IssueDto issue1 = getIssue().setActionPlanKey("P1");
-    IssueDto issue2 = getIssue().setActionPlanKey("P2");
-    tester.get(IssueDao.class).insert(session, issue1, issue2);
-    session.commit();
-
-    IssueResult result = service.search(IssueQuery.builder().build(), new QueryContext());
-    assertThat(result.projects()).hasSize(1);
-    assertThat(result.components()).hasSize(1);
   }
 
   private IssueDto getIssue() {

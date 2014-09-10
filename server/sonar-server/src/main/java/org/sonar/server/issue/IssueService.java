@@ -24,7 +24,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.search.SearchResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -40,7 +39,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
-import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueNotifications;
@@ -59,15 +57,16 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.index.IssueResult;
-import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @since 3.6
@@ -335,46 +334,11 @@ public class IssueService implements ServerComponent {
     return indexClient.get(IssueIndex.class).getByKey(key);
   }
 
-  public IssueResult search(IssueQuery query, QueryContext options) {
+  public org.sonar.server.search.Result<Issue> search(IssueQuery query, QueryContext options) {
 
     IssueIndex issueIndex = indexClient.get(IssueIndex.class);
 
-    SearchResponse esResults = issueIndex.search(query, options);
+    return issueIndex.search(query, options);
 
-    // Extend the content of the resultSet to make an actual IssueResponse
-    IssueResult result = new IssueResult(issueIndex, esResults);
-    result.setPaging(Paging.create(
-      options.getLimit(),
-      (options.getOffset() * options.getLimit()) + 1,
-      new Long(esResults.getHits().getTotalHits()).intValue()));
-
-    // Insert the projects and component name;
-    Set<RuleKey> ruleKeys = new HashSet<RuleKey>();
-    Set<String> projectKeys = new HashSet<String>();
-    Set<String> componentKeys = new HashSet<String>();
-    Set<String> actionPlanKeys = new HashSet<String>();
-    List<String> userLogins = new ArrayList<String>();
-
-    DbSession session = dbClient.openSession(false);
-    for (Issue issue : result.getHits()) {
-      ruleKeys.add(issue.ruleKey());
-      projectKeys.add(issue.projectKey());
-      componentKeys.add(issue.componentKey());
-      actionPlanKeys.add(issue.actionPlanKey());
-      userLogins.add(issue.authorLogin());
-    }
-
-    try {
-      // TODO Rule vs Rule problem
-      indexClient.get(RuleIndex.class).getByKeys(ruleKeys);
-      result.addProjects(dbClient.componentDao().getByKeys(session, projectKeys));
-      result.addComponents(dbClient.componentDao().getByKeys(session, componentKeys));
-      result.addUsers(userFinder.findByLogins(userLogins));
-      result.addActionPlans(actionPlanService.findByKeys(actionPlanKeys));
-    } finally {
-      session.close();
-    }
-
-    return result;
   }
 }

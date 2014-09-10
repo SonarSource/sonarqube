@@ -28,6 +28,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueDto;
@@ -39,7 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
+public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
 
   public IssueIndex(IssueNormalizer normalizer, SearchClient client) {
     super(IndexDefinition.ISSUES, normalizer, client);
@@ -108,7 +109,7 @@ public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
     return new IssueDoc(fields);
   }
 
-  public SearchResponse search(IssueQuery query, QueryContext options) {
+  public Result<Issue> search(IssueQuery query, QueryContext options) {
 
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
@@ -207,7 +208,8 @@ public class IssueIndex extends BaseIndex<IssueDoc, IssueDto, String> {
     // esSearch.addAggregation(AggregationBuilders.sum("totalDuration")
     // .field(IssueNormalizer.IssueField.DEBT.field()));
 
-    return getClient().execute(esSearch);
+    SearchResponse response = getClient().execute(esSearch);
+    return new Result<Issue>(this, response);
   }
 
   private void matchFilter(BoolFilterBuilder filter, IndexField field, Collection<?> values) {

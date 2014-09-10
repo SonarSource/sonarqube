@@ -19,46 +19,56 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
-import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.issue.*;
+import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
+import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
-import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.User;
+import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.component.DefaultComponentFinder;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
-import org.sonar.server.issue.index.IssueResult;
-import org.sonar.server.search.FacetValue;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleService;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
-import org.sonar.server.search.ws.SearchOptions;
+import org.sonar.server.search.ws.SearchRequestHandler;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class SearchAction implements RequestHandler {
+public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   public static final String SEARCH_ACTION = "search";
 
@@ -70,44 +80,39 @@ public class SearchAction implements RequestHandler {
 
   private static final String EXTRA_FIELDS_PARAM = "extra_fields";
 
-  public static final String PARAM_FACETS = "facets";
-
   private final IssueService service;
   private final IssueActionsWriter actionsWriter;
+
+  private final RuleService ruleService;
+  private final DbClient dbClient;
+  private final DefaultComponentFinder componentFinder;
+  private final ActionPlanService actionPlanService;
+  private final UserFinder userFinder;
   private final I18n i18n;
   private final Durations durations;
 
-  public SearchAction(IssueService service, IssueActionsWriter actionsWriter, I18n i18n, Durations durations) {
+  public SearchAction(IssueService service, IssueActionsWriter actionsWriter, RuleService ruleService, DbClient dbClient, DefaultComponentFinder componentFinder,
+    ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Durations durations) {
+    super(SEARCH_ACTION);
     this.service = service;
     this.actionsWriter = actionsWriter;
+    this.ruleService = ruleService;
+    this.dbClient = dbClient;
+    this.componentFinder = componentFinder;
+    this.actionPlanService = actionPlanService;
+    this.userFinder = userFinder;
     this.i18n = i18n;
     this.durations = durations;
   }
 
-  void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction(SEARCH_ACTION)
-      .setDescription("Get a list of issues. If the number of issues is greater than 10,000, only the first 10,000 ones are returned by the web service. " +
-        "Requires Browse permission on project(s)")
+  @Override
+  protected void doDefinition(WebService.NewAction action) {
+    action.setDescription("Get a list of issues. If the number of issues is greater than 10,000, " +
+      "only the first 10,000 ones are returned by the web service. " +
+      "Requires Browse permission on project(s)")
       .setSince("3.6")
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
-
-    // Add globalized search options. Will also support legacy params
-    // Generic search parameters
-    SearchOptions.definePageParams(action);
-    SearchOptions.defineFieldsParam(action, Collections.<String>emptyList());
-
-    // Issue-specific search parameters
-    defineIssueSearchParameters(action);
-
-    // Other parameters
-    action.createParam(PARAM_FACETS)
-      .setDescription("Compute predefined facets")
-      .setBooleanPossibleValues()
-      .setDefaultValue("false");
-  }
-
-  public static void defineIssueSearchParameters(WebService.NewAction action) {
 
     action.createParam(IssueFilterParameters.ISSUES)
       .setDescription("Comma-separated list of issue keys")
@@ -192,72 +197,114 @@ public class SearchAction implements RequestHandler {
   }
 
   @Override
-  public void handle(Request request, Response response) {
-    IssueQuery query = createQuery(request);
-    SearchOptions searchOptions = SearchOptions.create(request);
-    QueryContext queryContext = new QueryContext();
-    queryContext.setPage(searchOptions.page(), searchOptions.pageSize());
-    queryContext.setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
-
-    IssueResult results = service.search(query, queryContext);
-
-    JsonWriter json = response.newJsonWriter();
-    json.beginObject();
-
-    writePaging(results, json);
-    writeIssues(results, request.paramAsStrings(EXTRA_FIELDS_PARAM), json);
-
-    // TODO normalize component name for snippet -- Mighty change over time (file move)
-    writeComponents(results, json);
-    // TODO normalize project Name for snippet -- Carefull might change over time (Project Rename)
-    writeProjects(results, json);
-
-    // TODO Not certain that this is required (Legacy)
-    // writeRules(results, json);
-    // writeUsers(results, json);
-    // writeActionPlans(results, json);
-
-    if (queryContext.isFacet()) {
-      writeFacets(results, json);
+  protected IssueQuery doQuery(Request request) {
+    IssueQuery.Builder builder = IssueQuery.builder()
+      .requiredRole(UserRole.USER)
+      .issueKeys(request.paramAsStrings(IssueFilterParameters.ISSUES))
+      .severities(request.paramAsStrings(IssueFilterParameters.SEVERITIES))
+      .statuses(request.paramAsStrings(IssueFilterParameters.STATUSES))
+      .resolutions(request.paramAsStrings(IssueFilterParameters.RESOLUTIONS))
+      .resolved(request.paramAsBoolean(IssueFilterParameters.RESOLVED))
+      .components(request.paramAsStrings(IssueFilterParameters.COMPONENTS))
+      .componentRoots(request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOTS))
+      .rules(stringsToRules(request.paramAsStrings(IssueFilterParameters.RULES)))
+      .actionPlans(request.paramAsStrings(IssueFilterParameters.ACTION_PLANS))
+      .reporters(request.paramAsStrings(IssueFilterParameters.REPORTERS))
+      .assignees(request.paramAsStrings(IssueFilterParameters.ASSIGNEES))
+      .languages(request.paramAsStrings(IssueFilterParameters.LANGUAGES))
+      .assigned(request.paramAsBoolean(IssueFilterParameters.ASSIGNED))
+      .planned(request.paramAsBoolean(IssueFilterParameters.PLANNED))
+      .hideRules(request.paramAsBoolean(IssueFilterParameters.HIDE_RULES))
+      .createdAt(request.paramAsDateTime(IssueFilterParameters.CREATED_AT))
+      .createdAfter(request.paramAsDateTime(IssueFilterParameters.CREATED_AFTER))
+      .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE))
+      .pageSize(request.paramAsInt(IssueFilterParameters.PAGE_SIZE))
+      .pageIndex(request.paramAsInt(IssueFilterParameters.PAGE_INDEX));
+    String sort = request.param(IssueFilterParameters.SORT);
+    if (!Strings.isNullOrEmpty(sort)) {
+      builder.sort(sort);
+      builder.asc(request.paramAsBoolean(IssueFilterParameters.ASC));
     }
-
-    json.endObject().close();
+    return builder.build();
   }
 
-  private void writeFacets(Result<?> results, JsonWriter json) {
-    json.name("facets").beginArray();
-    for (Map.Entry<String, Collection<FacetValue>> facet : results.getFacets().entrySet()) {
-      json.beginObject();
-      json.prop("property", facet.getKey());
-      json.name("values").beginArray();
-      for (FacetValue facetValue : facet.getValue()) {
-        json.beginObject();
-        json.prop("val", facetValue.getKey());
-        json.prop("count", facetValue.getValue());
-        json.endObject();
-      }
-      json.endArray().endObject();
+  @Override
+  protected Result<Issue> doSearch(IssueQuery query, QueryContext context) {
+    return service.search(query, context);
+  }
+
+  @Override
+  protected void doResultResponse(Request request, QueryContext context, Result<Issue> result, JsonWriter json) {
+    writeIssues(result, request.paramAsStrings(EXTRA_FIELDS_PARAM), json);
+  }
+
+  @Override
+  protected void doContextResponse(Request request, QueryContext context, Result<Issue> result, JsonWriter json) {
+
+    // Insert the projects and component name;
+    Set<RuleKey> ruleKeys = new HashSet<RuleKey>();
+    Set<String> projectKeys = new HashSet<String>();
+    Set<String> componentKeys = new HashSet<String>();
+    Set<String> actionPlanKeys = new HashSet<String>();
+    List<String> userLogins = new ArrayList<String>();
+    //
+    // DbSession session = dbClient.openSession(false);
+    for (Issue issue : result.getHits()) {
+      ruleKeys.add(issue.ruleKey());
+      projectKeys.add(issue.projectKey());
+      componentKeys.add(issue.componentKey());
+      actionPlanKeys.add(issue.actionPlanKey());
+      userLogins.add(issue.authorLogin());
+    }
+
+    writeRules(json, ruleService.getByKeys(ruleKeys));
+    writeUsers(json, userFinder.findByLogins(userLogins));
+    writeActionPlans(json, actionPlanService.findByKeys(actionPlanKeys));
+
+    DbSession session = dbClient.openSession(false);
+    try {
+      writeProjects(json, dbClient.componentDao().getByKeys(session, projectKeys));
+      writeComponents(json, dbClient.componentDao().getByKeys(session, componentKeys));
+    } finally {
+      session.close();
+   }
+
+    // TODO remove legacy paging. Handled by the SearchRequestHandler
+    writeLegacyPaging(context, json, result);
+  }
+
+  private void writeLegacyPaging(QueryContext context, JsonWriter json, Result<?> result) {
+    // TODO remove with stas on HTML side
+    json.prop("maxResultsReached", false);
+   json.name("paging").beginObject()
+      .prop("pageIndex", context.getPage())
+      .prop("pageSize", context.getLimit())
+      .prop("total", result.getTotal())
+     // TODO Remove as part of Front-end rework on Issue Domain
+      .prop("fTotal", i18n.formatInteger(UserSession.get().locale(), (int) result.getTotal()))
+      .prop("pages", Math.ceil(result.getTotal() / (context.getLimit() * 1.0)))
+     .endObject();
+  }
+
+  // TODO change to use the RuleMapper
+  private void writeRules(JsonWriter json, Collection<Rule> rules) {
+    json.name("rules").beginArray();
+    for (Rule rule : rules) {
+      json.beginObject()
+        .prop("key", rule.key().toString())
+        .prop("name", rule.name())
+        .prop("desc", rule.htmlDescription())
+        .prop("status", rule.status().toString())
+        .endObject();
     }
     json.endArray();
   }
 
-  private void writePaging(IssueQueryResult result, JsonWriter json) {
-    json.prop("maxResultsReached", result.maxResultsReached());
-    json.name("paging").beginObject()
-      .prop("pageIndex", result.paging().pageIndex())
-      .prop("pageSize", result.paging().pageSize())
-      .prop("total", result.paging().total())
-      // TODO Remove as part of Front-end rework on Issue Domain
-      .prop("fTotal", i18n.formatInteger(UserSession.get().locale(), result.paging().total()))
-      .prop("pages", result.paging().pages())
-      .endObject();
-  }
+  private void writeIssues(Result<Issue> result, @Nullable List<String> extraFields, JsonWriter json) {
+  json.name("issues").beginArray();
 
-  private void writeIssues(IssueQueryResult result, @Nullable List<String> extraFields, JsonWriter json) {
-    json.name("issues").beginArray();
-
-    for (Issue issue : result.issues()) {
-      json.beginObject();
+    for (Issue issue : result.getHits()) {
+   json.beginObject();
 
       String actionPlanKey = issue.actionPlanKey();
       Duration debt = issue.debt();
@@ -284,9 +331,11 @@ public class SearchAction implements RequestHandler {
         .prop("fUpdateAge", formatAgeDate(updateDate))
         .prop("closeDate", isoDate(issue.closeDate()));
 
-      writeIssueComments(result, issue, json);
+      // TODO add comments
+      // writeIssueComments(result, issue, json);
       writeIssueAttributes(issue, json);
-      writeIssueExtraFields(result, issue, extraFields, json);
+      // TODO Add fields
+      // writeIssueExtraFields(result, issue, extraFields, json);
       json.endObject();
     }
 
@@ -354,32 +403,30 @@ public class SearchAction implements RequestHandler {
     }
   }
 
-  private void writeComponents(IssueQueryResult result, JsonWriter json) {
+  private void writeComponents(JsonWriter json, List<ComponentDto> components) {
     json.name("components").beginArray();
-    for (Component component : result.components()) {
-      ComponentDto componentDto = (ComponentDto) component;
+    for (ComponentDto component : components) {
       json.beginObject()
         .prop("key", component.key())
-        .prop("id", componentDto.getId())
-        .prop("qualifier", component.qualifier())
+        .prop("id", component.getId())
+  .prop("qualifier", component.qualifier())
         .prop("name", component.name())
         .prop("longName", component.longName())
         .prop("path", component.path())
         // On a root project, subProjectId is null but projectId is equal to itself, which make no sense.
-        .prop("projectId", (componentDto.projectId() != null && componentDto.subProjectId() != null) ? componentDto.projectId() : null)
-        .prop("subProjectId", componentDto.subProjectId())
+        .prop("projectId", (component.projectId() != null && component.subProjectId() != null) ? component.projectId() : null)
+        .prop("subProjectId", component.subProjectId())
         .endObject();
     }
     json.endArray();
   }
 
-  private void writeProjects(IssueQueryResult result, JsonWriter json) {
+  private void writeProjects(JsonWriter json, List<ComponentDto> projects) {
     json.name("projects").beginArray();
-    for (Component project : result.projects()) {
-      ComponentDto componentDto = (ComponentDto) project;
+    for (ComponentDto project : projects) {
       json.beginObject()
         .prop("key", project.key())
-        .prop("id", componentDto.getId())
+        .prop("id", project.getId())
         .prop("qualifier", project.qualifier())
         .prop("name", project.name())
         .prop("longName", project.longName())
@@ -388,22 +435,9 @@ public class SearchAction implements RequestHandler {
     json.endArray();
   }
 
-  private void writeRules(IssueQueryResult result, JsonWriter json) {
-    json.name("rules").beginArray();
-    for (Rule rule : result.rules()) {
-      json.beginObject()
-        .prop("key", rule.ruleKey().toString())
-        .prop("name", rule.getName())
-        .prop("desc", rule.getDescription())
-        .prop("status", rule.getStatus())
-        .endObject();
-    }
-    json.endArray();
-  }
-
-  private void writeUsers(IssueQueryResult result, JsonWriter json) {
+  private void writeUsers(JsonWriter json, List<User> users) {
     json.name("users").beginArray();
-    for (User user : result.users()) {
+    for (User user : users) {
       json.beginObject()
         .prop("login", user.login())
         .prop("name", user.name())
@@ -414,10 +448,10 @@ public class SearchAction implements RequestHandler {
     json.endArray();
   }
 
-  private void writeActionPlans(IssueQueryResult result, JsonWriter json) {
-    if (!result.actionPlans().isEmpty()) {
+  private void writeActionPlans(JsonWriter json, List<ActionPlan> plans) {
+    if (!plans.isEmpty()) {
       json.name("actionPlans").beginArray();
-      for (ActionPlan actionPlan : result.actionPlans()) {
+      for (ActionPlan actionPlan : plans) {
         Date deadLine = actionPlan.deadLine();
         Date updatedAt = actionPlan.updatedAt();
 
@@ -474,37 +508,5 @@ public class SearchAction implements RequestHandler {
       }));
     }
     return null;
-  }
-
-  @VisibleForTesting
-  static IssueQuery createQuery(Request request) {
-    IssueQuery.Builder builder = IssueQuery.builder()
-      .requiredRole(UserRole.USER)
-      .issueKeys(request.paramAsStrings(IssueFilterParameters.ISSUES))
-      .severities(request.paramAsStrings(IssueFilterParameters.SEVERITIES))
-      .statuses(request.paramAsStrings(IssueFilterParameters.STATUSES))
-      .resolutions(request.paramAsStrings(IssueFilterParameters.RESOLUTIONS))
-      .resolved(request.paramAsBoolean(IssueFilterParameters.RESOLVED))
-      .components(request.paramAsStrings(IssueFilterParameters.COMPONENTS))
-      .componentRoots(request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOTS))
-      .rules(stringsToRules(request.paramAsStrings(IssueFilterParameters.RULES)))
-      .actionPlans(request.paramAsStrings(IssueFilterParameters.ACTION_PLANS))
-      .reporters(request.paramAsStrings(IssueFilterParameters.REPORTERS))
-      .assignees(request.paramAsStrings(IssueFilterParameters.ASSIGNEES))
-      .languages(request.paramAsStrings(IssueFilterParameters.LANGUAGES))
-      .assigned(request.paramAsBoolean(IssueFilterParameters.ASSIGNED))
-      .planned(request.paramAsBoolean(IssueFilterParameters.PLANNED))
-      .hideRules(request.paramAsBoolean(IssueFilterParameters.HIDE_RULES))
-      .createdAt(request.paramAsDateTime(IssueFilterParameters.CREATED_AT))
-      .createdAfter(request.paramAsDateTime(IssueFilterParameters.CREATED_AFTER))
-      .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE))
-      .pageSize(request.paramAsInt(IssueFilterParameters.PAGE_SIZE))
-      .pageIndex(request.paramAsInt(IssueFilterParameters.PAGE_INDEX));
-    String sort = request.param(IssueFilterParameters.SORT);
-    if (!Strings.isNullOrEmpty(sort)) {
-      builder.sort(sort);
-      builder.asc(request.paramAsBoolean(IssueFilterParameters.ASC));
-    }
-    return builder.build();
   }
 }
