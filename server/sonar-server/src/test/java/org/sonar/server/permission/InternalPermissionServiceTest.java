@@ -34,6 +34,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
@@ -41,7 +42,6 @@ import org.sonar.core.permission.PermissionQuery;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
@@ -169,8 +169,7 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void add_component_user_permission() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
-      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "user");
     setUpComponentUserPermissions("user", 10L, "codeviewer");
@@ -195,9 +194,7 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void remove_component_user_permission() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
-      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
-
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
     setUpComponentUserPermissions("user", 10L, "codeviewer");
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
@@ -221,8 +218,7 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void add_component_group_permission() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
-      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "user");
     setUpGlobalGroupPermissions("group", "codeviewer");
@@ -246,8 +242,7 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void add_component_permission_to_anyone_group() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
-      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "user");
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
@@ -271,8 +266,7 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void remove_component_group_permission() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
-      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
     setUpComponentGroupPermissions("group", 10L, "codeviewer");
@@ -297,8 +291,7 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void remove_component_permission_from_anyone_group() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
-      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "codeviewer");
     setUpComponentGroupPermissions(DefaultGroups.ANYONE, 10L, "codeviewer");
@@ -323,8 +316,7 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void skip_redundant_add_component_user_permission_change() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
-      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
     setUpComponentUserPermissions("user", 10L, "codeviewer");
@@ -349,8 +341,7 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void skip_redundant_add_component_group_permission_change() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
-      new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
     setUpComponentGroupPermissions("group", 10L, "codeviewer");
@@ -394,16 +385,6 @@ public class InternalPermissionServiceTest {
   }
 
   @Test
-  public void fail_when_component_is_not_found() throws Exception {
-    try {
-      params = buildPermissionChangeParams(null, "group", "unknown", "user");
-      service.addPermission(params);
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Component unknown does not exist");
-    }
-  }
-
-  @Test
   public void fail_on_insufficient_global_rights() throws Exception {
     try {
       params = buildPermissionChangeParams("user", null, GlobalPermissions.QUALITY_PROFILE_ADMIN);
@@ -417,8 +398,7 @@ public class InternalPermissionServiceTest {
   @Test
   public void fail_on_insufficient_project_rights() throws Exception {
     try {
-      when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
-        new ResourceDto().setId(10L).setKey("org.sample.Sample"));
+      when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
       params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "user");
       MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN);
 
@@ -442,13 +422,13 @@ public class InternalPermissionServiceTest {
   public void apply_permission_template_on_many_projects() throws Exception {
     ComponentDto c1 = mock(ComponentDto.class);
     when(c1.getId()).thenReturn(1L);
-    when(resourceDao.findByKey("org.sample.Sample1")).thenReturn(c1);
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample1", session)).thenReturn(c1);
     ComponentDto c2 = mock(ComponentDto.class);
     when(c2.getId()).thenReturn(2L);
-    when(resourceDao.findByKey("org.sample.Sample2")).thenReturn(c2);
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample2", session)).thenReturn(c2);
     ComponentDto c3 = mock(ComponentDto.class);
     when(c3.getId()).thenReturn(3L);
-    when(resourceDao.findByKey("org.sample.Sample3")).thenReturn(c3);
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample3", session)).thenReturn(c3);
     params = Maps.newHashMap();
     params.put("template_key", "my_template_key");
     params.put("components", "org.sample.Sample1,org.sample.Sample2,org.sample.Sample3");
@@ -468,13 +448,13 @@ public class InternalPermissionServiceTest {
 
     ComponentDto c1 = mock(ComponentDto.class);
     when(c1.getId()).thenReturn(1L);
-    when(resourceDao.findByKey("org.sample.Sample1")).thenReturn(c1);
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample1", session)).thenReturn(c1);
     ComponentDto c2 = mock(ComponentDto.class);
     when(c2.getId()).thenReturn(2L);
-    when(resourceDao.findByKey("org.sample.Sample2")).thenReturn(c2);
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample2", session)).thenReturn(c2);
     ComponentDto c3 = mock(ComponentDto.class);
     when(c3.getId()).thenReturn(3L);
-    when(resourceDao.findByKey("org.sample.Sample3")).thenReturn(c3);
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample3", session)).thenReturn(c3);
     params = Maps.newHashMap();
     params.put("template_key", "my_template_key");
     params.put("components", "org.sample.Sample1,org.sample.Sample2,org.sample.Sample3");
@@ -495,7 +475,7 @@ public class InternalPermissionServiceTest {
 
     ComponentDto c = mock(ComponentDto.class);
     when(c.getId()).thenReturn(1L);
-    when(resourceDao.findByKey("org.sample.Sample")).thenReturn(c);
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(c);
 
     service.applyPermissionTemplate(params);
 
@@ -529,7 +509,7 @@ public class InternalPermissionServiceTest {
     when(mockComponent.qualifier()).thenReturn(qualifier);
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, componentKey);
 
-    when(componentDao.getByKey(session, componentKey)).thenReturn(mockComponent);
+    when(componentDao.getAuthorizedComponentByKey(componentKey, session)).thenReturn(mockComponent);
     service.applyDefaultPermissionTemplate(componentKey);
     verify(permissionFacade).grantDefaultRoles(session, componentId, qualifier);
 
@@ -546,7 +526,7 @@ public class InternalPermissionServiceTest {
     when(mockComponent.getId()).thenReturn(componentId);
     when(mockComponent.qualifier()).thenReturn(qualifier);
 
-    when(componentDao.getByKey(session, componentKey)).thenReturn(mockComponent);
+    when(componentDao.getAuthorizedComponentByKey(componentKey, session)).thenReturn(mockComponent);
     when(resourceDao.selectProvisionedProject(session, componentKey)).thenReturn(mock(ResourceDto.class));
     service.applyDefaultPermissionTemplate(componentKey);
 
@@ -564,7 +544,7 @@ public class InternalPermissionServiceTest {
     when(mockComponent.getId()).thenReturn(componentId);
     when(mockComponent.qualifier()).thenReturn(qualifier);
 
-    when(componentDao.getByKey(session, componentKey)).thenReturn(mockComponent);
+    when(componentDao.getAuthorizedComponentByKey(componentKey, session)).thenReturn(mockComponent);
     when(resourceDao.selectProvisionedProject(session, componentKey)).thenReturn(mock(ResourceDto.class));
     service.applyDefaultPermissionTemplate(componentKey);
 

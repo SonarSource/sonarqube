@@ -31,7 +31,6 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
   private String path;
   private String name;
   private String longName;
-  private String qualifier;
   private String scope;
   private String language;
   private Long projectId;
@@ -80,12 +79,8 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
     return this;
   }
 
-  public String qualifier() {
-    return qualifier;
-  }
-
   public ComponentDto setQualifier(String qualifier) {
-    this.qualifier = qualifier;
+    super.setAuthoriedQualifier(qualifier);
     return this;
   }
 

@@ -24,12 +24,15 @@ import org.sonar.core.persistence.Dto;
 
 /**
  * Used to check that a project exists. Can return provisionned projects and projects from analysis.
+ * The root project id is not available because no join on snapshot is done to retrieve it.
+ *
  * Warning, this component should not be retrieve from db using a join on snapshots, otherwise provisionned projects will not be returned anymore.
  */
 public class AuthorizedComponentDto extends Dto<String> {
 
   private Long id;
   private String kee;
+  private String qualifier;
 
   public Long getId() {
     return id;
@@ -46,6 +49,15 @@ public class AuthorizedComponentDto extends Dto<String> {
 
   public AuthorizedComponentDto setKey(String key) {
     this.kee = key;
+    return this;
+  }
+
+  public String qualifier() {
+    return qualifier;
+  }
+
+  public AuthorizedComponentDto setAuthoriedQualifier(String qualifier) {
+    this.qualifier = qualifier;
     return this;
   }
 

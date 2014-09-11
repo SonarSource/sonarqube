@@ -81,8 +81,6 @@ public class IssueAuthorizationIndexMediumTest {
     tester.get(PermissionFacade.class).insertUserPermission(project.getId(), john.getId(), UserRole.USER, session);
 
     session.commit();
-    session.clearCache();
-    tester.clearIndexes();
 
     assertThat(index.getByKey(project.getKey())).isNull();
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
@@ -98,6 +96,34 @@ public class IssueAuthorizationIndexMediumTest {
     tester.clearIndexes();
     tester.get(Platform.class).executeStartupTasks();
     assertThat(index.getByKey(project.getKey())).isNotNull();
+  }
+
+  @Test
+  public void delete_index() throws Exception {
+    project = new ComponentDto()
+      .setKey("Sample")
+      .setProjectId(1L)
+      .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
+    db.componentDao().insert(session, project);
+
+    GroupDto sonarUsers = new GroupDto().setName("devs");
+    db.groupDao().insert(session, sonarUsers);
+
+    UserDto john = new UserDto().setLogin("john").setName("John").setActive(true);
+    db.userDao().insert(session, john);
+
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), "devs", UserRole.USER, session);
+    tester.get(PermissionFacade.class).insertUserPermission(project.getId(), john.getId(), UserRole.USER, session);
+
+    session.commit();
+
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+    assertThat(index.getByKey(project.getKey())).isNotNull();
+
+    db.issueAuthorizationDao().deleteByKey(session, project.key());
+    session.commit();
+
+    assertThat(index.getByKey(project.getKey())).isNull();
   }
 
 }

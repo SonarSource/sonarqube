@@ -25,13 +25,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
@@ -108,7 +107,7 @@ public class InternalPermissionService implements ServerComponent {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
+      AuthorizedComponentDto component = dbClient.componentDao().getAuthorizedComponentByKey(componentKey, session);
       ResourceDto provisioned = resourceDao.selectProvisionedProject(session, componentKey);
       if (provisioned == null) {
         checkProjectAdminPermission(componentKey);
@@ -143,7 +142,7 @@ public class InternalPermissionService implements ServerComponent {
       }
 
       for (String componentKey : query.getSelectedComponents()) {
-        ComponentDto component = (ComponentDto) resourceDao.findByKey(componentKey);
+        AuthorizedComponentDto component = dbClient.componentDao().getAuthorizedComponentByKey(componentKey, session);
         if (component == null) {
           throw new IllegalStateException("Unable to find component with key " + componentKey);
         }
@@ -251,9 +250,8 @@ public class InternalPermissionService implements ServerComponent {
     if (componentKey == null) {
       return null;
     } else {
-      ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(componentKey), session);
-      badRequestIfNullResult(resourceDto, OBJECT_TYPE_COMPONENT, componentKey);
-      return resourceDto.getId();
+      AuthorizedComponentDto component = dbClient.componentDao().getAuthorizedComponentByKey(componentKey, session);
+      return component.getId();
     }
   }
 
@@ -275,7 +273,8 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   private void synchronizePermissions() {
-    // The synchronisation cannot use an existing session, otherwise it's failing with the error : org.apache.ibatis.executor.ExecutorException: Executor was closed
+    // The synchronisation cannot use an existing session, otherwise it's failing with the error :
+    // org.apache.ibatis.executor.ExecutorException: Executor was closed
     DbSession session = dbClient.openSession(false);
     try {
       dbClient.issueAuthorizationDao().synchronizeAfter(session, index.get(IssueAuthorizationIndex.class).getLastSynchronization());
