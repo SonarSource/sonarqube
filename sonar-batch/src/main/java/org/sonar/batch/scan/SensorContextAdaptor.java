@@ -35,6 +35,7 @@ import org.sonar.api.batch.sensor.test.TestCase;
 import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
+import org.sonar.api.design.Dependency;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.measures.Formula;
@@ -56,6 +57,7 @@ import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.scan2.BaseSensorContext;
+import org.sonar.core.component.ComponentKeys;
 
 import java.io.Serializable;
 import java.util.List;
@@ -204,7 +206,7 @@ public class SensorContextAdaptor extends BaseSensorContext {
     if (issuable == null) {
       return false;
     }
-    return issuable.addIssue(toDefaultIssue(project.getKey(), r.getKey(), issue));
+    return issuable.addIssue(toDefaultIssue(project.getKey(), ComponentKeys.createEffectiveKey(project, r), issue));
   }
 
   public static DefaultIssue toDefaultIssue(String projectKey, String componentKey, Issue issue) {
@@ -284,6 +286,30 @@ public class SensorContextAdaptor extends BaseSensorContext {
       throw new IllegalArgumentException("Provided input file is not indexed or not a main file: " + mainRes);
     }
     return mainRes;
+  }
+
+  private File getFile(InputFile file) {
+    if (file.type() == InputFile.Type.MAIN) {
+      return getMainResource(file);
+    } else {
+      return getTestResource(file);
+    }
+  }
+
+  @Override
+  public void saveDependency(InputFile from, InputFile to, String usage) {
+    File fromResource = getFile(from);
+    File toResource = getFile(to);
+    Directory fromParent = fromResource.getParent();
+    Directory toParent = toResource.getParent();
+    Dependency parentDep = null;
+    if (!fromParent.equals(toParent)) {
+      parentDep = new Dependency(fromParent, toParent).setUsage("USES");
+      parentDep = sensorContext.saveDependency(parentDep);
+    }
+    sensorContext.saveDependency(new Dependency(fromResource, toResource)
+      .setUsage(usage)
+      .setParent(parentDep));
   }
 
 }

@@ -190,4 +190,13 @@ public interface SensorContext {
    */
   void saveCoveragePerTest(TestCase testCase, InputFile coveredFile, List<Integer> coveredLines);
 
+  // ------------ DEPENDENCIES ------------
+
+  /**
+   * Declare a dependency between 2 files.
+   * @param usage A qualifier for the dependency. 
+   * @since 5.0
+   */
+  void saveDependency(InputFile from, InputFile to, String usage);
+
 }

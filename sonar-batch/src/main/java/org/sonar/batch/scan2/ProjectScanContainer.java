@@ -33,6 +33,7 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
+import org.sonar.batch.dependency.DependencyCache;
 import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.Caches;
@@ -119,6 +120,9 @@ public class ProjectScanContainer extends ComponentContainer {
       // Tests
       TestCaseCache.class,
       CoveragePerTestCache.class,
+
+      // Dependencies
+      DependencyCache.class,
 
       ScanTaskObservers.class);
   }

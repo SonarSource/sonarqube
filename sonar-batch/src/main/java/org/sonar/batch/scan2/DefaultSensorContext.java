@@ -37,6 +37,8 @@ import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.dependency.DependencyCache;
+import org.sonar.batch.dependency.OutgoingDependency;
 import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
@@ -58,10 +60,11 @@ public class DefaultSensorContext extends BaseSensorContext {
   private final IssueFilters issueFilters;
   private final TestCaseCache testCaseCache;
   private final CoveragePerTestCache coveragePerTestCache;
+  private final DependencyCache dependencyCache;
 
   public DefaultSensorContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, AnalyzerIssueCache issueCache,
     Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters, ComponentDataCache componentDataCache,
-    BlockCache blockCache, DuplicationCache duplicationCache, TestCaseCache testCaseCache, CoveragePerTestCache coveragePerTestCache) {
+    BlockCache blockCache, DuplicationCache duplicationCache, TestCaseCache testCaseCache, CoveragePerTestCache coveragePerTestCache, DependencyCache dependencyCache) {
     super(settings, fs, activeRules, componentDataCache, blockCache, duplicationCache);
     this.def = def;
     this.measureCache = measureCache;
@@ -70,6 +73,7 @@ public class DefaultSensorContext extends BaseSensorContext {
     this.issueFilters = issueFilters;
     this.testCaseCache = testCaseCache;
     this.coveragePerTestCache = coveragePerTestCache;
+    this.dependencyCache = dependencyCache;
   }
 
   @Override
@@ -158,6 +162,14 @@ public class DefaultSensorContext extends BaseSensorContext {
     Preconditions.checkNotNull(testCase);
     Preconditions.checkArgument(coveredFile.type() == Type.MAIN, "Should be a main file: " + coveredFile);
     coveragePerTestCache.put(testCase, coveredFile, coveredLines);
+  }
+
+  @Override
+  public void saveDependency(InputFile from, InputFile to, String usage) {
+    Preconditions.checkNotNull(from);
+    Preconditions.checkNotNull(to);
+    OutgoingDependency dep = new OutgoingDependency(to, usage);
+    dependencyCache.put(def.getKey(), from, dep);
   }
 
 }

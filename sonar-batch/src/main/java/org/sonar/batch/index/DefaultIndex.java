@@ -31,7 +31,6 @@ import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
@@ -216,9 +215,7 @@ public class DefaultIndex extends SonarIndex {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
       }
       measure.setMetric(metric);
-      if (measureCache.contains(resource, measure)
-        // Hack for SONAR-5212
-        && !measure.getMetric().equals(CoreMetrics.TESTS)) {
+      if (measureCache.contains(resource, measure)) {
         throw new SonarException("Can not add the same measure twice on " + resource + ": " + measure);
       }
       measureCache.put(resource, measure);

@@ -90,4 +90,5 @@ public interface InputFile extends InputPath {
    * zero if the file is empty.
    */
   int lines();
+
 }

@@ -26,7 +26,6 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
@@ -156,9 +155,6 @@ public class DefaultDecoratorContext implements DecoratorContext {
         if (index > -1) {
           if (metricMeasures.get(index) == measure) {
             add = false;
-          } else if (measure.getMetric().equals(CoreMetrics.TESTS)) {
-            // Hack for SONAR-5212
-            measuresByMetric.remove(measure.getMetric().getKey(), metricMeasures.get(index));
           } else {
             throw new SonarException("Can not add twice the same measure on " + resource + ": " + measure);
           }

@@ -20,6 +20,7 @@
 package org.sonar.batch.mediumtest;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarPlugin;
@@ -42,6 +43,8 @@ import org.sonar.batch.bootstrap.PluginsReferential;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.dependency.DependencyCache;
+import org.sonar.batch.dependency.OutgoingDependency;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.highlighting.SyntaxHighlightingRule;
@@ -232,6 +235,7 @@ public class BatchMediumTester {
     private Map<InputFile, SymbolData> symbolTablePerFile = new HashMap<InputFile, SymbolData>();
     private Map<String, Map<String, TestCase>> testCasesPerFile = new HashMap<String, Map<String, TestCase>>();
     private Map<String, Map<String, Map<String, List<Integer>>>> coveragePerTest = new HashMap<String, Map<String, Map<String, List<Integer>>>>();
+    private Map<String, Map<String, String>> dependencies = new HashMap<String, Map<String, String>>();
 
     @Override
     public void scanTaskCompleted(ProjectScanContainer container) {
@@ -249,6 +253,8 @@ public class BatchMediumTester {
       storeDuplication(container);
       storeTestCases(container);
       storeCoveragePerTest(container);
+      storeDependencies(container);
+
     }
 
     private void storeCoveragePerTest(ProjectScanContainer container) {
@@ -307,6 +313,18 @@ public class BatchMediumTester {
         } else {
           inputDirs.add((InputDir) inputPath);
         }
+      }
+    }
+
+    private void storeDependencies(ProjectScanContainer container) {
+      DependencyCache dependencyCache = container.getComponentByType(DependencyCache.class);
+      for (Entry<OutgoingDependency> entry : dependencyCache.entries()) {
+        String fromKey = entry.key()[1].toString();
+        String toKey = entry.key()[2].toString();
+        if (!dependencies.containsKey(fromKey)) {
+          dependencies.put(fromKey, new HashMap<String, String>());
+        }
+        dependencies.get(fromKey).put(toKey, StringUtils.trimToEmpty(entry.value().usage()));
       }
     }
 
@@ -388,6 +406,16 @@ public class BatchMediumTester {
         }
       }
       return null;
+    }
+
+    /**
+     * @return null if no dependency else return dependency usage.
+     */
+    @CheckForNull
+    public String dependencyUsage(InputFile from, InputFile to) {
+      String fromKey = ((DefaultInputFile) from).key();
+      String toKey = ((DefaultInputFile) to).key();
+      return dependencies.containsKey(fromKey) ? dependencies.get(fromKey).get(toKey) : null;
     }
   }
 

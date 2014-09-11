@@ -170,7 +170,9 @@ public interface SensorContext {
    *
    * @param force allows to force creation of violation even if it was supressed by {@link org.sonar.api.rules.ViolationFilter}
    * @since 2.5
+   * @deprecated since 5.0 but force parameter was ignored for a long time anyway
    */
+  @Deprecated
   void saveViolation(Violation violation, boolean force);
 
   /**
