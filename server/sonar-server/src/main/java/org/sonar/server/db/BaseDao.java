@@ -23,12 +23,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.Dto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.search.DbSynchronizationHandler;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.DeleteKey;
 import org.sonar.server.search.action.DeleteNestedItem;
@@ -303,12 +303,17 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
 
   // Synchronization methods
 
-  protected ResultHandler getSynchronizationResultHandler(final DbSession session) {
-    return new ResultHandler() {
+  protected DbSynchronizationHandler getSynchronizationResultHandler(final DbSession session) {
+    return new DbSynchronizationHandler() {
       @Override
       public void handleResult(ResultContext resultContext) {
         DTO dto = (DTO) resultContext.getResultObject();
         session.enqueue(new UpsertDto<DTO>(getIndexType(), dto, true));
+      }
+
+      @Override
+      public void enqueueCollected() {
+        // Do nothing in this case
       }
     };
   }
@@ -322,7 +327,9 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
   @Override
   public void synchronizeAfter(final DbSession session, Date date) {
     try {
-      session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date), getSynchronizationResultHandler(session));
+      DbSynchronizationHandler handler = getSynchronizationResultHandler(session);
+      session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date), handler);
+      handler.enqueueCollected();
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }

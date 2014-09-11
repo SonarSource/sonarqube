@@ -275,7 +275,7 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   private void synchronizePermissions() {
-    // The index synchronizer cannot use an existing session, otherwise it's failing with the error : org.apache.ibatis.executor.ExecutorException: Executor was closed
+    // The synchronisation cannot use an existing session, otherwise it's failing with the error : org.apache.ibatis.executor.ExecutorException: Executor was closed
     DbSession session = dbClient.openSession(false);
     try {
       dbClient.issueAuthorizationDao().synchronizeAfter(session, index.get(IssueAuthorizationIndex.class).getLastSynchronization());
