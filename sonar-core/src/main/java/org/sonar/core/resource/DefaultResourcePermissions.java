@@ -82,10 +82,14 @@ public class DefaultResourcePermissions implements ResourcePermissions {
     }
   }
 
+  public void grantDefaultRoles(DbSession session, Resource resource) {
+    permissionFacade.grantDefaultRoles(session, Long.valueOf(resource.getId()), resource.getQualifier());
+  }
+
   public void grantDefaultRoles(Resource resource) {
     DbSession session = myBatis.openSession(false);
     try {
-      permissionFacade.grantDefaultRoles(session, Long.valueOf(resource.getId()), resource.getQualifier());
+      grantDefaultRoles(session, resource);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

@@ -129,8 +129,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
     assertThat(permissionFacade.selectGroupPermissions(session, "Anyone", PROJECT_ID)).isEmpty();
     assertThat(permissionFacade.selectUserPermissions(session, "marius", PROJECT_ID)).isEmpty();
 
-    permissions.grantDefaultRoles(project);
-    session.commit();
+    permissions.grantDefaultRoles(session, project);
 
     assertThat(permissionFacade.selectGroupPermissions(session, "sonar-administrators", PROJECT_ID)).containsOnly("admin");
     assertThat(permissionFacade.selectGroupPermissions(session, "sonar-users", PROJECT_ID)).containsOnly("user", "codeviewer");
@@ -175,8 +174,7 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
     assertThat(permissionFacade.selectGroupPermissions(session, "Anyone", PROJECT_ID)).isEmpty();
     assertThat(permissionFacade.selectUserPermissions(session, "marius", PROJECT_ID)).isEmpty();
 
-    permissions.grantDefaultRoles(project);
-    session.commit();
+    permissions.grantDefaultRoles(session, project);
 
     assertThat(permissionFacade.selectGroupPermissions(session, "sonar-administrators", PROJECT_ID)).containsOnly("admin", "user", "codeviewer");
     assertThat(permissionFacade.selectGroupPermissions(session, "sonar-users", PROJECT_ID)).containsOnly("admin");
