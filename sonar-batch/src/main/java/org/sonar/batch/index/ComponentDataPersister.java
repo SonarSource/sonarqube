@@ -44,21 +44,25 @@ public class ComponentDataPersister implements ScanPersister {
   @Override
   public void persist() {
     DbSession session = mybatis.openSession(true);
-    for (Map.Entry<String, Snapshot> componentEntry : snapshots.snapshots()) {
-      String componentKey = componentEntry.getKey();
-      Snapshot snapshot = componentEntry.getValue();
-      for (Cache.Entry<Data> dataEntry : data.entries(componentKey)) {
-        Data value = dataEntry.value();
-        if (value != null) {
-          SnapshotDataDto dto = new SnapshotDataDto();
-          dto.setSnapshotId(snapshot.getId());
-          dto.setResourceId(snapshot.getResourceId());
-          dto.setDataType(dataEntry.key()[1].toString());
-          dto.setData(value.writeString());
-          dao.insert(session, dto);
+    try {
+      for (Map.Entry<String, Snapshot> componentEntry : snapshots.snapshots()) {
+        String componentKey = componentEntry.getKey();
+        Snapshot snapshot = componentEntry.getValue();
+        for (Cache.Entry<Data> dataEntry : data.entries(componentKey)) {
+          Data value = dataEntry.value();
+          if (value != null) {
+            SnapshotDataDto dto = new SnapshotDataDto();
+            dto.setSnapshotId(snapshot.getId());
+            dto.setResourceId(snapshot.getResourceId());
+            dto.setDataType(dataEntry.key()[1].toString());
+            dto.setData(value.writeString());
+            dao.insert(session, dto);
+          }
         }
       }
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
     }
-    session.commit();
   }
 }
