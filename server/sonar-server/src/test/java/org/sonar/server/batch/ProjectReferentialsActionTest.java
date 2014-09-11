@@ -111,7 +111,7 @@ public class ProjectReferentialsActionTest {
       );
 
     tester = new WsTester(new BatchWs(mock(BatchIndex.class), mock(GlobalReferentialsAction.class),
-      new ProjectReferentialsAction(dbClient, propertiesDao, qProfileFactory, qProfileLoader, ruleService, languages)));
+      new ProjectReferentialsAction(dbClient, propertiesDao, qProfileFactory, qProfileLoader, ruleService, languages), mock(UploadReportAction.class)));
   }
 
   @Test

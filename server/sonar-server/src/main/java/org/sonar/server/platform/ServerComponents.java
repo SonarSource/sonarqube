@@ -77,10 +77,7 @@ import org.sonar.server.activity.index.ActivityNormalizer;
 import org.sonar.server.activity.ws.ActivitiesWebService;
 import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.ws.AuthenticationWs;
-import org.sonar.server.batch.BatchIndex;
-import org.sonar.server.batch.BatchWs;
-import org.sonar.server.batch.GlobalReferentialsAction;
-import org.sonar.server.batch.ProjectReferentialsAction;
+import org.sonar.server.batch.*;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
@@ -322,6 +319,7 @@ class ServerComponents {
     pico.addSingleton(BatchIndex.class);
     pico.addSingleton(GlobalReferentialsAction.class);
     pico.addSingleton(ProjectReferentialsAction.class);
+    pico.addSingleton(UploadReportAction.class);
     pico.addSingleton(BatchWs.class);
 
     // update center

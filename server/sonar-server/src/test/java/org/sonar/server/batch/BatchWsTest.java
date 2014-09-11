@@ -61,7 +61,9 @@ public class BatchWsTest {
   public void before() throws IOException {
     tester = new WsTester(new BatchWs(batchIndex,
       new GlobalReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class)),
-      new ProjectReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class), mock(QProfileFactory.class), mock(QProfileLoader.class), mock(RuleService.class), mock(Languages.class))));
+      new ProjectReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class), mock(QProfileFactory.class), mock(QProfileLoader.class), mock(RuleService.class),
+        mock(Languages.class)),
+      new UploadReportAction(mock(DbClient.class))));
   }
 
   @Test

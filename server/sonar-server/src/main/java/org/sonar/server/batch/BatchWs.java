@@ -33,11 +33,14 @@ public class BatchWs implements WebService {
   private final BatchIndex batchIndex;
   private final GlobalReferentialsAction globalReferentialsAction;
   private final ProjectReferentialsAction projectReferentialsAction;
+  private final UploadReportAction uploadReportAction;
 
-  public BatchWs(BatchIndex batchIndex, GlobalReferentialsAction globalReferentialsAction, ProjectReferentialsAction projectReferentialsAction) {
+  public BatchWs(BatchIndex batchIndex, GlobalReferentialsAction globalReferentialsAction, ProjectReferentialsAction projectReferentialsAction,
+                 UploadReportAction uploadReportAction) {
     this.batchIndex = batchIndex;
     this.globalReferentialsAction = globalReferentialsAction;
     this.projectReferentialsAction = projectReferentialsAction;
+    this.uploadReportAction = uploadReportAction;
   }
 
   @Override
@@ -50,6 +53,7 @@ public class BatchWs implements WebService {
     defineFileAction(controller);
     globalReferentialsAction.define(controller);
     projectReferentialsAction.define(controller);
+    uploadReportAction.define(controller);
 
     controller.done();
   }
