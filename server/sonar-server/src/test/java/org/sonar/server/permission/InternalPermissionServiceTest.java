@@ -38,17 +38,24 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.permission.PermissionQuery;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.component.persistence.ComponentDao;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.issue.db.IssueAuthorizationDao;
+import org.sonar.server.issue.index.IssueAuthorizationIndex;
+import org.sonar.server.search.IndexClient;
 import org.sonar.server.user.MockUserSession;
 
+import java.util.Date;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -65,10 +72,19 @@ public class InternalPermissionServiceTest {
   public ExpectedException throwable = ExpectedException.none();
 
   @Mock
+  DbClient dbClient;
+
+  @Mock
+  DbSession session;
+
+  @Mock
   UserDao userDao;
 
   @Mock
   ResourceDao resourceDao;
+
+  @Mock
+  ComponentDao componentDao;
 
   @Mock
   PermissionFacade permissionFacade;
@@ -76,17 +92,29 @@ public class InternalPermissionServiceTest {
   @Mock
   PermissionFinder finder;
 
+  @Mock
+  IssueAuthorizationDao issueAuthorizationDao;
+
+  @Mock
+  IndexClient index;
+
   Map<String, Object> params;
   InternalPermissionService service;
 
   @Before
   public void setUpCommonStubbing() {
-    when(userDao.selectActiveUserByLogin("user")).thenReturn(new UserDto().setId(2L).setLogin("user").setActive(true));
-    when(userDao.selectGroupByName("group")).thenReturn(new GroupDto().setId(2L).setName("group"));
-
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    service = new InternalPermissionService(userDao, resourceDao, permissionFacade, finder);
+    when(dbClient.openSession(false)).thenReturn(session);
+    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.issueAuthorizationDao()).thenReturn(issueAuthorizationDao);
+
+    when(index.get(IssueAuthorizationIndex.class)).thenReturn(mock(IssueAuthorizationIndex.class));
+
+    when(userDao.selectActiveUserByLogin("user", session)).thenReturn(new UserDto().setId(2L).setLogin("user").setActive(true));
+    when(userDao.selectGroupByName("group", session)).thenReturn(new GroupDto().setId(2L).setName("group"));
+
+    service = new InternalPermissionService(dbClient, userDao, resourceDao, permissionFacade, finder, index);
   }
 
   @Test
@@ -135,12 +163,13 @@ public class InternalPermissionServiceTest {
 
     service.addPermission(params);
 
-    verify(permissionFacade).insertUserPermission(eq((Long) null), eq(2L), eq("shareDashboard"));
+    verify(permissionFacade).insertUserPermission(eq((Long) null), eq(2L), eq("shareDashboard"), eq(session));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test
   public void add_component_user_permission() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "user");
@@ -149,7 +178,8 @@ public class InternalPermissionServiceTest {
 
     service.addPermission(params);
 
-    verify(permissionFacade).insertUserPermission(eq(10L), eq(2L), eq("user"));
+    verify(permissionFacade).insertUserPermission(eq(10L), eq(2L), eq("user"), eq(session));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test
@@ -159,12 +189,13 @@ public class InternalPermissionServiceTest {
 
     service.removePermission(params);
 
-    verify(permissionFacade).deleteUserPermission(eq((Long) null), eq(2L), eq("profileadmin"));
+    verify(permissionFacade).deleteUserPermission(eq((Long) null), eq(2L), eq("profileadmin"), eq(session));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test
   public void remove_component_user_permission() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
@@ -173,7 +204,8 @@ public class InternalPermissionServiceTest {
 
     service.removePermission(params);
 
-    verify(permissionFacade).deleteUserPermission(eq(10L), eq(2L), eq("codeviewer"));
+    verify(permissionFacade).deleteUserPermission(eq(10L), eq(2L), eq("codeviewer"), eq(session));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test
@@ -183,12 +215,13 @@ public class InternalPermissionServiceTest {
 
     service.addPermission(params);
 
-    verify(permissionFacade).insertGroupPermission(eq((Long) null), eq(2L), eq("shareDashboard"));
+    verify(permissionFacade).insertGroupPermission(eq((Long) null), eq(2L), eq("shareDashboard"), eq(session));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test
   public void add_component_group_permission() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "user");
@@ -197,7 +230,8 @@ public class InternalPermissionServiceTest {
 
     service.addPermission(params);
 
-    verify(permissionFacade).insertGroupPermission(eq(10L), eq(2L), eq("user"));
+    verify(permissionFacade).insertGroupPermission(eq(10L), eq(2L), eq("user"), eq(session));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test
@@ -206,12 +240,13 @@ public class InternalPermissionServiceTest {
 
     service.addPermission(params);
 
-    verify(permissionFacade).insertGroupPermission(eq((Long) null), eq((Long) null), eq("profileadmin"));
+    verify(permissionFacade).insertGroupPermission(eq((Long) null), eq((Long) null), eq("profileadmin"), eq(session));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test
   public void add_component_permission_to_anyone_group() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "user");
@@ -219,7 +254,8 @@ public class InternalPermissionServiceTest {
 
     service.addPermission(params);
 
-    verify(permissionFacade).insertGroupPermission(eq(10L), eq((Long) null), eq("user"));
+    verify(permissionFacade).insertGroupPermission(eq(10L), eq((Long) null), eq("user"), eq(session));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test
@@ -229,12 +265,13 @@ public class InternalPermissionServiceTest {
 
     service.removePermission(params);
 
-    verify(permissionFacade).deleteGroupPermission(eq((Long) null), eq(2L), eq("profileadmin"));
+    verify(permissionFacade).deleteGroupPermission(eq((Long) null), eq(2L), eq("profileadmin"), eq(session));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test
   public void remove_component_group_permission() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
@@ -243,7 +280,8 @@ public class InternalPermissionServiceTest {
 
     service.removePermission(params);
 
-    verify(permissionFacade).deleteGroupPermission(eq(10L), eq(2L), eq("codeviewer"));
+    verify(permissionFacade).deleteGroupPermission(eq(10L), eq(2L), eq("codeviewer"), eq(session));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test
@@ -253,12 +291,13 @@ public class InternalPermissionServiceTest {
 
     service.removePermission(params);
 
-    verify(permissionFacade).deleteGroupPermission(eq((Long) null), eq((Long) null), eq("profileadmin"));
+    verify(permissionFacade).deleteGroupPermission(eq((Long) null), eq((Long) null), eq("profileadmin"), eq(session));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test
   public void remove_component_permission_from_anyone_group() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "codeviewer");
@@ -267,7 +306,8 @@ public class InternalPermissionServiceTest {
 
     service.removePermission(params);
 
-    verify(permissionFacade).deleteGroupPermission(eq(10L), eq((Long) null), eq("codeviewer"));
+    verify(permissionFacade).deleteGroupPermission(eq(10L), eq((Long) null), eq("codeviewer"), eq(session));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test
@@ -277,12 +317,13 @@ public class InternalPermissionServiceTest {
 
     service.addPermission(params);
 
-    verify(permissionFacade, never()).insertUserPermission(anyLong(), anyLong(), anyString());
+    verify(permissionFacade, never()).insertUserPermission(anyLong(), anyLong(), anyString(), eq(session));
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
   public void skip_redundant_add_component_user_permission_change() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
@@ -291,7 +332,8 @@ public class InternalPermissionServiceTest {
 
     service.addPermission(params);
 
-    verify(permissionFacade, never()).insertUserPermission(anyLong(), anyLong(), anyString());
+    verify(permissionFacade, never()).insertUserPermission(anyLong(), anyLong(), anyString(), eq(session));
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
@@ -301,12 +343,13 @@ public class InternalPermissionServiceTest {
 
     service.addPermission(params);
 
-    verify(permissionFacade, never()).insertGroupPermission(anyLong(), anyLong(), anyString());
+    verify(permissionFacade, never()).insertGroupPermission(anyLong(), anyLong(), anyString(), eq(session));
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
   public void skip_redundant_add_component_group_permission_change() throws Exception {
-    when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+    when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
       new ResourceDto().setId(10L).setKey("org.sample.Sample"));
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
@@ -315,7 +358,8 @@ public class InternalPermissionServiceTest {
 
     service.addPermission(params);
 
-    verify(permissionFacade, never()).insertGroupPermission(anyLong(), anyLong(), anyString());
+    verify(permissionFacade, never()).insertGroupPermission(anyLong(), anyLong(), anyString(), eq(session));
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
@@ -373,7 +417,7 @@ public class InternalPermissionServiceTest {
   @Test
   public void fail_on_insufficient_project_rights() throws Exception {
     try {
-      when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(
+      when(resourceDao.getResource(any(ResourceQuery.class), eq(session))).thenReturn(
         new ResourceDto().setId(10L).setKey("org.sample.Sample"));
       params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "user");
       MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN);
@@ -411,9 +455,11 @@ public class InternalPermissionServiceTest {
 
     service.applyPermissionTemplate(params);
 
-    verify(permissionFacade).applyPermissionTemplate("my_template_key", 1L);
-    verify(permissionFacade).applyPermissionTemplate("my_template_key", 2L);
-    verify(permissionFacade).applyPermissionTemplate("my_template_key", 3L);
+    verify(permissionFacade).applyPermissionTemplate(session, "my_template_key", 1L);
+    verify(permissionFacade).applyPermissionTemplate(session, "my_template_key", 2L);
+    verify(permissionFacade).applyPermissionTemplate(session, "my_template_key", 3L);
+
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test(expected = ForbiddenException.class)
@@ -435,7 +481,8 @@ public class InternalPermissionServiceTest {
 
     service.applyPermissionTemplate(params);
 
-    verify(permissionFacade, never()).applyPermissionTemplate(anyString(), anyLong());
+    verify(permissionFacade, never()).applyPermissionTemplate(eq(session), anyString(), anyLong());
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
@@ -452,7 +499,8 @@ public class InternalPermissionServiceTest {
 
     service.applyPermissionTemplate(params);
 
-    verify(permissionFacade).applyPermissionTemplate("my_template_key", 1L);
+    verify(permissionFacade).applyPermissionTemplate(session, "my_template_key", 1L);
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test(expected = ForbiddenException.class)
@@ -465,7 +513,8 @@ public class InternalPermissionServiceTest {
 
     service.applyPermissionTemplate(params);
 
-    verify(permissionFacade).applyPermissionTemplate("my_template_key", 1L);
+    verify(permissionFacade).applyPermissionTemplate(session, "my_template_key", 1L);
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
@@ -480,10 +529,11 @@ public class InternalPermissionServiceTest {
     when(mockComponent.qualifier()).thenReturn(qualifier);
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, componentKey);
 
-    when(resourceDao.findByKey(componentKey)).thenReturn(mockComponent);
+    when(componentDao.getByKey(session, componentKey)).thenReturn(mockComponent);
     service.applyDefaultPermissionTemplate(componentKey);
-    verify(resourceDao).findByKey(componentKey);
-    verify(permissionFacade).grantDefaultRoles(componentId, qualifier);
+    verify(permissionFacade).grantDefaultRoles(session, componentId, qualifier);
+
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   @Test(expected = ForbiddenException.class)
@@ -496,9 +546,11 @@ public class InternalPermissionServiceTest {
     when(mockComponent.getId()).thenReturn(componentId);
     when(mockComponent.qualifier()).thenReturn(qualifier);
 
-    when(resourceDao.findByKey(componentKey)).thenReturn(mockComponent);
-    when(resourceDao.selectProvisionedProject(componentKey)).thenReturn(mock(ResourceDto.class));
+    when(componentDao.getByKey(session, componentKey)).thenReturn(mockComponent);
+    when(resourceDao.selectProvisionedProject(session, componentKey)).thenReturn(mock(ResourceDto.class));
     service.applyDefaultPermissionTemplate(componentKey);
+
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
@@ -512,17 +564,11 @@ public class InternalPermissionServiceTest {
     when(mockComponent.getId()).thenReturn(componentId);
     when(mockComponent.qualifier()).thenReturn(qualifier);
 
-    when(resourceDao.findByKey(componentKey)).thenReturn(mockComponent);
-    when(resourceDao.selectProvisionedProject(componentKey)).thenReturn(mock(ResourceDto.class));
+    when(componentDao.getByKey(session, componentKey)).thenReturn(mockComponent);
+    when(resourceDao.selectProvisionedProject(session, componentKey)).thenReturn(mock(ResourceDto.class));
     service.applyDefaultPermissionTemplate(componentKey);
-  }
 
-  @Test(expected = BadRequestException.class)
-  public void apply_default_permission_template_on_non_existing_project() {
-    final String componentKey = "component";
-
-    when(resourceDao.findByKey(componentKey)).thenReturn(null);
-    service.applyDefaultPermissionTemplate(componentKey);
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
   }
 
   private Map<String, Object> buildPermissionChangeParams(String login, String group, String permission) {
@@ -543,18 +589,18 @@ public class InternalPermissionServiceTest {
   }
 
   private void setUpGlobalUserPermissions(String login, String... permissions) {
-    when(permissionFacade.selectUserPermissions(login, null)).thenReturn(Lists.newArrayList(permissions));
+    when(permissionFacade.selectUserPermissions(session, login, null)).thenReturn(Lists.newArrayList(permissions));
   }
 
   private void setUpGlobalGroupPermissions(String groupName, String... permissions) {
-    when(permissionFacade.selectGroupPermissions(groupName, null)).thenReturn(Lists.newArrayList(permissions));
+    when(permissionFacade.selectGroupPermissions(session, groupName, null)).thenReturn(Lists.newArrayList(permissions));
   }
 
   private void setUpComponentUserPermissions(String login, Long componentId, String... permissions) {
-    when(permissionFacade.selectUserPermissions(login, componentId)).thenReturn(Lists.newArrayList(permissions));
+    when(permissionFacade.selectUserPermissions(session, login, componentId)).thenReturn(Lists.newArrayList(permissions));
   }
 
   private void setUpComponentGroupPermissions(String groupName, Long componentId, String... permissions) {
-    when(permissionFacade.selectGroupPermissions(groupName, componentId)).thenReturn(Lists.newArrayList(permissions));
+    when(permissionFacade.selectGroupPermissions(session, groupName, componentId)).thenReturn(Lists.newArrayList(permissions));
   }
 }

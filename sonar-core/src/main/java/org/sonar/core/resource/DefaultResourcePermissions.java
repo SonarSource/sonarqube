@@ -19,10 +19,10 @@
  */
 package org.sonar.core.resource;
 
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.core.permission.PermissionFacade;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.UserDto;
 import org.sonar.core.user.UserMapper;
@@ -41,16 +41,21 @@ public class DefaultResourcePermissions implements ResourcePermissions {
   }
 
   public boolean hasRoles(Resource resource) {
-    if (resource.getId() != null) {
-      Long resourceId = Long.valueOf(resource.getId());
-      return permissionFacade.countComponentPermissions(resourceId) > 0;
+    DbSession session = myBatis.openSession(false);
+    try {
+      if (resource.getId() != null) {
+        Long resourceId = Long.valueOf(resource.getId());
+        return permissionFacade.countComponentPermissions(session, resourceId) > 0;
+      }
+    } finally {
+      MyBatis.closeQuietly(session);
     }
     return false;
   }
 
   public void grantUserRole(Resource resource, String login, String role) {
     if (resource.getId() != null) {
-      SqlSession session = myBatis.openSession(false);
+      DbSession session = myBatis.openSession(false);
       try {
         UserDto user = session.getMapper(UserMapper.class).selectUserByLogin(login);
         if (user != null) {
@@ -66,7 +71,7 @@ public class DefaultResourcePermissions implements ResourcePermissions {
 
   public void grantGroupRole(Resource resource, String groupName, String role) {
     if (resource.getId() != null) {
-      SqlSession session = myBatis.openSession(false);
+      DbSession session = myBatis.openSession(false);
       try {
         permissionFacade.deleteGroupPermission(Long.valueOf(resource.getId()), groupName, role, session);
         permissionFacade.insertGroupPermission(Long.valueOf(resource.getId()), groupName, role, session);
@@ -78,6 +83,12 @@ public class DefaultResourcePermissions implements ResourcePermissions {
   }
 
   public void grantDefaultRoles(Resource resource) {
-    permissionFacade.grantDefaultRoles(Long.valueOf(resource.getId()), resource.getQualifier());
+    DbSession session = myBatis.openSession(false);
+    try {
+      permissionFacade.grantDefaultRoles(session, Long.valueOf(resource.getId()), resource.getQualifier());
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 }

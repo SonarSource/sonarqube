@@ -28,6 +28,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.task.TaskComponent;
 import org.sonar.api.utils.System2;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
@@ -91,41 +92,54 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   }
 
   @CheckForNull
+  public PermissionTemplateDto selectTemplateByKey(DbSession session, String templateKey) {
+    return session.getMapper(PermissionTemplateMapper.class).selectByKey(templateKey);
+  }
+
+  @CheckForNull
   public PermissionTemplateDto selectTemplateByKey(String templateKey) {
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
-      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      return mapper.selectByKey(templateKey);
+      return selectTemplateByKey(session, templateKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectPermissionTemplate(String templateKey) {
+  public PermissionTemplateDto selectPermissionTemplate(DbSession session, String templateKey) {
     PermissionTemplateDto permissionTemplate = null;
-    SqlSession session = myBatis.openSession(false);
-    try {
-      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      permissionTemplate = mapper.selectByKey(templateKey);
-      PermissionTemplateDto templateUsersPermissions = mapper.selectTemplateUsersPermissions(templateKey);
-      if (templateUsersPermissions != null) {
-        permissionTemplate.setUsersPermissions(templateUsersPermissions.getUsersPermissions());
-      }
-      PermissionTemplateDto templateGroupsPermissions = mapper.selectTemplateGroupsPermissions(templateKey);
-      if (templateGroupsPermissions != null) {
-        permissionTemplate.setGroupsByPermission(templateGroupsPermissions.getGroupsPermissions());
-      }
-    } finally {
-      MyBatis.closeQuietly(session);
+    PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
+    permissionTemplate = mapper.selectByKey(templateKey);
+    PermissionTemplateDto templateUsersPermissions = mapper.selectTemplateUsersPermissions(templateKey);
+    if (templateUsersPermissions != null) {
+      permissionTemplate.setUsersPermissions(templateUsersPermissions.getUsersPermissions());
+    }
+    PermissionTemplateDto templateGroupsPermissions = mapper.selectTemplateGroupsPermissions(templateKey);
+    if (templateGroupsPermissions != null) {
+      permissionTemplate.setGroupsByPermission(templateGroupsPermissions.getGroupsPermissions());
     }
     return permissionTemplate;
   }
 
-  public List<PermissionTemplateDto> selectAllPermissionTemplates() {
-    SqlSession session = myBatis.openSession(false);
+  @CheckForNull
+  public PermissionTemplateDto selectPermissionTemplate(String templateKey) {
+    DbSession session = myBatis.openSession(false);
     try {
-      return session.selectList("selectAllPermissionTemplates");
+      return selectPermissionTemplate(session, templateKey);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<PermissionTemplateDto> selectAllPermissionTemplates(DbSession session) {
+    return session.selectList("selectAllPermissionTemplates");
+  }
+
+  public List<PermissionTemplateDto> selectAllPermissionTemplates() {
+    DbSession session = myBatis.openSession(false);
+    try {
+      return selectAllPermissionTemplates(session);
     } finally {
       MyBatis.closeQuietly(session);
     }

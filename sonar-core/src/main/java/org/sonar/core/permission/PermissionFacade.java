@@ -22,12 +22,11 @@ package org.sonar.core.permission;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.task.TaskComponent;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.user.*;
@@ -40,23 +39,19 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Internal use only
+ * This facade wraps db operations related to permissions
  *
- * @since 3.7
- *        <p/>
- *        This facade wraps db operations related to permissions
+ * Should be removed when batch will no more create permission, and be replaced by a new PermissionService in module server (probably be a merge with InternalPermissionService)
  */
 public class PermissionFacade implements TaskComponent, ServerComponent {
 
-  private final MyBatis myBatis;
   private final RoleDao roleDao;
   private final UserDao userDao;
   private final PermissionTemplateDao permissionTemplateDao;
   private final Settings settings;
   private final ResourceDao resourceDao;
 
-  public PermissionFacade(MyBatis myBatis, RoleDao roleDao, UserDao userDao, ResourceDao resourceDao, PermissionTemplateDao permissionTemplateDao, Settings settings) {
-    this.myBatis = myBatis;
+  public PermissionFacade(RoleDao roleDao, UserDao userDao, ResourceDao resourceDao, PermissionTemplateDao permissionTemplateDao, Settings settings) {
     this.roleDao = roleDao;
     this.userDao = userDao;
     this.resourceDao = resourceDao;
@@ -64,7 +59,10 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     this.settings = settings;
   }
 
-  private void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, boolean updateProjectAuthorizationDate, @Nullable SqlSession session) {
+  /**
+   * @param updateProjectAuthorizationDate is false when doing bulk action in order to not update the same project multiple times for nothing
+   */
+  private void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, boolean updateProjectAuthorizationDate, DbSession session) {
     UserRoleDto userRoleDto = new UserRoleDto()
       .setRole(permission)
       .setUserId(userId)
@@ -72,60 +70,36 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     if (updateProjectAuthorizationDate) {
       updateProjectAuthorizationDate(resourceId, session);
     }
-    if (session != null) {
-      roleDao.insertUserRole(userRoleDto, session);
-    } else {
-      roleDao.insertUserRole(userRoleDto);
-    }
+    roleDao.insertUserRole(userRoleDto, session);
   }
 
-  public void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, @Nullable SqlSession session) {
+  public void insertUserPermission(@Nullable Long resourceId, Long userId, String permission, DbSession session) {
     insertUserPermission(resourceId, userId, permission, true, session);
   }
 
-  public void insertUserPermission(@Nullable Long resourceId, Long userId, String permission) {
-    insertUserPermission(resourceId, userId, permission, null);
-  }
-
-  public void deleteUserPermission(@Nullable Long resourceId, Long userId, String permission, @Nullable SqlSession session) {
+  public void deleteUserPermission(@Nullable Long resourceId, Long userId, String permission, DbSession session) {
     UserRoleDto userRoleDto = new UserRoleDto()
       .setRole(permission)
       .setUserId(userId)
       .setResourceId(resourceId);
     updateProjectAuthorizationDate(resourceId, session);
-    if (session != null) {
-      roleDao.deleteUserRole(userRoleDto, session);
-    } else {
-      roleDao.deleteUserRole(userRoleDto);
-    }
+    roleDao.deleteUserRole(userRoleDto, session);
   }
 
-  public void deleteUserPermission(@Nullable Long resourceId, Long userId, String permission) {
-    deleteUserPermission(resourceId, userId, permission, null);
-  }
-
-  private void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, boolean updateProjectAuthorizationDate, @Nullable SqlSession session) {
+  private void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, boolean updateProjectAuthorizationDate, DbSession session) {
     GroupRoleDto groupRole = new GroupRoleDto()
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(resourceId);
     updateProjectAuthorizationDate(resourceId, session);
-    if (session != null) {
-      roleDao.insertGroupRole(groupRole, session);
-    } else {
-      roleDao.insertGroupRole(groupRole);
-    }
+    roleDao.insertGroupRole(groupRole, session);
   }
 
-  private void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, @Nullable SqlSession session) {
+  public void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, DbSession session) {
     insertGroupPermission(resourceId, groupId, permission, true, session);
   }
 
-  public void insertGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission) {
-    insertGroupPermission(resourceId, groupId, permission, null);
-  }
-
-  public void insertGroupPermission(@Nullable Long resourceId, String groupName, String permission, @Nullable SqlSession session) {
+  public void insertGroupPermission(@Nullable Long resourceId, String groupName, String permission, DbSession session) {
     if (DefaultGroups.isAnyone(groupName)) {
       insertGroupPermission(resourceId, (Long) null, permission, session);
     } else {
@@ -136,24 +110,16 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     }
   }
 
-  public void deleteGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, @Nullable SqlSession session) {
+  public void deleteGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission, DbSession session) {
     GroupRoleDto groupRole = new GroupRoleDto()
       .setRole(permission)
       .setGroupId(groupId)
       .setResourceId(resourceId);
     updateProjectAuthorizationDate(resourceId, session);
-    if (session != null) {
-      roleDao.deleteGroupRole(groupRole, session);
-    } else {
-      roleDao.deleteGroupRole(groupRole);
-    }
+    roleDao.deleteGroupRole(groupRole, session);
   }
 
-  public void deleteGroupPermission(@Nullable Long resourceId, @Nullable Long groupId, String permission) {
-    deleteGroupPermission(resourceId, groupId, permission, null);
-  }
-
-  public void deleteGroupPermission(@Nullable Long resourceId, String groupName, String permission, @Nullable SqlSession session) {
+  public void deleteGroupPermission(@Nullable Long resourceId, String groupName, String permission, DbSession session) {
     if (DefaultGroups.isAnyone(groupName)) {
       deleteGroupPermission(resourceId, (Long) null, permission, session);
     } else {
@@ -167,13 +133,9 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
   /**
    * For each modification of permission on a project, update the authorization_updated_at to help ES reindex only relevant changes
    */
-  private void updateProjectAuthorizationDate(@Nullable Long projectId, @Nullable SqlSession session){
+  private void updateProjectAuthorizationDate(@Nullable Long projectId, DbSession session) {
     if (projectId != null) {
-      if (session != null) {
-        resourceDao.updateAuthorizationDate(projectId, session);
-      } else {
-        resourceDao.updateAuthorizationDate(projectId);
-      }
+      resourceDao.updateAuthorizationDate(projectId, session);
     }
   }
 
@@ -181,75 +143,69 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
    * Load permission template and load associated collections of users and groups permissions
    */
   @VisibleForTesting
-  PermissionTemplateDto getPermissionTemplateWithPermissions(String templateKey) {
-    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectTemplateByKey(templateKey);
+  PermissionTemplateDto getPermissionTemplateWithPermissions(DbSession session, String templateKey) {
+    PermissionTemplateDto permissionTemplateDto = permissionTemplateDao.selectTemplateByKey(session, templateKey);
     if (permissionTemplateDto == null) {
       throw new IllegalArgumentException("Could not retrieve permission template with key " + templateKey);
     }
-    PermissionTemplateDto templateWithPermissions = permissionTemplateDao.selectPermissionTemplate(permissionTemplateDto.getKee());
+    PermissionTemplateDto templateWithPermissions = permissionTemplateDao.selectPermissionTemplate(session, permissionTemplateDto.getKee());
     if (templateWithPermissions == null) {
       throw new IllegalArgumentException("Could not retrieve permissions for template with key " + templateKey);
     }
     return templateWithPermissions;
   }
 
-  public void applyPermissionTemplate(String templateKey, Long resourceId) {
-    PermissionTemplateDto permissionTemplate = getPermissionTemplateWithPermissions(templateKey);
-    SqlSession session = myBatis.openSession(false);
-    try {
-      updateProjectAuthorizationDate(resourceId, session);
-      removeAllPermissions(resourceId, session);
-      List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
-      if (usersPermissions != null) {
-        for (PermissionTemplateUserDto userPermission : usersPermissions) {
-          insertUserPermission(resourceId, userPermission.getUserId(), userPermission.getPermission(), false, session);
-        }
+  public void applyPermissionTemplate(DbSession session, String templateKey, Long resourceId) {
+    PermissionTemplateDto permissionTemplate = getPermissionTemplateWithPermissions(session, templateKey);
+    updateProjectAuthorizationDate(resourceId, session);
+    removeAllPermissions(resourceId, session);
+    List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
+    if (usersPermissions != null) {
+      for (PermissionTemplateUserDto userPermission : usersPermissions) {
+        insertUserPermission(resourceId, userPermission.getUserId(), userPermission.getPermission(), false, session);
       }
-      List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupsPermissions();
-      if (groupsPermissions != null) {
-        for (PermissionTemplateGroupDto groupPermission : groupsPermissions) {
-          Long groupId = groupPermission.getGroupId() == null ? null : groupPermission.getGroupId();
-          insertGroupPermission(resourceId, groupId, groupPermission.getPermission(), false, session);
-        }
+    }
+    List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupsPermissions();
+    if (groupsPermissions != null) {
+      for (PermissionTemplateGroupDto groupPermission : groupsPermissions) {
+        Long groupId = groupPermission.getGroupId() == null ? null : groupPermission.getGroupId();
+        insertGroupPermission(resourceId, groupId, groupPermission.getPermission(), false, session);
       }
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
-  public int countComponentPermissions(Long resourceId) {
-    return roleDao.countResourceGroupRoles(resourceId) + roleDao.countResourceUserRoles(resourceId);
+  public int countComponentPermissions(DbSession session, Long resourceId) {
+    return roleDao.countResourceGroupRoles(session, resourceId) + roleDao.countResourceUserRoles(session, resourceId);
   }
 
-  protected void removeAllPermissions(Long resourceId, SqlSession session) {
+  protected void removeAllPermissions(Long resourceId, DbSession session) {
     roleDao.deleteGroupRolesByResourceId(resourceId, session);
     roleDao.deleteUserRolesByResourceId(resourceId, session);
   }
 
-  public List<String> selectGroupPermissions(String group, Long componentId) {
-    return roleDao.selectGroupPermissions(group, componentId);
+  public List<String> selectGroupPermissions(DbSession session, String group, Long componentId) {
+    return roleDao.selectGroupPermissions(session, group, componentId);
   }
 
-  public List<String> selectUserPermissions(String user, Long componentId) {
-    return roleDao.selectUserPermissions(user, componentId);
+  public List<String> selectUserPermissions(DbSession session, String user, Long componentId) {
+    return roleDao.selectUserPermissions(session, user, componentId);
   }
 
-  public void grantDefaultRoles(Long componentId, String qualifier) {
-    ResourceDto resource = resourceDao.getResource(componentId);
+  public void grantDefaultRoles(DbSession session, Long componentId, String qualifier) {
+    ResourceDto resource = resourceDao.getResource(componentId, session);
     if (resource == null) {
       throw new IllegalStateException("Unable to find resource with id " + componentId);
     }
-    String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(resource.getKey(), qualifier);
-    applyPermissionTemplate(applicablePermissionTemplateKey, componentId);
+    String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(session, resource.getKey(), qualifier);
+    applyPermissionTemplate(session, applicablePermissionTemplateKey, componentId);
   }
 
   /**
    * Return the permission template for the given componentKey. If no template key pattern match then consider default
    * permission template for the resource qualifier.
    */
-  private String getApplicablePermissionTemplateKey(final String componentKey, String qualifier) {
-    List<PermissionTemplateDto> allPermissionTemplates = permissionTemplateDao.selectAllPermissionTemplates();
+  private String getApplicablePermissionTemplateKey(DbSession session, final String componentKey, String qualifier) {
+    List<PermissionTemplateDto> allPermissionTemplates = permissionTemplateDao.selectAllPermissionTemplates(session);
     List<PermissionTemplateDto> matchingTemplates = new ArrayList<PermissionTemplateDto>();
     for (PermissionTemplateDto permissionTemplateDto : allPermissionTemplates) {
       String keyPattern = permissionTemplateDto.getKeyPattern();

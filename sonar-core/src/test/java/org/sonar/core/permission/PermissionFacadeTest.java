@@ -20,7 +20,7 @@
 
 package org.sonar.core.permission;
 
-import org.apache.ibatis.session.SqlSession;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +30,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDao;
@@ -44,56 +44,64 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   @Rule
   public ExpectedException throwable = ExpectedException.none();
 
-  private System2 system2;
-  private PermissionFacade permissionFacade;
-  private PermissionTemplateDao permissionTemplateDao;
-  private ResourceDao resourceDao;
+  DbSession session;
+  System2 system2;
+  PermissionFacade permissionFacade;
+  PermissionTemplateDao permissionTemplateDao;
+  ResourceDao resourceDao;
 
   @Before
   public void setUp() {
     system2 = mock(System2.class);
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-03").getTime());
 
+    session = getMyBatis().openSession(false);
     RoleDao roleDao = new RoleDao(getMyBatis());
     UserDao userDao = new UserDao(getMyBatis());
     permissionTemplateDao = new PermissionTemplateDao(getMyBatis(), System2.INSTANCE);
     Settings settings = new Settings();
     resourceDao = new ResourceDao(getMyBatis(), system2);
-    permissionFacade = new PermissionFacade(getMyBatis(), roleDao, userDao, resourceDao, permissionTemplateDao, settings);
+    permissionFacade = new PermissionFacade(roleDao, userDao, resourceDao, permissionTemplateDao, settings);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
   public void should_apply_permission_template() throws Exception {
     setupData("should_apply_permission_template");
 
-    assertThat(permissionFacade.selectGroupPermissions("sonar-administrators", 123L)).isEmpty();
-    assertThat(permissionFacade.selectGroupPermissions("sonar-users", 123L)).isEmpty();
-    assertThat(permissionFacade.selectGroupPermissions("Anyone", 123L)).isEmpty();
-    assertThat(permissionFacade.selectUserPermissions("marius", 123L)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-administrators", 123L)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-users", 123L)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(session, "Anyone", 123L)).isEmpty();
+    assertThat(permissionFacade.selectUserPermissions(session, "marius", 123L)).isEmpty();
 
-    permissionFacade.applyPermissionTemplate("default_20130101_010203", 123L);
+    permissionFacade.applyPermissionTemplate(session, "default_20130101_010203", 123L);
 
-    assertThat(permissionFacade.selectGroupPermissions("sonar-administrators", 123L)).containsOnly("admin", "issueadmin");
-    assertThat(permissionFacade.selectGroupPermissions("sonar-users", 123L)).containsOnly("user", "codeviewer");
-    assertThat(permissionFacade.selectGroupPermissions("Anyone", 123L)).containsOnly("user", "codeviewer");
+    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-administrators", 123L)).containsOnly("admin", "issueadmin");
+    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-users", 123L)).containsOnly("user", "codeviewer");
+    assertThat(permissionFacade.selectGroupPermissions(session, "Anyone", 123L)).containsOnly("user", "codeviewer");
 
-    assertThat(permissionFacade.selectUserPermissions("marius", 123L)).containsOnly("admin");
+    assertThat(permissionFacade.selectUserPermissions(session, "marius", 123L)).containsOnly("admin");
 
-    assertThat(resourceDao.getResource(123L).getAuthorizationUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-03"));
+    assertThat(resourceDao.getResource(123L, session).getAuthorizationUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-03"));
   }
 
   @Test
   public void should_count_component_permissions() throws Exception {
     setupData("should_count_component_permissions");
 
-    assertThat(permissionFacade.countComponentPermissions(123L)).isEqualTo(2);
+    assertThat(permissionFacade.countComponentPermissions(session, 123L)).isEqualTo(2);
   }
 
   @Test
   public void should_add_user_permission() throws Exception {
     setupData("should_add_user_permission");
 
-    permissionFacade.insertUserPermission(123L, 200L, UserRole.ADMIN);
+    permissionFacade.insertUserPermission(123L, 200L, UserRole.ADMIN, session);
+    session.commit();
 
     checkTable("should_add_user_permission", "user_roles", "user_id", "resource_id", "role");
     checkTable("should_add_user_permission", "projects", "authorization_updated_at");
@@ -103,7 +111,8 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   public void should_delete_user_permission() throws Exception {
     setupData("should_delete_user_permission");
 
-    permissionFacade.deleteUserPermission(123L, 200L, UserRole.ADMIN);
+    permissionFacade.deleteUserPermission(123L, 200L, UserRole.ADMIN, session);
+    session.commit();
 
     checkTable("should_delete_user_permission", "user_roles", "user_id", "resource_id", "role");
     checkTable("should_delete_user_permission", "projects", "authorization_updated_at");
@@ -113,13 +122,8 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   public void should_insert_group_permission() throws Exception {
     setupData("should_insert_group_permission");
 
-    SqlSession session = getMyBatis().openSession();
-    try {
-      permissionFacade.insertGroupPermission(123L, 100L, UserRole.USER);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    permissionFacade.insertGroupPermission(123L, 100L, UserRole.USER, session);
+    session.commit();
 
     checkTable("should_insert_group_permission", "group_roles", "group_id", "resource_id", "role");
     checkTable("should_insert_group_permission", "projects", "authorization_updated_at");
@@ -129,13 +133,8 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   public void should_insert_group_name_permission() throws Exception {
     setupData("should_insert_group_permission");
 
-    SqlSession session = getMyBatis().openSession();
-    try {
-      permissionFacade.insertGroupPermission(123L, "devs", UserRole.USER, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    permissionFacade.insertGroupPermission(123L, "devs", UserRole.USER, session);
+    session.commit();
 
     checkTable("should_insert_group_permission", "group_roles", "group_id", "resource_id", "role");
     checkTable("should_insert_group_permission", "projects", "authorization_updated_at");
@@ -145,13 +144,8 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   public void should_insert_anyone_group_permission() throws Exception {
     setupData("should_insert_anyone_group_permission");
 
-    SqlSession session = getMyBatis().openSession();
-    try {
-      permissionFacade.insertGroupPermission(123L, "Anyone", UserRole.USER, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    permissionFacade.insertGroupPermission(123L, "Anyone", UserRole.USER, session);
+    session.commit();
 
     checkTable("should_insert_anyone_group_permission", "group_roles", "group_id", "resource_id", "role");
     checkTable("should_insert_anyone_group_permission", "projects", "authorization_updated_at");
@@ -161,7 +155,8 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   public void should_delete_group_permission() throws Exception {
     setupData("should_delete_group_permission");
 
-    permissionFacade.deleteGroupPermission(123L, 100L, UserRole.USER);
+    permissionFacade.deleteGroupPermission(123L, 100L, UserRole.USER, session);
+    session.commit();
 
     checkTable("should_delete_group_permission", "group_roles", "group_id", "resource_id", "role");
     checkTable("should_delete_group_permission", "projects", "authorization_updated_at");
@@ -171,13 +166,8 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   public void should_delete_group_name_permission() throws Exception {
     setupData("should_delete_group_permission");
 
-    SqlSession session = getMyBatis().openSession();
-    try {
-      permissionFacade.deleteGroupPermission(123L, "devs", UserRole.USER, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    permissionFacade.deleteGroupPermission(123L, "devs", UserRole.USER, session);
+    session.commit();
 
     checkTable("should_delete_group_permission", "group_roles", "group_id", "resource_id", "role");
     checkTable("should_delete_group_permission", "projects", "authorization_updated_at");
@@ -188,12 +178,12 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto().setName("Test template").setKee("test_template");
     PermissionTemplateDto templateWithPermissions = new PermissionTemplateDto().setKee("test_template");
     permissionTemplateDao = mock(PermissionTemplateDao.class);
-    when(permissionTemplateDao.selectTemplateByKey("test_template")).thenReturn(permissionTemplateDto);
-    when(permissionTemplateDao.selectPermissionTemplate("test_template")).thenReturn(templateWithPermissions);
+    when(permissionTemplateDao.selectTemplateByKey(session, "test_template")).thenReturn(permissionTemplateDto);
+    when(permissionTemplateDao.selectPermissionTemplate(session, "test_template")).thenReturn(templateWithPermissions);
 
-    permissionFacade = new PermissionFacade(null, null, null, null, permissionTemplateDao, null);
+    permissionFacade = new PermissionFacade(null, null, null, permissionTemplateDao, null);
 
-    PermissionTemplateDto permissionTemplate = permissionFacade.getPermissionTemplateWithPermissions("test_template");
+    PermissionTemplateDto permissionTemplate = permissionFacade.getPermissionTemplateWithPermissions(session, "test_template");
 
     assertThat(permissionTemplate).isSameAs(templateWithPermissions);
   }
@@ -204,31 +194,26 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
 
     permissionTemplateDao = mock(PermissionTemplateDao.class);
 
-    permissionFacade = new PermissionFacade(null, null, null, null, permissionTemplateDao, null);
-    permissionFacade.getPermissionTemplateWithPermissions("unmatched");
+    permissionFacade = new PermissionFacade(null, null, null, permissionTemplateDao, null);
+    permissionFacade.getPermissionTemplateWithPermissions(session, "unmatched");
   }
 
   @Test
   public void should_remove_all_permissions() throws Exception {
     setupData("should_remove_all_permissions");
 
-    SqlSession session = getMyBatis().openSession();
-    try {
-      assertThat(permissionFacade.selectGroupPermissions("devs", 123L)).hasSize(1);
-      assertThat(permissionFacade.selectGroupPermissions("other", 123L)).isEmpty();
-      assertThat(permissionFacade.selectUserPermissions("dave.loper", 123L)).hasSize(1);
-      assertThat(permissionFacade.selectUserPermissions("other.user", 123L)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(session, "devs", 123L)).hasSize(1);
+    assertThat(permissionFacade.selectGroupPermissions(session, "other", 123L)).isEmpty();
+    assertThat(permissionFacade.selectUserPermissions(session, "dave.loper", 123L)).hasSize(1);
+    assertThat(permissionFacade.selectUserPermissions(session, "other.user", 123L)).isEmpty();
 
-      permissionFacade.removeAllPermissions(123L, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    permissionFacade.removeAllPermissions(123L, session);
+    session.commit();
 
     checkTable("should_remove_all_permissions", "group_roles", "group_id", "resource_id", "role");
     checkTable("should_remove_all_permissions", "user_roles", "user_id", "resource_id", "role");
 
-    assertThat(permissionFacade.selectGroupPermissions("devs", 123L)).isEmpty();
-    assertThat(permissionFacade.selectUserPermissions("dave.loper", 123L)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(session, "devs", 123L)).isEmpty();
+    assertThat(permissionFacade.selectUserPermissions(session, "dave.loper", 123L)).isEmpty();
   }
 }

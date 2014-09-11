@@ -25,9 +25,11 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.user.UserQuery;
 import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 /**
@@ -61,7 +63,7 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
    */
   @CheckForNull
   public UserDto selectActiveUserByLogin(String login) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectActiveUserByLogin(login, session);
     } finally {
@@ -69,7 +71,7 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
     }
   }
 
-  public UserDto selectActiveUserByLogin(String login, SqlSession session) {
+  public UserDto selectActiveUserByLogin(String login, DbSession session) {
     UserMapper mapper = session.getMapper(UserMapper.class);
     return mapper.selectUserByLogin(login);
   }
@@ -151,14 +153,14 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
    * @return the group, null if group not found
    */
   @CheckForNull
-  public GroupDto selectGroupByName(String name, SqlSession session) {
+  public GroupDto selectGroupByName(String name, DbSession session) {
     UserMapper mapper = session.getMapper(UserMapper.class);
     return mapper.selectGroupByName(name);
   }
 
   @CheckForNull
   public GroupDto selectGroupByName(String name) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectGroupByName(name, session);
     } finally {

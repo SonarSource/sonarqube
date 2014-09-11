@@ -21,8 +21,8 @@
 package org.sonar.server.source;
 
 import com.google.common.base.Splitter;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -61,7 +61,7 @@ public class DeprecatedSourceDecorator implements ServerComponent {
 
   @CheckForNull
   public List<String> getSourceAsHtml(String componentKey, @Nullable Integer from, @Nullable Integer to) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       ResourceDto component = resourceDao.getResource(ResourceQuery.create().setKey(componentKey), session);
       if (component == null) {

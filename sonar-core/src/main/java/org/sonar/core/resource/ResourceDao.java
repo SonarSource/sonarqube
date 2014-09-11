@@ -68,7 +68,7 @@ public class ResourceDao implements DaoComponent {
    */
   @CheckForNull
   public ResourceDto getResource(ResourceQuery query) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return getResource(query, session);
     } finally {
@@ -77,7 +77,7 @@ public class ResourceDao implements DaoComponent {
   }
 
   @CheckForNull
-  public ResourceDto getResource(ResourceQuery query, SqlSession session) {
+  public ResourceDto getResource(ResourceQuery query, DbSession session) {
     List<ResourceDto> resources = getResources(query, session);
     if (!resources.isEmpty()) {
       return resources.get(0);
@@ -162,21 +162,11 @@ public class ResourceDao implements DaoComponent {
     return this;
   }
 
-  public void updateAuthorizationDate(Long projectId, SqlSession session) {
-    session.getMapper(ResourceMapper.class).updateAuthorizationDate(projectId, new Date(system2.now()));
-  }
-
   /**
    * Should not be called from batch side (used to reindex permission in E/S)
    */
-  public void updateAuthorizationDate(Long projectId) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      updateAuthorizationDate(projectId, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public void updateAuthorizationDate(Long projectId, SqlSession session) {
+    session.getMapper(ResourceMapper.class).updateAuthorizationDate(projectId, new Date(system2.now()));
   }
 
   public Collection<ComponentDto> selectComponentsByIds(Collection<Long> ids) {
@@ -347,10 +337,14 @@ public class ResourceDao implements DaoComponent {
   /**
    * Return provisioned project with given key
    */
+  public ResourceDto selectProvisionedProject(DbSession session, String key) {
+    return session.getMapper(ResourceMapper.class).selectProvisionedProject(key);
+  }
+
   public ResourceDto selectProvisionedProject(String key) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(ResourceMapper.class).selectProvisionedProject(key);
+      return selectProvisionedProject(session, key);
     } finally {
       MyBatis.closeQuietly(session);
     }

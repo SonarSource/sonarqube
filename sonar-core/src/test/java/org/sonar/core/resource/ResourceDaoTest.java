@@ -494,7 +494,8 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("update_authorization_date");
 
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-03").getTime());
-    dao.updateAuthorizationDate(1L);
+    dao.updateAuthorizationDate(1L, session);
+    session.commit();
 
     checkTables("update_authorization_date", "projects");
   }

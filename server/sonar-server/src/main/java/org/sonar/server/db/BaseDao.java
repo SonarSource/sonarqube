@@ -37,13 +37,10 @@ import org.sonar.server.search.action.UpsertNestedItem;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -323,7 +320,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
   }
 
   @Override
-  public final void synchronizeAfter(final DbSession session, Date date) {
+  public void synchronizeAfter(final DbSession session, Date date) {
     try {
       session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date), getSynchronizationResultHandler(session));
     } catch (Exception e) {

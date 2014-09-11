@@ -24,9 +24,11 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.task.TaskComponent;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class RoleDao implements TaskComponent, ServerComponent {
@@ -37,28 +39,34 @@ public class RoleDao implements TaskComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
+  public List<String> selectUserPermissions(DbSession session, String userLogin, @Nullable Long resourceId) {
+    return session.getMapper(RoleMapper.class).selectUserPermissions(userLogin, resourceId);
+  }
+
   public List<String> selectUserPermissions(String userLogin, @Nullable Long resourceId) {
-    SqlSession session = mybatis.openSession(false);
-    RoleMapper mapper = session.getMapper(RoleMapper.class);
+    DbSession session = mybatis.openSession(false);
     try {
-      return mapper.selectUserPermissions(userLogin, resourceId);
+      return selectUserPermissions(session, userLogin, resourceId);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
+  public List<String> selectGroupPermissions(DbSession session, String groupName, @Nullable Long resourceId) {
+    return session.getMapper(RoleMapper.class).selectGroupPermissions(groupName, resourceId, DefaultGroups.isAnyone(groupName));
+  }
+
   public List<String> selectGroupPermissions(String groupName, @Nullable Long resourceId) {
-    SqlSession session = mybatis.openSession(false);
-    RoleMapper mapper = session.getMapper(RoleMapper.class);
+    DbSession session = mybatis.openSession(false);
     try {
-      return mapper.selectGroupPermissions(groupName, resourceId, DefaultGroups.isAnyone(groupName));
+      return selectGroupPermissions(session, groupName, resourceId);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   public void insertGroupRole(GroupRoleDto groupRole) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       insertGroupRole(groupRole, session);
       session.commit();
@@ -73,7 +81,7 @@ public class RoleDao implements TaskComponent, ServerComponent {
   }
 
   public void insertUserRole(UserRoleDto userRole) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       insertUserRole(userRole, session);
       session.commit();
@@ -88,7 +96,7 @@ public class RoleDao implements TaskComponent, ServerComponent {
   }
 
   public void deleteUserRole(UserRoleDto userRole) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       deleteUserRole(userRole, session);
       session.commit();
@@ -103,7 +111,7 @@ public class RoleDao implements TaskComponent, ServerComponent {
   }
 
   public void deleteGroupRole(GroupRoleDto groupRole) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       deleteGroupRole(groupRole, session);
       session.commit();
@@ -127,21 +135,27 @@ public class RoleDao implements TaskComponent, ServerComponent {
     mapper.deleteUserRolesByResourceId(resourceId);
   }
 
+  public int countResourceGroupRoles(DbSession session, Long resourceId) {
+    return session.getMapper(RoleMapper.class).countResourceGroupRoles(resourceId);
+  }
+
   public int countResourceGroupRoles(Long resourceId) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      RoleMapper mapper = session.getMapper(RoleMapper.class);
-      return mapper.countResourceGroupRoles(resourceId);
+      return countResourceGroupRoles(session, resourceId);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
+  public int countResourceUserRoles(DbSession session, Long resourceId) {
+    return session.getMapper(RoleMapper.class).countResourceUserRoles(resourceId);
+  }
+
   public int countResourceUserRoles(Long resourceId) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      RoleMapper mapper = session.getMapper(RoleMapper.class);
-      return mapper.countResourceUserRoles(resourceId);
+      return countResourceUserRoles(session, resourceId);
     } finally {
       MyBatis.closeQuietly(session);
     }
