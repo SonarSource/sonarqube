@@ -74,7 +74,7 @@ public class BaseDaoTest {
 
   @Test
   public void can_insert_and_select_by_key() throws Exception {
-    long t0 = System.currentTimeMillis();
+    long t0 = System.currentTimeMillis() - 1000;
 
     String key = UUID.randomUUID().toString();
     FakeDto myDto = new FakeDto()
@@ -84,7 +84,7 @@ public class BaseDaoTest {
     session.commit();
     assertThat(myDto.getId());
 
-    long t1 = System.currentTimeMillis();
+    long t1 = System.currentTimeMillis() + 1000;
 
     FakeDto dto = dao.getByKey(session, key);
     assertThat(dto).isNotNull();
