@@ -7,7 +7,7 @@
   <!-- root project -->
   <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
             description="the description" long_name="Apache Struts"
-            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="[null]" />
+            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="2014-06-18" />
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"

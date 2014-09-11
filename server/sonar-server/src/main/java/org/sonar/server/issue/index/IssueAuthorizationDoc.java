@@ -21,7 +21,9 @@
 package org.sonar.server.issue.index;
 
 import org.sonar.server.search.BaseDoc;
+import org.sonar.server.search.IndexUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +47,10 @@ public class IssueAuthorizationDoc extends BaseDoc {
 
   public List<String> users() {
     return (List<String>) getField(IssueAuthorizationNormalizer.IssueAuthorizationField.USERS.field());
+  }
+
+  public Date updatedAt() {
+    return IndexUtils.parseDateTime((String) getNullableField(IssueAuthorizationNormalizer.IssueAuthorizationField.UPDATED_AT.field()));
   }
 
 }

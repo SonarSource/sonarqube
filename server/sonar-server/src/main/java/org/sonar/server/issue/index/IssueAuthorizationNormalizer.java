@@ -44,6 +44,7 @@ public class IssueAuthorizationNormalizer extends BaseNormalizer<IssueAuthorizat
     public static final IndexField PERMISSION = add(IndexField.Type.STRING, "permission");
     public static final IndexField GROUPS = add(IndexField.Type.STRING, "groups");
     public static final IndexField USERS = add(IndexField.Type.STRING, "users");
+    public static final IndexField UPDATED_AT = add(IndexField.Type.DATE, BaseNormalizer.UPDATED_AT_FIELD);
 
     public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
@@ -79,6 +80,7 @@ public class IssueAuthorizationNormalizer extends BaseNormalizer<IssueAuthorizat
     update.put(IssueAuthorizationField.PERMISSION.field(), dto.getPermission());
     update.put(IssueAuthorizationField.USERS.field(), dto.getUsers());
     update.put(IssueAuthorizationField.GROUPS.field(), dto.getGroups());
+    update.put(IssueAuthorizationField.UPDATED_AT.field(), dto.getUpdatedAt());
 
     /** Upsert elements */
     Map<String, Object> upsert = getUpsertFor(IssueAuthorizationField.ALL_FIELDS, update);

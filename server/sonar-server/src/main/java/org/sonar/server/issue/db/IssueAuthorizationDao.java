@@ -66,15 +66,17 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
 
       @Override
       public void handleResult(ResultContext context) {
-        Map<String, String> row = (Map<String, String>) context.getResultObject();
-        String project = row.get("project");
-        String user = row.get("user");
-        String group = row.get("permission_group");
+        Map<String, Object> row = (Map<String, Object>) context.getResultObject();
+        String project = (String) row.get("project");
+        String user = (String) row.get("user");
+        String group = (String) row.get("permission_group");
+        Date updatedAt = (Date) row.get("updated_at");
         IssueAuthorizationDto issueAuthorizationDto = authorizationDtoMap.get(project);
         if (issueAuthorizationDto == null) {
           issueAuthorizationDto = new IssueAuthorizationDto()
             .setProject(project)
             .setPermission(UserRole.USER);
+          issueAuthorizationDto.setUpdatedAt(updatedAt);
         }
         if (group != null) {
           issueAuthorizationDto.addGroup(group);
@@ -106,16 +108,18 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
 
     Map<String, IssueAuthorizationDto> authorizationDtoMap = newHashMap();
 
-    List<Map<String, String>> rows = session.selectList("org.sonar.core.issue.db.IssueAuthorizationMapper.selectAfterDate", params);
-    for (Map<String, String> row : rows) {
-      String project = row.get("project");
-      String user = row.get("user");
-      String group = row.get("permission_group");
+    List<Map<String, Object>> rows = session.selectList("org.sonar.core.issue.db.IssueAuthorizationMapper.selectAfterDate", params);
+    for (Map<String, Object> row : rows) {
+      String project = (String) row.get("project");
+      String user = (String) row.get("user");
+      String group = (String) row.get("permission_group");
+      Date updatedAt = (Date) row.get("updated_at");
       IssueAuthorizationDto issueAuthorizationDto = authorizationDtoMap.get(project);
       if (issueAuthorizationDto == null) {
         issueAuthorizationDto = new IssueAuthorizationDto()
           .setProject(project)
           .setPermission(UserRole.USER);
+        issueAuthorizationDto.setUpdatedAt(updatedAt);
       }
       if (group != null) {
         issueAuthorizationDto.addGroup(group);

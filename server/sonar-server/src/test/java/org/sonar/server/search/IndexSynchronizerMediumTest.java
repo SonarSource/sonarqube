@@ -33,7 +33,7 @@ import org.sonar.server.tester.ServerTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class IndexSynchronizerTest {
+public class IndexSynchronizerMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();

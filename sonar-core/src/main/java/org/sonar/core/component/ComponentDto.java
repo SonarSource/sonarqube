@@ -24,6 +24,8 @@ import org.sonar.api.component.Component;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Date;
+
 public class ComponentDto extends AuthorizedComponentDto implements Component {
 
   private String path;
@@ -35,6 +37,7 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
   private Long projectId;
   private Long subProjectId;
   private boolean enabled = true;
+  private Date authorizationUpdatedAt;
 
   public ComponentDto setId(Long id) {
     super.setId(id);
@@ -133,4 +136,16 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
     return this;
   }
 
+  /**
+   * Only available on projects
+   */
+  @CheckForNull
+  public Date getAuthorizationUpdatedAt() {
+    return authorizationUpdatedAt;
+  }
+
+  public ComponentDto setAuthorizationUpdatedAt(@Nullable Date authorizationUpdatedAt) {
+    this.authorizationUpdatedAt = authorizationUpdatedAt;
+    return this;
+  }
 }

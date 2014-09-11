@@ -21,6 +21,7 @@
 package org.sonar.core.component;
 
 import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -38,7 +39,8 @@ public class ComponentDtoTest {
       .setLanguage("java")
       .setPath("src/org/struts/RequestContext.java")
       .setProjectId(2L)
-      .setSubProjectId(3L);
+      .setSubProjectId(3L)
+      .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
 
     assertThat(componentDto.getId()).isEqualTo(1L);
     assertThat(componentDto.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
@@ -50,6 +52,7 @@ public class ComponentDtoTest {
     assertThat(componentDto.language()).isEqualTo("java");
     assertThat(componentDto.projectId()).isEqualTo(2L);
     assertThat(componentDto.subProjectId()).isEqualTo(3L);
+    assertThat(componentDto.getAuthorizationUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-11"));
   }
 
   @Test

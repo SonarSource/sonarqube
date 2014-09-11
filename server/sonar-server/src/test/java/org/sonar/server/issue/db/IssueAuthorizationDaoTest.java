@@ -67,6 +67,7 @@ public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
     assertThat(dto.getPermission()).isEqualTo("user");
     assertThat(dto.getGroups()).containsExactly("Anyone", "devs");
     assertThat(dto.getUsers()).containsExactly("user1");
+    assertThat(dto.getUpdatedAt()).isNotNull();
   }
 
   @Test

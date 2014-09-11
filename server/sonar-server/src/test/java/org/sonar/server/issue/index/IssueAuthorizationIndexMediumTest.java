@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.PermissionFacade;
@@ -66,7 +67,8 @@ public class IssueAuthorizationIndexMediumTest {
   public void synchronize() throws Exception {
     project = new ComponentDto()
       .setKey("Sample")
-      .setProjectId(1L);
+      .setProjectId(1L)
+      .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
     db.componentDao().insert(session, project);
 
     GroupDto sonarUsers = new GroupDto().setName("devs");
@@ -91,6 +93,7 @@ public class IssueAuthorizationIndexMediumTest {
     assertThat(issueAuthorizationDoc.permission()).isEqualTo("user");
     assertThat(issueAuthorizationDoc.groups()).containsExactly("devs");
     assertThat(issueAuthorizationDoc.users()).containsExactly("john");
+    assertThat(issueAuthorizationDoc.updatedAt()).isNotNull();
 
     tester.clearIndexes();
     tester.get(Platform.class).executeStartupTasks();

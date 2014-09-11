@@ -9,11 +9,13 @@
       project_authorization.project as "project",
       project_authorization.login as "user",
       project_authorization.permission_group as "permission_group",
-      project_authorization.permission_role as "permission_role"
+      project_authorization.permission_role as "permission_role",
+      project_authorization.updated_at as "updated_at"
     FROM (
       -- users
       SELECT
       projects.kee AS project,
+      projects.authorization_updated_at AS updated_at,
       users.login  AS login,
       NULL  AS permission_group,
       user_roles.role as permission_role
@@ -26,6 +28,7 @@
       -- groups without Anyone
       SELECT
       projects.kee AS project,
+      projects.authorization_updated_at AS updated_at,
       NULL  AS login,
       groups.name  AS permission_group,
       group_roles.role as permission_role
@@ -39,6 +42,7 @@
       -- Anyone groups
       SELECT
       projects.kee AS project,
+      projects.authorization_updated_at AS updated_at,
       NULL         AS login,
       #{anyone}     AS permission_group,
       group_roles.role as permission_role
