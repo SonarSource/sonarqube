@@ -19,50 +19,78 @@
  */
 package org.sonar.server.db;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.Dto;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.TestDatabase;
+import org.sonar.server.db.fake.FakeDao;
+import org.sonar.server.db.fake.FakeDto;
+import org.sonar.server.db.fake.FakeMapper;
+
+import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class BaseDaoTest {
 
-  DbSession dbSession = mock(DbSession.class);
+  @ClassRule
+  public static TestDatabase db = new TestDatabase().schema(BaseDaoTest.class, "schema.sql");
 
-  @Test
-  public void getNonNullByKey() throws Exception {
-    BaseDao dao = mock(BaseDao.class);
-    FakeDto dto = new FakeDto("ki");
-    when(dao.doGetNullableByKey(dbSession, "ki")).thenReturn(dto);
-    when(dao.getByKey(any(DbSession.class), anyString())).thenCallRealMethod();
+  private static final String DTO_ALIAS = "fake";
 
-    assertThat(dao.getByKey(dbSession, "ki")).isSameAs(dto);
+  private FakeDao dao;
+  private DbSession session;
 
-    try {
-      dao.getByKey(dbSession, "unknown");
-      fail();
-    } catch (NotFoundException e) {
-      assertThat(e).hasMessage("Key 'unknown' not found");
-    }
+  @BeforeClass
+  public static void setupBatis() {
+    MyBatis batis = db.myBatis();
+    batis.getSessionFactory().getConfiguration().getTypeAliasRegistry().registerAlias(DTO_ALIAS, FakeDto.class);
+    batis.getSessionFactory().getConfiguration().addMapper(FakeMapper.class);
+ }
+
+
+  @Before
+  public void before() throws Exception {
+    this.session = db.myBatis().openSession(false);
+    this.dao = new FakeDao(System2.INSTANCE);
   }
 
+  @After
+  public void after() {
+    this.session.close();
+  }
 
-  static class FakeDto extends Dto<String> {
-    private final String key;
+  @Test
+  public void has_fake_mapper() {
+    FakeMapper mapper = db.myBatis().getSessionFactory()
+      .getConfiguration().getMapper(FakeMapper.class, session);
+    assertThat(mapper).isNotNull();
+  }
 
-    public FakeDto(String key) {
-      this.key = key;
-    }
+  @Test
+  public void can_insert_and_select_by_key() throws Exception {
+    long t0 = System.currentTimeMillis();
 
-    @Override
-    public String getKey() {
-      return key;
-    }
+    String key = UUID.randomUUID().toString();
+    FakeDto myDto = new FakeDto()
+      .setKey(key);
+    dao.insert(session, myDto);
+
+    session.commit();
+    assertThat(myDto.getId());
+
+    long t1 = System.currentTimeMillis();
+
+    FakeDto dto = dao.getByKey(session, key);
+    assertThat(dto).isNotNull();
+
+    assertThat(dto.getUpdatedAt().getTime()).isGreaterThan(t0);
+    assertThat(dto.getCreatedAt().getTime()).isLessThan(t1);
+
   }
 }
