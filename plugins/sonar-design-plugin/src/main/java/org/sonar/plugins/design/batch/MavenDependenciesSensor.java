@@ -26,7 +26,6 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
@@ -139,7 +138,7 @@ public class MavenDependenciesSensor implements Sensor {
   private static class DependencyDeserializer implements JsonDeserializer<InputDependency> {
 
     @Override
-    public InputDependency deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public InputDependency deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
 
       JsonObject dep = json.getAsJsonObject();
       String key = dep.get("k").getAsString();
@@ -175,40 +174,43 @@ public class MavenDependenciesSensor implements Sensor {
       } catch (Exception e) {
         throw new IllegalStateException("Unable to deserialize dependency information: " + depsAsJson, e);
       }
+    } else if (treeBuilder != null) {
+      computeDependencyTree(project, context);
     }
-    else if (treeBuilder != null) {
-      LOG.warn("Computation of Maven dependencies by SonarQube is deprecated. Please update the version of SonarQube Maven plugin to 2.5+");
-      try {
-        DependencyNode root = treeBuilder.buildDependencyTree(project.getPom(), localRepository, artifactFactory, artifactMetadataSource, null, artifactCollector);
+  }
 
-        DependencyNodeVisitor visitor = new BuildingDependencyNodeVisitor(new DependencyNodeVisitor() {
-          public boolean visit(DependencyNode node) {
-            return true;
+  private void computeDependencyTree(final Project project, final SensorContext context) {
+    LOG.warn("Computation of Maven dependencies by SonarQube is deprecated. Please update the version of SonarQube Maven plugin to 2.5+");
+    try {
+      DependencyNode root = treeBuilder.buildDependencyTree(project.getPom(), localRepository, artifactFactory, artifactMetadataSource, null, artifactCollector);
+
+      DependencyNodeVisitor visitor = new BuildingDependencyNodeVisitor(new DependencyNodeVisitor() {
+        public boolean visit(DependencyNode node) {
+          return true;
+        }
+
+        public boolean endVisit(DependencyNode node) {
+          if (node.getParent() != null && node.getParent() != node) {
+            saveDependency(node, context);
           }
+          return true;
+        }
+      });
 
-          public boolean endVisit(DependencyNode node) {
-            if (node.getParent() != null && node.getParent() != node) {
-              saveDependency(node, context);
-            }
-            return true;
-          }
-        });
+      // mode verbose OFF : do not show the same lib many times
+      DependencyNodeFilter filter = StateDependencyNodeFilter.INCLUDED;
 
-        // mode verbose OFF : do not show the same lib many times
-        DependencyNodeFilter filter = StateDependencyNodeFilter.INCLUDED;
+      CollectingDependencyNodeVisitor collectingVisitor = new CollectingDependencyNodeVisitor();
+      DependencyNodeVisitor firstPassVisitor = new FilteringDependencyNodeVisitor(collectingVisitor, filter);
+      root.accept(firstPassVisitor);
 
-        CollectingDependencyNodeVisitor collectingVisitor = new CollectingDependencyNodeVisitor();
-        DependencyNodeVisitor firstPassVisitor = new FilteringDependencyNodeVisitor(collectingVisitor, filter);
-        root.accept(firstPassVisitor);
+      DependencyNodeFilter secondPassFilter = new AncestorOrSelfDependencyNodeFilter(collectingVisitor.getNodes());
+      visitor = new FilteringDependencyNodeVisitor(visitor, secondPassFilter);
 
-        DependencyNodeFilter secondPassFilter = new AncestorOrSelfDependencyNodeFilter(collectingVisitor.getNodes());
-        visitor = new FilteringDependencyNodeVisitor(visitor, secondPassFilter);
+      root.accept(visitor);
 
-        root.accept(visitor);
-
-      } catch (DependencyTreeBuilderException e) {
-        throw new SonarException("Can not load the graph of dependencies of the project " + project.getKey(), e);
-      }
+    } catch (DependencyTreeBuilderException e) {
+      throw new SonarException("Can not load the graph of dependencies of the project " + project.getKey(), e);
     }
   }
 

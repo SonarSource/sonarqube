@@ -80,8 +80,8 @@ public class TestCaseSensor implements Sensor {
       context.addTestCase(context.testCaseBuilder(testFile, name)
         .type(TestCase.Type.valueOf(type))
         .status(TestCase.Status.valueOf(status))
-        .message(message)
-        .stackTrace(stack)
+        .message(StringUtils.trimToNull(message))
+        .stackTrace(StringUtils.trimToNull(stack))
         .durationInMs(duration)
         .build());
     } catch (Exception e) {

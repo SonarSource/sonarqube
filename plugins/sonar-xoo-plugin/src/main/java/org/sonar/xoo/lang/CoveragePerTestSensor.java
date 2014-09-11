@@ -50,18 +50,18 @@ public class CoveragePerTestSensor implements Sensor {
 
   private void processCoveragePerTest(InputFile inputFile, SensorContext context) {
     File ioFile = inputFile.file();
-    File testPlanFile = new File(ioFile.getParentFile(), ioFile.getName() + COVER_PER_TEST_EXTENSION);
-    if (testPlanFile.exists()) {
-      LOG.debug("Processing " + testPlanFile.getAbsolutePath());
+    File coverPerTestFile = new File(ioFile.getParentFile(), ioFile.getName() + COVER_PER_TEST_EXTENSION);
+    if (coverPerTestFile.exists()) {
+      LOG.debug("Processing " + coverPerTestFile.getAbsolutePath());
       try {
-        List<String> lines = FileUtils.readLines(testPlanFile, context.fileSystem().encoding().name());
+        List<String> lines = FileUtils.readLines(coverPerTestFile, context.fileSystem().encoding().name());
         int lineNumber = 0;
         for (String line : lines) {
           lineNumber++;
           if (StringUtils.isBlank(line) || line.startsWith("#")) {
             continue;
           }
-          processLine(testPlanFile, lineNumber, context, line, inputFile);
+          processLine(coverPerTestFile, lineNumber, context, line, inputFile);
         }
       } catch (IOException e) {
         throw new IllegalStateException(e);
@@ -69,7 +69,7 @@ public class CoveragePerTestSensor implements Sensor {
     }
   }
 
-  private void processLine(File testplanFile, int lineNumber, SensorContext context, String line, InputFile testFile) {
+  private void processLine(File coverPerTest, int lineNumber, SensorContext context, String line, InputFile testFile) {
     try {
       Iterator<String> split = Splitter.on(":").split(line).iterator();
       String testCaseName = split.next();
@@ -87,7 +87,7 @@ public class CoveragePerTestSensor implements Sensor {
       }
       context.saveCoveragePerTest(testCase, mainFile, coveredLines);
     } catch (Exception e) {
-      throw new IllegalStateException("Error processing line " + lineNumber + " of file " + testplanFile.getAbsolutePath(), e);
+      throw new IllegalStateException("Error processing line " + lineNumber + " of file " + coverPerTest.getAbsolutePath(), e);
     }
   }
 

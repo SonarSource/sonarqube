@@ -47,10 +47,11 @@ import org.sonar.runner.api.ScanProperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * @goal sonar
@@ -232,15 +233,14 @@ public final class SonarMojo extends AbstractMojo {
 
       DependencyNodeVisitor visitor = new BuildingDependencyNodeVisitor(new DependencyNodeVisitor() {
 
-        private Stack<Dependency> stack = new Stack<SonarMojo.Dependency>();
+        private Deque<Dependency> stack = new ArrayDeque<SonarMojo.Dependency>();
 
         public boolean visit(DependencyNode node) {
           if (node.getParent() != null && node.getParent() != node) {
             Dependency dependency = toDependency(node);
             if (stack.isEmpty()) {
               result.add(dependency);
-            }
-            else {
+            } else {
               stack.peek().dependencies().add(dependency);
             }
             stack.push(dependency);

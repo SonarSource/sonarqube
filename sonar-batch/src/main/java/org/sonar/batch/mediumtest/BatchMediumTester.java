@@ -244,42 +244,14 @@ public class BatchMediumTester {
         measures.add(measure);
       }
 
-      InputPathCache inputFileCache = container.getComponentByType(InputPathCache.class);
-      for (InputPath inputPath : inputFileCache.all()) {
-        if (inputPath instanceof InputFile) {
-          inputFiles.add((InputFile) inputPath);
-        } else {
-          inputDirs.add((InputDir) inputPath);
-        }
-      }
+      storeFs(container);
+      storeComponentData(container);
+      storeDuplication(container);
+      storeTestCases(container);
+      storeCoveragePerTest(container);
+    }
 
-      ComponentDataCache componentDataCache = container.getComponentByType(ComponentDataCache.class);
-      for (InputFile file : inputFiles) {
-        SyntaxHighlightingData highlighting = componentDataCache.getData(((DefaultInputFile) file).key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING);
-        if (highlighting != null) {
-          highlightingPerFile.put(file, highlighting);
-        }
-        SymbolData symbolTable = componentDataCache.getData(((DefaultInputFile) file).key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING);
-        if (symbolTable != null) {
-          symbolTablePerFile.put(file, symbolTable);
-        }
-      }
-
-      DuplicationCache duplicationCache = container.getComponentByType(DuplicationCache.class);
-      for (Entry<List<DuplicationGroup>> entry : duplicationCache.entries()) {
-        String effectiveKey = entry.key()[0].toString();
-        duplications.put(effectiveKey, entry.value());
-      }
-
-      TestCaseCache testCaseCache = container.getComponentByType(TestCaseCache.class);
-      for (Entry<TestCase> entry : testCaseCache.entries()) {
-        String effectiveKey = entry.key()[0].toString();
-        if (!testCasesPerFile.containsKey(effectiveKey)) {
-          testCasesPerFile.put(effectiveKey, new HashMap<String, TestCase>());
-        }
-        testCasesPerFile.get(effectiveKey).put(entry.value().name(), entry.value());
-      }
-
+    private void storeCoveragePerTest(ProjectScanContainer container) {
       CoveragePerTestCache coveragePerTestCache = container.getComponentByType(CoveragePerTestCache.class);
       for (Entry<List<Integer>> entry : coveragePerTestCache.entries()) {
         String testFileKey = entry.key()[0].toString();
@@ -291,6 +263,50 @@ public class BatchMediumTester {
           coveragePerTest.get(testFileKey).put(testName, new HashMap<String, List<Integer>>());
         }
         coveragePerTest.get(testFileKey).get(testName).put(entry.key()[2].toString(), entry.value());
+      }
+    }
+
+    private void storeTestCases(ProjectScanContainer container) {
+      TestCaseCache testCaseCache = container.getComponentByType(TestCaseCache.class);
+      for (Entry<TestCase> entry : testCaseCache.entries()) {
+        String effectiveKey = entry.key()[0].toString();
+        if (!testCasesPerFile.containsKey(effectiveKey)) {
+          testCasesPerFile.put(effectiveKey, new HashMap<String, TestCase>());
+        }
+        testCasesPerFile.get(effectiveKey).put(entry.value().name(), entry.value());
+      }
+    }
+
+    private void storeDuplication(ProjectScanContainer container) {
+      DuplicationCache duplicationCache = container.getComponentByType(DuplicationCache.class);
+      for (Entry<List<DuplicationGroup>> entry : duplicationCache.entries()) {
+        String effectiveKey = entry.key()[0].toString();
+        duplications.put(effectiveKey, entry.value());
+      }
+    }
+
+    private void storeComponentData(ProjectScanContainer container) {
+      ComponentDataCache componentDataCache = container.getComponentByType(ComponentDataCache.class);
+      for (InputFile file : inputFiles) {
+        SyntaxHighlightingData highlighting = componentDataCache.getData(((DefaultInputFile) file).key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING);
+        if (highlighting != null) {
+          highlightingPerFile.put(file, highlighting);
+        }
+        SymbolData symbolTable = componentDataCache.getData(((DefaultInputFile) file).key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING);
+        if (symbolTable != null) {
+          symbolTablePerFile.put(file, symbolTable);
+        }
+      }
+    }
+
+    private void storeFs(ProjectScanContainer container) {
+      InputPathCache inputFileCache = container.getComponentByType(InputPathCache.class);
+      for (InputPath inputPath : inputFileCache.all()) {
+        if (inputPath instanceof InputFile) {
+          inputFiles.add((InputFile) inputPath);
+        } else {
+          inputDirs.add((InputDir) inputPath);
+        }
       }
     }
 

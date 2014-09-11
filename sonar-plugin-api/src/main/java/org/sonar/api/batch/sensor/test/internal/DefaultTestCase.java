@@ -27,6 +27,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.test.TestCase;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class DefaultTestCase implements TestCase {
 
@@ -38,7 +39,7 @@ public class DefaultTestCase implements TestCase {
   private final Type type;
   private final String stackTrace;
 
-  public DefaultTestCase(InputFile testFile, String name, Long duration, Status status, String message, Type type, String stackTrace) {
+  public DefaultTestCase(InputFile testFile, String name, @Nullable Long duration, Status status, @Nullable String message, Type type, @Nullable String stackTrace) {
     this.testFile = testFile;
     this.name = name;
     this.duration = duration;

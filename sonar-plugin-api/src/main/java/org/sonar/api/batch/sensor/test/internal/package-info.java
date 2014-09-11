@@ -19,3 +19,4 @@
  */
 @javax.annotation.ParametersAreNonnullByDefault
 package org.sonar.api.batch.sensor.test.internal;
+
