@@ -30,7 +30,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.component.persistence.ComponentDao;
+import org.sonar.server.component.db.ComponentDao;
 
 import java.io.StringWriter;
 import java.util.Collections;

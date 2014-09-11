@@ -19,6 +19,6 @@
  */
 
 @ParametersAreNonnullByDefault
-package org.sonar.server.component.persistence;
+package org.sonar.server.component.db;
 
 import javax.annotation.ParametersAreNonnullByDefault;

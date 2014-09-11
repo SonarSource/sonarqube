@@ -45,7 +45,7 @@ import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.qualitygate.db.QualityGateDto;
-import org.sonar.server.component.persistence.ComponentDao;
+import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;

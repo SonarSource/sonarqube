@@ -32,7 +32,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.component.persistence.ComponentDao;
+import org.sonar.server.component.db.ComponentDao;
 
 import javax.annotation.Nullable;
 

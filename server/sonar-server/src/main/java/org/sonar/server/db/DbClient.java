@@ -34,7 +34,7 @@ import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.activity.db.ActivityDao;
-import org.sonar.server.component.persistence.ComponentDao;
+import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.measure.persistence.MeasureDao;

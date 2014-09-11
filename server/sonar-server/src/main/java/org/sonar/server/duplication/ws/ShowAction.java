@@ -33,7 +33,7 @@ import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.component.persistence.ComponentDao;
+import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.persistence.MeasureDao;

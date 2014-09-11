@@ -84,7 +84,7 @@ import org.sonar.server.batch.ProjectReferentialsAction;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
-import org.sonar.server.component.persistence.ComponentDao;
+import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.ws.*;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.db.DatabaseChecker;

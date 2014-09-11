@@ -51,7 +51,7 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.SnapshotDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.timemachine.Periods;
-import org.sonar.server.component.persistence.ComponentDao;
+import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.RulesAggregation;

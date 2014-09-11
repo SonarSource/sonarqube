@@ -96,6 +96,14 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
   }
 
   @Override
+  protected Map getSynchronizationParams(Date date) {
+    Map<String, Object> params = super.getSynchronizationParams(date);
+    params.put("permission", UserRole.USER);
+    params.put("anyone", DefaultGroups.ANYONE);
+    return params;
+  }
+
+  @Override
   public List<IssueAuthorizationDto> findAfterDate(DbSession session, Date date) {
 
     Map<String, Object> params = newHashMap();
@@ -130,11 +138,8 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
     return ImmutableList.<IssueAuthorizationDto>copyOf(authorizationDtoMap.values());
   }
 
-  @Override
-  protected Map getSynchronizationParams(Date date) {
-    Map<String, Object> params = super.getSynchronizationParams(date);
-    params.put("permission", UserRole.USER);
-    params.put("anyone", DefaultGroups.ANYONE);
-    return params;
+  protected void doDeleteByKey(DbSession session, String key) {
+    // Nothing to do on db side, only remove the index (done in BaseDao)
   }
+
 }

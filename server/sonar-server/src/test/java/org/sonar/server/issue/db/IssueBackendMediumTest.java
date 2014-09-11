@@ -30,7 +30,7 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.server.component.persistence.ComponentDao;
+import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.Platform;
