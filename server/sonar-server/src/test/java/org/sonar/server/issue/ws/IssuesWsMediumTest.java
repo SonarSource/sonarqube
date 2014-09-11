@@ -28,12 +28,14 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
@@ -118,6 +120,7 @@ public class IssuesWsMediumTest {
       .setKey("MyProject")
       .setProjectId(1L);
     tester.get(ComponentDao.class).insert(session, project);
+    tester.get(SnapshotDao.class).insert(session, new SnapshotDto().setResourceId(project.getId()).setLast(true));
 
     // project can be seen by anyone
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
@@ -128,6 +131,7 @@ public class IssuesWsMediumTest {
       .setKey("MyComponent")
       .setId(2L);
     tester.get(ComponentDao.class).insert(session, resource);
+    tester.get(SnapshotDao.class).insert(session, new SnapshotDto().setResourceId(resource.getId()).setLast(true));
 
     IssueDto issue = new IssueDto()
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))

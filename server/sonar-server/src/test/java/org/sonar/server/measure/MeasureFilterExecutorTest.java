@@ -26,9 +26,9 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.SnapshotDto;
 
 import java.sql.SQLException;
 import java.util.Arrays;

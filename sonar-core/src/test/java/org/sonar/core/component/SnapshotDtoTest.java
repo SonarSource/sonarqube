@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.resource;
+package org.sonar.core.component;
 
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
@@ -34,7 +34,6 @@ public class SnapshotDtoTest {
       .setParentId(2L)
       .setRootId(3L)
       .setRootProjectId(20L)
-      .setDate(DateUtils.parseDate("2014-07-01"))
       .setBuildDate(DateUtils.parseDate("2014-07-02"))
       .setResourceId(21L)
       .setLast(true)
@@ -63,7 +62,6 @@ public class SnapshotDtoTest {
     assertThat(snapshotDto.getParentId()).isEqualTo(2L);
     assertThat(snapshotDto.getRootId()).isEqualTo(3L);
     assertThat(snapshotDto.getRootProjectId()).isEqualTo(20L);
-    assertThat(snapshotDto.getDate()).isEqualTo(DateUtils.parseDate("2014-07-01"));
     assertThat(snapshotDto.getBuildDate()).isEqualTo(DateUtils.parseDate("2014-07-02"));
     assertThat(snapshotDto.getResourceId()).isEqualTo(21L);
     assertThat(snapshotDto.getLast()).isTrue();

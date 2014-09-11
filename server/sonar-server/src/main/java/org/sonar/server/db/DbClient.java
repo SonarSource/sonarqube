@@ -35,6 +35,7 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -59,6 +60,7 @@ public class DbClient implements ServerComponent {
   private final LoadedTemplateDao loadedTemplateDao;
   private final PropertiesDao propertiesDao;
   private final ComponentDao componentDao;
+  private final SnapshotDao snapshotDao;
   private final ResourceDao resourceDao;
   private final MeasureDao measureDao;
   private final MetricDao metricDao;
@@ -85,6 +87,7 @@ public class DbClient implements ServerComponent {
     loadedTemplateDao = getDao(map, LoadedTemplateDao.class);
     propertiesDao = getDao(map, PropertiesDao.class);
     componentDao = getDao(map, ComponentDao.class);
+    snapshotDao = getDao(map, SnapshotDao.class);
     resourceDao = getDao(map, ResourceDao.class);
     measureDao = getDao(map, MeasureDao.class);
     metricDao = getDao(map, MetricDao.class);
@@ -139,6 +142,9 @@ public class DbClient implements ServerComponent {
 
   public ComponentDao componentDao() {
     return componentDao;
+  }
+  public SnapshotDao snapshotDao() {
+    return snapshotDao;
   }
 
   public ResourceDao resourceDao() {

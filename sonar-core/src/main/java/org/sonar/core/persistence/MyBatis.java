@@ -36,7 +36,9 @@ import org.sonar.core.activity.db.ActivityMapper;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.component.db.ComponentMapper;
+import org.sonar.core.component.db.SnapshotMapper;
 import org.sonar.core.config.Logback;
 import org.sonar.core.dashboard.*;
 import org.sonar.core.dependency.DependencyDto;
@@ -171,7 +173,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
       org.sonar.api.database.model.MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
-      MeasureMapper.class, MetricMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, ProjectQgateAssociationMapper.class
+      MeasureMapper.class, MetricMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
+      ProjectQgateAssociationMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);

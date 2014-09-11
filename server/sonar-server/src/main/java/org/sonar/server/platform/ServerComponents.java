@@ -85,6 +85,7 @@ import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.component.ws.*;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.db.DatabaseChecker;
@@ -225,6 +226,7 @@ class ServerComponents {
       MeasureDao.class,
       MetricDao.class,
       ComponentDao.class,
+      SnapshotDao.class,
       DbClient.class,
       MeasureFilterDao.class,
       ActivityDao.class,

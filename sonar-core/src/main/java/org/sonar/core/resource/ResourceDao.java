@@ -26,6 +26,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.component.Component;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;

@@ -22,6 +22,7 @@ package org.sonar.core.resource;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 
 import javax.annotation.Nullable;
 

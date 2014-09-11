@@ -21,7 +21,7 @@ package org.sonar.server.measure;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.core.resource.SnapshotDto;
+import org.sonar.core.component.SnapshotDto;
 
 import javax.annotation.Nullable;
 
