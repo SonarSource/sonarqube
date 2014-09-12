@@ -24,6 +24,11 @@
       <artifactId>sonar-process</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-process-monitor</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.google.code.findbugs</groupId>

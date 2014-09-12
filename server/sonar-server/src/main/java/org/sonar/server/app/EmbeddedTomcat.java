@@ -19,22 +19,32 @@
  */
 package org.sonar.server.app;
 
+import com.google.common.base.Throwables;
+import com.google.common.util.concurrent.Uninterruptibles;
+import org.apache.catalina.Container;
+import org.apache.catalina.Executor;
+import org.apache.catalina.Lifecycle;
+import org.apache.catalina.LifecycleEvent;
+import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.LifecycleState;
+import org.apache.catalina.Server;
+import org.apache.catalina.Service;
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.ProcessUtils;
 import org.sonar.process.Props;
-import org.sonar.process.Terminable;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
-class EmbeddedTomcat implements Terminable {
+class EmbeddedTomcat {
 
   private final Props props;
   private Tomcat tomcat = null;
   private Thread hook = null;
-  private boolean ready = false;
+  private volatile StandardContext webappContext;
 
   EmbeddedTomcat(Props props) {
     this.props = props;
@@ -62,19 +72,32 @@ class EmbeddedTomcat implements Terminable {
       tomcat.getHost().setDeployOnStartup(true);
       Logging.configure(tomcat, props);
       Connectors.configure(tomcat, props);
-      StandardContext webappContext = Webapp.configure(tomcat, props);
-      ProcessUtils.addSelfShutdownHook(this);
+      webappContext = Webapp.configure(tomcat, props);
       tomcat.start();
+      waitForWebappReady();
 
-      if (webappContext.getState().isAvailable()) {
-        ready = true;
-        tomcat.getServer().await();
-      }
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to start web server", e);
-    } finally {
-      // Failed to start or received a shutdown command (should never occur as shutdown port is disabled)
-      terminate();
+      Throwables.propagate(e);
+    }
+  }
+
+  private void waitForWebappReady() {
+    while (true) {
+      switch (webappContext.getState()) {
+        case NEW:
+        case INITIALIZING:
+        case INITIALIZED:
+        case STARTING_PREP:
+        case STARTING:
+          Uninterruptibles.sleepUninterruptibly(300L, TimeUnit.MILLISECONDS);
+          break;
+        case STARTED:
+          // ok
+          return;
+        default:
+          // problem, stopped or failed
+          throw new IllegalStateException("YYY Webapp did not start");
+      }
     }
   }
 
@@ -82,25 +105,19 @@ class EmbeddedTomcat implements Terminable {
     return new File(props.value("sonar.path.temp"), "tc");
   }
 
-  boolean isReady() {
-    return ready && tomcat != null;
-  }
-
-  @Override
-  public void terminate() {
-    if (tomcat != null) {
-      synchronized (tomcat) {
-        if (tomcat.getServer().getState().isAvailable()) {
-          try {
-            tomcat.stop();
-            tomcat.destroy();
-          } catch (Exception e) {
-            LoggerFactory.getLogger(EmbeddedTomcat.class).error("Fail to stop web service", e);
-          }
-        }
+  void terminate() {
+    if (tomcat.getServer().getState().isAvailable()) {
+      try {
+        tomcat.stop();
+        tomcat.destroy();
+      } catch (Exception e) {
+        LoggerFactory.getLogger(EmbeddedTomcat.class).error("Fail to stop web server", e);
       }
     }
-    ready = false;
     FileUtils.deleteQuietly(tomcatBasedir());
+  }
+
+  void awaitTermination() {
+    tomcat.getServer().await();
   }
 }

@@ -19,18 +19,16 @@
  */
 package org.sonar.server.app;
 
-import org.slf4j.LoggerFactory;
-import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.MonitoredProcess;
+import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.Props;
 
-public class WebServer extends MonitoredProcess {
+public class WebServer implements MonitoredProcess {
 
   private final EmbeddedTomcat tomcat;
 
   WebServer(Props props) throws Exception {
-    super(props);
     new MinimumViableSystem()
       .setRequiredJavaOption("file.encoding", "UTF-8")
       .check();
@@ -38,32 +36,27 @@ public class WebServer extends MonitoredProcess {
   }
 
   @Override
-  protected void doStart() {
-    try {
-      tomcat.start();
-    } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).error("TC error", e);
-    } finally {
-      terminate();
-    }
+  public void start() {
+    tomcat.start();
   }
 
   @Override
-  protected void doTerminate() {
+  public void terminate() {
     tomcat.terminate();
   }
 
   @Override
-  protected boolean doIsReady() {
-    return tomcat.isReady();
+  public void awaitTermination() {
+    tomcat.awaitTermination();
   }
 
   /**
    * Can't be started as is. Needs to be bootstrapped by sonar-application
    */
   public static void main(String[] args) throws Exception {
-    Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
-    Logging.init(props);
-    new WebServer(props).start();
+    ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
+    Logging.init(entryPoint.getProps());
+    WebServer server = new WebServer(entryPoint.getProps());
+    entryPoint.launch(server);
   }
 }

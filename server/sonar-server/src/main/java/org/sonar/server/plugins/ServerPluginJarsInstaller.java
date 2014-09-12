@@ -211,9 +211,11 @@ public class ServerPluginJarsInstaller {
   private void deploy(DefaultPluginMetadata plugin) {
     LOG.info("Deploy plugin {}", Joiner.on(" / ").skipNulls().join(plugin.getName(), plugin.getVersion(), plugin.getImplementationBuild()));
 
-    Preconditions.checkState(plugin.isCompatibleWith(server.getVersion()),
-      "Plugin %s needs a more recent version of SonarQube than %s. At least %s is expected",
-      plugin.getKey(), server.getVersion(), plugin.getSonarVersion());
+    if (!plugin.isCompatibleWith(server.getVersion())) {
+      throw MessageException.of(String.format(
+        "Plugin %s needs a more recent version of SonarQube than %s. At least %s is expected",
+        plugin.getKey(), server.getVersion(), plugin.getSonarVersion()));
+    }
 
     try {
       File pluginDeployDir = new File(fs.getDeployedPluginsDir(), plugin.getKey());

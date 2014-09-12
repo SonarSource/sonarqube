@@ -21,19 +21,18 @@ package org.sonar.application;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.process.JmxUtils;
 import org.sonar.process.MinimumViableSystem;
-import org.sonar.process.Monitor;
 import org.sonar.process.ProcessLogging;
 import org.sonar.process.ProcessMXBean;
-import org.sonar.process.ProcessUtils;
-import org.sonar.process.ProcessWrapper;
 import org.sonar.process.Props;
-import org.sonar.search.SearchServer;
+import org.sonar.process.State;
+import org.sonar.process.monitor.JavaCommand;
+import org.sonar.process.monitor.Monitor;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -41,72 +40,73 @@ import java.util.Properties;
  */
 public class App implements ProcessMXBean {
 
-  private Monitor monitor = new Monitor();
-  private ProcessWrapper elasticsearch;
-  private ProcessWrapper server;
-  private boolean success = false;
+  private final Monitor monitor;
 
   public App() {
-    JmxUtils.registerMBean(this, "SonarQube");
-    ProcessUtils.addSelfShutdownHook(this);
+    this(Monitor.create());
   }
 
-  public void start(Props props) throws InterruptedException {
-    try {
-      Logger logger = LoggerFactory.getLogger(getClass());
+  App(Monitor monitor) {
+    this.monitor = monitor;
+    JmxUtils.registerMBean(this, "SonarQube");
+  }
 
-      monitor.start();
+  public void start(Props props) {
+    monitor.start(createCommands(props));
+    monitor.awaitTermination();
+  }
 
-      File homeDir = props.nonNullValueAsFile("sonar.path.home");
-      File tempDir = props.nonNullValueAsFile("sonar.path.temp");
-      elasticsearch = new ProcessWrapper(JmxUtils.SEARCH_SERVER_NAME);
-      elasticsearch
+  private List<JavaCommand> createCommands(Props props) {
+    List<JavaCommand> commands = new ArrayList<JavaCommand>();
+    File homeDir = props.nonNullValueAsFile("sonar.path.home");
+    File tempDir = props.nonNullValueAsFile("sonar.path.temp");
+    JavaCommand elasticsearch = new JavaCommand(JmxUtils.SEARCH_SERVER_NAME);
+    elasticsearch
+      .setWorkDir(homeDir)
+      .setJmxPort(props.valueAsInt(DefaultSettings.SEARCH_JMX_PORT))
+      .addJavaOptions(props.value(DefaultSettings.SEARCH_JAVA_OPTS))
+      .setTempDir(tempDir.getAbsoluteFile())
+      .setClassName("org.sonar.search.SearchServer")
+      .setArguments(props.rawProperties())
+      .addClasspath("./lib/common/*")
+      .addClasspath("./lib/search/*");
+    commands.add(elasticsearch);
+
+    // do not yet start SQ in cluster mode. See SONAR-5483 & SONAR-5391
+    if (StringUtils.isEmpty(props.value(DefaultSettings.CLUSTER_MASTER))) {
+      JavaCommand webServer = new JavaCommand(JmxUtils.WEB_SERVER_NAME)
         .setWorkDir(homeDir)
-        .setJmxPort(props.valueAsInt(DefaultSettings.SEARCH_JMX_PORT))
-        .addJavaOpts(props.value(DefaultSettings.SEARCH_JAVA_OPTS))
-        .setTempDirectory(tempDir.getAbsoluteFile())
-        .setClassName("org.sonar.search.SearchServer")
-        .addProperties(props.rawProperties())
+        .setJmxPort(props.valueAsInt(DefaultSettings.WEB_JMX_PORT))
+        .addJavaOptions(props.nonNullValue(DefaultSettings.WEB_JAVA_OPTS))
+        .setTempDir(tempDir.getAbsoluteFile())
+        // required for logback tomcat valve
+        .setEnvVariable("sonar.path.logs", props.nonNullValue("sonar.path.logs"))
+        .setClassName("org.sonar.server.app.WebServer")
+        .setArguments(props.rawProperties())
         .addClasspath("./lib/common/*")
-        .addClasspath("./lib/search/*");
-      if (elasticsearch.execute()) {
-        monitor.monitor(elasticsearch);
-        if (elasticsearch.waitForReady()) {
-          logger.info("search server is up");
-
-          // do not yet start SQ in cluster mode. See SONAR-5483 & SONAR-5391
-          if (StringUtils.isEmpty(props.value(DefaultSettings.CLUSTER_MASTER))) {
-            server = new ProcessWrapper(JmxUtils.WEB_SERVER_NAME)
-              .setWorkDir(homeDir)
-              .setJmxPort(props.valueAsInt(DefaultSettings.WEB_JMX_PORT))
-              .addJavaOpts(props.nonNullValue(DefaultSettings.WEB_JAVA_OPTS))
-              .setTempDirectory(tempDir.getAbsoluteFile())
-              // required for logback tomcat valve
-              .setLogDir(props.nonNullValueAsFile("sonar.path.logs"))
-              .setClassName("org.sonar.server.app.WebServer")
-              .addProperties(props.rawProperties())
-              .addClasspath("./lib/common/*")
-              .addClasspath("./lib/server/*");
-            String driverPath = props.value(JdbcSettings.PROPERTY_DRIVER_PATH);
-            if (driverPath != null) {
-              server.addClasspath(driverPath);
-            }
-            if (server.execute()) {
-              monitor.monitor(server);
-              if (server.waitForReady()) {
-                success = true;
-                logger.info("web server is up");
-              }
-            }
-          } else {
-            success = true;
-          }
-        }
+        .addClasspath("./lib/server/*");
+      String driverPath = props.value(JdbcSettings.PROPERTY_DRIVER_PATH);
+      if (driverPath != null) {
+        webServer.addClasspath(driverPath);
       }
-    } finally {
-      monitor.join();
-      terminate();
+      commands.add(webServer);
     }
+    return commands;
+  }
+
+  @Override
+  public void terminate() {
+    monitor.stop();
+  }
+
+  @Override
+  public boolean isReady() {
+    return monitor.getState() == State.STARTED;
+  }
+
+  @Override
+  public void ping() {
+
   }
 
   static String starPath(File homeDir, String relativePath) {
@@ -114,62 +114,14 @@ public class App implements ProcessMXBean {
     return FilenameUtils.concat(dir.getAbsolutePath(), "*");
   }
 
-  @Override
-  public boolean isReady() {
-    return monitor.isAlive();
-  }
-
-  @Override
-  public long ping() {
-    return System.currentTimeMillis();
-  }
-
-  @Override
-  public void terminate() {
-    if (monitor != null && monitor.isAlive()) {
-      monitor.terminate();
-      monitor = null;
-    }
-    if (server != null) {
-      server.terminate();
-      server = null;
-    }
-    if (elasticsearch != null) {
-      elasticsearch.terminate();
-      elasticsearch = null;
-    }
-  }
-
-  private boolean isSuccess() {
-    return success;
-  }
-
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     new MinimumViableSystem().check();
     CommandLineParser cli = new CommandLineParser();
     Properties rawProperties = cli.parseArguments(args);
-    Props props;
-
-    try {
-      props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
-      new ProcessLogging().configure(props, "/org/sonar/application/logback.xml");
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
+    Props props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
+    new ProcessLogging().configure(props, "/org/sonar/application/logback.xml");
 
     App app = new App();
-    ProcessUtils.addSelfShutdownHook(app);
-    try {
-      // start and wait for shutdown command
-      if (props.contains(SearchServer.ES_CLUSTER_INET)) {
-        LoggerFactory.getLogger(App.class).info("SonarQube slave configured to join SonarQube master : {}", props.value(SearchServer.ES_CLUSTER_INET));
-    }
-      app.start(props);
-    } catch (InterruptedException e) {
-      LoggerFactory.getLogger(App.class).info("interrupted");
-    } finally {
-      LoggerFactory.getLogger(App.class).info("stopped");
-      System.exit(app.isSuccess() ? 0 : 1);
-    }
+    app.start(props);
   }
 }

@@ -21,15 +21,14 @@ package org.sonar.search;
 
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.common.annotations.VisibleForTesting;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.ConfigurationUtils;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.MonitoredProcess;
+import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessLogging;
 import org.sonar.process.Props;
 import org.sonar.search.script.ListUpdate;
@@ -40,7 +39,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SearchServer extends MonitoredProcess {
+public class SearchServer implements MonitoredProcess {
 
   public static final String SONAR_NODE_NAME = "sonar.node.name";
   public static final String ES_PORT_PROPERTY = "sonar.search.port";
@@ -55,27 +54,13 @@ public class SearchServer extends MonitoredProcess {
   private static final Integer MINIMUM_INDEX_REPLICATION = 1;
 
   private final Set<String> nodes = new HashSet<String>();
-  private final boolean isBlocking;
-
-  private Node node;
+  private final Props props;
   private final Object lock = new Object();
 
-  @VisibleForTesting
-  public SearchServer(final Props props, boolean monitored, boolean blocking) {
-    super(props, monitored);
-
-    this.isBlocking = blocking;
-    new MinimumViableSystem().check();
-
-    String esNodesInets = props.value(ES_CLUSTER_INET);
-    if (StringUtils.isNotEmpty(esNodesInets)) {
-      Collections.addAll(nodes, esNodesInets.split(","));
-    }
-  }
+  private Node node;
 
   public SearchServer(Props props) {
-    super(props);
-    this.isBlocking = true;
+    this.props = props;
     new MinimumViableSystem().check();
 
     String esNodesInets = props.value(ES_CLUSTER_INET);
@@ -85,18 +70,8 @@ public class SearchServer extends MonitoredProcess {
   }
 
   @Override
-  protected boolean doIsReady() {
-    return node.client().admin().cluster().prepareHealth()
-      .setWaitForYellowStatus()
-      .setTimeout(TimeValue.timeValueSeconds(3L))
-      .get()
-      .getStatus() != ClusterHealthStatus.RED;
-  }
-
-  @Override
-  protected void doStart() {
+  public void start() {
     synchronized (lock) {
-
       Integer port = props.valueAsInt(ES_PORT_PROPERTY);
       String clusterName = props.value(ES_CLUSTER_PROPERTY);
 
@@ -169,17 +144,25 @@ public class SearchServer extends MonitoredProcess {
         .addMapping("_default_", "{\"dynamic\": \"strict\"}")
         .get();
     }
+  }
 
-    if (isBlocking) {
-      while (node != null && !node.isClosed()) {
-        try {
-          Thread.sleep(100);
-        } catch (InterruptedException e) {
-          // Ignore
-        }
+  boolean isReady() {
+    return node.client().admin().cluster().prepareHealth()
+      .setWaitForYellowStatus()
+      .setTimeout(TimeValue.timeValueSeconds(3L))
+      .get()
+      .getStatus() != ClusterHealthStatus.RED;
+  }
+
+  @Override
+  public void awaitTermination() {
+    while (node != null && !node.isClosed()) {
+      try {
+        Thread.sleep(200L);
+      } catch (InterruptedException e) {
+        // Ignore
       }
     }
-
   }
 
   private void initAnalysis(ImmutableSettings.Builder esSettings) {
@@ -188,40 +171,40 @@ public class SearchServer extends MonitoredProcess {
       // Disallow dynamic mapping (too expensive)
       .put("index.mapper.dynamic", false)
 
-        // Sortable text analyzer
+      // Sortable text analyzer
       .put("index.analysis.analyzer.sortable.type", "custom")
       .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
       .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase", "truncate")
 
-        // Edge NGram index-analyzer
+      // Edge NGram index-analyzer
       .put("index.analysis.analyzer.index_grams.type", "custom")
       .put("index.analysis.analyzer.index_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.index_grams.filter", "trim", "lowercase", "gram_filter")
 
-        // Edge NGram search-analyzer
+      // Edge NGram search-analyzer
       .put("index.analysis.analyzer.search_grams.type", "custom")
       .put("index.analysis.analyzer.search_grams.tokenizer", "whitespace")
       .putArray("index.analysis.analyzer.search_grams.filter", "trim", "lowercase")
 
-        // Word index-analyzer
+      // Word index-analyzer
       .put("index.analysis.analyzer.index_words.type", "custom")
       .put("index.analysis.analyzer.index_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.index_words.filter",
         "standard", "word_filter", "lowercase", "stop", "asciifolding", "porter_stem")
 
-        // Word search-analyzer
+      // Word search-analyzer
       .put("index.analysis.analyzer.search_words.type", "custom")
       .put("index.analysis.analyzer.search_words.tokenizer", "standard")
       .putArray("index.analysis.analyzer.search_words.filter",
         "standard", "lowercase", "stop", "asciifolding", "porter_stem")
 
-        // Edge NGram filter
+      // Edge NGram filter
       .put("index.analysis.filter.gram_filter.type", "edgeNGram")
       .put("index.analysis.filter.gram_filter.min_gram", 2)
       .put("index.analysis.filter.gram_filter.max_gram", 15)
       .putArray("index.analysis.filter.gram_filter.token_chars", "letter", "digit", "punctuation", "symbol")
 
-        // Word filter
+      // Word filter
       .put("index.analysis.filter.word_filter.type", "word_delimiter")
       .put("index.analysis.filter.word_filter.generate_word_parts", true)
       .put("index.analysis.filter.word_filter.catenate_words", true)
@@ -232,7 +215,7 @@ public class SearchServer extends MonitoredProcess {
       .put("index.analysis.filter.word_filter.split_on_numerics", true)
       .put("index.analysis.filter.word_filter.stem_english_possessive", true)
 
-        // Path Analyzer
+      // Path Analyzer
       .put("index.analysis.analyzer.path_analyzer.type", "custom")
       .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy");
 
@@ -267,18 +250,18 @@ public class SearchServer extends MonitoredProcess {
   }
 
   @Override
-  protected void doTerminate() {
+  public void terminate() {
     synchronized (lock) {
-      if (node != null && !node.isClosed()) {
+      if (!node.isClosed()) {
         node.close();
-        node = null;
       }
     }
   }
 
   public static void main(String... args) {
-    Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
-    new ProcessLogging().configure(props, "/org/sonar/search/logback.xml");
-    new SearchServer(props).start();
+    ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
+    new ProcessLogging().configure(entryPoint.getProps(), "/org/sonar/search/logback.xml");
+    SearchServer searchServer = new SearchServer(entryPoint.getProps());
+    entryPoint.launch(searchServer);
   }
 }

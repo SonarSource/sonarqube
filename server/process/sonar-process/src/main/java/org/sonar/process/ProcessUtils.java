@@ -35,27 +35,37 @@ public class ProcessUtils {
     // only static stuff
   }
 
+  /**
+   * Do not abuse to this method. It uses exceptions to get status.
+   * @return false if process is null or terminated, else true.
+   */
   public static boolean isAlive(@Nullable Process process) {
-    if (process == null) {
-      return false;
-    }
-    try {
-      process.exitValue();
-      return false;
-    } catch (IllegalThreadStateException e) {
-      LOGGER.trace("Process has no exit value yet", e);
-      return true;
-    }
-  }
-
-  public static void destroyQuietly(@Nullable Process process) {
-    if (process != null && isAlive(process)) {
+    boolean alive = false;
+    if (process != null) {
       try {
-        process.destroy();
-      } catch (Exception ignored) {
-        LOGGER.warn("Exception while destroying the process", ignored);
+        process.exitValue();
+      } catch (IllegalThreadStateException ignored) {
+        alive = true;
       }
     }
+    return alive;
+  }
+
+  /**
+   * Destroys process (equivalent to kill -9) if alive
+   * @return true if the process was destroyed, false if process is null or already destroyed.
+   */
+  public static boolean destroyQuietly(@Nullable Process process) {
+    boolean destroyed = false;
+    if (isAlive(process)) {
+      try {
+        process.destroy();
+        destroyed = true;
+      } catch (Exception e) {
+        LoggerFactory.getLogger(ProcessUtils.class).error("Fail to destroy " + process);
+      }
+    }
+    return destroyed;
   }
 
   public static void addSelfShutdownHook(final Terminable terminable) {

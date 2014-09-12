@@ -61,10 +61,9 @@ public class BaseIndexTest {
     Properties properties = new Properties();
     properties.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
     properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
-    properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
     properties.setProperty(SearchServer.SONAR_PATH_HOME, temp.getRoot().getAbsolutePath());
     try {
-      searchServer = new SearchServer(new Props(properties), false, false);
+      searchServer = new SearchServer(new Props(properties));
     } catch (Exception e) {
       e.printStackTrace();
     }
