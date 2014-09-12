@@ -33,7 +33,6 @@ import org.sonar.process.SystemExit;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -359,10 +358,7 @@ public class MonitorTest {
           .readTimeout(500).connectTimeout(500);
         return httpRequest.ok() && httpRequest.body().equals("ping");
       } catch (HttpRequest.HttpRequestException e) {
-        if (e.getCause() instanceof ConnectException) {
-          return false;
-        }
-        throw new IllegalStateException("Fail to know the process status", e);
+        return false;
       }
     }
 

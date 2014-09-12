@@ -77,7 +77,7 @@ public class JmxUtilsTest {
   }
 
   @Test
-  public void testRegisterMBean() throws Exception {
+  public void register_mbean() throws Exception {
     // 0 Get mbServer and create out test MXBean
     MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
     MyBean mxBean = new MyBean();
@@ -87,6 +87,13 @@ public class JmxUtilsTest {
     assertThat(mbeanServer.isRegistered(objectName)).isFalse();
     JmxUtils.registerMBean(mxBean, mxBean.getClass().getSimpleName());
     assertThat(mbeanServer.isRegistered(objectName)).isTrue();
+
+    try {
+      JmxUtils.registerMBean(new Object(), "");
+      fail();
+    } catch (IllegalStateException e) {
+      // ok
+    }
   }
 
   @Test

@@ -38,9 +38,13 @@ class StreamGobbler extends Thread {
   private final Logger logger;
 
   StreamGobbler(InputStream is, String processKey) {
+    this(is, processKey, LoggerFactory.getLogger(processKey));
+  }
+
+  StreamGobbler(InputStream is, String processKey, Logger logger) {
     super(String.format("Gobbler[%s]", processKey));
     this.is = is;
-    this.logger = LoggerFactory.getLogger(processKey);
+    this.logger = logger;
   }
 
   @Override
@@ -51,8 +55,8 @@ class StreamGobbler extends Thread {
       while ((line = br.readLine()) != null) {
         logger.info(line);
       }
-    } catch (Exception ignored) {
-
+    } catch (Exception e) {
+      logger.error("Fail to read process logs", e);
     } finally {
       IOUtils.closeQuietly(br);
     }
@@ -63,6 +67,7 @@ class StreamGobbler extends Thread {
       try {
         gobbler.join();
       } catch (InterruptedException ignored) {
+        // consider as finished
       }
     }
   }
