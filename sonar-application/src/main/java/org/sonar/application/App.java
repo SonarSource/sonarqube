@@ -56,7 +56,7 @@ public class App implements ProcessMXBean {
     monitor.awaitTermination();
   }
 
-  private List<JavaCommand> createCommands(Props props) {
+  List<JavaCommand> createCommands(Props props) {
     List<JavaCommand> commands = new ArrayList<JavaCommand>();
     File homeDir = props.nonNullValueAsFile("sonar.path.home");
     File tempDir = props.nonNullValueAsFile("sonar.path.temp");

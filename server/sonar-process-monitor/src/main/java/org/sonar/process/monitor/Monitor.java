@@ -128,7 +128,10 @@ public class Monitor {
       try {
         ready = jmxConnector.isReady(processRef);
       } catch (Exception ignored) {
-        LoggerFactory.getLogger(getClass()).error("Fail to request JMX (isReady)", ignored);
+        // failed to send request, probably because RMI server is still not alive
+        // trying again, as long as process is alive
+        // TODO could be improved to have a STARTING timeout (to be implemented in monitor or
+        // in child process ?)
       }
       try {
         Thread.sleep(300L);

@@ -44,7 +44,7 @@ public class JavaCommandTest {
 
     command.setJmxPort(1234);
     command.setClassName("org.sonar.ElasticSearch");
-    command.setEnvVariable("BUILD_ID", "1000");
+    command.setEnvVariable("JAVA_COMMAND_TEST", "1000");
     File tempDir = temp.newFolder();
     command.setTempDir(tempDir);
     File workDir = temp.newFolder();
@@ -59,10 +59,10 @@ public class JavaCommandTest {
     assertThat(command.getWorkDir()).isSameAs(workDir);
     assertThat(command.getJmxPort()).isEqualTo(1234);
     assertThat(command.getClassName()).isEqualTo("org.sonar.ElasticSearch");
-    assertThat(command.getEnvVariables().get("BUILD_ID")).isEqualTo("1000");
 
     // copy current env variables
-    assertThat(command.getEnvVariables().size()).isGreaterThan(1);
+    assertThat(command.getEnvVariables().get("JAVA_COMMAND_TEST")).isEqualTo("1000");
+    assertThat(command.getEnvVariables().size()).isEqualTo(System.getenv().size() + 1);
   }
 
   @Test

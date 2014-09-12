@@ -71,6 +71,9 @@ public class JavaCommand {
     return this;
   }
 
+  /**
+   * Shortcut to set the java option -Djava.io.tmpdir
+   */
   public JavaCommand setTempDir(File tempDir) {
     this.javaOptions.add("-Djava.io.tmpdir=" + tempDir.getAbsolutePath());
     return this;
@@ -80,6 +83,9 @@ public class JavaCommand {
     return jmxPort;
   }
 
+  /**
+   * Current mandatory to be set
+   */
   public JavaCommand setJmxPort(int jmxPort) {
     this.jmxPort = jmxPort;
     return this;

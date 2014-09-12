@@ -27,6 +27,7 @@ class Timeouts {
   private long terminationTimeout = 120000L;
   private long jmxConnectionTimeout = 30000L;
   private long monitorPingInterval = 3000L;
+  private long monitorIsReadyTimeout = 10000L;
   private long autokillPingTimeout = 60000L;
   private long autokillPingInterval = 3000L;
 
@@ -56,6 +57,20 @@ class Timeouts {
    */
   void setMonitorPingInterval(long l) {
     this.monitorPingInterval = l;
+  }
+
+  /**
+   * [monitor] Timeout of isReady request
+   */
+  long getMonitorIsReadyTimeout() {
+    return monitorIsReadyTimeout;
+  }
+
+  /**
+   * @see #getMonitorIsReadyTimeout()
+   */
+  void setMonitorIsReadyTimeout(long l) {
+    this.monitorIsReadyTimeout = l;
   }
 
   /**

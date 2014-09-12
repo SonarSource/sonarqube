@@ -91,8 +91,21 @@ class RmiJmxConnector implements JmxConnector {
   }
 
   @Override
-  public boolean isReady(ProcessRef processRef) {
-    return mbeans.get(processRef).isReady();
+  public boolean isReady(final ProcessRef processRef) {
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    try {
+      Future<Boolean> future = executor.submit(new Callable<Boolean>() {
+        @Override
+        public Boolean call() throws Exception {
+          return mbeans.get(processRef).isReady();
+        }
+      });
+      return future.get(timeouts.getMonitorIsReadyTimeout(), TimeUnit.MILLISECONDS);
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail send JMX request (isReady)", e);
+    } finally {
+      executor.shutdownNow();
+    }
   }
 
   @Override
