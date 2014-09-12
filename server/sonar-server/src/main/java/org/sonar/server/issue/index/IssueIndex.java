@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -142,20 +143,17 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       ));
 
     // Issue is assigned Filter
-    boolean assigned = (query.assigned() != null) ? query.assigned() : false;
-    if (assigned) {
+    if (BooleanUtils.isTrue(query.assigned())) {
       esFilter.must(FilterBuilders.existsFilter(IssueNormalizer.IssueField.ASSIGNEE.field()));
     }
 
     // Issue is planned Filter
-    boolean planned = (query.planned() != null) ? query.planned() : false;
-    if (planned) {
+    if (BooleanUtils.isTrue(query.planned())) {
       esFilter.must(FilterBuilders.existsFilter(IssueNormalizer.IssueField.ACTION_PLAN.field()));
     }
 
     // Issue is Resolved Filter
-    boolean resolved = (query.resolved() != null) ? query.resolved() : false;
-    if (resolved) {
+    if (BooleanUtils.isTrue(query.resolved())) {
       esFilter.must(FilterBuilders.existsFilter(IssueNormalizer.IssueField.RESOLUTION.field()));
     }
 
