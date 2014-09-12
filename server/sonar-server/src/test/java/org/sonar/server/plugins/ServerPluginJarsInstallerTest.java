@@ -85,7 +85,7 @@ public class ServerPluginJarsInstallerTest {
 
     jarsInstaller.install();
 
-    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(1);
     assertThat(new File(pluginsDir, "foo-plugin-1.0.jar")).exists().isFile();
     PluginMetadata plugin = jarsInstaller.getMetadata("foo");
     assertThat(plugin.getName()).isEqualTo("Foo");
@@ -101,7 +101,7 @@ public class ServerPluginJarsInstallerTest {
 
     jarsInstaller.install();
 
-    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).isEmpty();
+    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).isEmpty();
   }
 
   @Test
@@ -115,7 +115,7 @@ public class ServerPluginJarsInstallerTest {
     jarsInstaller.install();
 
     // do not copy foo 1.0
-    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(2);
+    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(2);
     assertThat(new File(pluginsDir, "foo-plugin-2.0.jar")).exists().isFile();
     assertThat(new File(pluginsDir, "bar-plugin-1.0.jar")).exists().isFile();
     PluginMetadata plugin = jarsInstaller.getMetadata("foo");
@@ -138,7 +138,7 @@ public class ServerPluginJarsInstallerTest {
     assertThat(plugin.isUseChildFirstClassLoader()).isFalse();
 
     // check that the file is still present in extensions/plugins
-    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(1);
     assertThat(new File(pluginsDir, "foo-plugin-1.0.jar")).exists().isFile();
   }
 
@@ -151,13 +151,13 @@ public class ServerPluginJarsInstallerTest {
 
     // nothing to install but keep the file
     assertThat(jarsInstaller.getMetadata()).isEmpty();
-    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(1);
     assertThat(new File(pluginsDir, "not-a-plugin.jar")).exists().isFile();
   }
 
   @Test
   public void fail_if_plugin_requires_greater_SQ_version() throws Exception {
-    exception.expect(IllegalStateException.class);
+    exception.expect(MessageException.class);
     exception.expectMessage("Plugin switchoffviolations needs a more recent version of SonarQube than 2.0. At least 2.5 is expected");
 
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
@@ -174,8 +174,8 @@ public class ServerPluginJarsInstallerTest {
 
     jarsInstaller.install();
 
-    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
-    assertThat(FileUtils.listFiles(downloadsDir, new String[]{"jar"}, false)).isEmpty();
+    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(downloadsDir, new String[] {"jar"}, false)).isEmpty();
     assertThat(new File(pluginsDir, "foo-plugin-1.0.jar")).exists().isFile();
   }
 
@@ -187,8 +187,8 @@ public class ServerPluginJarsInstallerTest {
 
     jarsInstaller.install();
 
-    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
-    assertThat(FileUtils.listFiles(downloadsDir, new String[]{"jar"}, false)).isEmpty();
+    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(downloadsDir, new String[] {"jar"}, false)).isEmpty();
     assertThat(new File(pluginsDir, "foo-plugin-2.0.jar")).exists().isFile();
   }
 
@@ -205,8 +205,8 @@ public class ServerPluginJarsInstallerTest {
     PluginMetadata plugin = jarsInstaller.getMetadata("foo");
     assertThat(plugin).isNotNull();
     assertThat(plugin.getVersion()).isEqualTo("2.0");
-    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
-    assertThat(FileUtils.listFiles(downloadsDir, new String[]{"jar"}, false)).isEmpty();
+    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(downloadsDir, new String[] {"jar"}, false)).isEmpty();
     File installed = new File(pluginsDir, "foo-plugin-1.0.jar");
     assertThat(installed).exists().isFile();
   }
@@ -218,7 +218,7 @@ public class ServerPluginJarsInstallerTest {
 
     jarsInstaller.install();
 
-    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).isEmpty();
+    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).isEmpty();
     assertThat(trashDir).doesNotExist();
   }
 
@@ -247,8 +247,8 @@ public class ServerPluginJarsInstallerTest {
     jarsInstaller.install();
     jarsInstaller.uninstall("foo");
 
-    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).isEmpty();
-    assertThat(FileUtils.listFiles(trashDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).isEmpty();
+    assertThat(FileUtils.listFiles(trashDir, new String[] {"jar"}, false)).hasSize(1);
     assertThat(jarsInstaller.getUninstalls()).containsOnly("foo-plugin-1.0.jar");
   }
 
@@ -261,8 +261,8 @@ public class ServerPluginJarsInstallerTest {
     jarsInstaller.uninstall("foo");
     jarsInstaller.cancelUninstalls();
 
-    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
-    assertThat(FileUtils.listFiles(trashDir, new String[]{"jar"}, false)).hasSize(0);
+    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(trashDir, new String[] {"jar"}, false)).hasSize(0);
     assertThat(jarsInstaller.getUninstalls()).isEmpty();
   }
 
@@ -274,10 +274,10 @@ public class ServerPluginJarsInstallerTest {
     jarsInstaller.install();
 
     // do not deploy in extensions/plugins
-    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(0);
+    assertThat(FileUtils.listFiles(pluginsDir, new String[] {"jar"}, false)).hasSize(0);
 
     // do not remove from lib/core-plugins
-    assertThat(FileUtils.listFiles(coreDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(coreDir, new String[] {"jar"}, false)).hasSize(1);
 
     PluginMetadata plugin = jarsInstaller.getMetadata("foo");
     assertThat(plugin).isNotNull();

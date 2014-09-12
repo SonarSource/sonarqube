@@ -64,7 +64,6 @@ class Webapp {
         String key = entry.getKey().toString();
         context.addParameter(key, entry.getValue().toString());
       }
-
       return context;
 
     } catch (Exception e) {

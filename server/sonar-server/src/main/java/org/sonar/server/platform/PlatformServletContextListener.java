@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform;
 
-import org.slf4j.LoggerFactory;
+import com.google.common.base.Throwables;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -46,9 +46,9 @@ public final class PlatformServletContextListener implements ServletContextListe
       // - server does not stop if webapp fails at startup
       // - the second listener for jruby on rails is started even if this listener fails. It generates
       // unexpected errors
-      LoggerFactory.getLogger(getClass()).error("Fail to start server", t);
+      // LoggerFactory.getLogger(getClass()).error("Fail to start server", t);
       stopQuietly();
-      throw new IllegalStateException("Fail to start webapp", t);
+      throw Throwables.propagate(t);
     }
   }
 
