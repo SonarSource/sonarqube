@@ -20,7 +20,6 @@
 package org.sonar.process.monitor;
 
 import org.slf4j.LoggerFactory;
-import org.sonar.process.ProcessUtils;
 
 /**
  * This thread blocks as long as the monitored process is physically alive.
@@ -33,7 +32,7 @@ import org.sonar.process.ProcessUtils;
  */
 class WatcherThread extends Thread {
 
-  private final ProcessRef process;
+  private final ProcessRef processRef;
   private final Monitor monitor;
 
   WatcherThread(ProcessRef processRef, Monitor monitor) {
@@ -41,7 +40,7 @@ class WatcherThread extends Thread {
     // and thread group
     // -> do not override toString()
     super(String.format("Watch[%s]", processRef.getKey()));
-    this.process = processRef;
+    this.processRef = processRef;
     this.monitor = monitor;
   }
 
@@ -50,20 +49,15 @@ class WatcherThread extends Thread {
     boolean alive = true;
     while (alive) {
       try {
-        process.getProcess().waitFor();
-        process.setTerminated(true);
-        LoggerFactory.getLogger(getClass()).info(process + " is down");
+        processRef.getProcess().waitFor();
+        processRef.setTerminated(true);
+        alive = false;
+        LoggerFactory.getLogger(getClass()).info(String.format("%s is down", processRef));
+
         // terminate all other processes, but in another thread
         monitor.stop();
-        alive = false;
       } catch (InterruptedException ignored) {
-        if (ProcessUtils.isAlive(process.getProcess())) {
-          LoggerFactory.getLogger(getClass()).error(String.format(
-            "Watcher of [%s] was interrupted but process is still alive. Killing it.", process.getKey()));
-        }
-        alive = false;
-      } finally {
-        process.hardKill();
+        // continue to watch process
       }
     }
   }
