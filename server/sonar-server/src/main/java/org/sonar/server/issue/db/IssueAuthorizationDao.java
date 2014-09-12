@@ -69,9 +69,9 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
       public void handleResult(ResultContext context) {
         Map<String, Object> row = (Map<String, Object>) context.getResultObject();
         String project = (String) row.get("project");
-        String user = (String) row.get("user");
-        String group = (String) row.get("permission_group");
-        Date updatedAt = (Date) row.get("updated_at");
+        String user = (String) row.get("permissionUser");
+        String group = (String) row.get("permissionGroup");
+        Date updatedAt = (Date) row.get("updatedAt");
         IssueAuthorizationDto issueAuthorizationDto = authorizationDtoMap.get(project);
         if (issueAuthorizationDto == null) {
           issueAuthorizationDto = new IssueAuthorizationDto()
@@ -119,9 +119,9 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
     List<Map<String, Object>> rows = session.selectList("org.sonar.core.issue.db.IssueAuthorizationMapper.selectAfterDate", params);
     for (Map<String, Object> row : rows) {
       String project = (String) row.get("project");
-      String user = (String) row.get("user");
-      String group = (String) row.get("permission_group");
-      Date updatedAt = (Date) row.get("updated_at");
+      String user = (String) row.get("permissionUser");
+      String group = (String) row.get("permissionGroup");
+      Date updatedAt = (Date) row.get("updatedAt");
       IssueAuthorizationDto issueAuthorizationDto = authorizationDtoMap.get(project);
       if (issueAuthorizationDto == null) {
         issueAuthorizationDto = new IssueAuthorizationDto()

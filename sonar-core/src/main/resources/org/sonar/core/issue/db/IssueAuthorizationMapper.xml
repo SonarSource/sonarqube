@@ -4,13 +4,21 @@
 
 <mapper namespace="org.sonar.core.issue.db.IssueAuthorizationMapper">
 
-  <select id="selectAfterDate" parameterType="map" resultType="map">
+  <resultMap id="resultMap" type="map">
+    <result property="project" column="project" />
+    <result property="permissionUser" column="permissionUser"/>
+    <result property="permissionGroup" column="permissionGroup"/>
+    <result property="permissionRole" column="permissionRole"/>
+    <result property="updatedAt" column="updatedAt" javaType="java.util.Date"/>
+  </resultMap>
+
+  <select id="selectAfterDate" parameterType="map" resultMap="resultMap">
     SELECT
       project_authorization.project as "project",
-      project_authorization.login as "user",
-      project_authorization.permission_group as "permission_group",
-      project_authorization.permission_role as "permission_role",
-      project_authorization.updated_at as "updated_at"
+      project_authorization.login as "permissionUser",
+      project_authorization.permission_group as "permissionGroup",
+      project_authorization.permission_role as "permissionRole",
+      project_authorization.updated_at as "updatedAt"
     FROM (
       -- users
       SELECT
