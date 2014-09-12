@@ -128,7 +128,7 @@ public class Monitor {
       try {
         ready = jmxConnector.isReady(processRef);
       } catch (Exception ignored) {
-        // pb with the JMX connection, can occur if RMI not initialized yet
+        LoggerFactory.getLogger(getClass()).error("Fail to request JMX (isReady)", ignored);
       }
       try {
         Thread.sleep(300L);
