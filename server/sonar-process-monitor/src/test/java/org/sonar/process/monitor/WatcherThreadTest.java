@@ -21,26 +21,19 @@ package org.sonar.process.monitor;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.mockito.Mockito.*;
 
 public class WatcherThreadTest {
 
   @Test(timeout = 10000L)
-  public void kill_process_if_watcher_is_interrupted() throws Exception {
-    ProcessRef ref = mock(ProcessRef.class, Mockito.RETURNS_DEEP_STUBS);
-    when(ref.getProcess().waitFor()).thenAnswer(new Answer<Object>() {
-      @Override
-      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-        throw new InterruptedException();
-      }
-    });
+  public void continue_even_if_interrupted() throws Exception {
     Monitor monitor = mock(Monitor.class);
-
+    ProcessRef ref = mock(ProcessRef.class, Mockito.RETURNS_DEEP_STUBS);
+    when(ref.getProcess().waitFor()).thenThrow(new InterruptedException()).thenReturn(0);
     WatcherThread watcher = new WatcherThread(ref, monitor);
     watcher.start();
-    verify(ref).hardKill();
+    watcher.join();
+    verify(monitor).stop();
   }
 }
