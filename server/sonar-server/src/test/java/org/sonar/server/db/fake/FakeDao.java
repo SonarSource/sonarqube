@@ -22,11 +22,12 @@ package org.sonar.server.db.fake;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
+import org.sonar.server.search.IndexDefinition;
 
 public class FakeDao extends BaseDao<FakeMapper, FakeDto, String> {
 
   public FakeDao(System2 system2) {
-    super(FakeMapper.class, system2);
+    super(IndexDefinition.createFor("test", "fake"), FakeMapper.class, system2);
   }
 
   @Override

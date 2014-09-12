@@ -88,6 +88,11 @@ public class TestDatabase extends ExternalResource {
     return this;
   }
 
+  public TestDatabase setQueue(WorkQueue queue) {
+    this.queue = queue;
+    return this;
+  }
+
   @Override
   protected void before() throws Throwable {
     Settings settings = new Settings().setProperties(Maps.fromProperties(System.getProperties()));

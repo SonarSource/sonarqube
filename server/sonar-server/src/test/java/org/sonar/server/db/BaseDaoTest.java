@@ -25,6 +25,8 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.cluster.ClusterAction;
+import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.TestDatabase;
@@ -32,14 +34,34 @@ import org.sonar.server.db.fake.FakeDao;
 import org.sonar.server.db.fake.FakeDto;
 import org.sonar.server.db.fake.FakeMapper;
 
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class BaseDaoTest {
 
+  public static FakeQueue queue = new FakeQueue();
+
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(BaseDaoTest.class, "schema.sql");
+  public static TestDatabase db = new TestDatabase()
+    .schema(BaseDaoTest.class, "schema.sql")
+    .setQueue(queue);
+
+  private static class FakeQueue implements WorkQueue<ClusterAction> {
+
+    private int count = 0;
+
+    @Override
+    public void enqueue(List<ClusterAction> actions) {
+      count = actions.size();
+    }
+
+    public int getCount() {
+      return count;
+    }
+  }
 
   private static final String DTO_ALIAS = "fake";
 
@@ -51,8 +73,7 @@ public class BaseDaoTest {
     MyBatis batis = db.myBatis();
     batis.getSessionFactory().getConfiguration().getTypeAliasRegistry().registerAlias(DTO_ALIAS, FakeDto.class);
     batis.getSessionFactory().getConfiguration().addMapper(FakeMapper.class);
- }
-
+  }
 
   @Before
   public void before() throws Exception {
@@ -91,6 +112,30 @@ public class BaseDaoTest {
 
     assertThat(dto.getUpdatedAt().getTime()).isGreaterThan(t0);
     assertThat(dto.getCreatedAt().getTime()).isLessThan(t1);
+  }
 
+  @Test
+  public void does_enqueue_on_insert() {
+    FakeDto myDto = new FakeDto()
+      .setKey(UUID.randomUUID().toString());
+    dao.insert(session, myDto);
+    session.commit();
+    assertThat(queue.getCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void synchronize_to_es_after_date() throws Exception {
+    long t0 = System.currentTimeMillis() - 1000;
+
+    String key = UUID.randomUUID().toString();
+    FakeDto myDto = new FakeDto()
+      .setKey(key);
+    dao.insert(session, myDto);
+
+    session.commit();
+    assertThat(queue.getCount()).isEqualTo(1);
+
+    dao.synchronizeAfter(session, new Date(t0));
+    assertThat(queue.getCount()).isEqualTo(2);
   }
 }

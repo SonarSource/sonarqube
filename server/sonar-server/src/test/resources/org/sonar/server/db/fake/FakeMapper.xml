@@ -24,7 +24,7 @@
   <select id="selectAfterDate" resultType="fake" resultSetType="FORWARD_ONLY" fetchSize="200">
     select
     <include refid="selectColumns"/>
-    from rules r
+    from fake f
     where f.updated_at IS NULL or f.updated_at &gt;= #{date}
   </select>
 
