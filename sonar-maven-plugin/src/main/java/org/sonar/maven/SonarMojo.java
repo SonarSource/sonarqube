@@ -31,27 +31,13 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectBuilder;
-import org.apache.maven.shared.dependency.tree.DependencyNode;
 import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
-import org.apache.maven.shared.dependency.tree.DependencyTreeBuilderException;
-import org.apache.maven.shared.dependency.tree.filter.AncestorOrSelfDependencyNodeFilter;
-import org.apache.maven.shared.dependency.tree.filter.DependencyNodeFilter;
-import org.apache.maven.shared.dependency.tree.filter.StateDependencyNodeFilter;
-import org.apache.maven.shared.dependency.tree.traversal.BuildingDependencyNodeVisitor;
-import org.apache.maven.shared.dependency.tree.traversal.CollectingDependencyNodeVisitor;
-import org.apache.maven.shared.dependency.tree.traversal.DependencyNodeVisitor;
-import org.apache.maven.shared.dependency.tree.traversal.FilteringDependencyNodeVisitor;
 import org.sonar.runner.api.EmbeddedRunner;
 import org.sonar.runner.api.RunnerProperties;
 import org.sonar.runner.api.ScanProperties;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * @goal sonar
@@ -167,8 +153,7 @@ public final class SonarMojo extends AbstractMojo {
         .setProperty(ScanProperties.PROJECT_VERSION, toString(project.getVersion()))
         .setProperty(ScanProperties.PROJECT_NAME, toString(project.getName()))
         .setProperty(ScanProperties.PROJECT_DESCRIPTION, toString(project.getDescription()))
-        .setProperty(ScanProperties.PROJECT_SOURCE_DIRS, ".")
-        .setProperty("sonar.maven.projectDependencies", dependenciesToJson(collectProjectDependencies()));
+        .setProperty(ScanProperties.PROJECT_SOURCE_DIRS, ".");
       // Exclude log implementation to not conflict with Maven 3.1 logging impl
       runner.mask("org.slf4j.LoggerFactory")
         // Include slf4j Logger that is exposed by some Sonar components
@@ -182,7 +167,8 @@ public final class SonarMojo extends AbstractMojo {
         .mask("org.sonar.")
         // Include everything else
         .unmask("");
-      runner.addExtensions(session, getLog(), lifecycleExecutor, projectBuilder);
+      runner.addExtensions(session, getLog(), lifecycleExecutor, artifactFactory, localRepository, artifactMetadataSource, artifactCollector,
+        dependencyTreeBuilder, projectBuilder);
       if (getLog().isDebugEnabled()) {
         runner.setProperty("sonar.verbose", "true");
       }
@@ -190,125 +176,6 @@ public final class SonarMojo extends AbstractMojo {
     } catch (Exception e) {
       throw ExceptionHandling.handle(e, getLog());
     }
-  }
-
-  private static class Dependency {
-
-    private final String key;
-    private final String version;
-    private String scope;
-    List<Dependency> dependencies = new ArrayList<SonarMojo.Dependency>();
-
-    public Dependency(String key, String version) {
-      this.key = key;
-      this.version = version;
-    }
-
-    public String key() {
-      return key;
-    }
-
-    public String version() {
-      return version;
-    }
-
-    public String scope() {
-      return scope;
-    }
-
-    public Dependency setScope(String scope) {
-      this.scope = scope;
-      return this;
-    }
-
-    public List<Dependency> dependencies() {
-      return dependencies;
-    }
-  }
-
-  private List<Dependency> collectProjectDependencies() {
-    final List<Dependency> result = new ArrayList<SonarMojo.Dependency>();
-    try {
-      DependencyNode root = dependencyTreeBuilder.buildDependencyTree(project, localRepository, artifactFactory, artifactMetadataSource, null, artifactCollector);
-
-      DependencyNodeVisitor visitor = new BuildingDependencyNodeVisitor(new DependencyNodeVisitor() {
-
-        private Deque<Dependency> stack = new ArrayDeque<SonarMojo.Dependency>();
-
-        public boolean visit(DependencyNode node) {
-          if (node.getParent() != null && node.getParent() != node) {
-            Dependency dependency = toDependency(node);
-            if (stack.isEmpty()) {
-              result.add(dependency);
-            } else {
-              stack.peek().dependencies().add(dependency);
-            }
-            stack.push(dependency);
-          }
-          return true;
-        }
-
-        public boolean endVisit(DependencyNode node) {
-          if (!stack.isEmpty()) {
-            stack.pop();
-          }
-          return true;
-        }
-      });
-
-      // mode verbose OFF : do not show the same lib many times
-      DependencyNodeFilter filter = StateDependencyNodeFilter.INCLUDED;
-
-      CollectingDependencyNodeVisitor collectingVisitor = new CollectingDependencyNodeVisitor();
-      DependencyNodeVisitor firstPassVisitor = new FilteringDependencyNodeVisitor(collectingVisitor, filter);
-      root.accept(firstPassVisitor);
-
-      DependencyNodeFilter secondPassFilter = new AncestorOrSelfDependencyNodeFilter(collectingVisitor.getNodes());
-      visitor = new FilteringDependencyNodeVisitor(visitor, secondPassFilter);
-
-      root.accept(visitor);
-
-    } catch (DependencyTreeBuilderException e) {
-      throw new IllegalStateException("Can not load the graph of dependencies of the project " + getSonarKey(project), e);
-    }
-    return result;
-  }
-
-  private Dependency toDependency(DependencyNode node) {
-    String key = String.format("%s:%s", node.getArtifact().getGroupId(), node.getArtifact().getArtifactId());
-    String version = node.getArtifact().getBaseVersion();
-    return new Dependency(key, version).setScope(node.getArtifact().getScope());
-  }
-
-  private String dependenciesToJson(List<Dependency> deps) {
-    StringBuilder json = new StringBuilder();
-    json.append('[');
-    serializeDeps(json, deps);
-    json.append(']');
-    return json.toString();
-  }
-
-  private void serializeDeps(StringBuilder json, List<Dependency> deps) {
-    for (Iterator<Dependency> dependencyIt = deps.iterator(); dependencyIt.hasNext();) {
-      serializeDep(json, dependencyIt.next());
-      if (dependencyIt.hasNext()) {
-        json.append(',');
-      }
-    }
-  }
-
-  private void serializeDep(StringBuilder json, Dependency dependency) {
-    json.append("{");
-    json.append("\"k\":\"");
-    json.append(dependency.key());
-    json.append("\",\"v\":\"");
-    json.append(dependency.version());
-    json.append("\",\"s\":\"");
-    json.append(dependency.scope());
-    json.append("\",\"d\":[");
-    serializeDeps(json, dependency.dependencies());
-    json.append("]");
-    json.append("}");
   }
 
   private ArtifactVersion getMavenVersion() {
