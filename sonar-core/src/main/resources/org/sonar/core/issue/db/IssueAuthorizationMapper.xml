@@ -32,6 +32,9 @@
       INNER JOIN users ON users.id = user_roles.user_id
       WHERE
       projects.authorization_updated_at &gt;= #{date}
+      <if test="project != null">
+        and projects.kee = #{project}
+      </if>
       UNION
       -- groups without Anyone
       SELECT
@@ -45,6 +48,9 @@
       INNER JOIN groups ON groups.id = group_roles.group_id
       WHERE
       projects.authorization_updated_at &gt;= #{date}
+      <if test="project != null">
+        and projects.kee = #{project}
+      </if>
       AND group_id IS NOT NULL
       UNION
       -- Anyone groups
@@ -58,6 +64,9 @@
       INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = #{permission}
       WHERE
       projects.authorization_updated_at &gt;= #{date}
+      <if test="project != null">
+        and projects.kee = #{project}
+      </if>
       AND group_roles.group_id IS NULL
     ) project_authorization
   </select>

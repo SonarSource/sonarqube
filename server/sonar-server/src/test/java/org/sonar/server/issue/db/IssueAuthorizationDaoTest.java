@@ -20,12 +20,12 @@
 
 package org.sonar.server.issue.db;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.db.IssueAuthorizationDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
@@ -50,32 +50,35 @@ public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
   }
 
   @Test(expected = IllegalStateException.class)
-  public void get_nullable_by_key_is_not_implemented(){
+  public void get_nullable_by_key_is_not_implemented() {
     assertThat(dao.getNullableByKey(session, "sonar"));
   }
 
   @Test
-  public void find_after_date(){
-    setupData("find_after_date");
+  public void synchronize_after_since_beginning() throws Exception {
+    setupData("synchronize_after_since_beginning");
 
-    Iterable<IssueAuthorizationDto> results = dao.findAfterDate(session, new Date(0));
-    assertThat(results).hasSize(1);
+    assertThat(session.getActionCount()).isEqualTo(0);
 
-    IssueAuthorizationDto dto = results.iterator().next();
-    assertThat(dto.getProject()).isEqualTo("org.struts:struts");
-    assertThat(dto.getKey()).isEqualTo("org.struts:struts");
-    assertThat(dto.getPermission()).isEqualTo("user");
-    assertThat(dto.getGroups()).containsExactly("Anyone", "devs");
-    assertThat(dto.getUsers()).containsExactly("user1");
-    assertThat(dto.getUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-01-01"));
+    dao.synchronizeAfter(session, new Date(0));
+
+    assertThat(session.getActionCount()).isEqualTo(1);
   }
 
   @Test
-  public void find_after_date_return_dtos_after_given_date(){
-    setupData("find_after_date_return_dtos_after_given_date");
+  public void synchronize_after_since_given_date() {
+    setupData("synchronize_after_since_given_date");
 
-    assertThat(dao.findAfterDate(session, new Date(0))).hasSize(2);
-
-    assertThat(dao.findAfterDate(session, DateUtils.parseDate("2014-09-01"))).hasSize(1);
+    dao.synchronizeAfter(session, DateUtils.parseDate("2014-09-01"));
+    assertThat(session.getActionCount()).isEqualTo(1);
   }
+
+  @Test
+  public void synchronize_after_with_project() {
+    setupData("synchronize_after_with_project");
+
+    dao.synchronizeAfter(session, DateUtils.parseDate("2014-01-01"), ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, "org.sonar:sample"));
+    assertThat(session.getActionCount()).isEqualTo(1);
+  }
+
 }

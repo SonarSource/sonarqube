@@ -21,7 +21,6 @@
 package org.sonar.server.issue.db;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 import org.apache.ibatis.session.ResultContext;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
@@ -37,10 +36,7 @@ import org.sonar.server.search.action.UpsertDto;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import static com.google.common.collect.Maps.newHashMap;
 
 public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, IssueAuthorizationDto, String> implements DaoComponent {
 
@@ -104,41 +100,6 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
     finalParams.put("anyone", DefaultGroups.ANYONE);
     finalParams.put(PROJECT_KEY, params.get(PROJECT_KEY));
     return finalParams;
-  }
-
-  @Override
-  public List<IssueAuthorizationDto> findAfterDate(DbSession session, Date date) {
-
-    Map<String, Object> params = newHashMap();
-    params.put("date", date);
-    params.put("permission", UserRole.USER);
-    params.put("anyone", DefaultGroups.ANYONE);
-
-    Map<String, IssueAuthorizationDto> authorizationDtoMap = newHashMap();
-
-    List<Map<String, Object>> rows = session.selectList("org.sonar.core.issue.db.IssueAuthorizationMapper.selectAfterDate", params);
-    for (Map<String, Object> row : rows) {
-      String project = (String) row.get("project");
-      String user = (String) row.get("permissionUser");
-      String group = (String) row.get("permissionGroup");
-      Date updatedAt = (Date) row.get("updatedAt");
-      IssueAuthorizationDto issueAuthorizationDto = authorizationDtoMap.get(project);
-      if (issueAuthorizationDto == null) {
-        issueAuthorizationDto = new IssueAuthorizationDto()
-          .setProject(project)
-          .setPermission(UserRole.USER);
-        issueAuthorizationDto.setUpdatedAt(updatedAt);
-      }
-      if (group != null) {
-        issueAuthorizationDto.addGroup(group);
-      }
-      if (user != null) {
-        issueAuthorizationDto.addUser(user);
-      }
-      authorizationDtoMap.put(project, issueAuthorizationDto);
-    }
-
-    return ImmutableList.<IssueAuthorizationDto>copyOf(authorizationDtoMap.values());
   }
 
   protected void doDeleteByKey(DbSession session, String key) {

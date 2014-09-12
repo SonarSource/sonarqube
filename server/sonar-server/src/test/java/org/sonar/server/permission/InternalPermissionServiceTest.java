@@ -164,7 +164,7 @@ public class InternalPermissionServiceTest {
     service.addPermission(params);
 
     verify(permissionFacade).insertUserPermission(eq((Long) null), eq(2L), eq("shareDashboard"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
@@ -178,7 +178,7 @@ public class InternalPermissionServiceTest {
     service.addPermission(params);
 
     verify(permissionFacade).insertUserPermission(eq(10L), eq(2L), eq("user"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
   }
 
   @Test
@@ -189,7 +189,7 @@ public class InternalPermissionServiceTest {
     service.removePermission(params);
 
     verify(permissionFacade).deleteUserPermission(eq((Long) null), eq(2L), eq("profileadmin"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
@@ -202,7 +202,7 @@ public class InternalPermissionServiceTest {
     service.removePermission(params);
 
     verify(permissionFacade).deleteUserPermission(eq(10L), eq(2L), eq("codeviewer"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
   }
 
   @Test
@@ -213,7 +213,7 @@ public class InternalPermissionServiceTest {
     service.addPermission(params);
 
     verify(permissionFacade).insertGroupPermission(eq((Long) null), eq(2L), eq("shareDashboard"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
@@ -227,7 +227,7 @@ public class InternalPermissionServiceTest {
     service.addPermission(params);
 
     verify(permissionFacade).insertGroupPermission(eq(10L), eq(2L), eq("user"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
   }
 
   @Test
@@ -237,7 +237,7 @@ public class InternalPermissionServiceTest {
     service.addPermission(params);
 
     verify(permissionFacade).insertGroupPermission(eq((Long) null), eq((Long) null), eq("profileadmin"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
@@ -250,7 +250,7 @@ public class InternalPermissionServiceTest {
     service.addPermission(params);
 
     verify(permissionFacade).insertGroupPermission(eq(10L), eq((Long) null), eq("user"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
   }
 
   @Test
@@ -261,7 +261,7 @@ public class InternalPermissionServiceTest {
     service.removePermission(params);
 
     verify(permissionFacade).deleteGroupPermission(eq((Long) null), eq(2L), eq("profileadmin"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
@@ -275,7 +275,7 @@ public class InternalPermissionServiceTest {
     service.removePermission(params);
 
     verify(permissionFacade).deleteGroupPermission(eq(10L), eq(2L), eq("codeviewer"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
   }
 
   @Test
@@ -286,7 +286,7 @@ public class InternalPermissionServiceTest {
     service.removePermission(params);
 
     verify(permissionFacade).deleteGroupPermission(eq((Long) null), eq((Long) null), eq("profileadmin"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verifyZeroInteractions(issueAuthorizationDao);
   }
 
   @Test
@@ -300,7 +300,7 @@ public class InternalPermissionServiceTest {
     service.removePermission(params);
 
     verify(permissionFacade).deleteGroupPermission(eq(10L), eq((Long) null), eq("codeviewer"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
   }
 
   @Test
@@ -439,7 +439,9 @@ public class InternalPermissionServiceTest {
     verify(permissionFacade).applyPermissionTemplate(session, "my_template_key", 2L);
     verify(permissionFacade).applyPermissionTemplate(session, "my_template_key", 3L);
 
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample1")));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample2")));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample3")));
   }
 
   @Test(expected = ForbiddenException.class)
@@ -480,7 +482,7 @@ public class InternalPermissionServiceTest {
     service.applyPermissionTemplate(params);
 
     verify(permissionFacade).applyPermissionTemplate(session, "my_template_key", 1L);
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
   }
 
   @Test(expected = ForbiddenException.class)
@@ -513,7 +515,7 @@ public class InternalPermissionServiceTest {
     service.applyDefaultPermissionTemplate(componentKey);
     verify(permissionFacade).grantDefaultRoles(session, componentId, qualifier);
 
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "component")));
   }
 
   @Test(expected = ForbiddenException.class)
@@ -548,7 +550,7 @@ public class InternalPermissionServiceTest {
     when(resourceDao.selectProvisionedProject(session, componentKey)).thenReturn(mock(ResourceDto.class));
     service.applyDefaultPermissionTemplate(componentKey);
 
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "component")));
   }
 
   private Map<String, Object> buildPermissionChangeParams(String login, String group, String permission) {

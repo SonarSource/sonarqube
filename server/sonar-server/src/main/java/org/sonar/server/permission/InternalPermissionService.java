@@ -20,6 +20,7 @@
 
 package org.sonar.server.permission;
 
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -37,6 +38,7 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.user.UserSession;
@@ -120,7 +122,7 @@ public class InternalPermissionService implements ServerComponent {
     } finally {
       session.close();
     }
-    synchronizePermissions();
+    synchronizePermissions(componentKey);
   }
 
   public void applyPermissionTemplate(Map<String, Object> params) {
@@ -147,13 +149,12 @@ public class InternalPermissionService implements ServerComponent {
           throw new IllegalStateException("Unable to find component with key " + componentKey);
         }
         permissionFacade.applyPermissionTemplate(session, query.getTemplateKey(), component.getId());
+        synchronizePermissions(componentKey);
       }
-
       session.commit();
     } finally {
       session.close();
     }
-    synchronizePermissions();
   }
 
   private void changePermission(String permissionChange, Map<String, Object> params) {
@@ -178,8 +179,9 @@ public class InternalPermissionService implements ServerComponent {
     } finally {
       session.close();
     }
-    if (changed) {
-      synchronizePermissions();
+    String project = permissionChangeQuery.component();
+    if (changed && project != null) {
+      synchronizePermissions(project);
     }
   }
 
@@ -272,12 +274,14 @@ public class InternalPermissionService implements ServerComponent {
     }
   }
 
-  private void synchronizePermissions() {
+  private void synchronizePermissions(String projectKey) {
     // The synchronisation cannot use an existing session, otherwise it's failing with the error :
     // org.apache.ibatis.executor.ExecutorException: Executor was closed
     DbSession session = dbClient.openSession(false);
     try {
-      dbClient.issueAuthorizationDao().synchronizeAfter(session, index.get(IssueAuthorizationIndex.class).getLastSynchronization());
+      dbClient.issueAuthorizationDao().synchronizeAfter(session,
+        index.get(IssueAuthorizationIndex.class).getLastSynchronization(),
+        ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, projectKey));
     } finally {
       session.close();
     }
