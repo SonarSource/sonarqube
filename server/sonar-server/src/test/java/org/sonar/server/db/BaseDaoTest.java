@@ -64,6 +64,7 @@ public class BaseDaoTest {
   @After
   public void after() {
     this.session.close();
+    db.executeUpdateSql("TRUNCATE TABLE fake");
   }
 
   @Test
