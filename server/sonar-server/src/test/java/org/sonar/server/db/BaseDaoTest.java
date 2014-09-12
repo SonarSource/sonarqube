@@ -25,8 +25,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.cluster.ClusterAction;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.TestDatabase;
@@ -35,33 +33,15 @@ import org.sonar.server.db.fake.FakeDto;
 import org.sonar.server.db.fake.FakeMapper;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class BaseDaoTest {
 
-  public static FakeQueue queue = new FakeQueue();
-
   @ClassRule
   public static TestDatabase db = new TestDatabase()
-    .schema(BaseDaoTest.class, "schema.sql")
-    .setQueue(queue);
-
-  private static class FakeQueue implements WorkQueue<ClusterAction> {
-
-    private int count = 0;
-
-    @Override
-    public void enqueue(List<ClusterAction> actions) {
-      count = actions.size();
-    }
-
-    public int getCount() {
-      return count;
-    }
-  }
+    .schema(BaseDaoTest.class, "schema.sql");
 
   private static final String DTO_ALIAS = "fake";
 
@@ -120,7 +100,7 @@ public class BaseDaoTest {
       .setKey(UUID.randomUUID().toString());
     dao.insert(session, myDto);
     session.commit();
-    assertThat(queue.getCount()).isEqualTo(1);
+    assertThat(session.getActionCount()).isEqualTo(1);
   }
 
   @Test
@@ -133,9 +113,9 @@ public class BaseDaoTest {
     dao.insert(session, myDto);
 
     session.commit();
-    assertThat(queue.getCount()).isEqualTo(1);
+    assertThat(session.getActionCount()).isEqualTo(1);
 
     dao.synchronizeAfter(session, new Date(t0));
-    assertThat(queue.getCount()).isEqualTo(2);
+    assertThat(session.getActionCount()).isEqualTo(2);
   }
 }

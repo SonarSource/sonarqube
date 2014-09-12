@@ -39,6 +39,7 @@ public class DbSession implements SqlSession {
 
   private WorkQueue queue;
   private SqlSession session;
+  private int actionCount = 0;
 
   DbSession(WorkQueue queue, SqlSession session) {
     this.session = session;
@@ -47,10 +48,15 @@ public class DbSession implements SqlSession {
   }
 
   public void enqueue(ClusterAction action) {
+    actionCount++;
     this.actions.add(action);
     if (this.actions.size() > IMPLICIT_COMMIT_SIZE) {
       this.commit();
     }
+  }
+
+  public int getActionCount() {
+    return actionCount;
   }
 
   @Override
