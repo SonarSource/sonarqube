@@ -39,9 +39,10 @@ public class DbSession implements SqlSession {
 
   private WorkQueue queue;
   private SqlSession session;
-  private int actionCount = 0;
+  private int actionCount;
 
   DbSession(WorkQueue queue, SqlSession session) {
+    this.actionCount = 0;
     this.session = session;
     this.queue = queue;
     this.actions = new ArrayList<ClusterAction>();
