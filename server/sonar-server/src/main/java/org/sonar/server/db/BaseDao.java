@@ -159,7 +159,10 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
   public List<DTO> getByKeys(DbSession session, Collection<KEY> keys) {
     List<DTO> results = new ArrayList<DTO>();
     for (KEY key : keys) {
-      results.add(this.getByKey(session, key));
+      DTO result = this.getNullableByKey(session, key);
+      if (result != null) {
+        results.add(result);
+      }
     }
     return results;
   }

@@ -43,19 +43,20 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField CREATED_AT = add(IndexField.Type.DATE, "createdAt");
     public static final IndexField UPDATED_AT = add(IndexField.Type.DATE, "updatedAt");
 
-    public static final IndexField DEBT = add(IndexField.Type.NUMERIC, "debt");
     public static final IndexField ACTION_PLAN = add(IndexField.Type.STRING, "actionPlan");
     public static final IndexField ASSIGNEE = add(IndexField.Type.STRING, "assignee");
+    public static final IndexField ATTRIBUTE = add(IndexField.Type.OBJECT, "attributes");
     public static final IndexField AUTHOR_LOGIN = add(IndexField.Type.STRING, "authorLogin");
+    public static final IndexField COMPONENT = add(IndexField.Type.STRING, "component");
+    public static final IndexField DEBT = add(IndexField.Type.NUMERIC, "debt");
+    public static final IndexField EFFORT = add(IndexField.Type.NUMERIC, "effort");
     public static final IndexField ISSUE_CREATED_AT = add(IndexField.Type.DATE, "issueCreatedAt");
     public static final IndexField ISSUE_UPDATED_AT = add(IndexField.Type.DATE, "issueUpdatedAt");
     public static final IndexField ISSUE_CLOSE_DATE = add(IndexField.Type.DATE, "issueClosedAt");
-    public static final IndexField PROJECT = add(IndexField.Type.STRING, "project");
-    public static final IndexField COMPONENT = add(IndexField.Type.STRING, "component");
-    public static final IndexField EFFORT = add(IndexField.Type.NUMERIC, "effort");
-    public static final IndexField RESOLUTION = add(IndexField.Type.STRING, "resolution");
     public static final IndexField LINE = add(IndexField.Type.NUMERIC, "line");
     public static final IndexField MESSAGE = add(IndexField.Type.STRING, "message");
+    public static final IndexField PROJECT = add(IndexField.Type.STRING, "project");
+    public static final IndexField RESOLUTION = add(IndexField.Type.STRING, "resolution");
     public static final IndexField REPORTER = add(IndexField.Type.STRING, "reporter");
     public static final IndexField STATUS = add(IndexField.Type.STRING, "status");
     public static final IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
@@ -136,5 +137,5 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
         .parent(dto.getRootComponentKey())
         .doc(update)
         .upsert(upsert));
- }
+  }
 }
