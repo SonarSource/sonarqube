@@ -68,8 +68,6 @@ class RmiJmxConnector implements JmxConnector {
     ProcessMXBean mxBean = execute(callable, timeoutMs);
     if (mxBean != null) {
       register(processRef, mxBean);
-    } else if (!processRef.isTerminated()) {
-      throw new IllegalStateException("Fail to connect to JMX RMI server of " + processRef);
     }
   }
 

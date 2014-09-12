@@ -76,4 +76,11 @@ public class JavaCommandTest {
     command.addJavaOption("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005");
     assertThat(command.isDebugMode()).isTrue();
   }
+
+  @Test
+  public void split_java_options() throws Exception {
+    JavaCommand command = new JavaCommand("foo");
+    command.addJavaOptions("-Xmx512m -Xms256m -Dfoo");
+    assertThat(command.getJavaOptions()).containsOnly("-Xmx512m", "-Xms256m", "-Dfoo");
+  }
 }

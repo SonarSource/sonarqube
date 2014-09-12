@@ -19,6 +19,8 @@
  */
 package org.sonar.process;
 
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -50,7 +52,8 @@ class StopperThread extends Thread {
     try {
       future.get(terminationTimeout, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      future.cancel(true);
+      LoggerFactory.getLogger(getClass()).error("Can not terminate in " + terminationTimeout + "ms", e);
+    } finally {
       executor.shutdownNow();
     }
   }

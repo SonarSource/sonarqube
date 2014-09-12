@@ -25,7 +25,7 @@ package org.sonar.process.monitor;
 class Timeouts {
 
   private long terminationTimeout = 120000L;
-  private long jmxConnectionTimeout = 30000L;
+  private long jmxConnectionTimeout = 15000L;
   private long monitorPingInterval = 3000L;
   private long monitorIsReadyTimeout = 10000L;
   private long autokillPingTimeout = 60000L;

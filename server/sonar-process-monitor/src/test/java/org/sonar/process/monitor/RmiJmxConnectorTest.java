@@ -22,6 +22,7 @@ package org.sonar.process.monitor;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessMXBean;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -30,6 +31,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class RmiJmxConnectorTest {
+
+  @Test
+  public void fail_to_connect_in_timely_fashion() throws Exception {
+    RmiJmxConnector connector = new RmiJmxConnector();
+    ProcessRef ref = mock(ProcessRef.class);
+
+    JavaCommand command = new JavaCommand("foo").setJmxPort(NetworkUtils.freePort());
+    try {
+      connector.connect(command, ref, 0L);
+      fail();
+    } catch (IllegalStateException e) {
+      // ok
+    }
+  }
 
   @Test
   public void throw_exception_on_timeout() throws Exception {
