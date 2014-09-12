@@ -124,12 +124,8 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
   }
 
   private final QueryContext getQueryContext(Request request) {
-
-    Boolean facet = (request.paramAsBoolean(PARAM_FACETS) != null) ?
-      request.paramAsBoolean(PARAM_FACETS) : false;
-
     return new QueryContext().addFieldsToReturn(request.paramAsStrings(PARAM_FIELDS))
-      .setFacet(facet)
+      .setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS))
       .setPage(request.mandatoryParamAsInt(PARAM_PAGE),
         request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
   }
