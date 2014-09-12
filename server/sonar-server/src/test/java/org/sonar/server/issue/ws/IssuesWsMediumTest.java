@@ -34,8 +34,6 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.SnapshotTesting;
-import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
@@ -119,8 +117,8 @@ public class IssuesWsMediumTest {
       .setId(1L)
       .setKey("MyProject")
       .setProjectId(1L);
-    tester.get(ComponentDao.class).insert(session, project);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(project));
+    db.componentDao().insert(session, project);
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(project));
 
     // project can be seen by anyone
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
@@ -130,8 +128,8 @@ public class IssuesWsMediumTest {
       .setProjectId(1L)
       .setKey("MyComponent")
       .setId(2L);
-    tester.get(ComponentDao.class).insert(session, resource);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(resource));
+    db.componentDao().insert(session, resource);
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource));
 
     IssueDto issue = new IssueDto()
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))

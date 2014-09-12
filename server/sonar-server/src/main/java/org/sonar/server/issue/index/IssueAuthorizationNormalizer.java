@@ -61,15 +61,6 @@ public class IssueAuthorizationNormalizer extends BaseNormalizer<IssueAuthorizat
       }
       return fields;
     }
-
-    public static final IndexField of(String fieldName) {
-      for (IndexField field : ALL_FIELDS) {
-        if (field.field().equals(fieldName)) {
-          return field;
-        }
-      }
-      throw new IllegalStateException("Could not find an IndexField for '" + fieldName + "'");
-    }
   }
 
   @Override

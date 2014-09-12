@@ -59,7 +59,6 @@ public class InternalPermissionService implements ServerComponent {
   private static final String REMOVE = "remove";
 
   private static final String OBJECT_TYPE_USER = "User";
-  private static final String OBJECT_TYPE_COMPONENT = "Component";
   private static final String OBJECT_TYPE_GROUP = "Group";
   private static final String NOT_FOUND_FORMAT = "%s %s does not exist";
 
@@ -145,9 +144,6 @@ public class InternalPermissionService implements ServerComponent {
 
       for (String componentKey : query.getSelectedComponents()) {
         AuthorizedComponentDto component = dbClient.componentDao().getAuthorizedComponentByKey(componentKey, session);
-        if (component == null) {
-          throw new IllegalStateException("Unable to find component with key " + componentKey);
-        }
         permissionFacade.applyPermissionTemplate(session, query.getTemplateKey(), component.getId());
         synchronizePermissions(componentKey);
       }

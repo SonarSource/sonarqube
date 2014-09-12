@@ -20,58 +20,68 @@
 
 package org.sonar.core.user;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class RoleDaoTest extends AbstractDaoTestCase {
 
+  DbSession session;
+
+  RoleDao dao;
+
+  @Before
+  public void setUp() throws Exception {
+    session = getMyBatis().openSession(false);
+    dao = new RoleDao();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
+  }
+
   @Test
   public void retrieve_global_user_permissions() throws Exception {
     setupData("globalUserPermissions");
 
-    RoleDao dao = new RoleDao(getMyBatis());
-
-    assertThat(dao.selectUserPermissions("admin_user", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    assertThat(dao.selectUserPermissions("profile_admin_user", null)).containsOnly(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    assertThat(dao.selectUserPermissions(session, "admin_user", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    assertThat(dao.selectUserPermissions(session, "profile_admin_user", null)).containsOnly(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   @Test
   public void retrieve_resource_user_permissions() throws Exception {
     setupData("resourceUserPermissions");
 
-    RoleDao dao = new RoleDao(getMyBatis());
-
-    assertThat(dao.selectUserPermissions("admin_user", 1L)).containsOnly(UserRole.ADMIN, UserRole.USER);
-    assertThat(dao.selectUserPermissions("browse_admin_user", 1L)).containsOnly(UserRole.USER);
+    assertThat(dao.selectUserPermissions(session, "admin_user", 1L)).containsOnly(UserRole.ADMIN, UserRole.USER);
+    assertThat(dao.selectUserPermissions(session, "browse_admin_user", 1L)).containsOnly(UserRole.USER);
   }
 
   @Test
   public void retrieve_global_group_permissions() throws Exception {
     setupData("globalGroupPermissions");
 
-    RoleDao dao = new RoleDao(getMyBatis());
-
-    assertThat(dao.selectGroupPermissions("sonar-administrators", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN,
+    assertThat(dao.selectGroupPermissions(session, "sonar-administrators", null)).containsOnly(GlobalPermissions.SYSTEM_ADMIN, GlobalPermissions.QUALITY_PROFILE_ADMIN,
         GlobalPermissions.DASHBOARD_SHARING);
-    assertThat(dao.selectGroupPermissions("sonar-users", null)).containsOnly(GlobalPermissions.DASHBOARD_SHARING);
-    assertThat(dao.selectGroupPermissions(DefaultGroups.ANYONE, null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
-    assertThat(dao.selectGroupPermissions("anyone", null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
-    assertThat(dao.selectGroupPermissions("AnYoNe", null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions(session, "sonar-users", null)).containsOnly(GlobalPermissions.DASHBOARD_SHARING);
+    assertThat(dao.selectGroupPermissions(session, DefaultGroups.ANYONE, null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions(session, "anyone", null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
+    assertThat(dao.selectGroupPermissions(session, "AnYoNe", null)).containsOnly(GlobalPermissions.DRY_RUN_EXECUTION, GlobalPermissions.SCAN_EXECUTION);
   }
 
   @Test
   public void retrieve_resource_group_permissions() throws Exception {
     setupData("resourceGroupPermissions");
 
-    RoleDao dao = new RoleDao(getMyBatis());
-
-    assertThat(dao.selectGroupPermissions("sonar-administrators", 1L)).containsOnly(UserRole.ADMIN, UserRole.CODEVIEWER);
-    assertThat(dao.selectGroupPermissions("sonar-users", 1L)).containsOnly(UserRole.CODEVIEWER);
+    assertThat(dao.selectGroupPermissions(session, "sonar-administrators", 1L)).containsOnly(UserRole.ADMIN, UserRole.CODEVIEWER);
+    assertThat(dao.selectGroupPermissions(session, "sonar-users", 1L)).containsOnly(UserRole.CODEVIEWER);
   }
 
   @Test
@@ -80,8 +90,8 @@ public class RoleDaoTest extends AbstractDaoTestCase {
 
     UserRoleDto userRoleToDelete = new UserRoleDto().setUserId(200L).setRole(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    RoleDao dao = new RoleDao(getMyBatis());
-    dao.deleteUserRole(userRoleToDelete);
+    dao.deleteUserRole(userRoleToDelete, session);
+    session.commit();
 
     checkTable("globalUserPermissions", "user_roles", "user_id", "role");
   }
@@ -92,8 +102,8 @@ public class RoleDaoTest extends AbstractDaoTestCase {
 
     UserRoleDto userRoleToDelete = new UserRoleDto().setUserId(200L).setRole(UserRole.USER).setResourceId(1L);
 
-    RoleDao dao = new RoleDao(getMyBatis());
-    dao.deleteUserRole(userRoleToDelete);
+    dao.deleteUserRole(userRoleToDelete, session);
+    session.commit();
 
     checkTable("resourceUserPermissions", "user_roles", "user_id", "role");
   }
@@ -104,8 +114,8 @@ public class RoleDaoTest extends AbstractDaoTestCase {
 
     GroupRoleDto groupRoleToDelete = new GroupRoleDto().setGroupId(100L).setRole(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    RoleDao dao = new RoleDao(getMyBatis());
-    dao.deleteGroupRole(groupRoleToDelete);
+    dao.deleteGroupRole(groupRoleToDelete, session);
+    session.commit();
 
     checkTable("globalGroupPermissions", "group_roles", "group_id", "role");
   }
@@ -116,8 +126,8 @@ public class RoleDaoTest extends AbstractDaoTestCase {
 
     GroupRoleDto groupRoleToDelete = new GroupRoleDto().setGroupId(100L).setRole(UserRole.CODEVIEWER).setResourceId(1L);
 
-    RoleDao dao = new RoleDao(getMyBatis());
-    dao.deleteGroupRole(groupRoleToDelete);
+    dao.deleteGroupRole(groupRoleToDelete, session);
+    session.commit();
 
     checkTable("resourceGroupPermissions", "group_roles", "group_id", "role");
   }

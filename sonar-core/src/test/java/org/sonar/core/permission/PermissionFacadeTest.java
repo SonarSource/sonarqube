@@ -56,7 +56,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-03").getTime());
 
     session = getMyBatis().openSession(false);
-    RoleDao roleDao = new RoleDao(getMyBatis());
+    RoleDao roleDao = new RoleDao();
     UserDao userDao = new UserDao(getMyBatis());
     permissionTemplateDao = new PermissionTemplateDao(getMyBatis(), System2.INSTANCE);
     Settings settings = new Settings();

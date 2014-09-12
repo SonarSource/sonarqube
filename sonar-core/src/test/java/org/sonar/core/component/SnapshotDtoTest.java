@@ -59,6 +59,7 @@ public class SnapshotDtoTest {
       .setPeriodDate(5, DateUtils.parseDate("2014-06-05"));
 
     assertThat(snapshotDto.getId()).isEqualTo(10L);
+    assertThat(snapshotDto.getKey()).isEqualTo(10L);
     assertThat(snapshotDto.getParentId()).isEqualTo(2L);
     assertThat(snapshotDto.getRootId()).isEqualTo(3L);
     assertThat(snapshotDto.getRootProjectId()).isEqualTo(20L);
