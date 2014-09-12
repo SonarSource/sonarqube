@@ -142,17 +142,20 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       ));
 
     // Issue is assigned Filter
-    if (query.assigned() != null && query.assigned()) {
+    boolean assigned = (query.assigned() != null) ? query.assigned() : false;
+    if (assigned) {
       esFilter.must(FilterBuilders.existsFilter(IssueNormalizer.IssueField.ASSIGNEE.field()));
     }
 
     // Issue is planned Filter
-    if (query.planned() != null && query.planned()) {
+    boolean planned = (query.planned() != null) ? query.planned() : false;
+    if (planned) {
       esFilter.must(FilterBuilders.existsFilter(IssueNormalizer.IssueField.ACTION_PLAN.field()));
     }
 
     // Issue is Resolved Filter
-    if (query.resolved() != null && query.resolved()) {
+    boolean resolved = (query.resolved() != null) ? query.resolved() : false;
+    if (resolved) {
       esFilter.must(FilterBuilders.existsFilter(IssueNormalizer.IssueField.RESOLUTION.field()));
     }
 

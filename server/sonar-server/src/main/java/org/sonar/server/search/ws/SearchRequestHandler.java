@@ -124,8 +124,8 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
   }
 
   private final QueryContext getQueryContext(Request request) {
-    return new QueryContext()
-      .addFieldsToReturn(request.paramAsStrings(PARAM_FIELDS))
+    QueryContext context = new QueryContext();
+    return context.addFieldsToReturn(request.paramAsStrings(PARAM_FIELDS))
       .setFacet(request.paramAsBoolean(PARAM_FACETS))
       .setPage(request.mandatoryParamAsInt(PARAM_PAGE),
         request.mandatoryParamAsInt(PARAM_PAGE_SIZE));

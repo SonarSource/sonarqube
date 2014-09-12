@@ -480,7 +480,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
 
   public static IssueDto createFor(Project project, RuleDto rule) {
     return new IssueDto()
-      .setRootComponentId(new Long(project.getId()))
+      .setRootComponentId(Long.valueOf(project.getId()))
       .setRuleId(rule.getId())
       .setKee(UUID.randomUUID().toString());
   }

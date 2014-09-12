@@ -421,9 +421,8 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       }
     } catch (Exception e) {
       LOG.debug("could not multi-get.", e);
-    } finally {
-      return results;
     }
+    return results;
   }
 
   public Collection<DOMAIN> getByKeys(KEY... keys) {

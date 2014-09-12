@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultiset;
@@ -92,6 +93,7 @@ public class IssueService implements ServerComponent {
   private final PreviewCache dryRunCache;
 
   @Deprecated
+  @VisibleForTesting
   public IssueService(DefaultIssueFinder finder,
     IssueWorkflow workflow,
     IssueStorage issueStorage,
