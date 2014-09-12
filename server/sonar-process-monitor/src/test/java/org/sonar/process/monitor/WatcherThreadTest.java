@@ -24,6 +24,8 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,9 +35,11 @@ public class WatcherThreadTest {
   @Test(timeout = 10000L)
   public void kill_process_if_watcher_is_interrupted() throws Exception {
     ProcessRef ref = mock(ProcessRef.class, Mockito.RETURNS_DEEP_STUBS);
+    final AtomicBoolean waiting = new AtomicBoolean(false);
     when(ref.getProcess().waitFor()).thenAnswer(new Answer<Object>() {
       @Override
       public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        waiting.set(true);
         Thread.sleep(Long.MAX_VALUE);
         return 0;
       }
@@ -44,9 +48,11 @@ public class WatcherThreadTest {
 
     WatcherThread watcher = new WatcherThread(ref, monitor);
     watcher.start();
-    Thread.sleep(50L);
-    watcher.interrupt();
 
+    while (!waiting.get()) {
+      Thread.sleep(50L);
+    }
+    watcher.interrupt();
     verify(ref).hardKill();
   }
 }
