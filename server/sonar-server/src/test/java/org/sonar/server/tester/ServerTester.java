@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.resources.Language;
-import org.sonar.process.MonitoredProcess;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.Props;
 import org.sonar.search.SearchServer;
@@ -35,6 +34,7 @@ import org.sonar.server.search.IndexProperties;
 import org.sonar.server.ws.WsTester;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -71,13 +71,8 @@ public class ServerTester extends ExternalResource {
     Properties properties = new Properties();
     properties.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
     properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
-    properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
     properties.setProperty(SearchServer.SONAR_PATH_HOME, homeDir.getAbsolutePath());
-    try {
-      searchServer = new SearchServer(new Props(properties), false, false);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    searchServer = new SearchServer(new Props(properties));
   }
 
   /**
@@ -99,7 +94,6 @@ public class ServerTester extends ExternalResource {
 
     properties.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
     properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
-    properties.setProperty(MonitoredProcess.NAME_PROPERTY, "ES");
 
     properties.setProperty("sonar.path.home", homeDir.getAbsolutePath());
     properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");

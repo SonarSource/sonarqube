@@ -19,62 +19,64 @@
  */
 package org.sonar.server.app;
 
+import com.google.common.base.Throwables;
+import org.apache.catalina.LifecycleException;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.ProcessUtils;
 import org.sonar.process.Props;
-import org.sonar.process.Terminable;
 
 import java.io.File;
 
-class EmbeddedTomcat implements Terminable {
+class EmbeddedTomcat {
 
   private final Props props;
   private Tomcat tomcat = null;
-  private Thread hook = null;
-  private boolean ready = false;
+  private volatile StandardContext webappContext;
 
   EmbeddedTomcat(Props props) {
     this.props = props;
   }
 
   void start() {
-    if (tomcat != null || hook != null) {
-      throw new IllegalStateException("Server is already started");
-    }
+    // '%2F' (slash /) and '%5C' (backslash \) are permitted as path delimiters in URLs
+    // See Ruby on Rails url_for
+    System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
 
+    System.setProperty("org.apache.catalina.startup.EXIT_ON_INIT_FAILURE", "true");
+
+    tomcat = new Tomcat();
+    // Initialize directories
+    String basedir = tomcatBasedir().getAbsolutePath();
+    tomcat.setBaseDir(basedir);
+    tomcat.getHost().setAppBase(basedir);
+    tomcat.getHost().setAutoDeploy(false);
+    tomcat.getHost().setCreateDirs(false);
+    tomcat.getHost().setDeployOnStartup(true);
+    Logging.configure(tomcat, props);
+    Connectors.configure(tomcat, props);
+    webappContext = Webapp.configure(tomcat, props);
     try {
-      // '%2F' (slash /) and '%5C' (backslash \) are permitted as path delimiters in URLs
-      // See Ruby on Rails url_for
-      System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
-
-      System.setProperty("org.apache.catalina.startup.EXIT_ON_INIT_FAILURE", "true");
-
-      tomcat = new Tomcat();
-      // Initialize directories
-      String basedir = tomcatBasedir().getAbsolutePath();
-      tomcat.setBaseDir(basedir);
-      tomcat.getHost().setAppBase(basedir);
-      tomcat.getHost().setAutoDeploy(false);
-      tomcat.getHost().setCreateDirs(false);
-      tomcat.getHost().setDeployOnStartup(true);
-      Logging.configure(tomcat, props);
-      Connectors.configure(tomcat, props);
-      StandardContext webappContext = Webapp.configure(tomcat, props);
-      ProcessUtils.addSelfShutdownHook(this);
       tomcat.start();
+    } catch (LifecycleException e) {
+      Throwables.propagate(e);
+    }
+  }
 
-      if (webappContext.getState().isAvailable()) {
-        ready = true;
-        tomcat.getServer().await();
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to start web server", e);
-    } finally {
-      // Failed to start or received a shutdown command (should never occur as shutdown port is disabled)
-      terminate();
+  boolean isReady() {
+    switch (webappContext.getState()) {
+      case NEW:
+      case INITIALIZING:
+      case INITIALIZED:
+      case STARTING_PREP:
+      case STARTING:
+        return false;
+      case STARTED:
+        return true;
+      default:
+        // problem, stopped or failed
+        throw new IllegalStateException("Webapp did not start");
     }
   }
 
@@ -82,25 +84,19 @@ class EmbeddedTomcat implements Terminable {
     return new File(props.value("sonar.path.temp"), "tc");
   }
 
-  boolean isReady() {
-    return ready && tomcat != null;
-  }
-
-  @Override
-  public void terminate() {
-    if (tomcat != null) {
-      synchronized (tomcat) {
-        if (tomcat.getServer().getState().isAvailable()) {
-          try {
-            tomcat.stop();
-            tomcat.destroy();
-          } catch (Exception e) {
-            LoggerFactory.getLogger(EmbeddedTomcat.class).error("Fail to stop web service", e);
-          }
-        }
+  void terminate() {
+    if (tomcat.getServer().getState().isAvailable()) {
+      try {
+        tomcat.stop();
+        tomcat.destroy();
+      } catch (Exception e) {
+        LoggerFactory.getLogger(EmbeddedTomcat.class).error("Fail to stop web server", e);
       }
     }
-    ready = false;
     FileUtils.deleteQuietly(tomcatBasedir());
+  }
+
+  void awaitTermination() {
+    tomcat.getServer().await();
   }
 }
