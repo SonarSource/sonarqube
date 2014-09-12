@@ -84,6 +84,7 @@ public class IssueAuthorizationIndexMediumTest {
 
     assertThat(index.getByKey(project.getKey())).isNull();
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+    session.commit();
 
     IssueAuthorizationDoc issueAuthorizationDoc = index.getByKey(project.getKey());
     assertThat(issueAuthorizationDoc).isNotNull();
@@ -118,6 +119,7 @@ public class IssueAuthorizationIndexMediumTest {
     session.commit();
 
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+    session.commit();
     assertThat(index.getByKey(project.getKey())).isNotNull();
 
     db.issueAuthorizationDao().deleteByKey(session, project.key());

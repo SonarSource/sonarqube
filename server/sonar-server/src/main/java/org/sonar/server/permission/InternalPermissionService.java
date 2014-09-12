@@ -117,11 +117,11 @@ public class InternalPermissionService implements ServerComponent {
       }
 
       permissionFacade.grantDefaultRoles(session, component.getId(), component.qualifier());
+      synchronizePermissions(session, componentKey);
       session.commit();
     } finally {
       session.close();
     }
-    synchronizePermissions(componentKey);
   }
 
   public void applyPermissionTemplate(Map<String, Object> params) {
@@ -145,7 +145,7 @@ public class InternalPermissionService implements ServerComponent {
       for (String componentKey : query.getSelectedComponents()) {
         AuthorizedComponentDto component = dbClient.componentDao().getAuthorizedComponentByKey(componentKey, session);
         permissionFacade.applyPermissionTemplate(session, query.getTemplateKey(), component.getId());
-        synchronizePermissions(componentKey);
+        synchronizePermissions(session, componentKey);
       }
       session.commit();
     } finally {
@@ -170,15 +170,16 @@ public class InternalPermissionService implements ServerComponent {
         changed = applyGroupPermissionChange(session, operation, permissionChangeQuery);
       }
       if (changed) {
+        String project = permissionChangeQuery.component();
+        if (project != null) {
+          synchronizePermissions(session, project);
+        }
         session.commit();
       }
     } finally {
       session.close();
     }
-    String project = permissionChangeQuery.component();
-    if (changed && project != null) {
-      synchronizePermissions(project);
-    }
+
   }
 
   private boolean applyGroupPermissionChange(DbSession session, String operation, PermissionChangeQuery permissionChangeQuery) {
@@ -270,16 +271,9 @@ public class InternalPermissionService implements ServerComponent {
     }
   }
 
-  private void synchronizePermissions(String projectKey) {
-    // The synchronisation cannot use an existing session, otherwise it's failing with the error :
-    // org.apache.ibatis.executor.ExecutorException: Executor was closed
-    DbSession session = dbClient.openSession(false);
-    try {
+  private void synchronizePermissions(DbSession session, String projectKey) {
       dbClient.issueAuthorizationDao().synchronizeAfter(session,
         index.get(IssueAuthorizationIndex.class).getLastSynchronization(),
         ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, projectKey));
-    } finally {
-      session.close();
-    }
   }
 }

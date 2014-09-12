@@ -63,7 +63,6 @@ public class IndexSynchronizerMediumTest {
 
   @Test
   public void can_synchronize() throws Exception {
-
     int numberOfRules = 100;
 
     for (int i = 0; i < numberOfRules; i++) {
@@ -76,6 +75,7 @@ public class IndexSynchronizerMediumTest {
     assertThat(indexClient.get(RuleIndex.class).countAll()).isEqualTo(0);
 
     synchronizer.synchronize(dbSession, dbClient.ruleDao(), indexClient.get(RuleIndex.class));
+    dbSession.commit();
     assertThat(indexClient.get(RuleIndex.class).countAll()).isEqualTo(numberOfRules);
   }
 }

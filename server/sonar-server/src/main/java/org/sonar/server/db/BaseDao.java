@@ -345,7 +345,6 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }
-    session.commit();
   }
 
   private String getSynchronizeStatementFQN() {
