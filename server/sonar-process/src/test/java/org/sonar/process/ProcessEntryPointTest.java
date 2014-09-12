@@ -194,6 +194,11 @@ public class ProcessEntryPointTest {
     }
 
     @Override
+    public boolean isReady() {
+      return true;
+    }
+
+    @Override
     public void awaitTermination() {
 
     }
@@ -209,6 +214,11 @@ public class ProcessEntryPointTest {
     @Override
     public void start() {
       throw new IllegalStateException("ERROR");
+    }
+
+    @Override
+    public boolean isReady() {
+      return false;
     }
 
     @Override

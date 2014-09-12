@@ -22,10 +22,20 @@ package org.sonar.process;
 public interface MonitoredProcess extends Terminable {
 
   /**
-   * Starts and blocks until ready
+   * Starts process. No need to block until fully started and operational.
    */
   void start();
 
+  /**
+   * True if the process is started and operational (-> can accept requests), false if
+   * it's still starting. An exception is thrown is process failed to start (not starting
+   * nor started).
+   */
+  boolean isReady();
+
+  /**
+   * Blocks until the process is terminated
+   */
   void awaitTermination();
 
 }

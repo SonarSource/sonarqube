@@ -19,6 +19,7 @@
  */
 package org.sonar.process.monitor;
 
+import org.slf4j.LoggerFactory;
 import org.sonar.process.JmxUtils;
 import org.sonar.process.LoopbackAddress;
 import org.sonar.process.ProcessMXBean;
@@ -92,6 +93,7 @@ class RmiJmxConnector implements JmxConnector {
     execute(new Callable() {
       @Override
       public Void call() throws Exception {
+        LoggerFactory.getLogger(getClass()).info("Request termination of " + processRef);
         mbeans.get(processRef).terminate();
         return null;
       }

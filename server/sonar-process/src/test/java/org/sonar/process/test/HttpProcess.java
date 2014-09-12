@@ -42,6 +42,7 @@ import java.io.IOException;
 public class HttpProcess implements MonitoredProcess {
 
   private final Server server;
+  private boolean ready = false;
   // temp dir is specific to this process
   private final File tempDir = new File(System.getProperty("java.io.tmpdir"));
 
@@ -70,14 +71,21 @@ public class HttpProcess implements MonitoredProcess {
     });
     try {
       server.start();
-      while (!server.isStarted()) {
-        Thread.sleep(100L);
-      }
-      writeTimeToFile("readyAt");
-
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start Jetty", e);
     }
+  }
+
+  @Override
+  public boolean isReady() {
+    if (ready) {
+      return true;
+    }
+    if (server.isStarted()) {
+      ready = true;
+      writeTimeToFile("readyAt");
+    }
+    return false;
   }
 
   @Override

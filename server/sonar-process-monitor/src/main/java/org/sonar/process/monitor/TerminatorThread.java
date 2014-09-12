@@ -48,7 +48,6 @@ class TerminatorThread extends Thread {
       final ProcessRef processRef = processes.get(index);
       if (!processRef.isTerminated()) {
         processRef.setPingEnabled(false);
-
         try {
           jmxConnector.terminate(processRef, timeouts.getTerminationTimeout());
         } catch (Exception ignored) {

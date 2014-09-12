@@ -51,6 +51,11 @@ public class StandardProcess implements MonitoredProcess {
   }
 
   @Override
+  public boolean isReady() {
+    return state == State.STARTED;
+  }
+
+  @Override
   public void awaitTermination() {
     try {
       daemon.join();

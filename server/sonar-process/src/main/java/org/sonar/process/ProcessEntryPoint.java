@@ -75,10 +75,17 @@ public class ProcessEntryPoint implements ProcessMXBean {
 
     try {
       monitoredProcess.start();
+      boolean ready = false;
+      while (!ready) {
+        ready = monitoredProcess.isReady();
+        Thread.sleep(200L);
+      }
       if (lifecycle.tryToMoveTo(State.STARTED)) {
         monitoredProcess.awaitTermination();
       }
-    } catch (Exception ignored) {
+    } catch (Exception e) {
+      LoggerFactory.getLogger(getClass()).warn("Fail to start", e);
+
     } finally {
       terminate();
     }
@@ -86,7 +93,6 @@ public class ProcessEntryPoint implements ProcessMXBean {
 
   @Override
   public boolean isReady() {
-    LoggerFactory.getLogger(getClass()).warn("Received JMX request isReady: " + (lifecycle.getState() == State.STARTED));
     return lifecycle.getState() == State.STARTED;
   }
 

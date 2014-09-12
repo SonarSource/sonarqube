@@ -20,16 +20,7 @@
 package org.sonar.server.app;
 
 import com.google.common.base.Throwables;
-import com.google.common.util.concurrent.Uninterruptibles;
-import org.apache.catalina.Container;
-import org.apache.catalina.Executor;
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.LifecycleEvent;
-import org.apache.catalina.LifecycleListener;
-import org.apache.catalina.LifecycleState;
-import org.apache.catalina.Server;
-import org.apache.catalina.Service;
-import org.apache.catalina.connector.Connector;
+import org.apache.catalina.LifecycleException;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
@@ -37,13 +28,11 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.Props;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 class EmbeddedTomcat {
 
   private final Props props;
   private Tomcat tomcat = null;
-  private Thread hook = null;
   private volatile StandardContext webappContext;
 
   EmbeddedTomcat(Props props) {
@@ -51,53 +40,43 @@ class EmbeddedTomcat {
   }
 
   void start() {
-    if (tomcat != null || hook != null) {
-      throw new IllegalStateException("Server is already started");
-    }
+    // '%2F' (slash /) and '%5C' (backslash \) are permitted as path delimiters in URLs
+    // See Ruby on Rails url_for
+    System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
 
+    System.setProperty("org.apache.catalina.startup.EXIT_ON_INIT_FAILURE", "true");
+
+    tomcat = new Tomcat();
+    // Initialize directories
+    String basedir = tomcatBasedir().getAbsolutePath();
+    tomcat.setBaseDir(basedir);
+    tomcat.getHost().setAppBase(basedir);
+    tomcat.getHost().setAutoDeploy(false);
+    tomcat.getHost().setCreateDirs(false);
+    tomcat.getHost().setDeployOnStartup(true);
+    Logging.configure(tomcat, props);
+    Connectors.configure(tomcat, props);
+    webappContext = Webapp.configure(tomcat, props);
     try {
-      // '%2F' (slash /) and '%5C' (backslash \) are permitted as path delimiters in URLs
-      // See Ruby on Rails url_for
-      System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
-
-      System.setProperty("org.apache.catalina.startup.EXIT_ON_INIT_FAILURE", "true");
-
-      tomcat = new Tomcat();
-      // Initialize directories
-      String basedir = tomcatBasedir().getAbsolutePath();
-      tomcat.setBaseDir(basedir);
-      tomcat.getHost().setAppBase(basedir);
-      tomcat.getHost().setAutoDeploy(false);
-      tomcat.getHost().setCreateDirs(false);
-      tomcat.getHost().setDeployOnStartup(true);
-      Logging.configure(tomcat, props);
-      Connectors.configure(tomcat, props);
-      webappContext = Webapp.configure(tomcat, props);
       tomcat.start();
-      waitForWebappReady();
-
-    } catch (Exception e) {
+    } catch (LifecycleException e) {
       Throwables.propagate(e);
     }
   }
 
-  private void waitForWebappReady() {
-    while (true) {
-      switch (webappContext.getState()) {
-        case NEW:
-        case INITIALIZING:
-        case INITIALIZED:
-        case STARTING_PREP:
-        case STARTING:
-          Uninterruptibles.sleepUninterruptibly(300L, TimeUnit.MILLISECONDS);
-          break;
-        case STARTED:
-          // ok
-          return;
-        default:
-          // problem, stopped or failed
-          throw new IllegalStateException("YYY Webapp did not start");
-      }
+  boolean isReady() {
+    switch (webappContext.getState()) {
+      case NEW:
+      case INITIALIZING:
+      case INITIALIZED:
+      case STARTING_PREP:
+      case STARTING:
+        return false;
+      case STARTED:
+        return true;
+      default:
+        // problem, stopped or failed
+        throw new IllegalStateException("Webapp did not start");
     }
   }
 

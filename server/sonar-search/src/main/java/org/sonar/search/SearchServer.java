@@ -143,20 +143,11 @@ public class SearchServer implements MonitoredProcess {
         .setTemplate("*")
         .addMapping("_default_", "{\"dynamic\": \"strict\"}")
         .get();
-
-      boolean ready = false;
-      while (!ready) {
-        ready = isReady();
-        try {
-          Thread.sleep(300L);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-      }
     }
   }
 
-  boolean isReady() {
+  @Override
+  public boolean isReady() {
     return node.client().admin().cluster().prepareHealth()
       .setWaitForYellowStatus()
       .setTimeout(TimeValue.timeValueSeconds(3L))

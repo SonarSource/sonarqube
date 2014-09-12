@@ -41,6 +41,11 @@ public class WebServer implements MonitoredProcess {
   }
 
   @Override
+  public boolean isReady() {
+    return tomcat.isReady();
+  }
+
+  @Override
   public void terminate() {
     tomcat.terminate();
   }
