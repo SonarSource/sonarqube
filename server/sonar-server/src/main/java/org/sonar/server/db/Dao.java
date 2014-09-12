@@ -24,9 +24,11 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 public interface Dao<DTO extends Dto<KEY>, KEY extends Serializable> extends ServerComponent {
 
@@ -79,5 +81,7 @@ public interface Dao<DTO extends Dto<KEY>, KEY extends Serializable> extends Ser
   void deleteByKey(DbSession session, KEY key);
 
   void synchronizeAfter(DbSession session, Date date);
+
+  void synchronizeAfter(DbSession session, Date date, Map<String, String> params);
 
 }

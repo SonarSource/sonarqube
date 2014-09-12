@@ -319,16 +319,25 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
   }
 
   protected Map getSynchronizationParams(Date date) {
-    Map<String, Object> params = newHashMap();
-    params.put("date", new Timestamp(date.getTime()));
-    return params;
+    return getSynchronizationParams(date, Collections.<String, String>emptyMap());
+  }
+
+  protected Map getSynchronizationParams(Date date, Map<String, String> params) {
+    Map<String, Object> finalParams = newHashMap();
+    finalParams.put("date", new Timestamp(date.getTime()));
+    return finalParams;
   }
 
   @Override
   public void synchronizeAfter(final DbSession session, Date date) {
+    this.synchronizeAfter(session, date, Collections.<String, String>emptyMap());
+  }
+
+  @Override
+  public void synchronizeAfter(final DbSession session, Date date, Map<String, String> params) {
     try {
       DbSynchronizationHandler handler = getSynchronizationResultHandler(session);
-      session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date), handler);
+      session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date, params), handler);
       handler.enqueueCollected();
     } catch (Exception e) {
       throw new IllegalStateException(e);

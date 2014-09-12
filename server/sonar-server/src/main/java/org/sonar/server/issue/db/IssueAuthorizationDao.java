@@ -44,6 +44,8 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, IssueAuthorizationDto, String> implements DaoComponent {
 
+  public static final String PROJECT_KEY = "project";
+
   public IssueAuthorizationDao() {
     this(System2.INSTANCE);
   }
@@ -96,11 +98,12 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
   }
 
   @Override
-  protected Map getSynchronizationParams(Date date) {
-    Map<String, Object> params = super.getSynchronizationParams(date);
-    params.put("permission", UserRole.USER);
-    params.put("anyone", DefaultGroups.ANYONE);
-    return params;
+  protected Map getSynchronizationParams(Date date, Map<String, String> params) {
+    Map<String, Object> finalParams = super.getSynchronizationParams(date, params);
+    finalParams.put("permission", UserRole.USER);
+    finalParams.put("anyone", DefaultGroups.ANYONE);
+    finalParams.put(PROJECT_KEY, params.get(PROJECT_KEY));
+    return finalParams;
   }
 
   @Override
