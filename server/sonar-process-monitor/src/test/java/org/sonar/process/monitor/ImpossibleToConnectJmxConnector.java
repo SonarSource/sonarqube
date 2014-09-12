@@ -21,7 +21,7 @@ package org.sonar.process.monitor;
 
 public class ImpossibleToConnectJmxConnector implements JmxConnector {
   @Override
-  public void connect(JavaCommand command, ProcessRef processRef) {
+  public void connect(JavaCommand command, ProcessRef processRef, long timeoutMs) {
     throw new IllegalStateException("Test - Impossible to connect to JMX");
   }
 
@@ -31,12 +31,12 @@ public class ImpossibleToConnectJmxConnector implements JmxConnector {
   }
 
   @Override
-  public boolean isReady(ProcessRef process) {
+  public boolean isReady(ProcessRef process, long timeoutMs) {
     return false;
   }
 
   @Override
-  public void terminate(ProcessRef process) {
+  public void terminate(ProcessRef process, long timeoutMs) {
 
   }
 }

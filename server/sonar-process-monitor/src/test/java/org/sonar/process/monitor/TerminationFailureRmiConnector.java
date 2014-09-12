@@ -20,12 +20,8 @@
 package org.sonar.process.monitor;
 
 public class TerminationFailureRmiConnector extends RmiJmxConnector {
-  TerminationFailureRmiConnector(Timeouts timeouts) {
-    super(timeouts);
-  }
-
   @Override
-  public void terminate(ProcessRef processRef) {
+  public void terminate(ProcessRef processRef, long timeoutMs) {
     throw new IllegalStateException("Test - fail to send termination request");
   }
 }

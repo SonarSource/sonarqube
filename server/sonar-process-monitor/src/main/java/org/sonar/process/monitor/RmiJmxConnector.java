@@ -43,45 +43,32 @@ class RmiJmxConnector implements JmxConnector {
 
   static {
     /*
-     Prevents such warnings :
-
-     WARNING: Failed to restart: java.io.IOException: Failed to get a RMI stub: javax.naming.ServiceUnavailableException [Root exception is java.rmi.ConnectException: Connection refused to host: 127.0.0.1; nested exception is:
-     java.net.ConnectException: Connection refused]
-     Sep 11, 2014 7:32:32 PM RMIConnector RMIClientCommunicatorAdmin-doStop
-     WARNING: Failed to call the method close():java.rmi.ConnectException: Connection refused to host: 127.0.0.1; nested exception is: 
-     java.net.ConnectException: Connection refused
-     Sep 11, 2014 7:32:32 PM ClientCommunicatorAdmin Checker-run
-     WARNING: Failed to check connection: java.net.ConnectException: Connection refused
-     Sep 11, 2014 7:32:32 PM ClientCommunicatorAdmin Checker-run
-     WARNING: stopping
+     * Prevents such warnings :
+     * 
+     * WARNING: Failed to restart: java.io.IOException: Failed to get a RMI stub: javax.naming.ServiceUnavailableException [Root exception
+     * is java.rmi.ConnectException: Connection refused to host: 127.0.0.1; nested exception is:
+     * java.net.ConnectException: Connection refused]
+     * Sep 11, 2014 7:32:32 PM RMIConnector RMIClientCommunicatorAdmin-doStop
+     * WARNING: Failed to call the method close():java.rmi.ConnectException: Connection refused to host: 127.0.0.1; nested exception is:
+     * java.net.ConnectException: Connection refused
+     * Sep 11, 2014 7:32:32 PM ClientCommunicatorAdmin Checker-run
+     * WARNING: Failed to check connection: java.net.ConnectException: Connection refused
+     * Sep 11, 2014 7:32:32 PM ClientCommunicatorAdmin Checker-run
+     * WARNING: stopping
      */
     System.setProperty("sun.rmi.transport.tcp.logLevel", "SEVERE");
   }
 
   private final Map<ProcessRef, ProcessMXBean> mbeans = new IdentityHashMap<ProcessRef, ProcessMXBean>();
-  private final Timeouts timeouts;
-
-  RmiJmxConnector(Timeouts timeouts) {
-    this.timeouts = timeouts;
-  }
 
   @Override
-  public synchronized void connect(final JavaCommand command, ProcessRef processRef) {
-    ExecutorService executor = Executors.newSingleThreadExecutor();
+  public synchronized void connect(final JavaCommand command, ProcessRef processRef, long timeoutMs) {
     ConnectorCallable callable = new ConnectorCallable(command, processRef.getProcess());
-    try {
-      Future<ProcessMXBean> future = executor.submit(callable);
-      ProcessMXBean mxBean = future.get(timeouts.getJmxConnectionTimeout(), TimeUnit.MILLISECONDS);
-      if (mxBean != null) {
-        mbeans.put(processRef, mxBean);
-      }
-    } catch (Exception e) {
-      if (callable.latestException != null) {
-        throw callable.latestException;
-      }
-      throw new IllegalStateException("Fail to connect to JMX", e);
-    } finally {
-      executor.shutdownNow();
+    ProcessMXBean mxBean = execute(callable, timeoutMs);
+    if (mxBean != null) {
+      register(processRef, mxBean);
+    } else if (!processRef.isTerminated()) {
+      throw new IllegalStateException("Fail to connect to JMX RMI server of " + processRef);
     }
   }
 
@@ -91,32 +78,45 @@ class RmiJmxConnector implements JmxConnector {
   }
 
   @Override
-  public boolean isReady(final ProcessRef processRef) {
+  public boolean isReady(final ProcessRef processRef, long timeoutMs) {
+    return execute(new Callable<Boolean>() {
+      @Override
+      public Boolean call() throws Exception {
+        return mbeans.get(processRef).isReady();
+      }
+    }, timeoutMs);
+  }
+
+  @Override
+  public void terminate(final ProcessRef processRef, long timeoutMs) {
+    execute(new Callable() {
+      @Override
+      public Void call() throws Exception {
+        mbeans.get(processRef).terminate();
+        return null;
+      }
+    }, timeoutMs);
+  }
+
+  void register(ProcessRef processRef, ProcessMXBean mxBean) {
+    mbeans.put(processRef, mxBean);
+  }
+
+  private <T> T execute(Callable<T> callable, long timeoutMs) {
     ExecutorService executor = Executors.newSingleThreadExecutor();
     try {
-      Future<Boolean> future = executor.submit(new Callable<Boolean>() {
-        @Override
-        public Boolean call() throws Exception {
-          return mbeans.get(processRef).isReady();
-        }
-      });
-      return future.get(timeouts.getMonitorIsReadyTimeout(), TimeUnit.MILLISECONDS);
+      Future<T> future = executor.submit(callable);
+      return future.get(timeoutMs, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      throw new IllegalStateException("Fail send JMX request (isReady)", e);
+      throw new IllegalStateException("Fail send JMX request", e);
     } finally {
       executor.shutdownNow();
     }
   }
 
-  @Override
-  public void terminate(ProcessRef processRef) {
-    mbeans.get(processRef).terminate();
-  }
-
   private static class ConnectorCallable implements Callable<ProcessMXBean> {
     private final JavaCommand command;
     private final Process process;
-    private RuntimeException latestException;
 
     private ConnectorCallable(JavaCommand command, Process process) {
       this.command = command;
@@ -132,9 +132,8 @@ class RmiJmxConnector implements JmxConnector {
           JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, null);
           MBeanServerConnection mBeanServer = jmxConnector.getMBeanServerConnection();
           return JMX.newMBeanProxy(mBeanServer, JmxUtils.objectName(command.getKey()), ProcessMXBean.class);
-        } catch (Exception e) {
-          latestException = new IllegalStateException(String.format(
-            "Fail to connect to JMX bean of %s [%s] ", command.getKey(), jmxUrl), e);
+        } catch (Exception ignored) {
+          // ignored, RMI server is probably not started yet
         }
         Thread.sleep(300L);
       }

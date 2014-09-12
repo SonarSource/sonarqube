@@ -22,10 +22,6 @@ package org.sonar.process.monitor;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Terminates all monitored processes. Tries to gracefully terminate each process,
@@ -53,22 +49,12 @@ class TerminatorThread extends Thread {
       if (!processRef.isTerminated()) {
         processRef.setPingEnabled(false);
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future future = executor.submit(new Runnable() {
-          @Override
-          public void run() {
-            // ask for graceful termination
-            LoggerFactory.getLogger(getClass()).info("Request termination of " + processRef);
-            jmxConnector.terminate(processRef);
-          }
-        });
         try {
-          future.get(timeouts.getTerminationTimeout(), TimeUnit.MILLISECONDS);
+          jmxConnector.terminate(processRef, timeouts.getTerminationTimeout());
         } catch (Exception ignored) {
           // failed to gracefully stop in a timely fashion
           LoggerFactory.getLogger(getClass()).info(String.format("Kill %s", processRef));
         } finally {
-          executor.shutdownNow();
           // kill even if graceful termination was done, just to be sure that physical process is really down
           processRef.hardKill();
         }

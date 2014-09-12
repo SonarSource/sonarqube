@@ -24,12 +24,21 @@ package org.sonar.process.monitor;
  */
 public interface JmxConnector {
 
-  void connect(JavaCommand command, ProcessRef processRef);
+  /**
+   * Throws an exception if timeout reached
+   */
+  void connect(JavaCommand command, ProcessRef processRef, long timeoutMs);
 
   void ping(ProcessRef process);
 
-  boolean isReady(ProcessRef process);
+  /**
+   * Throws an exception if timeout reached
+   */
+  boolean isReady(ProcessRef process, long timeoutMs);
 
-  void terminate(ProcessRef process);
+  /**
+   * Throws an exception if timeout reached
+   */
+  void terminate(ProcessRef process, long timeoutMs);
 
 }

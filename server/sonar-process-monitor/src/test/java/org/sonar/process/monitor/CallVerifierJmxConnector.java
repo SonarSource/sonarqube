@@ -26,10 +26,6 @@ public class CallVerifierJmxConnector extends RmiJmxConnector {
 
   boolean askedPing = false;
 
-  CallVerifierJmxConnector(Timeouts timeouts) {
-    super(timeouts);
-  }
-
   @Override
   public void ping(ProcessRef process) {
     askedPing = true;

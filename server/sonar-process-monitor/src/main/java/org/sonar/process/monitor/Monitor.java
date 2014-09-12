@@ -53,7 +53,7 @@ public class Monitor {
 
   public static Monitor create() {
     Timeouts timeouts = new Timeouts();
-    return new Monitor(new JavaProcessLauncher(timeouts), new RmiJmxConnector(timeouts),
+    return new Monitor(new JavaProcessLauncher(timeouts), new RmiJmxConnector(),
       timeouts, new SystemExit());
   }
 
@@ -104,7 +104,7 @@ public class Monitor {
     watcherThreads.add(watcherThread);
 
     // add to list of monitored processes only when successfully connected to it
-    jmxConnector.connect(command, processRef);
+    jmxConnector.connect(command, processRef, timeouts.getJmxConnectionTimeout());
     processes.add(processRef);
 
     // ping process on a regular basis
@@ -126,7 +126,7 @@ public class Monitor {
         throw new MessageException(String.format("%s failed to start", processRef));
       }
       try {
-        ready = jmxConnector.isReady(processRef);
+        ready = jmxConnector.isReady(processRef, timeouts.getMonitorIsReadyTimeout());
       } catch (Exception ignored) {
         // failed to send request, probably because RMI server is still not alive
         // trying again, as long as process is alive

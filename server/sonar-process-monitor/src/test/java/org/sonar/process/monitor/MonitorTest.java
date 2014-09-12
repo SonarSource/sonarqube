@@ -227,26 +227,11 @@ public class MonitorTest {
   }
 
   @Test
-  public void kill_process_if_too_long_to_request_gracefully_termination() throws Exception {
-    Timeouts timeouts = new Timeouts();
-    timeouts.setTerminationTimeout(100L);
-    monitor = new Monitor(new JavaProcessLauncher(timeouts),
-      new InfiniteTerminationRmiConnector(timeouts), timeouts, exit);
-
-    HttpProcessClient p1 = new HttpProcessClient("p1");
-    monitor.start(Arrays.asList(p1.newCommand()));
-    assertThat(p1.isReady()).isTrue();
-
-    monitor.stop();
-    assertThat(p1.isReady()).isFalse();
-  }
-
-  @Test
   public void kill_process_if_fail_to_request_gracefully_termination() throws Exception {
     Timeouts timeouts = new Timeouts();
     timeouts.setTerminationTimeout(100L);
     monitor = new Monitor(new JavaProcessLauncher(timeouts),
-      new TerminationFailureRmiConnector(timeouts), timeouts, exit);
+      new TerminationFailureRmiConnector(), timeouts, exit);
 
     HttpProcessClient p1 = new HttpProcessClient("p1");
     monitor.start(Arrays.asList(p1.newCommand()));
@@ -315,7 +300,7 @@ public class MonitorTest {
     timeouts.setMonitorPingInterval(10L);
     timeouts.setAutokillPingInterval(10L);
     timeouts.setAutokillPingTimeout(10L);
-    CallVerifierJmxConnector jmxConnector = new CallVerifierJmxConnector(timeouts);
+    CallVerifierJmxConnector jmxConnector = new CallVerifierJmxConnector();
     monitor = new Monitor(new JavaProcessLauncher(timeouts), jmxConnector, timeouts, exit);
 
     JavaCommand command = newStandardProcessCommand()
@@ -330,7 +315,7 @@ public class MonitorTest {
 
   private Monitor newDefaultMonitor() {
     Timeouts timeouts = new Timeouts();
-    return new Monitor(new JavaProcessLauncher(timeouts), new RmiJmxConnector(timeouts), timeouts, exit);
+    return new Monitor(new JavaProcessLauncher(timeouts), new RmiJmxConnector(), timeouts, exit);
   }
 
   /**
