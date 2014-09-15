@@ -25,13 +25,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.permission.PermissionQuery;
+import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.SnapshotTesting;
@@ -39,8 +40,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.permission.PermissionFinder;
-import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
@@ -88,30 +87,25 @@ public class UploadReportActionMediumTest {
   }
 
   @Test
-  public void create_project_permission_on_first_analysis() throws Exception {
-    // Execute startup task to create default permission template
-    tester.get(Platform.class).executeStartupTasks();
-
+  public void add_project_issue_permission_index_on_first_analysis() throws Exception {
     ComponentDto project = new ComponentDto()
       .setId(1L)
       .setKey("MyProject")
       .setProjectId(1L);
     db.componentDao().insert(session, project);
+
+    // project can be seen by anyone
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+
     session.commit();
 
+    assertThat(tester.get(IssueAuthorizationIndex.class).getByKey(project.getKey())).isNull();
+
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-
-    // Project has no user permission
-    assertThat(tester.get(PermissionFinder.class).findGroupsWithPermission(PermissionQuery.builder().component(project.key()).permission(UserRole.USER).build()).groups().get(0).hasPermission()).isFalse();
-
     WsTester.TestRequest request = wsTester.newGetRequest(BatchWs.API_ENDPOINT, UploadReportAction.UPLOAD_REPORT_ACTION);
     request.setParam(UploadReportAction.PARAM_PROJECT, project.key());
     request.setParam(UploadReportAction.PARAM_FIRST_ANALYSIS, "true");
     request.execute();
-
-    // Check that user permission group have been affected to the project
-    assertThat(tester.get(PermissionFinder.class).findGroupsWithPermission(PermissionQuery.builder().component(project.key()).permission(UserRole.USER).build()).groups()).hasSize(1);
-    assertThat(tester.get(PermissionFinder.class).findGroupsWithPermission(PermissionQuery.builder().component(project.key()).permission(UserRole.USER).build()).groups().get(0).hasPermission()).isTrue();
 
     // Check that issue authorization index has been created
     assertThat(tester.get(IssueAuthorizationIndex.class).getByKey(project.getKey())).isNotNull();

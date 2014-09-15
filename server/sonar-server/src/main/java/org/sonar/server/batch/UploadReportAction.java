@@ -80,10 +80,10 @@ public class UploadReportAction implements RequestHandler {
       String projectKey = request.mandatoryParam(PARAM_PROJECT);
       AuthorizedComponentDto project = dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
 
-      // Create permission on project
+      // Synchronize project permission indexes
       boolean isFirstAnalysis = request.mandatoryParamAsBoolean(PARAM_FIRST_ANALYSIS);
       if (isFirstAnalysis) {
-        permissionService.applyDefaultPermissionTemplate(session, project);
+        permissionService.synchronizePermissions(session, project.key());
         session.commit();
       }
 

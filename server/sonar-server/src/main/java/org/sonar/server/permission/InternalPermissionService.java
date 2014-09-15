@@ -275,7 +275,7 @@ public class InternalPermissionService implements ServerComponent {
     }
   }
 
-  private void synchronizePermissions(DbSession session, String projectKey) {
+  public void synchronizePermissions(DbSession session, String projectKey) {
     dbClient.issueAuthorizationDao().synchronizeAfter(session,
       index.get(IssueAuthorizationIndex.class).getLastSynchronization(),
       ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, projectKey));
