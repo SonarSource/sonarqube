@@ -22,27 +22,47 @@ package org.sonar.server.issue;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.action.UpsertDto;
 
 /**
  * @since 3.6
  */
 public class ServerIssueStorage extends IssueStorage implements ServerComponent {
 
-  private final ResourceDao resourceDao;
+  private final DbClient dbClient;
 
-  public ServerIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, ResourceDao resourceDao) {
+  public ServerIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, DbClient dbClient) {
     super(mybatis, ruleFinder);
-    this.resourceDao = resourceDao;
+    this.dbClient = dbClient;
+  }
+
+  @Override
+  public void save(Iterable<DefaultIssue> issues) {
+    super.save(issues);
+    DbSession session = dbClient.openSession(false);
+    try {
+      for (DefaultIssue issue : issues) {
+        IssueDto issueDto = dbClient.issueDao().getByKey(session, issue.key());
+        session.enqueue(new UpsertDto<IssueDto>(IndexDefinition.ISSUES.getIndexType(), issueDto));
+      }
+      session.commit();
+    } finally {
+      session.close();
+    }
   }
 
   @Override
   protected long componentId(DefaultIssue issue) {
-    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(issue.componentKey()));
+    // TODO should be using ComponentDao
+    ResourceDto resourceDto = dbClient.resourceDao().getResource(ResourceQuery.create().setKey(issue.componentKey()));
     if (resourceDto == null) {
       throw new IllegalStateException("Unknown component: " + issue.componentKey());
     }
@@ -51,11 +71,11 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
 
   @Override
   protected long projectId(DefaultIssue issue) {
-    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(issue.projectKey()));
+    // TODO should be using ComponentDao
+    ResourceDto resourceDto = dbClient.resourceDao().getResource(ResourceQuery.create().setKey(issue.projectKey()));
     if (resourceDto == null) {
       throw new IllegalStateException("Unknown project: " + issue.projectKey());
     }
     return resourceDto.getId();
   }
-
 }

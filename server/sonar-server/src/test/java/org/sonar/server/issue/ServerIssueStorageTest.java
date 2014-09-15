@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
@@ -29,6 +30,8 @@ import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.db.DbClient;
 
 import java.util.Collection;
 
@@ -37,11 +40,20 @@ import static org.fest.assertions.Fail.fail;
 
 public class ServerIssueStorageTest extends AbstractDaoTestCase {
 
+  DbClient dbClient;
+
+  @Before
+  public void setupDbClient() {
+    dbClient = new DbClient(getDatabase(), getMyBatis(),
+      new ComponentDao(System2.INSTANCE),
+      new ResourceDao(getMyBatis(), System2.INSTANCE));
+  }
+
   @Test
   public void load_component_id_from_db() throws Exception {
     setupData("load_component_id_from_db");
 
-    ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), new ResourceDao(getMyBatis(), System2.INSTANCE));
+    ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient);
     long componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
     assertThat(componentId).isEqualTo(123);
@@ -51,7 +63,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   public void fail_to_load_component_id_if_unknown_component() throws Exception {
     setupData("empty");
 
-    ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), new ResourceDao(getMyBatis(), System2.INSTANCE));
+    ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient);
     try {
       storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
       fail();
@@ -64,7 +76,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   public void load_project_id_from_db() throws Exception {
     setupData("load_project_id_from_db");
 
-    ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), new ResourceDao(getMyBatis(), System2.INSTANCE));
+    ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient);
     long projectId = storage.projectId(new DefaultIssue().setProjectKey("struts"));
 
     assertThat(projectId).isEqualTo(1);
@@ -74,7 +86,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   public void fail_to_load_project_id_if_unknown_component() throws Exception {
     setupData("empty");
 
-    ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), new ResourceDao(getMyBatis(), System2.INSTANCE));
+    ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient);
     try {
       storage.projectId(new DefaultIssue().setProjectKey("struts"));
       fail();
