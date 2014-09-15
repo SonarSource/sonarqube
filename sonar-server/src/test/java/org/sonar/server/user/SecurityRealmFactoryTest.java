@@ -21,8 +21,6 @@ package org.sonar.server.user;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
@@ -111,19 +109,16 @@ public class SecurityRealmFactoryTest {
     settings.setProperty(CoreProperties.CORE_SECURITY_GROUP_PROVIDERS, FakeGroupsProvider.class.getName());
     
     SecurityRealm realmWithAuthenticator = mock(SecurityRealm.class);
-    FakeAuthenticator authenticator = new FakeAuthenticator();
-    List authenticators = Collections.singletonList(authenticator);
-    when(realmWithAuthenticator.getAuthenticators()).thenReturn(authenticators);
+    Authenticator authenticator = (Authenticator) new FakeAuthenticator();
+    when(realmWithAuthenticator.getAuthenticators()).thenReturn(Collections.singletonList(authenticator));
     
     SecurityRealm realmWithUsersProvider = mock(SecurityRealm.class);
-    FakeUsersProvider userProvider = new FakeUsersProvider();
-    List usersProviders = Collections.singletonList(userProvider);
-    when(realmWithUsersProvider.getUsersProviders()).thenReturn(usersProviders);
+    ExternalUsersProvider usersProvider = (ExternalUsersProvider) new FakeUsersProvider();
+    when(realmWithUsersProvider.getUsersProviders()).thenReturn(Collections.singletonList(usersProvider));
     
     SecurityRealm realmWithGroupsProvider = mock(SecurityRealm.class);
-    FakeGroupsProvider gruopProvider = new FakeGroupsProvider();
-    List gruopsProviders = Collections.singletonList(gruopProvider);
-    when(realmWithGroupsProvider.getGroupsProviders()).thenReturn(gruopsProviders);
+    ExternalGroupsProvider groupsProvider = (ExternalGroupsProvider) new FakeGroupsProvider();
+    when(realmWithGroupsProvider.getGroupsProviders()).thenReturn(Collections.singletonList(groupsProvider));
     
     SecurityRealm[] realms = new SecurityRealm[3];
     realms[0] = realmWithAuthenticator;
@@ -134,8 +129,8 @@ public class SecurityRealmFactoryTest {
     SecurityRealm realm = factory.getRealm();
     assertThat(realm).isInstanceOf(CustomSecurityRealm.class);
     assertThat(realm.getAuthenticators()).contains(authenticator);
-    assertThat(realm.getUsersProviders()).contains(userProvider);
-    assertThat(realm.getGroupsProviders()).contains(gruopProvider);
+    assertThat(realm.getUsersProviders()).contains(usersProvider);
+    assertThat(realm.getGroupsProviders()).contains(groupsProvider);
   }
 
   @Test
