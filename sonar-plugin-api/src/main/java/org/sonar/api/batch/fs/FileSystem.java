@@ -141,4 +141,12 @@ public interface FileSystem extends BatchComponent {
    * Languages detected in all files, whatever their type (main or test)
    */
   SortedSet<String> languages();
+
+  /**
+   * Utility method mainly used to resolve location of reports.
+   * @return file in canonical form from specified path. Path can be absolute or relative to project basedir.
+   *         For example resolvePath("pom.xml") or resolvePath("src/main/java")
+   * @since 5.0
+   */
+  File resolvePath(String path);
 }

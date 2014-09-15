@@ -26,6 +26,8 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.TempFolder;
 
+import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.util.List;
 
@@ -94,6 +96,7 @@ public class ModuleFileSystemInitializer implements BatchComponent {
     return workingDir;
   }
 
+  @CheckForNull
   File buildDir() {
     return buildDir;
   }

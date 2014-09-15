@@ -32,6 +32,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -281,4 +282,16 @@ public class DefaultFileSystem implements FileSystem {
     }
   }
 
+  @Override
+  public File resolvePath(String path) {
+    File file = new File(path);
+    if (!file.isAbsolute()) {
+      try {
+        file = new File(baseDir(), path).getCanonicalFile();
+      } catch (IOException e) {
+        throw new IllegalArgumentException("Unable to resolve path '" + path + "'", e);
+      }
+    }
+    return file;
+  }
 }

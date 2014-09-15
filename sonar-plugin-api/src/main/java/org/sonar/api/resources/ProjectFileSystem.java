@@ -20,6 +20,7 @@
 package org.sonar.api.resources;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.fs.FileSystem;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,6 +98,7 @@ public interface ProjectFileSystem extends BatchComponent {
   /**
    * @return file in canonical form from specified path. Path can be absolute or relative to project basedir.
    *         For example resolvePath("pom.xml") or resolvePath("src/main/java")
+   * @deprecated since 5.0 use {@link FileSystem#resolvePath(String)}
    */
   File resolvePath(String path);
 
