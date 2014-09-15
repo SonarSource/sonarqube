@@ -222,7 +222,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       date = new Date(0L);
     }
 
-    LOG.info("Index {}:{} has last update of {}", this.getIndexName(), this.getIndexType(), date);
+    LOG.debug("Index {}:{} has last update of {}", this.getIndexName(), this.getIndexType(), date);
     return date;
   }
 

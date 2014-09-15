@@ -30,6 +30,8 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 
+import java.util.Date;
+
 /**
  * @since 4.4
  */
@@ -61,6 +63,13 @@ public class IndexSynchronizer {
   }
 
   void synchronize(DbSession session, Dao dao, Index index) {
+    Long count = index.getIndexStat().getDocumentCount();
+    Date lastSynch = index.getLastSynchronization();
+    if (count <= 0) {
+      LOG.info("Initial indexing of {} records", index.getIndexType());
+    } else {
+      LOG.info("Synchronizing {} records for updates after {}", index.getIndexType(), lastSynch);
+    }
     dao.synchronizeAfter(session,
       index.getLastSynchronization());
   }
