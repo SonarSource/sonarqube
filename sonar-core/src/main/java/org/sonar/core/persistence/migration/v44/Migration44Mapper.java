@@ -40,6 +40,8 @@ public interface Migration44Mapper {
 
   void updateProfileMeasure(@Param("measureId") long measureId, @Param("json") String json);
 
+  void deleteProfileMeasure(long profileMeasureId);
+
   @CheckForNull
   QProfileDto44 selectProfileById(int id);
 
@@ -56,4 +58,6 @@ public interface Migration44Mapper {
 
   // migrate changeLog to Activities
   List<ChangeLog> selectActiveRuleChange(@Nullable @Param("enabled") Boolean enabled);
+
+  List<Long> selectMeasuresOnDeletedQualityProfiles();
 }
