@@ -55,7 +55,7 @@ public class GroupDaoTest extends AbstractDaoTestCase {
   public void select_by_key() {
     setupData("select_by_key");
 
-    GroupDto group = dao.getByKey(session, "sonar-users");
+    GroupDto group = new GroupDao().getByKey(session, "sonar-users");
     assertThat(group).isNotNull();
     assertThat(group.getId()).isEqualTo(1L);
     assertThat(group.getName()).isEqualTo("sonar-users");
