@@ -54,7 +54,7 @@ class Project < ActiveRecord::Base
   def self.delete_resource_tree(project)
     java_facade = Java::OrgSonarServerUi::JRubyFacade.getInstance()
     if project && java_facade.getResourceTypeBooleanProperty(project.qualifier, 'deletable')
-      java_facade.deleteResourceTree(project.id)
+      java_facade.deleteResourceTree(project.key)
     end
   end
 

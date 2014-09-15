@@ -32,6 +32,7 @@ public class AuthorizedComponentDto extends Dto<String> {
 
   private Long id;
   private String kee;
+  private String scope;
   private String qualifier;
 
   public Long getId() {
@@ -52,11 +53,19 @@ public class AuthorizedComponentDto extends Dto<String> {
     return this;
   }
 
+  public String scope() {
+    return scope;
+  }
+
+  public void setAuthorizedScope(String scope) {
+    this.scope = scope;
+  }
+
   public String qualifier() {
     return qualifier;
   }
 
-  public AuthorizedComponentDto setAuthoriedQualifier(String qualifier) {
+  public AuthorizedComponentDto setAuthorizedQualifier(String qualifier) {
     this.qualifier = qualifier;
     return this;
   }

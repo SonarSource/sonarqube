@@ -19,7 +19,8 @@
   <sql id="authorizedComponentColumns">
     p.id,
     p.kee as kee,
-    p.qualifier as qualifier
+    p.qualifier as qualifier,
+    p.scope as scope
   </sql>
 
   <select id="selectByKey" parameterType="String" resultType="Component">

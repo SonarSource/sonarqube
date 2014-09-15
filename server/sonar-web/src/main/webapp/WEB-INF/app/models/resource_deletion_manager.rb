@@ -103,7 +103,7 @@ class ResourceDeletionManager
             @message = Api::Utils.message('bulk_deletion.deletion_manager.currently_deleting_x_out_of_x', :params => [(index+1).to_s, resource_ids.size.to_s])
             if resource && java_facade.getResourceTypeBooleanProperty(resource.qualifier, 'deletable')
               begin
-                java_facade.deleteResourceTree(resource.id)
+                java_facade.deleteResourceTree(resource.key)
               rescue Exception => e
                 @failed_deletions << resource.name
                 # no need to rethrow the exception as it has been logged by the Java component

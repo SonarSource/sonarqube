@@ -30,17 +30,13 @@ import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.web.Footer;
-import org.sonar.api.web.NavigationSection;
-import org.sonar.api.web.Page;
-import org.sonar.api.web.RubyRailsWebservice;
-import org.sonar.api.web.Widget;
+import org.sonar.api.web.*;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.preview.PreviewCache;
-import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.timemachine.Periods;
+import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterResult;
@@ -48,11 +44,7 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
-import org.sonar.server.plugins.InstalledPluginReferentialFactory;
-import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.ServerPluginJarsInstaller;
-import org.sonar.server.plugins.ServerPluginRepository;
-import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.plugins.*;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.source.CodeColorizers;
 import org.sonar.server.user.NewUserNotifier;
@@ -338,11 +330,11 @@ public final class JRubyFacade {
     get(ResourceIndexerDao.class).indexResource(resourceId);
   }
 
-  public void deleteResourceTree(long rootProjectId) {
+  public void deleteResourceTree(String projectKey) {
     try {
-      get(PurgeDao.class).deleteResourceTree(rootProjectId);
+      get(ComponentCleanerService.class).delete(projectKey);
     } catch (RuntimeException e) {
-      LoggerFactory.getLogger(JRubyFacade.class).error("Fail to delete resource with ID: " + rootProjectId, e);
+      LoggerFactory.getLogger(JRubyFacade.class).error("Fail to delete resource with key: " + projectKey, e);
       throw e;
     }
   }

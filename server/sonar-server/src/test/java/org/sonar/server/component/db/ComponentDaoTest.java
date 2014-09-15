@@ -187,7 +187,10 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
 
     AuthorizedComponentDto result = dao.getNullableAuthorizedComponentById(4L, session);
     assertThat(result).isNotNull();
-    assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(result.getId()).isEqualTo(4);
+    assertThat(result.getKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(result.qualifier()).isEqualTo("FIL");
+    assertThat(result.scope()).isEqualTo("FIL");
 
     assertThat(dao.getNullableAuthorizedComponentById(111L, session)).isNull();
   }

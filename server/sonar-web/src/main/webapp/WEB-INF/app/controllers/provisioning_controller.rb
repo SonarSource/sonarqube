@@ -45,12 +45,12 @@ class ProvisioningController < ApplicationController
       bad_request('provisioning.missing.name') if @name.blank?
 
       if @id.nil? or @id.empty?
-        new_id = Internal.component_api.createComponent(@key, @name, 'TRK')
+        Internal.component_api.createComponent(@key, @name, 'TRK')
         begin
           Internal.permissions.applyDefaultPermissionTemplate(@key)
         rescue
           # Programmatic transaction rollback
-          Java::OrgSonarServerUi::JRubyFacade.getInstance().deleteResourceTree(new_id)
+          Java::OrgSonarServerUi::JRubyFacade.getInstance().deleteResourceTree(@key)
           raise
         end
       else
@@ -80,7 +80,8 @@ class ProvisioningController < ApplicationController
     access_denied unless has_role?("provisioning")
 
     @id = params[:id].to_i
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().deleteResourceTree(@id)
+    project = Project.first(:conditions => {:id => @id})
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().deleteResourceTree(project.key)
     flash.now[:notice]= Api::Utils.message('resource_viewer.resource_deleted')
     redirect_to :action => 'index'
   end
