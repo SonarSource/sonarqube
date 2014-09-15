@@ -59,5 +59,5 @@ public interface IssueMapper {
 
   int updateIfBeforeSelectedDate(IssueDto issue);
 
-  List<IssueDto> selectAfterDate(Timestamp timestamp);
+  List<IssueDto> selectAfterDate(@Param("date") Timestamp timestamp, @Nullable @Param("project") String project);
 }

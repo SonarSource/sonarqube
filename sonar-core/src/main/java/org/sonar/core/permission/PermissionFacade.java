@@ -183,11 +183,11 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
     roleDao.deleteUserRolesByResourceId(resourceId, session);
   }
 
-  public List<String> selectGroupPermissions(DbSession session, String group, Long componentId) {
+  public List<String> selectGroupPermissions(DbSession session, String group, @Nullable Long componentId) {
     return roleDao.selectGroupPermissions(session, group, componentId);
   }
 
-  public List<String> selectUserPermissions(DbSession session, String user, Long componentId) {
+  public List<String> selectUserPermissions(DbSession session, String user, @Nullable Long componentId) {
     return roleDao.selectUserPermissions(session, user, componentId);
   }
 

@@ -300,8 +300,13 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
   }
 
   @VisibleForTesting
+  public List<DTO> findAfterDate(final DbSession session, Date date, Map<String, String> params) {
+    return session.selectList(getSynchronizeStatementFQN(), getSynchronizationParams(date, params));
+  }
+
+  @VisibleForTesting
   public List<DTO> findAfterDate(final DbSession session, Date date) {
-    return session.selectList(getSynchronizeStatementFQN(), getSynchronizationParams(date));
+    return findAfterDate(session, date, Collections.<String, String>emptyMap());
   }
 
   // Synchronization methods

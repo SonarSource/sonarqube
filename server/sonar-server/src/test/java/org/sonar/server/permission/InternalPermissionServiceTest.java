@@ -542,11 +542,9 @@ public class InternalPermissionServiceTest {
     final long componentId = 1234l;
     final String qualifier = Qualifiers.PROJECT;
 
-    ComponentDto mockComponent = mock(ComponentDto.class);
-    when(mockComponent.getId()).thenReturn(componentId);
-    when(mockComponent.qualifier()).thenReturn(qualifier);
+    ComponentDto project = new ComponentDto().setId(componentId).setKey(componentKey).setQualifier(qualifier);
 
-    when(componentDao.getAuthorizedComponentByKey(componentKey, session)).thenReturn(mockComponent);
+    when(componentDao.getAuthorizedComponentByKey(componentKey, session)).thenReturn(project);
     when(resourceDao.selectProvisionedProject(session, componentKey)).thenReturn(mock(ResourceDto.class));
     service.applyDefaultPermissionTemplate(componentKey);
 

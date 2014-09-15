@@ -20,27 +20,40 @@
 
 package org.sonar.server.batch;
 
+import com.google.common.collect.ImmutableMap;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.component.AuthorizedComponentDto;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.search.IndexClient;
+import org.sonar.server.user.UserSession;
 
 public class UploadReportAction implements RequestHandler {
 
-  private static final String PARAM_PROJECT = "project";
-  private static final String PARAM_FIRST_ANALYSIS = "firstAnalysis";
+  public static final String UPLOAD_REPORT_ACTION = "upload_report";
+
+  static final String PARAM_PROJECT = "project";
+  static final String PARAM_FIRST_ANALYSIS = "firstAnalysis";
 
   private final DbClient dbClient;
+  private final IndexClient index;
+  private final InternalPermissionService permissionService;
 
-  public UploadReportAction(DbClient dbClient) {
+  public UploadReportAction(DbClient dbClient, IndexClient index, InternalPermissionService permissionService) {
     this.dbClient = dbClient;
+    this.index = index;
+    this.permissionService = permissionService;
   }
 
   void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("upload_report")
+    WebService.NewAction action = controller.createAction(UPLOAD_REPORT_ACTION)
       .setDescription("Update analysis report")
       .setSince("5.0")
       .setPost(true)
@@ -64,7 +77,24 @@ public class UploadReportAction implements RequestHandler {
   public void handle(Request request, Response response) throws Exception {
     DbSession session = dbClient.openSession(false);
     try {
-      // TODO
+      String projectKey = request.mandatoryParam(PARAM_PROJECT);
+      AuthorizedComponentDto project = dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
+
+      // Create permission on project
+      boolean isFirstAnalysis = request.mandatoryParamAsBoolean(PARAM_FIRST_ANALYSIS);
+      if (isFirstAnalysis) {
+        permissionService.applyDefaultPermissionTemplate(session, project);
+        session.commit();
+      }
+
+      UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
+
+      // Index project's issues
+      dbClient.issueDao().synchronizeAfter(session,
+        index.get(IssueIndex.class).getLastSynchronization(),
+        ImmutableMap.of("project", projectKey));
+      session.commit();
+
     } finally {
       MyBatis.closeQuietly(session);
     }

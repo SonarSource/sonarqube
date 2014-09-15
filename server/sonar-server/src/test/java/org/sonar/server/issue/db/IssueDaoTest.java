@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.db;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,5 +60,12 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     Date t2014 = DateUtils.parseDate("2014-01-01");
     assertThat(dao.findAfterDate(session, t2014)).hasSize(1);
+  }
+
+  @Test
+  public void find_after_dates_with_project() throws Exception {
+    setupData("shared", "find_after_dates_with_project");
+
+    assertThat(dao.findAfterDate(session, DateUtils.parseDate("2014-01-01"), ImmutableMap.of("project", "struts"))).hasSize(1);
   }
 }

@@ -29,7 +29,12 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
 
+import java.util.Date;
+import java.util.Map;
+
 public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements DaoComponent {
+
+  public static final String PROJECT_KEY = "project";
 
   public IssueDao() {
     this(System2.INSTANCE);
@@ -59,9 +64,15 @@ public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements 
     return issue;
   }
 
-
   @Override
   protected String getSynchronizationStatementName() {
     return "selectAfterDate";
+  }
+
+  @Override
+  protected Map getSynchronizationParams(Date date, Map<String, String> params) {
+    Map<String, Object> finalParams = super.getSynchronizationParams(date, params);
+    finalParams.put(PROJECT_KEY, params.get(PROJECT_KEY));
+    return finalParams;
   }
 }

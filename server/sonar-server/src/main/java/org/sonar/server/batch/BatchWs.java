@@ -30,6 +30,8 @@ import java.io.IOException;
 
 public class BatchWs implements WebService {
 
+  public static final String API_ENDPOINT = "batch";
+
   private final BatchIndex batchIndex;
   private final GlobalReferentialsAction globalReferentialsAction;
   private final ProjectReferentialsAction projectReferentialsAction;
@@ -45,7 +47,7 @@ public class BatchWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("batch")
+    NewController controller = context.createController(API_ENDPOINT)
       .setSince("4.4")
       .setDescription("Get JAR files and referentials for batch");
 

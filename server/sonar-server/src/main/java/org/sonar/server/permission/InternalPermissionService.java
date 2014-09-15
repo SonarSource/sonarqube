@@ -116,12 +116,16 @@ public class InternalPermissionService implements ServerComponent {
         UserSession.get().checkGlobalPermission(GlobalPermissions.PROVISIONING);
       }
 
-      permissionFacade.grantDefaultRoles(session, component.getId(), component.qualifier());
-      synchronizePermissions(session, componentKey);
+      applyDefaultPermissionTemplate(session, component);
       session.commit();
     } finally {
       session.close();
     }
+  }
+
+  public void applyDefaultPermissionTemplate(DbSession session, AuthorizedComponentDto component) {
+    permissionFacade.grantDefaultRoles(session, component.getId(), component.qualifier());
+    synchronizePermissions(session, component.key());
   }
 
   public void applyPermissionTemplate(Map<String, Object> params) {
@@ -272,8 +276,8 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   private void synchronizePermissions(DbSession session, String projectKey) {
-      dbClient.issueAuthorizationDao().synchronizeAfter(session,
-        index.get(IssueAuthorizationIndex.class).getLastSynchronization(),
-        ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, projectKey));
+    dbClient.issueAuthorizationDao().synchronizeAfter(session,
+      index.get(IssueAuthorizationIndex.class).getLastSynchronization(),
+      ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, projectKey));
   }
 }

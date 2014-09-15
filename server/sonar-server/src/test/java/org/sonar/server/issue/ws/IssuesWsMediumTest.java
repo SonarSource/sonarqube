@@ -73,11 +73,7 @@ public class IssuesWsMediumTest {
 
   @Test
   public void define() throws Exception {
-
-    WebService.Context context = new WebService.Context();
-    ws.define(context);
-
-    WebService.Controller controller = context.controller(IssuesWs.API_ENDPOINT);
+    WebService.Controller controller = wsTester.controller(IssuesWs.API_ENDPOINT);
 
     assertThat(controller).isNotNull();
     assertThat(controller.actions()).hasSize(14);

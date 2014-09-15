@@ -36,6 +36,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.MockUserSession;
 
@@ -66,6 +67,9 @@ public class InternalPermissionTemplateServiceTest {
   @Mock
   DbSession session;
 
+  @Mock
+  DbClient db;
+
   InternalPermissionTemplateService service;
 
   @Rule
@@ -77,7 +81,7 @@ public class InternalPermissionTemplateServiceTest {
 
     MyBatis myBatis = mock(MyBatis.class);
     when(myBatis.openSession(false)).thenReturn(session);
-    service = new InternalPermissionTemplateService(myBatis, permissionTemplateDao, userDao, finder);
+    service = new InternalPermissionTemplateService(db, myBatis, permissionTemplateDao, userDao, finder);
   }
 
   @Test

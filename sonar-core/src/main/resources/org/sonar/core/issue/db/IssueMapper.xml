@@ -139,13 +139,17 @@
           fetchSize="2000"
           statementType="PREPARED"
           resultSetType="FORWARD_ONLY">
-  select
-    <include refid="issueColumns"/>
+    select <include refid="issueColumns"/>
     from issues i
     inner join rules r on r.id=i.rule_id
     inner join projects p on p.id=i.component_id
     inner join projects root on root.id=i.root_component_id
-    where i.updated_at IS NULL or i.updated_at &gt;= #{date}
+    <where>
+    i.updated_at IS NULL or i.updated_at &gt;= #{date}
+    <if test="project != null">
+      and root.kee = #{project}
+    </if>
+    </where>
   </select>
 
   <select id="selectNonClosedIssuesByModule" parameterType="int" resultType="Issue">
