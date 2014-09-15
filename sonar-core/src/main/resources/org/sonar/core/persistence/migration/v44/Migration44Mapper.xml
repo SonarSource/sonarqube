@@ -35,6 +35,18 @@
     where id=#{measureId}
   </update>
 
+  <delete id="deleteProfileMeasure" parameterType="long">
+    delete from project_measures where id=#{id}
+  </delete>
+
+  <select id="selectMeasuresOnDeletedQualityProfiles" resultType="long">
+     select pm.id from project_measures pm
+      inner join snapshots as s on s.id=pm.snapshot_id and s.islast=${_true}
+      where
+        pm.metric_id=(select id from metrics where name='quality_profiles')
+        and pm.value is not null
+  </select>
+
   <select id="selectProfileUpdatedAt" resultType="date" parameterType="int">
     select max(change_date) from active_rule_changes
     where profile_id=#{id}

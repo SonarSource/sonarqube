@@ -89,4 +89,26 @@ public class ConvertProfileMeasuresMigrationTest {
       connection.close();
     }
   }
+
+  /**
+   * http://jira.codehaus.org/browse/SONAR-5580
+   */
+  @Test
+  public void delete_measure_when_profile_does_not_exist() throws Exception {
+    db.prepareDbUnit(getClass(), "measure_on_deleted_profile.xml");
+
+    migration.execute();
+
+    Connection connection = db.openConnection();
+    Statement stmt = connection.createStatement();
+    ResultSet rs = stmt.executeQuery("select * from project_measures where id=2");
+    try {
+      // measure is deleted
+      assertThat(rs.next()).isFalse();
+    } finally {
+      rs.close();
+      stmt.close();
+      connection.close();
+    }
+  }
 }

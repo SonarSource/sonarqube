@@ -54,6 +54,7 @@ public class ConvertProfileMeasuresMigration implements DatabaseMigration {
       Date now = new Date();
       Migration44Mapper mapper = session.getMapper(Migration44Mapper.class);
       for (ProfileMeasure profileMeasure : mapper.selectProfileMeasures()) {
+        boolean updated = false;
         Integer version = mapper.selectProfileVersion(profileMeasure.getSnapshotId());
         QProfileDto44 profile = mapper.selectProfileById(profileMeasure.getProfileId());
         if (profile != null) {
@@ -76,10 +77,14 @@ public class ConvertProfileMeasuresMigration implements DatabaseMigration {
             .endArray()
             .close();
           mapper.updateProfileMeasure(profileMeasure.getId(), writer.toString());
-          if (i % 100 == 0) {
-            session.commit();
-            i++;
-          }
+          updated = true;
+        }
+        if (!updated) {
+          mapper.deleteProfileMeasure(profileMeasure.getId());
+        }
+        if (i % 100 == 0) {
+          session.commit();
+          i++;
         }
       }
       session.commit();
