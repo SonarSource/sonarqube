@@ -199,10 +199,6 @@ public class IssueIndexMediumTest {
       .setKey("project2");
     tester.get(ComponentDao.class).insert(session, project1, project2);
 
-    IssueDto issue1 = createIssue().setRootComponent(project1);
-    IssueDto issue2 = createIssue().setRootComponent(project2);
-    db.issueDao().insert(session, issue1, issue2);
-
     // project1 can be seen by sonar-users
     GroupDto groupDto = new GroupDto().setName("sonar-users");
     db.groupDao().insert(session, groupDto);
@@ -214,6 +210,10 @@ public class IssueIndexMediumTest {
     tester.get(PermissionFacade.class).insertGroupPermission(project2.getId(), groupDto.getName(), UserRole.USER, session);
 
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+
+    IssueDto issue1 = createIssue().setRootComponent(project1);
+    IssueDto issue2 = createIssue().setRootComponent(project2);
+    db.issueDao().insert(session, issue1, issue2);
 
     session.commit();
     session.clearCache();
@@ -243,10 +243,6 @@ public class IssueIndexMediumTest {
       .setKey("project2");
     tester.get(ComponentDao.class).insert(session, project1, project2);
 
-    IssueDto issue1 = createIssue().setRootComponent(project1);
-    IssueDto issue2 = createIssue().setRootComponent(project2);
-    db.issueDao().insert(session, issue1, issue2);
-
     // project1 can be seen by john
     UserDto john = new UserDto().setLogin("john").setName("john").setActive(true);
     db.userDao().insert(session, john);
@@ -258,6 +254,10 @@ public class IssueIndexMediumTest {
     tester.get(PermissionFacade.class).insertUserPermission(project2.getId(), max.getId(), UserRole.USER, session);
 
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+
+    IssueDto issue1 = createIssue().setRootComponent(project1);
+    IssueDto issue2 = createIssue().setRootComponent(project2);
+    db.issueDao().insert(session, issue1, issue2);
 
     session.commit();
     session.clearCache();
@@ -284,10 +284,6 @@ public class IssueIndexMediumTest {
       .setKey("project2");
     tester.get(ComponentDao.class).insert(session, project1, project2);
 
-    IssueDto issue1 = createIssue().setRootComponent(project1);
-    IssueDto issue2 = createIssue().setRootComponent(project2);
-    db.issueDao().insert(session, issue1, issue2);
-
     // project1 can be seen by john
     UserDto john = new UserDto().setLogin("john").setName("john").setActive(true);
     db.userDao().insert(session, john);
@@ -299,6 +295,10 @@ public class IssueIndexMediumTest {
     tester.get(PermissionFacade.class).insertGroupPermission(project1.getId(), "sonar-users", UserRole.USER, session);
 
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+
+    IssueDto issue1 = createIssue().setRootComponent(project1);
+    IssueDto issue2 = createIssue().setRootComponent(project2);
+    db.issueDao().insert(session, issue1, issue2);
 
     session.commit();
     session.clearCache();

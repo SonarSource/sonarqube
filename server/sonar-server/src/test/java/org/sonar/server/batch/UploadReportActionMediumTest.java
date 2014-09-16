@@ -182,7 +182,7 @@ public class UploadReportActionMediumTest {
 
   private void clearIssueIndex(){
     tester.get(SearchClient.class).prepareDeleteByQuery(tester.get(SearchClient.class).admin().cluster().prepareState().get()
-      .getState().getMetaData().concreteIndices(new String[]{IndexDefinition.ISSUES.getIndexName()}))
+      .getState().getMetaData().concreteIndices(new String[]{IndexDefinition.ISSUES.getIndexName()})).setTypes(new String[]{IndexDefinition.ISSUES.getIndexType()})
       .setQuery(QueryBuilders.matchAllQuery())
       .get();
   }
