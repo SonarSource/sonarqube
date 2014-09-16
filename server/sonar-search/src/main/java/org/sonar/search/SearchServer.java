@@ -45,6 +45,7 @@ public class SearchServer implements MonitoredProcess {
   public static final String ES_PORT_PROPERTY = "sonar.search.port";
   public static final String ES_CLUSTER_PROPERTY = "sonar.cluster.name";
   public static final String ES_CLUSTER_INET = "sonar.cluster.master";
+  public static final String ES_MARVEL_HOST = "sonar.search.marvel";
 
   public static final String SONAR_PATH_HOME = "sonar.path.home";
   public static final String SONAR_PATH_DATA = "sonar.path.data";
@@ -54,6 +55,7 @@ public class SearchServer implements MonitoredProcess {
   private static final Integer MINIMUM_INDEX_REPLICATION = 1;
 
   private final Set<String> nodes = new HashSet<String>();
+  private final Set<String> marvels = new HashSet<String>();
   private final Props props;
   private final Object lock = new Object();
 
@@ -66,6 +68,11 @@ public class SearchServer implements MonitoredProcess {
     String esNodesInets = props.value(ES_CLUSTER_INET);
     if (StringUtils.isNotEmpty(esNodesInets)) {
       Collections.addAll(nodes, esNodesInets.split(","));
+    }
+
+    String esMarvelInets = props.value(ES_MARVEL_HOST);
+    if (StringUtils.isNotEmpty(esMarvelInets)) {
+      Collections.addAll(marvels, esMarvelInets.split(","));
     }
   }
 
@@ -83,13 +90,9 @@ public class SearchServer implements MonitoredProcess {
         .put("discovery.zen.ping.multicast.enabled", "false")
 
           // Index storage policies
-        .put("index.merge.policy.max_merge_at_once", "200")
-        .put("index.merge.policy.segments_per_tier", "200")
         .put("index.number_of_shards", "1")
         .put("index.number_of_replicas", MINIMUM_INDEX_REPLICATION)
         .put("index.store.type", "mmapfs")
-        .put("indices.store.throttle.type", "merge")
-        .put("indices.store.throttle.max_bytes_per_sec", "200mb")
 
           // Install our own listUpdate scripts
         .put("script.default_lang", "native")
@@ -113,6 +116,13 @@ public class SearchServer implements MonitoredProcess {
         esSettings.put("discovery.zen.minimum_master_nodes", 1);
         // Change master pool requirement when in distributed mode
         // esSettings.put("discovery.zen.minimum_master_nodes", (int) Math.floor(nodes.size() / 2.0) + 1);
+      }
+
+      // Enable marvel's index creation:
+      esSettings.put("action.auto_create_index", ".marvel-*");
+      // If we're collecting indexing data send them to the Marvel host(s)
+      if (!marvels.isEmpty()) {
+        esSettings.put("marvel.agent.exporter.es.hosts", StringUtils.join(marvels, ","));
       }
 
       // Set cluster coordinates
