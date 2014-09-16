@@ -368,7 +368,7 @@ public class MonitorTest {
     void kill() {
       try {
         HttpRequest.post("http://localhost:" + httpPort + "/kill")
-          .readTimeout(500).connectTimeout(500).ok();
+          .readTimeout(5000).connectTimeout(5000).ok();
       } catch (Exception e) {
         // HTTP request can't be fully processed, as web server hardly
         // calls "System.exit()"
