@@ -192,6 +192,7 @@ public class ServerTester extends ExternalResource {
   public void clearIndexes() {
     checkStarted();
     get(BackendCleanup.class).clearIndexes();
+
   }
 
   /**

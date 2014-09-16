@@ -80,5 +80,6 @@ public class IndexSynchronizer {
     }
     dao.synchronizeAfter(session,
       index.getLastSynchronization());
+    index.refresh();
   }
 }

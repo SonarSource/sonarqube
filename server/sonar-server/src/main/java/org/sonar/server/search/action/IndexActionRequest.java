@@ -19,7 +19,6 @@
  */
 package org.sonar.server.search.action;
 
-
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.cluster.ClusterAction;
@@ -39,7 +38,6 @@ public abstract class IndexActionRequest implements ClusterAction<List<ActionReq
   }
 
   protected IndexActionRequest(String indexType, boolean requiresRefresh) {
-    super();
     this.indexType = indexType;
     this.requiresRefresh = requiresRefresh;
   }
@@ -51,7 +49,6 @@ public abstract class IndexActionRequest implements ClusterAction<List<ActionReq
   public String getIndexType() {
     return indexType;
   }
-
 
   public void setIndex(Index index) {
     this.index = index;

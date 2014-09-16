@@ -323,7 +323,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
       @Override
       public void handleResult(ResultContext resultContext) {
         DTO dto = (DTO) resultContext.getResultObject();
-        session.enqueue(new UpsertDto<DTO>(getIndexType(), dto, true));
+        session.enqueue(new UpsertDto<DTO>(getIndexType(), dto, false));
         count++;
         if (count % 100000 == 0) {
           LOGGER.info(" - synchronized {} {}", count, getIndexType());
@@ -358,6 +358,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
       DbSynchronizationHandler handler = getSynchronizationResultHandler(session);
       session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date, params), handler);
       handler.enqueueCollected();
+
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }

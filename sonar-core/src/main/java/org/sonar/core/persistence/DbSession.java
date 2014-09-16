@@ -41,6 +41,8 @@ public class DbSession implements SqlSession {
   private SqlSession session;
   private int actionCount;
 
+  private Integer implicitCommitSize = IMPLICIT_COMMIT_SIZE;
+
   DbSession(WorkQueue queue, SqlSession session) {
     this.actionCount = 0;
     this.session = session;
@@ -48,10 +50,18 @@ public class DbSession implements SqlSession {
     this.actions = new ArrayList<ClusterAction>();
   }
 
+  public Integer getImplicitCommitSize() {
+    return implicitCommitSize;
+  }
+
+  public void setImplicitCommitSize(Integer implicitCommitSize) {
+    this.implicitCommitSize = implicitCommitSize;
+  }
+
   public void enqueue(ClusterAction action) {
     actionCount++;
     this.actions.add(action);
-    if (this.actions.size() > IMPLICIT_COMMIT_SIZE) {
+    if (this.actions.size() > getImplicitCommitSize()) {
       this.commit();
     }
   }

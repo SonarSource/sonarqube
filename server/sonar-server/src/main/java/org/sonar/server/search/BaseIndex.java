@@ -365,7 +365,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       .admin()
       .indices()
       .prepareRefresh(this.getIndexName())
-      .setForce(false)
+      .setForce(true)
       .setIndices(this.getIndexName()));
   }
 

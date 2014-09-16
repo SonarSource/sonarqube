@@ -69,9 +69,14 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexActionRequest
     }
     try {
 
+      boolean refreshRequired = false;
+
       Map<String, Index> indexes = getIndexMap();
       Set<String> indices = new HashSet<String>();
       for (IndexActionRequest action : actions) {
+        if (action.needsRefresh()) {
+          refreshRequired = true;
+        }
         Index index = indexes.get(action.getIndexType());
         action.setIndex(index);
         if (action.needsRefresh()) {
@@ -83,12 +88,15 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexActionRequest
 
       long normTime = executeNormalization(bulkRequestBuilder, actions);
 
-      //execute the request
+      // execute the request
       long indexTime = System.currentTimeMillis();
       BulkResponse response = searchClient.execute(bulkRequestBuilder.setRefresh(false));
       indexTime = System.currentTimeMillis() - indexTime;
 
-      long refreshTime = this.refreshRequiredIndex(indices);
+      long refreshTime = 0;
+      if (refreshRequired) {
+        refreshTime = this.refreshRequiredIndex(indices);
+      }
 
       LOGGER.debug("-- submitted {} items with {}ms in normalization, {}ms indexing and {}ms refresh({}). Total: {}ms",
         bulkRequestBuilder.numberOfActions(), normTime, indexTime, refreshTime, indices, (normTime + indexTime + refreshTime));
@@ -101,7 +109,6 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexActionRequest
       LOGGER.error("Could not commit to ElasticSearch", e);
     }
   }
-
 
   private long refreshRequiredIndex(Set<String> indices) {
 
@@ -124,7 +131,7 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexActionRequest
     long normTime = System.currentTimeMillis();
     try {
       ExecutorService executorService = Executors.newFixedThreadPool(CONCURRENT_NORMALIZATION_FACTOR);
-      //invokeAll() blocks until ALL tasks submitted to executor complete
+      // invokeAll() blocks until ALL tasks submitted to executor complete
       for (Future<List<ActionRequest>> updateRequests : executorService.invokeAll(actions)) {
         for (ActionRequest update : updateRequests.get()) {
           if (UpdateRequest.class.isAssignableFrom(update.getClass())) {
