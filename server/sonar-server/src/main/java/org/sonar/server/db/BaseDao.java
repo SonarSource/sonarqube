@@ -23,6 +23,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.apache.ibatis.session.ResultContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
@@ -113,6 +115,8 @@ import static com.google.common.collect.Maps.newHashMap;
  * @param <KEY> DTO Key class
  */
 public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializable> implements Dao<DTO, KEY>, DaoComponent {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(BaseDao.class);
 
   protected IndexDefinition indexDefinition;
   private Class<MAPPER> mapperClass;
@@ -313,10 +317,16 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
 
   protected DbSynchronizationHandler getSynchronizationResultHandler(final DbSession session) {
     return new DbSynchronizationHandler() {
+      private int count = 0;
+
       @Override
       public void handleResult(ResultContext resultContext) {
         DTO dto = (DTO) resultContext.getResultObject();
         session.enqueue(new UpsertDto<DTO>(getIndexType(), dto, true));
+        count++;
+        if (count % 100000 == 0) {
+          LOGGER.info(" - synchronized {} {}", count, getIndexType());
+        }
       }
 
       @Override
