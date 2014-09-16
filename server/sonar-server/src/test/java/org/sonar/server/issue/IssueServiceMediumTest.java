@@ -85,8 +85,6 @@ public class IssueServiceMediumTest {
     tester.get(RuleDao.class).insert(session, rule);
 
     project = new ComponentDto()
-      .setId(1L)
-      .setProjectId(1L)
       .setKey("MyProject")
       .setLongName("My Project")
       .setQualifier(Qualifiers.PROJECT)
@@ -95,8 +93,7 @@ public class IssueServiceMediumTest {
     tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(project));
 
     resource = new ComponentDto()
-      .setId(2L)
-      .setProjectId(1L)
+      .setProjectId(project.getId())
       .setKey("MyComponent")
       .setLongName("My Component");
     tester.get(ComponentDao.class).insert(session, resource);
@@ -148,8 +145,8 @@ public class IssueServiceMediumTest {
     IssueTesting.assertIsEquivalent(issue, indexClient.get(IssueIndex.class).getByKey(issue.getKey()));
 
     service.doTransition(issue.getKey(), DefaultTransitions.CONFIRM, userSession);
-    issue = tester.get(IssueDao.class).getByKey(session, issue.getKey());
-    IssueTesting.assertIsEquivalent(issue, indexClient.get(IssueIndex.class).getByKey(issue.getKey()));
+    Issue issueDoc = indexClient.get(IssueIndex.class).getByKey(issue.getKey());
+    assertThat(issueDoc.status()).isEqualTo(Issue.STATUS_CONFIRMED);
   }
 
   private IssueDto getIssue() {
