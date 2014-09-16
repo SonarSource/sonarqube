@@ -86,7 +86,7 @@ public class QProfileLoader implements ServerComponent {
 
   @CheckForNull
   public ActiveRule getActiveRule(ActiveRuleKey key) {
-    return index.get(ActiveRuleIndex.class).getByKey(key);
+    return index.get(ActiveRuleIndex.class).getNullableByKey(key);
   }
 
   public List<ActiveRule> findActiveRulesByRule(RuleKey key) {

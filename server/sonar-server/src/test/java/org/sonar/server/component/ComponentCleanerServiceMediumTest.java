@@ -95,11 +95,11 @@ public class ComponentCleanerServiceMediumTest {
 
     session.commit();
 
-    assertThat(tester.get(IssueAuthorizationIndex.class).getByKey(project.getKey())).isNotNull();
+    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNotNull();
 
     service.delete(project.getKey());
 
-    assertThat(tester.get(IssueAuthorizationIndex.class).getByKey(project.getKey())).isNull();
+    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNull();
   }
 
   @Test(expected = IllegalArgumentException.class)

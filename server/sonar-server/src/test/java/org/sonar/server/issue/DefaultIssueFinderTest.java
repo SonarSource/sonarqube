@@ -41,9 +41,9 @@ import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.server.issue.actionplan.ActionPlanService;
+import org.sonar.server.rule.DefaultRuleFinder;
 
 import java.util.Collections;
 import java.util.List;
@@ -84,14 +84,14 @@ public class
     IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
@@ -111,14 +111,14 @@ public class
     IssueQuery query = IssueQuery.builder().pageSize(1).pageIndex(1).build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(135l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Phases.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Phases.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectIssueIds(eq(query), anyInt(), any(SqlSession.class))).thenReturn(dtoList);
@@ -136,9 +136,9 @@ public class
   @Test
   public void find_by_key() {
     IssueDto issueDto = new IssueDto().setId(1L).setRuleId(1).setComponentId(1l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     when(issueDao.selectByKey("ABCDE")).thenReturn(issueDto);
 
@@ -156,14 +156,14 @@ public class
     IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
@@ -184,9 +184,9 @@ public class
     IssueQuery query = IssueQuery.builder().hideRules(true).build();
 
     IssueDto issue = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(newArrayList(issue));
 
@@ -204,14 +204,14 @@ public class
     IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
@@ -231,14 +231,14 @@ public class
     IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
@@ -258,14 +258,14 @@ public class
     IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l).setKee("ABC").setActionPlanKey("A")
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123l).setRootComponentId(100l).setKee("DEF").setActionPlanKey("B")
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
@@ -288,10 +288,10 @@ public class
     IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue1 = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l).setKee("ABC").setAssignee("perceval")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     IssueDto issue2 = new IssueDto().setId(2L).setRuleId(50).setComponentId(123l).setRootComponentId(100l).setKee("DEF").setReporter("arthur")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN");
     List<IssueDto> dtoList = newArrayList(issue1, issue2);
     when(issueDao.selectByIds(anyCollection(), any(SqlSession.class))).thenReturn(dtoList);
@@ -322,9 +322,9 @@ public class
     IssueQuery query = IssueQuery.builder().build();
 
     IssueDto issue = new IssueDto().setId(1L).setRuleId(50).setComponentId(123l).setRootComponentId(100l)
-      .setComponentKey_unit_test_only("Action.java")
-      .setRootComponentKey_unit_test_only("struts")
-      .setRuleKey_unit_test_only("squid", "AvoidCycle")
+      .setComponentKey("Action.java")
+      .setRootComponentKey("struts")
+      .setRuleKey("squid", "AvoidCycle")
       .setStatus("OPEN").setResolution("OPEN")
       .setDebt(10L);
     List<IssueDto> dtoList = newArrayList(issue);

@@ -82,7 +82,7 @@ public class RuleIndexMediumTest extends SearchMediumTest {
 
   @Test
   public void getByKey_null_if_not_found() throws InterruptedException {
-    Rule rule = index.getByKey(RuleKey.of("javascript", "unknown"));
+    Rule rule = index.getNullableByKey(RuleKey.of("javascript", "unknown"));
 
     assertThat(rule).isNull();
   }

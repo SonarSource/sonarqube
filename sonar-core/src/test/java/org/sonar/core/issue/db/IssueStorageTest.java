@@ -30,6 +30,7 @@ import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
@@ -63,7 +64,9 @@ public class IssueStorageTest extends AbstractDaoTestCase {
       .addComment(comment)
       .setCreationDate(date)
       .setUpdateDate(date)
-      .setCloseDate(date);
+      .setCloseDate(date)
+
+      .setComponentKey("struts:Action");
 
     saver.save(issue);
 
@@ -112,54 +115,24 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
-  @Test
-  public void should_resolve_conflicts_on_updates() throws Exception {
-    setupData("should_resolve_conflicts_on_updates");
-
-    FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
-
-    Date date = DateUtils.parseDate("2013-05-18");
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setNew(false)
-      .setChanged(true)
-      .setCreationDate(DateUtils.parseDate("2005-05-12"))
-      .setUpdateDate(date)
-      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
-      .setComponentKey("struts:Action")
-
-        // issue in database has been updated in 2013, after the loading by scan
-      .setSelectedAt(DateUtils.parseDate("2005-01-01"))
-
-        // fields to be updated
-      .setLine(444)
-      .setSeverity("BLOCKER")
-      .setChecksum("FFFFF")
-      .setAttribute("JIRA", "http://jira.com")
-
-        // fields overridden by end-user -> do not save
-      .setAssignee("looser")
-      .setResolution(null)
-      .setStatus("REOPEN");
-
-    saver.save(issue);
-
-    checkTables("should_resolve_conflicts_on_updates", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues");
-  }
-
   static class FakeSaver extends IssueStorage {
+
     protected FakeSaver(MyBatis mybatis, RuleFinder ruleFinder) {
       super(mybatis, ruleFinder);
     }
 
     @Override
-    protected long componentId(DefaultIssue issue) {
-      return 100l;
+    protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
+      int ruleId = ruleId(issue);
+      IssueDto dto = IssueDto.toDtoForInsert(issue, 100l, 10l, ruleId, now);
+
+      session.getMapper(IssueMapper.class).insert(dto);
     }
 
     @Override
-    protected long projectId(DefaultIssue issue) {
-      return 10l;
+    protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
+      IssueDto dto = IssueDto.toDtoForUpdate(issue, 10l, now);
+      session.getMapper(IssueMapper.class).update(dto);
     }
   }
 

@@ -93,6 +93,10 @@ public class UploadReportAction implements RequestHandler {
       dbClient.issueDao().synchronizeAfter(session,
         index.get(IssueIndex.class).getLastSynchronization(),
         ImmutableMap.of("project", projectKey));
+
+      // Index project's permissions indexes
+      permissionService.synchronizePermissions(session, project.key());
+
       session.commit();
 
     } finally {

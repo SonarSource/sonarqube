@@ -31,7 +31,7 @@ import java.util.Date;
  *
  * @since 3.6
  */
-class UpdateConflictResolver {
+public class UpdateConflictResolver {
 
   private static final Logger LOG = LoggerFactory.getLogger(IssueStorage.class);
 

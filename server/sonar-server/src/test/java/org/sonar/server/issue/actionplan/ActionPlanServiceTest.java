@@ -144,7 +144,7 @@ public class ActionPlanServiceTest {
     when(actionPlanDao.findByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(projectKey));
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
 
-    IssueDto issueDto = new IssueDto().setId(100L).setStatus(Issue.STATUS_OPEN).setRuleKey_unit_test_only("squid", "s100");
+    IssueDto issueDto = new IssueDto().setId(100L).setStatus(Issue.STATUS_OPEN).setRuleKey("squid", "s100");
     when(issueDao.selectIssues(any(IssueQuery.class))).thenReturn(newArrayList(issueDto));
     when(issueUpdater.plan(any(DefaultIssue.class), eq((ActionPlan) null), any(IssueChangeContext.class))).thenReturn(true);
 

@@ -459,6 +459,7 @@ public class InternalRubyIssueService implements ServerComponent {
     });
   }
 
+
   /**
    * Execute issue filter from parameters
    */

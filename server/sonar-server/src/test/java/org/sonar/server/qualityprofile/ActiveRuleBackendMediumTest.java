@@ -64,23 +64,23 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
 
     // 1. Synchronize since 0
     tester.clearIndexes();
-    assertThat(index.get(ActiveRuleIndex.class).getByKey(activeRule.getKey())).isNull();
+    assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNull();
     db.activeRuleDao().synchronizeAfter(dbSession, new Date(0L));
     dbSession.commit();
-    assertThat(index.get(ActiveRuleIndex.class).getByKey(activeRule.getKey())).isNotNull();
+    assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNotNull();
 
     // 2. Synchronize since beginning
     tester.clearIndexes();
-    assertThat(index.get(ActiveRuleIndex.class).getByKey(activeRule.getKey())).isNull();
+    assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNull();
     db.activeRuleDao().synchronizeAfter(dbSession, beginning);
     dbSession.commit();
-    assertThat(index.get(ActiveRuleIndex.class).getByKey(activeRule.getKey())).isNotNull();
+    assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNotNull();
 
     // 3. Assert startup picks it up
     tester.clearIndexes();
     Date before = index.get(ActiveRuleIndex.class).getLastSynchronization();
     tester.get(Platform.class).executeStartupTasks();
-    assertThat(index.get(ActiveRuleIndex.class).getByKey(activeRule.getKey())).isNotNull();
+    assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNotNull();
     assertThat(before.before(index.get(ActiveRuleIndex.class).getLastSynchronization())).isTrue();
   }
 

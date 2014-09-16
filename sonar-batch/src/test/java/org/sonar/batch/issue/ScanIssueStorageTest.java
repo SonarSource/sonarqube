@@ -26,11 +26,15 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.DefaultIssueComment;
+import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.index.SnapshotCache;
@@ -38,6 +42,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.resource.ResourceDao;
 
 import java.util.Collection;
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -98,6 +103,126 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
     long projectId = storage.projectId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
     assertThat(projectId).isEqualTo(100);
+  }
+
+  @Test
+  public void should_insert_new_issues() throws Exception {
+    setupData("should_insert_new_issues");
+
+    Project project = new Project("struts");
+    project.setId(10);
+    when(projectTree.getRootProject()).thenReturn(project);
+
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    // override generated key
+    comment.setKey("FGHIJ");
+
+    Date date = DateUtils.parseDate("2013-05-18");
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setNew(true)
+
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setLine(5000)
+      .setDebt(Duration.create(10L))
+      .setReporter("emmerik")
+      .setResolution("OPEN")
+      .setStatus("OPEN")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .addComment(comment)
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date)
+
+      .setComponentKey("struts:Action");
+
+    storage.save(issue);
+
+    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+  }
+
+  @Test
+  public void should_update_issues() throws Exception {
+    setupData("should_update_issues");
+
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
+
+    Project project = new Project("struts");
+    project.setId(10);
+    when(projectTree.getRootProject()).thenReturn(project);
+
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    // override generated key
+    comment.setKey("FGHIJ");
+
+    Date date = DateUtils.parseDate("2013-05-18");
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setNew(false)
+      .setChanged(true)
+
+        // updated fields
+      .setLine(5000)
+      .setDebt(Duration.create(10L))
+      .setChecksum("FFFFF")
+      .setAuthorLogin("simon")
+      .setAssignee("loic")
+      .setFieldChange(context, "severity", "INFO", "BLOCKER")
+      .setReporter("emmerik")
+      .setResolution("FIXED")
+      .setStatus("RESOLVED")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .addComment(comment)
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date)
+
+        // unmodifiable fields
+      .setRuleKey(RuleKey.of("xxx", "unknown"))
+      .setComponentKey("not:a:component");
+
+    storage.save(issue);
+
+    checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+  }
+
+  @Test
+  public void should_resolve_conflicts_on_updates() throws Exception {
+    setupData("should_resolve_conflicts_on_updates");
+
+    Project project = new Project("struts");
+    project.setId(10);
+    when(projectTree.getRootProject()).thenReturn(project);
+
+    Date date = DateUtils.parseDate("2013-05-18");
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setNew(false)
+      .setChanged(true)
+      .setCreationDate(DateUtils.parseDate("2005-05-12"))
+      .setUpdateDate(date)
+      .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
+      .setComponentKey("struts:Action")
+
+        // issue in database has been updated in 2013, after the loading by scan
+      .setSelectedAt(DateUtils.parseDate("2005-01-01"))
+
+        // fields to be updated
+      .setLine(444)
+      .setSeverity("BLOCKER")
+      .setChecksum("FFFFF")
+      .setAttribute("JIRA", "http://jira.com")
+
+        // fields overridden by end-user -> do not save
+      .setAssignee("looser")
+      .setResolution(null)
+      .setStatus("REOPEN");
+
+    storage.save(issue);
+
+    checkTables("should_resolve_conflicts_on_updates", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues");
   }
 
   static class FakeRuleFinder implements RuleFinder {

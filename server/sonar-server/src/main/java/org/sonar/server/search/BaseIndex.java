@@ -26,12 +26,7 @@ import com.google.common.collect.Multimap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.count.CountResponse;
-import org.elasticsearch.action.get.GetRequestBuilder;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.get.MultiGetItemResponse;
-import org.elasticsearch.action.get.MultiGetRequest;
-import org.elasticsearch.action.get.MultiGetRequestBuilder;
-import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
@@ -54,21 +49,14 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.persistence.Dto;
+import org.sonar.server.exceptions.NotFoundException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable>
   implements Index<DOMAIN, DTO, KEY> {
@@ -386,6 +374,15 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected abstract DOMAIN toDoc(Map<String, Object> fields);
 
   public DOMAIN getByKey(KEY key) {
+    DOMAIN value = getNullableByKey(key);
+    if (value == null) {
+      throw new NotFoundException(String.format("Key '%s' not found", key));
+    }
+    return value;
+  }
+
+  @CheckForNull
+  public DOMAIN getNullableByKey(KEY key) {
     GetRequestBuilder request = client.prepareGet()
       .setType(this.getIndexType())
       .setIndex(this.getIndexName())

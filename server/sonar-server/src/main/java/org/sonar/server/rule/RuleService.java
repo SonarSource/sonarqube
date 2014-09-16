@@ -55,7 +55,7 @@ public class RuleService implements ServerComponent {
 
   @CheckForNull
   public Rule getByKey(RuleKey key) {
-    return index.getByKey(key);
+    return index.getNullableByKey(key);
   }
 
   public List<Rule> getByKeys(Collection<RuleKey> keys) {
@@ -63,7 +63,7 @@ public class RuleService implements ServerComponent {
   }
 
   public Rule getNonNullByKey(RuleKey key) {
-    Rule rule = index.getByKey(key);
+    Rule rule = index.getNullableByKey(key);
     if (rule == null) {
       throw new NotFoundException("Rule not found: " + key);
     }

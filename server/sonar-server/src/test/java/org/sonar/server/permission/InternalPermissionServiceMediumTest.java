@@ -84,13 +84,13 @@ public class InternalPermissionServiceMediumTest {
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
 
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), project.getId())).isEmpty();
-    assertThat(index.getByKey(project.getKey())).isNull();
+    assertThat(index.getNullableByKey(project.getKey())).isNull();
 
     service.addPermission(params(user.getLogin(), null, project.key(), UserRole.USER));
     session.commit();
 
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), project.getId())).hasSize(1);
-    assertThat(index.getByKey(project.getKey())).isNotNull();
+    assertThat(index.getNullableByKey(project.getKey())).isNotNull();
   }
 
   private Map<String, Object> params(@Nullable String login, @Nullable String group, @Nullable String component, String permission) {

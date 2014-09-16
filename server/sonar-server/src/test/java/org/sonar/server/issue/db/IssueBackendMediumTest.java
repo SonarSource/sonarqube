@@ -26,8 +26,11 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.db.ComponentDao;
@@ -81,6 +84,10 @@ public class IssueBackendMediumTest {
       .setProjectId(1L);
     tester.get(ComponentDao.class).insert(dbSession, project);
 
+    // project can be seen by anyone
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, dbSession);
+    dbClient.issueAuthorizationDao().synchronizeAfter(dbSession, new Date(0));
+
     ComponentDto resource = new ComponentDto()
       .setProjectId(1L)
       .setKey("MyComponent")
@@ -105,7 +112,6 @@ public class IssueBackendMediumTest {
 
     // should find by key
     Issue issueDoc = indexClient.get(IssueIndex.class).getByKey(issue.getKey());
-    assertThat(issueDoc).isNotNull();
 
     // Check all normalized fields
     assertThat(issueDoc.actionPlanKey()).isEqualTo(issue.getActionPlanKey());
@@ -150,9 +156,9 @@ public class IssueBackendMediumTest {
     IssueDto issue = new IssueDto().setId(1L)
       .setRuleId(rule.getId())
       .setRootComponentId(project.getId())
-      .setRootComponentKey_unit_test_only(project.key())
+      .setRootComponentKey(project.key())
       .setComponentId(resource.getId())
-      .setComponentKey_unit_test_only(resource.key())
+      .setComponentKey(resource.key())
       .setStatus("OPEN").setResolution("OPEN")
       .setKee(UUID.randomUUID().toString());
     dbClient.issueDao().insert(dbSession, issue);

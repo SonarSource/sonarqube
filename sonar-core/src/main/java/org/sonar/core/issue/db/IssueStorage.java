@@ -20,7 +20,6 @@
 package org.sonar.core.issue.db;
 
 import com.google.common.collect.Lists;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -49,7 +48,6 @@ public abstract class IssueStorage {
 
   private final MyBatis mybatis;
   private final RuleFinder ruleFinder;
-  private final UpdateConflictResolver conflictResolver = new UpdateConflictResolver();
 
   protected IssueStorage(MyBatis mybatis, RuleFinder ruleFinder) {
     this.mybatis = mybatis;
@@ -72,12 +70,11 @@ public abstract class IssueStorage {
     List<DefaultIssue> toBeUpdated = Lists.newArrayList();
     DbSession batchSession = mybatis.openSession(true);
     int count = 0;
-    IssueMapper issueMapper = batchSession.getMapper(IssueMapper.class);
     IssueChangeMapper issueChangeMapper = batchSession.getMapper(IssueChangeMapper.class);
     try {
       for (DefaultIssue issue : issues) {
         if (issue.isNew()) {
-          insert(issueMapper, now, issue);
+          doInsert(batchSession, now, issue);
           insertChanges(issueChangeMapper, issue);
           if (count > BatchSession.MAX_BATCH_SIZE) {
             batchSession.commit();
@@ -94,22 +91,15 @@ public abstract class IssueStorage {
     return toBeUpdated;
   }
 
-  private void insert(IssueMapper issueMapper, Date now, DefaultIssue issue) {
-    long componentId = componentId(issue);
-    long projectId = projectId(issue);
-    int ruleId = ruleId(issue);
-    IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, projectId, ruleId, now);
-    issueMapper.insert(dto);
-  }
+  protected abstract void doInsert(DbSession batchSession, Date now, DefaultIssue issue);
 
   private void update(List<DefaultIssue> toBeUpdated, Date now) {
     if (!toBeUpdated.isEmpty()) {
-      SqlSession session = mybatis.openSession(false);
+      DbSession session = mybatis.openSession(false);
       try {
-        IssueMapper issueMapper = session.getMapper(IssueMapper.class);
         IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
         for (DefaultIssue issue : toBeUpdated) {
-          update(issueMapper, now, issue);
+          doUpdate(session, now, issue);
           insertChanges(issueChangeMapper, issue);
         }
         session.commit();
@@ -119,21 +109,7 @@ public abstract class IssueStorage {
     }
   }
 
-  private void update(IssueMapper issueMapper, Date now, DefaultIssue issue) {
-    IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(issue), now);
-    if (Issue.STATUS_CLOSED.equals(issue.status()) || issue.selectedAt() == null) {
-      // Issue is closed by scan or changed by end-user
-      issueMapper.update(dto);
-
-    } else {
-      int count = issueMapper.updateIfBeforeSelectedDate(dto);
-      if (count == 0) {
-        // End-user and scan changed the issue at the same time.
-        // See https://jira.codehaus.org/browse/SONAR-4309
-        conflictResolver.resolve(issue, issueMapper);
-      }
-    }
-  }
+  protected abstract void doUpdate(DbSession batchSession, Date now, DefaultIssue issue);
 
   private void insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
     for (IssueComment comment : issue.comments()) {
@@ -150,11 +126,7 @@ public abstract class IssueStorage {
     }
   }
 
-  protected abstract long componentId(DefaultIssue issue);
-
-  protected abstract long projectId(DefaultIssue issue);
-
-  private int ruleId(Issue issue) {
+  protected int ruleId(Issue issue) {
     Rule rule = ruleFinder.findByKey(issue.ruleKey());
     if (rule == null) {
       throw new IllegalStateException("Rule not found: " + issue.ruleKey());

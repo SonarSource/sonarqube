@@ -29,8 +29,8 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.action.UpsertDto;
+
+import java.util.Date;
 
 /**
  * @since 3.6
@@ -44,22 +44,21 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
     this.dbClient = dbClient;
   }
 
-  @Override
-  public void save(Iterable<DefaultIssue> issues) {
-    super.save(issues);
-    DbSession session = dbClient.openSession(false);
-    try {
-      for (DefaultIssue issue : issues) {
-        IssueDto issueDto = dbClient.issueDao().getByKey(session, issue.key());
-        session.enqueue(new UpsertDto<IssueDto>(IndexDefinition.ISSUES.getIndexType(), issueDto));
-      }
-      session.commit();
-    } finally {
-      session.close();
-    }
+  protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
+    long componentId = componentId(issue);
+    long projectId = projectId(issue);
+    int ruleId = ruleId(issue);
+    IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, projectId, ruleId, now);
+
+    dbClient.issueDao().insert(session, dto);
   }
 
-  @Override
+  protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
+    IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(issue), now);
+
+    dbClient.issueDao().update(session, dto);
+  }
+
   protected long componentId(DefaultIssue issue) {
     // TODO should be using ComponentDao
     ResourceDto resourceDto = dbClient.resourceDao().getResource(ResourceQuery.create().setKey(issue.componentKey()));
@@ -69,7 +68,6 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
     return resourceDto.getId();
   }
 
-  @Override
   protected long projectId(DefaultIssue issue) {
     // TODO should be using ComponentDao
     ResourceDto resourceDto = dbClient.resourceDao().getResource(ResourceQuery.create().setKey(issue.projectKey()));

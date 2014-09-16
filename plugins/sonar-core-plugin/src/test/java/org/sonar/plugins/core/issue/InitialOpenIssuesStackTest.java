@@ -70,7 +70,7 @@ public class InitialOpenIssuesStackTest {
 
   @Test
   public void get_and_remove_issues() {
-    IssueDto issueDto = new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-1");
+    IssueDto issueDto = new IssueDto().setComponentKey("org.struts.Action").setKee("ISSUE-1");
     stack.addIssue(issueDto);
 
     List<IssueDto> issueDtos = stack.selectAndRemoveIssues("org.struts.Action");
@@ -82,8 +82,8 @@ public class InitialOpenIssuesStackTest {
 
   @Test
   public void get_and_remove_with_many_issues_on_same_resource() {
-    stack.addIssue(new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-1"));
-    stack.addIssue(new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-2"));
+    stack.addIssue(new IssueDto().setComponentKey("org.struts.Action").setKee("ISSUE-1"));
+    stack.addIssue(new IssueDto().setComponentKey("org.struts.Action").setKee("ISSUE-2"));
 
     List<IssueDto> issueDtos = stack.selectAndRemoveIssues("org.struts.Action");
     assertThat(issueDtos).hasSize(2);
@@ -93,7 +93,7 @@ public class InitialOpenIssuesStackTest {
 
   @Test
   public void get_and_remove_do_nothing_if_resource_not_found() {
-    stack.addIssue(new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-1"));
+    stack.addIssue(new IssueDto().setComponentKey("org.struts.Action").setKee("ISSUE-1"));
 
     List<IssueDto> issueDtos = stack.selectAndRemoveIssues("Other");
     assertThat(issueDtos).hasSize(0);
@@ -119,7 +119,7 @@ public class InitialOpenIssuesStackTest {
 
   @Test
   public void clear_issues() {
-    stack.addIssue(new IssueDto().setComponentKey_unit_test_only("org.struts.Action").setKee("ISSUE-1"));
+    stack.addIssue(new IssueDto().setComponentKey("org.struts.Action").setKee("ISSUE-1"));
 
     assertThat(stack.selectAllIssues()).hasSize(1);
 

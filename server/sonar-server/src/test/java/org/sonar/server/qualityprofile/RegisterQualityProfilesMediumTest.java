@@ -82,14 +82,14 @@ public class RegisterQualityProfilesMediumTest {
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), ruleKey);
 
     // 0. Check and clear ES
-    assertThat(tester.get(ActiveRuleIndex.class).getByKey(activeRuleKey)).isNotNull();
+    assertThat(tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey)).isNotNull();
     tester.clearIndexes();
-    assertThat(tester.get(ActiveRuleIndex.class).getByKey(activeRuleKey)).isNull();
+    assertThat(tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey)).isNull();
     tester.get(Platform.class).restart();
-    assertThat(tester.get(ActiveRuleIndex.class).getByKey(activeRuleKey)).isNotNull();
+    assertThat(tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey)).isNotNull();
 
     // Check ActiveRules in ES
-    org.sonar.server.qualityprofile.ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getByKey(activeRuleKey);
+    org.sonar.server.qualityprofile.ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey);
     assertThat(activeRule.key().qProfile()).isEqualTo(profile.getKee());
     assertThat(activeRule.key().ruleKey()).isEqualTo(ruleKey);
     assertThat(activeRule.severity()).isEqualTo(Severity.CRITICAL);

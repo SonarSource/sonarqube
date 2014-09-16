@@ -63,11 +63,8 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+
+import java.util.*;
 
 /**
  * @since 3.6
@@ -295,6 +292,8 @@ public class IssueService implements ServerComponent {
   }
 
   public IssueQueryResult loadIssue(String issueKey) {
+    // TODO use IssueIndex for ACL
+    // TODO load DTO
     IssueQueryResult result = finder.find(IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).requiredRole(UserRole.USER).build());
     if (result.issues().size() != 1) {
       // TODO throw 404
@@ -337,10 +336,7 @@ public class IssueService implements ServerComponent {
   }
 
   public org.sonar.server.search.Result<Issue> search(IssueQuery query, QueryContext options) {
-
     IssueIndex issueIndex = indexClient.get(IssueIndex.class);
-
     return issueIndex.search(query, options);
-
   }
 }

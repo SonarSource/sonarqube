@@ -20,12 +20,11 @@
 
 package org.sonar.plugins.core.issue;
 
-import org.sonar.api.batch.SonarIndex;
-
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Project;
@@ -355,7 +354,7 @@ public class IssueTrackingTest {
     referenceIssue.setKee(Long.toString(id));
     referenceIssue.setLine(lineId);
     referenceIssue.setMessage(message);
-    referenceIssue.setRuleKey_unit_test_only(ruleRepo, ruleKey);
+    referenceIssue.setRuleKey(ruleRepo, ruleKey);
     referenceIssue.setChecksum(lineChecksum);
     referenceIssue.setResolution(null);
     referenceIssue.setStatus(Issue.STATUS_OPEN);

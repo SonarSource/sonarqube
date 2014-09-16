@@ -38,6 +38,7 @@ import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.QueryContext;
@@ -101,7 +102,21 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  public void filter_by_actionPlan() throws Exception {
+  public void get_by_key() throws Exception {
+    IssueDto issue = createIssue();
+    db.issueDao().insert(session, issue);
+    session.commit();
+
+    assertThat(index.getByKey(issue.getKey())).isNotNull();
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void fail_to_get_unknown_key() throws Exception {
+    index.getByKey("unknown");
+  }
+
+  @Test
+  public void filter_by_action_plan() throws Exception {
     String plan1 = "plan1";
     String plan2 = "plan2";
     IssueDto issue1 = createIssue()

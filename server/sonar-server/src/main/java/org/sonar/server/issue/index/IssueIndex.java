@@ -41,6 +41,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
 
   public IssueIndex(IssueNormalizer normalizer, SearchClient client) {
@@ -108,6 +110,15 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
   protected IssueDoc toDoc(Map<String, Object> fields) {
     Preconditions.checkNotNull(fields, "Cannot construct Issue with null response");
     return new IssueDoc(fields);
+  }
+
+  @Override
+  public Issue getNullableByKey(String key) {
+    Result<Issue> result = search(IssueQuery.builder().issueKeys(newArrayList(key)).build(), new QueryContext());
+    if (result.getTotal() == 1) {
+      return result.getHits().get(0);
+    }
+    return null;
   }
 
   public Result<Issue> search(IssueQuery query, QueryContext options) {

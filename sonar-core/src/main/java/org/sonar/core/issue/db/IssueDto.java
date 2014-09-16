@@ -34,6 +34,7 @@ import org.sonar.core.rule.RuleDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
@@ -367,26 +368,26 @@ public final class IssueDto extends Dto<String> implements Serializable {
   }
 
   /**
-   * Only for unit tests
+   * Should only be used to persist in E/S
    */
-  public IssueDto setRuleKey_unit_test_only(String repo, String rule) {
+  public IssueDto setRuleKey(String repo, String rule) {
     this.ruleRepo = repo;
     this.ruleKey = rule;
     return this;
   }
 
   /**
-   * Only for unit tests
+   * Should only be used to persist in E/S
    */
-  public IssueDto setComponentKey_unit_test_only(String componentKey) {
+  public IssueDto setComponentKey(String componentKey) {
     this.componentKey = componentKey;
     return this;
   }
 
   /**
-   * Only for unit tests
+   * Should only be used to persist in E/S
    */
-  public IssueDto setRootComponentKey_unit_test_only(String rootComponentKey) {
+  public IssueDto setRootComponentKey(String rootComponentKey) {
     this.rootComponentKey = rootComponentKey;
     return this;
   }
@@ -411,8 +412,11 @@ public final class IssueDto extends Dto<String> implements Serializable {
       .setReporter(issue.reporter())
       .setAssignee(issue.assignee())
       .setRuleId(ruleId)
+      .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
       .setComponentId(componentId)
+      .setComponentKey(issue.componentKey())
       .setRootComponentId(rootComponentId)
+      .setRootComponentKey(issue.projectKey())
       .setActionPlanKey(issue.actionPlanKey())
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
@@ -442,6 +446,9 @@ public final class IssueDto extends Dto<String> implements Serializable {
       .setActionPlanKey(issue.actionPlanKey())
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
+      .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
+      .setComponentKey(issue.componentKey())
+      .setRootComponentKey(issue.projectKey())
       .setRootComponentId(rootComponentId)
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())

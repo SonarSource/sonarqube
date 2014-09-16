@@ -23,17 +23,23 @@ package org.sonar.server.issue;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.DefaultIssueComment;
+import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.db.IssueDao;
 
 import java.util.Collection;
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -42,18 +48,22 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
 
   DbClient dbClient;
 
+  ServerIssueStorage storage;
+
   @Before
   public void setupDbClient() {
     dbClient = new DbClient(getDatabase(), getMyBatis(),
       new ComponentDao(System2.INSTANCE),
+      new IssueDao(System2.INSTANCE),
       new ResourceDao(getMyBatis(), System2.INSTANCE));
+
+    storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient);
   }
 
   @Test
   public void load_component_id_from_db() throws Exception {
     setupData("load_component_id_from_db");
 
-    ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient);
     long componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
     assertThat(componentId).isEqualTo(123);
@@ -63,7 +73,6 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   public void fail_to_load_component_id_if_unknown_component() throws Exception {
     setupData("empty");
 
-    ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient);
     try {
       storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
       fail();
@@ -76,7 +85,6 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   public void load_project_id_from_db() throws Exception {
     setupData("load_project_id_from_db");
 
-    ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient);
     long projectId = storage.projectId(new DefaultIssue().setProjectKey("struts"));
 
     assertThat(projectId).isEqualTo(1);
@@ -86,13 +94,88 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   public void fail_to_load_project_id_if_unknown_component() throws Exception {
     setupData("empty");
 
-    ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient);
     try {
       storage.projectId(new DefaultIssue().setProjectKey("struts"));
       fail();
     } catch (Exception e) {
       assertThat(e).hasMessage("Unknown project: struts");
     }
+  }
+
+  @Test
+  public void should_insert_new_issues() throws Exception {
+    setupData("should_insert_new_issues");
+
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    // override generated key
+    comment.setKey("FGHIJ");
+
+    Date date = DateUtils.parseDate("2013-05-18");
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setNew(true)
+
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setLine(5000)
+      .setDebt(Duration.create(10L))
+      .setReporter("emmerik")
+      .setResolution("OPEN")
+      .setStatus("OPEN")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .addComment(comment)
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date)
+
+      .setComponentKey("struts:Action");
+
+    storage.save(issue);
+
+    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+  }
+
+  @Test
+  public void should_update_issues() throws Exception {
+    setupData("should_update_issues");
+
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
+
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    // override generated key
+    comment.setKey("FGHIJ");
+
+    Date date = DateUtils.parseDate("2013-05-18");
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setNew(false)
+      .setChanged(true)
+
+        // updated fields
+      .setLine(5000)
+      .setDebt(Duration.create(10L))
+      .setChecksum("FFFFF")
+      .setAuthorLogin("simon")
+      .setAssignee("loic")
+      .setFieldChange(context, "severity", "INFO", "BLOCKER")
+      .setReporter("emmerik")
+      .setResolution("FIXED")
+      .setStatus("RESOLVED")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .addComment(comment)
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date)
+
+        // unmodifiable fields
+      .setRuleKey(RuleKey.of("xxx", "unknown"))
+      .setComponentKey("struts:Action")
+      .setProjectKey("struts");
+
+    storage.save(issue);
+
+    checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
   static class FakeRuleFinder implements RuleFinder {

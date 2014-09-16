@@ -82,7 +82,7 @@ public class IssueAuthorizationIndexMediumTest {
 
     session.commit();
 
-    assertThat(index.getByKey(project.getKey())).isNull();
+    assertThat(index.getNullableByKey(project.getKey())).isNull();
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
     session.commit();
 
@@ -96,7 +96,7 @@ public class IssueAuthorizationIndexMediumTest {
 
     tester.clearIndexes();
     tester.get(Platform.class).executeStartupTasks();
-    assertThat(index.getByKey(project.getKey())).isNotNull();
+    assertThat(index.getNullableByKey(project.getKey())).isNotNull();
   }
 
   @Test
@@ -120,12 +120,12 @@ public class IssueAuthorizationIndexMediumTest {
 
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
     session.commit();
-    assertThat(index.getByKey(project.getKey())).isNotNull();
+    assertThat(index.getNullableByKey(project.getKey())).isNotNull();
 
     db.issueAuthorizationDao().deleteByKey(session, project.key());
     session.commit();
 
-    assertThat(index.getByKey(project.getKey())).isNull();
+    assertThat(index.getNullableByKey(project.getKey())).isNull();
   }
 
 }

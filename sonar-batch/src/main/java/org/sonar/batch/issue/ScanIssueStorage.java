@@ -21,21 +21,29 @@ package org.sonar.batch.issue;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.index.SnapshotCache;
+import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.issue.db.UpdateConflictResolver;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+
+import java.util.Date;
 
 public class ScanIssueStorage extends IssueStorage implements BatchComponent {
 
   private final SnapshotCache snapshotCache;
   private final ResourceDao resourceDao;
   private final ProjectTree projectTree;
+  private final UpdateConflictResolver conflictResolver = new UpdateConflictResolver();
 
   public ScanIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, SnapshotCache snapshotCache, ResourceDao resourceDao, ProjectTree projectTree) {
     super(mybatis, ruleFinder);
@@ -44,7 +52,32 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
     this.projectTree = projectTree;
   }
 
-  @Override
+  protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
+    IssueMapper issueMapper = session.getMapper(IssueMapper.class);
+    long componentId = componentId(issue);
+    long projectId = projectId(issue);
+    int ruleId = ruleId(issue);
+    IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, projectId, ruleId, now);
+    issueMapper.insert(dto);
+  }
+
+  protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
+    IssueMapper issueMapper = session.getMapper(IssueMapper.class);
+    IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(issue), now);
+    if (Issue.STATUS_CLOSED.equals(issue.status()) || issue.selectedAt() == null) {
+      // Issue is closed by scan or changed by end-user
+      issueMapper.update(dto);
+
+    } else {
+      int count = issueMapper.updateIfBeforeSelectedDate(dto);
+      if (count == 0) {
+        // End-user and scan changed the issue at the same time.
+        // See https://jira.codehaus.org/browse/SONAR-4309
+        conflictResolver.resolve(issue, issueMapper);
+      }
+    }
+  }
+
   protected long componentId(DefaultIssue issue) {
     Snapshot snapshot = snapshotCache.get(issue.componentKey());
     if (snapshot != null) {
@@ -59,7 +92,6 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
     return resourceDto.getId();
   }
 
-  @Override
   protected long projectId(DefaultIssue issue) {
     return projectTree.getRootProject().getId();
   }

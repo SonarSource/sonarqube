@@ -48,6 +48,8 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
+import java.util.Date;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class UploadReportActionMediumTest {
@@ -99,7 +101,7 @@ public class UploadReportActionMediumTest {
 
     session.commit();
 
-    assertThat(tester.get(IssueAuthorizationIndex.class).getByKey(project.getKey())).isNull();
+    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNull();
 
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     WsTester.TestRequest request = wsTester.newGetRequest(BatchWs.API_ENDPOINT, UploadReportAction.UPLOAD_REPORT_ACTION);
@@ -108,7 +110,7 @@ public class UploadReportActionMediumTest {
     request.execute();
 
     // Check that issue authorization index has been created
-    assertThat(tester.get(IssueAuthorizationIndex.class).getByKey(project.getKey())).isNotNull();
+    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNotNull();
   }
 
   @Test(expected = ForbiddenException.class)
@@ -134,6 +136,10 @@ public class UploadReportActionMediumTest {
       .setKey("MyProject")
       .setProjectId(1L);
     db.componentDao().insert(session, project);
+
+    // project can be seen by anyone
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
     ComponentDto resource = new ComponentDto()
       .setProjectId(1L)
@@ -162,7 +168,7 @@ public class UploadReportActionMediumTest {
     // Clear issue index to simulate that the issue has been inserted by the batch, so that it's not yet index in E/S
     clearIssueIndex();
     assertThat(db.issueDao().getByKey(session, issue.getKey())).isNotNull();
-    assertThat(tester.get(IssueIndex.class).getByKey(issue.getKey())).isNull();
+    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNull();
 
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
@@ -171,7 +177,7 @@ public class UploadReportActionMediumTest {
     request.execute();
 
     // Check that the issue has well be indexed in E/S
-    assertThat(tester.get(IssueIndex.class).getByKey(issue.getKey())).isNotNull();
+    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNotNull();
   }
 
   private void clearIssueIndex(){

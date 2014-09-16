@@ -137,7 +137,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle");
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
     trackingResult.addUnmatched(unmatchedIssue);
@@ -163,7 +163,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(6).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(6).setStatus("OPEN").setRuleKey("manual", "Performance");
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -209,7 +209,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("CLOSED").setRuleKey_unit_test_only("manual", "Performance");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("CLOSED").setRuleKey("manual", "Performance");
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -243,7 +243,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(null).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(null).setStatus("OPEN").setRuleKey("manual", "Performance");
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -279,7 +279,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
     // INPUT : one issue existing during previous scan
     final int issueOnLine = 6;
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(issueOnLine).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(issueOnLine).setStatus("OPEN").setRuleKey("manual", "Performance");
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -327,7 +327,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
     // INPUT : one issue existing during previous scan
     final int issueOnLine = 3;
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(issueOnLine).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(issueOnLine).setStatus("OPEN").setRuleKey("manual", "Performance");
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -375,7 +375,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("OPEN").setRuleKey("manual", "Performance");
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance").setStatus(Rule.STATUS_REMOVED));
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -408,7 +408,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("OPEN").setRuleKey("manual", "Performance");
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(null);
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -441,7 +441,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
-    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(6).setStatus("OPEN").setRuleKey_unit_test_only("manual", "Performance");
+    IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(6).setStatus("OPEN").setRuleKey("manual", "Performance");
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(null);
 
     IssueTrackingResult trackingResult = new IssueTrackingResult();
@@ -486,7 +486,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     Project project = new Project("struts");
     DefaultIssue openIssue = new DefaultIssue();
     when(issueCache.byComponent("struts")).thenReturn(Arrays.asList(openIssue));
-    IssueDto deadIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle");
+    IssueDto deadIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle");
     when(initialOpenIssues.selectAllIssues()).thenReturn(Arrays.asList(deadIssue));
 
     decorator.doDecorate(project);
@@ -507,8 +507,8 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void merge_matched_issue() throws Exception {
-    IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle")
-      .setLine(10).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setDebt(1L).setRootComponentKey_unit_test_only("sample");
+    IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")
+      .setLine(10).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setDebt(1L).setRootComponentKey("sample");
     DefaultIssue issue = new DefaultIssue();
 
     IssueTrackingResult trackingResult = mock(IssueTrackingResult.class);
@@ -526,7 +526,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void merge_matched_issue_on_manual_severity() throws Exception {
-    IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle")
+    IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")
       .setLine(10).setManualSeverity(true).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setDebt(1L);
     DefaultIssue issue = new DefaultIssue();
 
@@ -544,7 +544,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   public void merge_issue_changelog_with_previous_changelog() throws Exception {
     when(initialOpenIssues.selectChangelog("ABCDE")).thenReturn(newArrayList(new IssueChangeDto().setIssueKey("ABCD")));
 
-    IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle")
+    IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey("squid", "AvoidCycle")
       .setLine(10).setMessage("Message").setEffortToFix(1.5).setDebt(1L);
     DefaultIssue issue = new DefaultIssue();
 
