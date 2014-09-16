@@ -41,7 +41,7 @@
 
   <select id="selectMeasuresOnDeletedQualityProfiles" resultType="long">
      select pm.id from project_measures pm
-      inner join snapshots as s on s.id=pm.snapshot_id and s.islast=${_true}
+      inner join snapshots s on s.id=pm.snapshot_id and s.islast=${_true}
       where
         pm.metric_id=(select id from metrics where name='quality_profiles')
         and pm.value is not null
