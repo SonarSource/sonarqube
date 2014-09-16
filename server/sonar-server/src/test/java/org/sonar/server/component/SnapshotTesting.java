@@ -28,6 +28,7 @@ public class SnapshotTesting {
   public static SnapshotDto createForComponent(ComponentDto component) {
     return new SnapshotDto()
       .setResourceId(component.getId())
+      .setRootProjectId(component.projectId())
       .setLast(true);
   }
 
