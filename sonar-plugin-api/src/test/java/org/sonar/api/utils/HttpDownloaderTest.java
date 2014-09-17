@@ -149,14 +149,11 @@ public class HttpDownloaderTest {
     thrown.expect(new BaseMatcher<Exception>() {
       @Override
       public boolean matches(Object ex) {
-        // TODO Auto-generated method stub
         return ex instanceof SonarException && ((SonarException) ex).getCause() instanceof SocketTimeoutException;
       }
 
       @Override
       public void describeTo(Description arg0) {
-        // TODO Auto-generated method stub
-
       }
     });
     new HttpDownloader(new Settings(), 100).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
@@ -201,7 +198,7 @@ public class HttpDownloaderTest {
     props.load(stream);
     stream.close();
 
-    assertThat(props.getProperty("agent")).isEqualTo("Sonar 2.2");
+    assertThat(props.getProperty("agent")).isEqualTo("SonarQube 2.2");
   }
 
   @Test
@@ -220,7 +217,7 @@ public class HttpDownloaderTest {
   @Test
   public void shouldGetProxySynthesis() throws URISyntaxException {
     ProxySelector proxySelector = mock(ProxySelector.class);
-    when(proxySelector.select(any(URI.class))).thenReturn(Arrays.<Proxy> asList(new FakeProxy()));
+    when(proxySelector.select(any(URI.class))).thenReturn(Arrays.<Proxy>asList(new FakeProxy()));
     assertThat(HttpDownloader.BaseHttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("proxy: http://proxy_url:4040");
   }
 

@@ -145,6 +145,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
   public static class BaseHttpDownloader {
 
+    private static final String GET = "GET";
     private static final String HTTP_PROXY_USER = "http.proxyUser";
     private static final String HTTP_PROXY_PASSWORD = "http.proxyPassword";
 
@@ -167,7 +168,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     }
 
     private void initUserAgent(String sonarVersion) {
-      userAgent = (sonarVersion == null ? "Sonar" : String.format("Sonar %s", sonarVersion));
+      userAgent = (sonarVersion == null ? "SonarQube" : String.format("SonarQube %s", sonarVersion));
       System.setProperty("http.agent", userAgent);
     }
 
@@ -211,25 +212,43 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     }
 
     public InputSupplier<InputStream> newInputSupplier(URI uri) {
-      return new HttpInputSupplier(uri, userAgent, null, null, TIMEOUT_MILLISECONDS);
+      return new HttpInputSupplier(uri, GET, userAgent, null, null, TIMEOUT_MILLISECONDS);
     }
 
     public InputSupplier<InputStream> newInputSupplier(URI uri, @Nullable Integer readTimeoutMillis) {
+      return newInputSupplier(uri, GET, readTimeoutMillis);
+    }
+
+    public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, @Nullable Integer readTimeoutMillis) {
       if (readTimeoutMillis != null) {
-        return new HttpInputSupplier(uri, userAgent, null, null, readTimeoutMillis);
+        return new HttpInputSupplier(uri, requestMethod, userAgent, null, null, readTimeoutMillis);
       }
-      return new HttpInputSupplier(uri, userAgent, null, null, TIMEOUT_MILLISECONDS);
+      return new HttpInputSupplier(uri, requestMethod, userAgent, null, null, TIMEOUT_MILLISECONDS);
     }
 
     public InputSupplier<InputStream> newInputSupplier(URI uri, String login, String password) {
-      return new HttpInputSupplier(uri, userAgent, login, password, TIMEOUT_MILLISECONDS);
+      return newInputSupplier(uri, GET, login, password);
+    }
+
+    /**
+     * @since 5.0
+     */
+    public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, String login, String password) {
+      return new HttpInputSupplier(uri, requestMethod, userAgent, login, password, TIMEOUT_MILLISECONDS);
     }
 
     public InputSupplier<InputStream> newInputSupplier(URI uri, String login, String password, @Nullable Integer readTimeoutMillis) {
+      return newInputSupplier(uri, GET, login, password, readTimeoutMillis);
+    }
+
+    /**
+     * @since 5.0
+     */
+    public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, String login, String password, @Nullable Integer readTimeoutMillis) {
       if (readTimeoutMillis != null) {
-        return new HttpInputSupplier(uri, userAgent, login, password, readTimeoutMillis);
+        return new HttpInputSupplier(uri, requestMethod, userAgent, login, password, readTimeoutMillis);
       }
-      return new HttpInputSupplier(uri, userAgent, login, password, TIMEOUT_MILLISECONDS);
+      return new HttpInputSupplier(uri, requestMethod, userAgent, login, password, TIMEOUT_MILLISECONDS);
     }
 
     private static class HttpInputSupplier implements InputSupplier<InputStream> {
@@ -238,9 +257,11 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
       private final URI uri;
       private final String userAgent;
       private final int readTimeoutMillis;
+      private final String requestMethod;
 
-      HttpInputSupplier(URI uri, String userAgent, String login, String password, int readTimeoutMillis) {
+      HttpInputSupplier(URI uri, String requestMethod, String userAgent, String login, String password, int readTimeoutMillis) {
         this.uri = uri;
+        this.requestMethod = requestMethod;
         this.userAgent = userAgent;
         this.login = login;
         this.password = password;
@@ -251,6 +272,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
         LoggerFactory.getLogger(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri, ProxySelector.getDefault()) + ")");
 
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+        connection.setRequestMethod(requestMethod);
         HttpsTrust.INSTANCE.trust(connection);
 
         // allow both GZip and Deflate (ZLib) encodings

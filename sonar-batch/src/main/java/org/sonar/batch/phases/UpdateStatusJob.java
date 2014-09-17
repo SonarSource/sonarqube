@@ -29,7 +29,6 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.ResourcePersister;
@@ -65,21 +64,28 @@ public class UpdateStatusJob implements BatchComponent {
   public void execute() {
     disablePreviousSnapshot();
     enableCurrentSnapshot();
-    evictPreviewDB();
+    uploadReport();
   }
 
   @VisibleForTesting
-  void evictPreviewDB() {
+  void uploadReport() {
     if (analysisMode.isPreview()) {
-      // If this is a preview analysis then we should not evict remote preview database
+      // If this is a preview analysis then we should not upload reports
       return;
     }
     String url = "/batch_bootstrap/evict?project=" + project.getId();
     try {
-      LOG.debug("Evict preview database");
-      server.request(url);
+      LOG.debug("Upload report");
+      server.request(url, "POST");
     } catch (Exception e) {
-      throw new SonarException("Unable to evict preview database: " + url, e);
+      throw new IllegalStateException("Unable to evict preview database: " + url, e);
+    }
+    url = "/batch/upload_report?project=" + project.getEffectiveKey();
+    try {
+      LOG.debug("Publish results");
+      server.request(url, "POST");
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to publish results: " + url, e);
     }
   }
 

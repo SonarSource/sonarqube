@@ -40,6 +40,7 @@ import javax.persistence.Query;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -118,19 +119,20 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void should_evict_cache_for_regular_analysis() throws Exception {
+  public void should_publish_results_for_regular_analysis() throws Exception {
     Settings settings = new Settings();
     Project project = new Project("struts");
     ServerClient serverClient = mock(ServerClient.class);
     UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, mock(DatabaseSession.class),
       mock(ResourcePersister.class), project, mock(Snapshot.class), mode);
 
-    job.evictPreviewDB();
-    verify(serverClient).request(contains("/batch_bootstrap/evict"));
+    job.uploadReport();
+    verify(serverClient).request(contains("/batch_bootstrap/evict"), eq("POST"));
+    verify(serverClient).request(contains("/batch/upload_report"), eq("POST"));
   }
 
   @Test
-  public void should_not_evict_cache_for_preview_analysis() throws Exception {
+  public void should_not_publish_results_for_preview_analysis() throws Exception {
     Settings settings = new Settings();
     when(mode.isPreview()).thenReturn(true);
     Project project = new Project("struts");
@@ -138,7 +140,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, mock(DatabaseSession.class),
       mock(ResourcePersister.class), project, mock(Snapshot.class), mode);
 
-    job.evictPreviewDB();
+    job.uploadReport();
     verify(serverClient, never()).request(anyString());
   }
 }

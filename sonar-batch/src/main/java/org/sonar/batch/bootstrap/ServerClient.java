@@ -46,6 +46,7 @@ import java.net.URI;
  */
 public class ServerClient implements BatchComponent {
 
+  private static final String GET = "GET";
   private BootstrapProperties props;
   private HttpDownloader.BaseHttpDownloader downloader;
 
@@ -64,7 +65,7 @@ public class ServerClient implements BatchComponent {
 
   public void download(String pathStartingWithSlash, File toFile, @Nullable Integer readTimeoutMillis) {
     try {
-      InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash, readTimeoutMillis);
+      InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash, GET, readTimeoutMillis);
       Files.copy(inputSupplier, toFile);
     } catch (HttpDownloader.HttpException he) {
       throw handleHttpException(he);
@@ -74,15 +75,23 @@ public class ServerClient implements BatchComponent {
   }
 
   public String request(String pathStartingWithSlash) {
-    return request(pathStartingWithSlash, true);
+    return request(pathStartingWithSlash, GET, true);
+  }
+
+  public String request(String pathStartingWithSlash, String requestMethod) {
+    return request(pathStartingWithSlash, requestMethod, true);
   }
 
   public String request(String pathStartingWithSlash, boolean wrapHttpException) {
-    return request(pathStartingWithSlash, wrapHttpException, null);
+    return request(pathStartingWithSlash, GET, wrapHttpException, null);
   }
 
-  public String request(String pathStartingWithSlash, boolean wrapHttpException, @Nullable Integer timeoutMillis) {
-    InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash, timeoutMillis);
+  public String request(String pathStartingWithSlash, String requestMethod, boolean wrapHttpException) {
+    return request(pathStartingWithSlash, requestMethod, wrapHttpException, null);
+  }
+
+  public String request(String pathStartingWithSlash, String requestMethod, boolean wrapHttpException, @Nullable Integer timeoutMillis) {
+    InputSupplier<InputStream> inputSupplier = doRequest(pathStartingWithSlash, requestMethod, timeoutMillis);
     try {
       return IOUtils.toString(inputSupplier.getInput(), "UTF-8");
     } catch (HttpDownloader.HttpException e) {
@@ -92,7 +101,7 @@ public class ServerClient implements BatchComponent {
     }
   }
 
-  private InputSupplier<InputStream> doRequest(String pathStartingWithSlash, @Nullable Integer timeoutMillis) {
+  private InputSupplier<InputStream> doRequest(String pathStartingWithSlash, String requestMethod, @Nullable Integer timeoutMillis) {
     Preconditions.checkArgument(pathStartingWithSlash.startsWith("/"), "Path must start with slash /");
     String path = StringEscapeUtils.escapeHtml(pathStartingWithSlash);
 
@@ -100,9 +109,9 @@ public class ServerClient implements BatchComponent {
     try {
       InputSupplier<InputStream> inputSupplier;
       if (Strings.isNullOrEmpty(getLogin())) {
-        inputSupplier = downloader.newInputSupplier(uri, timeoutMillis);
+        inputSupplier = downloader.newInputSupplier(uri, requestMethod, timeoutMillis);
       } else {
-        inputSupplier = downloader.newInputSupplier(uri, getLogin(), getPassword(), timeoutMillis);
+        inputSupplier = downloader.newInputSupplier(uri, requestMethod, getLogin(), getPassword(), timeoutMillis);
       }
       return inputSupplier;
     } catch (Exception e) {

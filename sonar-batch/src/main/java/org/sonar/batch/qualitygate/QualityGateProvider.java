@@ -36,7 +36,6 @@ import java.net.HttpURLConnection;
 
 public class QualityGateProvider extends ProviderAdapter {
 
-
   private static final Logger LOG = LoggerFactory.getLogger(QualityGateProvider.class);
 
   private static final String PROPERTY_QUALITY_GATE = "sonar.qualitygate";
@@ -86,9 +85,9 @@ public class QualityGateProvider extends ProviderAdapter {
     String jsonText = null;
     try {
       long qGateId = Long.valueOf(qualityGateSetting);
-      jsonText = client.request(SHOW_URL + "?id="+qGateId, false);
-    } catch(NumberFormatException configIsNameInsteadOfId) {
-      jsonText = client.request(SHOW_URL + "?name="+qualityGateSetting, false);
+      jsonText = client.request(SHOW_URL + "?id=" + qGateId, false);
+    } catch (NumberFormatException configIsNameInsteadOfId) {
+      jsonText = client.request(SHOW_URL + "?name=" + qualityGateSetting, false);
     }
 
     JsonParser parser = new JsonParser();
@@ -97,7 +96,7 @@ public class QualityGateProvider extends ProviderAdapter {
     QualityGate configuredGate = new QualityGate(root.get("name").getAsString());
 
     if (root.has(ATTRIBUTE_CONDITIONS)) {
-      for (JsonElement condition: root.get(ATTRIBUTE_CONDITIONS).getAsJsonArray()) {
+      for (JsonElement condition : root.get(ATTRIBUTE_CONDITIONS).getAsJsonArray()) {
         JsonObject conditionObject = condition.getAsJsonObject();
         configuredGate.add(new ResolvedCondition(conditionObject, metricFinder.findByKey(conditionObject.get("metric").getAsString())));
       }

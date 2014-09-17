@@ -143,7 +143,7 @@ public class JdbcDriverHolder {
       String indexContent = serverClient.request(url);
       // File is empty when H2 is used
       if (Strings.isNullOrEmpty(indexContent)) {
-        return new String[]{};
+        return new String[] {};
       }
       return indexContent.split("\\|");
     } catch (Exception e) {
