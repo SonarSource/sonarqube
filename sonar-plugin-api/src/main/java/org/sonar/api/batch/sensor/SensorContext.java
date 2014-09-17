@@ -194,9 +194,9 @@ public interface SensorContext {
 
   /**
    * Declare a dependency between 2 files.
-   * @param usage A qualifier for the dependency. 
+   * @param weight Weight of the dependency
    * @since 5.0
    */
-  void saveDependency(InputFile from, InputFile to, String usage);
+  void saveDependency(InputFile from, InputFile to, int weight);
 
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.design.batch;
+package org.sonar.batch.design;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -54,7 +54,7 @@ public class DsmSerializerTest {
 
     Dsm<Resource> dsm = new Dsm<Resource>(graph);
     DsmManualSorter.sort(dsm, bar, foo); // for test reproductibility
-    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/plugins/design/batch/DsmSerializerTest/dsm.json")).trim();
+    String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/batch/design/DsmSerializerTest/dsm.json")).trim();
     assertThat(DsmSerializer.serialize(dsm), is(json));
   }
 }

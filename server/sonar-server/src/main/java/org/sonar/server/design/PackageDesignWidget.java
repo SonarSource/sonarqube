@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.design.ui.widgets;
+package org.sonar.server.design;
 
 import org.sonar.api.web.AbstractRubyTemplate;
 import org.sonar.api.web.RubyRailsWidget;
@@ -25,19 +25,19 @@ import org.sonar.api.web.UserRole;
 import org.sonar.api.web.WidgetCategory;
 
 @UserRole(UserRole.USER)
-@WidgetCategory({ "Design" })
-public final class FileDesignWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+@WidgetCategory({"Design"})
+public final class PackageDesignWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 
   public String getId() {
-    return "file_design";
+    return "package_design";
   }
 
   public String getTitle() {
-    return "File design";
+    return "Package design";
   }
 
   @Override
   protected String getTemplatePath() {
-    return "/org/sonar/plugins/design/ui/widgets/file_design.html.erb";
+    return "/org/sonar/server/design/package_design.html.erb";
   }
 }

@@ -17,18 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.design.batch;
+package org.sonar.server.design;
 
-import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.web.AbstractRubyTemplate;
+import org.sonar.api.web.RubyRailsWidget;
+import org.sonar.api.web.UserRole;
+import org.sonar.api.web.WidgetCategory;
 
-public class FileTangleIndexDecorator extends TangleIndexDecorator {
+@UserRole(UserRole.USER)
+@WidgetCategory({"Design"})
+public final class FileDesignWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 
-  public FileTangleIndexDecorator() {
-    super(CoreMetrics.FILE_TANGLES, CoreMetrics.FILE_EDGES_WEIGHT, CoreMetrics.FILE_TANGLE_INDEX);
+  public String getId() {
+    return "file_design";
+  }
+
+  public String getTitle() {
+    return "File design";
   }
 
   @Override
-  public String toString() {
-    return getClass().getSimpleName();
+  protected String getTemplatePath() {
+    return "/org/sonar/server/design/file_design.html.erb";
   }
 }

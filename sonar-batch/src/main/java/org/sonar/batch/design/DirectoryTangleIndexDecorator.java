@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.design.batch;
+package org.sonar.batch.design;
 
 import org.sonar.api.measures.CoreMetrics;
 
-public class PackageTangleIndexDecorator extends TangleIndexDecorator {
+public class DirectoryTangleIndexDecorator extends TangleIndexDecorator {
 
-  public PackageTangleIndexDecorator() {
+  public DirectoryTangleIndexDecorator() {
     super(CoreMetrics.PACKAGE_TANGLES, CoreMetrics.PACKAGE_EDGES_WEIGHT, CoreMetrics.PACKAGE_TANGLE_INDEX);
   }
 

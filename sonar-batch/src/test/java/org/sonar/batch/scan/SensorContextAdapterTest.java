@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -58,7 +59,7 @@ public class SensorContextAdapterTest {
 
   private ActiveRules activeRules;
   private DefaultFileSystem fs;
-  private SensorContextAdaptor adaptor;
+  private SensorContextAdapter adaptor;
   private SensorContext sensorContext;
   private Settings settings;
   private ResourcePerspectives resourcePerspectives;
@@ -74,8 +75,8 @@ public class SensorContextAdapterTest {
     resourcePerspectives = mock(ResourcePerspectives.class);
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
     BlockCache blockCache = mock(BlockCache.class);
-    adaptor = new SensorContextAdaptor(sensorContext, metricFinder, new Project("myProject"),
-      resourcePerspectives, settings, fs, activeRules, componentDataCache, blockCache, mock(DuplicationCache.class));
+    adaptor = new SensorContextAdapter(sensorContext, metricFinder, new Project("myProject"),
+      resourcePerspectives, settings, fs, activeRules, componentDataCache, blockCache, mock(DuplicationCache.class), mock(SonarIndex.class));
   }
 
   @Test

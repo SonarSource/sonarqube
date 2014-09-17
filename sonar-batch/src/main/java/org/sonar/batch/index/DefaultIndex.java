@@ -53,6 +53,7 @@ import org.sonar.batch.ProjectTree;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.batch.scan.measure.MeasureCache;
+import org.sonar.batch.scan2.DefaultSensorContext;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.component.ScanGraph;
 
@@ -213,6 +214,10 @@ public class DefaultIndex extends SonarIndex {
       Metric metric = metricFinder.findByKey(measure.getMetricKey());
       if (metric == null) {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
+      }
+      if (DefaultSensorContext.INTERNAL_METRICS.contains(metric)) {
+        LOG.warn("Metric " + metric + " is an internal metric computed by SonarQube. Please update your plugin.");
+        return measure;
       }
       measure.setMetric(metric);
       if (measureCache.contains(resource, measure)) {

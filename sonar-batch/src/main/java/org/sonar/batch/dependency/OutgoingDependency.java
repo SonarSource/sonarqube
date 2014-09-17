@@ -24,19 +24,19 @@ import org.sonar.api.batch.fs.InputFile;
 public class OutgoingDependency {
 
   private final InputFile to;
-  private final String usage;
+  private final int weight;
 
-  public OutgoingDependency(InputFile to, String usage) {
+  public OutgoingDependency(InputFile to, int weight) {
     this.to = to;
-    this.usage = usage;
+    this.weight = weight;
   }
 
   public InputFile to() {
     return to;
   }
 
-  public String usage() {
-    return usage;
+  public int weight() {
+    return weight;
   }
 
 }

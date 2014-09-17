@@ -187,9 +187,6 @@ public interface SensorContext {
 
   // ----------- DEPENDENCIES BETWEEN RESOURCES --------------
 
-  /**
-   * Build a new dependency : from depends upon to. The dependency is NOT saved. The method saveDependency() must still be executed.
-   */
   Dependency saveDependency(Dependency dependency);
 
   Set<Dependency> getDependencies();

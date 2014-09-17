@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.design.batch;
+package org.sonar.batch.design;
 
 import com.google.common.collect.Lists;
 import org.sonar.api.batch.Decorator;
@@ -29,19 +29,19 @@ import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.graph.*;
+import org.sonar.graph.Cycle;
+import org.sonar.graph.CycleDetector;
+import org.sonar.graph.Dsm;
+import org.sonar.graph.DsmTopologicalSorter;
+import org.sonar.graph.Edge;
+import org.sonar.graph.MinimumFeedbackEdgeSetSolver;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-/**
- * For performance reasons, this decorator is currently limited to matrix between modules.
- * Squid is optimized for cycle detections (better hashCode and equals methods of SourceCode classes than Resource).
- */
 public class ProjectDsmDecorator implements Decorator {
 
-  // hack as long as DecoratorContext does not implement SonarIndex
   private SonarIndex index;
 
   public ProjectDsmDecorator(SonarIndex index) {
@@ -101,6 +101,6 @@ public class ProjectDsmDecorator implements Decorator {
   }
 
   private boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
-    return ResourceUtils.isProject(resource) && context.getMeasure(CoreMetrics.DEPENDENCY_MATRIX) == null;
+    return ResourceUtils.isProject(resource) && !((Project) resource).getModules().isEmpty();
   }
 }

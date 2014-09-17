@@ -43,7 +43,7 @@ import org.sonar.batch.duplication.DefaultTokenBuilder;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.DefaultHighlightingBuilder;
 import org.sonar.batch.index.ComponentDataCache;
-import org.sonar.batch.scan.SensorContextAdaptor;
+import org.sonar.batch.scan.SensorContextAdapter;
 import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 
@@ -51,7 +51,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Common bits between {@link DefaultSensorContext} and {@link SensorContextAdaptor}
+ * Common bits between {@link DefaultSensorContext} and {@link SensorContextAdapter}
  * @author julien
  *
  */

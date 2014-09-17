@@ -20,6 +20,12 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
+import org.sonar.batch.design.DirectoryDsmDecorator;
+import org.sonar.batch.design.DirectoryTangleIndexDecorator;
+import org.sonar.batch.design.FileTangleIndexDecorator;
+import org.sonar.batch.design.MavenDependenciesSensor;
+import org.sonar.batch.design.ProjectDsmDecorator;
+import org.sonar.batch.design.SubProjectDsmDecorator;
 import org.sonar.batch.maven.DefaultMavenPluginExecutor;
 import org.sonar.batch.maven.MavenProjectBootstrapper;
 import org.sonar.batch.maven.MavenProjectBuilder;
@@ -37,7 +43,15 @@ public class BatchComponents {
   public static Collection all() {
     List components = Lists.newArrayList(
       // Maven
-      MavenProjectBootstrapper.class, DefaultMavenPluginExecutor.class, MavenProjectConverter.class, MavenProjectBuilder.class
+      MavenProjectBootstrapper.class, DefaultMavenPluginExecutor.class, MavenProjectConverter.class, MavenProjectBuilder.class,
+
+      // Design
+      MavenDependenciesSensor.class,
+      ProjectDsmDecorator.class,
+      SubProjectDsmDecorator.class,
+      DirectoryDsmDecorator.class,
+      DirectoryTangleIndexDecorator.class,
+      FileTangleIndexDecorator.class
       );
     components.addAll(CorePropertyDefinitions.all());
     return components;

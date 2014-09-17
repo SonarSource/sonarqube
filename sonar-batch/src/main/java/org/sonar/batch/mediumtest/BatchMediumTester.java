@@ -20,7 +20,6 @@
 package org.sonar.batch.mediumtest;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarPlugin;
@@ -235,7 +234,7 @@ public class BatchMediumTester {
     private Map<InputFile, SymbolData> symbolTablePerFile = new HashMap<InputFile, SymbolData>();
     private Map<String, Map<String, TestCase>> testCasesPerFile = new HashMap<String, Map<String, TestCase>>();
     private Map<String, Map<String, Map<String, List<Integer>>>> coveragePerTest = new HashMap<String, Map<String, Map<String, List<Integer>>>>();
-    private Map<String, Map<String, String>> dependencies = new HashMap<String, Map<String, String>>();
+    private Map<String, Map<String, Integer>> dependencies = new HashMap<String, Map<String, Integer>>();
 
     @Override
     public void scanTaskCompleted(ProjectScanContainer container) {
@@ -322,9 +321,9 @@ public class BatchMediumTester {
         String fromKey = entry.key()[1].toString();
         String toKey = entry.key()[2].toString();
         if (!dependencies.containsKey(fromKey)) {
-          dependencies.put(fromKey, new HashMap<String, String>());
+          dependencies.put(fromKey, new HashMap<String, Integer>());
         }
-        dependencies.get(fromKey).put(toKey, StringUtils.trimToEmpty(entry.value().usage()));
+        dependencies.get(fromKey).put(toKey, entry.value().weight());
       }
     }
 
@@ -409,10 +408,10 @@ public class BatchMediumTester {
     }
 
     /**
-     * @return null if no dependency else return dependency usage.
+     * @return null if no dependency else return dependency weight.
      */
     @CheckForNull
-    public String dependencyUsage(InputFile from, InputFile to) {
+    public Integer dependencyWeight(InputFile from, InputFile to) {
       String fromKey = ((DefaultInputFile) from).key();
       String toKey = ((DefaultInputFile) to).key();
       return dependencies.containsKey(fromKey) ? dependencies.get(fromKey).get(toKey) : null;

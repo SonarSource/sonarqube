@@ -32,7 +32,6 @@
     <module>plugins/sonar-core-plugin</module>
     <module>plugins/sonar-dbcleaner-plugin</module>
     <module>plugins/sonar-cpd-plugin</module>
-    <module>plugins/sonar-design-plugin</module>
     <module>plugins/sonar-l10n-en-plugin</module>
     <module>plugins/sonar-email-notifications-plugin</module>
     <module>plugins/sonar-xoo-plugin</module>

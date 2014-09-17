@@ -21,6 +21,8 @@ package org.sonar.batch.scan2;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -35,6 +37,7 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.test.TestCase;
 import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
 import org.sonar.api.config.Settings;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.dependency.DependencyCache;
@@ -43,16 +46,31 @@ import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.issue.IssueFilters;
-import org.sonar.batch.scan.SensorContextAdaptor;
+import org.sonar.batch.scan.SensorContextAdapter;
 import org.sonar.batch.test.CoveragePerTestCache;
 import org.sonar.batch.test.TestCaseCache;
 import org.sonar.core.component.ComponentKeys;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 public class DefaultSensorContext extends BaseSensorContext {
 
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultSensorContext.class);
+
+  public static final List<Metric> INTERNAL_METRICS = Arrays.<Metric>asList(CoreMetrics.DEPENDENCY_MATRIX,
+    CoreMetrics.DIRECTORY_CYCLES,
+    CoreMetrics.DIRECTORY_EDGES_WEIGHT,
+    CoreMetrics.DIRECTORY_FEEDBACK_EDGES,
+    CoreMetrics.DIRECTORY_TANGLE_INDEX,
+    CoreMetrics.DIRECTORY_TANGLES,
+    CoreMetrics.FILE_CYCLES,
+    CoreMetrics.FILE_EDGES_WEIGHT,
+    CoreMetrics.FILE_FEEDBACK_EDGES,
+    CoreMetrics.FILE_TANGLE_INDEX,
+    CoreMetrics.FILE_TANGLES
+    );
   private final AnalyzerMeasureCache measureCache;
   private final AnalyzerIssueCache issueCache;
   private final ProjectDefinition def;
@@ -98,6 +116,10 @@ public class DefaultSensorContext extends BaseSensorContext {
 
   @Override
   public void addMeasure(Measure<?> measure) {
+    if (INTERNAL_METRICS.contains(measure.metric())) {
+      LOG.warn("Metric " + measure.metric() + " is an internal metric computed by SonarQube. Please update your plugin.");
+      return;
+    }
     InputFile inputFile = measure.inputFile();
     if (inputFile != null) {
       measureCache.put(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), inputFile), (DefaultMeasure) measure);
@@ -126,7 +148,7 @@ public class DefaultSensorContext extends BaseSensorContext {
 
     updateIssue((DefaultIssue) issue, activeRule);
 
-    if (issueFilters.accept(SensorContextAdaptor.toDefaultIssue(def.getKey(), resourceKey, issue), null)) {
+    if (issueFilters.accept(SensorContextAdapter.toDefaultIssue(def.getKey(), resourceKey, issue), null)) {
       issueCache.put(def.getKey(), resourceKey, (DefaultIssue) issue);
       return true;
     }
@@ -165,10 +187,10 @@ public class DefaultSensorContext extends BaseSensorContext {
   }
 
   @Override
-  public void saveDependency(InputFile from, InputFile to, String usage) {
+  public void saveDependency(InputFile from, InputFile to, int weight) {
     Preconditions.checkNotNull(from);
     Preconditions.checkNotNull(to);
-    OutgoingDependency dep = new OutgoingDependency(to, usage);
+    OutgoingDependency dep = new OutgoingDependency(to, weight);
     dependencyCache.put(def.getKey(), from, dep);
   }
 

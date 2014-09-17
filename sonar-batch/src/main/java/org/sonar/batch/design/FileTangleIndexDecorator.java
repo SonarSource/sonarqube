@@ -17,17 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.design;
+package org.sonar.batch.design;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertThat;
-import org.junit.Test;
+import org.sonar.api.measures.CoreMetrics;
 
-public class DesignPluginTest {
+public class FileTangleIndexDecorator extends TangleIndexDecorator {
 
-  @Test
-  public void getExtensions() {
-    DesignPlugin plugin = new DesignPlugin();
-    assertThat(plugin.getExtensions().size(), greaterThan(1));
+  public FileTangleIndexDecorator() {
+    super(CoreMetrics.FILE_TANGLES, CoreMetrics.FILE_EDGES_WEIGHT, CoreMetrics.FILE_TANGLE_INDEX);
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
   }
 }

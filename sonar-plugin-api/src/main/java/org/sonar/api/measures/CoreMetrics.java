@@ -29,6 +29,7 @@ import org.sonar.api.utils.SonarException;
 import javax.annotation.Nullable;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.List;
 
 /**
@@ -1806,7 +1807,15 @@ public final class CoreMetrics {
     .setHidden(true)
     .create();
 
+  /**
+   * @deprecated since 5.0 this is an internal metric that should not be accessed by plugins
+   */
+  @Deprecated
   public static final String DEPENDENCY_MATRIX_KEY = "dsm";
+  /**
+   * @deprecated since 5.0 this is an internal metric that should not be accessed by plugins
+   */
+  @Deprecated
   public static final Metric<String> DEPENDENCY_MATRIX = new Metric.Builder(DEPENDENCY_MATRIX_KEY, "Dependency Matrix", Metric.ValueType.DATA)
     .setDescription("Dependency Matrix")
     .setDirection(Metric.DIRECTION_NONE)
@@ -1815,9 +1824,9 @@ public final class CoreMetrics {
     .setDeleteHistoricalData(true)
     .create();
 
-  public static final String PACKAGE_CYCLES_KEY = "package_cycles";
-  public static final Metric<Integer> PACKAGE_CYCLES = new Metric.Builder(PACKAGE_CYCLES_KEY, "Package cycles", Metric.ValueType.INT)
-    .setDescription("Package cycles")
+  public static final String DIRECTORY_CYCLES_KEY = "package_cycles";
+  public static final Metric<Integer> DIRECTORY_CYCLES = new Metric.Builder(DIRECTORY_CYCLES_KEY, "Directory cycles", Metric.ValueType.INT)
+    .setDescription("Directory cycles")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setDomain(DOMAIN_DESIGN)
@@ -1825,17 +1834,39 @@ public final class CoreMetrics {
     .setFormula(new SumChildValuesFormula(false))
     .create();
 
-  public static final String PACKAGE_TANGLE_INDEX_KEY = "package_tangle_index";
-  public static final Metric<Double> PACKAGE_TANGLE_INDEX = new Metric.Builder(PACKAGE_TANGLE_INDEX_KEY, "Package tangle index", Metric.ValueType.PERCENT)
-    .setDescription("Package tangle index")
+  /**
+   * @deprecated since 5.0 use {@link #DIRECTORY_CYCLES_KEY}
+   */
+  @Deprecated
+  public transient static final String PACKAGE_CYCLES_KEY = DIRECTORY_CYCLES_KEY;
+  /**
+   * @deprecated since 5.0 use {@link #DIRECTORY_CYCLES}
+   */
+  @Deprecated
+  public transient static final Metric<Integer> PACKAGE_CYCLES = DIRECTORY_CYCLES;
+
+  public static final String DIRECTORY_TANGLE_INDEX_KEY = "package_tangle_index";
+  public static final Metric<Double> DIRECTORY_TANGLE_INDEX = new Metric.Builder(DIRECTORY_TANGLE_INDEX_KEY, "Directory tangle index", Metric.ValueType.PERCENT)
+    .setDescription("Directory tangle index")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setBestValue(0.0)
     .setDomain(DOMAIN_DESIGN)
     .create();
 
-  public static final String PACKAGE_TANGLES_KEY = "package_tangles";
-  public static final Metric<Integer> PACKAGE_TANGLES = new Metric.Builder(PACKAGE_TANGLES_KEY, "File dependencies to cut", Metric.ValueType.INT)
+  /**
+   * @deprecated since 5.0 use {@link #DIRECTORY_TANGLE_INDEX_KEY}
+   */
+  @Deprecated
+  public transient static final String PACKAGE_TANGLE_INDEX_KEY = DIRECTORY_TANGLE_INDEX_KEY;
+  /**
+   * @deprecated since 5.0 use {@link #DIRECTORY_TANGLE_INDEX}
+   */
+  @Deprecated
+  public transient static final Metric<Double> PACKAGE_TANGLE_INDEX = DIRECTORY_TANGLE_INDEX;
+
+  public static final String DIRECTORY_TANGLES_KEY = "package_tangles";
+  public static final Metric<Integer> DIRECTORY_TANGLES = new Metric.Builder(DIRECTORY_TANGLES_KEY, "File dependencies to cut", Metric.ValueType.INT)
     .setDescription("File dependencies to cut")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
@@ -1843,8 +1874,19 @@ public final class CoreMetrics {
     .setFormula(new SumChildValuesFormula(false))
     .create();
 
-  public static final String PACKAGE_FEEDBACK_EDGES_KEY = "package_feedback_edges";
-  public static final Metric<Integer> PACKAGE_FEEDBACK_EDGES = new Metric.Builder(PACKAGE_FEEDBACK_EDGES_KEY, "Package dependencies to cut", Metric.ValueType.INT)
+  /**
+   * @deprecated since 5.0 use {@link #DIRECTORY_TANGLES_KEY}
+   */
+  @Deprecated
+  public transient static final String PACKAGE_TANGLES_KEY = DIRECTORY_TANGLES_KEY;
+  /**
+   * @deprecated since 5.0 use {@link #DIRECTORY_TANGLES}
+   */
+  @Deprecated
+  public transient static final Metric<Integer> PACKAGE_TANGLES = DIRECTORY_TANGLES;
+
+  public static final String DIRECTORY_FEEDBACK_EDGES_KEY = "package_feedback_edges";
+  public static final Metric<Integer> DIRECTORY_FEEDBACK_EDGES = new Metric.Builder(DIRECTORY_FEEDBACK_EDGES_KEY, "Package dependencies to cut", Metric.ValueType.INT)
     .setDescription("Package dependencies to cut")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
@@ -1853,9 +1895,20 @@ public final class CoreMetrics {
     .setBestValue(0.0)
     .create();
 
-  public static final String PACKAGE_EDGES_WEIGHT_KEY = "package_edges_weight";
-  public static final Metric<Integer> PACKAGE_EDGES_WEIGHT = new Metric.Builder(PACKAGE_EDGES_WEIGHT_KEY, "Package edges weight", Metric.ValueType.INT)
-    .setDescription("Package edges weight")
+  /**
+   * @deprecated since 5.0 use {@link #DIRECTORY_FEEDBACK_EDGES_KEY}
+   */
+  @Deprecated
+  public transient static final String PACKAGE_FEEDBACK_EDGES_KEY = DIRECTORY_FEEDBACK_EDGES_KEY;
+  /**
+   * @deprecated since 5.0 use {@link #DIRECTORY_FEEDBACK_EDGES}
+   */
+  @Deprecated
+  public transient static final Metric<Integer> PACKAGE_FEEDBACK_EDGES = DIRECTORY_FEEDBACK_EDGES;
+
+  public static final String DIRECTORY_EDGES_WEIGHT_KEY = "package_edges_weight";
+  public static final Metric<Integer> DIRECTORY_EDGES_WEIGHT = new Metric.Builder(DIRECTORY_EDGES_WEIGHT_KEY, "Directory edges weight", Metric.ValueType.INT)
+    .setDescription("Directory edges weight")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
@@ -1863,6 +1916,17 @@ public final class CoreMetrics {
     .setHidden(true)
     .setDeleteHistoricalData(true)
     .create();
+
+  /**
+   * @deprecated since 5.0 use {@link #DIRECTORY_EDGES_WEIGHT_KEY}
+   */
+  @Deprecated
+  public transient static final String PACKAGE_EDGES_WEIGHT_KEY = DIRECTORY_EDGES_WEIGHT_KEY;
+  /**
+   * @deprecated since 5.0 use {@link #DIRECTORY_EDGES_WEIGHT}
+   */
+  @Deprecated
+  public transient static final Metric<Integer> PACKAGE_EDGES_WEIGHT = DIRECTORY_EDGES_WEIGHT;
 
   public static final String FILE_CYCLES_KEY = "file_cycles";
   public static final Metric<Integer> FILE_CYCLES = new Metric.Builder(FILE_CYCLES_KEY, "File cycles", Metric.ValueType.INT)
@@ -2321,7 +2385,7 @@ public final class CoreMetrics {
   static {
     METRICS = Lists.newLinkedList();
     for (Field field : CoreMetrics.class.getFields()) {
-      if (Metric.class.isAssignableFrom(field.getType())) {
+      if (!Modifier.isTransient(field.getModifiers()) && Metric.class.isAssignableFrom(field.getType())) {
         try {
           Metric metric = (Metric) field.get(null);
           METRICS.add(metric);

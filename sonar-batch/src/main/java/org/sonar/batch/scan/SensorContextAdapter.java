@@ -20,7 +20,10 @@
 package org.sonar.batch.scan;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -67,21 +70,25 @@ import java.util.List;
  * Will be dropped once old {@link Sensor} API is dropped.
  *
  */
-public class SensorContextAdaptor extends BaseSensorContext {
+public class SensorContextAdapter extends BaseSensorContext {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SensorContextAdapter.class);
 
   private final org.sonar.api.batch.SensorContext sensorContext;
   private final MetricFinder metricFinder;
   private final Project project;
   private final ResourcePerspectives perspectives;
+  private final SonarIndex sonarIndex;
 
-  public SensorContextAdaptor(org.sonar.api.batch.SensorContext sensorContext, MetricFinder metricFinder, Project project, ResourcePerspectives perspectives,
+  public SensorContextAdapter(org.sonar.api.batch.SensorContext sensorContext, MetricFinder metricFinder, Project project, ResourcePerspectives perspectives,
     Settings settings, FileSystem fs, ActiveRules activeRules, ComponentDataCache componentDataCache, BlockCache blockCache,
-    DuplicationCache duplicationCache) {
+    DuplicationCache duplicationCache, SonarIndex sonarIndex) {
     super(settings, fs, activeRules, componentDataCache, blockCache, duplicationCache);
     this.sensorContext = sensorContext;
     this.metricFinder = metricFinder;
     this.project = project;
     this.perspectives = perspectives;
+    this.sonarIndex = sonarIndex;
   }
 
   @Override
@@ -139,7 +146,6 @@ public class SensorContextAdaptor extends BaseSensorContext {
     if (m == null) {
       throw new IllegalStateException("Unknow metric with key: " + measure.metric().key());
     }
-
     org.sonar.api.measures.Measure measureToSave = new org.sonar.api.measures.Measure(m);
     setValueAccordingToMetricType(measure, m, measureToSave);
     if (measure.inputFile() != null) {
@@ -297,18 +303,27 @@ public class SensorContextAdaptor extends BaseSensorContext {
   }
 
   @Override
-  public void saveDependency(InputFile from, InputFile to, String usage) {
+  public void saveDependency(InputFile from, InputFile to, int weight) {
     File fromResource = getFile(from);
     File toResource = getFile(to);
+    if (sonarIndex.getEdge(fromResource, toResource) != null) {
+      throw new IllegalStateException("Dependency between " + from + " and " + to + " was already saved.");
+    }
     Directory fromParent = fromResource.getParent();
     Directory toParent = toResource.getParent();
     Dependency parentDep = null;
     if (!fromParent.equals(toParent)) {
-      parentDep = new Dependency(fromParent, toParent).setUsage("USES");
-      parentDep = sensorContext.saveDependency(parentDep);
+      parentDep = sonarIndex.getEdge(fromParent, toParent);
+      if (parentDep != null) {
+        parentDep.setWeight(parentDep.getWeight() + 1);
+      } else {
+        parentDep = new Dependency(fromParent, toParent).setUsage("USES").setWeight(1);
+        parentDep = sensorContext.saveDependency(parentDep);
+      }
     }
     sensorContext.saveDependency(new Dependency(fromResource, toResource)
-      .setUsage(usage)
+      .setUsage("USES")
+      .setWeight(weight)
       .setParent(parentDep));
   }
 
