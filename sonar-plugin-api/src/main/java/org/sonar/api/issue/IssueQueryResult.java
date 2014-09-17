@@ -31,7 +31,9 @@ import java.util.List;
 
 /**
  * @since 3.6
+ * @deprecated since 5.0
  */
+@Deprecated
 public interface IssueQueryResult {
   /**
    * Non-null paginated list of issues.

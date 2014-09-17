@@ -110,11 +110,11 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public List<Transition> listTransitions(String issueKey) {
-    return issueService.listTransitions(issueKey, UserSession.get());
+    return issueService.listTransitions(issueKey);
   }
 
   public List<Transition> listTransitions(Issue issue) {
-    return issueService.listTransitions(issue, UserSession.get());
+    return issueService.listTransitions(issue);
   }
 
   public List<String> listStatus() {
@@ -149,7 +149,7 @@ public class InternalRubyIssueService implements ServerComponent {
   public Result<Issue> doTransition(String issueKey, String transitionKey) {
     Result<Issue> result = Result.of();
     try {
-      result.set(issueService.doTransition(issueKey, transitionKey, UserSession.get()));
+      result.set(issueService.doTransition(issueKey, transitionKey));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -159,7 +159,7 @@ public class InternalRubyIssueService implements ServerComponent {
   public Result<Issue> assign(String issueKey, @Nullable String assignee) {
     Result<Issue> result = Result.of();
     try {
-      result.set(issueService.assign(issueKey, StringUtils.defaultIfBlank(assignee, null), UserSession.get()));
+      result.set(issueService.assign(issueKey, StringUtils.defaultIfBlank(assignee, null)));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -169,7 +169,7 @@ public class InternalRubyIssueService implements ServerComponent {
   public Result<Issue> setSeverity(String issueKey, String severity) {
     Result<Issue> result = Result.of();
     try {
-      result.set(issueService.setSeverity(issueKey, severity, UserSession.get()));
+      result.set(issueService.setSeverity(issueKey, severity));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -179,7 +179,7 @@ public class InternalRubyIssueService implements ServerComponent {
   public Result<Issue> plan(String issueKey, @Nullable String actionPlanKey) {
     Result<Issue> result = Result.of();
     try {
-      result.set(issueService.plan(issueKey, actionPlanKey, UserSession.get()));
+      result.set(issueService.plan(issueKey, actionPlanKey));
     } catch (Exception e) {
       result.addError(e.getMessage());
     }
@@ -235,7 +235,7 @@ public class InternalRubyIssueService implements ServerComponent {
 
       if (result.ok()) {
         DefaultIssue issue = issueService.createManualIssue(componentKey, ruleKey, RubyUtils.toInteger(params.get("line")), params.get("message"), params.get("severity"),
-          RubyUtils.toDouble(params.get("effortToFix")), UserSession.get());
+          RubyUtils.toDouble(params.get("effortToFix")));
         result.set(issue);
       }
 

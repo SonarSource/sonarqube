@@ -46,6 +46,7 @@ import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceDao;
@@ -55,6 +56,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.server.issue.actionplan.ActionPlanService;
+import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
@@ -71,7 +73,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IssueServiceTest {
+public class OldDefaultIssueServiceTest {
 
   @Mock
   DefaultIssueFinder finder;
@@ -106,7 +108,6 @@ public class IssueServiceTest {
   @Mock
   UserFinder userFinder;
 
-  @Mock
   UserSession userSession;
 
   @Mock
@@ -122,13 +123,16 @@ public class IssueServiceTest {
 
   DefaultIssue issue = new DefaultIssue().setKey("ABCD");
 
-  IssueService issueService;
+  OldIssueService issueService;
 
   @Before
   public void before() {
-    when(userSession.isLoggedIn()).thenReturn(true);
-    when(userSession.userId()).thenReturn(10);
-    when(userSession.login()).thenReturn("arthur");
+    userSession = MockUserSession.set()
+      .setLogin("arthur")
+      .setUserId(10)
+      .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN)
+      .addProjectPermissions(UserRole.USER, project.getKey())
+      .addProjectPermissions(UserRole.ISSUE_ADMIN, project.getKey());
 
     when(authorizationDao.isAuthorizedComponentKey(anyString(), eq(10), anyString())).thenReturn(true);
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
@@ -138,7 +142,7 @@ public class IssueServiceTest {
     when(resource.getKey()).thenReturn("org.sonar.Sample");
     when(project.getKey()).thenReturn("Sample");
 
-    issueService = new IssueService(finder, workflow, issueStorage, issueUpdater, issueNotifications, actionPlanService, ruleFinder, resourceDao, issueDao,
+    issueService = new OldIssueService(finder, workflow, issueStorage, issueUpdater, issueNotifications, actionPlanService, ruleFinder, resourceDao, issueDao,
       authorizationDao, userFinder, mock(PreviewCache.class));
   }
 
@@ -172,7 +176,7 @@ public class IssueServiceTest {
     List<Transition> transitions = newArrayList(transition);
     when(workflow.outTransitions(issue)).thenReturn(transitions);
 
-    List<Transition> result = issueService.listTransitions("ABCD", userSession);
+    List<Transition> result = issueService.listTransitions("ABCD");
     assertThat(result).hasSize(1);
     assertThat(result.get(0)).isEqualTo(transition);
   }
@@ -182,7 +186,7 @@ public class IssueServiceTest {
     when(issueQueryResult.first()).thenReturn(null);
     when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) new DefaultIssue()));
 
-    assertThat(issueService.listTransitions("ABCD", userSession)).isEmpty();
+    assertThat(issueService.listTransitions("ABCD")).isEmpty();
     verifyZeroInteractions(workflow);
   }
 
@@ -190,7 +194,7 @@ public class IssueServiceTest {
   public void do_transition() {
     when(workflow.doTransition(eq(issue), eq(transition.key()), any(IssueChangeContext.class))).thenReturn(true);
 
-    Issue result = issueService.doTransition("ABCD", transition.key(), userSession);
+    Issue result = issueService.doTransition("ABCD", transition.key());
     assertThat(result).isNotNull();
 
     ArgumentCaptor<IssueChangeContext> measureCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
@@ -208,7 +212,7 @@ public class IssueServiceTest {
   public void not_do_transition() {
     when(workflow.doTransition(eq(issue), eq(transition.key()), any(IssueChangeContext.class))).thenReturn(false);
 
-    Issue result = issueService.doTransition("ABCD", transition.key(), userSession);
+    Issue result = issueService.doTransition("ABCD", transition.key());
     assertThat(result).isNotNull();
     verify(workflow).doTransition(eq(issue), eq(transition.key()), any(IssueChangeContext.class));
     verifyZeroInteractions(issueStorage);
@@ -217,9 +221,9 @@ public class IssueServiceTest {
 
   @Test
   public void fail_do_transition_if_not_logged() {
-    when(userSession.isLoggedIn()).thenReturn(false);
+    MockUserSession.set();
     try {
-      issueService.doTransition("ABCD", transition.key(), userSession);
+      issueService.doTransition("ABCD", transition.key());
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User is not logged in");
@@ -235,7 +239,7 @@ public class IssueServiceTest {
     when(userFinder.findByLogin(assignee)).thenReturn(user);
     when(issueUpdater.assign(eq(issue), eq(user), any(IssueChangeContext.class))).thenReturn(true);
 
-    Issue result = issueService.assign("ABCD", assignee, userSession);
+    Issue result = issueService.assign("ABCD", assignee);
     assertThat(result).isNotNull();
 
     ArgumentCaptor<IssueChangeContext> measureCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
@@ -253,7 +257,7 @@ public class IssueServiceTest {
   public void unassign() {
     when(issueUpdater.assign(eq(issue), eq((User) null), any(IssueChangeContext.class))).thenReturn(true);
 
-    Issue result = issueService.assign("ABCD", null, userSession);
+    Issue result = issueService.assign("ABCD", null);
     assertThat(result).isNotNull();
 
     ArgumentCaptor<IssueChangeContext> measureCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
@@ -276,7 +280,7 @@ public class IssueServiceTest {
     when(userFinder.findByLogin(assignee)).thenReturn(user);
     when(issueUpdater.assign(eq(issue), eq(user), any(IssueChangeContext.class))).thenReturn(false);
 
-    Issue result = issueService.assign("ABCD", assignee, userSession);
+    Issue result = issueService.assign("ABCD", assignee);
     assertThat(result).isNotNull();
 
     verify(issueUpdater).assign(eq(issue), eq(user), any(IssueChangeContext.class));
@@ -291,7 +295,7 @@ public class IssueServiceTest {
     when(userFinder.findByLogin(assignee)).thenReturn(null);
 
     try {
-      issueService.assign("ABCD", assignee, userSession);
+      issueService.assign("ABCD", assignee);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown user: perceval");
@@ -311,7 +315,7 @@ public class IssueServiceTest {
     when(actionPlanService.findByKey(actionPlanKey, userSession)).thenReturn(actionPlan);
     when(issueUpdater.plan(eq(issue), eq(actionPlan), any(IssueChangeContext.class))).thenReturn(true);
 
-    Issue result = issueService.plan("ABCD", actionPlanKey, userSession);
+    Issue result = issueService.plan("ABCD", actionPlanKey);
     assertThat(result).isNotNull();
 
     ArgumentCaptor<IssueChangeContext> measureCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
@@ -329,7 +333,7 @@ public class IssueServiceTest {
   public void unplan() {
     when(issueUpdater.plan(eq(issue), eq((ActionPlan) null), any(IssueChangeContext.class))).thenReturn(true);
 
-    Issue result = issueService.plan("ABCD", null, userSession);
+    Issue result = issueService.plan("ABCD", null);
     assertThat(result).isNotNull();
 
     ArgumentCaptor<IssueChangeContext> measureCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
@@ -353,7 +357,7 @@ public class IssueServiceTest {
     when(actionPlanService.findByKey(actionPlanKey, userSession)).thenReturn(actionPlan);
     when(issueUpdater.plan(eq(issue), eq(actionPlan), any(IssueChangeContext.class))).thenReturn(false);
 
-    Issue result = issueService.plan("ABCD", actionPlanKey, userSession);
+    Issue result = issueService.plan("ABCD", actionPlanKey);
     assertThat(result).isNotNull();
     verify(issueUpdater).plan(eq(issue), eq(actionPlan), any(IssueChangeContext.class));
     verifyZeroInteractions(issueStorage);
@@ -366,7 +370,7 @@ public class IssueServiceTest {
 
     when(actionPlanService.findByKey(actionPlanKey, userSession)).thenReturn(null);
     try {
-      issueService.plan("ABCD", actionPlanKey, userSession);
+      issueService.plan("ABCD", actionPlanKey);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown action plan: EFGH");
@@ -382,7 +386,7 @@ public class IssueServiceTest {
     String severity = "MINOR";
     when(issueUpdater.setManualSeverity(eq(issue), eq(severity), any(IssueChangeContext.class))).thenReturn(true);
 
-    Issue result = issueService.setSeverity("ABCD", severity, userSession);
+    Issue result = issueService.setSeverity("ABCD", severity);
     assertThat(result).isNotNull();
 
     ArgumentCaptor<IssueChangeContext> measureCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
@@ -401,7 +405,7 @@ public class IssueServiceTest {
     String severity = "MINOR";
     when(issueUpdater.setManualSeverity(eq(issue), eq(severity), any(IssueChangeContext.class))).thenReturn(false);
 
-    Issue result = issueService.setSeverity("ABCD", severity, userSession);
+    Issue result = issueService.setSeverity("ABCD", severity);
     assertThat(result).isNotNull();
     verify(issueUpdater).setManualSeverity(eq(issue), eq(severity), any(IssueChangeContext.class));
     verifyZeroInteractions(issueStorage);
@@ -415,7 +419,7 @@ public class IssueServiceTest {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(resource);
     when(resourceDao.getRootProjectByComponentKey(anyString())).thenReturn(project);
 
-    Issue result = issueService.createManualIssue("org.sonar.Sample", RuleKey.of("manual", "manualRuleKey"), null, "Fix it", null, null, userSession);
+    Issue result = issueService.createManualIssue("org.sonar.Sample", RuleKey.of("manual", "manualRuleKey"), null, "Fix it", null, null);
     assertThat(result).isNotNull();
     assertThat(result.message()).isEqualTo("Fix it");
     assertThat(result.creationDate()).isNotNull();
@@ -432,7 +436,7 @@ public class IssueServiceTest {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(resource);
     when(resourceDao.getRootProjectByComponentKey(anyString())).thenReturn(project);
 
-    Issue result = issueService.createManualIssue("org.sonar.Sample", RuleKey.of("manual", "manualRuleKey"), null, "", null, null, userSession);
+    Issue result = issueService.createManualIssue("org.sonar.Sample", RuleKey.of("manual", "manualRuleKey"), null, "", null, null);
     assertThat(result).isNotNull();
     assertThat(result.message()).isEqualTo("Manual Rule");
     assertThat(result.creationDate()).isNotNull();
@@ -451,7 +455,7 @@ public class IssueServiceTest {
     when(authorizationDao.isAuthorizedComponentKey(anyString(), eq(10), anyString())).thenReturn(false);
 
     try {
-      issueService.createManualIssue("org.sonar.Sample", ruleKey, null, null, null, null, userSession);
+      issueService.createManualIssue("org.sonar.Sample", ruleKey, null, null, null, null);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("User does not have the required role");
@@ -465,7 +469,7 @@ public class IssueServiceTest {
 
     RuleKey ruleKey = RuleKey.of("squid", "s100");
     try {
-      issueService.createManualIssue("org.sonar.Sample", ruleKey, null, null, null, null, userSession);
+      issueService.createManualIssue("org.sonar.Sample", ruleKey, null, null, null, null);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issues can be created only on rules marked as 'manual': squid:s100");
@@ -481,7 +485,7 @@ public class IssueServiceTest {
     RuleKey ruleKey = RuleKey.of("manual", "manualRuleKey");
     when(ruleFinder.findByKey(ruleKey)).thenReturn(null);
     try {
-      issueService.createManualIssue("org.sonar.Sample", RuleKey.of("manual", "manualRuleKey"), null, null, null, null, userSession);
+      issueService.createManualIssue("org.sonar.Sample", RuleKey.of("manual", "manualRuleKey"), null, null, null, null);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown rule: manual:manualRuleKey");
@@ -495,7 +499,7 @@ public class IssueServiceTest {
     when(ruleFinder.findByKey(ruleKey)).thenReturn(Rule.create("manual", "manualRuleKey"));
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(null);
     try {
-      issueService.createManualIssue("org.sonar.Sample", RuleKey.of("manual", "manualRuleKey"), null, null, null, null, userSession);
+      issueService.createManualIssue("org.sonar.Sample", RuleKey.of("manual", "manualRuleKey"), null, null, null, null);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Unknown component: org.sonar.Sample");

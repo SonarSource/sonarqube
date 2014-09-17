@@ -37,6 +37,7 @@ import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,14 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
   public List<Notification> sendChanges(DefaultIssue issue, IssueChangeContext context, IssueQueryResult queryResult) {
     Map<DefaultIssue, Rule> issues = Maps.newHashMap();
     issues.put(issue, queryResult.rule(issue));
-    return sendChanges(issues, context, queryResult.project(issue), queryResult.component(issue));
+    return sendChanges(issue, context, queryResult.rule(issue), queryResult.project(issue), queryResult.component(issue));
+  }
+
+  @CheckForNull
+  public List<Notification> sendChanges(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component) {
+    Map<DefaultIssue, Rule> issues = Maps.newHashMap();
+    issues.put(issue, rule);
+    return sendChanges(issues, context, project, component);
   }
 
   @CheckForNull
@@ -131,6 +139,7 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
     return notification;
   }
 
+  @CheckForNull
   private String ruleName(@Nullable Rule rule) {
     // this code should definitely be shared in api
     if (rule == null) {

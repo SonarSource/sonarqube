@@ -24,11 +24,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.issue.ActionPlan;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.IssueQueryResult;
+import org.sonar.api.issue.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
@@ -45,6 +41,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.DefaultIssueService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
@@ -58,13 +55,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -229,7 +220,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   @Override
   protected Result<Issue> doSearch(IssueQuery query, QueryContext context) {
-    return service.search(query, context);
+    return ((DefaultIssueService)service).search(query, context);
   }
 
   @Override

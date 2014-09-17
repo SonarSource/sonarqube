@@ -42,6 +42,8 @@ import java.util.List;
  * This facade wraps db operations related to permissions
  *
  * Should be removed when batch will no more create permission, and be replaced by a new PermissionService in module server (probably be a merge with InternalPermissionService)
+ *
+ * WARNING, this class is called by Views to apply default permission template on new views
  */
 public class PermissionFacade implements TaskComponent, ServerComponent {
 

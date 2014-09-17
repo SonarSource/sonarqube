@@ -350,7 +350,6 @@ public class ComponentAppActionTest {
     MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     addComponent();
 
-
     addMeasure(CoreMetrics.IT_COVERAGE_KEY, 85.2);
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
@@ -365,7 +364,7 @@ public class ComponentAppActionTest {
 
     when(resourceDao.getLastSnapshotByResourceId(eq(1L), eq(session))).thenReturn(
       new SnapshotDto().setPeriodMode(1, "previous_analysis").setPeriodDate(1, DateUtils.parseDate("2014-05-08"))
-    );
+      );
     when(periods.label(anyString(), anyString(), any(Date.class))).thenReturn("since previous analysis (May 08 2014)");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
@@ -409,7 +408,7 @@ public class ComponentAppActionTest {
     addComponent();
     when(issueService.findRulesByComponent(COMPONENT_KEY, null, session)).thenReturn(
       new RulesAggregation().add(new RuleDto().setRuleKey("AvoidCycle").setRepositoryKey("squid").setName("Avoid Cycle"))
-    );
+      );
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
     request.execute().assertJson(getClass(), "app_with_rules.json");
@@ -424,12 +423,12 @@ public class ComponentAppActionTest {
     Date periodDate = DateUtils.parseDate("2014-05-08");
     when(resourceDao.getLastSnapshotByResourceId(eq(1L), eq(session))).thenReturn(
       new SnapshotDto().setPeriodMode(1, "previous_analysis").setPeriodDate(1, periodDate)
-    );
+      );
     when(periods.label(anyString(), anyString(), any(Date.class))).thenReturn("since previous analysis (May 08 2014)");
 
     when(issueService.findRulesByComponent(COMPONENT_KEY, periodDate, session)).thenReturn(
       new RulesAggregation().add(new RuleDto().setRuleKey("AvoidCycle").setRepositoryKey("squid").setName("Avoid Cycle"))
-    );
+      );
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY).setParam("period", "1");
     request.execute().assertJson(getClass(), "app_with_rules_when_period_is_set.json");
@@ -485,11 +484,11 @@ public class ComponentAppActionTest {
     when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube").setKey("org.codehaus.sonar:sonar"));
   }
 
-  private void addPeriod(){
+  private void addPeriod() {
     Date periodDate = DateUtils.parseDate("2014-05-08");
     when(resourceDao.getLastSnapshotByResourceId(eq(1L), eq(session))).thenReturn(
       new SnapshotDto().setPeriodMode(1, "previous_analysis").setPeriodDate(1, periodDate)
-    );
+      );
     when(periods.label(anyString(), anyString(), any(Date.class))).thenReturn("since previous analysis (May 08 2014)");
   }
 

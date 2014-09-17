@@ -59,34 +59,34 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InternalRubyIssueServiceTest {
+public class InternalRubyDefaultIssueServiceTest {
 
   @Mock
   IssueService issueService;
 
   @Mock
-  IssueCommentService commentService = mock(IssueCommentService.class);
+  IssueCommentService commentService;
 
   @Mock
-  IssueChangelogService changelogService = mock(IssueChangelogService.class);
+  IssueChangelogService changelogService;
 
   @Mock
-  ActionPlanService actionPlanService = mock(ActionPlanService.class);
+  ActionPlanService actionPlanService;
 
   @Mock
-  ResourceDao resourceDao = mock(ResourceDao.class);
+  ResourceDao resourceDao;
 
   @Mock
-  IssueStatsFinder issueStatsFinder = mock(IssueStatsFinder.class);
+  IssueStatsFinder issueStatsFinder;
 
   @Mock
-  ActionService actionService = mock(ActionService.class);
+  ActionService actionService;
 
   @Mock
-  IssueFilterService issueFilterService = mock(IssueFilterService.class);
+  IssueFilterService issueFilterService;
 
   @Mock
-  IssueBulkChangeService issueBulkChangeService = mock(IssueBulkChangeService.class);
+  IssueBulkChangeService issueBulkChangeService;
 
   InternalRubyIssueService service;
 
@@ -107,14 +107,14 @@ public class InternalRubyIssueServiceTest {
   @Test
   public void list_transitions_by_issue_key() throws Exception {
     service.listTransitions("ABCD");
-    verify(issueService).listTransitions(eq("ABCD"), any(UserSession.class));
+    verify(issueService).listTransitions(eq("ABCD"));
   }
 
   @Test
   public void list_transitions_by_issue() throws Exception {
     Issue issue = new DefaultIssue().setKey("ABCD");
     service.listTransitions(issue);
-    verify(issueService).listTransitions(eq(issue), any(UserSession.class));
+    verify(issueService).listTransitions(eq(issue));
   }
 
   @Test
@@ -141,7 +141,7 @@ public class InternalRubyIssueServiceTest {
   @Test
   public void do_transition() throws Exception {
     service.doTransition("ABCD", Issue.STATUS_RESOLVED);
-    verify(issueService).doTransition(eq("ABCD"), eq(Issue.STATUS_RESOLVED), any(UserSession.class));
+    verify(issueService).doTransition(eq("ABCD"), eq(Issue.STATUS_RESOLVED));
   }
 
   @Test

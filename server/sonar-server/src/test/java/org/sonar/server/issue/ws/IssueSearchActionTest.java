@@ -52,7 +52,6 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.MockUserSession;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
 
 import java.util.*;
@@ -243,7 +242,7 @@ public class IssueSearchActionTest {
     issues.add(issue);
 
     MockUserSession.set().setLogin("john");
-    when(issueService.listTransitions(eq(issue), any(UserSession.class))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
+    when(issueService.listTransitions(eq(issue))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
 
     result.addActionPlans(newArrayList((ActionPlan) new DefaultActionPlan().setKey("AP-ABCD").setName("1.0")));
 

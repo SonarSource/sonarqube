@@ -37,12 +37,10 @@ import org.sonar.core.issue.workflow.Transition;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.MockUserSession;
-import org.sonar.server.user.UserSession;
 
 import java.io.StringWriter;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -77,8 +75,7 @@ public class IssueActionsWriterTest {
       "{\"actions\": " +
         "[" +
         "\"comment\", \"assign\", \"assign_to_me\", \"plan\", \"set_severity\"\n" +
-        "]}"
-    );
+        "]}");
   }
 
   @Test
@@ -98,8 +95,7 @@ public class IssueActionsWriterTest {
       "{\"actions\": " +
         "[" +
         "\"comment\", \"assign\", \"assign_to_me\", \"plan\", \"link-to-jira\"\n" +
-        "]}"
-    );
+        "]}");
   }
 
   @Test
@@ -117,8 +113,7 @@ public class IssueActionsWriterTest {
       "{\"actions\": " +
         "[" +
         "\"comment\"" +
-        "]}"
-    );
+        "]}");
   }
 
   @Test
@@ -132,8 +127,7 @@ public class IssueActionsWriterTest {
     MockUserSession.set();
 
     testActions(issue,
-      "{\"actions\": []}"
-    );
+      "{\"actions\": []}");
   }
 
   @Test
@@ -151,8 +145,7 @@ public class IssueActionsWriterTest {
       "{\"actions\": " +
         "[" +
         "\"comment\", \"assign\", \"plan\"\n" +
-        "]}"
-    );
+        "]}");
   }
 
   @Test
@@ -163,14 +156,13 @@ public class IssueActionsWriterTest {
       .setProjectKey("sample")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
-    when(issueService.listTransitions(eq(issue), any(UserSession.class))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
+    when(issueService.listTransitions(eq(issue))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
     MockUserSession.set().setLogin("john");
 
     testTransitions(issue,
       "{\"transitions\": [\n" +
         "        \"reopen\"\n" +
-        "      ]}"
-    );
+        "      ]}");
   }
 
   @Test
@@ -184,8 +176,7 @@ public class IssueActionsWriterTest {
     MockUserSession.set().setLogin("john");
 
     testTransitions(issue,
-      "{\"transitions\": []}"
-    );
+      "{\"transitions\": []}");
   }
 
   private void testActions(Issue issue, String expected) throws JSONException {

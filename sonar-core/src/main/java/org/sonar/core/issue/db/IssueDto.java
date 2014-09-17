@@ -136,7 +136,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
   }
 
   /**
-   * @deprecated please use setRootComponent;
+   * @deprecated please use setRootComponent
    */
   @Deprecated
   public IssueDto setRootComponentId(Long rootComponentId) {
@@ -349,6 +349,10 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return ruleRepo;
   }
 
+  public RuleKey getRuleKey(){
+    return RuleKey.of(ruleRepo, ruleKey);
+  }
+
   public String getComponentKey() {
     return componentKey;
   }
@@ -369,6 +373,8 @@ public final class IssueDto extends Dto<String> implements Serializable {
 
   /**
    * Should only be used to persist in E/S
+   *
+   * Please use {@link #setRule(org.sonar.core.rule.RuleDto)} instead
    */
   public IssueDto setRuleKey(String repo, String rule) {
     this.ruleRepo = repo;
@@ -378,6 +384,8 @@ public final class IssueDto extends Dto<String> implements Serializable {
 
   /**
    * Should only be used to persist in E/S
+   *
+   * Please use {@link #setComponent(org.sonar.core.component.ComponentDto)} instead
    */
   public IssueDto setComponentKey(String componentKey) {
     this.componentKey = componentKey;
@@ -386,6 +394,8 @@ public final class IssueDto extends Dto<String> implements Serializable {
 
   /**
    * Should only be used to persist in E/S
+   *
+   * Please use {@link #setRootComponent(org.sonar.core.component.ComponentDto)} instead
    */
   public IssueDto setRootComponentKey(String rootComponentKey) {
     this.rootComponentKey = rootComponentKey;
@@ -474,7 +484,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
     issue.setComponentId(componentId);
     issue.setProjectKey(rootComponentKey);
     issue.setManualSeverity(manualSeverity);
-    issue.setRuleKey(RuleKey.of(ruleRepo, ruleKey));
+    issue.setRuleKey(getRuleKey());
     issue.setActionPlanKey(actionPlanKey);
     issue.setAuthorLogin(authorLogin);
     issue.setNew(false);

@@ -53,7 +53,6 @@ import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.MockUserSession;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
 
 import java.util.ArrayList;
@@ -431,7 +430,7 @@ public class IssueShowActionTest {
       .setResolution("FIXED");
     issues.add(issue);
 
-    when(issueService.listTransitions(eq(issue), any(UserSession.class))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
+    when(issueService.listTransitions(eq(issue))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
 
     MockUserSession.set().setLogin("john");
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());

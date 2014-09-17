@@ -1,0 +1,28 @@
+<dataset>
+  <issues
+      id="100"
+      kee="ABCDE"
+      component_id="123"
+      root_component_id="100"
+      rule_id="200"
+      severity="INFO"
+      manual_severity="[false]"
+      message="old"
+      line="[null]"
+      effort_to_fix="[null]"
+      technical_debt="[null]"
+      status="OPEN"
+      resolution="[null]"
+      checksum="[null]"
+      reporter="[null]"
+      author_login="[null]"
+      assignee="[null]"
+      issue_attributes="[null]"
+      issue_creation_date="[null]"
+      issue_update_date="[null]"
+      issue_close_date="[null]"
+      created_at="[null]"
+      updated_at="2009-01-01"
+      action_plan_key="[null]"
+      />
+</dataset>

@@ -38,7 +38,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
-public class PublicRubyIssueServiceTest {
+public class PublicRubyDefaultIssueServiceTest {
 
   IssueFinder finder = mock(IssueFinder.class);
   PublicRubyIssueService facade = new PublicRubyIssueService(finder);

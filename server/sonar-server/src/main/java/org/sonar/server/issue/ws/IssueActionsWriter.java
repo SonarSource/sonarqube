@@ -48,7 +48,7 @@ public class IssueActionsWriter implements ServerComponent {
   public void writeTransitions(Issue issue, JsonWriter json) {
     json.name("transitions").beginArray();
     if (UserSession.get().isLoggedIn()) {
-      List<Transition> transitions = issueService.listTransitions(issue, UserSession.get());
+      List<Transition> transitions = issueService.listTransitions(issue);
       for (Transition transition : transitions) {
         json.value(transition.key());
       }
