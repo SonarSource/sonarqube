@@ -71,5 +71,8 @@ public class BackendCleanup implements ServerComponent {
       .getState().getMetaData().concreteAllIndices())
       .setForce(true)
       .get();
+    searchClient.admin().indices().prepareFlush(searchClient.admin().cluster().prepareState().get()
+      .getState().getMetaData().concreteAllIndices())
+      .get();
   }
 }

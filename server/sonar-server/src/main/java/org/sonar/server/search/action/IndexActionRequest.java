@@ -65,7 +65,7 @@ public abstract class IndexActionRequest implements ClusterAction<List<ActionReq
         ((UpdateRequest) request)
           .type(index.getIndexType())
           .index(index.getIndexName())
-          .refresh(false);
+          .refresh(requiresRefresh);
       }
       finalRequests.add(request);
     }

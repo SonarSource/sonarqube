@@ -41,6 +41,8 @@ import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
 import org.sonar.process.LoopbackAddress;
 
+import java.io.File;
+
 /**
  * ElasticSearch Node used to connect to index.
  */
@@ -125,5 +127,10 @@ public class SearchClient extends TransportClient implements Startable {
   @Override
   public void stop() {
     close();
+  }
+
+  public File executePayload(File f) {
+
+    return new File("payload");
   }
 }
