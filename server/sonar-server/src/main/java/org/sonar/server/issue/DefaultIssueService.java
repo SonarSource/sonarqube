@@ -41,7 +41,6 @@ import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueDao;
-import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
@@ -79,15 +78,15 @@ public class DefaultIssueService implements IssueService {
   private final PreviewCache dryRunCache;
 
   public DefaultIssueService(DbClient dbClient, IndexClient indexClient,
-                             IssueWorkflow workflow,
-                             IssueStorage issueStorage,
-                             IssueUpdater issueUpdater,
-                             IssueNotifications issueNotifications,
-                             ActionPlanService actionPlanService,
-                             RuleFinder ruleFinder,
-                             IssueDao issueDao,
-                             UserFinder userFinder,
-                             PreviewCache dryRunCache) {
+    IssueWorkflow workflow,
+    IssueStorage issueStorage,
+    IssueUpdater issueUpdater,
+    IssueNotifications issueNotifications,
+    ActionPlanService actionPlanService,
+    RuleFinder ruleFinder,
+    IssueDao issueDao,
+    UserFinder userFinder,
+    PreviewCache dryRunCache) {
     this.dbClient = dbClient;
     this.indexClient = indexClient;
     this.workflow = workflow;
@@ -115,8 +114,7 @@ public class DefaultIssueService implements IssueService {
   public List<Transition> listTransitions(String issueKey) {
     DbSession session = dbClient.openSession(false);
     try {
-      IssueDto issueDto = getByKey(session, issueKey);
-      return listTransitions(issueDto.toDefaultIssue());
+      return listTransitions(getIssueByKey(session, issueKey));
     } finally {
       session.close();
     }
@@ -150,8 +148,7 @@ public class DefaultIssueService implements IssueService {
 
     DbSession session = dbClient.openSession(false);
     try {
-      IssueDto issueDto = getByKey(session, issueKey);
-      DefaultIssue defaultIssue = issueDto.toDefaultIssue();
+      DefaultIssue defaultIssue = getIssueByKey(session, issueKey);
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), UserSession.get().login());
       checkTransitionPermission(transitionKey, UserSession.get(), defaultIssue);
       if (workflow.doTransition(defaultIssue, transitionKey, context)) {
@@ -180,8 +177,7 @@ public class DefaultIssueService implements IssueService {
 
     DbSession session = dbClient.openSession(false);
     try {
-      IssueDto issueDto = getByKey(session, issueKey);
-      DefaultIssue issue = issueDto.toDefaultIssue();
+      DefaultIssue issue = getIssueByKey(session, issueKey);
       User user = null;
       if (!Strings.isNullOrEmpty(assignee)) {
         user = userFinder.findByLogin(assignee);
@@ -213,8 +209,7 @@ public class DefaultIssueService implements IssueService {
           throw new NotFoundException("Unknown action plan: " + actionPlanKey);
         }
       }
-      IssueDto issueDto = getByKey(session, issueKey);
-      DefaultIssue issue = issueDto.toDefaultIssue();
+      DefaultIssue issue = getIssueByKey(session, issueKey);
 
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), UserSession.get().login());
       if (issueUpdater.plan(issue, actionPlan, context)) {
@@ -233,8 +228,7 @@ public class DefaultIssueService implements IssueService {
 
     DbSession session = dbClient.openSession(false);
     try {
-      IssueDto issueDto = getByKey(session, issueKey);
-      DefaultIssue issue = issueDto.toDefaultIssue();
+      DefaultIssue issue = getIssueByKey(session, issueKey);
       UserSession.get().checkProjectPermission(UserRole.ISSUE_ADMIN, issue.projectKey());
 
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), UserSession.get().login());
@@ -249,7 +243,7 @@ public class DefaultIssueService implements IssueService {
 
   @Override
   public DefaultIssue createManualIssue(String componentKey, RuleKey ruleKey, @Nullable Integer line, @Nullable String message, @Nullable String severity,
-                                        @Nullable Double effortToFix) {
+    @Nullable Double effortToFix) {
     verifyLoggedIn();
 
     DbSession session = dbClient.openSession(false);
@@ -305,10 +299,21 @@ public class DefaultIssueService implements IssueService {
     return aggregation;
   }
 
-  public IssueDto getByKey(DbSession session, String key) {
-    // Load with index to check permission
+  public DefaultIssue getIssueByKey(DbSession session, String key) {
+    // Load from index to check permission
     indexClient.get(IssueIndex.class).getByKey(key);
-    return dbClient.issueDao().getByKey(session, key);
+    return dbClient.issueDao().getByKey(session, key).toDefaultIssue();
+  }
+
+  public DefaultIssue getIssueByKey(String key) {
+    DbSession session = dbClient.openSession(false);
+    try {
+      // Load from index to check permission
+      indexClient.get(IssueIndex.class).getByKey(key);
+      return dbClient.issueDao().getByKey(session, key).toDefaultIssue();
+    } finally {
+      session.close();
+    }
   }
 
   private void saveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context) {

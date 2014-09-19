@@ -25,9 +25,14 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.Durations;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.issue.IssueChangelogService;
+import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.actionplan.ActionPlanService;
+import org.sonar.server.rule.RuleService;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -50,7 +55,7 @@ public class IssuesWsTest {
     I18n i18n = mock(I18n.class);
     Durations durations = mock(Durations.class);
 
-    showAction = new IssueShowAction(issueFinder, issueChangelogService, actionsWriter, debtModelService, i18n, durations);
+    showAction = new IssueShowAction(mock(DbClient.class), mock(IssueService.class), issueChangelogService, actionsWriter, mock(ActionPlanService.class), mock(UserFinder.class), debtModelService, mock(RuleService.class), i18n, durations);
     searchAction = new IssueSearchAction(issueFinder, actionsWriter, i18n, durations);
     tester = new WsTester(new IssuesWs(showAction, searchAction));
   }

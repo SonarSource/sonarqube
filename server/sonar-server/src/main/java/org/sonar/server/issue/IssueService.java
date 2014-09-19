@@ -57,4 +57,8 @@ public interface IssueService extends ServerComponent {
   // TODO result should be replaced by an aggregation object in IssueIndex
   Multiset<String> findSeveritiesByComponent(String componentKey, @Nullable Date periodDate, DbSession session);
 
+  DefaultIssue getIssueByKey(DbSession session, String key);
+
+  DefaultIssue getIssueByKey(String key);
+
 }

@@ -28,18 +28,17 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.issue.action.Function;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -55,15 +54,17 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class ActionService implements ServerComponent {
 
-  private final DefaultIssueFinder finder;
+  private final DbClient dbClient;
+  private final IssueService issueService;
   private final IssueStorage issueStorage;
   private final IssueUpdater updater;
   private final Settings settings;
   private final PropertiesDao propertiesDao;
   private final Actions actions;
 
-  public ActionService(DefaultIssueFinder finder, IssueStorage issueStorage, IssueUpdater updater, Settings settings, PropertiesDao propertiesDao, Actions actions) {
-    this.finder = finder;
+  public ActionService(DbClient dbClient, IssueService issueService, IssueStorage issueStorage, IssueUpdater updater, Settings settings, PropertiesDao propertiesDao, Actions actions) {
+    this.dbClient = dbClient;
+    this.issueService = issueService;
     this.issueStorage = issueStorage;
     this.updater = updater;
     this.settings = settings;
@@ -76,9 +77,7 @@ public class ActionService implements ServerComponent {
   }
 
   public List<Action> listAvailableActions(String issueKey) {
-    IssueQueryResult queryResult = loadIssue(issueKey);
-    final DefaultIssue issue = (DefaultIssue) queryResult.first();
-    return listAvailableActions(issue);
+    return listAvailableActions(issueService.getIssueByKey(issueKey));
   }
 
   public List<Action> listAvailableActions(final Issue issue) {
@@ -93,29 +92,28 @@ public class ActionService implements ServerComponent {
   public Issue execute(String issueKey, String actionKey, UserSession userSession) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(actionKey), "Missing action");
 
-    IssueQueryResult queryResult = loadIssue(issueKey);
-    DefaultIssue issue = (DefaultIssue) queryResult.first();
-    Action action = getAction(actionKey);
-    if (action == null) {
-      throw new IllegalArgumentException("Action is not found : " + actionKey);
-    }
-    if (!action.supports(issue)) {
-      throw new IllegalStateException("A condition is not respected");
-    }
+    DbSession session = dbClient.openSession(false);
+    try {
+      DefaultIssue issue = issueService.getIssueByKey(session, issueKey);
+      Action action = getAction(actionKey);
+      if (action == null) {
+        throw new IllegalArgumentException("Action is not found : " + actionKey);
+      }
+      if (!action.supports(issue)) {
+        throw new IllegalStateException("A condition is not respected");
+      }
 
-    IssueChangeContext changeContext = IssueChangeContext.createUser(new Date(), userSession.login());
-    Component project = queryResult.project(issue);
-    FunctionContext functionContext = new FunctionContext(issue, updater, changeContext, getProjectSettings(project));
-    for (Function function : action.functions()) {
-      function.execute(functionContext);
+      IssueChangeContext changeContext = IssueChangeContext.createUser(new Date(), userSession.login());
+      Component project = dbClient.componentDao().getByKey(session, issue.projectKey());
+      FunctionContext functionContext = new FunctionContext(issue, updater, changeContext, getProjectSettings(project));
+      for (Function function : action.functions()) {
+        function.execute(functionContext);
+      }
+      issueStorage.save(issue);
+      return issue;
+    } finally {
+      session.close();
     }
-    issueStorage.save(issue);
-    return issue;
-  }
-
-  public IssueQueryResult loadIssue(String issueKey) {
-    IssueQuery query = IssueQuery.builder().issueKeys(newArrayList(issueKey)).requiredRole(UserRole.USER).build();
-    return finder.find(query);
   }
 
   @CheckForNull

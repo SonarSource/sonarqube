@@ -19,17 +19,11 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
-import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.IssueFinder;
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.server.debt.DebtCharacteristic;
@@ -39,42 +33,59 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.User;
+import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
+import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.actionplan.ActionPlanService;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleService;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
+
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 public class IssueShowAction implements RequestHandler {
 
   public static final String SHOW_ACTION = "show";
 
-  private final IssueFinder issueFinder;
+  private final DbClient dbClient;
+
+  private final IssueService issueService;
   private final IssueChangelogService issueChangelogService;
   private final IssueActionsWriter actionsWriter;
+  private final ActionPlanService actionPlanService;
+  private final UserFinder userFinder;
   private final DebtModelService debtModel;
+  private final RuleService ruleService;
   private final I18n i18n;
   private final Durations durations;
 
-  public IssueShowAction(IssueFinder issueFinder, IssueChangelogService issueChangelogService, IssueActionsWriter actionsWriter,
-    DebtModelService debtModel, I18n i18n, Durations durations) {
-    this.issueFinder = issueFinder;
+  public IssueShowAction(DbClient dbClient, IssueService issueService, IssueChangelogService issueChangelogService, IssueActionsWriter actionsWriter,
+    ActionPlanService actionPlanService, UserFinder userFinder, DebtModelService debtModel, RuleService ruleService, I18n i18n, Durations durations) {
+    this.dbClient = dbClient;
+    this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
     this.actionsWriter = actionsWriter;
+    this.actionPlanService = actionPlanService;
+    this.userFinder = userFinder;
     this.debtModel = debtModel;
+    this.ruleService = ruleService;
     this.i18n = i18n;
     this.durations = durations;
   }
@@ -94,37 +105,39 @@ public class IssueShowAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String issueKey = request.mandatoryParam("key");
-    IssueQueryResult queryResult = issueFinder.find(IssueQuery.builder()
-      .requiredRole(UserRole.USER)
-      .issueKeys(Arrays.asList(issueKey)).build());
-    if (queryResult.issues().size() != 1) {
-      throw new NotFoundException("Issue not found: " + issueKey);
-    }
-    DefaultIssue issue = (DefaultIssue) queryResult.first();
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject().name("issue").beginObject();
 
-    writeIssue(queryResult, issue, json);
-    actionsWriter.writeActions(issue, json);
-    actionsWriter.writeTransitions(issue, json);
-    writeComments(queryResult, issue, json);
-    writeChangelog(issue, json);
+    DbSession session = dbClient.openSession(false);
+    try {
+      DefaultIssue issue = issueService.getIssueByKey(session, issueKey);
+
+      writeIssue(session, issue, json);
+      actionsWriter.writeActions(issue, json);
+      actionsWriter.writeTransitions(issue, json);
+      writeComments(issue, json);
+      writeChangelog(issue, json);
+
+    } finally {
+      session.close();
+    }
 
     json.endObject().endObject().close();
   }
 
-  private void writeIssue(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
+  private void writeIssue(DbSession session, DefaultIssue issue, JsonWriter json) {
     String actionPlanKey = issue.actionPlanKey();
-    ActionPlan actionPlan = result.actionPlan(issue);
+    ActionPlan actionPlan = actionPlanService.findByKey(actionPlanKey, UserSession.get());
     Duration debt = issue.debt();
+    Rule rule = ruleService.getNonNullByKey(issue.ruleKey());
     Date updateDate = issue.updateDate();
     Date closeDate = issue.closeDate();
 
     json
       .prop("key", issue.key())
       .prop("rule", issue.ruleKey().toString())
-      .prop("ruleName", result.rule(issue).getName())
+      .prop("ruleName", rule.name())
       .prop("line", issue.line())
       .prop("message", issue.message())
       .prop("resolution", issue.resolution())
@@ -142,17 +155,17 @@ public class IssueShowAction implements RequestHandler {
       .prop("closeDate", closeDate != null ? DateUtils.formatDateTime(closeDate) : null)
       .prop("fCloseDate", formatDate(issue.closeDate()));
 
-    addComponents(result, issue, json);
-    addUserWithLabel(result, issue.assignee(), "assignee", json);
-    addUserWithLabel(result, issue.reporter(), "reporter", json);
-    addCharacteristics(result, issue, json);
+    addComponents(session, issue, json);
+    addUserWithLabel(issue.assignee(), "assignee", json);
+    addUserWithLabel(issue.reporter(), "reporter", json);
+    addCharacteristics(rule, json);
   }
 
-  private void addComponents(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
+  private void addComponents(DbSession session, DefaultIssue issue, JsonWriter json) {
     // component, module and project can be null if they were removed
-    ComponentDto component = (ComponentDto) result.component(issue);
-    ComponentDto subProject = (ComponentDto) getSubProject(result, component);
-    ComponentDto project = (ComponentDto) geProject(result, component);
+    ComponentDto component = dbClient.componentDao().getNullableByKey(session, issue.componentKey());
+    ComponentDto subProject = component != null ? dbClient.componentDao().getNullableById(component.subProjectId(), session) : null;
+    ComponentDto project = component != null ? dbClient.componentDao().getNullableById(component.projectId(), session) : null;
 
     String projectName = project != null ? project.longName() != null ? project.longName() : project.name() : null;
     // Do not display sub project long name if sub project and project are the same
@@ -168,12 +181,25 @@ public class IssueShowAction implements RequestHandler {
       .prop("subProjectName", subProjectName);
   }
 
-  private void writeComments(IssueQueryResult queryResult, Issue issue, JsonWriter json) {
+  private void writeComments(Issue issue, JsonWriter json) {
     json.name("comments").beginArray();
     String login = UserSession.get().login();
+
+    Map<String, User> usersByLogin = newHashMap();
     for (IssueComment comment : issue.comments()) {
       String userLogin = comment.userLogin();
-      User user = userLogin != null ? queryResult.user(userLogin) : null;
+      User user = usersByLogin.get(userLogin);
+      if (user == null) {
+        user = userFinder.findByLogin(userLogin);
+        if (user != null) {
+          usersByLogin.put(userLogin, user);
+        }
+      }
+    }
+
+    for (IssueComment comment : issue.comments()) {
+      String userLogin = comment.userLogin();
+      User user = usersByLogin.get(userLogin);
       json
         .beginObject()
         .prop("key", comment.key())
@@ -217,9 +243,9 @@ public class IssueShowAction implements RequestHandler {
     json.endArray();
   }
 
-  private static void addUserWithLabel(IssueQueryResult result, @Nullable String value, String field, JsonWriter json) {
+  private void addUserWithLabel(@Nullable String value, String field, JsonWriter json) {
     if (value != null) {
-      User user = result.user(value);
+      User user = userFinder.findByLogin(value);
       json
         .prop(field, value)
         .prop(field + "Name", user != null ? user.name() : null);
@@ -242,41 +268,8 @@ public class IssueShowAction implements RequestHandler {
     return null;
   }
 
-  /**
-   * Can be null on project or on removed component
-   */
-  @CheckForNull
-  private Component getSubProject(IssueQueryResult result, @Nullable final ComponentDto component) {
-    if (component != null) {
-      return Iterables.find(result.components(), new Predicate<Component>() {
-        @Override
-        public boolean apply(Component input) {
-          Long subProjectId = component.subProjectId();
-          return subProjectId != null && subProjectId.equals(((ComponentDto) input).getId());
-        }
-      }, null);
-    }
-    return null;
-  }
-
-  /**
-   * Can be null on removed component
-   */
-  @CheckForNull
-  private Component geProject(IssueQueryResult result, @Nullable final ComponentDto component) {
-    if (component != null) {
-      return Iterables.find(result.components(), new Predicate<Component>() {
-        @Override
-        public boolean apply(Component input) {
-          return component.projectId().equals(((ComponentDto) input).getId());
-        }
-      }, null);
-    }
-    return null;
-  }
-
-  private void addCharacteristics(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
-    String subCharacteristicKey = result.rule(issue).getCharacteristicKey() != null ? result.rule(issue).getCharacteristicKey() : result.rule(issue).getDefaultCharacteristicKey();
+  private void addCharacteristics(Rule rule, JsonWriter json) {
+    String subCharacteristicKey = rule.debtCharacteristicKey();
     DebtCharacteristic subCharacteristic = characteristicByKey(subCharacteristicKey);
     if (subCharacteristic != null) {
       json.prop("subCharacteristic", subCharacteristic.name());

@@ -109,7 +109,7 @@ public class OldIssueService implements IssueService {
    * Never return null, but return an empty list if the issue does not exist.
    */
   public List<Transition> listTransitions(String issueKey) {
-    Issue issue = loadIssue(issueKey).first();
+    Issue issue = getIssueByKey(issueKey);
     return listTransitions(issue);
   }
 
@@ -258,17 +258,6 @@ public class OldIssueService implements IssueService {
     return rule;
   }
 
-  public IssueQueryResult loadIssue(String issueKey) {
-    // TODO use IssueIndex for ACL
-    // TODO load DTO
-    IssueQueryResult result = finder.find(IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).requiredRole(UserRole.USER).build());
-    if (result.issues().size() != 1) {
-      // TODO throw 404
-      throw new IllegalArgumentException("Issue not found: " + issueKey);
-    }
-    return result;
-  }
-
   public List<String> listStatus() {
     return workflow.statusKeys();
   }
@@ -298,4 +287,24 @@ public class OldIssueService implements IssueService {
     return aggregation;
   }
 
+  public IssueQueryResult loadIssue(String issueKey) {
+    // TODO use IssueIndex for ACL
+    // TODO load DTO
+    IssueQueryResult result = finder.find(IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).requiredRole(UserRole.USER).build());
+    if (result.issues().size() != 1) {
+      // TODO throw 404
+      throw new IllegalArgumentException("Issue not found: " + issueKey);
+    }
+    return result;
+  }
+
+  @Override
+  public DefaultIssue getIssueByKey(DbSession session, String key) {
+    return (DefaultIssue) loadIssue(key).first();
+  }
+
+  @Override
+  public DefaultIssue getIssueByKey(String key) {
+    return (DefaultIssue) loadIssue(key).first();
+  }
 }

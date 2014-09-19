@@ -26,36 +26,37 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueFinder;
-import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.user.User;
+import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
-import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.DefaultUser;
+import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.actionplan.ActionPlanService;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleService;
 import org.sonar.server.user.MockUserSession;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -66,11 +67,20 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+/**
+ * TODO Should be replaced by medium tests, as there are too many dependencies
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class IssueShowActionTest {
 
   @Mock
-  IssueFinder issueFinder;
+  DbClient dbClient;
+
+  @Mock
+  DbSession session;
+
+  @Mock
+  ComponentDao componentDao;
 
   @Mock
   IssueService issueService;
@@ -79,10 +89,19 @@ public class IssueShowActionTest {
   IssueChangelogService issueChangelogService;
 
   @Mock
+  ActionPlanService actionPlanService;
+
+  @Mock
   ActionService actionService;
 
   @Mock
+  UserFinder userFinder;
+
+  @Mock
   DebtModelService debtModel;
+
+  @Mock
+  RuleService ruleService;
 
   @Mock
   I18n i18n;
@@ -90,19 +109,21 @@ public class IssueShowActionTest {
   @Mock
   Durations durations;
 
-  List<Issue> issues;
-  DefaultIssueQueryResult result;
-
   Date issueCreationDate;
+
+  Rule rule;
 
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
-    issues = new ArrayList<Issue>();
-    result = new DefaultIssueQueryResult(issues);
-    result.addRules(newArrayList(Rule.create("squid", "AvoidCycle").setName("Avoid cycle")));
-    when(issueFinder.find(any(IssueQuery.class))).thenReturn(result);
+    when(dbClient.openSession(false)).thenReturn(session);
+    when(dbClient.componentDao()).thenReturn(componentDao);
+
+    rule = mock(Rule.class);
+    when(rule.key()).thenReturn(RuleKey.of("squid", "AvoidCycle"));
+    when(rule.name()).thenReturn("Avoid cycle");
+    when(ruleService.getNonNullByKey(rule.key())).thenReturn(rule);
 
     when(issueChangelogService.changelog(any(Issue.class))).thenReturn(mock(IssueChangelog.class));
 
@@ -111,14 +132,16 @@ public class IssueShowActionTest {
 
     when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
-    tester = new WsTester(new IssuesWs(new IssueShowAction(issueFinder, issueChangelogService, new IssueActionsWriter(issueService, actionService), debtModel, i18n, durations),
+    tester = new WsTester(new IssuesWs(
+      new IssueShowAction(dbClient, issueService, issueChangelogService,
+        new IssueActionsWriter(issueService, actionService), actionPlanService, userFinder, debtModel, ruleService, i18n, durations),
       mock(IssueSearchAction.class)));
   }
 
   @Test
   public void show_issue() throws Exception {
     String issueKey = "ABCD";
-    Issue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue()
       .setKey(issueKey)
       .setComponentKey("org.sonar.server.issue.IssueClient")
       .setProjectKey("org.sonar.Sonar")
@@ -129,25 +152,25 @@ public class IssueShowActionTest {
       .setStatus("CLOSED")
       .setSeverity("MAJOR")
       .setCreationDate(issueCreationDate);
-    issues.add(issue);
+    when(issueService.getIssueByKey(session, issueKey)).thenReturn(issue);
 
-    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+    ComponentDto file = new ComponentDto()
       .setId(10L)
       .setKey("org.sonar.server.issue.IssueClient")
       .setLongName("SonarQube :: Issue Client")
       .setName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setSubProjectId(1L)
-      .setProjectId(1L)
-      ));
+      .setProjectId(1L);
+    when(componentDao.getNullableByKey(session, file.key())).thenReturn(file);
 
-    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+    ComponentDto project = new ComponentDto()
       .setId(1L)
       .setKey("org.sonar.Sonar")
       .setLongName("SonarQube")
       .setName("SonarQube")
-      .setProjectId(1L)
-      ));
+      .setProjectId(1L);
+    when(componentDao.getNullableById(file.projectId(), session)).thenReturn(project);
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
@@ -157,7 +180,7 @@ public class IssueShowActionTest {
   @Test
   public void show_issue_with_sub_project() throws Exception {
     String issueKey = "ABCD";
-    Issue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue()
       .setKey(issueKey)
       .setComponentKey("org.sonar.server.issue.IssueClient")
       .setProjectKey("org.sonar.Sonar")
@@ -168,31 +191,34 @@ public class IssueShowActionTest {
       .setStatus("CLOSED")
       .setSeverity("MAJOR")
       .setCreationDate(issueCreationDate);
-    issues.add(issue);
+    when(issueService.getIssueByKey(session, issueKey)).thenReturn(issue);
 
     // File
-    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+    ComponentDto file = new ComponentDto()
       .setId(10L)
       .setKey("org.sonar.server.issue.IssueClient")
       .setLongName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setSubProjectId(2L)
-      .setProjectId(1L)));
+      .setProjectId(1L);
+    when(componentDao.getNullableByKey(session, file.key())).thenReturn(file);
 
     // Module
-    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+    ComponentDto module = new ComponentDto()
       .setId(2L)
       .setKey("org.sonar.server.Server")
       .setLongName("SonarQube :: Server")
       .setQualifier("BRC")
       .setSubProjectId(1L)
-      .setProjectId(1L)));
+      .setProjectId(1L);
+    when(componentDao.getNullableById(file.subProjectId(), session)).thenReturn(module);
 
     // Project
-    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+    ComponentDto project = new ComponentDto()
       .setId(1L)
       .setKey("org.sonar.Sonar")
-      .setLongName("SonarQube")));
+      .setLongName("SonarQube");
+    when(componentDao.getNullableById(file.projectId(), session)).thenReturn(project);
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
@@ -202,7 +228,7 @@ public class IssueShowActionTest {
   @Test
   public void use_project_and_sub_project_names_if_no_long_name() throws Exception {
     String issueKey = "ABCD";
-    Issue issue = new DefaultIssue()
+    DefaultIssue issue = new DefaultIssue()
       .setKey(issueKey)
       .setComponentKey("org.sonar.server.issue.IssueClient")
       .setProjectKey("org.sonar.Sonar")
@@ -214,31 +240,34 @@ public class IssueShowActionTest {
       .setStatus("CLOSED")
       .setSeverity("MAJOR")
       .setCreationDate(issueCreationDate);
-    issues.add(issue);
+    when(issueService.getIssueByKey(session, issueKey)).thenReturn(issue);
 
     // File
-    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+    ComponentDto file = new ComponentDto()
       .setId(10L)
       .setKey("org.sonar.server.issue.IssueClient")
       .setLongName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setSubProjectId(2L)
-      .setProjectId(1L)));
+      .setProjectId(1L);
+    when(componentDao.getNullableByKey(session, file.key())).thenReturn(file);
 
     // Module
-    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+    ComponentDto module = new ComponentDto()
       .setId(2L)
       .setKey("org.sonar.server.Server")
       .setName("SonarQube :: Server")
       .setQualifier("BRC")
       .setSubProjectId(1L)
-      .setProjectId(1L)));
+      .setProjectId(1L);
+    when(componentDao.getNullableById(file.subProjectId(), session)).thenReturn(module);
 
     // Project
-    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+    ComponentDto project = new ComponentDto()
       .setId(1L)
       .setKey("org.sonar.Sonar")
-      .setName("SonarQube")));
+      .setName("SonarQube");
+    when(componentDao.getNullableById(file.projectId(), session)).thenReturn(project);
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
@@ -248,13 +277,13 @@ public class IssueShowActionTest {
   @Test
   public void show_issue_on_removed_component() throws Exception {
     String issueKey = "ABCD";
-    Issue issue = createIssue();
-    issues.add(issue);
+    DefaultIssue issue = createIssue();
+    when(issueService.getIssueByKey(session, issueKey)).thenReturn(issue);
 
-    Component project = mock(Component.class);
+    ComponentDto project = mock(ComponentDto.class);
     when(project.key()).thenReturn("org.sonar.Sonar");
     when(project.longName()).thenReturn("SonarQube");
-    result.addProjects(newArrayList(project));
+    when(componentDao.getNullableByKey(session, project.key())).thenReturn(project);
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
@@ -264,8 +293,8 @@ public class IssueShowActionTest {
   @Test
   public void show_issue_on_removed_project_and_component() throws Exception {
     String issueKey = "ABCD";
-    Issue issue = createIssue();
-    issues.add(issue);
+    DefaultIssue issue = createIssue();
+    when(issueService.getIssueByKey(session, issueKey)).thenReturn(issue);
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
@@ -274,11 +303,11 @@ public class IssueShowActionTest {
 
   @Test
   public void show_issue_with_action_plan() throws Exception {
-    Issue issue = createStandardIssue()
+    DefaultIssue issue = createStandardIssue()
       .setActionPlanKey("AP-ABCD");
-    issues.add(issue);
+    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
 
-    result.addActionPlans(newArrayList((ActionPlan) new DefaultActionPlan().setKey("AP-ABCD").setName("Version 4.2")));
+    when(actionPlanService.findByKey(eq(issue.actionPlanKey()), any(UserSession.class))).thenReturn(new DefaultActionPlan().setKey("AP-ABCD").setName("Version 4.2"));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
@@ -287,16 +316,14 @@ public class IssueShowActionTest {
 
   @Test
   public void show_issue_with_users() throws Exception {
-    Issue issue = createStandardIssue()
+    DefaultIssue issue = createStandardIssue()
       .setAssignee("john")
       .setReporter("steven")
       .setAuthorLogin("Henry");
-    issues.add(issue);
+    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
 
-    result.addUsers(Lists.<User>newArrayList(
-      new DefaultUser().setLogin("john").setName("John"),
-      new DefaultUser().setLogin("steven").setName("Steven")
-      ));
+    when(userFinder.findByLogin("john")).thenReturn(new DefaultUser().setLogin("john").setName("John"));
+    when(userFinder.findByLogin("steven")).thenReturn(new DefaultUser().setLogin("steven").setName("Steven"));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
@@ -306,8 +333,8 @@ public class IssueShowActionTest {
   @Test
   public void show_issue_with_technical_debt() throws Exception {
     Duration debt = (Duration.create(7260L));
-    Issue issue = createStandardIssue().setDebt(debt);
-    issues.add(issue);
+    DefaultIssue issue = createStandardIssue().setDebt(debt);
+    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
 
     when(durations.encode(debt)).thenReturn("2h1min");
 
@@ -318,10 +345,10 @@ public class IssueShowActionTest {
 
   @Test
   public void show_issue_with_user_characteristics() throws Exception {
-    Issue issue = createStandardIssue().setDebt(Duration.create(7260L));
-    issues.add(issue);
+    DefaultIssue issue = createStandardIssue().setDebt(Duration.create(7260L));
+    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
 
-    result.rule(issue).setCharacteristicKey("K2");
+    when(rule.debtCharacteristicKey()).thenReturn("K2");
     when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setKey("K1").setId(1).setName("Maintainability"));
     when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
     when(debtModel.characteristicByKey("K2")).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
@@ -333,10 +360,10 @@ public class IssueShowActionTest {
 
   @Test
   public void show_issue_with_default_characteristics() throws Exception {
-    Issue issue = createStandardIssue().setDebt(Duration.create(7260L));
-    issues.add(issue);
+    DefaultIssue issue = createStandardIssue().setDebt(Duration.create(7260L));
+    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
 
-    result.rule(issue).setDefaultCharacteristicKey("K2");
+    when(rule.debtCharacteristicKey()).thenReturn("K2");
     when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setKey("K1").setId(1).setName("Maintainability"));
     when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
     when(debtModel.characteristicByKey("K2")).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
@@ -348,36 +375,16 @@ public class IssueShowActionTest {
   }
 
   @Test
-  public void use_user_characteristic_if_both_characteristic_ids_are_defined() throws Exception {
-    Issue issue = createStandardIssue().setDebt(Duration.create(7260L));
-    issues.add(issue);
-
-    result.rule(issue).setCharacteristicKey("K2");
-    when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setKey("K1").setId(1).setName("Maintainability"));
-    when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
-    when(debtModel.characteristicByKey("K2")).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
-
-    result.rule(issue).setDefaultCharacteristicKey("K20");
-    when(debtModel.characteristicById(10)).thenReturn(new DefaultDebtCharacteristic().setKey("K10").setId(10).setName("Default Maintainability"));
-    when(debtModel.characteristicById(20)).thenReturn(new DefaultDebtCharacteristic().setKey("K20").setId(20).setName("Default Readability").setParentId(10));
-    when(debtModel.characteristicByKey("K20")).thenReturn(new DefaultDebtCharacteristic().setKey("K20").setId(20).setName("Default Readability").setParentId(10));
-
-    MockUserSession.set();
-    WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
-    request.execute().assertJson(getClass(), "show_issue_with_characteristics.json");
-  }
-
-  @Test
   public void show_issue_with_dates() throws Exception {
     Date creationDate = DateUtils.parseDateTime("2014-01-22T19:10:03+0100");
     Date updateDate = DateUtils.parseDateTime("2014-01-23T19:10:03+0100");
     Date closedDate = DateUtils.parseDateTime("2014-01-24T19:10:03+0100");
 
-    Issue issue = createStandardIssue()
+    DefaultIssue issue = createStandardIssue()
       .setCreationDate(creationDate)
       .setUpdateDate(updateDate)
       .setCloseDate(closedDate);
-    issues.add(issue);
+    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
 
     when(i18n.formatDateTime(any(Locale.class), eq(creationDate))).thenReturn("Jan 22, 2014 10:03 AM");
     when(i18n.formatDateTime(any(Locale.class), eq(updateDate))).thenReturn("Jan 23, 2014 10:03 AM");
@@ -394,7 +401,7 @@ public class IssueShowActionTest {
     Date date1 = DateUtils.parseDateTime("2014-02-22T19:10:03+0100");
     Date date2 = DateUtils.parseDateTime("2014-02-23T19:10:03+0100");
 
-    Issue issue = createStandardIssue()
+    DefaultIssue issue = createStandardIssue()
       .addComment(
         new DefaultIssueComment()
           .setKey("COMMENT-ABCD")
@@ -409,11 +416,10 @@ public class IssueShowActionTest {
           .setUserLogin("arthur")
           .setCreatedAt(date2)
       );
-    issues.add(issue);
-    result.addUsers(Lists.<User>newArrayList(
-      new DefaultUser().setLogin("john").setName("John"),
-      new DefaultUser().setLogin("arthur").setName("Arthur")
-      ));
+    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
+
+    when(userFinder.findByLogin("john")).thenReturn(new DefaultUser().setLogin("john").setName("John"));
+    when(userFinder.findByLogin("arthur")).thenReturn(new DefaultUser().setLogin("arthur").setName("Arthur"));
 
     when(i18n.ageFromNow(any(Locale.class), eq(date1))).thenReturn("9 days");
     when(i18n.ageFromNow(any(Locale.class), eq(date2))).thenReturn("10 days");
@@ -428,7 +434,7 @@ public class IssueShowActionTest {
     DefaultIssue issue = createStandardIssue()
       .setStatus("RESOLVED")
       .setResolution("FIXED");
-    issues.add(issue);
+    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
 
     when(issueService.listTransitions(eq(issue))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
 
@@ -441,7 +447,7 @@ public class IssueShowActionTest {
   public void show_issue_with_actions() throws Exception {
     DefaultIssue issue = createStandardIssue()
       .setStatus("OPEN");
-    issues.add(issue);
+    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
 
     MockUserSession.set().setLogin("john");
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
@@ -450,8 +456,8 @@ public class IssueShowActionTest {
 
   @Test
   public void show_issue_with_changelog() throws Exception {
-    Issue issue = createStandardIssue();
-    issues.add(issue);
+    DefaultIssue issue = createStandardIssue();
+    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
 
     Date date1 = DateUtils.parseDateTime("2014-02-22T19:10:03+0100");
     Date date2 = DateUtils.parseDateTime("2014-02-23T19:10:03+0100");
@@ -493,21 +499,23 @@ public class IssueShowActionTest {
   }
 
   private void addComponentAndProject() {
-    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+    ComponentDto file = new ComponentDto()
       .setId(10L)
       .setKey("org.sonar.server.issue.IssueClient")
       .setLongName("SonarQube :: Issue Client")
+      .setName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setSubProjectId(1L)
-      .setProjectId(1L)
-      ));
+      .setProjectId(1L);
+    when(componentDao.getNullableByKey(session, file.key())).thenReturn(file);
 
-    result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
+    ComponentDto project = new ComponentDto()
       .setId(1L)
       .setKey("org.sonar.Sonar")
       .setLongName("SonarQube")
-      .setProjectId(1L)
-      ));
+      .setName("SonarQube")
+      .setProjectId(1L);
+    when(componentDao.getNullableById(file.projectId(), session)).thenReturn(project);
   }
 
 }
