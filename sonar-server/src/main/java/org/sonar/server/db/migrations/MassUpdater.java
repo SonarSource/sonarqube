@@ -93,8 +93,9 @@ public class MassUpdater {
       rs = stmt.executeQuery();
       List<Long> rows = new ArrayList<Long>();
       while (rs.next()) {
-        if (!rs.wasNull()) {
-          rows.add(rs.getLong(1));
+        Long l = SqlUtil.getLong(rs, 1);
+        if (l != null) {
+          rows.add(l);
         }
       }
       return rows;
