@@ -23,13 +23,11 @@ package org.sonar.server.permission;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.permission.PermissionTemplateDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.server.db.DbClient;
@@ -114,20 +112,6 @@ public class InternalPermissionTemplateService implements ServerComponent {
   public void deletePermissionTemplate(Long templateId) {
     PermissionTemplateUpdater.checkSystemAdminUser();
     permissionTemplateDao.deletePermissionTemplate(templateId);
-  }
-
-  public void updateDefaultTemplate(String permissionTemplateKey, String qualifier){
-    if (Qualifiers.PROJECT.equals(qualifier)) {
-      saveProperty("sonar.permission.template.default", permissionTemplateKey);
-    }
-    saveProperty("sonar.permission." + qualifier + ".default", permissionTemplateKey);
-  }
-
-  private void saveProperty(String propertyKey, String value){
-    PropertyDto property = new PropertyDto()
-      .setKey(propertyKey)
-      .setValue(value);
-    db.propertiesDao().setProperty(property);
   }
 
   public void addUserPermission(String templateKey, String permission, String userLogin) {

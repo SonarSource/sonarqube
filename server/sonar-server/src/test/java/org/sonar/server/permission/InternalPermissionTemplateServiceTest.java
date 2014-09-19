@@ -33,6 +33,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.*;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
@@ -65,6 +66,9 @@ public class InternalPermissionTemplateServiceTest {
   PermissionFinder finder;
 
   @Mock
+  PropertiesDao propertiesDao;
+
+  @Mock
   DbSession session;
 
   @Mock
@@ -78,6 +82,8 @@ public class InternalPermissionTemplateServiceTest {
   @Before
   public void setUp() {
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+
+    when(db.propertiesDao()).thenReturn(propertiesDao);
 
     MyBatis myBatis = mock(MyBatis.class);
     when(myBatis.openSession(false)).thenReturn(session);
@@ -158,13 +164,13 @@ public class InternalPermissionTemplateServiceTest {
       buildUserPermission("user_dry_run", GlobalPermissions.DRY_RUN_EXECUTION),
       buildUserPermission("user_scan_and_dry_run", GlobalPermissions.SCAN_EXECUTION),
       buildUserPermission("user_scan_and_dry_run", GlobalPermissions.DRY_RUN_EXECUTION)
-      );
+    );
 
     List<PermissionTemplateGroupDto> groupsPermissions = Lists.newArrayList(
       buildGroupPermission("admin_group", GlobalPermissions.SYSTEM_ADMIN),
       buildGroupPermission("scan_group", GlobalPermissions.SCAN_EXECUTION),
       buildGroupPermission(null, GlobalPermissions.DRY_RUN_EXECUTION)
-      );
+    );
 
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto()
       .setId(1L)

@@ -317,10 +317,14 @@ public class DefaultIssueService implements IssueService {
   }
 
   private void saveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context) {
+    String projectKey = issue.projectKey();
+    if (projectKey == null) {
+      throw new IllegalStateException(String.format("Issue '%s' has no project key", issue.key()));
+    }
     issueStorage.save(issue);
     issueNotifications.sendChanges(issue, context,
       getRuleByKey(issue.ruleKey()),
-      dbClient.componentDao().getByKey(session, issue.projectKey()),
+      dbClient.componentDao().getByKey(session, projectKey),
       dbClient.componentDao().getNullableByKey(session, issue.componentKey()));
     dryRunCache.reportResourceModification(issue.componentKey());
   }
