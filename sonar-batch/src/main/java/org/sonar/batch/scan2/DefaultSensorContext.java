@@ -71,7 +71,7 @@ public class DefaultSensorContext extends BaseSensorContext {
     CoreMetrics.FILE_TANGLE_INDEX,
     CoreMetrics.FILE_TANGLES
     );
-  private final AnalyzerMeasureCache measureCache;
+  private final NewMeasureCache measureCache;
   private final AnalyzerIssueCache issueCache;
   private final ProjectDefinition def;
   private final ActiveRules activeRules;
@@ -80,7 +80,7 @@ public class DefaultSensorContext extends BaseSensorContext {
   private final CoveragePerTestCache coveragePerTestCache;
   private final DependencyCache dependencyCache;
 
-  public DefaultSensorContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, AnalyzerIssueCache issueCache,
+  public DefaultSensorContext(ProjectDefinition def, NewMeasureCache measureCache, AnalyzerIssueCache issueCache,
     Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters, ComponentDataCache componentDataCache,
     BlockCache blockCache, DuplicationCache duplicationCache, TestCaseCache testCaseCache, CoveragePerTestCache coveragePerTestCache, DependencyCache dependencyCache) {
     super(settings, fs, activeRules, componentDataCache, blockCache, duplicationCache);
@@ -95,36 +95,17 @@ public class DefaultSensorContext extends BaseSensorContext {
   }
 
   @Override
-  public Measure getMeasure(String metricKey) {
-    return measureCache.byMetric(def.getKey(), def.getKey(), metricKey);
-  }
-
-  @Override
-  public <G extends Serializable> Measure<G> getMeasure(Metric<G> metric) {
-    return (Measure<G>) measureCache.byMetric(def.getKey(), def.getKey(), metric.key());
-  }
-
-  @Override
-  public Measure getMeasure(InputFile file, String metricKey) {
-    return measureCache.byMetric(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), file), metricKey);
-  }
-
-  @Override
-  public <G extends Serializable> Measure<G> getMeasure(InputFile file, Metric<G> metric) {
-    return (Measure<G>) measureCache.byMetric(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), file), metric.key());
-  }
-
-  @Override
-  public void addMeasure(Measure<?> measure) {
+  public void store(Measure<Serializable> newMeasure) {
+    DefaultMeasure<Serializable> measure = (DefaultMeasure<Serializable>) newMeasure;
     if (INTERNAL_METRICS.contains(measure.metric())) {
       LOG.warn("Metric " + measure.metric() + " is an internal metric computed by SonarQube. Please update your plugin.");
       return;
     }
     InputFile inputFile = measure.inputFile();
     if (inputFile != null) {
-      measureCache.put(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), inputFile), (DefaultMeasure) measure);
+      measureCache.put(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), inputFile), measure);
     } else {
-      measureCache.put(def.getKey(), def.getKey(), (DefaultMeasure) measure);
+      measureCache.put(def.getKey(), def.getKey(), measure);
     }
   }
 

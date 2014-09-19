@@ -30,12 +30,12 @@ import org.sonar.batch.scan.filesystem.InputPathCache;
 
 public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
 
-  private final AnalyzerMeasureCache measureCache;
+  private final NewMeasureCache measureCache;
   private final MetricFinder metricFinder;
   private final ProjectDefinition def;
   private InputPathCache fileCache;
 
-  public DefaultFileLinesContextFactory(InputPathCache fileCache, FileSystem fs, MetricFinder metricFinder, AnalyzerMeasureCache measureCache,
+  public DefaultFileLinesContextFactory(InputPathCache fileCache, FileSystem fs, MetricFinder metricFinder, NewMeasureCache measureCache,
     ProjectDefinition def) {
     this.fileCache = fileCache;
     this.metricFinder = metricFinder;

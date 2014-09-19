@@ -206,21 +206,21 @@ public class JavaCpdEngine extends CpdEngine {
     }
     linesContext.save();
     // Save
-    context.addMeasure(context.<Integer>measureBuilder()
+    context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_FILES)
       .onFile(inputFile)
       .withValue(1)
-      .build());
-    context.addMeasure(context.<Integer>measureBuilder()
+      .save();
+    context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_LINES)
       .onFile(inputFile)
       .withValue(duplicatedLines.size())
-      .build());
-    context.addMeasure(context.<Integer>measureBuilder()
+      .save();
+    context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_BLOCKS)
       .onFile(inputFile)
       .withValue(duplicatedBlocks)
-      .build());
+      .save();
 
     DuplicationBuilder builder = context.duplicationBuilder(inputFile);
     for (CloneGroup duplication : duplications) {

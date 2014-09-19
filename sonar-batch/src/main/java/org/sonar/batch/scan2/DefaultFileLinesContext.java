@@ -19,15 +19,14 @@
  */
 package org.sonar.batch.scan2;
 
-import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.KeyValueFormat.Converter;
@@ -37,7 +36,7 @@ import java.util.Map;
 
 public class DefaultFileLinesContext implements FileLinesContext {
 
-  private final AnalyzerMeasureCache measureCache;
+  private final NewMeasureCache measureCache;
   private final InputFile inputFile;
 
   /**
@@ -47,7 +46,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
   private String projectKey;
   private MetricFinder metricFinder;
 
-  public DefaultFileLinesContext(MetricFinder metricFinder, AnalyzerMeasureCache measureCache, String projectKey, InputFile inputFile) {
+  public DefaultFileLinesContext(MetricFinder metricFinder, NewMeasureCache measureCache, String projectKey, InputFile inputFile) {
     this.metricFinder = metricFinder;
     this.projectKey = projectKey;
     Preconditions.checkNotNull(measureCache);
@@ -119,11 +118,10 @@ public class DefaultFileLinesContext implements FileLinesContext {
       Map<Integer, Object> lines = entry.getValue();
       if (shouldSave(lines)) {
         String data = KeyValueFormat.format(lines);
-        measureCache.put(projectKey, ComponentKeys.createEffectiveKey(projectKey, inputFile), new DefaultMeasureBuilder<String>()
+        measureCache.put(projectKey, ComponentKeys.createEffectiveKey(projectKey, inputFile), new DefaultMeasure<String>()
           .forMetric(metric)
           .onFile(inputFile)
-          .withValue(data)
-          .build());
+          .withValue(data));
         entry.setValue(ImmutableMap.copyOf(lines));
       }
     }

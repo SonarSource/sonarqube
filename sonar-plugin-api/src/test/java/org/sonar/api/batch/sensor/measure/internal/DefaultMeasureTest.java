@@ -23,10 +23,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.measures.CoreMetrics;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class DefaultMeasureTest {
 
@@ -35,39 +37,47 @@ public class DefaultMeasureTest {
 
   @Test
   public void build_file_measure() {
-    Measure<Integer> issue = new DefaultMeasureBuilder<Integer>()
+    SensorStorage<DefaultMeasure<Integer>> persister = mock(SensorStorage.class);
+    DefaultMeasure<Integer> newMeasure = new DefaultMeasure<Integer>(persister)
       .forMetric(CoreMetrics.LINES)
       .onFile(new DefaultInputFile("foo", "src/Foo.php"))
-      .withValue(3)
-      .build();
+      .withValue(3);
 
-    assertThat(issue.inputFile()).isEqualTo(new DefaultInputFile("foo", "src/Foo.php"));
-    assertThat(issue.metric()).isEqualTo(CoreMetrics.LINES);
-    assertThat(issue.value()).isEqualTo(3);
+    assertThat(newMeasure.inputFile()).isEqualTo(new DefaultInputFile("foo", "src/Foo.php"));
+    assertThat(newMeasure.metric()).isEqualTo(CoreMetrics.LINES);
+    assertThat(newMeasure.value()).isEqualTo(3);
+
+    newMeasure.save();
+
+    verify(persister).store(newMeasure);
   }
 
   @Test
   public void build_project_measure() {
-    Measure<Integer> issue = new DefaultMeasureBuilder<Integer>()
+    SensorStorage<DefaultMeasure<Integer>> persister = mock(SensorStorage.class);
+    DefaultMeasure<Integer> newMeasure = new DefaultMeasure<Integer>(persister)
       .forMetric(CoreMetrics.LINES)
       .onProject()
-      .withValue(3)
-      .build();
+      .withValue(3);
 
-    assertThat(issue.inputFile()).isNull();
-    assertThat(issue.metric()).isEqualTo(CoreMetrics.LINES);
-    assertThat(issue.value()).isEqualTo(3);
+    assertThat(newMeasure.inputFile()).isNull();
+    assertThat(newMeasure.metric()).isEqualTo(CoreMetrics.LINES);
+    assertThat(newMeasure.value()).isEqualTo(3);
+
+    newMeasure.save();
+
+    verify(persister).store(newMeasure);
   }
 
   @Test
   public void not_allowed_to_call_onFile_and_onProject() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("onProject already called");
-    new DefaultMeasureBuilder<Integer>()
+    new DefaultMeasure<Integer>()
       .onProject()
       .onFile(new DefaultInputFile("foo", "src/Foo.php"))
       .withValue(3)
-      .build();
+      .save();
   }
 
 }

@@ -26,31 +26,75 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.measure.Measure;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.Serializable;
 
-public class DefaultMeasure<G extends Serializable> implements Measure<G>, Serializable {
+public class DefaultMeasure<G extends Serializable> implements Measure<G> {
 
-  private final InputFile inputFile;
-  private final Metric<G> metric;
-  private final G value;
+  private final SensorStorage<DefaultMeasure<G>> measureStorage;
+  private boolean onProject = false;
+  private InputFile file;
+  private Metric<G> metric;
+  private G value;
+  private boolean saved = false;
 
-  DefaultMeasure(DefaultMeasureBuilder<G> builder) {
-    Preconditions.checkNotNull(builder.value, "Measure value can't be null");
-    Preconditions.checkNotNull(builder.metric, "Measure metric can't be null");
-    Preconditions.checkState(builder.metric.valueType().equals(builder.value.getClass()), "Measure value should be of type " + builder.metric.valueType());
-    this.inputFile = builder.file;
-    this.metric = builder.metric;
-    this.value = builder.value;
+  public DefaultMeasure() {
+    this.measureStorage = null;
   }
 
-  @CheckForNull
+  public DefaultMeasure(@Nullable SensorStorage<DefaultMeasure<G>> measureStorage) {
+    this.measureStorage = measureStorage;
+  }
+
   @Override
-  public InputFile inputFile() {
-    return inputFile;
+  public DefaultMeasure<G> onFile(InputFile inputFile) {
+    Preconditions.checkState(!this.onProject, "onProject already called");
+    Preconditions.checkState(this.file == null, "onFile already called");
+    Preconditions.checkNotNull(inputFile, "InputFile should be non null");
+    this.file = inputFile;
+    return this;
+  }
+
+  @Override
+  public DefaultMeasure<G> onProject() {
+    Preconditions.checkState(!this.onProject, "onProject already called");
+    Preconditions.checkState(this.file == null, "onFile already called");
+    this.onProject = true;
+    return this;
+  }
+
+  @Override
+  public DefaultMeasure<G> forMetric(Metric<G> metric) {
+    Preconditions.checkState(metric != null, "Metric already defined");
+    Preconditions.checkNotNull(metric, "metric should be non null");
+    this.metric = metric;
+    return this;
+  }
+
+  @Override
+  public DefaultMeasure<G> withValue(G value) {
+    Preconditions.checkState(this.value == null, "Measure value already defined");
+    Preconditions.checkNotNull(value, "Measure value can't be null");
+    this.value = value;
+    return this;
+  }
+
+  @Override
+  public void save() {
+    Preconditions.checkNotNull(this.measureStorage, "No persister on this object");
+    Preconditions.checkState(!saved, "This measure was already saved");
+    Preconditions.checkNotNull(this.value, "Measure value can't be null");
+    Preconditions.checkNotNull(this.metric, "Measure metric can't be null");
+    Preconditions.checkState(this.metric.valueType().equals(this.value.getClass()), "Measure value should be of type " + this.metric.valueType());
+    if (measureStorage != null) {
+      measureStorage.store(this);
+    }
+    this.saved = true;
   }
 
   @Override
@@ -59,9 +103,17 @@ public class DefaultMeasure<G extends Serializable> implements Measure<G>, Seria
   }
 
   @Override
+  @CheckForNull
+  public InputFile inputFile() {
+    return file;
+  }
+
+  @Override
   public G value() {
     return value;
   }
+
+  // For testing purpose
 
   @Override
   public boolean equals(Object obj) {
@@ -76,7 +128,7 @@ public class DefaultMeasure<G extends Serializable> implements Measure<G>, Seria
     }
     DefaultMeasure rhs = (DefaultMeasure) obj;
     return new EqualsBuilder()
-      .append(inputFile, rhs.inputFile)
+      .append(file, rhs.file)
       .append(metric, rhs.metric)
       .append(value, rhs.value)
       .isEquals();
@@ -85,7 +137,7 @@ public class DefaultMeasure<G extends Serializable> implements Measure<G>, Seria
   @Override
   public int hashCode() {
     return new HashCodeBuilder(27, 45).
-      append(inputFile).
+      append(file).
       append(metric).
       append(value).
       toHashCode();

@@ -32,8 +32,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssueBuilder;
-import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
@@ -86,39 +85,7 @@ public class SensorContextAdapterTest {
     assertThat(adaptor.settings()).isEqualTo(settings);
 
     assertThat(adaptor.issueBuilder()).isNotNull();
-    assertThat(adaptor.measureBuilder()).isNotNull();
-  }
-
-  @Test
-  public void shouldRedirectProjectMeasuresToSensorContext() {
-    Measure<Integer> measure = adaptor.getMeasure(CoreMetrics.NCLOC_KEY);
-    assertThat(measure).isNull();
-
-    when(sensorContext.getMeasure(CoreMetrics.NCLOC)).thenReturn(new org.sonar.api.measures.Measure<Integer>(CoreMetrics.NCLOC, 10.0));
-
-    measure = adaptor.getMeasure(CoreMetrics.NCLOC);
-    assertThat(measure.metric()).isEqualTo(CoreMetrics.NCLOC);
-    assertThat(measure.inputFile()).isNull();
-    assertThat(measure.value()).isEqualTo(10);
-
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Unknow metric with key: lines");
-    adaptor.getMeasure(CoreMetrics.LINES);
-  }
-
-  @Test
-  public void shouldRedirectFileMeasuresToSensorContext() {
-    InputFile file = new DefaultInputFile("foo", "src/Foo.php");
-
-    Measure<Integer> measure = adaptor.getMeasure(file, CoreMetrics.NCLOC_KEY);
-    assertThat(measure).isNull();
-
-    when(sensorContext.getMeasure(File.create("src/Foo.php"), CoreMetrics.NCLOC)).thenReturn(new org.sonar.api.measures.Measure<Integer>(CoreMetrics.NCLOC, 10.0));
-    measure = adaptor.getMeasure(file, CoreMetrics.NCLOC);
-
-    assertThat(measure.metric()).isEqualTo(CoreMetrics.NCLOC);
-    assertThat(measure.inputFile()).isEqualTo(file);
-    assertThat(measure.value()).isEqualTo(10);
+    assertThat(adaptor.newMeasure()).isNotNull();
   }
 
   @Test
@@ -128,11 +95,10 @@ public class SensorContextAdapterTest {
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
     when(sensorContext.saveMeasure(eq(file), argumentCaptor.capture())).thenReturn(null);
 
-    adaptor.addMeasure(new DefaultMeasureBuilder()
+    adaptor.store(new DefaultMeasure()
       .onFile(file)
       .forMetric(CoreMetrics.NCLOC)
-      .withValue(10)
-      .build());
+      .withValue(10));
 
     org.sonar.api.measures.Measure m = argumentCaptor.getValue();
     assertThat(m.getValue()).isEqualTo(10.0);

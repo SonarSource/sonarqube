@@ -29,7 +29,6 @@ import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.measure.MeasureBuilder;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.xoo.Xoo;
 
@@ -78,34 +77,34 @@ public class MeasureSensor implements Sensor {
     try {
       String metricKey = StringUtils.substringBefore(line, ":");
       String value = line.substring(metricKey.length() + 1);
-      context.addMeasure(createMeasure(context, inputFile, metricKey, value));
+      saveMeasure(context, inputFile, metricKey, value);
     } catch (Exception e) {
       throw new IllegalStateException("Error processing line " + lineNumber + " of file " + measureFile.getAbsolutePath(), e);
     }
   }
 
-  private Measure createMeasure(SensorContext context, InputFile xooFile, String metricKey, String value) {
+  private void saveMeasure(SensorContext context, InputFile xooFile, String metricKey, String value) {
     org.sonar.api.batch.measure.Metric<Serializable> metric = metricFinder.findByKey(metricKey);
     if (metric == null) {
       throw new IllegalStateException("Unknow metric with key: " + metricKey);
     }
-    MeasureBuilder<Serializable> builder = context.measureBuilder()
+    Measure<Serializable> newMeasure = context.newMeasure()
       .forMetric(metric)
       .onFile(xooFile);
     if (Boolean.class.equals(metric.valueType())) {
-      builder.withValue(Boolean.parseBoolean(value));
+      newMeasure.withValue(Boolean.parseBoolean(value));
     } else if (Integer.class.equals(metric.valueType())) {
-      builder.withValue(Integer.valueOf(value));
+      newMeasure.withValue(Integer.valueOf(value));
     } else if (Double.class.equals(metric.valueType())) {
-      builder.withValue(Double.valueOf(value));
+      newMeasure.withValue(Double.valueOf(value));
     } else if (String.class.equals(metric.valueType())) {
-      builder.withValue(value);
+      newMeasure.withValue(value);
     } else if (Long.class.equals(metric.valueType())) {
-      builder.withValue(Long.valueOf(value));
+      newMeasure.withValue(Long.valueOf(value));
     } else {
       throw new UnsupportedOperationException("Unsupported type :" + metric.valueType());
     }
-    return builder.build();
+    newMeasure.save();
   }
 
   @Override

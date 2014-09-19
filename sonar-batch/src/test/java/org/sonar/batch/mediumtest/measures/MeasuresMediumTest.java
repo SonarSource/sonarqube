@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
@@ -95,11 +95,10 @@ public class MeasuresMediumTest {
 
     assertThat(result.measures()).hasSize(1);
 
-    assertThat(result.measures()).contains(new DefaultMeasureBuilder<Integer>()
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
       .forMetric(CoreMetrics.LINES)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(20)
-      .build());
+      .withValue(20));
 
   }
 
@@ -138,17 +137,15 @@ public class MeasuresMediumTest {
 
     assertThat(result.measures()).hasSize(4);
 
-    assertThat(result.measures()).contains(new DefaultMeasureBuilder<Integer>()
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
       .forMetric(CoreMetrics.LINES)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue(5)
-      .build());
+      .withValue(5));
 
-    assertThat(result.measures()).contains(new DefaultMeasureBuilder<String>()
+    assertThat(result.measures()).contains(new DefaultMeasure<String>()
       .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue("1=julien;2=julien;3=julien;4=julien;5=simon")
-      .build());
+      .withValue("1=julien;2=julien;3=julien;4=julien;5=simon"));
   }
 
 }

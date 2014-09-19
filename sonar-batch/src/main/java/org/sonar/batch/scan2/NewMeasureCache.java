@@ -31,12 +31,12 @@ import org.sonar.batch.scan.filesystem.InputPathCache;
 /**
  * Cache of all measures. This cache is shared amongst all project modules.
  */
-public class AnalyzerMeasureCache implements BatchComponent {
+public class NewMeasureCache implements BatchComponent {
 
   // project key -> component key -> metric key -> measure
   private final Cache<DefaultMeasure> cache;
 
-  public AnalyzerMeasureCache(Caches caches, MetricFinder metricFinder, InputPathCache inputPathCache) {
+  public NewMeasureCache(Caches caches, MetricFinder metricFinder, InputPathCache inputPathCache) {
     caches.registerValueCoder(DefaultMeasure.class, new DefaultMeasureValueCoder(metricFinder, inputPathCache));
     cache = caches.createCache("measures");
   }
@@ -53,7 +53,7 @@ public class AnalyzerMeasureCache implements BatchComponent {
     return cache.get(projectKey, resourceKey, metricKey);
   }
 
-  public AnalyzerMeasureCache put(String projectKey, String resourceKey, DefaultMeasure<?> measure) {
+  public NewMeasureCache put(String projectKey, String resourceKey, DefaultMeasure<?> measure) {
     Preconditions.checkNotNull(projectKey);
     Preconditions.checkNotNull(resourceKey);
     Preconditions.checkNotNull(measure);

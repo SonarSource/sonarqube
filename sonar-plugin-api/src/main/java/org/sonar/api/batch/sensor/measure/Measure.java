@@ -22,27 +22,58 @@ package org.sonar.api.batch.sensor.measure;
 import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
-import org.sonar.api.batch.sensor.Sensor;
 
 import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
 
 /**
- * A measure computed by an {@link Sensor}.
+ * Builder to create new Measure.
  * @since 4.4
  */
 @Beta
 public interface Measure<G extends Serializable> {
 
   /**
-   * The {@link InputFile} this measure belongs to. Returns null if measure is global to the project.
+   * The file the measure belongs to.
+   */
+  Measure<G> onFile(InputFile file);
+
+  /**
+   * Tell that the measure is global to the project.
+   */
+  Measure<G> onProject();
+
+  /**
+   * The file the measure belong to.
+   * @return null if measure is on project
    */
   @CheckForNull
   InputFile inputFile();
 
+  /**
+   * Set the metric this measure belong to.
+   */
+  Measure<G> forMetric(Metric<G> metric);
+
+  /**
+   * The metric this measure belong to.
+   */
   Metric<G> metric();
 
+  /**
+   * Value of the measure.
+   */
+  Measure<G> withValue(G value);
+
+  /**
+   * Value of the measure.
+   */
   G value();
+
+  /**
+   * Save the measure. It is not permitted so save several measures of the same metric on the same file/project.
+   */
+  void save();
 
 }

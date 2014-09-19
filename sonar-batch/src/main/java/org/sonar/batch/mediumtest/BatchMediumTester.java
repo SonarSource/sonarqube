@@ -33,6 +33,7 @@ import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.Symbol;
 import org.sonar.api.batch.sensor.test.TestCase;
 import org.sonar.api.measures.CoreMetrics;
@@ -56,7 +57,7 @@ import org.sonar.batch.referential.GlobalReferentialsLoader;
 import org.sonar.batch.referential.ProjectReferentialsLoader;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan2.AnalyzerIssueCache;
-import org.sonar.batch.scan2.AnalyzerMeasureCache;
+import org.sonar.batch.scan2.NewMeasureCache;
 import org.sonar.batch.scan2.ProjectScanContainer;
 import org.sonar.batch.scan2.ScanTaskObserver;
 import org.sonar.batch.symbol.SymbolData;
@@ -243,7 +244,7 @@ public class BatchMediumTester {
         issues.add(issue);
       }
 
-      for (Measure<?> measure : container.getComponentByType(AnalyzerMeasureCache.class).all()) {
+      for (DefaultMeasure<?> measure : container.getComponentByType(NewMeasureCache.class).all()) {
         measures.add(measure);
       }
 

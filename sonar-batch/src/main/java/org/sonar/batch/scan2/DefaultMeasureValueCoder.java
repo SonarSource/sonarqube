@@ -27,7 +27,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 
 import java.io.Serializable;
@@ -58,19 +57,19 @@ class DefaultMeasureValueCoder implements ValueCoder {
 
   @Override
   public Object get(Value value, Class clazz, CoderContext context) {
-    DefaultMeasureBuilder builder = new DefaultMeasureBuilder();
+    DefaultMeasure newMeasure = new DefaultMeasure(null);
     String moduleKey = value.getString();
     if (moduleKey != null) {
       String relativePath = value.getString();
       InputFile f = inputPathCache.getFile(moduleKey, relativePath);
-      builder.onFile(f);
+      newMeasure.onFile(f);
     } else {
-      builder.onProject();
+      newMeasure.onProject();
     }
     Metric m = metricFinder.findByKey(value.getString());
-    builder.forMetric(m);
-    builder.withValue((Serializable) value.get());
-    return builder.build();
+    newMeasure.forMetric(m);
+    newMeasure.withValue((Serializable) value.get());
+    return newMeasure;
   }
 
 }

@@ -25,12 +25,16 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplicationBuilder;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasureBuilder;
+import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -59,10 +63,16 @@ public class JavaCpdEngineTest {
   private DefaultDuplicationBuilder duplicationBuilder;
   private FileLinesContextFactory contextFactory;
   private FileLinesContext linesContext;
+  private SensorStorage<Measure> persister = mock(SensorStorage.class);
 
   @Before
   public void before() throws IOException {
-    when(context.measureBuilder()).thenReturn(new DefaultMeasureBuilder());
+    when(context.newMeasure()).then(new Answer<Measure>() {
+      @Override
+      public Measure answer(InvocationOnMock invocation) throws Throwable {
+        return new DefaultMeasure(persister);
+      }
+    });
     inputFile = new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java");
     duplicationBuilder = spy(new DefaultDuplicationBuilder(inputFile));
     when(context.duplicationBuilder(any(InputFile.class))).thenReturn(duplicationBuilder);
@@ -87,9 +97,9 @@ public class JavaCpdEngineTest {
     List<CloneGroup> groups = Arrays.asList(newCloneGroup(new ClonePart("key1", 0, 5, 204), new ClonePart("key2", 0, 15, 214)));
     JavaCpdEngine.save(context, inputFile, groups, contextFactory);
 
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1).build());
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(1).build());
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(200).build());
+    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1));
+    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(1));
+    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(200));
 
     InOrder inOrder = Mockito.inOrder(duplicationBuilder);
     inOrder.verify(duplicationBuilder).originBlock(5, 204);
@@ -108,9 +118,9 @@ public class JavaCpdEngineTest {
     List<CloneGroup> groups = Arrays.asList(newCloneGroup(new ClonePart("key1", 0, 5, 204), new ClonePart("key1", 0, 215, 414)));
     JavaCpdEngine.save(context, inputFile, groups, contextFactory);
 
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1).build());
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(2).build());
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(400).build());
+    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1));
+    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(2));
+    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(400));
 
     InOrder inOrder = Mockito.inOrder(duplicationBuilder);
     inOrder.verify(duplicationBuilder).originBlock(5, 204);
@@ -123,9 +133,9 @@ public class JavaCpdEngineTest {
     List<CloneGroup> groups = Arrays.asList(newCloneGroup(new ClonePart("key1", 0, 5, 204), new ClonePart("key2", 0, 15, 214), new ClonePart("key3", 0, 25, 224)));
     JavaCpdEngine.save(context, inputFile, groups, contextFactory);
 
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1).build());
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(1).build());
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(200).build());
+    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1));
+    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(1));
+    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(200));
 
     InOrder inOrder = Mockito.inOrder(duplicationBuilder);
     inOrder.verify(duplicationBuilder).originBlock(5, 204);
@@ -147,9 +157,9 @@ public class JavaCpdEngineTest {
       newCloneGroup(new ClonePart("key1", 0, 15, 214), new ClonePart("key3", 0, 15, 214)));
     JavaCpdEngine.save(context, inputFile, groups, contextFactory);
 
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1).build());
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(2).build());
-    verify(context).addMeasure(new DefaultMeasureBuilder().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(210).build());
+    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_FILES).onFile(inputFile).withValue(1));
+    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_BLOCKS).onFile(inputFile).withValue(2));
+    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.DUPLICATED_LINES).onFile(inputFile).withValue(210));
 
     InOrder inOrder = Mockito.inOrder(duplicationBuilder);
     inOrder.verify(duplicationBuilder).originBlock(5, 204);

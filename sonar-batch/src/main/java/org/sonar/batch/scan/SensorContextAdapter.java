@@ -91,32 +91,6 @@ public class SensorContextAdapter extends BaseSensorContext {
     this.sonarIndex = sonarIndex;
   }
 
-  @Override
-  public Measure getMeasure(String metricKey) {
-    Metric<?> m = findMetricOrFail(metricKey);
-    return getMeasure(m);
-  }
-
-  @Override
-  public <G extends Serializable> Measure<G> getMeasure(Metric<G> metric) {
-    org.sonar.api.measures.Metric<G> m = (org.sonar.api.measures.Metric<G>) findMetricOrFail(metric.key());
-    org.sonar.api.measures.Measure<G> measure = sensorContext.getMeasure(m);
-    if (measure == null) {
-      return null;
-    }
-    return this.<G>measureBuilder()
-      .onProject()
-      .forMetric(metric)
-      .withValue(measure.value())
-      .build();
-  }
-
-  @Override
-  public Measure getMeasure(InputFile file, String metricKey) {
-    Metric<?> m = findMetricOrFail(metricKey);
-    return getMeasure(file, m);
-  }
-
   private Metric findMetricOrFail(String metricKey) {
     Metric<?> m = metricFinder.findByKey(metricKey);
     if (m == null) {
@@ -126,22 +100,7 @@ public class SensorContextAdapter extends BaseSensorContext {
   }
 
   @Override
-  public <G extends Serializable> Measure<G> getMeasure(InputFile file, Metric<G> metric) {
-    File fileRes = File.create(file.relativePath());
-    org.sonar.api.measures.Metric<G> m = (org.sonar.api.measures.Metric<G>) findMetricOrFail(metric.key());
-    org.sonar.api.measures.Measure<G> measure = sensorContext.getMeasure(fileRes, m);
-    if (measure == null) {
-      return null;
-    }
-    return this.<G>measureBuilder()
-      .onFile(file)
-      .forMetric(metric)
-      .withValue(measure.value())
-      .build();
-  }
-
-  @Override
-  public void addMeasure(Measure<?> measure) {
+  public void store(Measure<Serializable> measure) {
     org.sonar.api.measures.Metric<?> m = metricFinder.findByKey(measure.metric().key());
     if (m == null) {
       throw new IllegalStateException("Unknow metric with key: " + measure.metric().key());

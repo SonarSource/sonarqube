@@ -17,43 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.measure;
-
-import com.google.common.annotations.Beta;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measure.Metric;
-
-import java.io.Serializable;
+package org.sonar.api.batch.sensor;
 
 /**
- * Builder to create new {@link Measure}
- * @since 4.4
+ * Interface for storing data computed by sensors.
  */
-@Beta
-public interface MeasureBuilder<G extends Serializable> {
+public interface SensorStorage<G> {
 
-  /**
-   * The file the measure belongs to.
-   */
-  MeasureBuilder<G> onFile(InputFile file);
+  void store(G data);
 
-  /**
-   * Tell that the measure is global to the project.
-   */
-  MeasureBuilder<G> onProject();
-
-  /**
-   * The metric this measure belong to.
-   */
-  MeasureBuilder<G> forMetric(Metric<G> metric);
-
-  /**
-   * Value of the measure.
-   */
-  MeasureBuilder<G> withValue(G value);
-
-  /**
-   * Build the measure. After call of this method the builder is cleaned and can be used to build another measure.
-   */
-  Measure<G> build();
 }

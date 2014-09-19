@@ -19,13 +19,11 @@
  */
 package org.sonar.xoo.rule;
 
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.IssueBuilder;
-import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
@@ -55,21 +53,16 @@ public class OneIssuePerLineSensor implements Sensor {
 
   private void createIssues(InputFile file, SensorContext context) {
     RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
-    Measure<Integer> linesMeasure = context.getMeasure(file, CoreMetrics.LINES);
-    if (linesMeasure == null) {
-      LoggerFactory.getLogger(getClass()).warn("Missing measure " + CoreMetrics.LINES_KEY + " on " + file);
-    } else {
-      IssueBuilder issueBuilder = context.issueBuilder();
-      for (int line = 1; line <= (Integer) linesMeasure.value(); line++) {
-        context.addIssue(issueBuilder
-          .ruleKey(ruleKey)
-          .onFile(file)
-          .atLine(line)
-          .effortToFix(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY))
-          .severity(context.settings().getString(FORCE_SEVERITY_PROPERTY))
-          .message("This issue is generated on each line")
-          .build());
-      }
+    IssueBuilder issueBuilder = context.issueBuilder();
+    for (int line = 1; line <= file.lines(); line++) {
+      context.addIssue(issueBuilder
+        .ruleKey(ruleKey)
+        .onFile(file)
+        .atLine(line)
+        .effortToFix(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY))
+        .severity(context.settings().getString(FORCE_SEVERITY_PROPERTY))
+        .message("This issue is generated on each line")
+        .build());
     }
   }
 }

@@ -67,7 +67,7 @@ public class IssuesMediumTest {
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .start();
 
-    assertThat(result.issues()).hasSize(24);
+    assertThat(result.issues()).hasSize(26);
   }
 
   @Test
@@ -79,7 +79,7 @@ public class IssuesMediumTest {
       .property("sonar.xoo.internalKey", "OneIssuePerLine.internal")
       .start();
 
-    assertThat(result.issues()).hasSize(24 /* 24 lines */+ 3 /* 3 files */);
+    assertThat(result.issues()).hasSize(26 /* 26 lines */+ 3 /* 3 files */);
   }
 
   @Test
@@ -104,7 +104,7 @@ public class IssuesMediumTest {
       .property("sonar.issue.ignore.allfile.1.fileRegexp", "object")
       .start();
 
-    assertThat(result.issues()).hasSize(19);
+    assertThat(result.issues()).hasSize(20);
   }
 
   @Test
@@ -115,9 +115,7 @@ public class IssuesMediumTest {
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    File xooMeasureFile = new File(srcDir, "sample.xoo.measures");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
-    FileUtils.write(xooMeasureFile, "lines:20");
+    FileUtils.write(xooFile, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -131,7 +129,7 @@ public class IssuesMediumTest {
         .build())
       .start();
 
-    assertThat(result.issues()).hasSize(20);
+    assertThat(result.issues()).hasSize(10);
 
     boolean foundIssueAtLine1 = false;
     for (Issue issue : result.issues()) {
