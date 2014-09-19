@@ -1,0 +1,38 @@
+#
+# SonarQube, open source software quality management tool.
+# Copyright (C) 2008-2014 SonarSource
+# mailto:contact AT sonarsource DOT com
+#
+# SonarQube is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 3 of the License, or (at your option) any later version.
+#
+# SonarQube is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+#
+# SonarQube 5.0
+# SONAR-5624
+#
+class CreateAnalysisReports < ActiveRecord::Migration
+
+  def self.up
+    create_table :analysis_reports do |t|
+      t.column :project_key, :string, :limit => 400, :null => false
+      t.column :report_status, :string, :limit => 20, :null => false
+      t.column :report_data, :text, :null => true
+      t.column :created_at,   :datetime, :null => false
+      t.column :updated_at,   :datetime, :null => false
+    end
+    add_index :analysis_reports, ['project_key'], :name => 'analysis_reports_project_key', :unique => true
+  end
+
+end
+

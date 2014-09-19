@@ -39,6 +39,8 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.component.db.SnapshotMapper;
+import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.computation.db.AnalysisReportMapper;
 import org.sonar.core.config.Logback;
 import org.sonar.core.dashboard.*;
 import org.sonar.core.dependency.DependencyDto;
@@ -157,6 +159,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "ActiveRuleParam", ActiveRuleParamDto.class);
     loadAlias(conf, "RequirementMigration", RequirementMigrationDto.class);
     loadAlias(conf, "Activity", ActivityDto.class);
+    loadAlias(conf, "AnalysisReport", AnalysisReportDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
@@ -174,7 +177,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
       NotificationQueueMapper.class, CharacteristicMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
       MeasureMapper.class, MetricMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
-      ProjectQgateAssociationMapper.class
+      ProjectQgateAssociationMapper.class,
+      AnalysisReportMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);
