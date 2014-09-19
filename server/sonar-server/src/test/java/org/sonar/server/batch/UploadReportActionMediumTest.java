@@ -55,7 +55,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class UploadReportActionMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.issues.use_es_backend", "true");
 
   DbClient db;
   DbSession session;

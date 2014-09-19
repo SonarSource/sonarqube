@@ -21,6 +21,7 @@
 package org.sonar.server.batch;
 
 import com.google.common.collect.ImmutableMap;
+import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -45,11 +46,13 @@ public class UploadReportAction implements RequestHandler {
   private final DbClient dbClient;
   private final IndexClient index;
   private final InternalPermissionService permissionService;
+  private final Settings settings;
 
-  public UploadReportAction(DbClient dbClient, IndexClient index, InternalPermissionService permissionService) {
+  public UploadReportAction(DbClient dbClient, IndexClient index, InternalPermissionService permissionService, Settings settings) {
     this.dbClient = dbClient;
     this.index = index;
     this.permissionService = permissionService;
+    this.settings = settings;
   }
 
   void define(WebService.NewController controller) {
@@ -75,28 +78,31 @@ public class UploadReportAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DbSession session = dbClient.openSession(false);
-    try {
-      String projectKey = request.mandatoryParam(PARAM_PROJECT);
-      AuthorizedComponentDto project = dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
+    UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
 
-      // Synchronize project permission indexes
-      boolean isFirstAnalysis = request.mandatoryParamAsBoolean(PARAM_FIRST_ANALYSIS);
-      if (isFirstAnalysis) {
-        permissionService.synchronizePermissions(session, project.key());
+    // Switch Issue search
+    if (settings.getString("sonar.issues.use_es_backend") != null) {
+      DbSession session = dbClient.openSession(false);
+      try {
+        String projectKey = request.mandatoryParam(PARAM_PROJECT);
+        AuthorizedComponentDto project = dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
+
+        // Synchronize project permission indexes
+        boolean isFirstAnalysis = request.mandatoryParamAsBoolean(PARAM_FIRST_ANALYSIS);
+        if (isFirstAnalysis) {
+          permissionService.synchronizePermissions(session, project.key());
+          session.commit();
+        }
+
+        // Index project's issues
+        dbClient.issueDao().synchronizeAfter(session,
+          index.get(IssueIndex.class).getLastSynchronization(),
+          ImmutableMap.of("project", projectKey));
+
         session.commit();
+      } finally {
+        MyBatis.closeQuietly(session);
       }
-
-      UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
-
-      // Index project's issues
-      dbClient.issueDao().synchronizeAfter(session,
-        index.get(IssueIndex.class).getLastSynchronization(),
-        ImmutableMap.of("project", projectKey));
-
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
