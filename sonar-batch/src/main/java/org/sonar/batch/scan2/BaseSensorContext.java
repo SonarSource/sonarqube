@@ -24,15 +24,15 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplicationBuilder;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
-import org.sonar.api.batch.sensor.issue.IssueBuilder;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueBuilder;
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
@@ -56,7 +56,7 @@ import java.util.List;
  * @author julien
  *
  */
-public abstract class BaseSensorContext implements SensorContext, SensorStorage<Measure<Serializable>> {
+public abstract class BaseSensorContext implements SensorContext, SensorStorage {
 
   private final Settings settings;
   private final FileSystem fs;
@@ -96,8 +96,8 @@ public abstract class BaseSensorContext implements SensorContext, SensorStorage<
   }
 
   @Override
-  public IssueBuilder issueBuilder() {
-    return new DefaultIssueBuilder();
+  public Issue newIssue() {
+    return new DefaultIssue(this);
   }
 
   @Override

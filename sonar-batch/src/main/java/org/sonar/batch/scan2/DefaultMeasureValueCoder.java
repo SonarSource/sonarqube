@@ -51,7 +51,7 @@ class DefaultMeasureValueCoder implements ValueCoder {
     } else {
       value.putNull();
     }
-    value.putUTF(m.metric().key());
+    value.putString(m.metric().key());
     value.put(m.value());
   }
 

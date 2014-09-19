@@ -19,21 +19,22 @@
  */
 package org.sonar.batch.scan2;
 
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
-
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 
 /**
  * Shared issues among all project modules
  */
-public class AnalyzerIssueCache implements BatchComponent {
+public class IssueCache implements BatchComponent {
 
   // project key -> resource key -> issue key -> issue
   private final Cache<DefaultIssue> cache;
 
-  public AnalyzerIssueCache(Caches caches) {
+  public IssueCache(Caches caches, InputPathCache inputPathCache) {
+    caches.registerValueCoder(DefaultIssue.class, new DefaultIssueValueCoder(inputPathCache));
     cache = caches.createCache("issues");
   }
 
@@ -45,7 +46,7 @@ public class AnalyzerIssueCache implements BatchComponent {
     return cache.values();
   }
 
-  public AnalyzerIssueCache put(String projectKey, String resourceKey, DefaultIssue issue) {
+  public IssueCache put(String projectKey, String resourceKey, DefaultIssue issue) {
     cache.put(projectKey, resourceKey, issue.key(), issue);
     return this;
   }

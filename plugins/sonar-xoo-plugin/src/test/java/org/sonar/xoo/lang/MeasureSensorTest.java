@@ -30,8 +30,8 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
@@ -58,7 +58,7 @@ public class MeasureSensorTest {
 
   private File baseDir;
   private MetricFinder metricFinder;
-  private SensorStorage<DefaultMeasure> persister;
+  private SensorStorage storage;
 
   @Before
   public void prepare() throws IOException {
@@ -67,11 +67,11 @@ public class MeasureSensorTest {
     sensor = new MeasureSensor(metricFinder);
     fileSystem = new DefaultFileSystem();
     when(context.fileSystem()).thenReturn(fileSystem);
-    persister = mock(SensorStorage.class);
+    storage = mock(SensorStorage.class);
     when(context.newMeasure()).then(new Answer<DefaultMeasure>() {
       @Override
       public DefaultMeasure answer(InvocationOnMock invocation) throws Throwable {
-        return new DefaultMeasure(persister);
+        return new DefaultMeasure(storage);
       }
     });
   }
@@ -106,11 +106,11 @@ public class MeasureSensorTest {
 
     sensor.execute(context);
 
-    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.NCLOC).onFile(inputFile).withValue(12));
-    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.BRANCH_COVERAGE).onFile(inputFile).withValue(5.3));
-    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.TECHNICAL_DEBT).onFile(inputFile).withValue(300L));
-    verify(persister).store(new DefaultMeasure().forMetric(booleanMetric).onFile(inputFile).withValue(true));
-    verify(persister).store(new DefaultMeasure().forMetric(CoreMetrics.COMMENT_LINES_DATA).onFile(inputFile).withValue("1=1,2=1"));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.NCLOC).onFile(inputFile).withValue(12));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.BRANCH_COVERAGE).onFile(inputFile).withValue(5.3));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.TECHNICAL_DEBT).onFile(inputFile).withValue(300L));
+    verify(storage).store(new DefaultMeasure().forMetric(booleanMetric).onFile(inputFile).withValue(true));
+    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.COMMENT_LINES_DATA).onFile(inputFile).withValue("1=1,2=1"));
 
   }
 

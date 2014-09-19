@@ -33,6 +33,7 @@ import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.test.TestCase;
 import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
@@ -62,7 +63,6 @@ import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.scan2.BaseSensorContext;
 import org.sonar.core.component.ComponentKeys;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -100,7 +100,7 @@ public class SensorContextAdapter extends BaseSensorContext {
   }
 
   @Override
-  public void store(Measure<Serializable> measure) {
+  public void store(Measure measure) {
     org.sonar.api.measures.Metric<?> m = metricFinder.findByKey(measure.metric().key());
     if (m == null) {
       throw new IllegalStateException("Unknow metric with key: " + measure.metric().key());
@@ -155,7 +155,7 @@ public class SensorContextAdapter extends BaseSensorContext {
   }
 
   @Override
-  public boolean addIssue(Issue issue) {
+  public void store(Issue issue) {
     Resource r;
     InputPath inputPath = issue.inputPath();
     if (inputPath != null) {
@@ -169,12 +169,13 @@ public class SensorContextAdapter extends BaseSensorContext {
     }
     Issuable issuable = perspectives.as(Issuable.class, r);
     if (issuable == null) {
-      return false;
+      return;
     }
-    return issuable.addIssue(toDefaultIssue(project.getKey(), ComponentKeys.createEffectiveKey(project, r), issue));
+    issuable.addIssue(toDefaultIssue(project.getKey(), ComponentKeys.createEffectiveKey(project, r), issue));
   }
 
   public static DefaultIssue toDefaultIssue(String projectKey, String componentKey, Issue issue) {
+    Severity overridenSeverity = issue.overridenSeverity();
     return new org.sonar.core.issue.DefaultIssueBuilder()
       .componentKey(componentKey)
       .projectKey(projectKey)
@@ -182,7 +183,7 @@ public class SensorContextAdapter extends BaseSensorContext {
       .effortToFix(issue.effortToFix())
       .line(issue.line())
       .message(issue.message())
-      .severity(issue.severity())
+      .severity(overridenSeverity != null ? overridenSeverity.name() : null)
       .build();
   }
 

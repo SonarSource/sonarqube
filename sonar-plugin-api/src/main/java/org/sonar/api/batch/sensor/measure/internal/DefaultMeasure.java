@@ -36,7 +36,7 @@ import java.io.Serializable;
 
 public class DefaultMeasure<G extends Serializable> implements Measure<G> {
 
-  private final SensorStorage<DefaultMeasure<G>> measureStorage;
+  private final SensorStorage storage;
   private boolean onProject = false;
   private InputFile file;
   private Metric<G> metric;
@@ -44,11 +44,11 @@ public class DefaultMeasure<G extends Serializable> implements Measure<G> {
   private boolean saved = false;
 
   public DefaultMeasure() {
-    this.measureStorage = null;
+    this.storage = null;
   }
 
-  public DefaultMeasure(@Nullable SensorStorage<DefaultMeasure<G>> measureStorage) {
-    this.measureStorage = measureStorage;
+  public DefaultMeasure(@Nullable SensorStorage storage) {
+    this.storage = storage;
   }
 
   @Override
@@ -86,14 +86,12 @@ public class DefaultMeasure<G extends Serializable> implements Measure<G> {
 
   @Override
   public void save() {
-    Preconditions.checkNotNull(this.measureStorage, "No persister on this object");
+    Preconditions.checkNotNull(this.storage, "No persister on this object");
     Preconditions.checkState(!saved, "This measure was already saved");
     Preconditions.checkNotNull(this.value, "Measure value can't be null");
     Preconditions.checkNotNull(this.metric, "Measure metric can't be null");
     Preconditions.checkState(this.metric.valueType().equals(this.value.getClass()), "Measure value should be of type " + this.metric.valueType());
-    if (measureStorage != null) {
-      measureStorage.store(this);
-    }
+    storage.store((Measure<Serializable>) this);
     this.saved = true;
   }
 

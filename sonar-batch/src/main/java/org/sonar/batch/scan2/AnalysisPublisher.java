@@ -27,6 +27,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.ZipUtils;
@@ -42,13 +43,13 @@ public final class AnalysisPublisher {
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisPublisher.class);
   private final Settings settings;
   private final FileSystem fs;
-  private final NewMeasureCache measureCache;
+  private final MeasureCache measureCache;
   private final ProjectDefinition def;
-  private final AnalyzerIssueCache issueCache;
+  private final IssueCache issueCache;
 
   public AnalysisPublisher(ProjectDefinition def, Settings settings, FileSystem fs,
-    NewMeasureCache measureCache,
-    AnalyzerIssueCache analyzerIssueCache) {
+    MeasureCache measureCache,
+    IssueCache analyzerIssueCache) {
     this.def = def;
     this.settings = settings;
     this.fs = fs;
@@ -108,9 +109,12 @@ public final class AnalysisPublisher {
         }
         jsonWriter.prop("message", issue.message())
           .prop("effortToFix", issue.effortToFix())
-          .prop("line", issue.line())
-          .prop("severity", issue.severity())
-          .endObject();
+          .prop("line", issue.line());
+        Severity overridenSeverity = issue.overridenSeverity();
+        if (overridenSeverity != null) {
+          jsonWriter.prop("severity", overridenSeverity.name());
+        }
+        jsonWriter.endObject();
       }
       jsonWriter.endArray()
         .endObject()

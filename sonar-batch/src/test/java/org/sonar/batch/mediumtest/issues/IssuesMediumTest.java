@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
@@ -91,7 +92,7 @@ public class IssuesMediumTest {
       .property("sonar.oneIssuePerLine.forceSeverity", "CRITICAL")
       .start();
 
-    assertThat(result.issues().iterator().next().severity()).isEqualTo("CRITICAL");
+    assertThat(result.issues().iterator().next().overridenSeverity()).isEqualTo(Severity.CRITICAL);
   }
 
   @Test

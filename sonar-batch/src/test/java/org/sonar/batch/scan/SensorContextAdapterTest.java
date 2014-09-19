@@ -31,7 +31,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssueBuilder;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
@@ -84,7 +84,7 @@ public class SensorContextAdapterTest {
     assertThat(adaptor.fileSystem()).isEqualTo(fs);
     assertThat(adaptor.settings()).isEqualTo(settings);
 
-    assertThat(adaptor.issueBuilder()).isNotNull();
+    assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newMeasure()).isNotNull();
   }
 
@@ -116,13 +116,12 @@ public class SensorContextAdapterTest {
 
     when(issuable.addIssue(argumentCaptor.capture())).thenReturn(true);
 
-    adaptor.addIssue(new DefaultIssueBuilder()
+    adaptor.store(new DefaultIssue()
       .onFile(file)
       .ruleKey(RuleKey.of("foo", "bar"))
       .message("Foo")
       .atLine(3)
-      .effortToFix(10.0)
-      .build());
+      .effortToFix(10.0));
 
     Issue issue = argumentCaptor.getValue();
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));

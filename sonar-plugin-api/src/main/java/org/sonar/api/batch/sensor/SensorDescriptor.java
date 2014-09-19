@@ -19,16 +19,15 @@
  */
 package org.sonar.api.batch.sensor;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
 
 /**
  * Describe what an {@link Sensor} is doing. Information may be used by the platform
  * to log interesting information or perform some optimization.
- * @since 4.4
+ * See {@link Sensor#describe(SensorDescriptor)}
+ * @since 5.0
  */
-@Beta
 public interface SensorDescriptor {
 
   /**

@@ -50,11 +50,11 @@ public class CreateIssueByInternalKeySensor implements Sensor {
     ActiveRule rule = context.activeRules().findByInternalKey(XooRulesDefinition.XOO_REPOSITORY,
       context.settings().getString(INTERNAL_KEY_PROPERTY));
     if (rule != null) {
-      context.addIssue(context.issueBuilder()
+      context.newIssue()
         .ruleKey(rule.ruleKey())
         .onFile(file)
         .message("This issue is generated on each file")
-        .build());
+        .save();
     }
   }
 }

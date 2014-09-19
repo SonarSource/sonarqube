@@ -36,7 +36,7 @@ import java.util.Map;
 
 public class DefaultFileLinesContext implements FileLinesContext {
 
-  private final NewMeasureCache measureCache;
+  private final MeasureCache measureCache;
   private final InputFile inputFile;
 
   /**
@@ -46,7 +46,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
   private String projectKey;
   private MetricFinder metricFinder;
 
-  public DefaultFileLinesContext(MetricFinder metricFinder, NewMeasureCache measureCache, String projectKey, InputFile inputFile) {
+  public DefaultFileLinesContext(MetricFinder metricFinder, MeasureCache measureCache, String projectKey, InputFile inputFile) {
     this.metricFinder = metricFinder;
     this.projectKey = projectKey;
     Preconditions.checkNotNull(measureCache);

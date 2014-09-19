@@ -23,82 +23,152 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.io.Serializable;
 import java.util.UUID;
 
-public class DefaultIssue implements Issue, Serializable {
+public class DefaultIssue implements Issue {
 
-  private final String key;
-  private final InputPath inputPath;
-  private final RuleKey ruleKey;
+  private static final String INPUT_DIR_SHOULD_BE_NON_NULL = "InputDir should be non null";
+  private static final String INPUT_FILE_SHOULD_BE_NON_NULL = "InputFile should be non null";
+  private static final String ON_FILE_OR_ON_DIR_ALREADY_CALLED = "onFile or onDir already called";
+  private static final String ON_PROJECT_ALREADY_CALLED = "onProject already called";
+  private String key;
+  private boolean onProject = false;
+  private InputPath path;
+  private RuleKey ruleKey;
   private String message;
-  private final Integer line;
-  private final Double effortToFix;
-  private String severity;
+  private Integer line;
+  private Double effortToFix;
+  private Severity overridenSeverity;
+  private final SensorStorage storage;
 
-  DefaultIssue(DefaultIssueBuilder builder) {
-    Preconditions.checkNotNull(builder.ruleKey, "ruleKey is mandatory on issue");
-    this.inputPath = builder.path;
-    this.ruleKey = builder.ruleKey;
-    this.message = builder.message;
-    this.line = builder.line;
-    this.effortToFix = builder.effortToFix;
-    this.severity = builder.severity;
-    this.key = builder.key == null ? UUID.randomUUID().toString() : builder.key;
-    Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
+  public DefaultIssue() {
+    this.storage = null;
   }
 
-  public String key() {
-    return key;
+  public DefaultIssue(SensorStorage storage) {
+    this.storage = storage;
   }
 
   @Override
-  @Nullable
-  public InputPath inputPath() {
-    return inputPath;
+  public DefaultIssue ruleKey(RuleKey ruleKey) {
+    this.ruleKey = ruleKey;
+    return this;
+  }
+
+  @Override
+  public DefaultIssue onFile(InputFile file) {
+    Preconditions.checkState(!this.onProject, ON_PROJECT_ALREADY_CALLED);
+    Preconditions.checkState(this.path == null, ON_FILE_OR_ON_DIR_ALREADY_CALLED);
+    Preconditions.checkNotNull(file, INPUT_FILE_SHOULD_BE_NON_NULL);
+    this.path = file;
+    return this;
+  }
+
+  @Override
+  public DefaultIssue onDir(InputDir dir) {
+    Preconditions.checkState(!this.onProject, ON_PROJECT_ALREADY_CALLED);
+    Preconditions.checkState(this.path == null, ON_FILE_OR_ON_DIR_ALREADY_CALLED);
+    Preconditions.checkNotNull(dir, INPUT_DIR_SHOULD_BE_NON_NULL);
+    this.path = dir;
+    return this;
+  }
+
+  @Override
+  public DefaultIssue onProject() {
+    Preconditions.checkState(!this.onProject, ON_PROJECT_ALREADY_CALLED);
+    Preconditions.checkState(this.path == null, ON_FILE_OR_ON_DIR_ALREADY_CALLED);
+    this.onProject = true;
+    return this;
+  }
+
+  @Override
+  public DefaultIssue atLine(int line) {
+    Preconditions.checkState(this.path != null && this.path instanceof InputFile, "atLine should be called after onFile");
+    this.line = line;
+    return this;
+  }
+
+  @Override
+  public DefaultIssue effortToFix(@Nullable Double effortToFix) {
+    this.effortToFix = effortToFix;
+    return this;
+  }
+
+  @Override
+  public DefaultIssue message(String message) {
+    this.message = message;
+    return this;
+  }
+
+  @Override
+  public Issue overrideSeverity(@Nullable Severity severity) {
+    this.overridenSeverity = severity;
+    return this;
   }
 
   @Override
   public RuleKey ruleKey() {
-    return ruleKey;
+    return this.ruleKey;
   }
 
   @CheckForNull
   @Override
-  public String message() {
-    return message;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
+  public InputPath inputPath() {
+    return this.path;
   }
 
   @Override
   public Integer line() {
-    return line;
+    return this.line;
   }
 
   @Override
-  @Nullable
+  public String message() {
+    return this.message;
+  }
+
+  @Override
+  public Severity overridenSeverity() {
+    return this.overridenSeverity;
+  }
+
+  @Override
   public Double effortToFix() {
-    return effortToFix;
+    return this.effortToFix;
+  }
+
+  public String key() {
+    return this.key;
   }
 
   @Override
-  @CheckForNull
-  public String severity() {
-    return severity;
+  public void save() {
+    Preconditions.checkNotNull(this.storage, "No persister on this object");
+    Preconditions.checkNotNull(this.ruleKey, "ruleKey is mandatory on issue");
+    if (this.key == null) {
+      this.key = UUID.randomUUID().toString();
+    }
+    Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
+
+    storage.store(this);
   }
 
-  public void setSeverity(String severity) {
-    this.severity = severity;
+  /**
+   * For testing only.
+   */
+  public DefaultIssue withKey(String key) {
+    this.key = key;
+    return this;
   }
 
   @Override
@@ -122,5 +192,4 @@ public class DefaultIssue implements Issue, Serializable {
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
-
 }

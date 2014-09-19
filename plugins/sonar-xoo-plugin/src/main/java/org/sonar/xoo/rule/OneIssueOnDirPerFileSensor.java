@@ -51,11 +51,11 @@ public class OneIssueOnDirPerFileSensor implements Sensor {
     RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
     InputDir inputDir = context.fileSystem().inputDir(file.file().getParentFile());
     if (inputDir != null) {
-      context.addIssue(context.issueBuilder()
+      context.newIssue()
         .ruleKey(ruleKey)
         .onDir(inputDir)
         .message("This issue is generated for file " + file.relativePath())
-        .build());
+        .save();
     }
   }
 }

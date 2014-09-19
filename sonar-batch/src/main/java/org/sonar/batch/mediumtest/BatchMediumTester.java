@@ -56,8 +56,8 @@ import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.batch.referential.GlobalReferentialsLoader;
 import org.sonar.batch.referential.ProjectReferentialsLoader;
 import org.sonar.batch.scan.filesystem.InputPathCache;
-import org.sonar.batch.scan2.AnalyzerIssueCache;
-import org.sonar.batch.scan2.NewMeasureCache;
+import org.sonar.batch.scan2.IssueCache;
+import org.sonar.batch.scan2.MeasureCache;
 import org.sonar.batch.scan2.ProjectScanContainer;
 import org.sonar.batch.scan2.ScanTaskObserver;
 import org.sonar.batch.symbol.SymbolData;
@@ -240,11 +240,11 @@ public class BatchMediumTester {
     @Override
     public void scanTaskCompleted(ProjectScanContainer container) {
       LOG.info("Store analysis results in memory for later assertions in medium test");
-      for (Issue issue : container.getComponentByType(AnalyzerIssueCache.class).all()) {
+      for (Issue issue : container.getComponentByType(IssueCache.class).all()) {
         issues.add(issue);
       }
 
-      for (DefaultMeasure<?> measure : container.getComponentByType(NewMeasureCache.class).all()) {
+      for (DefaultMeasure<?> measure : container.getComponentByType(MeasureCache.class).all()) {
         measures.add(measure);
       }
 

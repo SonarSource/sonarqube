@@ -23,7 +23,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.issue.IssueBuilder;
+import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
@@ -53,16 +53,16 @@ public class OneIssuePerLineSensor implements Sensor {
 
   private void createIssues(InputFile file, SensorContext context) {
     RuleKey ruleKey = RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY);
-    IssueBuilder issueBuilder = context.issueBuilder();
+    String severity = context.settings().getString(FORCE_SEVERITY_PROPERTY);
     for (int line = 1; line <= file.lines(); line++) {
-      context.addIssue(issueBuilder
+      context.newIssue()
         .ruleKey(ruleKey)
         .onFile(file)
         .atLine(line)
         .effortToFix(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY))
-        .severity(context.settings().getString(FORCE_SEVERITY_PROPERTY))
+        .overrideSeverity(severity != null ? Severity.valueOf(severity) : null)
         .message("This issue is generated on each line")
-        .build());
+        .save();
     }
   }
 }

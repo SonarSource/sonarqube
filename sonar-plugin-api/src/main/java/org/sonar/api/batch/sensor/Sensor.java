@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.BatchExtension;
 
 /**
@@ -32,9 +31,8 @@ import org.sonar.api.BatchExtension;
  * For example the Cobertura Sensor parses Cobertura report and saves the first-level of measures on files.
  * </p>
  *
- * @since 4.4
+ * @since 5.0
  */
-@Beta
 public interface Sensor extends BatchExtension {
 
   /**

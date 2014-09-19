@@ -101,14 +101,14 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultLanguagesReferential.class,
 
       // Measures
-      NewMeasureCache.class,
+      MeasureCache.class,
 
       // file system
       InputPathCache.class,
       PathResolver.class,
 
       // issues
-      AnalyzerIssueCache.class,
+      IssueCache.class,
 
       // Syntax highlighting and symbols
       ComponentDataCache.class,

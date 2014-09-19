@@ -19,11 +19,17 @@
  */
 package org.sonar.api.batch.sensor;
 
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.measure.Measure;
+
 /**
  * Interface for storing data computed by sensors.
+ * @since 5.0
  */
-public interface SensorStorage<G> {
+public interface SensorStorage {
 
-  void store(G data);
+  void store(Measure measure);
+
+  void store(Issue issue);
 
 }

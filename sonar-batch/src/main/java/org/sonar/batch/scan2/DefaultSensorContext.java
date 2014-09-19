@@ -71,8 +71,8 @@ public class DefaultSensorContext extends BaseSensorContext {
     CoreMetrics.FILE_TANGLE_INDEX,
     CoreMetrics.FILE_TANGLES
     );
-  private final NewMeasureCache measureCache;
-  private final AnalyzerIssueCache issueCache;
+  private final MeasureCache measureCache;
+  private final IssueCache issueCache;
   private final ProjectDefinition def;
   private final ActiveRules activeRules;
   private final IssueFilters issueFilters;
@@ -80,7 +80,7 @@ public class DefaultSensorContext extends BaseSensorContext {
   private final CoveragePerTestCache coveragePerTestCache;
   private final DependencyCache dependencyCache;
 
-  public DefaultSensorContext(ProjectDefinition def, NewMeasureCache measureCache, AnalyzerIssueCache issueCache,
+  public DefaultSensorContext(ProjectDefinition def, MeasureCache measureCache, IssueCache issueCache,
     Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters, ComponentDataCache componentDataCache,
     BlockCache blockCache, DuplicationCache duplicationCache, TestCaseCache testCaseCache, CoveragePerTestCache coveragePerTestCache, DependencyCache dependencyCache) {
     super(settings, fs, activeRules, componentDataCache, blockCache, duplicationCache);
@@ -95,10 +95,10 @@ public class DefaultSensorContext extends BaseSensorContext {
   }
 
   @Override
-  public void store(Measure<Serializable> newMeasure) {
+  public void store(Measure newMeasure) {
     DefaultMeasure<Serializable> measure = (DefaultMeasure<Serializable>) newMeasure;
     if (INTERNAL_METRICS.contains(measure.metric())) {
-      LOG.warn("Metric " + measure.metric() + " is an internal metric computed by SonarQube. Please update your plugin.");
+      LOG.warn("Metric " + measure.metric().key() + " is an internal metric computed by SonarQube. Please update your plugin.");
       return;
     }
     InputFile inputFile = measure.inputFile();
@@ -110,7 +110,7 @@ public class DefaultSensorContext extends BaseSensorContext {
   }
 
   @Override
-  public boolean addIssue(Issue issue) {
+  public void store(Issue issue) {
     String resourceKey;
     if (issue.inputPath() != null) {
       resourceKey = ComponentKeys.createEffectiveKey(def.getKey(), issue.inputPath());
@@ -121,7 +121,8 @@ public class DefaultSensorContext extends BaseSensorContext {
     DefaultActiveRule activeRule = (DefaultActiveRule) activeRules.find(ruleKey);
     if (activeRule == null) {
       // rule does not exist or is not enabled -> ignore the issue
-      return false;
+      LOG.debug("Rule {} does not exists or is not enabled. Issue {} is ignored.", issue.ruleKey(), issue);
+      return;
     }
     if (Strings.isNullOrEmpty(activeRule.name()) && Strings.isNullOrEmpty(issue.message())) {
       throw MessageException.of(String.format("The rule '%s' has no name and the related issue has no message.", ruleKey));
@@ -129,21 +130,16 @@ public class DefaultSensorContext extends BaseSensorContext {
 
     updateIssue((DefaultIssue) issue, activeRule);
 
-    if (issueFilters.accept(SensorContextAdapter.toDefaultIssue(def.getKey(), resourceKey, issue), null)) {
-      issueCache.put(def.getKey(), resourceKey, (DefaultIssue) issue);
-      return true;
+    if (!issueFilters.accept(SensorContextAdapter.toDefaultIssue(def.getKey(), resourceKey, issue), null)) {
+      LOG.debug("Issue {} was excluded by some filters.", issue);
+      return;
     }
-
-    return false;
+    issueCache.put(def.getKey(), resourceKey, (DefaultIssue) issue);
   }
 
   private void updateIssue(DefaultIssue issue, DefaultActiveRule activeRule) {
     if (Strings.isNullOrEmpty(issue.message())) {
-      issue.setMessage(activeRule.name());
-    }
-
-    if (issue.severity() == null) {
-      issue.setSeverity(activeRule.severity());
+      issue.message(activeRule.name());
     }
   }
 

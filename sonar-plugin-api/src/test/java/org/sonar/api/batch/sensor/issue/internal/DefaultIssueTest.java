@@ -23,10 +23,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.rule.RuleKey;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class DefaultIssueTest {
 
@@ -35,58 +37,56 @@ public class DefaultIssueTest {
 
   @Test
   public void build_file_issue() {
-    Issue issue = new DefaultIssueBuilder()
+    SensorStorage storage = mock(SensorStorage.class);
+    DefaultIssue issue = new DefaultIssue(storage)
       .onFile(new DefaultInputFile("foo", "src/Foo.php"))
       .ruleKey(RuleKey.of("repo", "rule"))
       .atLine(1)
       .effortToFix(10.0)
-      .message("Wrong way!")
-      .build();
+      .message("Wrong way!");
 
     assertThat(issue.inputPath()).isEqualTo(new DefaultInputFile("foo", "src/Foo.php"));
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(issue.line()).isEqualTo(1);
     assertThat(issue.effortToFix()).isEqualTo(10.0);
     assertThat(issue.message()).isEqualTo("Wrong way!");
+
+    issue.save();
+
+    verify(storage).store(issue);
   }
 
   @Test
   public void build_project_issue() {
-    Issue issue = new DefaultIssueBuilder()
+    SensorStorage storage = mock(SensorStorage.class);
+    DefaultIssue issue = new DefaultIssue(storage)
       .onProject()
       .ruleKey(RuleKey.of("repo", "rule"))
       .effortToFix(10.0)
-      .message("Wrong way!")
-      .build();
+      .message("Wrong way!");
 
     assertThat(issue.inputPath()).isNull();
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(issue.line()).isNull();
     assertThat(issue.effortToFix()).isEqualTo(10.0);
     assertThat(issue.message()).isEqualTo("Wrong way!");
+
+    issue.save();
+
+    verify(storage).store(issue);
   }
 
   @Test
   public void not_allowed_to_call_onFile_and_onProject() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("onProject already called");
-    new DefaultIssueBuilder()
+    new DefaultIssue()
       .onProject()
       .onFile(new DefaultInputFile("foo", "src/Foo.php"))
       .ruleKey(RuleKey.of("repo", "rule"))
       .atLine(1)
       .effortToFix(10.0)
-      .message("Wrong way!")
-      .build();
-  }
-
-  @Test
-  public void validate_severity() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Invalid severity: FOO");
-    new DefaultIssueBuilder()
-      .severity("FOO")
-      .build();
+      .message("Wrong way!");
   }
 
 }

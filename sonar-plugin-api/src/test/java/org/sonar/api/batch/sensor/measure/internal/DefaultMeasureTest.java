@@ -37,8 +37,8 @@ public class DefaultMeasureTest {
 
   @Test
   public void build_file_measure() {
-    SensorStorage<DefaultMeasure<Integer>> persister = mock(SensorStorage.class);
-    DefaultMeasure<Integer> newMeasure = new DefaultMeasure<Integer>(persister)
+    SensorStorage storage = mock(SensorStorage.class);
+    DefaultMeasure<Integer> newMeasure = new DefaultMeasure<Integer>(storage)
       .forMetric(CoreMetrics.LINES)
       .onFile(new DefaultInputFile("foo", "src/Foo.php"))
       .withValue(3);
@@ -49,13 +49,13 @@ public class DefaultMeasureTest {
 
     newMeasure.save();
 
-    verify(persister).store(newMeasure);
+    verify(storage).store(newMeasure);
   }
 
   @Test
   public void build_project_measure() {
-    SensorStorage<DefaultMeasure<Integer>> persister = mock(SensorStorage.class);
-    DefaultMeasure<Integer> newMeasure = new DefaultMeasure<Integer>(persister)
+    SensorStorage storage = mock(SensorStorage.class);
+    DefaultMeasure<Integer> newMeasure = new DefaultMeasure<Integer>(storage)
       .forMetric(CoreMetrics.LINES)
       .onProject()
       .withValue(3);
@@ -66,7 +66,7 @@ public class DefaultMeasureTest {
 
     newMeasure.save();
 
-    verify(persister).store(newMeasure);
+    verify(storage).store(newMeasure);
   }
 
   @Test
