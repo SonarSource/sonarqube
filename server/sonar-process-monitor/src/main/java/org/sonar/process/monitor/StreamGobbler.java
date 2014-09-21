@@ -55,8 +55,8 @@ class StreamGobbler extends Thread {
       while ((line = br.readLine()) != null) {
         logger.info(line);
       }
-    } catch (Exception e) {
-      logger.error("Fail to read process logs", e);
+    } catch (Exception ignored) {
+      // ignored
     } finally {
       IOUtils.closeQuietly(br);
     }

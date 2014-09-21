@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.Timeout;
 import org.sonar.process.NetworkUtils;
-import org.sonar.process.State;
+import org.sonar.process.Lifecycle.State;
 import org.sonar.process.SystemExit;
 
 import java.io.File;
@@ -159,24 +159,7 @@ public class MonitorTest {
   }
 
   @Test
-  public void fail_to_connect_to_jmx() throws Exception {
-    Timeouts timeouts = new Timeouts();
-    monitor = new Monitor(new JavaProcessLauncher(timeouts),
-      new ImpossibleToConnectJmxConnector(), timeouts, exit);
-
-    HttpProcessClient p1 = new HttpProcessClient("p1");
-    try {
-      monitor.start(Arrays.asList(p1.newCommand()));
-      fail();
-    } catch (Exception e) {
-      // process was correctly launched, but there was a problem with RMI
-      assertThat(p1.isReady()).isFalse();
-      assertThat(p1.wasGracefullyTerminated()).isFalse();
-    }
-  }
-
-  @Test
-  public void terminate_all_processes_if_monitor_shutdowns() throws Exception {
+  public void stop_all_processes_if_monitor_shutdowns() throws Exception {
     monitor = newDefaultMonitor();
     HttpProcessClient p1 = new HttpProcessClient("p1"), p2 = new HttpProcessClient("p2");
     monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
@@ -192,7 +175,7 @@ public class MonitorTest {
   }
 
   @Test
-  public void terminate_all_processes_if_one_monitored_process_shutdowns() throws Exception {
+  public void stop_all_processes_if_one_shutdowns() throws Exception {
     monitor = newDefaultMonitor();
     HttpProcessClient p1 = new HttpProcessClient("p1"), p2 = new HttpProcessClient("p2");
     monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
@@ -210,9 +193,9 @@ public class MonitorTest {
   }
 
   @Test
-  public void terminate_all_processes_if_one_fails_to_start() throws Exception {
+  public void stop_all_processes_if_one_fails_to_start() throws Exception {
     monitor = newDefaultMonitor();
-    HttpProcessClient p1 = new HttpProcessClient("p1"), p2 = new HttpProcessClient("p2", -1, NetworkUtils.freePort());
+    HttpProcessClient p1 = new HttpProcessClient("p1"), p2 = new HttpProcessClient("p2", -1);
     try {
       monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
       fail();
@@ -226,18 +209,8 @@ public class MonitorTest {
   }
 
   @Test
-  public void kill_process_if_fail_to_request_gracefully_termination() throws Exception {
-    Timeouts timeouts = new Timeouts();
-    timeouts.setTerminationTimeout(100L);
-    monitor = new Monitor(new JavaProcessLauncher(timeouts),
-      new TerminationFailureRmiConnector(), timeouts, exit);
-
-    HttpProcessClient p1 = new HttpProcessClient("p1");
-    monitor.start(Arrays.asList(p1.newCommand()));
-    assertThat(p1.isReady()).isTrue();
-
-    monitor.stop();
-    assertThat(p1.isReady()).isFalse();
+  public void force_stop_if_too_long() throws Exception {
+    // TODO
   }
 
   @Test
@@ -246,7 +219,6 @@ public class MonitorTest {
     JavaCommand command = new JavaCommand("test")
       .addClasspath(testJar.getAbsolutePath())
       .setClassName("org.sonar.process.test.Unknown")
-      .setJmxPort(NetworkUtils.freePort())
       .setTempDir(temp.newFolder());
 
     try {
@@ -258,63 +230,9 @@ public class MonitorTest {
     }
   }
 
-  @Test
-  public void terminate_all_if_one_monitored_process_shutdowns() throws Exception {
-    monitor = newDefaultMonitor();
-    HttpProcessClient client = new HttpProcessClient("test");
-    // blocks until started
-    monitor.start(Arrays.asList(client.newCommand()));
-    assertThat(client.isReady()).isTrue();
-
-    client.kill();
-    assertThat(client.isReady()).isFalse();
-
-    // does not wait, already terminated
-    monitor.awaitTermination();
-
-    // TODO check logs
-  }
-
-  @Test
-  public void fail_if_jmx_port_is_not_available() throws Exception {
-    monitor = newDefaultMonitor();
-    // c1 and c2 have same JMX port
-    int jmxPort = NetworkUtils.freePort();
-    HttpProcessClient p1 = new HttpProcessClient("p1", NetworkUtils.freePort(), jmxPort);
-    HttpProcessClient p2 = new HttpProcessClient("p2", NetworkUtils.freePort(), jmxPort);
-    try {
-      monitor.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
-      fail();
-    } catch (Exception expected) {
-      assertThat(p1.wasReady()).isTrue();
-      assertThat(p2.wasReady()).isFalse();
-      assertThat(p1.isReady()).isFalse();
-      assertThat(p2.isReady()).isFalse();
-    }
-  }
-
-  @Test
-  public void disable_autokill_on_jvm_debug_mode() throws Exception {
-    Timeouts timeouts = new Timeouts();
-    timeouts.setMonitorPingInterval(10L);
-    timeouts.setAutokillPingInterval(10L);
-    timeouts.setAutokillPingTimeout(10L);
-    CallVerifierJmxConnector jmxConnector = new CallVerifierJmxConnector();
-    monitor = new Monitor(new JavaProcessLauncher(timeouts), jmxConnector, timeouts, exit);
-
-    JavaCommand command = newStandardProcessCommand()
-      .addJavaOption("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=" + NetworkUtils.freePort());
-    monitor.start(Arrays.asList(command));
-
-    Thread.sleep(20L);
-    assertThat(jmxConnector.askedPing).isFalse();
-
-    monitor.stop();
-  }
-
   private Monitor newDefaultMonitor() {
     Timeouts timeouts = new Timeouts();
-    return new Monitor(new JavaProcessLauncher(timeouts), new RmiJmxConnector(), timeouts, exit);
+    return new Monitor(new JavaProcessLauncher(timeouts), exit);
   }
 
   /**
@@ -324,27 +242,24 @@ public class MonitorTest {
     private final int httpPort;
     private final String commandKey;
     private final File tempDir;
-    private int jmxPort;
 
     private HttpProcessClient(String commandKey) throws IOException {
-      this(commandKey, NetworkUtils.freePort(), NetworkUtils.freePort());
+      this(commandKey, NetworkUtils.freePort());
     }
 
     /**
      * Use httpPort=-1 to make server fail to start
      */
-    private HttpProcessClient(String commandKey, int httpPort, int jmxPort) throws IOException {
+    private HttpProcessClient(String commandKey, int httpPort) throws IOException {
       this.commandKey = commandKey;
       this.tempDir = temp.newFolder(commandKey);
       this.httpPort = httpPort;
-      this.jmxPort = jmxPort;
     }
 
     JavaCommand newCommand() throws IOException {
       return new JavaCommand(commandKey)
         .addClasspath(testJar.getAbsolutePath())
         .setClassName("org.sonar.process.test.HttpProcess")
-        .setJmxPort(jmxPort)
         .setArgument("httpPort", String.valueOf(httpPort))
         .setTempDir(tempDir);
     }
@@ -416,7 +331,6 @@ public class MonitorTest {
     return new JavaCommand("standard")
       .addClasspath(testJar.getAbsolutePath())
       .setClassName("org.sonar.process.test.StandardProcess")
-      .setJmxPort(NetworkUtils.freePort())
       .setTempDir(temp.newFolder());
   }
 

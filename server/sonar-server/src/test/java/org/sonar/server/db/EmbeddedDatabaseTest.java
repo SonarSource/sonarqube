@@ -25,10 +25,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.process.NetworkUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.sql.DriverManager;
 
 import static junit.framework.Assert.fail;
@@ -41,7 +41,7 @@ public class EmbeddedDatabaseTest {
 
   @Test(timeout = 10000)
   public void should_start_and_stop() throws IOException {
-    int port = freeServerPort();
+    int port = NetworkUtils.freePort();
 
     EmbeddedDatabase database = new EmbeddedDatabase(testSettings(port));
     database.start();
@@ -59,7 +59,7 @@ public class EmbeddedDatabaseTest {
 
   @Test(timeout = 10000)
   public void should_support_memory_database() throws IOException {
-    int port = freeServerPort();
+    int port = NetworkUtils.freePort();
 
     EmbeddedDatabase database = new EmbeddedDatabase(testSettings(port)
       .setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:tcp://localhost:" + port + "/mem:sonarIT;USER=sonar;PASSWORD=sonar"));
@@ -93,11 +93,5 @@ public class EmbeddedDatabaseTest {
       .setProperty(DatabaseProperties.PROP_PASSWORD, "pwd")
       .setProperty(DatabaseProperties.PROP_EMBEDDED_PORT, "" + port)
       .setProperty("sonar.path.data", "./target/testDB");
-  }
-
-  static int freeServerPort() throws IOException {
-    ServerSocket srv = new ServerSocket(0);
-    srv.close();
-    return srv.getLocalPort();
   }
 }

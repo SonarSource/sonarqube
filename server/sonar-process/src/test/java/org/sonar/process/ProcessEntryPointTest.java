@@ -32,6 +32,7 @@ import java.util.Properties;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
+import static org.sonar.process.Lifecycle.State;
 
 public class ProcessEntryPointTest {
 
@@ -49,47 +50,29 @@ public class ProcessEntryPointTest {
   @Test
   public void load_properties_from_file() throws Exception {
     File propsFile = temp.newFile();
-    FileUtils.write(propsFile, "sonar.foo=bar");
+    FileUtils.write(propsFile, "sonar.foo=bar\nprocess.key=web\nprocess.statusPath=status.temp");
 
-    ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(new String[]{propsFile.getAbsolutePath()});
+    ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(new String[] {propsFile.getAbsolutePath()});
     assertThat(entryPoint.getProps().value("sonar.foo")).isEqualTo("bar");
+    assertThat(entryPoint.getProps().value("process.key")).isEqualTo("web");
   }
 
   @Test
   public void test_initial_state() throws Exception {
     Props props = new Props(new Properties());
-    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit);
+    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(SharedStatus.class));
 
     assertThat(entryPoint.getProps()).isSameAs(props);
-    assertThat(entryPoint.isReady()).isFalse();
+    assertThat(entryPoint.isStarted()).isFalse();
     assertThat(entryPoint.getState()).isEqualTo(State.INIT);
-
-    // do not fail
-    entryPoint.ping();
-  }
-
-  @Test
-  public void fail_to_launch_if_missing_monitor_properties() throws Exception {
-    Props props = new Props(new Properties());
-    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit);
-
-    StandardProcess process = new StandardProcess();
-    try {
-      entryPoint.launch(process);
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Missing property: process.key");
-      assertThat(process.getState()).isEqualTo(State.INIT);
-    }
   }
 
   @Test
   public void fail_to_launch_multiple_times() throws Exception {
     Props props = new Props(new Properties());
     props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "test");
-    props.set(ProcessEntryPoint.PROPERTY_AUTOKILL_DISABLED, "true");
     props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
-    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit);
+    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(SharedStatus.class));
 
     entryPoint.launch(new NoopProcess());
     try {
@@ -104,9 +87,8 @@ public class ProcessEntryPointTest {
   public void launch_then_request_graceful_termination() throws Exception {
     Props props = new Props(new Properties());
     props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "test");
-    props.set(ProcessEntryPoint.PROPERTY_AUTOKILL_DISABLED, "true");
     props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
-    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit);
+    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(SharedStatus.class));
     final StandardProcess process = new StandardProcess();
 
     Thread runner = new Thread() {
@@ -130,27 +112,11 @@ public class ProcessEntryPointTest {
   }
 
   @Test
-  public void autokill_if_no_pings() throws Exception {
-    Props props = new Props(new Properties());
-    props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "test");
-    props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
-    props.set(ProcessEntryPoint.PROPERTY_AUTOKILL_PING_INTERVAL, "5");
-    props.set(ProcessEntryPoint.PROPERTY_AUTOKILL_PING_TIMEOUT, "1");
-    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit);
-    final StandardProcess process = new StandardProcess();
-
-    entryPoint.launch(process);
-
-    assertThat(process.getState()).isEqualTo(State.STOPPED);
-  }
-
-  @Test
   public void terminate_if_unexpected_shutdown() throws Exception {
     Props props = new Props(new Properties());
     props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "foo");
-    props.set(ProcessEntryPoint.PROPERTY_AUTOKILL_DISABLED, "true");
     props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
-    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit);
+    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(SharedStatus.class));
     final StandardProcess process = new StandardProcess();
 
     Thread runner = new Thread() {
@@ -177,16 +143,15 @@ public class ProcessEntryPointTest {
   public void terminate_if_startup_error() throws Exception {
     Props props = new Props(new Properties());
     props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "foo");
-    props.set(ProcessEntryPoint.PROPERTY_AUTOKILL_DISABLED, "true");
     props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
-    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit);
-    final MonitoredProcess process = new StartupErrorProcess();
+    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(SharedStatus.class));
+    final Monitored process = new StartupErrorProcess();
 
     entryPoint.launch(process);
     assertThat(entryPoint.getState()).isEqualTo(State.STOPPED);
   }
 
-  private static class NoopProcess implements MonitoredProcess {
+  private static class NoopProcess implements Monitored {
 
     @Override
     public void start() {
@@ -199,17 +164,17 @@ public class ProcessEntryPointTest {
     }
 
     @Override
-    public void awaitTermination() {
+    public void awaitStop() {
 
     }
 
     @Override
-    public void terminate() {
+    public void stop() {
 
     }
   }
 
-  private static class StartupErrorProcess implements MonitoredProcess {
+  private static class StartupErrorProcess implements Monitored {
 
     @Override
     public void start() {
@@ -222,12 +187,12 @@ public class ProcessEntryPointTest {
     }
 
     @Override
-    public void awaitTermination() {
+    public void awaitStop() {
 
     }
 
     @Override
-    public void terminate() {
+    public void stop() {
 
     }
   }

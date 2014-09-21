@@ -19,21 +19,26 @@
  */
 package org.sonar.process.monitor;
 
+import org.slf4j.LoggerFactory;
+import org.sonar.process.MessageException;
 import org.sonar.process.ProcessUtils;
+import org.sonar.process.SharedStatus;
 
 class ProcessRef {
 
   private final String key;
+  private final SharedStatus sharedStatus;
   private final Process process;
-  private final StreamGobbler[] gobblers;
-  private volatile boolean terminated = false;
-  private volatile boolean pingEnabled = true;
+  private final StreamGobbler gobbler;
+  private long launchedAt;
+  private volatile boolean stopped = false;
 
-  ProcessRef(String key, Process process, StreamGobbler... gobblers) {
+  ProcessRef(String key, SharedStatus sharedStatus, Process process, StreamGobbler gobbler) {
     this.key = key;
+    this.sharedStatus = sharedStatus;
     this.process = process;
-    this.terminated = !ProcessUtils.isAlive(process);
-    this.gobblers = gobblers;
+    this.stopped = !ProcessUtils.isAlive(process);
+    this.gobbler = gobbler;
   }
 
   /**
@@ -50,45 +55,53 @@ class ProcessRef {
     return process;
   }
 
+  void waitForReady() {
+    boolean ready = false;
+    while (!ready) {
+      if (isStopped()) {
+        throw new MessageException(String.format("%s failed to start", this));
+      }
+      ready = sharedStatus.wasStartedAfter(launchedAt);
+      try {
+        Thread.sleep(200L);
+      } catch (InterruptedException e) {
+        throw new IllegalStateException(String.format("Interrupted while waiting for %s to be ready", this), e);
+      }
+    }
+  }
+
+  void setLaunchedAt(long launchedAt) {
+    this.launchedAt = launchedAt;
+  }
+
   /**
    * Almost real-time status
    */
-  boolean isTerminated() {
-    return terminated;
+  boolean isStopped() {
+    return stopped;
   }
 
   /**
-   * Sending pings can be disabled when requesting for termination or when process is on debug mode (JDWP)
+   * Sends kill signal and awaits termination.
    */
-  void setPingEnabled(boolean b) {
-    this.pingEnabled = b;
-  }
-
-  boolean isPingEnabled() {
-    return pingEnabled;
-  }
-
-  /**
-   * Destroy the process without gracefully asking it to terminate (kill -9).
-   * @return true if the process was killed, false if process is already terminated
-   */
-  boolean hardKill() {
-    boolean killed = false;
-    terminated = true;
-    pingEnabled = false;
+  void kill() {
     if (ProcessUtils.isAlive(process)) {
-      ProcessUtils.destroyQuietly(process);
-      killed = true;
+      LoggerFactory.getLogger(getClass()).info(String.format("%s is stopping", this));
+      ProcessUtils.sendKillSignal(process);
+      try {
+        // signal is sent, waiting for shutdown hooks to be executed
+        process.waitFor();
+        StreamGobbler.waitUntilFinish(gobbler);
+        ProcessUtils.closeStreams(process);
+      } catch (InterruptedException ignored) {
+        // can't wait for the termination of process. Let's assume it's down.
+      }
     }
-    for (StreamGobbler gobbler : gobblers) {
-      StreamGobbler.waitUntilFinish(gobbler);
-    }
-    ProcessUtils.closeStreams(process);
-    return killed;
+    stopped = true;
   }
 
-  void setTerminated(boolean b) {
-    this.terminated = b;
+  void setStopped(boolean b) {
+    this.stopped = b;
   }
 
   @Override

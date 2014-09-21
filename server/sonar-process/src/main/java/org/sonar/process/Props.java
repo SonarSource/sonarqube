@@ -77,7 +77,7 @@ public class Props {
   public File nonNullValueAsFile(String key) {
     String s = value(key);
     if (s == null) {
-      throw new IllegalArgumentException("Property " + key + " is missing");
+      throw new IllegalArgumentException("Property " + key + " is not set");
     }
     return new File(s);
   }

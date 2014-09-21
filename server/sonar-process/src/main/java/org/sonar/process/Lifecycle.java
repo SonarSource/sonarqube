@@ -21,6 +21,10 @@ package org.sonar.process;
 
 public class Lifecycle {
 
+  public static enum State {
+    INIT, STARTING, STARTED, STOPPING, STOPPED
+  }
+
   private State state = State.INIT;
 
   public State getState() {
@@ -35,7 +39,6 @@ public class Lifecycle {
     return false;
   }
 
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -44,7 +47,6 @@ public class Lifecycle {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     Lifecycle lifecycle = (Lifecycle) o;
     return state == lifecycle.state;
   }

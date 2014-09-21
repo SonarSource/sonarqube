@@ -27,17 +27,19 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Gracefully stops process, but exits JVM if too long
+ * Gracefully stops process in a timely fashion
  */
 class StopperThread extends Thread {
 
-  private final Terminable terminable;
+  private final Monitored monitored;
   private final long terminationTimeout;
+  private final SharedStatus sharedStatus;
 
-  StopperThread(Terminable terminable, long terminationTimeout) {
+  StopperThread(Monitored monitored, SharedStatus sharedStatus, long terminationTimeout) {
     super("Stopper");
-    this.terminable = terminable;
+    this.monitored = monitored;
     this.terminationTimeout = terminationTimeout;
+    this.sharedStatus = sharedStatus;
   }
 
   @Override
@@ -46,15 +48,15 @@ class StopperThread extends Thread {
     Future future = executor.submit(new Runnable() {
       @Override
       public void run() {
-        terminable.terminate();
+        monitored.stop();
       }
     });
     try {
       future.get(terminationTimeout, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).error("Can not terminate in " + terminationTimeout + "ms", e);
-    } finally {
-      executor.shutdownNow();
+      LoggerFactory.getLogger(getClass()).error(String.format("Can not stop in %dms", terminationTimeout), e);
     }
+    executor.shutdownNow();
+    sharedStatus.setStopped();
   }
 }

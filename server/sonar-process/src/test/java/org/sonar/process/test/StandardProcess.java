@@ -19,11 +19,11 @@
  */
 package org.sonar.process.test;
 
-import org.sonar.process.MonitoredProcess;
+import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
-import org.sonar.process.State;
+import org.sonar.process.Lifecycle.State;
 
-public class StandardProcess implements MonitoredProcess {
+public class StandardProcess implements Monitored {
 
   private State state = State.INIT;
 
@@ -56,7 +56,7 @@ public class StandardProcess implements MonitoredProcess {
   }
 
   @Override
-  public void awaitTermination() {
+  public void awaitStop() {
     try {
       daemon.join();
     } catch (InterruptedException e) {
@@ -68,7 +68,7 @@ public class StandardProcess implements MonitoredProcess {
    * Blocks until stopped
    */
   @Override
-  public void terminate() {
+  public void stop() {
     state = State.STOPPING;
     daemon.interrupt();
     state = State.STOPPED;

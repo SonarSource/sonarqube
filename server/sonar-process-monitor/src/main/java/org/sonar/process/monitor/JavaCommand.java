@@ -37,9 +37,6 @@ public class JavaCommand {
 
   private File workDir;
 
-  // any available port by default
-  private int jmxPort = -1;
-
   // for example -Xmx1G
   private final List<String> javaOptions = new ArrayList<String>();
 
@@ -53,6 +50,8 @@ public class JavaCommand {
   private final Map<String, String> arguments = new LinkedHashMap<String, String>();
 
   private final Map<String, String> envVariables = new HashMap<String, String>(System.getenv());
+
+  private File tempDir = null;
 
   public JavaCommand(String key) {
     this.key = key;
@@ -71,24 +70,20 @@ public class JavaCommand {
     return this;
   }
 
-  /**
-   * Shortcut to set the java option -Djava.io.tmpdir
-   */
+  public File getTempDir() {
+    return tempDir;
+  }
+
   public JavaCommand setTempDir(File tempDir) {
-    this.javaOptions.add("-Djava.io.tmpdir=" + tempDir.getAbsolutePath());
+    this.tempDir = tempDir;
     return this;
   }
 
-  public int getJmxPort() {
-    return jmxPort;
-  }
-
-  /**
-   * Current mandatory to be set
-   */
-  public JavaCommand setJmxPort(int jmxPort) {
-    this.jmxPort = jmxPort;
-    return this;
+  public File getReadyFile() {
+    if (tempDir == null) {
+      throw new IllegalStateException("Temp directory not set");
+    }
+    return new File(tempDir, key + ".ready");
   }
 
   public List<String> getJavaOptions() {
@@ -156,20 +151,10 @@ public class JavaCommand {
     return this;
   }
 
-  public boolean isDebugMode() {
-    for (String javaOption : javaOptions) {
-      if (javaOption.contains("-agentlib:jdwp")) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("JavaCommand{");
     sb.append("workDir=").append(workDir);
-    sb.append(", jmxPort=").append(jmxPort);
     sb.append(", javaOptions=").append(javaOptions);
     sb.append(", className='").append(className).append('\'');
     sb.append(", classpath=").append(classpath);

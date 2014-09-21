@@ -19,6 +19,8 @@
  */
 package org.sonar.process;
 
+import org.apache.commons.io.IOUtils;
+
 import java.net.ServerSocket;
 
 public class NetworkUtils {
@@ -27,14 +29,18 @@ public class NetworkUtils {
     // only static stuff
   }
 
+  /**
+   * Get an unused port
+   */
   public static int freePort() {
+    ServerSocket s = null;
     try {
-      ServerSocket s = new ServerSocket(0);
-      int port = s.getLocalPort();
-      s.close();
-      return port;
+      s = new ServerSocket(0);
+      return s.getLocalPort();
     } catch (Exception e) {
       throw new IllegalStateException("Can not find an open network port", e);
+    } finally {
+      IOUtils.closeQuietly(s);
     }
   }
 }

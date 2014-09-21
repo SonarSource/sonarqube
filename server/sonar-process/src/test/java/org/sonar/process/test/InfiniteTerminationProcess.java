@@ -17,51 +17,69 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.app;
+package org.sonar.process.test;
 
-import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
-import org.sonar.process.Props;
+import org.sonar.process.Lifecycle.State;
 
-public class WebServer implements Monitored {
+public class InfiniteTerminationProcess implements Monitored {
 
-  private final EmbeddedTomcat tomcat;
+  private State state = State.INIT;
 
-  WebServer(Props props) throws Exception {
-    new MinimumViableSystem()
-      .setRequiredJavaOption("file.encoding", "UTF-8")
-      .check();
-    this.tomcat = new EmbeddedTomcat(props);
-  }
+  private final Thread daemon = new Thread() {
+    @Override
+    public void run() {
+      try {
+        while (true) {
+          Thread.sleep(100L);
+        }
+      } catch (InterruptedException e) {
+        // return
+      }
+    }
+  };
 
+  /**
+   * Blocks until started()
+   */
   @Override
   public void start() {
-    tomcat.start();
+    state = State.STARTING;
+    daemon.start();
+    state = State.STARTED;
   }
 
   @Override
   public boolean isReady() {
-    return tomcat.isReady();
-  }
-
-  @Override
-  public void stop() {
-    tomcat.terminate();
+    return state == State.STARTED;
   }
 
   @Override
   public void awaitStop() {
-    tomcat.awaitTermination();
+    try {
+      daemon.join();
+    } catch (InterruptedException e) {
+      // interrupted by call to terminate()
+    }
   }
 
   /**
-   * Can't be started as is. Needs to be bootstrapped by sonar-application
+   * Blocks until stopped
    */
-  public static void main(String[] args) throws Exception {
+  @Override
+  public void stop() {
+    state = State.STOPPING;
+    try {
+      daemon.join();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    state = State.STOPPED;
+  }
+
+  public static void main(String[] args) {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
-    Logging.init(entryPoint.getProps());
-    WebServer server = new WebServer(entryPoint.getProps());
-    entryPoint.launch(server);
+    entryPoint.launch(new InfiniteTerminationProcess());
   }
 }

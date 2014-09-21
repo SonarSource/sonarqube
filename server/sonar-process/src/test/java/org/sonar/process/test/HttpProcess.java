@@ -24,7 +24,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
-import org.sonar.process.MonitoredProcess;
+import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
 
 import javax.servlet.ServletException;
@@ -39,7 +39,7 @@ import java.io.IOException;
  * It also pushes status to temp files, so test can verify what was really done (when server went ready state and
  * if it was gracefully terminated)
  */
-public class HttpProcess implements MonitoredProcess {
+public class HttpProcess implements Monitored {
 
   private final Server server;
   private boolean ready = false;
@@ -78,18 +78,22 @@ public class HttpProcess implements MonitoredProcess {
 
   @Override
   public boolean isReady() {
+    System.out.println("received isReady()");
     if (ready) {
       return true;
     }
+    System.out.println("checking server.isStarted()");
     if (server.isStarted()) {
+      System.out.println("moving to ready");
       ready = true;
       writeTimeToFile("readyAt");
     }
-    return false;
+    System.out.println("ready: " + ready);
+    return ready;
   }
 
   @Override
-  public void awaitTermination() {
+  public void awaitStop() {
     try {
       server.join();
     } catch (InterruptedException ignore) {
@@ -98,9 +102,10 @@ public class HttpProcess implements MonitoredProcess {
   }
 
   @Override
-  public void terminate() {
+  public void stop() {
     try {
       if (!server.isStopped()) {
+        System.out.println("HttpProcess stopping");
         server.stop();
         writeTimeToFile("terminatedAt");
       }

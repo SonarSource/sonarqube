@@ -21,8 +21,7 @@ package org.sonar.process.monitor;
 
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Lifecycle;
-import org.sonar.process.MessageException;
-import org.sonar.process.State;
+import org.sonar.process.Lifecycle.State;
 import org.sonar.process.SystemExit;
 
 import java.util.List;
@@ -33,28 +32,23 @@ public class Monitor {
   private final List<ProcessRef> processes = new CopyOnWriteArrayList<ProcessRef>();
   private final TerminatorThread terminator;
   private final JavaProcessLauncher launcher;
-  private final JmxConnector jmxConnector;
   private final Lifecycle lifecycle = new Lifecycle();
-  private final Timeouts timeouts;
 
   private final SystemExit systemExit;
   private Thread shutdownHook = new Thread(new MonitorShutdownHook(), "Monitor Shutdown Hook");
 
-  // used by awaitTermination() to block until all processes are shutdown
+  // used by awaitStop() to block until all processes are shutdown
   private final List<WatcherThread> watcherThreads = new CopyOnWriteArrayList<WatcherThread>();
 
-  Monitor(JavaProcessLauncher launcher, JmxConnector jmxConnector, Timeouts timeouts, SystemExit exit) {
+  Monitor(JavaProcessLauncher launcher, SystemExit exit) {
     this.launcher = launcher;
-    this.jmxConnector = jmxConnector;
-    this.timeouts = timeouts;
-    this.terminator = new TerminatorThread(processes, jmxConnector, timeouts);
+    this.terminator = new TerminatorThread(processes);
     this.systemExit = exit;
   }
 
   public static Monitor create() {
     Timeouts timeouts = new Timeouts();
-    return new Monitor(new JavaProcessLauncher(timeouts), new RmiJmxConnector(),
-      timeouts, new SystemExit());
+    return new Monitor(new JavaProcessLauncher(timeouts), new SystemExit());
   }
 
   /**
@@ -103,42 +97,12 @@ public class Monitor {
     watcherThread.start();
     watcherThreads.add(watcherThread);
 
-    // add to list of monitored processes only when successfully connected to it
-    jmxConnector.connect(command, processRef, timeouts.getJmxConnectionTimeout());
     processes.add(processRef);
 
-    // ping process on a regular basis
-    processRef.setPingEnabled(!command.isDebugMode());
-    if (processRef.isPingEnabled()) {
-      PingerThread.startPinging(processRef, jmxConnector, timeouts);
-    }
-
     // wait for process to be ready (accept requests or so on)
-    waitForReady(processRef);
+    processRef.waitForReady();
 
     LoggerFactory.getLogger(getClass()).info(String.format("%s is up", processRef));
-  }
-
-  private void waitForReady(ProcessRef processRef) {
-    boolean ready = false;
-    while (!ready) {
-      if (processRef.isTerminated()) {
-        throw new MessageException(String.format("%s failed to start", processRef));
-      }
-      try {
-        ready = jmxConnector.isReady(processRef, timeouts.getMonitorIsReadyTimeout());
-      } catch (Exception ignored) {
-        // failed to send request, probably because RMI server is still not alive
-        // trying again, as long as process is alive
-        // TODO could be improved to have a STARTING timeout (to be implemented in monitor or
-        // in child process ?)
-      }
-      try {
-        Thread.sleep(300L);
-      } catch (InterruptedException e) {
-        throw new IllegalStateException("Interrupted while waiting for " + processRef + " to be ready", e);
-      }
-    }
   }
 
   /**
@@ -160,14 +124,13 @@ public class Monitor {
    * Blocks until all processes are terminated.
    */
   public void stop() {
-    terminateAsync();
+    stopAsync();
     try {
       terminator.join();
     } catch (InterruptedException ignored) {
-      // ignore, stop blocking
+      // stop blocking and exiting
     }
     // safeguard if TerminatorThread is buggy
-    hardKillAll();
     lifecycle.tryToMoveTo(State.STOPPED);
     systemExit.exit(0);
   }
@@ -176,20 +139,13 @@ public class Monitor {
    * Asks for processes termination and returns without blocking until termination.
    * @return true if termination was requested, false if it was already being terminated
    */
-  boolean terminateAsync() {
+  boolean stopAsync() {
     boolean requested = false;
     if (lifecycle.tryToMoveTo(State.STOPPING)) {
       requested = true;
       terminator.start();
     }
     return requested;
-  }
-
-  private void hardKillAll() {
-    // no specific order, kill'em all!!!
-    for (ProcessRef process : processes) {
-      process.hardKill();
-    }
   }
 
   public State getState() {
