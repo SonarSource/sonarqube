@@ -78,17 +78,13 @@ public class HttpProcess implements Monitored {
 
   @Override
   public boolean isReady() {
-    System.out.println("received isReady()");
     if (ready) {
       return true;
     }
-    System.out.println("checking server.isStarted()");
     if (server.isStarted()) {
-      System.out.println("moving to ready");
       ready = true;
       writeTimeToFile("readyAt");
     }
-    System.out.println("ready: " + ready);
     return ready;
   }
 
@@ -105,7 +101,6 @@ public class HttpProcess implements Monitored {
   public void stop() {
     try {
       if (!server.isStopped()) {
-        System.out.println("HttpProcess stopping");
         server.stop();
         writeTimeToFile("terminatedAt");
       }
