@@ -40,11 +40,11 @@ public class ProcessCommandsTest {
   public void delete_files_on_monitor_startup() throws Exception {
     File dir = temp.newFolder();
     assertThat(dir).exists();
-    FileUtils.touch(new File(dir, "WEB.ready"));
-    FileUtils.touch(new File(dir, "WEB.stop"));
+    FileUtils.touch(new File(dir, "web.ready"));
+    FileUtils.touch(new File(dir, "web.stop"));
 
-    ProcessCommands commands = new ProcessCommands(dir, "WEB");
-    commands.prepareMonitor();
+    ProcessCommands commands = new ProcessCommands(dir, "web");
+    commands.prepare();
 
     assertThat(commands.getReadyFile()).doesNotExist();
     assertThat(commands.getStopFile()).doesNotExist();
@@ -58,7 +58,7 @@ public class ProcessCommandsTest {
 
     ProcessCommands commands = new ProcessCommands(readyFile, temp.newFile());
     try {
-      commands.prepareMonitor();
+      commands.prepare();
       fail();
     } catch (MessageException e) {
       // ok
@@ -70,39 +70,15 @@ public class ProcessCommandsTest {
     File readyFile = temp.newFile();
 
     ProcessCommands commands = new ProcessCommands(readyFile, temp.newFile());
-    commands.prepareMonitor();
+    commands.prepare();
+    assertThat(commands.isReady()).isFalse();
     assertThat(readyFile).doesNotExist();
 
     commands.setReady();
+    assertThat(commands.isReady()).isTrue();
     assertThat(readyFile).exists();
 
-    commands.finalizeProcess();
+    commands.endWatch();
     assertThat(readyFile).doesNotExist();
-  }
-
-  @Test
-  public void was_ready_after_date() throws Exception {
-    File readyFile = mock(File.class);
-    ProcessCommands commands = new ProcessCommands(readyFile, temp.newFile());
-
-    // does not exist
-    when(readyFile.exists()).thenReturn(false);
-    when(readyFile.lastModified()).thenReturn(123456L);
-    assertThat(commands.wasReadyAfter(122000L)).isFalse();
-
-    // readyFile created before
-    when(readyFile.exists()).thenReturn(true);
-    when(readyFile.lastModified()).thenReturn(123456L);
-    assertThat(commands.wasReadyAfter(124000L)).isFalse();
-
-    // readyFile created after
-    when(readyFile.exists()).thenReturn(true);
-    when(readyFile.lastModified()).thenReturn(123456L);
-    assertThat(commands.wasReadyAfter(123123L)).isTrue();
-
-    // readyFile created after, but can be truncated to second on some OS
-    when(readyFile.exists()).thenReturn(true);
-    when(readyFile.lastModified()).thenReturn(123000L);
-    assertThat(commands.wasReadyAfter(123456L)).isTrue();
   }
 }

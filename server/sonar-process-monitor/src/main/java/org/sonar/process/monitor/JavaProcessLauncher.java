@@ -44,23 +44,18 @@ public class JavaProcessLauncher {
   ProcessRef launch(JavaCommand command) {
     Process process = null;
     try {
-      // cleanup existing monitor file. Child process creates it when ready.
-      // TODO fail if impossible to delete
+      // cleanup existing monitor files
       ProcessCommands commands = new ProcessCommands(command.getTempDir(), command.getKey());
-      commands.prepareMonitor();
+      commands.prepare();
 
       ProcessBuilder processBuilder = create(command);
       LoggerFactory.getLogger(getClass()).info("Launch {}: {}",
         command.getKey(), StringUtils.join(processBuilder.command(), " "));
-
-      long startedAt = System.currentTimeMillis();
       process = processBuilder.start();
       StreamGobbler inputGobbler = new StreamGobbler(process.getInputStream(), command.getKey());
       inputGobbler.start();
 
-      ProcessRef ref = new ProcessRef(command.getKey(), commands, process, inputGobbler);
-      ref.setLaunchedAt(startedAt);
-      return ref;
+      return new ProcessRef(command.getKey(), commands, process, inputGobbler);
 
     } catch (Exception e) {
       // just in case
