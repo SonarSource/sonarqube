@@ -42,7 +42,7 @@ end
 #
 class PluginRealm
   def initialize(java_realm)
-    Rails.logger.warn("PluginRealm: Initializing")
+    Rails.logger.debug("PluginRealm: Initializing")
     @java_authenticators = java_realm.getAuthenticators()
     @java_users_providers = java_realm.getUsersProviders()
     @java_groups_providers = java_realm.getGroupsProviders()
@@ -50,7 +50,7 @@ class PluginRealm
   end
 
   def authenticate?(username, password, servlet_request)
-    Rails.logger.warn("PluginRealm: Authenticating")
+    Rails.logger.debug("PluginRealm: Authenticating")
     local_users = Api::Utils.java_facade.getSettings().getStringArray('sonar.security.localUsers')
     if local_users.include? username
       local_auth(username, password)
@@ -63,7 +63,7 @@ class PluginRealm
   # Authenticate using password from Sonar Database
   #
   def local_auth(username, password)
-    Rails.logger.warn("PluginRealm: Authenticating from Sonar DB")
+    Rails.logger.debug("PluginRealm: Authenticating from Sonar DB")
     result = nil
     if !username.blank? && !password.blank?
       user = User.find_active_by_login(username)
@@ -76,7 +76,7 @@ class PluginRealm
   # Authenticate using external system
   #
   def external_auth(username, password, servlet_request, details)
-    Rails.logger.warn("PluginRealm: Authenticating using external system")
+    Rails.logger.debug("PluginRealm: Authenticating using external system")
     context = org.sonar.api.security.Authenticator::Context.new(username, password, servlet_request)
     for java_authenticator in @java_authenticators do
       status = java_authenticator.doAuthenticate(context)
@@ -91,14 +91,14 @@ class PluginRealm
   # Authenticate user using external system. Can fallback on local auth if external system is not available. Return the user.
   #
   def auth(username, password, servlet_request)
-    Rails.logger.warn("PluginRealm: Authenticating user")
+    Rails.logger.debug("PluginRealm: Authenticating user")
     userDetails = nil
     if not @java_users_providers.empty?
       for java_users_provider in @java_users_providers do
         begin
           provider_context = org.sonar.api.security.ExternalUsersProvider::Context.new(username, servlet_request)
           details = java_users_provider.doGetUserDetails(provider_context)
-          Rails.logger.warn("PluginRealm: Got user details: #{details}")
+          Rails.logger.info("PluginRealm: Got user details: #{details}")
         rescue => e
           # Maybe LDAP server is not available
           Rails.logger.error("Error from external users provider: exception #{e.class.name}: #{e.message}")
@@ -124,7 +124,7 @@ class PluginRealm
   # Return the user.
   #
   def synchronize(username, password, details)
-    Rails.logger.warn("Synchronizing user: #{username}")
+    Rails.logger.debug("Synchronizing user: #{username}")
     username=details.getName() if username.blank? && details
     user = User.find_by_login(username)
     if !user
@@ -160,13 +160,12 @@ class PluginRealm
     # Note that validation disabled
     user.save(false)
     user.notify_creation_handlers
-    Rails.logger.warn("synchronize returns user with name: #{user.name} , password: #{user.password}, email:  #{user.email}")
-    Rails.logger.warn("Groups: #{user.groups}")
+    Rails.logger.debug("synchronized user name: #{user.name}, email:  #{user.email}, groups: #{user.groups}")
     user
   end
 
   def synchronize_groups(user)
-    Rails.logger.warn("Synchronizing groups...")
+    Rails.logger.debug("Synchronizing groups...")
     user.groups = []
     for java_groups_provider in @java_groups_providers do
       begin
