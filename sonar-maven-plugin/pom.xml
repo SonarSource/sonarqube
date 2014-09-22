@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar</artifactId>
-    <version>4.3.1</version>
+    <version>5.0-SNAPSHOT</version>
   </parent>
   <artifactId>sonar-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
@@ -18,6 +18,10 @@
     <dependency>
       <groupId>org.codehaus.sonar.runner</groupId>
       <artifactId>sonar-runner-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -42,8 +46,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

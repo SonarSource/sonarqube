@@ -1,0 +1,60 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/js/common/select-list" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+<% end %>
+
+<div>
+    <% if profiles_administrator? %>
+      <ul style="float: right" class="horizontal">
+          <li class="marginleft10 add">
+              <a id="create-link-user" href="<%=ApplicationController.root_context-%>/users/create_form" id="create-link-user" class="open-modal link-action">Add new user</a>
+          </li>
+      </ul>
+    <% end %>
+    <h1 class="admin-page-title"><%= message('users.page') -%></h1>
+    <p class="admin-page-description"><%= message('users.page.description') -%> </p>
+</div>
+
+<table width="100%">
+  <tr>
+    <td valign="top">
+      <table class="data width100 sortable" id="users">
+        <thead>
+          <tr>
+            <th class="left"><a>Login</a></th>
+            <th class="left sortfirstasc"><a>Name</a></th>
+            <th class="left"><a>Email</a></th>
+            <th class="left nosort"><a>Groups</a></th>
+            <th class="right nosort" nowrap><a>Operations</a></th>
+          </tr>
+        </thead>
+        <tbody >
+          <% @users.each do |user|%>
+            <tr id="user-<%= user.login.parameterize -%>">
+              <td class="left" valign="top"><%=h user.login -%></td>
+              <td class="left" valign="top"><%= h user.name -%></td>
+              <td class="left" valign="top"><%= h user.email -%></td>
+              <td class="left" valign="top">
+                <%= h user.groups.sort.map(&:name).join(', ') %> (<%= link_to "select", {:action => 'select_group', :id => user.id}, {:id => "select-#{user.login.parameterize}", :class => 'open-modal link-action'} %>)
+              </td>
+              <td class="right" valign="top">
+                <a id="edit-<%= user.login -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/users/edit_form/<%= user.id -%>">Edit</a>
+                &nbsp;
+                <%= link_to 'Change password', { :id => user.id, :action => 'change_password_form'}, {:id => "change-password-#{user.login.parameterize}", :class => 'open-modal link-action'} -%>
+                &nbsp;
+                <%= link_to_action message('delete'), "#{ApplicationController.root_context}/users/delete/#{user.id}",
+                                   :class => 'link-action link-red',
+                                   :id => "delete-#{user.login}",
+                                   :confirm_button => message('delete'),
+                                   :confirm_title => 'Delete user: '+user.login,
+                                   :confirm_msg => 'Warning : are you sure to delete the user "' + user.name+'"?' ,
+                                   :confirm_msg_params => [user.name]
+                -%>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <script>jQuery('#users').sortable();</script>
+    </td>
+  </tr>
+</table>

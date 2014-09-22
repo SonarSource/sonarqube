@@ -23,8 +23,8 @@ import org.sonar.core.purge.PurgeableSnapshotDto;
 
 import java.util.List;
 
-abstract class Filter {
-  abstract List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> snapshots);
+interface Filter {
+  List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> snapshots);
 
-  abstract void log();
+  void log();
 }

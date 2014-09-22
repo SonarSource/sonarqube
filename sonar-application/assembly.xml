@@ -9,16 +9,88 @@
     <!-- Libraries -->
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+      <useProjectArtifact>true</useProjectArtifact>
+      <includes>
+        <include>org.codehaus.sonar:sonar-application</include>
+      </includes>
+    </dependencySet>
+
+    <dependencySet>
+      <outputDirectory>lib/jsw</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+      <useProjectArtifact>false</useProjectArtifact>
+      <includes>
+        <include>tanukisoft:wrapper</include>
+      </includes>
+      <scope>provided</scope>
+    </dependencySet>
+
+
+    <dependencySet>
+      <outputDirectory>lib/common</outputDirectory>
       <useTransitiveFiltering>true</useTransitiveFiltering>
+      <useProjectArtifact>false</useProjectArtifact>
       <excludes>
-        <exclude>org.codehaus.sonar:sonar-server</exclude>
         <exclude>mysql:mysql-connector-java</exclude>
-        <exclude>com.h2database:h2</exclude>
-        <exclude>postgresql:postgresql</exclude>
+        <exclude>org.postgresql:postgresql</exclude>
         <exclude>net.sourceforge.jtds:jtds</exclude>
+        <exclude>tanukisoft:wrapper</exclude>
+        <exclude>org.codehaus.sonar:sonar-server</exclude>
+        <exclude>org.codehaus.sonar:sonar-web</exclude>
+        <exclude>org.codehaus.sonar:sonar-search</exclude>
         <exclude>org.codehaus.sonar.plugins:*</exclude>
-        <exclude>org.codehaus.sonar-plugins.*:*</exclude>
+        <exclude>org.codehaus.sonar-plugins.java:*</exclude>
+        <exclude>org.sonatype.jsw-binaries:jsw-binaries</exclude>
       </excludes>
+      <scope>runtime</scope>
+    </dependencySet>
+
+    <dependencySet>
+      <outputDirectory>lib/common</outputDirectory>
+      <useTransitiveFiltering>true</useTransitiveFiltering>
+      <useProjectArtifact>false</useProjectArtifact>
+      <includes>
+        <include>org.elasticsearch:elasticsearch</include>
+      </includes>
+      <scope>provided</scope>
+    </dependencySet>
+
+
+
+
+    <dependencySet>
+      <outputDirectory>lib/search</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
+      <useTransitiveDependencies>true</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+      <includes>
+        <include>org.codehaus.sonar:sonar-search</include>
+      </includes>
+      <scope>provided</scope>
+    </dependencySet>
+
+    <dependencySet>
+      <outputDirectory>lib/server</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
+      <useTransitiveDependencies>true</useTransitiveDependencies>
+      <useTransitiveFiltering>true</useTransitiveFiltering>
+      <includes>
+        <include>org.codehaus.sonar:sonar-server</include>
+      </includes>
+      <scope>provided</scope>
+    </dependencySet>
+
+
+    <dependencySet>
+      <outputDirectory>lib/batch</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <includes>
+        <include>org.codehaus.sonar:sonar-batch-maven-compat</include>
+      </includes>
+      <scope>provided</scope>
     </dependencySet>
     <!-- Plugins -->
     <dependencySet>
@@ -27,6 +99,7 @@
       <includes>
         <include>org.codehaus.sonar.plugins:*</include>
       </includes>
+      <scope>provided</scope>
     </dependencySet>
     <dependencySet>
       <outputDirectory>lib/bundled-plugins</outputDirectory>
@@ -34,47 +107,41 @@
       <includes>
         <include>org.codehaus.sonar-plugins.*:sonar-*-plugin</include>
       </includes>
+      <scope>provided</scope>
     </dependencySet>
     <!-- Server -->
     <dependencySet>
       <outputDirectory>web</outputDirectory>
       <includes>
-        <include>org.codehaus.sonar:sonar-server</include>
+        <include>org.codehaus.sonar:sonar-web</include>
       </includes>
       <unpack>true</unpack>
+      <scope>provided</scope>
     </dependencySet>
     <!-- JDBC drivers -->
     <dependencySet>
-      <outputDirectory>extensions/jdbc-driver/mysql/</outputDirectory>
+      <outputDirectory>lib/jdbc/mysql/</outputDirectory>
       <includes>
         <include>mysql:mysql-connector-java</include>
       </includes>
       <unpack>false</unpack>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependencySet>
     <dependencySet>
-      <outputDirectory>extensions/jdbc-driver/h2/</outputDirectory>
+      <outputDirectory>lib/jdbc/postgresql/</outputDirectory>
       <includes>
-        <include>com.h2database:h2</include>
+        <include>org.postgresql:postgresql</include>
       </includes>
       <unpack>false</unpack>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependencySet>
     <dependencySet>
-      <outputDirectory>extensions/jdbc-driver/postgresql/</outputDirectory>
-      <includes>
-        <include>postgresql:postgresql</include>
-      </includes>
-      <unpack>false</unpack>
-      <scope>runtime</scope>
-    </dependencySet>
-    <dependencySet>
-      <outputDirectory>extensions/jdbc-driver/mssql/</outputDirectory>
+      <outputDirectory>lib/jdbc/jtds/</outputDirectory>
       <includes>
         <include>net.sourceforge.jtds:jtds</include>
       </includes>
       <unpack>false</unpack>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependencySet>
     <!-- Java Service Wrapper -->
     <dependencySet>

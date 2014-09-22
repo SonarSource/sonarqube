@@ -1,0 +1,12 @@
+# nodeJS downloaded by Maven
+node/
+
+# nodeJS dependencies
+node_modules/
+
+# build
+src/main/webapp/build/
+src/main/webapp/js/
+src/main/webapp/css/
+src/main/webapp/WEB-INF/lib/*.jar
+!src/main/webapp/WEB-INF/lib/eastwood-1.1.0.jar

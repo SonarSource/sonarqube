@@ -58,7 +58,7 @@ public abstract class AbstractFileComplexityDecorator implements Decorator {
    */
   @DependsUpon
   public List<Metric> dependsUponFileAndComplexityMetrics() {
-    return Arrays.asList(CoreMetrics.FILES, CoreMetrics.COMPLEXITY);
+    return Arrays.<Metric>asList(CoreMetrics.FILES, CoreMetrics.COMPLEXITY);
   }
 
   /**

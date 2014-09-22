@@ -1,0 +1,43 @@
+<div class="modal-head">
+  <h2><%= "Edit Permission #{message("projects_role.#{@permission}")} For: " + @permission_template.name -%></h2>
+</div>
+
+<div class="modal-body">
+  <div id="select-list-group"></div>
+</div>
+
+<div class="modal-foot">
+  <a href="#" onclick="window.location.reload();return false"><%= h message('close') -%></a>
+</div>
+
+<script>
+  var selectList = new SelectList({
+    el: '#select-list-group',
+    width: '100%',
+    format: function (item) {
+      var label = item.name;
+      if (item.description) {
+        label += ' <div class="subtitle">' + item.description + '</div>'
+      }
+      return label;
+    },
+    searchUrl: baseUrl + '/permission_templates/search_groups?permission=<%= @permission -%>&template=<%= @permission_template.key -%>',
+    selectUrl: baseUrl + '/permission_templates/add_group_permission',
+    deselectUrl: baseUrl + '/permission_templates/remove_group_permission',
+    extra: {
+      permission: '<%= @permission -%>',
+      template: '<%= @permission_template.key -%>'
+    },
+    selectParameter: 'group',
+    selectParameterValue: 'name',
+    labels: {
+      selected: 'With',
+      deselected: 'Without',
+      all: 'All'
+    },
+    tooltips: {
+      select: 'Click to grant the permission to the group',
+      deselect: 'Click to revoke the permission from the group'
+    }
+  });
+</script>

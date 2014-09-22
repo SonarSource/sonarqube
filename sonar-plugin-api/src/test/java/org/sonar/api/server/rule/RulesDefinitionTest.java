@@ -74,7 +74,7 @@ public class RulesDefinitionTest {
       .setTags("one", "two")
       .addTags("two", "three", "four");
 
-    newRepo.createRule("ABC").setName("ABC").setHtmlDescription("ABC");
+    newRepo.createRule("ABC").setName("ABC").setMarkdownDescription("ABC");
     newRepo.done();
 
     RulesDefinition.Repository repo = context.repository("findbugs");
@@ -85,6 +85,7 @@ public class RulesDefinitionTest {
     assertThat(rule.name()).isEqualTo("Detect NPE");
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.htmlDescription()).isEqualTo("Detect <code>java.lang.NullPointerException</code>");
+    assertThat(rule.markdownDescription()).isNull();
     assertThat(rule.tags()).containsOnly("one", "two", "three", "four");
     assertThat(rule.params()).isEmpty();
     assertThat(rule.internalKey()).isEqualTo("/something");
@@ -93,8 +94,11 @@ public class RulesDefinitionTest {
     assertThat(rule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
     assertThat(rule.repository()).isSameAs(repo);
 
-    // test equals() and hashCode()
     RulesDefinition.Rule otherRule = repo.rule("ABC");
+    assertThat(otherRule.htmlDescription()).isNull();
+    assertThat(otherRule.markdownDescription()).isEqualTo("ABC");
+
+    // test equals() and hashCode()
     assertThat(rule).isEqualTo(rule).isNotEqualTo(otherRule).isNotEqualTo("NPE").isNotEqualTo(null);
     assertThat(rule.hashCode()).isEqualTo(rule.hashCode());
   }
@@ -103,8 +107,8 @@ public class RulesDefinitionTest {
   public void define_rules_with_technical_debt() {
     RulesDefinition.NewRepository newRepo = context.createRepository("common-java", "java");
     RulesDefinition.NewRule newRule = newRepo.createRule("InsufficientBranchCoverage")
-      .setName("Insufficient branch coverage")
-      .setHtmlDescription("Insufficient branch coverage by unit tests")
+      .setName("Insufficient condition coverage")
+      .setHtmlDescription("Insufficient condition coverage by unit tests")
       .setSeverity(Severity.MAJOR)
       .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTS)
       .setEffortToFixDescription("Effort to test one uncovered branch");
@@ -260,7 +264,7 @@ public class RulesDefinitionTest {
   }
 
   @Test
-  public void load_rule_description_from_file() {
+  public void load_rule_html_description_from_file() {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
     newRepository.createRule("NPE").setName("NPE").setHtmlDescription(getClass().getResource("/org/sonar/api/server/rule/RulesDefinitionTest/sample.html"));
     newRepository.done();
@@ -270,26 +274,70 @@ public class RulesDefinitionTest {
   }
 
   @Test
-  public void fail_to_load_rule_description_from_file() {
+  public void load_rule_markdown_description_from_file() {
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName("NPE").setMarkdownDescription(getClass().getResource("/org/sonar/api/server/rule/RulesDefinitionTest/sample.md"));
+    newRepository.done();
+
+    RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
+    assertThat(rule.markdownDescription()).isEqualTo("description of rule loaded from file");
+  }
+
+  @Test
+  public void fail_to_load_html_rule_description_from_file() {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
     newRepository.createRule("NPE").setName("NPE").setHtmlDescription((URL) null);
     try {
       newRepository.done();
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("HTML description of rule [repository=findbugs, key=NPE] is empty");
+      assertThat(e).hasMessage("One of HTML description or Markdown description must be defined for rule [repository=findbugs, key=NPE]");
     }
   }
 
   @Test
-  public void fail_if_blank_rule_html_description() {
+  public void fail_to_load_markdown_rule_description_from_file() {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
-    newRepository.createRule("NPE").setName("NPE").setHtmlDescription((String) null);
+    newRepository.createRule("NPE").setName("NPE").setMarkdownDescription((URL) null);
     try {
       newRepository.done();
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("HTML description of rule [repository=findbugs, key=NPE] is empty");
+      assertThat(e).hasMessage("One of HTML description or Markdown description must be defined for rule [repository=findbugs, key=NPE]");
+    }
+  }
+
+  @Test
+  public void fail_if_no_rule_description() {
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName("NPE");
+    try {
+      newRepository.done();
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("One of HTML description or Markdown description must be defined for rule [repository=findbugs, key=NPE]");
+    }
+  }
+
+  @Test
+  public void fail_if_rule_already_has_html_description() {
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
+    try {
+      newRepository.createRule("NPE").setName("NPE").setHtmlDescription("polop").setMarkdownDescription("palap");
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Rule '[repository=findbugs, key=NPE]' already has an HTML description");
+    }
+  }
+
+  @Test
+  public void fail_if_rule_already_has_markdown_description() {
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
+    try {
+      newRepository.createRule("NPE").setName("NPE").setMarkdownDescription("palap").setHtmlDescription("polop");
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Rule '[repository=findbugs, key=NPE]' already has a Markdown description");
     }
   }
 

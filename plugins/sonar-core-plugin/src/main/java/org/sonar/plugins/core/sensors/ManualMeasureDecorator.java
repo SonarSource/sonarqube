@@ -24,6 +24,7 @@ import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -56,7 +57,11 @@ public class ManualMeasureDecorator implements Decorator {
   }
 
   private Measure copy(ManualMeasure manualMeasure) {
-    Measure measure = new Measure(metricFinder.findById(manualMeasure.getMetricId()));
+    Metric metric = metricFinder.findById(manualMeasure.getMetricId());
+    if (metric == null) {
+      throw new IllegalStateException("Unable to find manual metric with id: " + manualMeasure.getMetricId());
+    }
+    Measure measure = new Measure(metric);
     measure.setValue(manualMeasure.getValue(), 5);
     measure.setData(manualMeasure.getTextValue());
     measure.setDescription(manualMeasure.getDescription());

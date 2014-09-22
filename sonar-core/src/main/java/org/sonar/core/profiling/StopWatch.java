@@ -19,7 +19,10 @@
  */
 package org.sonar.core.profiling;
 
-public abstract class StopWatch {
+public interface StopWatch {
 
-  public abstract void stop(String message, Object... args);
+  /**
+   * Stop the watch and print provided profiling message
+   */
+  void stop(String message, Object... args);
 }

@@ -102,4 +102,22 @@ public interface I18n extends ServerComponent, BatchComponent {
    */
   String formatDate(Locale locale, Date date);
 
+  /**
+   * Return the formatted decimal, with always one fraction digit.
+   * <br>
+   * Example : formatDouble(Locale.FRENCH, 10.56) -> 10,6
+   *
+   * @since 4.4
+   */
+  String formatDouble(Locale locale, Double value);
+
+  /**
+   * Return the formatted integer.
+   * <br>
+   * Example : formatInteger(Locale.ENGLISH, 100000) -> 100,000
+   *
+   * @since 4.4
+   */
+  String formatInteger(Locale locale, Integer value);
+
 }

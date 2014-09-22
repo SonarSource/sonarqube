@@ -40,26 +40,29 @@ public class XooRulesDefinition implements RulesDefinition {
     // can be loaded from JSON or XML files too.
     NewRule x1Rule = repository.createRule("x1")
       .setName("No empty line")
-      .setHtmlDescription("Generate an issue on empty lines of Xoo source files")
+      .setMarkdownDescription("Generate an issue on *empty* lines of Xoo source files")
 
-        // optional tags
+      // optional tags
       .setTags("style", "security")
 
-        // optional status. Default value is READY.
+      // optional status. Default value is READY.
       .setStatus(RuleStatus.BETA)
 
-        // default severity when the rule is activated on a Quality profile. Default value is MAJOR.
+      // default severity when the rule is activated on a Quality profile. Default value is MAJOR.
       .setSeverity(Severity.MINOR);
 
     // debt-related information
     x1Rule
       .setDebtSubCharacteristic(SubCharacteristics.INTEGRATION_TESTABILITY)
-      .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
+      .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"))
+      .setEffortToFixDescription("Effort to fix issue on one line");
 
     x1Rule.createParam("acceptWhitespace")
       .setDefaultValue("false")
       .setType(RuleParamType.BOOLEAN)
-      .setDescription("Accept whitespaces on the line");
+      .setDescription("= Accept whitespace (``\\s|\\t``) on the line\nThis property is available so that a line containing only whitespace is not considered empty.\n"
+        + "== Example with property set to ``false``\n``xoo\n   <- One issue here\n<- And one here\n``\n\n"
+        + "== Example with property set to ``true``\n``xoo\n   <- No issue here\n<- But one here\n``\n");
 
     // don't forget to call done() to finalize the definition
     repository.done();

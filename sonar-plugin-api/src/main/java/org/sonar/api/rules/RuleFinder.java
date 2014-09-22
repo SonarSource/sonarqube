@@ -19,12 +19,12 @@
  */
 package org.sonar.api.rules;
 
+import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.task.TaskComponent;
 
-import org.sonar.api.ServerComponent;
-
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 
 /**
@@ -34,8 +34,10 @@ public interface RuleFinder extends TaskComponent, ServerComponent {
 
   /**
    * @since 2.5
+   * @deprecated since 4.4, Please use {@link #findByKey(org.sonar.api.rule.RuleKey)}}
    */
   @CheckForNull
+  @Deprecated
   Rule findById(int ruleId);
 
   @CheckForNull
@@ -44,6 +46,10 @@ public interface RuleFinder extends TaskComponent, ServerComponent {
   @CheckForNull
   Rule findByKey(RuleKey key);
 
+  /**
+   * @throw NonUniqueResultException if more than one result
+   */
+  @CheckForNull
   Rule find(RuleQuery query);
 
   Collection<Rule> findAll(RuleQuery query);

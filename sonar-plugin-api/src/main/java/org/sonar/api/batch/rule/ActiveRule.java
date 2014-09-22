@@ -22,6 +22,7 @@ package org.sonar.api.batch.rule;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Map;
 
 /**
@@ -37,6 +38,11 @@ public interface ActiveRule {
    * @see org.sonar.api.rule.Severity
    */
   String severity();
+
+  /**
+   * Language of rule, for example <code>java</code>
+   */
+  String language();
 
   /**
    * Value of given parameter. Returns <code>null</code> if the parameter key does not

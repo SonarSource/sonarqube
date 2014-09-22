@@ -1,0 +1,15 @@
+{
+  "users": [
+    {
+      "login": "fmallet",
+      "name": "Freddy Mallet",
+      "active": true,
+      "email": "f@m.com"
+    },
+    {
+      "login": "sbrandhof",
+      "name": "Simon",
+      "active": true
+    }
+  ]
+}

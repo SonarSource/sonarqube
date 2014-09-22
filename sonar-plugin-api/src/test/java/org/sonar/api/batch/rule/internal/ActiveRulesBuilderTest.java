@@ -38,25 +38,28 @@ public class ActiveRulesBuilderTest {
 
   @Test
   public void build_rules() throws Exception {
-    ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    NewActiveRule newSquid1 = builder.activate(RuleKey.of("squid", "S0001"));
-    newSquid1.setSeverity(Severity.CRITICAL);
-    newSquid1.setInternalKey("__S0001__");
-    newSquid1.setParam("min", "20");
-    // most simple rule
-    builder.activate(RuleKey.of("squid", "S0002"));
-    builder.activate(RuleKey.of("findbugs", "NPE")).setInternalKey(null).setSeverity(null).setParam("foo", null);
-
-    ActiveRules activeRules = builder.build();
+    ActiveRules activeRules = new ActiveRulesBuilder()
+      .create(RuleKey.of("squid", "S0001"))
+      .setName("My Rule")
+      .setSeverity(Severity.CRITICAL)
+      .setInternalKey("__S0001__")
+      .setParam("min", "20")
+      .activate()
+      // most simple rule
+      .create(RuleKey.of("squid", "S0002")).activate()
+      .create(RuleKey.of("findbugs", "NPE")).setInternalKey(null).setSeverity(null).setParam("foo", null).activate()
+      .build();
 
     assertThat(activeRules.findAll()).hasSize(3);
     assertThat(activeRules.findByRepository("squid")).hasSize(2);
     assertThat(activeRules.findByRepository("findbugs")).hasSize(1);
+    assertThat(activeRules.findByInternalKey("squid", "__S0001__")).isNotNull();
     assertThat(activeRules.findByRepository("unknown")).isEmpty();
 
     ActiveRule squid1 = activeRules.find(RuleKey.of("squid", "S0001"));
     assertThat(squid1.ruleKey().repository()).isEqualTo("squid");
     assertThat(squid1.ruleKey().rule()).isEqualTo("S0001");
+    assertThat(((DefaultActiveRule) squid1).name()).isEqualTo("My Rule");
     assertThat(squid1.severity()).isEqualTo(Severity.CRITICAL);
     assertThat(squid1.internalKey()).isEqualTo("__S0001__");
     assertThat(squid1.params()).hasSize(1);
@@ -77,9 +80,9 @@ public class ActiveRulesBuilderTest {
   @Test
   public void fail_to_add_twice_the_same_rule() throws Exception {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    builder.activate(RuleKey.of("squid", "S0001"));
+    builder.create(RuleKey.of("squid", "S0001")).activate();
     try {
-      builder.activate(RuleKey.of("squid", "S0001"));
+      builder.create(RuleKey.of("squid", "S0001")).activate();
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Rule 'squid:S0001' is already activated");

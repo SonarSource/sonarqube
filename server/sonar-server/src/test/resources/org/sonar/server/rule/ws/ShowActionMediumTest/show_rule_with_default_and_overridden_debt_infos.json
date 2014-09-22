@@ -1,0 +1,25 @@
+{
+  "rule": {
+    "key": "java:S001",
+    "repo": "java",
+    "name": "Rule S001",
+    "htmlDesc": "Rule S001 <b>description</b>",
+    "severity": "MINOR",
+    "status": "BETA",
+    "isTemplate": false,
+    "debtChar": "OS",
+    "debtCharName": "Os",
+    "debtSubChar": "OS_RELATED_PORTABILITY",
+    "debtSubCharName": "Portability",
+    "debtRemFnType": "LINEAR_OFFSET",
+    "debtRemFnCoeff": "5d",
+    "debtRemFnOffset": "10h",
+    "defaultDebtChar": "API",
+    "defaultDebtSubChar": "API_ABUSE",
+    "defaultDebtRemFnType": "LINEAR",
+    "defaultDebtRemFnCoeff": "5min",
+    "debtOverloaded": true,
+    "lang": "xoo"
+  }
+}
+

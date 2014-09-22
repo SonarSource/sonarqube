@@ -39,7 +39,7 @@ public class SnapshotSourceDao implements ServerComponent {
 
   @CheckForNull
   public String selectSnapshotSource(long snapshotId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
 
     try {
       SnapshotSourceMapper mapper = session.getMapper(SnapshotSourceMapper.class);
@@ -58,7 +58,7 @@ public class SnapshotSourceDao implements ServerComponent {
 
   @CheckForNull
   public String selectSnapshotSourceByComponentKey(String componentKey) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectSnapshotSourceByComponentKey(componentKey, session);
     } finally {

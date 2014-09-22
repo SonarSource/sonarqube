@@ -19,27 +19,28 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * @since 4.2
@@ -47,7 +48,7 @@ import java.util.SortedSet;
 public class DefaultFileSystem implements FileSystem {
 
   private final Cache cache;
-  private final SortedSet<String> languages = Sets.newTreeSet();
+  private final SortedSet<String> languages = new TreeSet<String>();
   private File baseDir, workDir;
   private Charset encoding;
   private final FilePredicates predicates = new DefaultFilePredicates();
@@ -101,39 +102,80 @@ public class DefaultFileSystem implements FileSystem {
   @Override
   public InputFile inputFile(FilePredicate predicate) {
     doPreloadFiles();
-    if (predicate instanceof UniqueIndexPredicate) {
-      return cache.inputFile((UniqueIndexPredicate) predicate);
+    if (predicate instanceof RelativePathPredicate) {
+      return cache.inputFile((RelativePathPredicate) predicate);
     }
-    try {
-      Iterable<InputFile> files = inputFiles(predicate);
-      return Iterables.getOnlyElement(files);
-    } catch (NoSuchElementException e) {
-      // contrary to guava, return null if iterable is empty
+    Iterable<InputFile> files = inputFiles(predicate);
+    Iterator<InputFile> iterator = files.iterator();
+    if (!iterator.hasNext()) {
       return null;
     }
+    InputFile first = iterator.next();
+    if (!iterator.hasNext()) {
+      return first;
+    }
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("expected one element but was: <" + first);
+    for (int i = 0; i < 4 && iterator.hasNext(); i++) {
+      sb.append(", " + iterator.next());
+    }
+    if (iterator.hasNext()) {
+      sb.append(", ...");
+    }
+    sb.append('>');
+
+    throw new IllegalArgumentException(sb.toString());
+
   }
 
   @Override
   public Iterable<InputFile> inputFiles(FilePredicate predicate) {
     doPreloadFiles();
-    return Iterables.filter(cache.inputFiles(), new GuavaPredicate(predicate));
+    return filter(cache.inputFiles(), predicate);
   }
 
   @Override
   public boolean hasFiles(FilePredicate predicate) {
     doPreloadFiles();
-    return Iterables.indexOf(cache.inputFiles(), new GuavaPredicate(predicate)) >= 0;
+    for (InputFile element : cache.inputFiles()) {
+      if (predicate.apply(element)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
   public Iterable<File> files(FilePredicate predicate) {
     doPreloadFiles();
-    return Iterables.transform(inputFiles(predicate), new Function<InputFile, File>() {
-      @Override
-      public File apply(@Nullable InputFile input) {
-        return input == null ? null : input.file();
+    Collection<File> result = new ArrayList<File>();
+    for (InputFile element : inputFiles(predicate)) {
+      if (predicate.apply(element)) {
+        result.add(element.file());
       }
-    });
+    }
+    return result;
+  }
+
+  @Override
+  public InputDir inputDir(File dir) {
+    doPreloadFiles();
+    String relativePath = PathUtils.sanitize(new PathResolver().relativePath(baseDir, dir));
+    if (relativePath == null) {
+      return null;
+    }
+    return cache.inputDir(relativePath);
+  }
+
+  public static Collection<InputFile> filter(Iterable<InputFile> target, FilePredicate predicate) {
+    Collection<InputFile> result = new ArrayList<InputFile>();
+    for (InputFile element : target) {
+      if (predicate.apply(element)) {
+        result.add(element);
+      }
+    }
+    return result;
   }
 
   /**
@@ -144,6 +186,14 @@ public class DefaultFileSystem implements FileSystem {
     if (inputFile.language() != null) {
       languages.add(inputFile.language());
     }
+    return this;
+  }
+
+  /**
+   * Adds InputDir to the list.
+   */
+  public DefaultFileSystem add(InputDir inputDir) {
+    cache.add(inputDir);
     return this;
   }
 
@@ -175,71 +225,60 @@ public class DefaultFileSystem implements FileSystem {
     // nothing to do by default
   }
 
-  public static abstract class Cache {
+  public abstract static class Cache {
     protected abstract Iterable<InputFile> inputFiles();
 
     @CheckForNull
-    protected abstract InputFile inputFile(UniqueIndexPredicate predicate);
+    protected abstract InputFile inputFile(RelativePathPredicate predicate);
+
+    @CheckForNull
+    protected abstract InputDir inputDir(String relativePath);
 
     protected abstract void doAdd(InputFile inputFile);
 
-    protected abstract void doIndex(String indexId, Object value, InputFile inputFile);
+    protected abstract void doAdd(InputDir inputDir);
 
     final void add(InputFile inputFile) {
       doAdd(inputFile);
-      for (FileIndex index : FileIndex.ALL) {
-        doIndex(index.id(), index.valueOf(inputFile), inputFile);
-      }
     }
+
+    public void add(InputDir inputDir) {
+      doAdd(inputDir);
+    }
+
   }
 
   /**
    * Used only for testing
    */
   private static class MapCache extends Cache {
-    private final List<InputFile> files = Lists.newArrayList();
-    private final Map<String, Map<Object, InputFile>> fileMap = Maps.newHashMap();
+    private final Map<String, InputFile> fileMap = new HashMap<String, InputFile>();
+    private final Map<String, InputDir> dirMap = new HashMap<String, InputDir>();
 
     @Override
     public Iterable<InputFile> inputFiles() {
-      return Lists.newArrayList(files);
+      return new ArrayList<InputFile>(fileMap.values());
     }
 
     @Override
-    public InputFile inputFile(UniqueIndexPredicate predicate) {
-      Map<Object, InputFile> byAttr = fileMap.get(predicate.indexId());
-      if (byAttr != null) {
-        return byAttr.get(predicate.value());
-      }
-      return null;
+    public InputFile inputFile(RelativePathPredicate predicate) {
+      return fileMap.get(predicate.path());
+    }
+
+    @Override
+    protected InputDir inputDir(String relativePath) {
+      return dirMap.get(relativePath);
     }
 
     @Override
     protected void doAdd(InputFile inputFile) {
-      files.add(inputFile);
+      fileMap.put(inputFile.relativePath(), inputFile);
     }
 
     @Override
-    protected void doIndex(String indexId, Object value, InputFile inputFile) {
-      Map<Object, InputFile> attrValues = fileMap.get(indexId);
-      if (attrValues == null) {
-        attrValues = Maps.newHashMap();
-        fileMap.put(indexId, attrValues);
-      }
-      attrValues.put(value, inputFile);
+    protected void doAdd(InputDir inputDir) {
+      dirMap.put(inputDir.relativePath(), inputDir);
     }
   }
 
-  private static class GuavaPredicate implements Predicate<InputFile> {
-    private final FilePredicate predicate;
-
-    private GuavaPredicate(FilePredicate predicate) {
-      this.predicate = predicate;
-    }
-
-    @Override
-    public boolean apply(@Nullable InputFile input) {
-      return input != null && predicate.apply(input);
-    }
-  }
 }

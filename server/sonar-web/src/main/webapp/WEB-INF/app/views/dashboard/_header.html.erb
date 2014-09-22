@@ -1,0 +1,34 @@
+<% if logged_in? || @snapshot %>
+<div class="line-block">
+
+  <% if logged_in? %>
+    <div class="operations noprint button-group">
+      <% if back %>
+        <%= link_to message('dashboard.back_to_dashboard'), dashboard_action(:index), :class => 'button' -%>
+      <% else %>
+        <% if @dashboard.editable_by?(current_user) %>
+          <%= link_to message('dashboard.configure_widgets'), dashboard_action(:configure), :class => 'button' -%>
+        <% end %>
+      <% end %>
+      <%= link_to message('dashboard.manage_dashboards'), {:controller => :dashboards, :action => :index, :resource => (@resource.id if @resource) }, :class => 'button' -%>
+    </div>
+  <% end %>
+
+  <% if @snapshot %>
+    <div id="snapshot_title" class="page_title">
+      <h4>
+        <%= "Version #{@snapshot.version} - " if @snapshot.version.present? -%><%= l @snapshot.created_at -%>
+        <% if @snapshot.project_snapshot.periods? %>
+          <% period_options = period_select_option_tags(@snapshot, 'small') %>
+          <% if period_options %>
+            <form method="GET" action="<%= url_for :controller => :dashboard, :action => :index, :id => @resource.id -%>" style="display: inline" class="spacer-left">
+              <input type="hidden" name="did" value="<%= @dashboard.id -%>"/>
+              <%= dropdown_tag 'period', period_options, {:width => '250px'}, {:id => 'select-comparison', :onchange => 'submit()'} -%>
+            </form>
+          <% end %>
+        <% end %>
+      </h4>
+    </div>
+  <% end %>
+</div>
+<% end %>

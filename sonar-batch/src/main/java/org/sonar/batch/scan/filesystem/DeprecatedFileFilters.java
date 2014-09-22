@@ -21,7 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.scan.filesystem.FileSystemFilter;
 import org.sonar.api.scan.filesystem.FileType;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
@@ -72,12 +72,12 @@ public class DeprecatedFileFilters implements InputFileFilter {
 
     @Override
     public File relativeDir() {
-      return new File(((DefaultInputFile)inputFile).sourceDirAbsolutePath());
+      return new File(((DeprecatedDefaultInputFile)inputFile).sourceDirAbsolutePath());
     }
 
     @Override
     public String relativePath() {
-      return ((DefaultInputFile)inputFile).pathRelativeToSourceDir();
+      return ((DeprecatedDefaultInputFile)inputFile).pathRelativeToSourceDir();
     }
 
     @Override

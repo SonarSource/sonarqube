@@ -1,0 +1,64 @@
+{
+  "key": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/Plugin.java",
+  "longName": "src/main/java/org/sonar/api/Plugin.java",
+  "path": "src/main/java/org/sonar/api/Plugin.java",
+  "name": "Plugin.java",
+  "q": "FIL",
+  "subProject": "org.codehaus.sonar:sonar-plugin-api",
+  "subProjectName": "SonarQube :: Plugin API",
+  "project": "org.codehaus.sonar:sonar",
+  "projectName": "SonarQube",
+  "fav": true,
+  "canMarkAsFavourite": true,
+  "canBulkChange": false,
+  "canCreateManualIssue": false,
+  "periods": [
+    [
+      1,
+      "since previous analysis (2014 May 08)",
+      "2014-05-08T23:40:12+0200"
+    ],
+    [
+      2,
+      "over 365 days (2013 May 17)",
+      "2013-05-17T23:52:45+0200"
+    ],
+    [
+      3,
+      "since previous version (4.3 - 2014 Apr 17)",
+      "2014-04-17T23:34:08+0200"
+    ]
+  ],
+  "severities": [
+    [
+      "INFO",
+      "Info",
+      4
+    ]
+  ],
+  "rules": [
+    [
+      "squid:S1133",
+      "Deprecated code should be removed eventually",
+      4
+    ]
+  ],
+  "measures": {
+    "fNcloc": "12",
+    "fDebt": "4h",
+    "fIssues": "4",
+    "fInfoIssues": "4",
+    "fDuplicationDensity": "1.2",
+    "fSqaleRating" : "C",
+    "fSqaleDebtRatio" : "35.0%"
+  },
+  "extensions": [
+    ["metricsTab", "Metrics"]
+  ],
+  "tabs": [
+    "scn", "coverage", "duplications"
+  ],
+  "manual_rules": [
+    {"key": "manual:API", "name": "API"}
+  ]
+}

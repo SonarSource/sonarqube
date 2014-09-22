@@ -20,29 +20,35 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.UniqueIndexPredicate;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.fs.internal.RelativePathPredicate;
 
 public class ModuleInputFileCache extends DefaultFileSystem.Cache implements BatchComponent {
 
   private final String moduleKey;
-  private final InputFileCache projectCache;
+  private final InputPathCache projectCache;
 
-  public ModuleInputFileCache(Project module, InputFileCache projectCache) {
-    this.moduleKey = module.getKey();
+  public ModuleInputFileCache(ProjectDefinition projectDef, InputPathCache projectCache) {
+    this.moduleKey = projectDef.getKeyWithBranch();
     this.projectCache = projectCache;
   }
 
   @Override
   protected Iterable<InputFile> inputFiles() {
-    return projectCache.byModule(moduleKey);
+    return projectCache.filesByModule(moduleKey);
   }
 
   @Override
-  protected InputFile inputFile(UniqueIndexPredicate predicate) {
-    return projectCache.get(moduleKey, predicate.indexId(), predicate.value());
+  protected InputFile inputFile(RelativePathPredicate predicate) {
+    return projectCache.getFile(moduleKey, predicate.path());
+  }
+
+  @Override
+  protected InputDir inputDir(String relativePath) {
+    return projectCache.getDir(moduleKey, relativePath);
   }
 
   @Override
@@ -51,7 +57,7 @@ public class ModuleInputFileCache extends DefaultFileSystem.Cache implements Bat
   }
 
   @Override
-  protected void doIndex(String indexId, Object value, InputFile inputFile) {
-    projectCache.index(moduleKey, indexId, value, inputFile);
+  protected void doAdd(InputDir inputDir) {
+    projectCache.put(moduleKey, inputDir);
   }
 }

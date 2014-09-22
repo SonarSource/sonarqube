@@ -1,0 +1,57 @@
+{"maxResultsReached": false, "paging": {
+  "pageIndex": 1,
+  "pageSize": 10,
+  "total": 1,
+  "fTotal": "1",
+  "pages": 1
+}, "issues": [
+  {
+    "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+    "component": "MyComponent",
+    "project": "MyProject",
+    "rule": "xoo:x1",
+    "status": "OPEN",
+    "resolution": "OPEN",
+    "severity": "MAJOR",
+    "debt": "10min",
+    "fUpdateAge": "less than a minute"
+  }
+], "components": [
+  {
+    "key": "MyComponent",
+    "id": 2
+  }
+], "projects": [
+  {
+    "key": "MyProject",
+    "id": 1
+  }
+], "facets": [
+  {
+    "property": "status",
+    "values": [
+      {
+        "val": "OPEN",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "property": "severity",
+    "values": [
+      {
+        "val": "MAJOR",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "property": "resolution",
+    "values": [
+      {
+        "val": "OPEN",
+        "count": 1
+      }
+    ]
+  }
+]}

@@ -1,0 +1,39 @@
+<% form_for :user, @user, :url => { :id => @user.id, :action => 'update'}, :html => { :id =>'user_edit_form', :method => @user.id.nil? ?  :post : :put} do |f| %>
+  <fieldset>
+      <div class="modal-head">
+          <h2>Edit user: <%= h @user.login -%></h2>
+      </div>
+      <div class="modal-body">
+        <% if @errors
+             @errors.each do |error|
+        %>
+            <p class="error"><%= h error -%></p>
+          <% end
+             end
+          %>
+        <div class="modal-field">
+          <% if @user.id %>
+            <%= f.hidden_field :login %>
+          <% else %>
+            <%= f.text_field :login, :size => 30, :maxLength => 255 %>
+          <% end %>
+        </div>
+        <div class="modal-field">
+          <label for="user[]">Name<em class="mandatory">*</em></label>
+          <%= f.text_field :name, :size => 30, :maxLength => 200 %>
+        </div>
+        <div class="modal-field">
+          <label for="user[]">Email</label>
+          <%= f.text_field :email, :size => 30, :maxLength => 100 %>
+        </div>
+      </div>
+      <div class="modal-foot">
+          <%= submit_tag 'Save' %>
+          <%= link_to 'Cancel', { :controller => 'users', :action => 'index'}, { :class => 'action' } %><br/>
+      </div>
+  </fieldset>
+<% end %>
+
+<script>
+  $j("#user_edit_form").modalForm();
+</script>

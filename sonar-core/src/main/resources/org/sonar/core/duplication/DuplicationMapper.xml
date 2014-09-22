@@ -17,7 +17,7 @@
     </if>
   </select>
 
-  <insert id="batchInsert" parameterType="DuplicationUnit" useGeneratedKeys="false">
+  <insert id="batchInsert" parameterType="DuplicationUnit" useGeneratedKeys="false" >
     INSERT INTO duplications_index (snapshot_id, project_snapshot_id, hash, index_in_file, start_line, end_line)
     VALUES (#{snapshotId}, #{projectSnapshotId}, #{hash}, #{indexInFile}, #{startLine}, #{endLine})
   </insert>

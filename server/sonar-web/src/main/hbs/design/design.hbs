@@ -1,0 +1,43 @@
+<div class="dsm-header">
+  <i class="icon-help"></i> <a href="http://docs.codehaus.org/x/QQFhC">{{t 'design.help'}}</a>
+</div>
+
+<ul class="dsm-legend">
+  <li>
+    <span class="dsm-legend-square gray"></span>
+    <span class="dsm-legend-label">{{t 'design.legend.dependencies'}}</span>
+  </li>
+  <li>
+    <span class="dsm-legend-square red"></span>
+    <span class="dsm-legend-label">{{t 'design.legend.cycles'}}</span>
+  </li>
+  <li>
+    <span class="dsm-legend-square green"></span>
+    <span class="dsm-legend-label">{{t 'design.legend.uses'}}</span>
+    <span class="dsm-legend-square blue"></span>
+    <span class="dsm-legend-label">{{t 'design.legend.uses'}}</span>
+    <span class="dsm-legend-square yellow"></span>
+  </li>
+</ul>
+
+<div class="dsm-body">
+  <table>
+    <tbody>
+    {{#eachIndex items}}
+      <tr>
+        <td class="dsm-body-title" title="{{t 'design.rowTooltip'}}">
+          {{qualifierIcon q}} {{n}}
+          <span class="dsm-body-title-indicator"></span>
+        </td>
+        {{#eachIndex v}}
+          <td class="dsm-body-cell {{#if status}}dsm-body-cell-{{status}}{{/if}}" title="{{t 'design.cellTooltip'}}">
+            {{#eq index ../index}}–{{else}}{{w}}{{/eq}}
+          </td>
+        {{/eachIndex}}
+      </tr>
+    {{/eachIndex}}
+    </tbody>
+  </table>
+</div>
+
+<div class="dsm-info"></div>

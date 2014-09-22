@@ -25,59 +25,23 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.profiles.RulesProfile;
 
-import javax.persistence.*;
+import javax.annotation.CheckForNull;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * A class to map an ActiveRule to the hibernate model
- */
-@Entity
-@Table(name = "active_rules")
 public class ActiveRule implements Cloneable {
 
   public static final String INHERITED = "INHERITED";
   public static final String OVERRIDES = "OVERRIDES";
 
-  @Id
-  @Column(name = "id")
-  @GeneratedValue
   private Integer id;
-
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "rule_id", updatable = true, nullable = false)
   private Rule rule;
-
-  @Column(name = "failure_level", updatable = true, nullable = false)
-  @Enumerated(EnumType.ORDINAL)
   private RulePriority severity;
-
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "profile_id", updatable = true, nullable = false)
   private RulesProfile rulesProfile;
-
-  @OneToMany(mappedBy = "activeRule", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
   private List<ActiveRuleParam> activeRuleParams = new ArrayList<ActiveRuleParam>();
-
-  @Column(name = "inheritance", updatable = true, nullable = true)
   private String inheritance;
-
-  @Lob
-  @Column(name = "note_data", updatable = true, nullable = true)
-  private String noteData;
-
-  @Column(name = "note_user_login", updatable = true, nullable = true)
-  private String noteUserLogin;
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "note_created_at", updatable = true, nullable = true)
-  private Date noteCreatedAt;
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "note_updated_at", updatable = true, nullable = true)
-  private Date noteUpdatedAt;
 
   /**
    * @deprecated visibility should be reduced to protected or package
@@ -252,30 +216,42 @@ public class ActiveRule implements Cloneable {
 
   /**
    * @since 4.2
+   * @deprecated in 4.4. Feature dropped.
    */
+  @CheckForNull
+  @Deprecated
   public String getNoteData() {
-    return noteData;
+    return null;
   }
 
   /**
    * @since 4.2
+   * @deprecated in 4.4. Feature dropped.
    */
+  @CheckForNull
+  @Deprecated
   public String getNoteUserLogin() {
-    return noteUserLogin;
+    return null;
   }
 
   /**
    * @since 4.2
+   * @deprecated in 4.4. Feature dropped.
    */
+  @CheckForNull
+  @Deprecated
   public Date getNoteCreatedAt() {
-    return noteCreatedAt;
+    return null;
   }
 
   /**
    * @since 4.2
+   * @deprecated in 4.4. Feature dropped.
    */
+  @CheckForNull
+  @Deprecated
   public Date getNoteUpdatedAt() {
-    return noteUpdatedAt;
+    return null;
   }
 
   @Override
@@ -309,7 +285,7 @@ public class ActiveRule implements Cloneable {
   @Override
   public String toString() {
     return new ToStringBuilder(this).append("id", getId()).append("rule", rule).append("priority", severity)
-        .append("params", activeRuleParams).toString();
+      .append("params", activeRuleParams).toString();
   }
 
   @Override
@@ -332,6 +308,6 @@ public class ActiveRule implements Cloneable {
    * @since 2.6
    */
   public boolean isEnabled() {
-    return getRule()!=null && getRule().isEnabled();
+    return getRule() != null && getRule().isEnabled();
   }
 }

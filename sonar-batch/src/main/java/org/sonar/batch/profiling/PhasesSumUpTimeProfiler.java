@@ -25,12 +25,23 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.events.*;
+import org.sonar.api.batch.events.DecoratorExecutionHandler;
+import org.sonar.api.batch.events.DecoratorsPhaseHandler;
+import org.sonar.api.batch.events.InitializerExecutionHandler;
+import org.sonar.api.batch.events.InitializersPhaseHandler;
+import org.sonar.api.batch.events.MavenPhaseHandler;
+import org.sonar.api.batch.events.PostJobExecutionHandler;
+import org.sonar.api.batch.events.PostJobsPhaseHandler;
+import org.sonar.api.batch.events.ProjectAnalysisHandler;
+import org.sonar.api.batch.events.SensorExecutionHandler;
+import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.batch.events.BatchStepHandler;
 import org.sonar.batch.phases.Phases;
+import org.sonar.batch.phases.event.PersisterExecutionHandler;
+import org.sonar.batch.phases.event.PersistersPhaseHandler;
 
 import javax.annotation.Nullable;
 
@@ -43,7 +54,8 @@ import static org.sonar.batch.profiling.AbstractTimeProfiling.sortByDescendingTo
 import static org.sonar.batch.profiling.AbstractTimeProfiling.truncate;
 
 public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorExecutionHandler, DecoratorExecutionHandler, PostJobExecutionHandler, DecoratorsPhaseHandler,
-  SensorsPhaseHandler, PostJobsPhaseHandler, MavenPhaseHandler, InitializersPhaseHandler, InitializerExecutionHandler, BatchStepHandler {
+  SensorsPhaseHandler, PostJobsPhaseHandler, MavenPhaseHandler, InitializersPhaseHandler, InitializerExecutionHandler, BatchStepHandler, PersistersPhaseHandler,
+  PersisterExecutionHandler {
 
   static final Logger LOG = LoggerFactory.getLogger(PhasesSumUpTimeProfiler.class);
   private static final int TEXT_RIGHT_PAD = 60;
@@ -60,10 +72,6 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
 
   private final System2 system;
 
-  public PhasesSumUpTimeProfiler() {
-    this(System2.INSTANCE);
-  }
-
   static void println(String msg) {
     LOG.info(msg);
   }
@@ -77,8 +85,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     println(sb.toString());
   }
 
-  @VisibleForTesting
-  PhasesSumUpTimeProfiler(System2 system) {
+  public PhasesSumUpTimeProfiler(System2 system) {
     this.totalProfiling = new ModuleProfiling(null, system);
     this.system = system;
   }
@@ -139,6 +146,23 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
       profiling.newItemProfiling(event.getSensor());
     } else {
       profiling.getProfilingPerItem(event.getSensor()).stop();
+    }
+  }
+
+  public void onPersistersPhase(PersistersPhaseEvent event) {
+    if (event.isStart()) {
+      currentModuleProfiling.addPhaseProfiling(Phases.Phase.PERSISTER);
+    } else {
+      currentModuleProfiling.getProfilingPerPhase(Phases.Phase.PERSISTER).stop();
+    }
+  }
+
+  public void onPersisterExecution(PersisterExecutionEvent event) {
+    PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phases.Phase.PERSISTER);
+    if (event.isStart()) {
+      profiling.newItemProfiling(event.getPersister());
+    } else {
+      profiling.getProfilingPerItem(event.getPersister()).stop();
     }
   }
 

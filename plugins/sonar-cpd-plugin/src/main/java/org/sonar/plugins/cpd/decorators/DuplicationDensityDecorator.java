@@ -36,11 +36,11 @@ public class DuplicationDensityDecorator implements Decorator {
 
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
-    return Arrays.asList(
-        CoreMetrics.NCLOC,
-        CoreMetrics.COMMENT_LINES,
-        CoreMetrics.DUPLICATED_LINES,
-        CoreMetrics.LINES);
+    return Arrays.<Metric>asList(
+      CoreMetrics.NCLOC,
+      CoreMetrics.COMMENT_LINES,
+      CoreMetrics.DUPLICATED_LINES,
+      CoreMetrics.LINES);
   }
 
   @DependedUpon

@@ -1,0 +1,15 @@
+{
+  "key": "org.codehaus.sonar:sonar",
+  "name": "SonarQube",
+  "q": "TRK",
+  "project" : "org.codehaus.sonar:sonar",
+  "projectName": "SonarQube",
+  "fav": true,
+  "canMarkAsFavourite": true,
+  "canBulkChange": true,
+  "canCreateManualIssue": true,
+  "periods": [],
+  "severities": [],
+  "rules": [],
+  "measures": {}
+}

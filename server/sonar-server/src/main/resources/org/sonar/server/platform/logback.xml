@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  Logging configuration.
+  By default logs are generated in logs/sonar.log.
+
+  See http://logback.qos.ch/manual/configuration.html
+-->
+<configuration debug="false">
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
+
+  <appender name="LOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>${sonar.path.logs}/sonar.log</File>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <param name="FileNamePattern" value="${sonar.path.logs}/sonar.%i.log"/>
+      <param name="MinIndex" value="1"/>
+      <param name="MaxIndex" value="3"/>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <param name="MaxFileSize" value="5MB"/>
+    </triggeringPolicy>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <!-- Use %d{yyyy.MM.dd HH:mm:ss.SSS} to display milliseconds -->
+      <pattern>
+        ${LOGFILE_LOGGING_FORMAT}
+      </pattern>
+    </encoder>
+  </appender>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>WARN</level>
+    </filter>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>
+        ${CONSOLE_LOGGING_FORMAT}
+      </pattern>
+    </encoder>
+  </appender>
+
+  <logger name="console" additivity="false">
+    <level value="INFO"/>
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+
+  <!-- Display Rails warnings and errors  -->
+  <logger name="rails">
+    <level value="WARN"/>
+  </logger>
+
+  <logger name="org.hibernate.cache.ReadWriteCache">
+    <!-- removing "An item was expired by the cache while it was locked (increase your cache timeout)" msg -->
+    <level value="ERROR"/>
+  </logger>
+  <logger name="org.hibernate">
+    <level value="WARN"/>
+  </logger>
+
+  <!-- Display SQL requests and results by setting the following loggers to level DEBUG -->
+  <logger name="org.hibernate.SQL">
+    <level value="WARN"/>
+  </logger>
+  <logger name="org.apache.ibatis">
+    <level value="WARN"/>
+  </logger>
+  <logger name="java.sql">
+    <level value="WARN"/>
+  </logger>
+  <logger name="java.sql.ResultSet">
+    <level value="WARN"/>
+  </logger>
+
+  <!-- Execution of measure filters -->
+  <logger name="org.sonar.MEASURE_FILTER">
+    <level value="WARN"/>
+  </logger>
+
+  <!-- Turn off ElasticSearch logging -->
+  <logger name="org.elasticsearch">
+    <level value="INFO"/>
+  </logger>
+  <logger name="org.elasticsearch.node">
+    <level value="INFO"/>
+  </logger>
+  <logger name="org.elasticsearch.http">
+    <level value="INFO"/>
+  </logger>
+
+  <!-- LOG level for logback itself -->
+  <logger name="ch.qos.logback">
+    <level value="WARN"/>
+  </logger>
+
+  <root>
+    <level value="INFO"/>
+    <appender-ref ref="LOGFILE"/>
+  </root>
+
+</configuration>

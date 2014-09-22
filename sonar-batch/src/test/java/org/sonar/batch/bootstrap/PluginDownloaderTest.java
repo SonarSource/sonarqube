@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.SonarException;
 import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.home.cache.FileCache;
 
@@ -50,9 +49,9 @@ public class PluginDownloaderTest {
     FileCache cache = mock(FileCache.class);
     ServerClient server = mock(ServerClient.class);
     when(server.request("/deploy/plugins/index.txt")).thenReturn("checkstyle,true\nsqale,false");
-    PluginDownloader downloader = new PluginDownloader(cache, server);
+    DefaultPluginsReferential downloader = new DefaultPluginsReferential(cache, server);
 
-    List<RemotePlugin> plugins = downloader.downloadPluginIndex();
+    List<RemotePlugin> plugins = downloader.pluginList();
     assertThat(plugins).hasSize(2);
     assertThat(plugins.get(0).getKey()).isEqualTo("checkstyle");
     assertThat(plugins.get(0).isCore()).isTrue();
@@ -68,22 +67,22 @@ public class PluginDownloaderTest {
     when(cache.get(eq("checkstyle-plugin.jar"), eq("fakemd5_1"), any(FileCache.Downloader.class))).thenReturn(pluginJar);
 
     ServerClient server = mock(ServerClient.class);
-    PluginDownloader downloader = new PluginDownloader(cache, server);
+    DefaultPluginsReferential downloader = new DefaultPluginsReferential(cache, server);
 
     RemotePlugin plugin = new RemotePlugin("checkstyle", true)
       .setFile("checkstyle-plugin.jar", "fakemd5_1");
-    File file = downloader.downloadPlugin(plugin);
+    File file = downloader.pluginFile(plugin);
 
     assertThat(file).isEqualTo(pluginJar);
   }
 
   @Test
   public void should_fail_to_get_plugin_index() throws Exception {
-    thrown.expect(SonarException.class);
+    thrown.expect(IllegalStateException.class);
 
     ServerClient server = mock(ServerClient.class);
-    doThrow(new SonarException()).when(server).request("/deploy/plugins/index.txt");
+    doThrow(new IllegalStateException()).when(server).request("/deploy/plugins/index.txt");
 
-    new PluginDownloader(mock(FileCache.class), server).downloadPluginIndex();
+    new DefaultPluginsReferential(mock(FileCache.class), server).pluginList();
   }
 }

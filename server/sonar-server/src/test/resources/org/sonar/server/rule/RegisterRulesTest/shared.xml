@@ -1,0 +1,8 @@
+<dataset>
+
+  <characteristics id="2" kee="MEMORY_EFFICIENCY" name="Memory Efficiency" parent_id="1" characteristic_order="1" enabled="[true]"/>
+
+  <rules tags="[null]" system_tags="[null]" id="1" plugin_rule_key="deprecated-key" plugin_name="deprecated-repo" plugin_config_key="[null]" name="Deprecated" description="[null]"
+                   status="READY" priority="4" is_template="[false]" template_id="[null]"/>
+
+</dataset>

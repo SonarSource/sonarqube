@@ -37,9 +37,4 @@ public class StringData implements Data {
   public String writeString() {
     return data;
   }
-
-  @Override
-  public void readString(String s) {
-    this.data = s;
-  }
 }

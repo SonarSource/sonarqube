@@ -1,0 +1,30 @@
+{
+  "maxResultsReached": true,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 2,
+    "fTotal": "2",
+    "pages": 1
+  },
+  "issues": [
+    {
+      "key": "ABCD",
+      "component": "sample:src/main/xoo/sample/Sample.xoo",
+      "project": "sample",
+      "rule": "squid:AvoidCycle",
+      "creationDate": "2014-01-22T19:10:03+0100"
+    }
+  ],
+  "components": [],
+  "projects": [],
+  "rules": [
+    {
+      "key": "squid:AvoidCycle",
+      "name": "Avoid cycle",
+      "desc": "Avoid cycle description",
+      "status": "READY"
+    }
+  ],
+  "users": []
+}

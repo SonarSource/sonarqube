@@ -3,7 +3,7 @@
   <!-- root project -->
   <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
             description="the description" long_name="Apache Struts"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]"/>
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
                status="P" islast="[true]" purge_status="[null]"
                period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -26,7 +26,7 @@
   <!-- project -->
   <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
             scope="PRJ" qualifier="BRC" long_name="Struts Core"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]"/>
   <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
                status="P" islast="[true]" purge_status="[null]"
                period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -41,7 +41,7 @@
   <projects long_name="org.struts" id="3" scope="DIR" qualifier="PAC" kee="org.struts:struts:org.struts"
               name="org.struts" root_id="1"
               description="[null]"
-              enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+              enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]"/>
   <snapshots id="3" project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
                status="P" islast="[true]" purge_status="[null]"
                period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -56,7 +56,7 @@
   <projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="CLA" kee="org.struts:struts:org.struts.RequestContext"
             name="RequestContext" root_id="1"
             description="[null]"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]"/>
 
   <snapshots id="4" project_id="4" parent_snapshot_id="3" root_project_id="1" root_snapshot_id="1"
                status="P" islast="[true]" purge_status="[null]"
@@ -71,7 +71,7 @@
   <!-- technical project -->
   <projects id="5" root_id="[null]" scope="PRJ" qualifier="TRK" kee="COPYorg.struts:struts" name="Struts"
             description="the description" long_name="Apache Struts"
-            enabled="[true]" language="java" copy_resource_id="1" person_id="[null]"/>
+            enabled="[true]" language="java" copy_resource_id="1" person_id="[null]" authorization_updated_at="[null]"/>
 
   <!-- project without snapshot status=P-->
   <projects id="6" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.apache.shindig" name="Shinding"
@@ -100,7 +100,7 @@
   <!-- project without snapshot -->
   <projects id="7" root_id="[null]" kee="org.sample:sample" name="Sample"
             scope="PRJ" qualifier="TRK" long_name="Sample"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]"/>
 
   <!-- project not enabled -->
   <projects id="8" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.apache:tika" name="Tika"

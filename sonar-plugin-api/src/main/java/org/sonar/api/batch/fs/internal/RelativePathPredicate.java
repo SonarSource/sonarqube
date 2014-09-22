@@ -19,34 +19,28 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.utils.PathUtils;
 
 /**
  * @since 4.2
  */
-class RelativePathPredicate implements FilePredicate, UniqueIndexPredicate {
+public class RelativePathPredicate implements FilePredicate {
 
   private final String path;
 
   RelativePathPredicate(String path) {
-    this.path = FilenameUtils.normalize(path, true);
+    this.path = PathUtils.sanitize(path);
+  }
+
+  public String path() {
+    return path;
   }
 
   @Override
   public boolean apply(InputFile f) {
     return path.equals(f.relativePath());
-  }
-
-  @Override
-  public Object value() {
-    return path;
-  }
-
-  @Override
-  public String indexId() {
-    return RelativePathIndex.ID;
   }
 
 }

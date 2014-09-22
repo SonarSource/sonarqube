@@ -31,13 +31,13 @@ import java.util.List;
 public interface IssueFilterFavouriteMapper {
 
   @CheckForNull
-  IssueFilterFavouriteDto selectById(Long id);
+  IssueFilterFavouriteDto selectById(long id);
 
-  List<IssueFilterFavouriteDto> selectByFilterId(@Param("filterId") Long filterId);
+  List<IssueFilterFavouriteDto> selectByFilterId(@Param("filterId") long filterId);
 
   void insert(IssueFilterFavouriteDto filterFavourite);
 
-  void delete(Long id);
+  void delete(long id);
 
-  void deleteByFilterId(Long filterId);
+  void deleteByFilterId(long filterId);
 }

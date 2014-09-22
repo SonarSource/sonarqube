@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         id="SonarQube"
+         version="3.0"
+         metadata-complete="true">
+  <display-name>SonarQube</display-name>
+
+  <!--
+  jruby-rack parameters
+
+  rails.env and jruby.max.runtimes depend on mode (development/production) and are injected by :
+  - system properties for dev mode (see sonar-server pom)
+  - embedded tomcat for production mode (see sonar-application)
+   -->
+  <context-param>
+    <param-name>public.root</param-name>
+    <param-value>/</param-value>
+  </context-param>
+  <context-param>
+    <param-name>jruby.min.runtimes</param-name>
+    <param-value>1</param-value>
+  </context-param>
+  <context-param>
+    <param-name>jruby.compat.version</param-name>
+    <param-value>1.8</param-value>
+  </context-param>
+  <context-param>
+    <param-name>jruby.rack.logging</param-name>
+    <param-value>slf4j</param-value>
+  </context-param>
+
+  <filter>
+    <filter-name>ServletFilters</filter-name>
+    <filter-class>org.sonar.server.platform.MasterServletFilter</filter-class>
+  </filter>
+  <filter>
+    <filter-name>DatabaseSessionFilter</filter-name>
+    <filter-class>org.sonar.server.user.DatabaseSessionFilter</filter-class>
+  </filter>
+  <filter>
+    <filter-name>UserSessionFilter</filter-name>
+    <filter-class>org.sonar.server.user.UserSessionFilter</filter-class>
+  </filter>
+  <filter>
+    <filter-name>RackFilter</filter-name>
+    <filter-class>org.jruby.rack.RackFilter</filter-class>
+  </filter>
+  <filter>
+    <filter-name>ProfilingFilter</filter-name>
+    <filter-class>org.sonar.server.platform.ProfilingFilter</filter-class>
+    <init-param>
+      <param-name>staticDirs</param-name>
+      <param-value>/images,/javascripts,/stylesheets</param-value>
+    </init-param>
+  </filter>
+
+  <!-- order of execution is important -->
+  <filter-mapping>
+    <filter-name>ProfilingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>DatabaseSessionFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>UserSessionFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>ServletFilters</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>RackFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <servlet>
+    <servlet-name>chart</servlet-name>
+    <servlet-class>org.sonar.server.charts.ChartsServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>gchart</servlet-name>
+    <servlet-class>org.jfree.eastwood.ChartServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>static</servlet-name>
+    <servlet-class>org.sonar.server.plugins.StaticResourcesServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>chart</servlet-name>
+    <url-pattern>/chart</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>gchart</servlet-name>
+    <url-pattern>/gchart</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>static</servlet-name>
+    <url-pattern>/static/*</url-pattern>
+  </servlet-mapping>
+
+  <session-config>
+    <!-- in minutes -->
+    <session-timeout>20</session-timeout>
+    <cookie-config>
+      <http-only>true</http-only>
+    </cookie-config>
+  </session-config>
+
+  <listener>
+    <listener-class>org.sonar.server.platform.PlatformServletContextListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>org.jruby.rack.rails.RailsServletContextListener</listener-class>
+  </listener>
+
+  <mime-mapping>
+    <extension>css</extension>
+    <mime-type>text/css</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>xml</extension>
+    <mime-type>text/xml</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>gif</extension>
+    <mime-type>image/gif</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>jpeg</extension>
+    <mime-type>image/jpeg</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>jpg</extension>
+    <mime-type>image/jpeg</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>htm</extension>
+    <mime-type>text/html</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>html</extension>
+    <mime-type>text/html</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>jar</extension>
+    <mime-type>application/java-archive</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>pdf</extension>
+    <mime-type>application/pdf</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>png</extension>
+    <mime-type>image/png</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>txt</extension>
+    <mime-type>text/plain</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>csv</extension>
+    <mime-type>text/plain</mime-type>
+  </mime-mapping>
+</web-app>

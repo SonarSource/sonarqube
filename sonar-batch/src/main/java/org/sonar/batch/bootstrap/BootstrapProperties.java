@@ -19,24 +19,18 @@
  */
 package org.sonar.batch.bootstrap;
 
-import com.google.common.collect.ImmutableMap;
+import org.sonar.api.CoreProperties;
 
 import java.util.Map;
 
 /**
- * Batch properties that are not specific to a project (for example
+ * Immutable batch properties that are not specific to a task (for example
  * coming from global configuration file of sonar-runner).
  */
-public class BootstrapProperties {
-
-  private final Map<String, String> properties;
+public class BootstrapProperties extends UserProperties {
 
   public BootstrapProperties(Map<String, String> properties) {
-    this.properties = ImmutableMap.copyOf(properties);
-  }
-
-  Map<String, String> properties() {
-    return properties;
+    super(properties, properties.get(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
   }
 
 }

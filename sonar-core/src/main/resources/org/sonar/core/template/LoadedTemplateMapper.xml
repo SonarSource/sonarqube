@@ -20,4 +20,7 @@
     VALUES (#{key}, #{type})
   </insert>
 
+  <delete id="delete" parameterType="map">
+    delete from loaded_templates where kee = #{key} AND template_type = #{type}
+  </delete>
 </mapper>

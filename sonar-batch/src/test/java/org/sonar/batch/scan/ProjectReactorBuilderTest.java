@@ -26,8 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.BootstrapProperties;
-import org.sonar.batch.bootstrap.BootstrapSettings;
+import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
@@ -404,7 +403,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new BootstrapSettings(new BootstrapProperties(Maps.<String, String>newHashMap())));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new TaskProperties(Maps.<String, String>newHashMap(), null));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -416,7 +415,7 @@ public class ProjectReactorBuilderTest {
   public void shouldInitWorkDirWithCustomRelativeFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", ".foo");
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new BootstrapSettings(new BootstrapProperties(props)));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new TaskProperties(props, null));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -428,7 +427,7 @@ public class ProjectReactorBuilderTest {
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", new File("src").getAbsolutePath());
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new BootstrapSettings(new BootstrapProperties(props)));
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new TaskProperties(props, null));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -492,8 +491,8 @@ public class ProjectReactorBuilderTest {
       props.put(name, runnerProps.getProperty(name));
     }
     props.put("sonar.projectBaseDir", TestUtils.getResource(this.getClass(), projectFolder).getAbsolutePath());
-    BootstrapProperties bootstrapProps = new BootstrapProperties(props);
-    ProjectReactor projectReactor = new ProjectReactorBuilder(new BootstrapSettings(bootstrapProps)).execute();
+    TaskProperties bootstrapProps = new TaskProperties(props, null);
+    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps).execute();
     return projectReactor.getRoot();
   }
 

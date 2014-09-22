@@ -1,0 +1,47 @@
+<li>
+  <a href="#" onclick="showDropdownMenu('project-settings-menu'); return false;" class="link-more" id="project-settings-menu-link"><%= message('qualifier.configuration.' + @project.qualifier) -%></a>
+
+  <div id="project-settings-menu" class="dropdown-menu" style="display: none">
+    <% is_admin = has_role?(:admin, @project) %>
+    <ul>
+      <% if (is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'configurable')) %>
+         <li><a href="<%= ApplicationController.root_context -%>/project/settings/<%= @project.id -%>"><%= message('project_settings.page') -%></a></li>
+      <% end %>
+      <% if (@project.project?) %>
+        <li><a href="<%= ApplicationController.root_context -%>/project/profile/<%= @project.id -%>"><%= message('project_quality_profiles.page') -%></a></li>
+      <% end %>
+      <% if (@project.project?) %>
+        <li><a href="<%= ApplicationController.root_context -%>/project/qualitygate/<%= @project.id -%>"><%= message('project_quality_gate.page') -%></a></li>
+      <% end %>
+      <% if is_admin %>
+      <li><a href="<%= ApplicationController.root_context -%>/manual_measures/index/<%= @project.id -%>"><%= message('manual_measures.page') -%></a></li>
+      <% end %>
+      <% if (is_admin && @project.project?) %>
+        <li><a href="<%= ApplicationController.root_context -%>/action_plans/index/<%= @project.id -%>"><%= message('action_plans.page') -%></a></li>
+      <% end %>
+      <% if (is_admin && @project.project?) %>
+         <li><a href="<%= ApplicationController.root_context -%>/project/links/<%= @project.id -%>"><%= message('project_links.page') -%></a></li>
+      <% end %>
+      <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'hasRolePolicy') %>
+      <li><a href="<%= ApplicationController.root_context -%>/project_roles/index/<%= @project.id -%>"><%= message('permissions.page') -%></a></li>
+      <% end %>
+      <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'modifiable_history') %>
+        <li><a href="<%= ApplicationController.root_context -%>/project/history/<%= @project.id -%>"><%= message('project_history.page') -%></a></li>
+      <% end %>
+      <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'updatable_key') %>
+        <li><a href="<%= ApplicationController.root_context -%>/project/key/<%= @project.id -%>"><%= message('update_key.page') -%></a></li>
+      <% end %>
+      <% if is_admin && controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable') %>
+        <li><a href="<%= ApplicationController.root_context -%>/project/deletion/<%= @project.id -%>"><%= message('deletion.page') -%></a></li>
+      <% end %>
+      <% if is_admin
+          controller.java_facade.getPages(Navigation::SECTION_RESOURCE_CONFIGURATION.key, @project.scope, @project.qualifier, @project.language, nil).each do |page|
+            page_url = "#{page.getId()}?resource=#{@project.id}"
+      %>
+        <li><a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= h message(page.getId() + '.page', :default => page.getTitle()) -%></a></li>
+      <%   end
+         end %>
+    </ul>
+  </div>
+
+</li>

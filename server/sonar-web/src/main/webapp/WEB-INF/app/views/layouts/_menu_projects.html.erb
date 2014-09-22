@@ -1,0 +1,46 @@
+<script>
+  if (supportsHTML5Storage()) {
+    var sonarRecentHistory = new Sonar.RecentHistory();
+  }
+</script>
+
+<li>
+  <a href="#" class="with-icon" onclick="if (sonarRecentHistory) { sonarRecentHistory.populateRecentHistoryPanel(); }; showDropdownMenu('projects-menu'); return false;">
+    <span><%= message('layout.projects') -%></span>
+    <i class="icon-dropdown"></i>
+  </a>
+
+  <div id="projects-menu" class="dropdown-menu" style="max-width: none; display: none;">
+    <div id="recent-history" style="border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+      <h2><%= message('layout.recent_projects') -%></h2>
+      <ul id="recent-history-list">
+      </ul>
+    </div>
+
+    <div>
+      <ul>
+        <% Project.root_qualifiers.sort.each do |qualifier| %>
+          <li><a href="<%= ApplicationController.root_context -%>/all_projects?qualifier=<%= qualifier -%>"><%= message('qualifiers.all.' + qualifier) -%></a></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+</li>
+
+<script>
+  if (sonarRecentHistory == null) {
+    $j('#recent-history').detach();
+  }
+
+  <%
+     if @resource && Project.root_qualifiers.include?(@resource.qualifier)
+  %>
+  else {
+    sonarRecentHistory.add('<%= escape_javascript(h(@resource.key)) -%>',
+                           '<%= escape_javascript(h(@resource.name)) -%>',
+                           '<%= escape_javascript @resource.qualifier.downcase -%>');
+  }
+  <% end %>
+
+</script>

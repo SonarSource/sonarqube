@@ -27,9 +27,7 @@ import org.sonar.plugins.dbcleaner.DbCleanerTestUtils;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DeleteAllFilterTest {
 
@@ -37,14 +35,12 @@ public class DeleteAllFilterTest {
   public void shouldDeleteAllSnapshotsPriorToDate() {
     Filter filter = new DeleteAllFilter(DateUtils.parseDate("2011-12-25"));
 
-    List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.<PurgeableSnapshotDto>asList(
+    List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.asList(
       DbCleanerTestUtils.createSnapshotWithDate(1L, "2010-01-01"),
       DbCleanerTestUtils.createSnapshotWithDate(2L, "2010-12-25"),
       DbCleanerTestUtils.createSnapshotWithDate(3L, "2012-01-01")
-    ));
+      ));
 
-    assertThat(toDelete.size(), is(2));
-    assertThat(toDelete, hasItem(new DbCleanerTestUtils.SnapshotMatcher(1L)));
-    assertThat(toDelete, hasItem(new DbCleanerTestUtils.SnapshotMatcher(2L)));
+    assertThat(toDelete).onProperty("snapshotId").containsOnly(1L, 2L);
   }
 }

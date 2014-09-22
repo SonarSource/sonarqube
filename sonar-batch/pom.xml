@@ -4,26 +4,33 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar</artifactId>
-    <version>4.3.1</version>
+    <version>5.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar-batch</artifactId>
   <name>SonarQube :: Batch</name>
 
   <dependencies>
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.akiban</groupId>
-      <artifactId>akiban-persistit</artifactId>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-persistit</artifactId>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-batch-protocol</artifactId>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -40,6 +47,16 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>jfree</groupId>
+          <artifactId>jcommon</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jfree</groupId>
+          <artifactId>jfreechat</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -52,11 +69,13 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
+      <version>3.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
+      <version>3.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -69,8 +88,8 @@
       <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.code.gson</groupId>
@@ -96,8 +115,18 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-assert</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.bean-matchers</groupId>
+      <artifactId>bean-matchers</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -118,6 +147,11 @@
     <dependency>
       <groupId>org.skyscreamer</groupId>
       <artifactId>jsonassert</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar.plugins</groupId>
+      <artifactId>sonar-xoo-plugin</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

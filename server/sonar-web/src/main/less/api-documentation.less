@@ -1,0 +1,154 @@
+@import (reference) "variables";
+@import (reference) "mixins";
+@import (reference) "navigator/config";
+
+@apiDocumentationSidebarWidth: 230px;
+
+.api-documentation-navigator {
+
+  .navigator-side {
+    display: table-cell;
+    vertical-align: top;
+    width: @apiDocumentationSidebarWidth + 2 * @navigatorPadding;
+    min-width: 0;
+  }
+
+  .navigator-header {
+    margin-left: 0;
+    .spinner { margin-top: 9px; }
+  }
+
+  .navigator-actions {
+    height: @navigatorHeaderHeight;
+    width: @apiDocumentationSidebarWidth;
+    margin: @navigatorPadding;
+    padding: 0 @navigatorPadding;
+
+    .navigator-header-title {
+      color: @baseFontColor;
+      font-size: 13px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+  }
+
+  .api-documentation-show-internals {
+    margin: @navigatorPadding;
+    padding: 0 @navigatorPadding;
+  }
+
+  .navigator-results {
+    width: @apiDocumentationSidebarWidth;
+    min-width: 0;
+  }
+
+  .navigator-details { margin-left: 0; }
+
+  .internal {
+    color: @navigatorBarBackground;
+    background-color: rgb(127, 127, 127);
+    border-radius: 2px;
+    padding: 1px 5px;
+  }
+}
+
+
+.api-documentation-nav {
+
+  .navigator-results-list {
+
+    & > li {
+      border-color: transparent;
+
+      &:hover:not(.active):not(.empty) {
+        background-color: @navigatorBarBackground;
+      }
+
+      &.active {
+        border-color: #4B9FD5;
+      }
+
+      &.empty {
+        cursor: default;
+      }
+
+      .line {
+        padding-top: 2px;
+        padding-bottom: 2px;
+      }
+    }
+  }
+}
+
+.api-documentation-actions {
+  margin-top: 10px;
+  margin-left: 5px;
+
+  ol {
+    li {
+      list-style: decimal;
+      margin-left: 2em;
+    }
+  }
+
+  .api-documentation-action {
+    margin-top: 30px;
+
+    & > p, & > h3 {
+      margin-top: 5px;
+    }
+
+    table {
+      width: 100%;
+
+      tr {
+        border-top: 1px solid @navigatorBorderLightColor;
+
+        td {
+          padding: 10px 0 10px 5px;
+          margin: 5px;
+          vertical-align: top;
+
+          ul {
+            li {
+              list-style: square;
+              margin-left: 2em;
+            }
+          }
+
+          ul.possible-values {
+            display: inline;
+
+            li {
+              display: inline;
+              margin: 0;
+
+              &:before {
+                content: ', '
+              }
+
+              &:first-child:before {
+                content: ''
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .example-response {
+      text-decoration: underline;
+    }
+
+    .example-response-content {
+      margin: 10px 0;
+      padding: 5px;
+      background-color: @navigatorBarBackground;
+      border: 1px solid @navigatorBorderLightColor;
+
+      code {
+        white-space: pre-wrap;
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "canManageFilters": true,
+  "canBulkChange": true,
+  "filter": {
+    "id": 8,
+    "name": "My Issues To Fix",
+    "description": "",
+    "user": "john.snow",
+    "shared": false,
+    "query": "asc=false|assignees=john.snow|statuses=OPEN,CONFIRMED,REOPENED",
+    "canModify": true
+  },
+  "favorites": [
+    {
+      "id": 8,
+      "name": "My Issues To Fix"
+    },
+    {
+      "id": 22,
+      "name": "SonarQube Issues"
+    }
+  ]
+}

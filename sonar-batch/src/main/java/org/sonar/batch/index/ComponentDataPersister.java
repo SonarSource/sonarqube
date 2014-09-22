@@ -20,7 +20,7 @@
 package org.sonar.batch.index;
 
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.core.persistence.BatchSession;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotDataDto;
@@ -34,7 +34,7 @@ public class ComponentDataPersister implements ScanPersister {
   private final MyBatis mybatis;
 
   public ComponentDataPersister(ComponentDataCache data, SnapshotCache snapshots,
-                                SnapshotDataDao dao, MyBatis mybatis) {
+    SnapshotDataDao dao, MyBatis mybatis) {
     this.data = data;
     this.snapshots = snapshots;
     this.dao = dao;
@@ -43,22 +43,26 @@ public class ComponentDataPersister implements ScanPersister {
 
   @Override
   public void persist() {
-    BatchSession session = mybatis.openBatchSession();
-    for (Map.Entry<String, Snapshot> componentEntry : snapshots.snapshots()) {
-      String componentKey = componentEntry.getKey();
-      Snapshot snapshot = componentEntry.getValue();
-      for (Cache.SubEntry<Data> dataEntry : data.entries(componentKey)) {
-        Data value = dataEntry.value();
-        if (value != null) {
-          SnapshotDataDto dto = new SnapshotDataDto();
-          dto.setSnapshotId(snapshot.getId());
-          dto.setResourceId(snapshot.getResourceId());
-          dto.setDataType(dataEntry.keyAsString());
-          dto.setData(value.writeString());
-          dao.insert(session, dto);
+    DbSession session = mybatis.openSession(true);
+    try {
+      for (Map.Entry<String, Snapshot> componentEntry : snapshots.snapshots()) {
+        String componentKey = componentEntry.getKey();
+        Snapshot snapshot = componentEntry.getValue();
+        for (Cache.Entry<Data> dataEntry : data.entries(componentKey)) {
+          Data value = dataEntry.value();
+          if (value != null) {
+            SnapshotDataDto dto = new SnapshotDataDto();
+            dto.setSnapshotId(snapshot.getId());
+            dto.setResourceId(snapshot.getResourceId());
+            dto.setDataType(dataEntry.key()[1].toString());
+            dto.setData(value.writeString());
+            dao.insert(session, dto);
+          }
         }
       }
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
     }
-    session.commit();
   }
 }

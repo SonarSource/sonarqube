@@ -20,6 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.SonarException;
@@ -58,22 +59,23 @@ public class JdbcDriverHolder {
       try {
         LOG.info("Install JDBC driver");
         String[] nameAndHash = downloadJdbcDriverIndex();
-        String filename = nameAndHash[0];
-        String hash = nameAndHash[1];
+        if (nameAndHash.length > 0) {
+          String filename = nameAndHash[0];
+          String hash = nameAndHash[1];
 
-        File jdbcDriver = fileCache.get(filename, hash, new FileCache.Downloader() {
-          public void download(String filename, File toFile) throws IOException {
-            String url = "/deploy/" + filename;
-            if (LOG.isDebugEnabled()) {
-              LOG.debug("Download {} to {}", url, toFile.getAbsolutePath());
-            } else {
-              LOG.info("Download {}", filename);
+          File jdbcDriver = fileCache.get(filename, hash, new FileCache.Downloader() {
+            public void download(String filename, File toFile) throws IOException {
+              String url = "/deploy/" + filename;
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("Download {} to {}", url, toFile.getAbsolutePath());
+              } else {
+                LOG.info("Download {}", filename);
+              }
+              serverClient.download(url, toFile);
             }
-            serverClient.download(url, toFile);
-          }
-        });
-
-        classLoader = initClassloader(jdbcDriver);
+          });
+          classLoader = initClassloader(jdbcDriver);
+        }
       } catch (SonarException e) {
         throw e;
       } catch (Exception e) {
@@ -139,6 +141,10 @@ public class JdbcDriverHolder {
     try {
       LOG.debug("Download index of jdbc-driver");
       String indexContent = serverClient.request(url);
+      // File is empty when H2 is used
+      if (Strings.isNullOrEmpty(indexContent)) {
+        return new String[]{};
+      }
       return indexContent.split("\\|");
     } catch (Exception e) {
       throw new SonarException("Fail to download jdbc-driver index: " + url, e);

@@ -26,7 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -43,9 +46,13 @@ import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.scan.filesystem.InputFileCache;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -67,11 +74,11 @@ public class JsonReport implements BatchComponent {
   private final EventBus eventBus;
   private final AnalysisMode analysisMode;
   private final UserFinder userFinder;
-  private final InputFileCache fileCache;
+  private final InputPathCache fileCache;
   private final Project rootModule;
 
   public JsonReport(Settings settings, FileSystem fileSystem, Server server, RuleFinder ruleFinder, IssueCache issueCache,
-                    EventBus eventBus, AnalysisMode analysisMode, UserFinder userFinder, Project rootModule, InputFileCache fileCache) {
+    EventBus eventBus, AnalysisMode analysisMode, UserFinder userFinder, Project rootModule, InputPathCache fileCache) {
     this.settings = settings;
     this.fileSystem = fileSystem;
     this.server = server;
@@ -167,16 +174,28 @@ public class JsonReport implements BatchComponent {
     json.name("components").beginArray();
     // Dump modules
     writeJsonModuleComponents(json, rootModule);
-    // TODO we need to dump directories
-    for (InputFile inputFile : fileCache.all()) {
-      String key = ((DefaultInputFile) inputFile).key();
-      json
-        .beginObject()
-        .prop("key", key)
-        .prop("path", inputFile.relativePath())
-        .prop("moduleKey", StringUtils.substringBeforeLast(key, ":"))
-        .prop("status", inputFile.status().name())
-        .endObject();
+    for (InputPath inputPath : fileCache.all()) {
+      if (inputPath instanceof InputFile) {
+        InputFile inputFile = (InputFile) inputPath;
+        String key = ((DefaultInputFile) inputFile).key();
+        json
+          .beginObject()
+          .prop("key", key)
+          .prop("path", inputFile.relativePath())
+          .prop("moduleKey", StringUtils.substringBeforeLast(key, ":"))
+          .prop("status", inputFile.status().name())
+          .endObject();
+      } else {
+        InputDir inputDir = (InputDir) inputPath;
+        String key = ((DefaultInputDir) inputDir).key();
+        json
+          .beginObject()
+          .prop("key", key)
+          .prop("path", inputDir.relativePath())
+          .prop("moduleKey", StringUtils.substringBeforeLast(key, ":"))
+          .endObject();
+      }
+
     }
     json.endArray();
   }

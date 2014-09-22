@@ -1,0 +1,50 @@
+<div class="admin_page">
+  <ul style="float: right" class="horizontal">
+    <li class="marginleft10 add">
+      <%= link_to message('create'), {:action => :create_form}, :id => "create-link-provisioning", :class => 'open-modal link-action' %>
+    </li>
+  </ul>
+
+  <h1 class="admin-page-title"><%= message('provisioning.page') -%></h1>
+  <p class="admin-page-description"><%= message('provisioning.page.description') -%></p>
+
+  <% if  @query_result.empty? %>
+    <br/>
+    <%= message('provisioning.no_results') -%>
+  <% else %>
+
+  <table class="data" id="provisioned-resources">
+    <thead>
+      <tr>
+        <th><%= message('key') -%></th>
+        <th><%= message('name') -%></span></th>
+        <th><%= message('created') -%></th>
+        <th class="operations"><%= message('operations') -%></th>
+      </tr>
+    </thead>
+    <tbody>
+    <% @query_result.each_with_index do |resource, index| %>
+
+      <tr id="entry-<%= resource.key.parameterize -%>" class="<%= cycle 'even', 'odd' -%>">
+        <td>
+          <%= link_to h(resource.key), {:controller => 'dashboard', :action => 'index', :id => resource.id},
+              :id => "view-#{resource.key.parameterize}" %>
+        </td>
+        <td><%= h resource.name -%></td>
+        <td><%= format_datetime(resource.created_at) -%></td>
+        <td class="operations">
+          <%= link_to message('edit'), {:action => :create_form, :id => resource.id, :key => resource.key, :name => resource.name},
+              {:id => "edit-#{resource.key.parameterize}", :class => 'open-modal link-action'} -%>
+          &nbsp;
+          <%= link_to message('delete'), {:action => :delete_form, :id => resource.id},
+              {:id => "delete-#{resource.key.parameterize}", :class => 'open-modal link-action link-red'} -%>
+        </td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+
+  <% end %>
+
+</div>
+

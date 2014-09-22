@@ -20,13 +20,15 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.scan.filesystem.PathResolver;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -45,11 +47,11 @@ public class FileSystemLogger implements BatchComponent {
   @VisibleForTesting
   void doLog(Logger logger) {
     logDir(logger, "Base dir: ", fs.baseDir());
-    logDir(logger, "Working dir: ", fs.workingDir());
-    logDirs(logger, "Source dirs: ", fs.sourceDirs());
-    logDirs(logger, "Test dirs: ", fs.testDirs());
-    logDirs(logger, "Binary dirs: ", fs.binaryDirs());
-    logEncoding(logger, fs.sourceCharset());
+    logDir(logger, "Working dir: ", fs.workDir());
+    logPaths(logger, "Source paths: ", fs.baseDir(), fs.sources());
+    logPaths(logger, "Test paths: ", fs.baseDir(), fs.tests());
+    logPaths(logger, "Binary dirs: ", fs.baseDir(), fs.binaryDirs());
+    logEncoding(logger, fs.encoding());
   }
 
   private void logEncoding(Logger logger, Charset charset) {
@@ -60,9 +62,25 @@ public class FileSystemLogger implements BatchComponent {
     }
   }
 
-  private void logDirs(Logger logger, String label, List<File> dirs) {
-    if (!dirs.isEmpty()) {
-      logger.info(label + Joiner.on(", ").join(dirs));
+  private void logPaths(Logger logger, String label, File baseDir, List<File> paths) {
+    if (!paths.isEmpty()) {
+      PathResolver resolver = new PathResolver();
+      StringBuilder sb = new StringBuilder(label);
+      for (Iterator<File> it = paths.iterator(); it.hasNext();) {
+        File file = it.next();
+        String relativePathToBaseDir = resolver.relativePath(baseDir, file);
+        if (relativePathToBaseDir == null) {
+          sb.append(file);
+        } else if (StringUtils.isBlank(relativePathToBaseDir)) {
+          sb.append(".");
+        } else {
+          sb.append(relativePathToBaseDir);
+        }
+        if (it.hasNext()) {
+          sb.append(", ");
+        }
+      }
+      logger.info(sb.toString());
     }
   }
 

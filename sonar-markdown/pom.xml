@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar</artifactId>
-    <version>4.3.1</version>
+    <version>5.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
@@ -16,6 +16,10 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-channel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -34,6 +38,11 @@
     <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-assert</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

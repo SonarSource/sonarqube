@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 

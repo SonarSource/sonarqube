@@ -4,8 +4,7 @@
   <metrics id="2" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
            enabled="[true]" worst_value="0" optimized_best_value="[true]" best_value="100" direction="1" hidden="[false]" delete_historical_data="[null]"/>
 
-  <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_name="" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_kee="" kee="sonar_way_with_findbugs"/>
 
   <projects id="399" kee="struts" root_id="[null]"/>
   <projects id="400" kee="Action.java" root_id="399"/>
@@ -15,8 +14,8 @@
   <snapshots id="101" project_id="400" root_snapshot_id="100" path="100." islast="[true]"/>
   <snapshots id="102" project_id="401" root_snapshot_id="100" path="100." islast="[true]"/>
 
-  <rules id="500" plugin_rule_key="AvoidCycle" plugin_name="squid"/>
-  <rules id="501" plugin_rule_key="NullRef" plugin_name="squid"/>
+  <rules tags="[null]" system_tags="[null]" id="500" plugin_rule_key="AvoidCycle" plugin_name="squid"/>
+  <rules tags="[null]" system_tags="[null]" id="501" plugin_rule_key="NullRef" plugin_name="squid"/>
 
   <issues
       id="100"

@@ -20,8 +20,6 @@
 
 package org.sonar.batch.issue.ignore.pattern;
 
-import org.sonar.batch.issue.ignore.IssueExclusionsConfiguration;
-
 import com.google.common.collect.Maps;
 import org.sonar.api.config.Settings;
 
@@ -38,7 +36,7 @@ public class IssueInclusionPatternInitializer extends AbstractPatternInitializer
 
   @Override
   protected String getMulticriteriaConfigurationKey() {
-    return IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_INCLUSION_KEY;
+    return "sonar.issue.enforce" + ".multicriteria";
   }
 
   @Override

@@ -1,0 +1,26 @@
+<%
+  new_tab = nil unless defined?(:new_tab)
+  selected_tab = nil unless defined?(:selected_tab)
+%>
+<ul class="tabs">
+  <li>
+    <a href="<%= url_for :controller => 'profiles', :action => 'show', :key => @profile.key() -%>" <%= "class='selected'" if selected_tab.nil? || selected_tab=='Rules' -%> id="tab-rules"><%= message('coding_rules') -%></a>
+  </li>
+  <li>
+    <a href="<%= url_for :controller => 'profiles', :action => 'projects', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Projects' -%> id="tab-projects"><%= message('projects') -%></a>
+  </li>
+  <li>
+    <a href="<%= url_for :controller => 'profiles', :action => 'permalinks', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Permalinks' -%> id="tab-permalinks"><%= message('permalinks') -%></a>
+  </li>
+  <li>
+    <a href="<%= url_for :controller => 'profiles', :action => 'inheritance', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='inheritance' -%> id="tab-inheritance"><%= message('quality_profiles.profile_inheritance') -%></a>
+  </li>
+  <li>
+    <a href="<%= url_for :controller => 'profiles', :action => 'changelog', :key => @profile.key() -%>" <%= "class='selected'" if selected_tab=='changelog' -%> id="tab-changelog"><%= message('changelog') -%></a>
+  </li>
+  <% if new_tab %>
+  <li>
+    <a href="#" class='selected'><%= new_tab -%></a>
+  </li>
+  <% end %>
+</ul>

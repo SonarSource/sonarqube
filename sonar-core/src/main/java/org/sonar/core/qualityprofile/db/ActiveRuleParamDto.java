@@ -20,6 +20,15 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import com.google.common.base.Preconditions;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.core.rule.RuleParamDto;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 public class ActiveRuleParamDto {
 
   private Integer id;
@@ -50,6 +59,7 @@ public class ActiveRuleParamDto {
     return rulesParameterId;
   }
 
+  // TODO set private or drop
   public ActiveRuleParamDto setRulesParameterId(Integer rulesParameterId) {
     this.rulesParameterId = rulesParameterId;
     return this;
@@ -73,4 +83,23 @@ public class ActiveRuleParamDto {
     return this;
   }
 
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
+  }
+
+  public static ActiveRuleParamDto createFor(RuleParamDto param) {
+    Preconditions.checkArgument(param.getId() != null, "Parameter is not persisted");
+    return new ActiveRuleParamDto()
+      .setKey(param.getName())
+      .setRulesParameterId(param.getId());
+  }
+
+  public static Map<String,ActiveRuleParamDto> groupByKey(Collection<ActiveRuleParamDto> params) {
+    Map<String, ActiveRuleParamDto> result = new HashMap<String, ActiveRuleParamDto>();
+    for (ActiveRuleParamDto param : params) {
+      result.put(param.getKey(), param);
+    }
+    return result;
+  }
 }

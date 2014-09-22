@@ -48,4 +48,7 @@ public interface CharacteristicMapper {
 
   int update(CharacteristicDto characteristic);
 
+  void deleteRequirementsFromCharacteristicsTable();
+
+  List<RequirementMigrationDto> selectDeprecatedRequirements();
 }

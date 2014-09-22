@@ -19,14 +19,19 @@
  */
 package org.sonar.batch.source;
 
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+
 import org.sonar.api.component.Component;
 import org.sonar.api.source.Highlightable;
+import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.source.SnapshotDataTypes;
 
 /**
  * @since 3.6
+ * @deprecated since 4.5 no more used in batch 2.0
  */
+@Deprecated
 public class DefaultHighlightable implements Highlightable {
 
   private final Component component;
@@ -41,7 +46,7 @@ public class DefaultHighlightable implements Highlightable {
 
   @Override
   public HighlightingBuilder newHighlighting() {
-    return new DefaultHighlightingBuilder();
+    return new DefaultHighlightingBuilder(component.key(), cache, builder);
   }
 
   @Override
@@ -53,17 +58,28 @@ public class DefaultHighlightable implements Highlightable {
     return builder;
   }
 
-  private class DefaultHighlightingBuilder implements HighlightingBuilder {
+  private static class DefaultHighlightingBuilder implements HighlightingBuilder {
+
+    private final SyntaxHighlightingDataBuilder builder;
+    private String componentKey;
+    private ComponentDataCache cache;
+
+    public DefaultHighlightingBuilder(String componentKey, ComponentDataCache cache, SyntaxHighlightingDataBuilder builder) {
+      this.componentKey = componentKey;
+      this.cache = cache;
+      this.builder = builder;
+    }
 
     @Override
     public HighlightingBuilder highlight(int startOffset, int endOffset, String typeOfText) {
-      builder.registerHighlightingRule(startOffset, endOffset, typeOfText);
+      TypeOfText type = org.sonar.api.batch.sensor.highlighting.TypeOfText.forCssClass(typeOfText);
+      builder.registerHighlightingRule(startOffset, endOffset, type);
       return this;
     }
 
     @Override
     public void done() {
-      cache.setStringData(component().key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING, builder.build().writeString());
+      cache.setData(componentKey, SnapshotDataTypes.SYNTAX_HIGHLIGHTING, builder.build());
     }
   }
 }

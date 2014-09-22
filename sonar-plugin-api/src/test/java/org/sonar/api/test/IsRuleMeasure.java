@@ -46,7 +46,7 @@ public class IsRuleMeasure extends ArgumentMatcher<Measure> {
     }
     RuleMeasure m = (RuleMeasure) o;
     return ObjectUtils.equals(metric, m.getMetric()) &&
-      ObjectUtils.equals(rule, m.getRule()) &&
+      ObjectUtils.equals(rule.ruleKey(), m.ruleKey()) &&
       NumberUtils.compare(value, m.getValue()) == 0;
   }
 }

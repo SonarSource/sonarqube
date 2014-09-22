@@ -1,0 +1,64 @@
+{
+  "key": "org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/index/Cache.java",
+  "path": "src/main/java/org/sonar/batch/index/Cache.java",
+  "name": "Cache.java",
+  "longName": "src/main/java/org/sonar/batch/index/Cache.java",
+  "q": "FIL",
+  "subProject": "org.codehaus.sonar:sonar-batch",
+  "subProjectName": "SonarQube :: Batch",
+  "project": "org.codehaus.sonar:sonar",
+  "projectName": "SonarQube",
+  "fav": false,
+  "canMarkAsFavourite": true,
+  "canBulkChange": true,
+  "canCreateManualIssue": true,
+  "periods": [
+    [1, "since previous analysis (2014 Jul 08)", "2014-07-08T23:17:21+0200"],
+    [2, "over 365 days (2013 Jul 10)", "2013-07-10T00:41:28+0200"],
+    [3, "since previous version (4.4 - 2014 Jul 02)", "2014-07-02T15:39:51+0200"]
+  ],
+  "severities": [
+    ["MINOR", "Minor", 1],
+    ["MAJOR", "Major", 1],
+    ["INFO", "Info", 4]
+  ],
+  "rules": [
+    ["common-java:DuplicatedBlocks", "Duplicated blocks", 1],
+    ["squid:S1192", "String literals should not be duplicated", 1],
+    ["squid:S1135", "TODO tags should be handled", 4]
+  ],
+  "measures": {
+    "fNcloc": "379",
+    "fCoverage": "74.3%",
+    "fDuplicationDensity": "5.8%",
+    "fDebt": "3h 30min",
+    "fIssues": "6",
+    "fMinorIssues": "1",
+    "fMajorIssues": "1",
+    "fInfoIssues": "4",
+    "fSqaleRating": "A"
+  },
+  "tabs": ["scm", "coverage", "duplications"],
+  "manual_rules": [
+    {
+      "key": "manual:api",
+      "name": "API"
+    },
+    {
+      "key": "manual:design",
+      "name": "Design"
+    },
+    {
+      "key": "manual:error_handling",
+      "name": "Error handling"
+    },
+    {
+      "key": "manual:performance",
+      "name": "Performance"
+    },
+    {
+      "key": "manual:sql_pitfalls",
+      "name": "SQL Pitfall"
+    }
+  ]
+}

@@ -22,31 +22,24 @@ package org.sonar.batch.index;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
+
+import javax.annotation.Nullable;
 
 import java.util.List;
 
 public interface PersistenceManager {
   void clear();
 
-  void setDelayedMode(boolean b);
+  void saveProject(Project project, @Nullable Project parent);
 
-  void dump();
-
-  void saveProject(Project project, Project parent);
-
-  Snapshot saveResource(Project project, Resource resource, Resource parent);
+  Snapshot saveResource(Project project, Resource resource, @Nullable Resource parent);
 
   void setSource(Resource file, String source);
 
   String getSource(Resource resource);
-
-  void saveMeasure(Resource resource, Measure measure);
-
-  Measure reloadMeasure(Measure measure);
 
   void saveDependency(Project project, Dependency dependency, Dependency parentDependency);
 

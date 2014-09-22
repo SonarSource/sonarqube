@@ -33,12 +33,12 @@ public interface QualityProfileMapper {
 
   void update(QualityProfileDto dto);
 
-  void delete(Integer id);
+  void delete(int id);
 
   List<QualityProfileDto> selectAll();
 
   @CheckForNull
-  QualityProfileDto selectDefaultProfile(@Param("language") String language, @Param("key") String key);
+  QualityProfileDto selectDefaultProfile(@Param("language") String language, @Param("propKey") String propKey);
 
   @CheckForNull
   QualityProfileDto selectByNameAndLanguage(@Param("name") String name, @Param("language") String language);
@@ -46,16 +46,20 @@ public interface QualityProfileMapper {
   @CheckForNull
   QualityProfileDto selectById(@Param("id") Integer id);
 
+  @CheckForNull
+  QualityProfileDto selectByKey(String key);
+
   List<QualityProfileDto> selectByLanguage(String language);
 
   // INHERITANCE
 
   @CheckForNull
-  QualityProfileDto selectParent(@Param("childId") Integer childId);
+  QualityProfileDto selectParent(String childKey);
 
-  List<QualityProfileDto> selectChildren(@Param("name") String name, @Param("language") String language);
+  @CheckForNull
+  QualityProfileDto selectParentById(int childId);
 
-  int countChildren(@Param("name") String name, @Param("language") String language);
+  List<QualityProfileDto> selectChildren(String key);
 
   // PROJECTS
 
@@ -63,7 +67,7 @@ public interface QualityProfileMapper {
 
   int countProjects(@Param("value") String propertyValue, @Param("key") String propertyKey);
 
-  QualityProfileDto selectByProjectAndLanguage(@Param("projectId") Long projectId, @Param("language") String language, @Param("key") String propertyKeyPrefix);
+  QualityProfileDto selectByProjectIdAndLanguage(@Param("projectId") Long projectId, @Param("language") String language, @Param("key") String propertyKeyPrefix);
 
-  void updatedUsedColumn(@Param("id") int profileId, @Param("used") boolean used);
+  QualityProfileDto selectByProjectAndLanguage(@Param("projectKey") String projectKey, @Param("language") String language, @Param("propertyKey") String propertyKeyPrefix);
 }

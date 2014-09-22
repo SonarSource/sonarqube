@@ -1,0 +1,19 @@
+{
+  "timestamp": 0,
+  "metrics": [
+    {
+      "id": 0,
+      "key": "coverage",
+      "valueType": "PERCENT",
+      "description": "Coverage by unit tests",
+      "direction": 1,
+      "name": "coverage",
+      "qualitative": true,
+      "userManaged": false,
+      "worstValue": 0.0,
+      "bestValue": 100.0,
+      "optimizedBestValue": false
+    }
+  ],
+  "globalSettings": {}
+}

@@ -83,16 +83,6 @@ public class RulesProfileWrapper extends RulesProfile {
     return singleLanguageProfile.getLanguage();
   }
 
-  // TODO remove when ProfileEventsSensor is refactored
-  public RulesProfile getProfileByLanguage(String languageKey) {
-    for (RulesProfile profile : profiles) {
-      if (languageKey.equals(profile.getLanguage())) {
-        return profile;
-      }
-    }
-    return null;
-  }
-
   @Override
   public List<ActiveRule> getActiveRules() {
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
@@ -100,11 +90,6 @@ public class RulesProfileWrapper extends RulesProfile {
       activeRules.addAll(profile.getActiveRules());
     }
     return activeRules;
-  }
-
-  @Override
-  public int getVersion() {
-    return getSingleProfileOrFail().getVersion();
   }
 
   @Override

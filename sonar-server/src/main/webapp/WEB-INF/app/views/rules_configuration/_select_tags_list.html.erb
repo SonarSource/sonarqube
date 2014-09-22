@@ -1,9 +1,0 @@
-<% #locals = tags -%>
-<ul class="select-list-list">
-<% tags.each do |tag| -%>
-  <li>
-    <%= check_box_tag 'tags[]', tag[:value], tag[:selected], :id => 'tags_'+tag[:value], :disabled => tag[:read_only], :class => 'select-list-list-checkbox' -%>
-    <label class="select-list-list-item" for="tags_<%= tag[:value] -%>"><%= tag[:value] -%></label>
-  </li>
-<% end -%>
-</ul>

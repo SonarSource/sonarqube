@@ -1,0 +1,28 @@
+<div class="coding-rules-debt-popup bubble-popup-container">
+  <ul class="bubble-popup-list">
+    {{#if debtRemFnType}}
+    <li>
+      <h3>{{t 'coding_rules.remediation_function'}}</h3>
+      {{t 'coding_rules.remediation_function' debtRemFnType}}
+    </li>
+    {{/if}}
+    {{#if debtRemFnCoeff}}
+    <li>
+      <h3>{{t 'coding_rules.remediation_function.coeff'}}</h3>
+      {{debtRemFnCoeff}}
+    </li>
+    {{/if}}
+    {{#if debtRemFnOffset}}
+    <li>
+      <h3>{{#eq debtRemFnType 'CONSTANT_ISSUE'}}
+        {{t 'coding_rules.remediation_function.constant'}}
+        {{else}}
+        {{t 'coding_rules.remediation_function.offset'}}
+        {{/eq}}
+      </h3>
+      {{debtRemFnOffset}}
+    </li>
+    {{/if}}
+</div>
+
+<div class="bubble-popup-arrow"></div>

@@ -31,9 +31,9 @@ import java.util.Collection;
 public final class OverallCoverageDecorator extends AbstractCoverageDecorator {
   @DependsUpon
   public Collection<Metric> usedMetrics() {
-    return ImmutableList.of(CoreMetrics.OVERALL_LINES_TO_COVER, CoreMetrics.OVERALL_UNCOVERED_LINES, CoreMetrics.NEW_OVERALL_LINES_TO_COVER,
-        CoreMetrics.NEW_OVERALL_UNCOVERED_LINES, CoreMetrics.OVERALL_CONDITIONS_TO_COVER, CoreMetrics.OVERALL_UNCOVERED_CONDITIONS,
-        CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS);
+    return ImmutableList.<Metric>of(CoreMetrics.OVERALL_LINES_TO_COVER, CoreMetrics.OVERALL_UNCOVERED_LINES, CoreMetrics.NEW_OVERALL_LINES_TO_COVER,
+      CoreMetrics.NEW_OVERALL_UNCOVERED_LINES, CoreMetrics.OVERALL_CONDITIONS_TO_COVER, CoreMetrics.OVERALL_UNCOVERED_CONDITIONS,
+      CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS);
   }
 
   @Override

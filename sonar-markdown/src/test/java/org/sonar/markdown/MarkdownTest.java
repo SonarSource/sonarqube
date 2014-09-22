@@ -32,15 +32,51 @@ public class MarkdownTest {
   }
 
   @Test
+  public void shouldDecorateDocumentedLink() {
+    assertThat(Markdown.convertToHtml("For more details, please [check online documentation](http://docs.codehaus.org/display/SONAR)."))
+        .isEqualTo("For more details, please <a href=\"http://docs.codehaus.org/display/SONAR\" target=\"_blank\">check online documentation</a>.");
+  }
+
+
+  @Test
   public void shouldDecorateEndOfLine() {
     assertThat(Markdown.convertToHtml("1\r2\r\n3\n")).isEqualTo("1<br/>2<br/>3<br/>");
   }
 
   @Test
-  public void shouldDecorateList() {
+  public void shouldDecorateUnorderedList() {
     assertThat(Markdown.convertToHtml("  * one\r* two\r\n* three\n * \n *five"))
         .isEqualTo("<ul><li>one</li>\r<li>two</li>\r\n<li>three</li>\n<li> </li>\n</ul> *five");
     assertThat(Markdown.convertToHtml("  * one\r* two")).isEqualTo("<ul><li>one</li>\r<li>two</li></ul>");
+    assertThat(Markdown.convertToHtml("* \r*")).isEqualTo("<ul><li> </li>\r</ul>*");
+  }
+
+  @Test
+  public void shouldDecorateOrderedList() {
+    assertThat(Markdown.convertToHtml("  1. one\r1. two\r\n1. three\n 1. \n 1.five"))
+        .isEqualTo("<ol><li>one</li>\r<li>two</li>\r\n<li>three</li>\n<li> </li>\n</ol> 1.five");
+    assertThat(Markdown.convertToHtml("  1. one\r1. two")).isEqualTo("<ol><li>one</li>\r<li>two</li></ol>");
+    assertThat(Markdown.convertToHtml("1. \r1.")).isEqualTo("<ol><li> </li>\r</ol>1.");
+  }
+
+  @Test
+  public void shouldDecorateHeadings() {
+    assertThat(Markdown.convertToHtml("  = Top\r== Sub\r\n=== Subsub\n ==== \n 1.five"))
+        .isEqualTo("<h1>Top\r</h1><h2>Sub\r\n</h2><h3>Subsub\n</h3><h4></h4> 1.five");
+  }
+
+  @Test
+  public void shouldDecorateBlockquote() {
+    assertThat(Markdown.convertToHtml("> Yesterday <br/> it worked\n> Today it is not working\r\n> Software is like that\r"))
+        .isEqualTo("<blockquote>Yesterday &lt;br/&gt; it worked<br/>\nToday it is not working<br/>\r\nSoftware is like that<br/>\r</blockquote>");
+    assertThat(Markdown.convertToHtml("HTML elements should <em>not</em> be quoted!"))
+        .isEqualTo("HTML elements should &lt;em&gt;not&lt;/em&gt; be quoted!");
+  }
+
+  @Test
+  public void shouldDecorateMixedOrderedAndUnorderedList() {
+    assertThat(Markdown.convertToHtml("  1. one\r* two\r\n1. three\n * \n 1.five"))
+        .isEqualTo("<ol><li>one</li>\r</ol><ul><li>two</li>\r\n</ul><ol><li>three</li>\n</ol><ul><li> </li>\n</ul> 1.five");
   }
 
   @Test

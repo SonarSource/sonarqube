@@ -39,6 +39,8 @@ public interface PropertiesMapper {
 
   PropertyDto selectByKey(PropertyDto key);
 
+  List<PropertyDto> selectByQuery(@Param("query") PropertyQuery query);
+
   void update(PropertyDto property);
 
   void insert(PropertyDto property);

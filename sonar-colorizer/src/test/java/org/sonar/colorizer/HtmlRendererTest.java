@@ -28,9 +28,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.StringContains.containsString;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class HtmlRendererTest {
 
@@ -42,7 +40,7 @@ public class HtmlRendererTest {
 
     String html = htmlRenderer.render(new StringReader("public class Hello {"), Arrays.asList(javaKeywordTokenizer));
 
-    assertThat(html, is("<span class='k'>public</span> <span class='k'>class</span> Hello {"));
+    assertThat(html).isEqualTo("<span class='k'>public</span> <span class='k'>class</span> Hello {");
   }
 
   @Test
@@ -51,7 +49,7 @@ public class HtmlRendererTest {
 
     String html = htmlRenderer.render(new StringReader("foo(\"<html>\");"), Arrays.asList(new LiteralTokenizer("<s>", "</s>")));
 
-    assertThat(html, is("foo(<s>\"&lt;html&gt;\"</s>);"));
+    assertThat(html).isEqualTo("foo(<s>\"&lt;html&gt;\"</s>);");
   }
 
   @Test
@@ -60,13 +58,13 @@ public class HtmlRendererTest {
 
     String html = new HtmlRenderer().render(new FileReader(java), Arrays.asList(javaKeywordTokenizer));
 
-    assertThat(html, containsString("<html>"));
-    assertThat(html, containsString("<style"));
-    assertThat(html, containsString("<table class=\"code\""));
-    assertThat(html, containsString("public"));
-    assertThat(html, containsString("class"));
-    assertThat(html, containsString("Sample"));
-    assertThat(html, containsString("</html>"));
+    assertThat(html).contains("<html>");
+    assertThat(html).contains("<style");
+    assertThat(html).contains("<table class=\"code\"");
+    assertThat(html).contains("public");
+    assertThat(html).contains("class");
+    assertThat(html).contains("Sample");
+    assertThat(html).contains("</html>");
   }
 
 }

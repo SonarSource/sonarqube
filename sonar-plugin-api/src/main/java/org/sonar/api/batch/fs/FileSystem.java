@@ -22,6 +22,7 @@ package org.sonar.api.batch.fs;
 import org.sonar.api.BatchComponent;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.SortedSet;
@@ -93,6 +94,16 @@ public interface FileSystem extends BatchComponent {
    */
   @CheckForNull
   InputFile inputFile(FilePredicate predicate);
+
+  /**
+   * Returns {@link InputDir} matching the current {@link File}.
+   * @return null if directory is not indexed.
+   * @throw {@link IllegalArgumentException} is File is null or not a directory.
+   * 
+   * @since 4.5
+   */
+  @CheckForNull
+  InputDir inputDir(File dir);
 
   /**
    * Input files matching the given attributes. Return all the files if the parameter

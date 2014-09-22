@@ -26,8 +26,18 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import java.io.Serializable;
 
 /**
  * This class represents the definition of a metric in Sonar.
@@ -37,7 +47,7 @@ import javax.persistence.*;
 @Table(name = "metrics")
 @Entity(name = "Metric")
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class Metric implements ServerExtension, BatchExtension {
+public class Metric<G extends Serializable> implements ServerExtension, BatchExtension, Serializable, org.sonar.api.batch.measure.Metric<G> {
 
   /**
    * A metric bigger value means a degradation
@@ -53,7 +63,28 @@ public class Metric implements ServerExtension, BatchExtension {
   public static final int DIRECTION_NONE = 0;
 
   public enum ValueType {
-    INT, FLOAT, PERCENT, BOOL, STRING, MILLISEC, DATA, LEVEL, DISTRIB, RATING, WORK_DUR
+    INT(Integer.class),
+    FLOAT(Double.class),
+    PERCENT(Double.class),
+    BOOL(Boolean.class),
+    STRING(String.class),
+    MILLISEC(Integer.class),
+    DATA(String.class),
+    LEVEL(Metric.Level.class),
+    DISTRIB(String.class),
+    RATING(String.class),
+    WORK_DUR(Long.class);
+
+    private final Class valueClass;
+
+    private ValueType(Class valueClass) {
+      this.valueClass = valueClass;
+    }
+
+    private Class valueType() {
+      return valueClass;
+    }
+
   }
 
   public enum Level {
@@ -80,7 +111,7 @@ public class Metric implements ServerExtension, BatchExtension {
   private Integer id;
 
   @Transient
-  private Formula formula;
+  private transient Formula formula;
 
   @Column(name = "name", updatable = false, nullable = false, length = 64)
   private String key;
@@ -202,11 +233,9 @@ public class Metric implements ServerExtension, BatchExtension {
    * @param qualitative whether the metric is qualitative
    * @param domain      the metric domain
    * @param userManaged whether the metric is user managed
-   * @deprecated since 2.7 use the {@link Builder} factory.
    */
-  @Deprecated
-  public Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, @Nullable String domain,
-      boolean userManaged) {
+  private Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, @Nullable String domain,
+    boolean userManaged) {
     this.key = key;
     this.description = description;
     this.type = type;
@@ -216,41 +245,6 @@ public class Metric implements ServerExtension, BatchExtension {
     this.qualitative = qualitative;
     this.userManaged = userManaged;
     this.origin = Origin.JAV;
-    if (ValueType.PERCENT.equals(this.type)) {
-      this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
-      this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
-    }
-  }
-
-  /**
-   * Creates a fully qualified metric. This defaults some values:
-   * <ul>
-   * <li>origin : Origin.JAV</li>
-   * <li>enabled : true</li>
-   * <li>userManaged : true</li>
-   * </ul>
-   *
-   * @param key         the metric key
-   * @param name        the metric name
-   * @param type        the metric type
-   * @param direction   the metric direction
-   * @param qualitative whether the metric is qualitative
-   * @param domain      the metric domain
-   * @param formula     the metric formula
-   * @deprecated since 2.7 use the {@link Builder} factory.
-   */
-  @Deprecated
-  public Metric(String key, String name, ValueType type, Integer direction, Boolean qualitative, String domain, Formula formula) {
-    this.key = key;
-    this.name = name;
-    this.type = type;
-    this.direction = direction;
-    this.domain = domain;
-    this.qualitative = qualitative;
-    this.origin = Origin.JAV;
-    this.enabled = true;
-    this.userManaged = false;
-    this.formula = formula;
     if (ValueType.PERCENT.equals(this.type)) {
       this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
       this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
@@ -347,6 +341,7 @@ public class Metric implements ServerExtension, BatchExtension {
   /**
    * @return the metric description
    */
+  @CheckForNull
   public String getDescription() {
     return description;
   }
@@ -357,7 +352,7 @@ public class Metric implements ServerExtension, BatchExtension {
    * @param description the description
    * @return this
    */
-  public Metric setDescription(String description) {
+  public Metric setDescription(@Nullable String description) {
     this.description = description;
     return this;
   }
@@ -473,6 +468,7 @@ public class Metric implements ServerExtension, BatchExtension {
     return worstValue;
   }
 
+  @CheckForNull
   public Double getBestValue() {
     return bestValue;
   }
@@ -480,7 +476,7 @@ public class Metric implements ServerExtension, BatchExtension {
   /**
    * @return this
    */
-  public Metric setWorstValue(Double d) {
+  public Metric setWorstValue(@Nullable Double d) {
     this.worstValue = d;
     return this;
   }
@@ -489,7 +485,7 @@ public class Metric implements ServerExtension, BatchExtension {
    * @param bestValue the best value. It can be null.
    * @return this
    */
-  public Metric setBestValue(Double bestValue) {
+  public Metric setBestValue(@Nullable Double bestValue) {
     this.bestValue = bestValue;
     return this;
   }
@@ -521,11 +517,15 @@ public class Metric implements ServerExtension, BatchExtension {
     return ValueType.PERCENT.equals(type);
   }
 
-  public Metric setOptimizedBestValue(Boolean b) {
+  public Metric setOptimizedBestValue(@Nullable Boolean b) {
     this.optimizedBestValue = b;
     return this;
   }
 
+  /**
+   * @return null for manual metrics
+   */
+  @CheckForNull
   public Boolean isOptimizedBestValue() {
     return optimizedBestValue;
   }
@@ -794,12 +794,22 @@ public class Metric implements ServerExtension, BatchExtension {
      *
      * @return a new {@link Metric} object
      */
-    public Metric create() {
+    public <G extends Serializable> Metric<G> create() {
       if (ValueType.PERCENT.equals(this.type)) {
         this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
         this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
       }
-      return new Metric(this);
+      return new Metric<G>(this);
     }
+  }
+
+  @Override
+  public String key() {
+    return getKey();
+  }
+
+  @Override
+  public Class<G> valueType() {
+    return getType().valueType();
   }
 }

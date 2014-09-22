@@ -5,52 +5,112 @@
   <sql id="componentColumns">
     p.id,
     p.kee as kee,
-    p.qualifier
+    p.name as name,
+    p.long_name as longName,
+    p.qualifier as qualifier,
+    p.scope as scope,
+    p.language as language,
+    s.root_project_id as projectId,
+    p.root_id as subProjectId,
+    p.path as path,
+    p.authorization_updated_at as authorizationUpdatedAt
   </sql>
 
-  <sql id="sortColumn">
-    <if test="query.sort() != null">,
-      <choose>
-        <when test="'SEVERITY'.equals(query.sort())">
-          p.severity as severity
-        </when>
-        <when test="'STATUS'.equals(query.sort())">
-          p.status as status
-        </when>
-        <when test="'ASSIGNEE'.equals(query.sort())">
-          p.assignee as assignee
-        </when>
-        <when test="'CREATION_DATE'.equals(query.sort())">
-          p.issue_creation_date as issueCreationDate
-        </when>
-        <when test="'UPDATE_DATE'.equals(query.sort())">
-          p.issue_update_date as issueUpdateDate
-        </when>
-        <when test="'CLOSE_DATE'.equals(query.sort())">
-          p.issue_close_date as issueCloseDate
-        </when>
-      </choose>
-    </if>
+  <sql id="authorizedComponentColumns">
+    p.id,
+    p.kee as kee,
+    p.qualifier as qualifier
   </sql>
 
-  <select id="selectComponents" parameterType="map" resultType="Issue">
-    select <include refid="componentColumns"/>
-    from projects p
-    <include refid="selectQueryConditions"/>
+  <select id="selectByKey" parameterType="String" resultType="Component">
+    SELECT <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    <where>
+      AND p.enabled=${_true}
+      AND p.kee=#{key}
+    </where>
   </select>
 
-  <sql id="selectQueryConditions">
+  <select id="selectById" parameterType="long" resultType="Component">
+    SELECT <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
     <where>
-      <if test="query.ids().size()>0">
-        and <foreach item="id" index="index" collection="query.ids()" open="(" separator=" or " close=")">p.id=#{id}
-        </foreach>
-      </if>
-      <if test="query.qualifiers().size()>0">
-        and <foreach item="qualifier" index="index" collection="query.qualifiers()" open="(" separator=" or " close=")">p.qualifier=#{qualifier}
-        </foreach>
-      </if>
+      AND p.enabled=${_true}
+      AND p.id=#{id}
     </where>
+  </select>
+
+  <select id="countById" parameterType="long" resultType="long">
+    SELECT count(p.id)
+    FROM projects p
+    <where>
+      AND p.enabled=${_true}
+      AND p.id=#{id}
+    </where>
+  </select>
+
+  <select id="selectRootProjectByKey" parameterType="String" resultType="Component">
+    SELECT rootProject.*
+    FROM projects p
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    INNER JOIN projects rootProject ON rootProject.id=s.root_project_id
+    <where>
+      AND p.kee=#{componentKey}
+    </where>
+  </select>
+
+  <select id="selectParentModuleByKey" parameterType="String" resultType="Component">
+    SELECT <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    INNER JOIN snapshots child_snapshots ON child_snapshots.parent_snapshot_id=s.id AND s.islast=${_true}
+    INNER JOIN projects child ON child.id=child_snapshots.project_id AND child.enabled=${_true} AND child.kee=#{key}
+    <where>
+      AND p.enabled=${_true}
+      AND p.scope='PRJ'
+    </where>
+  </select>
+
+  <select id="findModulesByProject" parameterType="String" resultType="Component">
+    SELECT <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    INNER JOIN snapshots parent_snapshots ON parent_snapshots.id=s.parent_snapshot_id AND s.islast=${_true}
+    INNER JOIN projects parent ON parent.id=parent_snapshots.project_id AND parent.enabled=${_true} AND parent.kee=#{projectKey}
+    <where>
+      AND p.enabled=${_true}
+      AND p.scope='PRJ'
+    </where>
+  </select>
+
+  <select id="selectAuthorizedComponentById" parameterType="long" resultType="AuthorizedComponent">
+    SELECT <include refid="authorizedComponentColumns"/>
+    FROM projects p
+    <where>
+      AND p.enabled=${_true}
+      AND p.id=#{id}
+    </where>
+  </select>
+
+  <select id="selectAuthorizedComponentByKey" parameterType="String" resultType="AuthorizedComponent">
+    SELECT <include refid="authorizedComponentColumns"/>
+    FROM projects p
+    <where>
+      AND p.enabled=${_true}
+      AND p.kee=#{key}
+    </where>
+  </select>
+
+  <sql id="insertColumns">
+    (kee, name, long_name, qualifier, scope, language, root_id, path, created_at, authorization_updated_at)
   </sql>
+
+  <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into projects <include refid="insertColumns"/>
+    values (#{kee}, #{name}, #{longName}, #{qualifier}, #{scope}, #{language}, #{subProjectId}, #{path}, #{createdAt}, #{authorizationUpdatedAt})
+  </insert>
 
 </mapper>
 

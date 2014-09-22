@@ -56,7 +56,6 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
     this.target = target;
     this.pom = pom;
 
-    // TODO See http://jira.codehaus.org/browse/SONAR-2126
     // previously MavenProjectBuilder was responsible for creation of ProjectFileSystem
     project.setFileSystem(this);
   }

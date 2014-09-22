@@ -1,0 +1,212 @@
+<% if @category.isSpecial -%>
+  <%= render 'special', :url => url_for(:controller => "#{@category.key}_configuration") -%>
+<% else -%>
+  <form	onsubmit="$j('#submit_settings').hide();
+                  $j('#loading_settings').show();
+                  $j.ajax({ url:'<%= url_for :controller => 'settings', :action => 'update', :category => @category.key, :subcategory => @subcategory.key, :resource_id => (@resource && @resource.id) -%>',
+                            type:'post',
+                            success:function(responseHTML){$j('#properties').html($j(responseHTML));$j('#loading_settings').hide();$j('#submit_settings').show()},
+                            data:$j(this).serialize()});
+                  return false;"
+         method='post'
+         action='#'
+         autocomplete="off"
+  >
+    <% subcategories = @subcategories_per_categories[@category] || [] -%>
+    <ul class="tabs">
+      <% subcategories.each do |subcategory| -%>
+        <li>
+          <%= link_to subcategory_name(@category, subcategory), {:controller => @resource ? 'project' : 'settings', :action => @resource ? 'settings' : 'index', :category => @category.key, :subcategory => subcategory.key, :id => (@resource && @resource.id)}, :class => @subcategory==subcategory ? 'selected' : nil -%>
+        </li>
+      <% end -%>
+    </ul>
+    <% if @subcategory.isSpecial %>
+      <%= render 'special', :url => url_for(:controller => "#{@subcategory.key}_configuration") -%>
+    <% else %>
+        <% if @subcategory.key == @category.key && !category_desc(@category).blank? -%>
+          <p class="categoryDescription"><%= category_desc(@category) -%> </p>
+        <% end -%>
+        <% if @subcategory.key != @category.key && !subcategory_desc(@category, @subcategory).blank? -%>
+          <p class="categoryDescription" colspan="2"><%= subcategory_desc(@category, @subcategory) -%> </p>
+        <% end -%>
+
+      <table class="marginbottom10">
+        <tbody>
+        <% by_property_index_or_name(@definitions).each do |property| -%>
+          <tr class="property" id="block_<%= property.key -%>">
+            <th>
+              <h3><%= property_name(property) -%></h3>
+            </th>
+            <td>
+              <% value = property_value(property) -%>
+              <% if property.multi_values -%>
+                <% value.each_with_index do |sub_value, index| -%>
+                  <%= render "settings/multi_value", :property => property, :value => sub_value, :hide_delete => index == 0 -%>
+                <% end -%>
+                <div class="template" style="display:none;">
+                  <%= render "settings/multi_value", :property => property, :value => nil, :hide_delete => false -%>
+                </div>
+                <button class="add_value"><%= message('settings.add') -%></button>
+                <br/>
+              <% else -%>
+                <%= render "settings/single_value", :property => property, :value => value -%>
+              <% end -%>
+
+              <%= render "settings/error", :key => property.key -%>
+
+              <!-- SONAR-4707 Don't display default value for property sets -->
+              <% if property.fields.blank? %>
+                <% default_prop_value = (@resource ? Property.value(property.key, nil, property.defaultValue) : property.defaultValue) -%>
+                <% unless default_prop_value.blank? -%>
+                  <div class="note"><%= message('default') %>: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></div>
+                <% else -%>
+                  <!-- SONAR-5162 When no default value, leave a space to add a separation with the description or the key -->
+                  <p class="marginbottom10"></p>
+                <% end -%>
+              <% end -%>
+
+              <% desc=property_description(property) -%>
+              <% unless desc.blank? %>
+                <p class="marginbottom10"><%= desc -%></p>
+              <% end -%>
+              <div class="note"><%= message('key') -%>:&nbsp;<%= property.key -%></div>
+            </td>
+          </tr>
+        <% end -%>
+        </tbody>
+
+      </table>
+
+      <% unless @definitions.empty? %>
+      <div class="marginbottom10" style="padding-left: 5px;">
+        <%= hidden_field_tag('page_version', (params[:page_version] || 0).to_i + 1) -%>
+        <%= submit_tag(message('settings.save_category', :params => [subcategory_name(@category, @subcategory)]), :id => 'submit_settings') -%>
+        <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="loading_settings" style="display:none;">
+      </div>
+      <% end %>
+
+      <% if @category.key() == 'exclusions' -%>
+       <div class="help marginbottom10" style="margin-left: -1px">
+       <h2>Wildcards</h2>
+       <p>Following rules are applied:</p>
+       <table class="data">
+         <thead><tr><th colspan="2"></th></tr></thead>
+         <tr>
+           <td>*</td>
+           <td>Match zero or more characters</td>
+         </tr>
+         <tr>
+           <td>**</td>
+           <td>Match zero or more directories</td>
+         </tr>
+         <tr>
+           <td>?</td>
+           <td>Match a single character</td>
+         </tr>
+       </table>
+       <br>
+       <table class="data">
+         <thead><tr><th>Example</th><th>Matches</th><th>Does not match</th></tr></thead>
+         <tbody>
+         <tr>
+           <td>**/foo/*.js</td>
+           <td>
+             <ul>
+               <li>src/foo/bar.js</li>
+               <li>lib/ui/foo/bar.js</li>
+             </ul>
+           </td>
+           <td>
+             <ul>
+               <li>src/bar.js</li>
+               <li>src/foo2/bar.js</li>
+             </ul>
+           </td>
+         </tr>
+         <tr>
+           <td>src/foo/*bar*.js</td>
+           <td>
+             <ul>
+               <li>src/foo/bar.js</li>
+               <li>src/foo/bar1.js</li>
+               <li>src/foo/bar123.js</li>
+               <li>src/foo/123bar123.js</li>
+             </ul>
+           </td>
+           <td>
+             <ul>
+               <li>src/foo/ui/bar.js</li>
+               <li>src/bar.js</li>
+             </ul>
+           </td>
+         </tr>
+         <tr>
+           <td>src/foo/**</td>
+           <td>
+             <ul>
+               <li>src/foo/bar.js</li>
+               <li>src/foo/ui/bar.js</li>
+             </ul>
+           </td>
+           <td>
+             <ul>
+               <li>src/bar/foo/bar.js</li>
+               <li>src/bar.js</li>
+             </ul>
+           </td>
+         </tr>
+         <tr>
+           <td>**/foo?.js</td>
+           <td>
+             <ul>
+               <li>src/foo1.js</li>
+               <li>src/bar/foo1.js</li>
+             </ul>
+           </td>
+           <td>
+             <ul>
+               <li>src/foo.js</li>
+               <li>src/foo12.js</li>
+               <li>src/12foo3.js</li>
+             </ul>
+           </td>
+         </tr>
+        </tbody>
+       </table>
+       </div>
+      <% else 
+         help = category_help(@category)
+         unless help.blank?
+      -%>
+        <div class="help marginbottom10" style="margin-left: -1px">
+          <%= help -%>
+        </div>
+      <% end 
+      end
+      -%>
+
+    <% end %>
+  </form>
+  <% end -%>
+
+
+
+<script>
+  $j(document)
+    .on('click', '.delete', function () {
+      $j(this).parents('.multi_value').remove();
+      return false;
+    })
+    .on('click', '.add_value', function () {
+      var template = $j(this).parents('.property').find('.template').last();
+      template.clone().insertBefore(template).show();
+      return false;
+    })
+    .on('keypress', 'form', function (e) {
+      if (e.which == 13 && e.target.nodeName != "TEXTAREA") {
+        /* See https://jira.codehaus.org/browse/SONAR-4363 */
+        submit_settings.click();
+        return false;
+      }
+    });
+</script>

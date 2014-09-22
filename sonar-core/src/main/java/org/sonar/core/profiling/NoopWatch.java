@@ -20,7 +20,7 @@
 package org.sonar.core.profiling;
 
 
-class NoopWatch extends StopWatch {
+class NoopWatch implements StopWatch {
 
   @Override
   public void stop(String message, Object... args) {

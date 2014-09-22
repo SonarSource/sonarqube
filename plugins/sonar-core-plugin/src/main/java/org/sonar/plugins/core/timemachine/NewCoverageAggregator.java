@@ -44,7 +44,7 @@ public final class NewCoverageAggregator implements Decorator {
 
   @DependedUpon
   public List<Metric> generatesNewCoverageMetrics() {
-    return Arrays.asList(
+    return Arrays.<Metric>asList(
       CoreMetrics.NEW_LINES_TO_COVER, CoreMetrics.NEW_UNCOVERED_LINES, CoreMetrics.NEW_CONDITIONS_TO_COVER, CoreMetrics.NEW_UNCOVERED_CONDITIONS,
       CoreMetrics.NEW_IT_LINES_TO_COVER, CoreMetrics.NEW_IT_UNCOVERED_LINES, CoreMetrics.NEW_IT_CONDITIONS_TO_COVER, CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS,
       CoreMetrics.NEW_OVERALL_LINES_TO_COVER, CoreMetrics.NEW_OVERALL_UNCOVERED_LINES, CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS);
@@ -69,23 +69,23 @@ public final class NewCoverageAggregator implements Decorator {
   }
 
   void aggregate(DecoratorContext context, Metric metric, int maxPeriods) {
-    int[] variations = {0,0,0,0,0};
-    boolean[] hasValues = {false,false,false,false,false};
+    int[] variations = {0, 0, 0, 0, 0};
+    boolean[] hasValues = {false, false, false, false, false};
     for (Measure child : context.getChildrenMeasures(metric)) {
-      for (int indexPeriod=1 ; indexPeriod<=maxPeriods ; indexPeriod++) {
+      for (int indexPeriod = 1; indexPeriod <= maxPeriods; indexPeriod++) {
         Double variation = child.getVariation(indexPeriod);
-        if (variation!=null) {
-          variations[indexPeriod-1]=variations[indexPeriod-1] + variation.intValue();
-          hasValues[indexPeriod-1]=true;
+        if (variation != null) {
+          variations[indexPeriod - 1] = variations[indexPeriod - 1] + variation.intValue();
+          hasValues[indexPeriod - 1] = true;
         }
       }
     }
 
     if (ArrayUtils.contains(hasValues, true)) {
       Measure measure = new Measure(metric);
-      for (int index=0 ; index<5 ; index++) {
+      for (int index = 0; index < 5; index++) {
         if (hasValues[index]) {
-          measure.setVariation(index+1, (double)variations[index]);
+          measure.setVariation(index + 1, (double) variations[index]);
         }
       }
       context.saveMeasure(measure);

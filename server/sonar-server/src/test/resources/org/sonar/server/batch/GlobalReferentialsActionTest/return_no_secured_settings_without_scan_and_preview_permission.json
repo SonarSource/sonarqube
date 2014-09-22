@@ -1,0 +1,7 @@
+{
+  "timestamp": 0,
+  "metrics": [],
+  "globalSettings": {
+    "foo" : "bar"
+  }
+}

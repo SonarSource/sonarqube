@@ -20,15 +20,41 @@
 package org.sonar.core.component.db;
 
 import org.apache.ibatis.annotations.Param;
+import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.ComponentQuery;
 
-import java.util.Collection;
+import javax.annotation.CheckForNull;
+
+import java.util.List;
 
 /**
  * @since 4.3
  */
 public interface ComponentMapper {
 
-  Collection<ComponentDto> selectComponents(@Param("query") ComponentQuery query);
+  @CheckForNull
+  ComponentDto selectByKey(String key);
+
+  @CheckForNull
+  ComponentDto selectById(long id);
+
+  @CheckForNull
+  ComponentDto selectRootProjectByKey(String key);
+
+  @CheckForNull
+  ComponentDto selectParentModuleByKey(String key);
+
+  /**
+   * Return direct modules from a project/module
+   */
+  List<ComponentDto> findModulesByProject(@Param("projectKey") String projectKey);
+
+  long countById(long id);
+
+  @CheckForNull
+  AuthorizedComponentDto selectAuthorizedComponentById(long id);
+
+  AuthorizedComponentDto selectAuthorizedComponentByKey(String key);
+
+  void insert(ComponentDto rule);
 }

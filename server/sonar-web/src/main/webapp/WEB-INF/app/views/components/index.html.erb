@@ -1,0 +1,74 @@
+<% if is_admin? %>
+  <div id="page-operations">
+    <ul class="operations">
+      <li><%= message('customize') -%>
+        <% if configuring? %>
+          <span class="green"><b><%= message('on').upcase -%></b></span> |
+          <a class="action" href="<%= url_for :overwrite_params => {:configuring => nil} -%>" id="configure-off"><%= message('off').upcase -%></a>
+        <% else %>
+          <a class="action" href="<%= url_for :overwrite_params => {:configuring => 'true'} -%>" id="configure-on"><%= message('on').upcase -%></a>
+          | <span class="red"><b><%= message('off').upcase -%></b></span>
+        <% end %>
+      </li>
+    </ul>
+  </div>
+<% end %>
+
+<% if has_role?(:admin) && configuring? %>
+  <%= render :partial => 'list_edit_mode_controls', :locals => {:configured_columns => @columns, :components_configuration => @components_configuration} %>
+<% end %>
+<% if @snapshots.empty? && @resource.nil? %>
+  <h3><%= message('components.no_projects_have_been_analysed') -%>No projects have been analysed.</h3>
+  <p><%= message('components.explanation_launch_sonar_to_have_results') -%></p>
+<% else %>
+  <table width="100%">
+    <tr>
+      <td align="left" valign="top">
+        <table id="components" class="data sortable">
+          <%= render :partial => 'list_table_header', :locals => {:configured_columns => @columns} if !configuring? || (!is_admin? && configuring?) %>
+          <%= render :partial => 'list_table_header_edit_mode', :locals => {:configured_columns => @columns} if configuring? && is_admin? %>
+          <tbody>
+          <% if @snapshots.empty? %>
+            <tr>
+              <td colspan="<%= @columns.size + 3 -%>">No components</td>
+            </tr>
+          <% else
+               @snapshots.each do |snapshot| %>
+              <% project = snapshot.project %>
+              <tr id="project_<%= project.id -%>">
+                <% alert_status_measure=search_measure(@measures_by_snapshot[snapshot], Metric::ALERT_STATUS)
+                   alert_status_x=(alert_status_measure ? alert_status_measure.data : '')
+                %>
+                <td x="<%= alert_status_x -%>" width="1%" nowrap><%= format_measure(alert_status_measure) %></td>
+                <td width="1%" nowrap>
+                  <% if logged_in? %>
+                    <%= link_to_favourite(project) -%>
+                  <% end %>
+                  <% if snapshot.display_dashboard? %>
+                    <%= link_to image_tag('zoom.png'), {:controller => 'dashboard', :id => snapshot.project.id}, :class => 'link-no-underline' %>
+                  <% else %>
+                    <%= link_to_resource(project, '<i class="icon-detach"></i>') %>
+                  <% end %>
+                </td>
+                <td class="left" x="<%= u(snapshot.project.name) -%>">
+                  <%= qualifier_icon(snapshot) %>
+                  <% if snapshot.display_dashboard? %>
+                    <%= link_to_resource(project, h(snapshot.project.name)) %>
+                  <% else %>
+                    <%= h snapshot.project.name %>
+                  <% end %>
+                </td>
+                <% @columns.each do |column| %>
+                  <%= get_column_content(column, snapshot, @measures_by_snapshot) -%>
+                <% end %>
+              </tr>
+            <% end %>
+          <% end %>
+          </tbody>
+        </table>
+        <script>jQuery('#components').sortable();</script>
+        <p>&nbsp;</p>
+      </td>
+    </tr>
+  </table>
+<% end %>

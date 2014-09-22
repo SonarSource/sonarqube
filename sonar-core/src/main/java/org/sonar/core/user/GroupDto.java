@@ -19,18 +19,16 @@
  */
 package org.sonar.core.user;
 
-import javax.annotation.Nullable;
-import java.util.Date;
+import org.sonar.core.persistence.Dto;
 
-/**
- * @since 3.2
- */
-public class GroupDto {
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+public class GroupDto extends Dto<String> {
+
   private Long id;
   private String name;
   private String description;
-  private Date createdAt;
-  private Date updatedAt;
 
   public Long getId() {
     return id;
@@ -50,6 +48,7 @@ public class GroupDto {
     return this;
   }
 
+  @CheckForNull
   public String getDescription() {
     return description;
   }
@@ -59,21 +58,9 @@ public class GroupDto {
     return this;
   }
 
-  public Date getCreatedAt() {
-    return createdAt;
+  @Override
+  public String getKey() {
+    return name;
   }
 
-  public GroupDto setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public GroupDto setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
-    return this;
-  }
 }

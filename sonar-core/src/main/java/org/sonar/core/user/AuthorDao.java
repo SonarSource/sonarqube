@@ -42,7 +42,7 @@ public class AuthorDao implements BatchComponent, ServerComponent {
   }
 
   public AuthorDto selectByLogin(String login) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       AuthorMapper mapper = session.getMapper(AuthorMapper.class);
       return mapper.selectByLogin(login);
@@ -52,7 +52,7 @@ public class AuthorDao implements BatchComponent, ServerComponent {
   }
 
   public int countDeveloperLogins(long developerId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       AuthorMapper mapper = session.getMapper(AuthorMapper.class);
       return mapper.countDeveloperLogins(developerId);
@@ -62,7 +62,7 @@ public class AuthorDao implements BatchComponent, ServerComponent {
   }
 
   public void insertAuthor(String login, long personId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       insertAuthor(login, personId, session);
       session.commit();
@@ -72,7 +72,7 @@ public class AuthorDao implements BatchComponent, ServerComponent {
   }
 
   public void insertAuthorAndDeveloper(String login, ResourceDto resourceDto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       resourceDao.insertUsingExistingSession(resourceDto, session);
       insertAuthor(login, resourceDto.getId(), session);

@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.index;
 
+import org.sonar.api.resources.Language;
+
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +38,8 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
@@ -65,7 +69,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     this.resourceCache = resourceCache;
   }
 
-  public Snapshot saveProject(Project project, Project parent) {
+  public Snapshot saveProject(Project project, @Nullable Project parent) {
     Snapshot snapshot = snapshotsByResource.get(project);
     if (snapshot == null) {
       snapshot = persistProject(project, parent);
@@ -78,11 +82,14 @@ public final class DefaultResourcePersister implements ResourcePersister {
     if (snapshot != null) {
       snapshotsByResource.put(resource, snapshot);
       resourceCache.add(resource);
-      snapshotCache.put(resource.getEffectiveKey(), snapshot);
+      if (!(resource instanceof Library)) {
+        // Maven libraries can have the same effective key than a project so we can't cache by effectiveKey
+        snapshotCache.put(resource.getEffectiveKey(), snapshot);
+      }
     }
   }
 
-  private Snapshot persistProject(Project project, Project parent) {
+  private Snapshot persistProject(Project project, @Nullable Project parent) {
     // temporary hack
     project.setEffectiveKey(project.getKey());
 
@@ -122,7 +129,8 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return snapshot;
   }
 
-  public Snapshot getSnapshot(Resource reference) {
+  @CheckForNull
+  public Snapshot getSnapshot(@Nullable Resource reference) {
     return snapshotsByResource.get(reference);
   }
 
@@ -154,7 +162,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return saveResource(project, resource, null);
   }
 
-  public Snapshot saveResource(Project project, Resource resource, Resource parent) {
+  public Snapshot saveResource(Project project, Resource resource, @Nullable Resource parent) {
     Snapshot snapshot = snapshotsByResource.get(resource);
     if (snapshot == null) {
       snapshot = persist(project, resource, parent);
@@ -163,7 +171,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return snapshot;
   }
 
-  private Snapshot persist(Project project, Resource resource, Resource parent) {
+  private Snapshot persist(Project project, Resource resource, @Nullable Resource parent) {
     Snapshot snapshot;
     if (resource instanceof Project) {
       // should not occur, please use the method saveProject()
@@ -221,7 +229,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
   /**
    * Everything except project and library
    */
-  private Snapshot persistFileOrDirectory(Project project, Resource resource, Resource parentReference) {
+  private Snapshot persistFileOrDirectory(Project project, Resource resource, @Nullable Resource parentReference) {
     Snapshot moduleSnapshot = snapshotsByResource.get(project);
     Integer moduleId = moduleSnapshot.getResourceId();
     ResourceModel model = findOrCreateModel(resource);
@@ -237,6 +245,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return snapshot;
   }
 
+  @CheckForNull
   public Snapshot getLastSnapshot(Snapshot snapshot, boolean onlyOlder) {
     String hql = "SELECT s FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=:last AND s.resourceId=:resourceId";
     if (onlyOlder) {
@@ -287,8 +296,9 @@ public final class DefaultResourcePersister implements ResourcePersister {
     model.setDescription(resource.getDescription());
     model.setKey(resource.getEffectiveKey());
     model.setPath(resource.getPath());
-    if (resource.getLanguage() != null) {
-      model.setLanguageKey(resource.getLanguage().getKey());
+    Language language = resource.getLanguage();
+    if (language != null) {
+      model.setLanguageKey(language.getKey());
     }
     if (StringUtils.isNotBlank(resource.getName())) {
       model.setName(resource.getName());
@@ -320,8 +330,9 @@ public final class DefaultResourcePersister implements ResourcePersister {
       model.setScope(resource.getScope());
       model.setQualifier(resource.getQualifier());
     }
-    if (resource.getLanguage() != null) {
-      model.setLanguageKey(resource.getLanguage().getKey());
+    Language language = resource.getLanguage();
+    if (language != null) {
+      model.setLanguageKey(language.getKey());
     }
   }
 }

@@ -26,7 +26,6 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -65,6 +64,7 @@ public class PathUtilsTest {
     File file = temp.newFile();
     String path = PathUtils.canonicalPath(file);
     assertThat(path).isEqualTo(FilenameUtils.separatorsToUnix(file.getCanonicalPath()));
+    assertThat(PathUtils.canonicalPath(null)).isNull();
   }
 
   @Test

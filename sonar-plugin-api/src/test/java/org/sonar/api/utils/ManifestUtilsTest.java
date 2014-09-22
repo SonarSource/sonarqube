@@ -34,23 +34,20 @@ import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
-import static org.junit.matchers.JUnitMatchers.hasItems;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ManifestUtilsTest {
 
   @Rule
   public TemporaryFolder tempDir = new TemporaryFolder();
 
-    @Test
+  @Test
   public void emptyManifest() throws Exception {
     Manifest mf = new Manifest();
     File jar = createJar(mf, "emptyManifest.jar");
 
     URLClassLoader classloader = new URLClassLoader(FileUtils.toURLs(new File[]{jar}));
-    assertThat(ManifestUtils.getPropertyValues(classloader, "foo").size(), is(0));
+    assertThat(ManifestUtils.getPropertyValues(classloader, "foo")).isEmpty();
   }
 
   @Test
@@ -62,8 +59,7 @@ public class ManifestUtilsTest {
 
     URLClassLoader classloader = new URLClassLoader(FileUtils.toURLs(new File[]{jar}));
     List<String> values = ManifestUtils.getPropertyValues(classloader, "foo");
-    assertThat(values.size(), is(1));
-    assertThat(values, hasItem("bar"));
+    assertThat(values).containsOnly("bar");
   }
 
   @Test
@@ -78,8 +74,7 @@ public class ManifestUtilsTest {
 
     URLClassLoader classloader = new URLClassLoader(FileUtils.toURLs(new File[]{jar1, jar2}));
     List<String> values = ManifestUtils.getPropertyValues(classloader, "foo");
-    assertThat(values.size(), is(2));
-    assertThat(values, hasItems("bar", "otherbar"));
+    assertThat(values).containsOnly("bar", "otherbar");
   }
 
   private File createJar(Manifest mf, String name) throws Exception {

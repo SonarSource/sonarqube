@@ -33,12 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CodeColorizerTest {
 
@@ -69,8 +64,8 @@ public class CodeColorizerTest {
     HtmlOptions options = new HtmlOptions(true, "my-table-id", false);
     String html = CodeColorizer.javaToHtml(java, options);
 
-    assertThat(html, containsString("<table class=\"code\" id=\"my-table-id\""));
-    assertThat(html, not(containsString("<style")));
+    assertThat(html).contains("<table class=\"code\" id=\"my-table-id\"");
+    assertThat(html).doesNotContain("<style");
   }
 
   @Test
@@ -85,8 +80,8 @@ public class CodeColorizerTest {
 
   @Test
   public void getCss() {
-    assertThat(CodeColorizer.getCss().length(), greaterThan(100));
-    assertThat(CodeColorizer.getCss(), containsString(".code"));
+    assertThat(CodeColorizer.getCss().length()).isGreaterThan(100);
+    assertThat(CodeColorizer.getCss()).contains(".code");
   }
 
   @Test
@@ -113,12 +108,12 @@ public class CodeColorizerTest {
     }
     List<Future<String>> futures = Executors.newFixedThreadPool(threadCount).invokeAll(tasks);
 
-    assertThat(futures.size(), is(taskCount));
+    assertThat(futures).hasSize(taskCount);
 
     // all html must be the same
     String html = futures.get(0).get();
     for (Future<String> future : futures) {
-      assertEquals(html, future.get());
+      assertThat(html).isEqualTo(future.get());
     }
   }
 
@@ -131,10 +126,10 @@ public class CodeColorizerTest {
 
     assertHtml(html);
     assertContains(html, "<pre>  <span class=\"cppd\">/*</span></pre>",
-                         "<pre><span class=\"cppd\">   * This method does &lt;b&gt;something&lt;/b&gt;</span></pre>",
-                         "<pre><span class=\"cppd\">   *</span></pre>",
-                         "<pre><span class=\"cppd\">   * &amp;lt;p&amp;gt;description&amp;lt;/p&amp;gt;</span></pre>",
-                         "<pre><span class=\"cppd\">   */</span></pre>");
+      "<pre><span class=\"cppd\">   * This method does &lt;b&gt;something&lt;/b&gt;</span></pre>",
+      "<pre><span class=\"cppd\">   *</span></pre>",
+      "<pre><span class=\"cppd\">   * &amp;lt;p&amp;gt;description&amp;lt;/p&amp;gt;</span></pre>",
+      "<pre><span class=\"cppd\">   */</span></pre>");
   }
 
   /**
@@ -161,7 +156,7 @@ public class CodeColorizerTest {
 
   private void assertContains(String html, String... strings) {
     for (String string : strings) {
-      assertThat(html, containsString(string));
+      assertThat(html).contains(string);
     }
   }
 }

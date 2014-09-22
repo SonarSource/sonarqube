@@ -19,24 +19,37 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.task.Task;
+import org.sonar.api.task.TaskComponent;
 import org.sonar.api.task.TaskDefinition;
-import org.sonar.api.task.TaskExtension;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.components.PastMeasuresLoader;
+import org.sonar.batch.scan.DeprecatedProjectReactorBuilder;
+import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.batch.scan.ScanTask;
+import org.sonar.batch.scan.measure.DefaultMetricFinder;
+import org.sonar.batch.scan.measure.DeprecatedMetricFinder;
 import org.sonar.batch.tasks.ListTask;
 import org.sonar.batch.tasks.Tasks;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.resource.DefaultResourcePermissions;
 
+import java.util.Map;
+
 public class TaskContainer extends ComponentContainer {
 
-  public TaskContainer(ComponentContainer parent) {
+  private final Map<String, String> taskProperties;
+  private final Object[] components;
+
+  public TaskContainer(ComponentContainer parent, Map<String, String> taskProperties, Object... components) {
     super(parent);
+    this.taskProperties = taskProperties;
+    this.components = components;
   }
 
   @Override
@@ -44,20 +57,50 @@ public class TaskContainer extends ComponentContainer {
     installCoreTasks();
     installTaskExtensions();
     installComponentsUsingTaskExtensions();
+    addCoreComponents();
+    for (Object component : components) {
+      add(component);
+    }
   }
 
-  private void installCoreTasks() {
+  private void addCoreComponents() {
+    // Metrics
+    if (!getParent().getComponentByType(AnalysisMode.class).isSensorMode()) {
+      // Needed by dev cockpit task
+      add(DeprecatedMetricFinder.class,
+        PastMeasuresLoader.class);
+    }
+    add(DefaultMetricFinder.class);
+
+  }
+
+  void installCoreTasks() {
+    add(new TaskProperties(taskProperties, getParent().getComponentByType(BootstrapProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH)));
     add(
       ScanTask.DEFINITION, ScanTask.class,
-      ListTask.DEFINITION, ListTask.class);
+      ListTask.DEFINITION, ListTask.class,
+      projectReactorBuilder());
   }
 
   private void installTaskExtensions() {
     getComponentByType(ExtensionInstaller.class).install(this, new ExtensionMatcher() {
       public boolean accept(Object extension) {
-        return ExtensionUtils.isType(extension, TaskExtension.class);
+        return ExtensionUtils.isType(extension, TaskComponent.class);
       }
     });
+  }
+
+  private Class<?> projectReactorBuilder() {
+    if (isRunnerVersionLessThan2Dot4()) {
+      return DeprecatedProjectReactorBuilder.class;
+    }
+    return ProjectReactorBuilder.class;
+  }
+
+  private boolean isRunnerVersionLessThan2Dot4() {
+    EnvironmentInformation env = this.getComponentByType(EnvironmentInformation.class);
+    // Starting from SQ Runner 2.4 the key is "SonarQubeRunner"
+    return env != null && "SonarRunner".equals(env.getKey());
   }
 
   private void installComponentsUsingTaskExtensions() {
@@ -71,11 +114,11 @@ public class TaskContainer extends ComponentContainer {
   @Override
   public void doAfterStart() {
     // default value is declared in CorePlugin
-    String taskKey = getComponentByType(Settings.class).getString(CoreProperties.TASK);
+    String taskKey = StringUtils.defaultIfEmpty(taskProperties.get(CoreProperties.TASK), CoreProperties.SCAN_TASK);
 
     TaskDefinition def = getComponentByType(Tasks.class).definition(taskKey);
     if (def == null) {
-      throw new SonarException("Task " + taskKey + " does not exist");
+      throw MessageException.of("Task " + taskKey + " does not exist");
     }
     Task task = getComponentByType(def.taskClass());
     if (task != null) {

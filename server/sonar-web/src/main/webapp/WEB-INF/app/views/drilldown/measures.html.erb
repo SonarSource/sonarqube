@@ -1,0 +1,133 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/js/drilldown/app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+<% end %>
+
+<%= render :partial => 'header' -%>
+
+<% if params[:period] && @snapshot.project_snapshot.periods? %>
+  <div id="snapshot_title" class="page_title">
+    <h4>
+      <form method="GET" action="<%= url_for :action => 'measures' -%>" style="display: inline">
+        <input type="hidden" name="metric" value="<%= params[:metric] -%>"/>
+
+        <select id="select-comparison" name="period" onchange="submit()">
+          <% if @drilldown.display_value? %>
+            <option value=""><%= message('time_changes') -%>...</option>
+          <% end %>
+          <% for period_index in 1..5 do %>
+            <%= period_select_options(@snapshot, period_index) if @drilldown.display_period?(period_index) -%>
+          <% end %>
+        </select>
+        <script>
+          $j(function() {
+            $j('#select-comparison').select2({
+              width: '300px',
+              minimumResultsForSearch: 10,
+              dropdownCssClass: 'small'
+            });
+          });
+        </script>
+      </form>
+    </h4>
+  </div>
+<% end %>
+
+<div class="marginbottom10">
+  <% if @characteristic %>
+    <h3><%= @highlighted_metric.short_name -%> / <%= h(@characteristic.name(true)) -%></h3>
+
+    <p class="big"><%= format_measure(@snapshot.characteristic_measure(@highlighted_metric, @characteristic)) %></p>
+  <% else %>
+    <h3><%= @highlighted_metric.short_name -%></h3>
+
+    <p class="big">
+      <%= format_measure(@snapshot.measure(@highlighted_metric.key), :period => @period) %>
+    </p>
+  <% end %>
+  <% if @highlighted_metric!=@metric %>
+    <p>
+      <%= message('drilldown.drilldown_on') -%>&nbsp;
+      <b><%= format_measure(@metric.key, :period => @period) -%> <%= @metric.short_name -%></b>
+    </p>
+  <% end %>
+</div>
+
+<div id="drilldown" class="width100">
+  <%
+     rids=[]
+     first_column=true
+     last_column = nil
+     @drilldown.columns.each_with_index do |column, index|
+  %>
+    <% if first_column %>
+      <table class="width100 spacer-bottom">
+        <tr>
+    <% end %>
+
+    <td class="<%= 'spacer-left' unless first_column -%>" nowrap>
+      <div class="scrollable" id="col_<%= index -%>">
+        <table class="spaced">
+          <% column.measures.each_with_index do |measure, row_index|
+            resource=column.resource(measure)
+            selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+            clazz = cycle("even", "odd", :name => "col_#{index}")
+            clazz = clazz + ' selected' if selected
+          %>
+            <tr class="<%= clazz -%>" id="row_<%= index -%>_<%= row_index -%>">
+              <td nowrap>
+                <% if resource.source_code? %>
+                  <a href="<%= url_for :controller => 'dashboard', :action => 'index', :id => resource.id, :period => @period, :metric => (@metric && @metric.key), :rule => @rule ? @rule.id : @severity -%>"
+                     onclick="window.open(this.href,'resource-<%= resource.key.parameterize -%>','scrollbars=1,resizable=1');return false;"
+                     id="popup-<%= resource.key.parameterize -%>" class="nolink"
+                     target="_blank"><i class="icon-detach" title="<%= message('new_window') -%>"></i></a>
+                <% else %>
+                  <%= link_to(image_tag('zoom.png'), {:id => resource.id, :metric => @metric.id}, {:class => 'nolink'}) -%>
+                <% end %>
+                <%= qualifier_icon(resource) -%>&nbsp;
+                <% if resource.source_code? %>
+                  <a href="#" title="<%= h resource.name(true) -%>" data-key="<%= resource.key -%>"
+                     class="js-drilldown-link"><%= h resource.name(false) %></a>
+                <% else %>
+                  <%= link_to(h(resource.name), params.merge({:only_path => true, :rids => (selected ? rids-[resource.id] : rids+[resource.id])})) -%>
+                <% end %>
+              </td>
+              <td class="right">
+                <%= format_measure(measure, :skip_span_id => true, :period => @period) -%>
+              </td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+    </td>
+
+    <% if column.switch? || index==@drilldown.columns.size-1 %>
+      </tr>
+      </table>
+    <% end
+       first_column = column.switch?
+       rids<<column.selected_snapshot.project_id if column.selected_snapshot
+       last_column = column
+       end
+    %>
+    <% if last_column && @drilldown.selected_project_not_authorized %>
+      <p class="notes"><%= message('not_authorized_to_access_project', {:params => last_column.selected_snapshot.project.name}) -%></p>
+    <% end %>
+</div>
+<script>
+  <% for i in 0...@drilldown.columns.size do  %>
+  $j('#col_<%= i -%> tr.selected').each(function (index,item) {
+    item.scrollIntoView(true);
+  });
+  <% end %>
+
+  window.drilldown = {
+    metric: <% if @metric %>'<%= @metric.key -%>'<% else %>null<% end %>,
+    rule: null,
+    severity: null,
+    period: <% if @period %><%= @period -%><% else %>null<% end %>
+  };
+</script>
+
+<div id="accordion-panel"/>
+
+<%= render :partial => 'footer' -%>

@@ -24,7 +24,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.component.Component;
+import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
+import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
@@ -37,15 +41,17 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class ResourceDao {
+public class ResourceDao implements DaoComponent {
   private MyBatis mybatis;
+  private System2 system2;
 
-  public ResourceDao(MyBatis mybatis) {
+  public ResourceDao(MyBatis mybatis, System2 system2) {
     this.mybatis = mybatis;
+    this.system2 = system2;
   }
 
   public List<ResourceDto> getResources(ResourceQuery query) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectResources(query);
     } finally {
@@ -63,7 +69,7 @@ public class ResourceDao {
    */
   @CheckForNull
   public ResourceDto getResource(ResourceQuery query) {
-    SqlSession session = mybatis.openSession();
+    DbSession session = mybatis.openSession(false);
     try {
       return getResource(query, session);
     } finally {
@@ -72,7 +78,7 @@ public class ResourceDao {
   }
 
   @CheckForNull
-  public ResourceDto getResource(ResourceQuery query, SqlSession session) {
+  public ResourceDto getResource(ResourceQuery query, DbSession session) {
     List<ResourceDto> resources = getResources(query, session);
     if (!resources.isEmpty()) {
       return resources.get(0);
@@ -81,7 +87,7 @@ public class ResourceDao {
   }
 
   public List<Long> getResourceIds(ResourceQuery query) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectResourceIds(query);
     } finally {
@@ -90,7 +96,7 @@ public class ResourceDao {
   }
 
   public ResourceDto getResource(long projectId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return getResource(projectId, session);
     } finally {
@@ -102,16 +108,18 @@ public class ResourceDao {
     return session.getMapper(ResourceMapper.class).selectResource(projectId);
   }
 
+  @CheckForNull
   public SnapshotDto getLastSnapshot(String resourceKey, SqlSession session) {
     return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceKey(resourceKey);
   }
 
+  @CheckForNull
   public SnapshotDto getLastSnapshotByResourceId(long resourceId, SqlSession session) {
     return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceId(resourceId);
   }
 
   public List<ResourceDto> getDescendantProjects(long projectId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return getDescendantProjects(projectId, session);
     } finally {
@@ -135,12 +143,14 @@ public class ResourceDao {
   }
 
   public ResourceDao insertOrUpdate(ResourceDto... resources) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     ResourceMapper mapper = session.getMapper(ResourceMapper.class);
+    Date now = new Date(system2.now());
     try {
       for (ResourceDto resource : resources) {
         if (resource.getId() == null) {
-          resource.setCreatedAt(new Date());
+          resource.setCreatedAt(now);
+          resource.setAuthorizationUpdatedAt(now);
           mapper.insert(resource);
         } else {
           mapper.update(resource);
@@ -153,11 +163,18 @@ public class ResourceDao {
     return this;
   }
 
+  /**
+   * Should not be called from batch side (used to reindex permission in E/S)
+   */
+  public void updateAuthorizationDate(Long projectId, SqlSession session) {
+    session.getMapper(ResourceMapper.class).updateAuthorizationDate(projectId, new Date(system2.now()));
+  }
+
   public Collection<ComponentDto> selectComponentsByIds(Collection<Long> ids) {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       List<ComponentDto> components = newArrayList();
       List<List<Long>> partitionList = Lists.partition(newArrayList(ids), 1000);
@@ -178,16 +195,6 @@ public class ResourceDao {
   }
 
   @CheckForNull
-  public Component findById(Long id) {
-    SqlSession session = mybatis.openSession();
-    try {
-      return findById(id, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @CheckForNull
   public Component findById(Long id, SqlSession session) {
     ResourceDto resourceDto = getResource(id, session);
     return resourceDto != null ? toComponent(resourceDto) : null;
@@ -197,7 +204,7 @@ public class ResourceDao {
     if (componentRootKeys.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectAuthorizedChildrenComponentIds(componentRootKeys, userId, role);
     } finally {
@@ -205,21 +212,64 @@ public class ResourceDao {
     }
   }
 
+  /**
+   * Return the root project of a component.
+   * Will return the component itself if it's already the root project
+   * Can return null if the component does not exists.
+   *
+   * The implementation should rather use a new column already containing the root project, see https://jira.codehaus.org/browse/SONAR-5188.
+   */
   @CheckForNull
   public ResourceDto getRootProjectByComponentKey(String componentKey) {
-    SqlSession session = mybatis.openSession();
+    DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(ResourceMapper.class).selectRootProjectByComponentKey(componentKey);
+      ResourceDto component = getResource(ResourceQuery.create().setKey(componentKey), session);
+      if (component != null) {
+        Long rootId = component.getRootId();
+        if (rootId != null) {
+          return getParentModuleByComponentId(rootId, session);
+        } else {
+          return component;
+        }
+      }
+      return null;
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @CheckForNull
-  public ResourceDto getRootProjectByComponentId(Long componentId) {
-    SqlSession session = mybatis.openSession();
+  ResourceDto getParentModuleByComponentId(Long componentId, DbSession session) {
+    ResourceDto component = getResource(componentId, session);
+    if (component != null) {
+      Long rootId = component.getRootId();
+      if (rootId != null) {
+        return getParentModuleByComponentId(rootId, session);
+      } else {
+        return component;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Return the root project of a component.
+   * Will return the component itself if it's already the root project
+   * Can return null if the component that does exists.
+   *
+   * The implementation should rather use a new column already containing the root project, see https://jira.codehaus.org/browse/SONAR-5188.
+   */
+  @CheckForNull
+  public ResourceDto getRootProjectByComponentId(long componentId) {
+    DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(ResourceMapper.class).selectRootProjectByComponentId(componentId);
+      ResourceDto component = getParentModuleByComponentId(componentId, session);
+      Long rootId = component != null ? component.getRootId() : null;
+      if (rootId != null) {
+        return getParentModuleByComponentId(rootId, session);
+      } else {
+        return component;
+      }
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -229,7 +279,7 @@ public class ResourceDao {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return toComponents(session.getMapper(ResourceMapper.class).selectProjectsByQualifiers(qualifiers));
     } finally {
@@ -244,7 +294,7 @@ public class ResourceDao {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return toComponents(session.getMapper(ResourceMapper.class).selectProjectsIncludingNotCompletedOnesByQualifiers(qualifiers));
     } finally {
@@ -262,7 +312,7 @@ public class ResourceDao {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return toComponents(session.getMapper(ResourceMapper.class).selectGhostsProjects(qualifiers));
     } finally {
@@ -277,7 +327,7 @@ public class ResourceDao {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectProvisionedProjects(qualifiers);
     } finally {
@@ -288,10 +338,14 @@ public class ResourceDao {
   /**
    * Return provisioned project with given key
    */
+  public ResourceDto selectProvisionedProject(DbSession session, String key) {
+    return session.getMapper(ResourceMapper.class).selectProvisionedProject(key);
+  }
+
   public ResourceDto selectProvisionedProject(String key) {
-    SqlSession session = mybatis.openSession();
+    DbSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(ResourceMapper.class).selectProvisionedProject(key);
+      return selectProvisionedProject(session, key);
     } finally {
       MyBatis.closeQuietly(session);
     }

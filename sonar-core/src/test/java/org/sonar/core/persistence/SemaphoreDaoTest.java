@@ -280,7 +280,7 @@ public class SemaphoreDaoTest extends AbstractDaoTestCase {
       try {
         barrier.await();
         for (int i = 0; i < 100; i++) {
-          if (dao.acquire("my-lock", 60 * 5).isLocked()) {
+          if (dao.acquire("my-lock", 60 * 60 * 24).isLocked()) {
             locks.incrementAndGet();
           }
         }

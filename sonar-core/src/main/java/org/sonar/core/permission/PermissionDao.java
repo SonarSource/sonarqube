@@ -48,7 +48,7 @@ public class PermissionDao implements ServerComponent {
    * @return a paginated list of users.
    */
   public List<UserWithPermissionDto> selectUsers(PermissionQuery query, @Nullable Long componentId, int offset, int limit) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       Map<String, Object> params = newHashMap();
       params.put(QUERY_PARAMETER, query);
@@ -70,7 +70,7 @@ public class PermissionDao implements ServerComponent {
    * @return a non paginated list of groups.
    */
   public List<GroupWithPermissionDto> selectGroups(PermissionQuery query, @Nullable Long componentId) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       Map<String, Object> params = newHashMap();
       params.put(QUERY_PARAMETER, query);

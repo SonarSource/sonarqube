@@ -30,10 +30,12 @@ public class GroupWithPermissionDtoTest {
   public void to_group_with_permission_having_permission() throws Exception {
     GroupWithPermission group = new GroupWithPermissionDto()
       .setName("users")
+      .setDescription("desc")
       .setPermission("user")
       .toGroupWithPermission();
 
     assertThat(group.name()).isEqualTo("users");
+    assertThat(group.description()).isEqualTo("desc");
     assertThat(group.hasPermission()).isTrue();
   }
 
@@ -45,6 +47,7 @@ public class GroupWithPermissionDtoTest {
       .toGroupWithPermission();
 
     assertThat(group.name()).isEqualTo("users");
+    assertThat(group.description()).isNull();
     assertThat(group.hasPermission()).isFalse();
   }
 }

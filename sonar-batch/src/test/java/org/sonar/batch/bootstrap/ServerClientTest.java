@@ -43,7 +43,6 @@ import java.io.IOException;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.commons.io.IOUtils.write;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -55,7 +54,7 @@ public class ServerClientTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
   MockHttpServer server = null;
-  BootstrapSettings settings = mock(BootstrapSettings.class);
+  BootstrapProperties bootstrapProps = mock(BootstrapProperties.class);
 
   @After
   public void stopServer() {
@@ -66,8 +65,8 @@ public class ServerClientTest {
 
   @Test
   public void should_remove_url_ending_slash() throws Exception {
-    BootstrapSettings settings = mock(BootstrapSettings.class);
-    when(settings.property(eq("sonar.host.url"), anyString())).thenReturn("http://localhost:8080/sonar/");
+    BootstrapProperties settings = mock(BootstrapProperties.class);
+    when(settings.property("sonar.host.url")).thenReturn("http://localhost:8080/sonar/");
 
     ServerClient client = new ServerClient(settings, new EnvironmentInformation("Junit", "4"));
 
@@ -119,8 +118,8 @@ public class ServerClientTest {
     server.start();
     server.setMockResponseStatus(401);
 
-    when(settings.property(eq("sonar.login"))).thenReturn("login");
-    when(settings.property(eq("sonar.password"))).thenReturn("password");
+    when(bootstrapProps.property(eq("sonar.login"))).thenReturn("login");
+    when(bootstrapProps.property(eq("sonar.password"))).thenReturn("password");
 
     thrown.expectMessage("Not authorized. Please check the properties sonar.login and sonar.password");
     newServerClient().request("/foo");
@@ -137,8 +136,8 @@ public class ServerClientTest {
   }
 
   private ServerClient newServerClient() {
-    when(settings.property(eq("sonar.host.url"), anyString())).thenReturn("http://localhost:" + server.getPort());
-    return new ServerClient(settings, new EnvironmentInformation("Junit", "4"));
+    when(bootstrapProps.property("sonar.host.url")).thenReturn("http://localhost:" + server.getPort());
+    return new ServerClient(bootstrapProps, new EnvironmentInformation("Junit", "4"));
   }
 
   static class MockHttpServer {

@@ -20,7 +20,6 @@
 package org.sonar.batch.bootstrapper;
 
 import org.junit.Test;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -36,7 +35,6 @@ public class BatchTest {
   private Batch newBatch() {
     return Batch.builder()
       .setEnvironment(new EnvironmentInformation("Gradle", "1.0"))
-      .setProjectReactor(new ProjectReactor(org.sonar.api.batch.bootstrap.ProjectDefinition.create()))
       .addComponent("fake")
       .build();
   }
@@ -44,7 +42,6 @@ public class BatchTest {
   @Test(expected = IllegalStateException.class)
   public void shouldFailIfNullComponents() {
     Batch.builder()
-      .setProjectReactor(new ProjectReactor(org.sonar.api.batch.bootstrap.ProjectDefinition.create()))
       .setEnvironment(new EnvironmentInformation("Gradle", "1.0"))
       .setComponents(null)
       .build();
@@ -54,7 +51,6 @@ public class BatchTest {
   public void shouldDisableLoggingConfiguration() {
     Batch batch = Batch.builder()
       .setEnvironment(new EnvironmentInformation("Gradle", "1.0"))
-      .setProjectReactor(new ProjectReactor(org.sonar.api.batch.bootstrap.ProjectDefinition.create()))
       .addComponent("fake")
       .setEnableLoggingConfiguration(false)
       .build();

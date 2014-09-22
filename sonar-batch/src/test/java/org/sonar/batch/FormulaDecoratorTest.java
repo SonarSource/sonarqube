@@ -21,18 +21,27 @@ package org.sonar.batch;
 
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.measures.*;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Formula;
+import org.sonar.api.measures.FormulaContext;
+import org.sonar.api.measures.FormulaData;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.test.IsMeasure;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class FormulaDecoratorTest {
 
@@ -45,7 +54,7 @@ public class FormulaDecoratorTest {
   public void declareDependencies() {
     Formula formula = new Formula() {
       public List<Metric> dependsUponMetrics() {
-        return Arrays.asList(CoreMetrics.COMPLEXITY, CoreMetrics.COVERAGE);
+        return Arrays.<Metric>asList(CoreMetrics.COMPLEXITY, CoreMetrics.COVERAGE);
       }
 
       public Measure calculate(FormulaData data, FormulaContext context) {
@@ -54,8 +63,7 @@ public class FormulaDecoratorTest {
     };
     Metric metric = new Metric("ncloc").setFormula(formula);
     List<Metric> dependencies = new FormulaDecorator(metric).dependsUponMetrics();
-    assertThat(dependencies, hasItem(CoreMetrics.COMPLEXITY));
-    assertThat(dependencies, hasItem(CoreMetrics.COVERAGE));
+    assertThat(dependencies).containsOnly(CoreMetrics.COMPLEXITY, CoreMetrics.COVERAGE);
   }
 
   @Test

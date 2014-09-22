@@ -32,6 +32,7 @@ import java.sql.Statement;
  */
 public final class DatabaseUtils {
   private DatabaseUtils() {
+    // only static methods
   }
 
   public static void closeQuietly(@Nullable Connection connection) {

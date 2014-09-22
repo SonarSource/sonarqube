@@ -47,7 +47,9 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ModuleIssuesTest {
@@ -73,6 +75,7 @@ public class ModuleIssuesTest {
   public void setUp() {
     when(project.getAnalysisDate()).thenReturn(new Date());
     when(project.getEffectiveKey()).thenReturn("org.apache:struts-core");
+    when(project.getRoot()).thenReturn(project);
   }
 
   @Test
@@ -121,7 +124,7 @@ public class ModuleIssuesTest {
   @Test
   public void ignore_null_rule_of_active_rule() throws Exception {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.activate(SQUID_RULE_KEY);
+    activeRulesBuilder.create(SQUID_RULE_KEY).activate();
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue().setRuleKey(SQUID_RULE_KEY);
@@ -134,7 +137,7 @@ public class ModuleIssuesTest {
   @Test
   public void add_issue_to_cache() throws Exception {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
 
     Date analysisDate = new Date();
@@ -158,7 +161,7 @@ public class ModuleIssuesTest {
   @Test
   public void use_severity_from_active_rule_if_no_severity_on_issue() throws Exception {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
 
     Date analysisDate = new Date();
@@ -177,7 +180,7 @@ public class ModuleIssuesTest {
   @Test
   public void use_rule_name_if_no_message() throws Exception {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
 
     Date analysisDate = new Date();
@@ -201,7 +204,7 @@ public class ModuleIssuesTest {
   @Test
   public void add_deprecated_violation() throws Exception {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
 
     org.sonar.api.rules.Rule rule = org.sonar.api.rules.Rule.create("squid", "AvoidCycle", "Avoid Cycle");
@@ -225,12 +228,13 @@ public class ModuleIssuesTest {
     assertThat(issue.key()).isNotEmpty();
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
     assertThat(issue.componentKey()).isEqualTo("struts:src/org/struts/Action.java");
+    assertThat(issue.projectKey()).isEqualTo("org.apache:struts-core");
   }
 
   @Test
   public void filter_issue() throws Exception {
     ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
-    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue()
@@ -252,7 +256,7 @@ public class ModuleIssuesTest {
       .setName(SQUID_RULE_NAME)
       .setDebtSubCharacteristic("COMPILER_RELATED_PORTABILITY")
       .setDebtRemediationFunction(DebtRemediationFunction.createLinear(Duration.create(10L)));
-    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
 
     Date analysisDate = new Date();
@@ -278,7 +282,7 @@ public class ModuleIssuesTest {
       .setName(SQUID_RULE_NAME)
       .setDebtSubCharacteristic("COMPILER_RELATED_PORTABILITY")
       .setDebtRemediationFunction(DebtRemediationFunction.createLinearWithOffset(Duration.create(10L), Duration.create(25L)));
-    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
 
     Date analysisDate = new Date();
@@ -304,7 +308,7 @@ public class ModuleIssuesTest {
       .setName(SQUID_RULE_NAME)
       .setDebtSubCharacteristic("COMPILER_RELATED_PORTABILITY")
       .setDebtRemediationFunction(DebtRemediationFunction.createConstantPerIssue(Duration.create(10L)));
-    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
 
     Date analysisDate = new Date();
@@ -330,7 +334,7 @@ public class ModuleIssuesTest {
       .setName(SQUID_RULE_NAME)
       .setDebtSubCharacteristic("COMPILER_RELATED_PORTABILITY")
       .setDebtRemediationFunction(DebtRemediationFunction.createConstantPerIssue(Duration.create(25L)));
-    activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).activate();
     initModuleIssues();
 
     DefaultIssue issue = new DefaultIssue()

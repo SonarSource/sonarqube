@@ -27,6 +27,7 @@ public class GroupWithPermissionDto {
 
   private String name;
   private String permission;
+  private String description;
 
   public String getName() {
     return name;
@@ -47,9 +48,20 @@ public class GroupWithPermissionDto {
     return this;
   }
 
+  @CheckForNull
+  public String getDescription() {
+    return description;
+  }
+
+  public GroupWithPermissionDto setDescription(@Nullable String description) {
+    this.description = description;
+    return this;
+  }
+
   public GroupWithPermission toGroupWithPermission() {
     return new GroupWithPermission()
       .setName(name)
+      .setDescription(description)
       .hasPermission(permission != null);
   }
 }

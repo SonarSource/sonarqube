@@ -19,7 +19,6 @@
  */
 package org.sonar.batch;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.project.MavenProject;
 import org.slf4j.Logger;
@@ -75,8 +74,6 @@ public class ProjectConfigurator implements BatchComponent {
     checkCurrentAnalysisIsTheLatestOne(project.getKey(), analysisDate);
 
     project
-      // will be populated by ProjectSettings
-      .setConfiguration(new PropertiesConfiguration())
       .setAnalysisDate(analysisDate)
       .setAnalysisVersion(loadAnalysisVersion())
       .setAnalysisType(loadAnalysisType());
@@ -89,10 +86,9 @@ public class ProjectConfigurator implements BatchComponent {
       Snapshot lastSnapshot = databaseSession.getSingleResult(Snapshot.class, "resourceId", persistedProject.getId(), "last", true);
       if (lastSnapshot != null && !lastSnapshot.getCreatedAt().before(analysisDate)) {
         throw new IllegalArgumentException(
-          "'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '"+
+          "'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '" +
             settings.getString(CoreProperties.PROJECT_DATE_PROPERTY) + "'. " +
-            "Latest quality snapshot: '"+ DateUtils.formatDate(lastSnapshot.getCreatedAt()) +"'. This property may only be used to rebuild the past in a chronological order."
-        );
+            "Latest quality snapshot: '" + DateUtils.formatDate(lastSnapshot.getCreatedAt()) + "'. This property may only be used to rebuild the past in a chronological order.");
       }
     }
 

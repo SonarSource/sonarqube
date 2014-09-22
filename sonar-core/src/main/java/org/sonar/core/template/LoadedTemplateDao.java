@@ -21,10 +21,12 @@ package org.sonar.core.template;
 
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
-public class LoadedTemplateDao implements BatchComponent, ServerComponent {
+public class LoadedTemplateDao implements DaoComponent, BatchComponent, ServerComponent {
 
   private MyBatis mybatis;
 
@@ -33,24 +35,34 @@ public class LoadedTemplateDao implements BatchComponent, ServerComponent {
   }
 
   public int countByTypeAndKey(String type, String key) {
-    SqlSession session = mybatis.openSession();
-    LoadedTemplateMapper mapper = session.getMapper(LoadedTemplateMapper.class);
+    SqlSession session = mybatis.openSession(false);
     try {
-      return mapper.countByTypeAndKey(type, key);
+      return countByTypeAndKey(type, key, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
+  public int countByTypeAndKey(String type, String key, SqlSession session) {
+    return session.getMapper(LoadedTemplateMapper.class).countByTypeAndKey(type, key);
+  }
+
+
   public void insert(LoadedTemplateDto loadedTemplateDto) {
-    SqlSession session = mybatis.openSession();
-    LoadedTemplateMapper mapper = session.getMapper(LoadedTemplateMapper.class);
+    SqlSession session = mybatis.openSession(false);
     try {
-      mapper.insert(loadedTemplateDto);
+      insert(loadedTemplateDto, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
+  public void insert(LoadedTemplateDto loadedTemplateDto, SqlSession session) {
+    session.getMapper(LoadedTemplateMapper.class).insert(loadedTemplateDto);
+  }
+
+  public void delete(DbSession session, String type, String key) {
+    session.getMapper(LoadedTemplateMapper.class).delete(type, key);
+  }
 }

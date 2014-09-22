@@ -1,0 +1,25 @@
+{{! activation }}
+
+<a class="coding-rules-bulk-change-dropdown-link" data-action="activate">
+  {{t 'coding_rules.activate_in'}}&#8230;
+</a>
+
+{{#if allowActivateOnProfile}}
+  <a class="coding-rules-bulk-change-dropdown-link" data-action="activate" data-param="{{qualityProfile}}">
+    {{t 'coding_rules.activate_in'}} <strong>{{qualityProfileName}}</strong>
+  </a>
+{{/if}}
+
+
+
+{{! deactivation }}
+
+<a class="coding-rules-bulk-change-dropdown-link" data-action="deactivate">
+  {{t 'coding_rules.deactivate_in'}}&#8230;
+</a>
+
+{{#if allowDeactivateOnProfile}}
+  <a class="coding-rules-bulk-change-dropdown-link" data-action="deactivate" data-param="{{qualityProfile}}">
+    {{tp 'coding_rules.deactivate_in'}} <strong>{{qualityProfileName}}</strong>
+  </a>
+{{/if}}

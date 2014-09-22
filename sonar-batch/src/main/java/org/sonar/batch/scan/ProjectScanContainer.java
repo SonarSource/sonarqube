@@ -20,7 +20,7 @@
 package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
@@ -35,18 +35,44 @@ import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.bootstrap.*;
+import org.sonar.batch.bootstrap.ExtensionInstaller;
+import org.sonar.batch.bootstrap.ExtensionMatcher;
+import org.sonar.batch.bootstrap.ExtensionUtils;
+import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.components.PeriodsDefinition;
 import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
-import org.sonar.batch.index.*;
-import org.sonar.batch.issue.*;
+import org.sonar.batch.duplication.BlockCache;
+import org.sonar.batch.duplication.DuplicationCache;
+import org.sonar.batch.index.Caches;
+import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.index.ComponentDataPersister;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.DefaultPersistenceManager;
+import org.sonar.batch.index.DefaultResourcePersister;
+import org.sonar.batch.index.DependencyPersister;
+import org.sonar.batch.index.DuplicationPersister;
+import org.sonar.batch.index.EventPersister;
+import org.sonar.batch.index.LinkPersister;
+import org.sonar.batch.index.MeasurePersister;
+import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.ResourceKeyMigration;
+import org.sonar.batch.index.SnapshotCache;
+import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.issue.DefaultProjectIssues;
+import org.sonar.batch.issue.DeprecatedViolations;
+import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.IssuePersister;
+import org.sonar.batch.issue.ScanIssueStorage;
+import org.sonar.batch.languages.DefaultLanguagesReferential;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
+import org.sonar.batch.referential.ProjectReferentialsProvider;
 import org.sonar.batch.rule.RulesProvider;
-import org.sonar.batch.scan.filesystem.InputFileCache;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
+import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
 import org.sonar.core.component.ScanGraph;
@@ -80,16 +106,15 @@ public class ProjectScanContainer extends ComponentContainer {
   }
 
   private void projectBootstrap() {
-    // Old versions of bootstrappers used to pass project reactor as an extension
-    // so check if it is already present in parent container
+    // Views pass a custom ProjectReactor
     ProjectReactor reactor = getComponentByType(ProjectReactor.class);
     if (reactor == null) {
-      // OK, not present, so look for a custom ProjectBootstrapper
+      // OK, not present, so look for a deprecated custom ProjectBootstrapper for old versions of SQ Runner
       ProjectBootstrapper bootstrapper = getComponentByType(ProjectBootstrapper.class);
-      BootstrapSettings settings = getComponentByType(BootstrapSettings.class);
+      Settings settings = getComponentByType(Settings.class);
       if (bootstrapper == null
         // Starting from Maven plugin 2.3 then only DefaultProjectBootstrapper should be used.
-        || "true".equals(settings.property("sonar.mojoUseRunner"))) {
+        || "true".equals(settings.getString("sonar.mojoUseRunner"))) {
         // Use default SonarRunner project bootstrapper
         ProjectReactorBuilder builder = getComponentByType(ProjectReactorBuilder.class);
         reactor = builder.execute();
@@ -105,13 +130,14 @@ public class ProjectScanContainer extends ComponentContainer {
 
   private void addBatchComponents() {
     add(
+      new ProjectReferentialsProvider(),
       DefaultResourceCreationLock.class,
       DefaultPersistenceManager.class,
       DependencyPersister.class,
       EventPersister.class,
       LinkPersister.class,
       MeasurePersister.class,
-      MemoryOptimizer.class,
+      DuplicationPersister.class,
       DefaultResourcePersister.class,
       SourcePersister.class,
       DefaultNotificationManager.class,
@@ -130,7 +156,7 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultUserFinder.class,
 
       // file system
-      InputFileCache.class,
+      InputPathCache.class,
       PathResolver.class,
 
       // issues
@@ -155,20 +181,28 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // lang
       Languages.class,
+      DefaultLanguagesReferential.class,
       HighlightableBuilder.class,
       SymbolizableBuilder.class,
 
       // technical debt
       DefaultTechnicalDebtModel.class,
-      new DebtModelProvider(),
-
-      // rules
-      new RulesProvider(),
 
       // Differential periods
       PeriodsDefinition.class,
 
-      ProjectSettingsReady.class);
+      // Measures
+      MeasureCache.class,
+
+      // Rules
+      new RulesProvider(),
+      new DebtModelProvider(),
+
+      // Duplications
+      BlockCache.class,
+      DuplicationCache.class,
+
+      ProjectSettings.class);
   }
 
   private void fixMavenExecutor() {
@@ -201,7 +235,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
   static class BatchExtensionFilter implements ExtensionMatcher {
     public boolean accept(Object extension) {
-      return ExtensionUtils.isType(extension, BatchExtension.class)
+      return ExtensionUtils.isType(extension, BatchComponent.class)
         && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_BATCH);
     }
   }

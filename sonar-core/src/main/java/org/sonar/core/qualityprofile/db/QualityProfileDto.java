@@ -20,17 +20,47 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import org.sonar.core.UtcDateUtils;
+import org.sonar.core.persistence.Dto;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.Date;
 
-public class QualityProfileDto {
+public class QualityProfileDto extends Dto<String> {
 
   private Integer id;
+  private String kee;
   private String name;
   private String language;
-  private String parent;
-  private Integer version;
-  private boolean used;
+  private String parentKee;
+  private String rulesUpdatedAt;
+
+  /**
+   * @deprecated use {@link #createFor(String)}
+   */
+  @Deprecated
+  public QualityProfileDto() {
+
+  }
+
+  @Override
+  public String getKey() {
+    return kee;
+  }
+
+  public QualityProfileDto setKey(String s) {
+    return setKee(s);
+  }
+
+  public String getKee() {
+    return kee;
+  }
+
+  public QualityProfileDto setKee(String s) {
+    this.kee = s;
+    return this;
+  }
 
   public Integer getId() {
     return id;
@@ -60,30 +90,30 @@ public class QualityProfileDto {
   }
 
   @CheckForNull
-  public String getParent() {
-    return parent;
+  public String getParentKee() {
+    return parentKee;
   }
 
-  public QualityProfileDto setParent(@Nullable String parent) {
-    this.parent = parent;
+  public QualityProfileDto setParentKee(@Nullable String s) {
+    this.parentKee = s;
     return this;
   }
 
-  public Integer getVersion() {
-    return version;
+  public String getRulesUpdatedAt() {
+    return rulesUpdatedAt;
   }
 
-  public QualityProfileDto setVersion(Integer version) {
-    this.version = version;
+  public QualityProfileDto setRulesUpdatedAt(String s) {
+    this.rulesUpdatedAt = s;
     return this;
   }
 
-  public boolean isUsed() {
-    return used;
+  public QualityProfileDto setRulesUpdatedAtAsDate(Date d) {
+    this.rulesUpdatedAt = UtcDateUtils.formatDateTime(d);
+    return this;
   }
 
-  public QualityProfileDto setUsed(boolean used) {
-    this.used = used;
-    return this;
+  public static QualityProfileDto createFor(String key) {
+    return new QualityProfileDto().setKee(key);
   }
 }

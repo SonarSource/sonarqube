@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+
+  Log HTTP requests in logs/access.log. For internal use only.
+
+  See http://logback.qos.ch/access.html#configuration and Tomcat configuration in sonar-application.
+
+-->
+
+<configuration debug="false">
+
+  <!-- Required for performance reason. See http://www.slf4j.org/legacy.html#jul-to-slf4j -->
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${sonar.path.logs}/access.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <param name="FileNamePattern" value="${sonar.path.logs}/access.%i.log"/>
+      <param name="MinIndex" value="1"/>
+      <param name="MaxIndex" value="3"/>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <param name="MaxFileSize" value="5MB"/>
+    </triggeringPolicy>
+    <encoder>
+      <pattern>combined</pattern>
+    </encoder>
+  </appender>
+
+  <appender-ref ref="FILE" />
+</configuration>

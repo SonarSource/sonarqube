@@ -32,6 +32,7 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -129,9 +130,16 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.ALERT_STATUS, Metric.Level.OK.toString())));
     verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
     verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.ALERT_STATUS, Metric.Level.OK.toString())));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.QUALITY_GATE_DETAILS, "{\"level\":\"OK\","
+      + "\"conditions\":"
+      + "["
+      + "{\"metric\":\"classes\",\"op\":\"GT\",\"warning\":\"20\",\"actual\":\"20.0\",\"level\":\"OK\"},"
+      + "{\"metric\":\"coverage\",\"op\":\"GT\",\"warning\":\"35.0\",\"actual\":\"35.0\",\"level\":\"OK\"}"
+      + "]"
+      + "}")));
   }
 
   @Test
@@ -150,7 +158,8 @@ public class QualityGateVerifierTest {
   public void generate_warnings() {
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
       mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "100"),
-      mockCondition(CoreMetrics.COVERAGE, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "95.0")); // generates warning because coverage 35% < 95%
+      mockCondition(CoreMetrics.COVERAGE, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "95.0")); // generates warning because coverage
+                                                                                                      // 35% < 95%
     when(qualityGate.conditions()).thenReturn(conditions);
 
     verifier.decorate(project, context);
@@ -165,8 +174,10 @@ public class QualityGateVerifierTest {
   @Test
   public void globalStatusShouldBeErrorIfWarningsAndErrors() {
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
-      mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "100"), // generates warning because classes 20 < 100
-      mockCondition(CoreMetrics.COVERAGE, QualityGateConditionDto.OPERATOR_LESS_THAN, "50.0", "80.0")); // generates error because coverage 35% < 50%
+      mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "100"), // generates warning because classes 20 <
+                                                                                                   // 100
+      mockCondition(CoreMetrics.COVERAGE, QualityGateConditionDto.OPERATOR_LESS_THAN, "50.0", "80.0")); // generates error because coverage
+                                                                                                        // 35% < 50%
     when(qualityGate.conditions()).thenReturn(conditions);
 
     verifier.decorate(project, context);
@@ -182,8 +193,10 @@ public class QualityGateVerifierTest {
     when(i18n.message(any(Locale.class), eq("metric.classes.name"), anyString())).thenReturn("Classes");
     when(i18n.message(any(Locale.class), eq("metric.coverage.name"), anyString())).thenReturn("Coverages");
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
-      mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "10000"), // there are 20 classes, error threshold is higher => alert
-      mockCondition(CoreMetrics.COVERAGE, QualityGateConditionDto.OPERATOR_LESS_THAN, "50.0", "80.0"));// coverage is 35%, warning threshold is higher => alert
+      mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "10000"), // there are 20 classes, error
+                                                                                                     // threshold is higher => alert
+      mockCondition(CoreMetrics.COVERAGE, QualityGateConditionDto.OPERATOR_LESS_THAN, "50.0", "80.0"));// coverage is 35%, warning threshold
+                                                                                                       // is higher => alert
     when(qualityGate.conditions()).thenReturn(conditions);
 
     verifier.decorate(project, context);
@@ -213,7 +226,7 @@ public class QualityGateVerifierTest {
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
       // there are 20 classes, error threshold is higher => alert
       mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_LESS_THAN, "10000", null)
-    );
+      );
     when(qualityGate.conditions()).thenReturn(conditions);
 
     verifier.decorate(project, context);
@@ -229,11 +242,13 @@ public class QualityGateVerifierTest {
 
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
       mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "10", 1), // ok because no variation
-      mockCondition(CoreMetrics.COVERAGE, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "40.0", 2), // ok because coverage increases of 50%, which is more
+      mockCondition(CoreMetrics.COVERAGE, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "40.0", 2), // ok because coverage increases of
+                                                                                                        // 50%, which is more
       // than 40%
-      mockCondition(CoreMetrics.COMPLEXITY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "5", 3) // ok because complexity increases of 2, which is less
+      mockCondition(CoreMetrics.COMPLEXITY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "5", 3) // ok because complexity increases
+                                                                                                         // of 2, which is less
       // than 5
-    );
+      );
     when(qualityGate.conditions()).thenReturn(conditions);
 
     verifier.decorate(project, context);
@@ -252,13 +267,16 @@ public class QualityGateVerifierTest {
     measureComplexity.setVariation3(70d);
 
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
-      mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "30", 1), // generates warning because classes increases of 40,
+      mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "30", 1), // generates warning because classes
+                                                                                                        // increases of 40,
       // which is greater than 30
-      mockCondition(CoreMetrics.COVERAGE, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "10.0", 2), // generates warning because coverage increases of 5%,
+      mockCondition(CoreMetrics.COVERAGE, QualityGateConditionDto.OPERATOR_LESS_THAN, null, "10.0", 2), // generates warning because
+                                                                                                        // coverage increases of 5%,
       // which is smaller than 10%
-      mockCondition(CoreMetrics.COMPLEXITY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "60", 3) // generates warning because complexity increases of
+      mockCondition(CoreMetrics.COMPLEXITY, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "60", 3) // generates warning because
+                                                                                                          // complexity increases of
       // 70, which is smaller than 60
-    );
+      );
     when(qualityGate.conditions()).thenReturn(conditions);
 
     verifier.decorate(project, context);
@@ -293,7 +311,7 @@ public class QualityGateVerifierTest {
 
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
       mockCondition(ratingMetric, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "100", 1)
-    );
+      );
     when(qualityGate.conditions()).thenReturn(conditions);
 
     verifier.decorate(project, context);
@@ -302,16 +320,19 @@ public class QualityGateVerifierTest {
     verify(context).saveMeasure(argThat(hasLevel(measureRatingMetric, Metric.Level.OK)));
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void shouldAllowOnlyVariationPeriodOneGlobalPeriods() {
+  @Test
+  public void shouldAllowVariationPeriodOnAllPeriods() {
     measureClasses.setVariation4(40d);
 
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
       mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "30", 4)
-    );
+      );
     when(qualityGate.conditions()).thenReturn(conditions);
 
     verifier.decorate(project, context);
+
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, null)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.WARN)));
   }
 
   @Test(expected = NotImplementedException.class)
@@ -322,7 +343,7 @@ public class QualityGateVerifierTest {
 
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
       mockCondition(CoreMetrics.SCM_AUTHORS_BY_LINE, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "30", 1)
-    );
+      );
     when(qualityGate.conditions()).thenReturn(conditions);
 
     verifier.decorate(project, context);
@@ -336,9 +357,10 @@ public class QualityGateVerifierTest {
     when(periods.label(snapshot, 1)).thenReturn("since someday");
 
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
-      mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "30", 1) // generates warning because classes increases of 40,
+      mockCondition(CoreMetrics.CLASSES, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "30", 1) // generates warning because classes
+                                                                                                       // increases of 40,
       // which is greater than 30
-    );
+      );
     when(qualityGate.conditions()).thenReturn(conditions);
 
     verifier.decorate(project, context);
@@ -358,9 +380,10 @@ public class QualityGateVerifierTest {
     when(periods.label(snapshot, 1)).thenReturn("since someday");
 
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
-      mockCondition(newMetric, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "30", 1) // generates warning because classes increases of 40, which is
+      mockCondition(newMetric, QualityGateConditionDto.OPERATOR_GREATER_THAN, null, "30", 1) // generates warning because classes increases
+                                                                                             // of 40, which is
       // greater than 30
-    );
+      );
     when(qualityGate.conditions()).thenReturn(conditions);
 
     verifier.decorate(project, context);
@@ -376,12 +399,20 @@ public class QualityGateVerifierTest {
     when(i18n.message(any(Locale.class), eq("metric.tech_debt.name"), anyString())).thenReturn("The Debt");
     when(durations.format(any(Locale.class), eq(Duration.create(3600L)), eq(Durations.DurationFormat.SHORT))).thenReturn("1h");
 
-    when(context.getMeasure(metric)).thenReturn(new Measure(metric, 1800d));
-    ArrayList<ResolvedCondition> conditions = Lists.newArrayList(mockCondition(metric, QualityGateConditionDto.OPERATOR_LESS_THAN, "3600", null));
+    when(context.getMeasure(metric)).thenReturn(new Measure(metric, 7200d));
+    ArrayList<ResolvedCondition> conditions = Lists.newArrayList(mockCondition(metric, QualityGateConditionDto.OPERATOR_GREATER_THAN, "3600", null));
     when(qualityGate.conditions()).thenReturn(conditions);
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "The Debt < 1h")));
+    // First call to saveMeasure is for the update of debt
+    verify(context).saveMeasure(argThat(matchesMetric(metric, Level.ERROR, "The Debt > 1h")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "The Debt > 1h")));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.QUALITY_GATE_DETAILS, "{\"level\":\"ERROR\","
+      + "\"conditions\":"
+      + "["
+      + "{\"metric\":\"tech_debt\",\"op\":\"GT\",\"error\":\"3600\",\"actual\":\"7200.0\",\"level\":\"ERROR\"}"
+      + "]"
+      + "}")));
   }
 
   private ArgumentMatcher<Measure> matchesMetric(final Metric metric, final Metric.Level alertStatus, final String alertText) {

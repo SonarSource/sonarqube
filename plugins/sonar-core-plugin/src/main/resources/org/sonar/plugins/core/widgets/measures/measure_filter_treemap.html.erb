@@ -1,0 +1,62 @@
+<%
+   containerId = 'treemap-widget' + widget.id.to_s
+   chartTitle = widget_properties['chartTitle']
+   filterId = widget_properties['filter'].to_i
+   maxItems = widget_properties['maxItems'].to_i
+
+   filter = MeasureFilter.find_by_id(filterId.to_i)
+   if filter
+     @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
+%>
+
+<div class="treemap-widget" id="<%= containerId %>">
+  <!--[if lte IE 8 ]> <h3><%= message('widget.unsupported_browser_warning') -%></h3> <![endif]-->
+
+  <!--[if (gte IE 9)|!(IE)]><!-->
+  <% if chartTitle %>
+    <h3 style="margin-bottom: 5px;"><%= h(chartTitle) -%></h3>
+  <% end %>
+  <!--<![endif]-->
+</div>
+
+<!--[if (gte IE 9)|!(IE)]><!-->
+<script>
+  (function () {
+    var metrics = [
+          '<%= widget_properties['colorMetric'].name -%>',
+          '<%= widget_properties['sizeMetric'].name -%>'
+        ],
+        query = [
+          'filter=<%= filterId -%>',
+          'metrics=' + metrics.join(','),
+          'fields=name,longName,qualifier',
+          'pageSize=<%= maxItems -%>',
+          'page=1',
+          'sort=metric:' + metrics[1],
+          'asc=false'
+        ].join('&'),
+        widget = new SonarWidgets.Widget();
+
+    widget
+        .type('Treemap')
+        .source(baseUrl + '/measures/search_filter?' + query)
+        .metricsPriority(metrics)
+        .options({
+          heightInPercents: '<%= widget_properties['heightInPercents'] -%>',
+          maxItems: <%= maxItems -%>,
+          maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
+          baseUrl: baseUrl + '/dashboard/index/',
+          noData: '<%= message('no_data') -%>',
+          resource: '<%= filter.name -%>'
+        })
+        .render('#<%= containerId -%>');
+
+    autoResize(500, function() {
+      widget.update('#<%= containerId -%>');
+    });
+  })();
+</script>
+<!--<![endif]-->
+<% else %>
+  <p><%= image_tag 'warning.png' %> <%= message 'measure_filter.widget.unknown_filter_warning' -%></p>
+<% end %>

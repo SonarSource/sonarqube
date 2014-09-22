@@ -19,14 +19,24 @@
  */
 package org.sonar.api.issue;
 
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+
 /**
  * @since 3.6
  */
 public interface DefaultTransitions {
+
   String CONFIRM = "confirm";
   String UNCONFIRM = "unconfirm";
   String REOPEN = "reopen";
   String RESOLVE = "resolve";
   String FALSE_POSITIVE = "falsepositive";
   String CLOSE = "close";
+
+  /**
+   * @since 4.4
+   */
+  List<String> ALL = ImmutableList.of(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, CLOSE);
 }

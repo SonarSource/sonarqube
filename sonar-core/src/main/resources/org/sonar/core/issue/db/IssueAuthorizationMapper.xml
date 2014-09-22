@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mappei.dtd">
+
+<mapper namespace="org.sonar.core.issue.db.IssueAuthorizationMapper">
+
+  <resultMap id="resultMap" type="map">
+    <result property="project" column="project" />
+    <result property="permissionUser" column="permissionUser"/>
+    <result property="permissionGroup" column="permissionGroup"/>
+    <result property="permissionRole" column="permissionRole"/>
+    <result property="updatedAt" column="updatedAt" javaType="java.util.Date"/>
+  </resultMap>
+
+  <select id="selectAfterDate" parameterType="map" resultMap="resultMap">
+    SELECT
+      project_authorization.project as "project",
+      project_authorization.login as "permissionUser",
+      project_authorization.permission_group as "permissionGroup",
+      project_authorization.permission_role as "permissionRole",
+      project_authorization.updated_at as "updatedAt"
+    FROM (
+      -- users
+      SELECT
+      projects.kee AS project,
+      projects.authorization_updated_at AS updated_at,
+      users.login  AS login,
+      NULL  AS permission_group,
+      user_roles.role as permission_role
+      FROM projects
+      INNER JOIN user_roles ON user_roles.resource_id = projects.id AND user_roles.role = #{permission}
+      INNER JOIN users ON users.id = user_roles.user_id
+      WHERE
+      projects.authorization_updated_at &gt;= #{date}
+      <if test="project != null">
+        and projects.kee = #{project}
+      </if>
+      UNION
+      -- groups without Anyone
+      SELECT
+      projects.kee AS project,
+      projects.authorization_updated_at AS updated_at,
+      NULL  AS login,
+      groups.name  AS permission_group,
+      group_roles.role as permission_role
+      FROM projects
+      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = #{permission}
+      INNER JOIN groups ON groups.id = group_roles.group_id
+      WHERE
+      projects.authorization_updated_at &gt;= #{date}
+      <if test="project != null">
+        and projects.kee = #{project}
+      </if>
+      AND group_id IS NOT NULL
+      UNION
+      -- Anyone groups
+      SELECT
+      projects.kee AS project,
+      projects.authorization_updated_at AS updated_at,
+      NULL         AS login,
+      #{anyone}     AS permission_group,
+      group_roles.role as permission_role
+      FROM projects
+      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = #{permission}
+      WHERE
+      projects.authorization_updated_at &gt;= #{date}
+      <if test="project != null">
+        and projects.kee = #{project}
+      </if>
+      AND group_roles.group_id IS NULL
+    ) project_authorization
+  </select>
+
+</mapper>
+

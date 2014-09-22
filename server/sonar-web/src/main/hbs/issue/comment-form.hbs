@@ -1,0 +1,17 @@
+<table class="width100">
+  <tr>
+    <td style="vertical-align:top" colspan="2">
+      <textarea id="issue-comment-text" rows="4" name="text" style="width: 100%">{{show raw markdown}}</textarea>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding-top: 5px">
+      <input id="issue-comment-submit" type="submit"
+             value="{{#if id}}{{t 'save'}}{{else}}{{t 'issue.comment.submit'}}{{/if}}" disabled>
+      <a id="issue-comment-cancel" class="action">{{t 'cancel'}}</a>
+    </td>
+    <td align="right">
+      {{> '_markdown-tips' }}
+    </td>
+  </tr>
+</table>

@@ -19,23 +19,31 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.batch.*;
+import org.sonar.batch.DefaultProjectClasspath;
+import org.sonar.batch.DefaultSensorContext;
+import org.sonar.batch.DefaultTimeMachine;
+import org.sonar.batch.ProjectTree;
+import org.sonar.batch.ResourceFilters;
+import org.sonar.batch.ViolationFilters;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.debt.DebtDecorator;
+import org.sonar.batch.debt.IssueChangelogDebtCalculator;
+import org.sonar.batch.debt.NewDebtDecorator;
+import org.sonar.batch.debt.SqaleRatingDecorator;
+import org.sonar.batch.debt.SqaleRatingSettings;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourcePersister;
@@ -48,13 +56,34 @@ import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsRegexpScanner;
+import org.sonar.batch.language.LanguageDistributionDecorator;
 import org.sonar.batch.phases.PhaseExecutor;
 import org.sonar.batch.phases.PhasesTimeProfiler;
+import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
 import org.sonar.batch.qualitygate.QualityGateProvider;
 import org.sonar.batch.qualitygate.QualityGateVerifier;
-import org.sonar.batch.rule.*;
-import org.sonar.batch.scan.filesystem.*;
+import org.sonar.batch.rule.ActiveRulesProvider;
+import org.sonar.batch.rule.ModuleQProfiles;
+import org.sonar.batch.rule.QProfileDecorator;
+import org.sonar.batch.rule.QProfileEventsDecorator;
+import org.sonar.batch.rule.QProfileSensor;
+import org.sonar.batch.rule.QProfileVerifier;
+import org.sonar.batch.rule.RulesProfileProvider;
+import org.sonar.batch.scan.filesystem.ComponentIndexer;
+import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
+import org.sonar.batch.scan.filesystem.DeprecatedFileFilters;
+import org.sonar.batch.scan.filesystem.ExclusionFilters;
+import org.sonar.batch.scan.filesystem.FileIndexer;
+import org.sonar.batch.scan.filesystem.FileSystemLogger;
+import org.sonar.batch.scan.filesystem.InputFileBuilderFactory;
+import org.sonar.batch.scan.filesystem.LanguageDetectionFactory;
+import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
+import org.sonar.batch.scan.filesystem.ModuleInputFileCache;
+import org.sonar.batch.scan.filesystem.PreviousFileHashLoader;
+import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
+import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
 import org.sonar.batch.scan.report.JsonReport;
+import org.sonar.batch.scan2.AnalyzerOptimizer;
 import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.measure.MeasurementFilters;
 
@@ -78,18 +107,17 @@ public class ModuleScanContainer extends ComponentContainer {
     ProjectDefinition moduleDefinition = getComponentByType(ProjectTree.class).getProjectDefinition(module);
     add(
       moduleDefinition,
-      module.getConfiguration(),
       module,
       ModuleSettings.class);
 
-    // hack to initialize commons-configuration before ExtensionProviders
-    getComponentByType(ModuleSettings.class);
+    // hack to initialize settings before ExtensionProviders
+    ModuleSettings moduleSettings = getComponentByType(ModuleSettings.class);
+    module.setSettings(moduleSettings);
 
     add(
       EventBus.class,
       PhaseExecutor.class,
       PhasesTimeProfiler.class,
-      UnsupportedProperties.class,
       PhaseExecutor.getPhaseClasses(),
       moduleDefinition.getContainerExtensions(),
 
@@ -112,11 +140,14 @@ public class ModuleScanContainer extends ComponentContainer {
       ProjectFileSystemAdapter.class,
       QProfileVerifier.class,
 
+      AnalyzerOptimizer.class,
+
       // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
       getComponentByType(ResourcePersister.class).getSnapshot(module),
 
       TimeMachineConfiguration.class,
       DefaultSensorContext.class,
+      SensorContextAdaptor.class,
       BatchExtensionDictionnary.class,
       DefaultTimeMachine.class,
       ViolationFilters.class,
@@ -134,6 +165,8 @@ public class ModuleScanContainer extends ComponentContainer {
       new ActiveRulesProvider(),
       new RulesProfileProvider(),
       QProfileSensor.class,
+      QProfileDecorator.class,
+      QProfileEventsDecorator.class,
       CheckFactory.class,
 
       // report
@@ -151,6 +184,16 @@ public class ModuleScanContainer extends ComponentContainer {
       EnforceIssuesFilter.class,
       IgnoreIssuesFilter.class,
 
+      // language
+      LanguageDistributionDecorator.class,
+
+      // Debt
+      IssueChangelogDebtCalculator.class,
+      DebtDecorator.class,
+      NewDebtDecorator.class,
+      SqaleRatingDecorator.class,
+      SqaleRatingSettings.class,
+
       ScanPerspectives.class);
   }
 
@@ -158,7 +201,7 @@ public class ModuleScanContainer extends ComponentContainer {
     ExtensionInstaller installer = getComponentByType(ExtensionInstaller.class);
     installer.install(this, new ExtensionMatcher() {
       public boolean accept(Object extension) {
-        if (ExtensionUtils.isType(extension, BatchExtension.class) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT)) {
+        if (ExtensionUtils.isType(extension, BatchComponent.class) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT)) {
           // Special use-case: the extension point ProjectBuilder is used in a Maven environment to define some
           // new sub-projects without pom.
           // Example : C# plugin adds sub-projects at runtime, even if they are not defined in root pom.

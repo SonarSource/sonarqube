@@ -32,8 +32,8 @@ public final class ItBranchCoverageDecorator extends AbstractCoverageDecorator {
 
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
-    return ImmutableList.of(CoreMetrics.IT_UNCOVERED_CONDITIONS, CoreMetrics.IT_CONDITIONS_TO_COVER,
-        CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS, CoreMetrics.NEW_IT_CONDITIONS_TO_COVER);
+    return ImmutableList.<Metric>of(CoreMetrics.IT_UNCOVERED_CONDITIONS, CoreMetrics.IT_CONDITIONS_TO_COVER,
+      CoreMetrics.NEW_IT_UNCOVERED_CONDITIONS, CoreMetrics.NEW_IT_CONDITIONS_TO_COVER);
   }
 
   @Override

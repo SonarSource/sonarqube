@@ -65,7 +65,7 @@
 
   <script>
     $j(function() {
-      $j('#select_category_<%= widget.id -%>').select2({ width: '100px' });
+      $j('#select_category_<%= widget.id -%>').select2({ width: '150px' });
     });
   </script>
 
@@ -82,16 +82,22 @@
 <%
    events.each do |event|
      categ = event.category
+     profile_data={}
+     if categ=='Profile' && event.event_data
+       profile_data=Hash[*(event.event_data.split(';').map { |elt| elt.split('=') }.flatten)]
+     end
 %>
 <tr class="<%= cycle 'even','odd' -%> event cat_<%= categ.parameterize -%>">
     <td x="<%= event.event_date -%>"><%= l(event.event_date.to_date) %></td>
     <td><%= h message('event.category.' + categ, :default => categ) %></td>
-    <td><%= event.name %></td>
+    <td>
+      <%= link_to_if profile_data['key'] && profile_data['from'] && profile_data['to'], event.name,
+                             :controller => 'profiles', :action => 'changelog', :key => profile_data['key'],
+                             :since =>  profile_data['from'], :to => profile_data['to'] -%>
+    </td>
     <td>
       <% unless event.description.blank? %>
-      <a href="#" class="nolink" title="<%= h event.description -%>" alt="<%= h event.description -%>">
-        <i class="icon-info"></i>
-      </a>
+        <i class="icon-info" title="<%= h event.description -%>"></i>
       <% end %>
     </td>
 </tr>

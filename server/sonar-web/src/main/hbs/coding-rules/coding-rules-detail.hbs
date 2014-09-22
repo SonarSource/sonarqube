@@ -1,0 +1,157 @@
+<div class="coding-rules-detail-context"></div>
+
+<h3 class="coding-rules-detail-header">
+  {{name}}
+  <a class="coding-rules-detail-permalink" href="#rule_key={{key}}">
+    <i class="icon-link"></i> {{t 'coding_rules.permalink'}}
+  </a>
+</h3>
+<span class="subtitle">{{key}}</span>
+
+<ul class="coding-rules-detail-properties">
+  {{#unless isManual}}
+    <li class="coding-rules-detail-property">{{severityIcon severity}} {{t "severity" severity}}</li>
+  {{/unless}}
+  {{#notEq status 'READY'}}
+    <li class="coding-rules-detail-property">
+      <span class="coding-rules-detail-status coding-rules-detail-not-ready">{{status}}</span>
+    </li>
+  {{/notEq}}
+
+
+  <li class="coding-rules-detail-property coding-rules-detail-tag-list {{#if canWrite}}coding-rules-detail-tags-change{{/if}}">
+    <i class="icon-tags"></i>
+    <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
+  </li>
+  {{#if canWrite}}<li class="coding-rules-detail-property coding-rules-detail-tag-edit">
+    {{#if sysTags}}<i class="icon-tags"></i>
+    <span>{{join sysTags ', '}}</span>{{/if}}
+    <input class="coding-rules-detail-tag-input" type="text" value="{{#if tags}}{{join tags ','}}{{/if}}">
+
+    <div class="button-group">
+      <button class="coding-rules-detail-tag-edit-done">{{t 'Done'}}</button>
+    </div>
+  </li>{{/if}}
+
+  {{#if subcharacteristic}}
+    <li class="coding-rules-detail-property coding-rules-subcharacteristic">{{subcharacteristic}}</li>
+  {{/if}}
+  <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
+  <li class="coding-rules-detail-property">{{repository}}{{#unless isManual}} ({{language}}){{/unless}}</li>
+
+  {{#if isTemplate}}
+    <li class="coding-rules-detail-property" title="{{t 'coding_rules.rule_template.title'}}">{{t 'coding_rules.rule_template'}}</li>
+  {{/if}}
+  {{#if templateKey}}
+    <li class="coding-rules-detail-property" title="{{t 'coding_rules.custom_rule.title'}}">{{t 'coding_rules.custom_rule'}}
+      (<a href="#rule_key={{templateKey}}">{{t 'coding_rules.show_template'}}</a>)
+    </li>
+  {{/if}}
+</ul>
+
+<div class="coding-rules-detail-description rule-desc markdown">{{{htmlDesc}}}</div>
+
+{{#if isEditable}}
+  <div class="coding-rules-detail-description">
+    <div class="button-group">
+      {{#if isManual}}
+        <button id="coding-rules-detail-manual-rule-change">{{t 'edit'}}</button>
+      {{else}}
+        <button id="coding-rules-detail-custom-rule-change">{{t 'edit'}}</button>
+      {{/if}}
+      <button id="coding-rules-detail-rule-delete" class="button-red">{{t 'delete'}}</button>
+    </div>
+  </div>
+{{else}}
+  {{#unless isManual}}
+  <div class="coding-rules-detail-description coding-rules-detail-description-extra">
+    <div id="coding-rules-detail-description-extra">
+      {{#if htmlNote}}
+        <div class="rule-desc marginbottom10 markdown">{{{htmlNote}}}</div>{{/if}}
+      {{#if canWrite}}<div class="button-group">
+        <button id="coding-rules-detail-extend-description">{{t 'coding_rules.extend_description'}}</button>
+      </div>{{/if}}
+    </div>
+
+    {{#if canWrite}}<div class="coding-rules-detail-extend-description-form">
+      <table class="width100">
+        <tbody>
+        <tr>
+          <td class="width100" colspan="2">
+            <textarea id="coding-rules-detail-extend-description-text" rows="4"
+                      style="width: 100%; margin-bottom: 4px;">{{mdNote}}</textarea>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="button-group">
+              <button id="coding-rules-detail-extend-description-submit">{{t 'save'}}</button>
+              {{#if mdNote}}
+              <button id="coding-rules-detail-extend-description-remove" class="button-red">{{t 'remove'}}</button>
+              {{/if}}
+            </div>
+            <a id="coding-rules-detail-extend-description-cancel" class="action">{{t 'cancel'}}</a>
+          </td>
+          <td class="right">
+            {{> '_markdown-tips' }}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="coding-rules-detail-extend-description-spinner">
+      <i class="spinner"></i>
+    </div>{{/if}}
+  </div>
+  {{/unless}}
+{{/if}}
+
+
+{{#if params}}
+  <h3 class="coding-rules-detail-title">{{t 'coding_rules.parameters'}}</h3>
+  <div class="coding-rules-detail-parameters">
+    {{#each params}}
+    <dl class="coding-rules-detail-parameter">
+      <dt class="coding-rules-detail-parameter-name">{{key}}</dt>
+      <dd class="coding-rules-detail-parameter-description" data-key="{{key}}">
+        {{#if ../../templateKey}}
+          <span class="value">{{defaultValue}}</span>
+        {{else}}
+          {{{htmlDesc}}}
+          {{#if defaultValue}}
+          <div class="subtitle">{{t 'coding_rules.parameters.default_value'}} <span class="value">{{defaultValue}}</span></div>
+          {{/if}}
+        {{/if}}
+      </dd>
+    </dl>
+    {{/each}}
+  </div>
+{{/if}}
+
+
+{{#if isTemplate}}
+<div class="coding-rules-detail-custom-rules-section">
+  <h3 class="coding-rules-detail-title">{{t 'coding_rules.custom_rules'}}</h3>
+
+  {{#if canWrite}}<div class="button-group coding-rules-detail-quality-profiles-activation">
+    <button id="coding-rules-custom-rules-create">{{t 'coding_rules.create'}}</button>
+  </div>{{/if}}
+  <div id="coding-rules-detail-custom-rules"></div>
+</div>
+{{/if}}
+
+
+{{#if qualityProfilesVisible}}
+<div class="coding-rules-detail-quality-profiles-section">
+  <h3 class="coding-rules-detail-title">{{t 'coding_rules.quality_profiles'}}</h3>
+
+  {{#if canWrite}}{{#unless isTemplate}}<div class="button-group coding-rules-detail-quality-profiles-activation">
+    <button id="coding-rules-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
+  </div>{{/unless}}{{/if}}
+  {{#if isTemplate}}
+  <div class="coding-rules-detail-quality-profiles-template-caption warning">{{t 'coding_rules.quality_profiles.template_caption'}}</div>
+  {{/if}}
+  <div id="coding-rules-detail-quality-profiles"></div>
+</div>
+{{/if}}

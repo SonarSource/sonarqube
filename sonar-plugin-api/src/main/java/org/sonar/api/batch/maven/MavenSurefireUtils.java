@@ -23,7 +23,9 @@ import org.sonar.api.resources.Project;
 
 /**
  * @since 1.10
+ * @deprecated since 4.5 we don't want any dependency on Maven anymore
  */
+@Deprecated
 public final class MavenSurefireUtils {
 
   public static final String GROUP_ID = MavenUtils.GROUP_ID_APACHE_MAVEN;

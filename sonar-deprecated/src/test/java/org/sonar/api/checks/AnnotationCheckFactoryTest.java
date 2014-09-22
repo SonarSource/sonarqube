@@ -29,10 +29,8 @@ import org.sonar.api.utils.SonarException;
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
 
 public class AnnotationCheckFactoryTest {
 
@@ -47,7 +45,7 @@ public class AnnotationCheckFactoryTest {
 
     Object check = factory.getCheck(activeRule);
     assertNotNull(check);
-    assertThat(check, is(CheckWithoutProperties.class));
+    assertThat(check).isInstanceOf(CheckWithoutProperties.class);
   }
 
   @Test
@@ -62,8 +60,8 @@ public class AnnotationCheckFactoryTest {
 
     Object check = factory.getCheck(activeRule);
     assertNotNull(check);
-    assertThat(check, is(CheckWithStringProperty.class));
-    assertThat(((CheckWithStringProperty) check).getPattern(), is("foo"));
+    assertThat(check).isInstanceOf(CheckWithStringProperty.class);
+    assertThat(((CheckWithStringProperty) check).getPattern()).isEqualTo("foo");
   }
 
   @Test
@@ -92,8 +90,8 @@ public class AnnotationCheckFactoryTest {
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithPrimitiveProperties.class));
 
     Object check = factory.getCheck(activeRule);
-    assertThat(((CheckWithPrimitiveProperties) check).getMax(), is(300));
-    assertThat(((CheckWithPrimitiveProperties) check).isIgnore(), is(true));
+    assertThat(((CheckWithPrimitiveProperties) check).getMax()).isEqualTo(300);
+    assertThat(((CheckWithPrimitiveProperties) check).isIgnore()).isTrue();
   }
 
   @Test
@@ -107,7 +105,7 @@ public class AnnotationCheckFactoryTest {
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithIntegerProperty.class));
 
     Object check = factory.getCheck(activeRule);
-    assertThat(((CheckWithIntegerProperty) check).getMax(), is(300));
+    assertThat(((CheckWithIntegerProperty) check).getMax()).isEqualTo(300);
   }
 
   /**
@@ -124,7 +122,7 @@ public class AnnotationCheckFactoryTest {
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(ImplementedCheck.class));
 
     Object check = factory.getCheck(activeRule);
-    assertThat(((ImplementedCheck) check).getMax(), is(300));
+    assertThat(((ImplementedCheck) check).getMax()).isEqualTo(300);
   }
 
   @Test
@@ -151,14 +149,14 @@ public class AnnotationCheckFactoryTest {
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class> asList(CheckWithOverriddenPropertyKey.class));
 
     Object check = factory.getCheck(activeRule);
-    assertThat(((CheckWithOverriddenPropertyKey) check).getMax(), is(300));
+    assertThat(((CheckWithOverriddenPropertyKey) check).getMax()).isEqualTo(300);
   }
 
   @Test
   public void shouldWorkWithClonedRules() {
     RulesProfile profile = RulesProfile.create("repo", "java");
     Rule rule = Rule.create("repo", "CheckWithKey", "");
-    Rule clonedRule = Rule.create("repo", "CheckWithKey_2", "").setConfigKey("CheckWithKey").setParent(rule);
+    Rule clonedRule = Rule.create("repo", "CheckWithKey_2", "").setConfigKey("CheckWithKey").setTemplate(rule);
 
     profile.activateRule(rule, null);
     profile.activateRule(clonedRule, null);
@@ -196,6 +194,6 @@ public class AnnotationCheckFactoryTest {
     Object check = factory.getCheck(activeRule);
     assertNotNull(check);
     assertSame(check, checkInstance);
-    assertThat(checkInstance.getPattern(), is("foo"));
+    assertThat(checkInstance.getPattern()).isEqualTo("foo");
   }
 }

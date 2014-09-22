@@ -29,7 +29,7 @@ public interface NotificationQueueMapper {
 
   void insert(NotificationQueueDto actionPlanDto);
 
-  void delete(Long id);
+  void delete(long id);
 
   List<NotificationQueueDto> findOldest(int count);
 

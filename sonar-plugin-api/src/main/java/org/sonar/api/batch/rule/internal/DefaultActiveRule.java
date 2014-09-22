@@ -24,19 +24,23 @@ import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.concurrent.Immutable;
+
 import java.util.Map;
 
 @Immutable
-class DefaultActiveRule implements ActiveRule {
+public class DefaultActiveRule implements ActiveRule {
   private final RuleKey ruleKey;
-  private final String severity, internalKey;
+  private final String name;
+  private final String severity, internalKey, language;
   private final Map<String, String> params;
 
   DefaultActiveRule(NewActiveRule newActiveRule) {
     this.severity = newActiveRule.severity;
+    this.name = newActiveRule.name;
     this.internalKey = newActiveRule.internalKey;
     this.ruleKey = newActiveRule.ruleKey;
     this.params = ImmutableMap.copyOf(newActiveRule.params);
+    this.language = newActiveRule.language;
   }
 
   @Override
@@ -44,9 +48,18 @@ class DefaultActiveRule implements ActiveRule {
     return ruleKey;
   }
 
+  public String name() {
+    return name;
+  }
+
   @Override
   public String severity() {
     return severity;
+  }
+
+  @Override
+  public String language() {
+    return language;
   }
 
   @Override

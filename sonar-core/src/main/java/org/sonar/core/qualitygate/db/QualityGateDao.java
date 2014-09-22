@@ -37,7 +37,7 @@ public class QualityGateDao {
   }
 
   public void insert(QualityGateDto newQualityGate) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       insert(newQualityGate, session);
       session.commit();
@@ -51,7 +51,7 @@ public class QualityGateDao {
   }
 
   public Collection<QualityGateDto> selectAll() {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return selectAll(session);
     } finally {
@@ -64,7 +64,7 @@ public class QualityGateDao {
   }
 
   public QualityGateDto selectByName(String name) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return selectByName(name, session);
     } finally {
@@ -77,7 +77,7 @@ public class QualityGateDao {
   }
 
   public QualityGateDto selectById(long id) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return selectById(id, session);
     } finally {
@@ -90,7 +90,7 @@ public class QualityGateDao {
   }
 
   public void delete(QualityGateDto qGate) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       delete(qGate, session);
       session.commit();
@@ -104,7 +104,7 @@ public class QualityGateDao {
   }
 
   public void update(QualityGateDto qGate) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       update(qGate, session);
       session.commit();

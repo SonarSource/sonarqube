@@ -34,7 +34,9 @@ import java.util.List;
  * A class to handle maven plugins
  *
  * @since 1.10
+ * @deprecated since 4.5 we don't want any dependency on Maven anymore
  */
+@Deprecated
 public class MavenPlugin {
 
   private static final String CONFIGURATION_ELEMENT = "configuration";

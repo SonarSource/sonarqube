@@ -1,0 +1,375 @@
+@import (reference) "variables";
+@import (reference) "mixins";
+
+
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto-Light-webfont.eot');
+  src: url('../fonts/Roboto-Light-webfont.eot?#iefix') format('embedded-opentype'),
+       url('../fonts/Roboto-Light-webfont.woff') format('woff'),
+       url('../fonts/Roboto-Light-webfont.ttf') format('truetype'),
+       url('../fonts/Roboto-Light-webfont.svg#robotolight') format('svg');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto-Regular-webfont.eot');
+  src: url('../fonts/Roboto-Regular-webfont.eot?#iefix') format('embedded-opentype'),
+       url('../fonts/Roboto-Regular-webfont.woff') format('woff'),
+       url('../fonts/Roboto-Regular-webfont.ttf') format('truetype'),
+       url('../fonts/Roboto-Regular-webfont.svg#robotoregular') format('svg');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto-Medium-webfont.eot');
+  src: url('../fonts/Roboto-Medium-webfont.eot?#iefix') format('embedded-opentype'),
+       url('../fonts/Roboto-Medium-webfont.woff') format('woff'),
+       url('../fonts/Roboto-Medium-webfont.ttf') format('truetype'),
+       url('../fonts/Roboto-Medium-webfont.svg#robotomedium') format('svg');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Roboto';
+  src: url('../fonts/Roboto-Bold-webfont.eot');
+  src: url('../fonts/Roboto-Bold-webfont.eot?#iefix') format('embedded-opentype'),
+       url('../fonts/Roboto-Bold-webfont.woff') format('woff'),
+       url('../fonts/Roboto-Bold-webfont.ttf') format('truetype'),
+       url('../fonts/Roboto-Bold-webfont.svg#robotobold') format('svg');
+  font-weight: 700;
+  font-style: normal;
+}
+
+
+body {
+  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+select, input, button, textarea {
+  font-size: 99%;
+  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/*Remove button padding in FF*/
+select::-moz-focus-inner, input::-moz-focus-inner, button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+/*
+ * Common
+ */
+
+.nowrap { white-space: nowrap; }
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.justify {
+  margin-bottom: -1em;
+  text-align: justify;
+
+  & > .ib { display: inline-block; }
+
+  &:after { display: inline-block; width: 100%; content: " "; }
+}
+
+.no-transform {
+  text-transform: none;
+}
+
+
+/*
+ * Links
+ */
+
+.link() {
+  outline: none;
+  text-decoration: none;
+  .trans;
+
+  &:hover { color: @blue; }
+
+  &:active, &:focus {
+    color: @darkBlue;
+  }
+}
+
+.base-link {
+  color: @baseFontColor;
+  .link;
+}
+
+.highlighted-link() {
+  color: @darkBlue;
+  .link;
+}
+
+.underlined-link() {
+  .highlighted-link;
+  border-bottom: 1px solid @lightBlue;
+
+  &.link-red { .widget-link-red; }
+}
+
+.icon-with-link {
+  outline: none;
+  text-decoration: none;
+}
+
+.widget-link {
+  .highlighted-link;
+  border-bottom: 1px solid @lightBlue;
+}
+
+.widget-link-red {
+  color: @red;
+  border-bottom-color: @lightRed;
+
+  &:hover, &:active, &:focus {
+    color: @red;
+    border-bottom-color: @red;
+  }
+}
+
+.link-no-underline {
+  border-bottom: none;
+}
+
+
+a {
+  cursor: pointer;
+  .underlined-link;
+
+  &.active-link {
+    border-bottom: none;
+    font-weight: 500;
+  }
+}
+
+
+
+/*
+ * Inputs
+ */
+
+input[type=text],
+input[type=password],
+input[type=email],
+textarea {
+  border: 1px solid @darkGrey;
+  .box-sizing(border-box);
+  background: #fff;
+  color: @baseFontColor;
+  .trans(border-color);
+
+  &:active,
+  &:focus {
+    border-color: @highlighted;
+    box-shadow: none;
+    outline: none;
+  }
+
+  &.invalid { border-color: @red; }
+}
+
+input[type=text],
+input[type=password],
+input[type=email] {
+  height: 22px;
+  padding: 0 3px;
+}
+
+textarea {
+  padding: 3px;
+}
+
+button,
+.button,
+input[type=submit],
+input[type=button] {
+  display: inline-block;
+  vertical-align: baseline;
+  height: 22px;
+  margin: 0 1px;
+  padding: 0 10px;
+
+  border: 1px solid @darkGrey;
+  .box-sizing(border-box);
+
+  background: #f4f4f4;
+
+  color: @baseFontColor;
+  font-weight: bold;
+  font-size: @baseFontSize;
+  text-align: center;
+  text-decoration: none;
+
+  cursor: pointer;
+  outline: none;
+  .trans(border-color);
+
+  &:hover, &.active {
+    border-color: #5281a0;
+    background: #4b9fd5;
+    color: #fff;
+  }
+
+  &:active {
+    border-color: #2790c0;
+    background: #78bdea;
+    color: #fff;
+  }
+
+  &:focus {
+    border-color: @highlighted;
+  }
+
+  &[disabled],
+  &[disabled]:hover,
+  &[disabled]:active,
+  &[disabled]:focus {
+    color: #bbb;
+    border-color: #ddd;
+    background: #ebebeb;
+    cursor: default;
+  }
+}
+
+.button { line-height: 22px; }
+
+.button-red {
+  &:hover, &:focus {
+    border-color: #900;
+    background: lighten(#900, 10%);
+    color: #fff;
+  }
+
+  &:active {
+    border-color: #900;
+    background: lighten(#900, 20%);
+  }
+}
+
+.button-clean,
+.button-clean:hover,
+.button-clean:focus {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: @baseFontColor;
+}
+
+.button-group {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0;
+  white-space: nowrap;
+
+  & > button,
+  & > .button {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+    padding: 2px 8px;
+    font-size: @smallFontSize;
+    font-weight: normal;
+    cursor: pointer;
+
+    &:hover, &:focus, &:active, &.active {
+      z-index: 3;
+    }
+  }
+
+  & > .button { line-height: 16px; }
+
+  & > button + button,
+  & > button + .button,
+  & > .button + button,
+  & > .button + .button {
+    margin-left: -1px;
+  }
+
+  & > a:not(.button) {
+    vertical-align: middle;
+    margin: 0 8px;
+    font-size: @smallFontSize;
+  }
+}
+
+
+.message-alert {
+  display: block;
+  padding: 5px 8px;
+  border: 2px solid @orange;
+}
+
+.message-error {
+  display: block;
+  padding: 5px 8px;
+  background-color: @red;
+  color: #fff;
+}
+
+
+.markdown {
+  a { .underlined-link; }
+}
+
+
+/*
+ * Display SQALE Rating (also used by the SQALE plugin)
+ */
+
+.rating {
+  display: inline-block;
+  .size(1em, 1.3em);
+  line-height: 1.3;
+  color: #fff;
+  font-weight: 300;
+  text-align: center;
+
+  a > & {
+    margin-bottom: -1px;
+    border-bottom: 1px solid;
+    .trans;
+
+    &:hover { opacity: 0.8; }
+  }
+}
+
+.rating-A {
+  background-color: #00AA00;
+  a & { border-bottom-color: #00AA00; }
+}
+
+.rating-B {
+  background-color: #80CC00;
+  a & { border-bottom-color: #80CC00; }
+}
+
+.rating-C {
+  background-color: #FFEE00;
+  color: @baseFontColor;
+  a & { border-bottom-color: #FFEE00; }
+}
+
+.rating-D {
+  background-color: #F77700;
+  a & { border-bottom-color: #F77700; }
+}
+
+.rating-E {
+  background-color: #EE0000;
+  a & { border-bottom-color: #EE0000; }
+}

@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Language;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class JavaClassTest {

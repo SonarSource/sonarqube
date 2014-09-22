@@ -23,6 +23,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 
 /**
@@ -31,6 +32,7 @@ import java.util.Collection;
  * <p/>
  * Use {@link org.sonar.api.batch.rule.internal.ActiveRulesBuilder} to instantiate
  * this component in unit tests.
+ *
  * @since 4.2
  */
 public interface ActiveRules extends BatchComponent {
@@ -49,8 +51,23 @@ public interface ActiveRules extends BatchComponent {
   Collection<ActiveRule> findAll();
 
   /**
-   * The active rules for a given repository, like Findbugs
+   * The active rules for a given repository, like <code>findbugs</code>
    */
   Collection<ActiveRule> findByRepository(String repository);
+
+  /**
+   * The active rules for a given language, like <code>java</code>
+   * @deprecated since 4.5 Not sure rules will continue to be linked to a language
+   */
+  @Deprecated
+  Collection<ActiveRule> findByLanguage(String language);
+
+  /**
+   * Find a {@link ActiveRule} by the associated internal key. <code>null</code>
+   * is returned if the rule does not exist or if the rule is not activated
+   * on any Quality profile associated with the module.
+   */
+  @CheckForNull
+  ActiveRule findByInternalKey(String repository, String internalKey);
 
 }

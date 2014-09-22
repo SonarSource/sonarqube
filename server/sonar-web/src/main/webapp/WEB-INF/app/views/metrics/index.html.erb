@@ -1,0 +1,63 @@
+<div>
+  <% if profiles_administrator? %>
+  <ul style="float: right" class="horizontal">
+    <li class="marginleft10 add">
+      <a id="create-link-metric"
+         href="<%=ApplicationController.root_context-%>/metrics/create_form"
+         class="open-modal link-action"><%= message('manual_metrics.add_manual_metric') -%></a>
+    </li>
+  </ul>
+  <% end %>
+  <h1 class="admin-page-title"><%= message('manual_metrics.page') -%></h1>
+
+  <p class="admin-page-description"><%= message('manual_metrics.page.description') -%> </p>
+</div>
+
+<table width="100%">
+  <tr>
+    <td valign="top">
+      <table class="sortable data width100" id="metrics">
+        <thead>
+          <tr>
+            <th class="left"><a>Key</a></th>
+            <th class="left sortfirstasc"><a>Name</a></th>
+            <th class="left"><a>Description</a></th>
+            <th class="left"><a>Domain</a></th>
+            <th class="left"><a>Type</a></th>
+            <th class="left nosort"><a>Operations</a></th>
+          </tr>
+        </thead>
+        <tbody>
+        <% if @metrics.empty? %>
+          <tr class="even">
+              <td colspan="6"><%= message('no_results') -%></td>
+          </tr>
+        <% end %>
+        <% @metrics.each do |metric| %>
+          <tr>
+            <td class="left" nowrap id="metric_key_<%= metric.key -%>"><span class="note"><%= metric.key -%></span></td>
+            <td class="left" nowrap id="metric_name_<%= metric.key -%>"><%= h metric.short_name -%></td>
+            <td class="left" id="metric_desc_<%= metric.key -%>"><%= h metric.description -%></td>
+            <td class="left" id="metric_domain_<%= metric.key -%>"><%= metric.domain -%></td>
+            <td class="left" id="metric_type_name<%= metric.key -%>"><%= metric.value_type_name -%></td>
+            <td class="right thin nowrap">
+            <% if is_admin? %>
+             <a id="edit_<%= metric.key.parameterize -%>" href="<%=ApplicationController.root_context-%>/metrics/edit_form/<%= metric.id -%>" id="edit_<%= h(metric.short_name)-%>" class="open-modal link-action">Edit</a>&nbsp;
+              <%= link_to_action message('delete'), "#{ApplicationController.root_context}/metrics/delete_from_web/#{metric.id}",
+                                 :class => 'link-action link-red',
+                                 :id => "delete_#{h(metric.short_name)}",
+                                 :confirm_button => message('delete'),
+                                 :confirm_title => message('manual_metrics.delete_manual_metric'),
+                                 :confirm_msg => message('manual_metrics.delete_manual_metric_message', :params => [h(metric.key)]),
+                                 :confirm_msg_params => [metric.id]
+              -%>
+            <% end %>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+      <script>jQuery('#metrics').sortable();</script>
+    </td>
+  </tr>
+</table>

@@ -30,6 +30,7 @@ import org.sonar.api.rules.Violation;
 
 import javax.annotation.CheckForNull;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +38,9 @@ import java.util.Set;
 
 /**
  * @since 1.10
+ * @deprecated since 4.5
  */
+@Deprecated
 public interface SensorContext {
 
   /**
@@ -104,7 +107,7 @@ public interface SensorContext {
   /**
    * Find a project measure
    */
-  Measure getMeasure(Metric metric);
+  <G extends Serializable> Measure<G> getMeasure(Metric<G> metric);
 
   /**
    * All measures of the project. Never return null.
@@ -126,7 +129,7 @@ public interface SensorContext {
   /**
    * Find a measure for this project
    */
-  Measure getMeasure(Resource resource, Metric metric);
+  <G extends Serializable> Measure<G> getMeasure(Resource resource, Metric<G> metric);
 
   /**
    * Key is updated when saving the resource.
@@ -167,7 +170,9 @@ public interface SensorContext {
    *
    * @param force allows to force creation of violation even if it was supressed by {@link org.sonar.api.rules.ViolationFilter}
    * @since 2.5
+   * @deprecated since 5.0 but force parameter was ignored for a long time anyway
    */
+  @Deprecated
   void saveViolation(Violation violation, boolean force);
 
   /**

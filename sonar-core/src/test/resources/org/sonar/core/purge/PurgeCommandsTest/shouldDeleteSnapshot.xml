@@ -20,13 +20,12 @@
                     RULE_ID="1"
                     person_id="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
-                    alert_status="[null]" description="[null]"/>
-  <measure_data id="1" measure_id="1" snapshot_id="1" data="[null]"/>
+                    alert_status="[null]" description="[null]" measure_data="[null]"/>
   <dependencies id="1" from_resource_id="1" from_snapshot_id="1" to_resource_id="30" to_snapshot_id="30"
                 parent_dependency_id="[null]" project_snapshot_id="1"
                 dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>
   <events id="1" name="Version 1.0" resource_id="1" snapshot_id="1" category="VERSION" description="[null]"
-          event_date="2008-12-02 13:58:00.00" created_at="[null]"/>
+          event_date="2008-12-02 13:58:00.00" created_at="[null]" event_data="[null]"/>
   <duplications_index id="1" project_snapshot_id="1" snapshot_id="1" hash="bb" index_in_file="0" start_line="0" end_line="0"/>
   <snapshot_data id="1" resource_id="1" snapshot_id="1" snapshot_data="0,10,k" data_type="highlight_syntax" created_at="[null]" updated_at="[null]" />
 
@@ -51,8 +50,7 @@
                     RULE_ID="1"
                     person_id="[null]"
                     text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
-                    alert_status="[null]" description="[null]"/>
-  <measure_data id="2" measure_id="2" snapshot_id="5" data="[null]"/>
+                    alert_status="[null]" description="[null]" measure_data="[null]"/>
   <dependencies id="2" from_resource_id="10" from_snapshot_id="10" to_resource_id="5" to_snapshot_id="5"
                 parent_dependency_id="[null]" project_snapshot_id="5"
                 dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>
@@ -60,7 +58,7 @@
                 parent_dependency_id="[null]" project_snapshot_id="5"
                 dep_usage="USES" dep_weight="1" from_scope="PRJ" to_scope="LIB"/>
   <events id="2" name="Version 1.0" resource_id="5" snapshot_id="5" category="VERSION" description="[null]"
-          event_date="2008-12-02 13:58:00.00" created_at="[null]"/>
+          event_date="2008-12-02 13:58:00.00" created_at="[null]" event_data="[null]"/>
   <duplications_index id="2" project_snapshot_id="5" snapshot_id="5" hash="bb" index_in_file="0" start_line="0" end_line="0"/>
   <snapshot_data id="2" resource_id="5" snapshot_id="5" snapshot_data="0,10,k" data_type="highlight_syntax" created_at="[null]" updated_at="[null]" />
 

@@ -19,6 +19,8 @@
  */
 package org.sonar.core.persistence;
 
+import org.sonar.core.cluster.WorkQueue;
+
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.hamcrest.core.Is;
@@ -27,7 +29,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.core.config.Logback;
 import org.sonar.core.rule.RuleMapper;
-
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.mock;
 public class MyBatisTest {
   private static H2Database database;
   private Logback logback = mock(Logback.class);
+  private WorkQueue queue = mock(WorkQueue.class);
 
   @BeforeClass
   public static void start() {
@@ -49,7 +51,7 @@ public class MyBatisTest {
 
   @Test
   public void shouldConfigureMyBatis() {
-    MyBatis myBatis = new MyBatis(database, logback);
+    MyBatis myBatis = new MyBatis(database, logback, queue);
     myBatis.start();
 
     Configuration conf = myBatis.getSessionFactory().getConfiguration();
@@ -60,7 +62,7 @@ public class MyBatisTest {
 
   @Test
   public void shouldOpenBatchSession() {
-    MyBatis myBatis = new MyBatis(database, logback);
+    MyBatis myBatis = new MyBatis(database, logback, queue);
     myBatis.start();
 
     SqlSession session = myBatis.openBatchSession();

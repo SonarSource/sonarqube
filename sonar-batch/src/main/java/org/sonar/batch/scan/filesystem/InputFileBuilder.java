@@ -20,10 +20,11 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.util.DeprecatedKeyUtils;
@@ -34,6 +35,8 @@ import java.io.File;
 import java.util.List;
 
 class InputFileBuilder {
+
+  private static final Logger LOG = LoggerFactory.getLogger(InputFileBuilder.class);
 
   private final String moduleKey;
   private final PathResolver pathResolver;
@@ -73,14 +76,13 @@ class InputFileBuilder {
   }
 
   @CheckForNull
-  DefaultInputFile create(File file) {
+  DeprecatedDefaultInputFile create(File file) {
     String relativePath = pathResolver.relativePath(fs.baseDir(), file);
     if (relativePath == null) {
-      LoggerFactory.getLogger(getClass()).warn(
-        "File '%s' is ignored. It is not located in module basedir '%s'.", file.getAbsolutePath(), fs.baseDir());
+      LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", file.getAbsolutePath(), fs.baseDir());
       return null;
     }
-    DefaultInputFile inputFile = new DefaultInputFile(relativePath);
+    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile(moduleKey, relativePath);
     inputFile.setBasedir(fs.baseDir());
     inputFile.setFile(file);
     return inputFile;
@@ -90,9 +92,8 @@ class InputFileBuilder {
    * Optimization to not set all InputFile data if the file is excluded from analysis.
    */
   @CheckForNull
-  DefaultInputFile complete(DefaultInputFile inputFile, InputFile.Type type) {
+  DeprecatedDefaultInputFile complete(DeprecatedDefaultInputFile inputFile, InputFile.Type type) {
     inputFile.setType(type);
-    inputFile.setKey(new StringBuilder().append(moduleKey).append(":").append(inputFile.relativePath()).toString());
     inputFile.setBasedir(fs.baseDir());
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(inputFile.file(), fs.encoding());
     inputFile.setLines(metadata.lines);
@@ -110,7 +111,7 @@ class InputFileBuilder {
     return inputFile;
   }
 
-  private void fillDeprecatedData(DefaultInputFile inputFile) {
+  private void fillDeprecatedData(DeprecatedDefaultInputFile inputFile) {
     List<File> sourceDirs = InputFile.Type.MAIN == inputFile.type() ? fs.sourceDirs() : fs.testDirs();
     for (File sourceDir : sourceDirs) {
       String sourceRelativePath = pathResolver.relativePath(sourceDir, inputFile.file());

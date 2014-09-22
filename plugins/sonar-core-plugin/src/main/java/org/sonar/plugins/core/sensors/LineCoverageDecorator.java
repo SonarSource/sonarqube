@@ -31,8 +31,8 @@ import java.util.List;
 public final class LineCoverageDecorator extends AbstractCoverageDecorator {
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
-    return ImmutableList.of(CoreMetrics.UNCOVERED_LINES, CoreMetrics.LINES_TO_COVER, CoreMetrics.NEW_UNCOVERED_LINES,
-        CoreMetrics.NEW_LINES_TO_COVER);
+    return ImmutableList.<Metric>of(CoreMetrics.UNCOVERED_LINES, CoreMetrics.LINES_TO_COVER, CoreMetrics.NEW_UNCOVERED_LINES,
+      CoreMetrics.NEW_LINES_TO_COVER);
   }
 
   @Override

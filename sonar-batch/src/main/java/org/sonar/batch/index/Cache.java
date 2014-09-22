@@ -22,12 +22,14 @@ package org.sonar.batch.index;
 import com.google.common.collect.Sets;
 import com.persistit.Exchange;
 import com.persistit.Key;
+import com.persistit.KeyFilter;
 import com.persistit.exception.PersistitException;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.annotation.CheckForNull;
-import java.io.Serializable;
+
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
@@ -35,7 +37,7 @@ import java.util.Set;
  * This cache is not thread-safe, due to direct usage of {@link com.persistit.Exchange}
  * </p>
  */
-public class Cache<V extends Serializable> {
+public class Cache<V> {
 
   private final String name;
   private final Exchange exchange;
@@ -45,27 +47,27 @@ public class Cache<V extends Serializable> {
     this.exchange = exchange;
   }
 
-  public Cache put(Object key, V value) {
+  public Cache<V> put(Object key, V value) {
     resetKey(key);
     return doPut(value);
   }
 
-  public Cache put(Object firstKey, Object secondKey, V value) {
+  public Cache<V> put(Object firstKey, Object secondKey, V value) {
     resetKey(firstKey, secondKey);
     return doPut(value);
   }
 
-  public Cache put(Object firstKey, Object secondKey, Object thirdKey, V value) {
+  public Cache<V> put(Object firstKey, Object secondKey, Object thirdKey, V value) {
     resetKey(firstKey, secondKey, thirdKey);
     return doPut(value);
   }
 
-  public Cache put(Object[] key, V value) {
+  public Cache<V> put(Object[] key, V value) {
     resetKey(key);
     return doPut(value);
   }
 
-  private Cache doPut(V value) {
+  private Cache<V> doPut(V value) {
     try {
       exchange.getValue().put(value);
       exchange.store();
@@ -110,6 +112,7 @@ public class Cache<V extends Serializable> {
     return doGet();
   }
 
+  @SuppressWarnings("unchecked")
   @CheckForNull
   private V doGet() {
     try {
@@ -188,27 +191,27 @@ public class Cache<V extends Serializable> {
    *
    * @param group The group name.
    */
-  public Cache clear(Object key) {
+  public Cache<V> clear(Object key) {
     resetKey(key);
     return doClear();
   }
 
-  public Cache clear(Object firstKey, Object secondKey) {
+  public Cache<V> clear(Object firstKey, Object secondKey) {
     resetKey(firstKey, secondKey);
     return doClear();
   }
 
-  public Cache clear(Object firstKey, Object secondKey, Object thirdKey) {
+  public Cache<V> clear(Object firstKey, Object secondKey, Object thirdKey) {
     resetKey(firstKey, secondKey, thirdKey);
     return doClear();
   }
 
-  public Cache clear(Object[] key) {
+  public Cache<V> clear(Object[] key) {
     resetKey(key);
     return doClear();
   }
 
-  private Cache doClear() {
+  private Cache<V> doClear() {
     try {
       Key to = new Key(exchange.getKey());
       to.append(Key.AFTER);
@@ -218,7 +221,6 @@ public class Cache<V extends Serializable> {
       throw new IllegalStateException("Fail to clear values from cache " + name, e);
     }
   }
-
 
   /**
    * Clears the default as well as all group caches.
@@ -239,7 +241,7 @@ public class Cache<V extends Serializable> {
    * @param group The group.
    * @return The set of cache keys for this group.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public Set keySet(Object key) {
     try {
       Set<Object> keys = Sets.newLinkedHashSet();
@@ -256,6 +258,7 @@ public class Cache<V extends Serializable> {
     }
   }
 
+  @SuppressWarnings("rawtypes")
   public Set keySet(Object firstKey, Object secondKey) {
     try {
       Set<Object> keys = Sets.newLinkedHashSet();
@@ -294,16 +297,36 @@ public class Cache<V extends Serializable> {
   }
 
   /**
-   * Lazy-loading values for a given key
+   * Lazy-loading values for given keys
    */
-  public Iterable<V> values(Object key) {
+  public Iterable<V> values(Object firstKey, Object secondKey) {
     try {
       exchange.clear();
-      exchange.append(key).append(Key.BEFORE);
+      exchange.append(firstKey).append(secondKey).append(Key.BEFORE);
       Exchange iteratorExchange = new Exchange(exchange);
-      return new ValueIterable<V>(iteratorExchange, false);
+      KeyFilter filter = new KeyFilter().append(KeyFilter.simpleTerm(firstKey)).append(KeyFilter.simpleTerm(secondKey));
+      return new ValueIterable<V>(iteratorExchange, filter);
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get values from cache " + name, e);
+      throw failToGetValues(e);
+    }
+  }
+
+  private IllegalStateException failToGetValues(Exception e) {
+    return new IllegalStateException("Fail to get values from cache " + name, e);
+  }
+
+  /**
+   * Lazy-loading values for a given key
+   */
+  public Iterable<V> values(Object firstKey) {
+    try {
+      exchange.clear();
+      exchange.append(firstKey).append(Key.BEFORE);
+      Exchange iteratorExchange = new Exchange(exchange);
+      KeyFilter filter = new KeyFilter().append(KeyFilter.simpleTerm(firstKey));
+      return new ValueIterable<V>(iteratorExchange, filter);
+    } catch (Exception e) {
+      throw failToGetValues(e);
     }
   }
 
@@ -314,20 +337,23 @@ public class Cache<V extends Serializable> {
     try {
       exchange.clear().append(Key.BEFORE);
       Exchange iteratorExchange = new Exchange(exchange);
-      return new ValueIterable<V>(iteratorExchange, true);
+      KeyFilter filter = new KeyFilter().append(KeyFilter.ALL);
+      return new ValueIterable<V>(iteratorExchange, filter);
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get values from cache " + name, e);
+      throw failToGetValues(e);
     }
   }
 
   public Iterable<Entry<V>> entries() {
     exchange.clear().to(Key.BEFORE);
-    return new EntryIterable(new Exchange(exchange), true);
+    KeyFilter filter = new KeyFilter().append(KeyFilter.ALL);
+    return new EntryIterable<V>(new Exchange(exchange), filter);
   }
 
-  public Iterable<SubEntry<V>> subEntries(Object key) {
-    exchange.clear().append(key).append(Key.BEFORE);
-    return new SubEntryIterable(new Exchange(exchange), false);
+  public Iterable<Entry<V>> entries(Object firstKey) {
+    exchange.clear().append(firstKey).append(Key.BEFORE);
+    KeyFilter filter = new KeyFilter().append(KeyFilter.simpleTerm(firstKey));
+    return new EntryIterable<V>(new Exchange(exchange), filter);
   }
 
   private void resetKey(Object key) {
@@ -352,16 +378,15 @@ public class Cache<V extends Serializable> {
     }
   }
 
-
   //
   // LAZY ITERATORS AND ITERABLES
   //
 
-  private static class ValueIterable<T extends Serializable> implements Iterable<T> {
+  private static class ValueIterable<T> implements Iterable<T> {
     private final Iterator<T> iterator;
 
-    private ValueIterable(Exchange exchange, boolean deep) {
-      this.iterator = new ValueIterator<T>(exchange, deep);
+    private ValueIterable(Exchange exchange, KeyFilter keyFilter) {
+      this.iterator = new ValueIterator<T>(exchange, keyFilter);
     }
 
     @Override
@@ -370,36 +395,36 @@ public class Cache<V extends Serializable> {
     }
   }
 
-  private static class ValueIterator<T extends Serializable> implements Iterator<T> {
+  private static class ValueIterator<T> implements Iterator<T> {
     private final Exchange exchange;
-    private final boolean deep;
+    private final KeyFilter keyFilter;
 
-    private ValueIterator(Exchange exchange, boolean deep) {
+    private ValueIterator(Exchange exchange, KeyFilter keyFilter) {
       this.exchange = exchange;
-      this.deep = deep;
+      this.keyFilter = keyFilter;
     }
 
     @Override
     public boolean hasNext() {
       try {
-        return exchange.hasNext(deep);
+        return exchange.hasNext(keyFilter);
       } catch (PersistitException e) {
         throw new IllegalStateException(e);
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public T next() {
       try {
-        exchange.next(deep);
+        exchange.next(keyFilter);
       } catch (PersistitException e) {
         throw new IllegalStateException(e);
       }
-      T value = null;
       if (exchange.getValue().isDefined()) {
-        value = (T) exchange.getValue().get();
+        return (T) exchange.getValue().get();
       }
-      return value;
+      throw new NoSuchElementException();
     }
 
     @Override
@@ -408,86 +433,11 @@ public class Cache<V extends Serializable> {
     }
   }
 
-  private static class SubEntryIterable<T extends Serializable> implements Iterable<SubEntry<T>> {
-    private final SubEntryIterator<T> it;
-
-    private SubEntryIterable(Exchange exchange, boolean deep) {
-      it = new SubEntryIterator<T>(exchange, deep);
-    }
-
-    @Override
-    public Iterator<SubEntry<T>> iterator() {
-      return it;
-    }
-  }
-
-  private static class SubEntryIterator<T extends Serializable> implements Iterator<SubEntry<T>> {
-    private final Exchange exchange;
-    private final boolean deep;
-
-    private SubEntryIterator(Exchange exchange, boolean deep) {
-      this.exchange = exchange;
-      this.deep = deep;
-    }
-
-    @Override
-    public boolean hasNext() {
-      try {
-        return exchange.next(deep);
-      } catch (PersistitException e) {
-        throw new IllegalStateException(e);
-      }
-    }
-
-    @Override
-    public SubEntry next() {
-      Serializable value = null;
-      if (exchange.getValue().isDefined()) {
-        value = (Serializable) exchange.getValue().get();
-      }
-      Key key = exchange.getKey();
-      return new SubEntry(key.indexTo(-1).decode(), value);
-    }
-
-    @Override
-    public void remove() {
-      // nothing to do
-    }
-  }
-
-  public static class SubEntry<V extends Serializable> {
-    private final Object key;
-    private final V value;
-
-    SubEntry(Object key, V value) {
-      this.key = key;
-      this.value = value;
-    }
-
-    public Object key() {
-      return key;
-    }
-
-    public String keyAsString() {
-      return (String) key;
-    }
-
-    @CheckForNull
-    public V value() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return ToStringBuilder.reflectionToString(this);
-    }
-  }
-
-  private static class EntryIterable<T extends Serializable> implements Iterable<Entry<T>> {
+  private static class EntryIterable<T> implements Iterable<Entry<T>> {
     private final EntryIterator<T> it;
 
-    private EntryIterable(Exchange exchange, boolean deep) {
-      it = new EntryIterator<T>(exchange, deep);
+    private EntryIterable(Exchange exchange, KeyFilter keyFilter) {
+      it = new EntryIterator<T>(exchange, keyFilter);
     }
 
     @Override
@@ -496,36 +446,42 @@ public class Cache<V extends Serializable> {
     }
   }
 
-  private static class EntryIterator<T extends Serializable> implements Iterator<Entry<T>> {
+  private static class EntryIterator<T> implements Iterator<Entry<T>> {
     private final Exchange exchange;
-    private final boolean deep;
+    private final KeyFilter keyFilter;
 
-    private EntryIterator(Exchange exchange, boolean deep) {
+    private EntryIterator(Exchange exchange, KeyFilter keyFilter) {
       this.exchange = exchange;
-      this.deep = deep;
+      this.keyFilter = keyFilter;
     }
 
     @Override
     public boolean hasNext() {
       try {
-        return exchange.next(deep);
+        return exchange.hasNext(keyFilter);
       } catch (PersistitException e) {
         throw new IllegalStateException(e);
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Entry next() {
-      Serializable value = null;
+    public Entry<T> next() {
+      try {
+        exchange.next(keyFilter);
+      } catch (PersistitException e) {
+        throw new IllegalStateException(e);
+      }
       if (exchange.getValue().isDefined()) {
-        value = (Serializable) exchange.getValue().get();
+        T value = (T) exchange.getValue().get();
+        Key key = exchange.getKey();
+        Object[] array = new Object[key.getDepth()];
+        for (int i = 0; i < key.getDepth(); i++) {
+          array[i] = key.indexTo(i - key.getDepth()).decode();
+        }
+        return new Entry<T>(array, value);
       }
-      Key key = exchange.getKey();
-      Object[] array = new Object[key.getDepth()];
-      for (int i = 0; i < key.getDepth(); i++) {
-        array[i] = key.indexTo(i - key.getDepth()).decode();
-      }
-      return new Entry(array, value);
+      throw new NoSuchElementException();
     }
 
     @Override
@@ -534,7 +490,7 @@ public class Cache<V extends Serializable> {
     }
   }
 
-  public static class Entry<V extends Serializable> {
+  public static class Entry<V> {
     private final Object[] key;
     private final V value;
 
@@ -557,4 +513,5 @@ public class Cache<V extends Serializable> {
       return ToStringBuilder.reflectionToString(this);
     }
   }
+
 }

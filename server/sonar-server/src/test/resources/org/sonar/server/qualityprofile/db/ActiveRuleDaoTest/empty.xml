@@ -1,0 +1,9 @@
+<dataset>
+    <rules_parameters id="1" rule_id="10" name="max" param_type="INTEGER" default_value="30" description="My Parameter"/>
+
+    <rules tags="[null]" system_tags="[null]" id="10" plugin_rule_key="Parent1" plugin_name="checkstyle" name="Parent Rule 1" description="Parent Rule 1" status="READY"
+           plugin_config_key="Parent1" priority="2" is_template="[false]" language="golo" created_at="1981-10-24 15:20:00" />
+
+    <rules_profiles id="1" name="Child" language="java" parent_name="Parent" version="1"
+                    used_profile="[false]"/>
+</dataset>

@@ -27,7 +27,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Languages;
@@ -49,16 +49,13 @@ public class ComponentIndexer implements BatchComponent {
   private final SonarIndex sonarIndex;
   private final ResourceKeyMigration migration;
   private final Project module;
-  private InputFileCache fileCache;
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, Settings settings, ResourceKeyMigration migration,
-    InputFileCache fileCache) {
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, Settings settings, ResourceKeyMigration migration) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
     this.settings = settings;
     this.migration = migration;
-    this.fileCache = fileCache;
   }
 
   public void execute(FileSystem fs) {
@@ -68,7 +65,7 @@ public class ComponentIndexer implements BatchComponent {
     for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
       String languageKey = inputFile.language();
       boolean unitTest = InputFile.Type.TEST == inputFile.type();
-      String pathFromSourceDir = ((DefaultInputFile) inputFile).pathRelativeToSourceDir();
+      String pathFromSourceDir = ((DeprecatedDefaultInputFile) inputFile).pathRelativeToSourceDir();
       if (pathFromSourceDir == null) {
         pathFromSourceDir = inputFile.relativePath();
       }
@@ -78,10 +75,8 @@ public class ComponentIndexer implements BatchComponent {
       } else {
         sonarFile.setDeprecatedKey(pathFromSourceDir);
       }
-      if (sonarFile != null) {
-        sonarIndex.index(sonarFile);
-        importSources(fs, shouldImportSource, inputFile, sonarFile);
-      }
+      sonarIndex.index(sonarFile);
+      importSources(fs, shouldImportSource, inputFile, sonarFile);
     }
   }
 
@@ -94,7 +89,6 @@ public class ComponentIndexer implements BatchComponent {
       String source = Files.toString(inputFile.file(), fs.encoding());
       // SONAR-3860 Remove BOM character from source
       source = CharMatcher.anyOf("\uFEFF").removeFrom(source);
-      fileCache.put(module.getKey(), inputFile);
       if (shouldImportSource) {
         sonarIndex.setSource(sonarFile, source);
       }

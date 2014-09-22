@@ -22,9 +22,11 @@ package org.sonar.core.rule;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.api.rule.RuleKey;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public interface RuleMapper {
+
   List<RuleDto> selectAll();
 
   List<RuleDto> selectEnablesAndNonManual();
@@ -49,6 +51,8 @@ public interface RuleMapper {
 
   List<RuleParamDto> selectParamsByRuleIds(@Param("ruleIds") List<Integer> ruleIds);
 
+  List<RuleParamDto> selectParamsByRuleKey(RuleKey ruleKey);
+
   RuleParamDto selectParamByRuleAndKey(@Param("ruleId") Integer ruleId, @Param("key") String key);
 
   void insertParameter(RuleParamDto param);
@@ -57,13 +61,5 @@ public interface RuleMapper {
 
   void deleteParameter(Integer paramId);
 
-  List<RuleRuleTagDto> selectAllTags();
-
-  void insertTag(RuleRuleTagDto newTag);
-
-  void deleteTag(Integer tagId);
-
-  void updateTag(RuleRuleTagDto existingTag);
-
-  List<RuleRuleTagDto> selectTagsByRuleIds(@Param("ruleIds") List<Integer> ruleIds);
+  List<RuleDto> selectAfterDate(@Param("date") Timestamp timestamp);
 }

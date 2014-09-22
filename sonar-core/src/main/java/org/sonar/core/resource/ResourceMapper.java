@@ -22,10 +22,12 @@ package org.sonar.core.resource;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 
 import javax.annotation.Nullable;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 public interface ResourceMapper {
@@ -64,7 +66,7 @@ public interface ResourceMapper {
   /**
    * @since 3.6
    */
-  ResourceDto selectRootProjectByComponentId(@Param("componentId") Long componentId);
+  ResourceDto selectRootProjectByComponentId(@Param("componentId") long componentId);
 
   /**
    * @since 3.6
@@ -85,5 +87,7 @@ public interface ResourceMapper {
   void insert(ResourceDto resource);
 
   void update(ResourceDto resource);
+
+  void updateAuthorizationDate(@Param("projectId") Long projectId, @Param("authorizationDate") Date authorizationDate);
 
 }

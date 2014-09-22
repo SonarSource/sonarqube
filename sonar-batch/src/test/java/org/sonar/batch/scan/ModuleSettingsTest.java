@@ -20,18 +20,16 @@
 package org.sonar.batch.scan;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.bootstrap.AnalysisMode;
-import org.sonar.batch.bootstrap.BatchSettings;
-import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.batch.bootstrap.GlobalSettings;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 
 import java.util.List;
 
@@ -44,11 +42,12 @@ public class ModuleSettingsTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  ServerClient client = mock(ServerClient.class);
+  ProjectReferentials projectRef;
   private AnalysisMode mode;
 
   @Before
   public void before() {
+    projectRef = new ProjectReferentials();
     mode = mock(AnalysisMode.class);
   }
 
@@ -68,44 +67,36 @@ public class ModuleSettingsTest {
 
   @Test
   public void test_loading_of_module_settings() {
-    BatchSettings batchSettings = mock(BatchSettings.class);
+    GlobalSettings batchSettings = mock(GlobalSettings.class);
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
       "overridding", "batch",
       "on-batch", "true"
       ));
-    when(client.request("/batch_bootstrap/properties?project=struts-core&dryRun=false"))
-      .thenReturn("[{\"k\":\"on-module\",\"v\":\"true\"}," +
-        "{\"k\":\"overridding\",\"v\":\"module\"}]");
+    projectRef.addSettings("struts-core", ImmutableMap.of("on-module", "true", "overridding", "module"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
-    Configuration deprecatedConf = new PropertiesConfiguration();
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, client, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projectRef, mode);
 
     assertThat(moduleSettings.getString("overridding")).isEqualTo("module");
     assertThat(moduleSettings.getString("on-batch")).isEqualTo("true");
     assertThat(moduleSettings.getString("on-module")).isEqualTo("true");
 
-    assertThat(deprecatedConf.getString("overridding")).isEqualTo("module");
-    assertThat(deprecatedConf.getString("on-batch")).isEqualTo("true");
-    assertThat(deprecatedConf.getString("on-module")).isEqualTo("true");
   }
 
   @Test
   public void should_not_fail_when_accessing_secured_properties() {
-    BatchSettings batchSettings = mock(BatchSettings.class);
+    GlobalSettings batchSettings = mock(GlobalSettings.class);
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
       "sonar.foo.secured", "bar"
       ));
-    when(client.request("/batch_bootstrap/properties?project=struts-core&dryRun=false"))
-      .thenReturn("[{\"k\":\"sonar.foo.license.secured\",\"v\":\"bar2\"}]");
+    projectRef.addSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
-    Configuration deprecatedConf = new PropertiesConfiguration();
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, client, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projectRef, mode);
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
     assertThat(moduleSettings.getString("sonar.foo.secured")).isEqualTo("bar");
@@ -113,25 +104,22 @@ public class ModuleSettingsTest {
 
   @Test
   public void should_fail_when_accessing_secured_properties_in_preview() {
-    BatchSettings batchSettings = mock(BatchSettings.class);
+    GlobalSettings batchSettings = mock(GlobalSettings.class);
     when(batchSettings.getDefinitions()).thenReturn(new PropertyDefinitions());
     when(batchSettings.getProperties()).thenReturn(ImmutableMap.of(
       "sonar.foo.secured", "bar"
       ));
+    projectRef.addSettings("struts-core", ImmutableMap.of("sonar.foo.license.secured", "bar2"));
 
     when(mode.isPreview()).thenReturn(true);
 
-    when(client.request("/batch_bootstrap/properties?project=struts-core&dryRun=true"))
-      .thenReturn("[{\"k\":\"sonar.foo.license.secured\",\"v\":\"bar2\"}]");
-
     ProjectDefinition module = ProjectDefinition.create().setKey("struts-core");
-    Configuration deprecatedConf = new PropertiesConfiguration();
 
-    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, deprecatedConf, client, mode);
+    ModuleSettings moduleSettings = new ModuleSettings(batchSettings, module, projectRef, mode);
 
     assertThat(moduleSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
 
-    thrown.expect(SonarException.class);
+    thrown.expect(MessageException.class);
     thrown
       .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in preview mode. The SonarQube plugin which requires this property must be deactivated in preview mode.");
     moduleSettings.getString("sonar.foo.secured");

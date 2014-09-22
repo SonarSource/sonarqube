@@ -3,28 +3,55 @@
 
 <mapper namespace="org.sonar.core.qualityprofile.db.ActiveRuleMapper">
 
+  <sql id="activeRuleKeyColumns">
+    a.id,
+    a.profile_id as "profileId",
+    a.rule_id as "ruleId",
+    a.failure_level as "severity",
+    a.inheritance as "inheritance",
+    r.plugin_rule_key as "rulefield",
+    r.plugin_name as "repository",
+    qp.kee as "profileKey",
+    a.created_at as "createdAt",
+    a.updated_at as "updatedAt"
+  </sql>
+
+  <sql id="activeRuleKeyJoin">
+    LEFT JOIN rules_profiles qp ON qp.id=a.profile_id
+    LEFT JOIN rules r ON r.id = a.rule_id
+  </sql>
+
+
   <sql id="activeRuleColumns">
     a.id,
     a.profile_id as profileId,
     a.rule_id as ruleId,
     a.failure_level as severity,
     a.inheritance as inheritance,
-    a.note_data as noteData,
-    a.note_user_login as noteUserLogin,
-    a.note_updated_at as noteUpdatedAt,
-    a.note_created_at as noteCreatedAt,
-    active_rule_parent.id as parentId
+    active_rule_parent.id as parentId,
+    a.created_at as "createdAt",
+    a.updated_at as "updatedAt"
   </sql>
 
   <sql id="activeRuleJoin">
-    LEFT JOIN rules_profiles profile ON profile.id=a.profile_id
-    LEFT JOIN rules_profiles profile_parent ON profile_parent.name=profile.parent_name and profile_parent.language=profile.language
+    LEFT JOIN rules_profiles qp ON qp.id=a.profile_id
+    LEFT JOIN rules_profiles profile_parent ON profile_parent.kee=qp.parent_kee
     LEFT JOIN active_rules active_rule_parent ON active_rule_parent.profile_id=profile_parent.id AND a.rule_id=active_rule_parent.rule_id
   </sql>
 
+  <select id="selectAfterDate" parameterType="Date" resultType="ActiveRule" resultSetType="FORWARD_ONLY">
+    select
+    <include refid="activeRuleKeyColumns"/>
+    from active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    <where>
+      a.updated_at IS NULL or a.updated_at &gt;= #{date}
+    </where>
+  </select>
+
   <insert id="insert" parameterType="ActiveRule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance, note_created_at, note_updated_at, note_user_login, note_data)
-    VALUES (#{profileId}, #{ruleId}, #{severity}, #{inheritance}, #{noteCreatedAt}, #{noteUpdatedAt}, #{noteUserLogin}, #{noteData})
+    INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance, created_at, updated_at)
+    VALUES (#{profileId}, #{ruleId}, #{severity}, #{inheritance}, #{createdAt}, #{updatedAt})
   </insert>
 
   <update id="update" parameterType="ActiveRule">
@@ -33,23 +60,12 @@
     rule_id=#{ruleId},
     failure_level=#{severity},
     inheritance=#{inheritance},
-    note_created_at=#{noteCreatedAt},
-    note_updated_at=#{noteUpdatedAt},
-    note_user_login=#{noteUserLogin},
-    note_data=#{noteData}
+    updated_at=#{updatedAt}
     WHERE id=#{id}
   </update>
 
-  <update id="delete" parameterType="Integer">
+  <update id="delete" parameterType="int" >
     DELETE FROM active_rules WHERE id=#{id}
-  </update>
-
-  <update id="deleteFromRule" parameterType="Integer">
-    DELETE FROM active_rules WHERE rule_id=#{ruleId}
-  </update>
-
-  <update id="deleteFromProfile" parameterType="Integer">
-    DELETE FROM active_rules WHERE profile_id=#{profileId}
   </update>
 
   <select id="selectByIds" parameterType="map" resultType="ActiveRule">
@@ -64,41 +80,40 @@
     </where>
   </select>
 
-  <select id="selectById" parameterType="Integer" resultType="ActiveRule">
-    SELECT <include refid="activeRuleColumns"/>
+  <select id="selectById" parameterType="int" resultType="ActiveRule">
+    SELECT
+    <include refid="activeRuleColumns"/>
     FROM active_rules a
     <include refid="activeRuleJoin"/>
-    <where>
-      AND a.id=#{id}
-    </where>
+    WHERE a.id=#{id}
   </select>
 
-  <select id="selectByProfileAndRule" parameterType="map" resultType="ActiveRule">
-    SELECT <include refid="activeRuleColumns"/>
+
+  <select id="selectByKey" parameterType="map" resultType="ActiveRule">
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
     FROM active_rules a
-    <include refid="activeRuleJoin"/>
-    <where>
-      AND a.profile_id=#{profileId}
-      AND a.rule_id=#{ruleId}
-    </where>
+    <include refid="activeRuleKeyJoin"/>
+    WHERE
+    qp.kee = #{profileKey}
+    AND r.plugin_rule_key = #{rule}
+    AND r.plugin_name = #{repository}
+  </select>
+
+  <select id="selectByProfileKey" parameterType="string" resultType="ActiveRule">
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
+    FROM active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    where qp.kee=#{id}
   </select>
 
   <select id="selectByRuleId" parameterType="Integer" resultType="ActiveRule">
-    SELECT <include refid="activeRuleColumns"/>
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
     FROM active_rules a
-    <include refid="activeRuleJoin"/>
-    <where>
-      AND a.rule_id=#{ruleId}
-    </where>
-  </select>
-
-  <select id="selectByProfileId" parameterType="Integer" resultType="ActiveRule">
-    SELECT <include refid="activeRuleColumns"/>
-    FROM active_rules a
-    <include refid="activeRuleJoin"/>
-    <where>
-      AND a.profile_id=#{profileId}
-    </where>
+    <include refid="activeRuleKeyJoin"/>
+    WHERE a.rule_id=#{ruleId}
   </select>
 
   <select id="selectAll" parameterType="map" resultType="ActiveRule">
@@ -132,29 +147,13 @@
     WHERE id=#{id}
   </update>
 
-  <update id="deleteParameters" parameterType="Integer">
+  <update id="deleteParameters" parameterType="int">
     DELETE FROM active_rule_parameters WHERE active_rule_id=#{id}
   </update>
 
-  <update id="deleteParametersWithParamId" parameterType="Integer">
-    DELETE FROM active_rule_parameters WHERE rules_parameter_id=#{id}
-  </update>
-
-  <update id="deleteParametersFromProfile" parameterType="Integer">
-    DELETE FROM active_rule_parameters WHERE active_rule_id IN (SELECT id FROM active_rules WHERE profile_id=#{profileId})
-  </update>
-
-  <update id="deleteParameter" parameterType="Integer">
+  <update id="deleteParameter" parameterType="int">
     DELETE FROM active_rule_parameters WHERE id=#{id}
   </update>
-
-  <select id="selectParamById" parameterType="Integer" resultType="ActiveRuleParam">
-    SELECT <include refid="activeRuleParamColumns"/>
-    FROM active_rule_parameters p
-    <where>
-      AND p.id=#{id}
-    </where>
-  </select>
 
   <select id="selectParamsByActiveRuleId" parameterType="Integer" resultType="ActiveRuleParam">
     select
@@ -171,13 +170,14 @@
     from active_rule_parameters p
     <where>
       (<foreach collection="list" item="id" open="(" separator=" or " close=")">
-        p.active_rule_id=#{id}
-      </foreach>)
+      p.active_rule_id=#{id}
+    </foreach>)
     </where>
   </select>
 
   <select id="selectParamByActiveRuleAndKey" parameterType="map" resultType="ActiveRuleParam">
-    SELECT <include refid="activeRuleParamColumns"/>
+    SELECT
+    <include refid="activeRuleParamColumns"/>
     FROM active_rule_parameters p
     <where>
       AND p.active_rule_id=#{activeRuleId}
@@ -185,17 +185,19 @@
     </where>
   </select>
 
-  <select id="selectParamsByProfileId" parameterType="int" resultType="ActiveRuleParam">
+  <select id="selectParamsByProfileKey" parameterType="string" resultType="ActiveRuleParam">
     select
     <include refid="activeRuleParamColumns"/>
     from active_rule_parameters p
     inner join active_rules ar on ar.id=p.active_rule_id
-    where ar.profile_id=#{profileId}
+    inner join rules_profiles rp on rp.id=ar.profile_id
+    where rp.kee=#{id}
   </select>
 
-  <select id="selectAllParams" parameterType="map" resultType="ActiveRuleParam">
-    SELECT <include refid="activeRuleParamColumns"/>
-    FROM active_rule_parameters p
+  <select id="selectAllParams" resultType="ActiveRuleParam">
+    select
+    <include refid="activeRuleParamColumns"/>
+    from active_rule_parameters p
   </select>
 
 </mapper>

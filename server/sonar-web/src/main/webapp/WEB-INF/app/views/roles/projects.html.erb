@@ -1,0 +1,119 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/js/common/select-list" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+<% end %>
+
+<h1 class="admin-page-title"><%= message 'roles.page' -%></h1>
+<p class="admin-page-description"><%= message('roles.page.description2') -%></p>
+
+<%= render :partial => 'roles/tabs', :locals => {:selected_tab=>'Projects'} %>
+
+<div class="tabs-panel marginbottom10 background-gray">
+  <% form_tag({:action => 'projects'}, {:id => 'project-search-form', :method => 'get'}) do %>
+    <div class="table">
+      <div class="project-search top">
+        <span class="note"><%= message('projects_role.criteria.name') -%></span><br/>
+        <% selected_name = @query_result.query.names.to_a.first if @query_result.query.names && @query_result.query.names.size == 1 %>
+        <%= text_field_tag 'names', selected_name, :id => 'search-text' %>
+      </div>
+      <div class="project-search top">
+        <span class="note"><%= message('projects_role.criteria.key') -%></span><br/>
+        <% selected_key = @query_result.query.keys.to_a.first if @query_result.query.keys && @query_result.query.keys.size == 1 %>
+        <%= text_field_tag 'keys', selected_key, :id => 'search-key' %>
+      </div>
+      <div class="project-search top">
+        <span class="note"><%= message('type') -%></span><br/>
+        <% selected_qualifier = @query_result.query.qualifiers.to_a.first if @query_result.query.qualifiers && @query_result.query.qualifiers.size == 1 %>
+        <%= dropdown_tag 'qualifiers', options_for_select(@available_qualifiers, selected_qualifier), {
+            :width => '150px'
+        }, {:id => 'search-qualifier'} -%>
+      </div>
+      <div class="project-search">
+        <br/>
+        <%= submit_tag message('search_verb'), :id => 'submit-search', :onclick => 'submitSearch();' %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<div id="project-roles-operations" style="float: right;">
+  <div class="operations button-group">
+    <%= link_to message('projects_role.bulk_change'), {:action => :apply_template_form, :names => @components_names,
+                                                       :keys => @components_keys, :qualifiers => @components_qualifiers,
+                                                       :results_count => @query_result.paging.total},
+                 :id => 'apply-template-modal', :class => 'open-modal link-action button' %>
+  </div>
+</div>
+
+<table class="data width100" id="projects">
+  <thead>
+    <tr>
+      <th style="min-width: 10em">&nbsp;</th>
+      <th>
+        <%= message('projects_role.user') -%><br/>
+        <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.user.desc') -%></span>
+      </th>
+      <th>
+        <%= message('projects_role.admin') -%><br/>
+        <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.admin.desc') -%></span>
+      </th>
+      <th>
+        <%= message('projects_role.issueadmin') -%><br/>
+        <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.issueadmin.desc') -%></span>
+      </th>
+      <th>
+        <%= message('projects_role.codeviewer') -%><br/>
+        <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.codeviewer.desc') -%></span>
+      </th>
+      <th>&nbsp;</th>
+    </tr>
+  </thead>
+
+  <%= paginate_java(@query_result.paging, :colspan => 4, :id => 'project-roles-foot', :include_loading_icon => true) { |label, page_id|
+      link_to(label, params.merge({:pageIndex => page_id}))
+    }
+  %>
+
+  <tbody>
+  <% if @projects.empty? %>
+    <tr class="even">
+      <td colspan="5" align="left"><%= message('no_results') %></td>
+    </tr>
+  <% end
+
+     @projects.each do |project|
+  %>
+    <tr class="<%= cycle('even', 'odd') -%>">
+      <td valign="top"><b><%= h project.name %></b><br/>
+        <span class="small gray"><%= h project.key -%></span>
+      </td>
+      <% ['user', 'admin', 'issueadmin', 'codeviewer'].each do |permission| -%>
+        <td valign="top">
+          <%
+             users=Api::Utils.insensitive_sort(project.user_roles.select { |ur| ur.role==permission }.map { |ur| ur.user.name })
+             groups=Api::Utils.insensitive_sort(project.group_roles.select { |gr| gr.role==permission }.map { |gr| group_name(gr.group) })
+          %>
+          <span id="u-<%= permission -%>-<%= u project.kee -%>"><%= users.join(', ') %></span>
+          (<%= link_to_edit_roles_permission_form(message('select users'), permission, project.id, "select-u-#{permission}-#{u project.kee}") %>)<br/>
+          <span id="g-<%= permission -%>-<%= u project.kee -%>"><%= groups.join(', ') %></span>
+          (<%= link_to_edit_groups_permission_form(message('select groups'), permission, project.id, "select-g-#{permission}-#{u project.kee}") %>)<br/>
+        </td>
+      <% end %>
+      <td align="right">
+        <%= link_to message('projects_role.apply_template'), {:action => :apply_template_form, :components => [project.key], :names => project.name,
+                                                              :results_count => 1, :qualifiers => @components_qualifiers},
+                    :id => "apply-template-#{u project.kee}", :class => 'open-modal link-action' %>
+      </td>
+    </tr>
+  <%
+     end %>
+  </tbody>
+</table>
+
+
+<script>
+  function submitSearch() {
+    $j("#project-search-form").submit();
+  }
+
+  $j('#search-text').focus();
+</script>

@@ -1,0 +1,9 @@
+{
+  "qualitygates": [
+    {
+      "id": 1,
+      "name": "Default Gate"
+    }
+  ],
+  "default": 1
+}

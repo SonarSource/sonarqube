@@ -26,8 +26,6 @@ import org.sonar.plugins.design.batch.FileTangleIndexDecorator;
 import org.sonar.plugins.design.batch.MavenDependenciesSensor;
 import org.sonar.plugins.design.batch.PackageTangleIndexDecorator;
 import org.sonar.plugins.design.batch.ProjectDsmDecorator;
-import org.sonar.plugins.design.ui.libraries.GwtLibrariesPage;
-import org.sonar.plugins.design.ui.page.GwtDesignPage;
 import org.sonar.plugins.design.ui.widgets.FileDesignWidget;
 import org.sonar.plugins.design.ui.widgets.PackageDesignWidget;
 
@@ -37,15 +35,13 @@ public class DesignPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
     return ImmutableList.of(
-        // Batch
-        MavenDependenciesSensor.class,
-        ProjectDsmDecorator.class,
-        PackageTangleIndexDecorator.class,
-        FileTangleIndexDecorator.class,
+      // Batch
+      MavenDependenciesSensor.class,
+      ProjectDsmDecorator.class,
+      PackageTangleIndexDecorator.class,
+      FileTangleIndexDecorator.class,
 
       // UI
-      GwtLibrariesPage.class,
-      GwtDesignPage.class,
       FileDesignWidget.class,
       PackageDesignWidget.class);
   }

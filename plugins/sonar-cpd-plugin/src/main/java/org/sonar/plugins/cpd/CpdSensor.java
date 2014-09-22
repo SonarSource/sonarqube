@@ -23,12 +23,14 @@ import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
 
+@Phase(name = Phase.Name.POST)
 public class CpdSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(CpdSensor.class);
@@ -38,15 +40,17 @@ public class CpdSensor implements Sensor {
   private Settings settings;
   private FileSystem fs;
 
-  public CpdSensor(SonarEngine sonarEngine, SonarBridgeEngine sonarBridgeEngine, Settings settings, FileSystem fs) {
+  public CpdSensor(JavaCpdEngine sonarEngine, DefaultCpdEngine sonarBridgeEngine, Settings settings, FileSystem fs) {
     this.sonarEngine = sonarEngine;
     this.sonarBridgeEngine = sonarBridgeEngine;
     this.settings = settings;
     this.fs = fs;
   }
 
-  public boolean shouldExecuteOnProject(Project project) {
-    return true;
+  @Override
+  public void describe(SensorDescriptor descriptor) {
+    descriptor.name("CPD Sensor");
+
   }
 
   @VisibleForTesting
@@ -66,7 +70,8 @@ public class CpdSensor implements Sensor {
     return settings.getBoolean(CoreProperties.CPD_SKIP_PROPERTY);
   }
 
-  public void analyse(Project project, SensorContext context) {
+  @Override
+  public void execute(SensorContext context) {
     for (String language : fs.languages()) {
       if (isSkipped(language)) {
         LOG.info("Detection of duplicated code is skipped for {}", language);
@@ -79,13 +84,8 @@ public class CpdSensor implements Sensor {
         continue;
       }
       LOG.info("{} is used for {}", engine, language);
-      engine.analyse(project, language, context);
+      engine.analyse(language, context);
     }
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
   }
 
 }

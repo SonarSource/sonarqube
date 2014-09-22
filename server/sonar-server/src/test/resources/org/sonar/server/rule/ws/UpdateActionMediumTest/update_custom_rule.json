@@ -1,0 +1,26 @@
+{
+  "rule": {
+    "key": "java:MY_CUSTOM",
+    "repo": "java",
+    "name": "My custom rule",
+    "htmlDesc": "Description",
+    "severity": "MAJOR",
+    "status": "BETA",
+    "internalKey": "InternalKeyS001",
+    "isTemplate": false,
+    "templateKey": "java:S001",
+    "tags": ["tag1", "tag2"],
+    "sysTags": ["systag1", "systag2"],
+    "debtRemFnType": "LINEAR_OFFSET",
+    "debtRemFnCoeff": "5d",
+    "debtRemFnOffset": "10h",
+    "lang": "js",
+    "params": [
+      {
+        "key": "regex",
+        "htmlDesc": "Reg ex",
+        "defaultValue": "a.*"
+      }
+    ]
+  }
+}

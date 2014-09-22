@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class DatabaseVersion implements BatchComponent, ServerComponent {
 
-  public static final int LAST_VERSION = 526;
+  public static final int LAST_VERSION = 701;
 
   public static enum Status {
     UP_TO_DATE, REQUIRES_UPGRADE, REQUIRES_DOWNGRADE, FRESH_INSTALL
@@ -48,9 +48,8 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "action_plans",
     "active_dashboards",
     "active_rules",
-    "active_rule_changes",
     "active_rule_parameters",
-    "active_rule_param_changes",
+    "activities",
     "authors",
     "characteristics",
     "dashboards",
@@ -67,7 +66,6 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "issue_filter_favourites",
     "loaded_templates",
     "manual_measures",
-    "measure_data",
     "measure_filters",
     "measure_filter_favourites",
     "metrics",
@@ -85,8 +83,6 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "rules",
     "rules_parameters",
     "rules_profiles",
-    "rule_tags",
-    "rules_rule_tags",
     "semaphores",
     "schema_migrations",
     "snapshots",
@@ -96,7 +92,7 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "user_roles",
     "widgets",
     "widget_properties"
-    );
+  );
 
   private MyBatis mybatis;
 
@@ -105,7 +101,7 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
   }
 
   public Integer getVersion() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       List<Integer> versions = session.getMapper(SchemaMigrationMapper.class).selectVersions();
       if (!versions.isEmpty()) {

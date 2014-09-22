@@ -1,18 +1,20 @@
 # The following should be moved in related sub-directories
-sonar-server/src/main/webapp/stylesheets/sonar-colorizer.css
-sonar-server/src/main/webapp/deploy/gwt
-sonar-server/src/main/webapp/deploy/plugins
-sonar-server/src/main/webapp/deploy/bootstrap
-sonar-server/src/main/webapp/deploy/maven/org
-sonar-server/src/main/webapp/WEB-INF/log/
-sonar-server/src/main/webapp/deploy/*.jar
-sonar-server/src/main/webapp/deploy/jdbc-driver.txt
+server/sonar-web/src/main/webapp/stylesheets/sonar-colorizer.css
+server/sonar-web/src/main/webapp/deploy/gwt
+server/sonar-web/src/main/webapp/deploy/plugins
+server/sonar-web/src/main/webapp/deploy/bootstrap
+server/sonar-web/src/main/webapp/deploy/maven/org
+server/sonar-web/src/main/webapp/WEB-INF/log/
+server/sonar-web/src/main/webapp/deploy/*.jar
+server/sonar-web/src/main/webapp/deploy/jdbc-driver.txt
+
 
 # ---- Javadoc
 docs.tar
 
 # ---- Maven
 target/
+dependency-reduced-pom.xml
 
 # ---- IntelliJ IDEA
 *.iws

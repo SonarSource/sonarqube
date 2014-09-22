@@ -5,7 +5,7 @@
   <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar</artifactId>
   <packaging>pom</packaging>
-  <version>4.3.1</version>
+  <version>5.0-SNAPSHOT</version>
   <name>SonarQube</name>
   <url>http://www.sonarqube.org/</url>
   <description>Open source platform for continuous inspection of code quality</description>
@@ -14,6 +14,7 @@
     <module>sonar-application</module>
     <module>sonar-batch</module>
     <module>sonar-batch-maven-compat</module>
+    <module>sonar-batch-protocol</module>
     <module>sonar-check-api</module>
     <module>sonar-colorizer</module>
     <module>sonar-core</module>
@@ -26,16 +27,14 @@
     <module>sonar-maven-plugin</module>
     <module>sonar-maven3-plugin</module>
     <module>sonar-plugin-api</module>
-    <module>sonar-server</module>
+    <module>server</module>
     <module>sonar-testing-harness</module>
-    <module>sonar-ws-client</module>
     <module>plugins/sonar-core-plugin</module>
     <module>plugins/sonar-dbcleaner-plugin</module>
     <module>plugins/sonar-cpd-plugin</module>
     <module>plugins/sonar-design-plugin</module>
     <module>plugins/sonar-l10n-en-plugin</module>
     <module>plugins/sonar-email-notifications-plugin</module>
-    <module>plugins/sonar-maven-batch-plugin</module>
     <module>plugins/sonar-xoo-plugin</module>
   </modules>
 
@@ -69,14 +68,14 @@
   </prerequisites>
 
   <properties>
-    <sonarUpdateCenter.version>1.8</sonarUpdateCenter.version>
-    <sonarJava.version>2.1</sonarJava.version>
+    <sonarUpdateCenter.version>1.11</sonarUpdateCenter.version>
+    <sonarJava.version>2.4</sonarJava.version>
     <h2.version>1.3.172</h2.version>
     <jetty.version>8.1.12.v20130726</jetty.version>
     <logback.version>1.0.13</logback.version>
     <slf4j.version>1.7.5</slf4j.version>
-    <tomcat.version>7.0.42</tomcat.version>
-    <elasticsearch.version>0.90.9</elasticsearch.version>
+    <tomcat.version>7.0.54</tomcat.version>
+    <elasticsearch.version>1.1.2</elasticsearch.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>3.0.5</maven.min.version>
     <maven.api.version>2.2.0</maven.api.version>
@@ -88,11 +87,12 @@
     <animal-sniffer.signature.groupId>org.codehaus.mojo.signature</animal-sniffer.signature.groupId>
     <animal-sniffer.signature.artifactId>java16</animal-sniffer.signature.artifactId>
     <animal-sniffer.signature.version>1.1</animal-sniffer.signature.version>
-    <version.animal-sniffer.plugin>1.9</version.animal-sniffer.plugin>
+    <version.animal-sniffer.plugin>1.11</version.animal-sniffer.plugin>
     <version.maven-license.plugin>1.9.0</version.maven-license.plugin>
     <skipSanityChecks>false</skipSanityChecks>
 
     <sonar.snapshotRepository.url>dav:https://dav.codehaus.org/snapshots.repository/sonar</sonar.snapshotRepository.url>
+    <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=128m</argLine>
   </properties>
 
   <build>
@@ -123,17 +123,17 @@
         <plugin>
           <groupId>com.github.eirslett</groupId>
           <artifactId>frontend-maven-plugin</artifactId>
-          <version>0.0.14</version>
+          <version>0.0.15</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-antrun-plugin</artifactId>
-          <version>1.6</version>
+          <version>1.7</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.2.2</version>
+          <version>2.4</version>
           <configuration>
             <archiverConfig>
               <!-- Workaround for http://jira.codehaus.org/browse/MASSEMBLY-422 -->
@@ -148,7 +148,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>buildnumber-maven-plugin</artifactId>
-          <version>1.2</version>
+          <version>1.3</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -178,12 +178,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>2.16</version>
+          <version>2.17</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>1.4</version>
+          <version>1.5</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -191,14 +191,27 @@
           <version>2.5.1</version>
         </plugin>
         <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.7.0.201403182114</version>
+          <configuration>
+            <excludes>
+              <exclude>*_javassist_*</exclude>
+            </excludes>
+            <includes>
+              <include>org.sonar.*</include>
+            </includes>
+          </configuration>
+        </plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>2.4</version>
+          <version>2.5</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.8.1</version>
+          <version>2.9.1</version>
           <configuration>
             <author>false</author>
             <linksource>true</linksource>
@@ -207,7 +220,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jxr-plugin</artifactId>
-          <version>2.3</version>
+          <version>2.4</version>
         </plugin>
         <plugin>
           <groupId>com.mycila.maven-license-plugin</groupId>
@@ -217,25 +230,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-plugin-plugin</artifactId>
-          <version>3.2</version>
+          <version>3.3</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <!-- Workaround for http://jira.sonarsource.com/browse/PARENT-34 -->
-          <version>2.4.2</version>
-          <dependencies>
-            <dependency>
-              <groupId>org.apache.maven.scm</groupId>
-              <artifactId>maven-scm-api</artifactId>
-              <version>1.8.1</version>
-            </dependency>
-            <dependency>
-              <groupId>org.apache.maven.scm</groupId>
-              <artifactId>maven-scm-provider-gitexe</artifactId>
-              <version>1.8.1</version>
-            </dependency>
-          </dependencies>
+          <version>2.5</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -245,22 +245,22 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>1.6</version>
+          <version>2.3</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
-          <version>2.0.1</version>
+          <version>3.3</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>2.1.2</version>
+          <version>2.2.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.16</version>
+          <version>2.17</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -276,7 +276,7 @@
         <plugin>
           <groupId>org.codehaus.sonar</groupId>
           <artifactId>sonar-packaging-maven-plugin</artifactId>
-          <version>1.9</version>
+          <version>1.12.1</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -479,7 +479,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <runOrder>random</runOrder>
-          <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=128m</argLine>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
@@ -487,13 +486,13 @@
         </configuration>
       </plugin>
       <plugin>
-        <!-- 
-        This plugin is used to list the licenses of all the dependencies. The module 
+        <!--
+        This plugin is used to list the licenses of all the dependencies. The module
         sonar-testing-harness must be excluded. See third-party-licenses.sh
         -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>license-maven-plugin</artifactId>
-        <version>1.6</version>
+        <version>1.7</version>
         <configuration>
           <groupByLicense>true</groupByLicense>
           <includedScopes>compile</includedScopes>
@@ -528,6 +527,11 @@
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-batch-protocol</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -571,6 +575,12 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.codehaus.sonar.plugins</groupId>
+        <artifactId>sonar-xoo-plugin</artifactId>
+        <version>${project.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-squid</artifactId>
         <version>4.1</version>
@@ -593,26 +603,8 @@
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar-plugins.java</groupId>
-        <artifactId>sonar-squid-java-plugin</artifactId>
-        <version>${sonarJava.version}</version>
-        <type>sonar-plugin</type>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.sonar-plugins.java</groupId>
         <artifactId>sonar-findbugs-plugin</artifactId>
-        <version>${sonarJava.version}</version>
-        <type>sonar-plugin</type>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.sonar-plugins.java</groupId>
-        <artifactId>sonar-surefire-plugin</artifactId>
-        <version>${sonarJava.version}</version>
-        <type>sonar-plugin</type>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.sonar-plugins.java</groupId>
-        <artifactId>sonar-jacoco-plugin</artifactId>
-        <version>${sonarJava.version}</version>
+        <version>2.4</version>
         <type>sonar-plugin</type>
       </dependency>
       <dependency>
@@ -713,26 +705,6 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>commons-configuration</groupId>
-        <artifactId>commons-configuration</artifactId>
-        <version>1.6</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-          <exclusion>
-            <!-- See SONAR-2512 -->
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>commons-digester</groupId>
-            <artifactId>commons-digester</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>com.ibm.icu</groupId>
         <artifactId>icu4j</artifactId>
         <!-- animal-sniffer doesn't work with 2.6.1 -->
@@ -793,7 +765,7 @@
       <dependency>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis</artifactId>
-        <version>3.2.2</version>
+        <version>3.2.7</version>
       </dependency>
       <dependency>
         <groupId>org.picocontainer</groupId>
@@ -851,14 +823,9 @@
         <version>5.1.27</version>
       </dependency>
       <dependency>
-        <groupId>postgresql</groupId>
+        <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
-        <version>9.1-901-1.jdbc4</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-gwt-pages</artifactId>
-        <version>4.0</version>
+        <version>9.3-1101-jdbc4</version>
       </dependency>
       <dependency>
         <groupId>net.sourceforge.jtds</groupId>
@@ -869,12 +836,12 @@
       <dependency>
         <groupId>org.codehaus.woodstox</groupId>
         <artifactId>woodstox-core-lgpl</artifactId>
-        <version>4.0.4</version>
+        <version>4.4.0</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.staxmate</groupId>
         <artifactId>staxmate</artifactId>
-        <version>2.0.0</version>
+        <version>2.0.1</version>
         <exclusions>
           <!-- see SONAR-879 -->
           <exclusion>
@@ -893,18 +860,31 @@
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
-        <artifactId>mockito-all</artifactId>
+        <artifactId>mockito-core</artifactId>
         <version>1.9.5</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.bean-matchers</groupId>
+        <artifactId>bean-matchers</artifactId>
+        <version>0.9</version>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.easytesting</groupId>
         <artifactId>fest-assert</artifactId>
         <version>1.4</version>
-      </dependency>
-      <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-all</artifactId>
-        <version>1.1</version>
       </dependency>
       <dependency>
         <groupId>com.thoughtworks.xstream</groupId>
@@ -1011,7 +991,7 @@
       <dependency>
         <groupId>org.codehaus.woodstox</groupId>
         <artifactId>stax2-api</artifactId>
-        <version>3.0.1</version>
+        <version>3.1.4</version>
         <exclusions>
           <exclusion>
             <groupId>stax</groupId>
@@ -1032,12 +1012,17 @@
       <dependency>
         <groupId>org.skyscreamer</groupId>
         <artifactId>jsonassert</artifactId>
-        <version>1.2.2</version>
+        <version>1.2.3</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-all</artifactId>
+        <version>1.3</version>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.10</version>
+        <version>4.11</version>
       </dependency>
       <dependency>
         <groupId>xmlunit</groupId>
@@ -1080,10 +1065,9 @@
         <version>2.2.4</version>
       </dependency>
       <dependency>
-        <groupId>com.akiban</groupId>
-        <artifactId>akiban-persistit</artifactId>
-        <!-- do not use 3.3.0. It was build only for Java 7. Waiting for 3.3.1 to be deployed in central repo -->
-        <version>3.2.7</version>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-persistit</artifactId>
+        <version>3.3.1</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -1234,6 +1218,13 @@
   </developers>
 
   <profiles>
+    <profile>
+      <id>dev</id>
+      <properties>
+        <skipSanityChecks>true</skipSanityChecks>
+        <enforcer.skip>true</enforcer.skip>
+      </properties>
+    </profile>
     <profile>
       <id>release</id>
       <build>

@@ -1,0 +1,63 @@
+<%
+   if @filter && @filter.display
+     edit_mode = (params[:edit]=='true')
+%>
+
+  <h1 id="filter-title" class="navigator-header-title">
+    <% if @filter.id && @filter.name.present? %>
+      <%= h @filter.name -%>
+      <span class="navigator-header-title-note">
+        <% if !@filter.shared %>
+          [<%= message 'measure_filter.private' -%>]
+        <% elsif logged_in? && @filter.user_id==current_user.id %>
+          [<%= message 'measure_filter.shared_with_all_users' -%>]
+        <% elsif @filter.user_id && @filter.user %>
+          [<%= message 'shared_by' -%> <%= @filter.user.name -%>]
+        <% else %>
+          [<%= message 'shared_by' -%> Sonar]
+        <% end %>
+      </span>
+    <% else %>
+      <%= message('layout.measures') -%>
+    <% end %>
+  </h1>
+
+  <div class="navigator-header-actions button-group">
+    <button onclick="window.location='<%= ApplicationController.root_context -%>/measures/search?qualifiers[]=TRK';"><%= message 'measure_filter.new_search' -%></button>
+
+    <% unless edit_mode %>
+      <% if logged_in? %>
+        <% if @filter.id %>
+          <button id="copy" onclick="openModalWindow('<%= url_for :action => 'copy_form', :id => @filter.id -%>');"><%= message('copy') -%></button>
+        <% end %>
+
+        <% if !defined?(@unchanged) && @filter.id && @filter.owner?(current_user) %>
+          <button id="save" onclick="var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = '<%= url_for params.merge({:action => 'save', :id => @filter.id}) -%>';f.submit();return false;"><%= message('save') -%></button>
+        <% end %>
+
+        <% unless @filter.id %>
+          <button id="save-as" onclick="openModalWindow('<%= url_for params.merge({:action => 'save_as_form', :id => @filter.id}) -%>');"><%= message('save_as') -%></button>
+        <% end %>
+
+        <% if @filter.id && @filter.owner?(current_user) %>
+          <button id="edit-filter" onclick="openModalWindow('<%= url_for :action => 'edit_form', :id => @filter.id -%>');"><%= message('edit') -%></button>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% unless edit_mode %>
+    <% if @filter.display %>
+      <div class="navigator-header-actions button-group">
+        <button id="change-display" onclick="window.location='<%= url_for @filter.criteria.merge({:action => 'search', :edit => true, :id => @filter.id}) -%>';"><%= message("measure_filter.#{@filter.display.key}.change") -%></button>
+      </div>
+    <% end %>
+  <% end %>
+
+  <% if @filter.description.present? %>
+    <div id="filter-description" class="navigator-header-description"><%= h @filter.description -%></div>
+  <% end %>
+
+<% else %>
+  <h1 class="navigator-header-title"><%= message('layout.measures') -%></h1>
+<% end %>

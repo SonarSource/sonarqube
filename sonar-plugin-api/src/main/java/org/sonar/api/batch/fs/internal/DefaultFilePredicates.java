@@ -19,12 +19,12 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import com.google.common.collect.Lists;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -115,7 +115,15 @@ public class DefaultFilePredicates implements FilePredicates {
   }
 
   public FilePredicate hasLanguages(Collection<String> languages) {
-    List<FilePredicate> list = Lists.newArrayList();
+    List<FilePredicate> list = new ArrayList<FilePredicate>();
+    for (String language : languages) {
+      list.add(hasLanguage(language));
+    }
+    return or(list);
+  }
+
+  public FilePredicate hasLanguages(String... languages) {
+    List<FilePredicate> list = new ArrayList<FilePredicate>();
     for (String language : languages) {
       list.add(hasLanguage(language));
     }

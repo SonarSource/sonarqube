@@ -20,7 +20,6 @@
 package org.sonar.core.preview;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,6 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.PreviewDatabaseFactory;
 import org.sonar.core.properties.PropertiesDao;
@@ -45,7 +45,10 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PreviewCacheTest {
 
@@ -54,7 +57,7 @@ public class PreviewCacheTest {
 
   private MyBatis myBatis;
 
-  private SqlSession session;
+  private DbSession session;
 
   private PreviewCache dryRunCache;
   private ServerFileSystem serverFileSystem;
@@ -68,8 +71,8 @@ public class PreviewCacheTest {
   @Before
   public void prepare() throws IOException {
     myBatis = mock(MyBatis.class);
-    session = mock(SqlSession.class);
-    when(myBatis.openSession()).thenReturn(session);
+    session = mock(DbSession.class);
+    when(myBatis.openSession(false)).thenReturn(session);
     serverFileSystem = mock(ServerFileSystem.class);
     propertiesDao = mock(PropertiesDao.class);
     resourceDao = mock(ResourceDao.class);

@@ -1,0 +1,12 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/js/dashboard/file-app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+<% end %>
+
+<div class="marginbottom10"></div>
+<div id="accordion-panel"></div>
+
+<script type="text/javascript">
+  window.fileKey = '<%= @file.key -%>';
+  window.metric = '<%= @metric -%>';
+  document.getElementById('crumbs').remove();
+</script>

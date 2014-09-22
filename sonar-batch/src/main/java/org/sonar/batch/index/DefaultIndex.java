@@ -52,12 +52,14 @@ import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ModuleIssues;
+import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.component.ScanGraph;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -85,17 +87,19 @@ public class DefaultIndex extends SonarIndex {
   private ProjectTree projectTree;
   private final DeprecatedViolations deprecatedViolations;
   private ModuleIssues moduleIssues;
+  private final MeasureCache measureCache;
 
   private ResourceKeyMigration migration;
 
   public DefaultIndex(PersistenceManager persistence, ProjectTree projectTree, MetricFinder metricFinder,
-    ScanGraph graph, DeprecatedViolations deprecatedViolations, ResourceKeyMigration migration) {
+    ScanGraph graph, DeprecatedViolations deprecatedViolations, ResourceKeyMigration migration, MeasureCache measureCache) {
     this.persistence = persistence;
     this.projectTree = projectTree;
     this.metricFinder = metricFinder;
     this.graph = graph;
     this.deprecatedViolations = deprecatedViolations;
     this.migration = migration;
+    this.measureCache = measureCache;
   }
 
   public void start() {
@@ -172,31 +176,36 @@ public class DefaultIndex extends SonarIndex {
     }
   }
 
+  @CheckForNull
   @Override
-  public Measure getMeasure(Resource resource, Metric metric) {
-    Bucket bucket = buckets.get(resource);
-    if (bucket != null) {
-      Measure measure = bucket.getMeasures(MeasuresFilters.metric(metric));
-      if (measure != null) {
-        return persistence.reloadMeasure(measure);
-      }
-    }
-    return null;
+  public Measure getMeasure(Resource resource, org.sonar.api.batch.measure.Metric<?> metric) {
+    return getMeasures(resource, MeasuresFilters.metric(metric));
   }
 
+  @CheckForNull
   @Override
   public <M> M getMeasures(Resource resource, MeasuresFilter<M> filter) {
-    Bucket bucket = buckets.get(resource);
-    if (bucket != null) {
-      // TODO the data measures which are not kept in memory are not reloaded yet. Use getMeasure().
-      return bucket.getMeasures(filter);
+    // Reload resource so that effective key is populated
+    Resource indexedResource = getResource(resource);
+    if (indexedResource == null) {
+      return null;
     }
-    return null;
+    Iterable<Measure> unfiltered;
+    if (filter instanceof MeasuresFilters.MetricFilter) {
+      // optimization
+      unfiltered = measureCache.byMetric(indexedResource, ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
+    } else {
+      unfiltered = measureCache.byResource(indexedResource);
+    }
+    Collection<Measure> all = new ArrayList<Measure>();
+    if (unfiltered != null) {
+      for (Measure measure : unfiltered) {
+        all.add(measure);
+      }
+    }
+    return filter.filter(all);
   }
 
-  /**
-   * the measure is updated if it's already registered.
-   */
   @Override
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = getBucket(resource);
@@ -206,11 +215,10 @@ public class DefaultIndex extends SonarIndex {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
       }
       measure.setMetric(metric);
-      bucket.addMeasure(measure);
-
-      if (measure.getPersistenceMode().useDatabase()) {
-        persistence.saveMeasure(bucket.getResource(), measure);
+      if (measureCache.contains(resource, measure)) {
+        throw new SonarException("Can not add the same measure twice on " + resource + ": " + measure);
       }
+      measureCache.put(resource, measure);
     }
     return measure;
   }

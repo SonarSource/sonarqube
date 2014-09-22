@@ -19,6 +19,7 @@
  */
 package org.sonar.core.test;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import org.junit.Test;
 import org.sonar.api.component.mock.MockSourceFile;
@@ -32,8 +33,9 @@ import java.util.Arrays;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultTestableTest {
+
   @Test
-  public void should_not_have_tested_lines() {
+  public void not_have_tested_lines() {
     BeanGraph beanGraph = BeanGraph.createInMemory();
 
     DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
@@ -41,7 +43,7 @@ public class DefaultTestableTest {
   }
 
   @Test
-  public void should_have_tested_lines() {
+  public void tested_lines() {
     BeanGraph beanGraph = BeanGraph.createInMemory();
 
     DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
@@ -57,7 +59,7 @@ public class DefaultTestableTest {
   }
 
   @Test
-  public void should_get_test_cases() {
+  public void get_test_cases() {
     BeanGraph beanGraph = BeanGraph.createInMemory();
 
     DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
@@ -73,7 +75,7 @@ public class DefaultTestableTest {
   }
 
   @Test
-  public void should_get_test_case_by_key() {
+  public void get_test_case_by_key() {
     BeanGraph beanGraph = BeanGraph.createInMemory();
 
     DefaultTestPlan plan = beanGraph.createVertex(DefaultTestPlan.class);
@@ -92,7 +94,7 @@ public class DefaultTestableTest {
   }
 
   @Test
-  public void should_return_cover_of_testCase(){
+  public void return_cover_of_testCase(){
     BeanGraph beanGraph = BeanGraph.createInMemory();
 
     ScanGraph graph = ScanGraph.create();
@@ -111,5 +113,18 @@ public class DefaultTestableTest {
     assertThat(testable1.coverageBlock(testCase).testCase()).isEqualTo(testCase);
     assertThat(testable1.coverageBlock(testCase).testable()).isEqualTo(testable1);
     assertThat(testable2.coverageBlock(testCase)).isNull();
+  }
+
+  @Test
+  public void test_cases_by_lines() {
+    BeanGraph beanGraph = BeanGraph.createInMemory();
+
+    DefaultTestable testable = beanGraph.createVertex(DefaultTestable.class);
+    DefaultTestCase testCase1 = beanGraph.createVertex(DefaultTestCase.class);
+    testCase1.setCoverageBlock(testable, Arrays.asList(10, 11, 12));
+    DefaultTestCase testCase2 = beanGraph.createVertex(DefaultTestCase.class);
+    testCase2.setCoverageBlock(testable, Arrays.asList(12, 48, 49));
+
+    assertThat(testable.testCasesByLines()).isEqualTo(ImmutableMap.of(49, 1, 48, 1, 10, 1, 11, 1, 12, 2));
   }
 }

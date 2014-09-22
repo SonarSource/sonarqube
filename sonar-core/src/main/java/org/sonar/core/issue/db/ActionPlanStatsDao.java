@@ -39,7 +39,7 @@ public class ActionPlanStatsDao implements BatchComponent, ServerComponent {
   }
 
   public List<ActionPlanStatsDto> findByProjectId(Long projectId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ActionPlanStatsMapper.class).findByProjectId(projectId);
     } finally {

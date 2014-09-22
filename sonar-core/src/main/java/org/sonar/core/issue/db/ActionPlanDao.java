@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
@@ -35,7 +36,7 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * @since 3.6
  */
-public class ActionPlanDao implements BatchComponent, ServerComponent {
+public class ActionPlanDao implements BatchComponent, ServerComponent, DaoComponent {
 
   private final MyBatis mybatis;
 
@@ -44,7 +45,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
   }
 
   public void save(ActionPlanDto actionPlanDto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       session.getMapper(ActionPlanMapper.class).insert(actionPlanDto);
       session.commit();
@@ -54,7 +55,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
   }
 
   public void update(ActionPlanDto actionPlanDto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       session.getMapper(ActionPlanMapper.class).update(actionPlanDto);
       session.commit();
@@ -64,7 +65,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
   }
 
   public void delete(String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       session.getMapper(ActionPlanMapper.class).delete(key);
       session.commit();
@@ -74,7 +75,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
   }
 
   public ActionPlanDto findByKey(String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ActionPlanMapper.class).findByKey(key);
     } finally {
@@ -86,7 +87,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
     if (keys.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       List<ActionPlanDto> dtosList = newArrayList();
       List<List<String>> keysPartition = Lists.partition(newArrayList(keys), 1000);
@@ -101,7 +102,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
   }
 
   public List<ActionPlanDto> findOpenByProjectId(Long projectId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ActionPlanMapper.class).findOpenByProjectId(projectId);
     } finally {
@@ -110,7 +111,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
   }
 
   public List<ActionPlanDto> findByNameAndProjectId(String name, Long projectId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ActionPlanMapper.class).findByNameAndProjectId(name, projectId);
     } finally {

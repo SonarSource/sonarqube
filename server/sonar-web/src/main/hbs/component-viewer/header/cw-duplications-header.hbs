@@ -1,0 +1,13 @@
+{{#with component.measures}}
+  <div class="component-viewer-header-expanded-bar-section">
+    <div class="component-viewer-header-expanded-bar-section-title">{{t 'duplications'}}</div>
+    <ul class="component-viewer-header-expanded-bar-section-list">
+      {{#if ../state.hasSource}}
+        {{{componentViewerHeaderLink duplicated_blocks 'duplicated_blocks' 'js-filter-duplications'}}}
+      {{else}}
+        {{{componentViewerHeaderItem duplicated_blocks 'duplicated_blocks'}}}
+      {{/if}}
+      {{{componentViewerHeaderItem duplicated_lines 'duplicated_lines'}}}
+    </ul>
+  </div>
+{{/with}}

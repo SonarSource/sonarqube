@@ -19,24 +19,19 @@
  */
 package org.sonar.api.test;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.MapConfiguration;
 import org.apache.maven.project.MavenProject;
-import static org.mockito.Mockito.when;
 import org.sonar.api.resources.Project;
 
-import java.util.Properties;
+import static org.mockito.Mockito.when;
 
 public class ProjectTestBuilder {
 
   private MavenProject pom = MavenTestUtils.mockPom("jar");
-  private Configuration conf = new MapConfiguration(new Properties());
-
 
   public Project build() {
     when(pom.getGroupId()).thenReturn("mygroup");
     when(pom.getArtifactId()).thenReturn("myartifact");
     when(pom.isExecutionRoot()).thenReturn(true);
-    return new Project("mygroup:myartifact").setPom(pom).setConfiguration(conf);
+    return new Project("mygroup:myartifact").setPom(pom);
   }
 }

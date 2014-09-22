@@ -39,7 +39,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -141,7 +145,7 @@ public class DefaultIssue implements Issue {
     return projectKey;
   }
 
-  public DefaultIssue setProjectKey(String projectKey) {
+  public DefaultIssue setProjectKey(@Nullable String projectKey) {
     this.projectKey = projectKey;
     return this;
   }
@@ -215,7 +219,7 @@ public class DefaultIssue implements Issue {
   }
 
   @CheckForNull
-  public Long debtInMinutes(){
+  public Long debtInMinutes() {
     return debt != null ? debt.toMinutes() : null;
   }
 

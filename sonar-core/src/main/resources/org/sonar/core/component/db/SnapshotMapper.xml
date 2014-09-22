@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.core.component.db.SnapshotMapper">
+
+  <sql id="snapshotColumns">
+    s.id,
+    s.parent_snapshot_id as parentId,
+    s.root_snapshot_id as rootId,
+    s.root_project_id as rootProjectId,
+    s.project_id as resourceId,
+    s.created_at as createdAt,
+    s.build_date as buildDate,
+    s.status as status,
+    s.purge_status as purgeStatus,
+    s.islast as last,
+    s.scope as scope,
+    s.qualifier as qualifier,
+    s.version as version,
+    s.path as path,
+    s.depth as depth,
+    s.period1_mode as period1Mode,
+    s.period2_mode as period2Mode,
+    s.period3_mode as period3Mode,
+    s.period4_mode as period4Mode,
+    s.period5_mode as period5Mode,
+    s.period1_param as period1Param,
+    s.period2_param as period2Param,
+    s.period3_param as period3Param,
+    s.period4_param as period4Param,
+    s.period5_param as period5Param,
+    s.period1_date as period1Date,
+    s.period2_date as period2Date,
+    s.period3_date as period3Date,
+    s.period4_date as period4Date,
+    s.period5_date as period5Date
+  </sql>
+
+  <select id="selectByKey" parameterType="Long" resultType="Snapshot">
+    SELECT <include refid="snapshotColumns"/>
+    FROM snapshots s
+    <where>
+      AND s.id=#{key}
+    </where>
+  </select>
+
+  <sql id="insertColumns">
+    (parent_snapshot_id, root_snapshot_id, root_project_id, project_id, created_at, build_date, status, purge_status, islast, scope, qualifier, version, path, depth,
+    period1_mode, period2_mode, period3_mode, period4_mode, period5_mode,
+    period1_param, period2_param, period3_param, period4_param, period5_param,
+    period1_date, period2_date, period3_date, period4_date, period5_date)
+  </sql>
+
+  <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into snapshots <include refid="insertColumns"/>
+    values (#{parentId}, #{rootId}, #{rootProjectId}, #{resourceId}, #{createdAt}, #{buildDate}, #{status}, #{purgeStatus}, #{last}, #{scope}, #{qualifier}, #{version}, #{path}, #{depth},
+    #{period1Mode}, #{period2Mode}, #{period3Mode}, #{period4Mode}, #{period5Mode},
+    #{period1Param}, #{period2Param}, #{period3Param}, #{period4Param}, #{period5Param},
+    #{period1Date}, #{period2Date}, #{period3Date}, #{period4Date}, #{period5Date})
+  </insert>
+
+</mapper>
+

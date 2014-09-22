@@ -7,7 +7,8 @@
   relativeScale = widget_properties["relativeScale"]
 
   filter = MeasureFilter.find_by_id(filterId.to_i)
-  @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
+  if filter
+    @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
 %>
 
 <div class="histogram-widget" id="<%= containerId %>">
@@ -56,6 +57,6 @@
   })();
 </script>
 <!--<![endif]-->
-
-
-
+<% else %>
+  <p><%= image_tag 'warning.png' %> <%= message 'measure_filter.widget.unknown_filter_warning' -%></p>
+<% end %>

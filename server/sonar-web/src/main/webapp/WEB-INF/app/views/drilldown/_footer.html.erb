@@ -1,0 +1,14 @@
+<div id="resource_container"> </div>
+
+<%
+   if @display_viewers
+     resource = @drilldown.highlighted_resource || @drilldown.resource
+     if resource
+%>
+  <script>
+    d(<%= resource.id -%>, <%= resource.source_code? -%>);
+  </script>
+<%
+     end
+   end
+%>

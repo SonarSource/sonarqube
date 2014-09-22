@@ -1,13 +1,12 @@
 <dataset>
 
-  <groups id="100" name="sonar-users" />
-  <groups id="101" name="sonar-administrators"/>
-  <groups id="102" name="sonar-reviewers" />
+  <groups id="100" name="sonar-users" description="Any new users created will automatically join this group"/>
+  <groups id="101" name="sonar-administrators" description="System administrators"/>/>
+  <groups id="102" name="sonar-reviewers" description="Reviewers"/>
 
   <!-- user 200 is in all groups -->
   <groups_users user_id="200" group_id="100"/>
   <groups_users user_id="200" group_id="101"/>
   <groups_users user_id="200" group_id="102"/>
-
 
 </dataset>

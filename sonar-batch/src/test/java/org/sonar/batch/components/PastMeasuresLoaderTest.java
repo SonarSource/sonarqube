@@ -27,10 +27,10 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItems;
+import static org.hamcrest.Matchers.hasItems;
 
 public class PastMeasuresLoaderTest extends AbstractDbUnitTestCase {
 

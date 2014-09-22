@@ -23,7 +23,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.persistit.Exchange;
 import com.persistit.Persistit;
+import com.persistit.Value;
 import com.persistit.Volume;
+import com.persistit.encoding.CoderManager;
+import com.persistit.encoding.ValueCoder;
 import com.persistit.exception.PersistitException;
 import com.persistit.logging.Slf4jAdapter;
 import org.apache.commons.io.FileUtils;
@@ -33,7 +36,6 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.utils.TempFolder;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.Properties;
 import java.util.Set;
 
@@ -77,11 +79,17 @@ public class Caches implements BatchComponent, Startable {
     }
   }
 
-  public <V extends Serializable> Cache<V> createCache(String cacheName) {
+  public void registerValueCoder(Class<?> clazz, ValueCoder coder) {
+    CoderManager cm = persistit.getCoderManager();
+    cm.registerValueCoder(clazz, coder);
+  }
+
+  public <V> Cache<V> createCache(String cacheName) {
     Preconditions.checkState(volume != null && volume.isOpened(), "Caches are not initialized");
     Preconditions.checkState(!cacheNames.contains(cacheName), "Cache is already created: " + cacheName);
     try {
       Exchange exchange = persistit.getExchange(volume, cacheName, true);
+      exchange.setMaximumValueSize(Value.MAXIMUM_SIZE);
       Cache<V> cache = new Cache<V>(cacheName, exchange);
       cacheNames.add(cacheName);
       return cache;

@@ -1,0 +1,43 @@
+@import (reference) 'variables';
+
+.component-viewer-source {
+
+  .code pre {
+    padding: 0;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  /* constants */
+  .code .c {
+    font-style: normal;
+  }
+
+  /* javadoc */
+  .code .j {
+    font-style: normal;
+  }
+
+  /* keyword */
+  .code .k {
+    color: saturate(@darkBlue, 50%);
+    font-weight: 600;
+  }
+
+  /* string */
+  .code .s {
+    color: saturate(@red, 0%);
+    font-weight: normal;
+  }
+
+  /* preprocessing directive */
+  .code .p {
+    font-weight: normal;
+  }
+
+  .sym {
+    color: darken(saturate(@green, 10%), 15%);
+  }
+
+}

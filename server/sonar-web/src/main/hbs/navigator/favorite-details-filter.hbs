@@ -1,0 +1,14 @@
+{{#ifNotEmpty choicesArray}}
+  <ul class="navigator-filter-select-list">
+    {{#each choicesArray}}
+      <li>
+        <label data-id="{{k}}">{{v}}</label>
+      </li>
+    {{/each}}
+  </ul>
+{{/ifNotEmpty}}
+<ul class="navigator-filter-select-list">
+  <li class="manage">
+    <label id="manage-favorites">{{translate "manage" }}</label>
+  </li>
+</ul>

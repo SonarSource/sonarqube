@@ -40,7 +40,9 @@ import org.sonar.api.resources.Project;
  * </p>
  *
  * @since 1.10
+ * @deprecated since 4.5 use {@link org.sonar.api.batch.sensor.Sensor}
  */
+@Deprecated
 public interface Sensor extends BatchExtension, CheckProject {
 
   /**

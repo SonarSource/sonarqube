@@ -1,0 +1,73 @@
+<div class="page">
+  <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Rules'} %>
+
+  <div class="tabs-panel marginbottom10 ">
+    <% active_rules = @stats.get('countActiveRules').get(0).getValue() if @stats && @stats.get('countActiveRules') %>
+    <% active_rules ||= 0 %>
+
+    <div class="widget-span widget-span-3">
+      <div class="widget-measure-container">
+        <div class="widget-measure widget-measure-main">
+          <span class="widget-label"><%= message('rules') -%></span>
+          <span nowrap>
+            <% tooltip = message('quality_profiles.see_rules_tooltip')
+               tooltip = message('quality_profiles.manage_rules_tooltip') if profiles_administrator?
+            %>
+            <a class="widget-link"
+               href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key()}|activation=true|languages=#{@profile.language()}" -%>"
+               title="<%= tooltip %>">
+              <span><%= active_rules -%></span>
+            </a>
+          </span>
+
+        </div>
+        <% if @deprecated_active_rules > 0 %>
+          <div class="widget-measure">
+            <%= message('quality_profiles.including') %>&nbsp;<a
+              href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key()}|activation=true|languages=#{@profile.language()}|statuses=DEPRECATED" -%>"
+              ><%= @deprecated_active_rules -%></a>&nbsp;<%= message('quality_profiles.deprecated') %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <% if @stats
+         severity_stats = @stats.get('severity')
+         severity_map = Hash[ *severity_stats.collect { |v| [ v.getKey(), v ] }.flatten ]
+
+         max = severity_stats.map { |val| val.getValue() }.max
+      %>
+      <div class="widget-span widget-span-3">
+        <div class="widget-measure-container">
+          <table class="data" style="width: 240px">
+            <tbody>
+            <% Severity::KEYS.each do |key|
+              stat = severity_map[key]
+              severity = key.downcase
+              value = 0
+              value = stat.getValue() if stat
+            -%>
+              <tr>
+                <td>
+                  <i class="icon-severity-<%= severity %>"></i> <%= message(severity) -%>
+                </td>
+                <td class="thin right">
+                  <a href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key()}|activation=true|languages=#{@profile.language()}|active_severities=#{severity.upcase}" -%>"
+                    class="widget-link">
+                    <span><%= value -%></span>
+                  </a>
+                </td>
+                <td class="nowrap ">
+                  <% if max > 0 %>
+                    <%= barchart(:width => 70, :percent => (100 * value / max).to_i) %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end -%>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end -%>
+  </div>
+</div>

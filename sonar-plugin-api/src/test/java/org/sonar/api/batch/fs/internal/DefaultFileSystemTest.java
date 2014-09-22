@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import com.google.common.base.Charsets;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -60,8 +59,8 @@ public class DefaultFileSystemTest {
     assertThat(fs.isDefaultJvmEncoding()).isTrue();
     assertThat(fs.encoding()).isEqualTo(Charset.defaultCharset());
 
-    fs.setEncoding(Charsets.ISO_8859_1);
-    assertThat(fs.encoding()).isEqualTo(Charsets.ISO_8859_1);
+    fs.setEncoding(Charset.forName("ISO-8859-1"));
+    assertThat(fs.encoding()).isEqualTo(Charset.forName("ISO-8859-1"));
     assertThat(fs.isDefaultJvmEncoding()).isFalse();
   }
 
@@ -81,12 +80,12 @@ public class DefaultFileSystemTest {
 
     assertThat(fs.inputFiles(fs.predicates().all())).isEmpty();
 
-    fs.add(new DefaultInputFile("src/Foo.php").setLanguage("php").setFile(temp.newFile()));
-    fs.add(new DefaultInputFile("src/Bar.java").setLanguage("java").setFile(temp.newFile()));
-    fs.add(new DefaultInputFile("src/Baz.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Foo.php").setLanguage("php").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Baz.java").setLanguage("java").setFile(temp.newFile()));
 
     // no language
-    fs.add(new DefaultInputFile("src/readme.txt").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/readme.txt").setFile(temp.newFile()));
 
     assertThat(fs.inputFile(fs.predicates().hasRelativePath("src/Bar.java"))).isNotNull();
     assertThat(fs.inputFile(fs.predicates().hasRelativePath("does/not/exist"))).isNull();
@@ -120,8 +119,8 @@ public class DefaultFileSystemTest {
     thrown.expectMessage("expected one element");
 
     DefaultFileSystem fs = new DefaultFileSystem();
-    fs.add(new DefaultInputFile("src/Bar.java").setLanguage("java").setFile(temp.newFile()));
-    fs.add(new DefaultInputFile("src/Baz.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Baz.java").setLanguage("java").setFile(temp.newFile()));
 
     fs.inputFile(fs.predicates().all());
   }
@@ -129,7 +128,7 @@ public class DefaultFileSystemTest {
   @Test
   public void input_file_supports_non_indexed_predicates() throws Exception {
     DefaultFileSystem fs = new DefaultFileSystem();
-    fs.add(new DefaultInputFile("src/Bar.java").setLanguage("java").setFile(temp.newFile()));
+    fs.add(new DefaultInputFile("foo", "src/Bar.java").setLanguage("java").setFile(temp.newFile()));
 
     // it would fail if more than one java file
     assertThat(fs.inputFile(fs.predicates().hasLanguage("java"))).isNotNull();

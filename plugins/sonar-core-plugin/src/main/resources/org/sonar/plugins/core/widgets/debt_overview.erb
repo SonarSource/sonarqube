@@ -1,0 +1,36 @@
+<%
+   sqale_rating = @snapshot.measure('sqale_rating')
+   sqale_debt_ratio = @snapshot.measure('sqale_debt_ratio')
+   if sqale_rating && sqale_rating.text_value && sqale_debt_ratio
+%>
+  <% if sqale_rating && sqale_rating.text_value %>
+    <div class="widget-row">
+      <div class="widget-span widget-span-6">
+        <div class="widget-measure-container">
+          <div class="widget-measure widget-measure-main">
+            <span class="widget-label"><%= message('metric.sqale_rating.name') -%></span>
+            <span class="nowrap">
+              <%= format_measure(sqale_rating, :url => url_for_drilldown(sqale_rating)) %>
+              <% unless dashboard_configuration.selected_period? %>
+                <%= trend_icon(sqale_rating) -%>
+              <% end %>
+            </span>
+          </div>
+        </div>
+      </div>
+  <% end %>
+  <% if sqale_debt_ratio %>
+    <div class="widget-span widget-span-6">
+      <div class="widget-measure-container">
+        <div class="widget-measure widget-measure-main">
+          <span class="widget-label"><%= message('metric.sqale_debt_ratio.name') -%></span>
+          <span class="nowrap">
+            <%= format_measure(sqale_debt_ratio, :url => url_for_drilldown(sqale_debt_ratio)) %>
+            <%= dashboard_configuration.selected_period? ? format_variation(sqale_debt_ratio) : trend_icon(sqale_debt_ratio) -%>
+          </span>
+        </div>
+      </div>
+    </div>
+    </div>
+  <% end %>
+<% end %>

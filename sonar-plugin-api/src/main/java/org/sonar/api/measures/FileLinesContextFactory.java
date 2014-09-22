@@ -19,7 +19,6 @@
  */
 package org.sonar.api.measures;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.Resource;
@@ -29,11 +28,17 @@ import org.sonar.api.resources.Resource;
  *
  * @since 2.14
  */
-@Beta
 public interface FileLinesContextFactory extends BatchComponent {
 
+  /**
+   * @deprecated since 4.4 use {@link #createFor(InputFile)}
+   */
+  @Deprecated
   FileLinesContext createFor(Resource resource);
 
+  /**
+   * @since 4.2
+   */
   FileLinesContext createFor(InputFile inputFile);
 
 }

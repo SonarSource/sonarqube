@@ -43,7 +43,9 @@ import java.io.IOException;
  * @goal sonar
  * @aggregator
  * @requiresDependencyResolution test
+ * @deprecated Only kept for backward compatibility with old version of SQ Maven plugin
  */
+@Deprecated
 public final class SonarMojo extends AbstractMojo {
 
   /**

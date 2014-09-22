@@ -21,7 +21,9 @@ package org.sonar.check;
 
 /**
  * @since 2.3
+ * @deprecated since 4.4
  */
+@Deprecated
 public enum Cardinality {
   SINGLE, MULTIPLE
 }

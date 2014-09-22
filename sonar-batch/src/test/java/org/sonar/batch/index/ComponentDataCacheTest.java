@@ -83,9 +83,5 @@ public class ComponentDataCacheTest {
       return String.valueOf(data);
     }
 
-    @Override
-    public void readString(String s) {
-      data = Long.parseLong(s);
-    }
   }
 }

@@ -41,7 +41,7 @@ public class IssueStatsDao implements ServerComponent {
   }
 
   public List<Object> selectIssuesColumn(IssueQuery query, String column, @Nullable Integer userId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       IssueStatsMapper mapper = session.getMapper(IssueStatsMapper.class);
       return mapper.selectIssuesColumn(query, column, query.componentRoots(), userId, query.requiredRole());

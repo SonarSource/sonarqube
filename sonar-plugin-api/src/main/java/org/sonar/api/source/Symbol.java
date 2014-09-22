@@ -20,15 +20,21 @@
 
 package org.sonar.api.source;
 
-public interface Symbol {
+/**
+ * @deprecated since 4.5 replaced by {@link org.sonar.api.batch.sensor.symbol.Symbol}
+ */
+@Deprecated
+public interface Symbol extends org.sonar.api.batch.sensor.symbol.Symbol {
 
+  @Override
   int getDeclarationStartOffset();
 
+  @Override
   int getDeclarationEndOffset();
 
   /**
    * @since unused
-   * @deprecated in 4.3
+   * @deprecated in 4.3 not used.
    */
   @Deprecated
   String getFullyQualifiedName();

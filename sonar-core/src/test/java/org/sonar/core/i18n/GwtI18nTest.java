@@ -27,9 +27,9 @@ import org.junit.Test;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.StringContains.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 import static org.mockito.Mockito.mock;
 
@@ -46,13 +46,13 @@ public class GwtI18nTest {
   }
 
   @Test
-  public void shouldListAllPropertyKeysAtStartup() {
+  public void list_all_property_keys_at_startup() {
     assertThat(i18n.getPropertyKeys().length, Is.is(2));
     assertThat(Lists.newArrayList(i18n.getPropertyKeys()), hasItems("one", "two"));
   }
 
   @Test
-  public void shouldEncodeJavascriptValues() {
+  public void encode_javascript_values() {
     String js = i18n.getJsDictionnary(bundle);
     assertThat(js, containsString("var l10n = {"));
     assertThat(js, containsString("one\": \"One"));

@@ -1,0 +1,126 @@
+<div class="page">
+<div class="line-block marginbottom10">
+  <div style="float: right" class="operations button-group">
+    <a href="profiles/compare" id="compare-link" class="button"><i class="icon-compare"></i> <%= message('quality_profiles.compare_profiles') -%></a>
+    <% if profiles_administrator? %>
+      <a href="profiles/restore_form" class="open-modal button" id="restore-link"><i class="icon-restore"></i> <%= message('quality_profiles.restore_profile') -%></a>
+    <% end %>
+  </div>
+</div>
+
+<%
+   Api::Utils.insensitive_sort(languages){|l| l.getName()}.each do |language|
+      default_profile = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getDefault(language.getKey())
+%>
+  <div class="line-block">
+    <% if profiles_administrator? %>
+      <ul style="float: right" class="horizontal">
+        <li class="marginleft10">
+          <i class="icon-plus"></i>
+          <a id="create-link-<%= language.getKey() -%>" href="<%= ApplicationController.root_context -%>/profiles/create_form?language=<%= u language.getKey() -%>"
+             class="open-modal link-action"><%= message('create') -%></a>
+        </li>
+      </ul>
+      <ul style="float: right" class="horizontal">
+        <li class="marginleft10">
+          <a id="create-link-<%= language.getKey() -%>" href="<%= ApplicationController.root_context -%>/profiles/restore_built_in_form?language=<%= u language.getKey() -%>"
+             class="open-modal link-action"><%= message('quality_profiles.restore_built_in_profiles') -%></a>
+        </li>
+      </ul>
+    <% end %>
+    <h2><%= message('quality_profiles.x_language_profiles', :params => language.getName()) -%></h2>
+  </div>
+
+  <table class="data width100" id="profiles_<%= language.getKey() -%>">
+    <thead>
+    <tr>
+      <th class="left"><%= message('name') -%></th>
+      <th class="right"><%= message('rules') -%></th>
+      <th class="right"><%= message('projects') -%></th>
+      <th class="right"><%= message('default') -%></th>
+      <% if profiles_administrator? %>
+        <th width="1%" class="right" colspan="4"><%= message('operations') -%></th>
+      <% end %>
+    </tr>
+    </thead>
+    <tbody>
+    <% @profiles.select { |p| p.language == language.getKey() }.each do |profile|
+       projects_count = projects_count(profile)
+       is_default_profile = default_profile && default_profile.key()==profile.key()
+    %>
+      <tr class="<%= cycle 'even', 'odd', :name => language.getKey() -%> hoverable" id="<%= u profile.key() %>">
+        <td  width="40%">
+          <a href="<%= url_for :controller => 'profiles', :action => 'show', :key => profile.key() -%>"
+             id="rules-<%= profile.key() -%>"><%= h profile.name() -%></a>
+        </td>
+
+        <td align="right" width="10%">
+          <%
+             rules_tooltip = message('quality_profiles.see_rules_tooltip_x_profile', :params => [profile.name()])
+             rules_tooltip = message('quality_profiles.manage_rules_tooltip_x_profile', :params => [profile.name()]) if profiles_administrator?
+          %>
+          <a class="widget-link"
+             href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{profile.key()}|activation=true|languages=#{profile.language()}" -%>"
+             title="<%= rules_tooltip %>">
+            <span id="activated_rules_<%= u profile.key() -%>">
+            <%= @active_rule_counts[profile.key()] || 0 -%>
+          </span>
+          </a>
+        </td>
+
+        <td align="right" width="10%" nowrap>
+          <% unless is_default_profile %>
+            <span id="projects_<%= u profile.key() -%>"><%= projects_count -%></span>
+          <% end %>
+        </td>
+
+        <td align="right" width="10%" nowrap>
+          <% if !is_default_profile && profiles_administrator? %>
+            <%= link_to_action message('set_as_default'), "#{ApplicationController.root_context}/profiles/set_as_default?id=#{profile.id()}",
+                               :id => "activate_#{profile.key().parameterize}",
+                               :class => 'link-action',
+                               :confirm_title => message('set_as_default'),
+                               :confirm_msg => message('quality_profiles.are_you_sure_want_x_profile_as_default', :params => [profile.name()]),
+                               :confirm_button => message('set_as_default')
+            -%>
+          <% end %>
+          <% if is_default_profile %>
+            <i class="icon-check" id='<%= "is_active_#{u profile.key()}" -%>'></i>
+          <% end %>
+        </td>
+
+        <td align="right" nowrap>
+          <form method="post" action="<%= ApplicationController.root_context -%>/profiles/backup" id="backup-<%= profile.key() -%>-form">
+            <input type="hidden" name="key" value="<%= profile.key() -%>"/>
+            <a href="#" class="link-action" name="button_backup" id="backup_<%= u profile.key() -%>" onclick="$j('#backup-<%= profile.key() -%>-form').submit();return false;"><%= message('backup_verb') -%></a>
+          </form>
+        </td>
+        <% if profiles_administrator? %>
+          <td align="right">
+            <a id="rename-<%= profile.key().parameterize -%>" href="<%= ApplicationController.root_context -%>/profiles/rename_form/<%= profile.id() -%>" class="link-action open-modal"><%= message('rename') -%></a>
+          </td>
+
+          <td align="right">
+            <a id="copy-<%= profile.key().parameterize -%>" href="<%= ApplicationController.root_context -%>/profiles/copy_form/<%= profile.id() -%>" class="link-action open-modal"><%= message('copy') -%></a>
+          </td>
+
+          <td>
+            <% if !is_default_profile %>
+              <%= link_to_action message('delete'), "#{ApplicationController.root_context}/profiles/delete/#{profile.id()}",
+                                 :class => 'link-action link-red',
+                                 :id => "delete_#{profile.key().parameterize}",
+                                 :confirm_button => message('delete'),
+                                 :confirm_title => 'quality_profiles.delete_confirm_title',
+                                 :confirm_msg => 'quality_profiles.are_you_sure_want_delete_profile_x_and_descendants',
+                                 :confirm_msg_params => [profile.name()]
+              -%>
+            <% end %>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+  <br/><br/>
+<% end %>
+</div>

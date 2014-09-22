@@ -27,8 +27,8 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.test.IsMeasure;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;

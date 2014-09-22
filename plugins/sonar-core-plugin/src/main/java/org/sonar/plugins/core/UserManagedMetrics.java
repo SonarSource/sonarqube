@@ -29,24 +29,24 @@ public final class UserManagedMetrics implements Metrics {
   private static final String DOMAIN = "Management";
 
   public List<Metric> getMetrics() {
-    return ImmutableList.of(
-        new Metric.Builder("burned_budget", "Burned budget", Metric.ValueType.FLOAT)
-            .setDirection(Metric.DIRECTION_NONE)
-            .setQualitative(false)
-            .setDomain(DOMAIN)
-            .setUserManaged(true)
-            .create(),
-        new Metric.Builder("business_value", "Business value", Metric.ValueType.FLOAT)
-            .setDirection(Metric.DIRECTION_BETTER)
-            .setQualitative(true)
-            .setDomain(DOMAIN)
-            .setUserManaged(true)
-            .create(),
-        new Metric.Builder("team_size", "Team size", Metric.ValueType.INT)
-            .setDirection(Metric.DIRECTION_NONE)
-            .setQualitative(false)
-            .setDomain(DOMAIN)
-            .setUserManaged(true)
-            .create());
+    return ImmutableList.<Metric>of(
+      new Metric.Builder("burned_budget", "Burned budget", Metric.ValueType.FLOAT)
+        .setDirection(Metric.DIRECTION_NONE)
+        .setQualitative(false)
+        .setDomain(DOMAIN)
+        .setUserManaged(true)
+        .create(),
+      new Metric.Builder("business_value", "Business value", Metric.ValueType.FLOAT)
+        .setDirection(Metric.DIRECTION_BETTER)
+        .setQualitative(true)
+        .setDomain(DOMAIN)
+        .setUserManaged(true)
+        .create(),
+      new Metric.Builder("team_size", "Team size", Metric.ValueType.INT)
+        .setDirection(Metric.DIRECTION_NONE)
+        .setQualitative(false)
+        .setDomain(DOMAIN)
+        .setUserManaged(true)
+        .create());
   }
 }

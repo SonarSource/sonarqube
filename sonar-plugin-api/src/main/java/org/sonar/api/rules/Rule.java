@@ -34,7 +34,20 @@ import org.sonar.check.Cardinality;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -107,8 +120,8 @@ public class Rule {
   private String pluginName;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "cardinality", updatable = true, nullable = false)
-  private Cardinality cardinality = Cardinality.SINGLE;
+  @Column(name = "is_template", updatable = true, nullable = false)
+  private boolean isTemplate = false;
 
   @Column(name = "status", updatable = true, nullable = true)
   private String status = STATUS_READY;
@@ -117,8 +130,8 @@ public class Rule {
   private String language;
 
   @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "parent_id", updatable = true, nullable = true)
-  private Rule parent = null;
+  @JoinColumn(name = "template_id", updatable = true, nullable = true)
+  private Rule template = null;
 
   @Column(name = "characteristic_id", updatable = true, nullable = true)
   private Integer characteristicId;
@@ -137,6 +150,15 @@ public class Rule {
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "updated_at", updatable = true, nullable = true)
   private Date updatedAt;
+
+  @Transient
+  private String defaultCharacteristicKey;
+  @Transient
+  private String defaultSubCharacteristicKey;
+  @Transient
+  private String characteristicKey;
+  @Transient
+  private String subCharacteristicKey;
 
   private transient String[] tags = DEFAULT_TAGS;
 
@@ -174,7 +196,6 @@ public class Rule {
     this.id = id;
   }
 
-  @CheckForNull
   public String getName() {
     return name;
   }
@@ -182,7 +203,7 @@ public class Rule {
   /**
    * Sets the rule name
    */
-  public Rule setName(@Nullable String name) {
+  public Rule setName(String name) {
     this.name = removeNewLineCharacters(name);
     return this;
   }
@@ -279,15 +300,15 @@ public class Rule {
 
   public RuleParam createParameter() {
     RuleParam parameter = new RuleParam()
-        .setRule(this);
+      .setRule(this);
     params.add(parameter);
     return parameter;
   }
 
   public RuleParam createParameter(String key) {
     RuleParam parameter = new RuleParam()
-        .setKey(key)
-        .setRule(this);
+      .setKey(key)
+      .setRule(this);
     params.add(parameter);
     return parameter;
   }
@@ -351,21 +372,67 @@ public class Rule {
     return setRepositoryKey(repositoryKey).setKey(key).setConfigKey(key);
   }
 
-  public Cardinality getCardinality() {
-    return cardinality;
+  /**
+   * @since 4.4
+   */
+  public boolean isTemplate() {
+    return isTemplate;
   }
 
-  public Rule setCardinality(Cardinality c) {
-    this.cardinality = c;
+  /**
+   * @since 4.4
+   */
+  public Rule setIsTemplate(boolean isTemplate) {
+    this.isTemplate = isTemplate;
     return this;
   }
 
-  public Rule getParent() {
-    return parent;
+  /**
+   * @deprecated since 4.4, use {@link #isTemplate()}
+   */
+  @Deprecated
+  public Cardinality getCardinality() {
+    return isTemplate ? Cardinality.MULTIPLE : Cardinality.SINGLE;
   }
 
+  /**
+   * @deprecated since 4.4, use {@link #setIsTemplate(boolean)}
+   */
+  @Deprecated
+  public Rule setCardinality(Cardinality c) {
+    this.isTemplate = Cardinality.MULTIPLE.equals(c);
+    return this;
+  }
+
+  /**
+   * @deprecated since 4.4, use {@link #getTemplate()}
+   */
+  @Deprecated
+  public Rule getParent() {
+    return template;
+  }
+
+  /**
+   * @deprecated since 4.4, use {@link #setTemplate(Rule)}}
+   */
+  @Deprecated
   public Rule setParent(Rule parent) {
-    this.parent = parent;
+    this.template = parent;
+    return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Rule getTemplate() {
+    return template;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Rule setTemplate(Rule template) {
+    this.template = template;
     return this;
   }
 
@@ -444,16 +511,19 @@ public class Rule {
   /**
    * For definition of rule only
    */
-  public void setTags(String[] tags) {
+  public Rule setTags(String[] tags) {
     this.tags = tags;
+    return this;
   }
 
   /**
    * For internal use only.
    *
+   * @deprecated since 4.4, use {@link #getCharacteristicKey()}
    * @since 4.3
    */
   @CheckForNull
+  @Deprecated
   public Integer getCharacteristicId() {
     return characteristicId;
   }
@@ -461,20 +531,23 @@ public class Rule {
   /**
    * For internal use only.
    *
+   * @deprecated since 4.4, use {@link #setCharacteristicKey(@Nullable String characteristicKey)}
    * @since 4.3
    */
+  @Deprecated
   public Rule setCharacteristicId(@Nullable Integer characteristicId) {
     this.characteristicId = characteristicId;
     return this;
   }
 
-
   /**
    * For internal use only.
    *
+   * @deprecated since 4.4, use {@link #getDefaultCharacteristicKey()}
    * @since 4.3
    */
   @CheckForNull
+  @Deprecated
   public Integer getDefaultCharacteristicId() {
     return defaultCharacteristicId;
   }
@@ -482,8 +555,10 @@ public class Rule {
   /**
    * For internal use only.
    *
+   * @deprecated since 4.4, use {@link #setDefaultCharacteristicKey(@Nullable String defaultCharacteristicKey)}
    * @since 4.3
    */
+  @Deprecated
   public Rule setDefaultCharacteristicId(@Nullable Integer defaultCharacteristicId) {
     this.defaultCharacteristicId = defaultCharacteristicId;
     return this;
@@ -499,34 +574,34 @@ public class Rule {
     }
     Rule other = (Rule) obj;
     return new EqualsBuilder()
-        .append(pluginName, other.getRepositoryKey())
-        .append(key, other.getKey())
-        .isEquals();
+      .append(pluginName, other.getRepositoryKey())
+      .append(key, other.getKey())
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-        .append(pluginName)
-        .append(key)
-        .toHashCode();
+      .append(pluginName)
+      .append(key)
+      .toHashCode();
   }
 
   @Override
   public String toString() {
     // Note that ReflectionToStringBuilder will not work here - see SONAR-3077
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("id", id)
-        .append("name", name)
-        .append("key", key)
-        .append("configKey", configKey)
-        .append("plugin", pluginName)
-        .append("severity", priority)
-        .append("cardinality", cardinality)
-        .append("status", status)
-        .append("language", language)
-        .append("parent", parent)
-        .toString();
+      .append("id", id)
+      .append("name", name)
+      .append("key", key)
+      .append("configKey", configKey)
+      .append("plugin", pluginName)
+      .append("severity", priority)
+      .append("isTemplate", isTemplate())
+      .append("status", status)
+      .append("language", language)
+      .append("template", template)
+      .toString();
   }
 
   @CheckForNull
@@ -563,5 +638,69 @@ public class Rule {
    */
   public RuleKey ruleKey() {
     return RuleKey.of(getRepositoryKey(), getKey());
+  }
+
+  /**
+   * @since 4.4
+   */
+  @CheckForNull
+  public String getDefaultCharacteristicKey() {
+    return defaultCharacteristicKey;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Rule setDefaultCharacteristicKey(@Nullable String defaultCharacteristicKey) {
+    this.defaultCharacteristicKey = defaultCharacteristicKey;
+    return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  @CheckForNull
+  public String getDefaultSubCharacteristicKey() {
+    return defaultSubCharacteristicKey;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Rule setDefaultSubCharacteristicKey(@Nullable String defaultSubCharacteristicKey) {
+    this.defaultSubCharacteristicKey = defaultSubCharacteristicKey;
+    return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  @CheckForNull
+  public String getCharacteristicKey() {
+    return characteristicKey;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Rule setCharacteristicKey(@Nullable String characteristicKey) {
+    this.characteristicKey = characteristicKey;
+    return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  @CheckForNull
+  public String getSubCharacteristicKey() {
+    return subCharacteristicKey;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Rule setSubCharacteristicKey(@Nullable String subCharacteristicKey) {
+    this.subCharacteristicKey = subCharacteristicKey;
+    return this;
   }
 }

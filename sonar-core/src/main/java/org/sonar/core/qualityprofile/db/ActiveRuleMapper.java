@@ -23,7 +23,7 @@ package org.sonar.core.qualityprofile.db;
 import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.CheckForNull;
-
+import java.sql.Timestamp;
 import java.util.List;
 
 public interface ActiveRuleMapper {
@@ -34,19 +34,12 @@ public interface ActiveRuleMapper {
 
   void delete(int activeRuleId);
 
-  void deleteFromRule(int ruleId);
-
-  void deleteFromProfile(int profileId);
-
   @CheckForNull
   ActiveRuleDto selectById(Integer id);
 
-  @CheckForNull
-  ActiveRuleDto selectByProfileAndRule(@Param("profileId") int profileId, @Param("ruleId") int ruleId);
-
   List<ActiveRuleDto> selectByRuleId(int ruleId);
 
-  List<ActiveRuleDto> selectByProfileId(int profileId);
+  List<ActiveRuleDto> selectByProfileKey(String key);
 
   List<ActiveRuleDto> selectAll();
 
@@ -58,21 +51,18 @@ public interface ActiveRuleMapper {
 
   void deleteParameter(int activeRuleParamId);
 
-  void deleteParametersWithParamId(int id);
-
-  void deleteParametersFromProfile(int profileId);
-
-  @CheckForNull
-  ActiveRuleParamDto selectParamById(int activeRuleParamId);
-
   @CheckForNull
   ActiveRuleParamDto selectParamByActiveRuleAndKey(@Param("activeRuleId") int activeRuleId, @Param("key") String key);
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleId(int activeRuleId);
 
-  List<ActiveRuleParamDto> selectParamsByProfileId(int profileId);
+  List<ActiveRuleParamDto> selectParamsByProfileKey(String profileKey);
+
+  ActiveRuleDto selectByKey(@Param("profileKey") String profileKey,
+                            @Param("repository") String repository, @Param("rule") String rule);
 
   List<ActiveRuleParamDto> selectAllParams();
 
+  List<ActiveRuleDto> selectAfterDate(Timestamp date);
 
 }

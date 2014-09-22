@@ -123,7 +123,7 @@ import java.util.Set;
  *   {@literal @}Override
  *   public void define(Context context) {
  *     NewRepository repository = context.createRepository("my_js", "js").setName("My Javascript Analyzer");
- *     xmlLoader.load(repository, getClass().getResourceAsStream("/path/to/rules.xml"));
+ *     xmlLoader.load(repository, getClass().getResourceAsStream("/path/to/rules.xml"), "UTF-8");
  *     i18nLoader.load(repository);
  *     repository.done();
  *   }
@@ -304,7 +304,6 @@ public interface RulesDefinition extends ServerExtension {
   class Context {
     private final Map<String, Repository> repositoriesByKey = Maps.newHashMap();
     private final ListMultimap<String, ExtendedRepository> extendedRepositoriesByKey = ArrayListMultimap.create();
-
 
     public NewRepository createRepository(String key, String language) {
       return new NewRepositoryImpl(this, key, language, false);
@@ -512,10 +511,9 @@ public interface RulesDefinition extends ServerExtension {
     DebtRemediationFunction constantPerIssue(String offset);
   }
 
-
   class NewRule {
     private final String repoKey, key;
-    private String name, htmlDescription, internalKey, severity = Severity.MAJOR;
+    private String name, htmlDescription, markdownDescription, internalKey, severity = Severity.MAJOR;
     private boolean template;
     private RuleStatus status = RuleStatus.defaultStatus();
     private String debtSubCharacteristic;
@@ -557,6 +555,9 @@ public interface RulesDefinition extends ServerExtension {
     }
 
     public NewRule setHtmlDescription(@Nullable String s) {
+      if (markdownDescription != null) {
+        throw new IllegalStateException(String.format("Rule '%s' already has a Markdown description", this));
+      }
       this.htmlDescription = StringUtils.trimToNull(s);
       return this;
     }
@@ -573,6 +574,30 @@ public interface RulesDefinition extends ServerExtension {
         }
       } else {
         this.htmlDescription = null;
+      }
+      return this;
+    }
+
+    public NewRule setMarkdownDescription(@Nullable String s) {
+      if (htmlDescription != null) {
+        throw new IllegalStateException(String.format("Rule '%s' already has an HTML description", this));
+      }
+      this.markdownDescription = StringUtils.trimToNull(s);
+      return this;
+    }
+
+    /**
+     * Load description from a file available in classpath. Example : <code>setMarkdownDescription(getClass().getResource("/myrepo/Rule1234.md")</code>
+     */
+    public NewRule setMarkdownDescription(@Nullable URL classpathUrl) {
+      if (classpathUrl != null) {
+        try {
+          setMarkdownDescription(IOUtils.toString(classpathUrl));
+        } catch (IOException e) {
+          throw new IllegalStateException("Fail to read: " + classpathUrl, e);
+        }
+      } else {
+        this.markdownDescription = null;
       }
       return this;
     }
@@ -620,9 +645,9 @@ public interface RulesDefinition extends ServerExtension {
      * of the function parameter (= "effort to fix") must be set. This description
      * explains what 1 point of "effort to fix" represents for the rule.
      * <p/>
-     * Example : : for the "Insufficient branch coverage", this description for the
+     * Example : : for the "Insufficient condition coverage", this description for the
      * remediation function coefficient/offset would be something like
-     * "Effort to test one uncovered branch".
+     * "Effort to test one uncovered condition".
      */
     public NewRule setEffortToFixDescription(@Nullable String s) {
       this.effortToFixDescription = s;
@@ -681,8 +706,8 @@ public interface RulesDefinition extends ServerExtension {
       if (Strings.isNullOrEmpty(name)) {
         throw new IllegalStateException(String.format("Name of rule %s is empty", this));
       }
-      if (Strings.isNullOrEmpty(htmlDescription)) {
-        throw new IllegalStateException(String.format("HTML description of rule %s is empty", this));
+      if (Strings.isNullOrEmpty(htmlDescription) && Strings.isNullOrEmpty(markdownDescription)) {
+        throw new IllegalStateException(String.format("One of HTML description or Markdown description must be defined for rule %s", this));
       }
       if ((Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction != null) || (!Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction == null)) {
         throw new IllegalStateException(String.format("Both debt sub-characteristic and debt remediation function should be defined on rule '%s'", this));
@@ -698,7 +723,7 @@ public interface RulesDefinition extends ServerExtension {
   @Immutable
   class Rule {
     private final Repository repository;
-    private final String repoKey, key, name, htmlDescription, internalKey, severity;
+    private final String repoKey, key, name, htmlDescription, markdownDescription, internalKey, severity;
     private final boolean template;
     private final String debtSubCharacteristic;
     private final DebtRemediationFunction debtRemediationFunction;
@@ -713,6 +738,7 @@ public interface RulesDefinition extends ServerExtension {
       this.key = newRule.key;
       this.name = newRule.name;
       this.htmlDescription = newRule.htmlDescription;
+      this.markdownDescription = newRule.markdownDescription;
       this.internalKey = newRule.internalKey;
       this.severity = newRule.severity;
       this.template = newRule.template;
@@ -747,6 +773,11 @@ public interface RulesDefinition extends ServerExtension {
     @CheckForNull
     public String htmlDescription() {
       return htmlDescription;
+    }
+
+    @CheckForNull
+    public String markdownDescription() {
+      return markdownDescription;
     }
 
     public boolean template() {

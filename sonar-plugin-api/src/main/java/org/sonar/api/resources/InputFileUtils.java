@@ -20,7 +20,6 @@
 package org.sonar.api.resources;
 
 import com.google.common.base.Objects;
-
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
@@ -34,7 +33,9 @@ import java.util.List;
 
 /**
  * @since 2.8
+ * @deprecated since 5.0 as {@link InputFile} is deprecated
  */
+@Deprecated
 public final class InputFileUtils {
 
   private InputFileUtils() {

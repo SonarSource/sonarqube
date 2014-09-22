@@ -21,7 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -36,8 +36,8 @@ import static org.mockito.Mockito.mock;
 
 public class ModuleFileSystemInitializerTest {
 
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   PathResolver pathResolver = new PathResolver();
 
@@ -51,8 +51,8 @@ public class ModuleFileSystemInitializerTest {
 
     assertThat(initializer.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
     assertThat(initializer.workingDir().getCanonicalPath()).isEqualTo(workDir.getCanonicalPath());
-    assertThat(initializer.sourceDirs()).isEmpty();
-    assertThat(initializer.testDirs()).isEmpty();
+    assertThat(initializer.sources()).isEmpty();
+    assertThat(initializer.tests()).isEmpty();
   }
 
   @Test
@@ -77,10 +77,10 @@ public class ModuleFileSystemInitializerTest {
 
     assertThat(initializer.baseDir().getCanonicalPath()).isEqualTo(baseDir.getCanonicalPath());
     assertThat(initializer.buildDir().getCanonicalPath()).isEqualTo(buildDir.getCanonicalPath());
-    assertThat(initializer.sourceDirs()).hasSize(1);
-    assertThat(path(initializer.sourceDirs().get(0))).endsWith("src/main/java");
-    assertThat(initializer.testDirs()).hasSize(1);
-    assertThat(path(initializer.testDirs().get(0))).endsWith("src/test/java");
+    assertThat(initializer.sources()).hasSize(1);
+    assertThat(path(initializer.sources().get(0))).endsWith("src/main/java");
+    assertThat(initializer.tests()).hasSize(1);
+    assertThat(path(initializer.tests().get(0))).endsWith("src/test/java");
     assertThat(initializer.binaryDirs()).hasSize(1);
     assertThat(path(initializer.binaryDirs().get(0))).endsWith("target/classes");
   }

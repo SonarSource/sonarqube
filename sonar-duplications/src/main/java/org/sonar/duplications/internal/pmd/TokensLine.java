@@ -25,7 +25,7 @@ import org.sonar.duplications.CodeFragment;
 /**
  * Immutable code fragment, which formed from tokens of one line.
  */
-class TokensLine implements CodeFragment {
+public class TokensLine implements CodeFragment {
 
   private final String value;
 
@@ -34,7 +34,6 @@ class TokensLine implements CodeFragment {
 
   private final int startUnit;
   private final int endUnit;
-
 
   public TokensLine(int startUnit, int endUnit, int startLine, String value) {
     Preconditions.checkArgument(startLine > 0);

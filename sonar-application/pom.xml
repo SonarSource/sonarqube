@@ -5,83 +5,82 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar</artifactId>
-    <version>4.3.1</version>
+    <version>5.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>sonar-application</artifactId>
   <packaging>jar</packaging>
-
   <name>SonarQube :: Application</name>
   <description>Package the standalone distribution</description>
 
+  <properties>
+    <assembly.recompressZippedFiles>true</assembly.recompressZippedFiles>
+  </properties>
+
+
   <dependencies>
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-process</artifactId>
+      <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-process-monitor</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jul-to-slf4j</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-access</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tomcat.embed</groupId>
-      <artifactId>tomcat-embed-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tomcat.embed</groupId>
-      <artifactId>tomcat-embed-jasper</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tomcat.embed</groupId>
-      <artifactId>tomcat-embed-logging-juli</artifactId>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-server</artifactId>
       <version>${project.version}</version>
-      <type>war</type>
+      <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-search</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-batch-maven-compat</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-web</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+      <scope>provided</scope>
+    </dependency>
+
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>postgresql</groupId>
+      <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>net.sourceforge.jtds</groupId>
       <artifactId>jtds</artifactId>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
 
     <!-- core plugins -->
@@ -90,79 +89,54 @@
       <artifactId>sonar-core-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-design-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-findbugs-plugin</artifactId>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-dbcleaner-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar-plugins.java</groupId>
-      <artifactId>sonar-squid-java-plugin</artifactId>
-      <type>sonar-plugin</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar-plugins.java</groupId>
-      <artifactId>sonar-surefire-plugin</artifactId>
-      <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-cpd-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-l10n-en-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-email-notifications-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar-plugins.java</groupId>
-      <artifactId>sonar-jacoco-plugin</artifactId>
-      <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-java-plugin</artifactId>
       <type>sonar-plugin</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar.plugins</groupId>
-      <artifactId>sonar-maven-batch-plugin</artifactId>
-      <version>${project.version}</version>
-      <type>sonar-plugin</type>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sonatype.jsw-binaries</groupId>
@@ -176,7 +150,7 @@
       <groupId>tanukisoft</groupId>
       <artifactId>wrapper</artifactId>
       <version>3.2.3</version>
-      <scope>runtime</scope>
+      <scope>provided</scope>
     </dependency>
 
     <!-- unit tests -->
@@ -186,13 +160,18 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-assert</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -200,16 +179,42 @@
       <artifactId>http-request</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <index>true</index>
+            <manifest>
+              <addClasspath>false</addClasspath>
+              <mainClass>org.sonar.application.App</mainClass>
+            </manifest>
+            <manifestEntries>
+              <mode>distribution</mode>
+              <url>${project.url}</url>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <keepDependenciesWithProvidedScope>false</keepDependenciesWithProvidedScope>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
@@ -224,6 +229,7 @@
               <descriptors>
                 <descriptor>assembly.xml</descriptor>
               </descriptors>
+              <recompressZippedFiles>${assembly.recompressZippedFiles}</recompressZippedFiles>
             </configuration>
           </execution>
         </executions>
@@ -258,8 +264,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>55000000</minsize>
-                  <maxsize>75000000</maxsize>
+                  <minsize>84000000</minsize>
+                  <maxsize>880000000</maxsize>
                   <files>
                     <file>${project.build.directory}/sonarqube-${project.version}.zip</file>
                   </files>
@@ -271,7 +277,6 @@
       </plugin>
     </plugins>
   </build>
-
   <profiles>
     <profile>
       <id>release</id>
@@ -285,6 +290,12 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>dev</id>
+      <properties>
+        <assembly.recompressZippedFiles>false</assembly.recompressZippedFiles>
+      </properties>
     </profile>
   </profiles>
 

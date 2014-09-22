@@ -1,0 +1,65 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/js/common/select-list" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+<% end %>
+
+<div>
+    <% if profiles_administrator? %>
+      <ul style="float: right" class="horizontal">
+          <li class="marginleft10 add">
+              <a id="link-create-group" href="<%=ApplicationController.root_context-%>/groups/create_form" class="open-modal link-action">Add new group</a>
+          </li>
+      </ul>
+    <% end %>
+    <h1 class="admin-page-title"><%= message('user_groups.page') -%></h1>
+    <p class="admin-page-description"><%= message('user_groups.page.description') -%> </p>
+</div>
+
+
+<table width="100%">
+  <tr>
+    <td valign="top">
+
+      <table class="data width100 sortable" id="groups">
+        <thead>
+          <tr>
+            <th class="left sortfirstasc"><a>Name</a></th>
+            <th class="left"><a>Description</a></th>
+            <th class="left"><a>Members</a></th>
+            <th class="operations nosort" nowrap><a>Operations</a></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="group-anyone">
+            <td class="left"><%= h 'Anyone'  -%></td>
+            <td class="left" style="word-break:break-all"><%= message('user_groups.anyone.description') -%></td>
+            <td class="left">&nbsp;</td>
+            <td>&nbsp;</td>
+          </tr>
+        <% @groups.each do |group| %>
+          <tr id="group-<%= group.name.parameterize -%>">
+            <td class="left"><%= h group.name -%></td>
+            <td class="left" style="word-break:break-all"><%= h group.description -%></td>
+            <td class="left">
+              <span id="count-<%= group.name.parameterize -%>"><%= group.users.count -%></span>
+              (<a id="select-<%= group.name.parameterize -%>" class="open-modal link-action" href="<%= ApplicationController.root_context -%>/groups/select_user/<%= group.id -%>">select</a>)
+            </td>
+            <td class="operations">
+              <a id='edit-<%= group.name.parameterize -%>' class='open-modal link-action' href="<%= ApplicationController.root_context -%>/groups/edit_form/<%= group.id -%>">Edit</a>
+              &nbsp;
+              <%= link_to_action message('delete'), "#{ApplicationController.root_context}/groups/delete/#{group.id}",
+                                   :class => 'link-action link-red',
+                                   :id => "delete-#{group.name.parameterize}",
+                                   :confirm_button => message('delete'),
+                                   :confirm_title => 'Delete group: ' + group.name,
+                                   :confirm_msg => 'Are you sure that you want to delete this group? Members will not be deleted.',
+                                   :confirm_msg_params => [group.name]
+                -%>
+            </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+       <script>jQuery('#groups').sortable();</script>
+    </td>
+  </tr>
+</table>

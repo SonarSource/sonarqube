@@ -1,0 +1,27 @@
+[
+  {
+    "system_info": {
+      "System date": "Wed Oct 10 19:15:20 CEST 2012",
+      "JVM Vendor": "Sun Microsystems Inc.",
+      "JVM Name": "Java HotSpot(TM) Client VM"
+    },
+    "system_statistics": {
+      "Total Memory": "316 MB",
+      "Free Memory": "195 MB"
+    },
+    "sonar_info": {
+      "Version": "4.3",
+      "Started at": "Mon May 05 09:06:52 CEST 2014",
+      "Database": "PostgreSQL 9.1.9"
+    },
+    "sonar_plugins": {
+      "JaCoCo": "2.1",
+      "Java": "2.1"
+    },
+    "system_properties": {
+      "LANG": "en_US.UTF-8",
+      "LC_ALL": "en_US.UTF-8",
+      "LC_CTYPE": "UTF-8"
+    }
+  }
+]

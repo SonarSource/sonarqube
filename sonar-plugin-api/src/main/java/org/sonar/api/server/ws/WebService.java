@@ -19,26 +19,34 @@
  */
 package org.sonar.api.server.ws;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerExtension;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
  * the ws is fully implemented in Java and does not require any Ruby on Rails code.
- *
+ * <p/>
  * <p/>
  * The classes implementing this extension point must be declared in {@link org.sonar.api.SonarPlugin#getExtensions()}.
- *
+ * <p/>
  * <h3>How to use</h3>
  * <pre>
  * public class HelloWs implements WebService {
@@ -59,7 +67,7 @@ import java.util.Map;
  *             .close();
  *         }
  *      })
- *      .createParam("key", "Example key");
+ *      .createParam("key").setDescription("Example key").setRequired(true);
  *
  *    // important to apply changes
  *    controller.done();
@@ -103,7 +111,7 @@ public interface WebService extends ServerExtension {
      *
      * @param path the controller path must not start or end with "/". It is recommended to start with "api/"
      *             and to use lower-case format with underscores, for example "api/coding_rules". Usual actions
-     *             are "list", "show", "create" and "delete"
+     *             are "search", "list", "show", "create" and "delete"
      */
     public NewController createController(String path) {
       return new NewController(this, path);
@@ -154,7 +162,7 @@ public interface WebService extends ServerExtension {
     }
 
     /**
-     * Optional plain-text description
+     * Optional description (accept HTML)
      */
     public NewController setDescription(@Nullable String s) {
       this.description = s;
@@ -247,6 +255,7 @@ public interface WebService extends ServerExtension {
     private boolean post = false, isInternal = false;
     private RequestHandler handler;
     private Map<String, NewParam> newParams = Maps.newHashMap();
+    private URL responseExample = null;
 
     private NewAction(String key) {
       this.key = key;
@@ -277,6 +286,21 @@ public interface WebService extends ServerExtension {
       return this;
     }
 
+    /**
+     * Link to the document containing an example of response. Content must be UTF-8 encoded.
+     * <p/>
+     * Example:
+     * <pre>
+     *   newAction.setResponseExample(getClass().getResource("/org/sonar/my-ws-response-example.json"));
+     * </pre>
+     *
+     * @since 4.4
+     */
+    public NewAction setResponseExample(@Nullable URL url) {
+      this.responseExample = url;
+      return this;
+    }
+
     public NewParam createParam(String paramKey) {
       if (newParams.containsKey(paramKey)) {
         throw new IllegalStateException(
@@ -288,6 +312,10 @@ public interface WebService extends ServerExtension {
       return newParam;
     }
 
+    /**
+     * @deprecated since 4.4. Use {@link #createParam(String paramKey)} instead.
+     */
+    @Deprecated
     public NewAction createParam(String paramKey, @Nullable String description) {
       createParam(paramKey).setDescription(description);
       return this;
@@ -300,6 +328,7 @@ public interface WebService extends ServerExtension {
     private final boolean post, isInternal;
     private final RequestHandler handler;
     private final Map<String, Param> params;
+    private final URL responseExample;
 
     private Action(Controller controller, NewAction newAction) {
       this.key = newAction.key;
@@ -308,9 +337,10 @@ public interface WebService extends ServerExtension {
       this.since = StringUtils.defaultIfBlank(newAction.since, controller.since);
       this.post = newAction.post;
       this.isInternal = newAction.isInternal;
+      this.responseExample = newAction.responseExample;
 
       if (newAction.handler == null) {
-        throw new IllegalStateException("RequestHandler is not set on action " + path);
+        throw new IllegalArgumentException("RequestHandler is not set on action " + path);
       }
       this.handler = newAction.handler;
 
@@ -354,6 +384,40 @@ public interface WebService extends ServerExtension {
       return handler;
     }
 
+    /**
+     * @see org.sonar.api.server.ws.WebService.NewAction#setResponseExample(java.net.URL)
+     */
+    @CheckForNull
+    public URL responseExample() {
+      return responseExample;
+    }
+
+    /**
+     * @see org.sonar.api.server.ws.WebService.NewAction#setResponseExample(java.net.URL)
+     */
+    @CheckForNull
+    public String responseExampleAsString() {
+      try {
+        if (responseExample != null) {
+          return StringUtils.trim(IOUtils.toString(responseExample, Charsets.UTF_8));
+        }
+        return null;
+      } catch (IOException e) {
+        throw new IllegalStateException("Fail to load " + responseExample, e);
+      }
+    }
+
+    /**
+     * @see org.sonar.api.server.ws.WebService.NewAction#setResponseExample(java.net.URL)
+     */
+    @CheckForNull
+    public String responseExampleFormat() {
+      if (responseExample != null) {
+        return StringUtils.lowerCase(FilenameUtils.getExtension(responseExample.getFile()));
+      }
+      return null;
+    }
+
     @CheckForNull
     public Param param(String key) {
       return params.get(key);
@@ -370,7 +434,9 @@ public interface WebService extends ServerExtension {
   }
 
   class NewParam {
-    private String key, description;
+    private String key, description, exampleValue, defaultValue;
+    private boolean required = false;
+    private Set<String> possibleValues = null;
 
     private NewParam(String key) {
       this.key = key;
@@ -378,6 +444,67 @@ public interface WebService extends ServerExtension {
 
     public NewParam setDescription(@Nullable String s) {
       this.description = s;
+      return this;
+    }
+
+    /**
+     * Is the parameter required or optional ? Default value is false (optional).
+     *
+     * @since 4.4
+     */
+    public NewParam setRequired(boolean b) {
+      this.required = b;
+      return this;
+    }
+
+    /**
+     * @since 4.4
+     */
+    public NewParam setExampleValue(@Nullable Object s) {
+      this.exampleValue = (s != null ? s.toString() : null);
+      return this;
+    }
+
+    /**
+     * Exhaustive list of possible values when it makes sense, for example
+     * list of severities.
+     *
+     * @since 4.4
+     */
+    public NewParam setPossibleValues(@Nullable Object... values) {
+      return setPossibleValues(values == null ? (Collection) null : Arrays.asList(values));
+    }
+
+    /**
+     * @since 4.4
+     */
+    public NewParam setBooleanPossibleValues() {
+      return setPossibleValues("true", "false");
+    }
+
+    /**
+     * Exhaustive list of possible values when it makes sense, for example
+     * list of severities.
+     *
+     * @since 4.4
+     */
+    public NewParam setPossibleValues(@Nullable Collection values) {
+      if (values == null) {
+        this.possibleValues = null;
+      } else {
+        this.possibleValues = Sets.newLinkedHashSet();
+        for (Object value : values) {
+          this.possibleValues.add(value.toString());
+        }
+      }
+      return this;
+    }
+
+    /**
+     * @since 4.4
+     */
+    public NewParam setDefaultValue(@Nullable Object o) {
+      this.defaultValue = (o != null ? o.toString() : null);
       return this;
     }
 
@@ -389,11 +516,17 @@ public interface WebService extends ServerExtension {
 
   @Immutable
   class Param {
-    private final String key, description;
+    private final String key, description, exampleValue, defaultValue;
+    private final boolean required;
+    private final Set<String> possibleValues;
 
     public Param(NewParam newParam) {
       this.key = newParam.key;
       this.description = newParam.description;
+      this.exampleValue = newParam.exampleValue;
+      this.defaultValue = newParam.defaultValue;
+      this.required = newParam.required;
+      this.possibleValues = newParam.possibleValues;
     }
 
     public String key() {
@@ -403,6 +536,39 @@ public interface WebService extends ServerExtension {
     @CheckForNull
     public String description() {
       return description;
+    }
+
+    /**
+     * @since 4.4
+     */
+    @CheckForNull
+    public String exampleValue() {
+      return exampleValue;
+    }
+
+    /**
+     * Is the parameter required or optional ?
+     *
+     * @since 4.4
+     */
+    public boolean isRequired() {
+      return required;
+    }
+
+    /**
+     * @since 4.4
+     */
+    @CheckForNull
+    public Set<String> possibleValues() {
+      return possibleValues;
+    }
+
+    /**
+     * @since 4.4
+     */
+    @CheckForNull
+    public String defaultValue() {
+      return defaultValue;
     }
 
     @Override

@@ -20,14 +20,18 @@
 package org.sonar.batch.scan.report;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
+import org.apache.commons.codec.Charsets;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputDir;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -42,9 +46,8 @@ import org.sonar.api.user.UserFinder;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.scan.filesystem.InputFileCache;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.user.DefaultUser;
-import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,11 +87,11 @@ public class JsonReportTest {
     mode = mock(AnalysisMode.class);
     when(mode.isPreview()).thenReturn(true);
     userFinder = mock(UserFinder.class);
-    DefaultInputFile inputFile = new DefaultInputFile("src/main/java/org/apache/struts/Action.java");
-    inputFile.setKey("struts:src/main/java/org/apache/struts/Action.java");
+    DefaultInputDir inputDir = new DefaultInputDir("struts", "src/main/java/org/apache/struts");
+    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("struts", "src/main/java/org/apache/struts/Action.java");
     inputFile.setStatus(InputFile.Status.CHANGED);
-    InputFileCache fileCache = mock(InputFileCache.class);
-    when(fileCache.all()).thenReturn(Arrays.<InputFile>asList(inputFile));
+    InputPathCache fileCache = mock(InputPathCache.class);
+    when(fileCache.all()).thenReturn(Arrays.<InputPath>asList(inputDir, inputFile));
     Project rootModule = new Project("struts");
     Project moduleA = new Project("struts-core");
     moduleA.setParent(rootModule).setPath("core");
@@ -124,8 +127,8 @@ public class JsonReportTest {
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/report/JsonReportTest/report.json"),
-      writer.toString(), false);
+    String expected = Resources.toString(Resources.getResource("org/sonar/batch/scan/report/JsonReportTest/report.json"), Charsets.UTF_8);
+    JSONAssert.assertEquals(expected, writer.toString(), false);
   }
 
   @Test
@@ -142,13 +145,14 @@ public class JsonReportTest {
       .setCloseDate(SIMPLE_DATE_FORMAT.parse("2013-04-26"))
       .setNew(false);
     when(ruleFinder.findByKey(ruleKey)).thenReturn(Rule.create(ruleKey.repository(), ruleKey.rule()).setName("Avoid Cycles"));
-    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
+    when(jsonReport.getIssues()).thenReturn(Lists.newArrayList(issue));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/report/JsonReportTest/report-without-resolved-issues.json"),
-      writer.toString(), false);
+    String expected = Resources.toString(Resources.getResource(
+      "org/sonar/batch/scan/report/JsonReportTest/report-without-resolved-issues.json"), Charsets.UTF_8);
+    JSONAssert.assertEquals(expected, writer.toString(), false);
   }
 
   @Test

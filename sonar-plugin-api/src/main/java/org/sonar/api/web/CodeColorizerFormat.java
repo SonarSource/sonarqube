@@ -21,6 +21,7 @@ package org.sonar.api.web;
 
 import java.util.List;
 
+import com.google.common.base.Objects;
 import org.sonar.api.ServerExtension;
 import org.sonar.colorizer.Tokenizer;
 
@@ -68,5 +69,12 @@ public abstract class CodeColorizerFormat implements ServerExtension {
   @Override
   public int hashCode() {
     return languageKey.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+      .add("lang", languageKey)
+      .toString();
   }
 }

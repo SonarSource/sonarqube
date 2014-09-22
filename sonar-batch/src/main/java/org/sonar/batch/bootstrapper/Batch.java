@@ -21,9 +21,7 @@ package org.sonar.batch.bootstrapper;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapContainer;
-import org.sonar.batch.bootstrap.BootstrapProperties;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,14 +34,11 @@ import java.util.Map;
  */
 public final class Batch {
 
+  private boolean started = false;
   private LoggingConfiguration logging;
   private List<Object> components;
   private Map<String, String> bootstrapProperties = Maps.newHashMap();
-  /**
-   * @deprecated since 3.7
-   */
-  @Deprecated
-  private ProjectReactor projectReactor;
+  private BootstrapContainer bootstrapContainer;
 
   private Batch(Builder builder) {
     components = Lists.newArrayList();
@@ -53,13 +48,7 @@ public final class Batch {
     }
     if (builder.bootstrapProperties != null) {
       bootstrapProperties.putAll(builder.bootstrapProperties);
-    } else {
-      if (builder.projectReactor != null) {
-        // For backward compatibility, previously all properties were set in root project
-        bootstrapProperties.putAll(Maps.fromProperties(builder.projectReactor.getRoot().getProperties()));
-      }
     }
-    projectReactor = builder.projectReactor;
     if (builder.isEnableLoggingConfiguration()) {
       logging = LoggingConfiguration.create(builder.environment).setProperties(bootstrapProperties);
     }
@@ -69,10 +58,55 @@ public final class Batch {
     return logging;
   }
 
-  public Batch execute() {
+  /**
+   * @deprecated since 4.4 use {@link #start()}, {@link #executeTask(Map)} and then {@link #stop()}
+   */
+  @Deprecated
+  public synchronized Batch execute() {
     configureLogging();
-    startBatch();
+    start().executeTask(bootstrapProperties).stop();
     return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public synchronized Batch start() {
+    if (started) {
+      throw new IllegalStateException("Batch is already started");
+    }
+
+    configureLogging();
+    bootstrapContainer = BootstrapContainer.create(bootstrapProperties, components);
+    bootstrapContainer.startComponents();
+    this.started = true;
+
+    return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Batch executeTask(Map<String, String> taskProperties, Object... components) {
+    if (!started) {
+      throw new IllegalStateException("Batch is not started. Unable to execute task.");
+    }
+
+    bootstrapContainer.executeTask(taskProperties, components);
+    return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public synchronized void stop() {
+    if (!started) {
+      throw new IllegalStateException("Batch is not started.");
+    }
+
+    bootstrapContainer.stopComponents();
+
+    this.started = false;
   }
 
   private void configureLogging() {
@@ -81,42 +115,17 @@ public final class Batch {
     }
   }
 
-  private void startBatch() {
-    List<Object> all = Lists.newArrayList(components);
-    all.add(new BootstrapProperties(bootstrapProperties));
-    if (projectReactor != null) {
-      all.add(projectReactor);
-    }
-
-    BootstrapContainer bootstrapContainer = BootstrapContainer.create(all);
-    bootstrapContainer.execute();
-  }
-
   public static Builder builder() {
     return new Builder();
   }
 
   public static final class Builder {
     private Map<String, String> bootstrapProperties;
-    /**
-     * @deprecated since 3.7
-     */
-    @Deprecated
-    private ProjectReactor projectReactor;
     private EnvironmentInformation environment;
     private List<Object> components = Lists.newArrayList();
     private boolean enableLoggingConfiguration = true;
 
     private Builder() {
-    }
-
-    /**
-     * @deprecated since 3.7
-     */
-    @Deprecated
-    public Builder setProjectReactor(ProjectReactor projectReactor) {
-      this.projectReactor = projectReactor;
-      return this;
     }
 
     public Builder setEnvironment(EnvironmentInformation env) {

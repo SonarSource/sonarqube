@@ -22,11 +22,12 @@ package org.sonar.batch.index;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+
+import javax.annotation.Nullable;
 
 import java.util.List;
 
@@ -34,17 +35,14 @@ public final class DefaultPersistenceManager implements PersistenceManager {
 
   private ResourcePersister resourcePersister;
   private SourcePersister sourcePersister;
-  private MeasurePersister measurePersister;
   private DependencyPersister dependencyPersister;
   private LinkPersister linkPersister;
   private EventPersister eventPersister;
 
   public DefaultPersistenceManager(ResourcePersister resourcePersister, SourcePersister sourcePersister,
-                                   MeasurePersister measurePersister, DependencyPersister dependencyPersister,
-                                   LinkPersister linkPersister, EventPersister eventPersister) {
+    DependencyPersister dependencyPersister, LinkPersister linkPersister, EventPersister eventPersister) {
     this.resourcePersister = resourcePersister;
     this.sourcePersister = sourcePersister;
-    this.measurePersister = measurePersister;
     this.dependencyPersister = dependencyPersister;
     this.linkPersister = linkPersister;
     this.eventPersister = eventPersister;
@@ -55,19 +53,11 @@ public final class DefaultPersistenceManager implements PersistenceManager {
     sourcePersister.clear();
   }
 
-  public void setDelayedMode(boolean b) {
-    measurePersister.setDelayedMode(b);
-  }
-
-  public void dump() {
-    measurePersister.dump();
-  }
-
-  public void saveProject(Project project, Project parent) {
+  public void saveProject(Project project, @Nullable Project parent) {
     resourcePersister.saveProject(project, parent);
   }
 
-  public Snapshot saveResource(Project project, Resource resource, Resource parent) {
+  public Snapshot saveResource(Project project, Resource resource, @Nullable Resource parent) {
     if (ResourceUtils.isPersistable(resource)) {
       return resourcePersister.saveResource(project, resource, parent);
     }
@@ -80,16 +70,6 @@ public final class DefaultPersistenceManager implements PersistenceManager {
 
   public String getSource(Resource resource) {
     return sourcePersister.getSource(resource);
-  }
-
-  public void saveMeasure(Resource resource, Measure measure) {
-    if (ResourceUtils.isPersistable(resource)) {
-      measurePersister.saveMeasure(resource, measure);
-    }
-  }
-
-  public Measure reloadMeasure(Measure measure) {
-    return measurePersister.reloadMeasure(measure);
   }
 
   public void saveDependency(Project project, Dependency dependency, Dependency parentDependency) {

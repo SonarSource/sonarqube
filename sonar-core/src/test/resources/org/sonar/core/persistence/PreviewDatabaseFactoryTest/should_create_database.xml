@@ -4,8 +4,7 @@
   <metrics id="2" name="coverage" VAL_TYPE="INT" DESCRIPTION="[null]" domain="[null]" short_name=""
            enabled="[true]" worst_value="0" optimized_best_value="[true]" best_value="100" direction="1" hidden="[false]" delete_historical_data="[null]"/>
 
-  <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_name="" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_kee="" kee="sonar_way_with_findbugs"/>
 
 
   <projects id="123" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
@@ -23,9 +22,9 @@
 
   <project_measures id="1" value="10" metric_id="1" snapshot_id="1000" />
 
-  <events id="1" name="1.0-SNAPSHOT" resource_id="123" />
-  <events id="2" name="2.0-SNAPSHOT" resource_id="123" />
-  <events id="3" name="1.0-SNAPSHOT" resource_id="456" />
+  <events id="1" name="1.0-SNAPSHOT" resource_id="123" event_data="[null]"/>
+  <events id="2" name="2.0-SNAPSHOT" resource_id="123" event_data="[null]" />
+  <events id="3" name="1.0-SNAPSHOT" resource_id="456" event_data="[null]" />
 
   <users id="1" login="julien" name="Julien" crypted_password="foo" active="1" />
   <users id="2" login="simon" name="Simon" active="1" />

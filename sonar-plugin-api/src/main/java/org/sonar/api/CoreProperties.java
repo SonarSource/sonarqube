@@ -159,7 +159,7 @@ public interface CoreProperties {
   String PROJECT_DATE_PROPERTY = "sonar.projectDate";
 
   /**
-   * @deprecated since 4.2 project are now multi-language
+   * @deprecated since 4.2 projects are now multi-language
    */
   @Deprecated
   String PROJECT_LANGUAGE_PROPERTY = "sonar.language";
@@ -173,6 +173,9 @@ public interface CoreProperties {
   /* Exclusions */
   String PROJECT_INCLUSIONS_PROPERTY = "sonar.inclusions";
   String PROJECT_EXCLUSIONS_PROPERTY = "sonar.exclusions";
+
+  /* Coverage exclusions */
+  String PROJECT_COVERAGE_EXCLUSIONS_PROPERTY = "sonar.coverage.exclusions";
 
   /**
    * @since 3.3
@@ -210,9 +213,6 @@ public interface CoreProperties {
    */
   @Deprecated
   String CORE_SKIPPED_MODULES_PROPERTY = "sonar.skippedModules";
-
-  String CORE_RULE_WEIGHTS_PROPERTY = "sonar.core.rule.weight";
-  String CORE_RULE_WEIGHTS_DEFAULT_VALUE = "INFO=0;MINOR=1;MAJOR=3;CRITICAL=5;BLOCKER=10";
 
   /**
    * @since 4.0
@@ -360,10 +360,10 @@ public interface CoreProperties {
   /**
    * @since 2.11
    */
-  String CPD_CROSS_RPOJECT = "sonar.cpd.cross_project";
+  String CPD_CROSS_PROJECT = "sonar.cpd.cross_project";
 
   /**
-   * @see #CPD_CROSS_RPOJECT
+   * @see #CPD_CROSS_PROJECT
    * @since 2.11
    */
   boolean CPD_CROSS_RPOJECT_DEFAULT_VALUE = false;
@@ -523,6 +523,11 @@ public interface CoreProperties {
   String ANALYSIS_MODE_INCREMENTAL = "incremental";
 
   /**
+   * @since 4.4
+   */
+  String ANALYSIS_MODE_SENSOR = "sensor";
+
+  /**
    * @since 4.0
    */
   String PREVIEW_INCLUDE_PLUGINS = "sonar.preview.includePlugins";
@@ -578,4 +583,49 @@ public interface CoreProperties {
    * @since 4.0
    */
   String HOURS_IN_DAY = "sonar.technicalDebt.hoursInDay";
+
+  /**
+   * @since 4.5
+   */
+  String SIZE_METRIC = "sonar.technicalDebt.sizeMetric";
+
+  /**
+   * @since 4.5
+   */
+  String DEVELOPMENT_COST = "sonar.technicalDebt.developmentCost";
+
+  /**
+   * @since 4.5
+   */
+  String DEVELOPMENT_COST_DEF_VALUE = "30";
+
+  /**
+   * @since 4.5
+   */
+  String RATING_GRID = "sonar.technicalDebt.ratingGrid";
+
+  /**
+   * @since 4.5
+   */
+  String RATING_GRID_DEF_VALUES = "0.1,0.2,0.5,1";
+
+  /**
+   * @since 4.5
+   */
+  String LANGUAGE_SPECIFIC_PARAMETERS = "languageSpecificParameters";
+
+  /**
+   * @since 4.5
+   */
+  String LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY = "language";
+
+  /**
+   * @since 4.5
+   */
+  String LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY = "man_days";
+
+  /**
+   * @since 4.5
+   */
+  String LANGUAGE_SPECIFIC_PARAMETERS_SIZE_METRIC_KEY = "size_metric";
 }

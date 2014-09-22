@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>sonar</artifactId>
-    <version>4.3.1</version>
+    <version>5.0-SNAPSHOT</version>
     <relativePath>../..</relativePath>
   </parent>
   <groupId>org.codehaus.sonar.plugins</groupId>
@@ -15,16 +15,8 @@
   <dependencies>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-gwt-pages</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-core</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-deprecated</artifactId>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -37,10 +29,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-ws-client</artifactId>
-      <version>3.3.1</version>
-      <scope>provided</scope>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
     </dependency>
 
     <!-- unit tests -->
@@ -48,6 +38,10 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
     </dependency>
   </dependencies>
 

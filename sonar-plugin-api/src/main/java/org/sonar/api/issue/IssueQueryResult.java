@@ -47,11 +47,13 @@ public interface IssueQueryResult {
   /**
    * Returns the rule associated to the given issue.
    */
+  @Deprecated
   Rule rule(Issue issue);
 
   /**
    * The rules involved in the paginated {@link #issues()}.
    */
+  @Deprecated
   Collection<Rule> rules();
 
   Component component(Issue issue);
@@ -69,23 +71,27 @@ public interface IssueQueryResult {
   Collection<Component> projects();
 
   @CheckForNull
+  @Deprecated
   ActionPlan actionPlan(Issue issue);
 
   /**
    * The action plans involved in the paginated {@link #issues()}.
    */
+  @Deprecated
   Collection<ActionPlan> actionPlans();
 
   /**
    * The users involved in the paginated {@link #issues()}, for example people who added a comment, reported an issue
    * or are assigned to issues.
    */
+  @Deprecated
   Collection<User> users();
 
   /**
    * Returns the user with the given login. Users that are not returned by {@link #users()} are ignored.
    */
   @CheckForNull
+  @Deprecated
   User user(String login);
 
   /**

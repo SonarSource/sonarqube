@@ -1,0 +1,11 @@
+<% if @snapshot %>
+<div id="snapshot_title" class="page_title">
+<h4>
+<% 
+   profile_measure=@snapshot.measure(Metric::PROFILE)
+ %>
+<%= link_to_favourite(@project) -%> Version <%= @snapshot.version -%> - <%= l @snapshot.created_at %>
+<% if profile_measure %> - profile <%= link_to profile_measure.data, :controller => 'profiles', :action => 'show', :id => profile_measure.value.to_i %><% end %>
+</h4>
+</div>
+<% end %>

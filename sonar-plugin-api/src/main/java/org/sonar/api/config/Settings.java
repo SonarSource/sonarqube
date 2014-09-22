@@ -39,13 +39,49 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Project Settings on batch side, Global Settings on server side. This component does not access to database, so
- * property changed via setter methods are not persisted.
- * <p/>
+ * Project Settings on batch side, Global Settings on server side.
+ * This component does not access to database, so property changed via setter methods are not persisted.
  * <p>
- * This component replaces the deprecated org.apache.commons.configuration.Configuration
+ * For testing, you can create a new empty {@link Settings} component using {@link #Settings()} and then
+ * populate it using all variant of {@code setProperty}. <br/>
+ * If you want to test with default values of your properties taken into account there are two ways dependening on how you declare your properties.
+ * <ul>
+ * <li>If you are using annotations like:
+ * <pre>
+ * <code>{@literal @}Properties({
+ *   {@literal @}Property(
+ *     key = "sonar.myProp",
+ *     defaultValue = "A default value",
+ *     name = "My property"),
+ * })
+ * public class MyPlugin extends SonarPlugin {
+ * </code>
+ * </pre>
+ * then you can use:
+ * <pre>
+ * <code>new Settings(new PropertyDefinitions(MyPlugin.class))
+ * </code>
+ * </pre>
+ * </li>
+ * <li>If you are using the {@link PropertyDefinition#builder(String)} way like:
+ * <pre>
+ * <code>
+ * public class MyPlugin extends SonarPlugin {
+ *     public List getExtensions() {
+ *       return Arrays.asList(
+ *         PropertyDefinition.builder("sonar.myProp").name("My property").defaultValue("A default value").build()
+ *       );
+ *     }
+ *   }
+ * </code>
+ * </pre>
+ * then you can use:
+ * <pre>
+ * <code>new Settings(new PropertyDefinitions(new MyPlugin().getExtensions()))
+ * </code>
+ * </pre>
+ * </li>
  * </p>
- *
  * @since 2.12
  */
 public class Settings implements BatchComponent, ServerComponent {
@@ -331,10 +367,18 @@ public class Settings implements BatchComponent, ServerComponent {
     return this;
   }
 
+  /**
+   * @deprecated since 4.4 For embedding purpose all properties should be provided by the bootstrapper
+   */
+  @Deprecated
   public Settings addSystemProperties() {
     return addProperties(System.getProperties());
   }
 
+  /**
+   * @deprecated since 4.4 For embedding purpose all properties should be provided by the bootstrapper
+   */
+  @Deprecated
   public Settings addEnvironmentVariables() {
     return addProperties(System.getenv());
   }

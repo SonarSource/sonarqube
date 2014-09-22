@@ -27,6 +27,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -66,6 +67,21 @@ public class ServerMetadata extends Server implements BatchComponent {
         LoggerFactory.getLogger(getClass()).error("The property " + CoreProperties.SERVER_STARTTIME + " is badly formatted.", e);
       }
     }
+    return null;
+  }
+
+  @Override
+  public File getRootDir() {
+    return null;
+  }
+
+  @Override
+  public File getDeployDir() {
+    return null;
+  }
+
+  @Override
+  public String getContextPath() {
     return null;
   }
 

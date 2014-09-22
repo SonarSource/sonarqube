@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.core.persistence.SchemaMigrationMapper">
 
-  <select id="selectVersions" resultType="int">
+  <select id="selectVersions" resultType="int" >
     select * from schema_migrations
   </select>
 

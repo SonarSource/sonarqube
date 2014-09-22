@@ -60,7 +60,7 @@ public final class ByteArray {
       (byte) (value >>> 24),
       (byte) (value >>> 16),
       (byte) (value >>> 8),
-      (byte) value };
+      (byte) value};
   }
 
   public ByteArray(int value) {
@@ -68,7 +68,7 @@ public final class ByteArray {
       (byte) (value >>> 24),
       (byte) (value >>> 16),
       (byte) (value >>> 8),
-      (byte) value };
+      (byte) value};
   }
 
   public ByteArray(int[] intArray) {
@@ -77,6 +77,10 @@ public final class ByteArray {
       bb.putInt(i);
     }
     this.bytes = bb.array();
+  }
+
+  public byte[] getBytes() {
+    return bytes;
   }
 
   public int[] toIntArray() {

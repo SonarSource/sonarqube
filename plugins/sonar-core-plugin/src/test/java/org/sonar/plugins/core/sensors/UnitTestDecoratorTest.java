@@ -19,8 +19,8 @@
  */
 package org.sonar.plugins.core.sensors;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
@@ -31,13 +31,10 @@ import org.sonar.api.resources.Project;
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.Matchers.closeTo;
 import static org.mockito.Matchers.doubleThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class UnitTestDecoratorTest {
@@ -82,24 +79,10 @@ public class UnitTestDecoratorTest {
     verify(context).saveMeasure(eq(CoreMetrics.TEST_FAILURES), eq(2.0));
     verify(context).saveMeasure(eq(CoreMetrics.SKIPPED_TESTS), eq(2.0));
     verify(context).saveMeasure(eq(CoreMetrics.TEST_EXECUTION_TIME), eq(2.0));
-    verify(context).saveMeasure(eq(CoreMetrics.TEST_SUCCESS_DENSITY), doubleThat(closeTo(33.3, 0.1)));
+    verify(context).saveMeasure(eq(CoreMetrics.TEST_SUCCESS_DENSITY), doubleThat(Matchers.closeTo(33.3, 0.1)));
   }
 
   private void mockChildrenMeasures(Metric metric, double value) {
     when(context.getChildrenMeasures(metric)).thenReturn(Arrays.asList(new Measure(metric, value), new Measure(metric, value)));
   }
-
-  @Test
-  @Ignore("Hack for SONAR-5212")
-  public void doNotDecorateIfTestsMeasureAlreadyExists() {
-    Project project = mock(Project.class);
-    when(context.getMeasure(CoreMetrics.TESTS)).thenReturn(new Measure());
-
-    decorator.decorate(project, context);
-
-    assertThat(decorator.shouldDecorateResource(project, context)).isFalse();
-    verify(context, atLeastOnce()).getMeasure(CoreMetrics.TESTS);
-    verifyNoMoreInteractions(context);
-  }
-
 }

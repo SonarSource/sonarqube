@@ -25,6 +25,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.utils.Semaphores;
 
+import javax.annotation.CheckForNull;
 import java.util.Date;
 
 /**
@@ -43,18 +44,19 @@ public class SemaphoreDao {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), SEMAPHORE_NAME_MUST_NOT_BE_EMPTY);
     Preconditions.checkArgument(maxAgeInSeconds >= 0, "Semaphore max age must be positive: " + maxAgeInSeconds);
 
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
-      Date now = mapper.now();
-      SemaphoreDto semaphore = createDto(name, now, session);
+      Date dbNow = mapper.now();
+      SemaphoreDto semaphore = tryToInsert(name, dbNow, session);
+      boolean isAcquired;
       if (semaphore == null) {
         semaphore = selectSemaphore(name, session);
-        boolean isAcquired = acquireIfOutdated(name, maxAgeInSeconds, session, mapper);
-        return createLock(semaphore, session, isAcquired);
+        isAcquired = acquireIfOutdated(name, maxAgeInSeconds, session, mapper);
       } else {
-        return createLock(semaphore, session, true);
+        isAcquired = true;
       }
+      return createLock(semaphore, session, isAcquired);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -63,11 +65,11 @@ public class SemaphoreDao {
   public Semaphores.Semaphore acquire(String name) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), SEMAPHORE_NAME_MUST_NOT_BE_EMPTY);
 
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
       Date now = mapper.now();
-      SemaphoreDto semaphore = createDto(name, now, session);
+      SemaphoreDto semaphore = tryToInsert(name, now, session);
       if (semaphore == null) {
         semaphore = selectSemaphore(name, session);
         return createLock(semaphore, session, false);
@@ -82,7 +84,7 @@ public class SemaphoreDao {
   public void update(Semaphores.Semaphore semaphore) {
     Preconditions.checkArgument(semaphore != null, "Semaphore must not be null");
 
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
       mapper.update(semaphore.getName());
@@ -94,7 +96,7 @@ public class SemaphoreDao {
 
   public void release(String name) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), SEMAPHORE_NAME_MUST_NOT_BE_EMPTY);
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       session.getMapper(SemaphoreMapper.class).release(name);
       session.commit();
@@ -104,23 +106,29 @@ public class SemaphoreDao {
   }
 
   private boolean acquireIfOutdated(String name, int maxAgeInSeconds, SqlSession session, SemaphoreMapper mapper) {
-    Date updatedBefore = DateUtils.addSeconds(mapper.now(), -maxAgeInSeconds);
+    Date dbNow = mapper.now();
+    Date updatedBefore = DateUtils.addSeconds(dbNow, -maxAgeInSeconds);
     boolean ok = mapper.acquire(name, updatedBefore) == 1;
     session.commit();
     return ok;
   }
 
-  private SemaphoreDto createDto(String name, Date lockedAt, SqlSession session) {
+  /**
+   * Insert the semaphore and commit. Rollback and return null if the semaphore already exists in db (whatever
+   * the lock date)
+   */
+  @CheckForNull
+  private SemaphoreDto tryToInsert(String name, Date lockedNow, SqlSession session) {
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
       SemaphoreDto semaphore = new SemaphoreDto()
           .setName(name)
-          .setLockedAt(lockedAt);
+          .setLockedAt(lockedNow);
       mapper.initialize(semaphore);
       session.commit();
       return semaphore;
     } catch (Exception e) {
-      // probably because of the semaphore already exists
+      // probably because of the semaphore already exists in db
       session.rollback();
       return null;
     }

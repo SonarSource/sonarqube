@@ -1,0 +1,46 @@
+<table class="data" id="<%= group -%>">
+  <thead>
+  <tr>
+    <th class="name"><%= message('name') -%></th>
+    <th class="owner"><%= message('shared_by') -%></th>
+    <th class="order"><%= message('order') -%></th>
+    <th class="operations"><%= message('operations') -%></th>
+  </tr>
+  </thead>
+  <tbody>
+  <% if active_dashboards.empty? %>
+    <tr class="even">
+      <td colspan="4" class="empty"><%= message('dashboard.no_dashboard') -%></td>
+    </tr>
+  <% else %>
+    <% active_dashboards.each_with_index do |active, index| %>
+      <tr id="active-<%= u active.name -%>" class="<%= cycle('even', 'odd', :name => group) -%>">
+        <td>
+          <div><%= h(active.name(true)) -%></div>
+          <div class="description"><%= active.dashboard.description -%></div>
+        </td>
+        <td class="owner">
+          <%= h(active.dashboard.user_name || message('dashboard.username.default')) -%>
+        </td>
+        <td class="order">
+          <% if index > 0 %>
+            <%= link_to '', {:action => :up, :id => active.id}, :method => :post, :id => "up-#{u active.name}", :class => 'icon-move-up' %>
+          <% else %>
+            <%= image_tag('transparent_16.gif') %>
+          <% end %>
+          <% if index < active_dashboards.size-1 %>
+            <%= link_to '', {:action => :down, :id => active.id}, :method => :post, :id => "down-#{u active.name}", :class => 'icon-move-down' %>
+          <% else %>
+            <%= image_tag('transparent_16.gif') %>
+        <% end %>
+        </td>
+        <td class="thin nowrap operations">
+          <% if active_dashboards.size() > 1 %>
+            <%= link_to 'Remove from defaults', {:action => :remove, :id => active.id}, {:confirm => 'Are you sure to remove it from default dashboards?', :method => :post, :id => "remove-#{u active.name}", :class => 'link-action'} %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>

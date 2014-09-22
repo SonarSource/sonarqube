@@ -43,8 +43,7 @@ public class TempFolderProviderTest {
   public void createTempFolder() throws Exception {
     File workingDir = temp.newFolder();
     TempFolderProvider tempFolderProvider = new TempFolderProvider();
-    TempFolder tempFolder = tempFolderProvider.provide(new BootstrapSettings(
-      new BootstrapProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, workingDir.getAbsolutePath()))));
+    TempFolder tempFolder = tempFolderProvider.provide(new BootstrapProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, workingDir.getAbsolutePath())));
     tempFolder.newDir();
     tempFolder.newFile();
     assertThat(new File(workingDir, ".sonartmp")).exists();

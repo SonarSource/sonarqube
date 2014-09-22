@@ -29,7 +29,7 @@ import java.util.List;
 public interface IssueFilterMapper {
 
   @CheckForNull
-  IssueFilterDto selectById(Long id);
+  IssueFilterDto selectById(long id);
 
   List<IssueFilterDto> selectByUser(String user);
 
@@ -41,5 +41,5 @@ public interface IssueFilterMapper {
 
   void update(IssueFilterDto filter);
 
-  void delete(Long id);
+  void delete(long id);
 }

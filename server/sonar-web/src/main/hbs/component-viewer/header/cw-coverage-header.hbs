@@ -1,0 +1,160 @@
+{{#if state.hasSource}}
+  <div class="component-viewer-header-time-changes">
+    <a class="js-coverage-time-changes">
+      {{#if period}}Δ {{period.label}}{{else}}<i class="icon-period"></i> {{t 'component_viewer.time_changes'}}{{/if}}
+    </a>
+  </div>
+{{/if}}
+
+{{#with component.measures}}
+  {{#any coverage line_coverage lines_to_cover covered_lines uncovered_lines branch_coverage conditions_to_cover 
+         covered_conditions uncovered_conditions it_coverage it_line_coverage it_lines_to_cover it_covered_lines 
+         it_uncovered_lines it_branch_coverage it_conditions_to_cover it_covered_conditions it_uncovered_conditions
+         overall_coverage overall_line_coverage overall_lines_to_cover overall_covered_lines overall_uncovered_lines
+         overall_branch_coverage overall_conditions_to_cover overall_covered_conditions overall_uncovered_conditions}}
+  {{else}}
+    <div class="component-viewer-header-expanded-bar-section">
+      <div class="component-viewer-header-expanded-bar-section-title">
+        {{t 'component_viewer.no_coverage'}}
+      </div>
+    </div>
+  {{/any}}
+
+  <span class="nowrap">
+    {{#any overall_coverage overall_line_coverage overall_lines_to_cover overall_covered_lines overall_uncovered_lines}}
+      <div class="component-viewer-header-expanded-bar-section">
+        <div class="component-viewer-header-expanded-bar-section-title">
+          {{t 'component_viewer.measure_section.overall'}}
+        </div>
+        <ul class="component-viewer-header-expanded-bar-section-list">
+          {{{componentViewerHeaderItem overall_coverage 'overall_coverage'}}}
+          {{{componentViewerHeaderItem overall_line_coverage 'overall_line_coverage'}}}
+          {{#if ../../state.hasSource}}
+            {{{componentViewerHeaderLink overall_lines_to_cover 'overall_lines_to_cover' 'js-filter-lines-to-cover-overall'}}}
+            {{{componentViewerHeaderLink overall_uncovered_lines 'overall_uncovered_lines' 'js-filter-uncovered-lines-overall'}}}
+          {{else}}
+            {{{componentViewerHeaderItem overall_lines_to_cover 'overall_lines_to_cover'}}}
+            {{{componentViewerHeaderItem overall_uncovered_lines 'overall_uncovered_lines'}}}
+          {{/if}}
+        </ul>
+      </div>
+    {{/any}}
+
+    {{#any overall_branch_coverage overall_conditions_to_cover overall_covered_conditions overall_uncovered_conditions}}
+      <div class="component-viewer-header-expanded-bar-section">
+        <div class="component-viewer-header-expanded-bar-section-title">
+          {{#any overall_coverage overall_line_coverage overall_lines_to_cover overall_covered_lines overall_uncovered_lines}}
+            &nbsp;
+          {{else}}
+            {{t 'component_viewer.measure_section.overall'}}
+          {{/any}}
+        </div>
+        <ul class="component-viewer-header-expanded-bar-section-list">
+          {{#any overall_coverage overall_line_coverage overall_lines_to_cover overall_covered_lines overall_uncovered_lines}}
+            <li><span class="item">&nbsp;</span></li>
+          {{/any}}
+          {{{componentViewerHeaderItem overall_branch_coverage 'overall_branch_coverage'}}}
+          {{#if ../../state.hasSource}}
+            {{{componentViewerHeaderLink overall_conditions_to_cover 'overall_conditions_to_cover' 'js-filter-branches-to-cover-overall'}}}
+            {{{componentViewerHeaderLink overall_uncovered_conditions 'overall_uncovered_conditions' 'js-filter-uncovered-branches-overall'}}}
+          {{else}}
+            {{{componentViewerHeaderItem overall_conditions_to_cover 'overall_conditions_to_cover'}}}
+            {{{componentViewerHeaderItem overall_uncovered_conditions 'overall_uncovered_conditions'}}}
+          {{/if}}
+        </ul>
+      </div>
+    {{/any}}
+  </span>
+
+  <span class="nowrap">
+    {{#any coverage line_coverage lines_to_cover covered_lines uncovered_lines}}
+      <div class="component-viewer-header-expanded-bar-section">
+        <div class="component-viewer-header-expanded-bar-section-title">
+          {{t 'component_viewer.measure_section.unit_tests'}}
+        </div>
+        <ul class="component-viewer-header-expanded-bar-section-list">
+          {{{componentViewerHeaderItem coverage 'coverage'}}}
+          {{{componentViewerHeaderItem line_coverage 'line_coverage'}}}
+          {{#if ../../state.hasSource}}
+            {{{componentViewerHeaderLink lines_to_cover 'lines_to_cover' 'js-filter-lines-to-cover'}}}
+            {{{componentViewerHeaderLink uncovered_lines 'uncovered_lines' 'js-filter-uncovered-lines'}}}
+          {{else}}
+            {{{componentViewerHeaderItem lines_to_cover 'lines_to_cover'}}}
+            {{{componentViewerHeaderItem uncovered_lines 'uncovered_lines'}}}
+          {{/if}}
+        </ul>
+      </div>
+    {{/any}}
+
+    {{#any branch_coverage conditions_to_cover covered_conditions uncovered_conditions}}
+      <div class="component-viewer-header-expanded-bar-section">
+        <div class="component-viewer-header-expanded-bar-section-title">
+          {{#any coverage line_coverage lines_to_cover covered_lines uncovered_lines}}
+            &nbsp;
+          {{else}}
+            {{t 'component_viewer.measure_section.unit_tests'}}
+          {{/any}}
+        </div>
+        <ul class="component-viewer-header-expanded-bar-section-list">
+          {{#any coverage line_coverage lines_to_cover covered_lines uncovered_lines}}
+            <li><span class="item">&nbsp;</span></li>
+          {{/any}}
+          {{{componentViewerHeaderItem branch_coverage 'branch_coverage'}}}
+          {{#if ../../state.hasSource}}
+            {{{componentViewerHeaderLink conditions_to_cover 'conditions_to_cover' 'js-filter-branches-to-cover'}}}
+            {{{componentViewerHeaderLink uncovered_conditions 'uncovered_conditions' 'js-filter-uncovered-branches'}}}
+          {{else}}
+            {{{componentViewerHeaderItem conditions_to_cover 'conditions_to_cover'}}}
+            {{{componentViewerHeaderItem uncovered_conditions 'uncovered_conditions'}}}
+          {{/if}}
+        </ul>
+      </div>
+    {{/any}}
+  </span>
+
+  <span class="nowrap">
+    {{#any it_coverage it_line_coverage it_lines_to_cover it_covered_lines it_uncovered_lines}}
+      <div class="component-viewer-header-expanded-bar-section">
+        <div class="component-viewer-header-expanded-bar-section-title">
+          {{t 'component_viewer.measure_section.integration_tests'}}
+        </div>
+        <ul class="component-viewer-header-expanded-bar-section-list">
+          {{{componentViewerHeaderItem it_coverage 'it_coverage'}}}
+          {{{componentViewerHeaderItem it_line_coverage 'it_line_coverage'}}}
+          {{#if ../../state.hasSource}}
+            {{{componentViewerHeaderLink it_lines_to_cover 'it_lines_to_cover' 'js-filter-lines-to-cover-it'}}}
+            {{{componentViewerHeaderLink it_uncovered_lines 'it_uncovered_lines' 'js-filter-uncovered-lines-it'}}}
+          {{else}}
+            {{{componentViewerHeaderItem it_lines_to_cover 'it_lines_to_cover'}}}
+            {{{componentViewerHeaderItem it_uncovered_lines 'it_uncovered_lines'}}}
+          {{/if}}
+        </ul>
+      </div>
+    {{/any}}
+
+    {{#any it_branch_coverage it_conditions_to_cover it_covered_conditions it_uncovered_conditions}}
+      <div class="component-viewer-header-expanded-bar-section">
+        <div class="component-viewer-header-expanded-bar-section-title">
+          {{#any it_coverage it_line_coverage it_lines_to_cover it_covered_lines it_uncovered_lines}}
+            &nbsp;
+          {{else}}
+            {{t 'component_viewer.measure_section.integration_tests'}}
+          {{/any}}
+        </div>
+        <ul class="component-viewer-header-expanded-bar-section-list">
+          {{#any it_coverage it_line_coverage it_lines_to_cover it_covered_lines it_uncovered_lines}}
+              <li><span class="item">&nbsp;</span></li>
+          {{/any}}
+          {{{componentViewerHeaderItem it_branch_coverage 'it_branch_coverage'}}}
+          {{#if ../../state.hasSource}}
+            {{{componentViewerHeaderLink it_conditions_to_cover 'it_conditions_to_cover' 'js-filter-branches-to-cover-it'}}}
+            {{{componentViewerHeaderLink it_uncovered_conditions 'it_uncovered_conditions' 'js-filter-uncovered-branches-it'}}}
+          {{else}}
+            {{{componentViewerHeaderItem it_conditions_to_cover 'it_conditions_to_cover'}}}
+            {{{componentViewerHeaderItem it_uncovered_conditions 'it_uncovered_conditions'}}}
+          {{/if}}
+        </ul>
+      </div>
+    {{/any}}
+  </span>
+{{/with}}

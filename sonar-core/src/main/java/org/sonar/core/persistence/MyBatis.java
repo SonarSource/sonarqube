@@ -30,10 +30,15 @@ import org.apache.ibatis.type.JdbcType;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
+import org.sonar.core.activity.db.ActivityDto;
+import org.sonar.core.activity.db.ActivityMapper;
+import org.sonar.core.cluster.WorkQueue;
+import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.component.db.ComponentMapper;
+import org.sonar.core.component.db.SnapshotMapper;
 import org.sonar.core.config.Logback;
 import org.sonar.core.dashboard.*;
 import org.sonar.core.dependency.DependencyDto;
@@ -45,13 +50,11 @@ import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.core.graph.jdbc.GraphDto;
 import org.sonar.core.graph.jdbc.GraphDtoMapper;
 import org.sonar.core.issue.db.*;
-import org.sonar.core.measure.db.MeasureDataDto;
-import org.sonar.core.measure.db.MeasureDataMapper;
-import org.sonar.core.measure.db.MeasureFilterDto;
-import org.sonar.core.measure.db.MeasureFilterMapper;
+import org.sonar.core.measure.db.*;
 import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.notification.db.NotificationQueueMapper;
 import org.sonar.core.permission.*;
+import org.sonar.core.persistence.migration.v44.Migration44Mapper;
 import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
@@ -59,14 +62,15 @@ import org.sonar.core.purge.PurgeableSnapshotDto;
 import org.sonar.core.qualitygate.db.*;
 import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.resource.*;
-import org.sonar.core.rule.*;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleMapper;
+import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.source.db.SnapshotDataDto;
 import org.sonar.core.source.db.SnapshotDataMapper;
 import org.sonar.core.source.db.SnapshotSourceMapper;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.core.technicaldebt.db.CharacteristicMapper;
-import org.sonar.core.technicaldebt.db.RequirementDto;
-import org.sonar.core.technicaldebt.db.RequirementMapper;
+import org.sonar.core.technicaldebt.db.RequirementMigrationDto;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.core.template.LoadedTemplateMapper;
 import org.sonar.core.user.*;
@@ -79,9 +83,13 @@ public class MyBatis implements BatchComponent, ServerComponent {
   private final Logback logback;
   private SqlSessionFactory sessionFactory;
 
-  public MyBatis(Database database, Logback logback) {
+  // TODO this queue should directly be an IndexQueue. Pending move of persistence to sonar-server
+  private WorkQueue queue;
+
+  public MyBatis(Database database, Logback logback, WorkQueue queue) {
     this.database = database;
     this.logback = logback;
+    this.queue = queue;
   }
 
   public MyBatis start() {
@@ -99,6 +107,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "ActiveDashboard", ActiveDashboardDto.class);
     loadAlias(conf, "Author", AuthorDto.class);
     loadAlias(conf, "Component", ComponentDto.class);
+    loadAlias(conf, "AuthorizedComponent", AuthorizedComponentDto.class);
     loadAlias(conf, "Dashboard", DashboardDto.class);
     loadAlias(conf, "Dependency", DependencyDto.class);
     loadAlias(conf, "DuplicationUnit", DuplicationUnitDto.class);
@@ -119,8 +128,6 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "ResourceSnapshot", ResourceSnapshotDto.class);
     loadAlias(conf, "Rule", RuleDto.class);
     loadAlias(conf, "RuleParam", RuleParamDto.class);
-    loadAlias(conf, "RuleTag", RuleTagDto.class);
-    loadAlias(conf, "RuleRuleTag", RuleRuleTagDto.class);
     loadAlias(conf, "Snapshot", SnapshotDto.class);
     loadAlias(conf, "Semaphore", SemaphoreDto.class);
     loadAlias(conf, "SchemaMigration", SchemaMigrationDto.class);
@@ -129,8 +136,10 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Widget", WidgetDto.class);
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
     loadAlias(conf, "MeasureModel", MeasureModel.class);
-    loadAlias(conf, "MeasureData", MeasureDataDto.class);
+    loadAlias(conf, "Measure", MeasureDto.class);
+    loadAlias(conf, "Metric", MetricDto.class);
     loadAlias(conf, "Issue", IssueDto.class);
+    loadAlias(conf, "IssueAuthorization", IssueAuthorizationDto.class);
     loadAlias(conf, "IssueChange", IssueChangeDto.class);
     loadAlias(conf, "IssueFilter", IssueFilterDto.class);
     loadAlias(conf, "IssueFilterFavourite", IssueFilterFavouriteDto.class);
@@ -146,7 +155,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "QualityProfile", QualityProfileDto.class);
     loadAlias(conf, "ActiveRule", ActiveRuleDto.class);
     loadAlias(conf, "ActiveRuleParam", ActiveRuleParamDto.class);
-    loadAlias(conf, "Requirement", RequirementDto.class);
+    loadAlias(conf, "RequirementMigration", RequirementMigrationDto.class);
+    loadAlias(conf, "Activity", ActivityDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
@@ -154,17 +164,17 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, ResourceMapper.class);
 
     loadMapper(conf, "org.sonar.core.permission.PermissionMapper");
-    Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
+    Class<?>[] mappers = {ActivityMapper.class, ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
-      IssueMapper.class, IssueStatsMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
-      LoadedTemplateMapper.class, MeasureFilterMapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
+      IssueMapper.class, IssueAuthorizationMapper.class, IssueStatsMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
+      LoadedTemplateMapper.class, MeasureFilterMapper.class, Migration44Mapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class,
-      SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
-      MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
-      NotificationQueueMapper.class, CharacteristicMapper.class, RuleTagMapper.class,
+      SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, GroupMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
+      org.sonar.api.database.model.MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
+      NotificationQueueMapper.class, CharacteristicMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
-      MeasureDataMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, ProjectQgateAssociationMapper.class,
-      RequirementMapper.class
+      MeasureMapper.class, MetricMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
+      ProjectQgateAssociationMapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);
@@ -177,13 +187,32 @@ public class MyBatis implements BatchComponent, ServerComponent {
     return sessionFactory;
   }
 
+  /**
+   * @deprecated since 4.4. Replaced by <code>openSession(false)</code>.
+   */
+  @Deprecated
   public SqlSession openSession() {
-    return sessionFactory.openSession(ExecutorType.REUSE);
+    return openSession(false);
   }
 
+  /**
+   * @deprecated since 4.4. Replaced by <code>openSession(true)</code>.
+   */
+  @Deprecated
   public BatchSession openBatchSession() {
-    SqlSession session = sessionFactory.openSession(ExecutorType.BATCH);
-    return new BatchSession(session);
+    return (BatchSession) openSession(true);
+  }
+
+  /**
+   * @since 4.4
+   */
+  public DbSession openSession(boolean batch) {
+    if (batch) {
+      SqlSession session = sessionFactory.openSession(ExecutorType.BATCH);
+      return new BatchSession(queue, session);
+    }
+    SqlSession session = sessionFactory.openSession(ExecutorType.REUSE);
+    return new DbSession(queue, session);
   }
 
   public static void closeQuietly(SqlSession session) {

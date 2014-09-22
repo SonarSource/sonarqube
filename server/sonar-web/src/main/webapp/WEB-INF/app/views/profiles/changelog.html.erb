@@ -1,0 +1,75 @@
+<div class="page">
+<%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'changelog'} %>
+
+<div class="tabs-panel marginbottom10">
+  <form class="marginbottom10" method="get" action="<%= ApplicationController.root_context %>/profiles/changelog">
+    <input name="key" type="hidden" value="<%= @profile.key() %>"/>
+    <%= message('quality_profiles.changelog_from') -%>
+    <input name="since" type="text" value="<%= params['since'] %>" placeholder="1970-01-31"/>
+    <%= message('to').downcase -%>
+    <input name="to" type="text" value="<%= params['to'] %>" placeholder="1970-01-31"/>
+    <input type="submit" value="<%= h message('search_verb') -%>" id="submit"/>
+  </form>
+
+  <% if @changes.empty? %>
+    <%= message('quality_profiles.changelog.empty') -%>
+  <% else %>
+
+    <table id="profile-changelog" class="data width100">
+      <thead>
+        <tr>
+          <th><%= message('date') -%></th>
+          <th><%= message('user') -%></th>
+          <th><%= message('action') -%></th>
+          <th><%= message('rule') -%></th>
+          <th><%= message('parameters') -%></th>
+        </tr>
+      </thead>
+      <tbody>
+        <%
+          @changes.each do |change|
+        %>
+        <tr class="<%= cycle('even', 'odd') -%>">
+          <%
+             action = change.action()
+             action_message = message('quality_profiles.changelog.' + action.downcase) if action
+
+             if change.authorName() && !change.authorName().empty?()
+               author = change.authorName()
+             elsif change.login() && !change.login().empty?()
+               author = change.login()
+             else
+               author = 'System'
+             end
+             rule = change.ruleName() ? change.ruleName() : change.ruleKey()
+          %>
+          <td valign="top" width="1%" nowrap><%= Internal.i18n.formatDateTime(change.time()) -%></td>
+          <td valign="top" width="1%" nowrap><%= author %></td>
+          <td valign="top" width="1%" nowrap><%= action_message %></td>
+          <td valign="top"><%= rule %></td>
+          <td valign="top">
+            <% if change.severity() %>
+              <%= message('quality_profiles.severity_set_to_x', :params => ["<i class=\"icon-severity-#{change.severity().downcase}\"></i>", change.severity()]) -%>
+              <br/>
+            <% end %>
+            <% change.parameters().each do |param_key, param_value| %>
+              <% unless param_value.empty? %>
+                <%= message('quality_profiles.parameter_set_to_x', :params => [param_key, param_value]) -%>
+              <% else %>
+                <%= message('quality_profiles.changelog.parameter_reset_to_default_value_x', :params => [param_key]) -%>
+              <% end %>
+              <br/>
+            <% end %>
+          </td>
+        </tr>
+        <% end %>
+      </tbody>
+      <%= paginate_java(@paging, :colspan => 5, :include_loading_icon => true) { |label, page_id|
+        link_to(label, params.merge({:p => page_id}), :style => 'text-decoration:underline')
+      }
+      %>
+    </table>
+
+  <% end %>
+</div>
+</div>

@@ -22,7 +22,7 @@ package org.sonar.core.purge;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
 public class PurgeableSnapshotDtoTest {

@@ -19,6 +19,7 @@
  */
 package org.sonar.markdown;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.channel.ChannelDispatcher;
 import org.sonar.channel.CodeReader;
 
@@ -31,10 +32,13 @@ public final class Markdown {
 
   private Markdown() {
     dispatcher = ChannelDispatcher.builder()
+      .addChannel(new HtmlLinkChannel())
       .addChannel(new HtmlUrlChannel())
       .addChannel(new HtmlEndOfLineChannel())
       .addChannel(new HtmlEmphasisChannel())
       .addChannel(new HtmlListChannel())
+      .addChannel(new HtmlBlockquoteChannel())
+      .addChannel(new HtmlHeadingChannel())
       .addChannel(new HtmlCodeChannel())
       .addChannel(new HtmlMultilineCodeChannel())
       .addChannel(new IdentifierAndNumberChannel())
@@ -50,6 +54,6 @@ public final class Markdown {
   }
 
   public static String convertToHtml(String input) {
-    return new Markdown().convert(input);
+    return new Markdown().convert(StringEscapeUtils.escapeHtml(input));
   }
 }

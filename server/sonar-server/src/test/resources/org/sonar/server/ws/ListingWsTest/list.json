@@ -1,0 +1,84 @@
+{"webServices": [
+  {
+    "path": "api/metric",
+    "since": "3.2",
+    "description": "Metrics",
+    "actions": [
+      {
+        "key": "create",
+        "description": "Create metric",
+        "since": "4.1",
+        "internal": false,
+        "post": true,
+        "hasResponseExample": true,
+        "params": [
+          {
+            "key": "name",
+            "required": false
+          },
+          {
+            "key": "severity",
+            "description": "Severity",
+            "required": true,
+            "defaultValue": "BLOCKER",
+            "exampleValue": "INFO",
+            "possibleValues": ["BLOCKER", "INFO"]
+          }
+        ]
+      },
+      {
+        "key": "show",
+        "since": "3.2",
+        "internal": false,
+        "post": false,
+        "hasResponseExample": false
+      }
+    ]
+  },
+  {
+    "path": "api/webservices",
+    "description": "List web services",
+    "since": "4.2",
+    "actions": [
+      {
+        "key": "list",
+        "since": "4.2",
+        "description": "List web services",
+        "internal": false,
+        "post": false,
+        "hasResponseExample": false,
+        "params": [
+          {
+            "key": "include_internals",
+            "description": "Include web services that are implemented for internal use only. Their forward-compatibility is not assured",
+            "required": false,
+            "defaultValue": "false",
+            "possibleValues": ["true", "false"]
+          }
+        ]
+      },
+      {
+        "key": "response_example",
+        "since": "4.4",
+        "description": "Display web service response example",
+        "internal": false,
+        "post": false,
+        "hasResponseExample": false,
+        "params": [
+          {
+            "key": "action",
+            "required": true,
+            "description": "Action of the web service",
+            "exampleValue": "search"
+          },
+          {
+            "key": "controller",
+            "required": true,
+            "description": "Controller of the web service",
+            "exampleValue": "api/issues"
+          }
+        ]
+      }
+    ]
+  }
+]}

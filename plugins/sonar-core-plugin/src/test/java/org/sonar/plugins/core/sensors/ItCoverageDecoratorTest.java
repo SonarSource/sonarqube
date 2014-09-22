@@ -57,18 +57,6 @@ public class ItCoverageDecoratorTest {
   }
 
   @Test
-  public void noCoverageWhenStaticAnalysis() {
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.STATIC);
-    assertThat(new CoverageDecorator().shouldExecuteOnProject(project)).isFalse();
-
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.REUSE_REPORTS);
-    assertThat(new CoverageDecorator().shouldExecuteOnProject(project)).isTrue();
-
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
-    assertThat(new CoverageDecorator().shouldExecuteOnProject(project)).isTrue();
-  }
-
-  @Test
   public void coverage() {
     DecoratorContext context = mockContext(50, 40, 10, 8);
 

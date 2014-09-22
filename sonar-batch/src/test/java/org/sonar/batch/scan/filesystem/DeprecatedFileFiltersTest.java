@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.scan.filesystem.FileSystemFilter;
 import org.sonar.api.scan.filesystem.FileType;
 
@@ -34,7 +34,9 @@ import java.io.File;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeprecatedFileFiltersTest {
 
@@ -47,7 +49,7 @@ public class DeprecatedFileFiltersTest {
   public void no_filters() throws Exception {
     DeprecatedFileFilters filters = new DeprecatedFileFilters();
 
-    InputFile inputFile = new DefaultInputFile("src/main/java/Foo.java").setFile(temp.newFile());
+    InputFile inputFile = new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java").setFile(temp.newFile());
     assertThat(filters.accept(inputFile)).isTrue();
   }
 
@@ -57,11 +59,11 @@ public class DeprecatedFileFiltersTest {
 
     File basedir = temp.newFolder();
     File file = temp.newFile();
-    InputFile inputFile = new DefaultInputFile("src/main/java/Foo.java")
-      .setFile(file)
-      .setType(InputFile.Type.MAIN)
+    InputFile inputFile = new DeprecatedDefaultInputFile("foo", "src/main/java/Foo.java")
       .setSourceDirAbsolutePath(new File(basedir, "src/main/java").getAbsolutePath())
-      .setPathRelativeToSourceDir("Foo.java");
+      .setPathRelativeToSourceDir("Foo.java")
+      .setFile(file)
+      .setType(InputFile.Type.MAIN);
     when(filter.accept(eq(file), any(DeprecatedFileFilters.DeprecatedContext.class))).thenReturn(false);
 
     assertThat(filters.accept(inputFile)).isFalse();

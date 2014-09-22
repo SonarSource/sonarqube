@@ -25,13 +25,16 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DaoComponent;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
-public class PropertiesDao implements BatchComponent, ServerComponent {
+public class PropertiesDao implements BatchComponent, ServerComponent, DaoComponent {
 
   private static final String NOTIFICATION_PREFIX = "notification.";
   private MyBatis mybatis;
@@ -50,7 +53,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
    * @return the list of logins (maybe be empty - obviously)
    */
   public List<String> findUsersForNotification(String notificationDispatcherKey, String notificationChannelKey, @Nullable Long resourceId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
       return mapper.findUsersForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, resourceId);
@@ -60,7 +63,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
   }
 
   public List<String> findNotificationSubscribers(String notificationDispatcherKey, String notificationChannelKey, @Nullable String componentKey) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
       return mapper.findNotificationSubscribers(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, componentKey);
@@ -70,17 +73,20 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
   }
 
   public List<PropertyDto> selectGlobalProperties() {
-    SqlSession session = mybatis.openSession();
-    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    SqlSession session = mybatis.openSession(false);
     try {
-      return mapper.selectGlobalProperties();
+      return selectGlobalProperties(session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
+  public List<PropertyDto> selectGlobalProperties(SqlSession session) {
+    return session.getMapper(PropertiesMapper.class).selectGlobalProperties();
+  }
+
   public PropertyDto selectGlobalProperty(String propertyKey) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
       return mapper.selectByKey(new PropertyDto().setKey(propertyKey));
@@ -89,24 +95,31 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     }
   }
 
+  public List<PropertyDto> selectProjectProperties(String resourceKey, SqlSession session) {
+    return session.getMapper(PropertiesMapper.class).selectProjectProperties(resourceKey);
+  }
+
   public List<PropertyDto> selectProjectProperties(String resourceKey) {
-    SqlSession session = mybatis.openSession();
-    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    SqlSession session = mybatis.openSession(false);
     try {
-      return mapper.selectProjectProperties(resourceKey);
+      return selectProjectProperties(resourceKey, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   public PropertyDto selectProjectProperty(long resourceId, String propertyKey) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
       return mapper.selectByKey(new PropertyDto().setKey(propertyKey).setResourceId(resourceId));
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public List<PropertyDto> selectByQuery(PropertyQuery query, DbSession session) {
+    return session.getMapper(PropertiesMapper.class).selectByQuery(query);
   }
 
   public void setProperty(PropertyDto property, SqlSession session) {
@@ -121,7 +134,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
   }
 
   public void setProperty(PropertyDto property) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       setProperty(property, session);
       session.commit();
@@ -131,7 +144,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
   }
 
   public void deleteProjectProperty(String key, Long projectId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       deleteProjectProperty(key, projectId, session);
       session.commit();
@@ -151,7 +164,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
   }
 
   public void deleteProjectProperties(String key, String value) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       deleteProjectProperties(key, value, session);
       session.commit();
@@ -161,7 +174,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
   }
 
   public void deleteGlobalProperties() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
       mapper.deleteGlobalProperties();
@@ -178,7 +191,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
   }
 
   public void deleteGlobalProperty(String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       deleteGlobalProperty(key, session);
       session.commit();
@@ -188,7 +201,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
   }
 
   public void deleteAllProperties(String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
       mapper.deleteAllProperties(key);
@@ -200,7 +213,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
   }
 
   public void saveGlobalProperties(Map<String, String> properties) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
       for (Map.Entry<String, String> entry : properties.entrySet()) {
@@ -221,7 +234,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(newKey), "New property key must not be empty");
 
     if (!newKey.equals(oldKey)) {
-      SqlSession session = mybatis.openSession();
+      SqlSession session = mybatis.openSession(false);
       PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
       try {
         mapper.renamePropertyKey(oldKey, newKey);
@@ -237,7 +250,7 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
    * Update all properties (global and projects ones) with a given key and value to a new value
    */
   public void updateProperties(String key, String oldValue, String newValue) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       updateProperties(key, oldValue, newValue, session);
       session.commit();

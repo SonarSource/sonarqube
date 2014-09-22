@@ -1,0 +1,109 @@
+{
+  "canWrite": false,
+  "qualityprofiles": [
+    {
+      "key": "xoo-sonar-way",
+      "name": "Sonar way",
+      "lang": "xoo"
+    },
+    {
+      "key": "xoo-empty",
+      "name": "Empty",
+      "lang": "xoo"
+    },
+    {
+      "key": "java-sonar-way",
+      "name": "Sonar way",
+      "lang": "java"
+    },
+    {
+      "key": "coffee-sonar-way",
+      "name": "Sonar way",
+      "lang": "coffee"
+    },
+    {
+      "key": "java-sonar-way-with-findbugs",
+      "name": "Sonar way with Findbugs",
+      "lang": "java",
+      "parentKey": "java-sonar-way"
+    }
+  ],
+  "languages": {
+    "xoo": "Xoo",
+    "java": "Java",
+    "coffee": "CoffeeScript"
+  },
+  "repositories": [
+    {
+      "key": "squid",
+      "name": "SonarQube",
+      "language": "java"
+    },
+    {
+      "key": "squid-xoo",
+      "name": "SonarQube",
+      "language": "xoo"
+    },
+    {
+      "key": "squid-coffee",
+      "name": "SonarQube",
+      "language": "coffee"
+    },
+    {
+      "key": "common-coffee",
+      "name": "Common SonarQube",
+      "language": "coffee"
+    },
+    {
+      "key": "common-java",
+      "name": "Common SonarQube",
+      "language": "java"
+    }
+  ],
+  "statuses": {
+    "BETA": "Beta",
+    "DEPRECATED": "Deprecated",
+    "READY": "Ready"
+  },
+  "characteristics": {
+    "UNDERSTANDABILITY": "Maintainability: Understandability",
+    "MAINTAINABILITY": "Maintainability",
+    "TIME_ZONE_RELATED_PORTABILITY": "Portability: Time zone related portability",
+    "READABILITY": "Maintainability: Readability",
+    "SECURITY_FEATURES": "Security: Security features",
+    "ARCHITECTURE_RELIABILITY": "Reliability: Architecture related reliability",
+    "OS_RELATED_PORTABILITY": "Portability: OS related portability",
+    "EXCEPTION_HANDLING": "Reliability: Exception handling",
+    "LOGIC_CHANGEABILITY": "Changeability: Logic related changeability",
+    "SOFTWARE_RELATED_PORTABILITY": "Portability: Software related portability",
+    "INPUT_VALIDATION_AND_REPRESENTATION": "Security: Input validation and representation",
+    "LANGUAGE_RELATED_PORTABILITY": "Portability: Language related portability",
+    "ERRORS": "Security: Errors",
+    "SECURITY": "Security",
+    "RELIABILITY": "Reliability",
+    "PORTABILITY": "Portability",
+    "HARDWARE_RELATED_PORTABILITY": "Portability: Hardware related portability",
+    "SYNCHRONIZATION_RELIABILITY": "Reliability: Synchronization related reliability",
+    "TRANSPORTABILITY": "Reusability: Transportability",
+    "COMPILER_RELATED_PORTABILITY": "Portability: Compiler related portability",
+    "RESOURCE_RELIABILITY": "Reliability: Resource",
+    "CPU_EFFICIENCY": "Efficiency: Processor use",
+    "EFFICIENCY": "Efficiency",
+    "CHANGEABILITY": "Changeability",
+    "DATA_CHANGEABILITY": "Changeability: Data related changeability",
+    "API_ABUSE": "Security: API abuse",
+    "ARCHITECTURE_CHANGEABILITY": "Changeability: Architecture related changeability",
+    "UNIT_TESTS": "Reliability: Unit tests",
+    "INSTRUCTION_RELIABILITY": "Reliability: Instruction related reliability",
+    "REUSABILITY": "Reusability",
+    "MODULARITY": "Reusability: Modularity",
+    "UNIT_TESTABILITY": "Testability: Unit level testability",
+    "TESTABILITY": "Testability",
+    "INTEGRATION_TESTABILITY": "Testability: Integration level testability",
+    "NETWORK_USE": "Efficiency: Network use",
+    "MEMORY_EFFICIENCY": "Efficiency: Memory use",
+    "DATA_RELIABILITY": "Reliability: Data related reliability",
+    "FAULT_TOLERANCE": "Reliability: Fault tolerance",
+    "LOGIC_RELIABILITY": "Reliability: Logic related reliability"
+  }
+}

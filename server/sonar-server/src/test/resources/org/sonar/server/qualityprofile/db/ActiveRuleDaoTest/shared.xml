@@ -1,0 +1,26 @@
+<dataset>
+    <rules tags="[null]" system_tags="[null]" id="10" plugin_rule_key="Parent1" plugin_name="checkstyle" name="Parent Rule 1" description="Parent Rule 1" status="READY"
+           plugin_config_key="Parent1" priority="2" is_template="[false]" language="golo" created_at="1981-10-24 15:20:00" />
+
+    <rules tags="[null]" system_tags="[null]" id="11" plugin_rule_key="Parent2" plugin_name="checkstyle" name="Parent Rule 2" description="Parent Rule 2" status="READY"
+           plugin_config_key="Parent1" priority="2" is_template="[false]" language="golo" created_at="1981-10-24 15:20:00" />
+
+    <active_rules created_at="[null]" updated_at="[null]" id="1" profile_id="1" rule_id="10" failure_level="2" inheritance="INHERITED"/>
+
+  <!-- Parent of Active rule 1 -->
+  <active_rules created_at="[null]" updated_at="[null]" id="2" profile_id="2" rule_id="10" failure_level="0" inheritance="[null]"/>
+
+  <active_rules created_at="[null]" updated_at="[null]" id="3" profile_id="2" rule_id="11" failure_level="1" inheritance="[null]"/>
+
+  <active_rule_parameters id="1" active_rule_id="1" rules_parameter_id="1" rules_parameter_key="max" value="20"/>
+  <active_rule_parameters id="2" active_rule_id="1" rules_parameter_id="2" rules_parameter_key="format" value="html"/>
+
+  <active_rule_parameters id="3" active_rule_id="2" rules_parameter_id="1" rules_parameter_key="max" value="15"/>
+
+  <rules_profiles id="1" name="Child" language="java" parent_name="Parent" version="1"
+                  used_profile="[false]"/>
+
+  <rules_profiles id="2" name="Parent" language="java" parent_name="[null]" version="1"
+                  used_profile="[false]"/>
+
+</dataset>

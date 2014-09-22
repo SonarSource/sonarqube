@@ -1,0 +1,27 @@
+{
+  "rule": {
+    "debtChar": "API",
+    "debtCharName": "Api",
+    "debtSubChar": "API_ABUSE",
+    "debtSubCharName": "API Abuse",
+    "debtRemFnType": "LINEAR_OFFSET",
+    "debtRemFnCoeff": "5d",
+    "debtRemFnOffset": "10h",
+    "defaultDebtChar": "API",
+    "defaultDebtSubChar": "API_ABUSE",
+    "defaultDebtRemFnType": "LINEAR_OFFSET",
+    "defaultDebtRemFnCoeff": "5d",
+    "defaultDebtRemFnOffset": "10h",
+    "debtOverloaded": false,
+    "effortToFixDescription": "java.S001.effortToFix",
+    "htmlDesc": "Rule S001 <b>description</b>",
+    "internalKey": "InternalKeyS001",
+    "isTemplate": false,
+    "key": "java:S001",
+    "lang": "xoo",
+    "name": "Rule S001",
+    "repo": "java",
+    "severity": "MINOR",
+    "status": "BETA"
+  }
+}

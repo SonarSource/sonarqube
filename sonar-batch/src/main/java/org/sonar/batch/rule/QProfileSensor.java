@@ -19,14 +19,12 @@
  */
 package org.sonar.batch.rule;
 
-import com.google.common.collect.Iterables;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 
 /**
  * Stores which Quality profiles have been used on the current module.
@@ -35,35 +33,27 @@ public class QProfileSensor implements Sensor {
 
   private final ModuleQProfiles moduleQProfiles;
   private final FileSystem fs;
-  private final QualityProfileDao dao;
 
-  public QProfileSensor(ModuleQProfiles moduleQProfiles, FileSystem fs, QualityProfileDao dao) {
+  public QProfileSensor(ModuleQProfiles moduleQProfiles, FileSystem fs) {
     this.moduleQProfiles = moduleQProfiles;
     this.fs = fs;
-    this.dao = dao;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    // Should be only executed on leaf modules
+    return project.getModules().isEmpty();
   }
 
   public void analyse(Project project, SensorContext context) {
+    UsedQProfiles used = new UsedQProfiles();
     for (String language : fs.languages()) {
-      ModuleQProfiles.QProfile qProfile = moduleQProfiles.findByLanguage(language);
-      if (qProfile != null) {
-        dao.updateUsedColumn(qProfile.id(), true);
+      QProfile profile = moduleQProfiles.findByLanguage(language);
+      if (profile != null) {
+        used.add(profile);
       }
     }
-    if (fs.languages().size() == 1) {
-      String language = Iterables.getOnlyElement(fs.languages());
-      ModuleQProfiles.QProfile qProfile = moduleQProfiles.findByLanguage(language);
-      if (qProfile != null) {
-        Measure measure = new Measure(CoreMetrics.PROFILE, qProfile.name()).setValue((double)qProfile.id());
-        Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, qProfile.version().doubleValue());
-        context.saveMeasure(measure);
-        context.saveMeasure(measureVersion);
-      }
-    }
+    Measure detailsMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, used.toJson());
+    context.saveMeasure(detailsMeasure);
   }
 
   @Override

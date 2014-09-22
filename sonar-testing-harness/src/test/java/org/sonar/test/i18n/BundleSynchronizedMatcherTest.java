@@ -31,20 +31,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.SortedMap;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static junit.framework.TestCase.fail;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class BundleSynchronizedMatcherTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private BundleSynchronizedMatcher matcher;
+  BundleSynchronizedMatcher matcher;
 
   @Before
   public void init() {
@@ -76,26 +72,31 @@ public class BundleSynchronizedMatcherTest {
 
   @Test
   public void shouldNotMatchIfNotString() {
-    assertThat(matcher.matches(3)).isFalse();
+    assertThat(matcher.matches(3), is(false));
   }
 
   @Test
   public void testGetBundleFileFromClasspath() {
     // OK
-    assertThat(BundleSynchronizedMatcher.getBundleFileInputStream("myPlugin_fr.properties"))
-        .isNotNull();
+    assertThat(BundleSynchronizedMatcher.getBundleFileInputStream("myPlugin_fr.properties"), notNullValue());
 
     // KO
-    thrown.expect(AssertionError.class);
-    thrown.expectMessage("File 'unexistingBundle.properties' does not exist in '/org/sonar/l10n/'.");
-    BundleSynchronizedMatcher.getBundleFileInputStream("unexistingBundle.properties");
+    try {
+      BundleSynchronizedMatcher.getBundleFileInputStream("unexistingBundle.properties");
+      fail();
+    } catch (AssertionError e) {
+      assertThat(e.getMessage(), startsWith("File 'unexistingBundle.properties' does not exist in '/org/sonar/l10n/'."));
+    }
   }
 
   @Test
   public void testGetDefaultBundleFileFromClasspath() {
-    thrown.expect(AssertionError.class);
-    thrown.expectMessage("Default bundle 'unexistingBundle.properties' could not be found: add a dependency to the corresponding plugin in your POM.");
-    BundleSynchronizedMatcher.getDefaultBundleFileInputStream("unexistingBundle_fr.properties");
+    try {
+      BundleSynchronizedMatcher.getDefaultBundleFileInputStream("unexistingBundle_fr.properties");
+      fail();
+    } catch (AssertionError e) {
+      assertThat(e.getMessage(), startsWith("Default bundle 'unexistingBundle.properties' could not be found: add a dependency to the corresponding plugin in your POM."));
+    }
   }
 
   @Test
@@ -105,9 +106,13 @@ public class BundleSynchronizedMatcherTest {
     assertThat(BundleSynchronizedMatcher.extractDefaultBundleName("myPlugin_fr_QB.properties"), is("myPlugin.properties"));
 
     // KO
-    thrown.expect(AssertionError.class);
-    thrown.expectMessage("The bundle 'myPlugin.properties' is a default bundle (without locale), so it can't be compared.");
-    BundleSynchronizedMatcher.extractDefaultBundleName("myPlugin.properties");
+
+    try {
+      BundleSynchronizedMatcher.extractDefaultBundleName("myPlugin.properties");
+      fail();
+    } catch (AssertionError e) {
+      assertThat(e.getMessage(), startsWith("The bundle 'myPlugin.properties' is a default bundle (without locale), so it can't be compared."));
+    }
   }
 
   @Test

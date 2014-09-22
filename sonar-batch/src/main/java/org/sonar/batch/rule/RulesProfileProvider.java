@@ -23,12 +23,17 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
-import org.sonar.jpa.dao.ProfilesDao;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RulePriority;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Ensures backward-compatibility with extensions that use {@link org.sonar.api.profiles.RulesProfile}.
@@ -37,47 +42,49 @@ public class RulesProfileProvider extends ProviderAdapter {
 
   private RulesProfile singleton = null;
 
-  public RulesProfile provide(ModuleQProfiles qProfiles, Settings settings, ProfilesDao dao) {
+  public RulesProfile provide(ModuleQProfiles qProfiles, ActiveRules activeRules, RuleFinder ruleFinder, Settings settings) {
     if (singleton == null) {
       String lang = settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY);
       if (StringUtils.isNotBlank(lang)) {
         // Backward-compatibility with single-language modules
-        singleton = loadSingleLanguageProfile(qProfiles, lang, dao);
+        singleton = loadSingleLanguageProfile(qProfiles, activeRules, ruleFinder, lang);
       } else {
-        singleton = loadProfiles(qProfiles, dao);
+        singleton = loadProfiles(qProfiles, activeRules, ruleFinder);
       }
     }
     return singleton;
   }
 
-  private RulesProfile loadSingleLanguageProfile(ModuleQProfiles qProfiles, String language, ProfilesDao dao) {
-    ModuleQProfiles.QProfile qProfile = qProfiles.findByLanguage(language);
+  private RulesProfile loadSingleLanguageProfile(ModuleQProfiles qProfiles, ActiveRules activeRules,
+    RuleFinder ruleFinder, String language) {
+    QProfile qProfile = qProfiles.findByLanguage(language);
     if (qProfile != null) {
-      return new RulesProfileWrapper(select(qProfile, dao));
+      return new RulesProfileWrapper(select(qProfile, activeRules, ruleFinder));
     }
     return new RulesProfileWrapper(Lists.<RulesProfile>newArrayList());
   }
 
-  private RulesProfile loadProfiles(ModuleQProfiles qProfiles, ProfilesDao dao) {
+  private RulesProfile loadProfiles(ModuleQProfiles qProfiles, ActiveRules activeRules, RuleFinder ruleFinder) {
     Collection<RulesProfile> dtos = Lists.newArrayList();
-    for (ModuleQProfiles.QProfile qProfile : qProfiles.findAll()) {
-      dtos.add(select(qProfile, dao));
+    for (QProfile qProfile : qProfiles.findAll()) {
+      dtos.add(select(qProfile, activeRules, ruleFinder));
     }
     return new RulesProfileWrapper(dtos);
   }
 
-  private RulesProfile select(ModuleQProfiles.QProfile qProfile, ProfilesDao dao) {
-    RulesProfile dto = dao.getProfile(qProfile.language(), qProfile.name());
-    return hibernateHack(dto);
+  private RulesProfile select(QProfile qProfile, ActiveRules activeRules, RuleFinder ruleFinder) {
+    RulesProfile deprecatedProfile = new RulesProfile();
+    // TODO deprecatedProfile.setVersion(qProfile.version());
+    deprecatedProfile.setName(qProfile.getName());
+    deprecatedProfile.setLanguage(qProfile.getLanguage());
+    for (org.sonar.api.batch.rule.ActiveRule activeRule : ((DefaultActiveRules) activeRules).findByLanguage(qProfile.getLanguage())) {
+      Rule rule = ruleFinder.findByKey(activeRule.ruleKey());
+      ActiveRule deprecatedActiveRule = deprecatedProfile.activateRule(rule, RulePriority.valueOf(activeRule.severity()));
+      for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
+        deprecatedActiveRule.setParameter(param.getKey(), param.getValue());
+      }
+    }
+    return deprecatedProfile;
   }
 
-  private RulesProfile hibernateHack(RulesProfile profile) {
-    // hack to lazy initialize the profile collections
-    profile.getActiveRules().size();
-    for (ActiveRule activeRule : profile.getActiveRules()) {
-      activeRule.getActiveRuleParams().size();
-      activeRule.getRule().getParams().size();
-    }
-    return profile;
-  }
 }

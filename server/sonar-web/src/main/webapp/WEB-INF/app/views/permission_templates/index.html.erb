@@ -1,0 +1,97 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/js/common/select-list" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+<% end %>
+
+<h1 class="admin-page-title"><%= message 'roles.page' -%></h1>
+<p class="admin-page-description"><%= message('roles.page.description') -%></p>
+
+<%= render :partial => 'roles/tabs', :locals => {:selected_tab=>'Permission templates'} %>
+<br/>
+<div class="line-block marginbottom10">
+  <div class="button-group operations">
+    <%= link_to message('permission_template.set_default_templates'), {:action => :default_templates_form, :qualifiers => @root_qualifiers},
+                :id => 'configure-defaults-permission-template', :class => 'open-modal link-action button' %>
+    <%= link_to message('create'), {:action => :create_form}, :id => 'create-link-permission-template', :class => 'open-modal link-action button' %>
+  </div>
+</div>
+<table class="data width100" id="permission-templates">
+  <thead>
+  <tr valign="top">
+    <th class="left" width="20%"><%= message('name') -%></th>
+    <th class="left">
+      <%= message('projects_role.user') -%><br/>
+      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.user.desc') -%></span>
+    </th>
+    <th class="left">
+      <%= message('projects_role.admin') -%><br/>
+      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.admin.desc') -%></span>
+    </th>
+    <th class="left">
+      <%= message('projects_role.issueadmin') -%><br/>
+      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.issueadmin.desc') -%></span>
+    </th>
+    <th class="left">
+      <%= message('projects_role.codeviewer') -%><br/>
+      <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.codeviewer.desc') -%></span>
+    </th>
+    <th class="left" width="8%"><%= message('association') -%></th>
+    <th class="right" width="5%" colspan="2"><%= message('operations') -%></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% if @permission_templates.empty? %>
+    <tr class="even">
+      <td colspan="7" align="left"><%= message('permission_template.no_results') %></td>
+    </tr>
+  <% end %>
+  <% @permission_templates.each do |permission_template| %>
+    <tr class="<%= cycle('even', 'odd') -%>">
+      <td valign="top"><b><%= h permission_template.name %></b><br/>
+        <span class="small gray"><%= h permission_template.description -%></span>
+      </td>
+      <% ['user', 'admin', 'issueadmin', 'codeviewer'].each do |permission| -%>
+        <td valign="top">
+          <%
+             users=Api::Utils.insensitive_sort(permission_template.getUsersForPermission(permission).collect {|u| u.userName})
+             groups=Api::Utils.insensitive_sort(permission_template.getGroupsForPermission(permission).collect {|g| g.groupName.blank? ? 'Anyone' : g.groupName})
+          %>
+          <span id="u-<%= permission -%>-<%= u permission_template.key -%>"><%= users.join(', ') %></span>
+          (<%= link_to message('select users'), {:action => :edit_users, :key => permission_template.key, :permission => permission},
+                       :id => "select-u-#{permission}-#{u permission_template.key}", :class => 'open-modal link-action nowrap', 'modal-width' => '540px' %>)<br/>
+          <span id="g-<%= permission -%>-<%= u permission_template.key -%>"><%= groups.join(', ') %></span>
+          (<%= link_to message('select groups'), {:action => :edit_groups, :key => permission_template.key, :permission => permission},
+                       :id => "select-g-#{permission}-#{u permission_template.key}", :class => 'open-modal link-action nowrap', 'modal-width' => '540px' %>)<br/>
+        </td>
+      <% end %>
+      <td>
+        <span id="<%= "key-pattern-#{u permission_template.key}" %>">
+          <%= permission_template.key_pattern -%>
+        </span>
+        <% qualifiers = []
+           @default_templates.each_pair do |q, t|
+             qualifiers << q if t == permission_template.key
+           end
+           if qualifiers.length > 0
+        %>
+          <br/>
+          <span class="small gray" id="<%= "is-default-#{u permission_template.key}" %>">
+            <%= message('permission_template.default_for', :params => qualifiers.collect {|q| message('qualifier.' + q)}.join(', ')) -%>
+          </span>
+         <% end %>
+      </td>
+      <td align="right">
+        <%= link_to message('edit'), {:action => :edit_form, :key => permission_template.key},
+                    :id => "edit-template-#{u permission_template.key}", :class => 'open-modal link-action' %>
+      </td>
+      <td align="right">
+        <% unless @default_templates.values.include?(permission_template.key) %>
+          <%= link_to message('delete'), {:action => :delete_form, :key => permission_template.key},
+                      :id => "delete-template-#{u permission_template.key}", :class => 'open-modal link-action link-red' %>
+        <% end %>
+      </td>
+    </tr>
+  <%
+     end %>
+  </tbody>
+</table>

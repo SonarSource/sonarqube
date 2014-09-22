@@ -56,7 +56,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
   }
 
   public List<FieldDiffs> selectChangelogByIssue(String issueKey) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       List<FieldDiffs> result = Lists.newArrayList();
       for (IssueChangeDto dto : selectByIssuesAndType(session, Arrays.asList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)) {
@@ -69,7 +69,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
   }
 
   public void selectChangelogOnNonClosedIssuesByModuleAndType(Integer componentId, ResultHandler handler) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       Map<String, Object> params = newHashMap();
       params.put("componentId", componentId);
@@ -83,7 +83,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public DefaultIssueComment selectCommentByKey(String commentKey) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
       IssueChangeDto dto = mapper.selectByKeyAndType(commentKey, IssueChangeDto.TYPE_COMMENT);
@@ -109,7 +109,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
   }
 
   public boolean delete(String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
       int count = mapper.delete(key);
@@ -122,7 +122,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
   }
 
   public boolean update(IssueChangeDto change) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
       int count = mapper.update(change);

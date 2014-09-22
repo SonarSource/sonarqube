@@ -1,0 +1,8 @@
+<i class="icon-severity-<%= arule.priority -%>"></i>
+
+<span class="rulename">
+  <a href="<%= url_for :controller => 'coding_rules', :action => 'index', :anchor => 'rule_key=' + arule.rule.key + '|qprofile=' + aprofile.kee -%>">
+    <%= h(arule.rule.name) -%>
+  </a>
+</span>
+<span class="note"><%= h(arule.rule.plugin_name) -%></span>

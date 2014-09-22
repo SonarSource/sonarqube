@@ -1,0 +1,57 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/js/common/select-list" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+<% end %>
+
+<div>
+  <div class="operations button-group">
+    <%= link_to message('projects_role.apply_template'), {:controller => :roles, :action => :apply_template_form, :components => [@project.key], :names => @project.name,
+                                                          :results_count => 1},
+                :id => "apply-template-#{u @project.kee}", :class => 'open-modal link-action button' %>
+  </div>
+  <h1 class="admin-page-title"><%= message('project_roles.page') -%></h1>
+  <p class="admin-page-description"><%= message('project_roles.page.description2') -%></p>
+</div>
+
+<table class="data width100">
+  <thead>
+    <tr>
+      <th>&nbsp;</th>
+      <th>
+        <%= message('projects_role.user') -%><br/>
+        <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.user.desc') -%></span>
+      </th>
+      <th>
+        <%= message('projects_role.admin') -%><br/>
+        <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.admin.desc') -%></span>
+      </th>
+      <th>
+        <%= message('projects_role.issueadmin') -%><br/>
+        <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.issueadmin.desc') -%></span>
+      </th>
+      <th>
+        <%= message('projects_role.codeviewer') -%><br/>
+        <span class="small gray" style="font-size: 11px; font-weight: normal;"><%= message('projects_role.codeviewer.desc') -%></span>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="even">
+      <td valign="top"><b>Users</b></td>
+      <% ['user', 'admin', 'issueadmin', 'codeviewer'].each do |permission| -%>
+      <td valign="top">
+        <span id="<%= permission -%>-role-users"><%= users(permission, @project.id).map(&:name).join(', ') %></span>
+        (<%= link_to_edit_roles_permission_form(message('select'), permission, @project.id, "select-#{permission}-edit-users") %>)<br/>
+      </td>
+      <% end %>
+    </tr>
+    <tr class="odd">
+      <td valign="top"><b>Groups</b></td>
+      <% ['user', 'admin', 'issueadmin', 'codeviewer'].each do |permission| -%>
+      <td valign="top">
+        <span id="<%= permission -%>-role-groups"><%= groups(permission, @project.id).map{|g| group_name(g)}.join(', ') %></span>
+        (<%= link_to_edit_groups_permission_form(message('select'), permission, @project.id, "select-#{permission}-edit-groups") %>)<br/>
+      </td>
+      <% end %>
+    </tr>
+  </tbody>
+</table>

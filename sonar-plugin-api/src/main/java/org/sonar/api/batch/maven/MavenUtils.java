@@ -32,7 +32,9 @@ import java.util.Collection;
  * An utility class to manipulate Maven concepts
  *
  * @since 1.10
+ * @deprecated since 4.5 we don't want any dependency on Maven anymore
  */
+@Deprecated
 public final class MavenUtils {
 
   private static final String MAVEN_COMPILER_PLUGIN = "maven-compiler-plugin";

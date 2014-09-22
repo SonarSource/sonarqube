@@ -1,0 +1,34 @@
+<div id="dashboard">
+  <% if @resource -%>
+  <span class="hidden" id="is-project-dashboard">&nbsp;</span>
+  <% end -%>
+  <%= render :partial => 'header', :locals => {:back => false} %>
+  <div style="width: 100%;display: block; float: none">
+    <%
+       columns=@dashboard.column_layout.split('-')
+       for index in 1..columns.size()
+    %>
+      <!-- the right margin with 1px is a trick for IE. See SONAR-2637 -->
+      <div class="dashboard-column-wrapper" style="width: <%= columns[index-1] -%>;margin: 0 -1px 0 0;">
+        <div class="dashboard-column" id="dashboard-column-<%= index -%>" style="margin: 0 <%= index<columns.size() ? "5px" : "0px" -%> 0 <%= index>1 ? "5px" : "0px" -%>;">
+          <%
+             @dashboard.widgets.select { |widget| widget.column_index==index }.sort_by { |widget| widget.row_index }.each do |widget|
+               widget_definition=@authorized_widget_definitions.find { |wd| wd.getId()==widget.widget_key }
+               if widget_definition
+          %>
+              <%= render :partial => 'widget', :locals => {:widget => widget} %>
+          <%
+               reset_cycle
+             end
+             end
+          %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  <div style="clear: both;"></div>
+</div>
+
+<script>
+  jQuery('html').addClass('dashboard-page');
+</script>

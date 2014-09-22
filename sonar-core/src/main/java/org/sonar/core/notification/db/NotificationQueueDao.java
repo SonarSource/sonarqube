@@ -23,6 +23,7 @@ package org.sonar.core.notification.db;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collections;
@@ -40,7 +41,7 @@ public class NotificationQueueDao implements BatchComponent, ServerComponent {
   }
 
   public void insert(List<NotificationQueueDto> dtos) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     try {
       for (NotificationQueueDto dto : dtos) {
         session.getMapper(NotificationQueueMapper.class).insert(dto);
@@ -52,7 +53,7 @@ public class NotificationQueueDao implements BatchComponent, ServerComponent {
   }
 
   public void delete(List<NotificationQueueDto> dtos) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     try {
       for (NotificationQueueDto dto : dtos) {
         session.getMapper(NotificationQueueMapper.class).delete(dto.getId());
@@ -67,7 +68,7 @@ public class NotificationQueueDao implements BatchComponent, ServerComponent {
     if (count < 1) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(NotificationQueueMapper.class).findOldest(count);
     } finally {
@@ -76,7 +77,7 @@ public class NotificationQueueDao implements BatchComponent, ServerComponent {
   }
 
   public long count() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(NotificationQueueMapper.class).count();
     } finally {

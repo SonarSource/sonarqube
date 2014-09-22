@@ -37,7 +37,7 @@ public class QualityGateConditionDao {
   }
 
   public void insert(QualityGateConditionDto newQualityGate) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       insert(newQualityGate, session);
       session.commit();
@@ -51,7 +51,7 @@ public class QualityGateConditionDao {
   }
 
   public Collection<QualityGateConditionDto> selectForQualityGate(long qGateId) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return selectForQualityGate(qGateId, session);
     } finally {
@@ -64,7 +64,7 @@ public class QualityGateConditionDao {
   }
 
   public QualityGateConditionDto selectById(long id) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return selectById(id, session);
     } finally {
@@ -77,7 +77,7 @@ public class QualityGateConditionDao {
   }
 
   public void delete(QualityGateConditionDto qGate) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       delete(qGate, session);
       session.commit();
@@ -91,7 +91,7 @@ public class QualityGateConditionDao {
   }
 
   public void update(QualityGateConditionDto qGate) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       update(qGate, session);
       session.commit();
@@ -105,7 +105,7 @@ public class QualityGateConditionDao {
   }
 
   public void deleteConditionsWithInvalidMetrics() {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       deleteConditionsWithInvalidMetrics(session);
       session.commit();

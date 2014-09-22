@@ -23,43 +23,58 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.index.ResourcePersister;
 import org.sonar.core.duplication.DuplicationDao;
 
-public class IndexFactory implements BatchExtension {
+import javax.annotation.Nullable;
+
+public class IndexFactory implements BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(IndexFactory.class);
 
   private final Settings settings;
   private final ResourcePersister resourcePersister;
   private final DuplicationDao dao;
+  private final AnalysisMode mode;
 
-  public IndexFactory(Settings settings, ResourcePersister resourcePersister, DuplicationDao dao) {
+  public IndexFactory(AnalysisMode mode, Settings settings, @Nullable ResourcePersister resourcePersister, @Nullable DuplicationDao dao) {
+    this.mode = mode;
     this.settings = settings;
     this.resourcePersister = resourcePersister;
     this.dao = dao;
   }
 
-  public SonarDuplicationsIndex create(Project project, String languageKey) {
-    if (verifyCrossProject(project, LOG)) {
+  /**
+   * Used by new sensor mode
+   */
+  public IndexFactory(AnalysisMode mode, Settings settings) {
+    this(mode, settings, null, null);
+  }
+
+  public SonarDuplicationsIndex create(@Nullable Project project, String languageKey) {
+    if (verifyCrossProject(project, LOG) && dao != null && resourcePersister != null) {
       return new SonarDuplicationsIndex(new DbDuplicationsIndex(resourcePersister, project, dao, languageKey));
     }
     return new SonarDuplicationsIndex();
   }
 
   @VisibleForTesting
-  boolean verifyCrossProject(Project project, Logger logger) {
+  boolean verifyCrossProject(@Nullable Project project, Logger logger) {
     boolean crossProject = false;
 
-    if (settings.getBoolean(CoreProperties.CPD_CROSS_RPOJECT)) {
-      if (settings.getBoolean(CoreProperties.DRY_RUN)) {
-        logger.info("Cross-project analysis disabled. Not supported on dry runs.");
-      } else if (StringUtils.isNotBlank(project.getBranch())) {
+    if (settings.getBoolean(CoreProperties.CPD_CROSS_PROJECT)) {
+      if (mode.isPreview()) {
+        logger.info("Cross-project analysis disabled. Not supported in preview mode.");
+      } else if (StringUtils.isNotBlank(settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY))) {
         logger.info("Cross-project analysis disabled. Not supported on project branches.");
+      } else if (project == null) {
+        // New sensor mode
+        logger.info("Cross-project analysis disabled. Not supported in new sensor mode.");
       } else {
         logger.info("Cross-project analysis enabled");
         crossProject = true;

@@ -19,13 +19,11 @@
  */
 package org.sonar.api.utils.command;
 
-import javax.annotation.Nullable;
-
-public final class CommandException extends RuntimeException {
+public class CommandException extends RuntimeException {
 
   private final Command command;
 
-  public CommandException(Command command, String message, @Nullable Throwable throwable) {
+  public CommandException(Command command, String message, Throwable throwable) {
     super(message + " [command: " + command + "]", throwable);
     this.command = command;
   }

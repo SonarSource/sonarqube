@@ -29,11 +29,11 @@ public interface PermissionTemplateMapper {
 
   void update(PermissionTemplateDto permissionTemplate);
 
-  void delete(Long templateId);
+  void delete(long templateId);
 
-  void deleteUsersPermissions(Long templateId);
+  void deleteUsersPermissions(long templateId);
 
-  void deleteGroupsPermissions(Long templateId);
+  void deleteGroupsPermissions(long templateId);
 
   PermissionTemplateDto selectByKey(String templateKey);
 
@@ -48,4 +48,6 @@ public interface PermissionTemplateMapper {
   void insertGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
 
   void deleteGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);
+
+  void deleteByGroupId(long groupId);
 }

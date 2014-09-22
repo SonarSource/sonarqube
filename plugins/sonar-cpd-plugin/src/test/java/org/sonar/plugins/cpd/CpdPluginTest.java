@@ -27,6 +27,6 @@ public class CpdPluginTest {
 
   @Test
   public void getExtensions() {
-    assertThat(new CpdPlugin().getExtensions()).hasSize(9);
+    assertThat(new CpdPlugin().getExtensions()).hasSize(10);
   }
 }

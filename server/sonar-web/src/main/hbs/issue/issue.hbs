@@ -1,0 +1,142 @@
+<div class="code-issue code-issue-collapsed" data-issue-key="{{key}}" data-issue-component="{{component}}" data-issue-rule="{{rule}}">
+  <div class="code-issue-name code-issue-toggle">
+    <div class="code-issue-name-rule">
+      {{severityIcon severity}}&nbsp;<span class="rulename">{{message}}</span>
+    </div>
+
+    <div class="code-issue-permalink">
+      <a target="_blank" href="{{permalink}}">
+        <i class="icon-link"></i>
+      </a>
+    </div>
+  </div>
+
+
+  <ul class="code-issue-actions code-issue-list">
+    {{#inArray actions "comment"}}
+      <li>
+        <a id="issue-comment" class="link-action">{{t 'issue.comment.formlink' }}</a>
+      </li>
+    {{/inArray}}
+
+
+    <li>
+      {{statusIcon status}}{{t 'issue.status' status}}
+      {{#if resolution}}({{t 'issue.resolution' resolution}}){{/if}}
+
+      {{#ifNotEmpty transitions}}
+        {{#each transitions}}
+          <a class="link-action issue-transition spacer-left" data-transition="{{this}}">{{t 'issue.transition' this}}</a>
+        {{/each}}
+      {{/ifNotEmpty}}
+    </li>
+
+
+    {{#inArray actions "assign"}}
+    <li>
+      {{#if assigneeName}}
+        <a id="issue-assign" class="link-action">{{t 'assigned_to'}}</a> {{assigneeName}}</li>
+      {{else}}
+        <a id="issue-assign" class="link-action">{{t 'issue.assign.formlink' }}</a>
+        {{#inArray actions "assign_to_me"}}
+          [<a id="issue-assign-to-me" class="link-action">{{t 'issue.assign.to_me' }}</a>]
+        {{/inArray}}
+      {{/if}}
+      </li>
+    {{else}}
+      {{#if assigneeName}}
+        <li>{{t 'assigned_to'}} <strong>{{assigneeName}}</strong></li>
+      {{/if}}
+    {{/inArray}}
+
+
+    {{#inArray actions "plan"}}
+      <li>
+        {{#if actionPlanName}}
+          <a id="issue-plan" class="link-action">{{t 'issue.planned_for'}}</a> {{actionPlanName}}
+        {{else}}
+          <a id="issue-plan" class="link-action">{{t 'issue.do_plan'}}</a>
+        {{/if}}
+      </li>
+    {{else}}
+      {{#if actionPlanName}}
+        <li>{{t 'issue.planned_for'}} <strong>{{actionPlanName}}</strong></li>
+      {{/if}}
+    {{/inArray}}
+
+
+    {{#ifHasExtraActions actions}}
+      <li>
+        <div class="dropdown">
+          <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;">{{t 'more_actions'}}</a>
+          <ul style="display: none" class="dropdown-menu">
+            {{#inArray actions "set_severity"}}
+              <li>
+                <a id="issue-set-severity" class="link-action spacer-right">{{t "issue.set_severity"}}</a>
+              </li>
+            {{/inArray}}
+            {{#pluginActions actions}}
+              <li>
+                <a class="link-action spacer-right issue-action" data-action="{{this}}">{{t "issue.action" this "formlink"}}</a>
+              </li>
+            {{/pluginActions}}
+          </ul>
+        </div>
+      </li>
+    {{else}}
+      {{#inArray actions "set_severity"}}
+        <li>
+          <a id="issue-set-severity" class="link-action">{{t "issue.set_severity"}}</a>
+        </li>
+      {{/inArray}}
+    {{/ifHasExtraActions}}
+
+    {{#if debt}}
+      <li>{{t 'issue.technical_debt_short'}}: {{debt}}</li>
+    {{/if}}
+
+    {{#if reporterName}}<li>{{t 'reporter'}}: {{reporterName}}</li>{{/if}}
+    {{#if author}}<li>{{t 'author'}}: {{author}}</li>{{/if}}
+  </ul>
+
+  <div class="code-issue-form" style="display: none;"></div>
+
+
+  <div class="code-issue-details">
+    <ul class="code-issue-tabs">
+      <li>
+        <a class="js-tab-link" href="#tab-issue-rule">{{t 'rule'}}</a>
+      </li>
+      <li>
+        <a class="js-tab-link" href="#tab-issue-changelog">{{t 'changelog'}}</a>
+      </li>
+    </ul>
+
+    <div id="tab-issue-rule" class="js-tab">
+      <div class="rule-desc"></div>
+    </div>
+
+    <div id="tab-issue-changelog" class="js-tab"></div>
+  </div>
+
+
+  <div class="code-issue-comments">
+    {{#each comments}}
+      <div class="code-issue-comment" data-comment-key="{{key}}">
+        <h4>
+          <i class="icon-comment"></i>
+          <b>{{userName}}</b>
+          ({{fromNow createdAt}})
+
+          {{#if updatable}}
+            &nbsp;&nbsp;
+            <a class="link-action issue-comment-edit">{{t 'edit'}}</a>&nbsp;
+            <a class="link-action link-red spacer-right issue-comment-delete"
+               data-confirm-msg="{{t 'issue.comment.delete_confirm_message'}}">{{t 'delete'}}</a>
+          {{/if}}
+        </h4>
+        <div class="markdown">{{{show html htmlText}}}</div>
+      </div>
+    {{/each}}
+  </div>
+</div>

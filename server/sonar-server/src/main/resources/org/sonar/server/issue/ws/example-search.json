@@ -1,0 +1,79 @@
+{
+  "securityExclusions": false,
+  "maxResultsReached": false,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 5,
+    "total": 206,
+    "pages": 42
+  },
+  "issues": [
+    {
+      "key": "01fc972e-2a3c-433e-bcae-0bd7f88f5123",
+      "component": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+      "project": "com.github.kevinsawicki:http-request",
+      "rule": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+      "status": "RESOLVED",
+      "resolution": "FALSE-POSITIVE",
+      "severity": "MINOR",
+      "message": "'3' is a magic number.",
+      "line": 530,
+      "author": "Developer 1",
+      "debt": "2h1min",
+      "creationDate": "2013-05-13T17:55:39+0200",
+      "updateDate": "2013-05-13T17:55:39+0200",
+      "comments": [
+        {
+          "key": "7d7c56f5-7b5a-41b9-87f8-36fa70caa5ba",
+          "login": "john.smith",
+          "userName": "John Smith",
+          "htmlText": "foooooo",
+          "updatable": true,
+          "createdAt": "2013-05-13T18:08:34+0200"
+        }
+      ],
+      "attr": {
+        "jira-issue-key": "SONAR-1234"
+      },
+      "actions": ["link-to-jira"],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    }
+  ],
+  "components": [
+    {
+      "key": "com.github.kevinsawicki:http-request:com.github.kevinsawicki.http.HttpRequest",
+      "qualifier": "CLA",
+      "name": "HttpRequest",
+      "longName": "com.github.kevinsawicki.http.HttpRequest"
+    }
+  ],
+  "projects": [
+    {
+      "key": "com.github.kevinsawicki:http-request",
+      "qualifier": "TRK",
+      "name": "http-request",
+      "longName": "http-request"
+    }
+  ],
+  "rules": [
+    {
+      "key": "checkstyle:com.puppycrawl.tools.checkstyle.checks.coding.MagicNumberCheck",
+      "name": "Magic Number",
+      "desc": "Checks for magic numbers.",
+      "status": "READY"
+    }
+  ],
+  "users": [
+    {
+      "login": "admin",
+      "name": "Administrator",
+      "active": true,
+      "email": "admin@sonarqube.org"
+    }
+  ]
+
+}

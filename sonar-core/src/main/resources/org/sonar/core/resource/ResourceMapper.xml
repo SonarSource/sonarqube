@@ -18,7 +18,8 @@
     p.language as language,
     p.copy_resource_id as copyResourceId,
     p.person_id as personId,
-    p.created_at as createdAt
+    p.created_at as createdAt,
+    p.authorization_updated_at as authorizationUpdatedAt
   </sql>
 
   <sql id="componentColumns">
@@ -36,7 +37,7 @@
     <id property="id" column="id"/>
     <result property="parentId" column="parent_snapshot_id"/>
     <result property="rootId" column="root_snapshot_id"/>
-    <result property="date" column="created_at"/>
+    <result property="createdAt" column="created_at"/>
     <result property="buildDate" column="build_date"/>
     <result property="resourceId" column="project_id"/>
     <result property="status" column="status"/>
@@ -48,6 +49,21 @@
     <result property="path" column="path"/>
     <result property="depth" column="depth"/>
     <result property="rootProjectId" column="root_project_id"/>
+    <result property="period1Mode" column="period1_mode"/>
+    <result property="period2Mode" column="period2_mode"/>
+    <result property="period3Mode" column="period3_mode"/>
+    <result property="period4Mode" column="period4_mode"/>
+    <result property="period5Mode" column="period5_mode"/>
+    <result property="period1Param" column="period1_param"/>
+    <result property="period2Param" column="period2_param"/>
+    <result property="period3Param" column="period3_param"/>
+    <result property="period4Param" column="period4_param"/>
+    <result property="period5Param" column="period5_param"/>
+    <result property="period1Date" column="period1_date"/>
+    <result property="period2Date" column="period2_date"/>
+    <result property="period3Date" column="period3_date"/>
+    <result property="period4Date" column="period4_date"/>
+    <result property="period5Date" column="period5_date"/>
   </resultMap>
 
   <resultMap id="resourceResultMap" type="Resource">
@@ -66,6 +82,7 @@
     <result property="copyResourceId" column="copy_resource_id"/>
     <result property="personId" column="person_id"/>
     <result property="createdAt" column="created_at"/>
+    <result property="authorizationUpdatedAt" column="authorization_updated_at"/>
   </resultMap>
 
   <select id="selectResources" parameterType="map" resultMap="resourceResultMap">
@@ -111,12 +128,21 @@
   </select>
 
   <select id="selectLastSnapshotByResourceKey" parameterType="string" resultMap="snapshotResultMap">
-    select s.* from snapshots s, projects p where p.kee=#{id} and p.enabled=${_true} and p.copy_resource_id is null and s.islast=${_true} and p.id=s.project_id
+    SELECT s.* FROM snapshots s
+      INNER JOIN projects p on p.id=s.project_id AND p.enabled=${_true} AND p.copy_resource_id IS NULL
+    <where>
+      AND p.kee=#{id}
+      AND s.islast=${_true}
+    </where>
   </select>
 
   <select id="selectLastSnapshotByResourceId" parameterType="string" resultMap="snapshotResultMap">
-      select s.* from snapshots s where s.project_id=#{id} and s.islast=${_true}
-    </select>
+    SELECT s.* from snapshots s
+    <where>
+      AND s.project_id=#{id}
+      AND s.islast=${_true}
+    </where>
+  </select>
 
   <select id="selectDescendantProjects" parameterType="long" resultMap="resourceResultMap">
     select * from projects where scope='PRJ' and root_id=#{id}
@@ -132,14 +158,13 @@
     </where>
   </select>
 
-  <select id="selectRootProjectByComponentId" parameterType="long" resultMap="resourceResultMap">
+  <select id="selectRootProjectByComponentId" parameterType="long" resultMap="resourceResultMap" >
     select rootProject.*
     from snapshots s
     inner join projects rootProject on rootProject.id=s.root_project_id
-    <where>
-      and s.project_id=#{componentId}
+    where
+      s.project_id=#{componentId}
       and s.islast=${_true}
-    </where>
   </select>
 
   <select id="selectComponentsByIds" parameterType="long" resultType="Component">
@@ -212,14 +237,12 @@
     </where>
   </select>
 
-  <select id="selectProvisionedProject" parameterType="string" resultMap="resourceResultMap">
+  <select id="selectProvisionedProject" parameterType="string" resultMap="resourceResultMap" >
     select p.* from projects p
     left join snapshots s on s.project_id=p.id
-    <where>
-      and s.id is null
+    where s.id is null
       and p.kee = #{key}
       and p.copy_resource_id is null
-    </where>
   </select>
 
   <select id="selectAuthorizedChildrenComponentIds" parameterType="map" resultType="int">
@@ -268,21 +291,29 @@
     </where>
   </sql>
 
-  <insert id="insert" parameterType="Resource" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="Resource" keyColumn="id" useGeneratedKeys="true" keyProperty="id" >
     insert into projects
-    (name, long_name, description, scope, qualifier, kee, deprecated_kee, path, language, root_id, copy_resource_id, person_id, enabled, created_at)
+    (name, long_name, description, scope, qualifier, kee, deprecated_kee, path, language, root_id, copy_resource_id, person_id, enabled, authorization_updated_at, created_at)
     values (
     #{name}, #{longName}, #{description}, #{scope}, #{qualifier},
     #{key}, #{deprecatedKey}, #{path}, #{language}, #{rootId}, #{copyResourceId},
-    #{personId}, #{enabled}, #{createdAt}
+    #{personId}, #{enabled}, #{authorizationUpdatedAt}, #{createdAt}
     )
   </insert>
 
-  <update id="update" parameterType="Resource">
+  <update id="update" parameterType="Resource" >
     update projects set name=#{name}, long_name=#{longName}, description=#{description},
     scope=#{scope}, qualifier=#{qualifier}, kee=#{key}, deprecated_kee=#{deprecatedKey}, path=#{path},
     language=#{language}, root_id=#{rootId}, copy_resource_id=#{copyResourceId},
     person_id=#{personId}, enabled=#{enabled} where id=#{id}
   </update>
+
+  <update id="updateAuthorizationDate" parameterType="map">
+    update projects set authorization_updated_at=#{authorizationDate}
+    <where>
+      AND id=#{projectId}
+    </where>
+  </update>
+
 </mapper>
 

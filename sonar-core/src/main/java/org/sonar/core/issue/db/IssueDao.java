@@ -27,13 +27,16 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.rule.RuleDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -51,7 +54,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public IssueDto selectByKey(String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       IssueMapper mapper = session.getMapper(IssueMapper.class);
       return mapper.selectByKey(key);
@@ -61,7 +64,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   public void selectNonClosedIssuesByModule(int componentId, ResultHandler handler) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       session.select("org.sonar.core.issue.db.IssueMapper.selectNonClosedIssuesByModule", componentId, handler);
 
@@ -72,7 +75,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   @VisibleForTesting
   List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, Integer maxResult) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectIssueIds(query, userId, maxResult, session);
     } finally {
@@ -82,7 +85,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   @VisibleForTesting
   List<IssueDto> selectIssueIds(IssueQuery query) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectIssueIds(query, null, Integer.MAX_VALUE, session);
     } finally {
@@ -93,17 +96,17 @@ public class IssueDao implements BatchComponent, ServerComponent {
   /**
    * The returned IssueDto list contains only the issue id and the sort column
    */
-  public List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, SqlSession session){
+  public List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, SqlSession session) {
     return selectIssueIds(query, userId, query.maxResults(), session);
   }
 
-  private List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session){
+  private List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session) {
     IssueMapper mapper = session.getMapper(IssueMapper.class);
     return mapper.selectIssueIds(query, query.componentRoots(), userId, query.requiredRole(), maxResults);
   }
 
   public List<IssueDto> selectIssues(IssueQuery query) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectIssues(query, null, session);
     } finally {
@@ -111,14 +114,14 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, SqlSession session){
+  public List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, SqlSession session) {
     IssueMapper mapper = session.getMapper(IssueMapper.class);
     return mapper.selectIssues(query, query.componentRoots(), userId, query.requiredRole());
   }
 
   @VisibleForTesting
   List<IssueDto> selectByIds(Collection<Long> ids) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectByIds(ids, session);
     } finally {
@@ -137,5 +140,15 @@ public class IssueDao implements BatchComponent, ServerComponent {
       dtosList.addAll(dtos);
     }
     return dtosList;
+  }
+
+  // TODO replace by aggregation in IssueIndex
+  public List<RuleDto> findRulesByComponent(String componentKey, @Nullable Date createdAtOrAfter, DbSession session) {
+    return session.getMapper(IssueMapper.class).findRulesByComponent(componentKey, createdAtOrAfter);
+  }
+
+  // TODO replace by aggregation in IssueIndex
+  public List<String> findSeveritiesByComponent(String componentKey, @Nullable Date createdAtOrAfter, DbSession session) {
+    return session.getMapper(IssueMapper.class).findSeveritiesByComponent(componentKey, createdAtOrAfter);
   }
 }

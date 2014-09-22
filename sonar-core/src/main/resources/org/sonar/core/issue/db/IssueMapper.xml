@@ -89,6 +89,7 @@
     reporter=#{reporter},
     assignee=#{assignee},
     author_login=#{authorLogin},
+    root_component_id=#{rootComponentId},
     issue_attributes=#{issueAttributes},
     issue_creation_date=#{issueCreationDate},
     issue_update_date=#{issueUpdateDate},
@@ -115,6 +116,7 @@
     reporter=#{reporter},
     assignee=#{assignee},
     author_login=#{authorLogin},
+    root_component_id=#{rootComponentId},
     issue_attributes=#{issueAttributes},
     issue_creation_date=#{issueCreationDate},
     issue_update_date=#{issueUpdateDate},
@@ -130,46 +132,62 @@
     inner join rules r on r.id=i.rule_id
     inner join projects p on p.id=i.component_id
     inner join projects root on root.id=i.root_component_id
+    where i.kee=#{kee}
+  </select>
+
+  <select id="selectAfterDate" resultType="Issue" timeout="10000"
+          fetchSize="2000"
+          statementType="PREPARED"
+          resultSetType="FORWARD_ONLY">
+    select <include refid="issueColumns"/>
+    from issues i
+    inner join rules r on r.id=i.rule_id
+    inner join projects p on p.id=i.component_id
+    inner join projects root on root.id=i.root_component_id
     <where>
-      and i.kee=#{kee}
+    i.updated_at IS NULL or i.updated_at &gt;= #{date}
+    <if test="project != null">
+      and root.kee = #{project}
+    </if>
     </where>
   </select>
 
   <select id="selectNonClosedIssuesByModule" parameterType="int" resultType="Issue">
     select
-      i.id,
-      i.kee as kee,
-      i.component_id as componentId,
-      i.root_component_id as rootComponentId,
-      i.rule_id as ruleId,
-      i.action_plan_key as actionPlanKey,
-      i.severity as severity,
-      i.manual_severity as manualSeverity,
-      i.message as message,
-      i.line as line,
-      i.effort_to_fix as effortToFix,
-      i.technical_debt as debt,
-      i.status as status,
-      i.resolution as resolution,
-      i.checksum as checksum,
-      i.reporter as reporter,
-      i.assignee as assignee,
-      i.author_login as authorLogin,
-      i.issue_attributes as issueAttributes,
-      i.issue_creation_date as issueCreationDate,
-      i.issue_update_date as issueUpdateDate,
-      i.issue_close_date as issueCloseDate,
-      i.created_at as createdAt,
-      i.updated_at as updatedAt,
-      r.plugin_rule_key as ruleKey,
-      r.plugin_name as ruleRepo,
-      p.kee as componentKey
+    i.id,
+    i.kee as kee,
+    i.component_id as componentId,
+    i.root_component_id as rootComponentId,
+    i.rule_id as ruleId,
+    i.action_plan_key as actionPlanKey,
+    i.severity as severity,
+    i.manual_severity as manualSeverity,
+    i.message as message,
+    i.line as line,
+    i.effort_to_fix as effortToFix,
+    i.technical_debt as debt,
+    i.status as status,
+    i.resolution as resolution,
+    i.checksum as checksum,
+    i.reporter as reporter,
+    i.assignee as assignee,
+    i.author_login as authorLogin,
+    i.issue_attributes as issueAttributes,
+    i.issue_creation_date as issueCreationDate,
+    i.issue_update_date as issueUpdateDate,
+    i.issue_close_date as issueCloseDate,
+    i.created_at as createdAt,
+    i.updated_at as updatedAt,
+    r.plugin_rule_key as ruleKey,
+    r.plugin_name as ruleRepo,
+    p.kee as componentKey,
+    root.kee as rootComponentKey
     from issues i
+    inner join (select p.id,p.kee from projects p where (p.root_id=#{id} and p.qualifier &lt;&gt; 'BRC') or
+    (p.id=#{id})) p on p.id=i.component_id
     inner join rules r on r.id=i.rule_id
-    inner join (select p.id,p.kee from projects p where (p.root_id=#{id} and p.qualifier &lt;&gt; 'BRC') or (p.id=#{id})) p on p.id=i.component_id
-    <where>
-      and i.status &lt;&gt; 'CLOSED'
-    </where>
+    left outer join projects root on root.id=i.root_component_id
+    where i.status &lt;&gt; 'CLOSED'
   </select>
 
   <select id="selectByIds" parameterType="map" resultType="Issue">
@@ -179,16 +197,15 @@
     inner join rules r on r.id=i.rule_id
     inner join projects p on p.id=i.component_id
     inner join projects root on root.id=i.root_component_id
-    <where>
-      and i.id in
-      <foreach collection="list" open="(" close=")" item="id" separator=",">
-        #{id}
-      </foreach>
-    </where>
+    where i.id in
+    <foreach collection="list" open="(" close=")" item="id" separator=",">
+      #{id}
+    </foreach>
   </select>
 
   <select id="selectIssues" parameterType="map" resultType="Issue">
-    select <include refid="issueColumns"/>
+    select
+    <include refid="issueColumns"/>
     from issues i
     inner join rules r on r.id=i.rule_id
     inner join projects p on p.id=i.component_id
@@ -197,7 +214,8 @@
   </select>
 
   <select id="selectIssueIds" parameterType="map" resultType="Issue">
-    select i.id <include refid="sortColumn"/>
+    select i.id
+    <include refid="sortColumn"/>
     from issues i
     <include refid="selectQueryConditions"/>
     limit #{maxResults}
@@ -205,7 +223,8 @@
 
   <!-- SQL Server -->
   <select id="selectIssueIds" parameterType="map" resultType="Issue" databaseId="mssql">
-    select top (#{maxResults}) i.id <include refid="sortColumn"/>
+    select top (#{maxResults}) i.id
+    <include refid="sortColumn"/>
     from issues i
     <include refid="selectQueryConditions"/>
   </select>
@@ -213,44 +232,64 @@
   <!-- Oracle -->
   <select id="selectIssueIds" parameterType="map" resultType="Issue" databaseId="oracle">
     select * from (select
-      i.id <include refid="sortColumn"/>
-      from issues i
-      <include refid="selectQueryConditions"/>
+    i.id
+    <include refid="sortColumn"/>
+    from issues i
+    <include refid="selectQueryConditions"/>
     )
     where rownum &lt;= #{maxResults}
   </select>
 
   <sql id="selectQueryConditions">
     <if test="componentRootKeys.size() == 0 and role != null">
-      inner join (<include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectIdsQuery" />) authorizedProjects on authorizedProjects.root_project_id=i.root_component_id
+      inner join (<include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectIdsQuery"/>)
+      authorizedProjects on authorizedProjects.root_project_id=i.root_component_id
     </if>
     <if test="componentRootKeys.size() > 0">
-      inner join (<include refid="org.sonar.core.resource.ResourceMapper.selectAuthorizedChildrenComponentIdsQuery" />) authorizedComponents on authorizedComponents.project_id=i.component_id
+      inner join (<include refid="org.sonar.core.resource.ResourceMapper.selectAuthorizedChildrenComponentIdsQuery"/>)
+      authorizedComponents on authorizedComponents.project_id=i.component_id
     </if>
     <if test="query.components().size() > 0">
-      inner join projects project_component on project_component.id=i.component_id and project_component.enabled=${_true} and
-      <foreach item="component" index="index" collection="query.components()" open="(" separator=" or " close=")">project_component.kee=#{component}
+      inner join projects project_component on project_component.id=i.component_id and
+      project_component.enabled=${_true} and
+      <foreach item="component" index="index" collection="query.components()" open="(" separator=" or " close=")">
+        project_component.kee=#{component}
       </foreach>
     </if>
-    <if test="query.rules().size()>0">
-      inner join rules r on r.id=i.rule_id and (<foreach item="rule" index="index" collection="query.rules()" open="(" separator=" or " close=")">
-      r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
+    <if test="query.rules().size()>0 or query.languages().size()>0">
+      inner join rules r on r.id=i.rule_id
+      <if test="query.rules().size()>0">
+        and (<foreach item="rule" index="index" collection="query.rules()" open="(" separator=" or " close=")">
+        r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
+      </if>
+      <if test="query.languages().size()>0">
+        and (<foreach item="language" index="index" collection="query.languages()" open="(" separator=" or " close=")">
+        r.language=#{language}</foreach>)
+      </if>
     </if>
     <where>
       <if test="query.issueKeys().size()>0">
-        and <foreach item="key" index="index" collection="query.issueKeys()" open="(" separator=" or " close=")">i.kee=#{key}
+        and
+        <foreach item="key" index="index" collection="query.issueKeys()" open="(" separator=" or " close=")">
+          i.kee=#{key}
         </foreach>
       </if>
       <if test="query.severities().size()>0">
-        and <foreach item="severity" index="index" collection="query.severities()" open="(" separator=" or " close=")">i.severity=#{severity}
+        and
+        <foreach item="severity" index="index" collection="query.severities()" open="(" separator=" or " close=")">
+          i.severity=#{severity}
         </foreach>
       </if>
       <if test="query.statuses().size()>0">
-        and <foreach item="status" index="index" collection="query.statuses()" open="(" separator=" or " close=")">i.status=#{status}
+        and
+        <foreach item="status" index="index" collection="query.statuses()" open="(" separator=" or " close=")">
+          i.status=#{status}
         </foreach>
       </if>
       <if test="query.resolutions().size()>0">
-        and <foreach item="resolution" index="index" collection="query.resolutions()" open="(" separator=" or " close=")">i.resolution=#{resolution}
+        and
+        <foreach item="resolution" index="index" collection="query.resolutions()" open="(" separator=" or " close=")">
+          i.resolution=#{resolution}
         </foreach>
       </if>
       <if test="query.resolved() != null">
@@ -262,11 +301,15 @@
         </if>
       </if>
       <if test="query.reporters().size()>0">
-        and <foreach item="reporter" index="index" collection="query.reporters()" open="(" separator=" or " close=")">i.reporter=#{reporter}
+        and
+        <foreach item="reporter" index="index" collection="query.reporters()" open="(" separator=" or " close=")">
+          i.reporter=#{reporter}
         </foreach>
       </if>
       <if test="query.assignees().size()>0">
-        and <foreach item="assignee" index="index" collection="query.assignees()" open="(" separator=" or " close=")">i.assignee=#{assignee}
+        and
+        <foreach item="assignee" index="index" collection="query.assignees()" open="(" separator=" or " close=")">
+          i.assignee=#{assignee}
         </foreach>
       </if>
       <if test="query.assigned() != null">
@@ -302,6 +345,33 @@
       </if>
     </where>
   </sql>
+
+  <select id="findRulesByComponent" parameterType="String" resultType="Rule">
+    SELECT
+    <include refid="org.sonar.core.rule.RuleMapper.selectColumns"/>
+    FROM issues i
+    INNER JOIN projects p on p.id=i.component_id
+    INNER JOIN rules r on r.id=i.rule_id
+    WHERE
+    p.kee=#{componentKey}
+    AND i.resolution IS NULL
+    <if test="createdAt != null">
+      AND i.issue_creation_date &gt;= #{createdAt}
+    </if>
+  </select>
+
+  <select id="findSeveritiesByComponent" parameterType="String" resultType="String">
+    SELECT i.severity
+    FROM issues i
+    INNER JOIN projects on projects.id=i.component_id
+    INNER JOIN rules on rules.id=i.rule_id
+    WHERE
+    projects.kee=#{componentKey}
+    AND i.resolution IS NULL
+    <if test="createdAt != null">
+      AND i.issue_creation_date &gt;= #{createdAt}
+    </if>
+  </select>
 
 </mapper>
 

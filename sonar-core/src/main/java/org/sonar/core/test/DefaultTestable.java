@@ -35,7 +35,10 @@ import org.sonar.core.graph.BeanVertex;
 import org.sonar.core.graph.GraphUtil;
 
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 public class DefaultTestable extends BeanVertex implements MutableTestable {
 
@@ -71,6 +74,14 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
       }
     }
     return number;
+  }
+
+  public Map<Integer, Integer> testCasesByLines() {
+    Map<Integer, Integer> testCasesByLines = newHashMap();
+    for (Integer line : testedLines()) {
+      testCasesByLines.put(line, countTestCasesOfLine(line));
+    }
+    return testCasesByLines;
   }
 
   public List<TestCase> testCasesOfLine(int line) {

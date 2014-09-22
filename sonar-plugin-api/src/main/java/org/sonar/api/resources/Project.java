@@ -19,14 +19,12 @@
  */
 package org.sonar.api.resources;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.component.Component;
+import org.sonar.api.config.Settings;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -62,7 +60,9 @@ public class Project extends Resource implements Component {
 
   /**
    * Enumerates the type of possible analysis
+   * @deprecated since 4.4 Since 4.3 SQ will no more run tests. So basically it's always reuse report.
    */
+  @Deprecated
   public enum AnalysisType {
     STATIC, DYNAMIC, REUSE_REPORTS;
 
@@ -79,7 +79,6 @@ public class Project extends Resource implements Component {
   private MavenProject pom;
   private String branch;
   private ProjectFileSystem fileSystem;
-  private Configuration configuration;
   private String name;
   private String description;
   private String packaging;
@@ -87,6 +86,7 @@ public class Project extends Resource implements Component {
   private Date analysisDate;
   private AnalysisType analysisType;
   private String analysisVersion;
+  private Settings settings;
 
   // modules tree
   private Project parent;
@@ -201,12 +201,17 @@ public class Project extends Resource implements Component {
   }
 
   /**
-   * @return the type of analysis of the project
+   * @deprecated since 4.4 Since 4.3 SQ will no more run tests. So basically it's always reuse report.
    */
+  @Deprecated
   public AnalysisType getAnalysisType() {
     return analysisType;
   }
 
+  /**
+   * @deprecated since 4.4 Since 4.3 SQ will no more run tests. So basically it's always reuse report.
+   */
+  @Deprecated
   public Project setAnalysisType(AnalysisType at) {
     this.analysisType = at;
     return this;
@@ -262,7 +267,27 @@ public class Project extends Resource implements Component {
    */
   @Deprecated
   public String getLanguageKey() {
-    return configuration.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY, "");
+    if (settings == null) {
+      throw new IllegalStateException("Project is not yet initialized");
+    }
+    return StringUtils.defaultIfEmpty(settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY), "");
+  }
+
+  /**
+   * Internal use
+   */
+  public Project setSettings(Settings settings) {
+    this.settings = settings;
+    return this;
+  }
+
+  /**
+   * Internal use for backward compatibility. Settings should be retrieved as an IoC dependency.
+   * @deprecated since 5.0
+   */
+  @Deprecated
+  public Settings getSettings() {
+    return settings;
   }
 
   /**
@@ -335,15 +360,6 @@ public class Project extends Resource implements Component {
   }
 
   /**
-   * @return whether to use external source for rules configuration
-   * @deprecated since 2.5. See discussion from http://jira.codehaus.org/browse/SONAR-1873
-   */
-  @Deprecated
-  public boolean getReuseExistingRulesConfig() {
-    return configuration != null && configuration.getBoolean(CoreProperties.REUSE_RULES_CONFIGURATION_PROPERTY, false);
-  }
-
-  /**
    * @return the current version of the project
    */
   public String getAnalysisVersion() {
@@ -355,51 +371,6 @@ public class Project extends Resource implements Component {
    */
   public Date getAnalysisDate() {
     return analysisDate;
-  }
-
-  /**
-   * Patterns of resource exclusion as defined in project settings page.
-   *
-   * @since 3.3 also applies exclusions in general settings page and global exclusions.
-   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.FileExclusions} in version 3.5
-   */
-  @Deprecated
-  public String[] getExclusionPatterns() {
-    return trimExclusions(ImmutableList.<String>builder()
-      .add(configuration.getStringArray(CoreProperties.PROJECT_EXCLUSIONS_PROPERTY))
-      .add(configuration.getStringArray(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY)).build());
-  }
-
-  /**
-   * Patterns of test exclusion as defined in project settings page.
-   * Also applies exclusions in general settings page and global exclusions.
-   *
-   * @since 3.3
-   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.FileExclusions} in version 3.5
-   */
-  @Deprecated
-  public String[] getTestExclusionPatterns() {
-    return trimExclusions(ImmutableList.<String>builder()
-      .add(configuration.getStringArray(CoreProperties.PROJECT_TEST_EXCLUSIONS_PROPERTY))
-      .add(configuration.getStringArray(CoreProperties.GLOBAL_TEST_EXCLUSIONS_PROPERTY)).build());
-  }
-
-  // http://jira.codehaus.org/browse/SONAR-2261 - exclusion must be trimmed
-  private static String[] trimExclusions(List<String> exclusions) {
-    List<String> trimmed = Lists.newArrayList();
-    for (String exclusion : exclusions) {
-      trimmed.add(StringUtils.trim(exclusion));
-    }
-    return trimmed.toArray(new String[trimmed.size()]);
-  }
-
-  /**
-   * Set exclusion patterns. Configuration is not saved, so this method must be used ONLY IN UNIT TESTS.
-   * @deprecated replaced by {@link org.sonar.api.scan.filesystem.FileExclusions} in version 3.5
-   */
-  @Deprecated
-  public Project setExclusionPatterns(String[] s) {
-    throw new UnsupportedOperationException("deprecated in 3.5");
   }
 
   /**
@@ -446,31 +417,6 @@ public class Project extends Resource implements Component {
   @Deprecated
   public MavenProject getPom() {
     return pom;
-  }
-
-  /**
-   * @return the project configuration
-   * @deprecated since 2.12. The component org.sonar.api.config.Settings must be used.
-   */
-  @Deprecated
-  public Configuration getConfiguration() {
-    return configuration;
-  }
-
-  /**
-   * For internal use only.
-   */
-  public final Project setConfiguration(Configuration configuration) {
-    this.configuration = configuration;
-    return this;
-  }
-
-  /**
-   * @deprecated since 3.6. Replaced by {@link org.sonar.api.config.Settings}.
-   */
-  @Deprecated
-  public Object getProperty(String key) {
-    return configuration != null ? configuration.getProperty(key) : null;
   }
 
   public static Project createFromMavenIds(String groupId, String artifactId) {

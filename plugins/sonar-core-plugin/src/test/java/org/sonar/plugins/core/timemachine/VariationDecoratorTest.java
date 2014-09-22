@@ -32,6 +32,7 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
@@ -60,7 +61,7 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldComputeVariations() {
     TimeMachineConfiguration timeMachineConfiguration = mock(TimeMachineConfiguration.class);
-    VariationDecorator decorator = new VariationDecorator(mock(PastMeasuresLoader.class), mock(MetricFinder.class), timeMachineConfiguration);
+    VariationDecorator decorator = new VariationDecorator(mock(PastMeasuresLoader.class), mock(MetricFinder.class), timeMachineConfiguration, mock(RuleFinder.class));
 
     assertThat(decorator.shouldComputeVariation(new Project("foo"))).isTrue();
     assertThat(decorator.shouldComputeVariation(new File("foo/bar.c"))).isFalse();
@@ -89,7 +90,7 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     Measure currentCoverage = newMeasure(COVERAGE, 80.0);
     when(context.getMeasures(Matchers.<MeasuresFilter>anyObject())).thenReturn(Arrays.asList(currentNcloc, currentCoverage));
 
-    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1, pastSnapshot3));
+    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1, pastSnapshot3), mock(RuleFinder.class));
     decorator.decorate(dir, context);
 
     // context updated for each variation : 2 times for ncloc and 1 time for coverage
@@ -106,10 +107,15 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldComputeVariationOfRuleMeasures() {
-    Rule rule1 = Rule.create();
+    RuleFinder ruleFinder = mock(RuleFinder.class);
+
+    Rule rule1 = Rule.create("repo", "rule1");
     rule1.setId(1);
-    Rule rule2 = Rule.create();
+    Rule rule2 = Rule.create("repo", "rule2");
     rule2.setId(2);
+
+    when(ruleFinder.findByKey(rule1.ruleKey())).thenReturn(rule1);
+    when(ruleFinder.findByKey(rule2.ruleKey())).thenReturn(rule2);
 
     Resource dir = new Directory("org/foo");
 
@@ -129,7 +135,7 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     Measure violationsRule2 = RuleMeasure.createForRule(VIOLATIONS, rule2, 70.0);
     when(context.getMeasures(Matchers.<MeasuresFilter>anyObject())).thenReturn(Arrays.asList(violations, violationsRule1, violationsRule2));
 
-    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1));
+    VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1), ruleFinder);
     decorator.decorate(dir, context);
 
     // context updated for each variation

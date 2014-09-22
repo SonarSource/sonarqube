@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.BootstrapSettings;
+import org.sonar.batch.bootstrap.TaskProperties;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -101,16 +101,16 @@ public class ProjectReactorBuilder {
   private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Lists.newArrayList(PROPERTY_PROJECT_BASEDIR, CoreProperties.WORKING_DIRECTORY, PROPERTY_MODULES,
     CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
 
-  private BootstrapSettings settings;
+  private TaskProperties props;
   private File rootProjectWorkDir;
 
-  public ProjectReactorBuilder(BootstrapSettings settings) {
-    this.settings = settings;
+  public ProjectReactorBuilder(TaskProperties props) {
+    this.props = props;
   }
 
   public ProjectReactor execute() {
     Properties bootstrapProperties = new Properties();
-    bootstrapProperties.putAll(settings.properties());
+    bootstrapProperties.putAll(props.properties());
     ProjectDefinition rootProject = defineProject(bootstrapProperties, null);
     rootProjectWorkDir = rootProject.getWorkDir();
     defineChildren(rootProject);
@@ -119,12 +119,12 @@ public class ProjectReactorBuilder {
   }
 
   protected ProjectDefinition defineProject(Properties properties, @Nullable ProjectDefinition parent) {
-    File baseDir = new File(properties.getProperty(PROPERTY_PROJECT_BASEDIR));
     if (properties.containsKey(PROPERTY_MODULES)) {
       checkMandatoryProperties(properties, MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT);
     } else {
       checkMandatoryProperties(properties, MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT);
     }
+    File baseDir = new File(properties.getProperty(PROPERTY_PROJECT_BASEDIR));
     final String projectKey = properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
     File workDir;
     if (parent == null) {
@@ -142,7 +142,7 @@ public class ProjectReactorBuilder {
 
   @VisibleForTesting
   protected File initRootProjectWorkDir(File baseDir) {
-    String workDir = settings.property(CoreProperties.WORKING_DIRECTORY);
+    String workDir = props.property(CoreProperties.WORKING_DIRECTORY);
     if (StringUtils.isBlank(workDir)) {
       return new File(baseDir, CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
     }
@@ -304,8 +304,8 @@ public class ProjectReactorBuilder {
       }
 
       // Check sonar.tests
-      String[] testDirs = getListFromProperty(props, PROPERTY_TESTS);
-      checkExistenceOfDirectories(projectId, baseDir, testDirs, PROPERTY_TESTS);
+      String[] testPaths = getListFromProperty(props, PROPERTY_TESTS);
+      checkExistenceOfPaths(projectId, baseDir, testPaths, PROPERTY_TESTS);
 
       // Check sonar.binaries
       String[] binDirs = getListFromProperty(props, PROPERTY_BINARIES);
@@ -332,8 +332,8 @@ public class ProjectReactorBuilder {
     Properties properties = project.getProperties();
 
     // We need to check the existence of source directories
-    String[] sourceDirs = getListFromProperty(properties, PROPERTY_SOURCES);
-    checkExistenceOfDirectories(project.getKey(), project.getBaseDir(), sourceDirs, PROPERTY_SOURCES);
+    String[] sourcePaths = getListFromProperty(properties, PROPERTY_SOURCES);
+    checkExistenceOfPaths(project.getKey(), project.getBaseDir(), sourcePaths, PROPERTY_SOURCES);
 
     // And we need to resolve patterns that may have been used in "sonar.libraries"
     List<String> libPaths = Lists.newArrayList();
@@ -415,10 +415,23 @@ public class ProjectReactorBuilder {
   }
 
   @VisibleForTesting
-  protected static void checkExistenceOfDirectories(String moduleRef, File baseDir, String[] sourceDirs, String propName) {
-    for (String path : sourceDirs) {
+  protected static void checkExistenceOfDirectories(String moduleRef, File baseDir, String[] dirPaths, String propName) {
+    for (String path : dirPaths) {
       File sourceFolder = resolvePath(baseDir, path);
       if (!sourceFolder.isDirectory()) {
+        LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, propName, moduleRef));
+        throw new IllegalStateException("The folder '" + path + "' does not exist for '" + moduleRef +
+          "' (base directory = " + baseDir.getAbsolutePath() + ")");
+      }
+    }
+
+  }
+
+  @VisibleForTesting
+  protected static void checkExistenceOfPaths(String moduleRef, File baseDir, String[] paths, String propName) {
+    for (String path : paths) {
+      File sourceFolder = resolvePath(baseDir, path);
+      if (!sourceFolder.exists()) {
         LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, propName, moduleRef));
         throw new IllegalStateException("The folder '" + path + "' does not exist for '" + moduleRef +
           "' (base directory = " + baseDir.getAbsolutePath() + ")");

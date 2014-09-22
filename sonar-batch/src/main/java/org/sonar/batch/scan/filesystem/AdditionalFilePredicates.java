@@ -22,7 +22,7 @@ package org.sonar.batch.scan.filesystem;
 import org.apache.commons.io.FilenameUtils;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 
 /**
  * Additional {@link org.sonar.api.batch.fs.FilePredicate}s that are
@@ -43,7 +43,7 @@ class AdditionalFilePredicates {
 
     @Override
     public boolean apply(InputFile f) {
-      return key.equals(((DefaultInputFile) f).key());
+      return key.equals(((DeprecatedDefaultInputFile) f).key());
     }
   }
 
@@ -56,7 +56,7 @@ class AdditionalFilePredicates {
 
     @Override
     public boolean apply(InputFile f) {
-      return key.equals(((DefaultInputFile) f).deprecatedKey());
+      return key.equals(((DeprecatedDefaultInputFile) f).deprecatedKey());
     }
   }
 
@@ -69,7 +69,7 @@ class AdditionalFilePredicates {
 
     @Override
     public boolean apply(InputFile f) {
-      return path.equals(((DefaultInputFile) f).pathRelativeToSourceDir());
+      return path.equals(((DeprecatedDefaultInputFile) f).pathRelativeToSourceDir());
     }
   }
 
@@ -82,7 +82,7 @@ class AdditionalFilePredicates {
 
     @Override
     public boolean apply(InputFile f) {
-      return path.equals(((DefaultInputFile) f).sourceDirAbsolutePath());
+      return path.equals(((DeprecatedDefaultInputFile) f).sourceDirAbsolutePath());
     }
   }
 }

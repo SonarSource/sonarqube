@@ -33,7 +33,9 @@ import org.sonar.api.resources.Project;
  * </p>
  * 
  * @since 1.10
+ * @deprecated since 4.5 we don't want any dependency on Maven anymore
  */
+@Deprecated
 @SupportedEnvironment("maven")
 public interface DependsUponMavenPlugin extends BatchExtension {
 

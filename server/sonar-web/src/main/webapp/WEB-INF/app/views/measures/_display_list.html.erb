@@ -1,0 +1,233 @@
+<div id="measure_filter_list<%= widget_id -%>">
+<% content_for :script do %>
+  <script>
+    var filterCriteria<%= widget_id -%> = <%= json_escape(filter.criteria.to_json) -%>;
+
+    function refreshList<%= widget_id -%>(sort, asc, page) {
+      $j('#measure_filter_foot<%= widget_id -%>_pages').hide();
+      $j('#measure_filter_foot<%= widget_id -%>_loading').show();
+
+      filterCriteria<%= widget_id -%>['sort']=sort;
+      filterCriteria<%= widget_id -%>['asc']=asc;
+      filterCriteria<%= widget_id -%>['page']=page;
+      var url=baseUrl + '/measures/search/<%= filter.id -%>?widget_id=<%= widget_id -%>&' + $j.param(filterCriteria<%= widget_id -%>);
+
+      <% if widget_id %>
+      $j('#measure_filter_list<%= widget_id -%>').load(url);
+      <% else %>
+      window.location = url;
+      <% end %>
+      return false;
+    }
+  </script>
+<%
+   end
+
+   display_favourites = logged_in?
+   colspan = filter.display.columns.size
+   colspan += 1 if display_favourites
+   if edit_mode
+     content_for :script do
+%>
+    <script>
+      var colOffset = <%= display_favourites ? 1 : 0 -%>;
+      function leftCol(id) {
+        var cell = $j('#measures-table tr td[index=' + id + ']');
+        var columnIndex = cell.parent().children().index(cell);
+        if (columnIndex-colOffset > 0) {
+          moveCol(columnIndex - 1, columnIndex);
+        }
+      }
+      function rightCol(id) {
+        var cols = filterCriteria<%= widget_id -%>['cols']||[];
+        var cell = $j('#measures-table tr td[index=' + id + ']');
+        var columnIndex = cell.parent().children().index(cell);
+
+        if (columnIndex-colOffset < cols.length - 1) {
+          moveCol(columnIndex, columnIndex + 1);
+        }
+      }
+      function moveCol(from, to) {
+        var cols = filterCriteria<%= widget_id -%>['cols']||[];
+        var temp = cols[from-colOffset];
+        cols[from-colOffset] = cols[to-colOffset];
+        cols[to-colOffset] = temp;
+        $j('#measures-table thead tr').each(function () {
+          var tr = $j(this);
+          var td1 = tr.find('th:eq(' + from + ')');
+          var td2 = tr.find('th:eq(' + to + ')');
+          td1.remove().insertAfter(td2);
+        });
+        $j('#measures-table tbody tr').each(function () {
+          var tr = $j(this);
+          var td1 = tr.find('td:eq(' + from + ')');
+          var td2 = tr.find('td:eq(' + to + ')');
+          td1.remove().insertAfter(td2);
+        });
+      }
+      function deleteCol(id) {
+        var cols = filterCriteria<%= widget_id -%>['cols']||[];
+        var cell = $j('#measures-table tr td[index=' + id + ']');
+        var columnIndex = cell.parent().children().index(cell);
+        cols.splice(columnIndex-colOffset, 1);
+        $j('#measures-table thead tr').each(function () {
+          var tr = $j(this);
+          var td1 = tr.find('th:eq(' + columnIndex + ')');
+          td1.remove();
+        });
+        $j('#measures-table tbody tr').each(function () {
+          var tr = $j(this);
+          var td1 = tr.find('td:eq(' + columnIndex + ')');
+          td1.remove();
+        });
+      }
+      $j(document).ready(function () {
+        $j("#select-metric").on("change", function (e) {
+          var selectedKey = $j("#select-metric option:selected").val();
+          if (selectedKey != null && selectedKey != '') {
+            if (selectedKey.indexOf('metric:') == 0) {
+              if (selectedKey.indexOf('metric:new_') == 0) {
+                $j('#select-period option :eq(0)').attr('disabled', 'disabled');
+                $j('#select-period ').val('1');
+              } else {
+                $j('#select-period option :eq(0)').removeAttr('disabled');
+                $j('#select-period').val('');
+              }
+              $j('#select-period').show();
+            } else {
+              $j('#select-period').hide();
+            }
+            $j("#add-metric").removeAttr('disabled');
+          } else {
+            $j("#add-metric").attr("disabled", "disabled");
+          }
+        });
+
+        $j("#add-metric").on("click", function (e) {
+          var cols = filterCriteria<%= widget_id -%>['cols']||[];
+          var columnKey = $j("#select-metric option:selected").val();
+          var period = $j("#select-period option:selected").val();
+          if (period.length > 0) {
+            columnKey += ':' + period;
+          }
+          cols.push(columnKey);
+          filterCriteria['edit']='true';
+          window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria<%= widget_id -%>);
+        });
+        $j("#add-metric").attr("disabled", "disabled");
+
+        $j("#exit-edit").on("click", function (e) {
+          delete filterCriteria['edit'];
+          window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria<%= widget_id -%>);
+        });
+      });
+    </script>
+  <%
+     end
+  %>
+  <table class="spaced width100 box">
+    <tr>
+      <td>
+        <%= metric_select_tag 'metric', Metric.all.reject { |m| m.hidden || m.data? },
+                              :html_id => 'select-metric',
+                              :allow_empty => true,
+                              :key_prefix => 'metric:',
+                              :extra_values => [
+                                  [message('measure_filter.col.name'), 'name'],
+                                  [message('measure_filter.col.short_name'), 'short_name'],
+                                  [message('measure_filter.col.description'), 'description'],
+                                  [message('measure_filter.col.version'), 'version'],
+                                  [message('measure_filter.col.date'), 'date'],
+                                  [message('measure_filter.col.project_creation_date'), 'project_creation_date'],
+                                  [message('measure_filter.col.links'), 'links']
+                              ]
+        -%>
+        <select id="select-period" style="display: none;">
+          <option value="">Value</option>
+          <% period_labels.each_with_index do |period_label, index| %>
+            <option value="<%= index + 1 -%>"><%= period_label -%></option>
+          <% end %>
+        </select>
+
+        <button id="add-metric"><%= message 'measure_filter.add_column_button' %></button>
+      </td>
+      <td class="right">
+        <a href="#" class="button" id="exit-edit"><%= message 'close' -%></a>
+      </td>
+    </tr>
+  </table>
+<%
+   end
+%>
+
+<table class="data" id="measures-table">
+  <thead>
+  <tr valign="top">
+    <% if display_favourites %>
+      <th class="thin"></th>
+    <% end %>
+    <% filter.display.columns.each do |column| %>
+      <%= list_column_html(filter, column, widget_id) -%>
+    <% end %>
+  </tr>
+  </thead>
+  <tbody>
+
+  <% if edit_mode %>
+    <tr class="bordered-bottom">
+      <% if display_favourites %>
+        <td></td>
+      <% end %>
+      <% filter.display.columns.each_with_index do |column, index| %>
+        <td class="nowrap <%= column.align -%>" index="<%= index -%>">
+          <a href="javascript:leftCol(<%= index -%>)" id="left-<%= column.key.parameterize -%>"><%= image_tag("controls/resultset_previous.png", :alt => message('move_left')) -%></a>
+          <a href="javascript:deleteCol(<%= index -%>)" id="delete-<%= column.key.parameterize -%>"><%= image_tag("cross-gray.png", :alt => message('measure_filter.delete_column')) -%></a>
+          <a href="javascript:rightCol(<%= index -%>)" id="right-<%= column.key.parameterize -%>"><%= image_tag("controls/resultset_next.png", :alt => message('move_right')) -%></a>
+        </td>
+      <% end %>
+  <% end %>
+
+  <% if filter.base_row %>
+    <tr class="highlight">
+      <% if display_favourites %>
+        <td class="thin"><%= link_to_favourite(filter.base_row.snapshot.resource) -%></td>
+      <% end %>
+      <% filter.display.columns.each do |column| %>
+        <td class="<%= column.align -%> <%= column.row_css -%>">
+          <%= list_cell_html(column, filter.base_row) -%>
+        </td>
+      <% end %>
+    </tr>
+  <% end %>
+
+  <% filter.rows.each do |row| %>
+    <tr class="<%= cycle 'even', 'odd' -%>">
+      <% if display_favourites %>
+        <td class="thin"><%= link_to_favourite(row.snapshot.resource) -%></td>
+      <% end %>
+      <% filter.display.columns.each do |column| %>
+        <td class="<%= column.align -%> <%= column.row_css -%>">
+          <%= list_cell_html(column, row) -%>
+        </td>
+      <% end %>
+    </tr>
+  <% end %>
+
+  <% if filter.rows.empty? %>
+    <tr class="even">
+      <td colspan="<%= colspan -%>"><%= message 'no_data' -%></td>
+    </tr>
+  <% end %>
+
+  </tbody>
+  <% if widget_id %>
+    <%= table_pagination(filter.pagination, :colspan => colspan, :id => "measure_filter_foot#{widget_id}", :include_loading_icon => true) { |label, page_id|
+      link_to_function label, "refreshList#{widget_id}('#{filter.criteria[:sort]}', #{filter.criteria[:asc]}, #{page_id})"
+    } -%>
+  <% else %>
+    <%= table_pagination(filter.pagination, :colspan => colspan, :id => "measure_filter_foot#{widget_id}", :include_loading_icon => true) { |label, page_id|
+      link_to(label, filter.criteria.merge({:page => page_id}))
+    } -%>
+  <% end %>
+</table>
+</div>

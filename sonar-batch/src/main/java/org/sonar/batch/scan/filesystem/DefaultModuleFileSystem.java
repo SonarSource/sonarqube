@@ -27,19 +27,21 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -58,19 +60,33 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   private final Settings settings;
 
   private File buildDir;
-  private List<File> sourceDirs = Lists.newArrayList();
-  private List<File> testDirs = Lists.newArrayList();
+  private List<File> sourceDirsOrFiles = Lists.newArrayList();
+  private List<File> testDirsOrFiles = Lists.newArrayList();
   private List<File> binaryDirs = Lists.newArrayList();
-  private List<File> sourceFiles = Lists.newArrayList();
-  private List<File> testFiles = Lists.newArrayList();
   private ComponentIndexer componentIndexer;
   private boolean initialized;
 
-  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project module, Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer,
+  /**
+   * Used by scan2 
+   */
+  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, ProjectDefinition def, Settings settings,
+    FileIndexer indexer, ModuleFileSystemInitializer initializer) {
+    this(moduleInputFileCache, def.getKey(), settings, indexer, initializer, null);
+  }
+
+  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, ProjectDefinition def, Project project,
+    Settings settings, FileIndexer indexer,
+    ModuleFileSystemInitializer initializer,
     ComponentIndexer componentIndexer) {
+    this(moduleInputFileCache, project.getKey(), settings, indexer, initializer, componentIndexer);
+  }
+
+  private DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, String moduleKey, Settings settings,
+    FileIndexer indexer, ModuleFileSystemInitializer initializer,
+    @Nullable ComponentIndexer componentIndexer) {
     super(moduleInputFileCache);
     this.componentIndexer = componentIndexer;
-    this.moduleKey = module.getKey();
+    this.moduleKey = moduleKey;
     this.settings = settings;
     this.indexer = indexer;
     if (initializer.baseDir() != null) {
@@ -78,11 +94,9 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     }
     setWorkDir(initializer.workingDir());
     this.buildDir = initializer.buildDir();
-    this.sourceDirs = initializer.sourceDirs();
-    this.testDirs = initializer.testDirs();
+    this.sourceDirsOrFiles = initializer.sources();
+    this.testDirsOrFiles = initializer.tests();
     this.binaryDirs = initializer.binaryDirs();
-    this.sourceFiles = initializer.additionalSourceFiles();
-    this.testFiles = initializer.additionalTestFiles();
   }
 
   public boolean isInitialized() {
@@ -101,25 +115,35 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   @Override
   public List<File> sourceDirs() {
-    return sourceDirs;
+    return keepOnlyDirs(sourceDirsOrFiles);
+  }
+
+  public List<File> sources() {
+    return sourceDirsOrFiles;
   }
 
   @Override
   public List<File> testDirs() {
-    return testDirs;
+    return keepOnlyDirs(testDirsOrFiles);
+  }
+
+  public List<File> tests() {
+    return testDirsOrFiles;
+  }
+
+  private List<File> keepOnlyDirs(List<File> dirsOrFiles) {
+    List<File> result = new ArrayList<File>();
+    for (File f : dirsOrFiles) {
+      if (f.isDirectory()) {
+        result.add(f);
+      }
+    }
+    return result;
   }
 
   @Override
   public List<File> binaryDirs() {
     return binaryDirs;
-  }
-
-  List<File> sourceFiles() {
-    return sourceFiles;
-  }
-
-  List<File> testFiles() {
-    return testFiles;
   }
 
   @Override
@@ -202,29 +226,31 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
     if (initialized) {
-      throw new SonarException("Module filesystem is already initialized. Modifications of filesystem are only allowed during Initializer phase.");
+      throw MessageException.of("Module filesystem is already initialized. Modifications of filesystem are only allowed during Initializer phase.");
     }
     setBaseDir(basedir);
     this.buildDir = buildDir;
-    this.sourceDirs = existingDirs(sourceDirs);
-    this.testDirs = existingDirs(testDirs);
-    this.binaryDirs = existingDirs(binaryDirs);
+    this.sourceDirsOrFiles = existingDirsOrFiles(sourceDirs);
+    this.testDirsOrFiles = existingDirsOrFiles(testDirs);
+    this.binaryDirs = existingDirsOrFiles(binaryDirs);
   }
 
   public void index() {
     if (initialized) {
-      throw new SonarException("Module filesystem can only be indexed once");
+      throw MessageException.of("Module filesystem can only be indexed once");
     }
     initialized = true;
     indexer.index(this);
-    componentIndexer.execute(this);
+    if (componentIndexer != null) {
+      componentIndexer.execute(this);
+    }
   }
 
-  private List<File> existingDirs(List<File> dirs) {
+  private List<File> existingDirsOrFiles(List<File> dirsOrFiles) {
     ImmutableList.Builder<File> builder = ImmutableList.builder();
-    for (File dir : dirs) {
-      if (dir.exists() && dir.isDirectory()) {
-        builder.add(dir);
+    for (File dirOrFile : dirsOrFiles) {
+      if (dirOrFile.exists()) {
+        builder.add(dirOrFile);
       }
     }
     return builder.build();

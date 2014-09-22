@@ -38,7 +38,7 @@ public class UnitTestDecorator implements Decorator {
 
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    return Arrays.asList(CoreMetrics.TEST_EXECUTION_TIME, CoreMetrics.TESTS, CoreMetrics.TEST_ERRORS, CoreMetrics.TEST_FAILURES, CoreMetrics.TEST_SUCCESS_DENSITY);
+    return Arrays.<Metric>asList(CoreMetrics.TEST_EXECUTION_TIME, CoreMetrics.TESTS, CoreMetrics.TEST_ERRORS, CoreMetrics.TEST_FAILURES, CoreMetrics.TEST_SUCCESS_DENSITY);
   }
 
   public boolean shouldExecuteOnProject(Project project) {

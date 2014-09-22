@@ -22,6 +22,7 @@ package org.sonar.core.permission;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
@@ -36,7 +37,7 @@ public class UserWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
 
   @Before
   public void setUp() {
-    dao = new PermissionTemplateDao(getMyBatis());
+    dao = new PermissionTemplateDao(getMyBatis(), System2.INSTANCE);
   }
 
   @Test

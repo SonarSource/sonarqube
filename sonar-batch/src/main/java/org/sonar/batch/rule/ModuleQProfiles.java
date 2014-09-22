@@ -20,14 +20,8 @@
 package org.sonar.batch.rule;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.utils.MessageException;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 
 import javax.annotation.CheckForNull;
 
@@ -40,84 +34,16 @@ import java.util.Map;
 public class ModuleQProfiles implements BatchComponent {
 
   public static final String SONAR_PROFILE_PROP = "sonar.profile";
-
-  public static class QProfile {
-    private final String name, language;
-    private final Integer version;
-    private final int id;
-
-    public QProfile(QualityProfileDto dto) {
-      this.id = dto.getId();
-      this.name = dto.getName();
-      this.language = dto.getLanguage();
-      this.version = dto.getVersion();
-    }
-
-    QProfile(int id, String name, String language, Integer version) {
-      this.id = id;
-      this.name = name;
-      this.language = language;
-      this.version = version;
-    }
-
-    public int id() {
-      return id;
-    }
-
-    public String name() {
-      return name;
-    }
-
-    public String language() {
-      return language;
-    }
-
-    public Integer version() {
-      return version;
-    }
-  }
-
   private final Map<String, QProfile> byLanguage;
 
-  public ModuleQProfiles(Settings settings, Languages languages, QualityProfileDao dao) {
+  public ModuleQProfiles(ProjectReferentials ref) {
     ImmutableMap.Builder<String, QProfile> builder = ImmutableMap.builder();
-    String defaultName = settings.getString(SONAR_PROFILE_PROP);
 
-    for (Language language : languages.all()) {
-      QProfile profile = null;
-      if (StringUtils.isNotBlank(defaultName)) {
-        profile = loadDefaultQProfile(dao, defaultName, language.getKey());
-      }
-      if (profile == null) {
-        profile = loadQProfile(dao, settings, language.getKey());
-      }
-      if (profile != null) {
-        builder.put(profile.language(), profile);
-      }
+    for (org.sonar.batch.protocol.input.QProfile qProfile : ref.qProfiles()) {
+      builder.put(qProfile.language(),
+        new QProfile().setKey(qProfile.key()).setName(qProfile.name()).setLanguage(qProfile.language()).setRulesUpdatedAt(qProfile.rulesUpdatedAt()));
     }
     byLanguage = builder.build();
-  }
-
-  @CheckForNull
-  private QProfile loadQProfile(QualityProfileDao dao, Settings settings, String language) {
-    String profileName = settings.getString("sonar.profile." + language);
-    if (profileName != null) {
-      QualityProfileDto dto = dao.selectByNameAndLanguage(profileName, language);
-      if (dto == null) {
-        throw MessageException.of(String.format("Quality profile not found : '%s' on language '%s'", profileName, language));
-      }
-      return new QProfile(dto);
-    }
-    return null;
-  }
-
-  @CheckForNull
-  private QProfile loadDefaultQProfile(QualityProfileDao dao, String profileName, String language) {
-    QualityProfileDto dto = dao.selectByNameAndLanguage(profileName, language);
-    if (dto != null) {
-      return new QProfile(dto);
-    }
-    return null;
   }
 
   public Collection<QProfile> findAll() {

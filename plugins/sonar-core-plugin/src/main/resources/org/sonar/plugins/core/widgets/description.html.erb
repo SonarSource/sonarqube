@@ -1,47 +1,90 @@
-<div class="widget box">
+<div class="widget">
+  <h3 class="description-widget-project">
+    <i class="icon-qualifier-<%= @project.qualifier.downcase -%>"></i>
+    <%= @project.name -%>
+  </h3>
+  <span class="description-widget-key"><%= h @project.key -%></span>
+
   <% if @project.description.present? %>
-    <p class="marginbottom10"><%= h @project.description %></p>
+    <p class="description-widget-description"><%= h @project.description -%></p>
   <% end %>
 
-  <table class="width100 marginbottom10">
-    <tbody>
-    <tr>
-      <td width="25%"><%= message('widget.description.key') -%>: </td>
-      <td width="75%" id="resource_key"><%= h @project.key -%></td>
-    </tr>
-    <% if @project.language %>
-    <tr>
-      <td><%= message('widget.description.language') -%>: </td>
-      <td id="resource_language"><%= Api::Utils.language_name(@project.language) -%></td>
-    </tr>
-    <% end %>
-    <%
-      profile_measure=@snapshot.measure(Metric::PROFILE)
-      if profile_measure
-    %>
-    <tr>
-      <td><%= message('widget.description.profile') -%>:</td>
-      <td><span id="resource_profile"><%= link_to profile_measure.data, {:controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i}, :id => 'profile_link' -%></span> (<%= message('widget.description.profile_version_x', :params => format_measure('profile_version', :default => '1')) -%>)</td>
-    </tr>
-    <% end %>
-    <% unless @project.project_links.empty? %>
-      <tr>
-        <td valign="top"><%= message('widget.description.links') -%>: </td>
-        <td id="resource_links">
-        <% @project.project_links.sort.each do |link| %>
-          <div>
-            <i class="icon-<%= h link.link_type -%>"></i>
-          <% if link.href.starts_with?('http') %>
-            <a target="_blank" href="<%= link.href -%>"><%= h link.name -%></a>
-          <% else %>
-            <a href="#" onclick="$j('#link_<%= link.id -%>').toggle();return false;"><%= h(link.name) -%></a>
-            <div id="link_<%= link.id -%>" style="padding-left: 20px; display:none"><%= h(link.href) -%></div>
-          <% end %>
-          </div>
+  <%
+     qprofiles_measure = measure(Metric::QUALITY_PROFILES)
+     if qprofiles_measure && !qprofiles_measure.data.blank?
+       qprofiles = JSON.parse qprofiles_measure.data
+       if qprofiles.size>0
+  %>
+    <p class="description-widget-description">
+      <%= message('widget.description.profiles') -%>:
+      <% qprofiles.each_with_index do |profile, i| %>
+        <span class="nowrap">
+          <span id="resource_profile">
+           <%= link_to profile['name'], {:controller => 'profiles', :action => 'show', :key => profile['key']}, :class => 'widget-link', :id => profile['language'] + '_profile_link' -%>
+          </span>
+          <span class="subtitle">
+            (<%= Api::Utils.language_name(profile['language']) -%>)
+          </span>
+          <% if i < (qprofiles.size - 1) %>,<% end %>
+        </span>
+      <%   end
+         end %>
+    </p>
+  <%
+     else
+       profile_measure=@snapshot.measure('profile')
+       if profile_measure
+  %>
+      <p class="description-widget-description">
+        <%= message('widget.description.profile') -%>:
+        <span id="resource_profile">
+          <%= link_to profile_measure.data, {:controller => 'profiles', :action => 'show', :id => profile_measure.value.to_i}, :class => 'widget-link', :id => 'profile_link' -%>
+        </span>
+      </p>
+    <% end
+       end %>
+
+  <%
+     unless @resource.qualifier == 'DEV' or @resource.qualifier == 'VW' or @resource.qualifier == 'SVW'
+       using_default=false
+       quality_gate=Property.value('sonar.qualitygate', @resource && @resource.id, nil)
+       unless quality_gate
+         quality_gate=Property.value('sonar.qualitygate', nil, nil)
+         using_default=false || quality_gate
+       end
+       if quality_gate
+         qgate = Internal.quality_gates.get(quality_gate.to_i)
+  %>
+    <p class="description-widget-description">
+      <span id="resource_qgate">
+        <%= message('widget.description.qualitygate') -%>:
+        <%= link_to qgate.getName(), (url_for :controller => '/quality_gates') + '#show/' + quality_gate, :class => 'widget-link', :id => 'qgate_link' -%>
+        <% if using_default %>
+          <span class="subtitle">(<%= message('default') -%>)</span>
         <% end %>
-        </td>
-      </tr>
-    <% end %>
-    </tbody>
-  </table>
+      </span>
+    </p>
+  <% end end %>
+
+  <% unless @project.project_links.empty? %>
+    <ul class="description-widget-links">
+      <% @project.project_links.sort.each do |link| %>
+        <li>
+          <% if link.href.starts_with?('http') %>
+            <a class="widget-link link-<%= h link.link_type -%>" target="_blank" href="<%= link.href -%>">
+              <i class="icon-<%= h link.link_type -%>"></i>
+              <%= h link.name -%>
+            </a>
+          <% else %>
+            <a class="widget-link link-<%= h link.link_type -%>" href="#" onclick="$j('#link_<%= link.id -%>').toggle();return false;">
+              <i class="icon-<%= h link.link_type -%>"></i>
+              <%= h(link.name) -%>
+            </a>
+
+            <div class="description-widget-link-data" id="link_<%= link.id -%>" style="display:none"><%= h(link.href) -%></div>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
 </div>

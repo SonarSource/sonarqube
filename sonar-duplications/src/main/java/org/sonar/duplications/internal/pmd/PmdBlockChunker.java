@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -48,6 +47,9 @@ public class PmdBlockChunker {
     this.power = pow;
   }
 
+  /**
+   * @return ArrayList as we need a serializable object
+   */
   public List<Block> chunk(String resourceId, List<TokensLine> fragments) {
     List<TokensLine> filtered = Lists.newArrayList();
     int i = 0;
@@ -66,7 +68,7 @@ public class PmdBlockChunker {
     fragments = filtered;
 
     if (fragments.size() < blockSize) {
-      return Collections.emptyList();
+      return Lists.newArrayList();
     }
     TokensLine[] fragmentsArr = fragments.toArray(new TokensLine[fragments.size()]);
     List<Block> blocks = Lists.newArrayListWithCapacity(fragmentsArr.length - blockSize + 1);
@@ -84,11 +86,11 @@ public class PmdBlockChunker {
       hash = hash * PRIME_BASE + lastFragment.getHashCode();
       // create block
       Block block = blockBuilder
-          .setBlockHash(new ByteArray(hash))
-          .setIndexInFile(first)
-          .setLines(firstFragment.getStartLine(), lastFragment.getEndLine())
-          .setUnit(firstFragment.getStartUnit(), lastFragment.getEndUnit())
-          .build();
+        .setBlockHash(new ByteArray(hash))
+        .setIndexInFile(first)
+        .setLines(firstFragment.getStartLine(), lastFragment.getEndLine())
+        .setUnit(firstFragment.getStartUnit(), lastFragment.getEndUnit())
+        .build();
       blocks.add(block);
       // remove first statement from hash
       hash -= power * firstFragment.getHashCode();

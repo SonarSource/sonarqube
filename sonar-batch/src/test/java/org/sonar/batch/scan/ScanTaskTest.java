@@ -45,7 +45,7 @@ public class ScanTaskTest {
     ScanTask task = new ScanTask(mock(TaskContainer.class));
     ComponentContainer projectScanContainer = new ComponentContainer();
     projectScanContainer.add(mock(ProjectConfigurator.class), new ProjectReactor(ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo")),
-      mock(Settings.class), mock(ProjectSettingsReady.class),
+      mock(Settings.class),
       mock(ResourceDao.class));
     task.scan(projectScanContainer);
 

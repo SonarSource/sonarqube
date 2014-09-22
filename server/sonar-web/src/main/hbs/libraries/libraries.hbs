@@ -1,0 +1,56 @@
+<div class="libraries-header">
+  <div class="libraries-header-filter">
+    <label for="libraries-filter">{{t 'libs.filter'}} </label>
+    <input id="libraries-filter" type="text" class="js-libraries-filter">
+  </div>
+
+  <div class="libraries-header-test">
+    <input type="checkbox" id="display-test-libraries" class="js-test-libraries">
+    <label for="display-test-libraries">{{t 'libs.displayTests'}}</label>
+  </div>
+
+  <div class="libraries-header-actions">
+    <a class="js-libraries-collapse-all">{{t 'libs.collapse'}}</a>
+    <a class="js-libraries-expand-all">{{t 'libs.expand'}}</a>
+  </div>
+
+  <div class="libraries-header-actions">
+    <a href="{{usagesUrl}}">{{t 'libs.usageLink'}}</a>
+  </div>
+</div>
+
+<div class="libraries-tree">
+  <ul>
+    {{#each items}}
+      <li>
+        {{qualifierIcon qualifier}}
+        <span class="libraries-tree-name">{{lname}}</span>
+        {{#if version}}
+          <span class="libraries-tree-version">{{version}}</span>
+        {{/if}}
+        {{#notEmpty libraries}}
+          <ul>
+            {{#recursive libraries}}
+              <li class="{{#if to}}libraries-tree-with-subtree libraries-tree-subtree-collapsed{{/if}} {{#eq u 'test'}}libraries-tree-test{{/eq}}">
+                {{#if to}}<a>{{/if}}
+                {{qualifierIcon q}}
+                <span class="libraries-tree-name">{{n}}</span>{{#if to}}</a>{{/if}}
+                {{#if v}}
+                  <span class="libraries-tree-version">{{v}}</span>
+                {{/if}}
+                {{#if u}}
+                  <span class="subtitle">({{u}})</span>
+                {{/if}}
+                {{#if to}}
+                  <ul>{{{recursive to}}}</ul>
+                {{/if}}
+              </li>
+            {{/recursive}}
+          </ul>
+        {{else}}
+          {{t 'libs.noLibraries'}}
+        {{/notEmpty}}
+      </li>
+    {{/each}}
+  </ul>
+</div>

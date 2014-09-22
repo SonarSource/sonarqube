@@ -1,0 +1,11 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/js/design/app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+  <script>
+    window.resourceKey = '<%= @resource.key -%>';
+  </script>
+<% end %>
+
+
+<div id="project-design">
+  <i class="spinner"></i>
+</div>

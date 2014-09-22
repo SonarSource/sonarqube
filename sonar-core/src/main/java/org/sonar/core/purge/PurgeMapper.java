@@ -48,8 +48,6 @@ public interface PurgeMapper {
 
   void deleteSnapshotMeasures(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshotMeasureData(@Param("snapshotIds") List<Long> snapshotIds);
-
   void deleteSnapshotSource(@Param("snapshotIds") List<Long> snapshotIds);
 
   void deleteSnapshotGraphs(@Param("snapshotIds") List<Long> snapshotIds);

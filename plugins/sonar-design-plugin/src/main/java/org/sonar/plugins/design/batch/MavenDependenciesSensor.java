@@ -19,6 +19,14 @@
  */
 package org.sonar.plugins.design.batch;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
@@ -34,18 +42,30 @@ import org.apache.maven.shared.dependency.tree.traversal.BuildingDependencyNodeV
 import org.apache.maven.shared.dependency.tree.traversal.CollectingDependencyNodeVisitor;
 import org.apache.maven.shared.dependency.tree.traversal.DependencyNodeVisitor;
 import org.apache.maven.shared.dependency.tree.traversal.FilteringDependencyNodeVisitor;
-import org.sonar.api.batch.SupportedEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.SupportedEnvironment;
+import org.sonar.api.config.Settings;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 @SupportedEnvironment("maven")
 public class MavenDependenciesSensor implements Sensor {
+
+  private static final String SONAR_MAVEN_PROJECT_DEPENDENCY = "sonar.maven.projectDependencies";
+
+  private static final Logger LOG = LoggerFactory.getLogger(MavenDependenciesSensor.class);
 
   private ArtifactRepository localRepository;
   private ArtifactFactory artifactFactory;
@@ -53,9 +73,11 @@ public class MavenDependenciesSensor implements Sensor {
   private ArtifactCollector artifactCollector;
   private DependencyTreeBuilder treeBuilder;
   private SonarIndex index;
+  private Settings settings;
 
-  public MavenDependenciesSensor(ArtifactRepository localRepository, ArtifactFactory artifactFactory, ArtifactMetadataSource artifactMetadataSource,
-                                 ArtifactCollector artifactCollector, DependencyTreeBuilder treeBuilder, SonarIndex index) {
+  public MavenDependenciesSensor(Settings settings, ArtifactRepository localRepository, ArtifactFactory artifactFactory, ArtifactMetadataSource artifactMetadataSource,
+    ArtifactCollector artifactCollector, DependencyTreeBuilder treeBuilder, SonarIndex index) {
+    this.settings = settings;
     this.localRepository = localRepository;
     this.artifactFactory = artifactFactory;
     this.artifactMetadataSource = artifactMetadataSource;
@@ -64,11 +86,101 @@ public class MavenDependenciesSensor implements Sensor {
     this.treeBuilder = treeBuilder;
   }
 
+  /**
+   * Used with SQ Maven plugin 2.5+
+   */
+  public MavenDependenciesSensor(Settings settings, SonarIndex index) {
+    this.settings = settings;
+    this.index = index;
+  }
+
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
 
+  private static class InputDependency {
+
+    private final String key;
+
+    private final String version;
+
+    private String scope;
+
+    List<InputDependency> dependencies = new ArrayList<InputDependency>();
+
+    public InputDependency(String key, String version) {
+      this.key = key;
+      this.version = version;
+    }
+
+    public String key() {
+      return key;
+    }
+
+    public String version() {
+      return version;
+    }
+
+    public String scope() {
+      return scope;
+    }
+
+    public InputDependency setScope(String scope) {
+      this.scope = scope;
+      return this;
+    }
+
+    public List<InputDependency> dependencies() {
+      return dependencies;
+    }
+  }
+
+  private static class DependencyDeserializer implements JsonDeserializer<InputDependency> {
+
+    @Override
+    public InputDependency deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+
+      JsonObject dep = json.getAsJsonObject();
+      String key = dep.get("k").getAsString();
+      String version = dep.get("v").getAsString();
+      InputDependency result = new InputDependency(key, version);
+      result.setScope(dep.get("s").getAsString());
+      JsonElement subDeps = dep.get("d");
+      if (subDeps != null) {
+        JsonArray arrayOfSubDeps = subDeps.getAsJsonArray();
+        for (JsonElement e : arrayOfSubDeps) {
+          result.dependencies().add(deserialize(e, typeOfT, context));
+        }
+      }
+      return result;
+    }
+
+  }
+
   public void analyse(final Project project, final SensorContext context) {
+    if (settings.hasKey(SONAR_MAVEN_PROJECT_DEPENDENCY)) {
+      LOG.debug("Using dependency provided by property " + SONAR_MAVEN_PROJECT_DEPENDENCY);
+      String depsAsJson = settings.getString(SONAR_MAVEN_PROJECT_DEPENDENCY);
+      Collection<InputDependency> deps;
+      try {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(InputDependency.class, new DependencyDeserializer());
+        Gson gson = gsonBuilder.create();
+
+        Type collectionType = new TypeToken<Collection<InputDependency>>() {
+        }.getType();
+        deps = gson.fromJson(depsAsJson, collectionType);
+        saveDependencies(project, deps, context);
+      } catch (Exception e) {
+        throw new IllegalStateException("Unable to deserialize dependency information: " + depsAsJson, e);
+      }
+    } else if (treeBuilder != null) {
+      computeDependencyTree(project, context);
+    }
+  }
+
+  private void computeDependencyTree(final Project project, final SensorContext context) {
+    LOG.warn("Computation of Maven dependencies by SonarQube is deprecated. Please update the version of SonarQube Maven plugin to 2.5+");
     try {
       DependencyNode root = treeBuilder.buildDependencyTree(project.getPom(), localRepository, artifactFactory, artifactMetadataSource, null, artifactCollector);
 
@@ -100,6 +212,30 @@ public class MavenDependenciesSensor implements Sensor {
     } catch (DependencyTreeBuilderException e) {
       throw new SonarException("Can not load the graph of dependencies of the project " + project.getKey(), e);
     }
+  }
+
+  private void saveDependencies(Resource from, Collection<InputDependency> deps, SensorContext context) {
+    for (InputDependency inputDep : deps) {
+      Resource to = toResource(inputDep, context);
+      Dependency dependency = new Dependency(from, to);
+      dependency.setUsage(inputDep.scope());
+      dependency.setWeight(1);
+      context.saveDependency(dependency);
+      if (!inputDep.dependencies().isEmpty()) {
+        saveDependencies(to, inputDep.dependencies(), context);
+      }
+    }
+  }
+
+  private Resource toResource(InputDependency dependency, SensorContext context) {
+    Project project = new Project(dependency.key());
+    Resource result = context.getResource(project);
+    if (result == null || !((Project) result).getAnalysisVersion().equals(dependency.version())) {
+      Library lib = new Library(project.getKey(), dependency.version());
+      context.saveResource(lib);
+      result = context.getResource(lib);
+    }
+    return result;
   }
 
   protected void saveDependency(DependencyNode node, SensorContext context) {

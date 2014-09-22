@@ -20,6 +20,16 @@
 package org.sonar.xoo;
 
 import org.sonar.api.SonarPlugin;
+import org.sonar.xoo.lang.CoveragePerTestSensor;
+import org.sonar.xoo.lang.MeasureSensor;
+import org.sonar.xoo.lang.ScmActivitySensor;
+import org.sonar.xoo.lang.SymbolReferencesSensor;
+import org.sonar.xoo.lang.SyntaxHighlightingSensor;
+import org.sonar.xoo.lang.TestCaseSensor;
+import org.sonar.xoo.lang.XooTokenizerSensor;
+import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
+import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
+import org.sonar.xoo.rule.OneIssuePerLineSensor;
 import org.sonar.xoo.rule.XooQualityProfile;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -39,7 +49,21 @@ public class XooPlugin extends SonarPlugin {
     return Arrays.asList(
       Xoo.class,
       XooRulesDefinition.class,
-      XooQualityProfile.class);
+      XooQualityProfile.class,
+
+      // sensors
+      MeasureSensor.class,
+      ScmActivitySensor.class,
+      SyntaxHighlightingSensor.class,
+      SymbolReferencesSensor.class,
+      XooTokenizerSensor.class,
+      TestCaseSensor.class,
+      CoveragePerTestSensor.class,
+
+      OneIssuePerLineSensor.class,
+      OneIssueOnDirPerFileSensor.class,
+      CreateIssueByInternalKeySensor.class
+      );
   }
 
 }

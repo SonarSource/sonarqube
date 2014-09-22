@@ -25,20 +25,12 @@ public interface DatabaseProperties {
 
   String PROP_URL = "sonar.jdbc.url";
   String PROP_DRIVER = "sonar.jdbc.driverClassName";
-  String PROP_DRIVER_DEPRECATED = "sonar.jdbc.driver";
   String PROP_USER = "sonar.jdbc.username";
   String PROP_USER_DEPRECATED = "sonar.jdbc.user";
   String PROP_USER_DEFAULT_VALUE = "sonar";
   String PROP_PASSWORD = "sonar.jdbc.password";
   String PROP_PASSWORD_DEFAULT_VALUE = "sonar";
   String PROP_DIALECT = "sonar.jdbc.dialect";
-
-  /**
-   * @deprecated in 4.2. Not supported anymore. See http://jira.codehaus.org/browse/SONAR-5000.
-   */
-  @Deprecated
-  String PROP_HIBERNATE_DEFAULT_SCHEMA = "sonar.hibernate.default_schema";
-  String PROP_EMBEDDED_DATA_DIR = "sonar.embeddedDatabase.dataDir";
 
   /**
    * @since 3.2

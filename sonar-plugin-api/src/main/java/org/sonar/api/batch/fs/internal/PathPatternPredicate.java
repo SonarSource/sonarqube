@@ -21,7 +21,6 @@ package org.sonar.api.batch.fs.internal;
 
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.PathPattern;
 
 /**
  * @since 4.2

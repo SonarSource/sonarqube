@@ -19,10 +19,10 @@
  */
 package org.sonar.api.batch;
 
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
@@ -30,11 +30,17 @@ import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.graph.DirectedGraphAccessor;
 
+import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @deprecated since 5.0 should not be an API. Everything should be accessed using {@link SensorContext}.
+ */
+@Deprecated
 public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Dependency> {
 
   /**
@@ -118,8 +124,10 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
   @Deprecated
   public abstract Resource addResource(Resource resource);
 
-  public abstract Measure getMeasure(Resource resource, Metric metric);
+  @CheckForNull
+  public abstract Measure getMeasure(Resource resource, org.sonar.api.batch.measure.Metric<?> metric);
 
+  @CheckForNull
   public abstract <M> M getMeasures(Resource resource, MeasuresFilter<M> filter);
 
   /**

@@ -38,6 +38,7 @@ public class ResourceDto {
   private Long copyResourceId;
   private Long personId;
   private Date createdAt;
+  private Date authorizationUpdatedAt;
 
   public Long getId() {
     return id;
@@ -171,6 +172,15 @@ public class ResourceDto {
 
   public ResourceDto setCreatedAt(Date date) {
     this.createdAt = date;// NOSONAR May expose internal representation by incorporating reference to mutable object
+    return this;
+  }
+
+  public Date getAuthorizationUpdatedAt() {
+    return authorizationUpdatedAt;
+  }
+
+  public ResourceDto setAuthorizationUpdatedAt(Date authorizationUpdatedAt) {
+    this.authorizationUpdatedAt = authorizationUpdatedAt;
     return this;
   }
 }

@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.core.dependency.DependencyMapper">
 
-  <select id="selectAll" resultType="dependency">
+  <select id="selectAll" resultType="dependency" >
     SELECT id, from_snapshot_id as fromSnapshotId, to_snapshot_id as toSnapshotId, dep_usage as "usage" FROM dependencies
   </select>
 

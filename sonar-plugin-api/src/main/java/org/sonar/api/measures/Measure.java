@@ -28,6 +28,7 @@ import org.sonar.api.technicaldebt.batch.Requirement;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
@@ -37,7 +38,7 @@ import java.util.Date;
  *
  * @since 1.10
  */
-public class Measure {
+public class Measure<G extends Serializable> implements Serializable {
   private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
 
   protected static final int MAX_TEXT_SIZE = 96;
@@ -47,10 +48,8 @@ public class Measure {
    */
   public static final int DEFAULT_PRECISION = 1;
 
-  // for internal use
-  private Long id;
   protected String metricKey;
-  protected Metric metric;
+  protected Metric<G> metric;
   protected Double value;
   protected String data;
   protected String description;
@@ -171,8 +170,12 @@ public class Measure {
    * @param mode the mode
    * @return the measure object instance
    */
-  public Measure setPersistenceMode(PersistenceMode mode) {
-    this.persistenceMode = mode;
+  public Measure setPersistenceMode(@Nullable PersistenceMode mode) {
+    if (mode == null) {
+      this.persistenceMode = PersistenceMode.FULL;
+    } else {
+      this.persistenceMode = mode;
+    }
     return this;
   }
 
@@ -239,6 +242,38 @@ public class Measure {
   }
 
   /**
+   * For internal use.
+   */
+  public G value() {
+    switch (getMetric().getType()) {
+      case BOOL:
+        return (G) Boolean.valueOf(1.0 == value);
+      case INT:
+      case MILLISEC:
+        return (G) Integer.valueOf(value.intValue());
+      case FLOAT:
+      case PERCENT:
+      case RATING:
+        return (G) value;
+      case STRING:
+      case LEVEL:
+      case DATA:
+      case DISTRIB:
+        return (G) getData();
+      case WORK_DUR:
+        return (G) Long.valueOf(value.longValue());
+      default:
+        if (getMetric().isNumericType()) {
+          return (G) getValue();
+        } else if (getMetric().isDataType()) {
+          return (G) getData();
+        } else {
+          throw new UnsupportedOperationException("Unsupported type :" + getMetric().getType());
+        }
+    }
+  }
+
+  /**
    * @return the value of the measure as an int
    */
   public Integer getIntValue() {
@@ -256,6 +291,14 @@ public class Measure {
    */
   public Measure setValue(@Nullable Double v) {
     return setValue(v, DEFAULT_PRECISION);
+  }
+
+  /**
+   * For internal use
+   */
+  public Measure setRawValue(@Nullable Double v) {
+    this.value = v;
+    return this;
   }
 
   /**
@@ -300,6 +343,7 @@ public class Measure {
   /**
    * @return the data field of the measure
    */
+  @CheckForNull
   public String getData() {
     return data;
   }
@@ -369,7 +413,7 @@ public class Measure {
    * @param status the status
    * @return the measure object instance
    */
-  public Measure setAlertStatus(Metric.Level status) {
+  public Measure setAlertStatus(@Nullable Metric.Level status) {
     this.alertStatus = status;
     return this;
   }
@@ -387,7 +431,7 @@ public class Measure {
    * @param alertText the text
    * @return the measure object instance
    */
-  public Measure setAlertText(String alertText) {
+  public Measure setAlertText(@Nullable String alertText) {
     this.alertText = alertText;
     return this;
   }
@@ -407,26 +451,17 @@ public class Measure {
    * @param tendency the tendency
    * @return the measure object instance
    */
-  public Measure setTendency(Integer tendency) {
+  public Measure setTendency(@Nullable Integer tendency) {
     this.tendency = tendency;
     return this;
   }
 
   /**
-   * @return the measure id - Internal use only
+   * Called by views when cloning measures
+   * @deprecated since 4.4 not used
    */
-  public Long getId() {
-    return id;
-  }
-
-  /**
-   * Sets the measure id - Internal use only
-   *
-   * @param id the id
-   * @return the measure object instance
-   */
+  @Deprecated
   public Measure setId(Long id) {
-    this.id = id;
     return this;
   }
 
@@ -443,7 +478,7 @@ public class Measure {
    *
    * @since 2.5
    */
-  public Measure setVariation1(Double d) {
+  public Measure setVariation1(@Nullable Double d) {
     this.variation1 = d;
     return this;
   }
@@ -461,7 +496,7 @@ public class Measure {
    *
    * @since 2.5
    */
-  public Measure setVariation2(Double d) {
+  public Measure setVariation2(@Nullable Double d) {
     this.variation2 = d;
     return this;
   }
@@ -479,7 +514,7 @@ public class Measure {
    *
    * @since 2.5
    */
-  public Measure setVariation3(Double d) {
+  public Measure setVariation3(@Nullable Double d) {
     this.variation3 = d;
     return this;
   }
@@ -497,7 +532,7 @@ public class Measure {
    *
    * @since 2.5
    */
-  public Measure setVariation4(Double d) {
+  public Measure setVariation4(@Nullable Double d) {
     this.variation4 = d;
     return this;
   }
@@ -515,7 +550,7 @@ public class Measure {
    *
    * @since 2.5
    */
-  public Measure setVariation5(Double d) {
+  public Measure setVariation5(@Nullable Double d) {
     this.variation5 = d;
     return this;
   }
@@ -625,6 +660,7 @@ public class Measure {
   /**
    * @since 2.14
    */
+  @CheckForNull
   @Beta
   public Integer getPersonId() {
     return personId;
@@ -634,7 +670,7 @@ public class Measure {
    * @since 2.14
    */
   @Beta
-  public Measure setPersonId(Integer i) {
+  public Measure setPersonId(@Nullable Integer i) {
     this.personId = i;
     return this;
   }
@@ -643,10 +679,11 @@ public class Measure {
    * @since 3.2
    */
   public boolean isBestValue() {
+    Double bestValue = metric.getBestValue();
     return metric.isOptimizedBestValue() == Boolean.TRUE
-      && metric.getBestValue() != null
-      && (value == null || NumberUtils.compare(metric.getBestValue(), value) == 0)
-      && allNull(id, alertStatus, description, tendency, url, data)
+      && bestValue != null
+      && (value == null || NumberUtils.compare(bestValue, value) == 0)
+      && allNull(alertStatus, description, tendency, url, data)
       && isZeroVariation(variation1, variation2, variation3, variation4, variation5);
   }
 
@@ -702,4 +739,5 @@ public class Measure {
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
   }
+
 }

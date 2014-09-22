@@ -25,11 +25,19 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 public class RuleKeyTest {
+
   @Test
   public void testOf() throws Exception {
     RuleKey key = RuleKey.of("squid", "NullDeref");
     assertThat(key.repository()).isEqualTo("squid");
     assertThat(key.rule()).isEqualTo("NullDeref");
+  }
+
+  @Test
+  public void key_can_contain_colons() throws Exception {
+    RuleKey key = RuleKey.of("squid", "Key:With:Some::Colons");
+    assertThat(key.repository()).isEqualTo("squid");
+    assertThat(key.rule()).isEqualTo("Key:With:Some::Colons");
   }
 
   @Test
@@ -73,7 +81,7 @@ public class RuleKeyTest {
   }
 
   @Test
-  public void should_encode_and_decode_string() throws Exception {
+  public void encode_and_decode_string() throws Exception {
     RuleKey key = RuleKey.of("squid", "NullDeref");
     String serialized = key.toString();
     assertThat(serialized).isEqualTo("squid:NullDeref");
@@ -84,12 +92,19 @@ public class RuleKeyTest {
   }
 
   @Test
-  public void should_not_accept_bad_format() throws Exception {
+  public void parse_key_with_colons() throws Exception {
+    RuleKey key = RuleKey.parse("squid:Key:With:Some::Colons");
+    assertThat(key.repository()).isEqualTo("squid");
+    assertThat(key.rule()).isEqualTo("Key:With:Some::Colons");
+  }
+
+  @Test
+  public void not_accept_bad_format() throws Exception {
     try {
       RuleKey.parse("foo");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Bad format of rule key: foo");
+      assertThat(e).hasMessage("Invalid rule key: foo");
     }
   }
 

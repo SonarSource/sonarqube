@@ -23,12 +23,15 @@ package org.sonar.core.issue.db;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.apache.ibatis.executor.result.DefaultResultHandler;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 
 import java.util.List;
 
@@ -38,11 +41,19 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueDaoTest extends AbstractDaoTestCase {
 
+  DbSession session;
+
   IssueDao dao;
 
   @Before
   public void createDao() {
+    session = getMyBatis().openSession(false);
     dao = new IssueDao(getMyBatis());
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
@@ -260,6 +271,20 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_by_languages() {
+    setupData("shared", "select_by_languages");
+
+    IssueQuery query = IssueQuery.builder().languages(newArrayList("java")).requiredRole("user").build();
+    assertThat(dao.selectIssueIds(query)).hasSize(2);
+
+    query = IssueQuery.builder().languages(newArrayList("java", "xoo")).requiredRole("user").build();
+    assertThat(dao.selectIssueIds(query)).hasSize(3);
+
+    query = IssueQuery.builder().languages(newArrayList("Other")).requiredRole("user").build();
+    assertThat(dao.selectIssueIds(query)).isEmpty();
+  }
+
+  @Test
   public void should_select_issues_for_authorized_projects() {
     setupData("should_select_issues_for_authorized_projects");
 
@@ -310,7 +335,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_non_closed_issues_by_module() {
+  public void select_non_closed_issues_by_module() {
     setupData("shared", "should_select_non_closed_issues_by_module");
 
     // 400 is a non-root module, we should find 2 issues from classes and one on itself
@@ -322,11 +347,37 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRuleRepo()).isNotNull();
     assertThat(issue.getRule()).isNotNull();
     assertThat(issue.getComponentKey()).isNotNull();
+    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
 
     // 399 is the root module, we should only find 1 issue on itself
     handler = new DefaultResultHandler();
     dao.selectNonClosedIssuesByModule(399, handler);
     assertThat(handler.getResultList()).hasSize(1);
+
+    issue = (IssueDto) handler.getResultList().get(0);
+    assertThat(issue.getComponentKey()).isEqualTo("struts");
+    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
+  }
+
+  /**
+   * SONAR-5218
+   */
+  @Test
+  public void select_non_closed_issues_by_module_on_removed_project() {
+    // All issues are linked on a project that is not existing anymore
+
+    setupData("shared", "should_select_non_closed_issues_by_module_on_removed_project");
+
+    // 400 is a non-root module, we should find 2 issues from classes and one on itself
+    DefaultResultHandler handler = new DefaultResultHandler();
+    dao.selectNonClosedIssuesByModule(400, handler);
+    assertThat(handler.getResultList()).hasSize(3);
+
+    IssueDto issue = (IssueDto) handler.getResultList().get(0);
+    assertThat(issue.getRuleRepo()).isNotNull();
+    assertThat(issue.getRule()).isNotNull();
+    assertThat(issue.getComponentKey()).isNotNull();
+    assertThat(issue.getRootComponentKey()).isNull();
   }
 
   @Test
@@ -386,6 +437,22 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRule()).isEqualTo("AvoidCycle");
     assertThat(issue.getComponentKey()).isEqualTo("Action.java");
     assertThat(issue.getRootComponentKey()).isEqualTo("struts");
+  }
+
+  @Test
+  public void find_rules_by_component() {
+    setupData("shared", "find_rules_by_component");
+
+    assertThat(dao.findRulesByComponent("Action.java", null, session)).hasSize(3);
+    assertThat(dao.findRulesByComponent("Action.java", DateUtils.parseDate("2013-04-17"), session)).hasSize(2);
+  }
+
+  @Test
+  public void find_severities_by_component() {
+    setupData("shared", "find_severities_by_component");
+
+    assertThat(dao.findSeveritiesByComponent("Action.java", null, session)).containsExactly(Severity.BLOCKER, Severity.MAJOR, Severity.BLOCKER);
+    assertThat(dao.findSeveritiesByComponent("Action.java", DateUtils.parseDate("2013-04-17"), session)).containsExactly(Severity.MAJOR);
   }
 
   private List<Long> getIssueIds(List<IssueDto> issues) {

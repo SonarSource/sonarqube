@@ -19,32 +19,40 @@
  */
 package org.sonar.core.rule;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.check.Cardinality;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Date;
+import java.util.*;
 
-public final class RuleDto {
+public final class RuleDto extends Dto<RuleKey> {
 
   public static final Integer DISABLED_CHARACTERISTIC_ID = -1;
+
+  public enum Format {
+    HTML, MARKDOWN
+  }
 
   private Integer id;
   private String repositoryKey;
   private String ruleKey;
   private String description;
-  private String status;
+  private Format descriptionFormat;
+  private RuleStatus status;
   private String name;
   private String configKey;
   private Integer severity;
-  private Cardinality cardinality;
+  private boolean isTemplate;
   private String language;
-  private Integer parentId;
+  private Integer templateId;
   private String noteData;
   private String noteUserLogin;
   private Date noteCreatedAt;
@@ -58,8 +66,18 @@ public final class RuleDto {
   private String remediationOffset;
   private String defaultRemediationOffset;
   private String effortToFixDescription;
-  private Date createdAt;
-  private Date updatedAt;
+  private String tags;
+  private String systemTags;
+
+  private transient RuleKey key;
+
+  @Override
+  public RuleKey getKey() {
+    if (key == null) {
+      key = RuleKey.of(getRepositoryKey(), getRuleKey());
+    }
+    return key;
+  }
 
   public Integer getId() {
     return id;
@@ -97,12 +115,21 @@ public final class RuleDto {
     return this;
   }
 
-  public String getStatus() {
+  public Format getDescriptionFormat() {
+    return descriptionFormat;
+  }
+
+  public RuleDto setDescriptionFormat(Format descriptionFormat) {
+    this.descriptionFormat = descriptionFormat;
+    return this;
+  }
+
+  public RuleStatus getStatus() {
     return status;
   }
 
-  public RuleDto setStatus(String status) {
-    this.status = status;
+  public RuleDto setStatus(@Nullable RuleStatus s) {
+    this.status = s;
     return this;
   }
 
@@ -110,7 +137,7 @@ public final class RuleDto {
     return name;
   }
 
-  public RuleDto setName(String name) {
+  public RuleDto setName(@Nullable String name) {
     this.name = name;
     return this;
   }
@@ -119,39 +146,40 @@ public final class RuleDto {
     return configKey;
   }
 
-  public RuleDto setConfigKey(String configKey) {
+  public RuleDto setConfigKey(@Nullable String configKey) {
     this.configKey = configKey;
     return this;
   }
 
+  @CheckForNull
   public Integer getSeverity() {
     return severity;
   }
 
+  @CheckForNull
   public String getSeverityString() {
-    return SeverityUtil.getSeverityFromOrdinal(severity);
+    return severity != null ? SeverityUtil.getSeverityFromOrdinal(severity) : null;
   }
 
-  public RuleDto setSeverity(String severity) {
-    this.severity = SeverityUtil.getOrdinalFromSeverity(severity);
-    return this;
+  public RuleDto setSeverity(@Nullable String severity) {
+    return this.setSeverity(severity != null ? SeverityUtil.getOrdinalFromSeverity(severity) : null);
   }
 
-  public RuleDto setSeverity(Integer severity) {
+  public RuleDto setSeverity(@Nullable Integer severity) {
     this.severity = severity;
     return this;
   }
 
-
-  public Cardinality getCardinality() {
-    return cardinality;
+  public boolean isTemplate() {
+    return isTemplate;
   }
 
-  public RuleDto setCardinality(Cardinality cardinality) {
-    this.cardinality = cardinality;
+  public RuleDto setIsTemplate(boolean isTemplate) {
+    this.isTemplate = isTemplate;
     return this;
   }
 
+  @CheckForNull
   public String getLanguage() {
     return language;
   }
@@ -162,12 +190,12 @@ public final class RuleDto {
   }
 
   @CheckForNull
-  public Integer getParentId() {
-    return parentId;
+  public Integer getTemplateId() {
+    return templateId;
   }
 
-  public RuleDto setParentId(@Nullable Integer parentId) {
-    this.parentId = parentId;
+  public RuleDto setTemplateId(@Nullable Integer templateId) {
+    this.templateId = templateId;
     return this;
   }
 
@@ -292,26 +320,46 @@ public final class RuleDto {
     return effortToFixDescription;
   }
 
-  public RuleDto setEffortToFixDescription(@Nullable String effortToFixDescription) {
-    this.effortToFixDescription = effortToFixDescription;
+  public RuleDto setEffortToFixDescription(@Nullable String s) {
+    this.effortToFixDescription = s;
     return this;
   }
 
-  public Date getCreatedAt() {
-    return createdAt;
+  public Set<String> getTags() {
+    return tags == null ?
+      new HashSet<String>() :
+      new TreeSet<String>(Arrays.asList(StringUtils.split(tags, ',')));
   }
 
-  public RuleDto setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
+  public Set<String> getSystemTags() {
+    return systemTags == null ?
+      new HashSet<String>() :
+      new TreeSet<String>(Arrays.asList(StringUtils.split(systemTags, ',')));
+  }
+
+  private String getTagsField() {
+    return tags;
+  }
+
+  private String getSystemTagsField() {
+    return systemTags;
+  }
+
+  private void setTagsField(String s) {
+    tags = s;
+  }
+
+  private void setSystemTagsField(String s) {
+    systemTags = s;
+  }
+
+  public RuleDto setTags(Set<String> tags) {
+    this.tags = tags.isEmpty() ? null : StringUtils.join(tags, ',');
     return this;
   }
 
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public RuleDto setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
+  public RuleDto setSystemTags(Set<String> tags) {
+    this.systemTags = tags.isEmpty() ? null : StringUtils.join(tags, ',');
     return this;
   }
 
@@ -342,4 +390,11 @@ public final class RuleDto {
   public String toString() {
     return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
+
+  public static RuleDto createFor(RuleKey key) {
+    return new RuleDto()
+      .setRepositoryKey(key.repository())
+      .setRuleKey(key.rule());
+  }
+
 }

@@ -4,20 +4,20 @@
 
 <mapper namespace="org.sonar.core.notification.db.NotificationQueueMapper">
 
-  <insert id="insert" parameterType="NotificationQueue" useGeneratedKeys="false">
+  <insert id="insert" parameterType="NotificationQueue" useGeneratedKeys="false" >
     INSERT INTO notifications (data)
     VALUES (#{data})
   </insert>
 
-  <delete id="delete" parameterType="long">
+  <delete id="delete" parameterType="long" >
     delete from notifications where id=#{id}
   </delete>
 
-  <select id="count" resultType="long">
+  <select id="count" resultType="long" >
     select count(*) from notifications
   </select>
 
-  <select id="findOldest" parameterType="int" resultType="NotificationQueue">
+  <select id="findOldest" parameterType="int" resultType="NotificationQueue" >
     select id, data
     from notifications
     order by id asc
@@ -25,14 +25,14 @@
   </select>
 
   <!-- SQL Server -->
-  <select id="findOldest" parameterType="int" resultType="NotificationQueue" databaseId="mssql">
+  <select id="findOldest" parameterType="int" resultType="NotificationQueue" databaseId="mssql" >
     select top (#{count}) id, data
     from notifications
     order by id asc
   </select>
 
   <!-- Oracle -->
-  <select id="findOldest" parameterType="int" resultType="NotificationQueue" databaseId="oracle">
+  <select id="findOldest" parameterType="int" resultType="NotificationQueue" databaseId="oracle" >
     select * from (select
       id, data
       from notifications

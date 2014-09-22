@@ -22,14 +22,17 @@ package org.sonar.core.persistence.dialect;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.NoSuchElementException;
 
 public final class DialectUtils {
 
   private DialectUtils() {
+    // only static stuff
   }
 
   private static final Dialect[] DIALECTS = new Dialect[] {new H2(), new MySql(), new Oracle(), new PostgreSql(), new MsSql()};
@@ -37,11 +40,12 @@ public final class DialectUtils {
   public static Dialect find(final String dialectId, final String jdbcConnectionUrl) {
     Dialect match = StringUtils.isNotBlank(dialectId) ? findById(dialectId) : findByJdbcUrl(jdbcConnectionUrl);
     if (match == null) {
-      throw new SonarException("Unable to determine database dialect to use within sonar with dialect " + dialectId + " jdbc url " + jdbcConnectionUrl);
+      throw MessageException.of("Unable to determine database dialect to use within sonar with dialect " + dialectId + " jdbc url " + jdbcConnectionUrl);
     }
     return match;
   }
 
+  @CheckForNull
   private static Dialect findByJdbcUrl(final String jdbcConnectionUrl) {
     return findDialect(new Predicate<Dialect>() {
       public boolean apply(@Nullable Dialect dialect) {
@@ -50,6 +54,7 @@ public final class DialectUtils {
     });
   }
 
+  @CheckForNull
   private static Dialect findById(final String dialectId) {
     return findDialect(new Predicate<Dialect>() {
       public boolean apply(@Nullable Dialect dialect) {
@@ -58,6 +63,7 @@ public final class DialectUtils {
     });
   }
 
+  @CheckForNull
   private static Dialect findDialect(Predicate<Dialect> predicate) {
     try {
       return Iterators.find(Iterators.forArray(DIALECTS), predicate);

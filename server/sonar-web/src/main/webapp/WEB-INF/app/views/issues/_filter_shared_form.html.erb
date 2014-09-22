@@ -1,0 +1,33 @@
+<% if !local_assigns.has_key? :display_owner
+     display_owner = false
+   end %>
+<div class="modal-body">
+  <div class="modal-error"/>
+  <div class="modal-field">
+    <label for="name"><%= message('issue_filter.form.name') -%> <em class="mandatory">*</em></label>
+    <input id="name" name="name" type="text" size="50" maxlength="100" value="<%= h(@filter.name) if @filter -%>" autofocus="autofocus"/>
+  </div>
+  <div class="modal-field">
+    <label for="description"><%= message('issue_filter.form.description') -%></label>
+    <input id="description" name="description" type="text" size="50" maxlength="4000" value="<%= h(@filter.description) if @filter  -%>"/>
+  </div>
+  <% if display_owner && can_be_reassigned_by(current_user, @filter) %>
+    <% filter_owner = Api.users.findByLogin(@filter.user) %>
+    <div class="modal-field">
+      <label for="user"><%= h message('issue_filter.form.owner') -%></label>
+      <%= user_select_tag('user', :html_id => 'select-filter-owner', :selected_user => filter_owner) -%>
+    </div>
+  <% else %>
+    <input id="user" name="user" type="hidden" value="<%= h(@filter.user) if @filter -%>"/>
+  <% end %>
+  <% if Internal.issues.canUserShareIssueFilter() %>
+    <div class="modal-field">
+      <% if !@filter || @filter.user.nil? || @filter.user == current_user.login %>
+        <label for="shared"><%= message('issue_filter.form.share') -%></label>
+        <input id="shared" name="shared" type="checkbox" value="true" <%= 'checked' if (@filter && @filter.shared) -%>/>
+      <% else %>
+        <input id="shared" name="shared" type="hidden" value="<%= @filter.shared if @filter -%>"/>
+      <% end %>
+    </div>
+  <% end %>
+</div>

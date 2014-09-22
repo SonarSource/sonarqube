@@ -35,7 +35,7 @@ public class SumDuplicationsDecorator extends AbstractSumChildrenDecorator {
   @Override
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    return Arrays.asList(CoreMetrics.DUPLICATED_BLOCKS, CoreMetrics.DUPLICATED_FILES, CoreMetrics.DUPLICATED_LINES);
+    return Arrays.<Metric>asList(CoreMetrics.DUPLICATED_BLOCKS, CoreMetrics.DUPLICATED_FILES, CoreMetrics.DUPLICATED_LINES);
   }
 
   @Override

@@ -43,7 +43,7 @@ public class ExclusionFiltersTest {
     filter.prepare();
 
     java.io.File file = temp.newFile();
-    DefaultInputFile inputFile = new DefaultInputFile("src/main/java/com/mycompany/FooDao.java").setFile(file);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDao.java").setFile(file);
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
     assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isTrue();
   }
@@ -56,13 +56,12 @@ public class ExclusionFiltersTest {
     filter.prepare();
 
     java.io.File file = temp.newFile();
-    DefaultInputFile inputFile = new DefaultInputFile("src/main/java/com/mycompany/FooDao.java").setFile(file);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDao.java").setFile(file);
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
 
-    inputFile = new DefaultInputFile("src/main/java/com/mycompany/Foo.java").setFile(file);
+    inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/Foo.java").setFile(file);
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
   }
-
 
   @Test
   public void match_at_least_one_inclusion() throws IOException {
@@ -74,10 +73,10 @@ public class ExclusionFiltersTest {
 
     java.io.File file = temp.newFile();
 
-    DefaultInputFile inputFile = new DefaultInputFile("src/main/java/com/mycompany/Foo.java").setFile(file);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/Foo.java").setFile(file);
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
 
-    inputFile = new DefaultInputFile("src/main/java/com/mycompany/FooDto.java").setFile(file);
+    inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDto.java").setFile(file);
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
   }
 
@@ -92,14 +91,14 @@ public class ExclusionFiltersTest {
     filter.prepare();
 
     java.io.File file = temp.newFile();
-    DefaultInputFile inputFile = new DefaultInputFile("src/main/java/com/mycompany/FooDao.java").setFile(file);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/FooDao.java").setFile(file);
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
 
-    inputFile = new DefaultInputFile("src/main/java/com/mycompany/Foo.java").setFile(file);
+    inputFile = new DefaultInputFile("foo", "src/main/java/com/mycompany/Foo.java").setFile(file);
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
 
     // source exclusions do not apply to tests
-    inputFile = new DefaultInputFile("src/test/java/com/mycompany/FooDao.java").setFile(file);
+    inputFile = new DefaultInputFile("foo", "src/test/java/com/mycompany/FooDao.java").setFile(file);
     assertThat(filter.accept(inputFile, InputFile.Type.TEST)).isTrue();
   }
 
@@ -115,10 +114,10 @@ public class ExclusionFiltersTest {
 
     filter.prepare();
 
-    DefaultInputFile inputFile = new DefaultInputFile("src/main/java/org/bar/Foo.java").setFile(includedFile);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/org/bar/Foo.java").setFile(includedFile);
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isTrue();
 
-    inputFile = new DefaultInputFile("src/main/java/org/bar/Bar.java").setFile(excludedFile);
+    inputFile = new DefaultInputFile("foo", "src/main/java/org/bar/Bar.java").setFile(excludedFile);
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
   }
 

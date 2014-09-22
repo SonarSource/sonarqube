@@ -97,13 +97,6 @@
     </foreach>
   </delete>
 
-  <delete id="deleteSnapshotMeasureData" parameterType="map">
-    delete from measure_data where snapshot_id in
-    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-        #{snapshotId}
-    </foreach>
-  </delete>
-
   <delete id="deleteSnapshotSource" parameterType="map">
     delete from snapshot_sources where snapshot_id in
     <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">

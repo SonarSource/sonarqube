@@ -35,6 +35,7 @@ import java.util.UUID;
 public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
   private String componentKey;
+  private String projectKey;
   private RuleKey ruleKey;
   private Integer line;
   private String message;
@@ -52,44 +53,49 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     return this;
   }
 
+  public DefaultIssueBuilder projectKey(String projectKey) {
+    this.projectKey = projectKey;
+    return this;
+  }
+
   @Override
-  public Issuable.IssueBuilder ruleKey(RuleKey ruleKey) {
+  public DefaultIssueBuilder ruleKey(RuleKey ruleKey) {
     this.ruleKey = ruleKey;
     return this;
   }
 
   @Override
-  public Issuable.IssueBuilder line(@Nullable Integer line) {
+  public DefaultIssueBuilder line(@Nullable Integer line) {
     this.line = line;
     return this;
   }
 
   @Override
-  public Issuable.IssueBuilder message(@Nullable String s) {
+  public DefaultIssueBuilder message(@Nullable String s) {
     this.message = s;
     return this;
   }
 
   @Override
-  public Issuable.IssueBuilder severity(@Nullable String severity) {
+  public DefaultIssueBuilder severity(@Nullable String severity) {
     this.severity = severity;
     return this;
   }
 
   @Override
-  public Issuable.IssueBuilder effortToFix(@Nullable Double d) {
+  public DefaultIssueBuilder effortToFix(@Nullable Double d) {
     this.effortToFix = d;
     return this;
   }
 
   @Override
-  public Issuable.IssueBuilder reporter(@Nullable String s) {
+  public DefaultIssueBuilder reporter(@Nullable String s) {
     this.reporter = s;
     return this;
   }
 
   @Override
-  public Issuable.IssueBuilder attribute(String key, @Nullable String value) {
+  public DefaultIssueBuilder attribute(String key, @Nullable String value) {
     if (attributes == null) {
       attributes = Maps.newLinkedHashMap();
     }
@@ -99,6 +105,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
   @Override
   public DefaultIssue build() {
+    Preconditions.checkNotNull(projectKey, "Project key must be set");
     Preconditions.checkNotNull(componentKey, "Component key must be set");
     Preconditions.checkNotNull(ruleKey, "Rule key must be set");
 
@@ -107,6 +114,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
     issue.setKey(key);
     issue.setComponentKey(componentKey);
+    issue.setProjectKey(projectKey);
     issue.setRuleKey(ruleKey);
     issue.setMessage(message);
     issue.setSeverity(severity);

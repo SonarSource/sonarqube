@@ -38,7 +38,7 @@ public class GroupMembershipDao {
   }
 
   public List<GroupMembershipDto> selectGroups(GroupMembershipQuery query, Long userId, int offset, int limit) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       Map<String, Object> params = ImmutableMap.of("query", query, "userId", userId);
       return session.selectList("org.sonar.core.user.GroupMembershipMapper.selectGroups", params, new RowBounds(offset, limit));

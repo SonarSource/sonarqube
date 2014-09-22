@@ -19,8 +19,6 @@
  */
 package org.sonar.core.purge;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Scopes;
@@ -31,9 +29,7 @@ import org.sonar.core.resource.ResourceDao;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +44,7 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
     system2 = mock(System2.class);
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-04-09").getTime());
 
-    dao = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis()), new PurgeProfiler());
+    dao = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis(), system2), new PurgeProfiler());
   }
 
   @Test
@@ -68,7 +64,7 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     setupData("shouldDeleteHistoricalDataOfDirectoriesAndFiles");
-    dao.purge(new PurgeConfiguration(1L, new String[]{Scopes.DIRECTORY, Scopes.FILE}, 30));
+    dao.purge(new PurgeConfiguration(1L, new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30));
     checkTables("shouldDeleteHistoricalDataOfDirectoriesAndFiles", "projects", "snapshots");
   }
 
@@ -91,10 +87,22 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
     setupData("shouldSelectPurgeableSnapshots");
     List<PurgeableSnapshotDto> snapshots = dao.selectPurgeableSnapshots(1L);
 
-    assertThat(snapshots, hasItem(new SnapshotMatcher(1L, true, false)));
-    assertThat(snapshots, hasItem(new SnapshotMatcher(4L, false, false)));
-    assertThat(snapshots, hasItem(new SnapshotMatcher(5L, false, true)));
-    assertThat(snapshots.size(), is(3));
+    assertThat(snapshots).hasSize(3);
+    assertThat(getById(snapshots, 1L).isLast()).isTrue();
+    assertThat(getById(snapshots, 1L).hasEvents()).isFalse();
+    assertThat(getById(snapshots, 4L).isLast()).isFalse();
+    assertThat(getById(snapshots, 4L).hasEvents()).isFalse();
+    assertThat(getById(snapshots, 5L).isLast()).isFalse();
+    assertThat(getById(snapshots, 5L).hasEvents()).isTrue();
+  }
+
+  private static PurgeableSnapshotDto getById(List<PurgeableSnapshotDto> snapshots, long id) {
+    for (PurgeableSnapshotDto snapshot : snapshots) {
+      if (snapshot.getSnapshotId() == id) {
+        return snapshot;
+      }
+    }
+    return null;
   }
 
   @Test
@@ -116,29 +124,5 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
     setupData("should_delete_all_closed_issues");
     dao.purge(new PurgeConfiguration(1L, new String[0], 0));
     checkTables("should_delete_all_closed_issues", "issues", "issue_changes");
-  }
-
-  static final class SnapshotMatcher extends BaseMatcher<PurgeableSnapshotDto> {
-    long snapshotId;
-    boolean isLast;
-    boolean hasEvents;
-
-    SnapshotMatcher(long snapshotId, boolean last, boolean hasEvents) {
-      this.snapshotId = snapshotId;
-      this.isLast = last;
-      this.hasEvents = hasEvents;
-    }
-
-    public boolean matches(Object o) {
-      PurgeableSnapshotDto obj = (PurgeableSnapshotDto) o;
-      return obj.getSnapshotId() == snapshotId && obj.isLast() == isLast && obj.hasEvents() == hasEvents;
-    }
-
-    public void describeTo(Description description) {
-      description
-        .appendText("snapshotId").appendValue(snapshotId)
-        .appendText("isLast").appendValue(isLast)
-        .appendText("hasEvents").appendValue(hasEvents);
-    }
   }
 }

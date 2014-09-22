@@ -1,0 +1,51 @@
+<h3 class="big">
+  {{#if post}}POST{{else}}GET{{/if}}
+  {{path}}
+</h3>
+<span class="subtitle">
+  {{#if since}}Since {{since}}{{#if internal}} -{{/if}}{{/if}}
+  {{#if internal}}<span class="internal">For internal use only</span>{{/if}}
+</span>
+<p>{{{description}}}</p>
+{{#if params}}
+<h3>Parameters</h3>
+<table>
+  {{#each params}}
+  <tr>
+    <td style="width:10em">
+      <code>{{key}}</code>
+      <div class="subtitle">{{#if required}}required{{else}}optional{{/if}}</div>
+    </td>
+    <td>
+      <p>{{{description}}}</p>
+
+      {{#if possibleValues}}
+      <p>
+      <em>Possible values:</em>
+      <ul class="possible-values">
+      {{#each possibleValues}}
+        <li><code>{{this}}</code></li>
+      {{/each}}
+      </ul>
+      </p>
+      {{/if}}
+
+      {{#if defaultValue}}
+      <p>
+      <em>Default value:</em> <code>{{defaultValue}}</code>
+      </p>
+      {{/if}}
+
+      {{#if exampleValue}}
+      <p>
+      <em>Example value:</em> <code>{{exampleValue}}</code>
+      </p>
+      {{/if}}
+    </td>
+  </tr>
+  {{/each}}
+</table>
+{{/if}}
+{{#if hasResponseExample}}
+<p><a name="example-key" class="example-response">Example response</a></p>
+{{/if}}

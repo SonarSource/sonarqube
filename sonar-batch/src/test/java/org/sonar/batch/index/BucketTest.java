@@ -20,19 +20,16 @@
 package org.sonar.batch.index;
 
 import org.junit.Test;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
-import org.sonar.api.utils.SonarException;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.hamcrest.Matchers.hasItem;
 
 public class BucketTest {
 
@@ -49,42 +46,6 @@ public class BucketTest {
     assertThat(fileBucket.getParent(), is(packageBucket));
     assertThat(packageBucket.getChildren().size(), is(1));
     assertThat(packageBucket.getChildren(), hasItem(fileBucket));
-  }
-
-  @Test
-  public void shouldAddNewMeasure() {
-    Bucket fileBucket = new Bucket(javaFile);
-    Measure measure = new Measure(ncloc).setValue(1200.0);
-    fileBucket.addMeasure(measure);
-
-    assertThat(fileBucket.getMeasures(MeasuresFilters.all()).size(), is(1));
-    assertThat(fileBucket.getMeasures(MeasuresFilters.metric(ncloc)), is(measure));
-  }
-
-  @Test
-  public void shouldUpdateMeasure() {
-    Bucket fileBucket = new Bucket(javaFile);
-    Measure measure = new Measure(ncloc).setValue(1200.0);
-    fileBucket.addMeasure(measure);
-
-    assertThat(fileBucket.getMeasures(MeasuresFilters.all()).size(), is(1));
-    assertThat(fileBucket.getMeasures(MeasuresFilters.metric(ncloc)).getValue(), is(1200.0));
-
-    measure.setValue(500.0);
-    fileBucket.addMeasure(measure);
-
-    assertThat(fileBucket.getMeasures(MeasuresFilters.all()).size(), is(1));
-    assertThat(fileBucket.getMeasures(MeasuresFilters.metric(ncloc)).getValue(), is(500.0));
-  }
-
-  @Test(expected = SonarException.class)
-  public void shouldFailIfAddingSameMeasures() {
-    Bucket fileBucket = new Bucket(javaFile);
-    Measure measure = new Measure(ncloc).setValue(1200.0);
-    fileBucket.addMeasure(measure);
-
-    measure = new Measure(ncloc).setValue(500.0);
-    fileBucket.addMeasure(measure);
   }
 
   @Test

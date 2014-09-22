@@ -64,6 +64,8 @@ public interface FilePredicates {
 
   FilePredicate hasLanguages(Collection<String> languages);
 
+  FilePredicate hasLanguages(String... languages);
+
   FilePredicate hasStatus(InputFile.Status status);
 
   FilePredicate hasType(InputFile.Type type);

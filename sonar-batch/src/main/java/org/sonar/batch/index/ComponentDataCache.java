@@ -20,11 +20,16 @@
 package org.sonar.batch.index;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.batch.highlighting.SyntaxHighlightingData;
+import org.sonar.batch.highlighting.SyntaxHighlightingDataValueCoder;
+
+import javax.annotation.CheckForNull;
 
 public class ComponentDataCache implements BatchComponent {
   private final Cache cache;
 
   public ComponentDataCache(Caches caches) {
+    caches.registerValueCoder(SyntaxHighlightingData.class, new SyntaxHighlightingDataValueCoder());
     cache = caches.createCache("componentData");
   }
 
@@ -37,16 +42,18 @@ public class ComponentDataCache implements BatchComponent {
     return setData(componentKey, dataType, new StringData(data));
   }
 
+  @CheckForNull
   public <D extends Data> D getData(String componentKey, String dataType) {
     return (D) cache.get(componentKey, dataType);
   }
 
+  @CheckForNull
   public String getStringData(String componentKey, String dataType) {
     Data data = (Data) cache.get(componentKey, dataType);
     return data == null ? null : ((StringData) data).data();
   }
 
-  public <D extends Data> Iterable<Cache.SubEntry<D>> entries(String componentKey) {
-    return cache.subEntries(componentKey);
+  public <D extends Data> Iterable<Cache.Entry<D>> entries(String componentKey) {
+    return cache.entries(componentKey);
   }
 }

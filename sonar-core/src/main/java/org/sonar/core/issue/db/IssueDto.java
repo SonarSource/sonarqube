@@ -24,20 +24,25 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.Dto;
+import org.sonar.core.rule.RuleDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * @since 3.6
  */
-public final class IssueDto implements Serializable {
+public final class IssueDto extends Dto<String> implements Serializable {
+
 
   private Long id;
   private String kee;
@@ -64,10 +69,6 @@ public final class IssueDto implements Serializable {
   private Date issueUpdateDate;
   private Date issueCloseDate;
 
-  // technical dates
-  private Date createdAt;
-  private Date updatedAt;
-
   /**
    * Temporary date used only during scan
    */
@@ -79,10 +80,17 @@ public final class IssueDto implements Serializable {
   private String componentKey;
   private String rootComponentKey;
 
+  @Override
+  public String getKey() {
+    return getKee();
+  }
+
+  @Deprecated
   public Long getId() {
     return id;
   }
 
+  @Deprecated
   public IssueDto setId(@Nullable Long id) {
     this.id = id;
     return this;
@@ -101,6 +109,16 @@ public final class IssueDto implements Serializable {
     return componentId;
   }
 
+  public IssueDto setComponent(ComponentDto component) {
+    this.componentId = component.getId();
+    this.componentKey = component.getKey();
+    return this;
+  }
+
+  /**
+   * @deprecated please use setComponent(ComponentDto component)
+   */
+  @Deprecated
   public IssueDto setComponentId(Long componentId) {
     this.componentId = componentId;
     return this;
@@ -110,6 +128,16 @@ public final class IssueDto implements Serializable {
     return rootComponentId;
   }
 
+  public IssueDto setRootComponent(ComponentDto rootComponent) {
+    this.rootComponentId = rootComponent.getId();
+    this.rootComponentKey = rootComponent.getKey();
+    return this;
+  }
+
+  /**
+   * @deprecated please use setRootComponent;
+   */
+  @Deprecated
   public IssueDto setRootComponentId(Long rootComponentId) {
     this.rootComponentId = rootComponentId;
     return this;
@@ -119,6 +147,18 @@ public final class IssueDto implements Serializable {
     return ruleId;
   }
 
+  public IssueDto setRule(RuleDto rule) {
+    Preconditions.checkNotNull(rule.getId(), "Rule must be persisted.");
+    this.ruleId = rule.getId();
+    this.ruleKey = rule.getRuleKey();
+    this.ruleRepo = rule.getRepositoryKey();
+    return this;
+  }
+
+  /**
+   * @deprecated please use setRule(RuleDto rule)
+   */
+  @Deprecated
   public IssueDto setRuleId(Integer ruleId) {
     this.ruleId = ruleId;
     return this;
@@ -261,21 +301,15 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public Date getCreatedAt() {
-    return createdAt;
-  }
-
+  @Override
   public IssueDto setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
+    super.setCreatedAt(createdAt);
     return this;
   }
 
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
-
+  @Override
   public IssueDto setUpdatedAt(@Nullable Date updatedAt) {
-    this.updatedAt = updatedAt;
+    super.setUpdatedAt(updatedAt);
     return this;
   }
 
@@ -390,7 +424,7 @@ public final class IssueDto implements Serializable {
       .setUpdatedAt(now);
   }
 
-  public static IssueDto toDtoForUpdate(DefaultIssue issue, Date now) {
+  public static IssueDto toDtoForUpdate(DefaultIssue issue, Long rootComponentId, Date now) {
     // Invariant fields, like key and rule, can't be updated
     return new IssueDto()
       .setKee(issue.key())
@@ -408,6 +442,7 @@ public final class IssueDto implements Serializable {
       .setActionPlanKey(issue.actionPlanKey())
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
+      .setRootComponentId(rootComponentId)
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())
       .setIssueUpdateDate(issue.updateDate())
@@ -441,5 +476,12 @@ public final class IssueDto implements Serializable {
     issue.setUpdateDate(issueUpdateDate);
     issue.setSelectedAt(selectedAt);
     return issue;
+  }
+
+  public static IssueDto createFor(Project project, RuleDto rule) {
+    return new IssueDto()
+      .setRootComponentId(Long.valueOf(project.getId()))
+      .setRuleId(rule.getId())
+      .setKee(UUID.randomUUID().toString());
   }
 }

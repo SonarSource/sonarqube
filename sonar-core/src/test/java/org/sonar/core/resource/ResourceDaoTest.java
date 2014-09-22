@@ -22,13 +22,18 @@ package org.sonar.core.resource;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 
 import javax.annotation.Nullable;
 
@@ -38,14 +43,27 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ResourceDaoTest extends AbstractDaoTestCase {
 
+  private DbSession session;
+
   private ResourceDao dao;
+  private System2 system2;
 
   @Before
   public void createDao() {
-    dao = new ResourceDao(getMyBatis());
+    session = getMyBatis().openSession(false);
+    system2 = mock(System2.class);
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-03").getTime());
+    dao = new ResourceDao(getMyBatis(), system2);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
@@ -79,6 +97,8 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(resource.getDescription()).isEqualTo("the description");
     assertThat(resource.getLanguage()).isEqualTo("java");
     assertThat(resource.isEnabled()).isTrue();
+    assertThat(resource.getAuthorizationUpdatedAt()).isNotNull();
+    assertThat(resource.getCreatedAt()).isNotNull();
   }
 
   @Test
@@ -147,7 +167,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void getResourceIds_filter_by_qualifier() {
     setupData("fixture");
 
-    List<Long> ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[] {"TRK", "BRC"}));
+    List<Long> ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{"TRK", "BRC"}));
     assertThat(ids).containsOnly(1L, 2L);
 
     ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[] {"XXX"}));
@@ -224,31 +244,33 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_root_project_by_component_key() {
+  public void find_root_project_by_component_key() {
     setupData("fixture");
 
-    ResourceDto resource = dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(resource.getName()).isEqualTo("Struts");
-
-    resource = dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts");
-    assertThat(resource.getName()).isEqualTo("Struts");
-
-    resource = dao.getRootProjectByComponentKey("org.struts:struts-core");
-    assertThat(resource.getName()).isEqualTo("Struts");
+    assertThat(dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts/RequestContext.java").getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts").getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByComponentKey("org.struts:struts-core").getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByComponentKey("org.struts:struts").getKey()).isEqualTo("org.struts:struts");
   }
 
   @Test
-  public void should_find_root_project_by_component_Id() {
+  public void find_root_project_by_component_Id() {
     setupData("fixture");
 
-    ResourceDto resource = dao.getRootProjectByComponentId(4l);
-    assertThat(resource.getName()).isEqualTo("Struts");
+    assertThat(dao.getRootProjectByComponentId(4l).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByComponentId(3l).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByComponentId(2l).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getRootProjectByComponentId(1l).getKey()).isEqualTo("org.struts:struts");
+  }
 
-    resource = dao.getRootProjectByComponentId(3l);
-    assertThat(resource.getName()).isEqualTo("Struts");
+  @Test
+  public void find_parent_by_component_id() {
+    setupData("fixture");
 
-    resource = dao.getRootProjectByComponentId(2l);
-    assertThat(resource.getName()).isEqualTo("Struts");
+    assertThat(dao.getParentModuleByComponentId(4l, session).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getParentModuleByComponentId(3l, session).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getParentModuleByComponentId(2l, session).getKey()).isEqualTo("org.struts:struts");
+    assertThat(dao.getParentModuleByComponentId(1l, session).getKey()).isEqualTo("org.struts:struts");
   }
 
   @Test
@@ -285,11 +307,12 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     assertThat(file1.getId()).isNotNull();
     assertThat(file2.getId()).isNotNull();
-    checkTables("insert", new String[] {"created_at"}, "projects");
+    checkTables("insert", "projects");
 
     // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
     ResourceDto fileLoadedFromDB = dao.getResource(file1.getId());
     assertThat(fileLoadedFromDB.getCreatedAt()).isNotNull();
+    assertThat(fileLoadedFromDB.getAuthorizationUpdatedAt()).isNotNull();
   }
 
   @Test
@@ -369,9 +392,9 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void should_find_component_by_id() {
     setupData("fixture");
 
-    assertThat(dao.findById(1L)).isNotNull();
-    assertThat(dao.findById(4L)).isNotNull();
-    assertThat(dao.findById(555L)).isNull();
+    assertThat(dao.findById(1L, session)).isNotNull();
+    assertThat(dao.findById(4L, session)).isNotNull();
+    assertThat(dao.findById(555L, session)).isNull();
   }
 
   @Test
@@ -429,6 +452,53 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     String key = "org.sample:sample";
     assertThat(dao.selectProvisionedProject(key).getKey()).isEqualTo(key);
     assertThat(dao.selectProvisionedProject("unknown")).isNull();
+  }
+
+  @Test
+  public void get_last_snapshot_by_resource_id() {
+    setupData("get_last_snapshot_by_resource_id");
+
+    SnapshotDto snapshotDto = dao.getLastSnapshotByResourceId(1L, session);
+    assertThat(snapshotDto.getId()).isEqualTo(1);
+
+    assertThat(snapshotDto.getPeriodMode(1)).isEqualTo("previous_analysis");
+    assertThat(snapshotDto.getPeriodModeParameter(1)).isNull();
+    assertThat(snapshotDto.getPeriodDate(1)).isNull();
+
+    assertThat(snapshotDto.getPeriodMode(2)).isEqualTo("days");
+    assertThat(snapshotDto.getPeriodModeParameter(2)).isEqualTo("30");
+    assertThat(snapshotDto.getPeriodDate(2)).isEqualTo(DateUtils.parseDate("2011-09-24"));
+
+    assertThat(snapshotDto.getPeriodMode(3)).isEqualTo("days");
+    assertThat(snapshotDto.getPeriodModeParameter(3)).isEqualTo("90");
+    assertThat(snapshotDto.getPeriodDate(3)).isEqualTo(DateUtils.parseDate("2011-07-26"));
+
+    assertThat(snapshotDto.getPeriodMode(4)).isEqualTo("previous_analysis");
+    assertThat(snapshotDto.getPeriodModeParameter(4)).isNull();
+    assertThat(snapshotDto.getPeriodDate(4)).isNull();
+
+    assertThat(snapshotDto.getPeriodMode(5)).isEqualTo("previous_version");
+    assertThat(snapshotDto.getPeriodModeParameter(5)).isNull();
+    assertThat(snapshotDto.getPeriodDate(5)).isNull();
+
+    snapshotDto = dao.getLastSnapshotByResourceId(2L, session);
+    assertThat(snapshotDto.getId()).isEqualTo(2L);
+
+    snapshotDto = dao.getLastSnapshotByResourceId(3L, session);
+    assertThat(snapshotDto.getId()).isEqualTo(3L);
+
+    assertThat(dao.getLastSnapshotByResourceId(42L, session)).isNull();
+  }
+
+  @Test
+  public void update_authorization_date() {
+    setupData("update_authorization_date");
+
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-03").getTime());
+    dao.updateAuthorizationDate(1L, session);
+    session.commit();
+
+    checkTables("update_authorization_date", "projects");
   }
 
   private List<String> getKeys(final List<Component> components) {

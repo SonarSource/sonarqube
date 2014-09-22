@@ -1,0 +1,122 @@
+<div>
+  <ul style="float: right" class="horizontal">
+    <li class="csv marginleft10">
+      <a href="<%= ApplicationController.root_context -%>/system/index?format=csv" id="download-link" class="action">Download</a>
+    </li>
+  </ul>
+  <h1 class="admin-page-title"><%= message('system_info.page') -%></h1>
+  <p class="admin-page-description"><%= message('system_info.page.description') -%></p>
+</div>
+
+<table class="data width100" id="sonar">
+<thead>
+  <tr>
+    <th colspan="2"><h2>SonarQube Info</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.sonar_info.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'sonar' } %>
+  <% end %>
+<tbody>
+</table>
+
+<br/>
+
+<table class="data width100" id="plugins">
+<thead>
+  <tr>
+    <th colspan="2"><h2>SonarQube Plugins</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <%
+     user_plugins=@server.sonar_plugins
+     if user_plugins.empty?
+  %>
+    <tr><td colspan="2" class="even">None</td></tr>
+  <% else %>
+    <% user_plugins.each do |data| %>
+      <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'plugins' } %>
+    <% end %>
+  <% end  %>
+<tbody>
+</table>
+
+<br/>
+
+<table class="data width100" id="system_info">
+<thead>
+  <tr>
+    <th colspan="2"><h2>System Info</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.system_info.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'system' } %>
+  <% end %>
+<tbody>
+</table>
+
+<br/>
+
+<table class="data width100" id="cluster_info">
+<thead>
+  <tr>
+    <th colspan="2"><h2>Search Info - Cluster</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.cluster_info.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'cluster' } %>
+  <% end %>
+<tbody>
+</table>
+
+<br/>
+
+<% @server.nodes_info.each do |node_info| -%>
+<table class="data width100" id="cluster_info<%= node_info[0][1] -%>">
+<thead>
+  <tr>
+    <th colspan="2"><h2>Search Info - <%= node_info[0][1] -%></h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% node_info.drop(1).each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'node' } %>
+  <% end %>
+<tbody>
+</table>
+
+<br/>
+<% end -%>
+
+<table class="data width100" id="memory">
+<thead>
+  <tr>
+    <th colspan="2"><h2>Java VM Statistics</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.system_statistics.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'memory' } %>
+  <% end %>
+<tbody>
+</table>
+
+<br/>
+
+
+<table class="data width100" id="system_properties">
+<thead>
+  <tr>
+    <th colspan="2"><h2>System Properties</h2></th>
+  </tr>
+</thead>
+<tbody>
+  <% @server.system_properties.each do |data| %>
+    <%= render :partial => 'row', :locals => {:title => data[0], :value => data[1], :name => 'system_properties' } %>
+  <% end %>
+<tbody>
+</table>

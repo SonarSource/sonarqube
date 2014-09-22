@@ -1,0 +1,26 @@
+<td class="coding-rules-detail-custom-rule-name">
+  <a class="nolink" href="#rule_key={{key}}">{{name}}</a>
+</td>
+
+<td class="coding-rules-detail-custom-rule-severity">
+  {{severityIcon severity}} {{t "severity" severity}}
+</td>
+
+<td class="coding-rules-detail-custom-rule-parameters">
+  {{#each parameters}}
+    <div class="coding-rules-detail-custom-rule-parameter">
+      <span class="key">{{key}}</span><span class="sep">:&nbsp;</span><span class="value" title="{{value}}">{{value}}</span>
+    </div>
+  {{/each}}
+  &nbsp;
+</td>
+
+{{#if canWrite}}
+<td class="coding-rules-detail-custom-rule-actions">
+  <div class="button-group">
+    <button class="coding-rules-detail-custom-rule-delete button-red">
+      {{t 'delete'}}
+    </button>
+  </div>
+</td>
+{{/if}}

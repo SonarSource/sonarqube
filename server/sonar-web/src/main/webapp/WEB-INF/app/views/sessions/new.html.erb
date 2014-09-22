@@ -1,0 +1,39 @@
+<table class="spaced">
+  <tr>
+    <td align="center">
+      <div id="login_form">
+        <form action="<%= url_for :controller => 'sessions', :action => 'login' -%>" method="post">
+          <input type="hidden" name="return_to_anchor" value="">
+        <% if flash[:notice] %>
+          <div class="notice"><%= flash[:notice] %></div>
+        <% end %>
+
+          <h3><%= label_tag message('login') %></h3>
+          <p>
+            <%= text_field_tag 'login', '', {:maxlength => 255, :disabled => false, :style => 'width:200px;'} %>
+            <% if Property.value('sonar.allowUsersToSignUp')=='true' %>
+              <br/><span class="desc"><%= message('sessions.new_account', :params => [url_for(:controller => 'users', :action => 'new')]) -%></span>
+            <% end %>
+          </p>
+          <h3><%= label_tag message('password') %></h3>
+          <p>
+            <%= password_field_tag 'password', nil, {:style => 'width:200px;', :autocomplete => 'off'} %>
+          </p>
+          <p>
+            <%= check_box_tag 'remember_me', '1', @remember_me %> <%= label_tag 'remember_me', message('sessions.remember_me') %>
+          </p>
+          <p>
+            <%= submit_tag message('sessions.log_in') %> <a href="<%= home_path -%>" class="action"><%= message('cancel') -%></a>
+          </p>
+        </form>
+        <% if flash[:loginerror] %>
+          <div class="error" style=""> <%= flash[:loginerror]  %></div>
+        <% end %>
+      </div>
+    </td>
+  </tr>
+</table>
+<script>
+  $j('#login').focus();
+  $j('[name=return_to_anchor]').val(window.location.hash);
+</script>

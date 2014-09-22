@@ -19,7 +19,6 @@
  */
 package org.sonar.batch;
 
-import com.google.common.annotations.Beta;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -36,10 +35,6 @@ import org.sonar.api.utils.KeyValueFormat.Converter;
 
 import java.util.Map;
 
-/**
- * @since 2.14
- */
-@Beta
 public class DefaultFileLinesContext implements FileLinesContext {
 
   private final SonarIndex index;

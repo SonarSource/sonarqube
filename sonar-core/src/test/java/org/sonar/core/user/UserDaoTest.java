@@ -19,25 +19,33 @@
  */
 package org.sonar.core.user;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.user.UserQuery;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class UserDaoTest extends AbstractDaoTestCase {
 
-  private UserDao dao;
+  UserDao dao;
+
+  DbSession session;
 
   @Before
   public void setUp() {
+    session = getMyBatis().openSession(false);
     dao = new UserDao(getMyBatis());
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
@@ -154,6 +162,16 @@ public class UserDaoTest extends AbstractDaoTestCase {
 
     GroupDto group = dao.selectGroupByName("not-found");
     assertThat(group).isNull();
+  }
+
+  @Test
+  public void insert_user() {
+    Date date = DateUtils.parseDate("2014-06-20");
+
+    UserDto userDto = new UserDto().setId(1L).setLogin("john").setName("John").setEmail("jo@hn.com").setCreatedAt(date).setUpdatedAt(date);
+    dao.insert(session, userDto);
+
+    checkTables("insert");
   }
 
   @Test

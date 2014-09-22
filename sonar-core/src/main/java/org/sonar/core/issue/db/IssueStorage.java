@@ -29,6 +29,7 @@ import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.persistence.BatchSession;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Arrays;
@@ -69,7 +70,7 @@ public abstract class IssueStorage {
 
   private List<DefaultIssue> batchInsert(Iterable<DefaultIssue> issues, Date now) {
     List<DefaultIssue> toBeUpdated = Lists.newArrayList();
-    SqlSession batchSession = mybatis.openBatchSession();
+    DbSession batchSession = mybatis.openSession(true);
     int count = 0;
     IssueMapper issueMapper = batchSession.getMapper(IssueMapper.class);
     IssueChangeMapper issueChangeMapper = batchSession.getMapper(IssueChangeMapper.class);
@@ -103,7 +104,7 @@ public abstract class IssueStorage {
 
   private void update(List<DefaultIssue> toBeUpdated, Date now) {
     if (!toBeUpdated.isEmpty()) {
-      SqlSession session = mybatis.openSession();
+      SqlSession session = mybatis.openSession(false);
       try {
         IssueMapper issueMapper = session.getMapper(IssueMapper.class);
         IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
@@ -119,7 +120,7 @@ public abstract class IssueStorage {
   }
 
   private void update(IssueMapper issueMapper, Date now, DefaultIssue issue) {
-    IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
+    IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(issue), now);
     if (Issue.STATUS_CLOSED.equals(issue.status()) || issue.selectedAt() == null) {
       // Issue is closed by scan or changed by end-user
       issueMapper.update(dto);

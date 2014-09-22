@@ -1,0 +1,235 @@
+{"tests": [
+  {
+    "name": "should_update_existing_issue",
+    "status": "OK",
+    "durationInMs": 293,
+    "_ref": "1"
+  },
+  {
+    "name": "testDistributionMeasure",
+    "status": "OK",
+    "durationInMs": 148,
+    "_ref": "2"
+  },
+  {
+    "name": "one_part_key",
+    "status": "OK",
+    "durationInMs": 96,
+    "_ref": "3"
+  },
+  {
+    "name": "testIssueExclusion",
+    "status": "OK",
+    "durationInMs": 305,
+    "_ref": "4"
+  },
+  {
+    "name": "should_add_measure_with_same_metric",
+    "status": "OK",
+    "durationInMs": 141,
+    "_ref": "5"
+  },
+  {
+    "name": "should_create_cache",
+    "status": "OK",
+    "durationInMs": 81,
+    "_ref": "6"
+  },
+  {
+    "name": "scanProjectWithMixedSourcesAndTests",
+    "status": "OK",
+    "durationInMs": 239,
+    "_ref": "7"
+  },
+  {
+    "name": "remove_versus_clear",
+    "status": "OK",
+    "durationInMs": 111,
+    "_ref": "3"
+  },
+  {
+    "name": "should_persist_component_data",
+    "status": "OK",
+    "durationInMs": 132,
+    "_ref": "8"
+  },
+  {
+    "name": "scanProjectWithSourceDir",
+    "status": "OK",
+    "durationInMs": 212,
+    "_ref": "7"
+  },
+  {
+    "name": "should_add_measure_with_too_big_data_for_persistit",
+    "status": "OK",
+    "durationInMs": 336,
+    "_ref": "5"
+  },
+  {
+    "name": "failForDuplicateInputFile",
+    "status": "OK",
+    "durationInMs": 127,
+    "_ref": "7"
+  },
+  {
+    "name": "should_not_create_cache_twice",
+    "status": "OK",
+    "durationInMs": 101,
+    "_ref": "6"
+  },
+  {
+    "name": "should_get_and_set_data",
+    "status": "OK",
+    "durationInMs": 190,
+    "_ref": "9"
+  },
+  {
+    "name": "should_add_input_file",
+    "status": "OK",
+    "durationInMs": 122,
+    "_ref": "10"
+  },
+  {
+    "name": "scanTempProject",
+    "status": "OK",
+    "durationInMs": 345,
+    "_ref": "4"
+  },
+  {
+    "name": "should_get_measures",
+    "status": "OK",
+    "durationInMs": 114,
+    "_ref": "5"
+  },
+  {
+    "name": "test_key_being_prefix_of_another_key",
+    "status": "OK",
+    "durationInMs": 94,
+    "_ref": "3"
+  },
+  {
+    "name": "should_add_measure_with_big_data",
+    "status": "OK",
+    "durationInMs": 242,
+    "_ref": "5"
+  },
+  {
+    "name": "should_get_all_issues",
+    "status": "OK",
+    "durationInMs": 104,
+    "_ref": "1"
+  },
+  {
+    "name": "should_add_measure",
+    "status": "OK",
+    "durationInMs": 117,
+    "_ref": "5"
+  },
+  {
+    "name": "computeMeasuresOnSampleProject",
+    "status": "OK",
+    "durationInMs": 315,
+    "_ref": "2"
+  },
+  {
+    "name": "test_measure_coder",
+    "status": "OK",
+    "durationInMs": 110,
+    "_ref": "5"
+  },
+  {
+    "name": "should_add_measure_with_too_big_data_for_persistit_pre_patch",
+    "status": "OK",
+    "durationInMs": 821,
+    "_ref": "5"
+  },
+  {
+    "name": "three_parts_key",
+    "status": "OK",
+    "durationInMs": 122,
+    "_ref": "3"
+  },
+  {
+    "name": "two_parts_key",
+    "status": "OK",
+    "durationInMs": 118,
+    "_ref": "3"
+  },
+  {
+    "name": "should_add_new_issue",
+    "status": "OK",
+    "durationInMs": 95,
+    "_ref": "1"
+  },
+  {
+    "name": "empty_cache",
+    "status": "OK",
+    "durationInMs": 104,
+    "_ref": "3"
+  },
+  {
+    "name": "scanProjectWithTestDir",
+    "status": "OK",
+    "durationInMs": 322,
+    "_ref": "7"
+  },
+  {
+    "name": "scanSampleProject",
+    "status": "OK",
+    "durationInMs": 184,
+    "_ref": "4"
+  },
+  {
+    "name": "computeMeasuresOnTempProject",
+    "status": "OK",
+    "durationInMs": 274,
+    "_ref": "2"
+  },
+  {
+    "name": "should_get_and_set_string_data",
+    "status": "OK",
+    "durationInMs": 95,
+    "_ref": "9"
+  }
+], "files": {
+  "3": {
+    "key": "org.codehaus.sonar:sonar-batch:src/test/java/org/sonar/batch/index/CacheTest.java",
+    "longName": "src/test/java/org/sonar/batch/index/CacheTest.java"
+  },
+  "1": {
+    "key": "org.codehaus.sonar:sonar-batch:src/test/java/org/sonar/batch/issue/IssueCacheTest.java",
+    "longName": "src/test/java/org/sonar/batch/issue/IssueCacheTest.java"
+  },
+  "4": {
+    "key": "org.codehaus.sonar:sonar-batch:src/test/java/org/sonar/batch/mediumtest/issues/IssuesMediumTest.java",
+    "longName": "src/test/java/org/sonar/batch/mediumtest/issues/IssuesMediumTest.java"
+  },
+  "2": {
+    "key": "org.codehaus.sonar:sonar-batch:src/test/java/org/sonar/batch/mediumtest/measures/MeasuresMediumTest.java",
+    "longName": "src/test/java/org/sonar/batch/mediumtest/measures/MeasuresMediumTest.java"
+  },
+  "8": {
+    "key": "org.codehaus.sonar:sonar-batch:src/test/java/org/sonar/batch/index/ComponentDataPersisterTest.java",
+    "longName": "src/test/java/org/sonar/batch/index/ComponentDataPersisterTest.java"
+  },
+  "9": {
+    "key": "org.codehaus.sonar:sonar-batch:src/test/java/org/sonar/batch/index/ComponentDataCacheTest.java",
+    "longName": "src/test/java/org/sonar/batch/index/ComponentDataCacheTest.java"
+  },
+  "10": {
+    "key": "org.codehaus.sonar:sonar-batch:src/test/java/org/sonar/batch/scan/filesystem/InputFileCacheTest.java",
+    "longName": "src/test/java/org/sonar/batch/scan/filesystem/InputFileCacheTest.java"
+  },
+  "7": {
+    "key": "org.codehaus.sonar:sonar-batch:src/test/java/org/sonar/batch/mediumtest/fs/FileSystemMediumTest.java",
+    "longName": "src/test/java/org/sonar/batch/mediumtest/fs/FileSystemMediumTest.java"
+  },
+  "5": {
+    "key": "org.codehaus.sonar:sonar-batch:src/test/java/org/sonar/batch/scan/measure/MeasureCacheTest.java",
+    "longName": "src/test/java/org/sonar/batch/scan/measure/MeasureCacheTest.java"
+  },
+  "6": {
+    "key": "org.codehaus.sonar:sonar-batch:src/test/java/org/sonar/batch/index/CachesTest.java",
+    "longName": "src/test/java/org/sonar/batch/index/CachesTest.java"
+  }
+}}

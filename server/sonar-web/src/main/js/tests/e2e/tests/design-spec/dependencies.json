@@ -1,0 +1,80 @@
+[
+  {
+    "id": 14879226,
+    "fi": 8354,
+    "ti": 6955,
+    "u": "USES",
+    "w": 1,
+    "fk": "com.maif.sonar:maif-cobol-plugin:src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java",
+    "fn": "src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java",
+    "fq": "FIL",
+    "tk": "com.maif.sonar:maif-cobol-plugin:src/main/java/com/maif/sonar/cobol/metrics/BusinessRuleCounter.java",
+    "tn": "src/main/java/com/maif/sonar/cobol/metrics/BusinessRuleCounter.java",
+    "tq": "FIL"
+  },
+  {
+    "id": 14879225,
+    "fi": 8354,
+    "ti": 6956,
+    "u": "USES",
+    "w": 1,
+    "fk": "com.maif.sonar:maif-cobol-plugin:src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java",
+    "fn": "src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java",
+    "fq": "FIL",
+    "tk": "com.maif.sonar:maif-cobol-plugin:src/main/java/com/maif/sonar/cobol/metrics/ExternalizedRuleCallCounter.java",
+    "tn": "src/main/java/com/maif/sonar/cobol/metrics/ExternalizedRuleCallCounter.java",
+    "tq": "FIL"
+  },
+  {
+    "id": 14879228,
+    "fi": 8354,
+    "ti": 6957,
+    "u": "USES",
+    "w": 1,
+    "fk": "com.maif.sonar:maif-cobol-plugin:src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java",
+    "fn": "src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java",
+    "fq": "FIL",
+    "tk": "com.maif.sonar:maif-cobol-plugin:src/main/java/com/maif/sonar/cobol/metrics/IadUseDetector.java",
+    "tn": "src/main/java/com/maif/sonar/cobol/metrics/IadUseDetector.java",
+    "tq": "FIL"
+  },
+  {
+    "id": 14879229,
+    "fi": 8354,
+    "ti": 8356,
+    "u": "USES",
+    "w": 1,
+    "fk": "com.maif.sonar:maif-cobol-plugin:src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java",
+    "fn": "src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java",
+    "fq": "FIL",
+    "tk": "com.maif.sonar:maif-cobol-plugin:src/main/java/com/maif/sonar/cobol/metrics/Ids2AndIadMatrixDetector.java",
+    "tn": "src/main/java/com/maif/sonar/cobol/metrics/Ids2AndIadMatrixDetector.java",
+    "tq": "FIL"
+  },
+  {
+    "id": 14879227,
+    "fi": 8354,
+    "ti": 6958,
+    "u": "USES",
+    "w": 1,
+    "fk": "com.maif.sonar:maif-cobol-plugin:src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java",
+    "fn": "src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java",
+    "fq": "FIL",
+    "tk": "com.maif.sonar:maif-cobol-plugin:src/main/java/com/maif/sonar/cobol/metrics/Ids2UseDetector.java",
+    "tn": "src/main/java/com/maif/sonar/cobol/metrics/Ids2UseDetector.java",
+    "tq": "FIL"
+  },
+  {
+    "id": 14879224,
+    "fi": 8354,
+    "ti": 12194,
+    "u": "USES",
+    "w": 1,
+    "fk": "com.maif.sonar:maif-cobol-plugin:src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java",
+    "fn": "src/main/java/com/maif/sonar/cobol/api/MaifCobolMeasureProvider.java",
+    "fq": "FIL",
+    "tk": "com.maif.sonar:maif-cobol-plugin:src/main/java/com/maif/sonar/cobol/metrics/TableMetricsVisitor.java",
+    "tn": "src/main/java/com/maif/sonar/cobol/metrics/TableMetricsVisitor.java",
+    "tq": "FIL"
+  }
+]

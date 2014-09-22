@@ -28,6 +28,7 @@ public final class LoadedTemplateDto {
   public static final String QUALITY_PROFILE_TYPE = "QUALITY_PROFILE";
   public static final String PERMISSION_TEMPLATE_TYPE = "PERM_TEMPLATE";
   public static final String QUALITY_GATE_TYPE = "QUALITY_GATE";
+  public static final String ONE_SHOT_TASK_TYPE = "ONE_SHOT_TASK";
 
   private Long id;
   private String key;

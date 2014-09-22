@@ -1,0 +1,35 @@
+[
+  {
+    "id": 2865,
+    "key": "org.codehaus.sonar:sonar",
+    "name": "Sonar",
+    "scope": "PRJ",
+    "qualifier": "TRK",
+    "date": "2012-08-10T04:03:51+0200",
+    "creationDate": "2012-08-10T04:03:51+0200",
+    "lname": "Sonar",
+    "lang": "java",
+    "version": "3.3-SNAPSHOT",
+    "description": "Open source platform for continuous inspection of code quality",
+
+    "p1": "previous_analysis",
+    "p1p": "2012-08-09",
+    "p1d": "2012-08-09T04:04:01+0200",
+    "p2": "days",
+    "p2p": "7",
+    "p2d": "2012-08-03T04:03:51+0200",
+    "msr": [
+      {
+        "key": "coverage",
+        "val": 70.3,
+        "frmt_val": "70.3%",
+        "alert": null,
+        "alert_text": null,
+        "trend": 0,
+        "var": 0,
+        "var1": 0.0,
+        "var2": 0.0
+      }
+    ]
+  }
+]

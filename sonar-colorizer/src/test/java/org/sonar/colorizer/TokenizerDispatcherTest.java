@@ -19,41 +19,40 @@
  */
 package org.sonar.colorizer;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.Arrays;
-
 import org.junit.Test;
 import org.sonar.channel.Channel;
 import org.sonar.channel.CodeReader;
+
+import java.util.Arrays;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class TokenizerDispatcherTest {
 
   @Test
   public void testPipeCodeTokenizer() {
     TokenizerDispatcher colorization = newColorizer();
-    assertThat(colorization.colorize("public void get(){"), is("public void get(){"));
+    assertThat(colorization.colorize("public void get(){")).isEqualTo("public void get(){");
   }
 
   @Test
   public void testKeywordsCodeTokenizer() {
     TokenizerDispatcher colorization = newColorizer(new KeywordsTokenizer("<k>", "</k>", JavaKeywords.get()));
-    assertThat(colorization.colorize("public void get(){"), is("<k>public</k> <k>void</k> get(){"));
+    assertThat(colorization.colorize("public void get(){")).isEqualTo("<k>public</k> <k>void</k> get(){");
   }
 
   @Test
   public void testPriorityToComment() {
     TokenizerDispatcher colorization = newColorizer(new CDocTokenizer("<c>", "</c>"), new KeywordsTokenizer("<k>", "</k>", JavaKeywords
-        .get()));
-    assertThat(colorization.colorize("assert //public void get(){"), is("<k>assert</k> <c>//public void get(){</c>"));
+      .get()));
+    assertThat(colorization.colorize("assert //public void get(){")).isEqualTo("<k>assert</k> <c>//public void get(){</c>");
   }
 
   @Test
   public void testCommentThenStringThenJavaKeywords() {
     TokenizerDispatcher colorization = newColorizer(new CDocTokenizer("<c>", "</c>"), new LiteralTokenizer("<s>", "</s>"),
-        new KeywordsTokenizer("<k>", "</k>", JavaKeywords.get()));
-    assertThat(colorization.colorize("assert(\"message\"); //comment"), is("<k>assert</k>(<s>\"message\"</s>); <c>//comment</c>"));
+      new KeywordsTokenizer("<k>", "</k>", JavaKeywords.get()));
+    assertThat(colorization.colorize("assert(\"message\"); //comment")).isEqualTo("<k>assert</k>(<s>\"message\"</s>); <c>//comment</c>");
   }
 
   @Test(expected = IllegalStateException.class)

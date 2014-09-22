@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.Directory;
@@ -80,7 +80,7 @@ public class ResourceKeyMigration implements BatchComponent {
     Map<String, InputFile> deprecatedTestKeyMapper = new HashMap<String, InputFile>();
     Map<String, String> deprecatedDirectoryKeyMapper = new HashMap<String, String>();
     for (InputFile inputFile : inputFiles) {
-      String deprecatedKey = ((DefaultInputFile) inputFile).deprecatedKey();
+      String deprecatedKey = ((DeprecatedDefaultInputFile) inputFile).deprecatedKey();
       if (deprecatedKey != null) {
         if (InputFile.Type.TEST == inputFile.type() && !deprecatedTestKeyMapper.containsKey(deprecatedKey)) {
           deprecatedTestKeyMapper.put(deprecatedKey, inputFile);
@@ -103,31 +103,32 @@ public class ResourceKeyMigration implements BatchComponent {
     // Find all FIL or CLA resources for this module
     StringBuilder hql = newResourceQuery()
       .append(" and scope = '").append(Scopes.FILE).append("' order by qualifier, key");
-    List<ResourceModel> resources = session.createQuery(hql.toString()).setParameter("rootId", moduleId).getResultList();
+    Map<String, ResourceModel> disabledResourceByKey = loadDisabledResources(moduleId, hql);
+    List<ResourceModel> resources = loadEnabledResources(moduleId, hql);
     for (ResourceModel resourceModel : resources) {
       String oldEffectiveKey = resourceModel.getKey();
       boolean isTest = Qualifiers.UNIT_TEST_FILE.equals(resourceModel.getQualifier());
       InputFile matchedFile = findInputFile(deprecatedFileKeyMapper, deprecatedTestKeyMapper, oldEffectiveKey, isTest);
       if (matchedFile != null) {
-        String newEffectiveKey = ((DefaultInputFile) matchedFile).key();
+        String newEffectiveKey = ((DeprecatedDefaultInputFile) matchedFile).key();
         // Now compute migration of the parent dir
         String oldKey = StringUtils.substringAfterLast(oldEffectiveKey, ":");
         Resource sonarFile;
         String parentOldKey;
         if ("java".equals(resourceModel.getLanguageKey())) {
-          parentOldKey = module.getEffectiveKey() + ":" + DeprecatedKeyUtils.getJavaFileParentDeprecatedKey(oldKey);
+          parentOldKey = String.format("%s:%s", module.getEffectiveKey(), DeprecatedKeyUtils.getJavaFileParentDeprecatedKey(oldKey));
         } else {
           sonarFile = new File(oldKey);
-          parentOldKey = module.getEffectiveKey() + ":" + sonarFile.getParent().getDeprecatedKey();
+          parentOldKey = String.format("%s:%s", module.getEffectiveKey(), sonarFile.getParent().getDeprecatedKey());
         }
-        String parentNewKey = module.getEffectiveKey() + ":" + getParentKey(matchedFile);
+        String parentNewKey = String.format("%s:%s", module.getEffectiveKey(), getParentKey(matchedFile));
         if (!deprecatedDirectoryKeyMapper.containsKey(parentOldKey)) {
           deprecatedDirectoryKeyMapper.put(parentOldKey, parentNewKey);
         } else if (!parentNewKey.equals(deprecatedDirectoryKeyMapper.get(parentOldKey))) {
           logger.warn("Directory with key " + parentOldKey + " matches both " + deprecatedDirectoryKeyMapper.get(parentOldKey) + " and "
             + parentNewKey + ". First match is arbitrary chosen.");
         }
-        resourceModel.setKey(newEffectiveKey);
+        updateKey(resourceModel, newEffectiveKey, disabledResourceByKey);
         resourceModel.setDeprecatedKey(oldEffectiveKey);
         logger.info(COMPONENT_CHANGED_TO, oldEffectiveKey, newEffectiveKey);
       } else {
@@ -136,10 +137,21 @@ public class ResourceKeyMigration implements BatchComponent {
     }
   }
 
+  private void updateKey(ResourceModel resourceModel, String newEffectiveKey, Map<String, ResourceModel> disabledResourceByKey) {
+    // Look for disabled resource with conflicting key
+    if (disabledResourceByKey.containsKey(newEffectiveKey)) {
+      ResourceModel duplicateDisabledResource = disabledResourceByKey.get(newEffectiveKey);
+      String disabledKey = newEffectiveKey + "_renamed_by_resource_key_migration";
+      duplicateDisabledResource.setKey(disabledKey);
+      logger.info(COMPONENT_CHANGED_TO, newEffectiveKey, disabledKey);
+    }
+    resourceModel.setKey(newEffectiveKey);
+  }
+
   private StringBuilder newResourceQuery() {
     return new StringBuilder().append("from ")
       .append(ResourceModel.class.getSimpleName())
-      .append(" where enabled = true ")
+      .append(" where enabled = :enabled")
       .append(" and rootId = :rootId ");
   }
 
@@ -155,18 +167,38 @@ public class ResourceKeyMigration implements BatchComponent {
     // Find all DIR resources for this module
     StringBuilder hql = newResourceQuery()
       .append(" and qualifier = '").append(Qualifiers.DIRECTORY).append("'");
-    List<ResourceModel> resources = session.createQuery(hql.toString()).setParameter("rootId", moduleId).getResultList();
+    Map<String, ResourceModel> disabledResourceByKey = loadDisabledResources(moduleId, hql);
+    List<ResourceModel> resources = loadEnabledResources(moduleId, hql);
     for (ResourceModel resourceModel : resources) {
       String oldEffectiveKey = resourceModel.getKey();
       if (deprecatedDirectoryKeyMapper.containsKey(oldEffectiveKey)) {
         String newEffectiveKey = deprecatedDirectoryKeyMapper.get(oldEffectiveKey);
-        resourceModel.setKey(newEffectiveKey);
+        updateKey(resourceModel, newEffectiveKey, disabledResourceByKey);
         resourceModel.setDeprecatedKey(oldEffectiveKey);
         logger.info(COMPONENT_CHANGED_TO, oldEffectiveKey, newEffectiveKey);
       } else {
         logger.warn(UNABLE_TO_UPDATE_COMPONENT_NO_MATCH_WAS_FOUND, oldEffectiveKey);
       }
     }
+  }
+
+  private List<ResourceModel> loadEnabledResources(int moduleId, StringBuilder hql) {
+    return session.createQuery(hql.toString())
+      .setParameter("rootId", moduleId)
+      .setParameter("enabled", true)
+      .getResultList();
+  }
+
+  private Map<String, ResourceModel> loadDisabledResources(int moduleId, StringBuilder hql) {
+    List<ResourceModel> disabledResources = session.createQuery(hql.toString())
+      .setParameter("rootId", moduleId)
+      .setParameter("enabled", false)
+      .getResultList();
+    Map<String, ResourceModel> disabledResourceByKey = new HashMap<String, ResourceModel>();
+    for (ResourceModel disabledResourceModel : disabledResources) {
+      disabledResourceByKey.put(disabledResourceModel.getKey(), disabledResourceModel);
+    }
+    return disabledResourceByKey;
   }
 
   private String getParentKey(InputFile matchedFile) {

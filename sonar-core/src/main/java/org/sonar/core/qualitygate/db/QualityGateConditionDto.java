@@ -19,9 +19,8 @@
  */
 package org.sonar.core.qualitygate.db;
 
-import com.google.common.collect.ImmutableMap;
-
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.sonar.api.measures.Metric.ValueType;
 
 import javax.annotation.CheckForNull;
@@ -41,6 +40,13 @@ public class QualityGateConditionDto {
   public static final String OPERATOR_GREATER_THAN = "GT";
 
   public static final String OPERATOR_LESS_THAN = "LT";
+
+  public static final List<String> ALL_OPERATORS = ImmutableList.of(
+    OPERATOR_LESS_THAN,
+    OPERATOR_GREATER_THAN,
+    OPERATOR_EQUALS,
+    OPERATOR_NOT_EQUALS
+  );
 
   private static final List<String> NUMERIC_OPERATORS = ImmutableList.of(
       OPERATOR_LESS_THAN,

@@ -1,0 +1,20 @@
+{
+  "key": "org.codehaus.sonar:sonar-server:src/test/java/org/sonar/server/issue/PlanActionTest.java",
+  "path": "src/test/java/org/sonar/server/issue/PlanActionTest.java",
+  "name": "PlanActionTest.java",
+  "q": "UTS",
+  "subProject": "org.codehaus.sonar:sonar-plugin-api",
+  "subProjectName": "SonarQube :: Plugin API",
+  "project": "org.codehaus.sonar:sonar",
+  "projectName": "SonarQube",
+  "fav": false,
+  "canMarkAsFavourite": false,
+  "canBulkChange": false,
+  "canCreateManualIssue": false,
+  "periods": [],
+  "severities": [],
+  "rules": [],
+  "measures": {
+    "fTests": "10"
+  }
+}

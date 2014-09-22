@@ -28,10 +28,12 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.task.TaskComponent;
 import org.sonar.api.utils.System2;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.text.Normalizer;
 import java.util.Date;
 import java.util.List;
@@ -46,20 +48,16 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   private final MyBatis myBatis;
   private final System2 system;
 
-  PermissionTemplateDao(MyBatis myBatis, System2 system) {
+  public PermissionTemplateDao(MyBatis myBatis, System2 system) {
     this.myBatis = myBatis;
     this.system = system;
-  }
-
-  public PermissionTemplateDao(MyBatis myBatis) {
-    this(myBatis, System2.INSTANCE);
   }
 
   /**
    * @return a paginated list of users.
    */
   public List<UserWithPermissionDto> selectUsers(PermissionQuery query, Long templateId, int offset, int limit) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       Map<String, Object> params = newHashMap();
       params.put(QUERY_PARAMETER, query);
@@ -81,7 +79,7 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
    * @return a non paginated list of groups.
    */
   public List<GroupWithPermissionDto> selectGroups(PermissionQuery query, Long templateId) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       Map<String, Object> params = newHashMap();
       params.put(QUERY_PARAMETER, query);
@@ -94,41 +92,54 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   }
 
   @CheckForNull
+  public PermissionTemplateDto selectTemplateByKey(DbSession session, String templateKey) {
+    return session.getMapper(PermissionTemplateMapper.class).selectByKey(templateKey);
+  }
+
+  @CheckForNull
   public PermissionTemplateDto selectTemplateByKey(String templateKey) {
-    SqlSession session = myBatis.openSession();
+    DbSession session = myBatis.openSession(false);
     try {
-      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      return mapper.selectByKey(templateKey);
+      return selectTemplateByKey(session, templateKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectPermissionTemplate(String templateKey) {
+  public PermissionTemplateDto selectPermissionTemplate(DbSession session, String templateKey) {
     PermissionTemplateDto permissionTemplate = null;
-    SqlSession session = myBatis.openSession();
-    try {
-      PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
-      permissionTemplate = mapper.selectByKey(templateKey);
-      PermissionTemplateDto templateUsersPermissions = mapper.selectTemplateUsersPermissions(templateKey);
-      if (templateUsersPermissions != null) {
-        permissionTemplate.setUsersPermissions(templateUsersPermissions.getUsersPermissions());
-      }
-      PermissionTemplateDto templateGroupsPermissions = mapper.selectTemplateGroupsPermissions(templateKey);
-      if (templateGroupsPermissions != null) {
-        permissionTemplate.setGroupsByPermission(templateGroupsPermissions.getGroupsPermissions());
-      }
-    } finally {
-      MyBatis.closeQuietly(session);
+    PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
+    permissionTemplate = mapper.selectByKey(templateKey);
+    PermissionTemplateDto templateUsersPermissions = mapper.selectTemplateUsersPermissions(templateKey);
+    if (templateUsersPermissions != null) {
+      permissionTemplate.setUsersPermissions(templateUsersPermissions.getUsersPermissions());
+    }
+    PermissionTemplateDto templateGroupsPermissions = mapper.selectTemplateGroupsPermissions(templateKey);
+    if (templateGroupsPermissions != null) {
+      permissionTemplate.setGroupsByPermission(templateGroupsPermissions.getGroupsPermissions());
     }
     return permissionTemplate;
   }
 
-  public List<PermissionTemplateDto> selectAllPermissionTemplates() {
-    SqlSession session = myBatis.openSession();
+  @CheckForNull
+  public PermissionTemplateDto selectPermissionTemplate(String templateKey) {
+    DbSession session = myBatis.openSession(false);
     try {
-      return session.selectList("selectAllPermissionTemplates");
+      return selectPermissionTemplate(session, templateKey);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<PermissionTemplateDto> selectAllPermissionTemplates(DbSession session) {
+    return session.selectList("selectAllPermissionTemplates");
+  }
+
+  public List<PermissionTemplateDto> selectAllPermissionTemplates() {
+    DbSession session = myBatis.openSession(false);
+    try {
+      return selectAllPermissionTemplates(session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -143,7 +154,7 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
       .setKeyPattern(keyPattern)
       .setCreatedAt(creationDate)
       .setUpdatedAt(creationDate);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
       mapper.insert(permissionTemplate);
@@ -155,7 +166,7 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   }
 
   public void deletePermissionTemplate(Long templateId) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
       mapper.deleteUsersPermissions(templateId);
@@ -174,7 +185,7 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
       .setDescription(description)
       .setKeyPattern(keyPattern)
       .setUpdatedAt(now());
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
       mapper.update(permissionTemplate);
@@ -191,7 +202,7 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
       .setPermission(permission)
       .setCreatedAt(now())
       .setUpdatedAt(now());
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
       mapper.insertUserPermission(permissionTemplateUser);
@@ -206,7 +217,7 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
       .setTemplateId(templateId)
       .setPermission(permission)
       .setUserId(userId);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
       mapper.deleteUserPermission(permissionTemplateUser);
@@ -223,7 +234,7 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
       .setGroupId(groupId)
       .setCreatedAt(now())
       .setUpdatedAt(now());
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
       mapper.insertGroupPermission(permissionTemplateGroup);
@@ -238,7 +249,7 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
       .setTemplateId(templateId)
       .setPermission(permission)
       .setGroupId(groupId);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       PermissionTemplateMapper mapper = session.getMapper(PermissionTemplateMapper.class);
       mapper.deleteGroupPermission(permissionTemplateGroup);
@@ -246,6 +257,13 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  /**
+   * Remove a group from all templates (used when removing a group)
+   */
+  public void removeByGroup(Long groupId, SqlSession session) {
+    session.getMapper(PermissionTemplateMapper.class).deleteByGroupId(groupId);
   }
 
   private String generateTemplateKee(String name, Date timeStamp) {

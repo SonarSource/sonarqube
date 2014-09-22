@@ -24,6 +24,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
 import javax.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,12 +33,20 @@ import java.util.Map;
  */
 public class NewActiveRule {
   final RuleKey ruleKey;
+  String name;
   String severity = Severity.defaultSeverity();
   Map<String, String> params = new HashMap<String, String>();
-  String internalKey;
+  String internalKey, language;
+  private final ActiveRulesBuilder builder;
 
-  NewActiveRule(RuleKey ruleKey) {
+  NewActiveRule(ActiveRulesBuilder builder, RuleKey ruleKey) {
+    this.builder = builder;
     this.ruleKey = ruleKey;
+  }
+
+  public NewActiveRule setName(String name) {
+    this.name = name;
+    return this;
   }
 
   public NewActiveRule setSeverity(@Nullable String severity) {
@@ -47,6 +56,11 @@ public class NewActiveRule {
 
   public NewActiveRule setInternalKey(@Nullable String internalKey) {
     this.internalKey = internalKey;
+    return this;
+  }
+
+  public NewActiveRule setLanguage(@Nullable String language) {
+    this.language = language;
     return this;
   }
 
@@ -62,5 +76,10 @@ public class NewActiveRule {
 
   public Map<String, String> params() {
     return params;
+  }
+
+  public ActiveRulesBuilder activate() {
+    builder.activate(this);
+    return builder;
   }
 }

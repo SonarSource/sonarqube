@@ -30,11 +30,13 @@ import java.io.Serializable;
  * @since 3.6
  */
 public class RuleKey implements Serializable {
+
+  public static final String MANUAL_REPOSITORY_KEY = "manual";
   private final String repository, rule;
 
-  private RuleKey(String repository, String rule) {
-    this.repository = repository;
-    this.rule = rule;
+  protected RuleKey(String repositoryKey, String ruleKey) {
+    this.repository = repositoryKey;
+    this.rule = ruleKey;
   }
 
   /**
@@ -51,9 +53,11 @@ public class RuleKey implements Serializable {
    * if the format is not valid.
    */
   public static RuleKey parse(String s) {
-    String[] split = s.split(":");
-    Preconditions.checkArgument(split.length == 2, "Bad format of rule key: " + s);
-    return RuleKey.of(split[0], split[1]);
+    int semiColonPos = s.indexOf(":");
+    Preconditions.checkArgument(semiColonPos > 0, "Invalid rule key: " + s);
+    String key = s.substring(0, semiColonPos);
+    String repo = s.substring(semiColonPos + 1);
+    return RuleKey.of(key, repo);
   }
 
   /**
@@ -68,6 +72,10 @@ public class RuleKey implements Serializable {
    */
   public String rule() {
     return rule;
+  }
+
+  public boolean isManual() {
+    return MANUAL_REPOSITORY_KEY.equals(repository);
   }
 
   @Override

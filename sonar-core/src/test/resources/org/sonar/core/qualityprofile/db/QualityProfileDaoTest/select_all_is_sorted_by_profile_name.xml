@@ -1,12 +1,13 @@
 <dataset>
 
-  <rules_profiles id="3" name="Third" language="java" parent_name="[null]" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="3" name="Third" language="js" parent_kee="[null]" kee="js_third"
+                  rules_updated_at="[null]" created_at="[null]" updated_at="[null]"/>
 
-  <rules_profiles id="1" name="First" language="java" parent_name="[null]" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="1" name="First" language="js" parent_kee="[null]" kee="js_first"
+                  rules_updated_at="[null]" created_at="[null]" updated_at="[null]"/>
 
-  <rules_profiles id="2" name="Second" language="java" parent_name="[null]" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="2" name="Second" language="js" parent_kee="[null]" kee="js_second"
+                  rules_updated_at="[null]" created_at="[null]" updated_at="[null]"/>
+
 
 </dataset>

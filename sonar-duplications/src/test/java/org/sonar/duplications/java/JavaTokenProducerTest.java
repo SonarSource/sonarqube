@@ -23,6 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.sonar.duplications.DuplicationsTestUtil;
 import org.sonar.duplications.token.Token;
@@ -38,7 +39,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
 
 public class JavaTokenProducerTest {
@@ -303,10 +303,10 @@ public class JavaTokenProducerTest {
   @Test
   public void realExamples() {
     File testFile = DuplicationsTestUtil.findFile("/java/MessageResources.java");
-    assertThat(chunk(testFile).size(), greaterThan(0));
+    assertThat(chunk(testFile).size(), Matchers.greaterThan(0));
 
     testFile = DuplicationsTestUtil.findFile("/java/RequestUtils.java");
-    assertThat(chunk(testFile).size(), greaterThan(0));
+    assertThat(chunk(testFile).size(), Matchers.greaterThan(0));
   }
 
   private TokenQueue chunk(File file) {

@@ -20,20 +20,19 @@
 package org.sonar.api.batch.fs;
 
 import java.io.File;
-import java.io.Serializable;
 
 /**
  * This layer over {@link java.io.File} adds information for code analyzers.
  *
  * @since 4.2
  */
-public interface InputFile extends Serializable {
+public interface InputFile extends InputPath {
 
   enum Type {
     MAIN, TEST
   }
 
-  /**
+  /** 
    * Status regarding previous analysis
    */
   enum Status {
@@ -51,6 +50,7 @@ public interface InputFile extends Serializable {
    * <p/>
    * Relative path is not null and is normalized ('foo/../foo' is replaced by 'foo').
    */
+  @Override
   String relativePath();
 
   /**
@@ -60,11 +60,13 @@ public interface InputFile extends Serializable {
    * to /tmp/src and basedir is /project, then this method returns /project/src/index.php. Use
    * {@code file().getCanonicalPath()} to resolve symbolic link.
    */
+  @Override
   String absolutePath();
 
   /**
    * The underlying absolute {@link java.io.File}
    */
+  @Override
   File file();
 
   /**
@@ -88,4 +90,5 @@ public interface InputFile extends Serializable {
    * zero if the file is empty.
    */
   int lines();
+
 }

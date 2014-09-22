@@ -19,7 +19,13 @@
  */
 package org.sonar.api.server.ws;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+import org.sonar.api.rule.RuleStatus;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -50,6 +56,7 @@ public class WebServiceTest {
         .setSince("4.1")
         .setPost(true)
         .setInternal(true)
+        .setResponseExample(getClass().getResource("/org/sonar/api/server/ws/WebServiceTest/response-example.txt"))
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -96,6 +103,9 @@ public class WebServiceTest {
     assertThat(showAction.key()).isEqualTo("show");
     assertThat(showAction.description()).isEqualTo("Show metric");
     assertThat(showAction.handler()).isNotNull();
+    assertThat(showAction.responseExample()).isNull();
+    assertThat(showAction.responseExampleFormat()).isNull();
+    assertThat(showAction.responseExampleAsString()).isNull();
     // same as controller
     assertThat(showAction.since()).isEqualTo("3.2");
     assertThat(showAction.isPost()).isFalse();
@@ -142,7 +152,7 @@ public class WebServiceTest {
         }
       }.define(context);
       fail();
-    } catch (IllegalStateException e) {
+    } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("RequestHandler is not set on action rule/show");
     }
   }
@@ -248,7 +258,7 @@ public class WebServiceTest {
         NewController newController = context.createController("api/rule");
         NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
         create.createParam("key").setDescription("Key of the new rule");
-        create.createParam("severity");
+        create.createParam("severity").setDefaultValue("MAJOR").setPossibleValues("INFO", "MAJOR", "BLOCKER");
         newController.done();
       }
     }.define(context);
@@ -262,6 +272,60 @@ public class WebServiceTest {
 
     assertThat(action.param("severity").key()).isEqualTo("severity");
     assertThat(action.param("severity").description()).isNull();
+    assertThat(action.param("severity").defaultValue()).isEqualTo("MAJOR");
+    assertThat(action.param("severity").possibleValues()).containsOnly("INFO", "MAJOR", "BLOCKER");
+  }
+
+  @Test
+  public void param_metadata_as_objects() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("api/rule");
+        NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
+        create.createParam("status")
+          .setDefaultValue(RuleStatus.BETA)
+          .setPossibleValues(RuleStatus.BETA, RuleStatus.READY)
+          .setExampleValue(RuleStatus.BETA);
+        create.createParam("max")
+          .setDefaultValue(11)
+          .setPossibleValues(11, 13, 17)
+          .setExampleValue(17);
+        newController.done();
+      }
+    }.define(context);
+
+    WebService.Action action = context.controller("api/rule").action("create");
+    assertThat(action.param("status").defaultValue()).isEqualTo("BETA");
+    assertThat(action.param("status").possibleValues()).containsOnly("BETA", "READY");
+    assertThat(action.param("status").exampleValue()).isEqualTo("BETA");
+    assertThat(action.param("max").defaultValue()).isEqualTo("11");
+    assertThat(action.param("max").possibleValues()).containsOnly("11", "13", "17");
+    assertThat(action.param("max").exampleValue()).isEqualTo("17");
+  }
+
+  @Test
+  public void param_null_metadata() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("api/rule");
+        NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
+        create.createParam("status")
+          .setDefaultValue(null)
+          .setPossibleValues((Collection) null)
+          .setExampleValue(null);
+        create.createParam("max")
+          .setPossibleValues((String[]) null);
+        newController.done();
+      }
+    }.define(context);
+
+    WebService.Action action = context.controller("api/rule").action("create");
+    assertThat(action.param("status").defaultValue()).isNull();
+    assertThat(action.param("status").possibleValues()).isNull();
+    assertThat(action.param("status").exampleValue()).isNull();
+    assertThat(action.param("max").possibleValues()).isNull();
   }
 
   @Test
@@ -296,5 +360,45 @@ public class WebServiceTest {
     }.define(context);
 
     assertThat(context.controller("api/rule").isInternal()).isTrue();
+  }
+
+  @Test
+  public void response_example() {
+    MetricWebService metricWs = new MetricWebService();
+    metricWs.define(context);
+    WebService.Action action = context.controller("api/metric").action("create");
+
+    assertThat(action.responseExampleFormat()).isEqualTo("txt");
+    assertThat(action.responseExample()).isNotNull();
+    assertThat(StringUtils.trim(action.responseExampleAsString())).isEqualTo("example of WS response");
+  }
+
+  @Test
+  public void fail_to_open_response_example() {
+    WebService ws = new WebService() {
+      @Override
+      public void define(Context context) {
+        try {
+          NewController controller = context.createController("foo");
+          controller
+            .createAction("bar")
+            .setHandler(mock(RequestHandler.class))
+            .setResponseExample(new URL("file:/does/not/exist"));
+          controller.done();
+
+        } catch (MalformedURLException e) {
+          e.printStackTrace();
+        }
+      }
+    };
+    ws.define(context);
+
+    WebService.Action action = context.controller("foo").action("bar");
+    try {
+      action.responseExampleAsString();
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Fail to load file:/does/not/exist");
+    }
   }
 }

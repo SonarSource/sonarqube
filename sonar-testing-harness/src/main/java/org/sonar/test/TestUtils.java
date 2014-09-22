@@ -19,21 +19,11 @@
  */
 package org.sonar.test;
 
-import com.google.common.base.Throwables;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.sonar.api.utils.SonarException;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * Utilities for unit tests
@@ -63,19 +53,6 @@ public final class TestUtils {
     return null;
   }
 
-  public static String getResourceContent(String path) {
-    URL url = TestUtils.class.getResource(path);
-    if (url == null) {
-      return null;
-    }
-
-    try {
-      return IOUtils.toString(url, Charsets.UTF_8);
-    } catch (IOException e) {
-      throw new SonarException("Can not load the resource: " + path, e);
-    }
-  }
-
   /**
    * Search for a resource in the classpath. For example calling the method getResource(getClass(), "myTestName/foo.txt") from
    * the class org.sonar.Foo loads the file $basedir/src/test/resources/org/sonar/Foo/myTestName/foo.txt
@@ -89,51 +66,5 @@ public final class TestUtils {
     }
     resourcePath += path;
     return getResource(resourcePath);
-  }
-
-  /**
-   * Shortcut for getTestTempDir(baseClass, testName, true) : cleans the unit test directory
-   */
-  public static File getTestTempDir(Class baseClass, String testName) {
-    return getTestTempDir(baseClass, testName, true);
-  }
-
-  /**
-   * Create a temporary directory for unit tests.
-   *
-   * @param baseClass the unit test class
-   * @param testName  the test name
-   * @param clean     remove all the sub-directories and files ?
-   */
-  public static File getTestTempDir(Class baseClass, String testName, boolean clean) {
-    File dir = new File("target/test-tmp/" + baseClass.getCanonicalName() + "/" + testName);
-    if (clean && dir.exists()) {
-      try {
-        FileUtils.deleteDirectory(dir);
-      } catch (IOException e) {
-        throw new SonarException("Can not delete the directory " + dir, e);
-      }
-    }
-    try {
-      FileUtils.forceMkdir(dir);
-    } catch (IOException e) {
-      throw new SonarException("Can not create the directory " + dir, e);
-    }
-    return dir;
-  }
-
-  public static void assertSimilarXml(String expectedXml, String xml) {
-    Diff diff = isSimilarXml(expectedXml, xml);
-    String message = "Diff: " + diff.toString() + CharUtils.LF + "XML: " + xml;
-    assertTrue(message, diff.similar());
-  }
-
-  static Diff isSimilarXml(String expectedXml, String xml) {
-    XMLUnit.setIgnoreWhitespace(true);
-    try {
-      return XMLUnit.compareXML(xml, expectedXml);
-    } catch (Exception e) {
-      throw Throwables.propagate(e);
-    }
   }
 }

@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
@@ -49,9 +50,8 @@ public class BatchPluginRepository implements PluginRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(BatchPluginRepository.class);
   private static final String CORE_PLUGIN = "core";
-  private static final String ENGLISH_PACK_PLUGIN = "l10nen";
 
-  private PluginDownloader pluginDownloader;
+  private PluginsReferential pluginsReferential;
   private Map<String, Plugin> pluginsByKey;
   private Map<String, PluginMetadata> metadataByKey;
   private Settings settings;
@@ -59,9 +59,9 @@ public class BatchPluginRepository implements PluginRepository {
   private final AnalysisMode analysisMode;
   private final BatchPluginJarInstaller pluginInstaller;
 
-  public BatchPluginRepository(PluginDownloader pluginDownloader, Settings settings, AnalysisMode analysisMode,
-                               BatchPluginJarInstaller pluginInstaller) {
-    this.pluginDownloader = pluginDownloader;
+  public BatchPluginRepository(PluginsReferential pluginsReferential, Settings settings, AnalysisMode analysisMode,
+    BatchPluginJarInstaller pluginInstaller) {
+    this.pluginsReferential = pluginsReferential;
     this.settings = settings;
     this.analysisMode = analysisMode;
     this.pluginInstaller = pluginInstaller;
@@ -69,7 +69,16 @@ public class BatchPluginRepository implements PluginRepository {
 
   public void start() {
     LOG.info("Install plugins");
-    doStart(pluginDownloader.downloadPluginIndex());
+    doStart(pluginsReferential.pluginList());
+
+    Map<PluginMetadata, SonarPlugin> localPlugins = pluginsReferential.localPlugins();
+    if (!localPlugins.isEmpty()) {
+      LOG.info("Install local plugins");
+      for (Map.Entry<PluginMetadata, SonarPlugin> pluginByMetadata : localPlugins.entrySet()) {
+        metadataByKey.put(pluginByMetadata.getKey().getKey(), pluginByMetadata.getKey());
+        pluginsByKey.put(pluginByMetadata.getKey().getKey(), pluginByMetadata.getValue());
+      }
+    }
   }
 
   void doStart(List<RemotePlugin> remotePlugins) {
@@ -77,7 +86,7 @@ public class BatchPluginRepository implements PluginRepository {
     metadataByKey = Maps.newHashMap();
     for (RemotePlugin remote : remotePlugins) {
       if (filter.accepts(remote.getKey())) {
-        File pluginFile = pluginDownloader.downloadPlugin(remote);
+        File pluginFile = pluginsReferential.pluginFile(remote);
         PluginMetadata metadata = pluginInstaller.installToCache(pluginFile, remote.isCore());
         if (StringUtils.isBlank(metadata.getBasePlugin()) || filter.accepts(metadata.getBasePlugin())) {
           metadataByKey.put(metadata.getKey(), metadata);
@@ -164,7 +173,7 @@ public class BatchPluginRepository implements PluginRepository {
     }
 
     boolean accepts(String pluginKey) {
-      if (CORE_PLUGIN.equals(pluginKey) || ENGLISH_PACK_PLUGIN.equals(pluginKey)) {
+      if (CORE_PLUGIN.equals(pluginKey)) {
         return true;
       }
 

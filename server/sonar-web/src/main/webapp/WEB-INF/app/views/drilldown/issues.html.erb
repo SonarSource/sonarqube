@@ -1,0 +1,238 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/js/drilldown/app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+<% end %>
+
+<%= render :partial => 'header' -%>
+
+<div class="line-block">
+  <div id="snapshot_title" class="page_title">
+    <h4>
+      <%
+         profile_measure=@snapshot.measure(Metric::PROFILE)
+      %>
+      <% if profile_measure %>Profile <%= link_to profile_measure.data, :controller => 'profiles', :action => 'show', :id => profile_measure.value.to_i %>
+      <% end %>
+      <% if @snapshot.project_snapshot.periods? %>
+        <% period_options = period_select_option_tags(@snapshot, 'small') %>
+        <% if period_options %>
+          <form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:period => nil} -%>" style="display: inline">
+            <%= dropdown_tag 'period', period_options, {:width => '250px'}, {:id => 'select-comparison', :onchange => 'submit()'} -%>
+          </form>
+      <% end %>
+      <% end %>
+    </h4>
+  </div>
+</div>
+
+<table class="width100 spacer-bottom" cellpadding="0" cellspacing="0" id="columns">
+  <tr>
+    <td align="left" width="1%" nowrap class="spacer-right" valign="top">
+
+      <%
+         value_column = (@period ? "variation_value_#{@period}" : 'value')
+         max = 0
+         if @period
+           blocker_issues=@snapshot.measure('new_blocker_violations')
+           critical_issues=@snapshot.measure('new_critical_violations')
+           major_issues=@snapshot.measure('new_major_violations')
+           minor_issues=@snapshot.measure('new_minor_violations')
+           info_issues=@snapshot.measure('new_info_violations')
+         else
+           blocker_issues=@snapshot.measure('blocker_violations')
+           critical_issues=@snapshot.measure('critical_violations')
+           major_issues=@snapshot.measure('major_violations')
+           minor_issues=@snapshot.measure('minor_violations')
+           info_issues=@snapshot.measure('info_violations')
+         end
+
+         [blocker_issues, critical_issues, major_issues, minor_issues, info_issues].each do |m|
+           value = measure_or_variation_value(m)
+           max = value if value && value>max
+         end
+      %>
+      <h3><%= message('issues_drilldown.col.severity') -%></h3>
+      <table class="spacedicon" style="border: 1px solid #e6e6e6;">
+        <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'BLOCKER', :max => max, :measure => blocker_issues} %>
+        <%= render :partial => 'severity', :locals => {:css => 'odd', :severity => 'CRITICAL', :max => max, :measure => critical_issues} %>
+        <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'MAJOR', :max => max, :measure => major_issues} %>
+        <%= render :partial => 'severity', :locals => {:css => 'odd', :severity => 'MINOR', :max => max, :measure => minor_issues} %>
+        <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'INFO', :max => max, :measure => info_issues} %>
+      </table>
+    </td>
+    <td align="left" style="white-space: normal;" valign="top">
+      <h3><%= message('issues_drilldown.col.rule') -%></h3>
+
+      <div class="scrollable">
+        <table class="spacedicon" width="100%" id="col_rules">
+          <%
+             max=0
+             rule_index=0
+             already_selected=false
+             @rule_measures.each do |m|
+               value = m.send(value_column) if m
+               max=value if value && value>max
+             end
+             @rule_measures.sort do |x, y|
+               val=y.rule_priority<=>x.rule_priority
+               if val==0
+                 x_value=x.send(value_column)
+                 y_value=y.send(value_column)
+                 y_value <=> x_value
+               else
+                 val
+               end
+             end.each do |rule_measure|
+               value = rule_measure.send(value_column)
+               next if value.nil? || value==0
+               rule=rule_measure.rule
+               clazz = cycle('even', 'odd', :name => 'rules')
+               selected = !already_selected && @rule && @rule.id==rule_measure.rule_id && (@rule_severity.nil? || @rule_severity==rule_measure.severity)
+               already_selected = true if selected
+               clazz = clazz + ' selected' if selected
+               rule_index+=1
+          %>
+            <tr class="<%= clazz -%>">
+              <td width="1%" nowrap>
+                <i class="icon-severity-<%= rule_measure.rule_priority -%>"></i>
+              </td>
+              <td>
+                <%= link_to(h(rule.name),
+                            {:controller => :drilldown, :action => :issues, :id => @resource.id, :rule => (selected ? nil : rule.key),
+                                        :rule_sev => (selected ? nil : rule_measure.severity), :sid => nil, :severity => @severity, :period => @period,
+                                        :rids => (selected ? nil : @selected_rids)},
+                            :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}"
+                    ) -%>
+              </td>
+              <td class="right" nowrap="nowrap">
+                <span><%= @period ? format_variation(rule_measure, :period => @period, :style => 'light') : rule_measure.formatted_value -%></span>
+              </td>
+              <td class="left last">
+                <%= barchart(:width => 70, :percent => (100 * value / max).to_i, :color => (@period ? '#cc0000' : '#777')) if max>0 %>
+              </td>
+            </tr>
+          <% end %>
+
+          <% if rule_index==0 %>
+            <tr class="even">
+              <td><%= message('issues_drilldown.no_issue') -%></td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+    </td>
+  </tr>
+</table>
+<%
+   paths=[]
+   rids=[]
+   first_column=true
+   last_base_snapshot=nil
+   last_column = nil
+   @drilldown.columns.each_with_index do |column, index|
+%>
+  <% if first_column %>
+    <table class="spacer-bottom" style="width: 100%">
+      <tr>
+  <% end %>
+  <td class="<%= 'spacer-left' unless first_column -%>" nowrap>
+    <div class="scrollable" id="col_<%= index -%>">
+      <table class="spaced">
+        <%
+           column.measures.each_with_index do |measure, row_index|
+             resource=column.resource(measure)
+             clazz = cycle('even', 'odd', :name => "col_#{index}")
+             selected = column.selected_snapshot && column.selected_snapshot.project_id==resource.id
+             if selected
+               clazz += ' selected'
+               paths << [h(resource.name), @selected_rids-[resource.id]]
+             end
+        %>
+          <tr class="<%= clazz -%>" id="row_<%= index -%>_<%= row_index -%>">
+            <td nowrap>
+              <% if resource.source_code? %>
+                <a href="<%= url_for :controller => 'dashboard', :action => 'index', :id => resource.id, :period => @period, :metric => (@metric && @metric.key),
+                                     :rule => @rule ? @rule.id : @severity -%>"
+                   onclick="window.open(this.href,'resource-<%= resource.key.parameterize -%>','scrollbars=1,resizable=1');return false;"
+                   id="popup-<%= resource.key.parameterize -%>" class="nolink"
+                   target="_blank"><i class="icon-detach" title="<%= message('new_window') -%>"></i></a>
+              <% else %>
+                <%= link_to(image_tag('zoom.png'), {:id => resource.id}, {:class => 'nolink'}) %>
+              <% end %>
+              <%= qualifier_icon(resource) -%>&nbsp;
+              <% if resource.source_code? %>
+                <a href="#" alt="<%= h resource.name(true) -%>" title="<%= h resource.name(true) -%>" data-key="<%= resource.key -%>"
+                   class="js-drilldown-link"><%= h resource.name(false) %></a>
+              <% else %>
+                <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
+              <% end %>
+            </td>
+            <td class="right" nowrap>
+              <%= @period ? format_variation(measure, :period => @period, :style => 'light') : measure.formatted_value -%>
+            </td>
+          </tr>
+        <% end %>
+      </table>
+    </div>
+  </td>
+  <% if column.switch? || index==@drilldown.columns.size-1 %>
+    </tr>
+    </table>
+  <% end
+     first_column = column.switch?
+     rids<<column.selected_snapshot.project_id if column.selected_snapshot
+     last_column = column
+
+     # column.base_snapshot contain the real snapshot that is selected. We have to use in when loading issues in order to corretly load issues, for instance on views.
+     last_base_snapshot = column.base_snapshot
+     end
+  %>
+  <% if last_column && @drilldown.selected_project_not_authorized %>
+    <p class="notes"><%= message('not_authorized_to_access_project', {:params => last_column.selected_snapshot.project.name}) -%></p>
+  <% end %>
+
+<script>
+  $j('#col_rules tr.selected').each(function (index,item) {
+    item.scrollIntoView(true);
+  });
+  <% for i in 0...@drilldown.columns.size do  %>
+  $j('#col_<%= i -%> tr.selected').each(function (index,item) {
+    item.scrollIntoView(true);
+  });
+  <% end %>
+
+  function displayIssues(){
+    var params = {
+      pageSize: '10',
+      resolved: 'false',
+      componentRoots: '<%= last_base_snapshot ? last_base_snapshot.project.key : @snapshot.project.key %>',
+      <% if @rule %>
+        rules: '<%= @rule.plugin_name + ':' + @rule.plugin_rule_key %>',
+      <% end %>
+      <% if @rule_severity %>
+        severities: '<%= @rule_severity %>',
+      <% end %>
+      <% if @period && @period != 0 %>
+        createdAfter: '<%= Api::Utils.format_datetime(@snapshot.period_datetime(@period)) %>'
+      <% end %>
+    };
+
+    var url = '<%= ApplicationController.root_context -%>/issues/search?' + jQuery.param(params);
+    openAccordionItem(url);
+    return false;
+  }
+
+  $j(document).ready(function() {
+//    displayIssues();
+  });
+
+  window.drilldown = {
+    metric: null,
+    rule: <% if @rule %>'<%= @rule.key -%>'<% else %>null<% end %>,
+    severity: <% if @severity %>'<%= @severity -%>'<% else %>null<% end %>,
+    period: <% if @period %><%= @period -%><% else %>null<% end %>
+  };
+</script>
+
+<div id="accordion-panel"/>
+
+<%= render :partial => 'footer' -%>

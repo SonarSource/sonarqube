@@ -1,0 +1,70 @@
+{
+  "id": 1,
+  "name": "Default Gate",
+  "conditions": [
+      {
+          "id": 1,
+          "metric": "blocker_violations",
+          "op": "GT",
+          "warning": "",
+          "error": "0"
+      },
+      {
+          "id": 2,
+          "metric": "new_coverage",
+          "op": "LT",
+          "warning": "",
+          "error": "80",
+          "period": 3
+      },
+      {
+          "id": 3,
+          "metric": "critical_violations",
+          "op": "GT",
+          "warning": "",
+          "error": "0"
+      },
+      {
+          "id": 4,
+          "metric": "sqale_effort_to_grade_a",
+          "op": "GT",
+          "warning": "",
+          "error": "0"
+      },
+      {
+          "id": 5,
+          "metric": "open_issues",
+          "op": "GT",
+          "warning": "0",
+          "error": ""
+      },
+      {
+          "id": 6,
+          "metric": "reopened_issues",
+          "op": "GT",
+          "warning": "0",
+          "error": ""
+      },
+      {
+          "id": 7,
+          "metric": "skipped_tests",
+          "op": "GT",
+          "warning": "0",
+          "error": ""
+      },
+      {
+          "id": 8,
+          "metric": "test_errors",
+          "op": "GT",
+          "warning": "",
+          "error": "0"
+      },
+      {
+          "id": 9,
+          "metric": "test_failures",
+          "op": "GT",
+          "warning": "",
+          "error": "0"
+      }
+  ]
+}

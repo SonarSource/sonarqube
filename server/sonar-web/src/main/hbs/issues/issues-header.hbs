@@ -1,0 +1,39 @@
+<h1 class="navigator-header-title">
+  {{#if name}}
+    {{name}}
+    <span class="navigator-header-title-note">
+      {{#unless shared}}
+        [{{t 'issue_filter.private'}}]
+      {{else}}
+        {{#eq user currentUser}}
+          [{{t 'issue_filter.shared_with_all_users'}}]
+        {{else}}
+          {{#if user}}
+            [{{t 'issue_filter.shared'}}]
+          {{/if}}
+        {{/eq}}
+      {{/unless}}
+    </span>
+  {{else}}
+    {{t 'issues'}}
+  {{/if}}
+</h1>
+
+  <div class="navigator-header-actions button-group">
+    <button id="issues-new-search">{{t 'issue_filter.new_search'}}</button>
+
+    {{#if appState.canManageFilters}}
+      {{#if canModify}}
+        {{#if canSave}}<button id="issues-filter-save">{{t 'save'}}</button>{{/if}}
+      {{/if}}
+      {{#unless id}}<button id="issues-filter-save-as">{{t 'save_as'}}</button>{{/unless}}
+      {{#if id}}<button id="issues-filter-copy">{{t 'copy'}}</button>{{/if}}
+      {{#if canModify}}
+        {{#if id}}<button id="issues-filter-edit">{{t 'edit'}}</button>{{/if}}
+      {{/if}}
+    {{/if}}
+  </div>
+
+{{#if description}}
+  <div class="navigator-header-description">{{description}}</div>
+{{/if}}

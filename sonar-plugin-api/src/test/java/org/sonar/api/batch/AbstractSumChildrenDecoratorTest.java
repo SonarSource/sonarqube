@@ -41,8 +41,8 @@ public class AbstractSumChildrenDecoratorTest {
   public void sumChildren() {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getChildrenMeasures(CoreMetrics.LINES)).thenReturn(Arrays.<Measure>asList(
-        new Measure(CoreMetrics.LINES, 100.0),
-        new Measure(CoreMetrics.LINES, 50.0)));
+      new Measure(CoreMetrics.LINES, 100.0),
+      new Measure(CoreMetrics.LINES, 50.0)));
 
     create(false).decorate(null, context);
 
@@ -75,7 +75,7 @@ public class AbstractSumChildrenDecoratorTest {
       @Override
       @DependedUpon
       public List<Metric> generatesMetrics() {
-        return Arrays.asList(CoreMetrics.LINES);
+        return Arrays.<Metric>asList(CoreMetrics.LINES);
       }
 
       @Override

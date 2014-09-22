@@ -1,0 +1,248 @@
+{
+  "total": 4,
+  "p": 1,
+  "ps": 3,
+  "rules": [
+    {
+      "key": "squid:S1067",
+      "repo": "squid",
+      "name": "Expressions should not be too complex",
+      "htmlDesc": "<p>\nThe complexity of an expression is defined by the number of <code>&&</code>, <code>||</code> and <code>condition ? ifTrue : ifFalse</code> operators it contains.\nA single expression's complexity should not become too high to keep the code readable.\n</p>\n\n<p>The following code, with a maximum complexity of 3:</p>\n\n<pre>\nif (condition1 && condition2 && condition3 && condition4) { /* ... */ }  // Non-Compliant\n</pre>\n\n<p>could be refactored into something like:</p>\n\n<pre>\nif (relevantMethodName1() && relevantMethodName2()) { /* ... */ }        // Compliant\n\n/* ... */\n\nprivate boolean relevantMethodName1() {\n  return condition1 && condition2;\n}\n\nprivate boolean relevantMethodName2() {\n  return condition3 && condition4;\n}\n</pre>",
+      "severity": "MAJOR",
+      "status": "READY",
+      "internalKey": "S1067",
+      "isTemplate": false,
+      "tags": [],
+      "sysTags": ["brain-overload"],
+      "lang": "java",
+      "langName": "Java",
+      "params": [
+        {
+          "key": "max",
+          "desc": "Maximum number of allowed conditional operators in an expression",
+          "defaultValue": "3"
+        }
+      ]
+    },
+    {
+      "key": "squid:ClassCyclomaticComplexity",
+      "repo": "squid",
+      "name": "Avoid too complex class",
+      "htmlDesc": "<p>The Cyclomatic Complexity is measured by the number of (&&, ||)\n\toperators and (if, while, do, for, ?:, catch, switch, case, return,\n\tthrow) statements in the body of a class plus one for each constructor,\n\tmethod (but not getter/setter), static initializer, or instance\n\tinitializer in the class. The last return stament in method, if exists,\n\tis not taken into account.</p>\n<p>\n\tEven when the Cyclomatic Complexity of a class is very high, this\n\tcomplexity might be well distributed among all methods. Nevertheless,\n\tmost of the time, a very complex class is a class which breaks the <a\n\t\thref='http://en.wikipedia.org/wiki/Single_responsibility_principle'>Single\n\t\tResponsibility Principle</a> and which should be re-factored to be split\n\tin several classes.\n</p>",
+      "severity": "MAJOR",
+      "status": "READY",
+      "internalKey": "ClassCyclomaticComplexity",
+      "isTemplate": false,
+      "tags": [],
+      "sysTags": ["brain-overload"],
+      "lang": "java",
+      "langName": "Java",
+      "params": [
+        {
+          "key": "max",
+          "desc": "Maximum complexity allowed.",
+          "defaultValue": "200"
+        }
+      ]
+    },
+    {
+      "key": "squid:MethodCyclomaticComplexity",
+      "repo": "squid",
+      "name": "Methods should not be too complex",
+      "htmlDesc": "<p>The Cyclomatic Complexity is measured by the number of\n\t(&amp;&amp;, ||) operators and (if, while, do, for, ?:, catch, switch,\n\tcase, return, throw) statements in the body of a class plus one for\n\teach constructor, method (but not getter/setter), static initializer,\n\tor instance initializer in the class. The last return stament in\n\tmethod, if exists, is not taken into account.</p>\n<p>\n\tEven when the Cyclomatic Complexity of a class is very high, this\n\tcomplexity might be well distributed among all methods. Nevertheless,\n\tmost of the time, a very complex class is a class which breaks the <a\n\t\thref=\"http://en.wikipedia.org/wiki/Single_responsibility_principle\">Single\n\t\tResponsibility Principle</a> and which should be re-factored to be split\n\tin several classes.\n</p>",
+      "severity": "MAJOR",
+      "status": "READY",
+      "internalKey": "MethodCyclomaticComplexity",
+      "isTemplate": false,
+      "tags": [],
+      "sysTags": ["brain-overload"],
+      "lang": "java",
+      "langName": "Java",
+      "params": [
+        {
+          "key": "max",
+          "desc": "Maximum complexity allowed.",
+          "defaultValue": "10"
+        }
+      ]
+    },
+    {
+      "key": "squid:XPath",
+      "repo": "squid",
+      "name": "XPath rule",
+      "createdAt": "2013-03-27T08:52:40+0100",
+      "htmlDesc": "<p>\nThis rule allows to define some homemade Java rules with help of an XPath expression.\n</p>\n\n<p>\nIssues are created depending on the return value of the XPath expression. If the XPath expression returns:\n</p>\n<ul>\n <li>a single or list of AST nodes, then a line issue with the given message is created for each node</li>\n <li>a boolean, then a file issue with the given message is created only if the boolean is true</li>\n <li>anything else, no issue is created</li>\n</ul>\n\n<p>\nHere is an example of an XPath expression to log an issue on each if statement : //ifStatement\n</p>",
+      "severity": "MAJOR",
+      "status": "READY",
+      "internalKey": "XPath",
+      "isTemplate": true,
+      "tags": [ ],
+      "sysTags": [ ],
+      "mdNote": "<p>\nThe tree produced by the <code>firstOf()</code> matcher is hard to work with from checks when alternatives are not named.\n</p>\n\n<p>\nConsider the following rule:\n</p>\n\n<pre>\nb.rule(COMPILATION_UNIT).is(\n b.firstOf( /* Non-Compliant */\n \"FOO\",\n \"BAR\"));\n</pre>\n\n<p>\nIf, from a check, one wants to forbid the usage of the \"BAR\" alternative,\nthe easiest option will be to verify that the value of the first token is \"BAR\",\ni.e. <code>\"BAR\".equals(compilationUnitNode.getTokenValue())</code>.\n</p>\n\n<p>\nThis is not maintainable, for at least two reasons:\n</p>\n\n<ul>\n <li>The grammar might evolve to also accept \"bar\" in lowercase, which will break <code>\"BAR\".equals(...)</code></li>\n <li>The grammar might evolve to optionally accept \"hello\" before the <code>firstOf()</code>, which will break <code>compilationUnitNode.getTokenValue()</code></li>\n</ul>\n\n<p>\nInstead, it is much better to rewrite the grammar as:\n</p>\n\n<pre>\nb.rule(COMPILATION_UNIT).is(\n firstOf( /* Compliant */\n FOO,\n BAR));\nb.rule(FOO).is(\"FOO\");\nb.rule(BAR).is(\"BAR\");\n</pre>\n\n<p>\nThe same check which forbids \"BAR\" would be written as: <code>compilationUnitNode.hasDirectChildren(BAR)</code>.\nThis allows both of the previous grammar evolutions to be made without impacting the check at all.\n</p>",
+      "htmlNote": "&lt;p&gt;<br/>The tree produced by the &lt;code&gt;firstOf()&lt;/code&gt; matcher is hard to work with from checks when alternatives are not named.<br/>&lt;/p&gt;<br/><br/>&lt;p&gt;<br/>Consider the following rule:<br/>&lt;/p&gt;<br/><br/>&lt;pre&gt;<br/>b.rule(COMPILATION_UNIT).is(<br/> b.firstOf( /* Non-Compliant */<br/> &quot;FOO&quot;,<br/> &quot;BAR&quot;));<br/>&lt;/pre&gt;<br/><br/>&lt;p&gt;<br/>If, from a check, one wants to forbid the usage of the &quot;BAR&quot; alternative,<br/>the easiest option will be to verify that the value of the first token is &quot;BAR&quot;,<br/>i.e. &lt;code&gt;&quot;BAR&quot;.equals(compilationUnitNode.getTokenValue())&lt;/code&gt;.<br/>&lt;/p&gt;<br/><br/>&lt;p&gt;<br/>This is not maintainable, for at least two reasons:<br/>&lt;/p&gt;<br/><br/>&lt;ul&gt;<br/> &lt;li&gt;The grammar might evolve to also accept &quot;bar&quot; in lowercase, which will break &lt;code&gt;&quot;BAR&quot;.equals(...)&lt;/code&gt;&lt;/li&gt;<br/> &lt;li&gt;The grammar might evolve to optionally accept &quot;hello&quot; before the &lt;code&gt;firstOf()&lt;/code&gt;, which will break &lt;code&gt;compilationUnitNode.getTokenValue()&lt;/code&gt;&lt;/li&gt;<br/>&lt;/ul&gt;<br/><br/>&lt;p&gt;<br/>Instead, it is much better to rewrite the grammar as:<br/>&lt;/p&gt;<br/><br/>&lt;pre&gt;<br/>b.rule(COMPILATION_UNIT).is(<br/> firstOf( /* Compliant */<br/> FOO,<br/> BAR));<br/>b.rule(FOO).is(&quot;FOO&quot;);<br/>b.rule(BAR).is(&quot;BAR&quot;);<br/>&lt;/pre&gt;<br/><br/>&lt;p&gt;<br/>The same check which forbids &quot;BAR&quot; would be written as: &lt;code&gt;compilationUnitNode.hasDirectChildren(BAR)&lt;/code&gt;.<br/>This allows both of the previous grammar evolutions to be made without impacting the check at all.<br/>&lt;/p&gt;",
+      "noteLogin": "eric.hartmann",
+      "lang": "java",
+      "langName": "Java",
+      "params": [
+        {
+          "key": "xpathQuery",
+          "desc": "The XPath query",
+          "defaultValue": ""
+        },
+        {
+          "key": "message",
+          "desc": "The violation message",
+          "defaultValue": "The XPath expression matches this piece of code"
+        }
+      ]
+    },
+    {
+      "key": "squid:XPath_1369910135",
+      "repo": "squid",
+      "name": "firstOf() alternatives should be rules or token types",
+      "createdAt": "2013-05-30T10:35:35+0200",
+      "htmlDesc": "<p>\r\nThe tree produced by the <code>firstOf()</code> matcher is hard to work with from checks when alternatives are not named.\r\n</p>\r\n\r\n<p>\r\nConsider the following rule:\r\n</p>\r\n\r\n<pre>\r\nb.rule(COMPILATION_UNIT).is(\r\n b.firstOf( /* Non-Compliant */\r\n \"FOO\",\r\n \"BAR\"));\r\n</pre>\r\n\r\n<p>\r\nIf, from a check, one wants to forbid the usage of the \"BAR\" alternative,\r\nthe easiest option will be to verify that the value of the first token is \"BAR\",\r\ni.e. <code>\"BAR\".equals(compilationUnitNode.getTokenValue())</code>.\r\n</p>\r\n\r\n<p>\r\nThis is not maintainable, for at least two reasons:\r\n</p>\r\n\r\n<ul>\r\n <li>The grammar might evolve to also accept \"bar\" in lowercase, which will break <code>\"BAR\".equals(...)</code></li>\r\n <li>The grammar might evolve to optionally accept \"hello\" before the <code>firstOf()</code>, which will break <code>compilationUnitNode.getTokenValue()</code></li>\r\n</ul>\r\n\r\n<p>\r\nInstead, it is much better to rewrite the grammar as:\r\n</p>\r\n\r\n<pre>\r\nb.rule(COMPILATION_UNIT).is(\r\n firstOf( /* Compliant */\r\n FOO,\r\n BAR));\r\nb.rule(FOO).is(\"FOO\");\r\nb.rule(BAR).is(\"BAR\");\r\n</pre>\r\n\r\n<p>\r\nThe same check which forbids \"BAR\" would be written as: <code>compilationUnitNode.hasDirectChildren(BAR)</code>.\r\nThis allows both of the previous grammar evolutions to be made without impacting the check at all.\r\n</p>",
+      "severity": "MAJOR",
+      "status": "READY",
+      "internalKey": "XPath",
+      "isTemplate": false,
+      "templateKey": "squid:XPath",
+      "tags": [ ],
+      "sysTags": [ ],
+      "lang": "java",
+      "langName": "Java",
+      "params": [
+        {
+          "key": "xpathQuery",
+          "desc": "The XPath query",
+          "defaultValue": "//expression[primary/qualifiedIdentifier[count(IDENTIFIER) = 2]/IDENTIFIER[2]/@tokenValue = 'firstOf' and primary/identifierSuffix/arguments/expression[not(primary) or primary[not(qualifiedIdentifier) or identifierSuffix]]]"
+        },
+        {
+          "key": "message",
+          "desc": "The violation message",
+          "defaultValue": "Refactor this firstOf() to only use a rule or token type for each alternative."
+        }
+      ]
+    }
+  ],
+  "actives": {
+    "squid:MethodCyclomaticComplexity": [
+      {
+        "qProfile": "Sonar way with Findbugs:java",
+        "inherit": "NONE",
+        "severity": "MAJOR",
+        "params": [
+          {
+            "key": "max",
+            "value": "10"
+          }
+        ]
+      },
+      {
+        "qProfile": "Sonar way:java",
+        "inherit": "NONE",
+        "severity": "MAJOR",
+        "params": [
+          {
+            "key": "max",
+            "value": "10"
+          }
+        ]
+      }
+    ],
+    "squid:S1067": [
+      {
+        "qProfile": "Sonar way with Findbugs:java",
+        "inherit": "NONE",
+        "severity": "MAJOR",
+        "params": [
+          {
+            "key": "max",
+            "value": "3"
+          }
+        ]
+      },
+      {
+        "qProfile": "Sonar way:java",
+        "inherit": "NONE",
+        "severity": "MAJOR",
+        "params": [
+          {
+            "key": "max",
+            "value": "3"
+          }
+        ]
+      }
+    ],
+    "squid:ClassCyclomaticComplexity": [
+      {
+        "qProfile": "Sonar way with Findbugs:java",
+        "inherit": "NONE",
+        "severity": "MAJOR",
+        "params": [
+          {
+            "key": "max",
+            "value": "200"
+          }
+        ]
+      },
+      {
+        "qProfile": "Sonar way:java",
+        "inherit": "NONE",
+        "severity": "MAJOR",
+        "params": [
+          {
+            "key": "max",
+            "value": "200"
+          }
+        ]
+      }
+    ]
+  },
+  "facets": [
+    {
+      "name": "tags",
+      "values": [
+        {
+          "val": "complexity",
+          "count": 141
+        },
+        {
+          "val": "java8",
+          "count": 42
+        },
+        {
+          "val": "javadoc",
+          "count": 13
+        }
+      ]
+    },
+    {
+      "name": "languages",
+      "values": [
+        {
+          "val": "java",
+          "count": 563
+        }
+      ]
+    },
+    {
+      "name": "repositories",
+      "values": [
+        {
+          "val": "findbugs",
+          "count": 419
+        },
+        {
+          "val": "squid",
+          "count": 138
+        },
+        {
+          "val": "common-java",
+          "count": 6
+        }
+      ]
+    }
+
+  ]
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!--[if IE 9 ]> <html class="ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class=""> <!--<![endif]-->
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="gwt:property" content="locale=<%= I18n.locale.to_s.gsub(/-/, '_') -%>">
+  <link rel="shortcut icon" type="image/x-icon" href="<%= image_path('favicon.ico') -%>">
+  <%
+     if @page_title
+       title="SonarQube - #{h(@page_title)}"
+     elsif @project
+       title="SonarQube - #{h(@project.name)}"
+     elsif @resource
+       title="#{h(@resource.long_name)}"
+     else
+       title='SonarQube'
+     end
+  %>
+  <title><%= title -%></title>
+
+  <link href="<%= ApplicationController.root_context -%>/css/sonar.css" rel="stylesheet" media="all">
+  <%= yield :style -%>
+
+  <script>
+    var pageLang = '<%= I18n.locale.to_s.gsub(/-/, '_') -%>';
+    <%# The two lines below mean that before full removal of Rails, we have to find a way to handle config properties %>
+    window.SS = typeof window.SS === 'object' ? window.SS : {};
+    window.SS.hoursInDay = <%= configuration('sonar.technicalDebt.hoursInDay', 8) %>;
+  </script>
+  <script src="<%= ApplicationController.root_context -%>/js/sonar.js"></script>
+  <script>
+    var baseUrl = '<%= ApplicationController.root_context -%>';
+    var $j = jQuery.noConflict();
+    $j(document).ready(function () {$j('.open-modal').modal()});
+  </script>
+  <%= yield :script -%>
+</head>
+<body>

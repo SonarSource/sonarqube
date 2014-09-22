@@ -20,6 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.TempFolder;
@@ -30,16 +31,21 @@ import java.io.IOException;
 
 public class TempFolderProvider extends ProviderAdapter {
 
-  public TempFolder provide(BootstrapSettings bootstrapSettings) {
-    String workingDirPath = bootstrapSettings.property(CoreProperties.WORKING_DIRECTORY, CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
-    File workingDir = new File(workingDirPath);
-    File tempDir = new File(workingDir, ".sonartmp");
-    try {
-      FileUtils.forceMkdir(tempDir);
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
+  private TempFolder tempFolder;
+
+  public TempFolder provide(BootstrapProperties bootstrapProps) {
+    if (tempFolder == null) {
+      String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
+      File workingDir = new File(workingDirPath);
+      File tempDir = new File(workingDir, ".sonartmp");
+      try {
+        FileUtils.forceMkdir(tempDir);
+      } catch (IOException e) {
+        throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
+      }
+      tempFolder = new DefaultTempFolder(tempDir);
     }
-    return new DefaultTempFolder(tempDir);
+    return tempFolder;
   }
 
 }

@@ -45,6 +45,8 @@ import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
+import org.sonar.core.cluster.NullQueue;
+import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.persistence.dialect.Dialect;
 
@@ -65,7 +67,8 @@ import java.util.Properties;
 import static org.junit.Assert.fail;
 
 /**
- * This class should be call using @ClassRule in order to create the schema once (ft @Rule is used the schema will be recreated before each test).
+ * This class should be call using @ClassRule in order to create the schema once (ft @Rule is used
+ * the schema will be recreated before each test).
  * Data will be truncated each time you call prepareDbUnit().
  */
 public class TestDatabase extends ExternalResource {
@@ -76,11 +79,17 @@ public class TestDatabase extends ExternalResource {
   private DatabaseCommands commands;
   private IDatabaseTester tester;
   private MyBatis myBatis;
+  private WorkQueue queue = new NullQueue();
   private String schemaPath = null;
 
   public TestDatabase schema(Class baseClass, String filename) {
     String path = StringUtils.replaceChars(baseClass.getCanonicalName(), '.', '/');
     schemaPath = path + "/" + filename;
+    return this;
+  }
+
+  public TestDatabase setQueue(WorkQueue queue) {
+    this.queue = queue;
     return this;
   }
 
@@ -109,7 +118,7 @@ public class TestDatabase extends ExternalResource {
     commands = DatabaseCommands.forDialect(db.getDialect());
     tester = new DataSourceDatabaseTester(db.getDataSource());
 
-    myBatis = new MyBatis(db, new Logback());
+    myBatis = new MyBatis(db, new Logback(), queue);
     myBatis.start();
 
     commands.truncateDatabase(db.getDataSource());
@@ -221,6 +230,7 @@ public class TestDatabase extends ExternalResource {
     IDatabaseConnection connection = null;
     try {
       connection = dbUnitConnection();
+
       IDataSet dataSet = connection.createDataSet();
       String path = "/" + testClass.getName().replace('.', '/') + "/" + filename;
       IDataSet expectedDataSet = dbUnitDataSet(testClass.getResourceAsStream(path));
@@ -252,6 +262,7 @@ public class TestDatabase extends ExternalResource {
       dataSet.addReplacementObject("[null]", null);
       dataSet.addReplacementObject("[false]", Boolean.FALSE);
       dataSet.addReplacementObject("[true]", Boolean.TRUE);
+
       return dataSet;
     } catch (Exception e) {
       throw translateException("Could not read the dataset stream", e);

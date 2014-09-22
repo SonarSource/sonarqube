@@ -60,6 +60,15 @@ public class ProjectReactorValidatorTest {
     validator.validate(reactor);
   }
 
+  @Test
+  public void not_fail_if_provisioning_enforced_and_project_with_branch_exists() throws Exception {
+    String key = "project-key";
+    settings.setProperty(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION, true);
+    when(resourceDao.findByKey(key + ":branch")).thenReturn(mock(Component.class));
+    ProjectReactor reactor = createProjectReactor(key, "branch");
+    validator.validate(reactor);
+  }
+
   @Test(expected = SonarException.class)
   public void fail_if_provisioning_enforced_and_project_not_provisioned() throws Exception {
     String key = "project-key";
@@ -246,7 +255,9 @@ public class ProjectReactorValidatorTest {
   }
 
   private ProjectReactor createProjectReactor(String projectKey, String branch) {
-    ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, projectKey);
+    ProjectDefinition def = ProjectDefinition.create()
+      .setProperty(CoreProperties.PROJECT_KEY_PROPERTY, projectKey)
+      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, branch);
     ProjectReactor reactor = new ProjectReactor(def);
     settings.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, branch);
     return reactor;

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.codehaus.sonar</groupId>
+    <artifactId>sonar</artifactId>
+    <version>5.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>server</artifactId>
+  <packaging>pom</packaging>
+  <name>SonarQube :: Server :: Parent</name>
+
+  <modules>
+    <module>sonar-process</module>
+    <module>sonar-process-monitor</module>
+    <module>sonar-search</module>
+    <module>sonar-server</module>
+    <module>sonar-web</module>
+    <module>sonar-ws-client</module>
+  </modules>
+</project>

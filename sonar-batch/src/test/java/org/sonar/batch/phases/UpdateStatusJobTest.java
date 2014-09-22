@@ -29,7 +29,6 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.batch.bootstrap.AnalysisMode;
-import org.sonar.batch.bootstrap.BootstrapSettings;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.index.DefaultResourcePersister;
 import org.sonar.batch.index.ResourceCache;
@@ -49,7 +48,6 @@ import static org.mockito.Mockito.when;
 public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
 
   private AnalysisMode mode;
-  private BootstrapSettings bootstrapSettings;
 
   @Before
   public void setUp() {

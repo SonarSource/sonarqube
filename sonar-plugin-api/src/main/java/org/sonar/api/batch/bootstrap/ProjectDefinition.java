@@ -39,9 +39,28 @@ import java.util.Properties;
  */
 public class ProjectDefinition {
 
-  public static final String SOURCE_DIRS_PROPERTY = "sonar.sources";
+  public static final String SOURCES_PROPERTY = "sonar.sources";
+  /**
+   * @deprecated since 4.5 use {@link #SOURCES_PROPERTY}
+   */
+  @Deprecated
+  public static final String SOURCE_DIRS_PROPERTY = SOURCES_PROPERTY;
+  /**
+   * @deprecated since 4.5 use {@link #SOURCES_PROPERTY}
+   */
+  @Deprecated
   public static final String SOURCE_FILES_PROPERTY = "sonar.sourceFiles";
-  public static final String TEST_DIRS_PROPERTY = "sonar.tests";
+
+  public static final String TESTS_PROPERTY = "sonar.tests";
+  /**
+   * @deprecated since 4.5 use {@link #TESTS_PROPERTY}
+   */
+  @Deprecated
+  public static final String TEST_DIRS_PROPERTY = TESTS_PROPERTY;
+  /**
+   * @deprecated since 4.5 use {@link #TESTS_PROPERTY}
+   */
+  @Deprecated
   public static final String TEST_FILES_PROPERTY = "sonar.testFiles";
   public static final String BINARIES_PROPERTY = "sonar.binaries";
   public static final String LIBRARIES_PROPERTY = "sonar.libraries";
@@ -146,6 +165,18 @@ public class ProjectDefinition {
     return properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
   }
 
+  /**
+   * @since 4.5
+   */
+  public String getKeyWithBranch() {
+    String branch = properties.getProperty(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    String projectKey = getKey();
+    if (StringUtils.isNotBlank(branch)) {
+      projectKey = String.format("%s:%s", projectKey, branch);
+    }
+    return projectKey;
+  }
+
   public String getVersion() {
     return properties.getProperty(CoreProperties.PROJECT_VERSION_PROPERTY);
   }
@@ -163,43 +194,102 @@ public class ProjectDefinition {
   }
 
   private void appendProperty(String key, String value) {
-    String newValue = properties.getProperty(key, "") + SEPARATOR + value;
-    properties.put(key, newValue);
+    String current = properties.getProperty(key, "");
+    if (StringUtils.isBlank(current)) {
+      properties.put(key, value);
+    } else {
+      properties.put(key, current + SEPARATOR + value);
+    }
   }
 
-  public List<String> getSourceDirs() {
-    String sources = properties.getProperty(SOURCE_DIRS_PROPERTY, "");
+  /**
+   * @return Source files and folders.
+   */
+  public List<String> sources() {
+    String sources = properties.getProperty(SOURCES_PROPERTY, "");
     return trim(StringUtils.split(sources, SEPARATOR));
   }
 
   /**
-   * @param paths paths to directory with main sources.
+   * @deprecated since 4.5 use {@link #sources()}
+   */
+  @Deprecated
+  public List<String> getSourceDirs() {
+    return sources();
+  }
+
+  /**
+   * @param paths paths to file or directory with main sources.
    *              They can be absolute or relative to project base directory.
    */
-  public ProjectDefinition addSourceDirs(String... paths) {
+  public ProjectDefinition addSources(String... paths) {
     for (String path : paths) {
-      appendProperty(SOURCE_DIRS_PROPERTY, path);
+      appendProperty(SOURCES_PROPERTY, path);
     }
     return this;
   }
 
+  /**
+   * @deprecated since 4.5 use {@link #addSources(String...)}
+   */
+  @Deprecated
+  public ProjectDefinition addSourceDirs(String... paths) {
+    return addSources(paths);
+  }
+
+  public ProjectDefinition addSources(File... fileOrDirs) {
+    for (File fileOrDir : fileOrDirs) {
+      addSources(fileOrDir.getAbsolutePath());
+    }
+    return this;
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #addSources(File...)}
+   */
+  @Deprecated
   public ProjectDefinition addSourceDirs(File... dirs) {
-    for (File dir : dirs) {
-      addSourceDirs(dir.getAbsolutePath());
+    return addSources(dirs);
+  }
+
+  public ProjectDefinition resetSources() {
+    properties.remove(SOURCES_PROPERTY);
+    return this;
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #resetSources()}
+   */
+  @Deprecated
+  public ProjectDefinition resetSourceDirs() {
+    return resetSources();
+  }
+
+  public ProjectDefinition setSources(String... paths) {
+    resetSources();
+    return addSources(paths);
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #setSources(String...)}
+   */
+  @Deprecated
+  public ProjectDefinition setSourceDirs(String... paths) {
+    return setSources(paths);
+  }
+
+  public ProjectDefinition setSources(File... filesOrDirs) {
+    resetSources();
+    for (File fileOrDir : filesOrDirs) {
+      addSources(fileOrDir.getAbsolutePath());
     }
     return this;
   }
 
-  public ProjectDefinition resetSourceDirs() {
-    properties.remove(SOURCE_DIRS_PROPERTY);
-    return this;
-  }
-
-  public ProjectDefinition setSourceDirs(String... paths) {
-    resetSourceDirs();
-    return addSourceDirs(paths);
-  }
-
+  /**
+   * @deprecated since 4.5 use {@link #setSources(File...)}
+   */
+  @Deprecated
   public ProjectDefinition setSourceDirs(File... dirs) {
     resetSourceDirs();
     for (File dir : dirs) {
@@ -209,96 +299,155 @@ public class ProjectDefinition {
   }
 
   /**
-   * Adding source files is possible only if no source directories have been set.
-   * Absolute path or relative path from project base dir.
+   * @deprecated since 4.5 use {@link #addSources(File...)}
    */
+  @Deprecated
   public ProjectDefinition addSourceFiles(String... paths) {
-    for (String path : paths) {
-      appendProperty(SOURCE_FILES_PROPERTY, path);
+    // Hack for visual studio project builder that used to add baseDir first as source dir
+    List<String> sourceDirs = getSourceDirs();
+    if (sourceDirs.size() == 1 && new File(sourceDirs.get(0)).isDirectory()) {
+      resetSources();
     }
-    return this;
+    return addSources(paths);
   }
 
   /**
-   * Adding source files is possible only if no source directories have been set.
+   * @deprecated since 4.5 use {@link #addSources(File...)}
    */
+  @Deprecated
   public ProjectDefinition addSourceFiles(File... files) {
-    for (File file : files) {
-      addSourceFiles(file.getAbsolutePath());
+    // Hack for visual studio project builder that used to add baseDir first as source dir
+    List<String> sourceDirs = getSourceDirs();
+    if (sourceDirs.size() == 1 && new File(sourceDirs.get(0)).isDirectory()) {
+      resetSources();
     }
-    return this;
+    return addSources(files);
   }
 
+  /**
+   * @deprecated since 4.5 use {@link #sources()}
+   */
+  @Deprecated
   public List<String> getSourceFiles() {
-    String sources = properties.getProperty(SOURCE_FILES_PROPERTY, "");
-    return trim(StringUtils.split(sources, SEPARATOR));
+    return sources();
   }
 
-  public List<String> getTestDirs() {
-    String sources = properties.getProperty(TEST_DIRS_PROPERTY, "");
+  public List<String> tests() {
+    String sources = properties.getProperty(TESTS_PROPERTY, "");
     return trim(StringUtils.split(sources, SEPARATOR));
   }
 
   /**
-   * @param paths path to directory with test sources.
+   * @deprecated since 4.5 use {@link #tests()}
+   */
+  @Deprecated
+  public List<String> getTestDirs() {
+    return tests();
+  }
+
+  /**
+   * @param paths path to files or directories with test sources.
    *              It can be absolute or relative to project directory.
    */
+  public ProjectDefinition addTests(String... paths) {
+    for (String path : paths) {
+      appendProperty(TESTS_PROPERTY, path);
+    }
+    return this;
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #addTests(String...)}
+   */
+  @Deprecated
   public ProjectDefinition addTestDirs(String... paths) {
-    for (String path : paths) {
-      appendProperty(TEST_DIRS_PROPERTY, path);
+    return addTests(paths);
+  }
+
+  public ProjectDefinition addTests(File... fileOrDirs) {
+    for (File fileOrDir : fileOrDirs) {
+      addTests(fileOrDir.getAbsolutePath());
     }
     return this;
   }
 
+  /**
+   * @deprecated since 4.5 use {@link #addTests(File...)}
+   */
+  @Deprecated
   public ProjectDefinition addTestDirs(File... dirs) {
-    for (File dir : dirs) {
-      addTestDirs(dir.getAbsolutePath());
-    }
-    return this;
+    return addTests(dirs);
   }
 
+  public ProjectDefinition setTests(String... paths) {
+    resetTests();
+    return addTests(paths);
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #setTests(String...)}
+   */
+  @Deprecated
   public ProjectDefinition setTestDirs(String... paths) {
-    resetTestDirs();
-    return addTestDirs(paths);
+    return setTests(paths);
   }
 
+  public ProjectDefinition setTests(File... fileOrDirs) {
+    resetTests();
+    for (File dir : fileOrDirs) {
+      addTests(dir.getAbsolutePath());
+    }
+    return this;
+  }
+
+  /**
+   * @deprecated since 4.5 use {@link #setTests(File...)}
+   */
+  @Deprecated
   public ProjectDefinition setTestDirs(File... dirs) {
-    resetTestDirs();
-    for (File dir : dirs) {
-      addTestDirs(dir.getAbsolutePath());
-    }
+    return setTests(dirs);
+  }
+
+  public ProjectDefinition resetTests() {
+    properties.remove(TESTS_PROPERTY);
     return this;
   }
 
+  /**
+   * @deprecated since 4.5 use {@link #resetTests()}
+   */
+  @Deprecated
   public ProjectDefinition resetTestDirs() {
-    properties.remove(TEST_DIRS_PROPERTY);
-    return this;
+    return resetTests();
   }
 
   /**
-   * Adding source files is possible only if no source directories have been set.
-   * Absolute path or relative path from project base dir.
+   * @deprecated since 4.5 use {@link #addTests(String...)}
    */
+  @Deprecated
   public ProjectDefinition addTestFiles(String... paths) {
-    for (String path : paths) {
-      appendProperty(TEST_FILES_PROPERTY, path);
+    // Hack for visual studio project builder that used to add baseDir first as test dir
+    List<String> testDirs = getTestDirs();
+    if (testDirs.size() == 1 && new File(testDirs.get(0)).isDirectory()) {
+      resetTests();
     }
-    return this;
+    return addTests(paths);
   }
 
   /**
-   * Adding source files is possible only if no source directories have been set.
+   * @deprecated since 4.5 use {@link #addTests(File...)}
    */
+  @Deprecated
   public ProjectDefinition addTestFiles(File... files) {
-    for (File file : files) {
-      addTestFiles(file.getAbsolutePath());
-    }
-    return this;
+    return addTests(files);
   }
 
+  /**
+   * @deprecated since 4.5 use {@link #tests()}
+   */
+  @Deprecated
   public List<String> getTestFiles() {
-    String sources = properties.getProperty(TEST_FILES_PROPERTY, "");
-    return trim(StringUtils.split(sources, SEPARATOR));
+    return tests();
   }
 
   public List<String> getBinaries() {

@@ -25,7 +25,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.Phases.Phase;
 
-import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -38,7 +38,7 @@ public class ModuleProfiling extends AbstractTimeProfiling {
   private Map<String, ItemProfiling> profilingPerBatchStep = new LinkedHashMap<String, ItemProfiling>();
   private final Project module;
 
-  public ModuleProfiling(@CheckForNull Project module, System2 system) {
+  public ModuleProfiling(@Nullable Project module, System2 system) {
     super(system);
     this.module = module;
   }

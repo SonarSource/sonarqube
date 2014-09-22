@@ -1,0 +1,47 @@
+{"rule": {
+    "key": "squid:ClassCyclomaticComplexity",
+    "repo": "squid",
+    "name": "Avoid too complex class",
+    "htmlDesc": "<p>The Cyclomatic Complexity is measured by the number of (&&, ||)\n\toperators and (if, while, do, for, ?:, catch, switch, case, return,\n\tthrow) statements in the body of a class plus one for each constructor,\n\tmethod (but not getter/setter), static initializer, or instance\n\tinitializer in the class. The last return stament in method, if exists,\n\tis not taken into account.</p>\n<p>\n\tEven when the Cyclomatic Complexity of a class is very high, this\n\tcomplexity might be well distributed among all methods. Nevertheless,\n\tmost of the time, a very complex class is a class which breaks the <a\n\t\thref='http://en.wikipedia.org/wiki/Single_responsibility_principle'>Single\n\t\tResponsibility Principle</a> and which should be re-factored to be split\n\tin several classes.\n</p>",
+    "severity": "MAJOR",
+    "status": "READY",
+    "internalKey": "ClassCyclomaticComplexity",
+    "template": false,
+    "tags": [],
+    "sysTags": ["brain-overload"],
+    "debtSubChar": "39",
+    "debtRemFnType": "CONSTANT_ISSUE",
+    "debtRemFnOffset": "10min",
+    "lang": "java",
+    "langName": "Java",
+    "params": [
+        {
+            "key": "max",
+            "desc": "Maximum complexity allowed.",
+            "defaultValue": "200"
+        }
+    ]
+}, "actives": [
+    {
+        "qProfile": "Sonar way with Findbugs:java",
+        "inherit": "NONE",
+        "severity": "MAJOR",
+        "params": [
+            {
+                "key": "max",
+                "value": "200"
+            }
+        ]
+    },
+    {
+        "qProfile": "Sonar way:java",
+        "inherit": "NONE",
+        "severity": "MAJOR",
+        "params": [
+            {
+                "key": "max",
+                "value": "200"
+            }
+        ]
+    }
+]}

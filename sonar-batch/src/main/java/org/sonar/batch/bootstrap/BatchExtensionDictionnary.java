@@ -21,10 +21,16 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.CheckProject;
+import org.sonar.api.batch.Phase;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.scan.SensorWrapper;
+import org.sonar.batch.scan2.AnalyzerOptimizer;
+
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,11 +40,16 @@ import java.util.List;
  */
 public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensionDictionnary {
 
-  public BatchExtensionDictionnary(ComponentContainer componentContainer) {
+  private SensorContext context;
+  private AnalyzerOptimizer analyzerOptimizer;
+
+  public BatchExtensionDictionnary(ComponentContainer componentContainer, SensorContext context, AnalyzerOptimizer analyzerOptimizer) {
     super(componentContainer);
+    this.context = context;
+    this.analyzerOptimizer = analyzerOptimizer;
   }
 
-  public <T> Collection<T> select(Class<T> type, Project project, boolean sort, ExtensionMatcher matcher) {
+  public <T> Collection<T> select(Class<T> type, @Nullable Project project, boolean sort, @Nullable ExtensionMatcher matcher) {
     List<T> result = getFilteredExtensions(type, project, matcher);
     if (sort) {
       return sort(result);
@@ -46,18 +57,41 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
     return result;
   }
 
-  private <T> List<T> getFilteredExtensions(Class<T> type, Project project, ExtensionMatcher matcher) {
+  @Override
+  protected Phase.Name evaluatePhase(Object extension) {
+    if (extension instanceof SensorWrapper) {
+      return super.evaluatePhase(((SensorWrapper) extension).wrappedSensor());
+    } else {
+      return super.evaluatePhase(extension);
+    }
+  }
+
+  private <T> List<T> getFilteredExtensions(Class<T> type, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
     List<T> result = Lists.newArrayList();
-    for (BatchExtension extension : getExtensions()) {
+    for (Object extension : getExtensions(type)) {
+      if (org.sonar.api.batch.Sensor.class.equals(type) && extension instanceof Sensor) {
+        extension = new SensorWrapper((Sensor) extension, context, analyzerOptimizer);
+      }
       if (shouldKeep(type, extension, project, matcher)) {
         result.add((T) extension);
+      }
+    }
+    if (org.sonar.api.batch.Sensor.class.equals(type)) {
+      // Retrieve new Sensors and wrap then in SensorWrapper
+      for (Object extension : getExtensions(Sensor.class)) {
+        extension = new SensorWrapper((Sensor) extension, context, analyzerOptimizer);
+        if (shouldKeep(type, extension, project, matcher)) {
+          result.add((T) extension);
+        }
       }
     }
     return result;
   }
 
-  private boolean shouldKeep(Class type, Object extension, Project project, ExtensionMatcher matcher) {
-    boolean keep = ClassUtils.isAssignable(extension.getClass(), type) && (matcher == null || matcher.accept(extension));
+  private boolean shouldKeep(Class type, Object extension, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
+    boolean keep = (ClassUtils.isAssignable(extension.getClass(), type)
+      || (org.sonar.api.batch.Sensor.class.equals(type) && ClassUtils.isAssignable(extension.getClass(), Sensor.class)))
+      && (matcher == null || matcher.accept(extension));
     if (keep && project != null && ClassUtils.isAssignable(extension.getClass(), CheckProject.class)) {
       keep = ((CheckProject) extension).shouldExecuteOnProject(project);
     }

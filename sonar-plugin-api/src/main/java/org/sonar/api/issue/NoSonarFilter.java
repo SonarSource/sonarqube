@@ -19,10 +19,11 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.issue.batch.IssueFilterChain;
-
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.issue.batch.IssueFilterChain;
 
 import java.util.Map;
 import java.util.Set;
@@ -40,8 +41,23 @@ public class NoSonarFilter implements org.sonar.api.issue.batch.IssueFilter {
 
   private final Map<String, Set<Integer>> noSonarLinesByResource = Maps.newHashMap();
 
+  /**
+   * @deprecated since 5.0 use {@link #noSonarInFile(InputFile, Set)}
+   */
+  @Deprecated
   public NoSonarFilter addComponent(String componentKey, Set<Integer> noSonarLines) {
     noSonarLinesByResource.put(componentKey, noSonarLines);
+    return this;
+  }
+
+  /**
+   * Register lines in a file that contains the NOSONAR flag.
+   * @param inputFile
+   * @param noSonarLines Line number starts at 1 in a file
+   * @since 5.0
+   */
+  public NoSonarFilter noSonarInFile(InputFile inputFile, Set<Integer> noSonarLines) {
+    noSonarLinesByResource.put(((DefaultInputFile) inputFile).key(), noSonarLines);
     return this;
   }
 

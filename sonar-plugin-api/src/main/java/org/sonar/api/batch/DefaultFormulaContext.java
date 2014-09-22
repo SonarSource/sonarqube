@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import org.apache.commons.configuration.Configuration;
 import org.sonar.api.measures.FormulaContext;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Resource;
@@ -42,14 +41,6 @@ public class DefaultFormulaContext implements FormulaContext {
 
   public Resource getResource() {
     return decoratorContext.getResource();
-  }
-
-  /**
-   * @deprecated in 3.7. Use {@link org.sonar.api.config.Settings}.
-   */
-  @Deprecated
-  public Configuration getConfiguration() {
-    return decoratorContext.getProject().getConfiguration();
   }
 
   public void setMetric(Metric metric) {

@@ -24,19 +24,18 @@ import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultDecoratorContext;
 import org.sonar.batch.events.EventBus;
+import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.measure.MeasurementFilters;
 
-import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
-import static org.hamcrest.number.OrderingComparisons.lessThan;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -54,11 +53,11 @@ public class DecoratorsExecutorTest {
     profiler.start(decorator2);
     profiler.stop();
 
-    assertThat(profiler.getMessage().indexOf("Decorator1"), greaterThanOrEqualTo(0));
-    assertThat(profiler.getMessage().indexOf("Decorator2"), greaterThanOrEqualTo(0));
+    assertThat(profiler.getMessage().indexOf("Decorator1")).isGreaterThanOrEqualTo(0);
+    assertThat(profiler.getMessage().indexOf("Decorator2")).isGreaterThanOrEqualTo(0);
 
     // sequence of execution
-    assertThat(profiler.getMessage().indexOf("Decorator1"), lessThan(profiler.getMessage().indexOf("Decorator2")));
+    assertThat(profiler.getMessage().indexOf("Decorator1")).isLessThan(profiler.getMessage().indexOf("Decorator2"));
   }
 
   @Test
@@ -67,13 +66,13 @@ public class DecoratorsExecutorTest {
     doThrow(new SonarException()).when(decorator).decorate(any(Resource.class), any(DecoratorContext.class));
 
     DecoratorsExecutor executor = new DecoratorsExecutor(mock(BatchExtensionDictionnary.class), new Project("key"), mock(SonarIndex.class),
-      mock(EventBus.class), mock(MeasurementFilters.class));
+      mock(EventBus.class), mock(MeasurementFilters.class), mock(MeasureCache.class), mock(MetricFinder.class));
     try {
       executor.executeDecorator(decorator, mock(DefaultDecoratorContext.class), File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false));
       fail("Exception has not been thrown");
 
     } catch (SonarException e) {
-      assertThat(e.getMessage(), containsString("src/org/foo/Bar.java"));
+      assertThat(e.getMessage()).contains("src/org/foo/Bar.java");
     }
   }
 

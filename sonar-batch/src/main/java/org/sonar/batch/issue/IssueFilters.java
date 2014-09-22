@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.issue.batch.IssueFilter;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Violation;
@@ -27,41 +27,61 @@ import org.sonar.batch.ViolationFilters;
 
 import javax.annotation.Nullable;
 
-public class IssueFilters implements BatchExtension {
+public class IssueFilters implements BatchComponent {
 
   private final ViolationFilters deprecatedFilters;
   private final DeprecatedViolations deprecatedViolations;
   private final org.sonar.api.issue.IssueFilter[] exclusionFilters;
   private final IssueFilter[] filters;
 
-  public IssueFilters(ViolationFilters deprecatedFilters, DeprecatedViolations deprecatedViolations, org.sonar.api.issue.IssueFilter[] exclusionFilters, IssueFilter[] filters) {
+  public IssueFilters(@Nullable ViolationFilters deprecatedFilters, @Nullable DeprecatedViolations deprecatedViolations, org.sonar.api.issue.IssueFilter[] exclusionFilters,
+    IssueFilter[] filters) {
     this.deprecatedFilters = deprecatedFilters;
     this.deprecatedViolations = deprecatedViolations;
     this.exclusionFilters = exclusionFilters;
     this.filters = filters;
   }
 
-  public IssueFilters(ViolationFilters deprecatedFilters, DeprecatedViolations deprecatedViolations, IssueFilter[] filters) {
+  public IssueFilters(@Nullable ViolationFilters deprecatedFilters, @Nullable DeprecatedViolations deprecatedViolations, IssueFilter[] filters) {
     this(deprecatedFilters, deprecatedViolations, new org.sonar.api.issue.IssueFilter[0], filters);
   }
 
-  public IssueFilters(ViolationFilters deprecatedFilters, DeprecatedViolations deprecatedViolations, org.sonar.api.issue.IssueFilter[] exclusionFilters) {
+  public IssueFilters(@Nullable ViolationFilters deprecatedFilters, @Nullable DeprecatedViolations deprecatedViolations, org.sonar.api.issue.IssueFilter[] exclusionFilters) {
     this(deprecatedFilters, deprecatedViolations, exclusionFilters, new IssueFilter[0]);
   }
 
-  public IssueFilters(ViolationFilters deprecatedFilters, DeprecatedViolations deprecatedViolations) {
+  public IssueFilters(@Nullable ViolationFilters deprecatedFilters, @Nullable DeprecatedViolations deprecatedViolations) {
     this(deprecatedFilters, deprecatedViolations, new org.sonar.api.issue.IssueFilter[0]);
   }
 
+  /**
+   * Used by scan2
+   */
+  public IssueFilters(org.sonar.api.issue.IssueFilter[] exclusionFilters, IssueFilter[] filters) {
+    this(null, null, exclusionFilters, filters);
+  }
+
+  public IssueFilters(org.sonar.api.issue.IssueFilter[] exclusionFilters) {
+    this(null, null, exclusionFilters, new IssueFilter[0]);
+  }
+
+  public IssueFilters(IssueFilter[] filters) {
+    this(null, null, new org.sonar.api.issue.IssueFilter[0], filters);
+  }
+
+  public IssueFilters() {
+    this(null, null, new org.sonar.api.issue.IssueFilter[0], new IssueFilter[0]);
+  }
+
   public boolean accept(DefaultIssue issue, @Nullable Violation violation) {
-    if(new DefaultIssueFilterChain(filters).accept(issue)) {
+    if (new DefaultIssueFilterChain(filters).accept(issue)) {
       // Apply deprecated rules only if filter chain accepts the current issue
       for (org.sonar.api.issue.IssueFilter filter : exclusionFilters) {
         if (!filter.accept(issue)) {
           return false;
         }
       }
-      if (!deprecatedFilters.isEmpty()) {
+      if (deprecatedFilters != null && !deprecatedFilters.isEmpty() && deprecatedViolations != null) {
         Violation v = violation != null ? violation : deprecatedViolations.toViolation(issue);
         return !deprecatedFilters.isIgnored(v);
       }

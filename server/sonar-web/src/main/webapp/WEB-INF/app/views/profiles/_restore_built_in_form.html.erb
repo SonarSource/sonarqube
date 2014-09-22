@@ -1,0 +1,21 @@
+<form id="restore-built-in-profiles-form" action="profiles/restore_built_in" method="POST">
+  <fieldset>
+    <input type="hidden" name="language" value="<%= @language.getKey() -%>"/>
+
+    <div class="modal-head">
+      <h2><%= h message('quality_profiles.restore_built_in_profiles') -%></h2>
+    </div>
+
+    <div class="modal-body">
+      <%= h message('quality_profiles.restore_built_in_profiles_confirmation', :params => [@builtin_profile_names.join('\', \''), @language.getName()]) -%>
+    </div>
+
+    <div class="modal-foot">
+      <input type="submit" value="<%= h message('restore') -%>" id="restore-built-in-profiles-submit"/>
+      <a href="#" onclick="return closeModalWindow()" id="restore-built-in-profiles-cancel"><%= h message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+<script>
+  $j("#restore-built-in-profiles-form").modalForm();
+</script>

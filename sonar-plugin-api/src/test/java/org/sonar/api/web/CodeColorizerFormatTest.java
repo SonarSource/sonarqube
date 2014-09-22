@@ -38,6 +38,7 @@ public class CodeColorizerFormatTest {
     assertThat(format.equals(new FakeFormat("bar"))).isFalse();
     assertThat(format.hashCode()).isEqualTo(format.hashCode());
     assertThat(format.hashCode()).isEqualTo(new FakeFormat("foo").hashCode());
+    assertThat(format.toString()).isEqualTo("FakeFormat{lang=foo}");
   }
 
   private static class FakeFormat extends CodeColorizerFormat {

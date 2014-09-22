@@ -20,30 +20,49 @@
 
 package org.sonar.core.qualityprofile.db;
 
-import org.sonar.core.rule.SeverityUtil;
-
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.core.persistence.Dto;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.SeverityUtil;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.Transient;
 
-import java.util.Date;
+public class ActiveRuleDto extends Dto<ActiveRuleKey> {
 
-public class ActiveRuleDto {
+  public static final String INHERITED = ActiveRule.INHERITED;
+  public static final String OVERRIDES = ActiveRule.OVERRIDES;
 
-  public static final String INHERITED = "INHERITED";
-  public static final String OVERRIDES = "OVERRIDES";
+  private String repository;
+  private String ruleField;
+  private String profileKey;
 
   private Integer id;
   private Integer profileId;
   private Integer ruleId;
   private Integer severity;
   private String inheritance;
-  private Date noteCreatedAt;
-  private Date noteUpdatedAt;
-  private String noteUserLogin;
-  private String noteData;
+
+  /**
+   * @deprecated for internal use, should be private
+   */
+  @Deprecated
+  public ActiveRuleDto setKey(ActiveRuleKey key) {
+    this.repository = key.ruleKey().repository();
+    this.ruleField = key.ruleKey().rule();
+    this.profileKey = key.qProfile();
+    return this;
+  }
+
+  public ActiveRuleKey getKey() {
+    return ActiveRuleKey.of(profileKey, RuleKey.of(repository, ruleField));
+  }
 
   // This field do not exists in db, it's only retrieve by joins
   @Transient
@@ -62,15 +81,17 @@ public class ActiveRuleDto {
     return profileId;
   }
 
+  // TODO mark as private
   public ActiveRuleDto setProfileId(Integer profileId) {
     this.profileId = profileId;
     return this;
   }
 
-  public Integer getRulId() {
+  public Integer getRuleId() {
     return ruleId;
   }
 
+  // TODO mark as private
   public ActiveRuleDto setRuleId(Integer ruleId) {
     this.ruleId = ruleId;
     return this;
@@ -105,47 +126,6 @@ public class ActiveRuleDto {
   }
 
   @CheckForNull
-  public Date getNoteCreatedAt() {
-    return noteCreatedAt;
-  }
-
-  public ActiveRuleDto setNoteCreatedAt(@Nullable Date noteCreatedAt) {
-    this.noteCreatedAt = noteCreatedAt;
-    return this;
-  }
-
-  @CheckForNull
-  public Date getNoteUpdatedAt() {
-    return noteUpdatedAt;
-  }
-
-  public ActiveRuleDto setNoteUpdatedAt(@Nullable Date noteUpdatedAt) {
-    this.noteUpdatedAt = noteUpdatedAt;
-    return this;
-  }
-
-  @CheckForNull
-  public String getNoteUserLogin() {
-    return noteUserLogin;
-  }
-
-  public ActiveRuleDto setNoteUserLogin(@Nullable String noteUserLogin) {
-    this.noteUserLogin = noteUserLogin;
-    return this;
-  }
-
-  @CheckForNull
-  public String getNoteData() {
-    return noteData;
-  }
-
-  public ActiveRuleDto setNoteData(@Nullable String noteData) {
-    this.noteData = noteData;
-    return this;
-  }
-
-
-  @CheckForNull
   public Integer getParentId() {
     return parentId;
   }
@@ -163,5 +143,19 @@ public class ActiveRuleDto {
     return StringUtils.equals(OVERRIDES, inheritance);
   }
 
+  public static ActiveRuleDto createFor(QualityProfileDto profileDto, RuleDto ruleDto) {
+    Preconditions.checkNotNull(profileDto.getId(), "Profile is not persisted");
+    Preconditions.checkNotNull(ruleDto.getId(), "Rule is not persisted");
+    ActiveRuleDto dto = new ActiveRuleDto();
+    dto.setProfileId(profileDto.getId());
+    dto.setRuleId(ruleDto.getId());
+    dto.setKey(ActiveRuleKey.of(profileDto.getKee(), ruleDto.getKey()));
+    return dto;
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
+  }
 
 }

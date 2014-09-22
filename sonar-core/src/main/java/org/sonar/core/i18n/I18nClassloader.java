@@ -30,25 +30,28 @@ import java.util.List;
 
 class I18nClassloader extends URLClassLoader {
 
-  private ClassLoader[] pluginClassloaders;
-
-  public I18nClassloader(PluginRepository pluginRepository) {
-    super(new URL[0]);
+  private static List<ClassLoader> classLoadersFromPlugin(PluginRepository pluginRepository) {
     List<ClassLoader> list = Lists.newArrayList();
-
     for (PluginMetadata metadata : pluginRepository.getMetadata()) {
       Plugin plugin = pluginRepository.getPlugin(metadata.getKey());
       list.add(plugin.getClass().getClassLoader());
     }
-
-    this.pluginClassloaders = list.toArray(new ClassLoader[list.size()]);
+    return list;
   }
 
-  I18nClassloader(ClassLoader[] pluginClassloaders) {
+  private ClassLoader[] pluginClassloaders;
+
+  public I18nClassloader(PluginRepository pluginRepository) {
+    this(classLoadersFromPlugin(pluginRepository));
+  }
+
+  I18nClassloader(List<ClassLoader> pluginClassloaders) {
     super(new URL[0]);
-    this.pluginClassloaders = pluginClassloaders;
+    pluginClassloaders.add(getClass().getClassLoader());
+    this.pluginClassloaders = pluginClassloaders.toArray(new ClassLoader[pluginClassloaders.size()]);
   }
 
+  @Override
   public URL getResource(String name) {
     for (ClassLoader pluginClassloader : pluginClassloaders) {
       URL url = pluginClassloader.getResource(name);

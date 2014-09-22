@@ -27,7 +27,7 @@ import org.sonar.core.purge.PurgeableSnapshotDto;
 import java.util.Date;
 import java.util.List;
 
-class DeleteAllFilter extends Filter {
+class DeleteAllFilter implements Filter {
   private final Date before;
 
   public DeleteAllFilter(Date before) {
@@ -35,7 +35,7 @@ class DeleteAllFilter extends Filter {
   }
 
   @Override
-  List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> history) {
+  public List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> history) {
     List<PurgeableSnapshotDto> result = Lists.newArrayList();
     for (PurgeableSnapshotDto snapshot : history) {
       if (snapshot.getDate().before(before)) {
@@ -46,7 +46,7 @@ class DeleteAllFilter extends Filter {
   }
 
   @Override
-  void log() {
+  public void log() {
     LoggerFactory.getLogger(getClass()).info("-> Delete data prior to: " + DateUtils.formatDate(before));
   }
 }

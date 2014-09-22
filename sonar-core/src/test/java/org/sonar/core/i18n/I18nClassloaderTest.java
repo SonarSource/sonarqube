@@ -19,14 +19,18 @@
  */
 package org.sonar.core.i18n;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.platform.PluginRepository;
 
+import java.net.URL;
 import java.net.URLClassLoader;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class I18nClassloaderTest {
   private I18nClassloader i18nClassloader;
@@ -36,32 +40,49 @@ public class I18nClassloaderTest {
 
   @Before
   public void init() {
-    URLClassLoader sqale = DefaultI18nTest.newSqaleClassloader();
-    URLClassLoader checkstyle = DefaultI18nTest.newCheckstyleClassloader();
-
-    i18nClassloader = new I18nClassloader(new ClassLoader[]{sqale, checkstyle});
+    i18nClassloader = new I18nClassloader(mock(PluginRepository.class));
   }
 
   @Test
-  public void should_aggregate_plugin_classloaders() {
+  public void aggregate_plugin_classloaders() {
+    URLClassLoader checkstyle = newCheckstyleClassloader();
+
+    I18nClassloader i18nClassloader = new I18nClassloader(Lists.<ClassLoader>newArrayList(checkstyle));
     assertThat(i18nClassloader.getResource("org/sonar/l10n/checkstyle.properties")).isNotNull();
     assertThat(i18nClassloader.getResource("org/sonar/l10n/checkstyle.properties").getFile()).endsWith("checkstyle.properties");
-    assertThat(i18nClassloader.getResource("org/sonar/l10n/checkstyle/ArchitectureRule.html").getFile()).endsWith("ArchitectureRule.html");
   }
 
   @Test
-  public void should_return_null_if_resource_not_found() {
+  public void contain_its_own_classloader() {
+    assertThat(i18nClassloader.getResource("org/sonar/l10n/core.properties")).isNotNull();
+    assertThat(i18nClassloader.getResource("org/sonar/l10n/gwt.properties")).isNotNull();
+  }
+
+  @Test
+  public void return_null_if_resource_not_found() {
     assertThat(i18nClassloader.getResource("org/unknown.properties")).isNull();
   }
 
   @Test
-  public void should_not_support_lookup_of_java_classes() throws ClassNotFoundException {
+  public void not_support_lookup_of_java_classes() throws ClassNotFoundException {
     thrown.expect(UnsupportedOperationException.class);
     i18nClassloader.loadClass("java.lang.String");
   }
 
   @Test
-  public void should_override_toString() throws ClassNotFoundException {
+  public void override_toString() throws ClassNotFoundException {
     assertThat(i18nClassloader.toString()).isEqualTo("i18n-classloader");
+  }
+
+  private static URLClassLoader newCheckstyleClassloader() {
+    return newClassLoader("/org/sonar/core/i18n/I18nClassloaderTest/");
+  }
+
+  private static URLClassLoader newClassLoader(String... resourcePaths) {
+    URL[] urls = new URL[resourcePaths.length];
+    for (int index = 0; index < resourcePaths.length; index++) {
+      urls[index] = DefaultI18nTest.class.getResource(resourcePaths[index]);
+    }
+    return new URLClassLoader(urls);
   }
 }

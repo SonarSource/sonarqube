@@ -88,16 +88,6 @@ public final class PhaseExecutor {
     this.issueExclusionsLoader = issueExclusionsLoader;
   }
 
-  public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor,
-    MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
-    PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
-    PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-    EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport,
-    DefaultModuleFileSystem fs, QProfileVerifier profileVerifier, IssueExclusionsLoader issueExclusionsLoader) {
-    this(phases, decoratorsExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
-      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport, fs, profileVerifier, issueExclusionsLoader);
-  }
-
   public static Collection<Class> getPhaseClasses() {
     return Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPluginsConfigurator.class,
       PostJobsExecutor.class, SensorsExecutor.class,
@@ -116,8 +106,6 @@ public final class PhaseExecutor {
 
     executeInitializersPhase();
 
-    persistenceManager.setDelayedMode(true);
-
     if (phases.isEnabled(Phases.Phase.SENSOR)) {
       // Index and lock the filesystem
       fs.index();
@@ -135,12 +123,6 @@ public final class PhaseExecutor {
       decoratorsExecutor.execute();
     }
 
-    String saveMeasures = "Save measures";
-    eventBus.fireEvent(new BatchStepEvent(saveMeasures, true));
-    persistenceManager.dump();
-    eventBus.fireEvent(new BatchStepEvent(saveMeasures, false));
-    persistenceManager.setDelayedMode(false);
-
     if (module.isRoot()) {
       jsonReport.execute();
 
@@ -156,13 +138,15 @@ public final class PhaseExecutor {
 
   private void executePersisters() {
     LOGGER.info("Store results in database");
-    String persistersStep = "Persisters";
-    eventBus.fireEvent(new BatchStepEvent(persistersStep, true));
+    eventBus.fireEvent(new PersistersPhaseEvent(Lists.newArrayList(persisters), true));
     for (ScanPersister persister : persisters) {
       LOGGER.debug("Execute {}", persister.getClass().getName());
+      eventBus.fireEvent(new PersisterExecutionEvent(persister, true));
       persister.persist();
+      eventBus.fireEvent(new PersisterExecutionEvent(persister, false));
     }
-    eventBus.fireEvent(new BatchStepEvent(persistersStep, false));
+
+    eventBus.fireEvent(new PersistersPhaseEvent(Lists.newArrayList(persisters), false));
   }
 
   private void updateStatusJob() {

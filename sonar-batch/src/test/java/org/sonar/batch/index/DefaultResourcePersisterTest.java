@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.index;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
@@ -36,8 +37,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -91,7 +92,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
     persister.saveProject(singleProject, null);
 
-    checkTables("shouldSaveNewProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewProject", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
 
     // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
     ResourceModel model = getSession().getSingleResult(ResourceModel.class, "key", singleProject.getKey());
@@ -105,7 +106,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
     persister.saveProject(singleCopyProject, null);
 
-    checkTables("shouldSaveCopyProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveCopyProject", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
   }
 
   @Test
@@ -118,7 +119,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveProject(moduleB, multiModuleProject);
     persister.saveProject(moduleB1, moduleB);
 
-    checkTables("shouldSaveNewMultiModulesProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewMultiModulesProject", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
   }
 
   @Test
@@ -131,7 +132,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       Directory.create("src/main/java/org/foo", "org.foo").setEffectiveKey("foo:src/main/java/org/foo"));
 
     // check that the directory is attached to the project
-    checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
   }
 
   @Test
@@ -144,7 +145,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));// do nothing, already saved
     persister.saveResource(singleProject, new Library("junit:junit", "3.2").setEffectiveKey("junit:junit"));
 
-    checkTables("shouldSaveNewLibrary", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewLibrary", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
   }
 
   @Test
@@ -172,7 +173,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     singleProject.setDescription("new description");
     persister.saveProject(singleProject, null);
 
-    checkTables("shouldUpdateExistingResource", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldUpdateExistingResource", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
   }
 
   // SONAR-1700
@@ -183,7 +184,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
     persister.saveProject(singleProject, null);
 
-    checkTables("shouldRemoveRootIndexIfResourceIsProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
+    checkTables("shouldRemoveRootIndexIfResourceIsProject", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
   }
 
   @Test
@@ -213,15 +214,15 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
   }
 
   private static Project newProject(String key, String language) {
-    PropertiesConfiguration configuration = new PropertiesConfiguration();
-    configuration.setProperty("sonar.language", language);
-    return new Project(key).setConfiguration(configuration).setAnalysisType(Project.AnalysisType.DYNAMIC);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, language);
+    return new Project(key).setSettings(settings).setAnalysisType(Project.AnalysisType.DYNAMIC);
   }
 
   private static Project newCopyProject(String key, String language, int copyResourceId) {
-    PropertiesConfiguration configuration = new PropertiesConfiguration();
-    configuration.setProperty("sonar.language", language);
-    return new CopyProject(key, copyResourceId).setConfiguration(configuration).setAnalysisType(Project.AnalysisType.DYNAMIC);
+    Settings settings = new Settings();
+    settings.setProperty(CoreProperties.PROJECT_LANGUAGE_PROPERTY, language);
+    return new CopyProject(key, copyResourceId).setSettings(settings).setAnalysisType(Project.AnalysisType.DYNAMIC);
   }
 
   private static class CopyProject extends Project implements ResourceCopy {

@@ -23,7 +23,6 @@ import com.google.common.base.Objects;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.config.Settings;
 
 /**
  * If batch extensions use this component, then batch must be executed with administrator rights (see properties sonar.login and sonar.password)

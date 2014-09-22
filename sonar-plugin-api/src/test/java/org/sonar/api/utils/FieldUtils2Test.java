@@ -19,65 +19,76 @@
  */
 package org.sonar.api.utils;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.junit.Test;
+
+import javax.annotation.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class FieldUtils2Test {
 
   @Test
   public void shouldGetFieldsOfSingleClass() {
-    List<Field> fields = FieldUtils2.getFields(FieldsWithDifferentModifiers.class, true);
-    assertThat(fields, hasItem(new FieldMatcher("publicField")));
-    assertThat(fields, hasItem(new FieldMatcher("protectedField")));
-    assertThat(fields, hasItem(new FieldMatcher("packageField")));
-    assertThat(fields, hasItem(new FieldMatcher("privateField")));
-    assertThat(fields, hasItem(new FieldMatcher("publicStaticField")));
-    assertThat(fields, hasItem(new FieldMatcher("protectedStaticField")));
-    assertThat(fields, hasItem(new FieldMatcher("packageStaticField")));
-    assertThat(fields, hasItem(new FieldMatcher("privateStaticField")));
+    List<String> fields = fieldsName(FieldUtils2.getFields(FieldsWithDifferentModifiers.class, true));
+    assertThat(fields).contains("publicField");
+    assertThat(fields).contains("protectedField");
+    assertThat(fields).contains("packageField");
+    assertThat(fields).contains("privateField");
+    assertThat(fields).contains("publicStaticField");
+    assertThat(fields).contains("protectedStaticField");
+    assertThat(fields).contains("packageStaticField");
+    assertThat(fields).contains("privateStaticField");
   }
 
   @Test
   public void shouldGetFieldsOfClassHierarchy() {
-    List<Field> fields = FieldUtils2.getFields(Child.class, true);
-    assertThat(fields, hasItem(new FieldMatcher("publicField")));
-    assertThat(fields, hasItem(new FieldMatcher("protectedField")));
-    assertThat(fields, hasItem(new FieldMatcher("packageField")));
-    assertThat(fields, hasItem(new FieldMatcher("privateField")));
-    assertThat(fields, hasItem(new FieldMatcher("publicStaticField")));
-    assertThat(fields, hasItem(new FieldMatcher("protectedStaticField")));
-    assertThat(fields, hasItem(new FieldMatcher("packageStaticField")));
-    assertThat(fields, hasItem(new FieldMatcher("privateStaticField")));
-    assertThat(fields, hasItem(new FieldMatcher("childPrivateField")));
+    List<String> fields = fieldsName(FieldUtils2.getFields(Child.class, true));
+    assertThat(fields).contains("publicField");
+    assertThat(fields).contains("protectedField");
+    assertThat(fields).contains("packageField");
+    assertThat(fields).contains("privateField");
+    assertThat(fields).contains("publicStaticField");
+    assertThat(fields).contains("protectedStaticField");
+    assertThat(fields).contains("packageStaticField");
+    assertThat(fields).contains("privateStaticField");
+    assertThat(fields).contains("childPrivateField");
   }
 
   @Test
   public void shouldGetOnlyAccessibleFields() {
-    List<Field> fields = FieldUtils2.getFields(Child.class, false);
+    List<String> fields = fieldsName(FieldUtils2.getFields(Child.class, false));
 
-    assertThat(fields, hasItem(new FieldMatcher("publicField")));
-    assertThat(fields, hasItem(new FieldMatcher("publicStaticField")));
+    assertThat(fields).contains("publicField");
+    assertThat(fields).contains("publicStaticField");
   }
 
   @Test
   public void shouldGetFieldsOfInterface() {
-    List<Field> fields = FieldUtils2.getFields(InterfaceWithFields.class, true);
+    List<String> fields = fieldsName(FieldUtils2.getFields(InterfaceWithFields.class, true));
 
-    assertThat(fields, hasItem(new FieldMatcher("INTERFACE_FIELD")));
+    assertThat(fields).contains("INTERFACE_FIELD");
   }
 
   @Test
   public void shouldGetFieldsOfInterfaceImplementation() {
-    List<Field> fields = FieldUtils2.getFields(InterfaceImplementation.class, true);
+    List<String> fields = fieldsName(FieldUtils2.getFields(InterfaceImplementation.class, true));
 
-    assertThat(fields, hasItem(new FieldMatcher("INTERFACE_FIELD")));
+    assertThat(fields).contains("INTERFACE_FIELD");
+  }
+
+  private static List<String> fieldsName(List<Field> fields){
+    return newArrayList(Iterables.transform(fields, new Function<Field, String>() {
+      @Override
+      public String apply(@Nullable Field input) {
+        return input != null ? input.getName() : null;
+      }
+    }));
   }
 
   static interface InterfaceWithFields {
@@ -103,21 +114,4 @@ public class FieldUtils2Test {
     private String childPrivateField;
   }
 
-
-  static class FieldMatcher extends BaseMatcher<Field> {
-    private String name;
-
-    FieldMatcher(String name) {
-      this.name = name;
-    }
-
-    public boolean matches(Object o) {
-      Field field = (Field) o;
-      return name.equals(field.getName());
-    }
-
-    public void describeTo(Description description) {
-      description.appendText("Field with name: ").appendValue(name);
-    }
-  }
 }

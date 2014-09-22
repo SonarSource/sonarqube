@@ -1,0 +1,37 @@
+<%
+   if @extensions.empty?
+%>
+  <span class="note"><%= message('code_viewer.no_info_displayed_due_to_security') -%></span>
+<%
+   else
+     display_title=(params[:display_title]=='true')
+%>
+
+  <% if display_title %>
+    <div class="source_title">
+      <% if @resource.project %>
+        <div class="subtitle">
+          <%= h @resource.ancestor_projects.reverse.map{|p| p.name(true)}.join(' / ') -%>
+        </div>
+      <% end %>
+      <% if logged_in? %><%= link_to_favourite(@resource) -%><% end %>
+      <span class="h1"><%= qualifier_icon(@resource) -%> <%= h @resource.name(true) -%></span>
+    </div>
+  <% end %>
+
+  <div class="source_tabs">
+    <ul class="tabs">
+      <% @extensions.each do |extension| %>
+        <li>
+          <a href="#" onclick="return loadResourceViewer('<%= @resource.id -%>','<%= extension.getId() -%>',<%= display_title -%>,'<%= params[:period] -%>', this)"
+             class="<%= 'selected' if @extension && @extension.getId()==extension.getId() -%>"><%= message(extension.getId() + '.page', :default => extension.getTitle()) %></a>
+        </li>
+      <% end %>
+      <li>
+        <img src="<%= ApplicationController.root_context -%>/images/loading.gif" id="resource_loading" class="accordion-loading" style="display:none"/>
+      </li>
+    </ul>
+  </div>
+
+
+<%  end %>

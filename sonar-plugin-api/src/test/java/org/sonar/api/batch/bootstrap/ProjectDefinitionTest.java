@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -27,7 +27,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 
@@ -137,8 +136,8 @@ public class ProjectDefinitionTest {
     def.addBinaryDir(new File("target/classes"));
 
     assertThat(def.getSourceDirs().size(), is(2));
-    assertThat(def.getTestDirs().size(), CoreMatchers.is(2));
-    assertThat(def.getBinaries().size(), CoreMatchers.is(1));
+    assertThat(def.getTestDirs().size(), is(2));
+    assertThat(def.getBinaries().size(), is(1));
   }
 
   @Test

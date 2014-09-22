@@ -26,9 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.rule.ModuleQProfiles.QProfile;
 
 import static org.mockito.Mockito.*;
 
@@ -40,19 +38,13 @@ public class QProfileVerifierTest {
   DefaultFileSystem fs = new DefaultFileSystem();
   ModuleQProfiles profiles;
   Settings settings = new Settings();
-  RulesProfile javaRulesProfile;
-  RulesProfile cobolRulesProfile;
 
   @Before
   public void before() {
     profiles = mock(ModuleQProfiles.class);
-    QProfile javaProfile = mock(QProfile.class);
-    when(javaProfile.name()).thenReturn("My Java profile");
-    javaRulesProfile = mock(RulesProfile.class);
+    QProfile javaProfile = new QProfile().setKey("p1").setName("My Java profile").setLanguage("java");
     when(profiles.findByLanguage("java")).thenReturn(javaProfile);
-    QProfile cobolProfile = mock(QProfile.class);
-    when(cobolProfile.name()).thenReturn("My Cobol profile");
-    cobolRulesProfile = mock(RulesProfile.class);
+    QProfile cobolProfile = new QProfile().setKey("p2").setName("My Cobol profile").setLanguage("cobol");
     when(profiles.findByLanguage("cobol")).thenReturn(cobolProfile);
   }
 

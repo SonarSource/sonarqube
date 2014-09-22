@@ -19,6 +19,7 @@
  */
 package org.sonar.core.resource;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,9 +28,11 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.utils.System2;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.permission.PermissionTemplateDao;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDao;
 
@@ -37,20 +40,30 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
 
-  private Resource project;
-  private Settings settings;
-  private DefaultResourcePermissions permissions;
+  private final static Long PROJECT_ID = 123L;
+
+  DbSession session;
+  Resource project;
+  Settings settings;
+  DefaultResourcePermissions permissions;
+  PermissionFacade permissionFacade;
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();
 
   @Before
   public void initResourcePermissions() {
-    project = new Project("project").setId(123);
+    session = getMyBatis().openSession(false);
+    project = new Project("project").setId(PROJECT_ID.intValue());
     settings = new Settings();
-    PermissionFacade permissionFacade = new PermissionFacade(getMyBatis(),
-      new RoleDao(getMyBatis()), new UserDao(getMyBatis()), new ResourceDao(getMyBatis()), new PermissionTemplateDao(getMyBatis()), settings);
+    permissionFacade = new PermissionFacade(new RoleDao(), new UserDao(getMyBatis()), new ResourceDao(getMyBatis(), System2.INSTANCE),
+      new PermissionTemplateDao(getMyBatis(), System2.INSTANCE), settings);
     permissions = new DefaultResourcePermissions(getMyBatis(), permissionFacade);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
@@ -111,9 +124,18 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
 
     settings.setProperty("sonar.permission.template.default", "default_template_20130101_010203");
 
-    permissions.grantDefaultRoles(project);
+    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-administrators", PROJECT_ID)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-users", PROJECT_ID)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(session, "Anyone", PROJECT_ID)).isEmpty();
+    assertThat(permissionFacade.selectUserPermissions(session, "marius", PROJECT_ID)).isEmpty();
 
-    checkTables("grantDefaultRoles", "user_roles", "group_roles");
+    permissions.grantDefaultRoles(session, project);
+
+    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-administrators", PROJECT_ID)).containsOnly("admin");
+    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-users", PROJECT_ID)).containsOnly("user", "codeviewer");
+    assertThat(permissionFacade.selectGroupPermissions(session, "Anyone", PROJECT_ID)).containsOnly("user", "codeviewer");
+
+    assertThat(permissionFacade.selectUserPermissions(session, "marius", PROJECT_ID)).isEmpty();
   }
 
   @Test
@@ -138,7 +160,6 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
       .expectMessage("The \"foo.project\" key matches multiple permission templates: \"Start with foo\", \"Start with foo again\". A system administrator must update these templates so that only one of them matches the key.");
 
     permissions.grantDefaultRoles(project);
-
   }
 
   @Test
@@ -148,9 +169,18 @@ public class DefaultResourcePermissionsTest extends AbstractDaoTestCase {
     settings.setProperty("sonar.permission.template.default", "default_20130101_010203");
     settings.setProperty("sonar.permission.template.TRK.default", "default_for_trk_20130101_010203");
 
-    permissions.grantDefaultRoles(project);
+    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-administrators", PROJECT_ID)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-users", PROJECT_ID)).isEmpty();
+    assertThat(permissionFacade.selectGroupPermissions(session, "Anyone", PROJECT_ID)).isEmpty();
+    assertThat(permissionFacade.selectUserPermissions(session, "marius", PROJECT_ID)).isEmpty();
 
-    checkTables("grantDefaultRolesProject", "user_roles", "group_roles");
+    permissions.grantDefaultRoles(session, project);
+
+    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-administrators", PROJECT_ID)).containsOnly("admin", "user", "codeviewer");
+    assertThat(permissionFacade.selectGroupPermissions(session, "sonar-users", PROJECT_ID)).containsOnly("admin");
+    assertThat(permissionFacade.selectGroupPermissions(session, "Anyone", PROJECT_ID)).containsOnly("codeviewer");
+
+    assertThat(permissionFacade.selectUserPermissions(session, "marius", PROJECT_ID)).containsOnly("codeviewer");
   }
 
   @Test

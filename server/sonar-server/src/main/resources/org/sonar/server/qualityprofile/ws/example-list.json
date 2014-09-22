@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Sonar way with Findbugs",
+    "language": "java",
+    "default": false
+  },
+  {
+    "name": "Sonar way",
+    "language": "java",
+    "default": false
+  }
+]

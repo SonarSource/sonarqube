@@ -24,33 +24,27 @@ import org.sonar.api.component.Component;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class ComponentDto implements Component {
+import java.util.Date;
 
-  private Long id;
-  private String kee;
+public class ComponentDto extends AuthorizedComponentDto implements Component {
+
   private String path;
   private String name;
   private String longName;
-  private String qualifier;
+  private String scope;
+  private String language;
   private Long projectId;
   private Long subProjectId;
-
-  public Long getId() {
-    return id;
-  }
+  private boolean enabled = true;
+  private Date authorizationUpdatedAt;
 
   public ComponentDto setId(Long id) {
-    this.id = id;
+    super.setId(id);
     return this;
   }
 
-  @Override
-  public String key() {
-    return kee;
-  }
-
   public ComponentDto setKey(String key) {
-    this.kee = key;
+    super.setKey(key);
     return this;
   }
 
@@ -85,13 +79,27 @@ public class ComponentDto implements Component {
     return this;
   }
 
-  @Override
-  public String qualifier() {
-    return qualifier;
+  public ComponentDto setQualifier(String qualifier) {
+    super.setAuthoriedQualifier(qualifier);
+    return this;
   }
 
-  public ComponentDto setQualifier(String qualifier) {
-    this.qualifier = qualifier;
+  public String scope() {
+    return scope;
+  }
+
+  public ComponentDto setScope(String scope) {
+    this.scope = scope;
+    return this;
+  }
+
+  @CheckForNull
+  public String language() {
+    return language;
+  }
+
+  public ComponentDto setLanguage(@Nullable String language) {
+    this.language = language;
     return this;
   }
 
@@ -114,26 +122,25 @@ public class ComponentDto implements Component {
     return this;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    ComponentDto that = (ComponentDto) o;
-
-    if (!id.equals(that.id)) {
-      return false;
-    }
-
-    return true;
+  public boolean isEnabled() {
+    return enabled;
   }
 
-  @Override
-  public int hashCode() {
-    return id.hashCode();
+  public ComponentDto setEnabled(boolean enabled) {
+    this.enabled = enabled;
+    return this;
+  }
+
+  /**
+   * Only available on projects
+   */
+  @CheckForNull
+  public Date getAuthorizationUpdatedAt() {
+    return authorizationUpdatedAt;
+  }
+
+  public ComponentDto setAuthorizationUpdatedAt(@Nullable Date authorizationUpdatedAt) {
+    this.authorizationUpdatedAt = authorizationUpdatedAt;
+    return this;
   }
 }

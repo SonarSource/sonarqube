@@ -22,15 +22,17 @@ package org.sonar.batch.bootstrap;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.scan2.AnalyzerOptimizer;
 
 import java.util.Collection;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.mockito.Mockito.mock;
 
 public class BatchExtensionDictionnaryTest {
 
@@ -39,7 +41,7 @@ public class BatchExtensionDictionnaryTest {
     for (BatchExtension extension : extensions) {
       iocContainer.addSingleton(extension);
     }
-    return new BatchExtensionDictionnary(iocContainer);
+    return new BatchExtensionDictionnary(iocContainer, mock(SensorContext.class), mock(AnalyzerOptimizer.class));
   }
 
   @Test
@@ -60,10 +62,12 @@ public class BatchExtensionDictionnaryTest {
 
   class FakeSensor implements Sensor {
 
-    public void analyse(Project project, SensorContext context) {
+    @Override
+    public void analyse(Project project, org.sonar.api.batch.SensorContext context) {
 
     }
 
+    @Override
     public boolean shouldExecuteOnProject(Project project) {
       return true;
     }

@@ -1,6 +1,6 @@
 <dataset>
 
-  <rules id="1" plugin_rule_key="AvoidNull" plugin_name="checkstyle" name="Avoid Null" description="Should avoid NULL" status="READY" priority="1"
+  <rules tags="[null]" system_tags="[null]" id="1" plugin_rule_key="AvoidNull" plugin_name="checkstyle" name="Avoid Null" description="Should avoid NULL" status="READY" priority="1"
          characteristic_id="103" default_characteristic_id="101"
          remediation_function="LINEAR" default_remediation_function="LINEAR_OFFSET"
          remediation_coeff="2h" default_remediation_coeff="5d"

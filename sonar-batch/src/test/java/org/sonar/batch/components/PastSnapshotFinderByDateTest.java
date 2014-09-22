@@ -27,7 +27,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class PastSnapshotFinderByDateTest extends AbstractDbUnitTestCase {

@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.HttpDownloader;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 
 import javax.annotation.Nullable;
@@ -47,16 +46,16 @@ import java.net.URI;
  */
 public class ServerClient implements BatchComponent {
 
-  private BootstrapSettings settings;
+  private BootstrapProperties props;
   private HttpDownloader.BaseHttpDownloader downloader;
 
-  public ServerClient(BootstrapSettings settings, EnvironmentInformation env) {
-    this.settings = settings;
+  public ServerClient(BootstrapProperties settings, EnvironmentInformation env) {
+    this.props = settings;
     this.downloader = new HttpDownloader.BaseHttpDownloader(settings.properties(), env.toString());
   }
 
   public String getURL() {
-    return StringUtils.removeEnd(settings.property("sonar.host.url", "http://localhost:9000"), "/");
+    return StringUtils.removeEnd(StringUtils.defaultIfBlank(props.property("sonar.host.url"), "http://localhost:9000"), "/");
   }
 
   public void download(String pathStartingWithSlash, File toFile) {
@@ -70,7 +69,7 @@ public class ServerClient implements BatchComponent {
     } catch (HttpDownloader.HttpException he) {
       throw handleHttpException(he);
     } catch (IOException e) {
-      throw new SonarException(String.format("Unable to download '%s' to: %s", pathStartingWithSlash, toFile), e);
+      throw new IllegalStateException(String.format("Unable to download '%s' to: %s", pathStartingWithSlash, toFile), e);
     }
   }
 
@@ -89,7 +88,7 @@ public class ServerClient implements BatchComponent {
     } catch (HttpDownloader.HttpException e) {
       throw wrapHttpException ? handleHttpException(e) : e;
     } catch (IOException e) {
-      throw new SonarException(String.format("Unable to request: %s", pathStartingWithSlash), e);
+      throw new IllegalStateException(String.format("Unable to request: %s", pathStartingWithSlash), e);
     }
   }
 
@@ -107,19 +106,19 @@ public class ServerClient implements BatchComponent {
       }
       return inputSupplier;
     } catch (Exception e) {
-      throw new SonarException(String.format("Unable to request: %s", uri), e);
+      throw new IllegalStateException(String.format("Unable to request: %s", uri), e);
     }
   }
 
   private RuntimeException handleHttpException(HttpDownloader.HttpException he) {
     if (he.getResponseCode() == 401) {
-      return new SonarException(String.format(getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD));
+      return new IllegalStateException(String.format(getMessageWhenNotAuthorized(), CoreProperties.LOGIN, CoreProperties.PASSWORD));
     }
     if (he.getResponseCode() == 403) {
       // SONAR-4397 Details are in response content
-      return new SonarException(he.getResponseContent());
+      return new IllegalStateException(he.getResponseContent());
     }
-    return new SonarException(String.format("Fail to execute request [code=%s, url=%s]", he.getResponseCode(), he.getUri()), he);
+    return new IllegalStateException(String.format("Fail to execute request [code=%s, url=%s]", he.getResponseCode(), he.getUri()), he);
   }
 
   private String getMessageWhenNotAuthorized() {
@@ -130,10 +129,10 @@ public class ServerClient implements BatchComponent {
   }
 
   private String getLogin() {
-    return settings.property(CoreProperties.LOGIN);
+    return props.property(CoreProperties.LOGIN);
   }
 
   private String getPassword() {
-    return settings.property(CoreProperties.PASSWORD);
+    return props.property(CoreProperties.PASSWORD);
   }
 }

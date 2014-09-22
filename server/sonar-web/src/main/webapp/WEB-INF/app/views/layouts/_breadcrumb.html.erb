@@ -1,0 +1,110 @@
+<%
+   displayed_resource = @resource || @project
+   display_only_root = @issue
+%>
+
+<% if @breadcrumbs %>
+
+  <div id="crumbs">
+    <ul id="crumbs-ops">
+      <% if displayed_resource && !display_only_root %>
+        <li>
+          <%= link_to_favourite(displayed_resource) -%>
+        </li>
+        <% if has_role?(:admin, displayed_resource) && !displayed_resource.entity? %>
+          <%= render 'layouts/menu_resource_settings' -%>
+        <% end %>
+      <% end %>
+    </ul>
+    <ul id="bc">
+      <%
+         @breadcrumbs.each do |breadcrumb|
+      %>
+        <li>
+          <% if breadcrumb.is_a?(String) %>
+            <span><%= h breadcrumb -%></span>
+          <%
+             elsif breadcrumb.is_a?(Hash)
+               name = breadcrumb[:name]
+               url = breadcrumb[:url]
+               icon = breadcrumb[:icon]
+          %>
+            <% if icon %><img src="<%= ApplicationController.root_context -%>/images/<%= icon -%>" width="16" height="16"><% end %>
+            <%= link_to_if url, h(name), url -%>
+          <% elsif breadcrumb.respond_to?(:html) %>
+            <%= breadcrumb.html -%>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+<% elsif displayed_resource %>
+
+  <div id="crumbs">
+    <ul id="crumbs-ops">
+      <% if displayed_resource && !display_only_root %>
+        <li>
+          <%= link_to_favourite(displayed_resource) -%>
+        </li>
+        <% if (has_role?(:admin, displayed_resource) || profiles_administrator?) && !displayed_resource.entity? %>
+          <%= render 'layouts/menu_resource_settings' -%>
+        <% end %>
+      <% end %>
+    </ul>
+    <ul id="bc">
+      <%
+         resource_link = {:controller => params[:controller], :action => params[:action]}
+         if display_only_root
+           resource_link = {:controller => 'dashboard', :action => 'index'}
+         end
+
+         # ======== Path for resources ========
+
+         if displayed_resource
+           if displayed_resource.last_snapshot
+             resources=[]
+             s=displayed_resource.last_snapshot
+             while (s!=nil) do
+               resources.insert(0, s.project)
+               s=s.parent
+             end
+           else
+             resources = [displayed_resource]
+           end
+      %>
+        <%
+           resources.each do |resource|
+        %>
+          <li>
+            <%= qualifier_icon(resource) -%>
+            &nbsp;
+            <%=
+                root = "#{ApplicationController.root_context}/#{u resource_link[:controller]}/#{u resource_link[:action]}?"
+                path = ''
+                query = request.query_parameters
+                query[:id] = resource.key
+                query.each do |key, value|
+                  path += '&' unless path.empty?
+                  path += "#{u key}=#{u value}"
+                end
+                "<a href='#{root + path}'>#{h(resource.name)}</a>"
+            -%>
+          </li>
+        <%
+           end
+           end
+
+         # ======== Path for issue ========
+         if @issue
+      %>
+        <li>
+          <%= link_to message('issue') + ' #' + @issue.key.to_s -%>
+        </li>
+      <%
+         end
+      %>
+    </ul>
+  </div>
+
+<% end %>
