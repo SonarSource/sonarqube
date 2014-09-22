@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.cluster;
+package org.sonar.server.search.action;
 
-import java.util.List;
-import java.util.concurrent.Callable;
+import org.sonar.server.search.Index;
 
-public interface ClusterAction<K> extends Callable<List<K>> {
+public interface IndexWorker {
 
-  @Override
-  public List<K> call() throws Exception;
+  public String getIndexType();
+
+  public void setIndex(Index index);
 }

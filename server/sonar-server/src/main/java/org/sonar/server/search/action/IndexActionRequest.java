@@ -27,7 +27,7 @@ import org.sonar.server.search.Index;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class IndexActionRequest implements ClusterAction<List<ActionRequest>> {
+public abstract class IndexActionRequest implements IndexWorker, ClusterAction<ActionRequest> {
 
   protected final String indexType;
   private final boolean requiresRefresh;

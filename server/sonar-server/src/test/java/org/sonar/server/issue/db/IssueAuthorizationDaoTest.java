@@ -61,8 +61,8 @@ public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
     assertThat(session.getActionCount()).isEqualTo(0);
 
     dao.synchronizeAfter(session, new Date(0));
-
-    assertThat(session.getActionCount()).isEqualTo(1);
+    // SynchronizeAfter adds an implicit action (refresh) after execution of synchronization
+    assertThat(session.getActionCount()).isEqualTo(2);
   }
 
   @Test
@@ -70,7 +70,8 @@ public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
     setupData("synchronize_after_since_given_date");
 
     dao.synchronizeAfter(session, DateUtils.parseDate("2014-09-01"));
-    assertThat(session.getActionCount()).isEqualTo(1);
+    // SynchronizeAfter adds an implicit action (refresh) after execution of synchronization
+    assertThat(session.getActionCount()).isEqualTo(2);
   }
 
   @Test
@@ -78,7 +79,8 @@ public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
     setupData("synchronize_after_with_project");
 
     dao.synchronizeAfter(session, DateUtils.parseDate("2014-01-01"), ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, "org.sonar:sample"));
-    assertThat(session.getActionCount()).isEqualTo(1);
+    // SynchronizeAfter adds an implicit action (refresh) after execution of synchronization
+    assertThat(session.getActionCount()).isEqualTo(2);
   }
 
 }

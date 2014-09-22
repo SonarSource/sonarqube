@@ -17,13 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.cluster;
+package org.sonar.server.search.action;
+
+import com.google.common.collect.ImmutableList;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.sonar.core.cluster.ClusterAction;
+import org.sonar.server.search.Index;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
-public interface ClusterAction<K> extends Callable<List<K>> {
+public class RefreshActionRequest implements IndexWorker, ClusterAction<RefreshRequest> {
+
+  private Index<?, ?, ?> index;
+  private final String indexType;
+
+  public RefreshActionRequest(String indexType) {
+    this.indexType = indexType;
+  }
 
   @Override
-  public List<K> call() throws Exception;
+  public List<RefreshRequest> call() throws Exception {
+    return ImmutableList.<RefreshRequest>of(
+      new RefreshRequest()
+        .force(false)
+        .indices(index.getIndexName()));
+  }
+
+  @Override
+  public String getIndexType() {
+    return indexType;
+  }
+
+  @Override
+  public void setIndex(Index index) {
+    this.index = index;
+  }
 }

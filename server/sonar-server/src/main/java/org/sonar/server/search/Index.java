@@ -38,8 +38,6 @@ public interface Index<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable> e
 
   String getIndexName();
 
-  void refresh();
-
   Date getLastSynchronization();
 
   IndexStat getIndexStat();
