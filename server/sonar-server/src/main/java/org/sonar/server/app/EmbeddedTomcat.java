@@ -85,15 +85,10 @@ class EmbeddedTomcat {
   }
 
   void terminate() {
-    LoggerFactory.getLogger(getClass()).info("--- RECEIVED TERMINATE TOMCAT");
     if (tomcat.getServer().getState().isAvailable()) {
       try {
-        LoggerFactory.getLogger(getClass()).info("--- STOP TOMCAT");
         tomcat.stop();
         tomcat.destroy();
-        LoggerFactory.getLogger(getClass()).info("--- TOMCAT TERMINATION - WAIT 10s");
-        Thread.sleep(10000L);
-        LoggerFactory.getLogger(getClass()).info("--- TOMCAT TERMINATED AFTER 10s");
       } catch (Exception e) {
         LoggerFactory.getLogger(EmbeddedTomcat.class).error("Fail to stop web server", e);
       }
