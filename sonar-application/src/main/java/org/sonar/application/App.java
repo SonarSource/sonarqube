@@ -41,6 +41,7 @@ import java.util.Properties;
 public class App implements Stoppable {
 
   private final Monitor monitor;
+  private StopWatcher stopWatcher = null;
 
   public App() {
     this(Monitor.create());
@@ -55,7 +56,8 @@ public class App implements Stoppable {
       // stop application when file <temp>/app.stop is created
       File tempDir = props.nonNullValueAsFile("sonar.path.temp");
       ProcessCommands commands = new ProcessCommands(tempDir, "app");
-      new StopWatcher(commands, this).start();
+      stopWatcher = new StopWatcher(commands, this);
+      stopWatcher.start();
     }
     monitor.start(createCommands(props));
     monitor.awaitTermination();
@@ -111,6 +113,10 @@ public class App implements Stoppable {
 
     App app = new App();
     app.start(props);
+  }
+
+  StopWatcher getStopWatcher() {
+    return stopWatcher;
   }
 
   @Override

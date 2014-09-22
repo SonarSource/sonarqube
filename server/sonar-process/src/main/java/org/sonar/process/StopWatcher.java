@@ -55,7 +55,7 @@ public class StopWatcher extends Thread {
     }
   }
 
-  void stopWatching() {
+  public void stopWatching() {
     watching = false;
   }
 }
