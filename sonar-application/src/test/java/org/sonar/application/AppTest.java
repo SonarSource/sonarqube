@@ -23,11 +23,19 @@ import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
+import org.sonar.process.Props;
+import org.sonar.process.monitor.JavaCommand;
+import org.sonar.process.monitor.Monitor;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class AppTest {
 
@@ -43,4 +51,80 @@ public class AppTest {
       .startsWith(FilenameUtils.normalize(homeDir.getAbsolutePath(), true));
   }
 
+  @Test
+  public void do_not_watch_stop_file_by_default() throws Exception {
+    Monitor monitor = mock(Monitor.class);
+    App app = new App(monitor);
+    app.start(initDefaultProps());
+
+    assertThat(app.getStopWatcher()).isNull();
+  }
+
+  @Test
+  public void watch_stop_file() throws Exception {
+    Monitor monitor = mock(Monitor.class);
+    App app = new App(monitor);
+    Props props = initDefaultProps();
+    props.set("sonar.enableStopCommand", "true");
+    app.start(props);
+
+    assertThat(app.getStopWatcher()).isNotNull();
+    assertThat(app.getStopWatcher().isAlive()).isTrue();
+
+    app.getStopWatcher().stopWatching();
+    app.getStopWatcher().interrupt();
+  }
+
+  @Test
+  public void start_elasticsearch_and_tomcat_by_default() throws Exception {
+    Monitor monitor = mock(Monitor.class);
+    App app = new App(monitor);
+    Props props = initDefaultProps();
+    app.start(props);
+
+    Class<List<JavaCommand>> listClass = (Class<List<JavaCommand>>)(Class)List.class;
+    ArgumentCaptor<List<JavaCommand>> argument = ArgumentCaptor.forClass(listClass);
+    verify(monitor).start(argument.capture());
+
+    assertThat(argument.getValue()).onProperty("key").containsOnly("search", "web");
+  }
+
+  @Test
+  public void do_not_start_tomcat_if_elasticsearch_single_node() throws Exception {
+    Monitor monitor = mock(Monitor.class);
+    App app = new App(monitor);
+    Props props = initDefaultProps();
+    props.set("sonar.cluster.master", "x.y.z");
+    app.start(props);
+
+    Class<List<JavaCommand>> listClass = (Class<List<JavaCommand>>)(Class)List.class;
+    ArgumentCaptor<List<JavaCommand>> argument = ArgumentCaptor.forClass(listClass);
+    verify(monitor).start(argument.capture());
+
+    assertThat(argument.getValue()).onProperty("key").containsOnly("search");
+  }
+
+  @Test
+  public void add_custom_jdbc_driver_to_tomcat_classpath() throws Exception {
+    Monitor monitor = mock(Monitor.class);
+    App app = new App(monitor);
+    Props props = initDefaultProps();
+    props.set("sonar.jdbc.driverPath", "oracle/ojdbc6.jar");
+    app.start(props);
+
+    Class<List<JavaCommand>> listClass = (Class<List<JavaCommand>>)(Class)List.class;
+    ArgumentCaptor<List<JavaCommand>> argument = ArgumentCaptor.forClass(listClass);
+    verify(monitor).start(argument.capture());
+
+    assertThat(argument.getValue().get(1).getClasspath()).contains("oracle/ojdbc6.jar");
+  }
+
+  private Props initDefaultProps() throws IOException {
+    Props props = new Props(new Properties());
+    DefaultSettings.init(props);
+    props.set("sonar.path.home", temp.newFolder().getAbsolutePath());
+    props.set("sonar.path.temp", temp.newFolder().getAbsolutePath());
+    props.set("sonar.path.logs", temp.newFolder().getAbsolutePath());
+    return props;
+  }
 }
