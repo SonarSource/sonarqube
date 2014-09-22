@@ -136,6 +136,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setExampleValue("squid:AvoidCycles");
     action.createParam(IssueFilterParameters.HIDE_RULES)
       .setDescription("To not return rules")
+      .setDefaultValue(false)
       .setBooleanPossibleValues();
     action.createParam(IssueFilterParameters.ACTION_PLANS)
       .setDescription("Comma-separated list of action plan keys (not names)")
@@ -197,7 +198,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .languages(request.paramAsStrings(IssueFilterParameters.LANGUAGES))
       .assigned(request.paramAsBoolean(IssueFilterParameters.ASSIGNED))
       .planned(request.paramAsBoolean(IssueFilterParameters.PLANNED))
-      .hideRules(request.paramAsBoolean(IssueFilterParameters.HIDE_RULES))
       .createdAt(request.paramAsDateTime(IssueFilterParameters.CREATED_AT))
       .createdAfter(request.paramAsDateTime(IssueFilterParameters.CREATED_AFTER))
       .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE));
@@ -239,7 +239,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       userLogins.add(issue.authorLogin());
     }
 
-    writeRules(json, ruleService.getByKeys(ruleKeys));
+    writeRules(json, !request.mandatoryParamAsBoolean(IssueFilterParameters.HIDE_RULES) ? ruleService.getByKeys(ruleKeys) : Collections.<Rule>emptyList());
     writeUsers(json, userFinder.findByLogins(userLogins));
     writeActionPlans(json, actionPlanService.findByKeys(actionPlanKeys));
 
@@ -258,13 +258,19 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   private void writeLegacyPaging(QueryContext context, JsonWriter json, Result<?> result) {
     // TODO remove with stas on HTML side
     json.prop("maxResultsReached", false);
+
+    long pages = result.getTotal() / context.getLimit();
+    if (result.getTotal() % context.getLimit() > 0) {
+      pages++;
+    }
+
     json.name("paging").beginObject()
       .prop("pageIndex", context.getPage())
       .prop("pageSize", context.getLimit())
       .prop("total", result.getTotal())
       // TODO Remove as part of Front-end rework on Issue Domain
       .prop("fTotal", i18n.formatInteger(UserSession.get().locale(), (int) result.getTotal()))
-      .prop("pages", Math.ceil(result.getTotal() / (context.getLimit() * 1.0)))
+      .prop("pages", pages)
       .endObject();
   }
 

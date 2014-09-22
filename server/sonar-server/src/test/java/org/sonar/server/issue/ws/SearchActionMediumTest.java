@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
@@ -32,6 +33,7 @@ import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.user.UserDto;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueTesting;
@@ -70,7 +72,10 @@ public class SearchActionMediumTest {
     wsTester = tester.get(WsTester.class);
     session = db.openSession(false);
 
-    rule = RuleTesting.newXooX1();
+    rule = RuleTesting.newXooX1()
+      .setName("Rule name")
+      .setDescription("Rule desc")
+      .setStatus(RuleStatus.READY);
     tester.get(RuleDao.class).insert(session, rule);
 
     project = new ComponentDto()
@@ -90,6 +95,9 @@ public class SearchActionMediumTest {
       .setId(2L);
     db.componentDao().insert(session, file);
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file));
+
+    UserDto john = new UserDto().setLogin("john").setName("John").setEmail("john@email.com").setActive(true);
+    db.userDao().insert(session, john);
 
     session.commit();
 
@@ -121,6 +129,29 @@ public class SearchActionMediumTest {
       .setComponent(file)
       .setStatus("OPEN").setResolution("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setSeverity("MAJOR")
+      .setAuthorLogin("john");
+    db.issueDao().insert(session, issue);
+    session.commit();
+
+    WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
+
+    WsTester.Result result = request.execute();
+    // TODO Date assertion is complex to test
+    result.assertJson(this.getClass(), "single_result.json", false);
+  }
+
+  @Test
+  public void display_facets() throws Exception {
+    IssueDto issue = IssueTesting.newDto(rule, file, project)
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
+      .setRule(rule)
+      .setDebt(10L)
+      .setRootComponent(project)
+      .setComponent(file)
+      .setStatus("OPEN").setResolution("OPEN")
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
     session.commit();
@@ -129,13 +160,34 @@ public class SearchActionMediumTest {
     request.setParam(SearchAction.PARAM_FACETS, "true");
 
     WsTester.Result result = request.execute();
-    // TODO Date assertion is complex du to System2
-    result.assertJson(this.getClass(), "single_result.json", false);
+    result.assertJson(this.getClass(), "display_facets.json", false);
+  }
+
+  @Test
+  public void hide_rules() throws Exception {
+    IssueDto issue = IssueTesting.newDto(rule, file, project)
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
+      .setRule(rule)
+      .setDebt(10L)
+      .setRootComponent(project)
+      .setComponent(file)
+      .setStatus("OPEN").setResolution("OPEN")
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setSeverity("MAJOR");
+    db.issueDao().insert(session, issue);
+    session.commit();
+
+    WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
+    request.setParam(IssueFilterParameters.HIDE_RULES, "true");
+
+    WsTester.Result result = request.execute();
+    result.assertJson(this.getClass(), "hide_rules.json", false);
   }
 
   @Test
   public void paging() throws Exception {
-    for (int i=0; i<12; i++) {
+    for (int i = 0; i < 12; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
     }
@@ -150,8 +202,8 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void paging_with_deprecated_params() throws Exception {
-    for (int i=0; i<12; i++) {
+  public void deprecated_paging() throws Exception {
+    for (int i = 0; i < 12; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
     }
@@ -162,7 +214,7 @@ public class SearchActionMediumTest {
     request.setParam(IssueFilterParameters.PAGE_SIZE, "9");
 
     WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "paging.json", false);
+    result.assertJson(this.getClass(), "deprecated_paging.json", false);
   }
 
   @Test

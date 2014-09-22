@@ -1,12 +1,8 @@
 {
   "maxResultsReached": false,
-  "paging": {
-    "pageIndex": 1,
-    "pageSize": 100,
-    "total": 1,
-    "fTotal": "1",
-    "pages": 1
-  },
+  "total": 1,
+  "p": 1,
+  "ps": 100,
   "issues": [
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
@@ -17,7 +13,16 @@
       "resolution": "OPEN",
       "severity": "MAJOR",
       "debt": "10min",
+      "author": "john",
       "fUpdateAge": "less than a minute"
+    }
+  ],
+  "rules": [
+    {
+      "key": "xoo:x1",
+      "name": "Rule name",
+      "desc": "Rule desc",
+      "status": "READY"
     }
   ],
   "components": [
@@ -32,32 +37,12 @@
       "id": 1
     }
   ],
-  "facets": [
+  "users": [
     {
-      "property": "status",
-      "values": [
-        {
-          "val": "OPEN",
-          "count": 1
-        }
-      ]
-    },
-    {
-      "property": "severity",
-      "values": [
-        {
-          "val": "MAJOR",
-          "count": 1
-        }
-      ]
-    },
-    {
-      "property": "resolution",
-      "values": [
-        {
-          "val": "OPEN",
-          "count": 1
-        }
-      ]
+      "login": "john",
+      "name": "John",
+      "active": true,
+      "email": "john@email.com"
     }
-  ]}
+  ]
+}
