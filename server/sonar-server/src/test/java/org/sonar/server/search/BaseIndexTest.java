@@ -29,7 +29,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
-import org.sonar.process.MonitoredProcess;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.Props;
 import org.sonar.search.SearchServer;
@@ -72,7 +71,7 @@ public class BaseIndexTest {
 
   @AfterClass
   public static void teardownSearchEngine() {
-    searchServer.terminate();
+    searchServer.stop();
   }
 
   @Before

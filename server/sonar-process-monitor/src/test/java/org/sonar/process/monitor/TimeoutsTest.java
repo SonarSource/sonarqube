@@ -28,29 +28,13 @@ public class TimeoutsTest {
   @Test
   public void test_default_values() throws Exception {
     Timeouts timeouts = new Timeouts();
-    assertThat(timeouts.getMonitorPingInterval()).isGreaterThan(1000L);
-    assertThat(timeouts.getAutokillPingInterval()).isGreaterThan(1000L);
-    assertThat(timeouts.getAutokillPingTimeout()).isGreaterThan(1000L);
     assertThat(timeouts.getTerminationTimeout()).isGreaterThan(1000L);
-    assertThat(timeouts.getJmxConnectionTimeout()).isGreaterThan(1000L);
-    assertThat(timeouts.getMonitorIsReadyTimeout()).isGreaterThan(1000L);
   }
 
   @Test
   public void test_values() throws Exception {
     Timeouts timeouts = new Timeouts();
-    timeouts.setAutokillPingInterval(1L);
-    timeouts.setAutokillPingTimeout(2L);
     timeouts.setTerminationTimeout(3L);
-    timeouts.setJmxConnectionTimeout(4L);
-    timeouts.setMonitorPingInterval(5L);
-    timeouts.setMonitorIsReadyTimeout(6L);
-
-    assertThat(timeouts.getAutokillPingInterval()).isEqualTo(1L);
-    assertThat(timeouts.getAutokillPingTimeout()).isEqualTo(2L);
     assertThat(timeouts.getTerminationTimeout()).isEqualTo(3L);
-    assertThat(timeouts.getJmxConnectionTimeout()).isEqualTo(4L);
-    assertThat(timeouts.getMonitorPingInterval()).isEqualTo(5L);
-    assertThat(timeouts.getMonitorIsReadyTimeout()).isEqualTo(6L);
   }
 }

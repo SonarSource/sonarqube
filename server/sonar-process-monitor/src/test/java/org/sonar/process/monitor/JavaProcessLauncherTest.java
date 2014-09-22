@@ -20,7 +20,6 @@
 package org.sonar.process.monitor;
 
 import org.junit.Test;
-import org.sonar.process.NetworkUtils;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -29,7 +28,7 @@ public class JavaProcessLauncherTest {
 
   @Test
   public void fail_to_launch() throws Exception {
-    JavaCommand command = new JavaCommand("test").setJmxPort(NetworkUtils.freePort());
+    JavaCommand command = new JavaCommand("test");
     JavaProcessLauncher launcher = new JavaProcessLauncher(new Timeouts());
     try {
       // command is not correct (missing options), java.lang.ProcessBuilder#start()

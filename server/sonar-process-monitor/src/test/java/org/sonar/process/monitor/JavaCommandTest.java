@@ -42,7 +42,6 @@ public class JavaCommandTest {
     args.setProperty("second_arg", "val2");
     command.setArguments(args);
 
-    command.setJmxPort(1234);
     command.setClassName("org.sonar.ElasticSearch");
     command.setEnvVariable("JAVA_COMMAND_TEST", "1000");
     File tempDir = temp.newFolder();
@@ -55,26 +54,14 @@ public class JavaCommandTest {
 
     assertThat(command.toString()).isNotNull();
     assertThat(command.getClasspath()).containsOnly("lib/*.jar", "conf/*.xml");
-    assertThat(command.getJavaOptions()).containsOnly("-Xmx128m", "-Djava.io.tmpdir=" + tempDir.getAbsolutePath());
+    assertThat(command.getJavaOptions()).containsOnly("-Xmx128m");
     assertThat(command.getWorkDir()).isSameAs(workDir);
-    assertThat(command.getJmxPort()).isEqualTo(1234);
+    assertThat(command.getTempDir()).isSameAs(tempDir);
     assertThat(command.getClassName()).isEqualTo("org.sonar.ElasticSearch");
 
     // copy current env variables
     assertThat(command.getEnvVariables().get("JAVA_COMMAND_TEST")).isEqualTo("1000");
     assertThat(command.getEnvVariables().size()).isEqualTo(System.getenv().size() + 1);
-  }
-
-  @Test
-  public void test_debug_mode() throws Exception {
-    JavaCommand command = new JavaCommand("es");
-    assertThat(command.isDebugMode()).isFalse();
-
-    command.addJavaOption("-Xmx512m");
-    assertThat(command.isDebugMode()).isFalse();
-
-    command.addJavaOption("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005");
-    assertThat(command.isDebugMode()).isTrue();
   }
 
   @Test

@@ -35,9 +35,7 @@ class DefaultSettings {
   static final String CLUSTER_NAME = "sonar.cluster.name";
   static final String CLUSTER_NODE_NAME = "sonar.node.name";
   static final String SEARCH_PORT = "sonar.search.port";
-  static final String SEARCH_JMX_PORT = "sonar.search.jmxPort";
   static final String SEARCH_JAVA_OPTS = "sonar.search.javaOpts";
-  static final String WEB_JMX_PORT = "sonar.web.jmxPort";
   static final String WEB_JAVA_OPTS = "sonar.web.javaOpts";
   static final String JDBC_URL = "sonar.jdbc.url";
   static final String JDBC_LOGIN = "sonar.jdbc.username";
@@ -84,8 +82,6 @@ class DefaultSettings {
   private static Map<String, Integer> defaultPorts() {
     Map<String, Integer> defaults = new HashMap<String, Integer>();
     defaults.put(SEARCH_PORT, 9001);
-    defaults.put(SEARCH_JMX_PORT, 9002);
-    defaults.put(WEB_JMX_PORT, 9003);
     return defaults;
   }
 }

@@ -19,6 +19,9 @@
  */
 package org.sonar.process;
 
+/**
+ * Unchecked exception that is displayed without stacktrace
+ */
 public class MessageException extends RuntimeException {
   public MessageException(String message) {
     super(message);

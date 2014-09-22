@@ -47,28 +47,25 @@ public class ProcessUtils {
   }
 
   /**
-   * Destroys process (equivalent to kill -9) if alive
-   * @return true if the process was destroyed, false if process is null or already destroyed.
+   * Send kill signal to stop process. Shutdown hooks are executed. It's the equivalent of SIGTERM on Linux.
+   * Correctly tested on Java 6 and 7 on both Mac/MSWindows
+   * @return true if the signal is sent, false if process is already down
    */
-  public static boolean destroyQuietly(@Nullable Process process) {
-    boolean destroyed = false;
+  public static boolean sendKillSignal(@Nullable Process process) {
+    boolean sentSignal = false;
     if (isAlive(process)) {
       try {
         process.destroy();
-        while (isAlive(process)) {
-          // destroy() sends the signal, it does not wait for the process to be down
-          Thread.sleep(100L);
-        }
-        destroyed = true;
+        sentSignal = true;
       } catch (Exception e) {
-        LoggerFactory.getLogger(ProcessUtils.class).error("Fail to destroy " + process);
+        LoggerFactory.getLogger(ProcessUtils.class).error("Fail to kill " + process);
       }
     }
-    return destroyed;
+    return sentSignal;
   }
 
   public static void closeStreams(@Nullable Process process) {
-    if (process != null) {
+    if (process!=null) {
       IOUtils.closeQuietly(process.getInputStream());
       IOUtils.closeQuietly(process.getOutputStream());
       IOUtils.closeQuietly(process.getErrorStream());

@@ -22,6 +22,7 @@ package org.sonar.process;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.process.Lifecycle.State;
 
 public class LifecycleTest {
 
@@ -38,5 +39,17 @@ public class LifecycleTest {
     Lifecycle stopping = new Lifecycle();
     stopping.tryToMoveTo(State.STOPPING);
     assertThat(stopping).isNotEqualTo(init);
+  }
+
+  @Test
+  public void try_to_move() throws Exception {
+    Lifecycle lifecycle = new Lifecycle();
+    assertThat(lifecycle.getState()).isEqualTo(State.INIT);
+
+    assertThat(lifecycle.tryToMoveTo(State.STARTED)).isTrue();
+    assertThat(lifecycle.getState()).isEqualTo(State.STARTED);
+
+    assertThat(lifecycle.tryToMoveTo(State.STARTING)).isFalse();
+    assertThat(lifecycle.getState()).isEqualTo(State.STARTED);
   }
 }

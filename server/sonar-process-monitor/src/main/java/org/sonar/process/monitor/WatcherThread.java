@@ -46,16 +46,16 @@ class WatcherThread extends Thread {
 
   @Override
   public void run() {
-    boolean alive = true;
-    while (alive) {
+    boolean stopped = false;
+    while (!stopped) {
       try {
         processRef.getProcess().waitFor();
-        processRef.setTerminated(true);
-        alive = false;
-        LoggerFactory.getLogger(getClass()).info(String.format("%s is down", processRef));
+        processRef.setStopped(true);
+        stopped = true;
+        LoggerFactory.getLogger(getClass()).info(String.format("%s is stopped", processRef));
 
         // terminate all other processes, but in another thread
-        monitor.stop();
+        monitor.stopAsync();
       } catch (InterruptedException ignored) {
         // continue to watch process
       }

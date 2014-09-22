@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.monitor;
+package org.sonar.process;
 
-public class ImpossibleToConnectJmxConnector implements JmxConnector {
-  @Override
-  public void connect(JavaCommand command, ProcessRef processRef, long timeoutMs) {
-    throw new IllegalStateException("Test - Impossible to connect to JMX");
-  }
+public interface Monitored {
 
-  @Override
-  public void ping(ProcessRef process) {
+  /**
+   * Starts process. No need to block until fully started and operational.
+   */
+  void start();
 
-  }
+  /**
+   * True if the process is started and operational (-> can accept requests), false if
+   * it's still starting. An exception is thrown is process failed to start (not starting
+   * nor started).
+   */
+  boolean isReady();
 
-  @Override
-  public boolean isReady(ProcessRef process, long timeoutMs) {
-    return false;
-  }
+  /**
+   * Blocks until the process is terminated
+   */
+  void awaitStop();
 
-  @Override
-  public void terminate(ProcessRef process, long timeoutMs) {
-
-  }
+  void stop();
 }

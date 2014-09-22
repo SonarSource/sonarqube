@@ -27,7 +27,7 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MinimumViableSystem;
-import org.sonar.process.MonitoredProcess;
+import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessLogging;
 import org.sonar.process.Props;
@@ -39,7 +39,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SearchServer implements MonitoredProcess {
+public class SearchServer implements Monitored {
 
   public static final String SONAR_NODE_NAME = "sonar.node.name";
   public static final String ES_PORT_PROPERTY = "sonar.search.port";
@@ -57,7 +57,6 @@ public class SearchServer implements MonitoredProcess {
   private final Set<String> nodes = new HashSet<String>();
   private final Set<String> marvels = new HashSet<String>();
   private final Props props;
-  private final Object lock = new Object();
 
   private Node node;
 
@@ -77,83 +76,81 @@ public class SearchServer implements MonitoredProcess {
   }
 
   @Override
-  public void start() {
-    synchronized (lock) {
-      Integer port = props.valueAsInt(ES_PORT_PROPERTY);
-      String clusterName = props.value(ES_CLUSTER_PROPERTY);
+  public synchronized void start() {
+    Integer port = props.valueAsInt(ES_PORT_PROPERTY);
+    String clusterName = props.value(ES_CLUSTER_PROPERTY);
 
-      LoggerFactory.getLogger(SearchServer.class).info("Starting ES[{}] on port: {}", clusterName, port);
+    LoggerFactory.getLogger(SearchServer.class).info("Starting ES[{}] on port: {}", clusterName, port);
 
-      ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
+    ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
 
-        // Disable MCast
-        .put("discovery.zen.ping.multicast.enabled", "false")
+      // Disable MCast
+      .put("discovery.zen.ping.multicast.enabled", "false")
 
-          // Index storage policies
-        .put("index.number_of_shards", "1")
-        .put("index.number_of_replicas", MINIMUM_INDEX_REPLICATION)
-        .put("index.store.type", "mmapfs")
+      // Index storage policies
+      .put("index.number_of_shards", "1")
+      .put("index.number_of_replicas", MINIMUM_INDEX_REPLICATION)
+      .put("index.store.type", "mmapfs")
 
-          // Install our own listUpdate scripts
-        .put("script.default_lang", "native")
-        .put("script.native." + ListUpdate.NAME + ".type", ListUpdate.UpdateListScriptFactory.class.getName())
+      // Install our own listUpdate scripts
+      .put("script.default_lang", "native")
+      .put("script.native." + ListUpdate.NAME + ".type", ListUpdate.UpdateListScriptFactory.class.getName())
 
-          // Node is pure transport
-        .put("transport.tcp.port", port)
-        .put("http.enabled", false)
+      // Node is pure transport
+      .put("transport.tcp.port", port)
+      .put("http.enabled", false)
 
-          // Setting up ES paths
-        .put("path.data", esDataDir().getAbsolutePath())
-        .put("path.work", esWorkDir().getAbsolutePath())
-        .put("path.logs", esLogDir().getAbsolutePath());
+      // Setting up ES paths
+      .put("path.data", esDataDir().getAbsolutePath())
+      .put("path.work", esWorkDir().getAbsolutePath())
+      .put("path.logs", esLogDir().getAbsolutePath());
 
-      if (!nodes.isEmpty()) {
+    if (!nodes.isEmpty()) {
 
-        LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with master: {}", nodes);
-        esSettings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(nodes, ","));
-        esSettings.put("node.master", false);
-        // Enforce a N/2+1 number of masters in cluster
-        esSettings.put("discovery.zen.minimum_master_nodes", 1);
-        // Change master pool requirement when in distributed mode
-        // esSettings.put("discovery.zen.minimum_master_nodes", (int) Math.floor(nodes.size() / 2.0) + 1);
-      }
-
-      // Enable marvel's index creation:
-      esSettings.put("action.auto_create_index", ".marvel-*");
-      // If we're collecting indexing data send them to the Marvel host(s)
-      if (!marvels.isEmpty()) {
-        esSettings.put("marvel.agent.exporter.es.hosts", StringUtils.join(marvels, ","));
-      }
-
-      // Set cluster coordinates
-      esSettings.put("cluster.name", clusterName);
-      esSettings.put("node.rack_id", props.value(SONAR_NODE_NAME, "unknown"));
-      esSettings.put("cluster.routing.allocation.awareness.attributes", "rack_id");
-      if (props.contains(SONAR_NODE_NAME)) {
-        esSettings.put("node.name", props.value(SONAR_NODE_NAME));
-      } else {
-        try {
-          esSettings.put("node.name", InetAddress.getLocalHost().getHostName());
-        } catch (Exception e) {
-          LoggerFactory.getLogger(SearchServer.class).warn("Could not determine hostname", e);
-          esSettings.put("node.name", "sq-" + System.currentTimeMillis());
-        }
-      }
-
-      // Make sure the index settings are up to date.
-      initAnalysis(esSettings);
-
-      // And building our ES Node
-      node = NodeBuilder.nodeBuilder()
-        .settings(esSettings)
-        .build().start();
-
-      node.client().admin().indices()
-        .preparePutTemplate("default")
-        .setTemplate("*")
-        .addMapping("_default_", "{\"dynamic\": \"strict\"}")
-        .get();
+      LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with master: {}", nodes);
+      esSettings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(nodes, ","));
+      esSettings.put("node.master", false);
+      // Enforce a N/2+1 number of masters in cluster
+      esSettings.put("discovery.zen.minimum_master_nodes", 1);
+      // Change master pool requirement when in distributed mode
+      // esSettings.put("discovery.zen.minimum_master_nodes", (int) Math.floor(nodes.size() / 2.0) + 1);
     }
+
+    // Enable marvel's index creation:
+    esSettings.put("action.auto_create_index", ".marvel-*");
+    // If we're collecting indexing data send them to the Marvel host(s)
+    if (!marvels.isEmpty()) {
+      esSettings.put("marvel.agent.exporter.es.hosts", StringUtils.join(marvels, ","));
+    }
+
+    // Set cluster coordinates
+    esSettings.put("cluster.name", clusterName);
+    esSettings.put("node.rack_id", props.value(SONAR_NODE_NAME, "unknown"));
+    esSettings.put("cluster.routing.allocation.awareness.attributes", "rack_id");
+    if (props.contains(SONAR_NODE_NAME)) {
+      esSettings.put("node.name", props.value(SONAR_NODE_NAME));
+    } else {
+      try {
+        esSettings.put("node.name", InetAddress.getLocalHost().getHostName());
+      } catch (Exception e) {
+        LoggerFactory.getLogger(SearchServer.class).warn("Could not determine hostname", e);
+        esSettings.put("node.name", "sq-" + System.currentTimeMillis());
+      }
+    }
+
+    // Make sure the index settings are up to date.
+    initAnalysis(esSettings);
+
+    // And building our ES Node
+    node = NodeBuilder.nodeBuilder()
+      .settings(esSettings)
+      .build().start();
+
+    node.client().admin().indices()
+      .preparePutTemplate("default")
+      .setTemplate("*")
+      .addMapping("_default_", "{\"dynamic\": \"strict\"}")
+      .get();
   }
 
   @Override
@@ -166,7 +163,7 @@ public class SearchServer implements MonitoredProcess {
   }
 
   @Override
-  public void awaitTermination() {
+  public void awaitStop() {
     while (node != null && !node.isClosed()) {
       try {
         Thread.sleep(200L);
@@ -261,11 +258,9 @@ public class SearchServer implements MonitoredProcess {
   }
 
   @Override
-  public void terminate() {
-    synchronized (lock) {
-      if (!node.isClosed()) {
-        node.close();
-      }
+  public synchronized void stop() {
+    if (!node.isClosed()) {
+      node.close();
     }
   }
 

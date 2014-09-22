@@ -21,24 +21,19 @@ package org.sonar.process;
 
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-public class ProcessEntryPoint implements ProcessMXBean {
+public class ProcessEntryPoint {
 
   public static final String PROPERTY_PROCESS_KEY = "process.key";
-  public static final String PROPERTY_AUTOKILL_DISABLED = "process.autokill.disabled";
-  public static final String PROPERTY_AUTOKILL_PING_TIMEOUT = "process.autokill.pingTimeout";
-  public static final String PROPERTY_AUTOKILL_PING_INTERVAL = "process.autokill.pingInterval";
   public static final String PROPERTY_TERMINATION_TIMEOUT = "process.terminationTimeout";
+  public static final String PROPERTY_STATUS_PATH = "process.statusPath";
 
   private final Props props;
   private final Lifecycle lifecycle = new Lifecycle();
-  private volatile MonitoredProcess monitoredProcess;
-  private volatile long lastPing = 0L;
+  private final SharedStatus sharedStatus;
+  private volatile Monitored monitored;
   private volatile StopperThread stopperThread;
   private final SystemExit exit;
+
   private Thread shutdownHook = new Thread(new Runnable() {
     @Override
     public void run() {
@@ -47,9 +42,10 @@ public class ProcessEntryPoint implements ProcessMXBean {
     }
   });
 
-  ProcessEntryPoint(Props props, SystemExit exit) {
+  ProcessEntryPoint(Props props, SystemExit exit, SharedStatus sharedStatus) {
     this.props = props;
     this.exit = exit;
+    this.sharedStatus = sharedStatus;
   }
 
   public Props getProps() {
@@ -59,29 +55,25 @@ public class ProcessEntryPoint implements ProcessMXBean {
   /**
    * Launch process and waits until it's down
    */
-  public void launch(MonitoredProcess mp) {
-    if (!lifecycle.tryToMoveTo(State.STARTING)) {
+  public void launch(Monitored mp) {
+    if (!lifecycle.tryToMoveTo(Lifecycle.State.STARTING)) {
       throw new IllegalStateException("Already started");
     }
-    monitoredProcess = mp;
-
-    // TODO check if these properties are available in System Info
-    JmxUtils.registerMBean(this, props.nonNullValue(PROPERTY_PROCESS_KEY));
-    Runtime.getRuntime().addShutdownHook(shutdownHook);
-    if (!props.valueAsBoolean(PROPERTY_AUTOKILL_DISABLED, false)) {
-      // mainly for Java Debugger
-      scheduleAutokill();
-    }
+    monitored = mp;
 
     try {
-      monitoredProcess.start();
+      Runtime.getRuntime().addShutdownHook(shutdownHook);
+      monitored.start();
       boolean ready = false;
       while (!ready) {
-        ready = monitoredProcess.isReady();
+        ready = monitored.isReady();
         Thread.sleep(200L);
       }
-      if (lifecycle.tryToMoveTo(State.STARTED)) {
-        monitoredProcess.awaitTermination();
+
+      sharedStatus.setReady();
+
+      if (lifecycle.tryToMoveTo(Lifecycle.State.STARTED)) {
+        monitored.awaitStop();
       }
     } catch (Exception e) {
       LoggerFactory.getLogger(getClass()).warn("Fail to start", e);
@@ -91,56 +83,30 @@ public class ProcessEntryPoint implements ProcessMXBean {
     }
   }
 
-  @Override
-  public boolean isReady() {
-    return lifecycle.getState() == State.STARTED;
-  }
-
-  @Override
-  public void ping() {
-    lastPing = System.currentTimeMillis();
+  boolean isStarted() {
+    return lifecycle.getState() == Lifecycle.State.STARTED;
   }
 
   /**
    * Blocks until stopped in a timely fashion (see {@link org.sonar.process.StopperThread})
    */
-  @Override
-  public void terminate() {
-    if (lifecycle.tryToMoveTo(State.STOPPING)) {
-      stopperThread = new StopperThread(monitoredProcess, Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT)));
+  void terminate() {
+    if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
+      stopperThread = new StopperThread(monitored, sharedStatus, Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT)));
       stopperThread.start();
     }
     try {
       // stopperThread is not null for sure
       // join() does nothing if thread already finished
       stopperThread.join();
-      lifecycle.tryToMoveTo(State.STOPPED);
+      lifecycle.tryToMoveTo(Lifecycle.State.STOPPED);
     } catch (InterruptedException e) {
       // nothing to do, the process is going to be exited
     }
     exit.exit(0);
   }
 
-  private void scheduleAutokill() {
-    final long autokillPingTimeoutMs = props.valueAsInt(PROPERTY_AUTOKILL_PING_TIMEOUT);
-    long autokillPingIntervalMs = props.valueAsInt(PROPERTY_AUTOKILL_PING_INTERVAL);
-    Runnable autokiller = new Runnable() {
-      @Override
-      public void run() {
-        long time = System.currentTimeMillis();
-        if (time - lastPing > autokillPingTimeoutMs) {
-          LoggerFactory.getLogger(getClass()).info(String.format(
-            "Did not receive any ping during %d seconds. Shutting down.", autokillPingTimeoutMs / 1000));
-          terminate();
-        }
-      }
-    };
-    lastPing = System.currentTimeMillis();
-    ScheduledExecutorService monitor = Executors.newScheduledThreadPool(1);
-    monitor.scheduleWithFixedDelay(autokiller, autokillPingIntervalMs, autokillPingIntervalMs, TimeUnit.MILLISECONDS);
-  }
-
-  State getState() {
+  Lifecycle.State getState() {
     return lifecycle.getState();
   }
 
@@ -150,6 +116,6 @@ public class ProcessEntryPoint implements ProcessMXBean {
 
   public static ProcessEntryPoint createForArguments(String[] args) {
     Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
-    return new ProcessEntryPoint(props, new SystemExit());
+    return new ProcessEntryPoint(props, new SystemExit(), new SharedStatus(props.nonNullValueAsFile(PROPERTY_STATUS_PATH)));
   }
 }

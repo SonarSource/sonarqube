@@ -21,12 +21,9 @@ package org.sonar.application;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.process.JmxUtils;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.ProcessLogging;
-import org.sonar.process.ProcessMXBean;
 import org.sonar.process.Props;
-import org.sonar.process.State;
 import org.sonar.process.monitor.JavaCommand;
 import org.sonar.process.monitor.Monitor;
 
@@ -38,7 +35,7 @@ import java.util.Properties;
 /**
  * Entry-point of process that starts and monitors elasticsearch and web servers
  */
-public class App implements ProcessMXBean {
+public class App {
 
   private final Monitor monitor;
 
@@ -48,7 +45,6 @@ public class App implements ProcessMXBean {
 
   App(Monitor monitor) {
     this.monitor = monitor;
-    JmxUtils.registerMBean(this, "SonarQube");
   }
 
   public void start(Props props) {
@@ -60,10 +56,9 @@ public class App implements ProcessMXBean {
     List<JavaCommand> commands = new ArrayList<JavaCommand>();
     File homeDir = props.nonNullValueAsFile("sonar.path.home");
     File tempDir = props.nonNullValueAsFile("sonar.path.temp");
-    JavaCommand elasticsearch = new JavaCommand(JmxUtils.SEARCH_SERVER_NAME);
+    JavaCommand elasticsearch = new JavaCommand("search");
     elasticsearch
       .setWorkDir(homeDir)
-      .setJmxPort(props.valueAsInt(DefaultSettings.SEARCH_JMX_PORT))
       .addJavaOptions(props.value(DefaultSettings.SEARCH_JAVA_OPTS))
       .setTempDir(tempDir.getAbsoluteFile())
       .setClassName("org.sonar.search.SearchServer")
@@ -74,9 +69,8 @@ public class App implements ProcessMXBean {
 
     // do not yet start SQ in cluster mode. See SONAR-5483 & SONAR-5391
     if (StringUtils.isEmpty(props.value(DefaultSettings.CLUSTER_MASTER))) {
-      JavaCommand webServer = new JavaCommand(JmxUtils.WEB_SERVER_NAME)
+      JavaCommand webServer = new JavaCommand("web")
         .setWorkDir(homeDir)
-        .setJmxPort(props.valueAsInt(DefaultSettings.WEB_JMX_PORT))
         .addJavaOptions(props.nonNullValue(DefaultSettings.WEB_JAVA_OPTS))
         .setTempDir(tempDir.getAbsoluteFile())
         // required for logback tomcat valve
@@ -92,21 +86,6 @@ public class App implements ProcessMXBean {
       commands.add(webServer);
     }
     return commands;
-  }
-
-  @Override
-  public void terminate() {
-    monitor.stop();
-  }
-
-  @Override
-  public boolean isReady() {
-    return monitor.getState() == State.STARTED;
-  }
-
-  @Override
-  public void ping() {
-
   }
 
   static String starPath(File homeDir, String relativePath) {

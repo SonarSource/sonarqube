@@ -34,8 +34,6 @@ public class DefaultSettingsTest {
     DefaultSettings.init(props);
 
     assertThat(props.value("sonar.search.javaOpts")).contains("-Xmx");
-    assertThat(props.valueAsInt("sonar.web.jmxPort")).isEqualTo(9003);
-    assertThat(props.valueAsInt("sonar.search.jmxPort")).isEqualTo(9002);
     assertThat(props.value("sonar.jdbc.username")).isEqualTo("sonar");
   }
 
@@ -52,10 +50,10 @@ public class DefaultSettingsTest {
   @Test
   public void use_random_port_if_zero() throws Exception {
     Properties p = new Properties();
-    p.setProperty("sonar.search.jmxPort", "0");
+    p.setProperty("sonar.search.port", "0");
     Props props = new Props(p);
 
     DefaultSettings.init(props);
-    assertThat(props.valueAsInt("sonar.web.jmxPort")).isGreaterThan(0);
+    assertThat(props.valueAsInt("sonar.search.port")).isGreaterThan(0);
   }
 }

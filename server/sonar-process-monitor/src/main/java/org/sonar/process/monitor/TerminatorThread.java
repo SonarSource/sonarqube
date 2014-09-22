@@ -19,8 +19,6 @@
  */
 package org.sonar.process.monitor;
 
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 
 /**
@@ -31,33 +29,18 @@ import java.util.List;
 class TerminatorThread extends Thread {
 
   private final List<ProcessRef> processes;
-  private final JmxConnector jmxConnector;
-  private final Timeouts timeouts;
 
-  TerminatorThread(List<ProcessRef> processes, JmxConnector jmxConnector, Timeouts timeouts) {
+  TerminatorThread(List<ProcessRef> processes) {
     super("Terminator");
     this.processes = processes;
-    this.jmxConnector = jmxConnector;
-    this.timeouts = timeouts;
   }
 
   @Override
   public void run() {
     // terminate in reverse order of startup (dependency order)
     for (int index = processes.size() - 1; index >= 0; index--) {
-      final ProcessRef processRef = processes.get(index);
-      if (!processRef.isTerminated()) {
-        processRef.setPingEnabled(false);
-        try {
-          jmxConnector.terminate(processRef, timeouts.getTerminationTimeout());
-        } catch (Exception ignored) {
-          // failed to gracefully stop in a timely fashion
-          LoggerFactory.getLogger(getClass()).info(String.format("Kill %s", processRef));
-        } finally {
-          // kill even if graceful termination was done, just to be sure that physical process is really down
-          processRef.hardKill();
-        }
-      }
+      ProcessRef processRef = processes.get(index);
+      processRef.kill();
     }
   }
 }

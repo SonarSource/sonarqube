@@ -34,6 +34,6 @@ public class WatcherThreadTest {
     WatcherThread watcher = new WatcherThread(ref, monitor);
     watcher.start();
     watcher.join();
-    verify(monitor).stop();
+    verify(monitor).stopAsync();
   }
 }

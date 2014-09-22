@@ -139,7 +139,7 @@ public class ServerTester extends ExternalResource {
    */
   public void stop() {
     platform.doStop();
-    searchServer.terminate();
+    searchServer.stop();
     FileUtils.deleteQuietly(homeDir);
   }
 

@@ -27,11 +27,10 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class NetworkUtilsTest {
 
-
   @Test
   public void find_free_port() throws Exception {
     int port = NetworkUtils.freePort();
-    assertThat(port).isGreaterThan(1024);
+    assertThat(port).isGreaterThan(0);
   }
 
   @Test

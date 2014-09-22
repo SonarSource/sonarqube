@@ -20,40 +20,44 @@
 package org.sonar.process;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.ServerSocket;
 
-public abstract class BaseProcessTest {
+public class SharedStatus {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
+  private final File file;
 
-  public static final String DUMMY_OK_APP = "org.sonar.application.DummyOkProcess";
-
-  int freePort;
-  File dummyAppJar;
-  Process proc;
-
-  @Before
-  public void setup() throws IOException {
-    ServerSocket socket = new ServerSocket(0);
-    freePort = socket.getLocalPort();
-    socket.close();
-
-    dummyAppJar = FileUtils.toFile(getClass().getResource("/sonar-dummy-app.jar"));
+  public SharedStatus(File file) {
+    this.file = file;
   }
 
-  @After
-  public void tearDown() {
-    if (proc != null) {
-      ProcessUtils.destroyQuietly(proc);
+  /**
+   * Executed by monitor - remove existing shared file before starting child process
+   */
+  public void prepare() {
+    if (file.exists()) {
+      if (!file.delete()) {
+        throw new MessageException(String.format(
+          "Fail to delete file %s. Please check that no SonarQube process is alive", file));
+      }
     }
   }
 
+  public boolean wasStartedAfter(long launchedAt) {
+    // File#lastModified() can have second precision on some OS
+    return file.exists() && file.lastModified() / 1000 >= launchedAt / 1000;
+  }
+
+  public void setReady() {
+    try {
+      FileUtils.touch(file);
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to create file " + file, e);
+    }
+  }
+
+  public void setStopped() {
+    FileUtils.deleteQuietly(file);
+  }
 }

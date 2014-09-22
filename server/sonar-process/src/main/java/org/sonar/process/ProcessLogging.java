@@ -41,7 +41,6 @@ public class ProcessLogging {
       // StatusPrinter will handle this
     }
     StatusPrinter.printInCaseOfErrorsOrWarnings(context);
-
   }
 
   /**
