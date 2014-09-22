@@ -115,12 +115,9 @@ public class ActivityBackendMediumTest {
   @Test
   public void massive_insert() {
 
-    // Set qeue's implicit commit size to 10
-    dbSession.setImplicitCommitSize(20);
-
     // 0 Assert no logs in DB
     assertThat(dao.findAll(dbSession)).hasSize(0);
-    int max = 35;
+    int max = 400;
     final String testValue = "hello world";
     for (int i = 0; i < max; i++) {
 
@@ -159,12 +156,9 @@ public class ActivityBackendMediumTest {
   @Test
   public void massive_log_insert() {
 
-    // Set qeue's implicit commit size to 10
-    dbSession.setImplicitCommitSize(10);
-
     // 0 Assert no logs in DB
     assertThat(dao.findAll(dbSession)).hasSize(0);
-    int max = 40;
+    int max = 400;
     final String testValue = "hello world";
     for (int i = 0; i < max; i++) {
       TestActivityLog log = new TestActivityLog(testValue + "_" + i, Activity.Type.QPROFILE.toString());

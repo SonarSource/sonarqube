@@ -88,14 +88,9 @@ public class SearchServer implements Monitored {
       .put("discovery.zen.ping.multicast.enabled", "false")
 
       // Index storage policies
-      .put("index.refresh_interval", "30")
       .put("index.number_of_shards", "1")
       .put("index.number_of_replicas", MINIMUM_INDEX_REPLICATION)
       .put("index.store.type", "mmapfs")
-//      .put("indices.store.throttle.type", "merge")
-//      .put("indices.store.throttle.max_bytes_per_sec", "500mb")
-      .put("index.merge.scheduler.max_thread_count",
-        Math.max(1, Math.min(3, Runtime.getRuntime().availableProcessors() / 2)))
 
       // Install our own listUpdate scripts
       .put("script.default_lang", "native")

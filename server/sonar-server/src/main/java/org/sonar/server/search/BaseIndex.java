@@ -359,6 +359,16 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     return mapping;
   }
 
+  @Override
+  public void refresh() {
+    client.execute(client
+      .admin()
+      .indices()
+      .prepareRefresh(this.getIndexName())
+      .setForce(false)
+      .setIndices(this.getIndexName()));
+  }
+
   /* Base CRUD methods */
 
   protected abstract DOMAIN toDoc(Map<String, Object> fields);

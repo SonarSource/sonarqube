@@ -34,20 +34,15 @@ import org.sonar.server.search.DbSynchronizationHandler;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.DeleteKey;
 import org.sonar.server.search.action.DeleteNestedItem;
-import org.sonar.server.search.action.RefreshActionRequest;
 import org.sonar.server.search.action.UpsertDto;
 import org.sonar.server.search.action.UpsertNestedItem;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -328,7 +323,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
       @Override
       public void handleResult(ResultContext resultContext) {
         DTO dto = (DTO) resultContext.getResultObject();
-        session.enqueue(new UpsertDto<DTO>(getIndexType(), dto, false));
+        session.enqueue(new UpsertDto<DTO>(getIndexType(), dto, true));
         count++;
         if (count % 100000 == 0) {
           LOGGER.info(" - synchronized {} {}", count, getIndexType());
@@ -363,7 +358,6 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
       DbSynchronizationHandler handler = getSynchronizationResultHandler(session);
       session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date, params), handler);
       handler.enqueueCollected();
-      session.enqueue(new RefreshActionRequest(this.getIndexType()));
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }

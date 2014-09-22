@@ -20,7 +20,6 @@
 package org.sonar.server.search;
 
 import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
 import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -32,12 +31,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
-import org.sonar.core.cluster.ClusterAction;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.action.IndexActionRequest;
-import org.sonar.server.search.action.IndexWorker;
-import org.sonar.server.search.action.RefreshActionRequest;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,28 +69,13 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexActionRequest
     }
     try {
 
-      boolean refreshRequired = false;
-
       Map<String, Index> indexes = getIndexMap();
       Set<String> indices = new HashSet<String>();
-      for (ClusterAction action : actions) {
-        if (IndexActionRequest.class.isAssignableFrom(action.getClass())) {
-          IndexActionRequest worker = (IndexActionRequest) action;
-          if (worker.needsRefresh()) {
-            refreshRequired = true;
-            indices.add(indexes.get(worker.getIndexType()).getIndexName());
-          }
-        }
-
-        if (IndexWorker.class.isAssignableFrom(action.getClass())) {
-          IndexWorker worker = (IndexWorker) action;
-          Index index = indexes.get(worker.getIndexType());
-          worker.setIndex(index);
-        }
-
-        if (RefreshActionRequest.class.isAssignableFrom(action.getClass())) {
-          refreshRequired = true;
-          indices.add(indexes.get(((RefreshActionRequest) action).getIndexType()).getIndexName());
+      for (IndexActionRequest action : actions) {
+        Index index = indexes.get(action.getIndexType());
+        action.setIndex(index);
+        if (action.needsRefresh()) {
+          indices.add(index.getIndexName());
         }
       }
 
@@ -102,29 +83,25 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexActionRequest
 
       long normTime = executeNormalization(bulkRequestBuilder, actions);
 
-      if (bulkRequestBuilder.numberOfActions() > 0) {
-        // execute the request
-        long indexTime = System.currentTimeMillis();
-        BulkResponse response = searchClient.execute(bulkRequestBuilder.setRefresh(false));
+      //execute the request
+      long indexTime = System.currentTimeMillis();
+      BulkResponse response = searchClient.execute(bulkRequestBuilder.setRefresh(false));
+      indexTime = System.currentTimeMillis() - indexTime;
 
-        indexTime = System.currentTimeMillis() - indexTime;
+      long refreshTime = this.refreshRequiredIndex(indices);
 
-        long refreshTime = 0;
-        if (refreshRequired) {
-          refreshTime = this.refreshRequiredIndex(indices);
-        }
+      LOGGER.debug("-- submitted {} items with {}ms in normalization, {}ms indexing and {}ms refresh({}). Total: {}ms",
+        bulkRequestBuilder.numberOfActions(), normTime, indexTime, refreshTime, indices, (normTime + indexTime + refreshTime));
 
-        LOGGER.debug("-- submitted {} items with {}ms in normalization, {}ms indexing and {}ms refresh({}). Total: {}ms",
-          bulkRequestBuilder.numberOfActions(), normTime, indexTime, refreshTime, indices, (normTime + indexTime + refreshTime));
-
-        if (response.hasFailures()) {
-          throw new IllegalStateException("Errors while indexing stack: " + response.buildFailureMessage());
-        }
+      if (response.hasFailures()) {
+        throw new IllegalStateException("Errors while indexing stack: " + response.buildFailureMessage());
       }
+
     } catch (Exception e) {
       LOGGER.error("Could not commit to ElasticSearch", e);
     }
   }
+
 
   private long refreshRequiredIndex(Set<String> indices) {
 
@@ -146,24 +123,20 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexActionRequest
   private long executeNormalization(BulkRequestBuilder bulkRequestBuilder, List<IndexActionRequest> actions) {
     long normTime = System.currentTimeMillis();
     try {
-      boolean hasInlineRefreshRequest = false;
       ExecutorService executorService = Executors.newFixedThreadPool(CONCURRENT_NORMALIZATION_FACTOR);
-      // invokeAll() blocks until ALL tasks submitted to executor complete
+      //invokeAll() blocks until ALL tasks submitted to executor complete
       for (Future<List<ActionRequest>> updateRequests : executorService.invokeAll(actions)) {
         for (ActionRequest update : updateRequests.get()) {
           if (UpdateRequest.class.isAssignableFrom(update.getClass())) {
-            bulkRequestBuilder.add(((UpdateRequest) update));
+            bulkRequestBuilder.add(((UpdateRequest) update).refresh(false));
           } else if (DeleteRequest.class.isAssignableFrom(update.getClass())) {
-            bulkRequestBuilder.add(((DeleteRequest) update));
-          } else if (RefreshRequest.class.isAssignableFrom(update.getClass())) {
-            hasInlineRefreshRequest = true;
+            bulkRequestBuilder.add(((DeleteRequest) update).refresh(false));
           } else {
             throw new IllegalStateException("Un-managed request type: " + update.getClass());
           }
         }
       }
       executorService.shutdown();
-      bulkRequestBuilder.setRefresh(hasInlineRefreshRequest);
     } catch (Exception e) {
       throw new IllegalStateException("Could not execute normalization for stack", e);
     }

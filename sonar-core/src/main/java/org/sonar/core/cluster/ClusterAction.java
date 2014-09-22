@@ -19,11 +19,10 @@
  */
 package org.sonar.core.cluster;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 
-public interface ClusterAction<K> extends Callable<List<K>> {
+public interface ClusterAction<K> extends Callable<K> {
 
   @Override
-  public List<K> call() throws Exception;
+  public K call() throws Exception;
 }

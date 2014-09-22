@@ -78,7 +78,6 @@ public class IndexSynchronizerMediumTest {
 
     synchronizer.synchronize(dbSession, dbClient.ruleDao(), indexClient.get(RuleIndex.class));
     dbSession.commit();
-    Thread.sleep(1000);
     assertThat(indexClient.get(RuleIndex.class).countAll()).isEqualTo(numberOfRules);
   }
 }

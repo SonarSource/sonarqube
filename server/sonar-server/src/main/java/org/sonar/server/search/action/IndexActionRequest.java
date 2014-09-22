@@ -19,6 +19,7 @@
  */
 package org.sonar.server.search.action;
 
+
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.cluster.ClusterAction;
@@ -27,7 +28,7 @@ import org.sonar.server.search.Index;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class IndexActionRequest implements IndexWorker, ClusterAction<ActionRequest> {
+public abstract class IndexActionRequest implements ClusterAction<List<ActionRequest>> {
 
   protected final String indexType;
   private final boolean requiresRefresh;
@@ -38,6 +39,7 @@ public abstract class IndexActionRequest implements IndexWorker, ClusterAction<A
   }
 
   protected IndexActionRequest(String indexType, boolean requiresRefresh) {
+    super();
     this.indexType = indexType;
     this.requiresRefresh = requiresRefresh;
   }
@@ -49,6 +51,7 @@ public abstract class IndexActionRequest implements IndexWorker, ClusterAction<A
   public String getIndexType() {
     return indexType;
   }
+
 
   public void setIndex(Index index) {
     this.index = index;
@@ -65,7 +68,7 @@ public abstract class IndexActionRequest implements IndexWorker, ClusterAction<A
         ((UpdateRequest) request)
           .type(index.getIndexType())
           .index(index.getIndexName())
-          .refresh(requiresRefresh);
+          .refresh(false);
       }
       finalRequests.add(request);
     }
