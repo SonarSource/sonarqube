@@ -137,16 +137,12 @@ public class Monitor {
 
   /**
    * Asks for processes termination and returns without blocking until termination.
-   * @return true if termination was requested, false if it was already being terminated
    */
-  boolean stopAsync() {
-    boolean requested = false;
+  public void stopAsync() {
     if (lifecycle.tryToMoveTo(State.STOPPING)) {
-      requested = true;
       terminator.setProcesses(processes);
       terminator.start();
     }
-    return requested;
   }
 
   public State getState() {

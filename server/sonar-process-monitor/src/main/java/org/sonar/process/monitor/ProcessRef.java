@@ -30,7 +30,6 @@ class ProcessRef {
   private final ProcessCommands commands;
   private final Process process;
   private final StreamGobbler gobbler;
-  private long launchedAt;
   private volatile boolean stopped = false;
 
   ProcessRef(String key, ProcessCommands commands, Process process, StreamGobbler gobbler) {
@@ -61,17 +60,13 @@ class ProcessRef {
       if (isStopped()) {
         throw new MessageException(String.format("%s failed to start", this));
       }
-      ready = commands.wasReadyAfter(launchedAt);
+      ready = commands.isReady();
       try {
         Thread.sleep(200L);
       } catch (InterruptedException e) {
         throw new IllegalStateException(String.format("Interrupted while waiting for %s to be ready", this), e);
       }
     }
-  }
-
-  void setLaunchedAt(long launchedAt) {
-    this.launchedAt = launchedAt;
   }
 
   /**

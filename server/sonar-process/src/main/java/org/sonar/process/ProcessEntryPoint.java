@@ -21,7 +21,7 @@ package org.sonar.process;
 
 import org.slf4j.LoggerFactory;
 
-public class ProcessEntryPoint {
+public class ProcessEntryPoint implements Stoppable {
 
   public static final String PROPERTY_PROCESS_KEY = "process.key";
   public static final String PROPERTY_TERMINATION_TIMEOUT = "process.terminationTimeout";
@@ -32,7 +32,6 @@ public class ProcessEntryPoint {
   private final ProcessCommands commands;
   private final SystemExit exit;
   private volatile Monitored monitored;
-  private volatile long launchedAt;
   private volatile StopperThread stopperThread;
   private final StopWatcher stopWatcher;
 
@@ -49,7 +48,6 @@ public class ProcessEntryPoint {
     this.props = props;
     this.exit = exit;
     this.commands = commands;
-    this.launchedAt = System.currentTimeMillis();
     this.stopWatcher = new StopWatcher(commands, this);
   }
 
@@ -68,6 +66,7 @@ public class ProcessEntryPoint {
     if (!lifecycle.tryToMoveTo(Lifecycle.State.STARTING)) {
       throw new IllegalStateException("Already started");
     }
+    commands.prepare();
     monitored = mp;
 
     try {
@@ -116,10 +115,12 @@ public class ProcessEntryPoint {
     exit.exit(0);
   }
 
-  void stopAsync() {
+  @Override
+  public void stopAsync() {
     if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
       stopperThread = new StopperThread(monitored, commands, Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT)));
       stopperThread.start();
+      stopWatcher.stopWatching();
     }
   }
 
@@ -129,10 +130,6 @@ public class ProcessEntryPoint {
 
   Thread getShutdownHook() {
     return shutdownHook;
-  }
-
-  long getLaunchedAt() {
-    return launchedAt;
   }
 
   public static ProcessEntryPoint createForArguments(String[] args) {

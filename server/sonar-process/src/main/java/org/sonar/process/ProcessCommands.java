@@ -57,22 +57,19 @@ public class ProcessCommands {
     this.stopFile = stopFile;
   }
 
-  /**
-   * Executed by monitor - delete shared files before starting child process
-   */
-  public void prepareMonitor() {
+  public void prepare() {
     deleteFile(readyFile);
     deleteFile(stopFile);
   }
 
-  public void finalizeProcess() {
+  public void endWatch() {
     // do not fail if files can't be deleted
     FileUtils.deleteQuietly(readyFile);
     FileUtils.deleteQuietly(stopFile);
   }
 
-  public boolean wasReadyAfter(long launchedAt) {
-    return isCreatedAfter(readyFile, launchedAt);
+  public boolean isReady() {
+    return readyFile.exists();
   }
 
   /**
@@ -89,8 +86,8 @@ public class ProcessCommands {
     createFile(stopFile);
   }
 
-  public boolean askedForStopAfter(long launchedAt) {
-    return isCreatedAfter(stopFile, launchedAt);
+  public boolean askedForStop() {
+    return stopFile.exists();
   }
 
   File getReadyFile() {
@@ -116,10 +113,5 @@ public class ProcessCommands {
           "Fail to delete file %s. Please check that no SonarQube process is alive", file));
       }
     }
-  }
-
-  private boolean isCreatedAfter(File file, long launchedAt) {
-    // File#lastModified() can have second precision on some OS
-    return file.exists() && file.lastModified() / 1000 >= launchedAt / 1000;
   }
 }

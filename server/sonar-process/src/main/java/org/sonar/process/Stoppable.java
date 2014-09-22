@@ -19,43 +19,8 @@
  */
 package org.sonar.process;
 
-import org.slf4j.LoggerFactory;
+public interface Stoppable {
 
-public class StopWatcher extends Thread {
+  void stopAsync();
 
-  private final Stoppable stoppable;
-  private final ProcessCommands commands;
-  private boolean watching = true;
-
-  public StopWatcher(ProcessCommands commands, Stoppable stoppable) {
-    super("Stop Watcher");
-    this.commands = commands;
-    this.stoppable = stoppable;
-  }
-
-  @Override
-  public void run() {
-    commands.prepare();
-    try {
-      while (watching) {
-        if (commands.askedForStop()) {
-          LoggerFactory.getLogger(getClass()).info("Stopping process");
-          stoppable.stopAsync();
-          watching = false;
-        } else {
-          try {
-            Thread.sleep(500L);
-          } catch (InterruptedException ignored) {
-            watching = false;
-          }
-        }
-      }
-    } finally {
-      commands.endWatch();
-    }
-  }
-
-  void stopWatching() {
-    watching = false;
-  }
 }

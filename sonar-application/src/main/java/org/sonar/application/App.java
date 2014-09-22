@@ -22,8 +22,11 @@ package org.sonar.application;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.process.MinimumViableSystem;
+import org.sonar.process.ProcessCommands;
 import org.sonar.process.ProcessLogging;
 import org.sonar.process.Props;
+import org.sonar.process.StopWatcher;
+import org.sonar.process.Stoppable;
 import org.sonar.process.monitor.JavaCommand;
 import org.sonar.process.monitor.Monitor;
 
@@ -35,7 +38,7 @@ import java.util.Properties;
 /**
  * Entry-point of process that starts and monitors elasticsearch and web servers
  */
-public class App {
+public class App implements Stoppable {
 
   private final Monitor monitor;
 
@@ -48,6 +51,12 @@ public class App {
   }
 
   public void start(Props props) {
+    if (props.valueAsBoolean("sonar.enableStopCommand", false)) {
+      // stop application when file <temp>/app.stop is created
+      File tempDir = props.nonNullValueAsFile("sonar.path.temp");
+      ProcessCommands commands = new ProcessCommands(tempDir, "app");
+      new StopWatcher(commands, this).start();
+    }
     monitor.start(createCommands(props));
     monitor.awaitTermination();
   }
@@ -102,5 +111,10 @@ public class App {
 
     App app = new App();
     app.start(props);
+  }
+
+  @Override
+  public void stopAsync() {
+    monitor.stopAsync();
   }
 }
