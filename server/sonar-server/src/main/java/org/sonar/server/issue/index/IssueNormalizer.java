@@ -60,9 +60,8 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField REPORTER = add(IndexField.Type.STRING, "reporter");
     public static final IndexField STATUS = add(IndexField.Type.STRING, "status");
     public static final IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
-
-    public static final IndexField RULE = addSearchable(IndexField.Type.STRING, "rule");
-    public static final IndexField REPOSITORY = addSearchable(IndexField.Type.STRING, "repository");
+    public static final IndexField LANGUAGE = add(IndexField.Type.STRING, "language");
+    public static final IndexField RULE_KEY = addSearchable(IndexField.Type.STRING, "ruleKey");
 
     public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
@@ -115,10 +114,8 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     update.put(IssueField.STATUS.field(), dto.getStatus());
     update.put(IssueField.SEVERITY.field(), dto.getSeverity());
     update.put(IssueField.DEBT.field(), dto.getDebt());
-
-    // issueDoc.ruleKey();
-    update.put(IssueField.RULE.field(), dto.getRule());
-    update.put(IssueField.REPOSITORY.field(), dto.getRuleRepo());
+    update.put(IssueField.LANGUAGE.field(), dto.getLanguage());
+    update.put(IssueField.RULE_KEY.field(), dto.getRuleKey().toString());
 
     // TODO Not yet normalized
     // IssueDoc issueDoc = new IssueDoc(null);

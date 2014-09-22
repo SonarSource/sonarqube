@@ -83,6 +83,8 @@ public interface Issue extends Serializable {
 
   RuleKey ruleKey();
 
+  String language();
+
   /**
    * See constants in {@link org.sonar.api.rule.Severity}.
    */

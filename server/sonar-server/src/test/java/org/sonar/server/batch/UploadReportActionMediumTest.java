@@ -86,11 +86,11 @@ public class UploadReportActionMediumTest {
   public void define() throws Exception {
     WebService.Action restoreProfiles = controller.action(UploadReportAction.UPLOAD_REPORT_ACTION);
     assertThat(restoreProfiles).isNotNull();
-    assertThat(restoreProfiles.params()).hasSize(2);
+    assertThat(restoreProfiles.params()).hasSize(1);
   }
 
   @Test
-  public void add_project_issue_permission_index_on_first_analysis() throws Exception {
+  public void add_project_issue_permission_index() throws Exception {
     ComponentDto project = new ComponentDto()
       .setId(1L)
       .setKey("MyProject")
@@ -107,7 +107,6 @@ public class UploadReportActionMediumTest {
     MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
     WsTester.TestRequest request = wsTester.newGetRequest(BatchWs.API_ENDPOINT, UploadReportAction.UPLOAD_REPORT_ACTION);
     request.setParam(UploadReportAction.PARAM_PROJECT, project.key());
-    request.setParam(UploadReportAction.PARAM_FIRST_ANALYSIS, "true");
     request.execute();
 
     // Check that issue authorization index has been created

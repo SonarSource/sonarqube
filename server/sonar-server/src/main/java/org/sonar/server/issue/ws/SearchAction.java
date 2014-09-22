@@ -167,19 +167,12 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     action.createParam(IssueFilterParameters.CREATED_BEFORE)
       .setDescription("To retrieve issues created before the given date (exclusive). Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
-    action.createParam(IssueFilterParameters.PAGE_SIZE)
-      .setDescription("Maximum number of results per page. " +
-        "Default value: 100 (except when the 'components' parameter is set, value is set to \"-1\" in this case). " +
-        "If set to \"-1\", the max possible value is used")
-      .setExampleValue("50");
-    action.createParam(IssueFilterParameters.PAGE_INDEX)
-      .setDescription("Index of the selected page")
-      .setDefaultValue("1")
-      .setExampleValue("2");
-    action.createParam(IssueFilterParameters.SORT)
+    action.createParam(SearchRequestHandler.PARAM_SORT)
       .setDescription("Sort field")
+      .setDeprecatedKey(IssueFilterParameters.SORT)
       .setPossibleValues(IssueQuery.SORTS);
-    action.createParam(IssueFilterParameters.ASC)
+    action.createParam(SearchRequestHandler.PARAM_ASCENDING)
+      .setDeprecatedKey(IssueFilterParameters.ASC)
       .setDescription("Ascending sort")
       .setBooleanPossibleValues();
     action.createParam("format")
@@ -207,19 +200,18 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .hideRules(request.paramAsBoolean(IssueFilterParameters.HIDE_RULES))
       .createdAt(request.paramAsDateTime(IssueFilterParameters.CREATED_AT))
       .createdAfter(request.paramAsDateTime(IssueFilterParameters.CREATED_AFTER))
-      .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE))
-      .pageSize(request.paramAsInt(IssueFilterParameters.PAGE_SIZE))
-      .pageIndex(request.paramAsInt(IssueFilterParameters.PAGE_INDEX));
-    String sort = request.param(IssueFilterParameters.SORT);
+      .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE));
+    String sort = request.param(SearchRequestHandler.PARAM_SORT);
     if (!Strings.isNullOrEmpty(sort)) {
       builder.sort(sort);
-      builder.asc(request.paramAsBoolean(IssueFilterParameters.ASC));
+      builder.asc(request.paramAsBoolean(SearchRequestHandler.PARAM_ASCENDING));
     }
     return builder.build();
   }
 
   @Override
   protected Result<Issue> doSearch(IssueQuery query, QueryContext context) {
+    // Set limit to context ?
     return ((DefaultIssueService)service).search(query, context);
   }
 

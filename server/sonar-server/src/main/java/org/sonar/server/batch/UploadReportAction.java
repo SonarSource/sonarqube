@@ -41,7 +41,6 @@ public class UploadReportAction implements RequestHandler {
   public static final String UPLOAD_REPORT_ACTION = "upload_report";
 
   static final String PARAM_PROJECT = "project";
-  static final String PARAM_FIRST_ANALYSIS = "firstAnalysis";
 
   private final DbClient dbClient;
   private final IndexClient index;
@@ -68,12 +67,6 @@ public class UploadReportAction implements RequestHandler {
       .setRequired(true)
       .setDescription("Project key")
       .setExampleValue("org.codehaus.sonar:sonar");
-
-    action
-      .createParam(PARAM_FIRST_ANALYSIS)
-      .setDescription("Is it the first analysis of this project ?")
-      .setDefaultValue(false)
-      .setBooleanPossibleValues();
   }
 
   @Override
@@ -88,11 +81,9 @@ public class UploadReportAction implements RequestHandler {
         AuthorizedComponentDto project = dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
 
         // Synchronize project permission indexes
-        boolean isFirstAnalysis = request.mandatoryParamAsBoolean(PARAM_FIRST_ANALYSIS);
-        if (isFirstAnalysis) {
-          permissionService.synchronizePermissions(session, project.key());
-          session.commit();
-        }
+        // TODO only update permission if no permission for a project
+        permissionService.synchronizePermissions(session, project.key());
+        session.commit();
 
         // Index project's issues
         dbClient.issueDao().synchronizeAfter(session,

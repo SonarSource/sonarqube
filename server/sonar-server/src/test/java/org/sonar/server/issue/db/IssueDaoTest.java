@@ -66,6 +66,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getComponentId()).isEqualTo(401);
     assertThat(issue.getRootComponentId()).isEqualTo(399);
     assertThat(issue.getRuleId()).isEqualTo(500);
+    assertThat(issue.getLanguage()).isEqualTo("java");
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
     assertThat(issue.isManualSeverity()).isFalse();
     assertThat(issue.getMessage()).isNull();

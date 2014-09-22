@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.issue.ws;
 
 import org.junit.After;
@@ -24,17 +25,18 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.IssueTesting;
+import org.sonar.server.issue.db.IssueDao;
+import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
@@ -45,7 +47,7 @@ import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class IssuesWsMediumTest {
+public class SearchActionMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester()
@@ -56,6 +58,10 @@ public class IssuesWsMediumTest {
   DbSession session;
   WsTester wsTester;
 
+  RuleDto rule;
+  ComponentDto project;
+  ComponentDto file;
+
   @Before
   public void setUp() throws Exception {
     tester.clearDbAndIndexes();
@@ -63,53 +69,11 @@ public class IssuesWsMediumTest {
     ws = tester.get(IssuesWs.class);
     wsTester = tester.get(WsTester.class);
     session = db.openSession(false);
-    MockUserSession.set().setLogin("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-  }
 
-  @After
-  public void after() {
-    session.close();
-  }
-
-  @Test
-  public void define() throws Exception {
-    WebService.Controller controller = wsTester.controller(IssuesWs.API_ENDPOINT);
-
-    assertThat(controller).isNotNull();
-    assertThat(controller.actions()).hasSize(14);
-    assertThat(controller.action(IssuesWs.ADD_COMMENT_ACTION)).isNotNull();
-    assertThat(controller.action(IssuesWs.ASSIGN_ACTION)).isNotNull();
-    assertThat(controller.action(IssuesWs.BULK_CHANGE_ACTION)).isNotNull();
-    assertThat(controller.action(IssuesWs.CHANGELOG_ACTION)).isNotNull();
-    assertThat(controller.action(IssuesWs.CREATE_ACTION)).isNotNull();
-    assertThat(controller.action(IssuesWs.DELETE_COMMENT_ACTION)).isNotNull();
-    assertThat(controller.action(IssuesWs.DO_ACTION_ACTION)).isNotNull();
-    assertThat(controller.action(IssuesWs.DO_TRANSITION_ACTION)).isNotNull();
-    assertThat(controller.action(IssuesWs.EDIT_COMMENT_ACTION)).isNotNull();
-    assertThat(controller.action(IssuesWs.PLAN_ACTION)).isNotNull();
-    assertThat(controller.action(IssuesWs.SET_SEVERITY_ACTION)).isNotNull();
-    assertThat(controller.action(IssuesWs.TRANSITIONS_ACTION)).isNotNull();
-
-    assertThat(controller.action(SearchAction.SEARCH_ACTION)).isNotNull();
-  }
-
-  @Test
-  public void empty_search() throws Exception {
-
-    WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
-    WsTester.Result result = request.execute();
-
-    assertThat(result).isNotNull();
-    result.assertJson(this.getClass(), "empty_result.json", false);
-  }
-
-  @Test
-  public void find_single_result() throws Exception {
-
-    RuleDto rule = RuleTesting.newXooX1();
+    rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(session, rule);
 
-    ComponentDto project = new ComponentDto()
+    project = new ComponentDto()
       .setId(1L)
       .setKey("MyProject")
       .setProjectId(1L);
@@ -120,33 +84,93 @@ public class IssuesWsMediumTest {
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
-    ComponentDto resource = new ComponentDto()
+    file = new ComponentDto()
       .setProjectId(1L)
       .setKey("MyComponent")
       .setId(2L);
-    db.componentDao().insert(session, resource);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource));
+    db.componentDao().insert(session, file);
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file));
 
-    IssueDto issue = new IssueDto()
+    session.commit();
+
+    MockUserSession.set().setLogin("gandalf");
+  }
+
+  @After
+  public void after() {
+    session.close();
+  }
+
+  @Test
+  public void empty_search() throws Exception {
+    WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
+    WsTester.Result result = request.execute();
+
+    assertThat(result).isNotNull();
+    result.assertJson(this.getClass(), "empty_result.json", false);
+  }
+
+  @Test
+  public void find_single_result() throws Exception {
+    IssueDto issue = IssueTesting.newDto(rule, file, project)
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
       .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
       .setRule(rule)
       .setDebt(10L)
       .setRootComponent(project)
-      .setComponent(resource)
+      .setComponent(file)
       .setStatus("OPEN").setResolution("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
-
     session.commit();
 
     WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
     request.setParam(SearchAction.PARAM_FACETS, "true");
-    WsTester.Result result = request.execute();
-    assertThat(result).isNotNull();
 
+    WsTester.Result result = request.execute();
     // TODO Date assertion is complex du to System2
     result.assertJson(this.getClass(), "single_result.json", false);
   }
+
+  @Test
+  public void paging() throws Exception {
+    for (int i=0; i<12; i++) {
+      IssueDto issue = IssueTesting.newDto(rule, file, project);
+      tester.get(IssueDao.class).insert(session, issue);
+    }
+    session.commit();
+
+    WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
+    request.setParam(SearchAction.PARAM_PAGE, "2");
+    request.setParam(SearchAction.PARAM_PAGE_SIZE, "9");
+
+    WsTester.Result result = request.execute();
+    result.assertJson(this.getClass(), "paging.json", false);
+  }
+
+  @Test
+  public void paging_with_deprecated_params() throws Exception {
+    for (int i=0; i<12; i++) {
+      IssueDto issue = IssueTesting.newDto(rule, file, project);
+      tester.get(IssueDao.class).insert(session, issue);
+    }
+    session.commit();
+
+    WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
+    request.setParam(IssueFilterParameters.PAGE_INDEX, "2");
+    request.setParam(IssueFilterParameters.PAGE_SIZE, "9");
+
+    WsTester.Result result = request.execute();
+    result.assertJson(this.getClass(), "paging.json", false);
+  }
+
+  @Test
+  public void default_page_size_is_100() throws Exception {
+    WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
+
+    WsTester.Result result = request.execute();
+    result.assertJson(this.getClass(), "default_page_size_is_100.json", false);
+  }
+
 }

@@ -78,6 +78,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
   // joins
   private String ruleKey;
   private String ruleRepo;
+  private String language;
   private String componentKey;
   private String rootComponentKey;
 
@@ -153,6 +154,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
     this.ruleId = rule.getId();
     this.ruleKey = rule.getRuleKey();
     this.ruleRepo = rule.getRepositoryKey();
+    this.language = rule.getLanguage();
     return this;
   }
 
@@ -353,6 +355,10 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return RuleKey.of(ruleRepo, ruleKey);
   }
 
+  public String getLanguage(){
+    return language;
+  }
+
   public String getComponentKey() {
     return componentKey;
   }
@@ -379,6 +385,16 @@ public final class IssueDto extends Dto<String> implements Serializable {
   public IssueDto setRuleKey(String repo, String rule) {
     this.ruleRepo = repo;
     this.ruleKey = rule;
+    return this;
+  }
+
+  /**
+   * Should only be used to persist in E/S
+   *
+   * Please use {@link #setRule(org.sonar.core.rule.RuleDto)} instead
+   */
+  public IssueDto setLanguage(String language) {
+    this.language = language;
     return this;
   }
 
@@ -485,6 +501,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
     issue.setProjectKey(rootComponentKey);
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(getRuleKey());
+    issue.setLanguage(language);
     issue.setActionPlanKey(actionPlanKey);
     issue.setAuthorLogin(authorLogin);
     issue.setNew(false);

@@ -20,12 +20,10 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
@@ -148,6 +146,26 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void filter_by_rule() throws Exception {
+    db.issueDao().insert(session, createIssue().setRule(rule));
+
+    tester.get(RuleDao.class).insert(session, RuleTesting.newDto(RuleKey.of("rule", "without issue")));
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().rules(newArrayList(rule.getKey())).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().rules(newArrayList(RuleKey.of("rule", "without issue"))).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void filter_by_language() throws Exception {
+    db.issueDao().insert(session, createIssue().setRule(rule));
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().languages(newArrayList(rule.getLanguage())).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().languages(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
   public void is_assigned_filter() throws Exception {
     String assignee = "steph";
     IssueDto issue1 = createIssue()
@@ -234,6 +252,27 @@ public class IssueIndexMediumTest {
     IssueQuery.Builder query = IssueQuery.builder();
     Result<Issue> result = index.search(query.build(), new QueryContext().setMaxLimit());
     assertThat(result.getHits()).hasSize(500);
+  }
+
+  @Test
+  @Ignore("TODO")
+  public void sort_by_assignee() throws Exception {
+    IssueDto issue1 = createIssue().setAssignee("steph");
+    IssueDto issue2 = createIssue().setAssignee("simon");
+    db.issueDao().insert(session, issue1, issue2);
+    session.commit();
+
+    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(true);
+    Result<Issue> result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits()).hasSize(2);
+    assertThat(result.getHits().get(0).assignee()).isEqualTo("simon");
+    assertThat(result.getHits().get(1).assignee()).isEqualTo("steph");
+
+    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(false);
+    result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits()).hasSize(2);
+    assertThat(result.getHits().get(0).assignee()).isEqualTo("steph");
+    assertThat(result.getHits().get(1).assignee()).isEqualTo("simon");
   }
 
   @Test

@@ -29,6 +29,7 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +45,6 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
 
   public static final String PARAM_FACETS = "facets";
 
-  private int pageSize;
-  private int page;
   private List<String> fields;
 
   private final String actionName;
@@ -79,15 +78,17 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
 
     action
       .createParam(PARAM_PAGE)
+      .setDeprecatedKey("pageIndex")
       .setDescription("1-based page number")
       .setExampleValue("42")
       .setDefaultValue("1");
 
     action
       .createParam(PARAM_PAGE_SIZE)
+      .setDeprecatedKey("pageSize")
       .setDescription("Page size. Must be greater than 0.")
       .setExampleValue("20")
-      .setDefaultValue(String.valueOf(QueryContext.DEFAULT_LIMIT));
+      .setDefaultValue("100");
 
     action.createParam(PARAM_FACETS)
       .setDescription("Compute predefined facets")
@@ -114,7 +115,7 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
     Result<DOMAIN> result = doSearch(query, context);
 
     JsonWriter json = response.newJsonWriter().beginObject();
-    this.writeStatistics(json, result);
+    this.writeStatistics(json, result, context);
     doResultResponse(request, context, result, json);
     doContextResponse(request, context, result, json);
     if (context.isFacet()) {
@@ -130,10 +131,10 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
         request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
   }
 
-  protected void writeStatistics(JsonWriter json, Result searchResult) {
+  protected void writeStatistics(JsonWriter json, Result searchResult, QueryContext context) {
     json.prop("total", searchResult.getTotal());
-    json.prop(PARAM_PAGE, page);
-    json.prop(PARAM_PAGE_SIZE, pageSize);
+    json.prop(PARAM_PAGE, context.getPage());
+    json.prop(PARAM_PAGE_SIZE, context.getLimit());
   }
 
   protected void writeFacets(Result<?> results, JsonWriter json) {

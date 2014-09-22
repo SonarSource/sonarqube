@@ -31,6 +31,7 @@
     i.updated_at as updatedAt,
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
+    r.language as language,
     p.kee as componentKey,
     root.kee as rootComponentKey
   </sql>

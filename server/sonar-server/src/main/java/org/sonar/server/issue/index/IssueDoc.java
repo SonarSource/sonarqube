@@ -27,6 +27,7 @@ import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -50,9 +51,12 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public RuleKey ruleKey() {
-    return RuleKey.of(
-      (String) getField(IssueNormalizer.IssueField.REPOSITORY.field()),
-      (String) getField(IssueNormalizer.IssueField.RULE.field()));
+    return RuleKey.parse((String) getField(IssueNormalizer.IssueField.RULE_KEY.field()));
+  }
+
+  @Override
+  public String language() {
+    return getField(IssueNormalizer.IssueField.LANGUAGE.field());
   }
 
   @Override

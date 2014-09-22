@@ -39,11 +39,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -59,6 +55,7 @@ public class DefaultIssue implements Issue {
   private Long componentId;
   private String projectKey;
   private RuleKey ruleKey;
+  private String language;
   private String severity;
   private boolean manualSeverity = false;
   private String message;
@@ -156,6 +153,15 @@ public class DefaultIssue implements Issue {
 
   public DefaultIssue setRuleKey(RuleKey k) {
     this.ruleKey = k;
+    return this;
+  }
+
+  public String language() {
+    return language;
+  }
+
+  public DefaultIssue setLanguage(String l) {
+    this.language = l;
     return this;
   }
 

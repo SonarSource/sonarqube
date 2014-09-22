@@ -35,6 +35,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.search.*;
 
+import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -172,16 +174,15 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     }
 
     // Field Filters
+    matchFilter(esFilter, IssueNormalizer.IssueField.KEY, query.issueKeys());
     matchFilter(esFilter, IssueNormalizer.IssueField.ACTION_PLAN, query.actionPlans());
     matchFilter(esFilter, IssueNormalizer.IssueField.ASSIGNEE, query.assignees());
     matchFilter(esFilter, IssueNormalizer.IssueField.PROJECT, query.componentRoots());
     matchFilter(esFilter, IssueNormalizer.IssueField.COMPONENT, query.components());
-    matchFilter(esFilter, IssueNormalizer.IssueField.KEY, query.issueKeys());
-    // TODO need to either materialize the language or join with rule
-    // query.languages(esFilter, IssueNormalizer.IssueField.L, query.issueKeys());
+    matchFilter(esFilter, IssueNormalizer.IssueField.LANGUAGE, query.languages());
     matchFilter(esFilter, IssueNormalizer.IssueField.RESOLUTION, query.resolutions());
     matchFilter(esFilter, IssueNormalizer.IssueField.REPORTER, query.reporters());
-    matchFilter(esFilter, IssueNormalizer.IssueField.RULE, query.rules());
+    matchFilter(esFilter, IssueNormalizer.IssueField.RULE_KEY, query.rules());
     matchFilter(esFilter, IssueNormalizer.IssueField.SEVERITY, query.severities());
     matchFilter(esFilter, IssueNormalizer.IssueField.STATUS, query.statuses());
 
@@ -227,7 +228,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     return new Result<Issue>(this, response);
   }
 
-  private void matchFilter(BoolFilterBuilder filter, IndexField field, Collection<?> values) {
+  private void matchFilter(BoolFilterBuilder filter, IndexField field, @Nullable Collection<?> values) {
     if (values != null && !values.isEmpty()) {
       filter.must(FilterBuilders.termsFilter(field.field(), values));
     }

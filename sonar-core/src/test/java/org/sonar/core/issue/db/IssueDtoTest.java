@@ -59,6 +59,7 @@ public class IssueDtoTest {
       .setKee("100")
       .setRuleId(1)
       .setRuleKey("squid", "AvoidCycle")
+      .setLanguage("xoo")
       .setComponentKey("org.sonar.sample:Sample")
       .setRootComponentKey("org.sonar.sample")
       .setComponentId(1l)
@@ -82,6 +83,7 @@ public class IssueDtoTest {
     DefaultIssue issue = dto.toDefaultIssue();
     assertThat(issue.key()).isEqualTo("100");
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
+    assertThat(issue.language()).isEqualTo("xoo");
     assertThat(issue.componentKey()).isEqualTo("org.sonar.sample:Sample");
     assertThat(issue.componentId()).isEqualTo(1L);
     assertThat(issue.projectKey()).isEqualTo("org.sonar.sample");
