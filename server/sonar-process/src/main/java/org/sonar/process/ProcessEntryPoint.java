@@ -52,6 +52,10 @@ public class ProcessEntryPoint {
     return props;
   }
 
+  public String getKey( ){
+    return props.nonNullValue(PROPERTY_PROCESS_KEY);
+  }
+
   /**
    * Launch process and waits until it's down
    */
@@ -62,6 +66,7 @@ public class ProcessEntryPoint {
     monitored = mp;
 
     try {
+      LoggerFactory.getLogger(getClass()).warn("Starting " + getKey());
       Runtime.getRuntime().addShutdownHook(shutdownHook);
       monitored.start();
       boolean ready = false;
@@ -76,7 +81,7 @@ public class ProcessEntryPoint {
         monitored.awaitStop();
       }
     } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).warn("Fail to start", e);
+      LoggerFactory.getLogger(getClass()).warn("Fail to start " + getKey(), e);
 
     } finally {
       terminate();
@@ -92,6 +97,7 @@ public class ProcessEntryPoint {
    */
   void terminate() {
     if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
+      LoggerFactory.getLogger(getClass()).info("Stopping " + getKey());
       stopperThread = new StopperThread(monitored, sharedStatus, Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT)));
       stopperThread.start();
     }
