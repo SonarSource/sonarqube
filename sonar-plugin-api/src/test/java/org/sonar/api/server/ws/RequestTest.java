@@ -88,6 +88,9 @@ public class RequestTest {
 
       action.createParam("has_possible_values").setPossibleValues("foo", "bar");
 
+      action.createParam("new_param").setDeprecatedKey("deprecated_param");
+      action.createParam("new_param_with_default_value").setDeprecatedKey("deprecated_new_param_with_default_value").setDefaultValue("the_default_string");
+
       controller.done();
     }
   }
@@ -207,6 +210,11 @@ public class RequestTest {
     assertThat(request.setParam("a_string", "bar").paramAsStrings("a_string")).containsExactly("bar");
     assertThat(request.setParam("a_string", "bar,baz").paramAsStrings("a_string")).containsExactly("bar", "baz");
     assertThat(request.setParam("a_string", "bar , baz").paramAsStrings("a_string")).containsExactly("bar", "baz");
+  }
+
+  @Test
+  public void deprecated_key() throws Exception {
+    assertThat(request.setParam("deprecated_param", "bar").param("new_param")).isEqualTo("bar");
   }
 
   @Test

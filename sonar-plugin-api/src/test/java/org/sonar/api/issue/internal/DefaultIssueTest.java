@@ -46,6 +46,7 @@ public class DefaultIssueTest {
       .setComponentId(1L)
       .setProjectKey("Sample")
       .setRuleKey(RuleKey.of("squid", "S100"))
+      .setLanguage("xoo")
       .setSeverity("MINOR")
       .setManualSeverity(true)
       .setMessage("a message")
@@ -75,6 +76,7 @@ public class DefaultIssueTest {
     assertThat(issue.componentId()).isEqualTo(1L);
     assertThat(issue.projectKey()).isEqualTo("Sample");
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("squid", "S100"));
+    assertThat(issue.language()).isEqualTo("xoo");
     assertThat(issue.severity()).isEqualTo("MINOR");
     assertThat(issue.manualSeverity()).isTrue();
     assertThat(issue.message()).isEqualTo("a message");

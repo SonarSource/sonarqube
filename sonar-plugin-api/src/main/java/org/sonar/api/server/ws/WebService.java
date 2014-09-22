@@ -32,13 +32,10 @@ import org.sonar.api.ServerExtension;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
@@ -251,7 +248,7 @@ public interface WebService extends ServerExtension {
 
   class NewAction {
     private final String key;
-    private String description, since;
+    private String deprecatedKey, description, since;
     private boolean post = false, isInternal = false;
     private RequestHandler handler;
     private Map<String, NewParam> newParams = Maps.newHashMap();
@@ -259,6 +256,11 @@ public interface WebService extends ServerExtension {
 
     private NewAction(String key) {
       this.key = key;
+    }
+
+    public NewAction setDeprecatedKey(@Nullable String s) {
+      this.deprecatedKey = s;
+      return this;
     }
 
     public NewAction setDescription(@Nullable String s) {
@@ -324,7 +326,7 @@ public interface WebService extends ServerExtension {
 
   @Immutable
   class Action {
-    private final String key, path, description, since;
+    private final String key, deprecatedKey, path, description, since;
     private final boolean post, isInternal;
     private final RequestHandler handler;
     private final Map<String, Param> params;
@@ -332,6 +334,7 @@ public interface WebService extends ServerExtension {
 
     private Action(Controller controller, NewAction newAction) {
       this.key = newAction.key;
+      this.deprecatedKey = newAction.deprecatedKey;
       this.path = String.format("%s/%s", controller.path(), key);
       this.description = newAction.description;
       this.since = StringUtils.defaultIfBlank(newAction.since, controller.since);
@@ -344,15 +347,19 @@ public interface WebService extends ServerExtension {
       }
       this.handler = newAction.handler;
 
-      ImmutableMap.Builder<String, Param> mapBuilder = ImmutableMap.builder();
+      ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
       for (NewParam newParam : newAction.newParams.values()) {
-        mapBuilder.put(newParam.key, new Param(newParam));
+        paramsBuilder.put(newParam.key, new Param(newParam));
       }
-      this.params = mapBuilder.build();
+      this.params = paramsBuilder.build();
     }
 
     public String key() {
       return key;
+    }
+
+    public String deprecatedKey() {
+      return deprecatedKey;
     }
 
     public String path() {
@@ -434,12 +441,20 @@ public interface WebService extends ServerExtension {
   }
 
   class NewParam {
-    private String key, description, exampleValue, defaultValue;
+    private String key, deprecatedKey, description, exampleValue, defaultValue;
     private boolean required = false;
     private Set<String> possibleValues = null;
 
     private NewParam(String key) {
       this.key = key;
+    }
+
+    /**
+     * @since 5.0
+     */
+    public NewParam setDeprecatedKey(@Nullable String s) {
+      this.deprecatedKey = s;
+      return this;
     }
 
     public NewParam setDescription(@Nullable String s) {
@@ -516,12 +531,13 @@ public interface WebService extends ServerExtension {
 
   @Immutable
   class Param {
-    private final String key, description, exampleValue, defaultValue;
+    private final String key, deprecatedKey, description, exampleValue, defaultValue;
     private final boolean required;
     private final Set<String> possibleValues;
 
     public Param(NewParam newParam) {
       this.key = newParam.key;
+      this.deprecatedKey = newParam.deprecatedKey;
       this.description = newParam.description;
       this.exampleValue = newParam.exampleValue;
       this.defaultValue = newParam.defaultValue;
@@ -531,6 +547,14 @@ public interface WebService extends ServerExtension {
 
     public String key() {
       return key;
+    }
+
+    /**
+     * @since 5.0
+     */
+    @CheckForNull
+    public String deprecatedKey() {
+      return deprecatedKey;
     }
 
     @CheckForNull

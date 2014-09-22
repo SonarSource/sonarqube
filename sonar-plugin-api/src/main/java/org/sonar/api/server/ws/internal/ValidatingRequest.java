@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.WebService;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Set;
 
@@ -60,6 +61,14 @@ public abstract class ValidatingRequest extends Request {
     }
     return value;
   }
+
+//  @CheckForNull
+//  private WebService.Param getDefinition(String key){
+//    WebService.Param definition = action.param(key);
+//    if (definition == null) {
+//      return action.
+//    }
+//  }
 
   @CheckForNull
   @Override
@@ -100,7 +109,8 @@ public abstract class ValidatingRequest extends Request {
       LoggerFactory.getLogger(getClass()).error(message);
       throw new IllegalArgumentException(message);
     }
-    String value = StringUtils.defaultString(readParam(key), definition.defaultValue());
+    String value = StringUtils.defaultString(readParam(definition.deprecatedKey()), readParam(key));
+    value = StringUtils.defaultString(value, definition.defaultValue());
     if (value == null) {
       return null;
     }
