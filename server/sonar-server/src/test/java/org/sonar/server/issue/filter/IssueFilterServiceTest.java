@@ -41,6 +41,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -64,10 +65,11 @@ public class IssueFilterServiceTest {
   IssueFilterDao issueFilterDao = mock(IssueFilterDao.class);
   IssueFilterFavouriteDao issueFilterFavouriteDao = mock(IssueFilterFavouriteDao.class);
   IssueFinder issueFinder = mock(IssueFinder.class);
+  IssueService issueService = mock(IssueService.class);
   AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
   IssueFilterSerializer issueFilterSerializer = mock(IssueFilterSerializer.class);
   UserSession userSession = MockUserSession.create().setLogin("john");
-  IssueFilterService service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueFinder, authorizationDao, issueFilterSerializer);
+  IssueFilterService service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueFinder, issueService, authorizationDao, issueFilterSerializer);
 
   @Test
   public void should_find_by_id() {
@@ -525,6 +527,15 @@ public class IssueFilterServiceTest {
     service.execute(issueQuery);
 
     verify(issueFinder).find(issueQuery);
+  }
+
+  @Test
+  public void should_execute2_from_issue_query() {
+    IssueQuery issueQuery = IssueQuery.builder().build();
+
+    service.execute2(issueQuery);
+
+    verify(issueService).searchFromQuery(issueQuery);
   }
 
   @Test

@@ -347,7 +347,15 @@ public class DefaultIssueService implements IssueService {
   }
 
   /**
-   * Used by the bulk change
+   * Warning, paging is not taken into account when using this method, max limit is set. (Only used to execute query for bulk change)
+   * TODO move it to the IssueFilterService when OldIssueService will be removed
+   */
+  public List<Issue> searchFromQuery(IssueQuery query) {
+    return indexClient.get(IssueIndex.class).search(query, new QueryContext().setMaxLimit()).getHits();
+  }
+
+  /**
+   * Used by the bulk change : first load issues from E/S to load only authorized issues then load issues from DB in order to update them.
    * TODO move it to the IssueBulkChangeService when OldIssueService will be removed
    */
   @Override

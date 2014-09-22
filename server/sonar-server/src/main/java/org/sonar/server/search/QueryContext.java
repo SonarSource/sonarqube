@@ -31,7 +31,7 @@ import java.util.Set;
 import static com.google.common.collect.Sets.newHashSet;
 
 /**
- * Various Elasticsearch request options: paging, sorting, fields and facets
+ * Various Elasticsearch request options: paging, fields and facets
  *
  * @since 4.4
  */

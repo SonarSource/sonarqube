@@ -231,7 +231,7 @@ public class OldIssueService implements IssueService {
     }
     Rule rule = findRule(ruleKey);
 
-    DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
+    DefaultIssue issue = new DefaultIssueBuilder()
       .componentKey(component.getKey())
       .projectKey(project.getKey())
       .line(line)
@@ -288,8 +288,6 @@ public class OldIssueService implements IssueService {
   }
 
   public IssueQueryResult loadIssue(String issueKey) {
-    // TODO use IssueIndex for ACL
-    // TODO load DTO
     IssueQueryResult result = finder.find(IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).requiredRole(UserRole.USER).build());
     if (result.issues().size() != 1) {
       // TODO throw 404
@@ -306,6 +304,10 @@ public class OldIssueService implements IssueService {
   @Override
   public DefaultIssue getIssueByKey(String key) {
     return (DefaultIssue) loadIssue(key).first();
+  }
+
+  public List<Issue> searchFromQuery(IssueQuery issueQuery) {
+    return finder.find(issueQuery).issues();
   }
 
   @Override

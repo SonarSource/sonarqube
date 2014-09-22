@@ -25,6 +25,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
@@ -40,9 +41,11 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 import java.util.Map;
 
@@ -53,21 +56,27 @@ public class IssueFilterService implements ServerComponent {
   private final IssueFilterDao filterDao;
   private final IssueFilterFavouriteDao favouriteDao;
   private final IssueFinder finder;
+  private final IssueService issueService;
   private final AuthorizationDao authorizationDao;
   private final IssueFilterSerializer serializer;
 
   public IssueFilterService(IssueFilterDao filterDao, IssueFilterFavouriteDao favouriteDao,
-                            IssueFinder finder, AuthorizationDao authorizationDao,
+                            IssueFinder finder, IssueService issueService, AuthorizationDao authorizationDao,
                             IssueFilterSerializer serializer) {
     this.filterDao = filterDao;
     this.favouriteDao = favouriteDao;
     this.finder = finder;
+    this.issueService = issueService;
     this.authorizationDao = authorizationDao;
     this.serializer = serializer;
   }
 
   public IssueFilterResult execute(IssueQuery issueQuery) {
     return createIssueFilterResult(finder.find(issueQuery), issueQuery);
+  }
+
+  public List<Issue> execute2(IssueQuery issueQuery) {
+    return issueService.searchFromQuery(issueQuery);
   }
 
   public DefaultIssueFilter find(Long id, UserSession userSession) {

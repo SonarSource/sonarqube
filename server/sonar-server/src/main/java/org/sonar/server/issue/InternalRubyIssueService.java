@@ -479,6 +479,25 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueFilterService.execute(issueQuery);
   }
 
+  /**
+   * Execute issue filter from parameters
+   */
+  public List<Issue> execute2(Map<String, Object> props) {
+    IssueQuery issueQuery = PublicRubyIssueService.toQuery(props);
+    return issueFilterService.execute2(issueQuery);
+  }
+
+  /**
+   * Execute issue filter from existing filter with optional overridable parameters
+   */
+  public List<Issue> execute2(Long issueFilterId, Map<String, Object> overrideProps) {
+    DefaultIssueFilter issueFilter = issueFilterService.find(issueFilterId, UserSession.get());
+    Map<String, Object> props = issueFilterService.deserializeIssueFilterQuery(issueFilter);
+    overrideProps(props, overrideProps);
+    IssueQuery issueQuery = PublicRubyIssueService.toQuery(props);
+    return issueFilterService.execute2(issueQuery);
+  }
+
   private void overrideProps(Map<String, Object> props, Map<String, Object> overrideProps) {
     for (Map.Entry<String, Object> entry : overrideProps.entrySet()) {
       props.put(entry.getKey(), entry.getValue());
@@ -618,6 +637,10 @@ public class InternalRubyIssueService implements ServerComponent {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
       throw new BadRequestException(Validation.IS_TOO_LONG_MESSAGE, paramName, size);
     }
+  }
+
+  public int maxPageSize(){
+    return IssueQuery.MAX_PAGE_SIZE;
   }
 
 }

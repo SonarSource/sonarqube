@@ -386,6 +386,16 @@ public class DefaultIssueServiceMediumTest {
     assertThat(result).hasSize(1);
   }
 
+  @Test
+  public void search_from_query() {
+    IssueDto issue = newIssue();
+    tester.get(IssueDao.class).insert(session, issue);
+    session.commit();
+
+    List<Issue> result = service.searchFromQuery(IssueQuery.builder().build());
+    assertThat(result).hasSize(1);
+  }
+
   private IssueDto newIssue() {
     return new IssueDto()
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))

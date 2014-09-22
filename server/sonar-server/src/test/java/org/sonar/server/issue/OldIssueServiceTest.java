@@ -540,4 +540,11 @@ public class OldIssueServiceTest {
   public void search_issues() {
     assertThat(issueService.search(newArrayList("ABCD"))).hasSize(1);
   }
+
+  @Test
+  public void search_from_query() {
+    IssueQuery query = mock(IssueQuery.class);
+    issueService.searchFromQuery(query);
+    verify(finder).find(query);
+  }
 }

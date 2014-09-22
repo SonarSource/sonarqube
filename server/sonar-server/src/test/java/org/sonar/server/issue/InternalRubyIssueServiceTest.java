@@ -59,7 +59,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InternalRubyDefaultIssueServiceTest {
+public class InternalRubyIssueServiceTest {
 
   @Mock
   IssueService issueService;
@@ -570,6 +570,37 @@ public class InternalRubyDefaultIssueServiceTest {
   }
 
   @Test
+  public void execute2_issue_filter_from_issue_query() {
+    service.execute2(Maps.<String, Object>newHashMap());
+    verify(issueFilterService).execute2(any(IssueQuery.class));
+  }
+
+  @Test
+  public void execute2_issue_filter_from_existing_filter() {
+    Map<String, Object> props = newHashMap();
+    props.put("componentRoots", "struts");
+    props.put("statuses", "OPEN");
+    when(issueFilterService.deserializeIssueFilterQuery(any(DefaultIssueFilter.class))).thenReturn(props);
+
+    Map<String, Object> overrideProps = newHashMap();
+    overrideProps.put("statuses", "CLOSED");
+    overrideProps.put("resolved", true);
+    overrideProps.put("pageSize", 20);
+    overrideProps.put("pageIndex", 2);
+    service.execute2(10L, overrideProps);
+    ArgumentCaptor<IssueQuery> captor = ArgumentCaptor.forClass(IssueQuery.class);
+    verify(issueFilterService).execute2(captor.capture());
+    verify(issueFilterService).find(eq(10L), any(UserSession.class));
+
+    IssueQuery issueQuery = captor.getValue();
+    assertThat(issueQuery.componentRoots()).contains("struts");
+    assertThat(issueQuery.statuses()).contains("CLOSED");
+    assertThat(issueQuery.resolved()).isTrue();
+    assertThat(issueQuery.pageSize()).isEqualTo(20);
+    assertThat(issueQuery.pageIndex()).isEqualTo(2);
+  }
+
+  @Test
   public void serialize_filter_query() {
     Map<String, Object> props = newHashMap();
     props.put("componentRoots", "struts");
@@ -650,6 +681,11 @@ public class InternalRubyDefaultIssueServiceTest {
     FieldDiffs fieldDiffs = new FieldDiffs();
     service.formatChangelog(fieldDiffs);
     verify(changelogService).formatDiffs(eq(fieldDiffs));
+  }
+
+  @Test
+  public void max_query_size() {
+    assertThat(service.maxPageSize()).isEqualTo(500);
   }
 
   private void checkBadRequestException(Exception e, String key, Object... params) {

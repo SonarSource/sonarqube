@@ -1,9 +1,6 @@
 <%
-   issues_result = @issue_filter_result.result
-
-   issues = issues_result.issues
-   max_page_size_reached = issues_result.issues.size >= issues_result.paging.pageSize()
-   project_key = issues_result.project(issues.to_a.first).key if !issues.empty? && issues_result.projects().to_a.size == 1
+   project_key = @projects.to_a.first if !@projects.empty? && @projects.to_a.size == 1
+   max_page_size_reached = @issues.size >= Internal.issues.maxPageSize()
 
    transitions_by_issues = {}
    unresolved_issues = 0
@@ -11,7 +8,7 @@
    at_least_one_issue_is_planned = false
    at_least_one_issue_is_assigned = false
    all_issues_are_assigned_to_current_user = true
-   issues.each do |issue|
+   @issues.each do |issue|
      transitions = Internal.issues.listTransitions(issue)
      transitions.each do |transition|
        issues_for_transition = transitions_by_issues[transition.key] || 0
@@ -28,16 +25,16 @@
    end
 %>
 <form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
-  <input type="hidden" name="issues" value="<%= issues.map { |issue| issue.key() }.join(',') -%>">
+  <input type="hidden" name="issues" value="<%= @issues.map { |issue| issue.key() }.join(',') -%>">
   <input type="hidden" name="actions[]" id="bulk-change-transition-action">
   <fieldset>
     <div class="modal-head">
-      <h2><%= message('issue_bulk_change.form.title', {:params => issues.size.to_s}) -%></h2>
+      <h2><%= message('issue_bulk_change.form.title', {:params => @issues.size.to_s}) -%></h2>
     </div>
     <div class="modal-body">
       <div>
       <% if max_page_size_reached %>
-        <p class="notes"><%= message('issue_bulk_change.max_issues_reached', :params => issues.size) -%></p>
+        <p class="notes"><%= message('issue_bulk_change.max_issues_reached', :params => @issues.size) -%></p>
       <% end %>
       </div>
       <div class="modal-error"/>

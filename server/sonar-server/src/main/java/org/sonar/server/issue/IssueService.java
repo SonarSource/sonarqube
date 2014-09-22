@@ -23,6 +23,7 @@ package org.sonar.server.issue;
 import com.google.common.collect.Multiset;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.workflow.Transition;
@@ -60,6 +61,8 @@ public interface IssueService extends ServerComponent {
   DefaultIssue getIssueByKey(DbSession session, String key);
 
   DefaultIssue getIssueByKey(String key);
+
+  List<Issue> searchFromQuery(IssueQuery query);
 
   List<Issue> search(List<String> issues);
 
