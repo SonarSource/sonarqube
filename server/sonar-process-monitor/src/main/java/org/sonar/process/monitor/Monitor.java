@@ -40,15 +40,15 @@ public class Monitor {
   // used by awaitStop() to block until all processes are shutdown
   private final List<WatcherThread> watcherThreads = new CopyOnWriteArrayList<WatcherThread>();
 
-  Monitor(JavaProcessLauncher launcher, SystemExit exit) {
+  Monitor(JavaProcessLauncher launcher, SystemExit exit, TerminatorThread terminator) {
     this.launcher = launcher;
-    this.terminator = new TerminatorThread(processes);
+    this.terminator = terminator;
     this.systemExit = exit;
   }
 
   public static Monitor create() {
     Timeouts timeouts = new Timeouts();
-    return new Monitor(new JavaProcessLauncher(timeouts), new SystemExit());
+    return new Monitor(new JavaProcessLauncher(timeouts), new SystemExit(), new TerminatorThread(timeouts));
   }
 
   /**
@@ -143,6 +143,7 @@ public class Monitor {
     boolean requested = false;
     if (lifecycle.tryToMoveTo(State.STOPPING)) {
       requested = true;
+      terminator.setProcesses(processes);
       terminator.start();
     }
     return requested;

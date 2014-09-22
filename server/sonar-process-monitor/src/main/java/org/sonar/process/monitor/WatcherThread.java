@@ -19,8 +19,6 @@
  */
 package org.sonar.process.monitor;
 
-import org.slf4j.LoggerFactory;
-
 /**
  * This thread blocks as long as the monitored process is physically alive.
  * It avoids from executing {@link Process#exitValue()} at a fixed rate :
@@ -50,12 +48,13 @@ class WatcherThread extends Thread {
     while (!stopped) {
       try {
         processRef.getProcess().waitFor();
-        processRef.setStopped(true);
-        stopped = true;
-        LoggerFactory.getLogger(getClass()).info(String.format("%s is stopped", processRef));
+
+        // finalize status of ProcessRef
+        processRef.stop();
 
         // terminate all other processes, but in another thread
         monitor.stopAsync();
+        stopped = true;
       } catch (InterruptedException ignored) {
         // continue to watch process
       }

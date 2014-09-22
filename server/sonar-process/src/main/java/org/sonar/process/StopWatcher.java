@@ -21,42 +21,37 @@ package org.sonar.process;
 
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+public class StopWatcher extends Thread {
 
-/**
- * Gracefully stops process in a timely fashion
- */
-class StopperThread extends Thread {
-
-  private final Monitored monitored;
-  private final long terminationTimeout;
+  private final ProcessEntryPoint process;
   private final ProcessCommands commands;
+  private boolean watching = true;
 
-  StopperThread(Monitored monitored, ProcessCommands commands, long terminationTimeout) {
-    super("Stopper");
-    this.monitored = monitored;
-    this.terminationTimeout = terminationTimeout;
+  public StopWatcher(ProcessCommands commands, ProcessEntryPoint process) {
+    super("Stop Watcher");
     this.commands = commands;
+    this.process = process;
   }
 
   @Override
   public void run() {
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    Future future = executor.submit(new Runnable() {
-      @Override
-      public void run() {
-        monitored.stop();
+    while (watching) {
+      if (commands.askedForStopAfter(process.getLaunchedAt())) {
+        LoggerFactory.getLogger(getClass()).info("Stopping process");
+        process.stopAsync();
+        watching = false;
+      } else {
+        try {
+          Thread.sleep(500L);
+        } catch (InterruptedException ignored) {
+          watching = false;
+        }
       }
-    });
-    try {
-      future.get(terminationTimeout, TimeUnit.MILLISECONDS);
-    } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).error(String.format("Can not stop in %dms", terminationTimeout), e);
+
     }
-    executor.shutdownNow();
-    commands.finalizeProcess();
+  }
+
+  void stopWatching() {
+    watching = false;
   }
 }

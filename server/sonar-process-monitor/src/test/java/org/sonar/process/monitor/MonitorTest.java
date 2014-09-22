@@ -232,7 +232,7 @@ public class MonitorTest {
 
   private Monitor newDefaultMonitor() {
     Timeouts timeouts = new Timeouts();
-    return new Monitor(new JavaProcessLauncher(timeouts), exit);
+    return new Monitor(new JavaProcessLauncher(timeouts), exit, new TerminatorThread(timeouts));
   }
 
   /**

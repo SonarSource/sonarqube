@@ -25,31 +25,40 @@ public class ProcessEntryPoint {
 
   public static final String PROPERTY_PROCESS_KEY = "process.key";
   public static final String PROPERTY_TERMINATION_TIMEOUT = "process.terminationTimeout";
-  public static final String PROPERTY_STATUS_PATH = "process.statusPath";
+  public static final String PROPERTY_SHARED_PATH = "process.sharedDir";
 
   private final Props props;
   private final Lifecycle lifecycle = new Lifecycle();
-  private final SharedStatus sharedStatus;
-  private volatile Monitored monitored;
-  private volatile StopperThread stopperThread;
+  private final ProcessCommands commands;
   private final SystemExit exit;
+  private volatile Monitored monitored;
+  private volatile long launchedAt;
+  private volatile StopperThread stopperThread;
+  private final StopWatcher stopWatcher;
 
+  // new Runnable() is important to avoid conflict of call to ProcessEntryPoint#stop() with Thread#stop()
   private Thread shutdownHook = new Thread(new Runnable() {
     @Override
     public void run() {
       exit.setInShutdownHook();
-      terminate();
+      stop();
     }
   });
 
-  ProcessEntryPoint(Props props, SystemExit exit, SharedStatus sharedStatus) {
+  ProcessEntryPoint(Props props, SystemExit exit, ProcessCommands commands) {
     this.props = props;
     this.exit = exit;
-    this.sharedStatus = sharedStatus;
+    this.commands = commands;
+    this.launchedAt = System.currentTimeMillis();
+    this.stopWatcher = new StopWatcher(commands, this);
   }
 
   public Props getProps() {
     return props;
+  }
+
+  public String getKey() {
+    return props.nonNullValue(PROPERTY_PROCESS_KEY);
   }
 
   /**
@@ -62,7 +71,10 @@ public class ProcessEntryPoint {
     monitored = mp;
 
     try {
+      LoggerFactory.getLogger(getClass()).warn("Starting " + getKey());
       Runtime.getRuntime().addShutdownHook(shutdownHook);
+      stopWatcher.start();
+
       monitored.start();
       boolean ready = false;
       while (!ready) {
@@ -70,16 +82,17 @@ public class ProcessEntryPoint {
         Thread.sleep(200L);
       }
 
-      sharedStatus.setReady();
+      // notify monitor that process is ready
+      commands.setReady();
 
       if (lifecycle.tryToMoveTo(Lifecycle.State.STARTED)) {
         monitored.awaitStop();
       }
     } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).warn("Fail to start", e);
+      LoggerFactory.getLogger(getClass()).warn("Fail to start " + getKey(), e);
 
     } finally {
-      terminate();
+      stop();
     }
   }
 
@@ -90,11 +103,8 @@ public class ProcessEntryPoint {
   /**
    * Blocks until stopped in a timely fashion (see {@link org.sonar.process.StopperThread})
    */
-  void terminate() {
-    if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
-      stopperThread = new StopperThread(monitored, sharedStatus, Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT)));
-      stopperThread.start();
-    }
+  void stop() {
+    stopAsync();
     try {
       // stopperThread is not null for sure
       // join() does nothing if thread already finished
@@ -106,6 +116,13 @@ public class ProcessEntryPoint {
     exit.exit(0);
   }
 
+  void stopAsync() {
+    if (lifecycle.tryToMoveTo(Lifecycle.State.STOPPING)) {
+      stopperThread = new StopperThread(monitored, commands, Long.parseLong(props.nonNullValue(PROPERTY_TERMINATION_TIMEOUT)));
+      stopperThread.start();
+    }
+  }
+
   Lifecycle.State getState() {
     return lifecycle.getState();
   }
@@ -114,8 +131,14 @@ public class ProcessEntryPoint {
     return shutdownHook;
   }
 
+  long getLaunchedAt() {
+    return launchedAt;
+  }
+
   public static ProcessEntryPoint createForArguments(String[] args) {
     Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
-    return new ProcessEntryPoint(props, new SystemExit(), new SharedStatus(props.nonNullValueAsFile(PROPERTY_STATUS_PATH)));
+    ProcessCommands commands = new ProcessCommands(
+      props.nonNullValueAsFile(PROPERTY_SHARED_PATH), props.nonNullValue(PROPERTY_PROCESS_KEY));
+    return new ProcessEntryPoint(props, new SystemExit(), commands);
   }
 }

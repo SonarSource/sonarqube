@@ -50,7 +50,7 @@ public class ProcessEntryPointTest {
   @Test
   public void load_properties_from_file() throws Exception {
     File propsFile = temp.newFile();
-    FileUtils.write(propsFile, "sonar.foo=bar\nprocess.key=web\nprocess.statusPath=status.temp");
+    FileUtils.write(propsFile, "sonar.foo=bar\nprocess.key=web\nprocess.sharedDir=" + temp.newFolder().getAbsolutePath());
 
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(new String[] {propsFile.getAbsolutePath()});
     assertThat(entryPoint.getProps().value("sonar.foo")).isEqualTo("bar");
@@ -60,7 +60,7 @@ public class ProcessEntryPointTest {
   @Test
   public void test_initial_state() throws Exception {
     Props props = new Props(new Properties());
-    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(SharedStatus.class));
+    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
 
     assertThat(entryPoint.getProps()).isSameAs(props);
     assertThat(entryPoint.isStarted()).isFalse();
@@ -72,7 +72,7 @@ public class ProcessEntryPointTest {
     Props props = new Props(new Properties());
     props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "test");
     props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
-    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(SharedStatus.class));
+    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
 
     entryPoint.launch(new NoopProcess());
     try {
@@ -84,11 +84,11 @@ public class ProcessEntryPointTest {
   }
 
   @Test
-  public void launch_then_request_graceful_termination() throws Exception {
+  public void launch_then_request_graceful_stop() throws Exception {
     Props props = new Props(new Properties());
     props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "test");
     props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
-    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(SharedStatus.class));
+    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
     final StandardProcess process = new StandardProcess();
 
     Thread runner = new Thread() {
@@ -104,9 +104,9 @@ public class ProcessEntryPointTest {
       Thread.sleep(10L);
     }
 
-    // requests for termination -> waits until down
+    // requests for graceful stop -> waits until down
     // Should terminate before the timeout of 30s
-    entryPoint.terminate();
+    entryPoint.stop();
 
     assertThat(process.getState()).isEqualTo(State.STOPPED);
   }
@@ -116,7 +116,7 @@ public class ProcessEntryPointTest {
     Props props = new Props(new Properties());
     props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "foo");
     props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
-    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(SharedStatus.class));
+    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
     final StandardProcess process = new StandardProcess();
 
     Thread runner = new Thread() {
@@ -144,7 +144,7 @@ public class ProcessEntryPointTest {
     Props props = new Props(new Properties());
     props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "foo");
     props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
-    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(SharedStatus.class));
+    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
     final Monitored process = new StartupErrorProcess();
 
     entryPoint.launch(process);

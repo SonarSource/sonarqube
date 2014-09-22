@@ -79,13 +79,6 @@ public class JavaCommand {
     return this;
   }
 
-  public File getReadyFile() {
-    if (tempDir == null) {
-      throw new IllegalStateException("Temp directory not set");
-    }
-    return new File(tempDir, key + ".ready");
-  }
-
   public List<String> getJavaOptions() {
     return javaOptions;
   }
