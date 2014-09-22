@@ -53,7 +53,7 @@ public abstract class SecurityRealm implements ServerExtension {
 
   /**
    * @since 3.1
-   * @deprecated replaced by getAuthenticators in version 4.5
+   * @deprecated replaced by getAuthenticators in version 5.0
    */
   @Deprecated
   public Authenticator doGetAuthenticator() {
@@ -68,7 +68,7 @@ public abstract class SecurityRealm implements ServerExtension {
 
   /**
    * @return {@link Authenticator}s associated with this realm, empty {@link List} if not supported
-   * @since 4.5
+   * @since 5.0
    */
   public List<Authenticator> getAuthenticators() {
     // this method is not overridden when deprecated doGetAuthenticator or getLoginPasswordAuthenticator is used
@@ -77,7 +77,7 @@ public abstract class SecurityRealm implements ServerExtension {
 
   /**
    * @return {@link ExternalUsersProvider} associated with this realm, null if not supported
-   * @deprecated replaced by getUsersProviders in version 4.5
+   * @deprecated replaced by getUsersProviders in version 5.0
    */
   @Deprecated
   public ExternalUsersProvider getUsersProvider() {
@@ -86,7 +86,7 @@ public abstract class SecurityRealm implements ServerExtension {
 
   /**
    * @return {@link ExternalUsersProvider}s associated with this realm, empty {@link List} if not supported
-   * @since 4.5
+   * @since 5.0
    */
   public List<ExternalUsersProvider> getUsersProviders() {
     // this method is not overridden when deprecated getUsersProvider is used
@@ -98,7 +98,7 @@ public abstract class SecurityRealm implements ServerExtension {
 
   /**
    * @return {@link ExternalGroupsProvider} associated with this realm, null if not supported
-   * @deprecated replaced by getGroupsProviders in version 4.5
+   * @deprecated replaced by getGroupsProviders in version 5.0
    */
   @Deprecated
   public ExternalGroupsProvider getGroupsProvider() {
@@ -107,7 +107,7 @@ public abstract class SecurityRealm implements ServerExtension {
 
   /**
    * @return {@link ExternalGroupsProvider}s associated with this realm, empty {@link List} if not supported
-   * @since 4.5
+   * @since 5.0
    */
   public List<ExternalGroupsProvider> getGroupsProviders() {
     // this method is not overridden when deprecated getGroupsProvider is used
