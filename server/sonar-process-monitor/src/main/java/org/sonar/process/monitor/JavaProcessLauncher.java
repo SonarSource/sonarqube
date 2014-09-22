@@ -21,9 +21,9 @@ package org.sonar.process.monitor;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.ProcessCommands;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessUtils;
-import org.sonar.process.SharedStatus;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,8 +46,8 @@ public class JavaProcessLauncher {
     try {
       // cleanup existing monitor file. Child process creates it when ready.
       // TODO fail if impossible to delete
-      SharedStatus sharedStatus = new SharedStatus(command.getReadyFile());
-      sharedStatus.prepare();
+      ProcessCommands commands = new ProcessCommands(command.getTempDir(), command.getKey());
+      commands.prepareMonitor();
 
       ProcessBuilder processBuilder = create(command);
       LoggerFactory.getLogger(getClass()).info("Launch {}: {}",
@@ -58,7 +58,7 @@ public class JavaProcessLauncher {
       StreamGobbler inputGobbler = new StreamGobbler(process.getInputStream(), command.getKey());
       inputGobbler.start();
 
-      ProcessRef ref = new ProcessRef(command.getKey(), sharedStatus, process, inputGobbler);
+      ProcessRef ref = new ProcessRef(command.getKey(), commands, process, inputGobbler);
       ref.setLaunchedAt(startedAt);
       return ref;
 
@@ -105,7 +105,7 @@ public class JavaProcessLauncher {
       props.putAll(javaCommand.getArguments());
       props.setProperty(ProcessEntryPoint.PROPERTY_PROCESS_KEY, javaCommand.getKey());
       props.setProperty(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, String.valueOf(timeouts.getTerminationTimeout()));
-      props.setProperty(ProcessEntryPoint.PROPERTY_STATUS_PATH, javaCommand.getReadyFile().getAbsolutePath());
+      props.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, javaCommand.getTempDir().getAbsolutePath());
       OutputStream out = new FileOutputStream(propertiesFile);
       props.store(out, String.format("Temporary properties file for command [%s]", javaCommand.getKey()));
       out.close();

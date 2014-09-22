@@ -21,21 +21,21 @@ package org.sonar.process.monitor;
 
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
+import org.sonar.process.ProcessCommands;
 import org.sonar.process.ProcessUtils;
-import org.sonar.process.SharedStatus;
 
 class ProcessRef {
 
   private final String key;
-  private final SharedStatus sharedStatus;
+  private final ProcessCommands commands;
   private final Process process;
   private final StreamGobbler gobbler;
   private long launchedAt;
   private volatile boolean stopped = false;
 
-  ProcessRef(String key, SharedStatus sharedStatus, Process process, StreamGobbler gobbler) {
+  ProcessRef(String key, ProcessCommands commands, Process process, StreamGobbler gobbler) {
     this.key = key;
-    this.sharedStatus = sharedStatus;
+    this.commands = commands;
     this.process = process;
     this.stopped = !ProcessUtils.isAlive(process);
     this.gobbler = gobbler;
@@ -61,7 +61,7 @@ class ProcessRef {
       if (isStopped()) {
         throw new MessageException(String.format("%s failed to start", this));
       }
-      ready = sharedStatus.wasStartedAfter(launchedAt);
+      ready = commands.wasReadyAfter(launchedAt);
       try {
         Thread.sleep(200L);
       } catch (InterruptedException e) {
@@ -75,33 +75,36 @@ class ProcessRef {
   }
 
   /**
-   * Almost real-time status
+   * True if process is physically down
    */
   boolean isStopped() {
     return stopped;
   }
 
-  /**
-   * Sends kill signal and awaits termination.
-   */
-  void kill() {
-    if (ProcessUtils.isAlive(process)) {
-      LoggerFactory.getLogger(getClass()).info(String.format("%s is stopping", this));
-      ProcessUtils.sendKillSignal(process);
-      try {
-        // signal is sent, waiting for shutdown hooks to be executed
-        process.waitFor();
-        StreamGobbler.waitUntilFinish(gobbler);
-        ProcessUtils.closeStreams(process);
-      } catch (InterruptedException ignored) {
-        // can't wait for the termination of process. Let's assume it's down.
-      }
-    }
-    stopped = true;
+  void askForGracefulAsyncStop() {
+    commands.askForStop();
   }
 
-  void setStopped(boolean b) {
-    this.stopped = b;
+  /**
+   * Sends kill signal and awaits termination. No guarantee that process is gracefully terminated (=shutdown hooks
+   * executed). It depends on OS.
+   */
+  void stop() {
+    if (ProcessUtils.isAlive(process)) {
+      try {
+        ProcessUtils.sendKillSignal(process);
+        // signal is sent, waiting for shutdown hooks to be executed (or not... it depends on OS)
+        process.waitFor();
+        LoggerFactory.getLogger(getClass()).info(String.format("%s is stopped", this));
+
+      } catch (InterruptedException ignored) {
+        // can't wait for the termination of process. Let's assume it's down.
+        // TODO log warning
+      }
+    }
+    ProcessUtils.closeStreams(process);
+    StreamGobbler.waitUntilFinish(gobbler);
+    stopped = true;
   }
 
   @Override

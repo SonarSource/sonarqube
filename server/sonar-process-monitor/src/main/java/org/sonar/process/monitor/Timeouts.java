@@ -24,7 +24,7 @@ package org.sonar.process.monitor;
  */
 class Timeouts {
 
-  private long terminationTimeout = 120000L;
+  private long terminationTimeout = 60000L;
 
   /**
    * [both monitor and monitored process] timeout of graceful termination before hard killing

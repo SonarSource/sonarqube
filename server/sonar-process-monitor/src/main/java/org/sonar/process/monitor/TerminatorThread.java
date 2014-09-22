@@ -19,6 +19,9 @@
  */
 package org.sonar.process.monitor;
 
+import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,19 +31,44 @@ import java.util.List;
  */
 class TerminatorThread extends Thread {
 
-  private final List<ProcessRef> processes;
+  private final Timeouts timeouts;
+  private List<ProcessRef> processes = Collections.emptyList();
 
-  TerminatorThread(List<ProcessRef> processes) {
+  TerminatorThread(Timeouts timeouts) {
     super("Terminator");
-    this.processes = processes;
+    this.timeouts = timeouts;
+  }
+
+  /**
+   * To be called before {@link #run()}
+   */
+  void setProcesses(List<ProcessRef> l) {
+    this.processes = l;
   }
 
   @Override
   public void run() {
     // terminate in reverse order of startup (dependency order)
     for (int index = processes.size() - 1; index >= 0; index--) {
-      ProcessRef processRef = processes.get(index);
-      processRef.kill();
+      ProcessRef ref = processes.get(index);
+      if (!ref.isStopped()) {
+        LoggerFactory.getLogger(getClass()).info(String.format("%s is stopping", ref));
+        ref.askForGracefulAsyncStop();
+
+        long killAt = System.currentTimeMillis() + timeouts.getTerminationTimeout();
+        while (!ref.isStopped() && System.currentTimeMillis() < killAt) {
+          try {
+            Thread.sleep(100L);
+          } catch (InterruptedException e) {
+            // stop asking for graceful stops, Monitor will hardly kill all processes
+            return;
+          }
+        }
+        if (!ref.isStopped()) {
+          LoggerFactory.getLogger(getClass()).info(String.format("%s failed to stop in a timely fashion. Killing it.", ref));
+        }
+        ref.stop();
+      }
     }
   }
 }
