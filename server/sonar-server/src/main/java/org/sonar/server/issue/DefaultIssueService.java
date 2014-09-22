@@ -19,9 +19,11 @@
  */
 package org.sonar.server.issue;
 
+import com.google.common.base.Function;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multiset;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.ActionPlan;
@@ -41,6 +43,7 @@ import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueDao;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
@@ -61,6 +64,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class DefaultIssueService implements IssueService {
 
@@ -301,8 +306,8 @@ public class DefaultIssueService implements IssueService {
 
   public DefaultIssue getIssueByKey(DbSession session, String key) {
     // Load from index to check permission
-    indexClient.get(IssueIndex.class).getByKey(key);
-    return dbClient.issueDao().getByKey(session, key).toDefaultIssue();
+    Issue authorizedIssueIndex = indexClient.get(IssueIndex.class).getByKey(key);
+    return dbClient.issueDao().getByKey(session, authorizedIssueIndex.key()).toDefaultIssue();
   }
 
   public DefaultIssue getIssueByKey(String key) {
@@ -338,8 +343,37 @@ public class DefaultIssueService implements IssueService {
   }
 
   public org.sonar.server.search.Result<Issue> search(IssueQuery query, QueryContext options) {
-    IssueIndex issueIndex = indexClient.get(IssueIndex.class);
-    return issueIndex.search(query, options);
+    return indexClient.get(IssueIndex.class).search(query, options);
+  }
+
+  /**
+   * Used by the bulk change
+   * TODO move it to the IssueBulkChangeService when OldIssueService will be removed
+   */
+  @Override
+  public List<Issue> search(List<String> issueKeys) {
+    // Load from index to check permission
+    List<Issue> authorizedIndexIssues = search(IssueQuery.builder().issueKeys(issueKeys).build(), new QueryContext().setMaxLimit()).getHits();
+    // return ;
+    List<String> authorizedIssueKeys = newArrayList(Iterables.transform(authorizedIndexIssues, new Function<Issue, String>() {
+      @Override
+      public String apply(@Nullable Issue input) {
+        return input != null ? input.key() : null;
+      }
+    }));
+
+    DbSession session = dbClient.openSession(false);
+    try {
+      List<IssueDto> issueDtos = dbClient.issueDao().getByKeys(session, authorizedIssueKeys);
+      return newArrayList(Iterables.transform(issueDtos, new Function<IssueDto, Issue>() {
+        @Override
+        public Issue apply(@Nullable IssueDto input) {
+          return input != null ? input.toDefaultIssue() : null;
+        }
+      }));
+    } finally {
+      session.close();
+    }
   }
 
   private void verifyLoggedIn() {

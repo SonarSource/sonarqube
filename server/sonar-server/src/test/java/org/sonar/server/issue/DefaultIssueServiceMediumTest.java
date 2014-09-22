@@ -61,6 +61,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
@@ -373,6 +374,16 @@ public class DefaultIssueServiceMediumTest {
     assertThat(result.count("MAJOR")).isEqualTo(2);
     assertThat(result.count("INFO")).isEqualTo(1);
     assertThat(result.count("UNKNOWN")).isEqualTo(0);
+  }
+
+  @Test
+  public void search_issues() {
+    IssueDto issue = newIssue();
+    tester.get(IssueDao.class).insert(session, issue);
+    session.commit();
+
+    List<Issue> result = service.search(newArrayList(issue.getKey()));
+    assertThat(result).hasSize(1);
   }
 
   private IssueDto newIssue() {

@@ -61,4 +61,6 @@ public interface IssueService extends ServerComponent {
 
   DefaultIssue getIssueByKey(String key);
 
+  List<Issue> search(List<String> issues);
+
 }

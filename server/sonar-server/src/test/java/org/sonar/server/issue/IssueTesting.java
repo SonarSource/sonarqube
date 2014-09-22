@@ -19,14 +19,41 @@
  */
 package org.sonar.server.issue;
 
-
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.rule.RuleDto;
+
+import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueTesting {
+
+  /**
+   * Full IssueDto used to feed database with fake data. Tests must not rely on the
+   * field contents declared here. They should override the fields they need to test,
+   * for example:
+   * <pre>
+   *   issueDao.insert(dbSession, IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE));
+   * </pre>
+   */
+  public static IssueDto newDto(RuleDto rule, ComponentDto file, ComponentDto project) {
+    return new IssueDto()
+      .setKee(UUID.randomUUID().toString())
+      .setRule(rule)
+      .setComponent(file)
+      .setRootComponent(project)
+      .setStatus(Issue.STATUS_OPEN)
+      .setResolution(null)
+      .setSeverity(Severity.MAJOR)
+      .setDebt(10L)
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
+  }
 
   public static void assertIsEquivalent(IssueDto dto, Issue issue) {
 

@@ -21,6 +21,7 @@ package org.sonar.server.rule;
 
 import org.fest.assertions.Assertions;
 import org.junit.*;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleQuery;
@@ -145,6 +146,16 @@ public class DefaultRuleFinderMediumTest {
   public void find_ids_including_removed_rule() {
     // find rule with id 2 is REMOVED
     assertThat(finder.findByIds(newArrayList(2))).hasSize(1);
+  }
+
+  @Test
+  public void find_keys_including_removed_rule() {
+    assertThat(finder.findByKeys(newArrayList(RuleKey.of("checkstyle", "DisabledCheck")))).hasSize(1);
+
+    // find rule with id 2 is REMOVED
+    assertThat(finder.findByKeys(newArrayList(RuleKey.of("checkstyle", "com.puppycrawl.tools.checkstyle.checks.header.HeaderCheck")))).hasSize(1);
+
+    assertThat(finder.findByKeys(Collections.<RuleKey>emptyList())).isEmpty();
   }
 
   @Test

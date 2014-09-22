@@ -20,43 +20,51 @@
 
 package org.sonar.server.issue;
 
-import org.sonar.core.preview.PreviewCache;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.web.UserRole;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.Rule;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.preview.PreviewCache;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.user.UserSession;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import javax.annotation.CheckForNull;
+
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 
 public class IssueBulkChangeService {
 
   private static final Logger LOG = LoggerFactory.getLogger(IssueBulkChangeService.class);
 
-  private final DefaultIssueFinder issueFinder;
+  private final DbClient dbClient;
+  private final IssueService issueService;
   private final IssueStorage issueStorage;
+  private final DefaultRuleFinder ruleFinder;
   private final IssueNotifications issueNotifications;
   private final PreviewCache dryRunCache;
   private final List<Action> actions;
 
-  public IssueBulkChangeService(DefaultIssueFinder issueFinder, IssueStorage issueStorage, IssueNotifications issueNotifications, List<Action> actions, PreviewCache dryRunCache) {
-    this.issueFinder = issueFinder;
+  public IssueBulkChangeService(DbClient dbClient, IssueService issueService, IssueStorage issueStorage, DefaultRuleFinder ruleFinder,
+    IssueNotifications issueNotifications, List<Action> actions, PreviewCache dryRunCache) {
+    this.dbClient = dbClient;
+    this.issueService = issueService;
     this.issueStorage = issueStorage;
+    this.ruleFinder = ruleFinder;
     this.issueNotifications = issueNotifications;
     this.actions = actions;
     this.dryRunCache = dryRunCache;
@@ -68,10 +76,11 @@ public class IssueBulkChangeService {
     userSession.checkLoggedIn();
 
     IssueBulkChangeResult result = new IssueBulkChangeResult();
-    IssueQueryResult issueQueryResult = issueFinder.find(IssueQuery.builder().issueKeys(issueBulkChangeQuery.issues()).pageSize(-1).requiredRole(UserRole.USER).build());
-    List<Issue> issues = issueQueryResult.issues();
-    List<Action> bulkActions = getActionsToApply(issueBulkChangeQuery, issues, userSession);
 
+    List<Issue> issues = issueService.search(issueBulkChangeQuery.issues());
+    Referentials referentials = new Referentials(issues);
+
+    List<Action> bulkActions = getActionsToApply(issueBulkChangeQuery, issues, userSession);
     IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(), userSession.login());
     Set<String> concernedProjects = new HashSet<String>();
     for (Issue issue : issues) {
@@ -86,9 +95,15 @@ public class IssueBulkChangeService {
         }
         issueStorage.save((DefaultIssue) issue);
         if (issueBulkChangeQuery.sendNotifications()) {
-          issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext, issueQueryResult);
+          String projectKey = issue.projectKey();
+          if (projectKey != null) {
+            issueNotifications.sendChanges((DefaultIssue) issue, issueChangeContext,
+              referentials.rule(issue.ruleKey()),
+              referentials.project(projectKey),
+              referentials.component(issue.componentKey()));
+          }
         }
-        concernedProjects.add(((DefaultIssue) issue).projectKey());
+        concernedProjects.add(issue.projectKey());
       }
     }
     // Purge dryRun cache
@@ -154,6 +169,58 @@ public class IssueBulkChangeService {
     @Override
     public IssueChangeContext issueChangeContext() {
       return changeContext;
+    }
+  }
+
+  private class Referentials {
+
+    private final Map<RuleKey, Rule> rules = newHashMap();
+    private final Map<String, ComponentDto> components = newHashMap();
+    private final Map<String, ComponentDto> projects = newHashMap();
+
+    public Referentials(List<Issue> issues) {
+      Set<RuleKey> ruleKeys = newHashSet();
+      Set<String> componentKeys = newHashSet();
+      Set<String> projectKeys = newHashSet();
+
+      for (Issue issue : issues) {
+        ruleKeys.add(issue.ruleKey());
+        componentKeys.add(issue.componentKey());
+        String projectKey = issue.projectKey();
+        if (projectKey != null) {
+          projectKeys.add(projectKey);
+        }
+      }
+
+      DbSession session = dbClient.openSession(false);
+      try {
+        for (Rule rule : ruleFinder.findByKeys(ruleKeys)) {
+          rules.put(rule.ruleKey(), rule);
+        }
+
+        for (ComponentDto file : dbClient.componentDao().getByKeys(session, componentKeys)) {
+          components.put(file.getKey(), file);
+        }
+
+        for (ComponentDto project : dbClient.componentDao().getByKeys(session, projectKeys)) {
+          projects.put(project.getKey(), project);
+        }
+      } finally {
+        session.close();
+      }
+    }
+
+    public Rule rule(RuleKey ruleKey) {
+      return rules.get(ruleKey);
+    }
+
+    @CheckForNull
+    public ComponentDto component(String key) {
+      return components.get(key);
+    }
+
+    public ComponentDto project(String key) {
+      return projects.get(key);
     }
   }
 }

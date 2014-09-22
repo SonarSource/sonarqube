@@ -307,4 +307,9 @@ public class OldIssueService implements IssueService {
   public DefaultIssue getIssueByKey(String key) {
     return (DefaultIssue) loadIssue(key).first();
   }
+
+  @Override
+  public List<Issue> search(List<String> issues) {
+    return finder.find(IssueQuery.builder().issueKeys(issues).pageSize(-1).requiredRole(UserRole.USER).build()).issues();
+  }
 }

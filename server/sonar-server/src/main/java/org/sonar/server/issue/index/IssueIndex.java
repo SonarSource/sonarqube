@@ -122,11 +122,14 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
   }
 
   public Result<Issue> search(IssueQuery query, QueryContext options) {
-
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
       .setIndices(this.getIndexName());
+
+    // Integrate Pagination
+    esSearch.setFrom(options.getOffset());
+    esSearch.setSize(options.getLimit());
 
     if (options.isScroll()) {
       esSearch.setSearchType(SearchType.SCAN);

@@ -39,6 +39,7 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.QueryContext;
@@ -47,8 +48,10 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueIndexMediumTest {
@@ -188,6 +191,49 @@ public class IssueIndexMediumTest {
     query.assignees(ImmutableList.of(assignee1, assignee2));
     result = index.search(query.build(), new QueryContext());
     assertThat(result.getHits()).hasSize(2);
+  }
+
+  @Test
+  public void search_with_paging() throws Exception {
+    for (int i=0; i<12; i++) {
+      IssueDto issue = createIssue();
+      tester.get(IssueDao.class).insert(session, issue);
+    }
+    session.commit();
+
+    IssueQuery.Builder query = IssueQuery.builder();
+    // There are 12 issues in total, with 10 issues per page, the page 2 should only contain 2 elements
+    Result<Issue> result = index.search(query.build(), new QueryContext().setPage(2, 10));
+    assertThat(result.getHits()).hasSize(2);
+    assertThat(result.getTotal()).isEqualTo(12);
+  }
+
+  @Test
+  public void search_with_limit() throws Exception {
+    for (int i=0; i<20; i++) {
+      IssueDto issue = createIssue();
+      tester.get(IssueDao.class).insert(session, issue);
+    }
+    session.commit();
+
+    IssueQuery.Builder query = IssueQuery.builder();
+    Result<Issue> result = index.search(query.build(), new QueryContext().setLimit(20));
+    assertThat(result.getHits()).hasSize(20);
+  }
+
+  @Test
+  public void search_with_max_limit() throws Exception {
+    List<String> issueKeys = newArrayList();
+    for (int i=0; i<500; i++) {
+      IssueDto issue = createIssue();
+      tester.get(IssueDao.class).insert(session, issue);
+      issueKeys.add(issue.getKey());
+    }
+    session.commit();
+
+    IssueQuery.Builder query = IssueQuery.builder();
+    Result<Issue> result = index.search(query.build(), new QueryContext().setMaxLimit());
+    assertThat(result.getHits()).hasSize(500);
   }
 
   @Test

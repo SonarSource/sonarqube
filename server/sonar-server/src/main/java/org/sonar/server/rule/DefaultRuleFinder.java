@@ -72,6 +72,18 @@ public class DefaultRuleFinder implements RuleFinder {
   }
 
   @CheckForNull
+  public Collection<org.sonar.api.rules.Rule> findByKeys(Collection<RuleKey> ruleKeys) {
+    List<org.sonar.api.rules.Rule> rules = newArrayList();
+    if (ruleKeys.isEmpty()) {
+      return rules;
+    }
+    for (Rule rule : index.getByKeys(ruleKeys)) {
+      rules.add(toRule(rule));
+    }
+    return rules;
+  }
+
+  @CheckForNull
   public org.sonar.api.rules.Rule findByKey(RuleKey key) {
     Rule rule = index.getNullableByKey(key);
     if (rule != null && rule.status() != RuleStatus.REMOVED) {

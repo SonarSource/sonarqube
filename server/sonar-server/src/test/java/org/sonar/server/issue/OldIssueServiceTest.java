@@ -73,7 +73,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OldDefaultIssueServiceTest {
+public class OldIssueServiceTest {
 
   @Mock
   DefaultIssueFinder finder;
@@ -534,5 +534,10 @@ public class OldDefaultIssueServiceTest {
     assertThat(result.count("MAJOR")).isEqualTo(2);
     assertThat(result.count("INFO")).isEqualTo(1);
     assertThat(result.count("UNKNOWN")).isEqualTo(0);
+  }
+
+  @Test
+  public void search_issues() {
+    assertThat(issueService.search(newArrayList("ABCD"))).hasSize(1);
   }
 }

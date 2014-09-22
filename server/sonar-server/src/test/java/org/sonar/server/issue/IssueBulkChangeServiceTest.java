@@ -20,22 +20,25 @@
 
 package org.sonar.server.issue;
 
-import org.sonar.core.preview.PreviewCache;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.web.UserRole;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
+import org.sonar.api.rules.Rule;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.preview.PreviewCache;
+import org.sonar.server.component.db.ComponentDao;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -44,43 +47,70 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class IssueBulkChangeServiceTest {
 
-  private DefaultIssueFinder finder = mock(DefaultIssueFinder.class);
-  private IssueStorage issueStorage = mock(IssueStorage.class);
-  private IssueNotifications issueNotifications = mock(IssueNotifications.class);
+  DbClient dbClient = mock(DbClient.class);
+  DbSession dbSession = mock(DbSession.class);
 
-  private IssueQueryResult issueQueryResult = mock(IssueQueryResult.class);
-  private UserSession userSession = MockUserSession.create().setLogin("john").setUserId(10);
-  private DefaultIssue issue = new DefaultIssue().setKey("ABCD");
+  IssueService issueService = mock(IssueService.class);
+  IssueStorage issueStorage = mock(IssueStorage.class);
+  DefaultRuleFinder ruleFinder = mock(DefaultRuleFinder.class);
+  ComponentDao componentDao = mock(ComponentDao.class);
+  IssueNotifications issueNotifications = mock(IssueNotifications.class);
 
-  private IssueBulkChangeService service;
+  IssueBulkChangeService service;
 
-  private List<Action> actions;
+  UserSession userSession = MockUserSession.create().setLogin("john").setUserId(10);
+
+  DefaultIssue issue;
+  Rule rule;
+  ComponentDto project;
+  ComponentDto file;
+
+  List<Action> actions;
 
   @Before
   public void before() {
-    when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
-    when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) issue));
+    when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.componentDao()).thenReturn(componentDao);
+
+    rule = Rule.create("repo", "key");
+    when(ruleFinder.findByKeys(newHashSet(rule.ruleKey()))).thenReturn(newArrayList(rule));
+
+    project = new ComponentDto()
+      .setId(1L)
+      .setKey("MyProject")
+      .setLongName("My Project")
+      .setQualifier(Qualifiers.PROJECT)
+      .setScope(Scopes.PROJECT);
+    when(componentDao.getByKeys(dbSession, newHashSet(project.key()))).thenReturn(newArrayList(project));
+
+    file = new ComponentDto()
+      .setId(2L)
+      .setProjectId(project.getId())
+      .setSubProjectId(project.getId())
+      .setKey("MyComponent")
+      .setLongName("My Component");
+    when(componentDao.getByKeys(dbSession, newHashSet(file.key()))).thenReturn(newArrayList(file));
+
+    issue = new DefaultIssue()
+      .setKey("ABCD")
+      .setRuleKey(rule.ruleKey())
+      .setProjectKey(project.key())
+      .setComponentKey(file.key());
+    when(issueService.search(anyListOf(String.class))).thenReturn(newArrayList((Issue) issue));
 
     actions = newArrayList();
-
-    service = new IssueBulkChangeService(finder, issueStorage, issueNotifications, actions, mock(PreviewCache.class));
+    service = new IssueBulkChangeService(dbClient, issueService, issueStorage, ruleFinder, issueNotifications, actions, mock(PreviewCache.class));
   }
 
   @Test
@@ -98,7 +128,7 @@ public class IssueBulkChangeServiceTest {
 
     verify(issueStorage).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
-    verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
+    verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(rule), eq(project), eq(file));
     verifyNoMoreInteractions(issueNotifications);
   }
 
@@ -117,8 +147,7 @@ public class IssueBulkChangeServiceTest {
 
     verify(issueStorage).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
-    verify(issueNotifications, never()).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
-    verifyNoMoreInteractions(issueNotifications);
+    verifyZeroInteractions(issueNotifications);
   }
 
   @Test
@@ -147,7 +176,7 @@ public class IssueBulkChangeServiceTest {
 
   @Test
   public void should_execute_bulk_change_with_comment_only_on_changed_issues() {
-    when(issueQueryResult.issues()).thenReturn(newArrayList((Issue) new DefaultIssue().setKey("ABCD"), new DefaultIssue().setKey("EFGH")));
+    when(issueService.search(anyListOf(String.class))).thenReturn(newArrayList((Issue) new DefaultIssue().setKey("ABCD"), new DefaultIssue().setKey("EFGH")));
 
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD,EFGH");
@@ -197,27 +226,8 @@ public class IssueBulkChangeServiceTest {
 
     verify(issueStorage, times(1)).save(eq(issue));
     verifyNoMoreInteractions(issueStorage);
-    verify(issueNotifications, times(1)).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult));
+    verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(rule), eq(project), eq(file));
     verifyNoMoreInteractions(issueNotifications);
-  }
-
-  @Test
-  public void should_load_issues_from_issue_keys_with_maximum_page_size() {
-    Map<String, Object> properties = newHashMap();
-    properties.put("issues", "ABCD,DEFG");
-    properties.put("actions", "assign");
-    properties.put("assign.assignee", "fred");
-    actions.add(new MockAction("assign"));
-
-    IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(properties, true);
-    service.execute(issueBulkChangeQuery, userSession);
-
-    ArgumentCaptor<IssueQuery> captor = ArgumentCaptor.forClass(IssueQuery.class);
-    verify(finder).find(captor.capture());
-    IssueQuery query = captor.getValue();
-    assertThat(query.issueKeys()).containsOnly("ABCD", "DEFG");
-    assertThat(query.pageSize()).isEqualTo(IssueQuery.MAX_PAGE_SIZE);
-    assertThat(query.requiredRole()).isEqualTo(UserRole.USER);
   }
 
   @Test
