@@ -424,7 +424,6 @@ public final class IssueDto extends Dto<String> implements Serializable {
   }
 
   public static IssueDto toDtoForInsert(DefaultIssue issue, Long componentId, Long rootComponentId, Integer ruleId, Date now) {
-    String projectKey = issue.projectKey();
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())

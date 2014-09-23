@@ -29,6 +29,10 @@
     {
       "key": "MyComponent",
       "id": 2
+    },
+    {
+      "key": "MyProject",
+      "id": 1
     }
   ],
   "projects": [

@@ -223,7 +223,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   @Override
   @CheckForNull
   protected Collection<String> possibleFields() {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
@@ -249,8 +249,11 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
     DbSession session = dbClient.openSession(false);
     try {
-      writeProjects(json, dbClient.componentDao().getByKeys(session, projectKeys));
-      writeComponents(json, dbClient.componentDao().getByKeys(session, componentKeys));
+      List<ComponentDto> componentDtos = dbClient.componentDao().getByKeys(session, componentKeys);
+      List<ComponentDto> projectDtos = dbClient.componentDao().getByKeys(session, projectKeys);
+      componentDtos.addAll(projectDtos);
+      writeProjects(json, projectDtos);
+      writeComponents(json, componentDtos);
     } finally {
       session.close();
     }
