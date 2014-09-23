@@ -227,6 +227,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected Map mapDomain() {
     Map<String, Object> mapping = new HashMap<String, Object>();
     mapping.put("dynamic", false);
+    mapping.put("_all", ImmutableMap.of("enabled", false));
     if (mapKey() != null) {
       mapping.put("_id", mapKey());
     }

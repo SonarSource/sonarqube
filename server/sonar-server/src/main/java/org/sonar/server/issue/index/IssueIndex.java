@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -77,6 +78,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
   protected Map mapDomain() {
     Map<String, Object> mapping = new HashMap<String, Object>();
     mapping.put("dynamic", false);
+    mapping.put("_all", ImmutableMap.of("enabled", false));
     mapping.put("_id", mapKey());
     mapping.put("_parent", mapParent());
     mapping.put("_routing", mapRouting());
