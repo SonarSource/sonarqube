@@ -20,7 +20,10 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.RuleKey;
@@ -212,6 +215,42 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void filter_created_after() throws Exception {
+    IssueDto issue1 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
+    IssueDto issue2 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
+    db.issueDao().insert(session, issue1, issue2);
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-19")).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-20")).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-21")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().createdAfter(DateUtils.parseDate("2014-09-25")).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void filter_created_before() throws Exception {
+    IssueDto issue1 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
+    IssueDto issue2 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
+    db.issueDao().insert(session, issue1, issue2);
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-19")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-20")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-21")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().createdBefore(DateUtils.parseDate("2014-09-25")).build(), new QueryContext()).getHits()).hasSize(2);
+  }
+
+  @Test
+  public void filter_created_at() throws Exception {
+    IssueDto issue = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
+    db.issueDao().insert(session, issue);
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().createdAt(DateUtils.parseDate("2014-09-20")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().createdAt(DateUtils.parseDate("2014-09-21")).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
   public void paging() throws Exception {
     for (int i=0; i<12; i++) {
       IssueDto issue = createIssue();
@@ -260,7 +299,6 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  @Ignore("TODO")
   public void sort_by_assignee() throws Exception {
     IssueDto issue1 = createIssue().setAssignee("steph");
     IssueDto issue2 = createIssue().setAssignee("simon");

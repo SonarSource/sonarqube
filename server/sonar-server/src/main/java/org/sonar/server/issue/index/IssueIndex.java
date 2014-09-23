@@ -30,6 +30,9 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.web.UserRole;
@@ -39,10 +42,7 @@ import org.sonar.server.search.*;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -131,15 +131,33 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       .setTypes(this.getIndexType())
       .setIndices(this.getIndexName());
 
-    // Integrate Pagination
-    esSearch.setFrom(options.getOffset());
-    esSearch.setSize(options.getLimit());
-
     if (options.isScroll()) {
       esSearch.setSearchType(SearchType.SCAN);
       esSearch.setScroll(TimeValue.timeValueMinutes(3));
     }
 
+    setFacets(options, esSearch);
+    setSorting(query, esSearch);
+    setPagination(options, esSearch);
+
+    QueryBuilder esQuery = QueryBuilders.matchAllQuery();
+    BoolFilterBuilder esFilter = getFilter(query, options);
+    if (esFilter.hasClauses()) {
+      esSearch.setQuery(QueryBuilders.filteredQuery(esQuery, esFilter));
+    } else {
+      esSearch.setQuery(esQuery);
+    }
+
+    // Sample Functional aggregation
+    // esSearch.addAggregation(AggregationBuilders.sum("totalDuration")
+    // .field(IssueNormalizer.IssueField.DEBT.field()));
+
+    SearchResponse response = getClient().execute(esSearch);
+    return new Result<Issue>(this, response);
+  }
+
+  /* Build main filter (match based) */
+  protected BoolFilterBuilder getFilter(IssueQuery query, QueryContext options) {
     BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
 
     // Authorization
@@ -158,7 +176,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
         FilterBuilders.boolFilter()
           .must(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.PERMISSION.field(), UserRole.USER), groupsAndUser)
           .cache(true))
-      ));
+    ));
 
     // Issue is assigned Filter
     if (BooleanUtils.isTrue(query.assigned())) {
@@ -189,27 +207,27 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     matchFilter(esFilter, IssueNormalizer.IssueField.STATUS, query.statuses());
 
     // Date filters
-    if (query.createdAfter() != null) {
+    Date createdAfter = query.createdAfter();
+    if (createdAfter != null) {
       esFilter.must(FilterBuilders
         .rangeFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field())
-        .gte(query.createdAfter()));
+        .gte(createdAfter));
     }
-    if (query.createdBefore() != null) {
+    Date createdBefore = query.createdBefore();
+    if (createdBefore != null) {
       esFilter.must(FilterBuilders
         .rangeFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field())
-        .lte(query.createdBefore()));
+        .lte(createdBefore));
     }
-    // TODO match day bracket for day on createdAt
-    // query.createdAt();
-
-    QueryBuilder esQuery = QueryBuilders.matchAllQuery();
-
-    if (esFilter.hasClauses()) {
-      esSearch.setQuery(QueryBuilders.filteredQuery(esQuery, esFilter));
-    } else {
-      esSearch.setQuery(esQuery);
+    Date createdAt = query.createdAt();
+    if (createdAt != null) {
+      esFilter.must(FilterBuilders.termFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field(), createdAt));
     }
 
+    return esFilter;
+  }
+
+  private void setFacets(QueryContext options, SearchRequestBuilder esSearch) {
     if (options.isFacet()) {
       // Execute Term aggregations
       esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.SEVERITY.field())
@@ -221,13 +239,37 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.ACTION_PLAN.field())
         .field(IssueNormalizer.IssueField.ACTION_PLAN.field()));
     }
+  }
 
-    // Sample Functional aggregation
-    // esSearch.addAggregation(AggregationBuilders.sum("totalDuration")
-    // .field(IssueNormalizer.IssueField.DEBT.field()));
+  private void setSorting(IssueQuery query, SearchRequestBuilder esSearch) {
+    /* integrate Query Sort */
+    String sortField = query.sort();
+    Boolean asc = query.asc();
+    if (sortField != null) {
+      FieldSortBuilder sort = SortBuilders.fieldSort(toIndexField(sortField).sortField());
+      if (asc != null && asc) {
+        sort.order(SortOrder.ASC);
+      } else {
+        sort.order(SortOrder.DESC);
+      }
+      esSearch.addSort(sort);
+    } else {
+      esSearch.addSort(IssueNormalizer.IssueField.ISSUE_UPDATED_AT.sortField(), SortOrder.DESC);
+      // deterministic sort when exactly the same updated_at (same millisecond)
+      esSearch.addSort(IssueNormalizer.IssueField.KEY.sortField(), SortOrder.ASC);
+    }
+  }
 
-    SearchResponse response = getClient().execute(esSearch);
-    return new Result<Issue>(this, response);
+  private IndexField toIndexField(String sort){
+    if (IssueQuery.SORT_BY_ASSIGNEE.equals(sort)) {
+      return IssueNormalizer.IssueField.ASSIGNEE;
+    }
+    throw new IllegalStateException("Unknown sort field : " + sort);
+  }
+
+  protected void setPagination(QueryContext options, SearchRequestBuilder esSearch) {
+    esSearch.setFrom(options.getOffset());
+    esSearch.setSize(options.getLimit());
   }
 
   private void matchFilter(BoolFilterBuilder filter, IndexField field, @Nullable Collection<?> values) {

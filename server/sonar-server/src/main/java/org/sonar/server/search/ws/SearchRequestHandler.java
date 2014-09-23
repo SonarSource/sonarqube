@@ -124,7 +124,7 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
     json.endObject().close();
   }
 
-  private final QueryContext getQueryContext(Request request) {
+  private QueryContext getQueryContext(Request request) {
     return new QueryContext().addFieldsToReturn(request.paramAsStrings(PARAM_FIELDS))
       .setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS))
       .setPage(request.mandatoryParamAsInt(PARAM_PAGE),

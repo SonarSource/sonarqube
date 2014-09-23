@@ -202,14 +202,26 @@ public class IssueQuery {
     return asc;
   }
 
+  /**
+   * @deprecated since 5.0, use {@link org.sonar.server.search.QueryContext} instead
+   */
+  @Deprecated
   public int pageSize() {
     return pageSize;
   }
 
+  /**
+   * @deprecated since 5.0, use {@link org.sonar.server.search.QueryContext} instead
+   */
+  @Deprecated
   public int pageIndex() {
     return pageIndex;
   }
 
+  /**
+   * @deprecated since 5.0, now useless with the usage of E/S
+   */
+  @Deprecated
   public int maxResults() {
     return MAX_RESULTS;
   }
@@ -377,11 +389,19 @@ public class IssueQuery {
       return this;
     }
 
+    /**
+     * @deprecated since 5.0, use {@link org.sonar.server.search.QueryContext} instead
+     */
+    @Deprecated
     public Builder pageSize(@Nullable Integer i) {
       this.pageSize = i;
       return this;
     }
 
+    /**
+     * @deprecated since 5.0, use {@link org.sonar.server.search.QueryContext} instead
+     */
+    @Deprecated
     public Builder pageIndex(@Nullable Integer i) {
       this.pageIndex = i;
       return this;
