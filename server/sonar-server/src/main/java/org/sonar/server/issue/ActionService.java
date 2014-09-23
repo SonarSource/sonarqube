@@ -62,7 +62,8 @@ public class ActionService implements ServerComponent {
   private final PropertiesDao propertiesDao;
   private final Actions actions;
 
-  public ActionService(DbClient dbClient, IssueService issueService, IssueStorage issueStorage, IssueUpdater updater, Settings settings, PropertiesDao propertiesDao, Actions actions) {
+  public ActionService(DbClient dbClient, IssueService issueService, IssueStorage issueStorage, IssueUpdater updater, Settings settings, PropertiesDao propertiesDao,
+    Actions actions) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.issueStorage = issueStorage;

@@ -362,7 +362,6 @@ public class DefaultIssueService implements IssueService {
   public List<Issue> search(List<String> issueKeys) {
     // Load from index to check permission
     List<Issue> authorizedIndexIssues = search(IssueQuery.builder().issueKeys(issueKeys).build(), new QueryContext().setMaxLimit()).getHits();
-    // return ;
     List<String> authorizedIssueKeys = newArrayList(Iterables.transform(authorizedIndexIssues, new Function<Issue, String>() {
       @Override
       public String apply(@Nullable Issue input) {

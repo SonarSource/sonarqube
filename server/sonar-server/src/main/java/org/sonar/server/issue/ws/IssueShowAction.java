@@ -128,7 +128,7 @@ public class IssueShowAction implements RequestHandler {
 
   private void writeIssue(DbSession session, DefaultIssue issue, JsonWriter json) {
     String actionPlanKey = issue.actionPlanKey();
-    ActionPlan actionPlan = actionPlanService.findByKey(actionPlanKey, UserSession.get());
+    ActionPlan actionPlan = actionPlanKey != null ? actionPlanService.findByKey(actionPlanKey, UserSession.get()) : null;
     Duration debt = issue.debt();
     Rule rule = ruleService.getNonNullByKey(issue.ruleKey());
     Date updateDate = issue.updateDate();
@@ -164,7 +164,8 @@ public class IssueShowAction implements RequestHandler {
   private void addComponents(DbSession session, DefaultIssue issue, JsonWriter json) {
     // component, module and project can be null if they were removed
     ComponentDto component = dbClient.componentDao().getNullableByKey(session, issue.componentKey());
-    ComponentDto subProject = component != null ? dbClient.componentDao().getNullableById(component.subProjectId(), session) : null;
+    Long subProjectId = component != null ? component.subProjectId() : null;
+    ComponentDto subProject = subProjectId != null ? dbClient.componentDao().getNullableById(subProjectId, session) : null;
     ComponentDto project = component != null ? dbClient.componentDao().getNullableById(component.projectId(), session) : null;
 
     String projectName = project != null ? project.longName() != null ? project.longName() : project.name() : null;

@@ -373,6 +373,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   @CheckForNull
+  @Override
   public DOMAIN getNullableByKey(KEY key) {
     GetRequestBuilder request = client.prepareGet()
       .setType(this.getIndexType())

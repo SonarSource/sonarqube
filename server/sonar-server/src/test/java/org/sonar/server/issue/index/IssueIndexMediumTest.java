@@ -40,6 +40,7 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
@@ -112,7 +113,18 @@ public class IssueIndexMediumTest {
     db.issueDao().insert(session, issue);
     session.commit();
 
-    assertThat(index.getByKey(issue.getKey())).isNotNull();
+    Issue result = index.getByKey(issue.getKey());
+    IssueTesting.assertIsEquivalent(issue, result);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void is_new_field_is_not_available() throws Exception {
+    IssueDto issue = createIssue();
+    db.issueDao().insert(session, issue);
+    session.commit();
+
+    Issue result = index.getByKey(issue.getKey());
+    result.isNew();
   }
 
   @Test(expected = NotFoundException.class)

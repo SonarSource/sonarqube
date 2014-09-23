@@ -34,6 +34,8 @@ import java.util.List;
 
 /**
  * Generic options for search web services
+ *
+ * TODO {@link org.sonar.server.search.ws.SearchRequestHandler} should be used instead
  */
 public class SearchOptions {
 

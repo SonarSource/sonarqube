@@ -148,10 +148,6 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       esSearch.setQuery(esQuery);
     }
 
-    // Sample Functional aggregation
-    // esSearch.addAggregation(AggregationBuilders.sum("totalDuration")
-    // .field(IssueNormalizer.IssueField.DEBT.field()));
-
     SearchResponse response = getClient().execute(esSearch);
     return new Result<Issue>(this, response);
   }

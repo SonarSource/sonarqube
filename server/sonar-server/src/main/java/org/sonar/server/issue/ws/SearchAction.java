@@ -221,16 +221,20 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   @Override
-  protected void doContextResponse(Request request, QueryContext context, Result<Issue> result, JsonWriter json) {
+  @CheckForNull
+  protected Collection<String> possibleFields() {
+    return null;
+  }
 
+  @Override
+  protected void doContextResponse(Request request, QueryContext context, Result<Issue> result, JsonWriter json) {
     // Insert the projects and component name;
     Set<RuleKey> ruleKeys = new HashSet<RuleKey>();
     Set<String> projectKeys = new HashSet<String>();
     Set<String> componentKeys = new HashSet<String>();
     Set<String> actionPlanKeys = new HashSet<String>();
     List<String> userLogins = new ArrayList<String>();
-    //
-    // DbSession session = dbClient.openSession(false);
+
     for (Issue issue : result.getHits()) {
       ruleKeys.add(issue.ruleKey());
       projectKeys.add(issue.projectKey());

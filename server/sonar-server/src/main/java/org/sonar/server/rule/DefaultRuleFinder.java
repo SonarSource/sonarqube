@@ -59,7 +59,6 @@ public class DefaultRuleFinder implements RuleFinder {
     return null;
   }
 
-  @CheckForNull
   public Collection<org.sonar.api.rules.Rule> findByIds(Collection<Integer> ruleIds) {
     List<org.sonar.api.rules.Rule> rules = newArrayList();
     if (ruleIds.isEmpty()) {
@@ -71,7 +70,6 @@ public class DefaultRuleFinder implements RuleFinder {
     return rules;
   }
 
-  @CheckForNull
   public Collection<org.sonar.api.rules.Rule> findByKeys(Collection<RuleKey> ruleKeys) {
     List<org.sonar.api.rules.Rule> rules = newArrayList();
     if (ruleKeys.isEmpty()) {

@@ -23,6 +23,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.rule.RuleDto;
@@ -56,10 +57,10 @@ public class IssueTesting {
   }
 
   public static void assertIsEquivalent(IssueDto dto, Issue issue) {
-
     assertThat(issue).isNotNull();
     assertThat(dto).isNotNull();
 
+    assertThat(issue.key()).isEqualTo(dto.getKey());
     assertThat(issue.actionPlanKey()).isEqualTo(dto.getActionPlanKey());
     assertThat(issue.assignee()).isEqualTo(dto.getAssignee());
     assertThat(issue.authorLogin()).isEqualTo(dto.getAuthorLogin());
@@ -71,10 +72,14 @@ public class IssueTesting {
     assertThat(issue.line()).isEqualTo(dto.getLine());
     assertThat(issue.message()).isEqualTo(dto.getMessage());
     assertThat(issue.reporter()).isEqualTo(dto.getReporter());
-    assertThat(issue.key()).isEqualTo(dto.getKey());
-
-    // assertThat(issue.updateDate()).isEqualTo(dto.getIssueUpdateDate());
+    assertThat(issue.language()).isEqualTo(dto.getLanguage());
     assertThat(issue.status()).isEqualTo(dto.getStatus());
     assertThat(issue.severity()).isEqualTo(dto.getSeverity());
+
+    assertThat(issue.attributes()).isEqualTo(KeyValueFormat.parse(dto.getIssueAttributes()));
+
+    assertThat(issue.creationDate()).isEqualTo(dto.getIssueCreationDate());
+    assertThat(issue.updateDate()).isEqualTo(dto.getIssueUpdateDate());
+    assertThat(issue.closeDate()).isEqualTo(dto.getIssueCloseDate());
   }
 }

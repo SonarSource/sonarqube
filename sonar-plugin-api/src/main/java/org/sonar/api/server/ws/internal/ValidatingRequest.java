@@ -62,14 +62,6 @@ public abstract class ValidatingRequest extends Request {
     return value;
   }
 
-//  @CheckForNull
-//  private WebService.Param getDefinition(String key){
-//    WebService.Param definition = action.param(key);
-//    if (definition == null) {
-//      return action.
-//    }
-//  }
-
   @CheckForNull
   @Override
   public List<String> paramAsStrings(String key) {

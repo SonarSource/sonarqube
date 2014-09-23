@@ -31,12 +31,11 @@ import org.sonar.server.search.Result;
 import javax.annotation.CheckForNull;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 
 public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHandler {
 
-  public static final String PARAM_TEXT_QUERY = "q";
   public static final String PARAM_PAGE = "p";
   public static final String PARAM_PAGE_SIZE = "ps";
   public static final String PARAM_FIELDS = "f";
@@ -45,18 +44,7 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
 
   public static final String PARAM_FACETS = "facets";
 
-  private List<String> fields;
-
   private final String actionName;
-
-  /**
-   * The fields to be returned in JSON response. <code>null</code> means that
-   * all the fields must be returned.
-   */
-  @CheckForNull
-  public List<String> fields() {
-    return fields;
-  }
 
   protected SearchRequestHandler(String actionName) {
     this.actionName = actionName;
@@ -71,6 +59,9 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
   protected abstract void doContextResponse(Request request, QueryContext context, Result<DOMAIN> result, JsonWriter json);
 
   protected abstract void doDefinition(WebService.NewAction action);
+
+  @CheckForNull
+  protected abstract Collection<String> possibleFields();
 
   public final void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(this.actionName)
@@ -95,15 +86,14 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
       .setBooleanPossibleValues()
       .setDefaultValue("false");
 
-    WebService.NewParam newParam = action
-      .createParam(PARAM_FIELDS)
-      .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.");
-
-    // .setPossibleValues(possibleFields);
-    // if (possibleFields != null && possibleFields.size() > 1) {
-    // Iterator<String> it = possibleFields.iterator();
-    // newParam.setExampleValue(String.format("%s,%s", it.next(), it.next()));
-    // }
+    Collection<String> possibleFields = possibleFields();
+    WebService.NewParam paramFields = action.createParam(PARAM_FIELDS)
+      .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
+      .setPossibleValues(possibleFields);
+    if (possibleFields != null && possibleFields.size() > 1) {
+      Iterator<String> it = possibleFields.iterator();
+      paramFields.setExampleValue(String.format("%s,%s", it.next(), it.next()));
+    }
 
     this.doDefinition(action);
   }
