@@ -1,0 +1,55 @@
+<% 
+  switch_to_widget_resource(widget)
+  widget_body=widget_body(widget) 
+  default_layout=(widget.layout=='DEFAULT')
+%>
+
+<div class="widget-header">
+  <div class="widget-actions">
+    <% if widget.java_definition.isEditable() || (!widget.java_definition.global && @dashboard.global) %>
+      <a class="link-action" onclick="portal.editWidget(<%= widget.id -%>);return false;"><%= message('edit') -%></a>
+    <% end %>
+    <a class="link-action" onclick="portal.deleteWidget(this);return false;"><%= message('delete') -%></a>
+  </div>
+  <div class="widget-handle">
+    <%= h message('widget.' + widget.java_definition.getId() + '.name', :default => widget.java_definition.getTitle()) -%>
+  </div>
+</div>
+
+<div class="widget_props" id="widget_props_<%= widget.id -%>" style="<%= 'display:none' if widget.configured -%>">
+  <%= render :partial => 'widget_properties', :locals => {:widget => widget} -%>
+</div>
+
+<%= render :partial => 'widget_title', :locals => {:widget => widget} -%>
+<div id="widget_<%= widget.id -%>" class="configure_widget <%= h widget.java_definition.getId() -%>" style="height:100%;<%= 'display:none;' if !widget.configured -%>">
+  <div class="transparent"></div>
+  <% if !widget_body %>
+    <div class="block">
+      <% if default_layout %>
+      <div class="widget">   
+        <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => [widget.key]) -%></span>
+        <div class="clear"></div>
+      </div>
+      <% else %>
+        <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => [widget.key]) -%></span>
+      <% end %>
+    </div>
+  <% elsif widget_body.include? '<' %>
+    <%
+       
+       if default_layout
+    %>
+      <div class="widget">
+    <% end %>
+    <%= widget_body -%>
+    <% if default_layout %>
+      <div class="clear"></div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="widget"><p><%= message('no_data') -%></p></div>
+  <% end %>
+  <div style="clear: both;"></div>
+</div>
+
+<% restore_global_resource %>

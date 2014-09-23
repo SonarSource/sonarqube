@@ -1,0 +1,27 @@
+<table class="width100">
+  <tr style="line-height: 20px;text-align: right">
+    <td valign="top">
+      <ul class="horizontal widget_categs" id="widget-filters">
+        <li>Category:</li>
+        <li class="<%= 'selected' if category.blank? -%>">
+          <a href="#" onClick="return filterWidgetsByCategory('')" id="widget-filter-none"><%= message('any') -%></a>
+        </li>
+        <% @widget_categories.each do |c| %>
+          <li class="<%= 'selected' if category==c -%>">
+            <a href="#" onClick="return filterWidgetsByCategory('<%= escape_javascript(c) -%>')" id="widget-filter-<%= u(c) -%>"><%= h(c) -%></a>
+          </li>
+        <% end %>
+      </ul>
+      <%= image_tag 'loading.gif', :style => 'vertical-align: top; display: none', :id => 'filter-widgets-loading' -%>
+    </td>
+    <td nowrap valign="top">
+      Search:
+      <input id="filter-widget-box" name="filter-widget-box" size="10" onKeyUp="filtersWidgetsByContent(this.value);" type="text"/>
+    </td>
+  </tr>
+</table>
+
+<% @widget_definitions.each do |definition| %>
+  <%= render :partial => 'widget_definition', :locals => {:definition => definition, :dashboard => @dashboard, :resource => @resource, :category => category} %>
+<% end %>
+

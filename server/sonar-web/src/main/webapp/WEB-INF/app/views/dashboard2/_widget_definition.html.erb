@@ -1,0 +1,10 @@
+  <div class="widget_def" id="def_<%= definition.id.tr('_', '') -%>">
+    <p><b><%= h message("widget.#{definition.id}.name", :default => definition.title) -%></b></p>
+
+    <p><%= h message("widget.#{definition.id}.description", :default => definition.description) -%></p>
+
+    <% form_tag dashboard_action(:add_widget, :widget => definition.id) do -%>
+      <input type="hidden" name="category" value="<%= category -%>">
+      <input type="submit" value="<%= message('dashboard.add_widget') -%>" id="add-widget-<%= u(definition.id) -%>">
+    <% end -%>
+  </div>

@@ -1,0 +1,48 @@
+<% 
+  switch_to_widget_resource(widget)
+  widget_body=widget_body(widget)
+  default_layout=(widget.java_definition.getWidgetLayout().name()=='DEFAULT')
+%>
+
+<% if !widget.configured %>
+<div class="block">
+  <div class="widget">
+    <span class="empty_widget">
+      <a class="note" href="<%= url_for(dashboard_action(:configure)) -%>"><%= message('dashboard.please_configure_the_widget_x', :params => widget.java_definition.getTitle()) -%></a>
+    </span>
+    <div class="clear"></div>
+  </div>
+</div>
+
+<% elsif !widget_body %>
+  <div class="block">
+   <% if default_layout %>
+     <div class="widget">   
+       <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => [widget.key]) -%></span>
+       <div class="clear"></div>
+     </div>
+   <% else %>
+     <span class="empty_widget"><%= message('widget.error_occurred_please_read_logs', :params => [widget.key]) -%></span>
+   <% end %>
+  </div>
+
+<% elsif widget_body.include?('<') %>
+  <div class="block" id="block_<%= widget.id -%>">
+    <%= render :partial => 'widget_title', :locals => {:widget => widget} -%>
+
+    <div class="<%= h widget.key -%>" style="height:100%;">
+      <% if default_layout %>
+        <div class="widget">
+          <%= widget_body -%>
+          <div class="clear"></div>
+        </div>
+      <% else %>
+        <%= widget_body -%>
+      <% end %>
+
+      <div style="clear: both;"></div>
+    </div>
+  </div>
+<% end %>
+
+<% restore_global_resource %>
