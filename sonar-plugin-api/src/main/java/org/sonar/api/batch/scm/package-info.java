@@ -17,19 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.scan.filesystem;
+@ParametersAreNonnullByDefault
+package org.sonar.api.batch.scm;
 
-import org.junit.Test;
-import org.sonar.batch.protocol.input.ProjectReferentials;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-public class StatusDetectionFactoryTest {
-  @Test
-  public void testCreate() throws Exception {
-    StatusDetectionFactory factory = new StatusDetectionFactory(mock(ProjectReferentials.class));
-    StatusDetection detection = factory.create();
-    assertThat(detection).isNotNull();
-  }
-}

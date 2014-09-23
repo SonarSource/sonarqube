@@ -33,6 +33,7 @@ import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
 import org.sonar.api.batch.sensor.duplication.internal.DefaultDuplicationBuilder;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
@@ -209,20 +210,23 @@ public class JavaCpdEngine extends CpdEngine {
       .setFromCore()
       .save();
     // Save
-    context.<Integer>newMeasure()
+    ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_FILES)
       .onFile(inputFile)
-      .withValue(1)
+      .withValue(1))
+      .setFromCore()
       .save();
-    context.<Integer>newMeasure()
+    ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_LINES)
       .onFile(inputFile)
-      .withValue(duplicatedLines.size())
+      .withValue(duplicatedLines.size()))
+      .setFromCore()
       .save();
-    context.<Integer>newMeasure()
+    ((DefaultMeasure<Integer>) context.<Integer>newMeasure()
       .forMetric(CoreMetrics.DUPLICATED_BLOCKS)
       .onFile(inputFile)
-      .withValue(duplicatedBlocks)
+      .withValue(duplicatedBlocks))
+      .setFromCore()
       .save();
 
     DuplicationBuilder builder = context.duplicationBuilder(inputFile);

@@ -66,7 +66,7 @@ public class MeasuresMediumTest {
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .start();
 
-    assertThat(result.measures()).hasSize(19);
+    assertThat(result.measures()).hasSize(13);
   }
 
   @Test
@@ -103,7 +103,7 @@ public class MeasuresMediumTest {
   }
 
   @Test
-  public void testDistributionMeasure() throws IOException {
+  public void testScmMeasure() throws IOException {
 
     File baseDir = temp.newFolder();
     File srcDir = new File(baseDir, "src");
@@ -132,6 +132,8 @@ public class MeasuresMediumTest {
         .put("sonar.projectVersion", "1.0-SNAPSHOT")
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
+        .put("sonar.scm.enabled", "true")
+        .put("sonar.scm.provider", "xoo")
         .build())
       .start();
 

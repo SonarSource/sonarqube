@@ -21,6 +21,8 @@ package org.sonar.batch.protocol.input;
 
 import com.google.gson.Gson;
 
+import javax.annotation.CheckForNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +39,7 @@ public class ProjectReferentials {
   private Map<String, QProfile> qprofilesByLanguage = new HashMap<String, QProfile>();
   private Collection<ActiveRule> activeRules = new ArrayList<ActiveRule>();
   private Map<String, Map<String, String>> settingsByModule = new HashMap<String, Map<String, String>>();
+  private Map<String, FileData> fileDataPerPath = new HashMap<String, FileData>();
 
   public Map<String, String> settings(String projectKey) {
     return settingsByModule.containsKey(projectKey) ? settingsByModule.get(projectKey) : Collections.<String, String>emptyMap();
@@ -68,6 +71,15 @@ public class ProjectReferentials {
   public ProjectReferentials addActiveRule(ActiveRule activeRule) {
     activeRules.add(activeRule);
     return this;
+  }
+
+  public Map<String, FileData> fileDataPerPath() {
+    return fileDataPerPath;
+  }
+
+  @CheckForNull
+  public FileData fileDataPerPath(String path) {
+    return fileDataPerPath.get(path);
   }
 
   public long timestamp() {

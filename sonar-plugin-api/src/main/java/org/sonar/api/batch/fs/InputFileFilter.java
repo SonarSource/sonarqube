@@ -27,7 +27,6 @@ import org.sonar.api.BatchExtension;
  */
 public interface InputFileFilter extends BatchExtension {
 
-  // TODO requires a context (FileSystem) ?
   boolean accept(InputFile f);
 
 }

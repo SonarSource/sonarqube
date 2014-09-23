@@ -32,6 +32,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.test.TestCase;
 import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
 import org.sonar.api.component.ResourcePerspectives;
@@ -95,18 +96,20 @@ public class SensorContextAdapter extends BaseSensorContext {
   }
 
   @Override
-  public void store(Measure measure) {
+  public void store(Measure newMeasure) {
+    DefaultMeasure measure = (DefaultMeasure) newMeasure;
     org.sonar.api.measures.Metric m = findMetricOrFail(measure.metric().key());
     org.sonar.api.measures.Measure measureToSave = new org.sonar.api.measures.Measure(m);
-    setValueAccordingToMetricType(measure, m, measureToSave);
-    if (measure.inputFile() != null) {
-      Formula formula = measure.metric() instanceof org.sonar.api.measures.Metric ?
-        ((org.sonar.api.measures.Metric) measure.metric()).getFormula() : null;
+    setValueAccordingToMetricType(newMeasure, m, measureToSave);
+    measureToSave.setFromCore(measure.isFromCore());
+    if (newMeasure.inputFile() != null) {
+      Formula formula = newMeasure.metric() instanceof org.sonar.api.measures.Metric ?
+        ((org.sonar.api.measures.Metric) newMeasure.metric()).getFormula() : null;
       if (formula instanceof SumChildDistributionFormula
         && !Scopes.isHigherThanOrEquals(Scopes.FILE, ((SumChildDistributionFormula) formula).getMinimumScopeToPersist())) {
         measureToSave.setPersistenceMode(PersistenceMode.MEMORY);
       }
-      sensorContext.saveMeasure(measure.inputFile(), measureToSave);
+      sensorContext.saveMeasure(newMeasure.inputFile(), measureToSave);
     } else {
       sensorContext.saveMeasure(measureToSave);
     }

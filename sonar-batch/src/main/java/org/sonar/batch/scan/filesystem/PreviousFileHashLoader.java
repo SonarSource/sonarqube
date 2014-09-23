@@ -48,14 +48,14 @@ public class PreviousFileHashLoader implements BatchComponent {
   /**
    * Extract hash of the files parsed during the previous analysis
    */
-  Map<String, String> hashByRelativePath() {
+  public Map<String, String> hashByRelativePath() {
     Map<String, String> map = Maps.newHashMap();
     PastSnapshot pastSnapshot = pastSnapshotFinder.findPreviousAnalysis(snapshot);
     if (pastSnapshot.isRelatedToSnapshot()) {
       Collection<SnapshotDataDto> selectSnapshotData = dao.selectSnapshotData(
         pastSnapshot.getProjectSnapshot().getId().longValue(),
         Arrays.asList(SnapshotDataTypes.FILE_HASHES)
-      );
+        );
       if (!selectSnapshotData.isEmpty()) {
         SnapshotDataDto snapshotDataDto = selectSnapshotData.iterator().next();
         String data = snapshotDataDto.getData();

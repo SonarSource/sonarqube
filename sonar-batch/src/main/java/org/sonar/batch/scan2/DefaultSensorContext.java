@@ -59,7 +59,9 @@ public class DefaultSensorContext extends BaseSensorContext {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultSensorContext.class);
 
-  public static final List<Metric> INTERNAL_METRICS = Arrays.<Metric>asList(CoreMetrics.DEPENDENCY_MATRIX,
+  public static final List<Metric> INTERNAL_METRICS = Arrays.<Metric>asList(
+    // Computed by DsmDecorator
+    CoreMetrics.DEPENDENCY_MATRIX,
     CoreMetrics.DIRECTORY_CYCLES,
     CoreMetrics.DIRECTORY_EDGES_WEIGHT,
     CoreMetrics.DIRECTORY_FEEDBACK_EDGES,
@@ -69,7 +71,17 @@ public class DefaultSensorContext extends BaseSensorContext {
     CoreMetrics.FILE_EDGES_WEIGHT,
     CoreMetrics.FILE_FEEDBACK_EDGES,
     CoreMetrics.FILE_TANGLE_INDEX,
-    CoreMetrics.FILE_TANGLES
+    CoreMetrics.FILE_TANGLES,
+    // Computed by ScmActivitySensor
+    CoreMetrics.SCM_AUTHORS_BY_LINE,
+    CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
+    CoreMetrics.SCM_REVISIONS_BY_LINE,
+    // Computed by core duplication plugin
+    CoreMetrics.DUPLICATIONS_DATA,
+    CoreMetrics.DUPLICATION_LINES_DATA,
+    CoreMetrics.DUPLICATED_FILES,
+    CoreMetrics.DUPLICATED_LINES,
+    CoreMetrics.DUPLICATED_BLOCKS
     );
   private final MeasureCache measureCache;
   private final IssueCache issueCache;
@@ -97,8 +109,8 @@ public class DefaultSensorContext extends BaseSensorContext {
   @Override
   public void store(Measure newMeasure) {
     DefaultMeasure<Serializable> measure = (DefaultMeasure<Serializable>) newMeasure;
-    if (INTERNAL_METRICS.contains(measure.metric())) {
-      LOG.warn("Metric " + measure.metric().key() + " is an internal metric computed by SonarQube. Please update your plugin.");
+    if (!measure.isFromCore() && INTERNAL_METRICS.contains(measure.metric())) {
+      LOG.warn("Metric " + measure.metric().key() + " is an internal metric computed by SonarQube. Please remove or update offending plugin.");
       return;
     }
     InputFile inputFile = measure.inputFile();
