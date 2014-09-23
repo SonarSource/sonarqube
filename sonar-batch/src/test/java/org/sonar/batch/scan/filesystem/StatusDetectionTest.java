@@ -19,19 +19,20 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.batch.protocol.input.FileData;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class StatusDetectionTest {
   @Test
   public void detect_status() throws Exception {
-    StatusDetection statusDetection = new StatusDetection(ImmutableMap.of(
-      "src/Foo.java", "ABCDE",
-      "src/Bar.java", "FGHIJ"
-    ));
+    ProjectReferentials ref = new ProjectReferentials();
+    ref.fileDataPerPath().put("src/Foo.java", new FileData("ABCDE", null, null, null));
+    ref.fileDataPerPath().put("src/Bar.java", new FileData("FGHIJ", null, null, null));
+    StatusDetection statusDetection = new StatusDetection(ref);
 
     assertThat(statusDetection.status("src/Foo.java", "ABCDE")).isEqualTo(InputFile.Status.SAME);
     assertThat(statusDetection.status("src/Foo.java", "XXXXX")).isEqualTo(InputFile.Status.CHANGED);

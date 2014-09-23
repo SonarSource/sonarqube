@@ -49,6 +49,7 @@ public class ProjectReferentialsTest {
     activeRule.addParam("param1", "value1");
     ref.addActiveRule(activeRule);
     ref.setTimestamp(10);
+    ref.fileDataPerPath().put("src/main/java/Foo.java", new FileData("xyz", "1=12345,2=3456", "1=345,2=345", "1=henryju,2=gaudin"));
 
     System.out.println(ref.toJson());
     JSONAssert
@@ -56,16 +57,19 @@ public class ProjectReferentialsTest {
         "{timestamp:10,"
           + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
           + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule,language:java,params:{param1:value1}}],"
-          + "settingsByModule:{foo:{prop1:value1,prop2:value2,prop:value}}}",
+          + "settingsByModule:{foo:{prop1:value1,prop2:value2,prop:value}},"
+          + "fileDataPerPath:{\"src/main/java/Foo.java\":{hash:xyz,scmLastCommitDatetimesByLine:\"1\u003d12345,2\u003d3456\",scmRevisionsByLine:\"1\u003d345,2\u003d345\",scmAuthorsByLine:\"1\u003dhenryju,2\u003dgaudin\"}}}",
         ref.toJson(), true);
   }
 
   @Test
   public void testFromJson() throws JSONException, ParseException {
-    ProjectReferentials ref = ProjectReferentials.fromJson("{timestamp:1,"
-      + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
-      + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule1,language:java,params:{param1:value1}}],"
-      + "settingsByModule:{foo:{prop:value}}}");
+    ProjectReferentials ref = ProjectReferentials
+      .fromJson("{timestamp:1,"
+        + "qprofilesByLanguage:{java:{key:\"squid-java\",name:Java,language:java,rulesUpdatedAt:\"Mar 14, 1984 12:00:00 AM\"}},"
+        + "activeRules:[{repositoryKey:repo,ruleKey:rule,name:Rule,severity:MAJOR,internalKey:rule1,language:java,params:{param1:value1}}],"
+        + "settingsByModule:{foo:{prop:value}},"
+        + "fileDataPerPath:{\"src/main/java/Foo.java\":{hash:xyz,scmLastCommitDatetimesByLine:\"1\u003d12345,2\u003d3456\",scmRevisionsByLine:\"1\u003d345,2\u003d345\",scmAuthorsByLine:\"1\u003dhenryju,2\u003dgaudin\"}}}");
 
     assertThat(ref.timestamp()).isEqualTo(1);
 
@@ -83,5 +87,10 @@ public class ProjectReferentialsTest {
     assertThat(qProfile.name()).isEqualTo("Java");
     assertThat(qProfile.rulesUpdatedAt()).isEqualTo(new SimpleDateFormat("dd/MM/yyyy").parse("14/03/1984"));
     assertThat(ref.settings("foo")).includes(MapAssert.entry("prop", "value"));
+
+    assertThat(ref.fileDataPerPath("src/main/java/Foo.java").hash()).isEqualTo("xyz");
+    assertThat(ref.fileDataPerPath("src/main/java/Foo.java").scmAuthorsByLine()).isEqualTo("1=henryju,2=gaudin");
+    assertThat(ref.fileDataPerPath("src/main/java/Foo.java").scmLastCommitDatetimesByLine()).isEqualTo("1=12345,2=3456");
+    assertThat(ref.fileDataPerPath("src/main/java/Foo.java").scmRevisionsByLine()).isEqualTo("1=345,2=345");
   }
 }

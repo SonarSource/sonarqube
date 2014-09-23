@@ -20,25 +20,17 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
-
-import java.util.Collections;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 
 public class StatusDetectionFactory implements BatchComponent {
 
-  private final PreviousFileHashLoader previousFileHashLoader;
+  private final ProjectReferentials projectReferentials;
 
-  public StatusDetectionFactory(PreviousFileHashLoader l) {
-    this.previousFileHashLoader = l;
-  }
-
-  /**
-   * Used by scan2
-   */
-  public StatusDetectionFactory() {
-    this.previousFileHashLoader = null;
+  public StatusDetectionFactory(ProjectReferentials projectReferentials) {
+    this.projectReferentials = projectReferentials;
   }
 
   StatusDetection create() {
-    return new StatusDetection(previousFileHashLoader != null ? previousFileHashLoader.hashByRelativePath() : Collections.<String, String>emptyMap());
+    return new StatusDetection(projectReferentials);
   }
 }

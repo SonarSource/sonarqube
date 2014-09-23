@@ -25,6 +25,7 @@ import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.MeasureModel;
+import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -38,6 +39,7 @@ import org.sonar.batch.index.DefaultIndex;
 import javax.annotation.Nullable;
 import javax.persistence.Query;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -138,6 +140,41 @@ public class DefaultTimeMachine implements TimeMachine {
       sb.append(" AND s.last=:last ");
       params.put("last", Boolean.TRUE);
     }
+    sb.append(" ORDER BY s.createdAt ");
+
+    Query jpaQuery = session.createQuery(sb.toString());
+
+    for (Map.Entry<String, Object> entry : params.entrySet()) {
+      jpaQuery.setParameter(entry.getKey(), entry.getValue());
+    }
+    return jpaQuery.getResultList();
+  }
+
+  // Temporary implementation for SONAR-5473
+  public List<MeasureModel> query(String resourceKey, Integer... metricIds) {
+    StringBuilder sb = new StringBuilder();
+    Map<String, Object> params = Maps.newHashMap();
+
+    sb.append("SELECT m");
+    sb.append(" FROM ")
+      .append(MeasureModel.class.getSimpleName())
+      .append(" m, ")
+      .append(ResourceModel.class.getSimpleName())
+      .append(" r, ")
+      .append(Snapshot.class.getSimpleName())
+      .append(" s WHERE m.snapshotId=s.id AND s.resourceId=r.id AND r.kee=:kee AND s.status=:status AND s.qualifier<>:lib");
+    params.put("kee", resourceKey);
+    params.put("status", Snapshot.STATUS_PROCESSED);
+    params.put("lib", Qualifiers.LIBRARY);
+
+    sb.append(" AND m.characteristicId IS NULL");
+    sb.append(" AND m.personId IS NULL");
+    sb.append(" AND m.ruleId IS NULL AND m.rulePriority IS NULL");
+    if (metricIds.length > 0) {
+      sb.append(" AND m.metricId IN (:metricIds) ");
+      params.put("metricIds", Arrays.asList(metricIds));
+    }
+    sb.append(" AND s.last=true ");
     sb.append(" ORDER BY s.createdAt ");
 
     Query jpaQuery = session.createQuery(sb.toString());

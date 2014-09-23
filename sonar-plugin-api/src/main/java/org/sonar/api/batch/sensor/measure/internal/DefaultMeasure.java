@@ -42,6 +42,7 @@ public class DefaultMeasure<G extends Serializable> implements Measure<G> {
   private Metric<G> metric;
   private G value;
   private boolean saved = false;
+  private boolean fromCore = false;
 
   public DefaultMeasure() {
     this.storage = null;
@@ -81,6 +82,21 @@ public class DefaultMeasure<G extends Serializable> implements Measure<G> {
     Preconditions.checkState(this.value == null, "Measure value already defined");
     Preconditions.checkNotNull(value, "Measure value can't be null");
     this.value = value;
+    return this;
+  }
+
+  /**
+   * For internal use.
+   */
+  public boolean isFromCore() {
+    return fromCore;
+  }
+
+  /**
+   * For internal use. Used by core components to bypass check that prevent a plugin to store core measures.
+   */
+  public DefaultMeasure<G> setFromCore() {
+    this.fromCore = true;
     return this;
   }
 
