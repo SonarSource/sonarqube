@@ -34,6 +34,7 @@ import org.sonar.server.search.DbSynchronizationHandler;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.DeleteKey;
 import org.sonar.server.search.action.DeleteNestedItem;
+import org.sonar.server.search.action.InsertDto;
 import org.sonar.server.search.action.RefreshIndex;
 import org.sonar.server.search.action.UpsertDto;
 import org.sonar.server.search.action.UpsertNestedItem;
@@ -328,7 +329,8 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
       @Override
       public void handleResult(ResultContext resultContext) {
         DTO dto = (DTO) resultContext.getResultObject();
-        session.enqueue(new UpsertDto<DTO>(getIndexType(), dto, false));
+        // session.enqueue(new UpsertDto<DTO>(getIndexType(), dto, false));
+        session.enqueue(new InsertDto<DTO>(getIndexType(), dto, false));
         count++;
         if (count % 100000 == 0) {
           LOGGER.info(" - synchronized {} {}", count, getIndexType());

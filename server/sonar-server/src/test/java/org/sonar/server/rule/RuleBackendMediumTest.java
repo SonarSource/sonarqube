@@ -33,6 +33,7 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtTesting;
+import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleIndex;
@@ -434,5 +435,48 @@ public class RuleBackendMediumTest {
     List<Rule> rules = index.search(new RuleQuery(), new QueryContext()).getHits();
     assertThat(rules).hasSize(1);
     assertThat(rules.get(0).key()).isEqualTo(RuleTesting.XOO_X1);
+  }
+
+  @Test
+  public void synchronize_after() {
+    // insert db
+    dao.insert(dbSession,
+      RuleTesting.newXooX1());
+    dbSession.commit();
+
+    // 0. Assert rules are in DB
+    assertThat(dao.findAll(dbSession)).hasSize(1);
+    assertThat(index.countAll()).isEqualTo(1);
+
+    tester.clearIndexes();
+    assertThat(index.countAll()).isEqualTo(0);
+
+    tester.get(Platform.class).executeStartupTasks();
+    assertThat(index.countAll()).isEqualTo(1);
+
+  }
+
+  @Test
+  public void synchronize_after_with_nested() {
+    RuleDto rule = RuleTesting.newXooX1();
+
+    // insert db
+    dao.insert(dbSession, rule);
+
+    dao.addRuleParam(dbSession, rule, RuleParamDto.createFor(rule).setName("MyParam").setType("STRING").setDefaultValue("test"));
+    dbSession.commit();
+
+    // 0. Assert rules are in DB
+    assertThat(dao.findAll(dbSession)).hasSize(1);
+    assertThat(index.countAll()).isEqualTo(1);
+
+    tester.clearIndexes();
+    assertThat(index.countAll()).isEqualTo(0);
+
+    tester.get(Platform.class).executeStartupTasks();
+    assertThat(index.countAll()).isEqualTo(1);
+
+    assertThat(index.getByKey(rule.getKey()).param("MyParam").defaultValue()).isEqualTo("test");
+
   }
 }

@@ -26,6 +26,7 @@ import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,7 +139,12 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
       List<Future<List<? extends ActionRequest>>> requests = executorService.invokeAll(actions, 20, TimeUnit.SECONDS);
       for (Future<List<? extends ActionRequest>> updates : requests) {
         for (ActionRequest update : updates.get()) {
-          if (UpdateRequest.class.isAssignableFrom(update.getClass())) {
+
+          if (IndexRequest.class.isAssignableFrom(update.getClass())) {
+            bulkRequestBuilder.add(((IndexRequest) update));
+          }
+
+          else if (UpdateRequest.class.isAssignableFrom(update.getClass())) {
             bulkRequestBuilder.add(((UpdateRequest) update));
           }
 

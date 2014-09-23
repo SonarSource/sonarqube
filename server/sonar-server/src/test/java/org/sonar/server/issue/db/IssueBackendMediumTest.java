@@ -160,6 +160,7 @@ public class IssueBackendMediumTest {
       .setRootComponentKey(project.key())
       .setComponentId(resource.getId())
       .setComponentKey(resource.key())
+      .setRule(rule)
       .setStatus("OPEN").setResolution("OPEN")
       .setKee(UUID.randomUUID().toString());
     dbClient.issueDao().insert(dbSession, issue);
