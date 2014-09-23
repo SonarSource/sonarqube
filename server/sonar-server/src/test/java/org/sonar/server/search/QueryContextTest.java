@@ -59,6 +59,15 @@ public class QueryContextTest {
     options.setPage(1, 10);
     assertThat(options.getLimit()).isEqualTo(10);
     assertThat(options.getOffset()).isEqualTo(0);
+    assertThat(options.getPage()).isEqualTo(1);
+  }
+
+  @Test
+  public void with_zero_page_size() throws Exception {
+    options.setPage(1, 0);
+    assertThat(options.getLimit()).isEqualTo(0);
+    assertThat(options.getOffset()).isEqualTo(0);
+    assertThat(options.getPage()).isEqualTo(0);
   }
 
   @Test
@@ -102,7 +111,6 @@ public class QueryContextTest {
     assertThat(options.getOffset()).isEqualTo(QueryContext.MAX_LIMIT * 2);
     assertThat(options.getLimit()).isEqualTo(QueryContext.MAX_LIMIT);
   }
-
 
   @Test
   public void getFieldsToReturn() throws Exception {

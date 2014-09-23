@@ -259,9 +259,12 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     // TODO remove with stas on HTML side
     json.prop("maxResultsReached", false);
 
-    long pages = result.getTotal() / context.getLimit();
-    if (result.getTotal() % context.getLimit() > 0) {
-      pages++;
+    long pages = context.getLimit();
+    if (pages > 0) {
+      pages = result.getTotal() / context.getLimit();
+      if (result.getTotal() % context.getLimit() > 0) {
+        pages++;
+      }
     }
 
     json.name("paging").beginObject()

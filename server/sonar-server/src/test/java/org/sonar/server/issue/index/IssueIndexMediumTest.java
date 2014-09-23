@@ -212,7 +212,7 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  public void search_with_paging() throws Exception {
+  public void paging() throws Exception {
     for (int i=0; i<12; i++) {
       IssueDto issue = createIssue();
       tester.get(IssueDao.class).insert(session, issue);
@@ -224,6 +224,14 @@ public class IssueIndexMediumTest {
     Result<Issue> result = index.search(query.build(), new QueryContext().setPage(2, 10));
     assertThat(result.getHits()).hasSize(2);
     assertThat(result.getTotal()).isEqualTo(12);
+
+    result = index.search(IssueQuery.builder().build(), new QueryContext().setOffset(0).setLimit(5));
+    assertThat(result.getHits()).hasSize(5);
+    assertThat(result.getTotal()).isEqualTo(12);
+
+    result = index.search(IssueQuery.builder().build(), new QueryContext().setOffset(2).setLimit(0));
+    assertThat(result.getHits()).hasSize(0);
+    assertThat(result.getTotal()).isEqualTo(12);
   }
 
   @Test
@@ -234,9 +242,6 @@ public class IssueIndexMediumTest {
     }
     session.commit();
 
-    IssueQuery.Builder query = IssueQuery.builder();
-    Result<Issue> result = index.search(query.build(), new QueryContext().setLimit(20));
-    assertThat(result.getHits()).hasSize(20);
   }
 
   @Test

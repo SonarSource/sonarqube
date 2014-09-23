@@ -113,8 +113,8 @@ public class QueryContext {
   }
 
   public int getPage() {
-    double page = new Double(getOffset() + 1) / new Double(getLimit());
-    return (int) Math.ceil(page);
+    int limit = getLimit();
+    return limit > 0 ? (int) Math.ceil((double) (getOffset() + 1) / (double) getLimit()) : 0;
   }
 
   /**

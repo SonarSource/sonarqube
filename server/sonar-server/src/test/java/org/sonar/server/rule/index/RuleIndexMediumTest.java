@@ -878,6 +878,12 @@ public class RuleIndexMediumTest extends SearchMediumTest {
     results = index.search(new RuleQuery(), options);
     assertThat(results.getTotal()).isEqualTo(3);
     assertThat(results.getHits()).hasSize(1);
+
+    // from 2 to 11 included
+    options.setOffset(2).setLimit(0);
+    results = index.search(new RuleQuery(), options);
+    assertThat(results.getTotal()).isEqualTo(3);
+    assertThat(results.getHits()).hasSize(0);
   }
 
   @Test
