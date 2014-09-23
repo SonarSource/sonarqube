@@ -22,13 +22,15 @@
 # SonarQube 4.3
 # SONAR-4979
 #
-class RemoveActiveDashboardsLinkedOnUnsharedDashboards < ActiveRecord::Migration
+class RemoveUnsharedActiveDashboards < ActiveRecord::Migration
 
   class Dashboard < ActiveRecord::Base
+    set_table_name 'dashboards'
   end
 
   class ActiveDashboard < ActiveRecord::Base
-    belongs_to :dashboard
+    set_table_name 'active_dashboards'
+    belongs_to :dashboard, :class_name => 'Dashboard'
   end
 
   def self.up
@@ -36,7 +38,7 @@ class RemoveActiveDashboardsLinkedOnUnsharedDashboards < ActiveRecord::Migration
     ActiveDashboard.reset_column_information
 
     # Delete every active_dashboards linked on unshared dashboard not owned by the user
-    ActiveDashboard.all(:include => :dashboard, :conditions => ['dashboards.shared=? AND active_dashboards.user_id<>dashboards.user_id', false]).each {|ad| ad.delete}
+    ActiveDashboard.all(:joins => 'inner join dashboards on dashboards.id=active_dashboards.dashboard_id', :conditions => ['dashboards.shared=? AND active_dashboards.user_id<>dashboards.user_id', false]).each {|ad| ad.delete}
   end
 
 end
