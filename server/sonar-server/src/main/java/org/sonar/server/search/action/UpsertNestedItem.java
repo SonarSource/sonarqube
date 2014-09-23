@@ -19,15 +19,14 @@
  */
 package org.sonar.server.search.action;
 
-import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.server.search.Index;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UpsertNestedItem<K extends Serializable> extends IndexActionRequest {
-
+public class UpsertNestedItem<K extends Serializable> extends IndexAction<UpdateRequest> {
 
   private final K key;
   private final Object item;
@@ -51,8 +50,8 @@ public class UpsertNestedItem<K extends Serializable> extends IndexActionRequest
   }
 
   @Override
-  public List<ActionRequest> doCall(Index index) throws Exception {
-    List<ActionRequest> updates = new ArrayList<ActionRequest>();
+  public List<UpdateRequest> doCall(Index index) throws Exception {
+    List<UpdateRequest> updates = new ArrayList<UpdateRequest>();
     updates.addAll(normalizeItem(index, item, key));
     for (Object otherItem : items) {
       updates.addAll(normalizeItem(index, otherItem, key));
@@ -60,7 +59,13 @@ public class UpsertNestedItem<K extends Serializable> extends IndexActionRequest
     return updates;
   }
 
-  private List<ActionRequest> normalizeItem(Index index, Object item, K key) {
-    return index.getNormalizer().normalizeNested(item, key);
+  private List<UpdateRequest> normalizeItem(Index index, Object item, K key) {
+    List<UpdateRequest> updates = index.getNormalizer().normalizeNested(item, key);
+    for (UpdateRequest update : updates) {
+      update.index(index.getIndexName())
+        .type(index.getIndexType())
+        .refresh(needsRefresh());
+    }
+    return updates;
   }
 }

@@ -19,27 +19,23 @@
  */
 package org.sonar.server.search.action;
 
-
 import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.cluster.ClusterAction;
 import org.sonar.server.search.Index;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public abstract class IndexActionRequest implements ClusterAction<List<ActionRequest>> {
+public abstract class IndexAction<K extends ActionRequest> implements ClusterAction<List<K>> {
 
   protected final String indexType;
   private final boolean requiresRefresh;
   private Index index;
 
-  protected IndexActionRequest(String indexType) {
+  protected IndexAction(String indexType) {
     this(indexType, true);
   }
 
-  protected IndexActionRequest(String indexType, boolean requiresRefresh) {
-    super();
+  protected IndexAction(String indexType, boolean requiresRefresh) {
     this.indexType = indexType;
     this.requiresRefresh = requiresRefresh;
   }
@@ -52,30 +48,20 @@ public abstract class IndexActionRequest implements ClusterAction<List<ActionReq
     return indexType;
   }
 
-
-  public void setIndex(Index index) {
+  public IndexAction<K> setIndex(Index index) {
     this.index = index;
+    return this;
   }
 
   @Override
-  public final List<ActionRequest> call() throws Exception {
+  public final List<K> call() throws Exception {
     if (index == null) {
-      throw new IllegalStateException("Cannot execute request - Index is null");
+      throw new IllegalStateException("Cannot execute request on null index");
     }
-    List<ActionRequest> finalRequests = new ArrayList<ActionRequest>();
-    for (ActionRequest request : doCall(index)) {
-      if (request.getClass().isAssignableFrom(UpdateRequest.class)) {
-        ((UpdateRequest) request)
-          .type(index.getIndexType())
-          .index(index.getIndexName())
-          .refresh(false);
-      }
-      finalRequests.add(request);
-    }
-    return finalRequests;
+    return doCall(index);
   }
 
-  public abstract List<ActionRequest> doCall(Index index) throws Exception;
+  public abstract List<K> doCall(Index index) throws Exception;
 
   public boolean needsRefresh() {
     return this.requiresRefresh;

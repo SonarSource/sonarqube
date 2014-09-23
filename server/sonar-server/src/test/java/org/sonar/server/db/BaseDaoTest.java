@@ -117,6 +117,7 @@ public class BaseDaoTest {
     assertThat(session.getActionCount()).isEqualTo(1);
 
     dao.synchronizeAfter(session, new Date(t0));
-    assertThat(session.getActionCount()).isEqualTo(2);
+    // Synchronize adds an implicit action to the queue before finishing.
+    assertThat(session.getActionCount()).isEqualTo(3);
   }
 }

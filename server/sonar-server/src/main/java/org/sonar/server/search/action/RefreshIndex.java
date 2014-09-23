@@ -17,32 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.server.search.action;
 
-import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
-import org.sonar.core.persistence.Dto;
+import com.google.common.collect.ImmutableList;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
+import org.sonar.server.search.Index;
 
-import javax.annotation.CheckForNull;
+import java.util.List;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Iterator;
+public class RefreshIndex extends IndexAction<RefreshRequest> {
 
-public interface Index<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable> extends Startable, ServerComponent {
+  public RefreshIndex(String indexType) {
+    super(indexType);
+  }
 
-  @CheckForNull
-  DOMAIN getByKey(KEY item);
+  @Override
+  public String getKey() {
+    return null;
+  }
 
-  String getIndexType();
+  @Override
+  public Class getPayloadClass() {
+    return null;
+  }
 
-  String getIndexName();
-
-  Date getLastSynchronization();
-
-  IndexStat getIndexStat();
-
-  Iterator<DOMAIN> scroll(String scrollId);
-
-  BaseNormalizer<DTO, KEY> getNormalizer();
+  @Override
+  public List<RefreshRequest> doCall(Index index) throws Exception {
+    return ImmutableList.<RefreshRequest>of(
+      new RefreshRequest()
+        .force(false)
+        .indices(index.getIndexName()));
+  }
 }

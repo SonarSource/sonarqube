@@ -19,7 +19,7 @@
  */
 package org.sonar.server.search.action;
 
-import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.client.Requests;
 import org.sonar.server.search.Index;
 
@@ -27,7 +27,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeleteKey<K extends Serializable> extends IndexActionRequest {
+public class DeleteKey<K extends Serializable> extends IndexAction<DeleteRequest> {
 
   private final K key;
 
@@ -47,8 +47,8 @@ public class DeleteKey<K extends Serializable> extends IndexActionRequest {
   }
 
   @Override
-  public List<ActionRequest> doCall(Index index) throws Exception {
-    List<ActionRequest> requests = new ArrayList<ActionRequest>();
+  public List<DeleteRequest> doCall(Index index) throws Exception {
+    List<DeleteRequest> requests = new ArrayList<DeleteRequest>();
     requests.add(Requests.deleteRequest(index.getIndexName())
       .id(getKey())
       .type(indexType));

@@ -19,13 +19,13 @@
  */
 package org.sonar.server.search.action;
 
-import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.persistence.Dto;
 import org.sonar.server.search.Index;
 
 import java.util.List;
 
-public class UpsertDto<DTO extends Dto> extends IndexActionRequest {
+public class UpsertDto<DTO extends Dto> extends IndexAction<UpdateRequest> {
 
   private final DTO dto;
 
@@ -49,7 +49,13 @@ public class UpsertDto<DTO extends Dto> extends IndexActionRequest {
   }
 
   @Override
-  public List<ActionRequest> doCall(Index index) throws Exception {
-    return index.getNormalizer().normalize(dto);
+  public List<UpdateRequest> doCall(Index index) throws Exception {
+    List<UpdateRequest> updates = index.getNormalizer().normalize(dto);
+    for (UpdateRequest update : updates) {
+      update.index(index.getIndexName())
+        .type(index.getIndexType())
+        .refresh(needsRefresh());
+    }
+    return updates;
   }
 }
