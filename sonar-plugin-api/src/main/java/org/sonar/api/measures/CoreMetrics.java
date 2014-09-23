@@ -1838,12 +1838,12 @@ public final class CoreMetrics {
    * @deprecated since 5.0 use {@link #DIRECTORY_CYCLES_KEY}
    */
   @Deprecated
-  public transient static final String PACKAGE_CYCLES_KEY = DIRECTORY_CYCLES_KEY;
+  public static final String PACKAGE_CYCLES_KEY = DIRECTORY_CYCLES_KEY;
   /**
    * @deprecated since 5.0 use {@link #DIRECTORY_CYCLES}
    */
   @Deprecated
-  public transient static final Metric<Integer> PACKAGE_CYCLES = DIRECTORY_CYCLES;
+  public static final transient Metric<Integer> PACKAGE_CYCLES = DIRECTORY_CYCLES;
 
   public static final String DIRECTORY_TANGLE_INDEX_KEY = "package_tangle_index";
   public static final Metric<Double> DIRECTORY_TANGLE_INDEX = new Metric.Builder(DIRECTORY_TANGLE_INDEX_KEY, "Directory tangle index", Metric.ValueType.PERCENT)
@@ -1858,12 +1858,12 @@ public final class CoreMetrics {
    * @deprecated since 5.0 use {@link #DIRECTORY_TANGLE_INDEX_KEY}
    */
   @Deprecated
-  public transient static final String PACKAGE_TANGLE_INDEX_KEY = DIRECTORY_TANGLE_INDEX_KEY;
+  public static final String PACKAGE_TANGLE_INDEX_KEY = DIRECTORY_TANGLE_INDEX_KEY;
   /**
    * @deprecated since 5.0 use {@link #DIRECTORY_TANGLE_INDEX}
    */
   @Deprecated
-  public transient static final Metric<Double> PACKAGE_TANGLE_INDEX = DIRECTORY_TANGLE_INDEX;
+  public static final transient Metric<Double> PACKAGE_TANGLE_INDEX = DIRECTORY_TANGLE_INDEX;
 
   public static final String DIRECTORY_TANGLES_KEY = "package_tangles";
   public static final Metric<Integer> DIRECTORY_TANGLES = new Metric.Builder(DIRECTORY_TANGLES_KEY, "File dependencies to cut", Metric.ValueType.INT)
@@ -1878,12 +1878,12 @@ public final class CoreMetrics {
    * @deprecated since 5.0 use {@link #DIRECTORY_TANGLES_KEY}
    */
   @Deprecated
-  public transient static final String PACKAGE_TANGLES_KEY = DIRECTORY_TANGLES_KEY;
+  public static final String PACKAGE_TANGLES_KEY = DIRECTORY_TANGLES_KEY;
   /**
    * @deprecated since 5.0 use {@link #DIRECTORY_TANGLES}
    */
   @Deprecated
-  public transient static final Metric<Integer> PACKAGE_TANGLES = DIRECTORY_TANGLES;
+  public static final transient Metric<Integer> PACKAGE_TANGLES = DIRECTORY_TANGLES;
 
   public static final String DIRECTORY_FEEDBACK_EDGES_KEY = "package_feedback_edges";
   public static final Metric<Integer> DIRECTORY_FEEDBACK_EDGES = new Metric.Builder(DIRECTORY_FEEDBACK_EDGES_KEY, "Package dependencies to cut", Metric.ValueType.INT)
@@ -1899,12 +1899,12 @@ public final class CoreMetrics {
    * @deprecated since 5.0 use {@link #DIRECTORY_FEEDBACK_EDGES_KEY}
    */
   @Deprecated
-  public transient static final String PACKAGE_FEEDBACK_EDGES_KEY = DIRECTORY_FEEDBACK_EDGES_KEY;
+  public static final String PACKAGE_FEEDBACK_EDGES_KEY = DIRECTORY_FEEDBACK_EDGES_KEY;
   /**
    * @deprecated since 5.0 use {@link #DIRECTORY_FEEDBACK_EDGES}
    */
   @Deprecated
-  public transient static final Metric<Integer> PACKAGE_FEEDBACK_EDGES = DIRECTORY_FEEDBACK_EDGES;
+  public static final transient Metric<Integer> PACKAGE_FEEDBACK_EDGES = DIRECTORY_FEEDBACK_EDGES;
 
   public static final String DIRECTORY_EDGES_WEIGHT_KEY = "package_edges_weight";
   public static final Metric<Integer> DIRECTORY_EDGES_WEIGHT = new Metric.Builder(DIRECTORY_EDGES_WEIGHT_KEY, "Directory edges weight", Metric.ValueType.INT)
@@ -1921,12 +1921,12 @@ public final class CoreMetrics {
    * @deprecated since 5.0 use {@link #DIRECTORY_EDGES_WEIGHT_KEY}
    */
   @Deprecated
-  public transient static final String PACKAGE_EDGES_WEIGHT_KEY = DIRECTORY_EDGES_WEIGHT_KEY;
+  public static final String PACKAGE_EDGES_WEIGHT_KEY = DIRECTORY_EDGES_WEIGHT_KEY;
   /**
    * @deprecated since 5.0 use {@link #DIRECTORY_EDGES_WEIGHT}
    */
   @Deprecated
-  public transient static final Metric<Integer> PACKAGE_EDGES_WEIGHT = DIRECTORY_EDGES_WEIGHT;
+  public static final transient Metric<Integer> PACKAGE_EDGES_WEIGHT = DIRECTORY_EDGES_WEIGHT;
 
   public static final String FILE_CYCLES_KEY = "file_cycles";
   public static final Metric<Integer> FILE_CYCLES = new Metric.Builder(FILE_CYCLES_KEY, "File cycles", Metric.ValueType.INT)

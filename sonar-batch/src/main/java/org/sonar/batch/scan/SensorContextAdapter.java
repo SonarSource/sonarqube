@@ -20,8 +20,6 @@
 package org.sonar.batch.scan;
 
 import com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.FileSystem;
@@ -29,7 +27,6 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -72,8 +69,6 @@ import java.util.List;
  */
 public class SensorContextAdapter extends BaseSensorContext {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SensorContextAdapter.class);
-
   private final org.sonar.api.batch.SensorContext sensorContext;
   private final MetricFinder metricFinder;
   private final Project project;
@@ -91,8 +86,8 @@ public class SensorContextAdapter extends BaseSensorContext {
     this.sonarIndex = sonarIndex;
   }
 
-  private Metric findMetricOrFail(String metricKey) {
-    Metric<?> m = metricFinder.findByKey(metricKey);
+  private org.sonar.api.measures.Metric findMetricOrFail(String metricKey) {
+    org.sonar.api.measures.Metric m = metricFinder.findByKey(metricKey);
     if (m == null) {
       throw new IllegalStateException("Unknow metric with key: " + metricKey);
     }
@@ -101,10 +96,7 @@ public class SensorContextAdapter extends BaseSensorContext {
 
   @Override
   public void store(Measure measure) {
-    org.sonar.api.measures.Metric<?> m = metricFinder.findByKey(measure.metric().key());
-    if (m == null) {
-      throw new IllegalStateException("Unknow metric with key: " + measure.metric().key());
-    }
+    org.sonar.api.measures.Metric m = findMetricOrFail(measure.metric().key());
     org.sonar.api.measures.Measure measureToSave = new org.sonar.api.measures.Measure(m);
     setValueAccordingToMetricType(measure, m, measureToSave);
     if (measure.inputFile() != null) {
@@ -144,13 +136,7 @@ public class SensorContextAdapter extends BaseSensorContext {
         measureToSave.setValue(Double.valueOf((Long) measure.value()));
         break;
       default:
-        if (m.isNumericType()) {
-          measureToSave.setValue((Double) measure.value());
-        } else if (m.isDataType()) {
-          measureToSave.setData((String) measure.value());
-        } else {
-          throw new UnsupportedOperationException("Unsupported type :" + m.getType());
-        }
+        throw new UnsupportedOperationException("Unsupported type :" + m.getType());
     }
   }
 
@@ -191,24 +177,29 @@ public class SensorContextAdapter extends BaseSensorContext {
   public void addTestCase(TestCase testCase) {
     File testRes = getTestResource(((DefaultTestCase) testCase).testFile());
     MutableTestPlan testPlan = perspectives.as(MutableTestPlan.class, testRes);
-    testPlan
-      .addTestCase(testCase.name())
-      .setDurationInMs(testCase.durationInMs())
-      .setType(testCase.type().name())
-      .setStatus(org.sonar.api.test.TestCase.Status.valueOf(testCase.status().name()))
-      .setMessage(testCase.message())
-      .setStackTrace(testCase.stackTrace());
+    if (testPlan != null) {
+      testPlan
+        .addTestCase(testCase.name())
+        .setDurationInMs(testCase.durationInMs())
+        .setType(testCase.type().name())
+        .setStatus(org.sonar.api.test.TestCase.Status.valueOf(testCase.status().name()))
+        .setMessage(testCase.message())
+        .setStackTrace(testCase.stackTrace());
+    }
   }
 
   @Override
   public TestCase getTestCase(InputFile testFile, String testCaseName) {
     File testRes = getTestResource(testFile);
     MutableTestPlan testPlan = perspectives.as(MutableTestPlan.class, testRes);
-    Iterable<MutableTestCase> testCases = testPlan.testCasesByName(testCaseName);
-    if (testCases.iterator().hasNext()) {
-      MutableTestCase testCase = testCases.iterator().next();
-      return new DefaultTestCase(testFile, testCaseName, testCase.durationInMs(), TestCase.Status.of(testCase.status().name()), testCase.message(), TestCase.Type.valueOf(testCase
-        .type()), testCase.stackTrace());
+    if (testPlan != null) {
+      Iterable<MutableTestCase> testCases = testPlan.testCasesByName(testCaseName);
+      if (testCases.iterator().hasNext()) {
+        MutableTestCase testCase = testCases.iterator().next();
+        return new DefaultTestCase(testFile, testCaseName, testCase.durationInMs(), TestCase.Status.of(testCase.status().name()), testCase.message(),
+          TestCase.Type.valueOf(testCase
+            .type()), testCase.stackTrace());
+      }
     }
     return null;
   }
