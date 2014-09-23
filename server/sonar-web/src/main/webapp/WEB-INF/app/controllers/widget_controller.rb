@@ -29,6 +29,20 @@ class WidgetController < ApplicationController
     render :action => 'index'
   end
 
+  def show
+    load_resource
+    load_widget
+    begin
+      render :inline => @widget_definition.getTarget().getTemplate(), :locals => {
+          :widget_properties => @widget.properties_as_hash, :widget => @widget, :dashboard_configuration => @dashboard_configuration
+      }
+    rescue => error
+      logger.error(message('dashboard.cannot_render_widget_x', :params => [@widget_definition.getId(), error]), error)
+      render :status => 500
+    end
+
+  end
+
   private
 
   def load_resource
