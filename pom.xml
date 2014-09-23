@@ -277,6 +277,12 @@
           <artifactId>sonar-packaging-maven-plugin</artifactId>
           <version>1.12.1</version>
         </plugin>
+        <plugin>
+          <!-- declared to avoid enforcer error during SQ analysis when Clirr plugin installed -->
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>clirr-maven-plugin</artifactId>
+          <version>2.6.1</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
