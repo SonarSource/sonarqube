@@ -317,6 +317,7 @@ class ServerComponents {
     pico.addSingleton(DefaultResourcePermissions.class);
     pico.addSingleton(Periods.class);
     pico.addSingleton(ServerWs.class);
+    pico.addSingleton(BackendCleanup.class);
 
     // batch
     pico.addSingleton(BatchIndex.class);

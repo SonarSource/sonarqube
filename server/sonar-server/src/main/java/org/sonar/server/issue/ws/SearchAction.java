@@ -39,7 +39,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.markdown.Markdown;
-import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.DefaultIssueService;
 import org.sonar.server.issue.IssueService;
@@ -76,20 +75,18 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   private final RuleService ruleService;
   private final DbClient dbClient;
-  private final DefaultComponentFinder componentFinder;
   private final ActionPlanService actionPlanService;
   private final UserFinder userFinder;
   private final I18n i18n;
   private final Durations durations;
 
-  public SearchAction(IssueService service, IssueActionsWriter actionsWriter, RuleService ruleService, DbClient dbClient, DefaultComponentFinder componentFinder,
+  public SearchAction(IssueService service, IssueActionsWriter actionsWriter, RuleService ruleService, DbClient dbClient,
     ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Durations durations) {
     super(SEARCH_ACTION);
     this.service = service;
     this.actionsWriter = actionsWriter;
     this.ruleService = ruleService;
     this.dbClient = dbClient;
-    this.componentFinder = componentFinder;
     this.actionPlanService = actionPlanService;
     this.userFinder = userFinder;
     this.i18n = i18n;
@@ -211,7 +208,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   @Override
   protected Result<Issue> doSearch(IssueQuery query, QueryContext context) {
-    // Set limit to context ?
     return ((DefaultIssueService)service).search(query, context);
   }
 

@@ -29,6 +29,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.Props;
 import org.sonar.search.SearchServer;
+import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.search.IndexProperties;
 import org.sonar.server.ws.WsTester;
@@ -59,7 +60,7 @@ public class ServerTester extends ExternalResource {
   private SearchServer searchServer;
   private final Platform platform;
   private final File homeDir;
-  private final List components = Lists.newArrayList(BackendCleanup.class, WsTester.class);
+  private final List components = Lists.newArrayList(WsTester.class);
   private final Properties initialProps = new Properties();
 
   public ServerTester() {
