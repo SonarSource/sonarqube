@@ -174,7 +174,7 @@ public class SensorContextAdapter extends BaseSensorContext {
   }
 
   @Override
-  public void addTestCase(TestCase testCase) {
+  public void store(TestCase testCase) {
     File testRes = getTestResource(((DefaultTestCase) testCase).testFile());
     MutableTestPlan testPlan = perspectives.as(MutableTestPlan.class, testRes);
     if (testPlan != null) {
@@ -186,22 +186,6 @@ public class SensorContextAdapter extends BaseSensorContext {
         .setMessage(testCase.message())
         .setStackTrace(testCase.stackTrace());
     }
-  }
-
-  @Override
-  public TestCase getTestCase(InputFile testFile, String testCaseName) {
-    File testRes = getTestResource(testFile);
-    MutableTestPlan testPlan = perspectives.as(MutableTestPlan.class, testRes);
-    if (testPlan != null) {
-      Iterable<MutableTestCase> testCases = testPlan.testCasesByName(testCaseName);
-      if (testCases.iterator().hasNext()) {
-        MutableTestCase testCase = testCases.iterator().next();
-        return new DefaultTestCase(testFile, testCaseName, testCase.durationInMs(), TestCase.Status.of(testCase.status().name()), testCase.message(),
-          TestCase.Type.valueOf(testCase
-            .type()), testCase.stackTrace());
-      }
-    }
-    return null;
   }
 
   @Override

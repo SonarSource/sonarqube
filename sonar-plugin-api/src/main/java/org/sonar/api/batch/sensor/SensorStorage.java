@@ -21,6 +21,7 @@ package org.sonar.api.batch.sensor;
 
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.test.TestCase;
 
 /**
  * Interface for storing data computed by sensors.
@@ -31,5 +32,7 @@ public interface SensorStorage {
   void store(Measure measure);
 
   void store(Issue issue);
+
+  void store(TestCase testCase);
 
 }

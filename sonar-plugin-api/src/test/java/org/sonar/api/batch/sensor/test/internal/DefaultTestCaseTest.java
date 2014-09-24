@@ -19,7 +19,9 @@
  */
 package org.sonar.api.batch.sensor.test.internal;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.test.TestCase.Status;
@@ -29,25 +31,83 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultTestCaseTest {
 
-  private InputFile parent = new DefaultInputFile("foo", "src/Foo.php");
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  private InputFile parent = new DefaultInputFile("foo", "src/Foo.php").setType(InputFile.Type.TEST);
 
   @Test
-  public void testDefaultTestCaseTest() {
-    DefaultTestCase testCase1 = new DefaultTestCase(parent, "myTest", 1L, Status.ERROR, "message", Type.UNIT, "stack");
+  public void testCreation() throws Exception {
+    DefaultTestCase testCase = new DefaultTestCase(null)
+      .inTestFile(parent)
+      .name("myTest")
+      .durationInMs(1)
+      .message("message")
+      .stackTrace("stack")
+      .status(Status.ERROR)
+      .ofType(Type.UNIT);
 
-    assertThat(testCase1.name()).isEqualTo("myTest");
-    assertThat(testCase1.durationInMs()).isEqualTo(1L);
-    assertThat(testCase1.status()).isEqualTo(Status.ERROR);
-    assertThat(testCase1.message()).isEqualTo("message");
-    assertThat(testCase1.type()).isEqualTo(Type.UNIT);
-    assertThat(testCase1.stackTrace()).isEqualTo("stack");
+    assertThat(testCase.name()).isEqualTo("myTest");
+    assertThat(testCase.testFile()).isEqualTo(parent);
+    assertThat(testCase.durationInMs()).isEqualTo(1L);
+    assertThat(testCase.message()).isEqualTo("message");
+    assertThat(testCase.stackTrace()).isEqualTo("stack");
+    assertThat(testCase.status()).isEqualTo(Status.ERROR);
+    assertThat(testCase.type()).isEqualTo(Type.UNIT);
+  }
+
+  @Test
+  public void testCreationWithDefaultValues() throws Exception {
+    DefaultTestCase testCase = new DefaultTestCase(null)
+      .inTestFile(parent)
+      .name("myTest");
+
+    assertThat(testCase.name()).isEqualTo("myTest");
+    assertThat(testCase.testFile()).isEqualTo(parent);
+    assertThat(testCase.durationInMs()).isNull();
+    assertThat(testCase.message()).isNull();
+    assertThat(testCase.stackTrace()).isNull();
+    assertThat(testCase.status()).isEqualTo(Status.OK);
+    assertThat(testCase.type()).isEqualTo(Type.UNIT);
+  }
+
+  @Test
+  public void testInvalidDuration() throws Exception {
+    DefaultTestCase builder = new DefaultTestCase(null)
+      .inTestFile(parent)
+      .name("myTest");
+
+    thrown.expect(IllegalArgumentException.class);
+
+    builder.durationInMs(-3);
   }
 
   @Test
   public void testEqualsHashCodeToString() {
-    DefaultTestCase testCase1 = new DefaultTestCase(parent, "myTest", 1L, Status.ERROR, "message", Type.UNIT, "stack");
-    DefaultTestCase testCase1a = new DefaultTestCase(parent, "myTest", 1L, Status.ERROR, "message", Type.UNIT, "stack");
-    DefaultTestCase testCase2 = new DefaultTestCase(new DefaultInputFile("foo2", "src/Foo.php"), "myTest2", 2L, Status.FAILURE, "message2", Type.INTEGRATION, null);
+    DefaultTestCase testCase1 = new DefaultTestCase(null)
+      .inTestFile(parent)
+      .name("myTest")
+      .durationInMs(1)
+      .message("message")
+      .stackTrace("stack")
+      .status(Status.ERROR)
+      .ofType(Type.UNIT);
+    DefaultTestCase testCase1a = new DefaultTestCase(null)
+      .inTestFile(parent)
+      .name("myTest")
+      .durationInMs(1)
+      .message("message")
+      .stackTrace("stack")
+      .status(Status.ERROR)
+      .ofType(Type.UNIT);
+    DefaultTestCase testCase2 = new DefaultTestCase(null)
+      .inTestFile(new DefaultInputFile("foo2", "src/Foo.php").setType(InputFile.Type.TEST))
+      .name("myTest2")
+      .durationInMs(2)
+      .message("message2")
+      .stackTrace("null")
+      .status(Status.FAILURE)
+      .ofType(Type.INTEGRATION);
 
     assertThat(testCase1).isEqualTo(testCase1);
     assertThat(testCase1).isEqualTo(testCase1a);

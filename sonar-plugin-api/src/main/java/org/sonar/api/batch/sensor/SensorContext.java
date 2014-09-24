@@ -30,10 +30,7 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.batch.sensor.test.TestCase;
-import org.sonar.api.batch.sensor.test.TestCaseBuilder;
 import org.sonar.api.config.Settings;
-
-import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
 import java.util.List;
@@ -115,26 +112,10 @@ public interface SensorContext {
 
   /**
    * Create a new test case for the given test file.
-   * @param testFile An {@link InputFile} with type {@link InputFile.Type#TEST}
-   * @param testCaseName name of the test case
+   * Don't forget to call {@link TestCase#save()} once all parameters are provided.
    * @since 5.0
    */
-  TestCaseBuilder testCaseBuilder(InputFile testFile, String testCaseName);
-
-  /**
-   * Add a new test case.
-   * Use {@link #testCaseBuilder(InputFile, String)} to create a new {@link TestCase}
-   * @throws IllegalArgumentException if a test case with same name was already added on the same file.
-   * @since 5.0
-   */
-  void addTestCase(TestCase testCase);
-
-  /**
-   * Get a {@link TestCase} that has been previously added to the context with {@link #addTestCase(TestCase)}.
-   * @since 5.0
-   */
-  @CheckForNull
-  TestCase getTestCase(InputFile testFile, String testCaseName);
+  TestCase newTestCase();
 
   /**
    * Register coverage of a given test case on another main file. TestCase should have been registered using {@link #testPlanBuilder(InputFile)}

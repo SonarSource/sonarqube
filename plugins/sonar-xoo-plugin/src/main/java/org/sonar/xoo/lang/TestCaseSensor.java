@@ -77,13 +77,15 @@ public class TestCaseSensor implements Sensor {
       String message = split.next();
       String stack = split.next();
       long duration = Long.parseLong(split.next());
-      context.addTestCase(context.testCaseBuilder(testFile, name)
-        .type(TestCase.Type.valueOf(type))
+      context.newTestCase()
+        .inTestFile(testFile)
+        .name(name)
+        .ofType(TestCase.Type.valueOf(type))
         .status(TestCase.Status.valueOf(status))
         .message(StringUtils.trimToNull(message))
         .stackTrace(StringUtils.trimToNull(stack))
         .durationInMs(duration)
-        .build());
+        .save();
     } catch (Exception e) {
       throw new IllegalStateException("Error processing line " + lineNumber + " of file " + testplanFile.getAbsolutePath(), e);
     }

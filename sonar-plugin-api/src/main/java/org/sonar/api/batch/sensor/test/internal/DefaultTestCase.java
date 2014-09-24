@@ -19,11 +19,14 @@
  */
 package org.sonar.api.batch.sensor.test.internal;
 
+import com.google.common.base.Preconditions;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.test.TestCase;
 
 import javax.annotation.CheckForNull;
@@ -31,22 +34,65 @@ import javax.annotation.Nullable;
 
 public class DefaultTestCase implements TestCase {
 
-  private final InputFile testFile;
-  private final String name;
-  private final Long duration;
-  private final Status status;
-  private final String message;
-  private final Type type;
-  private final String stackTrace;
+  private final SensorStorage storage;
+  private InputFile testFile;
+  private String name;
+  private Long duration;
+  private TestCase.Status status = Status.OK;
+  private String message;
+  private TestCase.Type type = Type.UNIT;
+  private String stackTrace;
 
-  public DefaultTestCase(InputFile testFile, String name, @Nullable Long duration, Status status, @Nullable String message, Type type, @Nullable String stackTrace) {
+  public DefaultTestCase(SensorStorage storage) {
+    this.storage = storage;
+  }
+
+  @Override
+  public DefaultTestCase inTestFile(InputFile testFile) {
+    Preconditions.checkNotNull(testFile, "TestFile cannot be null");
+    Preconditions.checkArgument(testFile.type() == InputFile.Type.TEST, "Should be a test file: " + testFile);
     this.testFile = testFile;
+    return this;
+  }
+
+  @Override
+  public DefaultTestCase name(String name) {
+    Preconditions.checkArgument(StringUtils.isNotBlank(name), "Test name is mandatory and should not be blank");
     this.name = name;
+    return this;
+  }
+
+  @Override
+  public DefaultTestCase durationInMs(long duration) {
+    Preconditions.checkArgument(duration >= 0, "Test duration must be positive (got: " + duration + ")");
     this.duration = duration;
+    return this;
+  }
+
+  @Override
+  public DefaultTestCase status(TestCase.Status status) {
+    Preconditions.checkNotNull(status);
     this.status = status;
+    return this;
+  }
+
+  @Override
+  public DefaultTestCase message(@Nullable String message) {
     this.message = message;
+    return this;
+  }
+
+  @Override
+  public DefaultTestCase ofType(TestCase.Type type) {
+    Preconditions.checkNotNull(type);
     this.type = type;
+    return this;
+  }
+
+  @Override
+  public DefaultTestCase stackTrace(@Nullable String stackTrace) {
     this.stackTrace = stackTrace;
+    return this;
   }
 
   public InputFile testFile() {
@@ -84,6 +130,14 @@ public class DefaultTestCase implements TestCase {
   @Override
   public String stackTrace() {
     return stackTrace;
+  }
+
+  @Override
+  public void save() {
+    Preconditions.checkNotNull(this.storage, "No persister on this object");
+    Preconditions.checkNotNull(testFile, "TestFile is mandatory");
+    Preconditions.checkNotNull(name, "TestFile is mandatory");
+    storage.store(this);
   }
 
   // Just for unit tests
@@ -135,4 +189,5 @@ public class DefaultTestCase implements TestCase {
       .append("stackTrace", stackTrace)
       .toString();
   }
+
 }

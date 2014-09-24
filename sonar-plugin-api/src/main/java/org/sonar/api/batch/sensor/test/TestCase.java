@@ -19,14 +19,19 @@
  */
 package org.sonar.api.batch.sensor.test;
 
+import org.sonar.api.batch.fs.InputFile;
+
 import javax.annotation.Nullable;
 
 /**
- * Represents a single test in a test plan.
+ * Represents a single test in a test file.
  * @since 5.0
- *
  */
 public interface TestCase {
+
+  /**
+   * Test execution status.
+   */
   enum Status {
     OK, FAILURE, ERROR, SKIPPED;
 
@@ -35,21 +40,32 @@ public interface TestCase {
     }
   }
 
+  /**
+   * Test type.
+   */
   enum Type {
     UNIT, INTEGRATION;
   }
+
+  /**
+   * InputFile where this test is located.
+   */
+  InputFile testFile();
+
+  /**
+   * Set file where this test is located. Mandatory.
+   */
+  TestCase inTestFile(InputFile testFile);
 
   /**
    * Duration in milliseconds
    */
   Long durationInMs();
 
-  Type type();
-
   /**
-   * Status of execution of the test.
+   * Duration in milliseconds
    */
-  Status status();
+  TestCase durationInMs(long duration);
 
   /**
    * Name of this test case.
@@ -57,13 +73,53 @@ public interface TestCase {
   String name();
 
   /**
+   * Set name of this test. Name is mandatory.
+   */
+  TestCase name(String name);
+
+  /**
+   * Status of execution of the test.
+   */
+  Status status();
+
+  /**
+   * Status of execution of the test.
+   */
+  TestCase status(Status status);
+
+  /**
    * Message (usually in case of {@link Status#ERROR} or {@link Status#FAILURE}).
    */
   String message();
 
   /**
+   * Message (usually in case of {@link Status#ERROR} or {@link Status#FAILURE}).
+   */
+  TestCase message(String message);
+
+  /**
+   * Type of test.
+   */
+  Type type();
+
+  /**
+   * Type of test.
+   */
+  TestCase ofType(Type type);
+
+  /**
    * Stacktrace (usually in case of {@link Status#ERROR}).
    */
   String stackTrace();
+
+  /**
+   * Set stacktrace (usually in case of {@link Status#ERROR}).
+   */
+  TestCase stackTrace(String stackTrace);
+
+  /**
+   * Call this method only once when your are done with defining the test case.
+   */
+  void save();
 
 }

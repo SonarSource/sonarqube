@@ -24,13 +24,16 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.test.TestCase;
-import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseBuilder;
+import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,10 +84,17 @@ public class CoveragePerTestSensorTest {
     fileSystem.add(inputFile);
     fileSystem.add(testFile);
 
-    TestCase test1 = new DefaultTestCaseBuilder(testFile, "test1").durationInMs(10).build();
-    TestCase test2 = new DefaultTestCaseBuilder(testFile, "test2").durationInMs(10).build();
-    when(context.getTestCase(testFile, "test1")).thenReturn(test1);
-    when(context.getTestCase(testFile, "test2")).thenReturn(test2);
+    final SensorStorage sensorStorage = mock(SensorStorage.class);
+
+    when(context.newTestCase()).thenAnswer(new Answer<TestCase>() {
+      @Override
+      public TestCase answer(InvocationOnMock invocation) throws Throwable {
+        return new DefaultTestCase(sensorStorage);
+      }
+    });
+
+    TestCase test1 = new DefaultTestCase(null).inTestFile(testFile).name("test1");
+    TestCase test2 = new DefaultTestCase(null).inTestFile(testFile).name("test2");
 
     sensor.execute(context);
 

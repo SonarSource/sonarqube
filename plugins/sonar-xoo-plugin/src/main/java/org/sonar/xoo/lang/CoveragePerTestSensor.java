@@ -81,7 +81,9 @@ public class CoveragePerTestSensor implements Sensor {
       while (lines.hasNext()) {
         coveredLines.add(Integer.parseInt(lines.next()));
       }
-      TestCase testCase = context.getTestCase(testFile, testCaseName);
+      TestCase testCase = context.newTestCase()
+        .inTestFile(testFile)
+        .name(testCaseName);
       if (testCase == null) {
         throw new IllegalStateException("No test case with name " + testCaseName + " on file " + testFile);
       }

@@ -24,13 +24,16 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.test.TestCase;
-import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseBuilder;
+import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,14 +81,29 @@ public class TestCaseSensorTest {
       .setType(Type.TEST);
     fileSystem.add(testFile);
 
-    when(context.testCaseBuilder(testFile, "test1")).thenReturn(new DefaultTestCaseBuilder(testFile, "test1"));
-    when(context.testCaseBuilder(testFile, "test2")).thenReturn(new DefaultTestCaseBuilder(testFile, "test2"));
+    final SensorStorage sensorStorage = mock(SensorStorage.class);
+
+    when(context.newTestCase()).thenAnswer(new Answer<TestCase>() {
+      @Override
+      public TestCase answer(InvocationOnMock invocation) throws Throwable {
+        return new DefaultTestCase(sensorStorage);
+      }
+    });
 
     sensor.execute(context);
 
-    verify(context).addTestCase(new DefaultTestCaseBuilder(testFile, "test1").durationInMs(10).build());
-    verify(context).addTestCase(
-      new DefaultTestCaseBuilder(testFile, "test2").type(TestCase.Type.INTEGRATION).status(TestCase.Status.ERROR).message("message").stackTrace("stack").durationInMs(15).build());
+    verify(sensorStorage).store(new DefaultTestCase(null)
+      .inTestFile(testFile)
+      .name("test1")
+      .durationInMs(10));
+    verify(sensorStorage).store(new DefaultTestCase(null)
+      .inTestFile(testFile)
+      .name("test2")
+      .ofType(TestCase.Type.INTEGRATION)
+      .status(TestCase.Status.ERROR)
+      .message("message")
+      .stackTrace("stack")
+      .durationInMs(15));
   }
 
 }

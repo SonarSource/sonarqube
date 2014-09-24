@@ -144,16 +144,11 @@ public class DefaultSensorContext extends BaseSensorContext {
   }
 
   @Override
-  public void addTestCase(TestCase testCase) {
+  public void store(TestCase testCase) {
     if (testCaseCache.contains(((DefaultTestCase) testCase).testFile(), testCase.name())) {
       throw new IllegalArgumentException("There is already a test case with the same name: " + testCase.name());
     }
     testCaseCache.put(((DefaultTestCase) testCase).testFile(), testCase);
-  }
-
-  @Override
-  public TestCase getTestCase(InputFile testFile, String testCaseName) {
-    return testCaseCache.get(testFile, testCaseName);
   }
 
   @Override

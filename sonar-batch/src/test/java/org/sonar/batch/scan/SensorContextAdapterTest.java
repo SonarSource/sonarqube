@@ -26,11 +26,14 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.component.ResourcePerspectives;
@@ -39,8 +42,11 @@ import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
@@ -62,6 +68,7 @@ public class SensorContextAdapterTest {
   private SensorContext sensorContext;
   private Settings settings;
   private ResourcePerspectives resourcePerspectives;
+  private Project project;
 
   @Before
   public void prepare() {
@@ -69,12 +76,14 @@ public class SensorContextAdapterTest {
     fs = new DefaultFileSystem();
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
+    when(metricFinder.findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
     sensorContext = mock(SensorContext.class);
     settings = new Settings();
     resourcePerspectives = mock(ResourcePerspectives.class);
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
     BlockCache blockCache = mock(BlockCache.class);
-    adaptor = new SensorContextAdapter(sensorContext, metricFinder, new Project("myProject"),
+    project = new Project("myProject");
+    adaptor = new SensorContextAdapter(sensorContext, metricFinder, project,
       resourcePerspectives, settings, fs, activeRules, componentDataCache, blockCache, mock(DuplicationCache.class), mock(SonarIndex.class));
   }
 
@@ -89,7 +98,20 @@ public class SensorContextAdapterTest {
   }
 
   @Test
-  public void shouldAddMeasureToSensorContext() {
+  public void shouldFailIfUnknowMetric() {
+    InputFile file = new DefaultInputFile("foo", "src/Foo.php");
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Unknow metric with key: lines");
+
+    adaptor.store(new DefaultMeasure()
+      .onFile(file)
+      .forMetric(CoreMetrics.LINES)
+      .withValue(10));
+  }
+
+  @Test
+  public void shouldSaveFileMeasureToSensorContext() {
     InputFile file = new DefaultInputFile("foo", "src/Foo.php");
 
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
@@ -106,7 +128,44 @@ public class SensorContextAdapterTest {
   }
 
   @Test
-  public void shouldAddIssue() {
+  public void shouldSetAppropriatePersistenceMode() {
+    // Metric FUNCTION_COMPLEXITY_DISTRIBUTION is only persisted on directories.
+
+    InputFile file = new DefaultInputFile("foo", "src/Foo.php");
+
+    ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
+    when(sensorContext.saveMeasure(eq(file), argumentCaptor.capture())).thenReturn(null);
+
+    adaptor.store(new DefaultMeasure()
+      .onFile(file)
+      .forMetric(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION)
+      .withValue("foo"));
+
+    org.sonar.api.measures.Measure m = argumentCaptor.getValue();
+    assertThat(m.getData()).isEqualTo("foo");
+    assertThat(m.getMetric()).isEqualTo(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
+    assertThat(m.getPersistenceMode()).isEqualTo(PersistenceMode.MEMORY);
+
+  }
+
+  @Test
+  public void shouldSaveProjectMeasureToSensorContext() {
+
+    ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
+    when(sensorContext.saveMeasure(argumentCaptor.capture())).thenReturn(null);
+
+    adaptor.store(new DefaultMeasure()
+      .onProject()
+      .forMetric(CoreMetrics.NCLOC)
+      .withValue(10));
+
+    org.sonar.api.measures.Measure m = argumentCaptor.getValue();
+    assertThat(m.getValue()).isEqualTo(10.0);
+    assertThat(m.getMetric()).isEqualTo(CoreMetrics.NCLOC);
+  }
+
+  @Test
+  public void shouldAddIssueOnFile() {
     InputFile file = new DefaultInputFile("foo", "src/Foo.php");
 
     ArgumentCaptor<Issue> argumentCaptor = ArgumentCaptor.forClass(Issue.class);
@@ -127,6 +186,57 @@ public class SensorContextAdapterTest {
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));
     assertThat(issue.message()).isEqualTo("Foo");
     assertThat(issue.line()).isEqualTo(3);
+    assertThat(issue.severity()).isNull();
     assertThat(issue.effortToFix()).isEqualTo(10.0);
   }
+
+  @Test
+  public void shouldAddIssueOnDirectory() {
+    InputDir dir = new DefaultInputDir("foo", "src");
+
+    ArgumentCaptor<Issue> argumentCaptor = ArgumentCaptor.forClass(Issue.class);
+
+    Issuable issuable = mock(Issuable.class);
+    when(resourcePerspectives.as(Issuable.class, Directory.create("src"))).thenReturn(issuable);
+
+    when(issuable.addIssue(argumentCaptor.capture())).thenReturn(true);
+
+    adaptor.store(new DefaultIssue()
+      .onDir(dir)
+      .ruleKey(RuleKey.of("foo", "bar"))
+      .message("Foo")
+      .effortToFix(10.0));
+
+    Issue issue = argumentCaptor.getValue();
+    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));
+    assertThat(issue.message()).isEqualTo("Foo");
+    assertThat(issue.line()).isNull();
+    assertThat(issue.severity()).isNull();
+    assertThat(issue.effortToFix()).isEqualTo(10.0);
+  }
+
+  @Test
+  public void shouldAddIssueOnProject() {
+    ArgumentCaptor<Issue> argumentCaptor = ArgumentCaptor.forClass(Issue.class);
+
+    Issuable issuable = mock(Issuable.class);
+    when(resourcePerspectives.as(Issuable.class, (Resource) project)).thenReturn(issuable);
+
+    when(issuable.addIssue(argumentCaptor.capture())).thenReturn(true);
+
+    adaptor.store(new DefaultIssue()
+      .onProject()
+      .ruleKey(RuleKey.of("foo", "bar"))
+      .message("Foo")
+      .overrideSeverity(Severity.BLOCKER)
+      .effortToFix(10.0));
+
+    Issue issue = argumentCaptor.getValue();
+    assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("foo", "bar"));
+    assertThat(issue.message()).isEqualTo("Foo");
+    assertThat(issue.line()).isNull();
+    assertThat(issue.severity()).isEqualTo("BLOCKER");
+    assertThat(issue.effortToFix()).isEqualTo(10.0);
+  }
+
 }
