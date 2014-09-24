@@ -107,11 +107,9 @@ public class ProcessCommands {
   }
 
   private void deleteFile(File file) {
-    if (file.exists()) {
-      if (!file.delete()) {
-        throw new MessageException(String.format(
-          "Fail to delete file %s. Please check that no SonarQube process is alive", file));
-      }
+    if (file.exists() && !file.delete()) {
+      throw new MessageException(String.format(
+        "Fail to delete file %s. Please check that no SonarQube process is alive", file));
     }
   }
 }
