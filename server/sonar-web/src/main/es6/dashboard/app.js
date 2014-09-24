@@ -34,17 +34,21 @@ requirejs([
   var App = new Marionette.Application(),
       $ = jQuery;
 
+  App.dashboard = window.did;
+  App.resource = window.resource;
+
   App.addInitializer(function () {
     this.widgetsView = new WidgetsView({
       collection: this.widgets,
       dashboard: this.dashboard,
-      el: $('#dashboard')
+      el: $('#dashboard'),
+      app: this
     });
     this.widgetsView.render();
   });
 
   var requestDetails = function () {
-    return $.get(`${baseUrl}/api/dashboards/details`, { did: window.did }, function (data) {
+    return $.get(`${baseUrl}/api/dashboards/details`, { did: App.dashboard }, function (data) {
       console.log(JSON.stringify(data));
       App.dashboard = new Backbone.Model(_.omit(data, 'widgets'));
       App.widgets = new Widgets(data.widgets);

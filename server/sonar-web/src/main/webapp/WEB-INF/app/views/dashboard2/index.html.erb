@@ -8,5 +8,8 @@
 
 <script>
   window.did = '<%= @dashboard.id -%>';
+  <% if @resource %>
+    window.resource = '<%= @resource.key -%>';
+  <% end %>
   jQuery('html').addClass('dashboard-page');
 </script>

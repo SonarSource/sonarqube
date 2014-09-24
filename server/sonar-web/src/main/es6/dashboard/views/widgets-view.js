@@ -13,6 +13,10 @@ define([
       $container.eq(column).append(itemView.el);
     }
 
+    itemViewOptions() {
+      return { app: this.options.app };
+    }
+
     serializeData() {
       return _.extend(super.serializeData(), {
         dashboard: this.options.dashboard.toJSON(),

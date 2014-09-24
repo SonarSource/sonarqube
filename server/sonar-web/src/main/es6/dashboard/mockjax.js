@@ -32,6 +32,14 @@ define(['third-party/jquery.mockjax'], function () {
           key: 'my_reviews',
           props: [],
           layout: {
+            column: 1,
+            row: 2
+          }
+        },
+        {
+          key: 'hotspot_most_violated_rules',
+          props: [],
+          layout: {
             column: 2,
             row: 1
           }

@@ -13,27 +13,24 @@ define([
     }
 
     requestContent() {
-      var props = this.getWidgetProps();
-      $.get(`${baseUrl}/widget/show?id=${this.model.id}&${props}`, (html) => {
+      var payload = { id: this.model.id };
+      if (this.options.app.resource) {
+        payload.resource = this.options.app.resource;
+      }
+      _.extend(payload, this.getWidgetProps());
+      $.get(`${baseUrl}/widget/show`, payload, (html) => {
         this.model.set('html', html);
         this.render();
       });
     }
 
     getWidgetProps() {
-      var props = this.model.get('props')
-          .map(function (prop) {
-            return `${prop.key}=${encodeURIComponent(prop.value)}`;
-          })
-          .join('&');
-      return props;
-    }
-
-    serializeData() {
-      var props = this.getWidgetProps();
-      return _.extend(super.serializeData(), {
-        url: `${baseUrl}/widget?id=${this.model.id}&${props}`
+      var props = this.model.get('props'),
+          r = {};
+      props.forEach(function (prop) {
+        r[prop.key] = prop.value;
       });
+      return r;
     }
 
   }

@@ -6,7 +6,11 @@ define([
     Widget) {
 
   return Backbone.Collection.extend({
-    model: Widget
+    model: Widget,
+
+    comparator: function(model) {
+      return model.get('layout').row;
+    }
   });
 
 });
