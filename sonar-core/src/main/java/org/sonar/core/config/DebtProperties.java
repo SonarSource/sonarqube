@@ -67,10 +67,11 @@ class DebtProperties {
       PropertyDefinition.builder(CoreProperties.RATING_GRID)
         .defaultValue("" + CoreProperties.RATING_GRID_DEF_VALUES)
         .name("Rating grid")
-        .description("SQALE ratings range from A (very good) to E (very bad). They compare the technical debt on a project to the time that has already gone into writing it. " +
+        .description("SQALE ratings range from A (very good) to E (very bad). The rating is determined by the value of the Technical Debt Ratio, " +
+          "which compares the technical debt on a project to the cost it would take to rewrite the code from scratch. " +
           "The default values for A through D are 0.1,0.2,0.5,1. Anything over 1 is an E. " +
-          "Assuming the size metric is lines of code (LOC), and the work unit is 30 (minutes to produce 1 LOC), " +
-          "a project with a technical debt of 24,000 minutes for 2,500 LOC will have a ratio of 24000/(30 * 2,500) = 0.32. That yields a SQALE rating of C.")
+          "Example: assuming the size metric is lines of code (LOC), and the work unit is 30 (minutes to produce 1 LOC), " +
+          "a project with a technical debt of 24,000 minutes for 2,500 LOC will have a technical debt ratio of 24000/(30 * 2,500) = 0.32. That yields a SQALE rating of C.")
         .category(CoreProperties.CATEGORY_TECHNICAL_DEBT)
         .deprecatedKey("ratingGrid")
         .build(),
