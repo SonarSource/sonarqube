@@ -1,4 +1,5 @@
 <div id="measure_filter_list<%= widget_id -%>">
+<% content_for :script do %>
   <script>
     var filterCriteria<%= widget_id -%> = <%= json_escape(filter.criteria.to_json) -%>;
 
@@ -19,8 +20,9 @@
       return false;
     }
   </script>
+<%
+   end
 
-  <%
    display_favourites = logged_in?
    colspan = filter.display.columns.size
    colspan += 1 if display_favourites
