@@ -331,6 +331,68 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void sort_by_creation_date() throws Exception {
+    IssueDto issue1 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
+    IssueDto issue2 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-24"));
+    db.issueDao().insert(session, issue1, issue2);
+    session.commit();
+
+    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(true);
+    Result<Issue> result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits()).hasSize(2);
+    assertThat(result.getHits().get(0).creationDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+    assertThat(result.getHits().get(1).creationDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+
+    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(false);
+    result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits()).hasSize(2);
+    assertThat(result.getHits().get(0).creationDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+    assertThat(result.getHits().get(1).creationDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+  }
+
+  @Test
+  public void sort_by_update_date() throws Exception {
+    IssueDto issue1 = createIssue().setIssueUpdateDate(DateUtils.parseDate("2014-09-23"));
+    IssueDto issue2 = createIssue().setIssueUpdateDate(DateUtils.parseDate("2014-09-24"));
+    db.issueDao().insert(session, issue1, issue2);
+    session.commit();
+
+    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(true);
+    Result<Issue> result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits()).hasSize(2);
+    assertThat(result.getHits().get(0).updateDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+    assertThat(result.getHits().get(1).updateDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+
+    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(false);
+    result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits()).hasSize(2);
+    assertThat(result.getHits().get(0).updateDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+    assertThat(result.getHits().get(1).updateDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+  }
+
+  @Test
+  public void sort_by_close_date() throws Exception {
+    IssueDto issue1 = createIssue().setIssueCloseDate(DateUtils.parseDate("2014-09-23"));
+    IssueDto issue2 = createIssue().setIssueCloseDate(DateUtils.parseDate("2014-09-24"));
+    IssueDto issue3 = createIssue().setIssueCloseDate(null);
+    db.issueDao().insert(session, issue1, issue2, issue3);
+    session.commit();
+
+    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(true);
+    Result<Issue> result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits()).hasSize(3);
+    assertThat(result.getHits().get(0).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+    assertThat(result.getHits().get(1).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+    assertThat(result.getHits().get(2).closeDate()).isNull();
+
+    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(false);
+    result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits()).hasSize(3);
+    assertThat(result.getHits().get(0).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+    assertThat(result.getHits().get(1).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+    assertThat(result.getHits().get(2).closeDate()).isNull();
+  }
+  @Test
   public void authorized_issues_on_groups() throws Exception {
     ComponentDto project1 = new ComponentDto()
       .setId(10L)

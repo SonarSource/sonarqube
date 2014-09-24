@@ -172,7 +172,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
         FilterBuilders.boolFilter()
           .must(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.PERMISSION.field(), UserRole.USER), groupsAndUser)
           .cache(true))
-    ));
+      ));
 
     // Issue is assigned Filter
     if (BooleanUtils.isTrue(query.assigned())) {
@@ -256,9 +256,15 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     }
   }
 
-  private IndexField toIndexField(String sort){
+  private IndexField toIndexField(String sort) {
     if (IssueQuery.SORT_BY_ASSIGNEE.equals(sort)) {
       return IssueNormalizer.IssueField.ASSIGNEE;
+    } else if (IssueQuery.SORT_BY_CREATION_DATE.equals(sort)) {
+      return IssueNormalizer.IssueField.ISSUE_CREATED_AT;
+    } else if (IssueQuery.SORT_BY_UPDATE_DATE.equals(sort)) {
+      return IssueNormalizer.IssueField.ISSUE_UPDATED_AT;
+    } else if (IssueQuery.SORT_BY_CLOSE_DATE.equals(sort)) {
+      return IssueNormalizer.IssueField.ISSUE_CLOSE_DATE;
     }
     throw new IllegalStateException("Unknown sort field : " + sort);
   }
