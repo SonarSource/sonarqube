@@ -38,7 +38,7 @@ class StreamGobbler extends Thread {
   private final Logger logger;
 
   StreamGobbler(InputStream is, String processKey) {
-    this(is, processKey, LoggerFactory.getLogger(processKey));
+    this(is, processKey, LoggerFactory.getLogger("gobbler"));
   }
 
   StreamGobbler(InputStream is, String processKey, Logger logger) {

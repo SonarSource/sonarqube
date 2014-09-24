@@ -249,7 +249,7 @@ public class SearchServer implements Monitored {
 
   @Override
   public synchronized void stop() {
-    if (!node.isClosed()) {
+    if (node != null && !node.isClosed()) {
       node.close();
     }
   }

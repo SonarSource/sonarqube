@@ -90,7 +90,6 @@ class ProcessRef {
         ProcessUtils.sendKillSignal(process);
         // signal is sent, waiting for shutdown hooks to be executed (or not... it depends on OS)
         process.waitFor();
-        LoggerFactory.getLogger(getClass()).info(String.format("%s is stopped", this));
 
       } catch (InterruptedException ignored) {
         // can't wait for the termination of process. Let's assume it's down.

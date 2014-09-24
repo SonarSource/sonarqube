@@ -12,7 +12,7 @@
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>
-        ${LOGFILE_LOGGING_FORMAT}
+        ${LOGGING_FORMAT}
       </pattern>
     </encoder>
   </appender>

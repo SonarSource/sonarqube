@@ -49,7 +49,7 @@ public class JavaProcessLauncher {
       commands.prepare();
 
       ProcessBuilder processBuilder = create(command);
-      LoggerFactory.getLogger(getClass()).info("Launch {}: {}",
+      LoggerFactory.getLogger(getClass()).info("Launch process[{}]: {}",
         command.getKey(), StringUtils.join(processBuilder.command(), " "));
       process = processBuilder.start();
       StreamGobbler inputGobbler = new StreamGobbler(process.getInputStream(), command.getKey());

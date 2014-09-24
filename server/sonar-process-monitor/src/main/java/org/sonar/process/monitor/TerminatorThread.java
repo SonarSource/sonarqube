@@ -68,6 +68,7 @@ class TerminatorThread extends Thread {
           LoggerFactory.getLogger(getClass()).info(String.format("%s failed to stop in a timely fashion. Killing it.", ref));
         }
         ref.stop();
+        LoggerFactory.getLogger(getClass()).info(String.format("%s is stopped", ref));
       }
     }
   }

@@ -50,8 +50,8 @@ public class ProcessLogging {
     Logger consoleLogger = (Logger) LoggerFactory.getLogger("console");
     Appender<ILoggingEvent> consoleAppender = consoleLogger.getAppender("CONSOLE");
 
-    Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-    rootLogger.addAppender(consoleAppender);
+    Logger gobblerLogger = (Logger) LoggerFactory.getLogger("gobbler");
+    gobblerLogger.addAppender(consoleAppender);
   }
 
   /**
