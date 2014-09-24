@@ -109,7 +109,11 @@ public class App implements Stoppable {
     CommandLineParser cli = new CommandLineParser();
     Properties rawProperties = cli.parseArguments(args);
     Props props = new PropsBuilder(rawProperties, new JdbcSettings()).build();
-    new ProcessLogging().configure(props, "/org/sonar/application/logback.xml");
+    ProcessLogging logging = new ProcessLogging();
+    logging.configure(props, "/org/sonar/application/logback.xml");
+    if (props.valueAsBoolean("sonar.log.console", false)) {
+      logging.addConsoleAppender();
+    }
 
     App app = new App();
     app.start(props);

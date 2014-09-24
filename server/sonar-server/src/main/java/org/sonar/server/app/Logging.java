@@ -37,19 +37,14 @@ import java.util.logging.LogManager;
 
 class Logging {
 
-  private static final String CONFIG_LOG_CONSOLE = "sonar.log.console";
-
   private static final String LOG_COMMON_PREFIX = "%d{yyyy.MM.dd HH:mm:ss} %-5level ";
   private static final String LOG_COMMON_SUFFIX = "%msg%n";
 
-  private static final String LOG_LOGFILE_SPECIFIC_PART = "[%logger{20}] %X ";
+  private static final String LOG_LOGFILE_SPECIFIC_PART = "web[%logger{20}] %X ";
   private static final String LOG_FULL_SPECIFIC_PART = "%thread ";
 
   private static final String LOGFILE_STANDARD_LOGGING_FORMAT = LOG_COMMON_PREFIX + LOG_LOGFILE_SPECIFIC_PART + LOG_COMMON_SUFFIX;
   private static final String LOGFILE_FULL_LOGGING_FORMAT = LOG_COMMON_PREFIX + LOG_FULL_SPECIFIC_PART + LOG_LOGFILE_SPECIFIC_PART + LOG_COMMON_SUFFIX;
-
-  private static final String CONSOLE_STANDARD_LOGGING_FORMAT = LOG_COMMON_PREFIX + LOG_COMMON_SUFFIX;
-  private static final String CONSOLE_FULL_LOGGING_FORMAT = LOG_COMMON_PREFIX + LOG_FULL_SPECIFIC_PART + LOG_COMMON_SUFFIX;
 
   static final String ACCESS_RELATIVE_PATH = "WEB-INF/config/logback-access.xml";
   static final String PROPERTY_ENABLE_ACCESS_LOGS = "sonar.web.accessLogs.enable";
@@ -71,12 +66,9 @@ class Logging {
   private static void configureLogback(Props props) {
     String configProfilingLevel = props.value(Profiling.CONFIG_PROFILING_LEVEL, "NONE");
     Profiling.Level profilingLevel = Profiling.Level.fromConfigString(configProfilingLevel);
-    String consoleEnabled = props.value(CONFIG_LOG_CONSOLE, "false");
     Map<String, String> variables = ImmutableMap.of(
       "sonar.path.logs", props.nonNullValue("sonar.path.logs"),
-      "LOGFILE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? LOGFILE_FULL_LOGGING_FORMAT : LOGFILE_STANDARD_LOGGING_FORMAT,
-      "CONSOLE_LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? CONSOLE_FULL_LOGGING_FORMAT : CONSOLE_STANDARD_LOGGING_FORMAT,
-      "CONSOLE_ENABLED", consoleEnabled);
+      "LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? LOGFILE_FULL_LOGGING_FORMAT : LOGFILE_STANDARD_LOGGING_FORMAT);
     Logback.configure("/org/sonar/server/platform/logback.xml", variables);
   }
 

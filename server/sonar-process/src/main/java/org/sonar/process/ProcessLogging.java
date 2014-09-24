@@ -19,8 +19,11 @@
  */
 package org.sonar.process;
 
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import org.slf4j.LoggerFactory;
@@ -41,6 +44,14 @@ public class ProcessLogging {
       // StatusPrinter will handle this
     }
     StatusPrinter.printInCaseOfErrorsOrWarnings(context);
+  }
+
+  public void addConsoleAppender() {
+    Logger consoleLogger = (Logger) LoggerFactory.getLogger("console");
+    Appender<ILoggingEvent> consoleAppender = consoleLogger.getAppender("CONSOLE");
+
+    Logger gobblerLogger = (Logger) LoggerFactory.getLogger("gobbler");
+    gobblerLogger.addAppender(consoleAppender);
   }
 
   /**
