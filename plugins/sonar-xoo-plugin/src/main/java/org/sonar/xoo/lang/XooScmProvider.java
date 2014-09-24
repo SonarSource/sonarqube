@@ -60,14 +60,14 @@ public class XooScmProvider implements ScmProvider {
   }
 
   @Override
-  public void blame(Iterable<InputFile> files, BlameResultHandler handler) {
+  public void blame(Iterable<InputFile> files, BlameResult handler) {
     for (InputFile inputFile : files) {
       processFile(inputFile, handler);
     }
   }
 
   @VisibleForTesting
-  protected void processFile(InputFile inputFile, BlameResultHandler handler) {
+  protected void processFile(InputFile inputFile, BlameResult handler) {
     File ioFile = inputFile.file();
     File scmDataFile = new java.io.File(ioFile.getParentFile(), ioFile.getName() + SCM_EXTENSION);
     if (!scmDataFile.exists()) {
@@ -94,7 +94,7 @@ public class XooScmProvider implements ScmProvider {
           blame.add(new BlameLine(date, revision, author));
         }
       }
-      handler.handle(inputFile, blame);
+      handler.add(inputFile, blame);
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
