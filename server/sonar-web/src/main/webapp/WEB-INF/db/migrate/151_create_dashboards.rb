@@ -52,14 +52,7 @@ class CreateDashboards < ActiveRecord::Migration
       t.timestamps
     end
     add_index :widgets, [:dashboard_id], :name => 'widgets_dashboards'
-    if dialect=='mysql'
-      # Index of varchar column is limited to 767 bytes on mysql (<= 255 UTF-8 characters)
-      # See http://jira.codehaus.org/browse/SONAR-4137 and
-      # http://dev.mysql.com/doc/refman/5.6/en/innodb-restrictions.html
-      add_index :widgets, [:widget_key], :name => 'widgets_widgetkey', :length => 255
-    else
-      add_index :widgets, [:widget_key], :name => 'widgets_widgetkey'
-    end
+    add_varchar_index :widgets, [:widget_key], :name => 'widgets_widgetkey'
 
     create_table :widget_properties do |t|
       t.column :widget_id, :integer, :null => false

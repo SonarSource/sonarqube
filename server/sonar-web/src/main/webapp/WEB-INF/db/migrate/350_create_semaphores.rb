@@ -37,14 +37,7 @@ class CreateSemaphores < ActiveRecord::Migration
       t.timestamps
     end
     add_index :semaphores, :checksum, :unique => true, :name => 'uniq_semaphore_checksums'
-    if dialect=='mysql'
-      # Index of varchar column is limited to 767 bytes on mysql (<= 255 UTF-8 characters)
-      # See http://jira.codehaus.org/browse/SONAR-4137 and
-      # http://dev.mysql.com/doc/refman/5.6/en/innodb-restrictions.html
-      add_index :semaphores, :name, :name => 'semaphore_names', :length => 255
-    else
-      add_index :semaphores, :name, :name => 'semaphore_names'
-    end
+    add_varchar_index :semaphores, :name, :name => 'semaphore_names'
 
   end
 

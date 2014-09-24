@@ -121,7 +121,18 @@ class ActiveRecord::Migration
     # not supported by Oracle, the "Enterprise" database.
     # For this reason we force to set name of indexes.
     raise ArgumentError, 'Missing index name' unless options[:name]
+
     super(table_name, column_name, options)
+  end
+
+  def self.add_varchar_index(table_name, column_name, options = {})
+    if dialect()=='mysql' && !options[:length]
+      # Index of varchar column is limited to 767 bytes on mysql (<= 255 UTF-8 characters)
+      # See http://jira.codehaus.org/browse/SONAR-4137 and
+      # http://dev.mysql.com/doc/refman/5.6/en/innodb-restrictions.html
+      options[:length]=255
+    end
+    add_index table_name, column_name, options
   end
 
   def self.execute_java_migration(classname)

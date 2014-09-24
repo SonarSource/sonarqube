@@ -20,14 +20,7 @@
 class AddProjectKeeIndex < ActiveRecord::Migration
 
   def self.up
-    if dialect=='mysql'
-      # Index of varchar column is limited to 767 bytes on mysql (<= 255 UTF-8 characters)
-      # See http://jira.codehaus.org/browse/SONAR-4137 and
-      # http://dev.mysql.com/doc/refman/5.6/en/innodb-restrictions.html
-      add_index :projects, :kee, :name => 'projects_kee', :length => 255
-    else
-      add_index :projects, :kee, :name => 'projects_kee'
-    end
+    add_varchar_index :projects, :kee, :name => 'projects_kee'
   end
 
 end
