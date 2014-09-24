@@ -264,9 +264,6 @@ module.exports = (grunt) ->
           '<%= pkg.assets %>js/templates/libraries.js': [
             '<%= pkg.sources %>hbs/libraries/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/dashboard.js': [
-            '<%= pkg.sources %>hbs/dashboard/**/*.hbs'
-          ]
 
 
     clean:
