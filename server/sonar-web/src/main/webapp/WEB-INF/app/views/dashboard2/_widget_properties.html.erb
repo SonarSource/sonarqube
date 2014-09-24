@@ -1,0 +1,67 @@
+<form onsubmit="$j.ajax({
+                url: 	'<%= ApplicationController.root_context-%>/dashboard/save_widget?wid=<%=widget.id-%>&id=<%= params[:id] -%>',
+                type: 	'post',
+                data: 	$j(this).serialize(),
+                error:	function(request)
+                        {
+                                $j('#error<%=widget.id-%>').text(request.responseText);
+                                $j('#error<%=widget.id-%>').show();
+                        }
+                });
+           return false;"
+         method="post"
+         action="<%= ApplicationController.root_context-%>/dashboard/save_widget?wid=<%=widget.id-%>">
+  <div id="error<%= widget.id -%>" class="error" style="display: none"></div>
+  <table class="table width100">
+    <tbody>
+
+    <% if !widget.java_definition.global && @dashboard.global %>
+      <tr>
+        <td class="form-key-cell"><%= message('widget.resource_id') %> <em class="mandatory">*</em></td>
+        <td class="form-val-cell" id="row_resource">
+          <%= resource_select_tag 'resource_id', {
+              :resource_type_property => 'supportsGlobalDashboards',
+              :selected_resource => widget.resource,
+              :width => '250px',
+              :html_id => "widget-#{widget.id}-select-prj-#{widget.key.parameterize}",
+              :html_class => "widget-select-prj-#{widget.key.parameterize}"
+          } -%>
+        </td>
+      </tr>
+    <% end %>
+
+    <% widget.java_definition.getWidgetProperties().each do |property_def| %>
+      <tr>
+        <td class="form-key-cell"><%= message("widget." + widget.key + ".property." + property_def.key() + ".name", :default => property_def.key()) -%><%= " *" unless property_def.optional() -%></td>
+        <td class="form-val-cell" id="row_<%= property_def.key() -%>">
+          <%= property_value_field(property_def, widget.property_text_value(property_def.key()), widget) -%>
+          <div class="form-val-note">
+            <%
+               # Old key used for retro-compatibility
+               property_description = message("widget." + widget.key + ".param." + property_def.key(), :default => '')
+               property_description = message("widget." + widget.key + ".property." + property_def.key() + ".desc", :default => property_def.description()) unless property_description != ''
+            -%>
+
+            <% unless property_description.blank? -%>
+              <div><%= property_description -%></div>
+            <% end %>
+            <% if !property_def.defaultValue.blank? || property_def.type.name == PropertyType::TYPE_BOOLEAN -%>
+              <div><%= message('default') %>: <%= h(default_value property_def) -%></div>
+            <% end -%>
+          </div>
+        </td>
+      </tr>
+    <% end %>
+
+    <tr>
+      <td colspan="2">
+        <%= submit_tag message('save'), :id => "widget-#{widget.id}-save-#{widget.key.parameterize}", :class => "widget-save-#{widget.key.parameterize}" -%>
+        <% if widget.configured %>
+          <a href="#" onClick="portal.cancelEditWidget(<%= widget.id -%>);return false;"><%= message('cancel') -%></a>
+        <% end %>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <%= hidden_field_tag "widgetid", "", :class => "widgetid" %>
+</form>

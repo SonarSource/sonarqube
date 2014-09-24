@@ -1,0 +1,105 @@
+<div id="dashboard">
+  <%= render :partial => 'header', :locals => {:back => true} %>
+
+  <div id="configure">
+    <div id="widget_defs">
+      <%= render :partial => 'widget_definitions', :locals => {:category => @category} -%>
+    </div>
+
+    <div id="edit-layout">
+      <% {'100%', 'layout100.png',
+          '50%-50%', 'layout5050.png',
+          '30%-70%', 'layout3070.png',
+          '70%-30%', 'layout7030.png',
+          '33%-33%-33%', 'layout333333.png'
+         }.each_pair do |layout, picto| %>
+        <div class="select-layout <%= 'selected' if @dashboard.layout==layout -%>">
+          <%= link_to image_tag(picto), dashboard_action(:set_layout, :layout => layout), :method => :post, :title => layout %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%
+     columns=@dashboard.column_layout.split('-')
+     for index in 1..columns.size()
+  %>
+    <div class="dashboard-column-wrapper" style="width: <%= columns[index-1] -%>;margin: 0 -1px 0 0;">
+      <div class="dashboard-column" id="dashboard-column-<%= index -%>" style="margin: 0 <%= index<columns.size() ? "5px" : "0px" -%> 0 <%= index>1 ? "5px" : "0px" -%>;">
+        <%
+           @dashboard.widgets.select { |widget| widget.column_index==index && widget.java_definition }.sort_by { |widget| widget.row_index }.each do |widget|
+        %>
+          <div class="block" id="block_<%= widget.id -%>">
+            <%= render :partial => 'configure_widget', :locals => {:widget => widget} %>
+          </div>
+        <%
+           end
+        %>
+        <div class="column-handle" style="display: none"></div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script type="text/javascript">
+  <!--
+  var options = {
+    editorEnabled: true,
+    column: 'dashboard-column',
+    columnHandle: 'column-handle',
+    block: 'block',
+    hoverClass: 'block-hover',
+    dashboardState: 'dashboardstate',
+    highlightDuration: 2000,
+    highlightStartColor: '#cae3f2',
+    highlightEndColor: '#ffffff',
+    saveUrl: '<%= url_for dashboard_action(:set_dashboard) -%>'
+  };
+  var portal;
+  function init_dashboard() {
+    portal = new Portal(options);
+  <% if params[:highlight] %>
+    portal.highlightWidget(<%= escape_javascript(params[:highlight]) -%>);
+  <% end %>
+  }
+  $j(document).ready(function(){init_dashboard();});
+
+  function filterWidgetsByCategory(category) {
+      $j('#filter-widgets-loading').show();
+      $j.ajax ({    url: '<%= add_category_to_url(url_for dashboard_action(:widget_definitions))  -%>' + encodeURIComponent(category),
+                    success: function(responseHTML){$j('#widget_defs').html(responseHTML);},
+                    error:function(error){alert('error');}
+              });
+      return false;
+  }
+
+  var widgetContents = [
+    <%
+      number_of_widgets = @widget_definitions.size()
+      @widget_definitions.each_with_index do |definition, index|
+        widget_id = "def_#{definition.id.tr('_', '')}"
+        widget_title = message("widget.#{definition.id}.name", :default => definition.title).downcase
+        widget_description = message("widget.#{definition.id}.description", :default => definition.description).downcase
+    %>
+    { id:"<%= widget_id -%>", c:"<%= widget_title.gsub(/\r\n?/, " ") -%> <%= widget_description.gsub(/\r\n?/, " ") -%>" } <%= "," unless index==number_of_widgets-1 -%>
+    <% end %>
+  ];
+
+  function filtersWidgetsByContent(text) {
+    var userInput = text.toLowerCase();
+    widgetContents.forEach(function (widget) {
+      var element = $j('#'+widget.id);
+      if (element != null) {
+        if (widget.c.indexOf(userInput) != -1) {
+          element.show();
+        } else {
+          element.hide();
+        }
+      }
+    });
+    return false;
+  }
+  //-->
+
+  $j('#filter-widget-box').focus();
+</script>

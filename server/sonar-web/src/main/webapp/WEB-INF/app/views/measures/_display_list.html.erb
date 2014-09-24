@@ -1,28 +1,25 @@
 <div id="measure_filter_list<%= widget_id -%>">
-<% content_for :script do %>
-  <script>
-    var filterCriteria<%= widget_id -%> = <%= json_escape(filter.criteria.to_json) -%>;
+<script>
+  var filterCriteria<%= widget_id -%> = <%= json_escape(filter.criteria.to_json) -%>;
 
-    function refreshList<%= widget_id -%>(sort, asc, page) {
-      $j('#measure_filter_foot<%= widget_id -%>_pages').hide();
-      $j('#measure_filter_foot<%= widget_id -%>_loading').show();
+  function refreshList<%= widget_id -%>(sort, asc, page) {
+    $j('#measure_filter_foot<%= widget_id -%>_pages').hide();
+    $j('#measure_filter_foot<%= widget_id -%>_loading').show();
 
-      filterCriteria<%= widget_id -%>['sort']=sort;
-      filterCriteria<%= widget_id -%>['asc']=asc;
-      filterCriteria<%= widget_id -%>['page']=page;
-      var url=baseUrl + '/measures/search/<%= filter.id -%>?widget_id=<%= widget_id -%>&' + $j.param(filterCriteria<%= widget_id -%>);
+    filterCriteria<%= widget_id -%>['sort']=sort;
+    filterCriteria<%= widget_id -%>['asc']=asc;
+    filterCriteria<%= widget_id -%>['page']=page;
+    var url=baseUrl + '/measures/search/<%= filter.id -%>?widget_id=<%= widget_id -%>&' + $j.param(filterCriteria<%= widget_id -%>);
 
-      <% if widget_id %>
-      $j('#measure_filter_list<%= widget_id -%>').load(url);
-      <% else %>
-      window.location = url;
-      <% end %>
-      return false;
-    }
-  </script>
+    <% if widget_id %>
+    $j('#measure_filter_list<%= widget_id -%>').load(url);
+    <% else %>
+    window.location = url;
+    <% end %>
+    return false;
+  }
+</script>
 <%
-   end
-
    display_favourites = logged_in?
    colspan = filter.display.columns.size
    colspan += 1 if display_favourites

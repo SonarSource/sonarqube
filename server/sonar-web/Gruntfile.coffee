@@ -194,6 +194,10 @@ module.exports = (grunt) ->
         name: 'dashboard/file-app'
         out: '<%= pkg.assets %>build/js/dashboard/file-app.js'
 
+      dashboard: options:
+        name: 'dashboard/app'
+        out: '<%= pkg.assets %>build/js/dashboard/app.js'
+
       componentViewer: options:
         name: 'component-viewer/app'
         out: '<%= pkg.assets %>build/js/component-viewer/app.js'
@@ -250,6 +254,9 @@ module.exports = (grunt) ->
           ]
           '<%= pkg.assets %>js/templates/libraries.js': [
             '<%= pkg.sources %>hbs/libraries/**/*.hbs'
+          ]
+          '<%= pkg.assets %>js/templates/dashboard.js': [
+            '<%= pkg.sources %>hbs/dashboard/**/*.hbs'
           ]
 
 

@@ -1,0 +1,15 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/js/dashboard/app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+<% end %>
+
+<div id="dashboard">
+  <i class="spinner"></i>
+</div>
+
+<script>
+  window.did = '<%= @dashboard.id -%>';
+  <% if @resource %>
+  window.resource = '<%= @resource.key -%>';
+  <% end %>
+  jQuery('html').addClass('dashboard-page');
+</script>
