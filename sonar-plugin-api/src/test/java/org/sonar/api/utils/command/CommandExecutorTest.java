@@ -53,7 +53,7 @@ public class CommandExecutorTest {
     workDir = tempFolder.newFolder(testName.getMethodName());
   }
 
-  @Test
+  @Test(timeout = 3000L)
   public void should_consume_StdOut_and_StdErr() throws Exception {
     // too many false-positives on MS windows
     if (!SystemUtils.IS_OS_WINDOWS) {
@@ -82,7 +82,7 @@ public class CommandExecutorTest {
     }
   }
 
-  @Test
+  @Test(timeout = 3000L)
   public void stdOut_consumer_can_throw_exception() throws Exception {
     Command command = Command.create(getScript("output")).setDirectory(workDir);
     thrown.expect(CommandException.class);
@@ -90,12 +90,12 @@ public class CommandExecutorTest {
     CommandExecutor.create().execute(command, BAD_CONSUMER, NOP_CONSUMER, 1000L);
   }
 
-  @Test
+  @Test(timeout = 3000L)
   public void stdErr_consumer_can_throw_exception() throws Exception {
     Command command = Command.create(getScript("output")).setDirectory(workDir);
     thrown.expect(CommandException.class);
     thrown.expectMessage("Error inside stdErr stream");
-    CommandExecutor.create().execute(command, NOP_CONSUMER, BAD_CONSUMER, 1000L);
+    CommandExecutor.create().execute(command, NOP_CONSUMER, BAD_CONSUMER, 1500L);
   }
 
   private static final StreamConsumer NOP_CONSUMER = new StreamConsumer() {
