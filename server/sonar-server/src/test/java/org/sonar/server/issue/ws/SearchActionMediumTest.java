@@ -288,7 +288,7 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void paging_with_page_size_to_zero() throws Exception {
+  public void paging_with_page_size_to_minus_one() throws Exception {
     for (int i = 0; i < 12; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
@@ -296,11 +296,11 @@ public class SearchActionMediumTest {
     session.commit();
 
     WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
-    request.setParam(SearchAction.PARAM_PAGE, "2");
-    request.setParam(SearchAction.PARAM_PAGE_SIZE, "0");
+    request.setParam(SearchAction.PARAM_PAGE, "1");
+    request.setParam(SearchAction.PARAM_PAGE_SIZE, "-1");
 
     WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "paging_with_page_size_to_zero.json", false);
+    result.assertJson(this.getClass(), "paging_with_page_size_to_minus_one.json", false);
   }
 
   @Test

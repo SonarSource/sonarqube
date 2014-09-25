@@ -67,7 +67,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField STATUS = addSortable(IndexField.Type.STRING, "status");
     public static final IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
     public static final IndexField LANGUAGE = add(IndexField.Type.STRING, "language");
-    public static final IndexField RULE_KEY = addSearchable(IndexField.Type.STRING, "ruleKey");
+    public static final IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
 
     public static final Set<IndexField> ALL_FIELDS = getAllFields();
 

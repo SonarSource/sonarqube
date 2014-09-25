@@ -75,7 +75,7 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
     action
       .createParam(PARAM_PAGE_SIZE)
       .setDeprecatedKey("pageSize")
-      .setDescription("Page size. Must be greater than 0.")
+      .setDescription(String.format("Page size (-1 return up to %s).", QueryContext.MAX_LIMIT))
       .setExampleValue("20")
       .setDefaultValue("100");
 
@@ -112,10 +112,15 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
   }
 
   private QueryContext getQueryContext(Request request) {
-    return new QueryContext().addFieldsToReturn(request.paramAsStrings(PARAM_FIELDS))
-      .setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS))
-      .setPage(request.mandatoryParamAsInt(PARAM_PAGE),
-        request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
+    int pageSize = request.mandatoryParamAsInt(PARAM_PAGE_SIZE);
+    QueryContext queryContext = new QueryContext().addFieldsToReturn(request.paramAsStrings(PARAM_FIELDS))
+      .setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
+    if (pageSize < 1) {
+      queryContext.setPage(request.mandatoryParamAsInt(PARAM_PAGE), 0).setMaxLimit();
+    } else {
+      queryContext.setPage(request.mandatoryParamAsInt(PARAM_PAGE), pageSize);
+    }
+    return queryContext;
   }
 
   protected void writeStatistics(JsonWriter json, Result searchResult, QueryContext context) {
