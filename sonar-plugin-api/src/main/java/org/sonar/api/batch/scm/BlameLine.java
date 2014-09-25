@@ -19,6 +19,11 @@
  */
 package org.sonar.api.batch.scm;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import java.util.Date;
 
 /**
@@ -98,5 +103,42 @@ public class BlameLine {
     {
       this.date = null;
     }
+  }
+
+  // For testing purpose
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (obj == this) {
+      return true;
+    }
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+    BlameLine rhs = (BlameLine) obj;
+    return new EqualsBuilder()
+      .append(date, rhs.date)
+      .append(revision, rhs.revision)
+      .append(author, rhs.author)
+      .append(committer, rhs.committer)
+      .isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(27, 45).
+      append(date)
+      .append(revision)
+      .append(author)
+      .append(committer)
+      .toHashCode();
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }

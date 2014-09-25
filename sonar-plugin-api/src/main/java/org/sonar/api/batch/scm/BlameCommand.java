@@ -17,34 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.scm.git;
+package org.sonar.api.batch.scm;
 
-import org.sonar.api.batch.scm.BlameCommand;
-import org.sonar.api.batch.scm.ScmProvider;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 
-import java.io.File;
+import java.util.List;
 
-public class GitScmProvider extends ScmProvider {
+/**
+ * @since 5.0
+ */
+public interface BlameCommand {
 
-  private GitBlameCommand blameCommand;
+  /**
+   * Compute blame of the provided files. Computation can be done in parallel.
+   * If there is an error that prevent to blame a file then an exception should be raised.
+   */
+  void blame(FileSystem fs, Iterable<InputFile> files, BlameResult result);
 
-  public GitScmProvider(GitBlameCommand blameCommand) {
-    this.blameCommand = blameCommand;
-  }
+  /**
+   * Callback for the provider to report results of blame per file.
+   */
+  public static interface BlameResult {
 
-  @Override
-  public String key() {
-    return "git";
-  }
+    void add(InputFile file, List<BlameLine> lines);
 
-  @Override
-  public boolean supports(File baseDir) {
-    return new File(baseDir, ".git").exists();
-  }
-
-  @Override
-  public BlameCommand blameCommand() {
-    return this.blameCommand;
   }
 
 }

@@ -17,34 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.scm.git;
+@ParametersAreNonnullByDefault
+package org.sonar.xoo.scm;
 
-import org.sonar.api.batch.scm.BlameCommand;
-import org.sonar.api.batch.scm.ScmProvider;
-
-import java.io.File;
-
-public class GitScmProvider extends ScmProvider {
-
-  private GitBlameCommand blameCommand;
-
-  public GitScmProvider(GitBlameCommand blameCommand) {
-    this.blameCommand = blameCommand;
-  }
-
-  @Override
-  public String key() {
-    return "git";
-  }
-
-  @Override
-  public boolean supports(File baseDir) {
-    return new File(baseDir, ".git").exists();
-  }
-
-  @Override
-  public BlameCommand blameCommand() {
-    return this.blameCommand;
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;
