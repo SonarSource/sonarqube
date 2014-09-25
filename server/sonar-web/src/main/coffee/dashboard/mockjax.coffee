@@ -11,16 +11,16 @@ define ['third-party/jquery.mockjax'], ->
       shared: true
       layout: '50%-50%'
 
-      canManageDashboards: true
       canManageWidgets: true
 
       widgets: [
         {
           key: 'measure_filter_list'
-          props: [
+          name: 'Measure Filter as List'
+          properties: [
             {
               key: 'filter'
-              value: '48'
+              value: 48
             }
           ]
           layout: {
@@ -30,15 +30,27 @@ define ['third-party/jquery.mockjax'], ->
         }
         {
           key: 'my_reviews'
-          props: []
+          name: 'My Unresolved Issues'
+          properties: [
+            {
+              key: 'numberOfLines'
+              value: 5
+            }
+          ]
           layout: {
-            column: 1,
+            column: 1
             row: 2
           }
-        },
+        }
         {
-          key: 'hotspot_most_violated_rules',
-          props: [],
+          key: 'hotspot_most_violated_rules'
+          name: 'Most Violated Rules'
+          properties: [
+            {
+              key: 'numberOfLines'
+              value: 5
+            }
+          ]
           layout: {
             column: 2
             row: 1
@@ -58,3 +70,65 @@ define ['third-party/jquery.mockjax'], ->
           props: []
         }
       ]
+
+
+  jQuery.mockjax
+    url: "#{baseUrl}/api/dashboards/configure_widget"
+    responseText: JSON.stringify
+      "widget": {
+        "key": "measure_filter_list",
+        "properties": [
+          {
+            "key": "filter",
+            "value": 48,
+            "type": "FILTER",
+            "optional": false,
+            "options": {
+              "39": "My favourites"
+              "86": "Nemo &amp; Dory"
+              "36": "New recent issues by developer"
+              "37": "New recent violations by project"
+              "54": "Projects"
+              "50": "Projects Activity since last version"
+              "38": "Projects Treemap"
+              "49": "Projects by license"
+              "100": "Projects not analyzed since 2 days"
+              "82": "Quality Gate"
+              "57": "Super Heroes with new issues"
+              "32": "Super Heroes"
+              "48": "Teams"
+            }
+          },
+          {
+            "key": "pageSize",
+            "type": "INTEGER",
+            "defaultValue": "30",
+            "optional": true
+          },
+          {
+            "key": "displayFilterDescription",
+            "type": "BOOLEAN",
+            "defaultValue": "false",
+            "optional": true
+          }
+        ]
+      }
+
+
+    jQuery.mockjax
+      url: "#{baseUrl}/api/dashboards/save_widget"
+      responseText: JSON.stringify
+        widget: {
+          key: 'measure_filter_list'
+          name: 'Measure Filter as List'
+          properties: [
+            {
+              key: 'filter'
+              value: 48
+            }
+          ]
+          layout: {
+            column: 1
+            row: 1
+          }
+        }

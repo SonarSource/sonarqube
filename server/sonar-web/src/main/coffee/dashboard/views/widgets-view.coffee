@@ -14,8 +14,17 @@ define [
     itemViewContainer: '.dashboard-column'
 
 
+    events:
+      'click .js-configure-widgets': 'configureWidgets'
+      'click .js-back-to-dashboard': 'stopConfigureWidgets'
+
+
+    initialize: (options) ->
+      @listenTo options.app.state, 'change', @render
+
+
     itemViewOptions: ->
-      { app: @options.app }
+      app: @options.app
 
 
     appendHtml: (compositeView, itemView) ->
@@ -25,7 +34,16 @@ define [
       $container.eq(column).append itemView.el
 
 
+    configureWidgets: ->
+      @options.app.state.set configure: true
+
+
+    stopConfigureWidgets: ->
+      @options.app.state.set configure: false
+
+
     serializeData: ->
       _.extend super,
         dashboard: @options.dashboard.toJSON()
         manageDashboardsUrl: "#{baseUrl}/dashboards"
+        state: @options.app.state.toJSON()

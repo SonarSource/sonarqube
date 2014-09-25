@@ -1,9 +1,31 @@
 <div class="block">
-  <div class="widget">
-    {{#if html}}
-      {{{html}}}
-    {{else}}
-      <i class="spinner spinner-margin"></i>
-    {{/if}}
-  </div>
+
+  {{#if state.configure}}
+
+    <div class="widget-header">
+      <div class="widget-actions">
+        {{#notEmpty properties}}<a class="js-edit-widget">Edit</a>{{/notEmpty}}
+        <a class="js-delete-widget">Delete</a>
+      </div>
+      <div class="widget-handle">{{name}}</div>
+    </div>
+
+    <div class="widget_props hidden">
+      {{> '_widget-props'}}
+    </div>
+
+    <div class="configure_widget">
+      <div class="transparent"></div>
+      <div class="widget">
+          {{#if html}}{{{html}}}{{else}}<i class="spinner spinner-margin"></i>{{/if}}
+      </div>
+    </div>
+
+  {{else}}
+
+    <div class="widget">
+      {{#if html}}{{{html}}}{{else}}<i class="spinner spinner-margin"></i>{{/if}}
+    </div>
+
+  {{/if}}
 </div>

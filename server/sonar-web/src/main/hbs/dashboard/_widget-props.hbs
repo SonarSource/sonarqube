@@ -1,0 +1,43 @@
+<form class="js-edit-widget-form">
+  <table class="table width100">
+    <tbody>
+    {{! <% if !widget.java_definition.global && @dashboard.global %> }}
+
+    {{#each properties}}
+      <tr>
+        <td class="form-key-cell">
+          {{t 'widget' ../key 'property' key 'name'}}
+          {{#unless optional}}*{{/unless}}
+        </td>
+        <td class="form-val-cell">
+          {{#eq type "FILTER"}}
+            <select name="{{key}}">
+              {{#each options}}
+                <option value="{{@key}}" {{#eq @key ../value}}selected{{/eq}}>{{this}}</option>
+              {{/each}}
+            </select>
+            <a href="{{baseUrl}}/measures/manage">Edit my filters</a>
+          {{/eq}}
+          {{#eq type "INTEGER"}}
+            <input value="{{value}}" name="{{key}}" type="text" size="10">
+          {{/eq}}
+          {{#eq type "BOOLEAN"}}
+            <input type="checkbox" name="{{key}}">
+          {{/eq}}
+
+          {{#if defaultValue}}
+            <div class="form-val-note">Default: {{defaultValue}}</div>
+          {{/if}}
+        </td>
+      </tr>
+    {{/each}}
+
+    <tr>
+      <td colspan="2">
+        <input type="submit" value="Save">
+        <a class="js-cancel-edit-widget">Cancel</a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</form>

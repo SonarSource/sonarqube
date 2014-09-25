@@ -32,6 +32,8 @@ requirejs [
   App = new Marionette.Application()
   App.dashboard = window.did
   App.resource = window.resource
+  App.state = new Backbone.Model configure: false
+
 
   App.addInitializer ->
     @widgetsView = new WidgetsView
@@ -41,11 +43,13 @@ requirejs [
       app: @
     @widgetsView.render();
 
+
   requestDetails = ->
     $.get "#{baseUrl}/api/dashboards/details", did: App.dashboard, (data) ->
       console.log JSON.stringify data
       App.dashboard = new Backbone.Model _.omit data, 'widgets'
       App.widgets = new Widgets data.widgets
+
 
   $.when(requestDetails(), window.requestMessages()).done -> App.start()
 

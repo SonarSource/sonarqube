@@ -12,8 +12,16 @@ define [
   class extends Marionette.ItemView
     template: Templates['widget']
 
-    initialize: ->
-        @requestContent()
+
+    events:
+      'click .js-edit-widget': 'editWidget'
+      'click .js-cancel-edit-widget': 'cancelEditWidget'
+      'submit .js-edit-widget-form': 'saveWidget'
+
+
+    initialize: (options) ->
+#      @listenTo options.app.state, 'change', @render
+      @requestContent()
 
 
     requestContent: ->
@@ -27,8 +35,41 @@ define [
 
 
     getWidgetProps: ->
-      props = @model.get 'props'
+      properties = @model.get 'properties'
       r = {}
-      props.forEach (prop) ->
-        r[prop.key] = prop.value
+      properties.forEach (prop) ->
+        r[prop.key] = prop.value if prop.value?
       r
+
+
+    editWidget: ->
+      $.get "#{baseUrl}/api/dashboards/configure_widget", id: @model.id, (data) =>
+        @model.mergeProperties data.widget.properties
+        @showEditForm()
+
+
+    showEditForm: ->
+      @render()
+      @$('.widget_props').removeClass 'hidden'
+      @$('.configure_widget').addClass 'hidden'
+
+
+    cancelEditWidget: ->
+      @$('.widget_props').addClass 'hidden'
+      @$('.configure_widget').removeClass 'hidden'
+
+
+    saveWidget: (e) ->
+      e.preventDefault()
+      data = id: @model.id
+      @$('.js-edit-widget-form').serializeArray().forEach (p) ->
+        data[p.name] = p.value
+      $.post "#{baseUrl}/api/dashboards/save_widget", data, (data) =>
+        @model.set data.widget
+        @requestContent()
+
+
+    serializeData: ->
+      _.extend super,
+        baseUrl: baseUrl
+        state: @options.app.state.toJSON()

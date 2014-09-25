@@ -1,6 +1,10 @@
 <div class="line-block">
   <div class="operations noprint button-group">
-    <button>{{t 'dashboard.configure_widgets'}}</button>
+    {{#unless state.configure}}
+      <button class="js-configure-widgets">{{t 'dashboard.configure_widgets'}}</button>
+    {{else}}
+      <button class="js-back-to-dashboard">{{t 'dashboard.back_to_dashboard'}}</button>
+    {{/unless}}
     <a class="button" href="{{manageDashboardsUrl}}">{{t 'dashboard.manage_dashboards'}}</a>
   </div>
 </div>
