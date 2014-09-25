@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DatabaseVersion;
@@ -71,6 +72,7 @@ public class BackendCleanup implements ServerComponent {
 
     } finally {
       dbSession.close();
+      DbUtils.closeQuietly(connection);
     }
   }
 
@@ -110,7 +112,7 @@ public class BackendCleanup implements ServerComponent {
 
       // Clear resource related tables
       for (String relatedTable : RESOURCE_RELATED_TABLES) {
-        deleteWhereResoureIdNotNull(relatedTable, connection);
+        deleteWhereResourceIdNotNull(relatedTable, connection);
       }
 
       deleteManualRules(connection);
@@ -120,16 +122,17 @@ public class BackendCleanup implements ServerComponent {
 
     } finally {
       dbSession.close();
+      DbUtils.closeQuietly(connection);
     }
   }
 
-  private void deleteWhereResoureIdNotNull(String tableName, Connection connection) {
+  private void deleteWhereResourceIdNotNull(String tableName, Connection connection) {
     try {
       connection.prepareStatement("DELETE FROM " + tableName + " WHERE resource_id IS NOT NULL").execute();
       // commit is useless on some databases
       connection.commit();
     } catch (SQLException e) {
-      // frequent use-case : the table does not exist
+      throw new IllegalStateException("Fail to delete table : " + tableName, e);
     }
   }
 

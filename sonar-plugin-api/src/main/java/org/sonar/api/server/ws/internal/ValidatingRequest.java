@@ -101,7 +101,8 @@ public abstract class ValidatingRequest extends Request {
       LoggerFactory.getLogger(getClass()).error(message);
       throw new IllegalArgumentException(message);
     }
-    String value = StringUtils.defaultString(readParam(definition.deprecatedKey()), readParam(key));
+    String deprecatedKey = definition.deprecatedKey();
+    String value = deprecatedKey != null ? StringUtils.defaultString(readParam(deprecatedKey), readParam(key)) : readParam(key);
     value = StringUtils.defaultString(value, definition.defaultValue());
     if (value == null) {
       return null;

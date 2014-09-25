@@ -132,6 +132,16 @@ public class IssueIndexMediumTest {
   }
 
   @Test(expected = IllegalStateException.class)
+  public void comments_field_is_not_available() throws Exception {
+    IssueDto issue = createIssue();
+    db.issueDao().insert(session, issue);
+    session.commit();
+
+    Issue result = index.getByKey(issue.getKey());
+    result.comments();
+  }
+
+  @Test(expected = IllegalStateException.class)
   public void is_new_field_is_not_available() throws Exception {
     IssueDto issue = createIssue();
     db.issueDao().insert(session, issue);
