@@ -19,32 +19,35 @@
  */
 package org.sonar.plugins.scm.git;
 
-import org.sonar.api.batch.scm.BlameCommand;
-import org.sonar.api.batch.scm.ScmProvider;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.IOException;
 
-public class GitScmProvider extends ScmProvider {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private GitBlameCommand blameCommand;
+public class GitScmProviderTest {
 
-  public GitScmProvider(GitBlameCommand blameCommand) {
-    this.blameCommand = blameCommand;
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  @Test
+  public void sanityCheck() {
+    assertThat(new GitScmProvider(null).key()).isEqualTo("git");
+    GitBlameCommand blameCommand = new GitBlameCommand();
+    assertThat(new GitScmProvider(blameCommand).blameCommand()).isEqualTo(blameCommand);
   }
 
-  @Override
-  public String key() {
-    return "git";
-  }
+  @Test
+  public void testAutodetection() throws IOException {
+    File baseDirEmpty = temp.newFolder();
+    assertThat(new GitScmProvider(null).supports(baseDirEmpty)).isFalse();
 
-  @Override
-  public boolean supports(File baseDir) {
-    return new File(baseDir, ".git").exists();
-  }
-
-  @Override
-  public BlameCommand blameCommand() {
-    return this.blameCommand;
+    File gitBaseDir = temp.newFolder();
+    new File(gitBaseDir, ".git").mkdir();
+    assertThat(new GitScmProvider(null).supports(gitBaseDir)).isTrue();
   }
 
 }

@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
+import org.sonar.api.batch.scm.BlameCommand.BlameResult;
 import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.api.batch.scm.ScmProvider.BlameResult;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -92,7 +92,7 @@ public final class ScmActivitySensor implements Sensor {
         filesToBlame.add(f);
       }
     }
-    configuration.provider().blame(fs, filesToBlame, new BlameResult() {
+    configuration.provider().blameCommand().blame(fs, filesToBlame, new BlameResult() {
 
       @Override
       public void add(InputFile file, List<BlameLine> lines) {

@@ -52,10 +52,12 @@ public class DefaultIssue implements Issue {
   private final SensorStorage storage;
 
   public DefaultIssue() {
+    this.key = UUID.randomUUID().toString();
     this.storage = null;
   }
 
   public DefaultIssue(SensorStorage storage) {
+    this.key = UUID.randomUUID().toString();
     this.storage = storage;
   }
 
@@ -155,9 +157,6 @@ public class DefaultIssue implements Issue {
   public void save() {
     Preconditions.checkNotNull(this.storage, "No persister on this object");
     Preconditions.checkNotNull(this.ruleKey, "ruleKey is mandatory on issue");
-    if (this.key == null) {
-      this.key = UUID.randomUUID().toString();
-    }
     Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
 
     storage.store(this);

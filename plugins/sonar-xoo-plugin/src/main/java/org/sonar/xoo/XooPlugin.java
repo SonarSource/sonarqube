@@ -25,13 +25,14 @@ import org.sonar.xoo.lang.MeasureSensor;
 import org.sonar.xoo.lang.SymbolReferencesSensor;
 import org.sonar.xoo.lang.SyntaxHighlightingSensor;
 import org.sonar.xoo.lang.TestCaseSensor;
-import org.sonar.xoo.lang.XooScmProvider;
 import org.sonar.xoo.lang.XooTokenizerSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
 import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerLineSensor;
 import org.sonar.xoo.rule.XooQualityProfile;
 import org.sonar.xoo.rule.XooRulesDefinition;
+import org.sonar.xoo.scm.XooBlameCommand;
+import org.sonar.xoo.scm.XooScmProvider;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,6 +54,7 @@ public class XooPlugin extends SonarPlugin {
 
       // SCM
       XooScmProvider.class,
+      XooBlameCommand.class,
 
       // sensors
       MeasureSensor.class,

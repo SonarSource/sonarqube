@@ -32,7 +32,7 @@ public class OneIssuePerLineSensor implements Sensor {
 
   public static final String RULE_KEY = "OneIssuePerLine";
   private static final String EFFORT_TO_FIX_PROPERTY = "sonar.oneIssuePerLine.effortToFix";
-  private static final String FORCE_SEVERITY_PROPERTY = "sonar.oneIssuePerLine.forceSeverity";
+  public static final String FORCE_SEVERITY_PROPERTY = "sonar.oneIssuePerLine.forceSeverity";
 
   @Override
   public void describe(SensorDescriptor descriptor) {

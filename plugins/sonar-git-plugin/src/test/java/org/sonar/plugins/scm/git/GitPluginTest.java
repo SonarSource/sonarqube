@@ -27,6 +27,6 @@ public class GitPluginTest {
 
   @Test
   public void getExtensions() {
-    assertThat(new GitPlugin().getExtensions()).hasSize(1);
+    assertThat(new GitPlugin().getExtensions()).hasSize(2);
   }
 }

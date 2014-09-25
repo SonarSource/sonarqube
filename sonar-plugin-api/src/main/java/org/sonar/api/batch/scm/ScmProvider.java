@@ -21,42 +21,31 @@ package org.sonar.api.batch.scm;
 
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * @since 5.0
  */
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public interface ScmProvider extends BatchExtension {
+public abstract class ScmProvider implements BatchExtension {
 
   /**
    * Unique identifier of the provider. Can be used in SCM URL to define the provider to use.
    */
-  String key();
+  public abstract String key();
 
   /**
    * Does this provider able to manage files located in this directory.
-   * Used by autodetection.
+   * Used by autodetection. Not considered if user has forced the provider key.
+   * @return false by default
    */
-  boolean supports(File baseDir);
+  public boolean supports(File baseDir) {
+    return false;
+  }
 
-  /**
-   * Compute blame of the provided files. Computation can be done in parallel.
-   * If there is an error that prevent to blame a file then an exception should be raised.
-   */
-  void blame(FileSystem fs, Iterable<InputFile> files, BlameResult result);
-
-  /**
-   * Callback for the provider to save results of blame per file.
-   */
-  public static interface BlameResult {
-
-    void add(InputFile file, List<BlameLine> lines);
-
+  public BlameCommand blameCommand() {
+    throw new UnsupportedOperationException("Blame command is not supported by " + key() + " provider");
   }
 
 }
