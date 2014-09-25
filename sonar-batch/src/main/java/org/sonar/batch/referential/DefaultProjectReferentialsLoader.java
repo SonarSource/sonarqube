@@ -20,22 +20,33 @@
 package org.sonar.batch.referential;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.MeasureModel;
+import org.sonar.api.database.model.ResourceModel;
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
-import org.sonar.batch.DefaultTimeMachine;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.batch.rule.ModuleQProfiles;
-import org.sonar.batch.scan.filesystem.PreviousFileHashLoader;
+import org.sonar.core.source.SnapshotDataTypes;
+import org.sonar.core.source.db.SnapshotDataDao;
+import org.sonar.core.source.db.SnapshotDataDto;
+
+import javax.persistence.Query;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -50,17 +61,15 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
 
   private final ServerClient serverClient;
   private final AnalysisMode analysisMode;
-  private final PreviousFileHashLoader fileHashLoader;
-  private final MetricFinder metricFinder;
-  private final DefaultTimeMachine defaultTimeMachine;
+  private final SnapshotDataDao dao;
+  private final DatabaseSession session;
 
-  public DefaultProjectReferentialsLoader(ServerClient serverClient, AnalysisMode analysisMode, PreviousFileHashLoader fileHashLoader, MetricFinder finder,
-    DefaultTimeMachine defaultTimeMachine) {
+  public DefaultProjectReferentialsLoader(DatabaseSession session, ServerClient serverClient, AnalysisMode analysisMode,
+    SnapshotDataDao dao) {
+    this.session = session;
     this.serverClient = serverClient;
     this.analysisMode = analysisMode;
-    this.fileHashLoader = fileHashLoader;
-    this.metricFinder = finder;
-    this.defaultTimeMachine = defaultTimeMachine;
+    this.dao = dao;
   }
 
   @Override
@@ -77,28 +86,78 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
     url += "&preview=" + analysisMode.isPreview();
     ProjectReferentials ref = ProjectReferentials.fromJson(serverClient.request(url));
 
-    Integer lastCommitsId = metricFinder.findByKey(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE.key()).getId();
-    Integer revisionsId = metricFinder.findByKey(CoreMetrics.SCM_REVISIONS_BY_LINE.key()).getId();
-    Integer authorsId = metricFinder.findByKey(CoreMetrics.SCM_AUTHORS_BY_LINE.key()).getId();
-    for (Map.Entry<String, String> hashByPaths : fileHashLoader.hashByRelativePath().entrySet()) {
-      String path = hashByPaths.getKey();
-      String hash = hashByPaths.getValue();
-      String lastCommits = null;
-      String revisions = null;
-      String authors = null;
-      List<MeasureModel> measures = defaultTimeMachine.query(projectKey + ":" + path, lastCommitsId, revisionsId, authorsId);
-      for (MeasureModel m : measures) {
-        if (m.getMetricId() == lastCommitsId) {
-          lastCommits = m.getData(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
-        } else if (m.getMetricId() == revisionsId) {
-          revisions = m.getData(CoreMetrics.SCM_REVISIONS_BY_LINE);
+    for (ProjectDefinition module : reactor.getProjects()) {
+
+      for (Map.Entry<String, String> hashByPaths : hashByRelativePath(module.getKeyWithBranch()).entrySet()) {
+        String path = hashByPaths.getKey();
+        String hash = hashByPaths.getValue();
+        String lastCommits = null;
+        String revisions = null;
+        String authors = null;
+        List<Object[]> measuresByKey = query(projectKey + ":" + path, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, CoreMetrics.SCM_REVISIONS_BY_LINE_KEY,
+          CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
+        for (Object[] measureByKey : measuresByKey) {
+          if (measureByKey[0].equals(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY)) {
+            lastCommits = ((MeasureModel) measureByKey[1]).getData(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
+          } else if (measureByKey[0].equals(CoreMetrics.SCM_REVISIONS_BY_LINE_KEY)) {
+            revisions = ((MeasureModel) measureByKey[1]).getData(CoreMetrics.SCM_REVISIONS_BY_LINE);
+          } else if (measureByKey[0].equals(CoreMetrics.SCM_AUTHORS_BY_LINE_KEY)) {
+            authors = ((MeasureModel) measureByKey[1]).getData(CoreMetrics.SCM_AUTHORS_BY_LINE);
+          }
         }
-        if (m.getMetricId() == authorsId) {
-          authors = m.getData(CoreMetrics.SCM_AUTHORS_BY_LINE);
-        }
+        ref.addFileData(projectKey, path, new FileData(hash, lastCommits, revisions, authors));
       }
-      ref.fileDataPerPath().put(path, new FileData(hash, lastCommits, revisions, authors));
     }
     return ref;
+  }
+
+  public Map<String, String> hashByRelativePath(String projectKey) {
+    Map<String, String> map = Maps.newHashMap();
+    Collection<SnapshotDataDto> selectSnapshotData = dao.selectSnapshotDataByComponentKey(
+      projectKey,
+      Arrays.asList(SnapshotDataTypes.FILE_HASHES)
+      );
+    if (!selectSnapshotData.isEmpty()) {
+      SnapshotDataDto snapshotDataDto = selectSnapshotData.iterator().next();
+      String data = snapshotDataDto.getData();
+      map = KeyValueFormat.parse(data);
+    }
+    return map;
+  }
+
+  public List<Object[]> query(String resourceKey, String... metricKeys) {
+    StringBuilder sb = new StringBuilder();
+    Map<String, Object> params = Maps.newHashMap();
+
+    sb.append("SELECT met.key, m");
+    sb.append(" FROM ")
+      .append(MeasureModel.class.getSimpleName())
+      .append(" m, ")
+      .append(Metric.class.getSimpleName())
+      .append(" met, ")
+      .append(ResourceModel.class.getSimpleName())
+      .append(" r, ")
+      .append(Snapshot.class.getSimpleName())
+      .append(" s WHERE met.id=m.metricId AND m.snapshotId=s.id AND s.resourceId=r.id AND r.key=:kee AND s.status=:status AND s.qualifier<>:lib");
+    params.put("kee", resourceKey);
+    params.put("status", Snapshot.STATUS_PROCESSED);
+    params.put("lib", Qualifiers.LIBRARY);
+
+    sb.append(" AND m.characteristicId IS NULL");
+    sb.append(" AND m.personId IS NULL");
+    sb.append(" AND m.ruleId IS NULL AND m.rulePriority IS NULL");
+    if (metricKeys.length > 0) {
+      sb.append(" AND met.key IN (:metricKeys) ");
+      params.put("metricKeys", Arrays.asList(metricKeys));
+    }
+    sb.append(" AND s.last=true ");
+    sb.append(" ORDER BY s.createdAt ");
+
+    Query jpaQuery = session.createQuery(sb.toString());
+
+    for (Map.Entry<String, Object> entry : params.entrySet()) {
+      jpaQuery.setParameter(entry.getKey(), entry.getValue());
+    }
+    return jpaQuery.getResultList();
   }
 }

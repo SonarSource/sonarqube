@@ -13,5 +13,6 @@
     "org.codehaus.sonar:sonar": {
       "sonar.jira.project.key": "SONAR"
     }
-  }
+  },
+  "fileDataPerPath": {}
 }
