@@ -111,8 +111,8 @@ public class DefaultDatabase implements Database {
     try {
       LOG.debug("Testing JDBC connection");
       connection = datasource.getConnection();
-    } catch (Exception e) {
-      LOG.error("Can not connect to database. Please check connectivity and settings (see the properties prefixed by 'sonar.jdbc.').", e);
+    } catch (SQLException e) {
+      throw new IllegalStateException("Can not connect to database. Please check connectivity and settings (see the properties prefixed by 'sonar.jdbc.').", e);
     } finally {
       DbUtils.closeQuietly(connection);
     }
