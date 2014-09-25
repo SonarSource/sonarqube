@@ -3,8 +3,8 @@
 
 <mapper namespace="org.sonar.core.computation.db.AnalysisReportMapper">
 
-  <insert id="insert" parameterType="AnalysisReport" useGeneratedKeys="true" >
-    insert into activities
+  <insert id="insert" parameterType="AnalysisReport" useGeneratedKeys="true">
+    insert into analysis_reports
     (project_key, report_status, report_data, created_at, updated_at)
     values (#{projectKey}, #{status}, #{data}, #{createdAt}, #{updatedAt})
   </insert>

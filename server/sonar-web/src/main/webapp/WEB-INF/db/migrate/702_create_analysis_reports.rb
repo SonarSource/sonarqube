@@ -31,7 +31,6 @@ class CreateAnalysisReports < ActiveRecord::Migration
       t.column :created_at,   :datetime, :null => false
       t.column :updated_at,   :datetime, :null => false
     end
-    add_varchar_index :analysis_reports, 'project_key', :name => 'analysis_reports_project_key', :unique => true
   end
 
 end
