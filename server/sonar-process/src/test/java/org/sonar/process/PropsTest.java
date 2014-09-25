@@ -19,8 +19,12 @@
  */
 package org.sonar.process;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -28,8 +32,11 @@ import static org.fest.assertions.Fail.fail;
 
 public class PropsTest {
 
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   @Test
-  public void of() throws Exception {
+  public void value() throws Exception {
     Properties p = new Properties();
     p.setProperty("foo", "bar");
     Props props = new Props(p);
@@ -38,10 +45,18 @@ public class PropsTest {
     assertThat(props.value("foo", "default value")).isEqualTo("bar");
     assertThat(props.value("unknown")).isNull();
     assertThat(props.value("unknown", "default value")).isEqualTo("default value");
+
+    assertThat(props.nonNullValue("foo")).isEqualTo("bar");
+    try {
+      props.nonNullValue("other");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Missing property: other");
+    }
   }
 
   @Test
-  public void intOf() throws Exception {
+  public void valueAsInt() throws Exception {
     Properties p = new Properties();
     p.setProperty("foo", "33");
     p.setProperty("blank", "");
@@ -56,7 +71,7 @@ public class PropsTest {
   }
 
   @Test
-  public void intOf_not_integer() throws Exception {
+  public void valueAsInt_not_integer() throws Exception {
     Properties p = new Properties();
     p.setProperty("foo", "bar");
     Props props = new Props(p);
@@ -130,6 +145,21 @@ public class PropsTest {
     // do not decrypt
     assertThat(props.rawProperties().get("encrypted_prop")).isEqualTo("{aes}abcde");
     assertThat(props.rawProperties().get("clear_prop")).isEqualTo("foo");
+  }
 
+  @Test
+  public void nonNullValueAsFile() throws IOException {
+    File file = temp.newFile();
+    Props props = new Props(new Properties());
+    props.set("path", file.getAbsolutePath());
+
+    assertThat(props.nonNullValueAsFile("path")).isEqualTo(file);
+
+    try {
+      props.nonNullValueAsFile("other_path");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Property other_path is not set");
+    }
   }
 }

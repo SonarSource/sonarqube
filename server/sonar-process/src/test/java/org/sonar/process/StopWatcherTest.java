@@ -22,50 +22,38 @@ package org.sonar.process;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.mockito.Mockito.*;
 
-public class StopperThreadTest {
+public class StopWatcherTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  @Test(timeout = 3000L)
-  public void stop_in_a_timely_fashion() throws Exception {
+  @Test(timeout = 1000L)
+  public void stop_if_receive_command() throws Exception {
     ProcessCommands commands = mock(ProcessCommands.class);
-    Monitored monitored = mock(Monitored.class);
+    when(commands.askedForStop()).thenReturn(false).thenReturn(true);
+    Stoppable stoppable = mock(Stoppable.class);
 
-    // max stop timeout is 5 seconds, but test fails after 3 seconds
-    // -> guarantees that stop is immediate
-    StopperThread stopper = new StopperThread(monitored, commands, 5000L);
-    stopper.start();
-    stopper.join();
+    StopWatcher watcher = new StopWatcher(commands, stoppable, 10L);
+    watcher.start();
+    watcher.join();
 
-    verify(monitored).stop();
-    verify(commands).endWatch();
+    verify(stoppable).stopAsync();
   }
 
-  @Test(timeout = 3000L)
-  public void stop_timeout() throws Exception {
+  @Test(timeout = 1000L)
+  public void stop_watching_on_interruption() throws Exception {
     ProcessCommands commands = mock(ProcessCommands.class);
-    Monitored monitored = mock(Monitored.class);
-    doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-        Thread.sleep(10000L);
-        return null;
-      }
-    }).when(monitored).stop();
+    when(commands.askedForStop()).thenReturn(false);
+    Stoppable stoppable = mock(Stoppable.class);
 
-    // max stop timeout is 50 milliseconds
-    StopperThread stopper = new StopperThread(monitored, commands, 50L);
-    stopper.start();
-    stopper.join();
+    StopWatcher watcher = new StopWatcher(commands, stoppable, 1000L);
+    watcher.start();
+    Thread.sleep(50L);
+    watcher.interrupt();
 
-    verify(monitored).stop();
-    // even if stopper was interrupted, stop watching process
-    verify(commands).endWatch();
+    verify(stoppable, never()).stopAsync();
   }
 }

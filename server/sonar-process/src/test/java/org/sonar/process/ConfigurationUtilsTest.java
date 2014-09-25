@@ -24,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.util.Map;
@@ -91,5 +92,10 @@ public class ConfigurationUtilsTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Could not read properties from file: " + propsFile.getAbsolutePath());
     }
+  }
+
+  @Test
+  public void private_constructor() throws Exception {
+    TestUtils.assertPrivateConstructor(ConfigurationUtils.class);
   }
 }

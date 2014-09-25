@@ -21,6 +21,7 @@ package org.sonar.process;
 
 import com.google.common.collect.Iterators;
 import org.junit.Test;
+import org.sonar.test.TestUtils;
 
 import java.net.NetworkInterface;
 import java.util.Collections;
@@ -47,5 +48,10 @@ public class LoopbackAddressTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Impossible to get a IPv4 loopback address");
     }
+  }
+
+  @Test
+  public void private_constructor() throws Exception {
+    TestUtils.assertPrivateConstructor(LoopbackAddress.class);
   }
 }

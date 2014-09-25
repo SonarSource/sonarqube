@@ -21,16 +21,26 @@ package org.sonar.process;
 
 import org.slf4j.LoggerFactory;
 
+/**
+ * This watchdog asks for graceful termination of process when the file
+ * &lt;process_key&gt;.stop is created in temp directory.
+ */
 public class StopWatcher extends Thread {
 
   private final Stoppable stoppable;
   private final ProcessCommands commands;
   private boolean watching = true;
+  private final long delayMs;
 
   public StopWatcher(ProcessCommands commands, Stoppable stoppable) {
+    this(commands, stoppable, 500L);
+  }
+
+  StopWatcher(ProcessCommands commands, Stoppable stoppable, long delayMs) {
     super("Stop Watcher");
     this.commands = commands;
     this.stoppable = stoppable;
+    this.delayMs = delayMs;
   }
 
   @Override
@@ -44,7 +54,7 @@ public class StopWatcher extends Thread {
           watching = false;
         } else {
           try {
-            Thread.sleep(500L);
+            Thread.sleep(delayMs);
           } catch (InterruptedException ignored) {
             watching = false;
           }
