@@ -37,9 +37,12 @@ import org.sonar.updatecenter.common.PluginReferential;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ServerPluginJarsInstaller {
 
@@ -50,9 +53,10 @@ public class ServerPluginJarsInstaller {
   private final ServerPluginJarInstaller installer;
   private final Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
   private final ServerUpgradeStatus serverUpgradeStatus;
+  private final static Set<String> BLACKLISTED_PLUGINS = new HashSet<String>(Arrays.asList("scmactivity"));
 
   public ServerPluginJarsInstaller(Server server, ServerUpgradeStatus serverUpgradeStatus,
-                                   DefaultServerFileSystem fs, ServerPluginJarInstaller installer) {
+    DefaultServerFileSystem fs, ServerPluginJarInstaller installer) {
     this.server = server;
     this.serverUpgradeStatus = serverUpgradeStatus;
     this.fs = fs;
@@ -85,18 +89,26 @@ public class ServerPluginJarsInstaller {
     for (File file : fs.getUserPlugins()) {
       DefaultPluginMetadata metadata = installer.extractMetadata(file, false);
       if (StringUtils.isNotBlank(metadata.getKey())) {
-        PluginMetadata existing = pluginByKeys.put(metadata.getKey(), metadata);
-        if (existing != null) {
-          throw MessageException.of(String.format("Found two files for the same plugin '%s': %s and %s",
-            metadata.getKey(), metadata.getFile().getName(), existing.getFile().getName()));
-        }
+        loadInstalledPlugin(metadata);
+      }
+    }
+  }
+
+  private void loadInstalledPlugin(DefaultPluginMetadata metadata) {
+    if (BLACKLISTED_PLUGINS.contains(metadata.getKey())) {
+      LOG.warn("Plugin {} is blacklisted. Please uninstall it.", metadata.getName());
+    } else {
+      PluginMetadata existing = pluginByKeys.put(metadata.getKey(), metadata);
+      if (existing != null) {
+        throw MessageException.of(String.format("Found two files for the same plugin '%s': %s and %s",
+          metadata.getKey(), metadata.getFile().getName(), existing.getFile().getName()));
       }
     }
   }
 
   private void moveDownloadedPlugins() {
     if (fs.getDownloadedPluginsDir().exists()) {
-      Collection<File> sourceFiles = FileUtils.listFiles(fs.getDownloadedPluginsDir(), new String[]{"jar"}, false);
+      Collection<File> sourceFiles = FileUtils.listFiles(fs.getDownloadedPluginsDir(), new String[] {"jar"}, false);
       for (File sourceFile : sourceFiles) {
         overridePlugin(sourceFile, true);
       }
@@ -115,7 +127,6 @@ public class ServerPluginJarsInstaller {
       }
     }
   }
-
 
   private void overridePlugin(File sourceFile, boolean deleteSource) {
     File destDir = fs.getUserPluginsDir();
@@ -180,7 +191,7 @@ public class ServerPluginJarsInstaller {
   public List<String> getUninstalls() {
     List<String> names = Lists.newArrayList();
     if (fs.getTrashPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fs.getTrashPluginsDir(), new String[]{"jar"}, false);
+      List<File> files = (List<File>) FileUtils.listFiles(fs.getTrashPluginsDir(), new String[] {"jar"}, false);
       for (File file : files) {
         names.add(file.getName());
       }
@@ -190,7 +201,7 @@ public class ServerPluginJarsInstaller {
 
   public void cancelUninstalls() {
     if (fs.getTrashPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fs.getTrashPluginsDir(), new String[]{"jar"}, false);
+      List<File> files = (List<File>) FileUtils.listFiles(fs.getTrashPluginsDir(), new String[] {"jar"}, false);
       for (File file : files) {
         try {
           FileUtils.moveFileToDirectory(file, fs.getUserPluginsDir(), false);

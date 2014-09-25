@@ -258,11 +258,12 @@ import java.util.List;
   @Property(
     key = CoreProperties.SCM_ENABLED_KEY,
     defaultValue = "true",
-    name = "Activation of the SCM Activity step",
-    description = "This property can be set to false in order to deactivate the SCM Activity step.",
+    name = "Activation of the SCM Sensor",
+    description = "This property can be set to false in order to deactivate the SCM Sensor.",
     module = false,
     project = true,
     global = true,
+    category = CoreProperties.CATEGORY_SCM,
     type = PropertyType.BOOLEAN
   ),
   @Property(
@@ -273,7 +274,7 @@ import java.util.List;
     module = false,
     project = true,
     global = false,
-    type = PropertyType.BOOLEAN
+    category = CoreProperties.CATEGORY_SCM
   )
 })
 public final class CorePlugin extends SonarPlugin {
