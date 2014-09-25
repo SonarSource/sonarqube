@@ -21,6 +21,7 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableList;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
@@ -29,7 +30,12 @@ import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
 
@@ -45,7 +51,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
 
     public static final IndexField ACTION_PLAN = add(IndexField.Type.STRING, "actionPlan");
     public static final IndexField ASSIGNEE = addSortable(IndexField.Type.STRING, "assignee");
-    public static final IndexField ATTRIBUTE = add(IndexField.Type.OBJECT, "attributes");
+    public static final IndexField ATTRIBUTES = add(IndexField.Type.OBJECT, "attributes");
     public static final IndexField AUTHOR_LOGIN = add(IndexField.Type.STRING, "authorLogin");
     public static final IndexField COMPONENT = add(IndexField.Type.STRING, "component");
     public static final IndexField DEBT = add(IndexField.Type.NUMERIC, "debt");
@@ -91,7 +97,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
 
   @Override
   public List<UpdateRequest> normalize(IssueDto dto) {
-    Map<String, Object> update = new HashMap<String, Object>();
+    Map<String, Object> update = newHashMap();
 
     update.put("_parent", dto.getRootComponentKey());
     update.put(IssueField.KEY.field(), dto.getKey());
@@ -99,6 +105,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     update.put(IssueField.CREATED_AT.field(), dto.getCreatedAt());
 
     update.put(IssueField.ACTION_PLAN.field(), dto.getActionPlanKey());
+    update.put(IssueField.ATTRIBUTES.field(), KeyValueFormat.parse(dto.getIssueAttributes()));
     update.put(IssueField.ASSIGNEE.field(), dto.getAssignee());
     update.put(IssueField.AUTHOR_LOGIN.field(), dto.getAuthorLogin());
     update.put(IssueField.ISSUE_CLOSE_DATE.field(), dto.getIssueCloseDate());
@@ -117,16 +124,13 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     update.put(IssueField.LANGUAGE.field(), dto.getLanguage());
     update.put(IssueField.RULE_KEY.field(), dto.getRuleKey().toString());
 
-    // TODO Not yet normalized
-    // issueDoc.attributes();
-
     /** Upsert elements */
     Map<String, Object> upsert = getUpsertFor(IssueField.ALL_FIELDS, update);
-    upsert.put(IssueField.KEY.field(), dto.getKey().toString());
+    upsert.put(IssueField.KEY.field(), dto.getKey());
 
     return ImmutableList.of(
       new UpdateRequest()
-        .id(dto.getKey().toString())
+        .id(dto.getKey())
         .routing(dto.getRootComponentKey())
         .parent(dto.getRootComponentKey())
         .doc(update)

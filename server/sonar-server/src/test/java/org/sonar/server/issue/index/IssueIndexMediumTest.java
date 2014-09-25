@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -29,6 +30,7 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
@@ -115,6 +117,18 @@ public class IssueIndexMediumTest {
 
     Issue result = index.getByKey(issue.getKey());
     IssueTesting.assertIsEquivalent(issue, result);
+  }
+
+  @Test
+  public void get_by_key_with_attributes() throws Exception {
+    IssueDto issue = createIssue();
+    db.issueDao().insert(session, issue).setIssueAttributes(KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234")));
+    session.commit();
+
+    Issue result = index.getByKey(issue.getKey());
+    IssueTesting.assertIsEquivalent(issue, result);
+
+    assertThat(result.attribute("jira-issue-key")).isEqualTo("SONAR-1234");
   }
 
   @Test(expected = IllegalStateException.class)

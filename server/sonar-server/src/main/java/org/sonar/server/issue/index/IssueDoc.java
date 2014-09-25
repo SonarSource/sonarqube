@@ -28,7 +28,6 @@ import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -126,14 +125,12 @@ public class IssueDoc extends BaseDoc implements Issue {
   @Override
   @CheckForNull
   public String attribute(String key) {
-    // TODO get the actual value
-    return null;
+    return attributes().get(key);
   }
 
   @Override
   public Map<String, String> attributes() {
-    // TODO get the actual value
-    return Collections.emptyMap();
+    return getField(IssueNormalizer.IssueField.ATTRIBUTES.field());
   }
 
   @Override
@@ -150,8 +147,7 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public List<IssueComment> comments() {
-    // TODO get the actual value
-    return Collections.emptyList();
+    throw new IllegalStateException("Comments are not availables in index");
   }
 
   @Override

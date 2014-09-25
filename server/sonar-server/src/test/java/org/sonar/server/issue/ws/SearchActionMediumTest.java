@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.ws;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.*;
@@ -191,6 +193,18 @@ public class SearchActionMediumTest {
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     result.assertJson(this.getClass(), "issue_with_action_plan.json", false);
+  }
+
+  @Test
+  public void issue_with_attributes() throws Exception {
+    IssueDto issue = IssueTesting.newDto(rule, file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setIssueAttributes(KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234")));
+    db.issueDao().insert(session, issue);
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
+    result.assertJson(this.getClass(), "issue_with_attributes.json", false);
   }
 
   @Test
