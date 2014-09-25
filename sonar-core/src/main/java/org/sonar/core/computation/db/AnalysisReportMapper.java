@@ -23,5 +23,5 @@ package org.sonar.core.computation.db;
  * since 5.0
  */
 public interface AnalysisReportMapper {
-    void insert(AnalysisReportDto report);
+  void insert(AnalysisReportDto report);
 }

@@ -28,50 +28,49 @@ import javax.annotation.Nullable;
  */
 public class AnalysisReportDto extends Dto<String> {
 
-    private Long id;
-    private String projectKey;
-    private String status;
-    private String data;
+  private Long id;
+  private String projectKey;
+  private String status;
+  private String data;
 
-    public String getProjectKey() {
-        return projectKey;
-    }
+  public String getProjectKey() {
+    return projectKey;
+  }
 
-    public AnalysisReportDto setProjectKey(String projectKey) {
-      this.projectKey = projectKey;
-      return this;
-    }
+  public AnalysisReportDto setProjectKey(String projectKey) {
+    this.projectKey = projectKey;
+    return this;
+  }
 
-    public String getStatus() {
-        return status;
-    }
+  public String getStatus() {
+    return status;
+  }
 
-    public AnalysisReportDto setStatus(String status) {
-      this.status = status;
-      return this;
-    }
+  public AnalysisReportDto setStatus(String status) {
+    this.status = status;
+    return this;
+  }
 
-    public String getData() {
-        return data;
-    }
+  public String getData() {
+    return data;
+  }
 
-    public AnalysisReportDto setData(@Nullable String data) {
-      this.data = data;
-      return this;
-    }
+  public AnalysisReportDto setData(@Nullable String data) {
+    this.data = data;
+    return this;
+  }
 
+  @Override
+  public String getKey() {
+    return getProjectKey();
+  }
 
-    @Override
-    public String getKey() {
-        return getProjectKey();
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public Long getId() {
-        return id;
-    }
-
-    public AnalysisReportDto setId(Long id) {
-      this.id = id;
-      return this;
-    }
+  public AnalysisReportDto setId(Long id) {
+    this.id = id;
+    return this;
+  }
 }

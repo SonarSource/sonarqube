@@ -21,16 +21,12 @@
 package org.sonar.server.computation.db;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.db.AnalysisReportMapper;
-import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
-import org.sonar.server.search.IndexDefinition;
 
 import java.util.Date;
 import java.util.Map;
