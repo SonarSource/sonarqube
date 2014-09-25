@@ -1,0 +1,19 @@
+{
+  "issues": [
+    {
+      "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+      "assignee": "simon",
+      "assigneeName": "Simon",
+      "reporter": "fabrice",
+      "reporterName": "Fabrice",
+      "actionPlan": "AP-ABCD",
+      "actionPlanName": "1.0",
+      "actions": [
+        "comment", "assign", "assign_to_me", "plan"
+      ],
+      "transitions": [
+        "confirm", "resolve"
+      ]
+    }
+  ]
+}

@@ -23,7 +23,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.component.Component;
@@ -39,10 +38,11 @@ import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.issue.actionplan.ActionPlanService;
+import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -99,7 +99,7 @@ public class DefaultIssueFinder implements IssueFinder {
   public IssueQueryResult find(IssueQuery query) {
     LOG.debug("IssueQuery : {}", query);
     long start = System.currentTimeMillis();
-    SqlSession sqlSession = myBatis.openSession(false);
+    DbSession sqlSession = myBatis.openSession(false);
     try {
       // 1. Select the authorized ids of all the issues that match the query
       List<IssueDto> authorizedIssues = issueDao.selectIssueIds(query, UserSession.get().userId(), sqlSession);

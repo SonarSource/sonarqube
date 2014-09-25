@@ -1,0 +1,25 @@
+{
+  "issues": [
+    {
+      "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+      "comments": [
+        {
+          "key": "COMMENT-ABCD",
+          "login": "john",
+          "userName": "John",
+          "htmlText": "<em>My comment</em>",
+          "markdown": "*My comment*",
+          "updatable": true
+        },
+        {
+          "key": "COMMENT-ABCE",
+          "login": "fabrice",
+          "userName": "Fabrice",
+          "htmlText": "Another comment",
+          "markdown": "Another comment",
+          "updatable": false
+        }
+      ]
+    }
+  ]
+}

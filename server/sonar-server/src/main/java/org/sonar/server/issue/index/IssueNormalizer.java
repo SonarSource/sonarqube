@@ -118,9 +118,6 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     update.put(IssueField.RULE_KEY.field(), dto.getRuleKey().toString());
 
     // TODO Not yet normalized
-    // IssueDoc issueDoc = new IssueDoc(null);
-    // issueDoc.isNew();
-    // issueDoc.comments();
     // issueDoc.attributes();
 
     /** Upsert elements */

@@ -23,7 +23,6 @@ package org.sonar.server.issue.ws;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.action.Action;
-import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.workflow.Transition;
@@ -48,8 +47,7 @@ public class IssueActionsWriter implements ServerComponent {
   public void writeTransitions(Issue issue, JsonWriter json) {
     json.name("transitions").beginArray();
     if (UserSession.get().isLoggedIn()) {
-      List<Transition> transitions = issueService.listTransitions(issue);
-      for (Transition transition : transitions) {
+      for (Transition transition : issueService.listTransitions(issue)) {
         json.value(transition.key());
       }
     }
@@ -58,13 +56,13 @@ public class IssueActionsWriter implements ServerComponent {
 
   public void writeActions(Issue issue, JsonWriter json) {
     json.name("actions").beginArray();
-    for (String action : actions((DefaultIssue) issue)) {
+    for (String action : actions(issue)) {
       json.value(action);
     }
     json.endArray();
   }
 
-  private List<String> actions(DefaultIssue issue) {
+  private List<String> actions(Issue issue) {
     List<String> actions = newArrayList();
     String login = UserSession.get().login();
     if (login != null) {

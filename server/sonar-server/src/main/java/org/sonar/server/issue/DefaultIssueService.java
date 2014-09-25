@@ -137,8 +137,7 @@ public class DefaultIssueService implements IssueService {
     List<Transition> outTransitions = workflow.outTransitions(issue);
     List<Transition> allowedTransitions = new ArrayList<Transition>();
     for (Transition transition : outTransitions) {
-      DefaultIssue defaultIssue = (DefaultIssue) issue;
-      String projectKey = defaultIssue.projectKey();
+      String projectKey = issue.projectKey();
       if (StringUtils.isBlank(transition.requiredProjectPermission()) ||
         (projectKey != null && UserSession.get().hasProjectPermission(transition.requiredProjectPermission(), projectKey))) {
         allowedTransitions.add(transition);

@@ -1,0 +1,23 @@
+{
+  "issues": [
+    {
+      "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+      "actionPlan": "AP-ABCD"
+    }
+  ],
+  "actionPlans": [
+    {
+      "key": "AP-ABCD",
+      "name": "1.0",
+      "status": "OPEN",
+      "project": "MyProject",
+      "userLogin": "simon",
+      "deadLine": "2014-01-24T19:10:03+0100",
+      "fDeadLine": "Jan 24, 2014 7:10 PM",
+      "createdAt": "2014-01-22T19:10:03+0100",
+      "fCreatedAt": "Jan 22, 2014 7:10 PM",
+      "updatedAt": "2014-01-23T19:10:03+0100",
+      "fUpdatedAt": "Jan 23, 2014 7:10 PM"
+    }
+  ]
+}

@@ -21,10 +21,16 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
 import com.google.common.io.Resources;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.issue.*;
+import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
+import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
@@ -37,6 +43,7 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.db.DbClient;
@@ -57,6 +64,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 
 public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
@@ -70,6 +79,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   private static final String EXTRA_FIELDS_PARAM = "extra_fields";
 
+  private final IssueChangeDao issueChangeDao;
   private final IssueService service;
   private final IssueActionsWriter actionsWriter;
 
@@ -80,13 +90,14 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   private final I18n i18n;
   private final Durations durations;
 
-  public SearchAction(IssueService service, IssueActionsWriter actionsWriter, RuleService ruleService, DbClient dbClient,
+  public SearchAction(DbClient dbClient, IssueChangeDao issueChangeDao, IssueService service, IssueActionsWriter actionsWriter, RuleService ruleService,
     ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Durations durations) {
     super(SEARCH_ACTION);
+    this.dbClient = dbClient;
+    this.issueChangeDao = issueChangeDao;
     this.service = service;
     this.actionsWriter = actionsWriter;
     this.ruleService = ruleService;
-    this.dbClient = dbClient;
     this.actionPlanService = actionPlanService;
     this.userFinder = userFinder;
     this.i18n = i18n;
@@ -208,12 +219,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   @Override
   protected Result<Issue> doSearch(IssueQuery query, QueryContext context) {
-    return ((DefaultIssueService)service).search(query, context);
-  }
-
-  @Override
-  protected void doResultResponse(Request request, QueryContext context, Result<Issue> result, JsonWriter json) {
-    writeIssues(result, request.paramAsStrings(EXTRA_FIELDS_PARAM), json);
+    return ((DefaultIssueService) service).search(query, context);
   }
 
   @Override
@@ -224,35 +230,54 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   @Override
   protected void doContextResponse(Request request, QueryContext context, Result<Issue> result, JsonWriter json) {
-    // Insert the projects and component name;
-    Set<RuleKey> ruleKeys = new HashSet<RuleKey>();
-    Set<String> projectKeys = new HashSet<String>();
-    Set<String> componentKeys = new HashSet<String>();
-    Set<String> actionPlanKeys = new HashSet<String>();
-    List<String> userLogins = new ArrayList<String>();
+    List<String> issueKeys = newArrayList();
+    Set<RuleKey> ruleKeys = newHashSet();
+    Set<String> projectKeys = newHashSet();
+    Set<String> componentKeys = newHashSet();
+    Set<String> actionPlanKeys = newHashSet();
+    List<String> userLogins = newArrayList();
+    Map<String, User> usersByLogin = newHashMap();
+    Multimap<String, DefaultIssueComment> commentsByIssues = ArrayListMultimap.create();
 
     for (Issue issue : result.getHits()) {
+      issueKeys.add(issue.key());
       ruleKeys.add(issue.ruleKey());
       projectKeys.add(issue.projectKey());
       componentKeys.add(issue.componentKey());
       actionPlanKeys.add(issue.actionPlanKey());
-      userLogins.add(issue.authorLogin());
+      if (issue.reporter() != null) {
+        userLogins.add(issue.reporter());
+      }
+      if (issue.assignee() != null) {
+        userLogins.add(issue.assignee());
+      }
     }
-
-    writeRules(json, !request.mandatoryParamAsBoolean(IssueFilterParameters.HIDE_RULES) ? ruleService.getByKeys(ruleKeys) : Collections.<Rule>emptyList());
-    writeUsers(json, userFinder.findByLogins(userLogins));
-    writeActionPlans(json, actionPlanService.findByKeys(actionPlanKeys));
 
     DbSession session = dbClient.openSession(false);
     try {
+      List<DefaultIssueComment> comments = issueChangeDao.selectCommentsByIssues(session, issueKeys);
+      for (DefaultIssueComment issueComment : comments) {
+        userLogins.add(issueComment.userLogin());
+        commentsByIssues.put(issueComment.issueKey(), issueComment);
+      }
+      usersByLogin = getUsersByLogin(session, userLogins);
+
       List<ComponentDto> componentDtos = dbClient.componentDao().getByKeys(session, componentKeys);
       List<ComponentDto> projectDtos = dbClient.componentDao().getByKeys(session, projectKeys);
+
       componentDtos.addAll(projectDtos);
       writeProjects(json, projectDtos);
       writeComponents(json, componentDtos);
     } finally {
       session.close();
     }
+
+    Map<String, ActionPlan> actionPlanByKeys = getActionPlanByKeys(actionPlanKeys);
+
+    writeIssues(result, commentsByIssues, usersByLogin, actionPlanByKeys, request.paramAsStrings(EXTRA_FIELDS_PARAM), json);
+    writeRules(json, !request.mandatoryParamAsBoolean(IssueFilterParameters.HIDE_RULES) ? ruleService.getByKeys(ruleKeys) : Collections.<Rule>emptyList());
+    writeUsers(json, usersByLogin);
+    writeActionPlans(json, actionPlanByKeys.values());
 
     // TODO remove legacy paging. Handled by the SearchRequestHandler
     writeLegacyPaging(context, json, result);
@@ -294,7 +319,8 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     json.endArray();
   }
 
-  private void writeIssues(Result<Issue> result, @Nullable List<String> extraFields, JsonWriter json) {
+  private void writeIssues(Result<Issue> result, Multimap<String, DefaultIssueComment> commentsByIssues, Map<String, User> usersByLogin, Map<String, ActionPlan> actionPlanByKeys,
+                           @Nullable List<String> extraFields, JsonWriter json) {
     json.name("issues").beginArray();
 
     for (Issue issue : result.getHits()) {
@@ -325,24 +351,22 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         .prop("fUpdateAge", formatAgeDate(updateDate))
         .prop("closeDate", isoDate(issue.closeDate()));
 
-      // TODO add comments
-      // writeIssueComments(result, issue, json);
+      writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
       writeIssueAttributes(issue, json);
-      // TODO Add fields
-      // writeIssueExtraFields(result, issue, extraFields, json);
+      writeIssueExtraFields(issue, usersByLogin, actionPlanByKeys, extraFields, json);
       json.endObject();
     }
 
     json.endArray();
   }
 
-  private void writeIssueComments(IssueQueryResult queryResult, Issue issue, JsonWriter json) {
-    if (!issue.comments().isEmpty()) {
+  private void writeIssueComments(Collection<DefaultIssueComment> issueComments, Map<String, User> usersByLogin, JsonWriter json) {
+    if (!issueComments.isEmpty()) {
       json.name("comments").beginArray();
       String login = UserSession.get().login();
-      for (IssueComment comment : issue.comments()) {
+      for (IssueComment comment : issueComments) {
         String userLogin = comment.userLogin();
-        User user = userLogin != null ? queryResult.user(userLogin) : null;
+        User user = userLogin != null ? usersByLogin.get(userLogin) : null;
         json.beginObject()
           .prop("key", comment.key())
           .prop("login", comment.userLogin())
@@ -367,7 +391,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     }
   }
 
-  private void writeIssueExtraFields(IssueQueryResult result, Issue issue, @Nullable List<String> extraFields, JsonWriter json) {
+  private void writeIssueExtraFields(Issue issue, Map<String, User> usersByLogin, Map<String, ActionPlan> actionPlanByKeys, @Nullable List<String> extraFields, JsonWriter json) {
     if (extraFields != null && UserSession.get().isLoggedIn()) {
       if (extraFields.contains(ACTIONS_EXTRA_FIELD)) {
         actionsWriter.writeActions(issue, json);
@@ -379,19 +403,19 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
       String assignee = issue.assignee();
       if (extraFields.contains(ASSIGNEE_NAME_EXTRA_FIELD) && assignee != null) {
-        User user = result.user(assignee);
+        User user = usersByLogin.get(assignee);
         json.prop(ASSIGNEE_NAME_EXTRA_FIELD, user != null ? user.name() : null);
       }
 
       String reporter = issue.reporter();
       if (extraFields.contains(REPORTER_NAME_EXTRA_FIELD) && reporter != null) {
-        User user = result.user(reporter);
+        User user = usersByLogin.get(reporter);
         json.prop(REPORTER_NAME_EXTRA_FIELD, user != null ? user.name() : null);
       }
 
       String actionPlanKey = issue.actionPlanKey();
       if (extraFields.contains(ACTION_PLAN_NAME_EXTRA_FIELD) && actionPlanKey != null) {
-        ActionPlan actionPlan = result.actionPlan(issue);
+        ActionPlan actionPlan = actionPlanByKeys.get(actionPlanKey);
         json.prop(ACTION_PLAN_NAME_EXTRA_FIELD, actionPlan != null ? actionPlan.name() : null);
       }
     }
@@ -429,9 +453,9 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     json.endArray();
   }
 
-  private void writeUsers(JsonWriter json, List<User> users) {
+  private void writeUsers(JsonWriter json, Map<String, User> usersByLogin) {
     json.name("users").beginArray();
-    for (User user : users) {
+    for (User user : usersByLogin.values()) {
       json.beginObject()
         .prop("login", user.login())
         .prop("name", user.name())
@@ -442,7 +466,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     json.endArray();
   }
 
-  private void writeActionPlans(JsonWriter json, List<ActionPlan> plans) {
+  private void writeActionPlans(JsonWriter json, Collection<ActionPlan> plans) {
     if (!plans.isEmpty()) {
       json.name("actionPlans").beginArray();
       for (ActionPlan actionPlan : plans) {
@@ -465,6 +489,22 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       }
       json.endArray();
     }
+  }
+
+  private Map<String, User> getUsersByLogin(DbSession session, List<String> userLogins) {
+    Map<String, User> usersByLogin = newHashMap();
+    for (User user : userFinder.findByLogins(userLogins)) {
+      usersByLogin.put(user.login(), user);
+    }
+    return usersByLogin;
+  }
+
+  private Map<String, ActionPlan> getActionPlanByKeys(Collection<String> actionPlanKeys) {
+    Map<String, ActionPlan> actionPlans = newHashMap();
+    for (ActionPlan actionPlan : actionPlanService.findByKeys(actionPlanKeys)) {
+      actionPlans.put(actionPlan.key(), actionPlan);
+    }
+    return actionPlans;
   }
 
   @CheckForNull

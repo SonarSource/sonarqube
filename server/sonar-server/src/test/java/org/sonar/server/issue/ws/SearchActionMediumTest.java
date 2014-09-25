@@ -29,7 +29,7 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.issue.db.*;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -79,9 +79,7 @@ public class SearchActionMediumTest {
     tester.get(RuleDao.class).insert(session, rule);
 
     project = new ComponentDto()
-      .setId(1L)
-      .setKey("MyProject")
-      .setProjectId(1L);
+      .setKey("MyProject");
     db.componentDao().insert(session, project);
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(project));
 
@@ -90,18 +88,17 @@ public class SearchActionMediumTest {
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
     file = new ComponentDto()
-      .setProjectId(1L)
       .setKey("MyComponent")
-      .setId(2L);
+      .setProjectId(project.getId());
     db.componentDao().insert(session, file);
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file));
 
-    UserDto john = new UserDto().setLogin("john").setName("John").setEmail("john@email.com").setActive(true);
+    UserDto john = new UserDto().setLogin("john").setName("John").setEmail("john@email.com");
     db.userDao().insert(session, john);
 
     session.commit();
 
-    MockUserSession.set().setLogin("gandalf");
+    MockUserSession.set().setLogin("john");
   }
 
   @After
@@ -119,10 +116,11 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void find_single_result() throws Exception {
+  public void issue() throws Exception {
+    db.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
+    db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+
     IssueDto issue = IssueTesting.newDto(rule, file, project)
-      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
       .setRule(rule)
       .setDebt(10L)
       .setRootComponent(project)
@@ -130,15 +128,95 @@ public class SearchActionMediumTest {
       .setStatus("OPEN").setResolution("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR")
-      .setAuthorLogin("john");
+      .setAuthorLogin("John")
+      .setAssignee("simon")
+      .setReporter("fabrice")
+      .setActionPlanKey("AP-ABCD")
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
     db.issueDao().insert(session, issue);
     session.commit();
 
-    WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
+    // TODO date assertion is complex to test, and components id are not predictable, that's why strict boolean is set to false
+    result.assertJson(this.getClass(), "issue.json", false);
+  }
 
-    WsTester.Result result = request.execute();
-    // TODO Date assertion is complex to test
-    result.assertJson(this.getClass(), "single_result.json", false);
+  @Test
+  public void issue_with_comment() throws Exception {
+    db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+
+    IssueDto issue = IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2");
+    db.issueDao().insert(session, issue);
+
+    tester.get(IssueChangeDao.class).insert(session,
+      new IssueChangeDto().setIssueKey(issue.getKey())
+        .setKey("COMMENT-ABCD")
+        .setChangeData("*My comment*")
+        .setChangeType(IssueChangeDto.TYPE_COMMENT)
+        .setUserLogin("john")
+        .setCreatedAt(DateUtils.parseDate("2014-09-09")));
+    tester.get(IssueChangeDao.class).insert(session,
+      new IssueChangeDto().setIssueKey(issue.getKey())
+        .setKey("COMMENT-ABCE")
+        .setChangeData("Another comment")
+        .setChangeType(IssueChangeDto.TYPE_COMMENT)
+        .setUserLogin("fabrice")
+        .setCreatedAt(DateUtils.parseDate("2014-09-10")));
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
+    result.assertJson(this.getClass(), "issue_with_comment.json", false);
+  }
+
+  @Test
+  public void issue_with_action_plan() throws Exception {
+    db.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
+    db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+
+    tester.get(ActionPlanDao.class).save(new ActionPlanDto()
+      .setKey("AP-ABCD")
+      .setName("1.0")
+      .setStatus("OPEN")
+      .setProjectId(project.getId())
+      .setUserLogin("simon")
+      .setDeadLine(DateUtils.parseDateTime("2014-01-24T19:10:03+0100"))
+      .setCreatedAt(DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))
+      .setUpdatedAt(DateUtils.parseDateTime("2014-01-23T19:10:03+0100")));
+
+    IssueDto issue = IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setActionPlanKey("AP-ABCD");
+    db.issueDao().insert(session, issue);
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
+    result.assertJson(this.getClass(), "issue_with_action_plan.json", false);
+  }
+
+  @Test
+  public void issue_with_extra_fields() throws Exception {
+    db.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
+    db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+
+    tester.get(ActionPlanDao.class).save(new ActionPlanDto()
+      .setKey("AP-ABCD")
+      .setName("1.0")
+      .setStatus("OPEN")
+      .setProjectId(project.getId())
+      .setUserLogin("simon"));
+
+    IssueDto issue = IssueTesting.newDto(rule, file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setAuthorLogin("John")
+      .setAssignee("simon")
+      .setReporter("fabrice")
+      .setActionPlanKey("AP-ABCD");
+    db.issueDao().insert(session, issue);
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam("extra_fields", "actions,transitions,assigneeName,reporterName,actionPlanName").execute();
+    result.assertJson(this.getClass(), "issue_with_extra_fields.json", false);
   }
 
   @Test
@@ -156,10 +234,7 @@ public class SearchActionMediumTest {
     db.issueDao().insert(session, issue);
     session.commit();
 
-    WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
-    request.setParam(SearchAction.PARAM_FACETS, "true");
-
-    WsTester.Result result = request.execute();
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(SearchAction.PARAM_FACETS, "true").execute();
     result.assertJson(this.getClass(), "display_facets.json", false);
   }
 
@@ -178,10 +253,7 @@ public class SearchActionMediumTest {
     db.issueDao().insert(session, issue);
     session.commit();
 
-    WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
-    request.setParam(IssueFilterParameters.HIDE_RULES, "true");
-
-    WsTester.Result result = request.execute();
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.HIDE_RULES, "true").execute();
     result.assertJson(this.getClass(), "hide_rules.json", false);
   }
 

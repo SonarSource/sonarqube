@@ -22,11 +22,11 @@ package org.sonar.core.issue.db;
 
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
@@ -47,7 +47,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public List<DefaultIssueComment> selectCommentsByIssues(SqlSession session, Collection<String> issueKeys) {
+  public List<DefaultIssueComment> selectCommentsByIssues(DbSession session, Collection<String> issueKeys) {
     List<DefaultIssueComment> comments = Lists.newArrayList();
     for (IssueChangeDto dto : selectByIssuesAndType(session, issueKeys, IssueChangeDto.TYPE_COMMENT)) {
       comments.add(dto.toComment());
@@ -56,7 +56,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
   }
 
   public List<FieldDiffs> selectChangelogByIssue(String issueKey) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       List<FieldDiffs> result = Lists.newArrayList();
       for (IssueChangeDto dto : selectByIssuesAndType(session, Arrays.asList(issueKey), IssueChangeDto.TYPE_FIELD_CHANGE)) {
@@ -69,7 +69,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
   }
 
   public void selectChangelogOnNonClosedIssuesByModuleAndType(Integer componentId, ResultHandler handler) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       Map<String, Object> params = newHashMap();
       params.put("componentId", componentId);
@@ -83,7 +83,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public DefaultIssueComment selectCommentByKey(String commentKey) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
       IssueChangeDto dto = mapper.selectByKeyAndType(commentKey, IssueChangeDto.TYPE_COMMENT);
@@ -94,7 +94,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
     }
   }
 
-  List<IssueChangeDto> selectByIssuesAndType(SqlSession session, Collection<String> issueKeys, String changeType) {
+  List<IssueChangeDto> selectByIssuesAndType(DbSession session, Collection<String> issueKeys, String changeType) {
     if (issueKeys.isEmpty()) {
       return Collections.emptyList();
     }
@@ -108,8 +108,12 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
     return dtosList;
   }
 
+  public void insert(DbSession session, IssueChangeDto change) {
+      session.getMapper(IssueChangeMapper.class).insert(change);
+  }
+
   public boolean delete(String key) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
       int count = mapper.delete(key);
@@ -122,7 +126,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
   }
 
   public boolean update(IssueChangeDto change) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       IssueChangeMapper mapper = session.getMapper(IssueChangeMapper.class);
       int count = mapper.update(change);

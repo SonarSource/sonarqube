@@ -20,13 +20,14 @@
 package org.sonar.core.issue.db;
 
 import org.apache.ibatis.executor.result.DefaultResultHandler;
-import org.apache.ibatis.session.SqlSession;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Arrays;
@@ -39,18 +40,26 @@ import static org.mockito.Mockito.mock;
 
 public class IssueChangeDaoTest extends AbstractDaoTestCase {
 
+  DbSession session;
+
   IssueChangeDao dao;
 
   @Before
-  public void setUp() {
+  public void createDao() {
+    session = getMyBatis().openSession(false);
     dao = new IssueChangeDao(getMyBatis());
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
   public void select_comments_by_issues() {
     setupData("shared");
 
-    SqlSession session = getMyBatis().openSession();
+    DbSession session = getMyBatis().openSession(false);
     List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, Arrays.asList("1000"));
     MyBatis.closeQuietly(session);
     assertThat(comments).hasSize(2);
@@ -70,7 +79,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   public void select_comments_by_issues_on_huge_number_of_issues() {
     setupData("shared");
 
-    SqlSession session = getMyBatis().openSession();
+    DbSession session = getMyBatis().openSession(false);
     List<String> hugeNbOfIssues = newArrayList();
     for (int i=0; i<4500; i++) {
       hugeNbOfIssues.add("ABCD"+i);
@@ -151,7 +160,7 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
   @Test
   public void select_comments_by_issues_empty_input() {
     // no need to connect to db
-    SqlSession session = mock(SqlSession.class);
+    DbSession session = mock(DbSession.class);
     List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, Collections.<String>emptyList());
 
     assertThat(comments).isEmpty();
@@ -171,6 +180,26 @@ public class IssueChangeDaoTest extends AbstractDaoTestCase {
     setupData("delete");
 
     assertThat(dao.delete("UNKNOWN")).isFalse();
+  }
+
+  @Test
+  public void insert() {
+    setupData("empty");
+
+    IssueChangeDto changeDto = new IssueChangeDto()
+      .setKey("EFGH")
+      .setUserLogin("emmerik")
+      .setChangeData("Some text")
+      .setChangeType("comment")
+      .setIssueKey("ABCDE")
+      .setCreatedAt(DateUtils.parseDate("2014-09-09"))
+      .setUpdatedAt(DateUtils.parseDate("2014-09-10"))
+      .setIssueChangeCreationDate(DateUtils.parseDate("2014-09-11"));
+
+    dao.insert(session, changeDto);
+    session.commit();
+
+    checkTable("insert", "issue_changes");
   }
 
   @Test

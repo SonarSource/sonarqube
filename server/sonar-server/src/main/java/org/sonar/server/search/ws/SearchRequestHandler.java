@@ -54,8 +54,6 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
 
   protected abstract QUERY doQuery(Request request);
 
-  protected abstract void doResultResponse(Request request, QueryContext context, Result<DOMAIN> result, JsonWriter json);
-
   protected abstract void doContextResponse(Request request, QueryContext context, Result<DOMAIN> result, JsonWriter json);
 
   protected abstract void doDefinition(WebService.NewAction action);
@@ -106,7 +104,6 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
 
     JsonWriter json = response.newJsonWriter().beginObject();
     this.writeStatistics(json, result, context);
-    doResultResponse(request, context, result, json);
     doContextResponse(request, context, result, json);
     if (context.isFacet()) {
       writeFacets(result, json);
