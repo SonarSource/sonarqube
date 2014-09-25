@@ -21,6 +21,7 @@ package org.sonar.application;
 
 import org.junit.Test;
 import org.sonar.process.Props;
+import org.sonar.test.TestUtils;
 
 import java.util.Properties;
 
@@ -55,5 +56,10 @@ public class DefaultSettingsTest {
 
     DefaultSettings.init(props);
     assertThat(props.valueAsInt("sonar.search.port")).isGreaterThan(0);
+  }
+
+  @Test
+  public void private_constructor() throws Exception {
+    TestUtils.assertPrivateConstructor(DefaultSettings.class);
   }
 }

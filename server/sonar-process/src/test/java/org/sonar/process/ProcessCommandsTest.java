@@ -37,7 +37,20 @@ public class ProcessCommandsTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
-  public void delete_files_on_monitor_startup() throws Exception {
+  public void fail_to_init_if_dir_does_not_exist() throws Exception {
+    File dir = temp.newFolder();
+    FileUtils.deleteQuietly(dir);
+
+    try {
+      new ProcessCommands(dir, "web");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Not a valid directory: " + dir.getAbsolutePath());
+    }
+  }
+
+  @Test
+  public void delete_files_on_prepare() throws Exception {
     File dir = temp.newFolder();
     assertThat(dir).exists();
     FileUtils.touch(new File(dir, "web.ready"));
@@ -67,18 +80,32 @@ public class ProcessCommandsTest {
 
   @Test
   public void child_process_create_file_when_ready() throws Exception {
-    File readyFile = temp.newFile();
+    File dir = temp.newFolder();
 
-    ProcessCommands commands = new ProcessCommands(readyFile, temp.newFile());
+    ProcessCommands commands = new ProcessCommands(dir, "web");
     commands.prepare();
     assertThat(commands.isReady()).isFalse();
-    assertThat(readyFile).doesNotExist();
+    assertThat(commands.getReadyFile()).doesNotExist();
 
     commands.setReady();
     assertThat(commands.isReady()).isTrue();
-    assertThat(readyFile).exists();
+    assertThat(commands.getReadyFile()).exists().isFile();
 
     commands.endWatch();
-    assertThat(readyFile).doesNotExist();
+    assertThat(commands.getReadyFile()).doesNotExist();
+  }
+
+  @Test
+  public void ask_for_stop() throws Exception {
+    File dir = temp.newFolder();
+
+    ProcessCommands commands = new ProcessCommands(dir, "web");
+    assertThat(commands.askedForStop()).isFalse();
+    assertThat(commands.getStopFile()).doesNotExist();
+
+    commands.askForStop();
+    assertThat(commands.askedForStop()).isTrue();
+    assertThat(commands.getStopFile()).exists().isFile();
+    assertThat(commands.getStopFile().getName()).isEqualTo("web.stop");
   }
 }

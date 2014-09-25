@@ -23,7 +23,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.net.URL;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 /**
  * Utilities for unit tests
@@ -66,5 +71,16 @@ public final class TestUtils {
     }
     resourcePath += path;
     return getResource(resourcePath);
+  }
+
+  public static void assertPrivateConstructor(Class clazz) {
+    try {
+      Constructor constructor = clazz.getDeclaredConstructor();
+      assertThat(Modifier.isPrivate(constructor.getModifiers())).isTrue();
+      constructor.setAccessible(true);
+      constructor.newInstance();
+    } catch (Exception e) {
+      fail("Fail to instantiate " + clazz, e);
+    }
   }
 }

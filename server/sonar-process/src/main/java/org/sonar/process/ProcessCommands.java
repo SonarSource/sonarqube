@@ -52,6 +52,7 @@ public class ProcessCommands {
     this.stopFile = new File(directory, processKey + ".stop");
   }
 
+  // visible for tests
   ProcessCommands(File readyFile, File stopFile) {
     this.readyFile = readyFile;
     this.stopFile = stopFile;

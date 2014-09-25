@@ -22,26 +22,10 @@ package org.sonar.process;
 import org.junit.Test;
 import org.sonar.test.TestUtils;
 
-import static org.fest.assertions.Assertions.assertThat;
-
-public class NetworkUtilsTest {
-
-  @Test
-  public void find_free_port() throws Exception {
-    int port = NetworkUtils.freePort();
-    assertThat(port).isGreaterThan(0);
-  }
-
-  @Test
-  public void find_multiple_free_port() throws Exception {
-    int port1 = NetworkUtils.freePort();
-    int port2 = NetworkUtils.freePort();
-
-    assertThat(port1).isNotSameAs(port2);
-  }
+public class ProcessUtilsTest {
 
   @Test
   public void private_constructor() throws Exception {
-    TestUtils.assertPrivateConstructor(NetworkUtils.class);
+    TestUtils.assertPrivateConstructor(ProcessUtils.class);
   }
 }

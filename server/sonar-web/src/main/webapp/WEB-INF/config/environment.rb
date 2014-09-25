@@ -72,7 +72,7 @@ Rails::Initializer.run do |config|
   # The development mode (real-time edition of ruby code) can be enabled on an app by replacing the
   # following line by :
   # config.plugin_paths << '/absolute/path/to/myproject/src/main/resources/org/sonar/ror'
-  config.plugin_paths << "#{Java::OrgSonarServerUi::JRubyFacade.getInstance().getServerHome()}/temp/ror"
+  config.plugin_paths << "#{Java::JavaLang::System.getProperty("java.io.tmpdir")}/ror"
 
   # Force all environments to use the same logger level
   # (by default production uses :info, the others :debug)
