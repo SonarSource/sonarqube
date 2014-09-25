@@ -14,5 +14,5 @@
       "sonar.jira.project.key": "SONAR"
     }
   },
-  "fileDataPerPath": {}
+  "fileDataByModuleAndPath": {}
 }

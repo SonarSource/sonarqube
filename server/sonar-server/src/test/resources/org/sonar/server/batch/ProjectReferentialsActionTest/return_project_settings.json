@@ -15,5 +15,5 @@
       "sonar.jira.login.secured": "john"
     }
   },
-  "fileDataPerPath": {}
+  "fileDataByModuleAndPath": {}
 }

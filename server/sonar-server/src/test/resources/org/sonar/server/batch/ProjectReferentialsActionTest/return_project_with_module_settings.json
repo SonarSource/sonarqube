@@ -20,5 +20,5 @@
       "sonar.coverage.exclusions": "**/*.java"
     }
   },
-  "fileDataPerPath": {}
+  "fileDataByModuleAndPath": {}
 }
