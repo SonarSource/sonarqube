@@ -24,5 +24,6 @@
       "sonar.jira.login.secured": "john",
       "sonar.coverage.exclusions": "**/*.java"
     }
-  }
+  },
+  "fileDataPerPath": {}
 }

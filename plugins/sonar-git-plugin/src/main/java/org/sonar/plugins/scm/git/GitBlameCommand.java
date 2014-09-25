@@ -21,6 +21,8 @@ package org.sonar.plugins.scm.git;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
@@ -30,7 +32,8 @@ import org.sonar.api.utils.command.StreamConsumer;
 
 import java.io.File;
 
-public class GitBlameCommand implements BlameCommand {
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+public class GitBlameCommand implements BlameCommand, BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(GitBlameCommand.class);
   private final CommandExecutor commandExecutor;

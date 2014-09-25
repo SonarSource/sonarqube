@@ -21,6 +21,7 @@ package org.sonar.batch.scm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
@@ -51,11 +52,14 @@ public final class ScmActivitySensor implements Sensor {
   private static final Pattern NON_ASCII_CHARS = Pattern.compile("[^\\x00-\\x7F]");
   private static final Pattern ACCENT_CODES = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
+  private final ProjectDefinition projectDefinition;
   private final ScmActivityConfiguration configuration;
   private final FileSystem fs;
   private final ProjectReferentials projectReferentials;
 
-  public ScmActivitySensor(ScmActivityConfiguration configuration, ProjectReferentials projectReferentials, FileSystem fs) {
+  public ScmActivitySensor(ProjectDefinition projectDefinition, ScmActivityConfiguration configuration,
+    ProjectReferentials projectReferentials, FileSystem fs) {
+    this.projectDefinition = projectDefinition;
     this.configuration = configuration;
     this.projectReferentials = projectReferentials;
     this.fs = fs;
@@ -81,7 +85,7 @@ public final class ScmActivitySensor implements Sensor {
 
     List<InputFile> filesToBlame = new LinkedList<InputFile>();
     for (InputFile f : fs.inputFiles(fs.predicates().all())) {
-      FileData fileData = projectReferentials.fileDataPerPath(f.relativePath());
+      FileData fileData = projectReferentials.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
       if (f.status() == Status.SAME
         && fileData != null
         && fileData.scmAuthorsByLine() != null

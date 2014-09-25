@@ -23,5 +23,6 @@
       "sonar.jira.project.key": "SONAR-APPLICATION",
       "sonar.jira.login.secured": "john"
     }
-  }
+  },
+  "fileDataPerPath": {}
 }

@@ -587,6 +587,12 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+        <groupId>org.codehaus.sonar.plugins</groupId>
+        <artifactId>sonar-git-plugin</artifactId>
+        <version>${project.version}</version>
+        <type>sonar-plugin</type>
+      </dependency>
+      <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-squid</artifactId>
         <version>4.1</version>

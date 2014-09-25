@@ -132,6 +132,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.codehaus.sonar.plugins</groupId>
+      <artifactId>sonar-git-plugin</artifactId>
+      <type>sonar-plugin</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.sonatype.jsw-binaries</groupId>
       <artifactId>jsw-binaries</artifactId>
       <version>3.2.3.6</version>
