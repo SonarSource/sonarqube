@@ -51,7 +51,7 @@ public class SearchServerTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  @Test(timeout = 10000L)
+  @Test(timeout = 15000L)
   public void start_stop_server() throws Exception {
 
     Properties props = new Properties();
