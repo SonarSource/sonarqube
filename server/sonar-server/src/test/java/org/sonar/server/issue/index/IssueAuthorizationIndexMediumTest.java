@@ -68,7 +68,6 @@ public class IssueAuthorizationIndexMediumTest {
   public void synchronize() throws Exception {
     project = new ComponentDto()
       .setKey("Sample")
-      .setProjectId(1L)
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
     db.componentDao().insert(session, project);
 
@@ -104,7 +103,6 @@ public class IssueAuthorizationIndexMediumTest {
   public void delete_index() throws Exception {
     project = new ComponentDto()
       .setKey("Sample")
-      .setProjectId(1L)
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
     db.componentDao().insert(session, project);
 

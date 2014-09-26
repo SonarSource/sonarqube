@@ -94,7 +94,7 @@ public class UploadReportActionMediumTest {
     ComponentDto project = new ComponentDto()
       .setId(1L)
       .setKey("MyProject")
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     db.componentDao().insert(session, project);
 
     // project can be seen by anyone
@@ -118,7 +118,7 @@ public class UploadReportActionMediumTest {
     ComponentDto project = new ComponentDto()
       .setId(1L)
       .setKey("MyProject")
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     db.componentDao().insert(session, project);
     session.commit();
 
@@ -134,7 +134,7 @@ public class UploadReportActionMediumTest {
     ComponentDto project = new ComponentDto()
       .setId(1L)
       .setKey("MyProject")
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     db.componentDao().insert(session, project);
 
     // project can be seen by anyone
@@ -142,7 +142,7 @@ public class UploadReportActionMediumTest {
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
     ComponentDto resource = new ComponentDto()
-      .setProjectId(1L)
+      .setProjectId_unit_test_only(1L)
       .setKey("MyComponent")
       .setId(2L);
     db.componentDao().insert(session, resource);

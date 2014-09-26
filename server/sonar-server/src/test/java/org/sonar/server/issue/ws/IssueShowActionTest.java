@@ -161,7 +161,7 @@ public class IssueShowActionTest {
       .setName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setSubProjectId(1L)
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     when(componentDao.getNullableByKey(session, file.key())).thenReturn(file);
 
     ComponentDto project = new ComponentDto()
@@ -169,7 +169,7 @@ public class IssueShowActionTest {
       .setKey("org.sonar.Sonar")
       .setLongName("SonarQube")
       .setName("SonarQube")
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     when(componentDao.getNullableById(file.projectId(), session)).thenReturn(project);
 
     MockUserSession.set();
@@ -200,7 +200,7 @@ public class IssueShowActionTest {
       .setLongName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setSubProjectId(2L)
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     when(componentDao.getNullableByKey(session, file.key())).thenReturn(file);
 
     // Module
@@ -210,7 +210,7 @@ public class IssueShowActionTest {
       .setLongName("SonarQube :: Server")
       .setQualifier("BRC")
       .setSubProjectId(1L)
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     when(componentDao.getNullableById(file.subProjectId(), session)).thenReturn(module);
 
     // Project
@@ -249,7 +249,7 @@ public class IssueShowActionTest {
       .setLongName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setSubProjectId(2L)
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     when(componentDao.getNullableByKey(session, file.key())).thenReturn(file);
 
     // Module
@@ -259,7 +259,7 @@ public class IssueShowActionTest {
       .setName("SonarQube :: Server")
       .setQualifier("BRC")
       .setSubProjectId(1L)
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     when(componentDao.getNullableById(file.subProjectId(), session)).thenReturn(module);
 
     // Project
@@ -506,7 +506,7 @@ public class IssueShowActionTest {
       .setName("SonarQube :: Issue Client")
       .setQualifier("FIL")
       .setSubProjectId(1L)
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     when(componentDao.getNullableByKey(session, file.key())).thenReturn(file);
 
     ComponentDto project = new ComponentDto()
@@ -514,7 +514,7 @@ public class IssueShowActionTest {
       .setKey("org.sonar.Sonar")
       .setLongName("SonarQube")
       .setName("SonarQube")
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     when(componentDao.getNullableById(file.projectId(), session)).thenReturn(project);
   }
 

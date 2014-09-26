@@ -68,7 +68,7 @@ public class InternalPermissionServiceMediumTest {
     user = new UserDto().setLogin("john").setName("John");
     db.userDao().insert(session, user);
 
-    project = new ComponentDto().setKey("Sample").setProjectId(1L);
+    project = new ComponentDto().setKey("Sample").setProjectId_unit_test_only(1L);
     db.componentDao().insert(session, project);
 
     session.commit();

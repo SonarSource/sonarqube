@@ -81,8 +81,7 @@ public class IssueBackendMediumTest {
 
     ComponentDto project = new ComponentDto()
       .setId(1L)
-      .setKey("MyProject")
-      .setProjectId(1L);
+      .setKey("MyProject");
     tester.get(ComponentDao.class).insert(dbSession, project);
 
     // project can be seen by anyone
@@ -90,7 +89,6 @@ public class IssueBackendMediumTest {
     dbClient.issueAuthorizationDao().synchronizeAfter(dbSession, new Date(0));
 
     ComponentDto resource = new ComponentDto()
-      .setProjectId(1L)
       .setKey("MyComponent")
       .setId(2L);
     tester.get(ComponentDao.class).insert(dbSession, resource);
@@ -145,13 +143,13 @@ public class IssueBackendMediumTest {
     ComponentDto project = new ComponentDto()
       .setId(1L)
       .setKey("MyProject")
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     tester.get(ComponentDao.class).insert(dbSession, project);
 
     ComponentDto resource = new ComponentDto()
       .setId(2L)
       .setKey("MyComponent")
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     tester.get(ComponentDao.class).insert(dbSession, resource);
 
     IssueDto issue = new IssueDto().setId(1L)

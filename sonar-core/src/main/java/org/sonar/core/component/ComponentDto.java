@@ -104,7 +104,10 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
     return projectId;
   }
 
-  public ComponentDto setProjectId(Long projectId) {
+  /**
+   * Only for unit tests
+   */
+  public ComponentDto setProjectId_unit_test_only(Long projectId) {
     this.projectId = projectId;
     return this;
   }

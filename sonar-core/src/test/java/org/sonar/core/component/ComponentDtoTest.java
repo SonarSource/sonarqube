@@ -38,7 +38,7 @@ public class ComponentDtoTest {
       .setScope("FIL")
       .setLanguage("java")
       .setPath("src/org/struts/RequestContext.java")
-      .setProjectId(2L)
+      .setProjectId_unit_test_only(2L)
       .setSubProjectId(3L)
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
 

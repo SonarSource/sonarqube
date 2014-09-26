@@ -81,7 +81,7 @@ public class BackendCleanupMediumTest {
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(project));
 
     file = new ComponentDto()
-      .setProjectId(project.getId())
+      .setProjectId_unit_test_only(project.getId())
       .setKey("MyComponent");
     tester.get(ComponentDao.class).insert(session, file);
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file));

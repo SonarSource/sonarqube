@@ -70,7 +70,7 @@ public class ComponentCleanerServiceMediumTest {
       .setKey("MyProject")
       .setScope(Scopes.PROJECT)
       .setQualifier(Qualifiers.PROJECT)
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     db.componentDao().insert(session, project);
     session.commit();
 
@@ -86,7 +86,7 @@ public class ComponentCleanerServiceMediumTest {
       .setKey("MyProject")
       .setScope(Scopes.PROJECT)
       .setQualifier(Qualifiers.PROJECT)
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     db.componentDao().insert(session, project);
 
     // project can be seen by anyone
@@ -109,7 +109,7 @@ public class ComponentCleanerServiceMediumTest {
       .setKey("MyProject")
       .setScope(Scopes.DIRECTORY)
       .setQualifier(Qualifiers.DIRECTORY)
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     db.componentDao().insert(session, project);
     session.commit();
 

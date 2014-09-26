@@ -101,7 +101,6 @@ public class DefaultIssueServiceMediumTest {
     tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(project));
 
     file = new ComponentDto()
-      .setProjectId(project.getId())
       .setSubProjectId(project.getId())
       .setKey("MyComponent")
       .setLongName("My Component");

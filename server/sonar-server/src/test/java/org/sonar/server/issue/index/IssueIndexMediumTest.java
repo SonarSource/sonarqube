@@ -85,11 +85,11 @@ public class IssueIndexMediumTest {
     project = new ComponentDto()
       .setId(1L)
       .setKey("MyProject")
-      .setProjectId(1L);
+      .setProjectId_unit_test_only(1L);
     tester.get(ComponentDao.class).insert(session, project);
 
     resource = new ComponentDto()
-      .setProjectId(1L)
+      .setProjectId_unit_test_only(1L)
       .setKey("MyComponent")
       .setId(2L);
     tester.get(ComponentDao.class).insert(session, resource);

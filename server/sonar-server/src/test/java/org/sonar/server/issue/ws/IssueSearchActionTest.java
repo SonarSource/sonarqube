@@ -267,7 +267,7 @@ public class IssueSearchActionTest {
       .setQualifier("FIL")
       .setPath("src/main/xoo/sample/Sample.xoo")
       .setSubProjectId(7L)
-      .setProjectId(7L);
+      .setProjectId_unit_test_only(7L);
 
     ComponentDto project = new ComponentDto()
       .setId(7L)
@@ -275,7 +275,7 @@ public class IssueSearchActionTest {
       .setLongName("Sample")
       .setName("Sample")
       .setQualifier("TRK")
-      .setProjectId(7L);
+      .setProjectId_unit_test_only(7L);
 
     result.addComponents(Lists.<Component>newArrayList(component, project));
     result.addProjects(Lists.<Component>newArrayList(project));
@@ -298,7 +298,7 @@ public class IssueSearchActionTest {
       .setQualifier("FIL")
       .setPath("src/main/xoo/sample/Sample.xoo")
       .setSubProjectId(8L)
-      .setProjectId(7L);
+      .setProjectId_unit_test_only(7L);
 
     // Sub project
     ComponentDto subProject = new ComponentDto()
@@ -308,7 +308,7 @@ public class IssueSearchActionTest {
       .setName("Sample Project :: Sample Module")
       .setQualifier("BRC")
       .setSubProjectId(7L)
-      .setProjectId(7L);
+      .setProjectId_unit_test_only(7L);
 
     // Project
     ComponentDto project = new ComponentDto()
@@ -317,7 +317,7 @@ public class IssueSearchActionTest {
       .setLongName("Sample Project")
       .setName("Sample Project")
       .setQualifier("TRK")
-      .setProjectId(7L);
+      .setProjectId_unit_test_only(7L);
 
     result.addComponents(Lists.<Component>newArrayList(component, subProject, project));
     result.addProjects(Lists.<Component>newArrayList(project));
