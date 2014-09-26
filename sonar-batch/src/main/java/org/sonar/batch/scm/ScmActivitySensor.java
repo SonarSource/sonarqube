@@ -45,19 +45,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public final class ScmSensor implements Sensor {
+public final class ScmActivitySensor implements Sensor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ScmSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.class);
 
   private static final Pattern NON_ASCII_CHARS = Pattern.compile("[^\\x00-\\x7F]");
   private static final Pattern ACCENT_CODES = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
   private final ProjectDefinition projectDefinition;
-  private final ScmConfiguration configuration;
+  private final ScmActivityConfiguration configuration;
   private final FileSystem fs;
   private final ProjectReferentials projectReferentials;
 
-  public ScmSensor(ProjectDefinition projectDefinition, ScmConfiguration configuration,
+  public ScmActivitySensor(ProjectDefinition projectDefinition, ScmActivityConfiguration configuration,
     ProjectReferentials projectReferentials, FileSystem fs) {
     this.projectDefinition = projectDefinition;
     this.configuration = configuration;
@@ -68,7 +68,7 @@ public final class ScmSensor implements Sensor {
   @Override
   public void describe(SensorDescriptor descriptor) {
     descriptor
-      .name("SCM Sensor")
+      .name("SCM Activity Sensor")
       .provides(CoreMetrics.SCM_AUTHORS_BY_LINE,
         CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
         CoreMetrics.SCM_REVISIONS_BY_LINE);

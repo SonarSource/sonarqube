@@ -34,8 +34,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public final class ScmConfiguration implements BatchComponent, Startable {
-  private static final Logger LOG = LoggerFactory.getLogger(ScmConfiguration.class);
+public final class ScmActivityConfiguration implements BatchComponent, Startable {
+  private static final Logger LOG = LoggerFactory.getLogger(ScmActivityConfiguration.class);
 
   private final ProjectReactor projectReactor;
   private final Settings settings;
@@ -43,7 +43,7 @@ public final class ScmConfiguration implements BatchComponent, Startable {
 
   private ScmProvider provider;
 
-  public ScmConfiguration(ProjectReactor projectReactor, Settings settings, ScmProvider... providers) {
+  public ScmActivityConfiguration(ProjectReactor projectReactor, Settings settings, ScmProvider... providers) {
     this.projectReactor = projectReactor;
     this.settings = settings;
     for (ScmProvider scmProvider : providers) {
@@ -51,7 +51,7 @@ public final class ScmConfiguration implements BatchComponent, Startable {
     }
   }
 
-  public ScmConfiguration(ProjectReactor projectReactor, Settings settings) {
+  public ScmActivityConfiguration(ProjectReactor projectReactor, Settings settings) {
     this(projectReactor, settings, new ScmProvider[0]);
   }
 
@@ -82,7 +82,7 @@ public final class ScmConfiguration implements BatchComponent, Startable {
         }
       }
       if (this.provider == null) {
-        LOG.warn("SCM provider autodetection failed. No SCM provider claims to support this project. Please use " + CoreProperties.SCM_PROVIDER_KEY
+        throw new IllegalStateException("SCM provider autodetection failed. No provider claim to support this project. Please use " + CoreProperties.SCM_PROVIDER_KEY
           + " to define SCM of your project.");
       }
     }

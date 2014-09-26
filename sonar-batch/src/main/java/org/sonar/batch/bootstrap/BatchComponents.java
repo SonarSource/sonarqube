@@ -30,8 +30,8 @@ import org.sonar.batch.maven.DefaultMavenPluginExecutor;
 import org.sonar.batch.maven.MavenProjectBootstrapper;
 import org.sonar.batch.maven.MavenProjectBuilder;
 import org.sonar.batch.maven.MavenProjectConverter;
-import org.sonar.batch.scm.ScmConfiguration;
-import org.sonar.batch.scm.ScmSensor;
+import org.sonar.batch.scm.ScmActivityConfiguration;
+import org.sonar.batch.scm.ScmActivitySensor;
 import org.sonar.core.config.CorePropertyDefinitions;
 
 import java.util.Collection;
@@ -56,8 +56,8 @@ public class BatchComponents {
       FileTangleIndexDecorator.class,
 
       // SCM
-      ScmConfiguration.class,
-      ScmSensor.class
+      ScmActivityConfiguration.class,
+      ScmActivitySensor.class
       );
     components.addAll(CorePropertyDefinitions.all());
     return components;
