@@ -38,24 +38,6 @@ class IssuesController < ApplicationController
 
   end
 
-  # Load existing filter
-  # GET /issues/filter/<filter id>
-  def filter
-    require_parameters :id
-
-    @first_search = false
-    @unchanged = true
-
-    issue_filter_result = Internal.issues.execute(params[:id].to_i, params)
-    @filter = find_filter(params[:id].to_i)
-    @issues_query_params = issues_query_params_from_filter(@filter)
-    @issues_query_params[:id] = @filter.id
-    @issues_query = issue_filter_result.query
-    @issues_result = issue_filter_result.result
-
-    render :action => 'search'
-  end
-
   # GET /issues/manage
   def manage
     @issues_query = Internal.issues.emptyIssueQuery()
