@@ -62,7 +62,7 @@ public class InputFileBuilderTest {
     when(langDetection.language(any(InputFile.class))).thenReturn("java");
 
     // status
-    when(statusDetection.status("foo", "src/main/java/foo/Bar.java", "6c1d64c0b3555892fe7273e954f6fb5a"))
+    when(statusDetection.status("src/main/java/foo/Bar.java", "6c1d64c0b3555892fe7273e954f6fb5a"))
       .thenReturn(InputFile.Status.ADDED);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
@@ -135,7 +135,7 @@ public class InputFileBuilderTest {
     when(langDetection.language(any(InputFile.class))).thenReturn("java");
 
     // status
-    when(statusDetection.status("foo", "src/main/java/foo/Bar.java", "6c1d64c0b3555892fe7273e954f6fb5a"))
+    when(statusDetection.status("src/main/java/foo/Bar.java", "6c1d64c0b3555892fe7273e954f6fb5a"))
       .thenReturn(InputFile.Status.ADDED);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),
@@ -164,7 +164,7 @@ public class InputFileBuilderTest {
     when(langDetection.language(any(InputFile.class))).thenReturn("php");
 
     // status
-    when(statusDetection.status("foo", "src/Bar.php", "6c1d64c0b3555892fe7273e954f6fb5a"))
+    when(statusDetection.status("src/Bar.php", "6c1d64c0b3555892fe7273e954f6fb5a"))
       .thenReturn(InputFile.Status.ADDED);
 
     InputFileBuilder builder = new InputFileBuilder("struts", new PathResolver(),

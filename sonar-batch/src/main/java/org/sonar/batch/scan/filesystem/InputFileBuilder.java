@@ -98,7 +98,7 @@ class InputFileBuilder {
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(inputFile.file(), fs.encoding());
     inputFile.setLines(metadata.lines);
     inputFile.setHash(metadata.hash);
-    inputFile.setStatus(statusDetection.status(inputFile.moduleKey(), inputFile.relativePath(), metadata.hash));
+    inputFile.setStatus(statusDetection.status(inputFile.relativePath(), metadata.hash));
     if (analysisMode.isIncremental() && inputFile.status() == InputFile.Status.SAME) {
       return null;
     }

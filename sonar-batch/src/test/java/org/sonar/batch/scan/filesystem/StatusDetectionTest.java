@@ -30,12 +30,12 @@ public class StatusDetectionTest {
   @Test
   public void detect_status() throws Exception {
     ProjectReferentials ref = new ProjectReferentials();
-    ref.addFileData("foo", "src/Foo.java", new FileData("ABCDE", null, null, null));
-    ref.addFileData("foo", "src/Bar.java", new FileData("FGHIJ", null, null, null));
+    ref.fileDataPerPath().put("src/Foo.java", new FileData("ABCDE", null, null, null));
+    ref.fileDataPerPath().put("src/Bar.java", new FileData("FGHIJ", null, null, null));
     StatusDetection statusDetection = new StatusDetection(ref);
 
-    assertThat(statusDetection.status("foo", "src/Foo.java", "ABCDE")).isEqualTo(InputFile.Status.SAME);
-    assertThat(statusDetection.status("foo", "src/Foo.java", "XXXXX")).isEqualTo(InputFile.Status.CHANGED);
-    assertThat(statusDetection.status("foo", "src/Other.java", "QWERT")).isEqualTo(InputFile.Status.ADDED);
+    assertThat(statusDetection.status("src/Foo.java", "ABCDE")).isEqualTo(InputFile.Status.SAME);
+    assertThat(statusDetection.status("src/Foo.java", "XXXXX")).isEqualTo(InputFile.Status.CHANGED);
+    assertThat(statusDetection.status("src/Other.java", "QWERT")).isEqualTo(InputFile.Status.ADDED);
   }
 }

@@ -39,7 +39,7 @@ public class ProjectReferentials {
   private Map<String, QProfile> qprofilesByLanguage = new HashMap<String, QProfile>();
   private Collection<ActiveRule> activeRules = new ArrayList<ActiveRule>();
   private Map<String, Map<String, String>> settingsByModule = new HashMap<String, Map<String, String>>();
-  private Map<String, Map<String, FileData>> fileDataByModuleAndPath = new HashMap<String, Map<String, FileData>>();
+  private Map<String, FileData> fileDataPerPath = new HashMap<String, FileData>();
 
   public Map<String, String> settings(String projectKey) {
     return settingsByModule.containsKey(projectKey) ? settingsByModule.get(projectKey) : Collections.<String, String>emptyMap();
@@ -49,9 +49,9 @@ public class ProjectReferentials {
     Map<String, String> existingSettings = settingsByModule.get(projectKey);
     if (existingSettings == null) {
       existingSettings = new HashMap<String, String>();
-      settingsByModule.put(projectKey, existingSettings);
     }
     existingSettings.putAll(settings);
+    settingsByModule.put(projectKey, existingSettings);
     return this;
   }
 
@@ -73,23 +73,13 @@ public class ProjectReferentials {
     return this;
   }
 
-  public Map<String, FileData> fileDataByPath(String projectKey) {
-    return fileDataByModuleAndPath.containsKey(projectKey) ? fileDataByModuleAndPath.get(projectKey) : Collections.<String, FileData>emptyMap();
-  }
-
-  public ProjectReferentials addFileData(String projectKey, String path, FileData fileData) {
-    Map<String, FileData> existingFileDataByPath = fileDataByModuleAndPath.get(projectKey);
-    if (existingFileDataByPath == null) {
-      existingFileDataByPath = new HashMap<String, FileData>();
-      fileDataByModuleAndPath.put(projectKey, existingFileDataByPath);
-    }
-    existingFileDataByPath.put(path, fileData);
-    return this;
+  public Map<String, FileData> fileDataPerPath() {
+    return fileDataPerPath;
   }
 
   @CheckForNull
-  public FileData fileData(String projectKey, String path) {
-    return fileDataByPath(projectKey).get(path);
+  public FileData fileDataPerPath(String path) {
+    return fileDataPerPath.get(path);
   }
 
   public long timestamp() {
