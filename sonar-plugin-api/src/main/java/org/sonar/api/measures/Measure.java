@@ -63,7 +63,6 @@ public class Measure<G extends Serializable> implements Serializable {
   protected Requirement requirement;
   protected Integer personId;
   protected PersistenceMode persistenceMode = PersistenceMode.FULL;
-  private boolean fromCore;
 
   public Measure(String metricKey) {
     this.metricKey = metricKey;
@@ -686,20 +685,6 @@ public class Measure<G extends Serializable> implements Serializable {
       && (value == null || NumberUtils.compare(bestValue, value) == 0)
       && allNull(alertStatus, description, tendency, url, data)
       && isZeroVariation(variation1, variation2, variation3, variation4, variation5);
-  }
-
-  /**
-   * For internal use
-   */
-  public boolean isFromCore() {
-    return fromCore;
-  }
-
-  /**
-   * For internal use
-   */
-  public void setFromCore(boolean fromCore) {
-    this.fromCore = fromCore;
   }
 
   private static boolean isZeroVariation(Double... variations) {

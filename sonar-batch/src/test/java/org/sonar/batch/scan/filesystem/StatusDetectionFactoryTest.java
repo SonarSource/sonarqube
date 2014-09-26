@@ -20,7 +20,6 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.junit.Test;
-import org.sonar.batch.protocol.input.ProjectReferentials;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -28,7 +27,7 @@ import static org.mockito.Mockito.mock;
 public class StatusDetectionFactoryTest {
   @Test
   public void testCreate() throws Exception {
-    StatusDetectionFactory factory = new StatusDetectionFactory(mock(ProjectReferentials.class));
+    StatusDetectionFactory factory = new StatusDetectionFactory(mock(PreviousFileHashLoader.class));
     StatusDetection detection = factory.create();
     assertThat(detection).isNotNull();
   }

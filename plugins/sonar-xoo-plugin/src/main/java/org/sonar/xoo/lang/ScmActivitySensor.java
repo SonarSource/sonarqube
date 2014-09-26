@@ -25,58 +25,66 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.api.batch.scm.ScmProvider;
-import org.sonar.api.config.Settings;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.xoo.Xoo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class XooScmProvider implements ScmProvider {
+public class ScmActivitySensor implements Sensor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(XooScmProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ScmActivitySensor.class);
 
   private static final String SCM_EXTENSION = ".scm";
 
-  private final Settings settings;
+  private final FileSystem fs;
+  private final FileLinesContextFactory fileLinesContextFactory;
 
-  public XooScmProvider(Settings settings) {
-    this.settings = settings;
+  public ScmActivitySensor(FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem) {
+    this.fs = fileSystem;
+    this.fileLinesContextFactory = fileLinesContextFactory;
   }
 
   @Override
-  public String key() {
-    return "xoo";
+  public void describe(SensorDescriptor descriptor) {
+    descriptor
+      .name(this.getClass().getSimpleName())
+      .provides(CoreMetrics.SCM_AUTHORS_BY_LINE,
+        CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
+        CoreMetrics.SCM_REVISIONS_BY_LINE)
+      .workOnLanguages(Xoo.KEY);
   }
 
   @Override
-  public boolean supports(File baseDir) {
-    return false;
-  }
-
-  @Override
-  public void blame(Iterable<InputFile> files, BlameResultHandler handler) {
-    for (InputFile inputFile : files) {
-      processFile(inputFile, handler);
+  public void execute(SensorContext context) {
+    for (InputFile inputFile : fs.inputFiles(fs.predicates().hasLanguage(Xoo.KEY))) {
+      processFile(inputFile);
     }
+
   }
 
   @VisibleForTesting
-  protected void processFile(InputFile inputFile, BlameResultHandler handler) {
+  protected void processFile(InputFile inputFile) {
     File ioFile = inputFile.file();
     File scmDataFile = new java.io.File(ioFile.getParentFile(), ioFile.getName() + SCM_EXTENSION);
     if (!scmDataFile.exists()) {
-      throw new IllegalStateException("Missing file " + scmDataFile);
+      LOG.debug("Skipping SCM data injection for " + inputFile.relativePath());
+      return;
     }
 
+    FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(inputFile);
     try {
       List<String> lines = FileUtils.readLines(scmDataFile, Charsets.UTF_8.name());
-      List<BlameLine> blame = new ArrayList<BlameLine>(lines.size());
       int lineNumber = 0;
       for (String line : lines) {
         lineNumber++;
@@ -91,12 +99,14 @@ public class XooScmProvider implements ScmProvider {
           // Will throw an exception, when date is not in format "yyyy-MM-dd"
           Date date = DateUtils.parseDate(fields[2]);
 
-          blame.add(new BlameLine(date, revision, author));
+          fileLinesContext.setStringValue(CoreMetrics.SCM_REVISIONS_BY_LINE_KEY, lineNumber, revision);
+          fileLinesContext.setStringValue(CoreMetrics.SCM_AUTHORS_BY_LINE_KEY, lineNumber, author);
+          fileLinesContext.setStringValue(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, lineNumber, DateUtils.formatDateTime(date));
         }
       }
-      handler.handle(inputFile, blame);
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
+    fileLinesContext.save();
   }
 }

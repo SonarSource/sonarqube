@@ -21,23 +21,20 @@ package org.sonar.batch.scan.filesystem;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.ProjectReferentials;
+
+import java.util.Map;
 
 class StatusDetection {
 
-  private final ProjectReferentials projectReferentials;
+  private final Map<String, String> previousHashByRelativePath;
 
-  StatusDetection(ProjectReferentials projectReferentials) {
-    this.projectReferentials = projectReferentials;
+  StatusDetection(Map<String, String> previousHashByRelativePath) {
+    this.previousHashByRelativePath = previousHashByRelativePath;
   }
 
   InputFile.Status status(String relativePath, String hash) {
-    FileData fileDataPerPath = projectReferentials.fileDataPerPath(relativePath);
-    if (fileDataPerPath == null) {
-      return InputFile.Status.ADDED;
-    }
-    String previousHash = fileDataPerPath.hash();
+    String previousHash = previousHashByRelativePath.get(relativePath);
+
     if (StringUtils.equals(hash, previousHash)) {
       return InputFile.Status.SAME;
     }

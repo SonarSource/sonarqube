@@ -615,14 +615,4 @@ public interface CoreProperties {
    * @since 4.5
    */
   String LANGUAGE_SPECIFIC_PARAMETERS_SIZE_METRIC_KEY = "size_metric";
-
-  /**
-   * @since 5.0
-   */
-  String SCM_ENABLED_KEY = "sonar.scm.enabled";
-
-  /**
-   * @since 5.0
-   */
-  String SCM_PROVIDER_KEY = "sonar.scm.provider";
 }

@@ -24,14 +24,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
-import org.sonar.batch.DefaultTimeMachine;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.rule.ModuleQProfiles;
-import org.sonar.batch.scan.filesystem.PreviousFileHashLoader;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -50,9 +46,7 @@ public class DefaultProjectReferentialsLoaderTest {
   public void prepare() {
     serverClient = mock(ServerClient.class);
     analysisMode = mock(AnalysisMode.class);
-    MetricFinder metricFinder = mock(MetricFinder.class);
-    when(metricFinder.findByKey(anyString())).thenReturn(new Metric().setId(1));
-    loader = new DefaultProjectReferentialsLoader(serverClient, analysisMode, mock(PreviousFileHashLoader.class), metricFinder, mock(DefaultTimeMachine.class));
+    loader = new DefaultProjectReferentialsLoader(serverClient, analysisMode);
     when(serverClient.request(anyString())).thenReturn("");
     reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
     taskProperties = new TaskProperties(Maps.<String, String>newHashMap(), "");
