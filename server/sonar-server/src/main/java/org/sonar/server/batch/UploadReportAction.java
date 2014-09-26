@@ -31,6 +31,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.search.IndexClient;
@@ -80,15 +81,16 @@ public class UploadReportAction implements RequestHandler {
         String projectKey = request.mandatoryParam(PARAM_PROJECT);
         AuthorizedComponentDto project = dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
 
-        // Synchronize project permission indexes
-        // TODO only update permission if no permission for a project
-        permissionService.synchronizePermissions(session, project.key());
-        session.commit();
+        // Synchronize project permission indexes if no permission found on it
+        if (index.get(IssueAuthorizationIndex.class).getNullableByKey(project.key()) == null) {
+          permissionService.synchronizePermissions(session, project.key());
+          session.commit();
+        }
 
         // Index project's issues
         dbClient.issueDao().synchronizeAfter(session,
           index.get(IssueIndex.class).getLastSynchronization(),
-          ImmutableMap.of("project", projectKey));
+          ImmutableMap.of("project", project.key()));
 
         session.commit();
       } finally {

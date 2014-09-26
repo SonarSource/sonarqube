@@ -26,8 +26,6 @@ import java.util.Date;
 
 public interface IssueAuthorizationMapper {
 
-  IssueAuthorizationDto selectByKey(String key);
-
   IssueAuthorizationDto selectAfterDate(@Param("date") Date date, @Param("permission") String permission, @Param("anyone") String anyoneGroup);
 
 }
