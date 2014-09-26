@@ -156,23 +156,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
   protected BoolFilterBuilder getFilter(IssueQuery query, QueryContext options) {
     BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
 
-    // Authorization
-    String user = options.getUserLogin();
-    Set<String> groups = options.getUserGroups();
-    OrFilterBuilder groupsAndUser = FilterBuilders.orFilter();
-    if (user != null) {
-      groupsAndUser.add(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.USERS.field(), user));
-    }
-    for (String group : groups) {
-      groupsAndUser.add(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.GROUPS.field(), group));
-    }
-    esFilter.must(FilterBuilders.hasParentFilter(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType(),
-      QueryBuilders.filteredQuery(
-        QueryBuilders.matchAllQuery(),
-        FilterBuilders.boolFilter()
-          .must(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.PERMISSION.field(), UserRole.USER), groupsAndUser)
-          .cache(true))
-      ));
+    addAuthorizationFilter(esFilter, options);
 
     // Issue is assigned Filter
     if (BooleanUtils.isTrue(query.assigned())) {
@@ -208,7 +192,31 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     matchFilter(esFilter, IssueNormalizer.IssueField.SEVERITY, query.severities());
     matchFilter(esFilter, IssueNormalizer.IssueField.STATUS, query.statuses());
 
-    // Date filters
+    addDatesFilter(esFilter, query, options);
+
+    return esFilter;
+  }
+
+  private void addAuthorizationFilter(BoolFilterBuilder esFilter, QueryContext options) {
+    String user = options.getUserLogin();
+    Set<String> groups = options.getUserGroups();
+    OrFilterBuilder groupsAndUser = FilterBuilders.orFilter();
+    if (user != null) {
+      groupsAndUser.add(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.USERS.field(), user));
+    }
+    for (String group : groups) {
+      groupsAndUser.add(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.GROUPS.field(), group));
+    }
+    esFilter.must(FilterBuilders.hasParentFilter(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType(),
+      QueryBuilders.filteredQuery(
+        QueryBuilders.matchAllQuery(),
+        FilterBuilders.boolFilter()
+          .must(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.PERMISSION.field(), UserRole.USER), groupsAndUser)
+          .cache(true))
+      ));
+  }
+
+  private void addDatesFilter(BoolFilterBuilder esFilter, IssueQuery query, QueryContext options) {
     Date createdAfter = query.createdAfter();
     if (createdAfter != null) {
       esFilter.must(FilterBuilders
@@ -225,8 +233,6 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     if (createdAt != null) {
       esFilter.must(FilterBuilders.termFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field(), createdAt));
     }
-
-    return esFilter;
   }
 
   private void setFacets(QueryContext options, SearchRequestBuilder esSearch) {
