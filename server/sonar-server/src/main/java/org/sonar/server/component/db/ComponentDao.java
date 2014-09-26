@@ -91,6 +91,9 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   }
 
   public List<ComponentDto> findSubProjectsByComponentKeys(DbSession session, Collection<String> keys) {
+    if (keys.isEmpty()) {
+      return Collections.emptyList();
+    }
     return mapper(session).findSubProjectsByComponentKeys(keys);
   }
 

@@ -30,6 +30,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.exceptions.NotFoundException;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -257,6 +258,8 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts-core:src/org/struts/RequestContext.java", "org.struts:struts-data"))).hasSize(2);
 
     assertThat(dao.findSubProjectsByComponentKeys(session, newArrayList("unknown"))).isEmpty();
+
+    assertThat(dao.findSubProjectsByComponentKeys(session, Collections.<String>emptyList())).isEmpty();
   }
 
   @Test
