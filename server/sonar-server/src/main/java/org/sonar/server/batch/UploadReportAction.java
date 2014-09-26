@@ -30,6 +30,7 @@ import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.computation.ComputationService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
@@ -47,12 +48,14 @@ public class UploadReportAction implements RequestHandler {
   private final IndexClient index;
   private final InternalPermissionService permissionService;
   private final Settings settings;
+  private final ComputationService computationService;
 
-  public UploadReportAction(DbClient dbClient, IndexClient index, InternalPermissionService permissionService, Settings settings) {
+  public UploadReportAction(DbClient dbClient, IndexClient index, InternalPermissionService permissionService, Settings settings, ComputationService computationService) {
     this.dbClient = dbClient;
     this.index = index;
     this.permissionService = permissionService;
     this.settings = settings;
+    this.computationService = computationService;
   }
 
   void define(WebService.NewController controller) {
@@ -80,6 +83,8 @@ public class UploadReportAction implements RequestHandler {
       try {
         String projectKey = request.mandatoryParam(PARAM_PROJECT);
         AuthorizedComponentDto project = dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
+
+        computationService.create(projectKey);
 
         // Synchronize project permission indexes if no permission found on it
         if (index.get(IssueAuthorizationIndex.class).getNullableByKey(project.key()) == null) {

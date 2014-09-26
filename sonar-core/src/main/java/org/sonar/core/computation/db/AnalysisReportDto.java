@@ -30,8 +30,12 @@ public class AnalysisReportDto extends Dto<String> {
 
   private Long id;
   private String projectKey;
-  private String status;
+  private Status status;
   private String data;
+
+  public enum Status {
+    PENDING
+  }
 
   public String getProjectKey() {
     return projectKey;
@@ -42,11 +46,11 @@ public class AnalysisReportDto extends Dto<String> {
     return this;
   }
 
-  public String getStatus() {
+  public Status getStatus() {
     return status;
   }
 
-  public AnalysisReportDto setStatus(String status) {
+  public AnalysisReportDto setStatus(Status status) {
     this.status = status;
     return this;
   }

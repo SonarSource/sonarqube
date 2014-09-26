@@ -32,6 +32,7 @@ import org.sonar.core.persistence.TestDatabase;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 
 public class AnalysisReportDaoTest {
   private AnalysisReportDao dao;
@@ -60,7 +61,7 @@ public class AnalysisReportDaoTest {
     AnalysisReportDto report = new AnalysisReportDto()
       .setProjectKey("123456789-987654321")
       .setData("data-project")
-      .setStatus("pending");
+      .setStatus(PENDING);
     report.setCreatedAt(DateUtils.parseDate("2014-09-24"))
       .setUpdatedAt(DateUtils.parseDate("2014-09-25"));
 

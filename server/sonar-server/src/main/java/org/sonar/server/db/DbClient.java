@@ -36,6 +36,7 @@ import org.sonar.core.user.UserDao;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
+import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -71,6 +72,7 @@ public class DbClient implements ServerComponent {
   private final IssueDao issueDao;
   private final IssueAuthorizationDao issueAuthorizationDao;
   private final ActionPlanDao actionPlanDao;
+  private final AnalysisReportDao analysisReportDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -98,6 +100,7 @@ public class DbClient implements ServerComponent {
     issueDao = getDao(map, IssueDao.class);
     issueAuthorizationDao = getDao(map, IssueAuthorizationDao.class);
     actionPlanDao = getDao(map, ActionPlanDao.class);
+    analysisReportDao = getDao(map, AnalysisReportDao.class);
   }
 
   public Database database() {
@@ -178,6 +181,10 @@ public class DbClient implements ServerComponent {
 
   public ActionPlanDao actionPlanDao() {
     return actionPlanDao;
+  }
+
+  public AnalysisReportDao analysisReportDao() {
+    return analysisReportDao;
   }
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {
