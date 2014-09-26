@@ -21,24 +21,28 @@
 package org.sonar.server.computation.db;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.TestDatabase;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class AnalysisReportDaoTest extends AbstractDaoTestCase {
+public class AnalysisReportDaoTest {
   private AnalysisReportDao dao;
   private DbSession session;
   private System2 system2;
 
+  @Rule
+  public TestDatabase db = new TestDatabase();
+
   @Before
   public void before() {
-    this.session = getMyBatis().openSession(false);
+    this.session = db.myBatis().openSession(false);
     this.system2 = mock(System2.class);
     this.dao = new AnalysisReportDao(system2);
   }
@@ -57,6 +61,6 @@ public class AnalysisReportDaoTest extends AbstractDaoTestCase {
     dao.insert(session, report);
     session.commit();
 
-    checkTables("insert", new String[]{"id"}, "analysis_reports");
+    db.assertDbUnit(getClass(), "insert-result.xml", "analysis_reports");
   }
 }
