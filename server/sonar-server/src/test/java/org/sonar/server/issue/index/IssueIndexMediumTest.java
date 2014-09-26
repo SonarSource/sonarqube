@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.index;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
@@ -28,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
@@ -70,7 +70,7 @@ public class IssueIndexMediumTest {
 
   RuleDto rule;
   ComponentDto project;
-  ComponentDto resource;
+  ComponentDto file;
 
   @Before
   public void setUp() throws Exception {
@@ -88,11 +88,11 @@ public class IssueIndexMediumTest {
       .setProjectId_unit_test_only(1L);
     tester.get(ComponentDao.class).insert(session, project);
 
-    resource = new ComponentDto()
+    file = new ComponentDto()
       .setProjectId_unit_test_only(1L)
       .setKey("MyComponent")
       .setId(2L);
-    tester.get(ComponentDao.class).insert(session, resource);
+    tester.get(ComponentDao.class).insert(session, file);
 
     // project can be seen by anyone
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
@@ -157,35 +157,118 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  public void filter_by_action_plan() throws Exception {
-    String plan1 = "plan1";
-    String plan2 = "plan2";
-    IssueDto issue1 = createIssue()
-      .setActionPlanKey(plan1);
-    IssueDto issue2 = createIssue()
-      .setActionPlanKey(plan2);
-    db.issueDao().insert(session, issue1, issue2);
+  public void filter_by_keys() throws Exception {
+    db.issueDao().insert(session,
+      createIssue().setKee("1"),
+      createIssue().setKee("2"));
     session.commit();
 
-    IssueQuery.Builder query = IssueQuery.builder();
-    query.actionPlans(ImmutableList.of(plan1));
-    Result<Issue> result = index.search(query.build(), new QueryContext());
-
-    assertThat(result.getHits()).hasSize(1);
-
-    query = IssueQuery.builder();
-    query.actionPlans(ImmutableList.of(plan2));
-    result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(1);
-
-    query = IssueQuery.builder();
-    query.actionPlans(ImmutableList.of(plan2, plan1));
-    result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("1", "2")).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("1")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("3", "4")).build(), new QueryContext()).getHits()).isEmpty();
   }
 
   @Test
-  public void filter_by_rule() throws Exception {
+  public void filter_by_projects() throws Exception {
+    db.issueDao().insert(session,
+      createIssue().setRootComponentKey(project.key()));
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().componentRoots(newArrayList(project.key())).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().componentRoots(newArrayList(file.key())).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().componentRoots(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void filter_by_components() throws Exception {
+    db.issueDao().insert(session,
+      createIssue().setComponentKey("file1"),
+      createIssue().setComponentKey("file2"));
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().components(newArrayList("file1", "file2")).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().components(newArrayList("file1")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().components(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().components(newArrayList(project.key())).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void filter_by_severities() throws Exception {
+    db.issueDao().insert(session,
+      createIssue().setSeverity(Severity.INFO),
+      createIssue().setSeverity(Severity.MAJOR));
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.INFO, Severity.MAJOR)).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.INFO)).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.BLOCKER)).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void filter_by_statuses() throws Exception {
+    db.issueDao().insert(session,
+      createIssue().setStatus(Issue.STATUS_CLOSED),
+      createIssue().setStatus(Issue.STATUS_OPEN));
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED, Issue.STATUS_OPEN)).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED)).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CONFIRMED)).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void filter_by_resolutions() throws Exception {
+    db.issueDao().insert(session,
+      createIssue().setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
+      createIssue().setResolution(Issue.RESOLUTION_FIXED));
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new QueryContext()).getHits())
+      .hasSize(2);
+    assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE)).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_REMOVED)).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void filter_by_resolved() throws Exception {
+    db.issueDao().insert(session,
+      createIssue().setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED),
+      createIssue().setStatus(Issue.STATUS_OPEN).setResolution(null),
+      createIssue().setStatus(Issue.STATUS_OPEN).setResolution(null));
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().resolved(true).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().resolved(false).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().resolved(null).build(), new QueryContext()).getHits()).hasSize(3);
+  }
+
+  @Test
+  public void filter_by_action_plans() throws Exception {
+    db.issueDao().insert(session,
+      createIssue().setActionPlanKey("plan1"),
+      createIssue().setActionPlanKey("plan2"));
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1", "plan2")).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void filter_by_planned() throws Exception {
+    db.issueDao().insert(session,
+      createIssue().setActionPlanKey("AP-KEY"),
+      createIssue().setActionPlanKey(null),
+      createIssue().setActionPlanKey(null));
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().planned(true).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().planned(false).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().planned(null).build(), new QueryContext()).getHits()).hasSize(3);
+  }
+
+  @Test
+  public void filter_by_rules() throws Exception {
     db.issueDao().insert(session, createIssue().setRule(rule));
 
     tester.get(RuleDao.class).insert(session, RuleTesting.newDto(RuleKey.of("rule", "without issue")));
@@ -196,7 +279,7 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  public void filter_by_language() throws Exception {
+  public void filter_by_languages() throws Exception {
     db.issueDao().insert(session, createIssue().setRule(rule));
     session.commit();
 
@@ -205,53 +288,45 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  public void is_assigned_filter() throws Exception {
-    String assignee = "steph";
-    IssueDto issue1 = createIssue()
-      .setAssignee(assignee);
-    IssueDto issue2 = createIssue();
-    db.issueDao().insert(session, issue1, issue2);
+  public void filter_by_assignees() throws Exception {
+    db.issueDao().insert(session,
+      createIssue().setAssignee("steph"),
+      createIssue().setAssignee("simon"),
+      createIssue());
     session.commit();
 
-    IssueQuery.Builder query = IssueQuery.builder();
-    Result<Issue> result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(2);
-
-    query = IssueQuery.builder();
-    query.assigned(true);
-    result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph", "simon")).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().assignees(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
   }
 
   @Test
-  public void filter_assignee() throws Exception {
-    String assignee1 = "steph";
-    String assignee2 = "simon";
-    IssueDto issue1 = createIssue()
-      .setAssignee(assignee1);
-    IssueDto issue2 = createIssue()
-      .setAssignee(assignee2);
-    IssueDto issue3 = createIssue();
-    db.issueDao().insert(session, issue1, issue2, issue3);
+  public void filter_by_assigned() throws Exception {
+    db.issueDao().insert(session,
+      createIssue().setAssignee("steph"),
+      createIssue().setAssignee(null),
+      createIssue().setAssignee(null));
     session.commit();
 
-    IssueQuery.Builder query = IssueQuery.builder();
-    Result<Issue> result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(3);
-
-    query = IssueQuery.builder();
-    query.assignees(ImmutableList.of(assignee1));
-    result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(1);
-
-    query = IssueQuery.builder();
-    query.assignees(ImmutableList.of(assignee1, assignee2));
-    result = index.search(query.build(), new QueryContext());
-    assertThat(result.getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().assigned(true).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().assigned(false).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().assigned(null).build(), new QueryContext()).getHits()).hasSize(3);
   }
 
   @Test
-  public void filter_created_after() throws Exception {
+  public void filter_by_reporters() throws Exception {
+    db.issueDao().insert(session,
+      createIssue().setReporter("fabrice"),
+      createIssue().setReporter("stephane"));
+    session.commit();
+
+    assertThat(index.search(IssueQuery.builder().reporters(newArrayList("fabrice", "stephane")).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().reporters(newArrayList("fabrice")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().reporters(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
+  }
+
+  @Test
+  public void filter_by_created_after() throws Exception {
     IssueDto issue1 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
     IssueDto issue2 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
     db.issueDao().insert(session, issue1, issue2);
@@ -264,7 +339,7 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  public void filter_created_before() throws Exception {
+  public void filter_by_created_before() throws Exception {
     IssueDto issue1 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
     IssueDto issue2 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
     db.issueDao().insert(session, issue1, issue2);
@@ -277,7 +352,7 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  public void filter_created_at() throws Exception {
+  public void filter_by_created_at() throws Exception {
     IssueDto issue = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
     db.issueDao().insert(session, issue);
     session.commit();
@@ -288,7 +363,7 @@ public class IssueIndexMediumTest {
 
   @Test
   public void paging() throws Exception {
-    for (int i=0; i<12; i++) {
+    for (int i = 0; i < 12; i++) {
       IssueDto issue = createIssue();
       tester.get(IssueDao.class).insert(session, issue);
     }
@@ -311,7 +386,7 @@ public class IssueIndexMediumTest {
 
   @Test
   public void search_with_limit() throws Exception {
-    for (int i=0; i<20; i++) {
+    for (int i = 0; i < 20; i++) {
       IssueDto issue = createIssue();
       tester.get(IssueDao.class).insert(session, issue);
     }
@@ -322,7 +397,7 @@ public class IssueIndexMediumTest {
   @Test
   public void search_with_max_limit() throws Exception {
     List<String> issueKeys = newArrayList();
-    for (int i=0; i<500; i++) {
+    for (int i = 0; i < 500; i++) {
       IssueDto issue = createIssue();
       tester.get(IssueDao.class).insert(session, issue);
       issueKeys.add(issue.getKey());
@@ -416,6 +491,7 @@ public class IssueIndexMediumTest {
     assertThat(result.getHits().get(1).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
     assertThat(result.getHits().get(2).closeDate()).isNull();
   }
+
   @Test
   public void authorized_issues_on_groups() throws Exception {
     ComponentDto project1 = new ComponentDto()
@@ -543,7 +619,7 @@ public class IssueIndexMediumTest {
       .setRule(rule)
       .setDebt(10L)
       .setRootComponent(project)
-      .setComponent(resource)
+      .setComponent(file)
       .setStatus("OPEN").setResolution("OPEN")
       .setSeverity("MAJOR")
       .setKee(UUID.randomUUID().toString());
