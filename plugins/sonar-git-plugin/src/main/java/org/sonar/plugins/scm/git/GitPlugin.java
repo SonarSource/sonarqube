@@ -28,8 +28,7 @@ public final class GitPlugin extends SonarPlugin {
 
   public List getExtensions() {
     return ImmutableList.of(
-      GitScmProvider.class,
-      GitBlameCommand.class);
+      GitScmProvider.class);
   }
 
 }

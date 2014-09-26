@@ -43,10 +43,6 @@ public class DefaultTestCase implements TestCase {
   private TestCase.Type type = Type.UNIT;
   private String stackTrace;
 
-  public DefaultTestCase() {
-    this.storage = null;
-  }
-
   public DefaultTestCase(SensorStorage storage) {
     this.storage = storage;
   }

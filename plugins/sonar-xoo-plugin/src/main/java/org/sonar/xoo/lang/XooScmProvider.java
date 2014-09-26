@@ -17,16 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo.scm;
+package org.sonar.xoo.lang;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.fs.FileSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.batch.scm.ScmProvider;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 
 import java.io.File;
@@ -35,19 +37,37 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class XooBlameCommand implements BlameCommand {
+public class XooScmProvider implements ScmProvider {
+
+  private static final Logger LOG = LoggerFactory.getLogger(XooScmProvider.class);
 
   private static final String SCM_EXTENSION = ".scm";
 
+  private final Settings settings;
+
+  public XooScmProvider(Settings settings) {
+    this.settings = settings;
+  }
+
   @Override
-  public void blame(FileSystem fs, Iterable<InputFile> files, BlameResult result) {
+  public String key() {
+    return "xoo";
+  }
+
+  @Override
+  public boolean supports(File baseDir) {
+    return false;
+  }
+
+  @Override
+  public void blame(Iterable<InputFile> files, BlameResult handler) {
     for (InputFile inputFile : files) {
-      processFile(inputFile, result);
+      processFile(inputFile, handler);
     }
   }
 
   @VisibleForTesting
-  protected void processFile(InputFile inputFile, BlameResult result) {
+  protected void processFile(InputFile inputFile, BlameResult handler) {
     File ioFile = inputFile.file();
     File scmDataFile = new java.io.File(ioFile.getParentFile(), ioFile.getName() + SCM_EXTENSION);
     if (!scmDataFile.exists()) {
@@ -74,7 +94,7 @@ public class XooBlameCommand implements BlameCommand {
           blame.add(new BlameLine(date, revision, author));
         }
       }
-      result.add(inputFile, blame);
+      handler.add(inputFile, blame);
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
