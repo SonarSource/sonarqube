@@ -21,7 +21,6 @@ package org.sonar.api.batch.scm;
 
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 
 import java.io.File;
@@ -48,14 +47,14 @@ public interface ScmProvider extends BatchExtension {
    * Compute blame of the provided files. Computation can be done in parallel.
    * If there is an error that prevent to blame a file then an exception should be raised.
    */
-  void blame(FileSystem fs, Iterable<InputFile> files, BlameResult result);
+  void blame(Iterable<InputFile> files, BlameResultHandler handler);
 
   /**
-   * Callback for the provider to save results of blame per file.
+   * Callback for the provider to return results of blame per file.
    */
-  public static interface BlameResult {
+  public static interface BlameResultHandler {
 
-    void add(InputFile file, List<BlameLine> lines);
+    void handle(InputFile file, List<BlameLine> lines);
 
   }
 

@@ -25,7 +25,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.api.batch.scm.ScmProvider.BlameResult;
+import org.sonar.api.batch.scm.ScmProvider.BlameResultHandler;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -92,10 +92,10 @@ public final class ScmActivitySensor implements Sensor {
         filesToBlame.add(f);
       }
     }
-    configuration.provider().blame(fs, filesToBlame, new BlameResult() {
+    configuration.provider().blame(filesToBlame, new BlameResultHandler() {
 
       @Override
-      public void add(InputFile file, List<BlameLine> lines) {
+      public void handle(InputFile file, List<BlameLine> lines) {
 
         PropertiesBuilder<Integer, String> authors = propertiesBuilder(CoreMetrics.SCM_AUTHORS_BY_LINE);
         PropertiesBuilder<Integer, String> dates = propertiesBuilder(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
