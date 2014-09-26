@@ -185,8 +185,8 @@ define [
           # Periods
           @periods.reset [{label: t('none')}]
           data.periods.forEach (p) =>
-            d = moment p[2]
-            date = new Date d.get('year'), d.get('month'), d.get('date')
+            d = new Date p[2]
+            d.setHours 0, 0, 0, 0
             p = @periods.add key: p[0], label: p[1], sinceDate: d
 
 
