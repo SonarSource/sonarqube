@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation.db;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,6 +46,11 @@ public class AnalysisReportDaoTest {
     this.session = db.myBatis().openSession(false);
     this.system2 = mock(System2.class);
     this.dao = new AnalysisReportDao(system2);
+  }
+
+  @After
+  public void after() throws Exception {
+    session.close();
   }
 
   @Test
