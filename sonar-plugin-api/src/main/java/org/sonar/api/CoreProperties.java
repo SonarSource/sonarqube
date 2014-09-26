@@ -619,11 +619,6 @@ public interface CoreProperties {
   /**
    * @since 5.0
    */
-  String CATEGORY_SCM = "scm";
-
-  /**
-   * @since 5.0
-   */
   String SCM_ENABLED_KEY = "sonar.scm.enabled";
 
   /**
