@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.db;
 
+import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.AuthorizedComponentDto;
@@ -31,7 +32,11 @@ import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 4.3
@@ -83,6 +88,27 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
 
   public List<ComponentDto> findModulesByProject(String projectKey, DbSession session) {
     return mapper(session).findModulesByProject(projectKey);
+  }
+
+  public List<ComponentDto> findSubProjectsByComponentKeys(DbSession session, Collection<String> keys) {
+    return mapper(session).findSubProjectsByComponentKeys(keys);
+  }
+
+  public List<ComponentDto> getByIds(DbSession session, Collection<Long> ids) {
+    if (ids.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<ComponentDto> components = newArrayList();
+    List<List<Long>> partitionList = Lists.partition(newArrayList(ids), 1000);
+    for (List<Long> partition : partitionList) {
+      List<ComponentDto> dtos = mapper(session).findByIds(partition);
+      components.addAll(dtos);
+    }
+    return components;
+  }
+
+  protected List<ComponentDto> doGetByKeys(DbSession session, Collection<String> keys) {
+    return mapper(session).findByKeys(keys);
   }
 
   @CheckForNull

@@ -143,6 +143,7 @@ public class DbClient implements ServerComponent {
   public ComponentDao componentDao() {
     return componentDao;
   }
+
   public SnapshotDao snapshotDao() {
     return snapshotDao;
   }

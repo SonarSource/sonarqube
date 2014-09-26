@@ -234,6 +234,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     Set<RuleKey> ruleKeys = newHashSet();
     Set<String> projectKeys = newHashSet();
     Set<String> componentKeys = newHashSet();
+    Set<Long> componentIds = newHashSet();
     Set<String> actionPlanKeys = newHashSet();
     List<String> userLogins = newArrayList();
     Map<String, User> usersByLogin = newHashMap();
@@ -244,6 +245,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       ruleKeys.add(issue.ruleKey());
       projectKeys.add(issue.projectKey());
       componentKeys.add(issue.componentKey());
+//      componentIds.add(issue.com());
       actionPlanKeys.add(issue.actionPlanKey());
       if (issue.reporter() != null) {
         userLogins.add(issue.reporter());
@@ -263,8 +265,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       usersByLogin = getUsersByLogin(session, userLogins);
 
       List<ComponentDto> componentDtos = dbClient.componentDao().getByKeys(session, componentKeys);
+      List<ComponentDto> subProjectDtos = dbClient.componentDao().findSubProjectsByComponentKeys(session, componentKeys);
       List<ComponentDto> projectDtos = dbClient.componentDao().getByKeys(session, projectKeys);
 
+      componentDtos.addAll(subProjectDtos);
       componentDtos.addAll(projectDtos);
       writeProjects(json, projectDtos);
       writeComponents(json, componentDtos);

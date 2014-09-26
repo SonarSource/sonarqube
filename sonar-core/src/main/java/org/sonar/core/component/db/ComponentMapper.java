@@ -25,6 +25,7 @@ import org.sonar.core.component.ComponentDto;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -48,6 +49,15 @@ public interface ComponentMapper {
    * Return direct modules from a project/module
    */
   List<ComponentDto> findModulesByProject(@Param("projectKey") String projectKey);
+
+  /**
+   * Return sub project of component keys
+   */
+  List<ComponentDto> findSubProjectsByComponentKeys(@Param("keys") Collection<String> keys);
+
+  List<ComponentDto> findByIds(@Param("ids") Collection<Long> ids);
+
+  List<ComponentDto> findByKeys(@Param("keys") Collection<String> keys);
 
   long countById(long id);
 

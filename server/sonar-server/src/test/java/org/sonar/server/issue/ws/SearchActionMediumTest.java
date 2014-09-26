@@ -91,7 +91,7 @@ public class SearchActionMediumTest {
 
     file = new ComponentDto()
       .setKey("MyComponent")
-      .setProjectId(project.getId());
+      .setSubProjectId(project.getId());
     db.componentDao().insert(session, file);
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file));
 
@@ -231,6 +231,40 @@ public class SearchActionMediumTest {
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("extra_fields", "actions,transitions,assigneeName,reporterName,actionPlanName").execute();
     result.assertJson(this.getClass(), "issue_with_extra_fields.json", false);
+  }
+
+  @Test
+  public void components_contains_sub_projects() throws Exception {
+    ComponentDto project = new ComponentDto()
+      .setKey("ProjectHavingModule")
+      .setScope("PRJ");
+    db.componentDao().insert(session, project);
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(project));
+
+    // project can be seen by anyone
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+
+    ComponentDto module = new ComponentDto()
+      .setKey("ModuleHavingFile")
+      .setScope("PRJ")
+      .setSubProjectId(project.getId());
+    db.componentDao().insert(session, module);
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module));
+
+    ComponentDto file = new ComponentDto()
+      .setKey("FileLinkedToModule")
+      .setScope("FIL")
+      .setSubProjectId(module.getId());
+    db.componentDao().insert(session, file);
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file));
+
+    IssueDto issue = IssueTesting.newDto(rule, file, project);
+    db.issueDao().insert(session, issue);
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
+    result.assertJson(this.getClass(), "components_contains_sub_projects.json", false);
   }
 
   @Test

@@ -22,6 +22,7 @@ package org.sonar.server.db;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,24 +33,16 @@ import org.sonar.core.persistence.Dto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.search.DbSynchronizationHandler;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.action.DeleteKey;
-import org.sonar.server.search.action.DeleteNestedItem;
-import org.sonar.server.search.action.InsertDto;
-import org.sonar.server.search.action.RefreshIndex;
-import org.sonar.server.search.action.UpsertDto;
-import org.sonar.server.search.action.UpsertNestedItem;
+import org.sonar.server.search.action.*;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 /**
@@ -168,14 +161,20 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
   }
 
   public List<DTO> getByKeys(DbSession session, Collection<KEY> keys) {
-    List<DTO> results = new ArrayList<DTO>();
-    for (KEY key : keys) {
-      DTO result = this.getNullableByKey(session, key);
-      if (result != null) {
-        results.add(result);
-      }
+    if (keys.isEmpty()) {
+      return Collections.emptyList();
     }
-    return results;
+    List<DTO> components = newArrayList();
+    List<List<KEY>> partitionList = Lists.partition(newArrayList(keys), 1000);
+    for (List<KEY> partition : partitionList) {
+      List<DTO> dtos = doGetByKeys(session, partition);
+      components.addAll(dtos);
+    }
+    return components;
+  }
+
+  protected List<DTO> doGetByKeys(DbSession session, Collection<KEY> keys) {
+    throw notImplemented(this);
   }
 
   @Override
@@ -348,7 +347,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
     return getSynchronizationParams(date, Collections.<String, String>emptyMap());
   }
 
-  protected Map getSynchronizationParams(Date date, Map<String, String> params) {
+  protected Map<String, Object> getSynchronizationParams(Date date, Map<String, String> params) {
     Map<String, Object> finalParams = newHashMap();
     finalParams.put("date", new Timestamp(date.getTime()));
     return finalParams;

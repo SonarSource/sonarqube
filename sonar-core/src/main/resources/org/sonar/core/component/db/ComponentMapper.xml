@@ -86,6 +86,47 @@
     </where>
   </select>
 
+  <select id="findByIds" parameterType="long" resultType="Component">
+    select <include refid="componentColumns"/>
+    from projects p
+    inner join snapshots s on s.project_id=p.id and s.islast=${_true}
+    <where>
+      p.enabled=${_true}
+      and p.id in
+      <foreach collection="ids" open="(" close=")" item="id" separator=",">
+        #{id}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="findByKeys" parameterType="String" resultType="Component">
+    select <include refid="componentColumns"/>
+    from projects p
+    inner join snapshots s on s.project_id=p.id and s.islast=${_true}
+    <where>
+      p.enabled=${_true}
+      and p.kee in
+      <foreach collection="keys" open="(" close=")" item="key" separator=",">
+        #{key}
+      </foreach>
+    </where>
+  </select>
+
+  <select id="findSubProjectsByComponentKeys" parameterType="String" resultType="Component">
+    SELECT <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
+    INNER JOIN projects child ON child.root_id=p.id AND child.enabled=${_true}
+    <where>
+      AND p.enabled=${_true}
+      AND p.scope='PRJ'
+      AND child.kee in
+      <foreach collection="keys" open="(" close=")" item="key" separator=",">
+        #{key}
+      </foreach>
+    </where>
+  </select>
+
   <select id="selectAuthorizedComponentById" parameterType="long" resultType="AuthorizedComponent">
     SELECT <include refid="authorizedComponentColumns"/>
     FROM projects p

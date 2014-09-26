@@ -32,10 +32,12 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
   private String name;
   private String longName;
   private String language;
-  private Long projectId;
   private Long subProjectId;
   private boolean enabled = true;
   private Date authorizationUpdatedAt;
+
+  // Return by join for the moment
+  private Long projectId;
 
   public ComponentDto setId(Long id) {
     super.setId(id);

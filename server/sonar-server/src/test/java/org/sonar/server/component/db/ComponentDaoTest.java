@@ -33,6 +33,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import java.util.Date;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -92,6 +93,50 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.subProjectId()).isNull();
     assertThat(result.projectId()).isEqualTo(1);
     assertThat(result.getAuthorizationUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-06-18"));
+  }
+
+  @Test
+  public void find_by_keys() {
+    setupData("shared");
+
+    List<ComponentDto> results = dao.getByKeys(session, "org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(results).hasSize(1);
+
+    ComponentDto result = results.get(0);
+    assertThat(result).isNotNull();
+    assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
+    assertThat(result.name()).isEqualTo("RequestContext.java");
+    assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
+    assertThat(result.qualifier()).isEqualTo("FIL");
+    assertThat(result.scope()).isEqualTo("FIL");
+    assertThat(result.language()).isEqualTo("java");
+    assertThat(result.subProjectId()).isEqualTo(2);
+    assertThat(result.projectId()).isEqualTo(1);
+
+    assertThat(dao.getByKeys(session, "unknown")).isEmpty();
+  }
+
+  @Test
+  public void find_by_ids() {
+    setupData("shared");
+
+    List<ComponentDto> results = dao.getByIds(session, newArrayList(4L));
+    assertThat(results).hasSize(1);
+
+    ComponentDto result = results.get(0);
+    assertThat(result).isNotNull();
+    assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
+    assertThat(result.name()).isEqualTo("RequestContext.java");
+    assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
+    assertThat(result.qualifier()).isEqualTo("FIL");
+    assertThat(result.scope()).isEqualTo("FIL");
+    assertThat(result.language()).isEqualTo("java");
+    assertThat(result.subProjectId()).isEqualTo(2);
+    assertThat(result.projectId()).isEqualTo(1);
+
+    assertThat(dao.getByIds(session, newArrayList(123L))).isEmpty();
   }
 
   @Test
@@ -179,6 +224,39 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(dao.getParentModuleByKey("org.struts:struts", session)).isNull();
 
     assertThat(dao.getParentModuleByKey("unknown", session)).isNull();
+  }
+
+  @Test
+  public void find_sub_projects_by_component_keys() throws Exception {
+    setupData("multi-modules");
+
+    // Sub project of a file
+    List<ComponentDto> results = dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts-core:src/org/struts/RequestContext.java"));
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-data");
+
+    // Sub project of a directory
+    results = dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts-core:src/org/struts"));
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-data");
+
+    // Sub project of a sub module
+    results = dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts-data"));
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts");
+
+    // Sub project of a module
+    results = dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts-core"));
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts");
+
+    // Sub project of a project
+    assertThat(dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts"))).isEmpty();
+
+    // SUb projects of a component and a sub module
+    assertThat(dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts-core:src/org/struts/RequestContext.java", "org.struts:struts-data"))).hasSize(2);
+
+    assertThat(dao.findSubProjectsByComponentKeys(session, newArrayList("unknown"))).isEmpty();
   }
 
   @Test

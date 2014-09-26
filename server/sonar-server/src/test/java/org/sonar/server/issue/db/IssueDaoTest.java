@@ -33,6 +33,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.rule.RuleTesting;
 
 import java.util.Date;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,6 +62,43 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     setupData("shared", "get_by_key");
 
     IssueDto issue = dao.getByKey(session, "ABCDE");
+    assertThat(issue.getKee()).isEqualTo("ABCDE");
+    assertThat(issue.getId()).isEqualTo(100L);
+    assertThat(issue.getComponentId()).isEqualTo(401);
+    assertThat(issue.getRootComponentId()).isEqualTo(399);
+    assertThat(issue.getRuleId()).isEqualTo(500);
+    assertThat(issue.getLanguage()).isEqualTo("java");
+    assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
+    assertThat(issue.isManualSeverity()).isFalse();
+    assertThat(issue.getMessage()).isNull();
+    assertThat(issue.getLine()).isEqualTo(200);
+    assertThat(issue.getEffortToFix()).isEqualTo(4.2);
+    assertThat(issue.getStatus()).isEqualTo("OPEN");
+    assertThat(issue.getResolution()).isEqualTo("FIXED");
+    assertThat(issue.getChecksum()).isEqualTo("XXX");
+    assertThat(issue.getAuthorLogin()).isEqualTo("karadoc");
+    assertThat(issue.getReporter()).isEqualTo("arthur");
+    assertThat(issue.getAssignee()).isEqualTo("perceval");
+    assertThat(issue.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
+    assertThat(issue.getIssueCreationDate()).isNotNull();
+    assertThat(issue.getIssueUpdateDate()).isNotNull();
+    assertThat(issue.getIssueCloseDate()).isNotNull();
+    assertThat(issue.getCreatedAt()).isNotNull();
+    assertThat(issue.getUpdatedAt()).isNotNull();
+    assertThat(issue.getRuleRepo()).isEqualTo("squid");
+    assertThat(issue.getRule()).isEqualTo("AvoidCycle");
+    assertThat(issue.getComponentKey()).isEqualTo("Action.java");
+    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
+  }
+
+  @Test
+  public void get_by_keys() {
+    setupData("shared", "get_by_key");
+
+    List<IssueDto> issues = dao.getByKeys(session, "ABCDE");
+    assertThat(issues).hasSize(1);
+
+    IssueDto issue = issues.get(0);
     assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100L);
     assertThat(issue.getComponentId()).isEqualTo(401);
