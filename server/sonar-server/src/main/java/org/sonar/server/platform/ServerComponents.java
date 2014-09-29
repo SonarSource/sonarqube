@@ -103,6 +103,8 @@ import org.sonar.server.computation.ComputationService;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.db.DashboardDao;
+import org.sonar.server.dashboard.db.WidgetDao;
+import org.sonar.server.dashboard.db.WidgetPropertyDao;
 import org.sonar.server.dashboard.ws.DashboardsShowAction;
 import org.sonar.server.dashboard.ws.DashboardsWebService;
 import org.sonar.server.db.DatabaseChecker;
@@ -372,6 +374,8 @@ class ServerComponents {
       DashboardDao.class,
       DashboardsWebService.class,
       DashboardsShowAction.class,
+      WidgetDao.class,
+      WidgetPropertyDao.class,
 
       // rules/qprofiles
       RuleNormalizer.class,

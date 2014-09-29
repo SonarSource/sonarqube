@@ -29,7 +29,7 @@ import java.util.Collection;
 
 public class WidgetPropertyDao extends BaseDao<WidgetPropertyMapper, WidgetPropertyDto, Long> {
 
-  protected WidgetPropertyDao(System2 system2) {
+  public WidgetPropertyDao(System2 system2) {
     super(WidgetPropertyMapper.class, system2);
   }
 
