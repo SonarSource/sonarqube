@@ -104,6 +104,13 @@
     <!-- unit tests -->
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-core</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
@@ -155,4 +162,16 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skipTests>${skipBatchTests}</skipTests>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

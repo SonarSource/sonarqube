@@ -22,10 +22,12 @@ package org.sonar.process;
 import org.junit.Test;
 import org.sonar.test.TestUtils;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 public class ProcessUtilsTest {
 
   @Test
   public void private_constructor() throws Exception {
-    TestUtils.assertPrivateConstructor(ProcessUtils.class);
+    assertThat(TestUtils.hasOnlyPrivateConstructors(ProcessUtils.class)).isTrue();
   }
 }

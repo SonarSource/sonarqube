@@ -173,7 +173,8 @@
       <id>js-tests</id>
       <activation>
         <property>
-          <name>!skipTests</name>
+          <name>skipWebTests</name>
+          <value>false</value>
         </property>
       </activation>
       <build>

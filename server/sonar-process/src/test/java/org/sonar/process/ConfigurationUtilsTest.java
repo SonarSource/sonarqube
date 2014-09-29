@@ -96,6 +96,6 @@ public class ConfigurationUtilsTest {
 
   @Test
   public void private_constructor() throws Exception {
-    TestUtils.assertPrivateConstructor(ConfigurationUtils.class);
+    assertThat(TestUtils.hasOnlyPrivateConstructors(ConfigurationUtils.class)).isTrue();
   }
 }

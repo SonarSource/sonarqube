@@ -52,6 +52,6 @@ public class LoopbackAddressTest {
 
   @Test
   public void private_constructor() throws Exception {
-    TestUtils.assertPrivateConstructor(LoopbackAddress.class);
+    assertThat(TestUtils.hasOnlyPrivateConstructors(LoopbackAddress.class)).isTrue();
   }
 }
