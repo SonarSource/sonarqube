@@ -32,6 +32,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.DbSynchronizationHandler;
 import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.action.DeleteKey;
 import org.sonar.server.search.action.UpsertDto;
 
 import java.util.Date;
@@ -57,8 +58,8 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
   }
 
   @Override
-  protected DbSynchronizationHandler getSynchronizationResultHandler(final DbSession session) {
-    return new DbSynchronizationHandler() {
+  protected DbSynchronizationHandler getSynchronizationResultHandler(final DbSession session, Map<String, String> params) {
+    return new DbSynchronizationHandler(session, params) {
       private final Map<String, IssueAuthorizationDto> authorizationDtoMap = new HashMap<String, IssueAuthorizationDto>();
 
       @Override
@@ -86,15 +87,20 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
 
       @Override
       public void enqueueCollected() {
-        for (IssueAuthorizationDto authorization : authorizationDtoMap.values()) {
-          session.enqueue(new UpsertDto<IssueAuthorizationDto>(getIndexType(), authorization, true));
+        String projectKey = getParams().get("project");
+        if (authorizationDtoMap.isEmpty() && projectKey != null) {
+          getSession().enqueue(new DeleteKey<String>(getIndexType(), projectKey));
+        } else {
+          for (IssueAuthorizationDto authorization : authorizationDtoMap.values()) {
+            getSession().enqueue(new UpsertDto<IssueAuthorizationDto>(getIndexType(), authorization, true));
+          }
         }
       }
     };
   }
 
   @Override
-  protected Map getSynchronizationParams(Date date, Map<String, String> params) {
+  protected Map<String, Object> getSynchronizationParams(Date date, Map<String, String> params) {
     Map<String, Object> finalParams = super.getSynchronizationParams(date, params);
     finalParams.put("permission", UserRole.USER);
     finalParams.put("anyone", DefaultGroups.ANYONE);

@@ -321,15 +321,15 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
 
   // Synchronization methods
 
-  protected DbSynchronizationHandler getSynchronizationResultHandler(final DbSession session) {
-    return new DbSynchronizationHandler() {
+  protected DbSynchronizationHandler getSynchronizationResultHandler(final DbSession session, Map<String, String> params) {
+    return new DbSynchronizationHandler(session, params) {
       private int count = 0;
 
       @Override
       public void handleResult(ResultContext resultContext) {
         DTO dto = (DTO) resultContext.getResultObject();
         // session.enqueue(new UpsertDto<DTO>(getIndexType(), dto, false));
-        session.enqueue(new InsertDto<DTO>(getIndexType(), dto, false));
+        getSession().enqueue(new InsertDto<DTO>(getIndexType(), dto, false));
         count++;
         if (count % 100000 == 0) {
           LOGGER.info(" - synchronized {} {}", count, getIndexType());
@@ -361,7 +361,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
   @Override
   public void synchronizeAfter(final DbSession session, Date date, Map<String, String> params) {
     try {
-      DbSynchronizationHandler handler = getSynchronizationResultHandler(session);
+      DbSynchronizationHandler handler = getSynchronizationResultHandler(session, params);
       session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date, params), handler);
       handler.enqueueCollected();
       session.enqueue(new RefreshIndex(this.getIndexType()));

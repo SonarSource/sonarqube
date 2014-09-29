@@ -31,6 +31,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.index.IssueAuthorizationDoc;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
@@ -55,7 +56,6 @@ public class InternalPermissionServiceMediumTest {
   InternalPermissionService service;
 
   ComponentDto project;
-  UserDto user;
 
   @Before
   public void setUp() throws Exception {
@@ -65,12 +65,8 @@ public class InternalPermissionServiceMediumTest {
     index = tester.get(IssueAuthorizationIndex.class);
     service = tester.get(InternalPermissionService.class);
 
-    user = new UserDto().setLogin("john").setName("John");
-    db.userDao().insert(session, user);
-
     project = new ComponentDto().setKey("Sample").setProjectId_unit_test_only(1L);
     db.componentDao().insert(session, project);
-
     session.commit();
   }
 
@@ -83,14 +79,75 @@ public class InternalPermissionServiceMediumTest {
   public void add_component_user_permission() throws Exception {
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
 
+    UserDto user = new UserDto().setLogin("john").setName("John");
+    db.userDao().insert(session, user);
+    session.commit();
+
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), project.getId())).isEmpty();
     assertThat(index.getNullableByKey(project.getKey())).isNull();
 
     service.addPermission(params(user.getLogin(), null, project.key(), UserRole.USER));
     session.commit();
 
+    // Check in db
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), project.getId())).hasSize(1);
-    assertThat(index.getNullableByKey(project.getKey())).isNotNull();
+
+    // Check in index
+    IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.getKey());
+    assertThat(issueAuthorizationDoc).isNotNull();
+    assertThat(issueAuthorizationDoc.project()).isEqualTo(project.getKey());
+    assertThat(issueAuthorizationDoc.permission()).isEqualTo(UserRole.USER);
+    assertThat(issueAuthorizationDoc.users()).containsExactly(user.getLogin());
+    assertThat(issueAuthorizationDoc.groups()).isEmpty();
+  }
+
+  @Test
+  public void remove_component_user_permission() throws Exception {
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
+
+    UserDto user1 = new UserDto().setLogin("user1").setName("User1");
+    db.userDao().insert(session, user1);
+
+    UserDto user2 = new UserDto().setLogin("user2").setName("User2");
+    db.userDao().insert(session, user2);
+    session.commit();
+
+    service.addPermission(params(user1.getLogin(), null, project.key(), UserRole.USER));
+    service.addPermission(params(user2.getLogin(), null, project.key(), UserRole.USER));
+    service.removePermission(params(user1.getLogin(), null, project.key(), UserRole.USER));
+    session.commit();
+
+    // Check in db
+    assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user1.getLogin(), project.getId())).isEmpty();
+    assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user2.getLogin(), project.getId())).hasSize(1);
+
+    // Check in index
+    IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.getKey());
+    assertThat(issueAuthorizationDoc).isNotNull();
+    assertThat(issueAuthorizationDoc.project()).isEqualTo(project.getKey());
+    assertThat(issueAuthorizationDoc.permission()).isEqualTo(UserRole.USER);
+    assertThat(issueAuthorizationDoc.users()).containsExactly(user2.getLogin());
+    assertThat(issueAuthorizationDoc.groups()).isEmpty();
+  }
+
+  @Test
+  public void remove_all_component_user_permissions() throws Exception {
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
+
+    UserDto user = new UserDto().setLogin("user1").setName("User1");
+    db.userDao().insert(session, user);
+    session.commit();
+
+    service.addPermission(params(user.getLogin(), null, project.key(), UserRole.USER));
+    service.removePermission(params(user.getLogin(), null, project.key(), UserRole.USER));
+    session.commit();
+
+    // Check in db
+    assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), project.getId())).isEmpty();
+
+    // Check in index
+    IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.getKey());
+    assertThat(issueAuthorizationDoc).isNull();
   }
 
   private Map<String, Object> params(@Nullable String login, @Nullable String group, @Nullable String component, String permission) {

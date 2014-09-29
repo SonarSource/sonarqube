@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.index;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -32,6 +33,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.tester.ServerTester;
 
@@ -65,7 +67,7 @@ public class IssueAuthorizationIndexMediumTest {
   }
 
   @Test
-  public void synchronize() throws Exception {
+  public void synchronize_all() throws Exception {
     project = new ComponentDto()
       .setKey("Sample")
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
@@ -97,6 +99,82 @@ public class IssueAuthorizationIndexMediumTest {
     tester.clearIndexes();
     tester.get(Platform.class).executeStartupTasks();
     assertThat(index.getNullableByKey(project.getKey())).isNotNull();
+  }
+
+  @Test
+  public void synchronize_all_on_startup_tasks() throws Exception {
+    project = new ComponentDto()
+      .setKey("Sample")
+      .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
+    db.componentDao().insert(session, project);
+
+    GroupDto sonarUsers = new GroupDto().setName("devs");
+    db.groupDao().insert(session, sonarUsers);
+
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), "devs", UserRole.USER, session);
+    session.commit();
+
+    assertThat(index.getNullableByKey(project.getKey())).isNull();
+
+    tester.get(Platform.class).executeStartupTasks();
+    assertThat(index.getNullableByKey(project.getKey())).isNotNull();
+  }
+
+  @Test
+  public void synchronize_project() throws Exception {
+    project = new ComponentDto()
+      .setKey("Sample")
+      .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
+    db.componentDao().insert(session, project);
+
+    GroupDto sonarUsers = new GroupDto().setName("devs");
+    db.groupDao().insert(session, sonarUsers);
+
+    UserDto john = new UserDto().setLogin("john").setName("John").setActive(true);
+    db.userDao().insert(session, john);
+
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), "devs", UserRole.USER, session);
+    tester.get(PermissionFacade.class).insertUserPermission(project.getId(), john.getId(), UserRole.USER, session);
+
+    session.commit();
+
+    assertThat(index.getNullableByKey(project.getKey())).isNull();
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, project.key()));
+    session.commit();
+
+    IssueAuthorizationDoc issueAuthorizationDoc = index.getByKey(project.getKey());
+    assertThat(issueAuthorizationDoc).isNotNull();
+    assertThat(issueAuthorizationDoc.project()).isEqualTo("Sample");
+    assertThat(issueAuthorizationDoc.permission()).isEqualTo("user");
+    assertThat(issueAuthorizationDoc.groups()).containsExactly("devs");
+    assertThat(issueAuthorizationDoc.users()).containsExactly("john");
+    assertThat(issueAuthorizationDoc.updatedAt()).isNotNull();
+  }
+
+  @Test
+  public void remove_data_when_synchronizing_project_with_empty_permission() throws Exception {
+    project = new ComponentDto()
+      .setKey("Sample")
+      .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
+    db.componentDao().insert(session, project);
+
+    GroupDto sonarUsers = new GroupDto().setName("devs");
+    db.groupDao().insert(session, sonarUsers);
+
+    UserDto john = new UserDto().setLogin("john").setName("John").setActive(true);
+    db.userDao().insert(session, john);
+
+    // Insert one permission
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), "devs", UserRole.USER, session);
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, project.key()));
+    session.commit();
+    assertThat(index.getByKey(project.getKey())).isNotNull();
+
+    // Delete the permission
+    tester.get(PermissionFacade.class).deleteGroupPermission(project.getId(), "devs", UserRole.USER, session);
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, project.key()));
+    session.commit();
+    assertThat(index.getNullableByKey(project.getKey())).isNull();
   }
 
   @Test

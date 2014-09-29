@@ -39,6 +39,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
@@ -53,7 +54,6 @@ import org.sonar.server.user.MockUserSession;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -82,16 +82,10 @@ public class IssueIndexMediumTest {
     rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(session, rule);
 
-    project = new ComponentDto()
-      .setId(1L)
-      .setKey("MyProject")
-      .setProjectId_unit_test_only(1L);
+    project = ComponentTesting.newProjectDto();
     tester.get(ComponentDao.class).insert(session, project);
 
-    file = new ComponentDto()
-      .setProjectId_unit_test_only(1L)
-      .setKey("MyComponent")
-      .setId(2L);
+    file = ComponentTesting.newFileDto(project);
     tester.get(ComponentDao.class).insert(session, file);
 
     // project can be seen by anyone
@@ -111,7 +105,7 @@ public class IssueIndexMediumTest {
 
   @Test
   public void get_by_key() throws Exception {
-    IssueDto issue = createIssue();
+    IssueDto issue = IssueTesting.newDto(rule, file, project);
     db.issueDao().insert(session, issue);
     session.commit();
 
@@ -121,7 +115,7 @@ public class IssueIndexMediumTest {
 
   @Test
   public void get_by_key_with_attributes() throws Exception {
-    IssueDto issue = createIssue();
+    IssueDto issue = IssueTesting.newDto(rule, file, project);
     db.issueDao().insert(session, issue).setIssueAttributes(KeyValueFormat.format(ImmutableMap.of("jira-issue-key", "SONAR-1234")));
     session.commit();
 
@@ -133,7 +127,7 @@ public class IssueIndexMediumTest {
 
   @Test(expected = IllegalStateException.class)
   public void comments_field_is_not_available() throws Exception {
-    IssueDto issue = createIssue();
+    IssueDto issue = IssueTesting.newDto(rule, file, project);
     db.issueDao().insert(session, issue);
     session.commit();
 
@@ -143,7 +137,7 @@ public class IssueIndexMediumTest {
 
   @Test(expected = IllegalStateException.class)
   public void is_new_field_is_not_available() throws Exception {
-    IssueDto issue = createIssue();
+    IssueDto issue = IssueTesting.newDto(rule, file, project);
     db.issueDao().insert(session, issue);
     session.commit();
 
@@ -159,8 +153,8 @@ public class IssueIndexMediumTest {
   @Test
   public void filter_by_keys() throws Exception {
     db.issueDao().insert(session,
-      createIssue().setKee("1"),
-      createIssue().setKee("2"));
+      IssueTesting.newDto(rule, file, project).setKee("1"),
+      IssueTesting.newDto(rule, file, project).setKee("2"));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().issueKeys(newArrayList("1", "2")).build(), new QueryContext()).getHits()).hasSize(2);
@@ -171,7 +165,7 @@ public class IssueIndexMediumTest {
   @Test
   public void filter_by_projects() throws Exception {
     db.issueDao().insert(session,
-      createIssue().setRootComponentKey(project.key()));
+      IssueTesting.newDto(rule, file, project).setRootComponentKey(project.key()));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().componentRoots(newArrayList(project.key())).build(), new QueryContext()).getHits()).hasSize(1);
@@ -182,8 +176,8 @@ public class IssueIndexMediumTest {
   @Test
   public void filter_by_components() throws Exception {
     db.issueDao().insert(session,
-      createIssue().setComponentKey("file1"),
-      createIssue().setComponentKey("file2"));
+      IssueTesting.newDto(rule, file, project).setComponentKey("file1"),
+      IssueTesting.newDto(rule, file, project).setComponentKey("file2"));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().components(newArrayList("file1", "file2")).build(), new QueryContext()).getHits()).hasSize(2);
@@ -195,8 +189,8 @@ public class IssueIndexMediumTest {
   @Test
   public void filter_by_severities() throws Exception {
     db.issueDao().insert(session,
-      createIssue().setSeverity(Severity.INFO),
-      createIssue().setSeverity(Severity.MAJOR));
+      IssueTesting.newDto(rule, file, project).setSeverity(Severity.INFO),
+      IssueTesting.newDto(rule, file, project).setSeverity(Severity.MAJOR));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().severities(newArrayList(Severity.INFO, Severity.MAJOR)).build(), new QueryContext()).getHits()).hasSize(2);
@@ -207,8 +201,8 @@ public class IssueIndexMediumTest {
   @Test
   public void filter_by_statuses() throws Exception {
     db.issueDao().insert(session,
-      createIssue().setStatus(Issue.STATUS_CLOSED),
-      createIssue().setStatus(Issue.STATUS_OPEN));
+      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_CLOSED),
+      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_CLOSED, Issue.STATUS_OPEN)).build(), new QueryContext()).getHits()).hasSize(2);
@@ -219,8 +213,8 @@ public class IssueIndexMediumTest {
   @Test
   public void filter_by_resolutions() throws Exception {
     db.issueDao().insert(session,
-      createIssue().setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
-      createIssue().setResolution(Issue.RESOLUTION_FIXED));
+      IssueTesting.newDto(rule, file, project).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
+      IssueTesting.newDto(rule, file, project).setResolution(Issue.RESOLUTION_FIXED));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new QueryContext()).getHits())
@@ -232,9 +226,9 @@ public class IssueIndexMediumTest {
   @Test
   public void filter_by_resolved() throws Exception {
     db.issueDao().insert(session,
-      createIssue().setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED),
-      createIssue().setStatus(Issue.STATUS_OPEN).setResolution(null),
-      createIssue().setStatus(Issue.STATUS_OPEN).setResolution(null));
+      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED),
+      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN).setResolution(null),
+      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN).setResolution(null));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().resolved(true).build(), new QueryContext()).getHits()).hasSize(1);
@@ -245,8 +239,8 @@ public class IssueIndexMediumTest {
   @Test
   public void filter_by_action_plans() throws Exception {
     db.issueDao().insert(session,
-      createIssue().setActionPlanKey("plan1"),
-      createIssue().setActionPlanKey("plan2"));
+      IssueTesting.newDto(rule, file, project).setActionPlanKey("plan1"),
+      IssueTesting.newDto(rule, file, project).setActionPlanKey("plan2"));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().actionPlans(newArrayList("plan1")).build(), new QueryContext()).getHits()).hasSize(1);
@@ -257,9 +251,9 @@ public class IssueIndexMediumTest {
   @Test
   public void filter_by_planned() throws Exception {
     db.issueDao().insert(session,
-      createIssue().setActionPlanKey("AP-KEY"),
-      createIssue().setActionPlanKey(null),
-      createIssue().setActionPlanKey(null));
+      IssueTesting.newDto(rule, file, project).setActionPlanKey("AP-KEY"),
+      IssueTesting.newDto(rule, file, project).setActionPlanKey(null),
+      IssueTesting.newDto(rule, file, project).setActionPlanKey(null));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().planned(true).build(), new QueryContext()).getHits()).hasSize(1);
@@ -269,7 +263,7 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_rules() throws Exception {
-    db.issueDao().insert(session, createIssue().setRule(rule));
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setRule(rule));
 
     tester.get(RuleDao.class).insert(session, RuleTesting.newDto(RuleKey.of("rule", "without issue")));
     session.commit();
@@ -280,7 +274,7 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_languages() throws Exception {
-    db.issueDao().insert(session, createIssue().setRule(rule));
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setRule(rule));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().languages(newArrayList(rule.getLanguage())).build(), new QueryContext()).getHits()).hasSize(1);
@@ -290,9 +284,9 @@ public class IssueIndexMediumTest {
   @Test
   public void filter_by_assignees() throws Exception {
     db.issueDao().insert(session,
-      createIssue().setAssignee("steph"),
-      createIssue().setAssignee("simon"),
-      createIssue());
+      IssueTesting.newDto(rule, file, project).setAssignee("steph"),
+      IssueTesting.newDto(rule, file, project).setAssignee("simon"),
+      IssueTesting.newDto(rule, file, project));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().assignees(newArrayList("steph")).build(), new QueryContext()).getHits()).hasSize(1);
@@ -303,9 +297,9 @@ public class IssueIndexMediumTest {
   @Test
   public void filter_by_assigned() throws Exception {
     db.issueDao().insert(session,
-      createIssue().setAssignee("steph"),
-      createIssue().setAssignee(null),
-      createIssue().setAssignee(null));
+      IssueTesting.newDto(rule, file, project).setAssignee("steph"),
+      IssueTesting.newDto(rule, file, project).setAssignee(null),
+      IssueTesting.newDto(rule, file, project).setAssignee(null));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().assigned(true).build(), new QueryContext()).getHits()).hasSize(1);
@@ -316,8 +310,8 @@ public class IssueIndexMediumTest {
   @Test
   public void filter_by_reporters() throws Exception {
     db.issueDao().insert(session,
-      createIssue().setReporter("fabrice"),
-      createIssue().setReporter("stephane"));
+      IssueTesting.newDto(rule, file, project).setReporter("fabrice"),
+      IssueTesting.newDto(rule, file, project).setReporter("stephane"));
     session.commit();
 
     assertThat(index.search(IssueQuery.builder().reporters(newArrayList("fabrice", "stephane")).build(), new QueryContext()).getHits()).hasSize(2);
@@ -327,8 +321,8 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_created_after() throws Exception {
-    IssueDto issue1 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
-    IssueDto issue2 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
+    IssueDto issue1 = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
+    IssueDto issue2 = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
     db.issueDao().insert(session, issue1, issue2);
     session.commit();
 
@@ -340,8 +334,8 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_created_before() throws Exception {
-    IssueDto issue1 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
-    IssueDto issue2 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
+    IssueDto issue1 = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
+    IssueDto issue2 = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
     db.issueDao().insert(session, issue1, issue2);
     session.commit();
 
@@ -353,7 +347,7 @@ public class IssueIndexMediumTest {
 
   @Test
   public void filter_by_created_at() throws Exception {
-    IssueDto issue = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
+    IssueDto issue = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-20"));
     db.issueDao().insert(session, issue);
     session.commit();
 
@@ -364,7 +358,7 @@ public class IssueIndexMediumTest {
   @Test
   public void paging() throws Exception {
     for (int i = 0; i < 12; i++) {
-      IssueDto issue = createIssue();
+      IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
@@ -387,7 +381,7 @@ public class IssueIndexMediumTest {
   @Test
   public void search_with_limit() throws Exception {
     for (int i = 0; i < 20; i++) {
-      IssueDto issue = createIssue();
+      IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
     }
     session.commit();
@@ -398,7 +392,7 @@ public class IssueIndexMediumTest {
   public void search_with_max_limit() throws Exception {
     List<String> issueKeys = newArrayList();
     for (int i = 0; i < 500; i++) {
-      IssueDto issue = createIssue();
+      IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
       issueKeys.add(issue.getKey());
     }
@@ -411,8 +405,8 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_assignee() throws Exception {
-    IssueDto issue1 = createIssue().setAssignee("steph");
-    IssueDto issue2 = createIssue().setAssignee("simon");
+    IssueDto issue1 = IssueTesting.newDto(rule, file, project).setAssignee("steph");
+    IssueDto issue2 = IssueTesting.newDto(rule, file, project).setAssignee("simon");
     db.issueDao().insert(session, issue1, issue2);
     session.commit();
 
@@ -431,8 +425,8 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_creation_date() throws Exception {
-    IssueDto issue1 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
-    IssueDto issue2 = createIssue().setIssueCreationDate(DateUtils.parseDate("2014-09-24"));
+    IssueDto issue1 = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
+    IssueDto issue2 = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-24"));
     db.issueDao().insert(session, issue1, issue2);
     session.commit();
 
@@ -451,8 +445,8 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_update_date() throws Exception {
-    IssueDto issue1 = createIssue().setIssueUpdateDate(DateUtils.parseDate("2014-09-23"));
-    IssueDto issue2 = createIssue().setIssueUpdateDate(DateUtils.parseDate("2014-09-24"));
+    IssueDto issue1 = IssueTesting.newDto(rule, file, project).setIssueUpdateDate(DateUtils.parseDate("2014-09-23"));
+    IssueDto issue2 = IssueTesting.newDto(rule, file, project).setIssueUpdateDate(DateUtils.parseDate("2014-09-24"));
     db.issueDao().insert(session, issue1, issue2);
     session.commit();
 
@@ -471,9 +465,9 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_close_date() throws Exception {
-    IssueDto issue1 = createIssue().setIssueCloseDate(DateUtils.parseDate("2014-09-23"));
-    IssueDto issue2 = createIssue().setIssueCloseDate(DateUtils.parseDate("2014-09-24"));
-    IssueDto issue3 = createIssue().setIssueCloseDate(null);
+    IssueDto issue1 = IssueTesting.newDto(rule, file, project).setIssueCloseDate(DateUtils.parseDate("2014-09-23"));
+    IssueDto issue2 = IssueTesting.newDto(rule, file, project).setIssueCloseDate(DateUtils.parseDate("2014-09-24"));
+    IssueDto issue3 = IssueTesting.newDto(rule, file, project).setIssueCloseDate(null);
     db.issueDao().insert(session, issue1, issue2, issue3);
     session.commit();
 
@@ -494,13 +488,15 @@ public class IssueIndexMediumTest {
 
   @Test
   public void authorized_issues_on_groups() throws Exception {
-    ComponentDto project1 = new ComponentDto()
-      .setId(10L)
-      .setKey("project1");
-    ComponentDto project2 = new ComponentDto()
-      .setId(11L)
-      .setKey("project2");
-    tester.get(ComponentDao.class).insert(session, project1, project2);
+    ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
+    ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");
+    ComponentDto project3 = ComponentTesting.newProjectDto().setKey("project3");
+
+    ComponentDto file1 = ComponentTesting.newFileDto(project1).setKey("file1");
+    ComponentDto file2 = ComponentTesting.newFileDto(project1).setKey("file2");
+    ComponentDto file3 = ComponentTesting.newFileDto(project1).setKey("file3");
+
+    tester.get(ComponentDao.class).insert(session, project1, project2, project3, file1, file2, file3);
 
     // project1 can be seen by sonar-users
     GroupDto groupDto = new GroupDto().setName("sonar-users");
@@ -512,11 +508,14 @@ public class IssueIndexMediumTest {
     db.groupDao().insert(session, groupDto);
     tester.get(PermissionFacade.class).insertGroupPermission(project2.getId(), groupDto.getName(), UserRole.USER, session);
 
+    // project3 cannot be seen by anyone
+
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
-    IssueDto issue1 = createIssue().setRootComponent(project1);
-    IssueDto issue2 = createIssue().setRootComponent(project2);
-    db.issueDao().insert(session, issue1, issue2);
+    db.issueDao().insert(session,
+      IssueTesting.newDto(rule, file1, project1),
+      IssueTesting.newDto(rule, file2, project2),
+      IssueTesting.newDto(rule, file3, project3));
 
     session.commit();
     session.clearCache();
@@ -534,17 +533,22 @@ public class IssueIndexMediumTest {
 
     MockUserSession.set().setUserGroups("another group");
     assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(0);
+
+    MockUserSession.set().setUserGroups("sonar-users", "sonar-admins");
+    assertThat(index.search(query.componentRoots(newArrayList(project3.key())).build(), new QueryContext()).getHits()).hasSize(0);
   }
 
   @Test
   public void authorized_issues_on_user() throws Exception {
-    ComponentDto project1 = new ComponentDto()
-      .setId(10L)
-      .setKey("project1");
-    ComponentDto project2 = new ComponentDto()
-      .setId(11L)
-      .setKey("project2");
-    tester.get(ComponentDao.class).insert(session, project1, project2);
+    ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
+    ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");
+    ComponentDto project3 = ComponentTesting.newProjectDto().setKey("project3");
+
+    ComponentDto file1 = ComponentTesting.newFileDto(project1).setKey("file1");
+    ComponentDto file2 = ComponentTesting.newFileDto(project1).setKey("file2");
+    ComponentDto file3 = ComponentTesting.newFileDto(project1).setKey("file3");
+
+    tester.get(ComponentDao.class).insert(session, project1, project2, project3, file1, file2, file3);
 
     // project1 can be seen by john
     UserDto john = new UserDto().setLogin("john").setName("john").setActive(true);
@@ -556,11 +560,15 @@ public class IssueIndexMediumTest {
     db.userDao().insert(session, max);
     tester.get(PermissionFacade.class).insertUserPermission(project2.getId(), max.getId(), UserRole.USER, session);
 
+    // project3 cannot be seen by anyone
+
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
-    IssueDto issue1 = createIssue().setRootComponent(project1);
-    IssueDto issue2 = createIssue().setRootComponent(project2);
-    db.issueDao().insert(session, issue1, issue2);
+    db.issueDao().insert(session,
+      IssueTesting.newDto(rule, file1, project1),
+      IssueTesting.newDto(rule, file2, project2),
+      IssueTesting.newDto(rule, file2, project3)
+    );
 
     session.commit();
     session.clearCache();
@@ -575,16 +583,15 @@ public class IssueIndexMediumTest {
 
     MockUserSession.set().setLogin("another guy");
     assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(0);
+
+    MockUserSession.set().setLogin("john");
+    assertThat(index.search(query.componentRoots(newArrayList(project3.key())).build(), new QueryContext()).getHits()).hasSize(0);
   }
 
   @Test
-  public void authorized_issues_on_user_with_group() throws Exception {
-    ComponentDto project1 = new ComponentDto()
-      .setId(10L)
-      .setKey("project1");
-    ComponentDto project2 = new ComponentDto()
-      .setId(11L)
-      .setKey("project2");
+  public void authorized_issues_on_user_and_group() throws Exception {
+    ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
+    ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");
     tester.get(ComponentDao.class).insert(session, project1, project2);
 
     // project1 can be seen by john
@@ -599,9 +606,9 @@ public class IssueIndexMediumTest {
 
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
-    IssueDto issue1 = createIssue().setRootComponent(project1);
-    IssueDto issue2 = createIssue().setRootComponent(project2);
-    db.issueDao().insert(session, issue1, issue2);
+    db.issueDao().insert(session,
+      IssueTesting.newDto(rule, file, project1),
+      IssueTesting.newDto(rule, file, project2));
 
     session.commit();
     session.clearCache();
@@ -612,16 +619,4 @@ public class IssueIndexMediumTest {
     assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
   }
 
-  private IssueDto createIssue() {
-    return new IssueDto()
-      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
-      .setRule(rule)
-      .setDebt(10L)
-      .setRootComponent(project)
-      .setComponent(file)
-      .setStatus("OPEN").setResolution("OPEN")
-      .setSeverity("MAJOR")
-      .setKee(UUID.randomUUID().toString());
-  }
 }

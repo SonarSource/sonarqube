@@ -22,14 +22,33 @@ package org.sonar.server.search;
 
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.sonar.core.persistence.DbSession;
 
 import javax.annotation.CheckForNull;
 
-public interface DbSynchronizationHandler extends ResultHandler {
+import java.util.Map;
+
+public abstract class DbSynchronizationHandler implements ResultHandler {
+
+  private final DbSession session;
+  private final Map<String, String> params;
+
+  protected DbSynchronizationHandler(DbSession session, Map<String, String> params) {
+    this.session = session;
+    this.params = params;
+  }
 
   @Override
-  void handleResult(ResultContext context);
+  public abstract void handleResult(ResultContext context);
 
   @CheckForNull
-  void enqueueCollected();
+  public abstract void enqueueCollected();
+
+  public final DbSession getSession() {
+    return session;
+  }
+
+  public final Map<String, String> getParams() {
+    return params;
+  }
 }

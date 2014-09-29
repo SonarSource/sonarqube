@@ -67,7 +67,7 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
   }
 
   @Override
-  protected Map getSynchronizationParams(Date date, Map<String, String> params) {
+  protected Map<String, Object> getSynchronizationParams(Date date, Map<String, String> params) {
     throw new UnsupportedOperationException();
   }
 }
