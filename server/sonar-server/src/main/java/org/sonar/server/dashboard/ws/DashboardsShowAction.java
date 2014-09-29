@@ -24,6 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.dashboard.DashboardDto;
 import org.sonar.core.dashboard.WidgetDto;
 import org.sonar.core.dashboard.WidgetPropertyDto;
@@ -86,7 +87,6 @@ public class DashboardsShowAction implements DashboardsAction {
           json.endObject();
         }
       }
-
       // load widgets and related properties
       json.name("widgets").beginArray();
       Collection<WidgetDto> widgets = dbClient.widgetDao().findByDashboard(dbSession, dashboard.getKey());
@@ -100,6 +100,7 @@ public class DashboardsShowAction implements DashboardsAction {
         json.prop("col", widget.getColumnIndex());
         json.prop("row", widget.getRowIndex());
         json.prop("configured", widget.getConfigured());
+        json.prop("componentId", widget.getResourceId());
         json.name("props").beginArray();
         for (WidgetPropertyDto prop : propertiesByWidget.get(widget.getKey())) {
           json.beginObject();
