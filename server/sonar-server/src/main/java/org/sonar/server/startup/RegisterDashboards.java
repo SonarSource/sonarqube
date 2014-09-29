@@ -27,7 +27,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardTemplate;
-import org.sonar.core.dashboard.*;
+import org.sonar.core.dashboard.ActiveDashboardDao;
+import org.sonar.core.dashboard.ActiveDashboardDto;
+import org.sonar.core.dashboard.DashboardDao;
+import org.sonar.core.dashboard.DashboardDto;
+import org.sonar.core.dashboard.WidgetDto;
+import org.sonar.core.dashboard.WidgetPropertyDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 
@@ -50,7 +55,7 @@ public class RegisterDashboards implements Startable {
   private final LoadedTemplateDao loadedTemplateDao;
 
   public RegisterDashboards(DashboardTemplate[] dashboardTemplatesArray, DashboardDao dashboardDao,
-                            ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
+    ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
     this.dashboardTemplates = Lists.newArrayList(dashboardTemplatesArray);
     this.dashboardDao = dashboardDao;
     this.activeDashboardDao = activeDashboardDao;
@@ -61,7 +66,7 @@ public class RegisterDashboards implements Startable {
    * Used when no plugin is defining some DashboardTemplate
    */
   public RegisterDashboards(DashboardDao dashboardDao, ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
-    this(new DashboardTemplate[]{}, dashboardDao, activeDashboardDao, loadedTemplateDao);
+    this(new DashboardTemplate[] {}, dashboardDao, activeDashboardDao, loadedTemplateDao);
   }
 
   @Override
@@ -125,27 +130,25 @@ public class RegisterDashboards implements Startable {
       .setDescription(dashboard.getDescription())
       .setColumnLayout(dashboard.getLayout().getCode())
       .setShared(true)
-      .setGlobal(dashboard.isGlobal())
-      .setCreatedAt(now)
-      .setUpdatedAt(now);
+      .setGlobal(dashboard.isGlobal());
+    dashboardDto.setCreatedAt(now).setUpdatedAt(now);
 
     for (int columnIndex = 1; columnIndex <= dashboard.getLayout().getColumns(); columnIndex++) {
       List<Dashboard.Widget> widgets = dashboard.getWidgetsOfColumn(columnIndex);
       for (int rowIndex = 1; rowIndex <= widgets.size(); rowIndex++) {
         Dashboard.Widget widget = widgets.get(rowIndex - 1);
         WidgetDto widgetDto = new WidgetDto()
-          .setKey(widget.getId())
+          .setWidgetKey(widget.getId())
           .setColumnIndex(columnIndex)
           .setRowIndex(rowIndex)
-          .setConfigured(true)
-          .setCreatedAt(now)
-          .setUpdatedAt(now);
+          .setConfigured(true);
+        widgetDto.setCreatedAt(now).setUpdatedAt(now);
         dashboardDto.addWidget(widgetDto);
 
         for (Entry<String, String> property : widget.getProperties().entrySet()) {
           WidgetPropertyDto propDto = new WidgetPropertyDto()
-            .setKey(property.getKey())
-            .setValue(property.getValue());
+            .setPropertyKey(property.getKey())
+            .setTextValue(property.getValue());
           widgetDto.addWidgetProperty(propDto);
         }
       }

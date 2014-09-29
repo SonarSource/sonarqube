@@ -19,69 +19,64 @@
  */
 package org.sonar.core.dashboard;
 
-public final class WidgetPropertyDto {
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import org.sonar.core.persistence.Dto;
+
+import java.util.Collection;
+
+public class WidgetPropertyDto extends Dto<Long> {
   private Long id;
   private Long widgetId;
-  private String key;
-  private String value;
+  private String propertyKey;
+  private String textValue;
 
-  /**
-   * @return the id
-   */
   public Long getId() {
     return id;
   }
 
-  /**
-   * @param id the id to set
-   */
   public WidgetPropertyDto setId(Long id) {
     this.id = id;
     return this;
   }
 
-  /**
-   * @return the widgetId
-   */
   public Long getWidgetId() {
     return widgetId;
   }
 
-  /**
-   * @param widgetId the widgetId to set
-   */
   public WidgetPropertyDto setWidgetId(Long widgetId) {
     this.widgetId = widgetId;
     return this;
   }
 
-  /**
-   * @return the key
-   */
-  public String getKey() {
-    return key;
+  public String getPropertyKey() {
+    return propertyKey;
   }
 
-  /**
-   * @param key the key to set
-   */
-  public WidgetPropertyDto setKey(String key) {
-    this.key = key;
+  public WidgetPropertyDto setPropertyKey(String s) {
+    this.propertyKey = s;
     return this;
   }
 
-  /**
-   * @return the value
-   */
-  public String getValue() {
-    return value;
+  public String getTextValue() {
+    return textValue;
   }
 
-  /**
-   * @param value the value to set
-   */
-  public WidgetPropertyDto setValue(String value) {
-    this.value = value;
+  public WidgetPropertyDto setTextValue(String s) {
+    this.textValue = s;
     return this;
+  }
+
+  @Override
+  public Long getKey() {
+    return id;
+  }
+
+  public static ListMultimap<Long, WidgetPropertyDto> groupByWidgetId(Collection<WidgetPropertyDto> properties) {
+    ListMultimap<Long, WidgetPropertyDto> group = ArrayListMultimap.create();
+    for (WidgetPropertyDto property : properties) {
+      group.put(property.getWidgetId(), property);
+    }
+    return group;
   }
 }

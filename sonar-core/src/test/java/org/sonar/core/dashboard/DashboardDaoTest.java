@@ -65,7 +65,7 @@ public class DashboardDaoTest extends AbstractDaoTestCase {
     dashboardDto.setUpdatedAt(aDate);
 
     WidgetDto widgetDto = new WidgetDto();
-    widgetDto.setKey("code_coverage");
+    widgetDto.setWidgetKey("code_coverage");
     widgetDto.setName("Code coverage");
     widgetDto.setDescription("Widget for code coverage");
     widgetDto.setColumnIndex(13);
@@ -76,8 +76,8 @@ public class DashboardDaoTest extends AbstractDaoTestCase {
     dashboardDto.addWidget(widgetDto);
 
     WidgetPropertyDto property = new WidgetPropertyDto();
-    property.setKey("displayITs");
-    property.setValue("true");
+    property.setPropertyKey("displayITs");
+    property.setTextValue("true");
     widgetDto.addWidgetProperty(property);
 
     dao.insert(dashboardDto);
@@ -100,7 +100,7 @@ public class DashboardDaoTest extends AbstractDaoTestCase {
     dashboardDto.setUpdatedAt(null);
 
     WidgetDto widgetDto = new WidgetDto();
-    widgetDto.setKey("code_coverage");
+    widgetDto.setWidgetKey("code_coverage");
     widgetDto.setName(null);
     widgetDto.setDescription(null);
     widgetDto.setColumnIndex(null);
@@ -111,8 +111,8 @@ public class DashboardDaoTest extends AbstractDaoTestCase {
     dashboardDto.addWidget(widgetDto);
 
     WidgetPropertyDto property = new WidgetPropertyDto();
-    property.setKey(null);
-    property.setValue(null);
+    property.setPropertyKey(null);
+    property.setTextValue(null);
     widgetDto.addWidgetProperty(property);
 
     dao.insert(dashboardDto);

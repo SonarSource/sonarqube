@@ -20,12 +20,12 @@
 package org.sonar.core.dashboard;
 
 import com.google.common.collect.Lists;
+import org.sonar.core.persistence.Dto;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
-public final class DashboardDto {
+public final class DashboardDto extends Dto<Long> {
 
   private Long id;
   private Long userId;
@@ -34,11 +34,14 @@ public final class DashboardDto {
   private String columnLayout;
   private boolean shared;
   private boolean global;
-  private Date createdAt;
-  private Date updatedAt;
   private List<WidgetDto> widgetDtos = Lists.newArrayList();
 
   public Long getId() {
+    return id;
+  }
+
+  @Override
+  public Long getKey() {
     return id;
   }
 
@@ -98,24 +101,6 @@ public final class DashboardDto {
 
   public DashboardDto setGlobal(boolean global) {
     this.global = global;
-    return this;
-  }
-
-  public Date getCreatedAt() {
-    return createdAt;
-  }
-
-  public DashboardDto setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public DashboardDto setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
     return this;
   }
 

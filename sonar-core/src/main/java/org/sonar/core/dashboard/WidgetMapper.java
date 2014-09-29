@@ -19,8 +19,28 @@
  */
 package org.sonar.core.dashboard;
 
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.Collection;
+
 public interface WidgetMapper {
 
+  String COLUMNS = "ID, DASHBOARD_ID as \"dashboardId\", WIDGET_KEY as \"widgetKey\", NAME, DESCRIPTION, " +
+    "COLUMN_INDEX as \"columnIndex\", ROW_INDEX as \"rowIndex\", CONFIGURED, CREATED_AT as \"createdAt\", " +
+    "UPDATED_AT as \"updatedAt\", RESOURCE_ID as \"resourceId\"";
+
+  @Insert("insert into widgets (dashboard_id, widget_key, name, description, column_index, " +
+    " row_index, configured, created_at, updated_at, resource_id)" +
+    " values (#{dashboardId}, #{widgetKey}, #{name}, #{description}, #{columnIndex}, " +
+    " #{rowIndex}, #{configured}, #{createdAt}, #{updatedAt}, #{resourceId})")
+  @Options(keyColumn = "id", useGeneratedKeys = true, keyProperty = "id")
   void insert(WidgetDto widgetDto);
 
+  @Select("select " + COLUMNS + " from widgets where id=#{id}")
+  WidgetDto selectById(long widgetId);
+
+  @Select("select " + COLUMNS + " from widgets where dashboard_id=#{id}")
+  Collection<WidgetDto> selectByDashboard(long dashboardKey);
 }

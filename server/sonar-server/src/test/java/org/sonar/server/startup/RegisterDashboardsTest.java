@@ -145,7 +145,7 @@ public class RegisterDashboardsTest {
     assertThat(dto.getUpdatedAt()).isNotNull();
 
     WidgetDto widgetDto = Iterables.getOnlyElement(dto.getWidgets());
-    assertThat(widgetDto.getKey()).isEqualTo("fake-widget");
+    assertThat(widgetDto.getWidgetKey()).isEqualTo("fake-widget");
     assertThat(widgetDto.getDescription()).isNull();
     assertThat(widgetDto.getColumnIndex()).isEqualTo(1);
     assertThat(widgetDto.getRowIndex()).isEqualTo(1);
@@ -156,8 +156,8 @@ public class RegisterDashboardsTest {
     Collection<WidgetPropertyDto> props = widgetDto.getWidgetProperties();
     assertThat(props).hasSize(1);
     WidgetPropertyDto prop = Iterables.getFirst(props, null);
-    assertThat(prop.getKey()).isEqualTo("fake-property");
-    assertThat(prop.getValue()).isEqualTo("fake_metric");
+    assertThat(prop.getPropertyKey()).isEqualTo("fake-property");
+    assertThat(prop.getTextValue()).isEqualTo("fake_metric");
   }
 
   @Test

@@ -17,15 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.persistence;
+package org.sonar.server.dashboard.ws;
 
-public final class BadDatabaseVersion extends RuntimeException {
-  public BadDatabaseVersion(String s) {
-    super(s);
+import org.sonar.api.server.ws.WebService;
+
+public class DashboardsWebService implements WebService {
+
+  private final DashboardsAction[] actions;
+
+  public DashboardsWebService(DashboardsAction... actions) {
+    this.actions = actions;
   }
 
   @Override
-  public synchronized Throwable fillInStackTrace() {
-    return this;
+  public void define(Context context) {
+    NewController controller = context.createController("api/dashboards");
+    controller.setSince("5.0");
+    controller.setDescription("Management of dashboards and widgets");
+    for (DashboardsAction action : actions) {
+      action.define(controller);
+    }
+    controller.done();
   }
+
 }

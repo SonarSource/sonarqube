@@ -19,11 +19,33 @@
  */
 package org.sonar.core.dashboard;
 
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import javax.annotation.CheckForNull;
 
 public interface DashboardMapper {
 
+  String COLUMNS = "id, user_id as \"userId\", name, description, column_layout as \"columnLayout\", " +
+    "shared, is_global as \"global\", created_at as \"createdAt\", updated_at as \"updatedAt\"";
+
+  @CheckForNull
+  @Select("select " + COLUMNS + " from dashboards where id=#{id}")
+  DashboardDto selectById(long id);
+
+  @CheckForNull
+  @Select("select " + COLUMNS + " from dashboards where id=#{id} and (shared=${_true} or user_id=${userId})")
+  DashboardDto selectAllowedById(@Param("id") long id, @Param("userId") long userId);
+
+  @CheckForNull
+  @Select("select " + COLUMNS + " from dashboards WHERE name=#{id} and user_id is null")
   DashboardDto selectGlobalDashboard(String name);
 
+  @Insert("INSERT INTO dashboards (user_id, name, description, column_layout, shared, is_global, created_at, " +
+    "updated_at) VALUES (#{userId}, #{name}, #{description}, #{columnLayout}, #{shared}, " +
+    "#{global}, #{createdAt}, #{updatedAt})")
+  @Options(keyColumn = "id", useGeneratedKeys = true, keyProperty = "id")
   void insert(DashboardDto dashboardDto);
-
 }

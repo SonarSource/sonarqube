@@ -20,22 +20,20 @@
 package org.sonar.core.dashboard;
 
 import com.google.common.collect.Lists;
+import org.sonar.core.persistence.Dto;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
-public final class WidgetDto {
+public class WidgetDto extends Dto<Long> {
   private Long id;
   private Long dashboardId;
-  private String key;
+  private String widgetKey;
   private String name;
   private String description;
   private Integer columnIndex;
   private Integer rowIndex;
   private boolean configured;
-  private Date createdAt;
-  private Date updatedAt;
   private Integer resourceId;
   private List<WidgetPropertyDto> widgetPropertyDtos = Lists.newArrayList();
 
@@ -69,18 +67,12 @@ public final class WidgetDto {
     return this;
   }
 
-  /**
-   * @return the key
-   */
-  public String getKey() {
-    return key;
+  public String getWidgetKey() {
+    return widgetKey;
   }
 
-  /**
-   * @param key the key to set
-   */
-  public WidgetDto setKey(String key) {
-    this.key = key;
+  public WidgetDto setWidgetKey(String s) {
+    this.widgetKey = s;
     return this;
   }
 
@@ -160,36 +152,6 @@ public final class WidgetDto {
   }
 
   /**
-   * @return the createdAt
-   */
-  public Date getCreatedAt() {
-    return createdAt;
-  }
-
-  /**
-   * @param createdAt the createdAt to set
-   */
-  public WidgetDto setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-  /**
-   * @return the updatedAt
-   */
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
-
-  /**
-   * @param updatedAt the updatedAt to set
-   */
-  public WidgetDto setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
-    return this;
-  }
-
-  /**
    * @return the widgetProperties
    */
   public Collection<WidgetPropertyDto> getWidgetProperties() {
@@ -219,5 +181,10 @@ public final class WidgetDto {
   public WidgetDto setResourceId(Integer resourceId) {
     this.resourceId = resourceId;
     return this;
+  }
+
+  @Override
+  public Long getKey() {
+    return id;
   }
 }

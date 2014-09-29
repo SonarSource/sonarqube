@@ -37,6 +37,9 @@ import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.computation.db.AnalysisReportDao;
+import org.sonar.server.dashboard.db.DashboardDao;
+import org.sonar.server.dashboard.db.WidgetDao;
+import org.sonar.server.dashboard.db.WidgetPropertyDao;
 import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -73,6 +76,9 @@ public class DbClient implements ServerComponent {
   private final IssueAuthorizationDao issueAuthorizationDao;
   private final ActionPlanDao actionPlanDao;
   private final AnalysisReportDao analysisReportDao;
+  private final DashboardDao dashboardDao;
+  private final WidgetDao widgetDao;
+  private final WidgetPropertyDao widgetPropertyDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -101,6 +107,9 @@ public class DbClient implements ServerComponent {
     issueAuthorizationDao = getDao(map, IssueAuthorizationDao.class);
     actionPlanDao = getDao(map, ActionPlanDao.class);
     analysisReportDao = getDao(map, AnalysisReportDao.class);
+    dashboardDao = getDao(map, DashboardDao.class);
+    widgetDao = getDao(map, WidgetDao.class);
+    widgetPropertyDao = getDao(map, WidgetPropertyDao.class);
   }
 
   public Database database() {
@@ -185,6 +194,18 @@ public class DbClient implements ServerComponent {
 
   public AnalysisReportDao analysisReportDao() {
     return analysisReportDao;
+  }
+
+  public DashboardDao dashboardDao() {
+    return dashboardDao;
+  }
+
+  public WidgetDao widgetDao() {
+    return widgetDao;
+  }
+
+  public WidgetPropertyDao widgetPropertyDao() {
+    return widgetPropertyDao;
   }
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {

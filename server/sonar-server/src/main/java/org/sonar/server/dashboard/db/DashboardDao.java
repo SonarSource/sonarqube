@@ -17,29 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.dashboard;
+package org.sonar.server.dashboard.db;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.sonar.api.utils.System2;
+import org.sonar.core.dashboard.DashboardDto;
+import org.sonar.core.dashboard.DashboardMapper;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-import java.util.Collection;
+public class DashboardDao extends BaseDao<DashboardMapper, DashboardDto, Long> {
 
-public interface WidgetPropertyMapper {
+  public DashboardDao(System2 system2) {
+    super(DashboardMapper.class, system2);
+  }
 
-  String COLUMNS = "wp.id, wp.widget_id as \"widgetId\", wp.key as \"propertyKey\", wp.text_value as \"textValue\"";
+  @Override
+  protected DashboardDto doGetNullableByKey(DbSession session, Long key) {
+    return mapper(session).selectById(key);
+  }
 
-  @Insert("insert into widget_properties (widget_id, kee, text_value) values (#{widgetId}, #{propertyKey}, #{textValue})")
-  @Options(keyColumn = "id", useGeneratedKeys = true, keyProperty = "id")
-  void insert(WidgetPropertyDto dto);
-
+  /**
+   * Get dashboard if allowed : shared or owned by logged-in user
+   * @param userId id of logged-in user, null if anonymous
+   */
   @CheckForNull
-  @Select("select " + COLUMNS + " from widget_properties wp where wp.id=#{id}")
-  WidgetPropertyDto selectById(long propertyId);
-
-  @Select("select " + COLUMNS + " from widget_properties wp " +
-    "inner join widgets w on w.id=wp.widget_id where w.dashboard_id=#{id}")
-  Collection<WidgetPropertyDto> selectByDashboard(long dashboardKey);
+  public DashboardDto getAllowedByKey(DbSession session, Long key, @Nullable Long userId) {
+    return mapper(session).selectAllowedById(key, userId != null ? userId : -1L);
+  }
 }
