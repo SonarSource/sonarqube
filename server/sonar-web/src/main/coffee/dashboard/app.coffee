@@ -35,6 +35,14 @@ requirejs [
   App.state = new Backbone.Model configure: false
 
 
+  App.saveDashboard = ->
+    layout = @widgetsView.getLayout()
+    data =
+      did: App.dashboard.id
+      layout: layout
+    $.post "#{baseUrl}/api/dashboards/save", data
+
+
   App.addInitializer ->
     @widgetsView = new WidgetsView
       collection: @widgets
@@ -45,8 +53,7 @@ requirejs [
 
 
   requestDetails = ->
-    $.get "#{baseUrl}/api/dashboards/details", did: App.dashboard, (data) ->
-      console.log JSON.stringify data
+    $.get "#{baseUrl}/api/dashboards/details", key: App.dashboard, (data) ->
       App.dashboard = new Backbone.Model _.omit data, 'widgets'
       App.widgets = new Widgets data.widgets
 

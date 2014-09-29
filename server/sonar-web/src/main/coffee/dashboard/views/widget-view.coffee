@@ -11,6 +11,7 @@ define [
 
   class extends Marionette.ItemView
     template: Templates['widget']
+    className: 'block'
 
 
     events:
@@ -24,8 +25,14 @@ define [
       @requestContent()
 
 
+    onRender: ->
+      @$el.data 'id', @model.id
+      if @options.app.state.get 'configure'
+        @$el.prop 'draggable', true
+
+
     requestContent: ->
-      payload = id: @model.id
+      payload = id: @model.get 'key'
       if @options.app.resource
         payload.resource = @options.app.resource
       _.extend payload, @getWidgetProps()
@@ -43,7 +50,7 @@ define [
 
 
     editWidget: ->
-      $.get "#{baseUrl}/api/dashboards/configure_widget", id: @model.id, (data) =>
+      $.get "#{baseUrl}/api/dashboards/configure_widget", id: @model.get('key'), (data) =>
         @model.mergeProperties data.widget.properties
         @showEditForm()
 

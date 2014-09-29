@@ -15,6 +15,7 @@ define ['third-party/jquery.mockjax'], ->
 
       widgets: [
         {
+          id: 1
           key: 'measure_filter_list'
           name: 'Measure Filter as List'
           properties: [
@@ -29,6 +30,7 @@ define ['third-party/jquery.mockjax'], ->
           }
         }
         {
+          id: 2
           key: 'my_reviews'
           name: 'My Unresolved Issues'
           properties: [
@@ -43,6 +45,7 @@ define ['third-party/jquery.mockjax'], ->
           }
         }
         {
+          id: 3
           key: 'hotspot_most_violated_rules'
           name: 'Most Violated Rules'
           properties: [
@@ -132,3 +135,9 @@ define ['third-party/jquery.mockjax'], ->
             row: 1
           }
         }
+
+
+        jQuery.mockjax
+          url: "#{baseUrl}/api/dashboards/save"
+          responseText: JSON.stringify
+            status: 'ok'
