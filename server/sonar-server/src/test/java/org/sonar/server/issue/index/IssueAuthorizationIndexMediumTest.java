@@ -102,7 +102,7 @@ public class IssueAuthorizationIndexMediumTest {
   }
 
   @Test
-  public void synchronize_all_on_startup_tasks() throws Exception {
+  public void synchronize_all_with_startup_tasks() throws Exception {
     project = new ComponentDto()
       .setKey("Sample")
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
@@ -113,7 +113,6 @@ public class IssueAuthorizationIndexMediumTest {
 
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), "devs", UserRole.USER, session);
     session.commit();
-
     assertThat(index.getNullableByKey(project.getKey())).isNull();
 
     tester.get(Platform.class).executeStartupTasks();

@@ -47,6 +47,7 @@ public class QueryContext {
   private boolean facet = DEFAULT_FACET;
   private Set<String> fieldsToReturn = newHashSet();
   private boolean scroll = false;
+  private boolean showFullResult = false;
   private String userLogin;
   private Set<String> userGroups = newHashSet();
 
@@ -121,7 +122,7 @@ public class QueryContext {
    * Limit on the number of results to return. Defaults to {@link #DEFAULT_LIMIT}.
    */
   public int getLimit() {
-    return limit;
+    return showFullResult ? 999999 : limit;
   }
 
   /**
@@ -135,6 +136,13 @@ public class QueryContext {
   public QueryContext setMaxLimit() {
     this.limit = MAX_LIMIT;
     return this;
+  }
+
+  /**
+   * Careful use, this could lead to massive data transport !
+   */
+  public void setShowFullResult(boolean showFullResult) {
+    this.showFullResult = showFullResult;
   }
 
   public Set<String> getFieldsToReturn() {

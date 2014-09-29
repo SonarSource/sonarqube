@@ -20,10 +20,8 @@
 
 package org.sonar.server.batch;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
+import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
@@ -37,18 +35,23 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.issue.IssueTesting;
+import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import java.util.Date;
+import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class UploadReportActionMediumTest {
@@ -91,9 +94,7 @@ public class UploadReportActionMediumTest {
   @Test
   public void add_project_issue_permission_index() throws Exception {
     ComponentDto project = new ComponentDto()
-      .setId(1L)
-      .setKey("MyProject")
-      .setProjectId_unit_test_only(1L);
+      .setKey("MyProject");
     db.componentDao().insert(session, project);
 
     // project can be seen by anyone
@@ -115,9 +116,7 @@ public class UploadReportActionMediumTest {
   @Test(expected = ForbiddenException.class)
   public void fail_without_global_scan_permission() throws Exception {
     ComponentDto project = new ComponentDto()
-      .setId(1L)
-      .setKey("MyProject")
-      .setProjectId_unit_test_only(1L);
+      .setKey("MyProject");
     db.componentDao().insert(session, project);
     session.commit();
 
@@ -131,9 +130,7 @@ public class UploadReportActionMediumTest {
   @Test
   public void index_project_issues() throws Exception {
     ComponentDto project = new ComponentDto()
-      .setId(1L)
-      .setKey("MyProject")
-      .setProjectId_unit_test_only(1L);
+      .setKey("MyProject");
     db.componentDao().insert(session, project);
 
     // project can be seen by anyone
@@ -141,9 +138,8 @@ public class UploadReportActionMediumTest {
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
     ComponentDto resource = new ComponentDto()
-      .setProjectId_unit_test_only(1L)
-      .setKey("MyComponent")
-      .setId(2L);
+      .setProjectId_unit_test_only(project.getId())
+      .setKey("MyComponent");
     db.componentDao().insert(session, resource);
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource));
 
@@ -177,6 +173,50 @@ public class UploadReportActionMediumTest {
 
     // Check that the issue has well be indexed in E/S
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNotNull();
+  }
+
+  @Test
+  @Ignore("To be fixed")
+  public void index_a_lot_of_issues() throws Exception {
+    ComponentDto project = new ComponentDto()
+      .setKey("MyProject");
+    db.componentDao().insert(session, project);
+
+    // project can be seen by anyone
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+
+    ComponentDto resource = new ComponentDto()
+      .setProjectId_unit_test_only(project.getId())
+      .setKey("MyComponent");
+    db.componentDao().insert(session, resource);
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource));
+
+    RuleDto rule = RuleTesting.newXooX1();
+    tester.get(RuleDao.class).insert(session, rule);
+
+    List<String> issueKeys = newArrayList();
+    for (int i=0; i<2001; i++) {
+      IssueDto issue = IssueTesting.newDto(rule, resource, project);
+      tester.get(IssueDao.class).insert(session, issue);
+      issueKeys.add(issue.getKey());
+    }
+    session.commit();
+    session.clearCache();
+
+    // Clear issue index to simulate that the issue has been inserted by the batch, so that it's not yet index in E/S
+    tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
+
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    WsTester.TestRequest request = wsTester.newGetRequest(BatchWs.API_ENDPOINT, UploadReportAction.UPLOAD_REPORT_ACTION);
+    request.setParam(UploadReportAction.PARAM_PROJECT, project.key());
+    request.execute();
+
+    session.commit();
+    session.clearCache();
+
+    // Check that the issue has well be indexed in E/S
+    assertThat(tester.get(IssueIndex.class).search(IssueQuery.builder().build(), new QueryContext()).getTotal()).isEqualTo(2001);
   }
 
 }

@@ -43,6 +43,7 @@ import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
@@ -231,6 +232,18 @@ public class SearchActionMediumTest {
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("extra_fields", "actions,transitions,assigneeName,reporterName,actionPlanName").execute();
     result.assertJson(this.getClass(), "issue_with_extra_fields.json", false);
+  }
+
+  @Test
+  public void return_full_number_of_issues_when_only_one_component_is_set() throws Exception {
+    for (int i = 0; i < QueryContext.MAX_LIMIT + 1; i++) {
+      IssueDto issue = IssueTesting.newDto(rule, file, project);
+      tester.get(IssueDao.class).insert(session, issue);
+    }
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.COMPONENTS, file.getKey()).execute();
+    result.assertJson(this.getClass(), "return_full_number_of_issues_when_only_one_component_is_set.json", false);
   }
 
   @Test

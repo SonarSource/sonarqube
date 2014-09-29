@@ -219,6 +219,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   @Override
   protected Result<Issue> doSearch(IssueQuery query, QueryContext context) {
+    Collection<String> components = query.components();
+    if (components != null && components.size() == 1) {
+      context.setShowFullResult(true);
+    }
     return ((DefaultIssueService) service).search(query, context);
   }
 

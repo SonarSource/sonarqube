@@ -623,10 +623,9 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  public void synchronize_a_lot_of_issues() throws Exception {
+  public void synchronize_issues() throws Exception {
     ComponentDto project = new ComponentDto()
-      .setKey("MyProject")
-      .setProjectId_unit_test_only(1L);
+      .setKey("MyProject");
     db.componentDao().insert(session, project);
 
     // project can be seen by anyone
@@ -634,7 +633,7 @@ public class IssueIndexMediumTest {
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
     ComponentDto resource = new ComponentDto()
-      .setProjectId_unit_test_only(project.getId())
+      .setSubProjectId(project.getId())
       .setKey("MyComponent");
     db.componentDao().insert(session, resource);
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource));
@@ -651,29 +650,19 @@ public class IssueIndexMediumTest {
     assertThat(db.issueDao().findAfterDate(session, new Date(0))).hasSize(11);
     assertThat(index.countAll()).isEqualTo(11);
 
-
     // Clear issue index in order to simulate these issues have been inserted without being indexed in E/S (from a previous version of SQ or from batch)
     tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
     tester.clearIndexes();
 
-
     DbSession newSession = db.openSession(true);
-    //newSession.setImplicitCommitSize(10);
-
-    System.out.println("index.getLastSynchronization() = " + index.getLastSynchronization());
     try {
       db.issueDao().synchronizeAfter(newSession, index.getLastSynchronization());
       newSession.commit();
 
     } finally {
       newSession.close();
-      newSession.clearCache();
     }
-    session.commit();
-    session.clearCache();
 
-    // This test is working with executeStartupTasks !
-//    tester.get(Platform.class).executeStartupTasks();
     assertThat(index.countAll()).isEqualTo(11);
 
   }
