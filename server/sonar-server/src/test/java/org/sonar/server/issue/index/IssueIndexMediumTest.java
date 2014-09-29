@@ -20,10 +20,7 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.RuleKey;
@@ -40,13 +37,16 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.db.IssueDao;
+import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
@@ -568,7 +568,7 @@ public class IssueIndexMediumTest {
       IssueTesting.newDto(rule, file1, project1),
       IssueTesting.newDto(rule, file2, project2),
       IssueTesting.newDto(rule, file2, project3)
-    );
+      );
 
     session.commit();
     session.clearCache();
@@ -617,6 +617,47 @@ public class IssueIndexMediumTest {
 
     MockUserSession.set().setLogin("john").setUserGroups("sonar-users");
     assertThat(index.search(query.build(), new QueryContext()).getHits()).hasSize(1);
+  }
+
+  @Test
+  @Ignore("To be fixed")
+  public void synchronize_a_lot_of_issues() throws Exception {
+    ComponentDto project = new ComponentDto()
+      .setKey("MyProject")
+      .setProjectId_unit_test_only(1L);
+    db.componentDao().insert(session, project);
+
+    // project can be seen by anyone
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+
+    ComponentDto resource = new ComponentDto()
+      .setProjectId_unit_test_only(project.getId())
+      .setKey("MyComponent");
+    db.componentDao().insert(session, resource);
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource));
+
+    List<String> issueKeys = newArrayList();
+    for (int i = 0; i < 11; i++) {
+      IssueDto issue = IssueTesting.newDto(rule, resource, project);
+      tester.get(IssueDao.class).insert(session, issue);
+      issueKeys.add(issue.getKey());
+    }
+    session.commit();
+
+    // Clear issue index in order to simulate these issues have been inserted without being indexed in E/S (from a previous version of SQ or from batch)
+    tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
+
+    DbSession newSession = db.openSession(false);
+    newSession.setImplicitCommitSize(10);
+    try {
+      db.issueDao().synchronizeAfter(newSession, new Date(0));
+      newSession.commit();
+
+      assertThat(index.search(IssueQuery.builder().build(), new QueryContext().setMaxLimit()).getHits()).hasSize(10);
+    } finally {
+      newSession.close();
+    }
   }
 
 }

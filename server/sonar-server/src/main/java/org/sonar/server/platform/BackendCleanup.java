@@ -146,7 +146,7 @@ public class BackendCleanup implements ServerComponent {
     }
   }
 
-  private void clearIndex(IndexDefinition indexDefinition){
+  public void clearIndex(IndexDefinition indexDefinition){
     searchClient.prepareDeleteByQuery(searchClient.admin().cluster().prepareState().get()
       .getState().getMetaData().concreteIndices(new String[]{indexDefinition.getIndexName()}))
       .setQuery(QueryBuilders.matchAllQuery())

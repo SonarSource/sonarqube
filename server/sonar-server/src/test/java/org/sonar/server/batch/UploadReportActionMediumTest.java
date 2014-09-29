@@ -20,7 +20,6 @@
 
 package org.sonar.server.batch;
 
-import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -40,10 +39,10 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.SearchClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
@@ -166,7 +165,7 @@ public class UploadReportActionMediumTest {
     session.commit();
 
     // Clear issue index to simulate that the issue has been inserted by the batch, so that it's not yet index in E/S
-    clearIssueIndex();
+    tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
     assertThat(db.issueDao().getByKey(session, issue.getKey())).isNotNull();
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNull();
 
@@ -178,13 +177,6 @@ public class UploadReportActionMediumTest {
 
     // Check that the issue has well be indexed in E/S
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNotNull();
-  }
-
-  private void clearIssueIndex(){
-    tester.get(SearchClient.class).prepareDeleteByQuery(tester.get(SearchClient.class).admin().cluster().prepareState().get()
-      .getState().getMetaData().concreteIndices(new String[]{IndexDefinition.ISSUES.getIndexName()})).setTypes(new String[]{IndexDefinition.ISSUES.getIndexType()})
-      .setQuery(QueryBuilders.matchAllQuery())
-      .get();
   }
 
 }
