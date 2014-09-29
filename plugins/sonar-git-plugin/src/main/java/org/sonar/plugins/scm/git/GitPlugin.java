@@ -20,16 +20,31 @@
 package org.sonar.plugins.scm.git;
 
 import com.google.common.collect.ImmutableList;
+import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
+import org.sonar.api.config.PropertyDefinition;
 
 import java.util.List;
 
 public final class GitPlugin extends SonarPlugin {
 
+  static final String GIT_IMPLEMENTATION_PROP_KEY = "sonar.git.implementation";
+  static final String JGIT = "jgit";
+  static final String EXE = "exe";
+
   public List getExtensions() {
     return ImmutableList.of(
       GitScmProvider.class,
-      GitBlameCommand.class);
+      GitBlameCommand.class,
+      JGitBlameCommand.class,
+
+      PropertyDefinition.builder(GIT_IMPLEMENTATION_PROP_KEY)
+        .name("Git implementation")
+        .description("Use pure Java implementation by default but you can use command line git executable in case of issue.")
+        .defaultValue(JGIT)
+        .type(PropertyType.SINGLE_SELECT_LIST)
+        .options(EXE, JGIT)
+        .build());
   }
 
 }
