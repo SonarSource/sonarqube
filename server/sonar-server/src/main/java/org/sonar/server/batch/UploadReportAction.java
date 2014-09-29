@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -79,24 +78,30 @@ public class UploadReportAction implements RequestHandler {
 
     // Switch Issue search
     if (settings.getString("sonar.issues.use_es_backend") != null) {
+      String projectKey = request.mandatoryParam(PARAM_PROJECT);
+
       DbSession session = dbClient.openSession(false);
       try {
-        String projectKey = request.mandatoryParam(PARAM_PROJECT);
-        AuthorizedComponentDto project = dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
-
+        dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
         computationService.create(projectKey);
 
+      } finally {
+        MyBatis.closeQuietly(session);
+      }
+
+      // Synchronization of lot of data can only be done with a batch session for the moment
+      session = dbClient.openSession(true);
+      try {
         // Synchronize project permission indexes if no permission found on it
-        if (index.get(IssueAuthorizationIndex.class).getNullableByKey(project.key()) == null) {
-          permissionService.synchronizePermissions(session, project.key());
+        if (index.get(IssueAuthorizationIndex.class).getNullableByKey(projectKey) == null) {
+          permissionService.synchronizePermissions(session, projectKey);
           session.commit();
         }
 
         // Index project's issues
         dbClient.issueDao().synchronizeAfter(session,
           index.get(IssueIndex.class).getLastSynchronization(),
-          ImmutableMap.of("project", project.key()));
-
+          ImmutableMap.of("project", projectKey));
         session.commit();
       } finally {
         MyBatis.closeQuietly(session);

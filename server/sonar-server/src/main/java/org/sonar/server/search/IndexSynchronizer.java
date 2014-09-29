@@ -78,7 +78,6 @@ public class IndexSynchronizer {
     } else {
       LOG.info("Synchronizing {} records for updates after {}", index.getIndexType(), lastSynch);
     }
-    dao.synchronizeAfter(session,
-      index.getLastSynchronization());
+    dao.synchronizeAfter(session, lastSynch);
   }
 }

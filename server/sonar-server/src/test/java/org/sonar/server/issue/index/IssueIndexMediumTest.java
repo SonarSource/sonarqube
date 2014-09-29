@@ -647,17 +647,27 @@ public class IssueIndexMediumTest {
 
     // Clear issue index in order to simulate these issues have been inserted without being indexed in E/S (from a previous version of SQ or from batch)
     tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
+    tester.clearIndexes();
+    session.commit();
+    session.clearCache();
 
-    DbSession newSession = db.openSession(false);
+    DbSession newSession = db.openSession(true);
     newSession.setImplicitCommitSize(10);
     try {
-      db.issueDao().synchronizeAfter(newSession, new Date(0));
+      db.issueDao().synchronizeAfter(newSession, index.getLastSynchronization());
       newSession.commit();
 
-      assertThat(index.search(IssueQuery.builder().build(), new QueryContext().setMaxLimit()).getHits()).hasSize(10);
     } finally {
       newSession.close();
+      newSession.clearCache();
     }
+    session.commit();
+    session.clearCache();
+
+    // This test is working with executeStartupTasks !
+//    tester.get(Platform.class).executeStartupTasks();
+
+    assertThat(index.search(IssueQuery.builder().build(), new QueryContext().setMaxLimit()).getHits()).hasSize(11);
   }
 
 }
