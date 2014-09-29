@@ -20,7 +20,10 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.RuleKey;
@@ -568,7 +571,7 @@ public class IssueIndexMediumTest {
       IssueTesting.newDto(rule, file1, project1),
       IssueTesting.newDto(rule, file2, project2),
       IssueTesting.newDto(rule, file2, project3)
-      );
+    );
 
     session.commit();
     session.clearCache();
@@ -620,7 +623,6 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed")
   public void synchronize_a_lot_of_issues() throws Exception {
     ComponentDto project = new ComponentDto()
       .setKey("MyProject")
@@ -645,14 +647,20 @@ public class IssueIndexMediumTest {
     }
     session.commit();
 
+    // 0 Assert that all issues are both in ES and DB
+    assertThat(db.issueDao().findAfterDate(session, new Date(0))).hasSize(11);
+    assertThat(index.countAll()).isEqualTo(11);
+
+
     // Clear issue index in order to simulate these issues have been inserted without being indexed in E/S (from a previous version of SQ or from batch)
     tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
     tester.clearIndexes();
-    session.commit();
-    session.clearCache();
+
 
     DbSession newSession = db.openSession(true);
-    newSession.setImplicitCommitSize(10);
+    //newSession.setImplicitCommitSize(10);
+
+    System.out.println("index.getLastSynchronization() = " + index.getLastSynchronization());
     try {
       db.issueDao().synchronizeAfter(newSession, index.getLastSynchronization());
       newSession.commit();
@@ -666,8 +674,7 @@ public class IssueIndexMediumTest {
 
     // This test is working with executeStartupTasks !
 //    tester.get(Platform.class).executeStartupTasks();
+    assertThat(index.countAll()).isEqualTo(11);
 
-    assertThat(index.search(IssueQuery.builder().build(), new QueryContext().setMaxLimit()).getHits()).hasSize(11);
   }
-
 }

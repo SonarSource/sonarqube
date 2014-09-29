@@ -34,14 +34,11 @@ import java.util.Map;
 
 public class DbSession implements SqlSession {
 
-  private static final Integer IMPLICIT_COMMIT_SIZE = 2000;
   private List<ClusterAction> actions;
 
   private WorkQueue queue;
   private SqlSession session;
   private int actionCount;
-
-  private Integer implicitCommitSize = IMPLICIT_COMMIT_SIZE;
 
   DbSession(WorkQueue queue, SqlSession session) {
     this.actionCount = 0;
@@ -50,20 +47,9 @@ public class DbSession implements SqlSession {
     this.actions = new ArrayList<ClusterAction>();
   }
 
-  public Integer getImplicitCommitSize() {
-    return implicitCommitSize;
-  }
-
-  public void setImplicitCommitSize(Integer implicitCommitSize) {
-    this.implicitCommitSize = implicitCommitSize;
-  }
-
   public void enqueue(ClusterAction action) {
     actionCount++;
     this.actions.add(action);
-    if (this.actions.size() > getImplicitCommitSize()) {
-      this.commit();
-    }
   }
 
   public int getActionCount() {
