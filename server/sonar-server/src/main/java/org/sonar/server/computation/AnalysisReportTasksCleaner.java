@@ -20,51 +20,43 @@
 
 package org.sonar.server.computation;
 
+import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 
-import java.util.List;
+public class AnalysisReportTasksCleaner implements Startable, ServerComponent {
+  private final ServerUpgradeStatus serverUpgradeStatus;
+  private final DbClient dbClient;
 
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
-
-/**
- * since 5.0
- */
-public class ComputationService implements ServerComponent {
-  private DbClient dbClient;
-
-  public ComputationService(DbClient dbClient) {
+  public AnalysisReportTasksCleaner(ServerUpgradeStatus serverUpgradeStatus, DbClient dbClient) {
+    this.serverUpgradeStatus = serverUpgradeStatus;
     this.dbClient = dbClient;
   }
 
-  public void create(String projectKey) {
-    AnalysisReportDto report = new AnalysisReportDto()
-      .setProjectKey(projectKey)
-      .setStatus(PENDING);
-
+  @Override
+  public void start() {
+    DbSession session = dbClient.openSession(false);
     AnalysisReportDao dao = dbClient.analysisReportDao();
 
-    DbSession session = dbClient.openSession(false);
     try {
-      dao.insert(session, report);
+      if (serverUpgradeStatus.isUpgraded()) {
+        dao.cleanWithTruncate(session);
+      } else {
+        dao.cleanWithUpdateAllToPendingStatus(session);
+      }
+
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<AnalysisReportDto> findByProjectKey(String projectKey) {
-    AnalysisReportDao dao = dbClient.analysisReportDao();
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      return dao.findByProjectKey(session, projectKey);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  @Override
+  public void stop() {
+    // do nothing
   }
 }

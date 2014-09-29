@@ -99,6 +99,7 @@ import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.EventsWs;
 import org.sonar.server.component.ws.ProjectsWs;
 import org.sonar.server.component.ws.ResourcesWs;
+import org.sonar.server.computation.AnalysisReportTasksCleaner;
 import org.sonar.server.computation.ComputationService;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.config.ws.PropertiesWs;
@@ -766,6 +767,7 @@ class ServerComponents {
     startupContainer.addSingleton(RegisterServletFilters.class);
     startupContainer.addSingleton(CleanPreviewAnalysisCache.class);
     startupContainer.addSingleton(CopyRequirementsFromCharacteristicsToRules.class);
+    startupContainer.addSingleton(AnalysisReportTasksCleaner.class);
 
     DoPrivileged.execute(new DoPrivileged.Task() {
       @Override

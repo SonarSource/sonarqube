@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
@@ -53,6 +54,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 
 public class UploadReportActionMediumTest {
 
@@ -111,6 +113,31 @@ public class UploadReportActionMediumTest {
 
     // Check that issue authorization index has been created
     assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNotNull();
+  }
+  
+  @Test
+  public void add_analysis_report_in_database() throws Exception {
+    final String projectKey = "123456789-987654321";
+    ComponentDto project = new ComponentDto()
+        .setKey(projectKey);
+    db.componentDao().insert(session, project);
+
+    // project can be seen by anyone
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+
+    session.commit();
+
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    WsTester.TestRequest request = wsTester.newGetRequest(BatchWs.API_ENDPOINT, UploadReportAction.UPLOAD_REPORT_ACTION);
+    request.setParam(UploadReportAction.PARAM_PROJECT, project.key());
+    request.execute();
+
+    List<AnalysisReportDto> analysisReports = db.analysisReportDao().findByProjectKey(session, projectKey);
+    AnalysisReportDto analysisReport = analysisReports.get(0);
+
+    assertThat(analysisReports).hasSize(1);
+    assertThat(analysisReport.getProjectKey()).isEqualTo(projectKey);
+    assertThat(analysisReport.getStatus()).isEqualTo(PENDING);
   }
 
   @Test(expected = ForbiddenException.class)

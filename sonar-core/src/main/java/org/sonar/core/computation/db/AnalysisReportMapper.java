@@ -19,9 +19,25 @@
  */
 package org.sonar.core.computation.db;
 
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Date;
+
 /**
  * since 5.0
  */
 public interface AnalysisReportMapper {
   void insert(AnalysisReportDto report);
+
+  java.util.List<AnalysisReportDto> selectByProjectKey(String projectKey);
+
+  /**
+   * startup task use only
+   */
+  void cleanWithUpdateAllToPendingStatus(@Param("status") AnalysisReportDto.Status status, @Param("updatedAt") Date updatedAt);
+
+  /**
+   * startup task use only
+   */
+  void cleanWithTruncate();
 }

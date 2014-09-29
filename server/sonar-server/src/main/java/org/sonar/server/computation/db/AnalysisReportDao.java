@@ -23,29 +23,51 @@ package org.sonar.server.computation.db;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.computation.db.AnalysisReportDto.Status;
 import org.sonar.core.computation.db.AnalysisReportMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisReportDto, String> implements DaoComponent {
+
+  private System2 system2;
 
   public AnalysisReportDao() {
     this(System2.INSTANCE);
   }
 
   @VisibleForTesting
-  public AnalysisReportDao(System2 system) {
-    super(AnalysisReportMapper.class, system);
+  public AnalysisReportDao(System2 system2) {
+    super(AnalysisReportMapper.class, system2);
+    this.system2 = system2;
+  }
+
+  /**
+   * startup task use only
+   */
+  public void cleanWithUpdateAllToPendingStatus(DbSession session) {
+    mapper(session).cleanWithUpdateAllToPendingStatus(Status.PENDING, new Date(system2.now()));
+  }
+
+  /**
+   * startup task use only
+   */
+  public void cleanWithTruncate(DbSession session) {
+    mapper(session).cleanWithTruncate();
+  }
+
+  public List<AnalysisReportDto> findByProjectKey(DbSession session, String projectKey) {
+    List<AnalysisReportDto> analysisReports = mapper(session).selectByProjectKey(projectKey);
+    return analysisReports;
   }
 
   @Override
-  protected AnalysisReportDto doGetNullableByKey(DbSession session, String key) {
+  protected AnalysisReportDto doGetNullableByKey(DbSession session, String projectKey) {
     throw new UnsupportedOperationException();
   }
 
@@ -56,7 +78,6 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
 
   @Override
   protected AnalysisReportDto doInsert(DbSession session, AnalysisReportDto report) {
-    checkNotNull(report.getProjectKey(), "Cannot insert Report with no project key!");
     mapper(session).insert(report);
     return report;
   }

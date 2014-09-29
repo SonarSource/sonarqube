@@ -30,6 +30,9 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.TestDatabase;
 
+import java.util.List;
+
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
@@ -55,7 +58,7 @@ public class AnalysisReportDaoTest {
   }
 
   @Test
-  public void insert() {
+  public void insert_multiple_reports() {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-26").getTime());
 
     AnalysisReportDto report = new AnalysisReportDto()
@@ -66,8 +69,55 @@ public class AnalysisReportDaoTest {
       .setUpdatedAt(DateUtils.parseDate("2014-09-25"));
 
     dao.insert(session, report);
+    dao.insert(session, report);
+
     session.commit();
 
     db.assertDbUnit(getClass(), "insert-result.xml", "analysis_reports");
+  }
+
+  @Test
+  public void update_all_to_status() {
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-26").getTime());
+
+    db.prepareDbUnit(getClass(), "update-all-to-status-pending.xml");
+
+    dao.cleanWithUpdateAllToPendingStatus(session);
+    session.commit();
+
+    db.assertDbUnit(getClass(), "update-all-to-status-pending-result.xml", "analysis_reports");
+  }
+
+  @Test
+  public void truncate() {
+    db.prepareDbUnit(getClass(), "any-analysis-reports.xml");
+
+    dao.cleanWithTruncate(session);
+    session.commit();
+
+    db.assertDbUnit(getClass(), "truncate-result.xml", "analysis_reports");
+  }
+
+  @Test
+  public void select_one_report_by_project_key() {
+    db.prepareDbUnit(getClass(), "select.xml");
+
+    final String projectKey = "123456789-987654321";
+    List<AnalysisReportDto> reports = dao.findByProjectKey(session, projectKey);
+    AnalysisReportDto report = reports.get(0);
+
+    assertThat(reports).hasSize(1);
+    assertThat(report.getProjectKey()).isEqualTo(projectKey);
+    assertThat(report.getId()).isEqualTo(1);
+  }
+
+  @Test
+  public void select_several_reports_by_project_key() {
+    db.prepareDbUnit(getClass(), "select.xml");
+
+    final String projectKey = "987654321-123456789";
+    List<AnalysisReportDto> reports = dao.findByProjectKey(session, projectKey);
+
+    assertThat(reports).hasSize(2);
   }
 }

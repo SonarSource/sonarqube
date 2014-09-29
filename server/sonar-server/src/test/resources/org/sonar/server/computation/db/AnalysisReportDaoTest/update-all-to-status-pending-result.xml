@@ -1,0 +1,46 @@
+<!--
+  ~ SonarQube, open source software quality management tool.
+  ~ Copyright (C) 2008-2014 SonarSource
+  ~ mailto:contact AT sonarsource DOT com
+  ~
+  ~ SonarQube is free software; you can redistribute it and/or
+  ~ modify it under the terms of the GNU Lesser General Public
+  ~ License as published by the Free Software Foundation; either
+  ~ version 3 of the License, or (at your option) any later version.
+  ~
+  ~ SonarQube is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ~ Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with this program; if not, write to the Free Software Foundation,
+  ~ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  -->
+
+<dataset>
+  <analysis_reports
+      id="1"
+      project_key="123456789-987654321"
+      report_data="data-project"
+      report_status="PENDING"
+      created_at="2014-09-24"
+      updated_at="2014-09-26"
+      />
+  <analysis_reports
+      id="2"
+      project_key="123456789-987654321"
+      report_data="data-project"
+      report_status="PENDING"
+      created_at="2014-09-25"
+      updated_at="2014-09-26"
+      />
+  <analysis_reports
+      id="3"
+      project_key="123456789-987654321"
+      report_data="data-project"
+      report_status="PENDING"
+      created_at="2014-09-26"
+      updated_at="2014-09-26"
+      />
+</dataset>

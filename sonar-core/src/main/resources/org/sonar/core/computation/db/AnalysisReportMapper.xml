@@ -2,11 +2,34 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.sonar.core.computation.db.AnalysisReportMapper">
+  <sql id="reportColumns">
+    id,
+    project_key as projectKey,
+    report_status as status,
+    report_data as data,
+    created_at as createdAt,
+    updated_at as updatedAt
+  </sql>
 
   <insert id="insert" parameterType="AnalysisReport" useGeneratedKeys="true">
     insert into analysis_reports
     (project_key, report_status, report_data, created_at, updated_at)
     values (#{projectKey}, #{status}, #{data}, #{createdAt}, #{updatedAt})
   </insert>
-</mapper>
 
+  <update id="cleanWithUpdateAllToPendingStatus" parameterType="map">
+    update analysis_reports
+    set report_status=#{status}, updated_at=#{updatedAt}
+  </update>
+
+  <delete id="cleanWithTruncate">
+    truncate table analysis_reports
+  </delete>
+
+  <select id="selectByProjectKey" parameterType="String" resultType="AnalysisReport">
+    select
+    <include refid="reportColumns"/>
+    from analysis_reports
+    where project_key = #{projectKey}
+  </select>
+</mapper>

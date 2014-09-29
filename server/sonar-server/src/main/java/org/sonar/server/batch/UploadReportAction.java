@@ -76,19 +76,19 @@ public class UploadReportAction implements RequestHandler {
   public void handle(Request request, Response response) throws Exception {
     UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
 
+    String projectKey = request.mandatoryParam(PARAM_PROJECT);
+
+    DbSession session = dbClient.openSession(false);
+    try {
+      dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
+      computationService.create(projectKey);
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+
     // Switch Issue search
     if (settings.getString("sonar.issues.use_es_backend") != null) {
-      String projectKey = request.mandatoryParam(PARAM_PROJECT);
-
-      DbSession session = dbClient.openSession(false);
-      try {
-        dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
-        computationService.create(projectKey);
-
-      } finally {
-        MyBatis.closeQuietly(session);
-      }
-
       // Synchronization of lot of data can only be done with a batch session for the moment
       session = dbClient.openSession(true);
       try {

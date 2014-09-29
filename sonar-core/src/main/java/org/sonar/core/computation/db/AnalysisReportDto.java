@@ -34,7 +34,7 @@ public class AnalysisReportDto extends Dto<String> {
   private String data;
 
   public enum Status {
-    PENDING
+    PENDING, WORKING
   }
 
   public String getProjectKey() {

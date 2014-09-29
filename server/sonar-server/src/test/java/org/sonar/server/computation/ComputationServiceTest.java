@@ -20,51 +20,40 @@
 
 package org.sonar.server.computation;
 
-import org.sonar.api.ServerComponent;
+import org.junit.Before;
+import org.junit.Test;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 
-import java.util.List;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
+public class ComputationServiceTest {
 
-/**
- * since 5.0
- */
-public class ComputationService implements ServerComponent {
-  private DbClient dbClient;
+  ComputationService sut;
+  DbClient dbClient;
+  AnalysisReportDao analysisReportDao;
+  DbSession session;
 
-  public ComputationService(DbClient dbClient) {
-    this.dbClient = dbClient;
+  @Before
+  public void before() {
+    analysisReportDao = mock(AnalysisReportDao.class);
+    dbClient = mock(DbClient.class);
+    session = mock(DbSession.class);
+
+    when(dbClient.analysisReportDao()).thenReturn(analysisReportDao);
+    when(dbClient.openSession(false)).thenReturn(session);
+
+    sut = new ComputationService(dbClient);
   }
 
-  public void create(String projectKey) {
-    AnalysisReportDto report = new AnalysisReportDto()
-      .setProjectKey(projectKey)
-      .setStatus(PENDING);
-
-    AnalysisReportDao dao = dbClient.analysisReportDao();
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      dao.insert(session, report);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public List<AnalysisReportDto> findByProjectKey(String projectKey) {
-    AnalysisReportDao dao = dbClient.analysisReportDao();
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      return dao.findByProjectKey(session, projectKey);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  @Test
+  public void create_must_call_dao_insert() throws Exception {
+    sut.create("ANY-KEY");
+    verify(analysisReportDao).insert(any(DbSession.class), any(AnalysisReportDto.class));
   }
 }
