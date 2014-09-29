@@ -624,6 +624,8 @@ public class IssueIndexMediumTest {
 
   @Test
   public void synchronize_issues() throws Exception {
+    Integer numberOfIssues = 1000;
+
     ComponentDto project = new ComponentDto()
       .setKey("MyProject");
     db.componentDao().insert(session, project);
@@ -639,7 +641,7 @@ public class IssueIndexMediumTest {
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource));
 
     List<String> issueKeys = newArrayList();
-    for (int i = 0; i < 11; i++) {
+    for (int i = 0; i < numberOfIssues; i++) {
       IssueDto issue = IssueTesting.newDto(rule, resource, project);
       tester.get(IssueDao.class).insert(session, issue);
       issueKeys.add(issue.getKey());
@@ -647,12 +649,13 @@ public class IssueIndexMediumTest {
     session.commit();
 
     // 0 Assert that all issues are both in ES and DB
-    assertThat(db.issueDao().findAfterDate(session, new Date(0))).hasSize(11);
-    assertThat(index.countAll()).isEqualTo(11);
+    assertThat(db.issueDao().findAfterDate(session, new Date(0))).hasSize(numberOfIssues);
+    assertThat(index.countAll()).isEqualTo(numberOfIssues);
 
     // Clear issue index in order to simulate these issues have been inserted without being indexed in E/S (from a previous version of SQ or from batch)
     tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
     tester.clearIndexes();
+    assertThat(index.countAll()).isEqualTo(0);
 
     DbSession newSession = db.openSession(true);
     try {
@@ -663,7 +666,7 @@ public class IssueIndexMediumTest {
       newSession.close();
     }
 
-    assertThat(index.countAll()).isEqualTo(11);
+    assertThat(index.countAll()).isEqualTo(numberOfIssues);
 
   }
 }

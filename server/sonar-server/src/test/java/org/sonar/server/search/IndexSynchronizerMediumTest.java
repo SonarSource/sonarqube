@@ -25,6 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
@@ -65,19 +66,27 @@ public class IndexSynchronizerMediumTest {
 
   @Test
   public void can_synchronize() throws Exception {
-    int numberOfRules = 100;
+    int numberOfRules = 1000;
+    int batchSize = BatchSession.MAX_BATCH_SIZE;
 
-    for (int i = 0; i < numberOfRules; i++) {
-      dbClient.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("test", "x" + i)));
+    int count = 0;
+    for (int step = 0; (step * batchSize) < numberOfRules; step++) {
+      for (int i = 0; i < batchSize; i++) {
+        dbClient.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("test", "x" + (count++))));
+      }
+      dbSession.commit();
     }
-    dbSession.commit();
 
     assertThat(indexClient.get(RuleIndex.class).countAll()).isEqualTo(numberOfRules);
     tester.clearIndexes();
     assertThat(indexClient.get(RuleIndex.class).countAll()).isEqualTo(0);
 
-    synchronizer.synchronize(dbSession, dbClient.ruleDao(), indexClient.get(RuleIndex.class));
-    dbSession.commit();
-    assertThat(indexClient.get(RuleIndex.class).countAll()).isEqualTo(numberOfRules);
+    DbSession syncSession = dbClient.openSession(true);
+    try {
+      synchronizer.synchronize(syncSession, dbClient.ruleDao(), indexClient.get(RuleIndex.class));
+      assertThat(indexClient.get(RuleIndex.class).countAll()).isEqualTo(numberOfRules);
+    } finally {
+      syncSession.close();
+    }
   }
 }

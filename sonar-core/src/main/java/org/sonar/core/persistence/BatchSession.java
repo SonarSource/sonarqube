@@ -27,6 +27,7 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.cluster.ClusterAction;
 import org.sonar.core.cluster.WorkQueue;
 
 import java.util.List;
@@ -46,6 +47,12 @@ public class BatchSession extends DbSession {
   BatchSession(WorkQueue queue, SqlSession session, int batchSize) {
     super(queue, session);
     this.batchSize = batchSize;
+  }
+
+  @Override
+  public void enqueue(ClusterAction action) {
+    increment();
+    super.enqueue(action);
   }
 
   @Override

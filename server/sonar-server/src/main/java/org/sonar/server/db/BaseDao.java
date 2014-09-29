@@ -370,6 +370,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
       session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date, params), handler);
       handler.enqueueCollected();
       session.enqueue(new RefreshIndex(this.getIndexType()));
+      session.commit();
     } catch (Exception e) {
       throw new IllegalStateException(e);
     }
