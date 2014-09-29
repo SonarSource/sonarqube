@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.Timeout;
+import org.sonar.process.Lifecycle.State;
 import org.sonar.process.test.StandardProcess;
 
 import java.io.File;
@@ -32,7 +33,6 @@ import java.util.Properties;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
-import static org.sonar.process.Lifecycle.State;
 
 public class ProcessEntryPointTest {
 
@@ -50,7 +50,7 @@ public class ProcessEntryPointTest {
   @Test
   public void load_properties_from_file() throws Exception {
     File propsFile = temp.newFile();
-    FileUtils.write(propsFile, "sonar.foo=bar\nprocess.key=web\nprocess.sharedDir=" + temp.newFolder().getAbsolutePath());
+    FileUtils.write(propsFile, "sonar.foo=bar\nprocess.key=web\nprocess.sharedDir=" + temp.newFolder().getAbsolutePath().replaceAll("\\\\", "/"));
 
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(new String[] {propsFile.getAbsolutePath()});
     assertThat(entryPoint.getProps().value("sonar.foo")).isEqualTo("bar");
