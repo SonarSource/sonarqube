@@ -62,15 +62,50 @@ define ['third-party/jquery.mockjax'], ->
       ]
 
   jQuery.mockjax
-    url: "#{baseUrl}/api/dashboards/available_widgets"
+    url: "#{baseUrl}/api/dashboards/widgets"
     responseText: JSON.stringify
       widgets: [
+        {
+          key: 'action_plans'
+          name: 'Action Plans'
+          description: 'Shows all the open action plans of the project.'
+          category: ''
+        }
         {
           key: ''
           name: ''
           description: ''
           category: ''
-          props: []
+        }
+        {
+          key: ''
+          name: ''
+          description: ''
+          category: ''
+        }
+        {
+          key: ''
+          name: ''
+          description: ''
+          category: ''
+        }
+        {
+          key: ''
+          name: ''
+          description: ''
+          category: ''
+        }
+        {
+          key: ''
+          name: ''
+          description: ''
+          category: ''
+        }
+        {
+          key: ''
+          name: ''
+          description: ''
+          category: ''
         }
       ]
 

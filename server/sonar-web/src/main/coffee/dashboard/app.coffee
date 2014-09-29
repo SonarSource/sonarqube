@@ -53,7 +53,7 @@ requirejs [
 
 
   requestDetails = ->
-    $.get "#{baseUrl}/api/dashboards/details", key: App.dashboard, (data) ->
+    $.get "#{baseUrl}/api/dashboards/show", key: App.dashboard, (data) ->
       App.dashboard = new Backbone.Model _.omit data, 'widgets'
       App.widgets = new Widgets data.widgets
 

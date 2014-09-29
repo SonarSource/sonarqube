@@ -11,5 +11,5 @@ define [
 
 
     comparator: (model) ->
-      model.get('layout').row
+      model.get('row')
 

@@ -31,8 +31,7 @@ define [
 
 
     appendHtml: (compositeView, itemView) ->
-      layout = itemView.model.get 'layout'
-      column = layout.column - 1
+      column = itemView.model.get('col') - 1
       $container = @getItemViewContainer compositeView
       $container.eq(column).append itemView.el
 

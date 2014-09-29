@@ -42,10 +42,10 @@ define [
 
 
     getWidgetProps: ->
-      properties = @model.get 'properties'
+      properties = @model.get 'props'
       r = {}
       properties.forEach (prop) ->
-        r[prop.key] = prop.value if prop.value?
+        r[prop.key] = prop.val if prop.val?
       r
 
 
