@@ -77,9 +77,9 @@ public class HttpDownloaderTest {
           else {
             if (req.getPath().getPath().contains("/timeout/")) {
               try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
               } catch (InterruptedException e) {
-                e.printStackTrace();
+                throw new IllegalStateException(e);
               }
             }
             if (req.getPath().getPath().contains("/gzip/")) {
@@ -135,17 +135,14 @@ public class HttpDownloaderTest {
     assertThat(text).isEqualTo("GZIP response");
   }
 
-  @Test
+  @Test(timeout = 1000L)
   public void readStringWithDefaultTimeout() throws URISyntaxException {
     String text = new HttpDownloader(new Settings()).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
-  @Test
+  @Test(timeout = 1000L)
   public void readStringWithTimeout() throws URISyntaxException {
-    String text = new HttpDownloader(new Settings(), 2000).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
-    assertThat(text.length()).isGreaterThan(10);
-
     thrown.expect(new BaseMatcher<Exception>() {
       @Override
       public boolean matches(Object ex) {
@@ -156,16 +153,16 @@ public class HttpDownloaderTest {
       public void describeTo(Description arg0) {
       }
     });
-    new HttpDownloader(new Settings(), 100).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
+    new HttpDownloader(new Settings(), 50).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
   }
 
-  @Test(expected = SonarException.class)
+  @Test(expected = SonarException.class, timeout = 1000L)
   public void failIfServerDown() throws URISyntaxException {
     // I hope that the port 1 is not used !
     new HttpDownloader(new Settings()).readBytes(new URI("http://localhost:1/unknown"));
   }
 
-  @Test
+  @Test(timeout = 1000L)
   public void downloadToFile() throws URISyntaxException, IOException {
     File toDir = temporaryFolder.newFolder();
     File toFile = new File(toDir, "downloadToFile.txt");
