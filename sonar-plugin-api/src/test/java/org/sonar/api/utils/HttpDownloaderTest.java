@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.Timeout;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
@@ -55,6 +56,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class HttpDownloaderTest {
+
+  @Rule
+  public Timeout timeout = new Timeout(1000);
 
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -135,13 +139,13 @@ public class HttpDownloaderTest {
     assertThat(text).isEqualTo("GZIP response");
   }
 
-  @Test(timeout = 1000L)
+  @Test
   public void readStringWithDefaultTimeout() throws URISyntaxException {
     String text = new HttpDownloader(new Settings()).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
     assertThat(text.length()).isGreaterThan(10);
   }
 
-  @Test(timeout = 1000L)
+  @Test
   public void readStringWithTimeout() throws URISyntaxException {
     thrown.expect(new BaseMatcher<Exception>() {
       @Override
@@ -156,13 +160,13 @@ public class HttpDownloaderTest {
     new HttpDownloader(new Settings(), 50).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
   }
 
-  @Test(expected = SonarException.class, timeout = 1000L)
-  public void failIfServerDown() throws URISyntaxException {
-    // I hope that the port 1 is not used !
-    new HttpDownloader(new Settings()).readBytes(new URI("http://localhost:1/unknown"));
+  @Test(expected = SonarException.class)
+  public void failIfServerDown() throws Exception {
+    int port = new InetSocketAddress(0).getPort();
+    new HttpDownloader(new Settings()).readBytes(new URI("http://localhost:" + port));
   }
 
-  @Test(timeout = 1000L)
+  @Test
   public void downloadToFile() throws URISyntaxException, IOException {
     File toDir = temporaryFolder.newFolder();
     File toFile = new File(toDir, "downloadToFile.txt");
