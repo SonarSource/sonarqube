@@ -50,7 +50,7 @@ public class ProcessEntryPointTest {
   @Test
   public void load_properties_from_file() throws Exception {
     File propsFile = temp.newFile();
-    FileUtils.write(propsFile, "sonar.foo=bar\nprocess.key=web\nprocess.sharedDir=" + temp.newFolder().getAbsolutePath());
+    FileUtils.write(propsFile, "sonar.foo=bar\nprocess.key=web\nprocess.sharedDir=" + temp.newFolder().getAbsolutePath().replaceAll("\\\\", "/"));
 
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(new String[] {propsFile.getAbsolutePath()});
     assertThat(entryPoint.getProps().value("sonar.foo")).isEqualTo("bar");
