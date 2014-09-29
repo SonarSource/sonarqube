@@ -43,21 +43,11 @@ public class IssuesWs implements WebService {
   public static final String BULK_CHANGE_ACTION = "bulk_change";
 
   private final IssueShowAction showAction;
-  private final IssueSearchAction searchAction;
   private final SearchAction esSearchAction;
 
-  public IssuesWs(IssueShowAction showAction, IssueSearchAction searchAction) {
-    this(showAction, null, searchAction);
-  }
-
   public IssuesWs(IssueShowAction showAction, SearchAction searchAction) {
-    this(showAction, searchAction, null);
-  }
-
-  private IssuesWs(IssueShowAction showAction, SearchAction esSearchAction, IssueSearchAction searchAction) {
     this.showAction = showAction;
-    this.esSearchAction = esSearchAction;
-    this.searchAction = searchAction;
+    this.esSearchAction = searchAction;
   }
 
   @Override
@@ -67,13 +57,7 @@ public class IssuesWs implements WebService {
     controller.setSince("3.6");
 
     showAction.define(controller);
-
-    // TODO remove after transition
-    if (esSearchAction != null) {
-      esSearchAction.define(controller);
-    } else if (searchAction != null) {
-      searchAction.define(controller);
-    }
+    esSearchAction.define(controller);
 
     defineChangelogAction(controller);
     defineAssignAction(controller);

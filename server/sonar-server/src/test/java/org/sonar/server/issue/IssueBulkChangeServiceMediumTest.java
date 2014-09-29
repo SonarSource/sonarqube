@@ -61,8 +61,7 @@ import static org.fest.assertions.Fail.fail;
 public class IssueBulkChangeServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.issues.use_es_backend", "true");
+  public static ServerTester tester = new ServerTester();
 
   DbClient db;
   IndexClient indexClient;

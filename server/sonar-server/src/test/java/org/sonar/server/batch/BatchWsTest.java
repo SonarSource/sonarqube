@@ -28,7 +28,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Languages;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.server.computation.ComputationService;
@@ -67,7 +66,7 @@ public class BatchWsTest {
       new GlobalReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class)),
       new ProjectReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class), mock(QProfileFactory.class), mock(QProfileLoader.class), mock(RuleService.class),
         mock(Languages.class)),
-      new UploadReportAction(mock(DbClient.class), mock(IndexClient.class), mock(InternalPermissionService.class), new Settings(), mock(ComputationService.class))));
+      new UploadReportAction(mock(DbClient.class), mock(IndexClient.class), mock(InternalPermissionService.class), mock(ComputationService.class))));
   }
 
   @Test

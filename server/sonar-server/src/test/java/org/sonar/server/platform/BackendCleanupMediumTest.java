@@ -50,8 +50,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class BackendCleanupMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.issues.use_es_backend", "true");
+  public static ServerTester tester = new ServerTester();
 
   DbClient db;
   DbSession session;

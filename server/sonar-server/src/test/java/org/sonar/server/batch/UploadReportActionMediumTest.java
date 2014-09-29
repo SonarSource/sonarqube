@@ -59,8 +59,7 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 public class UploadReportActionMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.issues.use_es_backend", "true");
+  public static ServerTester tester = new ServerTester();
 
   DbClient db;
   DbSession session;

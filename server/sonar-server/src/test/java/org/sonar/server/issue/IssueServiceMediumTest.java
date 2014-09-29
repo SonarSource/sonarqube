@@ -65,11 +65,10 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
-public class DefaultIssueServiceMediumTest {
+public class IssueServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.issues.use_es_backend", "true");
+  public static ServerTester tester = new ServerTester();
 
   DbClient db;
   IndexClient indexClient;
@@ -137,11 +136,11 @@ public class DefaultIssueServiceMediumTest {
     tester.get(IssueDao.class).insert(session, issue1, issue2);
     session.commit();
 
-    org.sonar.server.search.Result<Issue> result = ((DefaultIssueService) service).search(IssueQuery.builder().build(), new QueryContext());
+    org.sonar.server.search.Result<Issue> result = ((IssueService) service).search(IssueQuery.builder().build(), new QueryContext());
     assertThat(result.getHits()).hasSize(2);
     assertThat(result.getFacets()).isEmpty();
 
-    result = ((DefaultIssueService) service).search(IssueQuery.builder().build(), new QueryContext().setFacet(true));
+    result = ((IssueService) service).search(IssueQuery.builder().build(), new QueryContext().setFacet(true));
     assertThat(result.getFacets().keySet()).hasSize(4);
     assertThat(result.getFacetKeys("actionPlan")).hasSize(2);
   }

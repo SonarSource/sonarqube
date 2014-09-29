@@ -21,7 +21,6 @@ package org.sonar.server.search;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.Dao;
@@ -42,12 +41,10 @@ public class IndexSynchronizer {
 
   private final DbClient db;
   private final IndexClient index;
-  private final Settings settings;
 
-  public IndexSynchronizer(DbClient db, IndexClient index, Settings settings) {
+  public IndexSynchronizer(DbClient db, IndexClient index) {
     this.db = db;
     this.index = index;
-    this.settings = settings;
   }
 
   public void execute() {
@@ -56,13 +53,8 @@ public class IndexSynchronizer {
     LOG.info("Starting DB to Index synchronization");
     long start = System.currentTimeMillis();
     synchronize(session, db.ruleDao(), index.get(RuleIndex.class));
-
-    // Switch Issue search
-    if (settings.getString("sonar.issues.use_es_backend") != null) {
-      synchronize(session, db.issueDao(), index.get(IssueIndex.class));
-      synchronize(session, db.issueAuthorizationDao(), index.get(IssueAuthorizationIndex.class));
-    }
-
+    synchronize(session, db.issueDao(), index.get(IssueIndex.class));
+    synchronize(session, db.issueAuthorizationDao(), index.get(IssueAuthorizationIndex.class));
     synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
     synchronize(session, db.activityDao(), index.get(ActivityIndex.class));
     session.commit();

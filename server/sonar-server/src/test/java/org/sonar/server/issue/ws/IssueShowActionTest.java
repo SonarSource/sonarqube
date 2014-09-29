@@ -40,6 +40,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
+import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.DefaultUser;
@@ -135,7 +136,8 @@ public class IssueShowActionTest {
     tester = new WsTester(new IssuesWs(
       new IssueShowAction(dbClient, issueService, issueChangelogService,
         new IssueActionsWriter(issueService, actionService), actionPlanService, userFinder, debtModel, ruleService, i18n, durations),
-      mock(IssueSearchAction.class)));
+      new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class), mock(RuleService.class),
+        mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class))));
   }
 
   @Test

@@ -21,7 +21,6 @@
 package org.sonar.server.batch;
 
 import com.google.common.collect.ImmutableMap;
-import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -46,14 +45,12 @@ public class UploadReportAction implements RequestHandler {
   private final DbClient dbClient;
   private final IndexClient index;
   private final InternalPermissionService permissionService;
-  private final Settings settings;
   private final ComputationService computationService;
 
-  public UploadReportAction(DbClient dbClient, IndexClient index, InternalPermissionService permissionService, Settings settings, ComputationService computationService) {
+  public UploadReportAction(DbClient dbClient, IndexClient index, InternalPermissionService permissionService, ComputationService computationService) {
     this.dbClient = dbClient;
     this.index = index;
     this.permissionService = permissionService;
-    this.settings = settings;
     this.computationService = computationService;
   }
 
@@ -87,25 +84,22 @@ public class UploadReportAction implements RequestHandler {
       MyBatis.closeQuietly(session);
     }
 
-    // Switch Issue search
-    if (settings.getString("sonar.issues.use_es_backend") != null) {
-      // Synchronization of lot of data can only be done with a batch session for the moment
-      session = dbClient.openSession(true);
-      try {
-        // Synchronize project permission indexes if no permission found on it
-        if (index.get(IssueAuthorizationIndex.class).getNullableByKey(projectKey) == null) {
-          permissionService.synchronizePermissions(session, projectKey);
-          session.commit();
-        }
-
-        // Index project's issues
-        dbClient.issueDao().synchronizeAfter(session,
-          index.get(IssueIndex.class).getLastSynchronization(),
-          ImmutableMap.of("project", projectKey));
+    // Synchronization of lot of data can only be done with a batch session for the moment
+    session = dbClient.openSession(true);
+    try {
+      // Synchronize project permission indexes if no permission found on it
+      if (index.get(IssueAuthorizationIndex.class).getNullableByKey(projectKey) == null) {
+        permissionService.synchronizePermissions(session, projectKey);
         session.commit();
-      } finally {
-        MyBatis.closeQuietly(session);
       }
+
+      // Index project's issues
+      dbClient.issueDao().synchronizeAfter(session,
+        index.get(IssueIndex.class).getLastSynchronization(),
+        ImmutableMap.of("project", projectKey));
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
     }
   }
 

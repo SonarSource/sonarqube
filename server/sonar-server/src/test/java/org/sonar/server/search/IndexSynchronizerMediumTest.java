@@ -23,7 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.DbSession;
@@ -38,8 +37,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class IndexSynchronizerMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.issues.use_es_backend", "true");
+  public static ServerTester tester = new ServerTester();
 
   IndexSynchronizer synchronizer;
   DbClient dbClient;
@@ -53,7 +51,7 @@ public class IndexSynchronizerMediumTest {
     indexClient = tester.get(IndexClient.class);
     platform = tester.get(Platform.class);
     dbSession = dbClient.openSession(false);
-    synchronizer = new IndexSynchronizer(dbClient, indexClient, tester.get(Settings.class));
+    synchronizer = new IndexSynchronizer(dbClient, indexClient);
     tester.clearDbAndIndexes();
   }
 

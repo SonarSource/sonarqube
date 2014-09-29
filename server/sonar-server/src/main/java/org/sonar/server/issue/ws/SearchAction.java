@@ -47,7 +47,6 @@ import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.DefaultIssueService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
@@ -223,7 +222,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     if (components != null && components.size() == 1) {
       context.setShowFullResult(true);
     }
-    return ((DefaultIssueService) service).search(query, context);
+    return ((IssueService) service).search(query, context);
   }
 
   @Override

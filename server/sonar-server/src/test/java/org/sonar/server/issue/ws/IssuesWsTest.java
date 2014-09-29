@@ -22,11 +22,11 @@ package org.sonar.server.issue.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.Durations;
+import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.issue.IssueChangelogService;
@@ -42,21 +42,20 @@ public class IssuesWsTest {
 
   IssueShowAction showAction;
 
-  IssueSearchAction searchAction;
-
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
-    IssueFinder issueFinder = mock(IssueFinder.class);
     IssueChangelogService issueChangelogService = mock(IssueChangelogService.class);
     IssueActionsWriter actionsWriter = mock(IssueActionsWriter.class);
     DebtModelService debtModelService = mock(DebtModelService.class);
     I18n i18n = mock(I18n.class);
     Durations durations = mock(Durations.class);
 
-    showAction = new IssueShowAction(mock(DbClient.class), mock(IssueService.class), issueChangelogService, actionsWriter, mock(ActionPlanService.class), mock(UserFinder.class), debtModelService, mock(RuleService.class), i18n, durations);
-    searchAction = new IssueSearchAction(issueFinder, actionsWriter, i18n, durations);
+    showAction = new IssueShowAction(mock(DbClient.class), mock(IssueService.class), issueChangelogService, actionsWriter, mock(ActionPlanService.class), mock(UserFinder.class),
+      debtModelService, mock(RuleService.class), i18n, durations);
+    SearchAction searchAction = new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class), mock(RuleService.class),
+      mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class));
     tester = new WsTester(new IssuesWs(showAction, searchAction));
   }
 
@@ -87,21 +86,6 @@ public class IssuesWsTest {
     assertThat(key).isNotNull();
     assertThat(key.description()).isNotNull();
     assertThat(key.isRequired()).isFalse();
-  }
-
-  @Test
-  public void define_search_action() throws Exception {
-    WebService.Controller controller = tester.controller("api/issues");
-
-    WebService.Action show = controller.action("search");
-    assertThat(show).isNotNull();
-    assertThat(show.handler()).isNotNull();
-    assertThat(show.since()).isEqualTo("3.6");
-    assertThat(show.isPost()).isFalse();
-    assertThat(show.isInternal()).isFalse();
-    assertThat(show.handler()).isSameAs(searchAction);
-    assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(24);
   }
 
   @Test

@@ -27,6 +27,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
@@ -55,8 +56,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class SearchActionMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.issues.use_es_backend", "true");
+  public static ServerTester tester = new ServerTester();
 
   IssuesWs ws;
   DbClient db;
@@ -107,6 +107,20 @@ public class SearchActionMediumTest {
   @After
   public void after() {
     session.close();
+  }
+
+  @Test
+  public void define_action() throws Exception {
+    WebService.Controller controller = wsTester.controller("api/issues");
+
+    WebService.Action show = controller.action("search");
+    assertThat(show).isNotNull();
+    assertThat(show.handler()).isNotNull();
+    assertThat(show.since()).isEqualTo("3.6");
+    assertThat(show.isPost()).isFalse();
+    assertThat(show.isInternal()).isFalse();
+    assertThat(show.responseExampleAsString()).isNotEmpty();
+    assertThat(show.params()).hasSize(26);
   }
 
   @Test
