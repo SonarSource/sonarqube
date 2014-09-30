@@ -24,6 +24,7 @@ import org.junit.Test;
 import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.sonar.test.TestUtils.getResource;
 
 public class TestUtilsTest {
@@ -44,5 +45,48 @@ public class TestUtilsTest {
   public void testResourceNotFound() {
     File file = getResource("org/sonar/test/TestUtilsTest/unknown.txt");
     assertThat(file).isNull();
+  }
+
+  @Test
+  public void hasOnlyPrivateConstructors() {
+    assertThat(TestUtils.hasOnlyPrivateConstructors(TestUtils.class)).isTrue();
+    assertThat(TestUtils.hasOnlyPrivateConstructors(OnlyPrivateConstructors.class)).isTrue();
+    assertThat(TestUtils.hasOnlyPrivateConstructors(MixOfPublicAndPrivateConstructors.class)).isFalse();
+    try {
+      TestUtils.hasOnlyPrivateConstructors(FailToInstantiate.class);
+      fail();
+    } catch (IllegalStateException e) {
+      // ok
+    }
+  }
+
+  public static class OnlyPrivateConstructors {
+    private OnlyPrivateConstructors() {
+    }
+
+    private OnlyPrivateConstructors(int i) {
+    }
+
+    public static void foo() {
+
+    }
+  }
+
+  public static class MixOfPublicAndPrivateConstructors {
+    private MixOfPublicAndPrivateConstructors() {
+    }
+
+    public MixOfPublicAndPrivateConstructors(int i) {
+    }
+
+    public static void foo() {
+
+    }
+  }
+
+  public static class FailToInstantiate {
+    private FailToInstantiate() {
+      throw new IllegalArgumentException();
+    }
   }
 }

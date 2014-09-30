@@ -20,10 +20,6 @@
       <artifactId>jsonassert</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
@@ -32,21 +28,22 @@
       <artifactId>hamcrest-all</artifactId>
     </dependency>
     <dependency>
-      <!-- used only for org.sonar.test.channel classes -->
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-channel</artifactId>
-      <optional>true</optional>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-plugin-api</artifactId>
-      <version>${project.version}</version>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-plugin-api</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>

@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +50,7 @@ public final class I18nMatchers {
    * Checks that all the translation bundles found on the classpath are up to date with the corresponding default ones found in the classpath.
    */
   public static void assertBundlesUpToDate() {
-    File bundleFolder = TestUtils.getResource(BundleSynchronizedMatcher.L10N_PATH);
+    File bundleFolder = getResource(BundleSynchronizedMatcher.L10N_PATH);
     if (bundleFolder == null || !bundleFolder.isDirectory()) {
       fail("No bundle found in: " + BundleSynchronizedMatcher.L10N_PATH);
     }
@@ -76,5 +77,17 @@ public final class I18nMatchers {
       message.append(StringUtils.join(failedAssertionMessages.values(), "\n\n"));
       fail(message.toString());
     }
+  }
+
+  private static File getResource(String path) {
+    String resourcePath = path;
+    if (!resourcePath.startsWith("/")) {
+      resourcePath = "/" + resourcePath;
+    }
+    URL url = TestUtils.class.getResource(resourcePath);
+    if (url != null) {
+      return FileUtils.toFile(url);
+    }
+    return null;
   }
 }

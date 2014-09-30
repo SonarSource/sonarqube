@@ -42,6 +42,6 @@ public class NetworkUtilsTest {
 
   @Test
   public void private_constructor() throws Exception {
-    TestUtils.assertPrivateConstructor(NetworkUtils.class);
+    assertThat(TestUtils.hasOnlyPrivateConstructors(NetworkUtils.class)).isTrue();
   }
 }

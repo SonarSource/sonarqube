@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.sonar</groupId>
@@ -81,6 +82,10 @@
     <jdk.min.version>1.6</jdk.min.version>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
+
+    <skipBatchTests>false</skipBatchTests>
+    <skipServerTests>false</skipServerTests>
+    <skipWebTests>false</skipWebTests>
 
     <!-- To configure animal-sniffer to check API compat -->
     <animal-sniffer.signature.groupId>org.codehaus.mojo.signature</animal-sniffer.signature.groupId>
@@ -1333,7 +1338,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1346,7 +1351,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1360,7 +1365,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                     <pluginExecution>
@@ -1373,7 +1378,7 @@
                         </goals>
                       </pluginExecutionFilter>
                       <action>
-                        <ignore />
+                        <ignore/>
                       </action>
                     </pluginExecution>
                   </pluginExecutions>
@@ -1411,6 +1416,49 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+
+    <!--
+    The following profiles optimize the build for each team, according to their
+     stack layers (batch, server and web teams)
+    -->
+    <profile>
+      <!-- disable all tests -->
+      <id>skipTests</id>
+      <activation>
+        <property>
+          <name>skipTests</name>
+        </property>
+      </activation>
+      <properties>
+        <skipWebTests>true</skipWebTests>
+        <skipBatchTests>true</skipBatchTests>
+        <skipServerTests>true</skipServerTests>
+      </properties>
+    </profile>
+    <profile>
+      <id>batch</id>
+      <properties>
+        <skipServerTests>true</skipServerTests>
+        <skipWebTests>true</skipWebTests>
+      </properties>
+    </profile>
+    <profile>
+      <id>server</id>
+      <properties>
+        <skipBatchTests>true</skipBatchTests>
+        <skipWebTests>true</skipWebTests>
+      </properties>
+    </profile>
+    <profile>
+      <id>web</id>
+      <properties>
+        <!-- the web team does not care about java tests -->
+        <skipBatchTests>true</skipBatchTests>
+        <skipServerTests>true</skipServerTests>
+        <skipTests>true</skipTests>
+      </properties>
     </profile>
   </profiles>
 

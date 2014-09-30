@@ -160,12 +160,6 @@ public class HttpDownloaderTest {
     new HttpDownloader(new Settings(), 50).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
   }
 
-  @Test(expected = SonarException.class)
-  public void failIfServerDown() throws Exception {
-    int port = new InetSocketAddress(0).getPort();
-    new HttpDownloader(new Settings()).readBytes(new URI("http://localhost:" + port));
-  }
-
   @Test
   public void downloadToFile() throws URISyntaxException, IOException {
     File toDir = temporaryFolder.newFolder();
@@ -182,8 +176,8 @@ public class HttpDownloaderTest {
     File toFile = new File(toDir, "downloadToFile.txt");
 
     try {
-      // I hope that the port 1 is not used !
-      new HttpDownloader(new Settings()).download(new URI("http://localhost:1/unknown"), toFile);
+      int port = new InetSocketAddress(0).getPort();
+      new HttpDownloader(new Settings()).download(new URI("http://localhost:" + port), toFile);
     } catch (SonarException e) {
       assertThat(toFile).doesNotExist();
     }

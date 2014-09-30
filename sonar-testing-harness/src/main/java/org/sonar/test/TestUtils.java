@@ -27,9 +27,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
-
 /**
  * Utilities for unit tests
  *
@@ -73,14 +70,24 @@ public final class TestUtils {
     return getResource(resourcePath);
   }
 
-  public static void assertPrivateConstructor(Class clazz) {
-    try {
-      Constructor constructor = clazz.getDeclaredConstructor();
-      assertThat(Modifier.isPrivate(constructor.getModifiers())).isTrue();
-      constructor.setAccessible(true);
-      constructor.newInstance();
-    } catch (Exception e) {
-      fail("Fail to instantiate " + clazz, e);
+  /**
+   * Asserts that all constructors are private, usually for helper classes with
+   * only static methods. If a constructor does not have any parameters, then
+   * it's instantiated.
+   */
+  public static boolean hasOnlyPrivateConstructors(Class clazz) {
+    boolean ok = true;
+    for (Constructor constructor : clazz.getDeclaredConstructors()) {
+      ok &= Modifier.isPrivate(constructor.getModifiers());
+      if (constructor.getParameterTypes().length == 0) {
+        constructor.setAccessible(true);
+        try {
+          constructor.newInstance();
+        } catch (Exception e) {
+          throw new IllegalStateException(String.format("Fail to instantiate %s", clazz), e);
+        }
+      }
     }
+    return ok;
   }
 }

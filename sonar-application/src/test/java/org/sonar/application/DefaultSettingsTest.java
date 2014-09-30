@@ -60,6 +60,6 @@ public class DefaultSettingsTest {
 
   @Test
   public void private_constructor() throws Exception {
-    TestUtils.assertPrivateConstructor(DefaultSettings.class);
+    assertThat(TestUtils.hasOnlyPrivateConstructors(DefaultSettings.class)).isTrue();
   }
 }
