@@ -8,10 +8,10 @@
     <relativePath>../..</relativePath>
   </parent>
   <groupId>org.codehaus.sonar.plugins</groupId>
-  <artifactId>sonar-git-plugin</artifactId>
-  <name>SonarQube :: Plugins :: Git</name>
+  <artifactId>sonar-svn-plugin</artifactId>
+  <name>SonarQube :: Plugins :: SVN</name>
   <packaging>sonar-plugin</packaging>
-  <description>Git SCM Provider.</description>
+  <description>SVN SCM Provider.</description>
 
   <dependencies>
     <dependency>
@@ -23,11 +23,6 @@
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit</artifactId>
-      <version>3.5.0.201409260305-r</version>
     </dependency>
 
     <!-- unit tests -->
@@ -55,9 +50,9 @@
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <configuration>
-          <pluginKey>git</pluginKey>
-          <pluginName>Git</pluginName>
-          <pluginClass>org.sonar.plugins.scm.git.GitPlugin</pluginClass>
+          <pluginKey>svn</pluginKey>
+          <pluginName>SVN</pluginName>
+          <pluginClass>org.sonar.plugins.scm.svn.SvnPlugin</pluginClass>
         </configuration>
       </plugin>
     </plugins>

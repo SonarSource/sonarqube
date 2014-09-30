@@ -20,30 +20,15 @@
 package org.sonar.plugins.scm.git;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.slf4j.Logger;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.command.StreamConsumer;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Plain copy of package org.apache.maven.scm.provider.git.gitexe.command.blame.GitBlameConsumer
- * Patched to allow user email retrieval when parsing Git blame results.
- *
- * @Todo: hack - to be submitted as an update in maven-scm-api for a future release
- *
- * <p/>
- * For more information, see:
- * <a href="http://jira.sonarsource.com/browse/DEVACT-103">DEVACT-103</a>
- *
- * @since 1.5.1
- */
 public class GitBlameConsumer implements StreamConsumer {
 
   private static final String GIT_COMMITTER_PREFIX = "committer";
@@ -71,15 +56,6 @@ public class GitBlameConsumer implements StreamConsumer {
   private String author = null;
   private String committer = null;
   private Date time = null;
-  private Logger logger;
-
-  public Logger getLogger() {
-    return logger;
-  }
-
-  public GitBlameConsumer(Logger logger) {
-    this.logger = logger;
-  }
 
   public void consumeLine(String line) {
     if (line == null) {
@@ -123,21 +99,6 @@ public class GitBlameConsumer implements StreamConsumer {
     return false;
   }
 
-  @VisibleForTesting
-  protected String getAuthor() {
-    return author;
-  }
-
-  @VisibleForTesting
-  protected String getCommitter() {
-    return committer;
-  }
-
-  @VisibleForTesting
-  protected Date getTime() {
-    return time;
-  }
-
   private String extractEmail(String line) {
 
     int emailStartIndex = line.indexOf(OPENING_EMAIL_FIELD);
@@ -155,11 +116,6 @@ public class GitBlameConsumer implements StreamConsumer {
 
     // keep commitinfo for this sha-1
     commitInfo.put(revision, blameLine);
-
-    if (getLogger().isDebugEnabled()) {
-      DateFormat df = SimpleDateFormat.getDateTimeInstance();
-      getLogger().debug(author + " " + df.format(time));
-    }
 
     expectRevisionLine = true;
   }

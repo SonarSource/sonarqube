@@ -27,7 +27,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Synchronously execute a native command line. It's much more limited than the Apache Commons Exec library.
@@ -52,6 +56,7 @@ public class CommandExecutor {
   /**
    * @throws org.sonar.api.utils.command.TimeoutException on timeout, since 4.4
    * @throws CommandException on any other error
+   * @param timeoutMilliseconds set it to 0 for no timeout.
    * @since 3.0
    */
   public int execute(Command command, StreamConsumer stdOut, StreamConsumer stdErr, long timeoutMilliseconds) {
@@ -80,7 +85,12 @@ public class CommandExecutor {
           return finalProcess.waitFor();
         }
       });
-      int exitCode = ft.get(timeoutMilliseconds, TimeUnit.MILLISECONDS);
+      int exitCode;
+      if (timeoutMilliseconds == 0) {
+        exitCode = ft.get();
+      } else {
+        exitCode = ft.get(timeoutMilliseconds, TimeUnit.MILLISECONDS);
+      }
       waitUntilFinish(outputGobbler);
       waitUntilFinish(errorGobbler);
       verifyGobbler(command, outputGobbler, "stdOut");

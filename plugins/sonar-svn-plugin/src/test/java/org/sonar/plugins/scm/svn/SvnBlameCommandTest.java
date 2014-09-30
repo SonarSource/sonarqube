@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.scm.git;
+package org.sonar.plugins.scm.svn;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -40,6 +40,7 @@ import org.sonar.api.utils.command.StreamConsumer;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -47,7 +48,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class GitBlameCommandTest {
+public class SvnBlameCommandTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -80,29 +81,20 @@ public class GitBlameCommandTest {
       @Override
       public Integer answer(InvocationOnMock invocation) throws Throwable {
         StreamConsumer outConsumer = (StreamConsumer) invocation.getArguments()[1];
-        outConsumer.consumeLine("2c68c473da7fc293e12ca50f19380c5118be7ead 68 54 1");
-        outConsumer.consumeLine("author Simon Brandhof");
-        outConsumer.consumeLine("author-mail <simon.brandhof@gmail.com>");
-        outConsumer.consumeLine("author-time 1312534171");
-        outConsumer.consumeLine("author-tz +0200");
-        outConsumer.consumeLine("committer Simon Brandhof");
-        outConsumer.consumeLine("committer-mail <simon.brandhof@gmail.com>");
-        outConsumer.consumeLine("committer-time 1312534171");
-        outConsumer.consumeLine("committer-tz +0200");
-        outConsumer.consumeLine("summary Move to nexus.codehaus.org + configuration of maven release plugin is back");
-        outConsumer.consumeLine("previous 1bec1c3a77f6957175be13e4433110f7fc8e387e pom.xml");
-        outConsumer.consumeLine("filename pom.xml");
-        outConsumer.consumeLine("\t<id>codehaus-nexus-staging</id>");
-        outConsumer.consumeLine("2c68c473da7fc293e12ca50f19380c5118be7ead 72 60 1");
-        outConsumer.consumeLine("\t<url>${sonar.snapshotRepository.url}</url>");
+        List<String> lines = FileUtils.readLines(new File("src/test/resources/blame.xml"), "UTF-8");
+        for (String line : lines) {
+          outConsumer.consumeLine(line);
+        }
         return 0;
       }
     });
 
-    new GitBlameCommand(commandExecutor).blame(fs, Arrays.<InputFile>asList(inputFile), result);
+    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(fs, Arrays.<InputFile>asList(inputFile), result);
     verify(result).add(inputFile,
-      Arrays.asList(new BlameLine(DateUtils.parseDateTime("2011-08-05T10:49:31+0200"), "2c68c473da7fc293e12ca50f19380c5118be7ead", "simon.brandhof@gmail.com"),
-        new BlameLine(DateUtils.parseDateTime("2011-08-05T10:49:31+0200"), "2c68c473da7fc293e12ca50f19380c5118be7ead", "simon.brandhof@gmail.com")));
+      Arrays.asList(
+        new BlameLine(DateUtils.parseDateTime("2009-04-18T10:29:59+0000"), "9491", "simon.brandhof"),
+        new BlameLine(DateUtils.parseDateTime("2009-04-18T10:29:59+0000"), "9491", "simon.brandhof"),
+        new BlameLine(DateUtils.parseDateTime("2009-08-31T22:32:17+0000"), "10558", "david")));
   }
 
   @Test
@@ -126,9 +118,9 @@ public class GitBlameCommandTest {
     });
 
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("The git blame command [git blame --porcelain src/foo.xoo -w] failed: My error");
+    thrown.expectMessage("The svn blame command [svn blame --xml src/foo.xoo --non-interactive] failed: My error");
 
-    new GitBlameCommand(commandExecutor).blame(fs, Arrays.<InputFile>asList(inputFile), result);
+    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(fs, Arrays.<InputFile>asList(inputFile), result);
   }
 
 }

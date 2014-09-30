@@ -36,6 +36,7 @@
     <module>plugins/sonar-l10n-en-plugin</module>
     <module>plugins/sonar-email-notifications-plugin</module>
     <module>plugins/sonar-git-plugin</module>
+    <module>plugins/sonar-svn-plugin</module>
     <module>plugins/sonar-xoo-plugin</module>
   </modules>
 
@@ -594,6 +595,12 @@
       <dependency>
         <groupId>org.codehaus.sonar.plugins</groupId>
         <artifactId>sonar-git-plugin</artifactId>
+        <version>${project.version}</version>
+        <type>sonar-plugin</type>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar.plugins</groupId>
+        <artifactId>sonar-svn-plugin</artifactId>
         <version>${project.version}</version>
         <type>sonar-plugin</type>
       </dependency>

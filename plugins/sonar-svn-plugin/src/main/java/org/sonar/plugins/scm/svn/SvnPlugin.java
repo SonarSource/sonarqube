@@ -17,38 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.scm.git;
+package org.sonar.plugins.scm.svn;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.config.PropertyDefinition;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public final class GitPlugin extends SonarPlugin {
-
-  static final String CATEGORY_GIT = "Git";
-  static final String GIT_IMPLEMENTATION_PROP_KEY = "sonar.git.implementation";
-  static final String JGIT = "jgit";
-  static final String EXE = "exe";
+public final class SvnPlugin extends SonarPlugin {
 
   public List getExtensions() {
-    return ImmutableList.of(
-      GitScmProvider.class,
-      GitBlameCommand.class,
-      JGitBlameCommand.class,
-
-      PropertyDefinition.builder(GIT_IMPLEMENTATION_PROP_KEY)
-        .name("Git implementation")
-        .description("By default pure Java implementation is used. You can force use of command line git executable in case of issue.")
-        .defaultValue(JGIT)
-        .type(PropertyType.SINGLE_SELECT_LIST)
-        .options(EXE, JGIT)
-        .category(CoreProperties.CATEGORY_SCM)
-        .subCategory(CATEGORY_GIT)
-        .build());
+    ArrayList result = new ArrayList();
+    result.addAll(ImmutableList.of(
+      SvnScmProvider.class,
+      SvnBlameCommand.class,
+      SvnConfiguration.class));
+    result.addAll(SvnConfiguration.getProperties());
+    return result;
   }
-
 }

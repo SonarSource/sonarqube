@@ -48,10 +48,11 @@ public class GitBlameCommand implements BlameCommand, BatchComponent {
 
   @Override
   public void blame(FileSystem fs, Iterable<InputFile> files, BlameResult result) {
+    LOG.info("Working directory: " + fs.baseDir().getAbsolutePath());
     for (InputFile inputFile : files) {
       String filename = inputFile.relativePath();
       Command cl = createCommandLine(fs.baseDir(), filename);
-      GitBlameConsumer consumer = new GitBlameConsumer(LOG);
+      GitBlameConsumer consumer = new GitBlameConsumer();
       StringStreamConsumer stderr = new StringStreamConsumer();
 
       int exitCode = execute(cl, consumer, stderr);
@@ -64,9 +65,7 @@ public class GitBlameCommand implements BlameCommand, BatchComponent {
 
   public int execute(Command cl, StreamConsumer consumer, StreamConsumer stderr) {
     LOG.info("Executing: " + cl);
-    LOG.info("Working directory: " + cl.getDirectory().getAbsolutePath());
-
-    return commandExecutor.execute(cl, consumer, stderr, 10 * 1000);
+    return commandExecutor.execute(cl, consumer, stderr, 0);
   }
 
   private Command createCommandLine(File workingDirectory, String filename) {
