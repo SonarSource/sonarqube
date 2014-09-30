@@ -99,6 +99,12 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
+  public void get_issue_by_key() throws Exception {
+    service.getIssueByKey("ABCD");
+    verify(issueService).getByKey("ABCD");
+  }
+
+  @Test
   public void find_issue_assignees() throws Exception {
     service.findIssueAssignees(ImmutableMap.<String, Object>of("issues", "ABCD"));
     verify(issueStatsFinder).findIssueAssignees(any(IssueQuery.class));
@@ -136,6 +142,12 @@ public class InternalRubyIssueServiceTest {
     when(actionService.listAllActions()).thenReturn(newArrayList(action));
 
     assertThat(service.listPluginActions()).containsOnly("link-to-jira");
+  }
+
+  @Test
+  public void find_comments() {
+    service.findComments("ABCD");
+    verify(commentService).findComments("ABCD");
   }
 
   @Test

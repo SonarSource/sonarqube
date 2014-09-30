@@ -1,8 +1,8 @@
 <div class="issue-detail">
   <div class="source_title">
     <%
-      project = @issue_results.project(@issue)
-      component = @issue_results.component(@issue)
+      project = @project
+      component = @component
     %>
 
     <% if project && @issue.componentKey() != project.key() %>
@@ -22,7 +22,7 @@
   </div>
 
   <div class="marginbottom10">
-  <%= render :partial => 'issue/issue', :locals => {:issue => @issue_results.first} -%>
+  <%= render :partial => 'issue/issue', :locals => {:issue => @issue} -%>
   </div>
 
   <!-- SONAR-4686 Do not display source code if user has not the "Code Viewer" permission -->

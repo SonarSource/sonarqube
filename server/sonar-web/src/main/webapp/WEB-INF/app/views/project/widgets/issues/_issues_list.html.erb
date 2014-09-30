@@ -32,6 +32,7 @@
     <tbody>
     <%
        issues.each do |issue|
+         # TODO replace issue.comments by a call to the service to get comments
          last_comment = issue.comments.get(issue.comments.size - 1) if !issue.comments.isEmpty()
     %>
       <tr class="<%= cycle 'even', 'odd', :name => ('issues-widget-list-' + widget_id) -%>">

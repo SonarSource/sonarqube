@@ -130,17 +130,26 @@ public class IssueServiceMediumTest {
   }
 
   @Test
+  public void get_by_key() throws Exception {
+    IssueDto issue = newIssue();
+    tester.get(IssueDao.class).insert(session, issue);
+    session.commit();
+
+    assertThat(service.getByKey(issue.getKey())).isNotNull();
+  }
+
+  @Test
   public void can_facet() throws Exception {
     IssueDto issue1 = newIssue().setActionPlanKey("P1");
     IssueDto issue2 = newIssue().setActionPlanKey("P2").setResolution("NONE");
     tester.get(IssueDao.class).insert(session, issue1, issue2);
     session.commit();
 
-    org.sonar.server.search.Result<Issue> result = ((IssueService) service).search(IssueQuery.builder().build(), new QueryContext());
+    org.sonar.server.search.Result<Issue> result = service.search(IssueQuery.builder().build(), new QueryContext());
     assertThat(result.getHits()).hasSize(2);
     assertThat(result.getFacets()).isEmpty();
 
-    result = ((IssueService) service).search(IssueQuery.builder().build(), new QueryContext().setFacet(true));
+    result = service.search(IssueQuery.builder().build(), new QueryContext().setFacet(true));
     assertThat(result.getFacets().keySet()).hasSize(4);
     assertThat(result.getFacetKeys("actionPlan")).hasSize(2);
   }

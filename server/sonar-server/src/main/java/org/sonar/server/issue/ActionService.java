@@ -78,7 +78,12 @@ public class ActionService implements ServerComponent {
   }
 
   public List<Action> listAvailableActions(String issueKey) {
-    return listAvailableActions(issueService.getIssueByKey(issueKey));
+    DbSession session = dbClient.openSession(false);
+    try {
+      return listAvailableActions(issueService.getByKeyForUpdate(session, issueKey).toDefaultIssue());
+    } finally {
+      session.close();
+    }
   }
 
   public List<Action> listAvailableActions(final Issue issue) {
@@ -95,7 +100,7 @@ public class ActionService implements ServerComponent {
 
     DbSession session = dbClient.openSession(false);
     try {
-      DefaultIssue issue = issueService.getIssueByKey(session, issueKey);
+      DefaultIssue issue = issueService.getByKeyForUpdate(session, issueKey).toDefaultIssue();
       Action action = getAction(actionKey);
       if (action == null) {
         throw new IllegalArgumentException("Action is not found : " + actionKey);

@@ -3,7 +3,7 @@
     <div class="code-issue-name-rule">
       <i class="icon-severity-<%= issue.severity.downcase -%>"></i>
       <span class="rulename">
-        <%= h !issue.message.blank? ? Api::Utils.split_newlines(issue.message).join('<br/>') : @issue_results.rule(issue).getName() -%>
+        <%= h !issue.message.blank? ? Api::Utils.split_newlines(issue.message).join('<br/>') : @rule.getName() -%>
       </span>
     </div>
     <div class="code-issue-permalink">
@@ -47,9 +47,9 @@
     <% unless issue.resolution %>
       <% if issue.assignee %>
         <% if current_user %>
-          <li><a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('assigned_to') -%></a> <%= h @issue_results.user(issue.assignee).name -%></li>
+          <li><a href='#' onclick="return issueForm('assign', this)" class="link-action"><%= message('assigned_to') -%></a> <%= h @users[issue.assignee].name -%></li>
         <% else %>
-          <li><%= message('assigned_to') -%> <strong><%= h @issue_results.user(issue.assignee).name -%></strong></li>
+          <li><%= message('assigned_to') -%> <strong><%= h @users[issue.assignee].name -%></strong></li>
         <% end %>
       <% elsif current_user %>
         <li>
@@ -61,9 +61,9 @@
       <% end %>
       <% if issue.actionPlanKey %>
         <% if current_user %>
-          <li><a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.planned_for') -%></a> <%= h(@issue_results.actionPlan(issue).name()) -%></li>
+          <li><a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.planned_for') -%></a> <%= h(@action_plan.name()) -%></li>
         <% else %>
-          <li><%= message('issue.planned_for') -%> <strong><%= h(@issue_results.actionPlan(issue).name()) -%></strong></li>
+          <li><%= message('issue.planned_for') -%> <strong><%= h(@action_plan.name()) -%></strong></li>
         <% end %>
       <% elsif current_user %>
         <li><a href="#" onclick="return issueForm('plan', this)" class="link-action"><%= message('issue.do_plan') -%></a></li>
@@ -102,7 +102,7 @@
       <li><%= message('issue.authorLogin') -%>&nbsp;<%= issue.authorLogin -%></li>
     <% end %>
     <% if issue.reporter %>
-      <li><%= message('issue.reported_by') -%>&nbsp;<%= @issue_results.user(issue.reporter).name -%></li>
+      <li><%= message('issue.reported_by') -%>&nbsp;<%= @users[issue.reporter].name -%></li>
     <% end %>
   </ul>
   <div class="code-issue-form hidden"></div>
@@ -130,11 +130,11 @@
   </div>
 
   <div class="code-issue-comments">
-    <% issue.comments.each do |comment|
+    <% @comments.each do |comment|
          comment_html_id = "comment-#{comment.key}-#{rand(100)}" %>
       <div class="code-issue-comment" id="<%= comment_html_id -%>" data-comment-key="<%= comment.key -%>">
         <h4>
-          <%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= h( @issue_results.user(comment.userLogin()).name() ) -%></b>
+          <%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= h( @users[comment.userLogin()].name() ) -%></b>
           (<%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(comment.createdAt)) -%>)
           <% if current_user && current_user.login==comment.userLogin %>
             &nbsp;

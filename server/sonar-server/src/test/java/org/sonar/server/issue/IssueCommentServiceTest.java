@@ -25,6 +25,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.IssueQuery;
@@ -40,6 +43,8 @@ import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -51,13 +56,31 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class IssueCommentServiceTest {
 
+  @Mock  
+  private DbClient dbClient;
+
+  @Mock
+  private DbSession session;
+
+  @Mock
   private IssueUpdater updater;
+
+  @Mock
   private IssueChangeDao changeDao;
+
+  @Mock
   private IssueStorage storage;
+
+  @Mock
   private DefaultIssueFinder finder;
+
+  @Mock
   private IssueNotifications issueNotifications;
+
+  @Mock
   private IssueCommentService issueCommentService;
 
   @Rule
@@ -70,18 +93,19 @@ public class IssueCommentServiceTest {
 
   @Before
   public void setUp() {
-    updater = mock(IssueUpdater.class);
-    changeDao = mock(IssueChangeDao.class);
-    storage = mock(IssueStorage.class);
-
-    finder = mock(DefaultIssueFinder.class);
     Issue issue = mock(Issue.class);
     IssueQueryResult result = new DefaultIssueQueryResult(newArrayList(issue));
     stub(finder.find(any(IssueQuery.class))).toReturn(result);
 
-    issueNotifications = mock(IssueNotifications.class);
+    when(dbClient.openSession(false)).thenReturn(session);
 
-    issueCommentService = new IssueCommentService(updater, changeDao, storage, finder, issueNotifications);
+    issueCommentService = new IssueCommentService(dbClient, updater, changeDao, storage, finder, issueNotifications);
+  }
+
+  @Test
+  public void find_comments() throws Exception {
+    issueCommentService.findComments("ABCD");
+    verify(changeDao).selectCommentsByIssues(session, newArrayList("ABCD"));
   }
 
   @Test

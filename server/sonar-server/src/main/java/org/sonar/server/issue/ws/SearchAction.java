@@ -222,7 +222,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     if (components != null && components.size() == 1) {
       context.setShowFullResult(true);
     }
-    return ((IssueService) service).search(query, context);
+    return service.search(query, context);
   }
 
   @Override

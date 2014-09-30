@@ -33,6 +33,7 @@ import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
@@ -89,7 +90,8 @@ public class InternalRubyIssueService implements ServerComponent {
   private final IssueFilterService issueFilterService;
   private final IssueBulkChangeService issueBulkChangeService;
 
-  public InternalRubyIssueService(IssueService issueService,
+  public InternalRubyIssueService(
+    IssueService issueService,
     IssueCommentService commentService,
     IssueChangelogService changelogService, ActionPlanService actionPlanService,
     IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService,
@@ -103,6 +105,10 @@ public class InternalRubyIssueService implements ServerComponent {
     this.actionService = actionService;
     this.issueFilterService = issueFilterService;
     this.issueBulkChangeService = issueBulkChangeService;
+  }
+
+  public Issue getIssueByKey(String issueKey){
+    return issueService.getByKey(issueKey);
   }
 
   public IssueStatsFinder.IssueStatsResult findIssueAssignees(Map<String, Object> params) {
@@ -144,6 +150,10 @@ public class InternalRubyIssueService implements ServerComponent {
         return input.key();
       }
     }));
+  }
+
+  public List<DefaultIssueComment> findComments(String issueKey){
+    return commentService.findComments(issueKey);
   }
 
   public Result<Issue> doTransition(String issueKey, String transitionKey) {

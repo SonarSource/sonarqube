@@ -1,7 +1,7 @@
 <table class="spaced">
   <tr>
     <td class="thin left top" nowrap><%= format_datetime(@issue.creationDate()) -%></td>
-    <td class="thin left top"nowrap><%= @issue_results.user(@issue.reporter).name if @issue.reporter -%></td>
+    <td class="thin left top"nowrap><%= Internal.users_api.findByLogin(@issue.reporter).name if @issue.reporter -%></td>
     <td class="left top"><%= message('created') -%></td>
   </tr>
   <%

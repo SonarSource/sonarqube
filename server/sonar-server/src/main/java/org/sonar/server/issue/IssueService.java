@@ -84,15 +84,15 @@ public class IssueService implements ServerComponent {
   private final PreviewCache dryRunCache;
 
   public IssueService(DbClient dbClient, IndexClient indexClient,
-                      IssueWorkflow workflow,
-                      IssueStorage issueStorage,
-                      IssueUpdater issueUpdater,
-                      IssueNotifications issueNotifications,
-                      ActionPlanService actionPlanService,
-                      RuleFinder ruleFinder,
-                      IssueDao issueDao,
-                      UserFinder userFinder,
-                      PreviewCache dryRunCache) {
+    IssueWorkflow workflow,
+    IssueStorage issueStorage,
+    IssueUpdater issueUpdater,
+    IssueNotifications issueNotifications,
+    ActionPlanService actionPlanService,
+    RuleFinder ruleFinder,
+    IssueDao issueDao,
+    UserFinder userFinder,
+    PreviewCache dryRunCache) {
     this.dbClient = dbClient;
     this.indexClient = indexClient;
     this.workflow = workflow;
@@ -118,7 +118,7 @@ public class IssueService implements ServerComponent {
   public List<Transition> listTransitions(String issueKey) {
     DbSession session = dbClient.openSession(false);
     try {
-      return listTransitions(getIssueByKey(session, issueKey));
+      return listTransitions(getByKeyForUpdate(session, issueKey).toDefaultIssue());
     } finally {
       session.close();
     }
@@ -149,7 +149,7 @@ public class IssueService implements ServerComponent {
 
     DbSession session = dbClient.openSession(false);
     try {
-      DefaultIssue defaultIssue = getIssueByKey(session, issueKey);
+      DefaultIssue defaultIssue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), UserSession.get().login());
       checkTransitionPermission(transitionKey, UserSession.get(), defaultIssue);
       if (workflow.doTransition(defaultIssue, transitionKey, context)) {
@@ -177,7 +177,7 @@ public class IssueService implements ServerComponent {
 
     DbSession session = dbClient.openSession(false);
     try {
-      DefaultIssue issue = getIssueByKey(session, issueKey);
+      DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
       User user = null;
       if (!Strings.isNullOrEmpty(assignee)) {
         user = userFinder.findByLogin(assignee);
@@ -208,7 +208,7 @@ public class IssueService implements ServerComponent {
           throw new NotFoundException("Unknown action plan: " + actionPlanKey);
         }
       }
-      DefaultIssue issue = getIssueByKey(session, issueKey);
+      DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
 
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), UserSession.get().login());
       if (issueUpdater.plan(issue, actionPlan, context)) {
@@ -226,7 +226,7 @@ public class IssueService implements ServerComponent {
 
     DbSession session = dbClient.openSession(false);
     try {
-      DefaultIssue issue = getIssueByKey(session, issueKey);
+      DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
       UserSession.get().checkProjectPermission(UserRole.ISSUE_ADMIN, issue.projectKey());
 
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), UserSession.get().login());
@@ -294,21 +294,14 @@ public class IssueService implements ServerComponent {
     return aggregation;
   }
 
-  public DefaultIssue getIssueByKey(DbSession session, String key) {
-    // Load from index to check permission
-    Issue authorizedIssueIndex = indexClient.get(IssueIndex.class).getByKey(key);
-    return dbClient.issueDao().getByKey(session, authorizedIssueIndex.key()).toDefaultIssue();
+  public Issue getByKey(String key) {
+    return indexClient.get(IssueIndex.class).getByKey(key);
   }
 
-  public DefaultIssue getIssueByKey(String key) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      // Load from index to check permission
-      indexClient.get(IssueIndex.class).getByKey(key);
-      return dbClient.issueDao().getByKey(session, key).toDefaultIssue();
-    } finally {
-      session.close();
-    }
+  IssueDto getByKeyForUpdate(DbSession session, String key) {
+    // Load from index to check permission : if the user has no permission to see the issue an exception will be generated
+    Issue authorizedIssueIndex = getByKey(key);
+    return dbClient.issueDao().getByKey(session, authorizedIssueIndex.key());
   }
 
   private void saveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context) {
@@ -324,6 +317,9 @@ public class IssueService implements ServerComponent {
     dryRunCache.reportResourceModification(issue.componentKey());
   }
 
+  /**
+   * Should use {@link org.sonar.server.rule.RuleService#getByKey(org.sonar.api.rule.RuleKey)}, but it's not possible as IssueNotifications is still used by the batch.
+   */
   private Rule getRuleByKey(RuleKey ruleKey) {
     Rule rule = ruleFinder.findByKey(ruleKey);
     if (rule == null) {

@@ -34,14 +34,14 @@ class IssueController < ApplicationController
   #
   def show
     require_parameters :id
-    init_issue
+    init_issue(params[:id])
 
     if params[:modal]
       render :partial => 'issue/show_modal'
     elsif request.xhr?
       if params[:only_detail]
         # used when canceling edition of comment -> see issue.js#refreshIssue()
-        render :partial => 'issue/issue', :locals => {:issue => @issue_results.first}
+        render :partial => 'issue/issue', :locals => {:issue => @issue}
       else
         render :partial => 'issue/show'
       end
@@ -56,10 +56,7 @@ class IssueController < ApplicationController
     verify_ajax_request
     require_parameters :id, :issue
 
-    @issue_result = Api.issues.find(params[:issue])
-    @issue = @issue_result.first
-
-    bad_request('Unknown issue') unless @issue
+    @issue = Internal.issues.getIssueByKey(params[:issue])
 
     action_type = params[:id]
     render :partial => "issue/#{action_type}_form"
@@ -92,8 +89,8 @@ class IssueController < ApplicationController
     end
 
     if issue_result.ok
-      @issue_results = Api.issues.find(issue_key)
-      render :partial => 'issue/issue', :locals => {:issue => @issue_results.first}
+      init_issue(issue_key)
+      render :partial => 'issue/issue', :locals => {:issue => @issue}
     else
       @errors = issue_result.errors
       render :partial => 'issue/error', :status => issue_result.httpStatus
@@ -121,8 +118,8 @@ class IssueController < ApplicationController
     edit_result = Internal.issues.editComment(params[:key], text)
 
     if edit_result.ok
-      @issue_results = Api.issues.find(edit_result.get.issueKey)
-      render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
+      init_issue(edit_result.get.issueKey)
+      render :partial => 'issue/issue', :locals => {:issue => @issue}
     else
       @errors = edit_result.errors
       render :partial => 'issue/error', :status => edit_result.httpStatus
@@ -137,8 +134,8 @@ class IssueController < ApplicationController
 
     comment = Internal.issues.deleteComment(params[:id])
 
-    @issue_results = Api.issues.find(comment.issueKey)
-    render :partial => 'issue/issue', :locals => {:issue => @issue_results.issues.get(0)}
+    init_issue(comment.issueKey)
+    render :partial => 'issue/issue', :locals => {:issue => @issue}
   end
 
   # Form used to create a manual issue
@@ -161,8 +158,7 @@ class IssueController < ApplicationController
 
     issue_result = Internal.issues.create(params.merge({:component => component_key}))
     if issue_result.ok
-      @issue_results = Api.issues.find(issue_result.get.key)
-      render :partial => 'issue/manual_issue_created', :locals => {:issue => @issue_results.first}
+      render :partial => 'issue/manual_issue_created', :locals => {:issue => Internal.issues.getIssueByKey(issue_result.get.key)}
     else
       render :partial => 'shared/result_messages', :status => 500, :locals => {:result => issue_result}
     end
@@ -198,8 +194,7 @@ class IssueController < ApplicationController
   def changelog
     verify_ajax_request
     require_parameters :id
-    @issue_results = Api.issues.find(params[:id])
-    @issue = @issue_results.first()
+    @issue = Internal.issues.getIssueByKey(params[:id])
     @changelog = Internal.issues.changelog(@issue)
     render :partial => 'issue/changelog'
   end
@@ -207,12 +202,33 @@ class IssueController < ApplicationController
 
   private
 
-  def init_issue
-    @issue_results = Api.issues.find(params[:id])
-    @issue = @issue_results.first()
+  def init_issue(issue_key)
+    @issue = Internal.issues.getIssueByKey(issue_key)
+    @project = Internal.component_api.findByKey(@issue.projectKey())
+    @component = Internal.component_api.findByKey(@issue.componentKey())
+    @rule = Internal.rules.findByKey(@issue.ruleKey().to_s)
+    @action_plan = Internal.issues.findActionPlan(@issue.actionPlanKey()) if @issue.actionPlanKey()
+    @comments = Internal.issues.findComments(issue_key)
+
+    @users = {}
+    add_user(@issue.assignee(), @users)
+    add_user(@issue.reporter(), @users)
+    @comments .each do |comment|
+      add_user(comment.userLogin(), @users)
+    end
 
     resource = Project.by_key(@issue.componentKey())
     @snapshot = resource.last_snapshot if resource.last_snapshot
+  end
+
+  def add_user(user_login, users_by_login)
+    if user_login
+      user = users_by_login[user_login]
+      unless user
+        user = Internal.users_api.findByLogin(user_login)
+        users_by_login[user_login] = user
+      end
+    end
   end
 
 end

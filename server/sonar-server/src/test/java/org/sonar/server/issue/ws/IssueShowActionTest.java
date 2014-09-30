@@ -47,10 +47,7 @@ import org.sonar.core.user.DefaultUser;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
-import org.sonar.server.issue.ActionService;
-import org.sonar.server.issue.IssueChangelog;
-import org.sonar.server.issue.IssueChangelogService;
-import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.*;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
@@ -88,6 +85,9 @@ public class IssueShowActionTest {
 
   @Mock
   IssueChangelogService issueChangelogService;
+
+  @Mock
+  IssueCommentService commentService;
 
   @Mock
   ActionPlanService actionPlanService;
@@ -134,7 +134,7 @@ public class IssueShowActionTest {
     when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
     tester = new WsTester(new IssuesWs(
-      new IssueShowAction(dbClient, issueService, issueChangelogService,
+      new IssueShowAction(dbClient, issueService, issueChangelogService, commentService,
         new IssueActionsWriter(issueService, actionService), actionPlanService, userFinder, debtModel, ruleService, i18n, durations),
       new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class), mock(RuleService.class),
         mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class))));
@@ -154,7 +154,7 @@ public class IssueShowActionTest {
       .setStatus("CLOSED")
       .setSeverity("MAJOR")
       .setCreationDate(issueCreationDate);
-    when(issueService.getIssueByKey(session, issueKey)).thenReturn(issue);
+    when(issueService.getByKey(issueKey)).thenReturn(issue);
 
     ComponentDto file = new ComponentDto()
       .setId(10L)
@@ -193,7 +193,7 @@ public class IssueShowActionTest {
       .setStatus("CLOSED")
       .setSeverity("MAJOR")
       .setCreationDate(issueCreationDate);
-    when(issueService.getIssueByKey(session, issueKey)).thenReturn(issue);
+    when(issueService.getByKey(issueKey)).thenReturn(issue);
 
     // File
     ComponentDto file = new ComponentDto()
@@ -242,7 +242,7 @@ public class IssueShowActionTest {
       .setStatus("CLOSED")
       .setSeverity("MAJOR")
       .setCreationDate(issueCreationDate);
-    when(issueService.getIssueByKey(session, issueKey)).thenReturn(issue);
+    when(issueService.getByKey(issueKey)).thenReturn(issue);
 
     // File
     ComponentDto file = new ComponentDto()
@@ -280,7 +280,7 @@ public class IssueShowActionTest {
   public void show_issue_on_removed_component() throws Exception {
     String issueKey = "ABCD";
     DefaultIssue issue = createIssue();
-    when(issueService.getIssueByKey(session, issueKey)).thenReturn(issue);
+    when(issueService.getByKey(issueKey)).thenReturn(issue);
 
     ComponentDto project = mock(ComponentDto.class);
     when(project.key()).thenReturn("org.sonar.Sonar");
@@ -296,7 +296,7 @@ public class IssueShowActionTest {
   public void show_issue_on_removed_project_and_component() throws Exception {
     String issueKey = "ABCD";
     DefaultIssue issue = createIssue();
-    when(issueService.getIssueByKey(session, issueKey)).thenReturn(issue);
+    when(issueService.getByKey(issueKey)).thenReturn(issue);
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
@@ -307,7 +307,7 @@ public class IssueShowActionTest {
   public void show_issue_with_action_plan() throws Exception {
     DefaultIssue issue = createStandardIssue()
       .setActionPlanKey("AP-ABCD");
-    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
+    when(issueService.getByKey(issue.key())).thenReturn(issue);
 
     when(actionPlanService.findByKey(eq(issue.actionPlanKey()), any(UserSession.class))).thenReturn(new DefaultActionPlan().setKey("AP-ABCD").setName("Version 4.2"));
 
@@ -322,7 +322,7 @@ public class IssueShowActionTest {
       .setAssignee("john")
       .setReporter("steven")
       .setAuthorLogin("Henry");
-    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
+    when(issueService.getByKey(issue.key())).thenReturn(issue);
 
     when(userFinder.findByLogin("john")).thenReturn(new DefaultUser().setLogin("john").setName("John"));
     when(userFinder.findByLogin("steven")).thenReturn(new DefaultUser().setLogin("steven").setName("Steven"));
@@ -336,7 +336,7 @@ public class IssueShowActionTest {
   public void show_issue_with_technical_debt() throws Exception {
     Duration debt = (Duration.create(7260L));
     DefaultIssue issue = createStandardIssue().setDebt(debt);
-    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
+    when(issueService.getByKey(issue.key())).thenReturn(issue);
 
     when(durations.encode(debt)).thenReturn("2h1min");
 
@@ -348,7 +348,7 @@ public class IssueShowActionTest {
   @Test
   public void show_issue_with_user_characteristics() throws Exception {
     DefaultIssue issue = createStandardIssue().setDebt(Duration.create(7260L));
-    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
+    when(issueService.getByKey(issue.key())).thenReturn(issue);
 
     when(rule.debtCharacteristicKey()).thenReturn("K2");
     when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setKey("K1").setId(1).setName("Maintainability"));
@@ -363,7 +363,7 @@ public class IssueShowActionTest {
   @Test
   public void show_issue_with_default_characteristics() throws Exception {
     DefaultIssue issue = createStandardIssue().setDebt(Duration.create(7260L));
-    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
+    when(issueService.getByKey(issue.key())).thenReturn(issue);
 
     when(rule.debtCharacteristicKey()).thenReturn("K2");
     when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setKey("K1").setId(1).setName("Maintainability"));
@@ -386,7 +386,7 @@ public class IssueShowActionTest {
       .setCreationDate(creationDate)
       .setUpdateDate(updateDate)
       .setCloseDate(closedDate);
-    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
+    when(issueService.getByKey(issue.key())).thenReturn(issue);
 
     when(i18n.formatDateTime(any(Locale.class), eq(creationDate))).thenReturn("Jan 22, 2014 10:03 AM");
     when(i18n.formatDateTime(any(Locale.class), eq(updateDate))).thenReturn("Jan 23, 2014 10:03 AM");
@@ -403,22 +403,21 @@ public class IssueShowActionTest {
     Date date1 = DateUtils.parseDateTime("2014-02-22T19:10:03+0100");
     Date date2 = DateUtils.parseDateTime("2014-02-23T19:10:03+0100");
 
-    DefaultIssue issue = createStandardIssue()
-      .addComment(
-        new DefaultIssueComment()
-          .setKey("COMMENT-ABCD")
-          .setMarkdownText("*My comment*")
-          .setUserLogin("john")
-          .setCreatedAt(date1)
-      )
-      .addComment(
-        new DefaultIssueComment()
-          .setKey("COMMENT-ABCE")
-          .setMarkdownText("Another comment")
-          .setUserLogin("arthur")
-          .setCreatedAt(date2)
-      );
-    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
+    DefaultIssue issue = createStandardIssue();
+    when(issueService.getByKey(issue.key())).thenReturn(issue);
+
+    when(commentService.findComments(issue.key())).thenReturn(newArrayList(
+      new DefaultIssueComment()
+        .setKey("COMMENT-ABCD")
+        .setMarkdownText("*My comment*")
+        .setUserLogin("john")
+        .setCreatedAt(date1),
+      new DefaultIssueComment()
+        .setKey("COMMENT-ABCE")
+        .setMarkdownText("Another comment")
+        .setUserLogin("arthur")
+        .setCreatedAt(date2)
+    ));
 
     when(userFinder.findByLogin("john")).thenReturn(new DefaultUser().setLogin("john").setName("John"));
     when(userFinder.findByLogin("arthur")).thenReturn(new DefaultUser().setLogin("arthur").setName("Arthur"));
@@ -436,7 +435,7 @@ public class IssueShowActionTest {
     DefaultIssue issue = createStandardIssue()
       .setStatus("RESOLVED")
       .setResolution("FIXED");
-    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
+    when(issueService.getByKey(issue.key())).thenReturn(issue);
 
     when(issueService.listTransitions(eq(issue))).thenReturn(newArrayList(Transition.create("reopen", "RESOLVED", "REOPEN")));
 
@@ -449,7 +448,7 @@ public class IssueShowActionTest {
   public void show_issue_with_actions() throws Exception {
     DefaultIssue issue = createStandardIssue()
       .setStatus("OPEN");
-    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
+    when(issueService.getByKey(issue.key())).thenReturn(issue);
 
     MockUserSession.set().setLogin("john");
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
@@ -459,7 +458,7 @@ public class IssueShowActionTest {
   @Test
   public void show_issue_with_changelog() throws Exception {
     DefaultIssue issue = createStandardIssue();
-    when(issueService.getIssueByKey(session, issue.key())).thenReturn(issue);
+    when(issueService.getByKey(issue.key())).thenReturn(issue);
 
     Date date1 = DateUtils.parseDateTime("2014-02-22T19:10:03+0100");
     Date date2 = DateUtils.parseDateTime("2014-02-23T19:10:03+0100");

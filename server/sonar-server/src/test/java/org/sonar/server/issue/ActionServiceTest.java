@@ -32,12 +32,15 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -63,6 +66,8 @@ public class ActionServiceTest {
   Actions actions;
   ActionService actionService;
 
+  IssueDto issue;
+
   @Before
   public void before() {
     dbClient = mock(DbClient.class);
@@ -77,6 +82,10 @@ public class ActionServiceTest {
     propertiesDao = mock(PropertiesDao.class);
     settings = new Settings();
     actions = new Actions();
+
+    ComponentDto project = ComponentTesting.newProjectDto();
+    issue = IssueTesting.newDto(RuleTesting.newXooX1().setId(10), ComponentTesting.newFileDto(project), project).setKee("ABCD");
+
     actionService = new ActionService(dbClient, issueService, issueStorage, updater, settings, propertiesDao, actions);
   }
 
@@ -85,9 +94,8 @@ public class ActionServiceTest {
     Function function1 = mock(Function.class);
     Function function2 = mock(Function.class);
 
-    DefaultIssue issue = new DefaultIssue().setKey("ABCD");
     when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
-    when(issueService.getIssueByKey(session, "ABCD")).thenReturn(issue);
+    when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function1, function2);
 
@@ -105,15 +113,14 @@ public class ActionServiceTest {
     UserSession userSession = mock(UserSession.class);
     when(userSession.login()).thenReturn("arthur");
 
-    DefaultIssue issue = new DefaultIssue().setKey("ABCD");
     when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
-    when(issueService.getIssueByKey(session, "ABCD")).thenReturn(issue);
+    when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
     assertThat(actionService.execute("ABCD", "link-to-jira", userSession)).isNotNull();
 
-    verify(updater).addComment(eq(issue), eq("New tweet on issue ABCD"), any(IssueChangeContext.class));
-    verify(updater).setAttribute(eq(issue), eq("tweet"), eq("tweet sent"), any(IssueChangeContext.class));
+    verify(updater).addComment(any(DefaultIssue.class), eq("New tweet on issue ABCD"), any(IssueChangeContext.class));
+    verify(updater).setAttribute(any(DefaultIssue.class), eq("tweet"), eq("tweet sent"), any(IssueChangeContext.class));
   }
 
   @Test
@@ -123,9 +130,8 @@ public class ActionServiceTest {
     UserSession userSession = mock(UserSession.class);
     when(userSession.login()).thenReturn("arthur");
 
-    DefaultIssue issue = new DefaultIssue().setKey("ABCD").setProjectKey("struts");
     when(componentDao.getByKey(session, "struts")).thenReturn(new ComponentDto().setKey("struts"));
-    when(issueService.getIssueByKey(session, "ABCD")).thenReturn(issue);
+    when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue.setRootComponentKey("struts"));
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
     assertThat(actionService.execute("ABCD", "link-to-jira", userSession)).isNotNull();
@@ -137,9 +143,8 @@ public class ActionServiceTest {
   public void not_execute_function_if_action_not_found() {
     Function function = mock(Function.class);
 
-    DefaultIssue issue = new DefaultIssue().setKey("ABCD");
     when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
-    when(issueService.getIssueByKey(session, "ABCD")).thenReturn(issue);
+    when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
     try {
@@ -155,9 +160,8 @@ public class ActionServiceTest {
   public void not_execute_function_if_action_is_not_supported() {
     Function function = mock(Function.class);
 
-    DefaultIssue issue = new DefaultIssue().setKey("ABCD");
     when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
-    when(issueService.getIssueByKey(session, "ABCD")).thenReturn(issue);
+    when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new NeverMatch()).setFunctions(function);
     try {
@@ -171,9 +175,8 @@ public class ActionServiceTest {
 
   @Test
   public void list_available_supported_actions() {
-    DefaultIssue issue = new DefaultIssue().setKey("ABCD");
     when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
-    when(issueService.getIssueByKey(session, "ABCD")).thenReturn(issue);
+    when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch());
     actions.add("tweet").setConditions(new NeverMatch());
@@ -182,9 +185,8 @@ public class ActionServiceTest {
 
   @Test
   public void return_no_action() {
-    DefaultIssue issue = new DefaultIssue().setKey("ABCD");
     when(componentDao.getByKey(eq(session), anyString())).thenReturn(mock(ComponentDto.class));
-    when(issueService.getIssueByKey(session, "ABCD")).thenReturn(issue);
+    when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue);
 
     assertThat(actionService.listAvailableActions("ABCD")).isEmpty();
   }

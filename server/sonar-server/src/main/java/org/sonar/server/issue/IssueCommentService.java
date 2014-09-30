@@ -35,6 +35,8 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -43,24 +45,42 @@ import org.sonar.server.user.UserSession;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 3.6
  */
 public class IssueCommentService implements ServerComponent {
 
+  private final DbClient dbClient;
   private final IssueUpdater updater;
   private final IssueChangeDao changeDao;
   private final IssueStorage storage;
   private final DefaultIssueFinder finder;
   private final IssueNotifications issueNotifications;
 
-  public IssueCommentService(IssueUpdater updater, IssueChangeDao changeDao, IssueStorage storage, DefaultIssueFinder finder, IssueNotifications issueNotifications) {
+  public IssueCommentService(DbClient dbClient, IssueUpdater updater, IssueChangeDao changeDao, IssueStorage storage, DefaultIssueFinder finder, IssueNotifications issueNotifications) {
+    this.dbClient = dbClient;
     this.updater = updater;
     this.changeDao = changeDao;
     this.storage = storage;
     this.finder = finder;
     this.issueNotifications = issueNotifications;
+  }
+
+  public List<DefaultIssueComment> findComments(String issueKey) {
+    DbSession session = dbClient.openSession(false);
+    try {
+      return findComments(session, issueKey);
+    } finally {
+      session.close();
+    }
+  }
+
+  public List<DefaultIssueComment> findComments(DbSession session, String issueKey) {
+    return changeDao.selectCommentsByIssues(session, newArrayList(issueKey));
   }
 
   public IssueComment findComment(String commentKey) {

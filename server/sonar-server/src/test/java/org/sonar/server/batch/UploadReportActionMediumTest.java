@@ -20,7 +20,10 @@
 
 package org.sonar.server.batch;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ws.WebService;
@@ -202,7 +205,6 @@ public class UploadReportActionMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed")
   public void index_a_lot_of_issues() throws Exception {
     ComponentDto project = new ComponentDto()
       .setKey("MyProject");

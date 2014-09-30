@@ -24,7 +24,7 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
@@ -45,6 +45,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
+import org.sonar.server.issue.IssueCommentService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.rule.Rule;
@@ -68,6 +69,7 @@ public class IssueShowAction implements RequestHandler {
 
   private final IssueService issueService;
   private final IssueChangelogService issueChangelogService;
+  private final IssueCommentService commentService;
   private final IssueActionsWriter actionsWriter;
   private final ActionPlanService actionPlanService;
   private final UserFinder userFinder;
@@ -76,11 +78,13 @@ public class IssueShowAction implements RequestHandler {
   private final I18n i18n;
   private final Durations durations;
 
-  public IssueShowAction(DbClient dbClient, IssueService issueService, IssueChangelogService issueChangelogService, IssueActionsWriter actionsWriter,
-    ActionPlanService actionPlanService, UserFinder userFinder, DebtModelService debtModel, RuleService ruleService, I18n i18n, Durations durations) {
+  public IssueShowAction(DbClient dbClient, IssueService issueService, IssueChangelogService issueChangelogService, IssueCommentService commentService,
+                         IssueActionsWriter actionsWriter, ActionPlanService actionPlanService, UserFinder userFinder, DebtModelService debtModel, RuleService ruleService,
+                         I18n i18n, Durations durations) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
+    this.commentService = commentService;
     this.actionsWriter = actionsWriter;
     this.actionPlanService = actionPlanService;
     this.userFinder = userFinder;
@@ -111,7 +115,7 @@ public class IssueShowAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
-      DefaultIssue issue = issueService.getIssueByKey(session, issueKey);
+      Issue issue = issueService.getByKey(issueKey);
 
       writeIssue(session, issue, json);
       actionsWriter.writeActions(issue, json);
@@ -126,7 +130,7 @@ public class IssueShowAction implements RequestHandler {
     json.endObject().endObject().close();
   }
 
-  private void writeIssue(DbSession session, DefaultIssue issue, JsonWriter json) {
+  private void writeIssue(DbSession session, Issue issue, JsonWriter json) {
     String actionPlanKey = issue.actionPlanKey();
     ActionPlan actionPlan = actionPlanKey != null ? actionPlanService.findByKey(actionPlanKey, UserSession.get()) : null;
     Duration debt = issue.debt();
@@ -161,7 +165,7 @@ public class IssueShowAction implements RequestHandler {
     addCharacteristics(rule, json);
   }
 
-  private void addComponents(DbSession session, DefaultIssue issue, JsonWriter json) {
+  private void addComponents(DbSession session, Issue issue, JsonWriter json) {
     // component, module and project can be null if they were removed
     ComponentDto component = dbClient.componentDao().getNullableByKey(session, issue.componentKey());
     Long subProjectId = component != null ? component.subProjectId() : null;
@@ -187,7 +191,8 @@ public class IssueShowAction implements RequestHandler {
     String login = UserSession.get().login();
 
     Map<String, User> usersByLogin = newHashMap();
-    for (IssueComment comment : issue.comments()) {
+    List<DefaultIssueComment> comments = commentService.findComments(issue.key());
+    for (IssueComment comment : comments) {
       String userLogin = comment.userLogin();
       User user = usersByLogin.get(userLogin);
       if (user == null) {
@@ -198,7 +203,7 @@ public class IssueShowAction implements RequestHandler {
       }
     }
 
-    for (IssueComment comment : issue.comments()) {
+    for (IssueComment comment : comments) {
       String userLogin = comment.userLogin();
       User user = usersByLogin.get(userLogin);
       json
