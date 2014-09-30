@@ -58,17 +58,13 @@ import static org.mockito.Mockito.when;
 public class HttpDownloaderTest {
 
   @Rule
-  public Timeout timeout = new Timeout(1000);
-
-  @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Rule
-<<<<<<< HEAD
   public ExpectedException thrown = ExpectedException.none();
-=======
+
+  @Rule
   public Timeout timeout = new Timeout(2000);
->>>>>>> remotes/origin/branch-4.5
 
   private static SocketConnection socketConnection;
   private static String baseUrl;
