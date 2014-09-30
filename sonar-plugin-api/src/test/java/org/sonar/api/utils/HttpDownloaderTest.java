@@ -64,7 +64,11 @@ public class HttpDownloaderTest {
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Rule
+<<<<<<< HEAD
   public ExpectedException thrown = ExpectedException.none();
+=======
+  public Timeout timeout = new Timeout(2000);
+>>>>>>> remotes/origin/branch-4.5
 
   private static SocketConnection socketConnection;
   private static String baseUrl;
