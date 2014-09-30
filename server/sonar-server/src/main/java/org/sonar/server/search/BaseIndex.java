@@ -26,10 +26,16 @@ import com.google.common.collect.Multimap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.count.CountResponse;
-import org.elasticsearch.action.get.*;
+import org.elasticsearch.action.get.GetRequestBuilder;
+import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.get.MultiGetItemResponse;
+import org.elasticsearch.action.get.MultiGetRequest;
+import org.elasticsearch.action.get.MultiGetRequestBuilder;
+import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolFilterBuilder;
@@ -53,10 +59,17 @@ import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable>
   implements Index<DOMAIN, DTO, KEY> {
@@ -218,7 +231,14 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   protected abstract String getKeyValue(KEY key);
 
-  protected abstract Settings getIndexSettings() throws IOException;
+  private final Settings getIndexSettings() {
+    return this.addCustomIndexSettings
+      (this.getBaseIndexSettings()).build();
+  }
+
+  protected ImmutableSettings.Builder addCustomIndexSettings(ImmutableSettings.Builder baseIndexSettings) {
+    return baseIndexSettings;
+  }
 
   protected abstract Map mapProperties();
 
@@ -496,5 +516,64 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       }
     }
     return stats;
+  }
+
+  private ImmutableSettings.Builder getBaseIndexSettings() {
+    return ImmutableSettings.builder()
+
+      .put("index.number_of_replicas", 0)
+      .put("index.number_of_shards", 1)
+
+      // Disallow dynamic mapping (too expensive)
+      .put("index.mapper.dynamic", false)
+
+      // Sortable text analyzer
+      .put("index.analysis.analyzer.sortable.type", "custom")
+      .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
+      .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase", "truncate")
+
+      // Edge NGram index-analyzer
+      .put("index.analysis.analyzer.index_grams.type", "custom")
+      .put("index.analysis.analyzer.index_grams.tokenizer", "whitespace")
+      .putArray("index.analysis.analyzer.index_grams.filter", "trim", "lowercase", "gram_filter")
+
+      // Edge NGram search-analyzer
+      .put("index.analysis.analyzer.search_grams.type", "custom")
+      .put("index.analysis.analyzer.search_grams.tokenizer", "whitespace")
+      .putArray("index.analysis.analyzer.search_grams.filter", "trim", "lowercase")
+
+      // Word index-analyzer
+      .put("index.analysis.analyzer.index_words.type", "custom")
+      .put("index.analysis.analyzer.index_words.tokenizer", "standard")
+      .putArray("index.analysis.analyzer.index_words.filter",
+        "standard", "word_filter", "lowercase", "stop", "asciifolding", "porter_stem")
+
+      // Word search-analyzer
+      .put("index.analysis.analyzer.search_words.type", "custom")
+      .put("index.analysis.analyzer.search_words.tokenizer", "standard")
+      .putArray("index.analysis.analyzer.search_words.filter",
+        "standard", "lowercase", "stop", "asciifolding", "porter_stem")
+
+      // Edge NGram filter
+      .put("index.analysis.filter.gram_filter.type", "edgeNGram")
+      .put("index.analysis.filter.gram_filter.min_gram", 2)
+      .put("index.analysis.filter.gram_filter.max_gram", 15)
+      .putArray("index.analysis.filter.gram_filter.token_chars", "letter", "digit", "punctuation", "symbol")
+
+      // Word filter
+      .put("index.analysis.filter.word_filter.type", "word_delimiter")
+      .put("index.analysis.filter.word_filter.generate_word_parts", true)
+      .put("index.analysis.filter.word_filter.catenate_words", true)
+      .put("index.analysis.filter.word_filter.catenate_numbers", true)
+      .put("index.analysis.filter.word_filter.catenate_all", true)
+      .put("index.analysis.filter.word_filter.split_on_case_change", true)
+      .put("index.analysis.filter.word_filter.preserve_original", true)
+      .put("index.analysis.filter.word_filter.split_on_numerics", true)
+      .put("index.analysis.filter.word_filter.stem_english_possessive", true)
+
+      // Path Analyzer
+      .put("index.analysis.analyzer.path_analyzer.type", "custom")
+      .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy");
+
   }
 }

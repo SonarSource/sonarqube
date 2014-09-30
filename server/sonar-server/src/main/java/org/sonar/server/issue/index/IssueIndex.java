@@ -25,10 +25,12 @@ import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.OrFilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
@@ -37,12 +39,19 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueDto;
-import org.sonar.server.search.*;
+import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
+import org.sonar.server.search.SearchClient;
 
 import javax.annotation.Nullable;
-
-import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -55,14 +64,6 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
   @Override
   protected String getKeyValue(String keyString) {
     return keyString;
-  }
-
-  @Override
-  protected Settings getIndexSettings() throws IOException {
-    return ImmutableSettings.builder()
-      .put("index.number_of_replicas", 0)
-      .put("index.number_of_shards", 1)
-      .build();
   }
 
   @Override

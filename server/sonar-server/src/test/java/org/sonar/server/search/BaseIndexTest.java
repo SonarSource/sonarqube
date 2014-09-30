@@ -19,9 +19,7 @@
  */
 package org.sonar.server.search;
 
-
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -51,7 +49,6 @@ public class BaseIndexTest {
   SearchClient searchClient;
   private static String clusterName;
   private static Integer clusterPort;
-
 
   @BeforeClass
   public static void setupSearchEngine() {
@@ -100,7 +97,6 @@ public class BaseIndexTest {
     assertThat(indexExistsResponse.isExists()).isTrue();
   }
 
-
   private BaseIndex getIndex(final SearchClient searchClient) {
     BaseIndex index = new BaseIndex(
       IndexDefinition.TEST,
@@ -108,11 +104,6 @@ public class BaseIndexTest {
       @Override
       protected String getKeyValue(Serializable key) {
         return null;
-      }
-
-      @Override
-      protected org.elasticsearch.common.settings.Settings getIndexSettings() throws IOException {
-        return ImmutableSettings.builder().build();
       }
 
       @Override

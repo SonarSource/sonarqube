@@ -21,15 +21,12 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
 import org.sonar.core.issue.db.IssueAuthorizationDto;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.SearchClient;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,14 +39,6 @@ public class IssueAuthorizationIndex extends BaseIndex<IssueAuthorizationDoc, Is
   @Override
   protected String getKeyValue(String s) {
     return s;
-  }
-
-  @Override
-  protected Settings getIndexSettings() throws IOException {
-    return ImmutableSettings.builder()
-      .put("index.number_of_replicas", 0)
-      .put("index.number_of_shards", 1)
-      .build();
   }
 
   @Override

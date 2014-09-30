@@ -24,10 +24,15 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.SimpleQueryStringBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -40,12 +45,21 @@ import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
-import org.sonar.server.search.*;
+import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
+import org.sonar.server.search.SearchClient;
 
 import javax.annotation.CheckForNull;
-
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -57,14 +71,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   protected String getKeyValue(RuleKey key) {
     return key.toString();
-  }
-
-  @Override
-  protected Settings getIndexSettings() throws IOException {
-    return ImmutableSettings.builder()
-      .put("index.number_of_replicas", 0)
-      .put("index.number_of_shards", 1)
-      .build();
   }
 
   @Override
@@ -165,10 +171,10 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     // Human readable type of querying
     qb.should(QueryBuilders.simpleQueryString(query.getQueryText())
-        .field(RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 20f)
-        .field(RuleNormalizer.RuleField.HTML_DESCRIPTION.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 3f)
-        .defaultOperator(SimpleQueryStringBuilder.Operator.AND)
-    ).boost(20f);
+      .field(RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 20f)
+      .field(RuleNormalizer.RuleField.HTML_DESCRIPTION.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 3f)
+      .defaultOperator(SimpleQueryStringBuilder.Operator.AND)
+      ).boost(20f);
 
     // Match and partial Match queries
     qb.should(this.termQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
@@ -214,7 +220,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
             FilterBuilders.orFilter(
               FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), debtCharacteristics),
               FilterBuilders.termsFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field(), debtCharacteristics))
-          ),
+            ),
 
           // Match only when NOT NONE (not overridden)
           FilterBuilders.andFilter(
@@ -224,8 +230,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
             FilterBuilders.orFilter(
               FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), debtCharacteristics),
               FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field(), debtCharacteristics)))
-        )
-      );
+          )
+        );
     }
 
     // Debt char exist filter
@@ -416,7 +422,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       for (SearchHit hit : scrollResp.getHits()) {
         rules.add(toDoc(hit.getSource()));
       }
-      //Break condition: No hits are returned
+      // Break condition: No hits are returned
       if (scrollResp.getHits().getHits().length == 0) {
         break;
       }

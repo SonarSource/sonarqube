@@ -23,17 +23,23 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.AndFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.OrFilterBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
-import org.sonar.server.search.*;
+import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
+import org.sonar.server.search.SearchClient;
 
 import javax.annotation.Nullable;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,12 +65,9 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
   }
 
   @Override
-  protected Settings getIndexSettings() throws IOException {
-    return ImmutableSettings.builder()
-      .put("index.number_of_replicas", 0)
-      .put("index.number_of_shards", 1)
-      .put("analysis.analyzer.default.type", "keyword")
-      .build();
+  protected ImmutableSettings.Builder addCustomIndexSettings(ImmutableSettings.Builder settings) {
+    return settings
+      .put("analysis.analyzer.default.type", "keyword");
   }
 
   @Override

@@ -23,8 +23,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -37,9 +35,12 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleNormalizer;
-import org.sonar.server.search.*;
+import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.SearchClient;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,14 +55,6 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   @Override
   protected String getKeyValue(ActiveRuleKey key) {
     return key.toString();
-  }
-
-  @Override
-  protected Settings getIndexSettings() throws IOException {
-    return ImmutableSettings.builder()
-      .put("index.number_of_replicas", 0)
-      .put("index.number_of_shards", 1)
-      .build();
   }
 
   @Override
@@ -120,7 +113,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
             .addIds(key.toString())
         ))
       .setRouting(key.toString())
-        // TODO replace by scrolling
+      // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
 
     SearchResponse response = getClient().execute(request);
@@ -140,7 +133,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
           .mustNot(FilterBuilders.hasParentFilter(this.getParentType(),
             FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), RuleStatus.REMOVED.name())))))
       .setRouting(key)
-        // TODO replace by scrolling
+      // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
     SearchResponse response = getClient().execute(request);
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
