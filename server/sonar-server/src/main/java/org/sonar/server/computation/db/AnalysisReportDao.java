@@ -62,8 +62,7 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
   }
 
   public List<AnalysisReportDto> findByProjectKey(DbSession session, String projectKey) {
-    List<AnalysisReportDto> analysisReports = mapper(session).selectByProjectKey(projectKey);
-    return analysisReports;
+    return mapper(session).selectByProjectKey(projectKey);
   }
 
   @Override

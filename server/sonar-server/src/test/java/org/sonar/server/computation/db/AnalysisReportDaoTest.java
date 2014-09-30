@@ -38,12 +38,11 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 
 public class AnalysisReportDaoTest {
+  @Rule
+  public TestDatabase db = new TestDatabase();
   private AnalysisReportDao dao;
   private DbSession session;
   private System2 system2;
-
-  @Rule
-  public TestDatabase db = new TestDatabase();
 
   @Before
   public void before() {
