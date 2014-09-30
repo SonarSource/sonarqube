@@ -186,7 +186,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
       List<String> descriptions = Lists.newArrayList();
       for (Proxy proxy : proxies) {
         if (proxy.type() != Proxy.Type.DIRECT) {
-          descriptions.add("proxy: " + proxy.address());
+          descriptions.add(proxy.type() + " proxy: " + proxy.address());
         }
       }
 

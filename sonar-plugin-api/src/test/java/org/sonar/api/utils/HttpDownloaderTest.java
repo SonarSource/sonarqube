@@ -213,7 +213,7 @@ public class HttpDownloaderTest {
   public void shouldGetProxySynthesis() throws URISyntaxException {
     ProxySelector proxySelector = mock(ProxySelector.class);
     when(proxySelector.select(any(URI.class))).thenReturn(Arrays.<Proxy>asList(new FakeProxy()));
-    assertThat(HttpDownloader.BaseHttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("proxy: http://proxy_url:4040");
+    assertThat(HttpDownloader.BaseHttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("HTTP proxy: /123.45.67.89:4040");
   }
 
   @Test
@@ -230,6 +230,6 @@ public class HttpDownloaderTest {
 
 class FakeProxy extends Proxy {
   public FakeProxy() {
-    super(Type.HTTP, new InetSocketAddress("http://proxy_url", 4040));
+    super(Type.HTTP, new InetSocketAddress("123.45.67.89", 4040));
   }
 }
