@@ -46,7 +46,6 @@ public final class PlatformServletContextListener implements ServletContextListe
       // - server does not stop if webapp fails at startup
       // - the second listener for jruby on rails is started even if this listener fails. It generates
       // unexpected errors
-      // LoggerFactory.getLogger(getClass()).error("Fail to start server", t);
       stopQuietly();
       throw Throwables.propagate(t);
     }
