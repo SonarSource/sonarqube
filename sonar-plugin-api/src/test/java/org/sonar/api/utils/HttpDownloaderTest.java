@@ -64,7 +64,7 @@ public class HttpDownloaderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
-  public Timeout timeout = new Timeout(1000);
+  public Timeout timeout = new Timeout(2000);
 
   private static SocketConnection socketConnection;
   private static String baseUrl;
