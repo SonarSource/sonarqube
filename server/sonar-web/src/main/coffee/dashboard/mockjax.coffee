@@ -69,42 +69,16 @@ define ['third-party/jquery.mockjax'], ->
           key: 'action_plans'
           name: 'Action Plans'
           description: 'Shows all the open action plans of the project.'
-          category: ''
         }
         {
-          key: ''
-          name: ''
-          description: ''
-          category: ''
+          key: 'complexity'
+          name: 'Complexity'
+          description: 'Reports on complexity, average complexity and complexity distribution.'
         }
         {
-          key: ''
-          name: ''
-          description: ''
-          category: ''
-        }
-        {
-          key: ''
-          name: ''
-          description: ''
-          category: ''
-        }
-        {
-          key: ''
-          name: ''
-          description: ''
-          category: ''
-        }
-        {
-          key: ''
-          name: ''
-          description: ''
-          category: ''
-        }
-        {
-          key: ''
-          name: ''
-          description: ''
+          key: 'custom_measures'
+          name: 'Custom Measures'
+          description: 'Displays a list of selected measures.'
           category: ''
         }
       ]

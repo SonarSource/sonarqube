@@ -1,10 +1,12 @@
 define [
   'backbone.marionette'
   'templates/dashboard'
+  'dashboard/models/widget'
   'dashboard/views/widget-view'
 ], (
   Marionette
   Templates
+  Widget
   WidgetView
 ) ->
 
@@ -20,6 +22,7 @@ define [
     events:
       'click .js-configure-widgets': 'configureWidgets'
       'click .js-back-to-dashboard': 'stopConfigureWidgets'
+      'click .js-add-widget': 'addWidget'
 
 
     initialize: (options) ->
@@ -32,8 +35,14 @@ define [
 
     appendHtml: (compositeView, itemView) ->
       column = itemView.model.get('col') - 1
+      row = itemView.model.get 'row'
       $container = @getItemViewContainer compositeView
-      $container.eq(column).append itemView.el
+      $column = $container.eq column
+      children = $column.children()
+      if children.size() <= row
+        $column.append itemView.el
+      else
+        children.eq(row).before itemView.el
 
 
     onRender: ->
@@ -77,6 +86,9 @@ define [
 
     configureWidgets: ->
       @options.app.state.set configure: true
+      unless @options.app.state.has 'widgets'
+        $.get "#{baseUrl}/api/dashboards/widgets", (data) =>
+          @options.app.state.set widgets: data.widgets
 
 
     stopConfigureWidgets: ->
@@ -88,6 +100,15 @@ define [
           blocks = $(@).find '.block'
           blocks.map( -> $(@).data('id')).get().join(',')
       ).get().join(';')
+
+
+    addWidget: (e) ->
+      key = $(e.currentTarget).data 'key'
+      widgetData = _.findWhere @options.app.state.get('widgets'), key: key
+      widget = new Widget widgetData
+      @collection.add widget
+      widgetView = @children.findByModel widget
+      widgetView.editWidget()
 
 
     serializeData: ->

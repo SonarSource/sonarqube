@@ -22,7 +22,8 @@ define [
 
     initialize: (options) ->
 #      @listenTo options.app.state, 'change', @render
-      @requestContent()
+      if @model.get 'configured'
+        @requestContent()
 
 
     onRender: ->
@@ -57,8 +58,8 @@ define [
         @showEditForm()
 
 
-    showEditForm: ->
-      @render()
+    showEditForm: (render = true) ->
+      @render() if render
       @$('.widget_props').removeClass 'hidden'
       @$('.configure_widget').addClass 'hidden'
 

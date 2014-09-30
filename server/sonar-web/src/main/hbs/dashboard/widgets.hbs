@@ -9,6 +9,100 @@
   </div>
 </div>
 
+{{#if state.configure}}
+  <div id="configure">
+    {{#notEmpty state.widgets}}
+      <div id="widget_defs">
+        <table class="width100">
+          <tbody>
+          <tr style="line-height: 20px;text-align: right">
+            <td valign="top">
+              <ul class="horizontal widget_categs" id="widget-filters">
+                <li>Category:</li>
+                <li class="selected">
+                  <a id="widget-filter-none">Any</a>
+                </li>
+                <li>
+                  <a id="widget-filter-Design">Design</a>
+                </li>
+                <li>
+                  <a id="widget-filter-Filters">Filters</a>
+                </li>
+                <li>
+                  <a id="widget-filter-Global">Global</a>
+                </li>
+                <li>
+                  <a id="widget-filter-History">History</a>
+                </li>
+                <li>
+                  <a id="widget-filter-Hotspots">Hotspots</a>
+                </li>
+                <li>
+                  <a id="widget-filter-Issues">Issues</a>
+                </li>
+                <li>
+                  <a id="widget-filter-Technical%20Debt">Technical Debt</a>
+                </li>
+                <li>
+                  <a id="widget-filter-Tests">Tests</a>
+                </li>
+              </ul>
+            <td nowrap="" valign="top">
+              Search:
+              <input id="filter-widget-box" name="filter-widget-box" size="10" type="text" disabled>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        {{#each state.widgets}}
+          <div class="widget_def" style="display: inline-block;">
+            <p><b>{{name}}</b></p>
+            <p>{{description}}</p>
+            <p><button class="js-add-widget" data-key="{{key}}">Add Widget</button></p>
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <i class="spinner spinner-margin"></i>
+    {{/notEmpty}}
+
+  <div id="edit-layout">
+
+    <div class="select-layout ">
+      <a href="/dashboard/set_layout?did=51&amp;layout=100%25"
+         onclick="var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = this.href;f.submit();return false;"
+         title="100%"><img alt="Layout100" src="/images/layout100.png?1406710293"></a>
+    </div>
+
+    <div class="select-layout selected">
+      <a href="/dashboard/set_layout?did=51&amp;layout=50%25-50%25"
+         onclick="var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = this.href;f.submit();return false;"
+         title="50%-50%"><img alt="Layout5050" src="/images/layout5050.png?1406710293"></a>
+    </div>
+
+    <div class="select-layout ">
+      <a href="/dashboard/set_layout?did=51&amp;layout=30%25-70%25"
+         onclick="var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = this.href;f.submit();return false;"
+         title="30%-70%"><img alt="Layout3070" src="/images/layout3070.png?1406710293"></a>
+    </div>
+
+    <div class="select-layout ">
+      <a href="/dashboard/set_layout?did=51&amp;layout=70%25-30%25"
+         onclick="var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = this.href;f.submit();return false;"
+         title="70%-30%"><img alt="Layout7030" src="/images/layout7030.png?1406710293"></a>
+    </div>
+
+    <div class="select-layout ">
+      <a href="/dashboard/set_layout?did=51&amp;layout=33%25-33%25-33%25"
+         onclick="var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = this.href;f.submit();return false;"
+         title="33%-33%-33%"><img alt="Layout333333" src="/images/layout333333.png?1406710293"></a>
+    </div>
+
+  </div>
+  </div>
+{{/if}}
+
 {{#eq dashboard.layout '50%-50%'}}
   <div class="dashboard-column-wrapper" style="width: 50%;margin: 0 -1px 0 0;">
     <div class="dashboard-column" style="margin: 0 5px 0 0;">
