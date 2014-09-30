@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.Timeout;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
@@ -62,6 +63,9 @@ public class HttpDownloaderTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  @Rule
+  public Timeout timeout = new Timeout(1000);
+
   private static SocketConnection socketConnection;
   private static String baseUrl;
 
@@ -77,7 +81,7 @@ public class HttpDownloaderTest {
           else {
             if (req.getPath().getPath().contains("/timeout/")) {
               try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
               } catch (InterruptedException e) {
                 e.printStackTrace();
               }
@@ -159,13 +163,7 @@ public class HttpDownloaderTest {
 
       }
     });
-    new HttpDownloader(new Settings(), 100).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
-  }
-
-  @Test(expected = SonarException.class)
-  public void failIfServerDown() throws URISyntaxException {
-    // I hope that the port 1 is not used !
-    new HttpDownloader(new Settings()).readBytes(new URI("http://localhost:1/unknown"));
+    new HttpDownloader(new Settings(), 50).readString(new URI(baseUrl + "/timeout/"), Charsets.UTF_8);
   }
 
   @Test
@@ -184,8 +182,8 @@ public class HttpDownloaderTest {
     File toFile = new File(toDir, "downloadToFile.txt");
 
     try {
-      // I hope that the port 1 is not used !
-      new HttpDownloader(new Settings()).download(new URI("http://localhost:1/unknown"), toFile);
+      int port = new InetSocketAddress(0).getPort();
+      new HttpDownloader(new Settings()).download(new URI("http://localhost:" + port), toFile);
     } catch (SonarException e) {
       assertThat(toFile).doesNotExist();
     }
@@ -220,7 +218,7 @@ public class HttpDownloaderTest {
   @Test
   public void shouldGetProxySynthesis() throws URISyntaxException {
     ProxySelector proxySelector = mock(ProxySelector.class);
-    when(proxySelector.select(any(URI.class))).thenReturn(Arrays.<Proxy> asList(new FakeProxy()));
+    when(proxySelector.select(any(URI.class))).thenReturn(Arrays.<Proxy>asList(new FakeProxy()));
     assertThat(HttpDownloader.BaseHttpDownloader.getProxySynthesis(new URI("http://an_url"), proxySelector)).isEqualTo("proxy: http://proxy_url:4040");
   }
 
