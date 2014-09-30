@@ -35,6 +35,8 @@ define [
       payload = id: @model.get 'key'
       if @options.app.resource
         payload.resource = @options.app.resource
+      if @model.has 'componentId'
+        payload.resource = @model.get 'componentId'
       _.extend payload, @getWidgetProps()
       $.get "#{baseUrl}/widget/show", payload, (html) =>
         @model.set 'html', html
