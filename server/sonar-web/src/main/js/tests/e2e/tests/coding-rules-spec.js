@@ -60,6 +60,15 @@ casper.test.begin(testName('Readonly Tests'), function suite(test) {
     });
 
 
+    casper.waitForSelector('div.navigator-facets-list-item:nth-child(2)', function checkFacets() {
+      test.assertSelectorHasText('div.navigator-facets-list-item:nth-child(2) a:nth-child(1)', 'Java SonarQube');
+      test.assertSelectorHasText('div.navigator-facets-list-item:nth-child(2) a:nth-child(2)', 'Java Common SonarQube');
+      test.assertSelectorHasText('div.navigator-facets-list-item:nth-child(2) a:nth-child(3)', 'CoffeeScript SonarQube');
+      test.assertSelectorHasText('div.navigator-facets-list-item:nth-child(2) a:nth-child(4)', 'CoffeeScript Common SonarQube');
+      test.assertSelectorHasText('div.navigator-facets-list-item:nth-child(2) a:nth-child(5)', 'Xoo SonarQube');
+    });
+
+
     casper.waitForSelector('li.active', function checkResultsList() {
       test.assertElementCount('ol.navigator-results-list li', 10);
       test.assertElementCount('li.active', 1);
