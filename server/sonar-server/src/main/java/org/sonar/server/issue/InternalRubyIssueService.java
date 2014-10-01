@@ -22,8 +22,11 @@ package org.sonar.server.issue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
@@ -37,6 +40,7 @@ import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueFilter;
@@ -47,8 +51,8 @@ import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
-import org.sonar.server.issue.filter.IssueFilterResult;
 import org.sonar.server.issue.filter.IssueFilterService;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
@@ -154,6 +158,10 @@ public class InternalRubyIssueService implements ServerComponent {
 
   public List<DefaultIssueComment> findComments(String issueKey){
     return commentService.findComments(issueKey);
+  }
+
+  public List<DefaultIssueComment> findCommentsByIssueKeys(Collection<String> issueKeys){
+    return commentService.findComments(issueKeys);
   }
 
   public Result<Issue> doTransition(String issueKey, String transitionKey) {
@@ -469,43 +477,21 @@ public class InternalRubyIssueService implements ServerComponent {
     });
   }
 
-
   /**
    * Execute issue filter from parameters
    */
-  public IssueFilterResult execute(Map<String, Object> props) {
-    IssueQuery issueQuery = PublicRubyIssueService.toQuery(props);
-    return issueFilterService.execute(issueQuery);
+  public IssueFilterService.IssueFilterResult execute(Map<String, Object> props) {
+    return issueFilterService.execute(toQuery(props), toContext(props));
   }
 
   /**
    * Execute issue filter from existing filter with optional overridable parameters
    */
-  public IssueFilterResult execute(Long issueFilterId, Map<String, Object> overrideProps) {
+  public IssueFilterService.IssueFilterResult execute(Long issueFilterId, Map<String, Object> overrideProps) {
     DefaultIssueFilter issueFilter = issueFilterService.find(issueFilterId, UserSession.get());
     Map<String, Object> props = issueFilterService.deserializeIssueFilterQuery(issueFilter);
     overrideProps(props, overrideProps);
-    IssueQuery issueQuery = PublicRubyIssueService.toQuery(props);
-    return issueFilterService.execute(issueQuery);
-  }
-
-  /**
-   * Execute issue filter from parameters
-   */
-  public List<Issue> execute2(Map<String, Object> props) {
-    IssueQuery issueQuery = PublicRubyIssueService.toQuery(props);
-    return issueFilterService.execute2(issueQuery);
-  }
-
-  /**
-   * Execute issue filter from existing filter with optional overridable parameters
-   */
-  public List<Issue> execute2(Long issueFilterId, Map<String, Object> overrideProps) {
-    DefaultIssueFilter issueFilter = issueFilterService.find(issueFilterId, UserSession.get());
-    Map<String, Object> props = issueFilterService.deserializeIssueFilterQuery(issueFilter);
-    overrideProps(props, overrideProps);
-    IssueQuery issueQuery = PublicRubyIssueService.toQuery(props);
-    return issueFilterService.execute2(issueQuery);
+    return execute(props);
   }
 
   private void overrideProps(Map<String, Object> props, Map<String, Object> overrideProps) {
@@ -651,6 +637,72 @@ public class InternalRubyIssueService implements ServerComponent {
 
   public int maxPageSize(){
     return IssueQuery.MAX_PAGE_SIZE;
+  }
+
+  @VisibleForTesting
+  static IssueQuery toQuery(Map<String, Object> props) {
+    IssueQuery.Builder builder = IssueQuery.builder()
+      .requiredRole(UserRole.USER)
+      .issueKeys(RubyUtils.toStrings(props.get(IssueFilterParameters.ISSUES)))
+      .severities(RubyUtils.toStrings(props.get(IssueFilterParameters.SEVERITIES)))
+      .statuses(RubyUtils.toStrings(props.get(IssueFilterParameters.STATUSES)))
+      .resolutions(RubyUtils.toStrings(props.get(IssueFilterParameters.RESOLUTIONS)))
+      .resolved(RubyUtils.toBoolean(props.get(IssueFilterParameters.RESOLVED)))
+      .components(RubyUtils.toStrings(props.get(IssueFilterParameters.COMPONENTS)))
+      .componentRoots(RubyUtils.toStrings(props.get(IssueFilterParameters.COMPONENT_ROOTS)))
+      .rules(toRules(props.get(IssueFilterParameters.RULES)))
+      .actionPlans(RubyUtils.toStrings(props.get(IssueFilterParameters.ACTION_PLANS)))
+      .reporters(RubyUtils.toStrings(props.get(IssueFilterParameters.REPORTERS)))
+      .assignees(RubyUtils.toStrings(props.get(IssueFilterParameters.ASSIGNEES)))
+      .languages(RubyUtils.toStrings(props.get(IssueFilterParameters.LANGUAGES)))
+      .assigned(RubyUtils.toBoolean(props.get(IssueFilterParameters.ASSIGNED)))
+      .planned(RubyUtils.toBoolean(props.get(IssueFilterParameters.PLANNED)))
+      .hideRules(RubyUtils.toBoolean(props.get(IssueFilterParameters.HIDE_RULES)))
+      .createdAt(RubyUtils.toDate(props.get(IssueFilterParameters.CREATED_AT)))
+      .createdAfter(RubyUtils.toDate(props.get(IssueFilterParameters.CREATED_AFTER)))
+      .createdBefore(RubyUtils.toDate(props.get(IssueFilterParameters.CREATED_BEFORE)));
+    String sort = (String) props.get(IssueFilterParameters.SORT);
+    if (!Strings.isNullOrEmpty(sort)) {
+      builder.sort(sort);
+      builder.asc(RubyUtils.toBoolean(props.get(IssueFilterParameters.ASC)));
+    }
+    return builder.build();
+  }
+
+  @VisibleForTesting
+  static QueryContext toContext(Map<String, Object> props){
+    QueryContext context = new QueryContext();
+    Integer pageIndex = RubyUtils.toInteger(props.get(IssueFilterParameters.PAGE_INDEX));
+    Integer pageSize = RubyUtils.toInteger(props.get(IssueFilterParameters.PAGE_SIZE));
+    if (pageSize != null && pageSize < 0) {
+      context.setMaxLimit();
+    } else {
+      context.setPage(pageIndex != null ? pageIndex : 1, pageSize != null ? pageSize : 100);
+    }
+    return context;
+  }
+
+  @VisibleForTesting
+  static Collection<RuleKey> toRules(@CheckForNull Object o) {
+    Collection<RuleKey> result = null;
+    if (o != null) {
+      if (o instanceof List) {
+        // assume that it contains only strings
+        result = stringsToRules((List<String>) o);
+      } else if (o instanceof String) {
+        result = stringsToRules(Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split((String) o)));
+      }
+    }
+    return result;
+  }
+
+  private static Collection<RuleKey> stringsToRules(Collection<String> o) {
+    return Collections2.transform(o, new Function<String, RuleKey>() {
+      @Override
+      public RuleKey apply(@Nullable String s) {
+        return s != null ? RuleKey.parse(s) : null;
+      }
+    });
   }
 
 }

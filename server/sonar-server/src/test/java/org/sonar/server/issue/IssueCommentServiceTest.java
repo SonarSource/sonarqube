@@ -20,7 +20,6 @@
 
 package org.sonar.server.issue;
 
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,27 +27,22 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.DefaultIssueQueryResult;
-import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueChangeDto;
-import org.sonar.core.issue.db.IssueStorage;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.user.MockUserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -66,19 +60,13 @@ public class IssueCommentServiceTest {
   private DbSession session;
 
   @Mock
+  private IssueService issueService;
+
+  @Mock
   private IssueUpdater updater;
 
   @Mock
   private IssueChangeDao changeDao;
-
-  @Mock
-  private IssueStorage storage;
-
-  @Mock
-  private DefaultIssueFinder finder;
-
-  @Mock
-  private IssueNotifications issueNotifications;
 
   @Mock
   private IssueCommentService issueCommentService;
@@ -93,13 +81,9 @@ public class IssueCommentServiceTest {
 
   @Before
   public void setUp() {
-    Issue issue = mock(Issue.class);
-    IssueQueryResult result = new DefaultIssueQueryResult(newArrayList(issue));
-    stub(finder.find(any(IssueQuery.class))).toReturn(result);
-
     when(dbClient.openSession(false)).thenReturn(session);
 
-    issueCommentService = new IssueCommentService(dbClient, updater, changeDao, storage, finder, issueNotifications);
+    issueCommentService = new IssueCommentService(dbClient, issueService, updater, changeDao);
   }
 
   @Test
@@ -116,17 +100,14 @@ public class IssueCommentServiceTest {
 
   @Test
   public void should_add_comment() throws Exception {
-    DefaultIssue issue = mock(DefaultIssue.class);
-    when(issue.comments()).thenReturn(Lists.<IssueComment>newArrayList(new DefaultIssueComment()));
+    IssueDto issueDto = IssueTesting.newDto(RuleTesting.newXooX1().setId(500), ComponentTesting.newFileDto(ComponentTesting.newProjectDto()), ComponentTesting.newProjectDto());
+    when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issueDto);
+    when(issueCommentService.findComments(session, "ABCD")).thenReturn(newArrayList(new DefaultIssueComment()));
 
-    IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(Lists.<Issue>newArrayList(issue));
-    when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
+    issueCommentService.addComment("ABCD", "my comment", MockUserSession.get());
 
-    issueCommentService.addComment("myIssue", "my comment", MockUserSession.get());
-
-    verify(updater).addComment(eq(issue), eq("my comment"), any(IssueChangeContext.class));
-    verify(storage).save(eq(issue));
-    verify(issueNotifications).sendChanges(eq(issue), any(IssueChangeContext.class), eq(issueQueryResult), eq("my comment"));
+    verify(updater).addComment(eq(issueDto.toDefaultIssue()), eq("my comment"), any(IssueChangeContext.class));
+    verify(issueService).saveIssue(eq(session), eq(issueDto.toDefaultIssue()), any(IssueChangeContext.class), eq("my comment"));
   }
 
   @Test
@@ -138,8 +119,7 @@ public class IssueCommentServiceTest {
     issueCommentService.addComment("myIssue", "my comment", MockUserSession.get());
 
     verify(updater, never()).addComment(any(DefaultIssue.class), anyString(), any(IssueChangeContext.class));
-    verify(storage, never()).save(any(DefaultIssue.class));
-    verify(issueNotifications, never()).sendChanges(any(DefaultIssue.class), any(IssueChangeContext.class), any(IssueQueryResult.class), anyString());
+    verifyZeroInteractions(issueService);
   }
 
   @Test
@@ -149,8 +129,7 @@ public class IssueCommentServiceTest {
     issueCommentService.addComment("myIssue", " ", MockUserSession.get());
 
     verify(updater, never()).addComment(any(DefaultIssue.class), anyString(), any(IssueChangeContext.class));
-    verify(storage, never()).save(any(DefaultIssue.class));
-    verify(issueNotifications, never()).sendChanges(any(DefaultIssue.class), any(IssueChangeContext.class), any(IssueQueryResult.class), anyString());
+    verifyZeroInteractions(issueService);
   }
 
   @Test
@@ -160,8 +139,7 @@ public class IssueCommentServiceTest {
     issueCommentService.addComment("myIssue", null, MockUserSession.get());
 
     verify(updater, never()).addComment(any(DefaultIssue.class), anyString(), any(IssueChangeContext.class));
-    verify(storage, never()).save(any(DefaultIssue.class));
-    verify(issueNotifications, never()).sendChanges(any(DefaultIssue.class), any(IssueChangeContext.class), any(IssueQueryResult.class), anyString());
+    verifyZeroInteractions(issueService);
   }
 
   @Test
@@ -171,7 +149,7 @@ public class IssueCommentServiceTest {
     issueCommentService.deleteComment("ABCD", MockUserSession.get());
 
     verify(changeDao).delete("ABCD");
-    verify(finder).findByKey(eq("EFGH"), eq(UserRole.USER));
+    verify(issueService).getByKey("EFGH");
   }
 
   @Test
@@ -203,7 +181,7 @@ public class IssueCommentServiceTest {
     issueCommentService.editComment("ABCD", "updated comment", MockUserSession.get());
 
     verify(changeDao).update(any(IssueChangeDto.class));
-    verify(finder).findByKey(eq("EFGH"), eq(UserRole.USER));
+    verify(issueService).getByKey("EFGH");
   }
 
   @Test

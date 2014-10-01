@@ -72,7 +72,7 @@ public class SendIssueNotificationsPostJob implements PostJob {
       }
     }
     if (!shouldSentNotification.isEmpty()) {
-      notifications.sendChanges(shouldSentNotification, context, project, null);
+      notifications.sendChanges(shouldSentNotification, context, project, null, null);
     }
     if (!newIssues.isEmpty()) {
       notifications.sendNewIssues(project, newIssues);

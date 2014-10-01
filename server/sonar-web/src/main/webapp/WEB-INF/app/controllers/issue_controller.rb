@@ -18,6 +18,8 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+require 'set'
+
 class IssueController < ApplicationController
 
   helper SourceHelper
@@ -210,25 +212,20 @@ class IssueController < ApplicationController
     @action_plan = Internal.issues.findActionPlan(@issue.actionPlanKey()) if @issue.actionPlanKey()
     @comments = Internal.issues.findComments(issue_key)
 
-    @users = {}
-    add_user(@issue.assignee(), @users)
-    add_user(@issue.reporter(), @users)
+    user_logins = Set.new
+    user_logins << @issue.assignee() if @issue.assignee()
+    user_logins << @issue.reporter() if @issue.reporter()
     @comments .each do |comment|
-      add_user(comment.userLogin(), @users)
+      user_logins << comment.userLogin() if comment.userLogin()
+    end
+    users = Internal.users_api.find({'logins', user_logins})
+    @users = {}
+    users.each do |u|
+      @users[u.login()] = u
     end
 
     resource = Project.by_key(@issue.componentKey())
     @snapshot = resource.last_snapshot if resource.last_snapshot
-  end
-
-  def add_user(user_login, users_by_login)
-    if user_login
-      user = users_by_login[user_login]
-      unless user
-        user = Internal.users_api.findByLogin(user_login)
-        users_by_login[user_login] = user
-      end
-    end
   end
 
 end

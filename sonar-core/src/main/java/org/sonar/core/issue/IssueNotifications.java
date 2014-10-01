@@ -77,16 +77,21 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public List<Notification> sendChanges(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component) {
-    Map<DefaultIssue, Rule> issues = Maps.newHashMap();
-    issues.put(issue, rule);
-    return sendChanges(issues, context, project, component);
+    return sendChanges(issue, context, rule, project, component, null);
   }
 
   @CheckForNull
-  public List<Notification> sendChanges(Map<DefaultIssue, Rule> issues, IssueChangeContext context, Component project, @Nullable Component component) {
+  public List<Notification> sendChanges(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component, @Nullable String comment) {
+    Map<DefaultIssue, Rule> issues = Maps.newHashMap();
+    issues.put(issue, rule);
+    return sendChanges(issues, context, project, component, comment);
+  }
+
+  @CheckForNull
+  public List<Notification> sendChanges(Map<DefaultIssue, Rule> issues, IssueChangeContext context, Component project, @Nullable Component component, @Nullable String comment) {
     List<Notification> notifications = Lists.newArrayList();
     for (Entry<DefaultIssue, Rule> entry : issues.entrySet()) {
-      Notification notification = createChangeNotification(entry.getKey(), context, entry.getValue(), project, component, null);
+      Notification notification = createChangeNotification(entry.getKey(), context, entry.getValue(), project, component, comment);
       if (notification != null) {
         notifications.add(notification);
       }

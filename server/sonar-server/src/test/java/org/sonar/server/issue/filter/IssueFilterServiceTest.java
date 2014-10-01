@@ -26,8 +26,9 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.issue.IssueFinder;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.issue.IssueFilterSerializer;
@@ -41,7 +42,9 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -64,12 +67,11 @@ public class IssueFilterServiceTest {
 
   IssueFilterDao issueFilterDao = mock(IssueFilterDao.class);
   IssueFilterFavouriteDao issueFilterFavouriteDao = mock(IssueFilterFavouriteDao.class);
-  IssueFinder issueFinder = mock(IssueFinder.class);
-  IssueService issueService = mock(IssueService.class);
+  IssueIndex issueIndex = mock(IssueIndex.class);
   AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
   IssueFilterSerializer issueFilterSerializer = mock(IssueFilterSerializer.class);
   UserSession userSession = MockUserSession.create().setLogin("john");
-  IssueFilterService service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueFinder, issueService, authorizationDao, issueFilterSerializer);
+  IssueFilterService service = new IssueFilterService(issueFilterDao, issueFilterFavouriteDao, issueIndex, authorizationDao, issueFilterSerializer);
 
   @Test
   public void should_find_by_id() {
@@ -297,9 +299,11 @@ public class IssueFilterServiceTest {
   public void should_update_other_shared_filter_if_admin_and_if_filter_owner_has_sharing_permission() {
     when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
     when(authorizationDao.selectGlobalPermissions("arthur")).thenReturn(newArrayList(GlobalPermissions.DASHBOARD_SHARING));
-    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
+    when(issueFilterDao.selectById(1L))
+      .thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
-    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setDescription("New description").setShared(true).setUser("arthur"), userSession);
+    DefaultIssueFilter result = service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setDescription("New description").setShared(true).setUser("arthur"),
+      userSession);
     assertThat(result.name()).isEqualTo("My New Filter");
     assertThat(result.description()).isEqualTo("New description");
 
@@ -310,7 +314,8 @@ public class IssueFilterServiceTest {
   public void should_not_update_other_shared_filter_if_admin_and_if_filter_owner_has_no_sharing_permission() {
     when(authorizationDao.selectGlobalPermissions("john")).thenReturn(newArrayList(GlobalPermissions.SYSTEM_ADMIN));
     when(authorizationDao.selectGlobalPermissions("arthur")).thenReturn(Collections.<String>emptyList());
-    when(issueFilterDao.selectById(1L)).thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
+    when(issueFilterDao.selectById(1L))
+      .thenReturn(new IssueFilterDto().setId(1L).setName("My Old Filter").setDescription("Old description").setUserLogin("arthur").setShared(true));
 
     try {
       service.update(new DefaultIssueFilter().setId(1L).setName("My New Filter").setDescription("New description").setShared(true).setUser("arthur"), userSession);
@@ -523,19 +528,18 @@ public class IssueFilterServiceTest {
   @Test
   public void should_execute_from_issue_query() {
     IssueQuery issueQuery = IssueQuery.builder().build();
+    QueryContext queryContext = new QueryContext().setPage(2, 50);
+    
+    Result<Issue> result = mock(Result.class);
+    when(result.getHits()).thenReturn(newArrayList((Issue) new DefaultIssue()));
+    when(result.getTotal()).thenReturn(100L);
+    when(issueIndex.search(issueQuery, queryContext)).thenReturn(result);
 
-    service.execute(issueQuery);
-
-    verify(issueFinder).find(issueQuery);
-  }
-
-  @Test
-  public void should_execute2_from_issue_query() {
-    IssueQuery issueQuery = IssueQuery.builder().build();
-
-    service.execute2(issueQuery);
-
-    verify(issueService).searchFromQuery(issueQuery);
+    IssueFilterService.IssueFilterResult issueFilterResult = service.execute(issueQuery, queryContext);
+    assertThat(issueFilterResult.issues()).hasSize(1);
+    assertThat(issueFilterResult.paging().total()).isEqualTo(100);
+    assertThat(issueFilterResult.paging().pageIndex()).isEqualTo(2);
+    assertThat(issueFilterResult.paging().pageSize()).isEqualTo(50);
   }
 
   @Test
@@ -543,7 +547,7 @@ public class IssueFilterServiceTest {
     when(issueFilterDao.selectSharedFilters()).thenReturn(newArrayList(
       new IssueFilterDto().setId(1L).setName("My Issue").setUserLogin("john").setShared(true),
       new IssueFilterDto().setId(2L).setName("Project Issues").setUserLogin("arthur").setShared(true)
-    ));
+      ));
 
     List<DefaultIssueFilter> results = service.findSharedFiltersWithoutUserFilters(userSession);
     assertThat(results).hasSize(1);

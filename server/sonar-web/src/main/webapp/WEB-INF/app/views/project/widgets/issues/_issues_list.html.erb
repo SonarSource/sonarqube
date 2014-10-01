@@ -7,15 +7,26 @@
    search_options['pageSize'] = table_limit.to_i
 
    if search_options['filter']
-     issue_filter_result = Internal.issues.execute(search_options['filter'].to_i, search_options)
-     results = issue_filter_result.result
+     results = Internal.issues.execute(search_options['filter'].to_i, search_options)
    else
      search_options['sort'] = 'UPDATE_DATE'
      search_options['asc'] = 'FALSE'
-     results = Api.issues.find(search_options)
+     results = Internal.issues.execute(search_options)
    end
-   issues = results.issues
-   paging = results.paging
+   issues = results.issues()
+   paging = results.paging()
+
+   user_logins = Set.new
+   comments = Internal.issues.findCommentsByIssueKeys(issues.map {|i| i.key()})
+   comments.each do |c|
+     user_logins << c.userLogin()
+   end
+
+   users = Internal.users_api.find({'logins', user_logins})
+   users_by_login = {}
+   users.each do |u|
+     users_by_login[u.login()] = u
+   end
 %>
 
 <% if paging.total() == 0 %>
@@ -32,8 +43,7 @@
     <tbody>
     <%
        issues.each do |issue|
-         # TODO replace issue.comments by a call to the service to get comments
-         last_comment = issue.comments.get(issue.comments.size - 1) if !issue.comments.isEmpty()
+         last_comment = comments.get(comments.size - 1) unless comments.isEmpty()
     %>
       <tr class="<%= cycle 'even', 'odd', :name => ('issues-widget-list-' + widget_id) -%>">
         <td><i class="icon-severity-<%= issue.severity.downcase -%>"></i></td>
@@ -43,7 +53,7 @@
           <% if last_comment && last_comment.userLogin() %>
             <div class="comment-excerpt">
               <img src="<%= ApplicationController.root_context -%>/images/reviews/comment.png"/>
-              <% commentAuthor = results.user(last_comment.userLogin()) %>
+              <% commentAuthor = users_by_login[last_comment.userLogin()] %>
               &nbsp;<b><%= h( commentAuthor.nil? ? last_comment.userLogin() : commentAuthor.name() ) -%> :</b>
               <%= Internal.text.markdownToHtml(last_comment.markdownText) -%>
             </div>
@@ -57,9 +67,6 @@
        end
     %>
     </tbody>
-    <% if results.maxResultsReached() %>
-      <p class="notes"><%= message('issue_filter.widget.max_results_reached', :params => paging.total()) -%></p>
-    <% end %>
     <%
        link_params = search_options.clone
        link_params[:controller] = 'issue'

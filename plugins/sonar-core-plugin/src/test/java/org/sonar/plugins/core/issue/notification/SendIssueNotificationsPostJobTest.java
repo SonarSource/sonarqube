@@ -111,7 +111,7 @@ public class SendIssueNotificationsPostJobTest {
     SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
     job.executeOn(project, sensorContext);
 
-    verify(notifications).sendChanges(argThat(matchMapOf(issue, rule)), any(IssueChangeContext.class), any(Component.class), (Component) isNull());
+    verify(notifications).sendChanges(argThat(matchMapOf(issue, rule)), any(IssueChangeContext.class), any(Component.class), (Component) isNull(), eq((String) null));
   }
 
   @Test
@@ -130,7 +130,7 @@ public class SendIssueNotificationsPostJobTest {
     SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
     job.executeOn(project, sensorContext);
 
-    verify(notifications, never()).sendChanges(argThat(matchMapOf(issue, null)), eq(changeContext), any(Component.class), any(Component.class));
+    verify(notifications, never()).sendChanges(argThat(matchMapOf(issue, null)), eq(changeContext), any(Component.class), any(Component.class), eq((String) null));
   }
 
   @Test
@@ -150,7 +150,7 @@ public class SendIssueNotificationsPostJobTest {
     SendIssueNotificationsPostJob job = new SendIssueNotificationsPostJob(issueCache, notifications, ruleFinder);
     job.executeOn(project, sensorContext);
 
-    verify(notifications, never()).sendChanges(argThat(matchMapOf(issue, null)), eq(changeContext), any(Component.class), any(Component.class));
+    verify(notifications, never()).sendChanges(argThat(matchMapOf(issue, null)), eq(changeContext), any(Component.class), any(Component.class), eq((String) null));
   }
 
   private static IsMapOfIssueAndRule matchMapOf(DefaultIssue issue, Rule rule) {

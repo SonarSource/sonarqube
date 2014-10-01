@@ -24,17 +24,12 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.db.IssueChangeDto;
-import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
@@ -43,7 +38,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.UserSession;
 
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -55,32 +50,36 @@ import static com.google.common.collect.Lists.newArrayList;
 public class IssueCommentService implements ServerComponent {
 
   private final DbClient dbClient;
+  private final IssueService issueService;
   private final IssueUpdater updater;
   private final IssueChangeDao changeDao;
-  private final IssueStorage storage;
-  private final DefaultIssueFinder finder;
-  private final IssueNotifications issueNotifications;
 
-  public IssueCommentService(DbClient dbClient, IssueUpdater updater, IssueChangeDao changeDao, IssueStorage storage, DefaultIssueFinder finder, IssueNotifications issueNotifications) {
+  public IssueCommentService(DbClient dbClient, IssueService issueService, IssueUpdater updater, IssueChangeDao changeDao) {
     this.dbClient = dbClient;
+    this.issueService = issueService;
     this.updater = updater;
     this.changeDao = changeDao;
-    this.storage = storage;
-    this.finder = finder;
-    this.issueNotifications = issueNotifications;
   }
 
   public List<DefaultIssueComment> findComments(String issueKey) {
+    return findComments(newArrayList(issueKey));
+  }
+
+  public List<DefaultIssueComment> findComments(DbSession session, String issueKey) {
+    return findComments(session, newArrayList(issueKey));
+  }
+
+  public List<DefaultIssueComment> findComments(Collection<String> issueKeys) {
     DbSession session = dbClient.openSession(false);
     try {
-      return findComments(session, issueKey);
+      return findComments(session, issueKeys);
     } finally {
       session.close();
     }
   }
 
-  public List<DefaultIssueComment> findComments(DbSession session, String issueKey) {
-    return changeDao.selectCommentsByIssues(session, newArrayList(issueKey));
+  public List<DefaultIssueComment> findComments(DbSession session, Collection<String> issueKeys) {
+    return changeDao.selectCommentsByIssues(session, issueKeys);
   }
 
   public IssueComment findComment(String commentKey) {
@@ -89,19 +88,23 @@ public class IssueCommentService implements ServerComponent {
 
   public IssueComment addComment(String issueKey, String text, UserSession userSession) {
     verifyLoggedIn(userSession);
-    IssueQueryResult queryResult = loadIssue(issueKey);
-
-    if(StringUtils.isBlank(text)) {
+    if (StringUtils.isBlank(text)) {
       throw new BadRequestException("Cannot add empty comments to an issue");
     }
 
-    DefaultIssue issue = (DefaultIssue) queryResult.first();
+    DbSession session = dbClient.openSession(false);
+    try {
+      DefaultIssue issue = issueService.getByKeyForUpdate(session, issueKey).toDefaultIssue();
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
+      updater.addComment(issue, text, context);
 
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
-    updater.addComment(issue, text, context);
-    storage.save(issue);
-    issueNotifications.sendChanges(issue, context, queryResult, text);
-    return issue.comments().get(issue.comments().size() - 1);
+      issueService.saveIssue(session, issue, context, text);
+      session.commit();
+      List<DefaultIssueComment> comments = findComments(session, issueKey);
+      return comments.get(comments.size() - 1);
+    } finally {
+      session.close();
+    }
   }
 
   public IssueComment deleteComment(String commentKey, UserSession userSession) {
@@ -114,7 +117,7 @@ public class IssueCommentService implements ServerComponent {
     }
 
     // check authorization
-    finder.findByKey(comment.issueKey(), UserRole.USER);
+    issueService.getByKey(comment.issueKey());
 
     changeDao.delete(commentKey);
     return comment;
@@ -125,7 +128,7 @@ public class IssueCommentService implements ServerComponent {
     if (StringUtils.isBlank(text)) {
       throw new BadRequestException("Cannot add empty comments to an issue");
     }
-    if(comment == null) {
+    if (comment == null) {
       throw new NotFoundException("Comment not found: " + commentKey);
     }
     if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equal(comment.userLogin(), userSession.login())) {
@@ -133,7 +136,7 @@ public class IssueCommentService implements ServerComponent {
     }
 
     // check authorization
-    finder.findByKey(comment.issueKey(), UserRole.USER);
+    issueService.getByKey(comment.issueKey());
 
     IssueChangeDto dto = IssueChangeDto.of(comment);
     dto.setUpdatedAt(new Date());
@@ -147,15 +150,5 @@ public class IssueCommentService implements ServerComponent {
     if (!userSession.isLoggedIn()) {
       throw new UnauthorizedException("User is not logged in");
     }
-  }
-
-  // TODO remove this duplication from IssueService
-  public IssueQueryResult loadIssue(String issueKey) {
-    IssueQuery query = IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).requiredRole(UserRole.USER).build();
-    IssueQueryResult result = finder.find(query);
-    if (result.issues().size() != 1) {
-      throw new IllegalStateException("Issue not found: " + issueKey);
-    }
-    return result;
   }
 }

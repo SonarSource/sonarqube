@@ -153,7 +153,7 @@ public class IssueService implements ServerComponent {
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), UserSession.get().login());
       checkTransitionPermission(transitionKey, UserSession.get(), defaultIssue);
       if (workflow.doTransition(defaultIssue, transitionKey, context)) {
-        saveIssue(session, defaultIssue, context);
+        saveIssue(session, defaultIssue, context, null);
       }
       return defaultIssue;
 
@@ -187,7 +187,7 @@ public class IssueService implements ServerComponent {
       }
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), UserSession.get().login());
       if (issueUpdater.assign(issue, user, context)) {
-        saveIssue(session, issue, context);
+        saveIssue(session, issue, context, null);
       }
       return issue;
 
@@ -212,7 +212,7 @@ public class IssueService implements ServerComponent {
 
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), UserSession.get().login());
       if (issueUpdater.plan(issue, actionPlan, context)) {
-        saveIssue(session, issue, context);
+        saveIssue(session, issue, context, null);
       }
       return issue;
 
@@ -231,7 +231,7 @@ public class IssueService implements ServerComponent {
 
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), UserSession.get().login());
       if (issueUpdater.setManualSeverity(issue, severity, context)) {
-        saveIssue(session, issue, context);
+        saveIssue(session, issue, context, null);
       }
       return issue;
     } finally {
@@ -304,7 +304,7 @@ public class IssueService implements ServerComponent {
     return dbClient.issueDao().getByKey(session, authorizedIssueIndex.key());
   }
 
-  private void saveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context) {
+  void saveIssue(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment) {
     String projectKey = issue.projectKey();
     if (projectKey == null) {
       throw new IllegalStateException(String.format("Issue '%s' has no project key", issue.key()));
@@ -313,7 +313,8 @@ public class IssueService implements ServerComponent {
     issueNotifications.sendChanges(issue, context,
       getRuleByKey(issue.ruleKey()),
       dbClient.componentDao().getByKey(session, projectKey),
-      dbClient.componentDao().getNullableByKey(session, issue.componentKey()));
+      dbClient.componentDao().getNullableByKey(session, issue.componentKey()),
+      comment);
     dryRunCache.reportResourceModification(issue.componentKey());
   }
 
@@ -330,14 +331,6 @@ public class IssueService implements ServerComponent {
 
   public org.sonar.server.search.Result<Issue> search(IssueQuery query, QueryContext options) {
     return indexClient.get(IssueIndex.class).search(query, options);
-  }
-
-  /**
-   * Warning, paging is not taken into account when using this method, max limit is set. (Only used to execute query for bulk change)
-   * TODO move it to the IssueFilterService when OldIssueService will be removed
-   */
-  public List<Issue> searchFromQuery(IssueQuery query) {
-    return indexClient.get(IssueIndex.class).search(query, new QueryContext().setMaxLimit()).getHits();
   }
 
   /**

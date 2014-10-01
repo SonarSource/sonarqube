@@ -134,9 +134,9 @@ class IssuesController < ApplicationController
     # SONAR-4654 pagination parameters should be remove when loading issues for bulk change
     issues_query_params.delete('pageIndex')
     if params[:id]
-      @issues = Internal.issues.execute2(params[:id].to_i, issues_query_params)
+      @issues = Internal.issues.execute(params[:id].to_i, issues_query_params).issues()
     else
-      @issues = Internal.issues.execute2(issues_query_params)
+      @issues = Internal.issues.execute(issues_query_params).issues()
     end
     @projects = Set.new(@issues.map {|issue| issue.projectKey()})
 

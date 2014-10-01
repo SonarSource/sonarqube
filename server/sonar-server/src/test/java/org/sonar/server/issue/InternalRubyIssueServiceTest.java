@@ -34,7 +34,9 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.user.User;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.resource.ResourceDao;
@@ -44,6 +46,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterService;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
@@ -51,6 +54,7 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
@@ -145,9 +149,15 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void find_comments() {
+  public void find_comments_by_issue_key() {
     service.findComments("ABCD");
     verify(commentService).findComments("ABCD");
+  }
+
+  @Test
+  public void find_comments_by_issue_keys() {
+    service.findCommentsByIssueKeys(newArrayList("ABCD"));
+    verify(commentService).findComments(newArrayList("ABCD"));
   }
 
   @Test
@@ -553,7 +563,7 @@ public class InternalRubyIssueServiceTest {
   @Test
   public void execute_issue_filter_from_issue_query() {
     service.execute(Maps.<String, Object>newHashMap());
-    verify(issueFilterService).execute(any(IssueQuery.class));
+    verify(issueFilterService).execute(any(IssueQuery.class), any(QueryContext.class));
   }
 
   @Test
@@ -569,47 +579,19 @@ public class InternalRubyIssueServiceTest {
     overrideProps.put("pageSize", 20);
     overrideProps.put("pageIndex", 2);
     service.execute(10L, overrideProps);
-    ArgumentCaptor<IssueQuery> captor = ArgumentCaptor.forClass(IssueQuery.class);
-    verify(issueFilterService).execute(captor.capture());
+    ArgumentCaptor<IssueQuery> issueQueryArgumentCaptor = ArgumentCaptor.forClass(IssueQuery.class);
+    ArgumentCaptor<QueryContext> contextArgumentCaptor = ArgumentCaptor.forClass(QueryContext.class);
+    verify(issueFilterService).execute(issueQueryArgumentCaptor.capture(), contextArgumentCaptor.capture());
     verify(issueFilterService).find(eq(10L), any(UserSession.class));
 
-    IssueQuery issueQuery = captor.getValue();
+    IssueQuery issueQuery = issueQueryArgumentCaptor.getValue();
     assertThat(issueQuery.componentRoots()).contains("struts");
     assertThat(issueQuery.statuses()).contains("CLOSED");
     assertThat(issueQuery.resolved()).isTrue();
-    assertThat(issueQuery.pageSize()).isEqualTo(20);
-    assertThat(issueQuery.pageIndex()).isEqualTo(2);
-  }
 
-  @Test
-  public void execute2_issue_filter_from_issue_query() {
-    service.execute2(Maps.<String, Object>newHashMap());
-    verify(issueFilterService).execute2(any(IssueQuery.class));
-  }
-
-  @Test
-  public void execute2_issue_filter_from_existing_filter() {
-    Map<String, Object> props = newHashMap();
-    props.put("componentRoots", "struts");
-    props.put("statuses", "OPEN");
-    when(issueFilterService.deserializeIssueFilterQuery(any(DefaultIssueFilter.class))).thenReturn(props);
-
-    Map<String, Object> overrideProps = newHashMap();
-    overrideProps.put("statuses", "CLOSED");
-    overrideProps.put("resolved", true);
-    overrideProps.put("pageSize", 20);
-    overrideProps.put("pageIndex", 2);
-    service.execute2(10L, overrideProps);
-    ArgumentCaptor<IssueQuery> captor = ArgumentCaptor.forClass(IssueQuery.class);
-    verify(issueFilterService).execute2(captor.capture());
-    verify(issueFilterService).find(eq(10L), any(UserSession.class));
-
-    IssueQuery issueQuery = captor.getValue();
-    assertThat(issueQuery.componentRoots()).contains("struts");
-    assertThat(issueQuery.statuses()).contains("CLOSED");
-    assertThat(issueQuery.resolved()).isTrue();
-    assertThat(issueQuery.pageSize()).isEqualTo(20);
-    assertThat(issueQuery.pageIndex()).isEqualTo(2);
+    QueryContext queryContext = contextArgumentCaptor.getValue();
+    assertThat(queryContext.getLimit()).isEqualTo(20);
+    assertThat(queryContext.getPage()).isEqualTo(2);
   }
 
   @Test
@@ -698,6 +680,79 @@ public class InternalRubyIssueServiceTest {
   @Test
   public void max_query_size() {
     assertThat(service.maxPageSize()).isEqualTo(500);
+  }
+
+  @Test
+  public void create_query_from_parameters() {
+    Map<String, Object> map = newHashMap();
+    map.put("issues", newArrayList("ABCDE1234"));
+    map.put("severities", newArrayList("MAJOR", "MINOR"));
+    map.put("statuses", newArrayList("CLOSED"));
+    map.put("resolutions", newArrayList("FALSE-POSITIVE"));
+    map.put("resolved", true);
+    map.put("components", newArrayList("org.apache"));
+    map.put("componentRoots", newArrayList("org.sonar"));
+    map.put("reporters", newArrayList("marilyn"));
+    map.put("assignees", newArrayList("joanna"));
+    map.put("languages", newArrayList("xoo"));
+    map.put("assigned", true);
+    map.put("planned", true);
+    map.put("hideRules", true);
+    map.put("createdAfter", "2013-04-16T09:08:24+0200");
+    map.put("createdBefore", "2013-04-17T09:08:24+0200");
+    map.put("rules", "squid:AvoidCycle,findbugs:NullReference");
+    map.put("sort", "CREATION_DATE");
+    map.put("asc", true);
+
+    IssueQuery query = InternalRubyIssueService.toQuery(map);
+    assertThat(query.issueKeys()).containsOnly("ABCDE1234");
+    assertThat(query.severities()).containsOnly("MAJOR", "MINOR");
+    assertThat(query.statuses()).containsOnly("CLOSED");
+    assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");
+    assertThat(query.resolved()).isTrue();
+    assertThat(query.components()).containsOnly("org.apache");
+    assertThat(query.componentRoots()).containsOnly("org.sonar");
+    assertThat(query.reporters()).containsOnly("marilyn");
+    assertThat(query.assignees()).containsOnly("joanna");
+    assertThat(query.languages()).containsOnly("xoo");
+    assertThat(query.assigned()).isTrue();
+    assertThat(query.planned()).isTrue();
+    assertThat(query.hideRules()).isTrue();
+    assertThat(query.rules()).hasSize(2);
+    assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
+    assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDateTime("2013-04-17T09:08:24+0200"));
+    assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
+    assertThat(query.asc()).isTrue();
+  }
+
+  @Test
+  public void create_context_from_parameters() {
+    Map<String, Object> map = newHashMap();
+    map.put("pageSize", 10l);
+    map.put("pageIndex", 50);
+    QueryContext context = InternalRubyIssueService.toContext(map);
+    assertThat(context.getLimit()).isEqualTo(10);
+    assertThat(context.getPage()).isEqualTo(50);
+
+    map = newHashMap();
+    map.put("pageSize", -1);
+    map.put("pageIndex", 50);
+    context = InternalRubyIssueService.toContext(map);
+    assertThat(context.getLimit()).isEqualTo(500);
+    assertThat(context.getPage()).isEqualTo(1);
+
+    context = InternalRubyIssueService.toContext(Maps.<String, Object>newHashMap());
+    assertThat(context.getLimit()).isEqualTo(100);
+    assertThat(context.getPage()).isEqualTo(1);
+  }
+
+  @Test
+  public void parse_list_of_rules() {
+    assertThat(InternalRubyIssueService.toRules(null)).isNull();
+    assertThat(InternalRubyIssueService.toRules("")).isEmpty();
+    assertThat(InternalRubyIssueService.toRules("squid:AvoidCycle")).containsOnly(RuleKey.of("squid", "AvoidCycle"));
+    assertThat(InternalRubyIssueService.toRules("squid:AvoidCycle,findbugs:NullRef")).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
+    assertThat(InternalRubyIssueService.toRules(asList("squid:AvoidCycle", "findbugs:NullRef"))).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
   }
 
   private void checkBadRequestException(Exception e, String key, Object... params) {
