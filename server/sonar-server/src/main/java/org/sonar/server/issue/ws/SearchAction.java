@@ -40,7 +40,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.persistence.DbSession;
@@ -190,7 +189,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   @Override
   protected IssueQuery doQuery(Request request) {
     IssueQuery.Builder builder = IssueQuery.builder()
-      .requiredRole(UserRole.USER)
       .issueKeys(request.paramAsStrings(IssueFilterParameters.ISSUES))
       .severities(request.paramAsStrings(IssueFilterParameters.SEVERITIES))
       .statuses(request.paramAsStrings(IssueFilterParameters.STATUSES))

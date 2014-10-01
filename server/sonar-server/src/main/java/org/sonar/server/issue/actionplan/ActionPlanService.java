@@ -32,16 +32,20 @@ import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.*;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -50,19 +54,20 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class ActionPlanService implements ServerComponent {
 
+  private final DbClient dbClient;
+
   private final ActionPlanDao actionPlanDao;
   private final ActionPlanStatsDao actionPlanStatsDao;
   private final ResourceDao resourceDao;
-  private final IssueDao issueDao;
   private final IssueUpdater issueUpdater;
   private final IssueStorage issueStorage;
 
-  public ActionPlanService(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao,
-                           IssueDao issueDao, IssueUpdater issueUpdater, IssueStorage issueStorage) {
+  public ActionPlanService(DbClient dbClient, ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao,
+                           IssueUpdater issueUpdater, IssueStorage issueStorage) {
+    this.dbClient = dbClient;
     this.actionPlanDao = actionPlanDao;
     this.actionPlanStatsDao = actionPlanStatsDao;
     this.resourceDao = resourceDao;
-    this.issueDao = issueDao;
     this.issueUpdater = issueUpdater;
     this.issueStorage = issueStorage;
   }
@@ -92,10 +97,7 @@ public class ActionPlanService implements ServerComponent {
    * Unplan all issues linked to an action plan
    */
   private void unplanIssues(DefaultActionPlan actionPlan, UserSession userSession) {
-    // Get all issues linked to this plan (need to disable pagination and authorization check)
-    IssueQuery query = IssueQuery.builder().actionPlans(Arrays.asList(actionPlan.key())).requiredRole(null).build();
-    // TODO use IssueService
-    List<IssueDto> dtos = issueDao.selectIssues(query);
+    List<IssueDto> dtos = findIssuesByActionPlan(actionPlan.key());
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     List<DefaultIssue> issues = newArrayList();
     for (IssueDto issueDto : dtos) {
@@ -107,6 +109,15 @@ public class ActionPlanService implements ServerComponent {
     }
     // Save all issues
     issueStorage.save(issues);
+  }
+
+  private List<IssueDto> findIssuesByActionPlan(String actionPlanKey){
+    DbSession session = dbClient.openSession(false);
+    try {
+      return dbClient.issueDao().findByActionPlan(session, actionPlanKey);
+    } finally {
+      session.close();
+    }
   }
 
   public ActionPlan setStatus(String actionPlanKey, String status, UserSession userSession) {

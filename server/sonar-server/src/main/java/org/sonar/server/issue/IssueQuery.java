@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.web.UserRole;
+import org.sonar.server.search.QueryContext;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -37,17 +37,6 @@ import java.util.Set;
  * @since 3.6
  */
 public class IssueQuery {
-
-  public static final int DEFAULT_PAGE_INDEX = 1;
-  public static final int DEFAULT_PAGE_SIZE = 100;
-  public static final int MAX_RESULTS = 10000;
-  public static final int MAX_PAGE_SIZE = 500;
-
-  /**
-   * @deprecated since 3.7. It's replaced by IssueQuery#MAX_PAGE_SIZE.
-   */
-  @Deprecated
-  public static final int MAX_ISSUE_KEYS = MAX_PAGE_SIZE;
 
   public static final String SORT_BY_CREATION_DATE = "CREATION_DATE";
   public static final String SORT_BY_UPDATE_DATE = "UPDATE_DATE";
@@ -77,13 +66,6 @@ public class IssueQuery {
   private final Date createdBefore;
   private final String sort;
   private final Boolean asc;
-  private final String requiredRole;
-
-  // max results per page
-  private final int pageSize;
-
-  // index of selected page. Start with 1.
-  private final int pageIndex;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = defaultCollection(builder.issueKeys);
@@ -106,9 +88,6 @@ public class IssueQuery {
     this.createdBefore = builder.createdBefore;
     this.sort = builder.sort;
     this.asc = builder.asc;
-    this.pageSize = builder.pageSize;
-    this.pageIndex = builder.pageIndex;
-    this.requiredRole = builder.requiredRole;
   }
 
   public Collection<String> issueKeys() {
@@ -150,6 +129,7 @@ public class IssueQuery {
   public Collection<String> assignees() {
     return assignees;
   }
+
   public Collection<String> languages() {
     return languages;
   }
@@ -202,34 +182,6 @@ public class IssueQuery {
     return asc;
   }
 
-  /**
-   * @deprecated since 5.0, use {@link org.sonar.server.search.QueryContext} instead
-   */
-  @Deprecated
-  public int pageSize() {
-    return pageSize;
-  }
-
-  /**
-   * @deprecated since 5.0, use {@link org.sonar.server.search.QueryContext} instead
-   */
-  @Deprecated
-  public int pageIndex() {
-    return pageIndex;
-  }
-
-  /**
-   * @deprecated since 5.0, now useless with the usage of E/S
-   */
-  @Deprecated
-  public int maxResults() {
-    return MAX_RESULTS;
-  }
-
-  public String requiredRole() {
-    return requiredRole;
-  }
-
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
@@ -260,9 +212,6 @@ public class IssueQuery {
     private Date createdBefore;
     private String sort;
     private Boolean asc = false;
-    private Integer pageSize;
-    private Integer pageIndex;
-    private String requiredRole = UserRole.USER;
 
     private Builder() {
     }
@@ -389,56 +338,13 @@ public class IssueQuery {
       return this;
     }
 
-    /**
-     * @deprecated since 5.0, use {@link org.sonar.server.search.QueryContext} instead
-     */
-    @Deprecated
-    public Builder pageSize(@Nullable Integer i) {
-      this.pageSize = i;
-      return this;
-    }
-
-    /**
-     * @deprecated since 5.0, use {@link org.sonar.server.search.QueryContext} instead
-     */
-    @Deprecated
-    public Builder pageIndex(@Nullable Integer i) {
-      this.pageIndex = i;
-      return this;
-    }
-
-    public Builder requiredRole(@Nullable String s) {
-      this.requiredRole = s;
-      return this;
-    }
-
     public IssueQuery build() {
-      initPageIndex();
-      initPageSize();
       if (issueKeys != null) {
-        Preconditions.checkArgument(issueKeys.size() <= MAX_PAGE_SIZE, "Number of issue keys must be less than " + MAX_PAGE_SIZE + " (got " + issueKeys.size() + ")");
+        Preconditions.checkArgument(issueKeys.size() <= QueryContext.MAX_LIMIT, "Number of issue keys must be less than " + QueryContext.MAX_LIMIT + " (got " + issueKeys.size() + ")");
       }
       return new IssueQuery(this);
     }
 
-    private void initPageSize() {
-      if (components != null && components.size() == 1 && pageSize == null) {
-        pageSize = 999999;
-      } else {
-        if (pageSize == null) {
-          pageSize = DEFAULT_PAGE_SIZE;
-        } else if (pageSize <= 0 || pageSize > MAX_PAGE_SIZE) {
-          pageSize = MAX_PAGE_SIZE;
-        }
-      }
-    }
-
-    private void initPageIndex() {
-      if (pageIndex == null) {
-        pageIndex = DEFAULT_PAGE_INDEX;
-      }
-      Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
-    }
   }
 
   private static <T> Collection<T> defaultCollection(@Nullable Collection<T> c) {

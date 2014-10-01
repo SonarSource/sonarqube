@@ -16,6 +16,7 @@
       checksum="XXX"
       reporter="arthur"
       assignee="perceval"
+      action_plan_key="AP-1"
       author_login="karadoc"
       issue_attributes="JIRA=FOO-1234"
       issue_creation_date="2013-04-16"

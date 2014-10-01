@@ -129,6 +129,43 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void find_by_action_plan() {
+    setupData("shared", "find_by_action_plan");
+
+    List<IssueDto> issues = dao.findByActionPlan(session, "AP-1");
+    assertThat(issues).hasSize(1);
+
+    IssueDto issue = issues.get(0);
+    assertThat(issue.getKee()).isEqualTo("ABCDE");
+    assertThat(issue.getActionPlanKey()).isEqualTo("AP-1");
+    assertThat(issue.getComponentId()).isEqualTo(401);
+    assertThat(issue.getRootComponentId()).isEqualTo(399);
+    assertThat(issue.getRuleId()).isEqualTo(500);
+    assertThat(issue.getLanguage()).isEqualTo("java");
+    assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
+    assertThat(issue.isManualSeverity()).isFalse();
+    assertThat(issue.getMessage()).isNull();
+    assertThat(issue.getLine()).isEqualTo(200);
+    assertThat(issue.getEffortToFix()).isEqualTo(4.2);
+    assertThat(issue.getStatus()).isEqualTo("OPEN");
+    assertThat(issue.getResolution()).isEqualTo("FIXED");
+    assertThat(issue.getChecksum()).isEqualTo("XXX");
+    assertThat(issue.getAuthorLogin()).isEqualTo("karadoc");
+    assertThat(issue.getReporter()).isEqualTo("arthur");
+    assertThat(issue.getAssignee()).isEqualTo("perceval");
+    assertThat(issue.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
+    assertThat(issue.getIssueCreationDate()).isNotNull();
+    assertThat(issue.getIssueUpdateDate()).isNotNull();
+    assertThat(issue.getIssueCloseDate()).isNotNull();
+    assertThat(issue.getCreatedAt()).isNotNull();
+    assertThat(issue.getUpdatedAt()).isNotNull();
+    assertThat(issue.getRuleRepo()).isEqualTo("squid");
+    assertThat(issue.getRule()).isEqualTo("AvoidCycle");
+    assertThat(issue.getComponentKey()).isEqualTo("Action.java");
+    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
+  }
+
+  @Test
   public void find_after_dates() throws Exception {
     setupData("shared", "some_issues");
 

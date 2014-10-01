@@ -36,12 +36,13 @@ import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.*;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -57,6 +58,12 @@ import static org.mockito.Mockito.*;
 public class ActionPlanServiceTest {
 
   @Mock
+  DbClient dbClient;
+
+  @Mock
+  DbSession session;
+
+  @Mock
   ActionPlanDao actionPlanDao;
 
   @Mock
@@ -66,7 +73,7 @@ public class ActionPlanServiceTest {
   ResourceDao resourceDao;
 
   @Mock
-  IssueDao issueDao;
+  org.sonar.server.issue.db.IssueDao issueDao;
 
   @Mock
   IssueUpdater issueUpdater;
@@ -84,7 +91,9 @@ public class ActionPlanServiceTest {
 
   @Before
   public void before() {
-    actionPlanService = new ActionPlanService(actionPlanDao, actionPlanStatsDao, resourceDao, issueDao, issueUpdater, issueStorage);
+    when(dbClient.openSession(false)).thenReturn(session);
+    when(dbClient.issueDao()).thenReturn(issueDao);
+    actionPlanService = new ActionPlanService(dbClient, actionPlanDao, actionPlanStatsDao, resourceDao, issueUpdater, issueStorage);
   }
 
   @Test
@@ -145,7 +154,7 @@ public class ActionPlanServiceTest {
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(projectKey).setId(1l));
 
     IssueDto issueDto = new IssueDto().setId(100L).setStatus(Issue.STATUS_OPEN).setRuleKey("squid", "s100");
-    when(issueDao.selectIssues(any(IssueQuery.class))).thenReturn(newArrayList(issueDto));
+    when(issueDao.findByActionPlan(session, "ABCD")).thenReturn(newArrayList(issueDto));
     when(issueUpdater.plan(any(DefaultIssue.class), eq((ActionPlan) null), any(IssueChangeContext.class))).thenReturn(true);
 
     ArgumentCaptor<DefaultIssue> captor = ArgumentCaptor.forClass(DefaultIssue.class);

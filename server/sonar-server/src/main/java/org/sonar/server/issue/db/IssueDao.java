@@ -56,6 +56,10 @@ public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements 
     return mapper(session).selectByKeys(keys);
   }
 
+  public List<IssueDto> findByActionPlan(DbSession session, String actionPlan) {
+    return mapper(session).selectByActionPlan(actionPlan);
+  }
+
   @Override
   protected IssueDto doUpdate(DbSession session, IssueDto issue) {
     mapper(session).update(issue);

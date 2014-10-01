@@ -21,7 +21,6 @@ package org.sonar.core.issue.db;
 
 import org.apache.ibatis.annotations.Param;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.server.issue.IssueQuery;
 
 import javax.annotation.Nullable;
 
@@ -36,20 +35,7 @@ public interface IssueMapper {
 
   List<IssueDto> selectByKeys(Collection<String> keys);
 
-  /**
-   * Return a paginated list of authorized issue ids for a user.
-   * If the role is null, then the authorisation check is disabled.
-   */
-  List<IssueDto> selectIssueIds(@Param("query") IssueQuery query, @Param("componentRootKeys") Collection<String> componentRootKeys,
-    @Nullable @Param("userId") Integer userId, @Nullable @Param("role") String role,
-    @Param("maxResults") Integer maxResult);
-
-  /**
-   * Return a none paginated list of authorized issues for a user.
-   * If the role is null, then the authorisation check is disabled.
-   */
-  List<IssueDto> selectIssues(@Param("query") IssueQuery query, @Param("componentRootKeys") Collection<String> componentRootKeys,
-    @Nullable @Param("userId") Integer userId, @Nullable @Param("role") String role);
+  List<IssueDto> selectByActionPlan(String actionPlan);
 
   List<RuleDto> findRulesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Date createdAtOrAfter);
 

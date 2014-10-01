@@ -191,19 +191,6 @@
     where i.status &lt;&gt; 'CLOSED'
   </select>
 
-  <select id="selectByIds" parameterType="map" resultType="Issue">
-    select
-    <include refid="issueColumns"/>
-    from issues i
-    inner join rules r on r.id=i.rule_id
-    inner join projects p on p.id=i.component_id
-    inner join projects root on root.id=i.root_component_id
-    where i.id in
-    <foreach collection="list" open="(" close=")" item="id" separator=",">
-      #{id}
-    </foreach>
-  </select>
-
   <select id="selectByKeys" parameterType="map" resultType="Issue">
     select
     <include refid="issueColumns"/>
@@ -217,148 +204,17 @@
     </foreach>
   </select>
 
-  <select id="selectIssues" parameterType="map" resultType="Issue">
+  <select id="selectByActionPlan" parameterType="map" resultType="Issue">
     select
     <include refid="issueColumns"/>
     from issues i
     inner join rules r on r.id=i.rule_id
     inner join projects p on p.id=i.component_id
     inner join projects root on root.id=i.root_component_id
-    <include refid="selectQueryConditions"/>
-  </select>
-
-  <select id="selectIssueIds" parameterType="map" resultType="Issue">
-    select i.id
-    <include refid="sortColumn"/>
-    from issues i
-    <include refid="selectQueryConditions"/>
-    limit #{maxResults}
-  </select>
-
-  <!-- SQL Server -->
-  <select id="selectIssueIds" parameterType="map" resultType="Issue" databaseId="mssql">
-    select top (#{maxResults}) i.id
-    <include refid="sortColumn"/>
-    from issues i
-    <include refid="selectQueryConditions"/>
-  </select>
-
-  <!-- Oracle -->
-  <select id="selectIssueIds" parameterType="map" resultType="Issue" databaseId="oracle">
-    select * from (select
-    i.id
-    <include refid="sortColumn"/>
-    from issues i
-    <include refid="selectQueryConditions"/>
-    )
-    where rownum &lt;= #{maxResults}
-  </select>
-
-  <sql id="selectQueryConditions">
-    <if test="componentRootKeys.size() == 0 and role != null">
-      inner join (<include refid="org.sonar.core.user.AuthorizationMapper.selectAuthorizedRootProjectIdsQuery"/>)
-      authorizedProjects on authorizedProjects.root_project_id=i.root_component_id
-    </if>
-    <if test="componentRootKeys.size() > 0">
-      inner join (<include refid="org.sonar.core.resource.ResourceMapper.selectAuthorizedChildrenComponentIdsQuery"/>)
-      authorizedComponents on authorizedComponents.project_id=i.component_id
-    </if>
-    <if test="query.components().size() > 0">
-      inner join projects project_component on project_component.id=i.component_id and
-      project_component.enabled=${_true} and
-      <foreach item="component" index="index" collection="query.components()" open="(" separator=" or " close=")">
-        project_component.kee=#{component}
-      </foreach>
-    </if>
-    <if test="query.rules().size()>0 or query.languages().size()>0">
-      inner join rules r on r.id=i.rule_id
-      <if test="query.rules().size()>0">
-        and (<foreach item="rule" index="index" collection="query.rules()" open="(" separator=" or " close=")">
-        r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
-      </if>
-      <if test="query.languages().size()>0">
-        and (<foreach item="language" index="index" collection="query.languages()" open="(" separator=" or " close=")">
-        r.language=#{language}</foreach>)
-      </if>
-    </if>
     <where>
-      <if test="query.issueKeys().size()>0">
-        and
-        <foreach item="key" index="index" collection="query.issueKeys()" open="(" separator=" or " close=")">
-          i.kee=#{key}
-        </foreach>
-      </if>
-      <if test="query.severities().size()>0">
-        and
-        <foreach item="severity" index="index" collection="query.severities()" open="(" separator=" or " close=")">
-          i.severity=#{severity}
-        </foreach>
-      </if>
-      <if test="query.statuses().size()>0">
-        and
-        <foreach item="status" index="index" collection="query.statuses()" open="(" separator=" or " close=")">
-          i.status=#{status}
-        </foreach>
-      </if>
-      <if test="query.resolutions().size()>0">
-        and
-        <foreach item="resolution" index="index" collection="query.resolutions()" open="(" separator=" or " close=")">
-          i.resolution=#{resolution}
-        </foreach>
-      </if>
-      <if test="query.resolved() != null">
-        <if test="query.resolved() == true">
-          and i.resolution is not null
-        </if>
-        <if test="query.resolved() == false">
-          and i.resolution is null
-        </if>
-      </if>
-      <if test="query.reporters().size()>0">
-        and
-        <foreach item="reporter" index="index" collection="query.reporters()" open="(" separator=" or " close=")">
-          i.reporter=#{reporter}
-        </foreach>
-      </if>
-      <if test="query.assignees().size()>0">
-        and
-        <foreach item="assignee" index="index" collection="query.assignees()" open="(" separator=" or " close=")">
-          i.assignee=#{assignee}
-        </foreach>
-      </if>
-      <if test="query.assigned() != null">
-        <if test="query.assigned() == true">
-          and i.assignee is not null
-        </if>
-        <if test="query.assigned() == false">
-          and i.assignee is null
-        </if>
-      </if>
-      <if test="query.planned() != null">
-        <if test="query.planned() == true">
-          and i.action_plan_key is not null
-        </if>
-        <if test="query.planned() == false">
-          and i.action_plan_key is null
-        </if>
-      </if>
-      <if test="query.actionPlans().size()>0">
-        and
-        <foreach item="action_plan" index="index" collection="query.actionPlans()" open="(" separator=" or " close=")">
-          i.action_plan_key=#{action_plan}
-        </foreach>
-      </if>
-      <if test="query.createdAfter() != null">
-        and i.issue_creation_date &gt; #{query.createdAfter}
-      </if>
-      <if test="query.createdAt() != null">
-        and i.issue_creation_date = #{query.createdAt}
-      </if>
-      <if test="query.createdBefore() != null">
-        and i.issue_creation_date &lt; #{query.createdBefore}
-      </if>
+      and i.action_plan_key=#{action_plan}
     </where>
-  </sql>
+  </select>
 
   <select id="findRulesByComponent" parameterType="String" resultType="Rule">
     SELECT
