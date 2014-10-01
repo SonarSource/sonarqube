@@ -56,7 +56,7 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexQueue.class);
 
-  private static final Integer CONCURRENT_NORMALIZATION_FACTOR = 3;
+  private static final Integer CONCURRENT_NORMALIZATION_FACTOR = 1;
 
   public IndexQueue(Settings settings, SearchClient searchClient, ComponentContainer container) {
     this.searchClient = searchClient;
@@ -136,7 +136,7 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
       boolean hasInlineRefreshRequest = false;
       ExecutorService executorService = Executors.newFixedThreadPool(CONCURRENT_NORMALIZATION_FACTOR);
       // invokeAll() blocks until ALL tasks submitted to executor complete
-      List<Future<List<? extends ActionRequest>>> requests = executorService.invokeAll(actions, 20, TimeUnit.SECONDS);
+      List<Future<List<? extends ActionRequest>>> requests = executorService.invokeAll(actions, 20, TimeUnit.MINUTES);
       for (Future<List<? extends ActionRequest>> updates : requests) {
         for (ActionRequest update : updates.get()) {
 
