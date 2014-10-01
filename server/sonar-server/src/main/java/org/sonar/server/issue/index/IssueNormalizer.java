@@ -21,7 +21,6 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableList;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
@@ -51,7 +50,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
 
     public static final IndexField ACTION_PLAN = add(IndexField.Type.STRING, "actionPlan");
     public static final IndexField ASSIGNEE = addSortable(IndexField.Type.STRING, "assignee");
-    public static final IndexField ATTRIBUTES = add(IndexField.Type.OBJECT, "attributes");
+    public static final IndexField ATTRIBUTES = add(IndexField.Type.STRING, "attributes");
     public static final IndexField AUTHOR_LOGIN = add(IndexField.Type.STRING, "authorLogin");
     public static final IndexField COMPONENT = add(IndexField.Type.STRING, "component");
     public static final IndexField DEBT = add(IndexField.Type.NUMERIC, "debt");
@@ -105,7 +104,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     update.put(IssueField.CREATED_AT.field(), dto.getCreatedAt());
 
     update.put(IssueField.ACTION_PLAN.field(), dto.getActionPlanKey());
-    update.put(IssueField.ATTRIBUTES.field(), KeyValueFormat.parse(dto.getIssueAttributes()));
+    update.put(IssueField.ATTRIBUTES.field(), dto.getIssueAttributes());
     update.put(IssueField.ASSIGNEE.field(), dto.getAssignee());
     update.put(IssueField.AUTHOR_LOGIN.field(), dto.getAuthorLogin());
     update.put(IssueField.ISSUE_CLOSE_DATE.field(), dto.getIssueCloseDate());

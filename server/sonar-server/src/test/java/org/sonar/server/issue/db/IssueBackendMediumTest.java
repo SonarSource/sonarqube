@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.db;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
@@ -101,7 +103,8 @@ public class IssueBackendMediumTest {
       .setComponent(resource)
       .setStatus("OPEN").setResolution("OPEN")
       .setKee(UUID.randomUUID().toString())
-      .setSeverity("MAJOR");
+      .setSeverity("MAJOR")
+      .setIssueAttributes(KeyValueFormat.format(ImmutableMap.of("key", "value")));
     dbClient.issueDao().insert(dbSession, issue);
 
     dbSession.commit();
@@ -128,8 +131,9 @@ public class IssueBackendMediumTest {
     assertThat(issueDoc.updateDate()).isEqualTo(issue.getIssueUpdateDate());
     assertThat(issueDoc.status()).isEqualTo(issue.getStatus());
     assertThat(issueDoc.severity()).isEqualTo(issue.getSeverity());
+    assertThat(issueDoc.attributes()).isEqualTo(KeyValueFormat.parse(issue.getIssueAttributes()));
+    assertThat(issueDoc.attribute("key")).isEqualTo("value");
 
-    // assertThat(issueDoc.attributes()).isEqualTo(issue.getIssueAttributes());
     // assertThat(issueDoc.isNew()).isEqualTo(issue.isN());
     // assertThat(issueDoc.comments()).isEqualTo(issue.());
   }

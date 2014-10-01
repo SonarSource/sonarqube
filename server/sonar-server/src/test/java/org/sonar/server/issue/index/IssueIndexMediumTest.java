@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
+import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -52,6 +53,7 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
+import org.sonar.server.search.SearchClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -643,6 +645,7 @@ public class IssueIndexMediumTest {
     List<String> issueKeys = newArrayList();
     for (int i = 0; i < numberOfIssues; i++) {
       IssueDto issue = IssueTesting.newDto(rule, resource, project);
+      issue.setIssueAttributes("attr" + i);
       tester.get(IssueDao.class).insert(session, issue);
       issueKeys.add(issue.getKey());
     }
@@ -668,5 +671,8 @@ public class IssueIndexMediumTest {
 
     assertThat(index.countAll()).isEqualTo(numberOfIssues);
 
+    SearchClient elastic = tester.get(SearchClient.class);
+    IndicesStatsResponse stats = elastic.admin().indices().prepareStats(IndexDefinition.ISSUES.getIndexName()).get();
+    System.out.println("stats = " + stats);
   }
 }

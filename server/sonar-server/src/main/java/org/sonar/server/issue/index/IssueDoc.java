@@ -23,11 +23,11 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +130,7 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public Map<String, String> attributes() {
-    return getField(IssueNormalizer.IssueField.ATTRIBUTES.field());
+    return KeyValueFormat.parse((String) getNullableField(IssueNormalizer.IssueField.ATTRIBUTES.field()));
   }
 
   @Override
