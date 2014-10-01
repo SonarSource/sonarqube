@@ -80,9 +80,6 @@ public class InternalRubyIssueServiceTest {
   ResourceDao resourceDao;
 
   @Mock
-  IssueStatsFinder issueStatsFinder;
-
-  @Mock
   ActionService actionService;
 
   @Mock
@@ -97,7 +94,7 @@ public class InternalRubyIssueServiceTest {
   public void setUp() {
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
-    service = new InternalRubyIssueService(issueService, commentService, changelogService, actionPlanService, issueStatsFinder, resourceDao, actionService,
+    service = new InternalRubyIssueService(issueService, commentService, changelogService, actionPlanService, resourceDao, actionService,
       issueFilterService, issueBulkChangeService);
   }
 
@@ -110,7 +107,7 @@ public class InternalRubyIssueServiceTest {
   @Test
   public void find_issue_assignees() throws Exception {
     service.findIssueAssignees(ImmutableMap.<String, Object>of("issues", "ABCD"));
-    verify(issueStatsFinder).findIssueAssignees(any(IssueQuery.class));
+    verify(issueService).findIssueAssignees(any(IssueQuery.class));
   }
 
   @Test

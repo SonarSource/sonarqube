@@ -94,6 +94,7 @@ public class ActionPlanService implements ServerComponent {
   private void unplanIssues(DefaultActionPlan actionPlan, UserSession userSession) {
     // Get all issues linked to this plan (need to disable pagination and authorization check)
     IssueQuery query = IssueQuery.builder().actionPlans(Arrays.asList(actionPlan.key())).requiredRole(null).build();
+    // TODO use IssueService
     List<IssueDto> dtos = issueDao.selectIssues(query);
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.login());
     List<DefaultIssue> issues = newArrayList();

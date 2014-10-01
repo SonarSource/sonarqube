@@ -58,6 +58,7 @@ import org.sonar.server.user.MockUserSession;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -389,6 +390,27 @@ public class IssueServiceMediumTest {
 
     List<Issue> result = service.search(IssueQuery.builder().build(), new QueryContext()).getHits();
     assertThat(result).hasSize(1);
+  }
+
+  @Test
+  public void find_issue_assignees() throws Exception {
+    db.issueDao().insert(session,
+      IssueTesting.newDto(rule, file, project).setAssignee("steph"),
+      IssueTesting.newDto(rule, file, project).setAssignee("simon"),
+      IssueTesting.newDto(rule, file, project),
+      IssueTesting.newDto(rule, file, project).setAssignee("steph"));
+    session.commit();
+
+    Map<String, Integer> results = service.findIssueAssignees(IssueQuery.builder().build());
+
+    assertThat(results).hasSize(3);
+    assertThat(results.get("steph")).isEqualTo(2);
+    assertThat(results.get("simon")).isEqualTo(1);
+    assertThat(results.get(null)).isEqualTo(1);
+
+    assertThat(results.keySet().toArray()[0]).isEqualTo("steph");
+    assertThat(results.keySet().toArray()[1]).isEqualTo("simon");
+    assertThat(results.keySet().toArray()[2]).isNull();
   }
 
   private IssueDto newIssue() {

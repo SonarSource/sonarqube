@@ -86,7 +86,6 @@ public class InternalRubyIssueService implements ServerComponent {
   private final IssueCommentService commentService;
   private final IssueChangelogService changelogService;
   private final ActionPlanService actionPlanService;
-  private final IssueStatsFinder issueStatsFinder;
   private final ResourceDao resourceDao;
   private final ActionService actionService;
   private final IssueFilterService issueFilterService;
@@ -96,13 +95,12 @@ public class InternalRubyIssueService implements ServerComponent {
     IssueService issueService,
     IssueCommentService commentService,
     IssueChangelogService changelogService, ActionPlanService actionPlanService,
-    IssueStatsFinder issueStatsFinder, ResourceDao resourceDao, ActionService actionService,
+    ResourceDao resourceDao, ActionService actionService,
     IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService) {
     this.issueService = issueService;
     this.commentService = commentService;
     this.changelogService = changelogService;
     this.actionPlanService = actionPlanService;
-    this.issueStatsFinder = issueStatsFinder;
     this.resourceDao = resourceDao;
     this.actionService = actionService;
     this.issueFilterService = issueFilterService;
@@ -113,8 +111,8 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueService.getByKey(issueKey);
   }
 
-  public IssueStatsFinder.IssueStatsResult findIssueAssignees(Map<String, Object> params) {
-    return issueStatsFinder.findIssueAssignees(toQuery(params));
+  public Map<String, Integer> findIssueAssignees(Map<String, Object> params) {
+    return issueService.findIssueAssignees(toQuery(params));
   }
 
   public List<Transition> listTransitions(String issueKey) {

@@ -28,6 +28,8 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.missing.InternalMissing;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -112,6 +114,38 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       return result.getHits().get(0);
     }
     return null;
+  }
+
+  public List<FacetValue> listAssignees(IssueQuery query) {
+    QueryContext queryContext = new QueryContext().setPage(1, 0);
+
+    SearchRequestBuilder esSearch = getClient()
+      .prepareSearch(this.getIndexName())
+      .setTypes(this.getIndexType())
+      .setIndices(this.getIndexName());
+
+    QueryBuilder esQuery = QueryBuilders.matchAllQuery();
+    BoolFilterBuilder esFilter = getFilter(query, queryContext);
+    if (esFilter.hasClauses()) {
+      esSearch.setQuery(QueryBuilders.filteredQuery(esQuery, esFilter));
+    } else {
+      esSearch.setQuery(esQuery);
+    }
+    esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.ASSIGNEE.field())
+      .size(Integer.MAX_VALUE)
+      .field(IssueNormalizer.IssueField.ASSIGNEE.field()));
+    esSearch.addAggregation(AggregationBuilders.missing("notAssigned")
+      .field(IssueNormalizer.IssueField.ASSIGNEE.field()));
+
+    SearchResponse response = getClient().execute(esSearch);
+    Terms aggregation = (Terms) response.getAggregations().getAsMap().get(IssueNormalizer.IssueField.ASSIGNEE.field());
+    List<FacetValue> facetValues = newArrayList();
+    for (Terms.Bucket value : aggregation.getBuckets()) {
+      facetValues.add(new FacetValue(value.getKey(), (int) value.getDocCount()).setSort(FacetValue.Sort.BY_VALUE));
+    }
+    facetValues.add(new FacetValue("_notAssigned_", (int) ((InternalMissing) response.getAggregations().get("notAssigned")).getDocCount()));
+
+    return facetValues;
   }
 
   public Result<Issue> search(IssueQuery query, QueryContext options) {

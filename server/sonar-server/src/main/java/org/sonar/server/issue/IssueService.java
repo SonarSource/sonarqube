@@ -52,16 +52,16 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+
+import static com.google.common.collect.Maps.newLinkedHashMap;
 
 public class IssueService implements ServerComponent {
 
@@ -74,7 +74,7 @@ public class IssueService implements ServerComponent {
   private final IssueNotifications issueNotifications;
   private final ActionPlanService actionPlanService;
   private final RuleFinder ruleFinder;
-  private final IssueDao issueDao;
+  private final IssueDao deprecatedIssueDao;
   private final UserFinder userFinder;
   private final PreviewCache dryRunCache;
 
@@ -85,7 +85,7 @@ public class IssueService implements ServerComponent {
     IssueNotifications issueNotifications,
     ActionPlanService actionPlanService,
     RuleFinder ruleFinder,
-    IssueDao issueDao,
+    IssueDao deprecatedIssueDao,
     UserFinder userFinder,
     PreviewCache dryRunCache) {
     this.dbClient = dbClient;
@@ -96,7 +96,7 @@ public class IssueService implements ServerComponent {
     this.actionPlanService = actionPlanService;
     this.ruleFinder = ruleFinder;
     this.issueNotifications = issueNotifications;
-    this.issueDao = issueDao;
+    this.deprecatedIssueDao = deprecatedIssueDao;
     this.userFinder = userFinder;
     this.dryRunCache = dryRunCache;
   }
@@ -274,7 +274,7 @@ public class IssueService implements ServerComponent {
   // TODO result should be replaced by an aggregation object in IssueIndex
   public RulesAggregation findRulesByComponent(String componentKey, @Nullable Date periodDate, DbSession session) {
     RulesAggregation rulesAggregation = new RulesAggregation();
-    for (RuleDto ruleDto : issueDao.findRulesByComponent(componentKey, periodDate, session)) {
+    for (RuleDto ruleDto : deprecatedIssueDao.findRulesByComponent(componentKey, periodDate, session)) {
       rulesAggregation.add(ruleDto);
     }
     return rulesAggregation;
@@ -283,10 +283,23 @@ public class IssueService implements ServerComponent {
   // TODO result should be replaced by an aggregation object in IssueIndex
   public Multiset<String> findSeveritiesByComponent(String componentKey, @Nullable Date periodDate, DbSession session) {
     Multiset<String> aggregation = HashMultiset.create();
-    for (String severity : issueDao.findSeveritiesByComponent(componentKey, periodDate, session)) {
+    for (String severity : deprecatedIssueDao.findSeveritiesByComponent(componentKey, periodDate, session)) {
       aggregation.add(severity);
     }
     return aggregation;
+  }
+
+  public Map<String, Integer> findIssueAssignees(IssueQuery query) {
+    Map<String, Integer> result = newLinkedHashMap();
+    List<FacetValue> facetValues = indexClient.get(IssueIndex.class).listAssignees(query);
+    for (FacetValue facetValue : facetValues) {
+      if (facetValue.getKey().equals("_notAssigned_")) {
+        result.put(null, facetValue.getValue());
+      } else {
+        result.put(facetValue.getKey(), facetValue.getValue());
+      }
+    }
+    return result;
   }
 
   public Issue getByKey(String key) {

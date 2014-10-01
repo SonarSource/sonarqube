@@ -1,4 +1,4 @@
-<% 
+<%
     options = {}
     options['resolved'] = 'false'
     options['componentRoots'] = @project.key
@@ -6,35 +6,29 @@
       options['createdAfter'] = Api::Utils.format_datetime(@dashboard_configuration.from_datetime)
       options['createdBefore'] = Api::Utils.format_datetime(DateTime.now)
     end
-    results = Internal.issues.findIssueAssignees(options)
-    assignees = results.results
+    issues_by_assignee = Internal.issues.findIssueAssignees(options)
 
-    unless assignees.empty?
-      issues_by_assignee = {}
-      counter_no_assignee = 0
-      assignees.each do |assignee|
-        if assignee
-          counter = issues_by_assignee[assignee]
-          if counter
-            issues_by_assignee[assignee] = counter+1
-          else
-            issues_by_assignee[assignee] = 1
-          end
-        else
-          counter_no_assignee += 1
-        end
+    unless issues_by_assignee.empty?
+      users = Internal.users_api.find({'logins', issues_by_assignee.keySet()})
+      users_by_login = {}
+      users.each do |u|
+        users_by_login[u.login()] = u
       end
+
+      # puts "### " + users_by_login.inspect
+
+      counter_no_assignee = issues_by_assignee.get(nil)
       counter_max = 0
-      counter_max = issues_by_assignee.values.max unless issues_by_assignee.empty?
+      counter_max = issues_by_assignee.values().max unless issues_by_assignee.empty?
       counter_max = counter_no_assignee if counter_no_assignee > counter_max
-      
+
       div_id = "unresolved-issues-per-assignee-widget-#{widget.id.to_s}"
     end
 %>
 
 <h3><%= message('widget.reviews_per_developer.name') -%></h3>
 
-<% if assignees.size ==0 %>
+<% if issues_by_assignee.size ==0 %>
   <span class="empty_widget"><%= message('issue_filter.no_issues') -%></span>
 
 <% else %>
@@ -49,11 +43,12 @@
     </thead>
     <tbody>
       <%
-         issues_by_assignee.sort{|h1,h2| h2[1] <=> h1[1]}.each do |assignee, count|
+         issues_by_assignee.each do |assignee, count|
+          if assignee
       %>
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
           <td class="max-width">
-            <%= link_to results.user(assignee).name, url_for_issues(options.merge(:assignees => assignee)) -%>
+            <%= link_to users_by_login[assignee].name(), url_for_issues(options.merge(:assignees => assignee)) -%>
           </td>
           <td class="nowrap">
             <%= '+' if @dashboard_configuration.selected_period? -%><%= count.to_s -%>
@@ -65,9 +60,8 @@
           <% end %>
         </tr>
       <%
-        end
-        # And now show the unassigned issues counter
-        unless counter_no_assignee==0
+         # And now show the unassigned issues counter
+         else
       %>
         <tr class="<%= cycle 'even', 'odd', :name => (div_id) -%>">
           <td class="max-width">
@@ -82,7 +76,8 @@
             </td>
           <% end %>
         </tr>
-      <% end %>
+      <% end
+        end %>
     </tbody>
   </table>
 

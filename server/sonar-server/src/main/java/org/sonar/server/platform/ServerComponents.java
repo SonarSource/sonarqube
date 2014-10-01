@@ -488,7 +488,6 @@ class ServerComponents {
     pico.addSingleton(FunctionExecutor.class);
     pico.addSingleton(IssueWorkflow.class);
     pico.addSingleton(IssueCommentService.class);
-    pico.addSingleton(IssueStatsFinder.class);
     pico.addSingleton(InternalRubyIssueService.class);
     pico.addSingleton(IssueChangelogService.class);
     pico.addSingleton(IssueNotifications.class);
