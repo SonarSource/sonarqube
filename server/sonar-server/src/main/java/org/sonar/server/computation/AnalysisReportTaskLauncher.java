@@ -22,41 +22,26 @@ package org.sonar.server.computation;
 
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.computation.db.AnalysisReportDao;
-import org.sonar.server.db.DbClient;
 
-public class AnalysisReportTasksCleaner implements Startable, ServerComponent {
-  private final ServerUpgradeStatus serverUpgradeStatus;
-  private final DbClient dbClient;
+public class AnalysisReportTaskLauncher implements Startable, ServerComponent {
 
-  public AnalysisReportTasksCleaner(ServerUpgradeStatus serverUpgradeStatus, DbClient dbClient) {
-    this.serverUpgradeStatus = serverUpgradeStatus;
-    this.dbClient = dbClient;
+  private final ComputationService service;
+
+  private AnalysisReportTask task;
+
+  public AnalysisReportTaskLauncher(ComputationService service) {
+    this.service = service;
   }
 
   @Override
   public void start() {
-    DbSession session = dbClient.openSession(false);
-    AnalysisReportDao dao = dbClient.analysisReportDao();
-
-    try {
-      if (serverUpgradeStatus.isUpgraded()) {
-        dao.cleanWithTruncate(session);
-      } else {
-        dao.cleanWithUpdateAllToPendingStatus(session);
-      }
-
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+    task = new AnalysisReportTask(service);
+    task.start();
   }
 
   @Override
   public void stop() {
-    // do nothing
+    task.interrupt();
   }
+
 }

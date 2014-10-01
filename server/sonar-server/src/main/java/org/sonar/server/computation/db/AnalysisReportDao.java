@@ -23,7 +23,6 @@ package org.sonar.server.computation.db;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.computation.db.AnalysisReportDto.Status;
 import org.sonar.core.computation.db.AnalysisReportMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
@@ -32,6 +31,9 @@ import org.sonar.server.db.BaseDao;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
+import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
 public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisReportDto, String> implements DaoComponent {
 
@@ -51,7 +53,7 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
    * startup task use only
    */
   public void cleanWithUpdateAllToPendingStatus(DbSession session) {
-    mapper(session).cleanWithUpdateAllToPendingStatus(Status.PENDING, new Date(system2.now()));
+    mapper(session).cleanWithUpdateAllToPendingStatus(PENDING, new Date(system2.now()));
   }
 
   /**
@@ -65,13 +67,41 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
     return mapper(session).selectByProjectKey(projectKey);
   }
 
+  public AnalysisReportDto getNextAvailableReport(DbSession session) {
+    // TODO to improve – the query should return one element or null
+    List<AnalysisReportDto> reports = mapper(session).selectNextAvailableReport(PENDING, WORKING);
+
+    if (reports.isEmpty()) {
+      return null;
+    }
+
+    return reports.get(0);
+  }
+
+  public int tryToBookReport(DbSession session, AnalysisReportDto report) {
+    // checkArgument(report.getId() != null);
+    //
+    // report.setStatus(WORKING);
+    //
+    // return mapper(session).update(report);
+    throw new UnsupportedOperationException();
+  }
+
   @Override
   protected AnalysisReportDto doGetNullableByKey(DbSession session, String projectKey) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  protected AnalysisReportDto doUpdate(DbSession session, AnalysisReportDto issue) {
+  protected AnalysisReportDto doUpdate(DbSession session, AnalysisReportDto report) {
+    // int nbOfReportsChanged = mapper(session).update(report);
+    // checkState(nbOfReportsChanged < 2);
+    //
+    // if (nbOfReportsChanged == 0) {
+    // return null;
+    // }
+    //
+    // return report;
     throw new UnsupportedOperationException();
   }
 

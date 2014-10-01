@@ -3,12 +3,12 @@
 
 <mapper namespace="org.sonar.core.computation.db.AnalysisReportMapper">
   <sql id="reportColumns">
-    id,
-    project_key as projectKey,
-    report_status as status,
-    report_data as data,
-    created_at as createdAt,
-    updated_at as updatedAt
+    ar.id,
+    ar.project_key as projectKey,
+    ar.report_status as status,
+    ar.report_data as data,
+    ar.created_at as createdAt,
+    ar.updated_at as updatedAt
   </sql>
 
   <insert id="insert" parameterType="AnalysisReport" useGeneratedKeys="true">
@@ -29,7 +29,21 @@
   <select id="selectByProjectKey" parameterType="String" resultType="AnalysisReport">
     select
     <include refid="reportColumns"/>
-    from analysis_reports
+    from analysis_reports ar
     where project_key = #{projectKey}
+  </select>
+
+  <select id="selectNextAvailableReport" parameterType="map" resultType="AnalysisReport">
+    select
+    <include refid="reportColumns"/>
+    from analysis_reports ar
+    where ar.report_status=#{availableStatus}
+    and not exists(
+    select 1
+    from analysis_reports ar2
+    where ar.project_key = ar2.project_key
+    and ar2.report_status=#{busyStatus}
+    )
+    order by created_at asc
   </select>
 </mapper>

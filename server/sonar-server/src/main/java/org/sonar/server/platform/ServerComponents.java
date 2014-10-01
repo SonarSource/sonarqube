@@ -85,7 +85,7 @@ import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.component.ws.*;
-import org.sonar.server.computation.AnalysisReportTasksCleaner;
+import org.sonar.server.computation.AnalysisReportTaskCleaner;
 import org.sonar.server.computation.ComputationService;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.config.ws.PropertiesWs;
@@ -627,7 +627,7 @@ class ServerComponents {
     startupContainer.addSingleton(RegisterServletFilters.class);
     startupContainer.addSingleton(CleanPreviewAnalysisCache.class);
     startupContainer.addSingleton(CopyRequirementsFromCharacteristicsToRules.class);
-    startupContainer.addSingleton(AnalysisReportTasksCleaner.class);
+    startupContainer.addSingleton(AnalysisReportTaskCleaner.class);
 
     DoPrivileged.execute(new DoPrivileged.Task() {
       @Override

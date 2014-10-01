@@ -23,19 +23,12 @@ import org.sonar.core.persistence.Dto;
 
 import javax.annotation.Nullable;
 
-/**
- * since 5.0
- */
 public class AnalysisReportDto extends Dto<String> {
 
   private Long id;
   private String projectKey;
   private Status status;
   private String data;
-
-  public enum Status {
-    PENDING, WORKING
-  }
 
   public String getProjectKey() {
     return projectKey;
@@ -73,8 +66,7 @@ public class AnalysisReportDto extends Dto<String> {
     return id;
   }
 
-  public AnalysisReportDto setId(Long id) {
-    this.id = id;
-    return this;
+  public enum Status {
+    PENDING, WORKING
   }
 }

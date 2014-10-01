@@ -30,6 +30,8 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.TestDatabase;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -98,7 +100,7 @@ public class AnalysisReportDaoTest {
   }
 
   @Test
-  public void select_one_report_by_project_key() {
+  public void find_one_report_by_project_key() {
     db.prepareDbUnit(getClass(), "select.xml");
 
     final String projectKey = "123456789-987654321";
@@ -111,7 +113,7 @@ public class AnalysisReportDaoTest {
   }
 
   @Test
-  public void select_several_reports_by_project_key() {
+  public void find_several_reports_by_project_key() {
     db.prepareDbUnit(getClass(), "select.xml");
 
     final String projectKey = "987654321-123456789";
@@ -119,4 +121,56 @@ public class AnalysisReportDaoTest {
 
     assertThat(reports).hasSize(2);
   }
+
+  @Test
+  public void get_oldest_available_report() {
+    db.prepareDbUnit(getClass(), "select_oldest_available_report.xml");
+
+    final String projectKey = "123456789-987654321";
+    AnalysisReportDto nextAvailableReport = dao.getNextAvailableReport(session);
+
+    assertThat(nextAvailableReport.getId()).isEqualTo(2);
+    assertThat(nextAvailableReport.getProjectKey()).isEqualTo(projectKey);
+  }
+
+  @Test
+  public void get_oldest_available_report_with_working_reports_older() {
+    db.prepareDbUnit(getClass(), "select_oldest_available_report_with_working_reports_older.xml");
+
+    final String projectKey = "123456789-987654321";
+    AnalysisReportDto nextAvailableReport = dao.getNextAvailableReport(session);
+
+    assertThat(nextAvailableReport.getId()).isEqualTo(2);
+    assertThat(nextAvailableReport.getProjectKey()).isEqualTo(projectKey);
+  }
+
+  @Test
+  public void null_when_no_available_pending_report_because_working_report_on_the_same_project() {
+    db.prepareDbUnit(getClass(), "select-with-no-available-report.xml");
+
+    AnalysisReportDto nextAvailableReport = dao.getNextAvailableReport(session);
+
+    assertThat(nextAvailableReport).isNull();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void doGetNullableByKey_is_not_implemented_yet() {
+    dao.doGetNullableByKey(session, "ANY_STRING");
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void getSynchronizationParams_is_not_implemented_yet() {
+    dao.getSynchronizationParams(new Date(), new HashMap<String, String>());
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void doUpdate_is_not_implemented_yet() {
+    dao.doUpdate(session, new AnalysisReportDto());
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void tryToBookReport_is_not_implemented_yet() {
+    dao.tryToBookReport(session, new AnalysisReportDto());
+  }
+
 }

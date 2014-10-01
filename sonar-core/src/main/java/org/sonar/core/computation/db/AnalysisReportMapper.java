@@ -22,14 +22,14 @@ package org.sonar.core.computation.db;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
+import java.util.List;
 
-/**
- * since 5.0
- */
 public interface AnalysisReportMapper {
   void insert(AnalysisReportDto report);
 
-  java.util.List<AnalysisReportDto> selectByProjectKey(String projectKey);
+  List<AnalysisReportDto> selectByProjectKey(String projectKey);
+
+  List<AnalysisReportDto> selectNextAvailableReport(@Param("availableStatus") AnalysisReportDto.Status availableStatus, @Param("busyStatus") AnalysisReportDto.Status busyStatus);
 
   /**
    * startup task use only
@@ -40,4 +40,6 @@ public interface AnalysisReportMapper {
    * startup task use only
    */
   void cleanWithTruncate();
+
+  int update(AnalysisReportDto report);
 }

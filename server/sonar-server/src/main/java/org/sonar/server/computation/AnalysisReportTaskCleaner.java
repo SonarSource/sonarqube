@@ -20,58 +20,43 @@
 
 package org.sonar.server.computation;
 
+import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 
-import java.util.List;
-
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
-
-/**
- * since 5.0
- */
-public class ComputationService implements ServerComponent {
+public class AnalysisReportTaskCleaner implements Startable, ServerComponent {
+  private final ServerUpgradeStatus serverUpgradeStatus;
   private final DbClient dbClient;
-  private final AnalysisReportDao dao;
 
-  public ComputationService(DbClient dbClient) {
+  public AnalysisReportTaskCleaner(ServerUpgradeStatus serverUpgradeStatus, DbClient dbClient) {
+    this.serverUpgradeStatus = serverUpgradeStatus;
     this.dbClient = dbClient;
-    dao = this.dbClient.analysisReportDao();
   }
 
-  public void create(String projectKey) {
-    AnalysisReportDto report = new AnalysisReportDto()
-      .setProjectKey(projectKey)
-      .setStatus(PENDING);
-
+  @Override
+  public void start() {
     DbSession session = dbClient.openSession(false);
+    AnalysisReportDao dao = dbClient.analysisReportDao();
+
     try {
-      dao.insert(session, report);
+      if (serverUpgradeStatus.isUpgraded()) {
+        dao.cleanWithTruncate(session);
+      } else {
+        dao.cleanWithUpdateAllToPendingStatus(session);
+      }
+
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<AnalysisReportDto> findByProjectKey(String projectKey) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return dao.findByProjectKey(session, projectKey);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public AnalysisReportDto findAndBookNextAnalysisReport() {
-    // TODO TBE – implementation needed
-    return null;
-  }
-
-  public void analyzeReport(AnalysisReportDto report) {
-    // TODO TBE – implementation needed
+  @Override
+  public void stop() {
+    // do nothing
   }
 }

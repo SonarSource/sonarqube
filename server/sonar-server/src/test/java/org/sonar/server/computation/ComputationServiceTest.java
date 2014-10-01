@@ -28,6 +28,7 @@ import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -52,8 +53,21 @@ public class ComputationServiceTest {
   }
 
   @Test
-  public void create_must_call_dao_insert() throws Exception {
+  public void create_must_call_dao_insert() {
     sut.create("ANY-KEY");
     verify(analysisReportDao).insert(any(DbSession.class), any(AnalysisReportDto.class));
   }
+
+  @Test
+  public void findByProjectKey_call_corresponding_dao() {
+    sut.findByProjectKey("ANY_STRING");
+    verify(analysisReportDao).findByProjectKey(any(DbSession.class), anyString());
+  }
+
+  @Test
+  public void test_unimplemented_methods_for_code_coverage_purpose_only() {
+    sut.analyzeReport(new AnalysisReportDto());
+    sut.findAndBookNextAnalysisReport();
+  }
+
 }

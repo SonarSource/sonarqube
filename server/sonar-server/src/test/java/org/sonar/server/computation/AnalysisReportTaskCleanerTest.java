@@ -29,9 +29,9 @@ import org.sonar.server.db.DbClient;
 
 import static org.mockito.Mockito.*;
 
-public class AnalysisReportTasksCleanerTest {
+public class AnalysisReportTaskCleanerTest {
 
-  AnalysisReportTasksCleaner sut;
+  AnalysisReportTaskCleaner sut;
   ServerUpgradeStatus serverUpgradeStatus;
   DbClient dbClient;
   AnalysisReportDao analysisReportDao;
@@ -47,7 +47,7 @@ public class AnalysisReportTasksCleanerTest {
     when(dbClient.analysisReportDao()).thenReturn(analysisReportDao);
     when(dbClient.openSession(false)).thenReturn(session);
 
-    sut = new AnalysisReportTasksCleaner(serverUpgradeStatus, dbClient);
+    sut = new AnalysisReportTaskCleaner(serverUpgradeStatus, dbClient);
   }
 
   @Test
