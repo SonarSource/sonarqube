@@ -509,7 +509,7 @@ requirejs [
         repo = _.findWhere(App.repositories, key: value)
         other_repo_with_same_name = _.find(App.repositories, (repos) -> repos.name == repo.name && repos.key != repo.key)
         if other_repo_with_same_name
-          repo.name + ' - ' + App.languages[repo.language]
+          App.languages[repo.language] + ' ' + repo.name
         else
           repo.name
 
