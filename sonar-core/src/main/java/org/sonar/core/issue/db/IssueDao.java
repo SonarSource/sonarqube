@@ -26,10 +26,10 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.server.issue.IssueQuery;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;

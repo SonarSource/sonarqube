@@ -23,7 +23,6 @@ package org.sonar.server.issue;
 import org.apache.commons.lang.time.DateUtils;
 import org.fest.assertions.Assertions;
 import org.junit.Test;
-import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.issue.db.IssueDto;
 
 import java.util.Date;

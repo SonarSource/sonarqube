@@ -22,8 +22,8 @@ package org.sonar.core.issue.db;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.server.issue.IssueQuery;
 
 import java.util.List;
 

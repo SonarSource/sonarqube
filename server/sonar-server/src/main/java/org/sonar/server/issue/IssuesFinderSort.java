@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
-import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.db.IssueDto;
 

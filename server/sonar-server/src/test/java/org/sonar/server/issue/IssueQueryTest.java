@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue;
+package org.sonar.server.issue;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.web.UserRole;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 
 public class IssueQueryTest {
 
@@ -39,7 +37,7 @@ public class IssueQueryTest {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(newArrayList("ABCDE"))
       .severities(newArrayList(Severity.BLOCKER))
-      .statuses(newArrayList(Issue.STATUS_RESOLVED))
+      .statuses(Lists.newArrayList(Issue.STATUS_RESOLVED))
       .resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE))
       .components(newArrayList("org/struts/Action.java"))
       .componentRoots(newArrayList("org.struts:core"))
@@ -57,9 +55,6 @@ public class IssueQueryTest {
       .resolved(true)
       .sort(IssueQuery.SORT_BY_ASSIGNEE)
       .asc(true)
-      .pageSize(10)
-      .pageIndex(2)
-      .requiredRole(UserRole.USER)
       .build();
     assertThat(query.issueKeys()).containsOnly("ABCDE");
     assertThat(query.severities()).containsOnly(Severity.BLOCKER);
@@ -81,9 +76,6 @@ public class IssueQueryTest {
     assertThat(query.resolved()).isTrue();
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_ASSIGNEE);
     assertThat(query.asc()).isTrue();
-    assertThat(query.pageSize()).isEqualTo(10);
-    assertThat(query.pageIndex()).isEqualTo(2);
-    assertThat(query.requiredRole()).isEqualTo(UserRole.USER);
   }
 
   @Test
@@ -160,69 +152,7 @@ public class IssueQueryTest {
     assertThat(query.planned()).isNull();
     assertThat(query.resolved()).isNull();
     assertThat(query.sort()).isNull();
-    assertThat(query.pageSize()).isEqualTo(100);
-    assertThat(query.pageIndex()).isEqualTo(1);
-    assertThat(query.requiredRole()).isEqualTo(UserRole.USER);
-    assertThat(query.maxResults()).isEqualTo(IssueQuery.MAX_RESULTS);
 
-  }
-
-  @Test
-  public void use_max_page_size_if_negative() throws Exception {
-    IssueQuery query = IssueQuery.builder().pageSize(0).build();
-    assertThat(query.pageSize()).isEqualTo(IssueQuery.MAX_PAGE_SIZE);
-
-    query = IssueQuery.builder().pageSize(-1).build();
-    assertThat(query.pageSize()).isEqualTo(IssueQuery.MAX_PAGE_SIZE);
-  }
-
-  @Test
-  public void test_default_page_index_and_size() throws Exception {
-    IssueQuery query = IssueQuery.builder().build();
-    assertThat(query.pageSize()).isEqualTo(IssueQuery.DEFAULT_PAGE_SIZE);
-    assertThat(query.pageIndex()).isEqualTo(IssueQuery.DEFAULT_PAGE_INDEX);
-  }
-
-  @Test
-  public void reset_to_max_page_size() throws Exception {
-    IssueQuery query = IssueQuery.builder()
-      .pageSize(IssueQuery.MAX_PAGE_SIZE + 100)
-      .build();
-    assertThat(query.pageSize()).isEqualTo(IssueQuery.MAX_PAGE_SIZE);
-  }
-
-  @Test
-  public void could_disable_paging_on_single_component() throws Exception {
-    IssueQuery query = IssueQuery.builder().components(Arrays.asList("Action.java")).build();
-    assertThat(query.pageSize()).isGreaterThan(IssueQuery.MAX_PAGE_SIZE);
-  }
-
-  @Test
-  public void page_index_should_be_positive() throws Exception {
-    try {
-      IssueQuery.builder()
-        .pageIndex(0)
-        .build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Page index must be greater than 0 (got 0)").isInstanceOf(IllegalArgumentException.class);
-    }
-  }
-
-  @Test
-  public void number_of_issue_keys_should_be_limited() throws Exception {
-    List<String> issueKeys = newArrayList();
-    for (int i=0; i<IssueQuery.MAX_PAGE_SIZE+1; i++) {
-      issueKeys.add("issue-key-"+ i);
-    }
-    try {
-      IssueQuery.builder()
-          .issueKeys(issueKeys)
-          .build();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Number of issue keys must be less than 500 (got 501)").isInstanceOf(IllegalArgumentException.class);
-    }
   }
 
   @Test

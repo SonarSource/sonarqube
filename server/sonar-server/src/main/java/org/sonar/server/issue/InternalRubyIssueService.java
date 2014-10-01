@@ -33,14 +33,12 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
-import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.SonarException;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueFilter;
@@ -636,13 +634,12 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public int maxPageSize() {
-    return IssueQuery.MAX_PAGE_SIZE;
+    return QueryContext.MAX_LIMIT;
   }
 
   @VisibleForTesting
   static IssueQuery toQuery(Map<String, Object> props) {
     IssueQuery.Builder builder = IssueQuery.builder()
-      .requiredRole(UserRole.USER)
       .issueKeys(RubyUtils.toStrings(props.get(IssueFilterParameters.ISSUES)))
       .severities(RubyUtils.toStrings(props.get(IssueFilterParameters.SEVERITIES)))
       .statuses(RubyUtils.toStrings(props.get(IssueFilterParameters.STATUSES)))

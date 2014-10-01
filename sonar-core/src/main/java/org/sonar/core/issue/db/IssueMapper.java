@@ -20,8 +20,8 @@
 package org.sonar.core.issue.db;
 
 import org.apache.ibatis.annotations.Param;
-import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.server.issue.IssueQuery;
 
 import javax.annotation.Nullable;
 

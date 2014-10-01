@@ -46,24 +46,32 @@ public class FacetValue implements Comparable<FacetValue> {
     return key;
   }
 
-  public void setKey(String key) {
+  public FacetValue setKey(String key) {
     this.key = key;
+    return this;
   }
 
   public Integer getValue() {
     return value;
   }
 
-  public void setValue(Integer value) {
+  public FacetValue setValue(Integer value) {
     this.value = value;
+    return this;
   }
 
   public Multimap<String, FacetValue> getSubFacets() {
     return subFacets;
   }
 
-  public void setSubFacets(Multimap<String, FacetValue> subFacets) {
+  public FacetValue setSubFacets(Multimap<String, FacetValue> subFacets) {
     this.subFacets = subFacets;
+    return this;
+  }
+
+  public FacetValue setSort(Sort sort) {
+    this.sort = sort;
+    return this;
   }
 
   @Override

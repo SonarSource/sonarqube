@@ -26,12 +26,12 @@ import org.apache.ibatis.executor.result.DefaultResultHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.issue.IssueQuery;
 
 import java.util.List;
 

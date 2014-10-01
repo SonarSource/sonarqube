@@ -22,8 +22,8 @@ package org.sonar.core.issue.db;
 
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.issue.IssueQuery;
 
 import javax.annotation.Nullable;
 
