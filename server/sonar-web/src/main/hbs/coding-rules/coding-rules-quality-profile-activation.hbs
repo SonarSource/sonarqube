@@ -45,7 +45,7 @@
             {{else}}
               {{#eq type 'BOOLEAN'}}
               <select name="{{key}}" value="{{value}}">
-                <option value="{{defaultValue}}">{{t 'default'}}</option>
+                <option value="{{defaultValue}}">{{t 'default'}} ({{t defaultValue}})</option>
                 <option value="true"{{#eq value 'true'}} selected="selected"{{/eq}}>{{t 'true'}}</option>
                 <option value="false"{{#eq value 'false'}} selected="selected"{{/eq}}>{{t 'false'}}</option>
               </select>
