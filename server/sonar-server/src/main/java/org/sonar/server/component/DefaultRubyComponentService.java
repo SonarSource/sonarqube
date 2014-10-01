@@ -43,12 +43,14 @@ public class DefaultRubyComponentService implements RubyComponentService {
   private final ResourceDao resourceDao;
   private final DefaultComponentFinder finder;
   private final ResourceIndexerDao resourceIndexerDao;
+  private final ComponentService componentService;
   private final I18n i18n;
 
-  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ResourceIndexerDao resourceIndexerDao, I18n i18n) {
+  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ResourceIndexerDao resourceIndexerDao, ComponentService componentService, I18n i18n) {
     this.resourceDao = resourceDao;
     this.finder = finder;
     this.resourceIndexerDao = resourceIndexerDao;
+    this.componentService = componentService;
     this.i18n = i18n;
   }
 
@@ -112,6 +114,14 @@ public class DefaultRubyComponentService implements RubyComponentService {
   public List<ResourceDto> findProvisionedProjects(Map<String, Object> params) {
     ComponentQuery query = toQuery(params);
     return resourceDao.selectProvisionedProjects(query.qualifiers());
+  }
+
+  public void updateKey(String projectOrModuleKey, String newKey) {
+    componentService.updateKey(projectOrModuleKey, newKey);
+  }
+
+  public void bulkUpdateKey(String projectKey, String stringToReplace, String replacementString) {
+    componentService.bulkUpdateKey(projectKey, stringToReplace, replacementString);
   }
 
   static ComponentQuery toQuery(Map<String, Object> props) {

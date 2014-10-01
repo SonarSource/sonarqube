@@ -45,7 +45,7 @@ public class ComponentTesting {
       .setName("Module")
       .setLongName("Module")
       .setSubProjectId(subProjectOrProject.getId())
-      .setScope(Scopes.FILE)
+      .setScope(Scopes.PROJECT)
       .setQualifier(Qualifiers.MODULE)
       .setPath("module")
       .setLanguage(null)

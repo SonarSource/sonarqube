@@ -164,13 +164,9 @@ class ProjectController < ApplicationController
     elsif Project.by_key(new_key)
       flash[:error] = message('update_key.cant_update_x_because_resource_already_exist_with_key_x', :params => [project.key, new_key])
     else
-      begin
-        java_facade.updateResourceKey(project.id, new_key)
-        reportProjectModification(project.id)
+      call_backend do
+        Internal.component_api.updateKey(project.key, new_key)
         flash[:notice] = message('update_key.key_updated')
-      rescue Exception => e
-        flash[:error] = message('update_key.error_occured_while_renaming_key_of_x',
-                                :params => [project.key, Api::Utils.exception_message(e, :backtrace => false)])
       end
     end
 
@@ -207,13 +203,9 @@ class ProjectController < ApplicationController
     replacement_string = params[:replacement_string].strip
 
     unless string_to_replace.blank? || replacement_string.blank?
-      begin
-        java_facade.bulkUpdateKey(project.id, string_to_replace, replacement_string)
-        reportProjectModification(project.id)
+      call_backend do
+        Internal.component_api.bulkUpdateKey(project.key, string_to_replace, replacement_string)
         flash[:notice] = message('update_key.key_updated')
-      rescue Exception => e
-        flash[:error] = message('update_key.error_occured_while_renaming_key_of_x',
-                                :params => [project.key, Api::Utils.exception_message(e, :backtrace => false)])
       end
     end
 

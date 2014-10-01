@@ -170,7 +170,7 @@ public class UploadReportActionMediumTest {
       .setProjectId_unit_test_only(project.getId())
       .setKey("MyComponent");
     db.componentDao().insert(session, resource);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource, project));
 
     RuleDto rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(session, rule);
@@ -218,7 +218,7 @@ public class UploadReportActionMediumTest {
       .setProjectId_unit_test_only(project.getId())
       .setKey("MyComponent");
     db.componentDao().insert(session, resource);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource, project));
 
     RuleDto rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(session, rule);

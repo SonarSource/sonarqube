@@ -77,13 +77,13 @@ public class BackendCleanupMediumTest {
     project = new ComponentDto()
       .setKey("MyProject");
     tester.get(ComponentDao.class).insert(session, project);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(project));
+    db.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
 
     file = new ComponentDto()
       .setProjectId_unit_test_only(project.getId())
       .setKey("MyComponent");
     tester.get(ComponentDao.class).insert(session, file);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
 
     // project can be seen by anyone
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);

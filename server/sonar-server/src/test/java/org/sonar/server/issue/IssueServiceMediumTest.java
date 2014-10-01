@@ -96,14 +96,14 @@ public class IssueServiceMediumTest {
       .setQualifier(Qualifiers.PROJECT)
       .setScope(Scopes.PROJECT);
     tester.get(ComponentDao.class).insert(session, project);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(project));
+    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForProject(project));
 
     file = new ComponentDto()
       .setSubProjectId(project.getId())
       .setKey("MyComponent")
       .setLongName("My Component");
     tester.get(ComponentDao.class).insert(session, file);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file));
+    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project));
 
     // project can be seen by anyone
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);

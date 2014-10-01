@@ -84,7 +84,7 @@ public class SearchActionMediumTest {
     project = new ComponentDto()
       .setKey("MyProject");
     db.componentDao().insert(session, project);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(project));
+    db.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
 
     // project can be seen by anyone
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
@@ -94,7 +94,7 @@ public class SearchActionMediumTest {
       .setKey("MyComponent")
       .setSubProjectId(project.getId());
     db.componentDao().insert(session, file);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
 
     UserDto john = new UserDto().setLogin("john").setName("John").setEmail("john@email.com");
     db.userDao().insert(session, john);
@@ -266,7 +266,7 @@ public class SearchActionMediumTest {
       .setKey("ProjectHavingModule")
       .setScope("PRJ");
     db.componentDao().insert(session, project);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(project));
+    db.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
 
     // project can be seen by anyone
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
@@ -277,14 +277,14 @@ public class SearchActionMediumTest {
       .setScope("PRJ")
       .setSubProjectId(project.getId());
     db.componentDao().insert(session, module);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module, project));
 
     ComponentDto file = new ComponentDto()
       .setKey("FileLinkedToModule")
       .setScope("FIL")
       .setSubProjectId(module.getId());
     db.componentDao().insert(session, file);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
 
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     db.issueDao().insert(session, issue);

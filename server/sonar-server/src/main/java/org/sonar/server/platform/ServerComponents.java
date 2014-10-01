@@ -79,6 +79,7 @@ import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.batch.*;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.db.ComponentDao;
@@ -474,6 +475,7 @@ class ServerComponents {
     // components
     pico.addSingleton(DefaultComponentFinder.class);
     pico.addSingleton(DefaultRubyComponentService.class);
+    pico.addSingleton(ComponentService.class);
     pico.addSingleton(ComponentDao.class);
     pico.addSingleton(ResourcesWs.class);
     pico.addSingleton(ComponentsWs.class);

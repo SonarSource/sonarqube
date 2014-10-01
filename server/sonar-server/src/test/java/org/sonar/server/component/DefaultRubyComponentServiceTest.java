@@ -42,26 +42,26 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DefaultRubyComponentServiceTest {
 
-  private ResourceDao resourceDao;
-  private DefaultComponentFinder finder;
-  private ResourceIndexerDao resourceIndexerDao;
-  private I18n i18n;
-  private DefaultRubyComponentService componentService;
+  ResourceDao resourceDao;
+  DefaultComponentFinder finder;
+  ResourceIndexerDao resourceIndexerDao;
+  ComponentService componentService;
+  I18n i18n;
+
+  DefaultRubyComponentService service;
 
   @Before
   public void before() {
     resourceDao = mock(ResourceDao.class);
     finder = mock(DefaultComponentFinder.class);
     resourceIndexerDao = mock(ResourceIndexerDao.class);
+    componentService = mock(ComponentService.class);
     i18n = mock(I18n.class);
-    componentService = new DefaultRubyComponentService(resourceDao, finder, resourceIndexerDao, i18n);
+    service = new DefaultRubyComponentService(resourceDao, finder, resourceIndexerDao, componentService, i18n);
   }
 
   @Test
@@ -69,7 +69,7 @@ public class DefaultRubyComponentServiceTest {
     Component<?> component = mock(Component.class);
     when(resourceDao.findByKey("struts")).thenReturn(component);
 
-    assertThat(componentService.findByKey("struts")).isEqualTo(component);
+    assertThat(service.findByKey("struts")).isEqualTo(component);
   }
 
   @Test
@@ -82,7 +82,7 @@ public class DefaultRubyComponentServiceTest {
     when(component.getId()).thenReturn(componentId);
     when(resourceDao.findByKey(componentKey)).thenReturn(null).thenReturn(component);
 
-    componentService.createComponent(componentKey, componentName, qualifier);
+    service.createComponent(componentKey, componentName, qualifier);
 
     ArgumentCaptor<ResourceDto> resourceCaptor = ArgumentCaptor.forClass(ResourceDto.class);
     verify(resourceDao).insertOrUpdate(resourceCaptor.capture());
@@ -103,7 +103,7 @@ public class DefaultRubyComponentServiceTest {
     String qualifier = Qualifiers.PROJECT;
     when(resourceDao.findByKey(componentKey)).thenReturn(null);
 
-    componentService.createComponent(componentKey, componentName, qualifier);
+    service.createComponent(componentKey, componentName, qualifier);
   }
 
   @Test(expected = BadRequestException.class)
@@ -113,19 +113,19 @@ public class DefaultRubyComponentServiceTest {
     String qualifier = Qualifiers.PROJECT;
     when(resourceDao.findByKey(componentKey)).thenReturn(mock(ComponentDto.class));
 
-    componentService.createComponent(componentKey, componentName, qualifier);
+    service.createComponent(componentKey, componentName, qualifier);
   }
 
   @Test(expected = BadRequestException.class)
   public void should_throw_if_malformed_key1() {
-    componentService.createComponent("1234", "New Project", Qualifiers.PROJECT);
+    service.createComponent("1234", "New Project", Qualifiers.PROJECT);
   }
 
   @Test(expected = NotFoundException.class)
   public void should_throw_if_updating_unknown_component() {
     final long componentId = 1234l;
     when(resourceDao.getResource(componentId)).thenReturn(null);
-    componentService.updateComponent(componentId, "key", "name");
+    service.updateComponent(componentId, "key", "name");
   }
 
   @Test
@@ -137,7 +137,7 @@ public class DefaultRubyComponentServiceTest {
     when(resourceDao.getResource(componentId)).thenReturn(resource);
     when(resource.setKey(newKey)).thenReturn(resource);
     when(resource.setName(newName)).thenReturn(resource);
-    componentService.updateComponent(componentId, newKey, newName);
+    service.updateComponent(componentId, newKey, newName);
     verify(resource).setKey(newKey);
     verify(resource).setName(newName);
     verify(resourceDao).insertOrUpdate(resource);
@@ -150,7 +150,7 @@ public class DefaultRubyComponentServiceTest {
     final String newName = "newName";
     ResourceDto resource = mock(ResourceDto.class);
     when(resourceDao.getResource(componentId)).thenReturn(resource);
-    componentService.updateComponent(componentId, newKey, newName);
+    service.updateComponent(componentId, newKey, newName);
   }
 
   @Test
@@ -166,7 +166,7 @@ public class DefaultRubyComponentServiceTest {
     map.put("sort", "NAME");
     map.put("asc", true);
 
-    componentService.find(map);
+    service.find(map);
     verify(resourceDao).selectProjectsByQualifiers(anyListOf(String.class));
     verify(finder).find(any(ComponentQuery.class), anyListOf(Component.class));
   }
@@ -184,7 +184,7 @@ public class DefaultRubyComponentServiceTest {
     map.put("sort", "NAME");
     map.put("asc", true);
 
-    componentService.findWithUncompleteProjects(map);
+    service.findWithUncompleteProjects(map);
     verify(resourceDao).selectProjectsIncludingNotCompletedOnesByQualifiers(anyListOf(String.class));
     verify(finder).find(any(ComponentQuery.class), anyListOf(Component.class));
   }
@@ -202,7 +202,7 @@ public class DefaultRubyComponentServiceTest {
     map.put("sort", "NAME");
     map.put("asc", true);
 
-    componentService.findGhostsProjects(map);
+    service.findGhostsProjects(map);
     verify(resourceDao).selectGhostsProjects(anyListOf(String.class));
     verify(finder).find(any(ComponentQuery.class), anyListOf(Component.class));
   }
@@ -214,7 +214,7 @@ public class DefaultRubyComponentServiceTest {
     Map<String, Object> map = newHashMap();
     map.put("qualifiers", qualifiers);
 
-    componentService.findProvisionedProjects(map);
+    service.findProvisionedProjects(map);
     verify(resourceDao).selectProvisionedProjects(anyListOf(String.class));
   }
 
@@ -254,5 +254,17 @@ public class DefaultRubyComponentServiceTest {
     assertThat(query.pageIndex()).isEqualTo(1);
     assertThat(query.sort()).isEqualTo(ComponentQuery.SORT_BY_NAME);
     assertThat(query.asc()).isTrue();
+  }
+
+  @Test
+  public void update_key() {
+    service.updateKey("oldKey", "newKey");
+    verify(componentService).updateKey("oldKey", "newKey");
+  }
+
+  @Test
+  public void bulk_update_key() {
+    service.bulkUpdateKey("oldKey", "old", "new");
+    verify(componentService).bulkUpdateKey("oldKey", "old", "new");
   }
 }

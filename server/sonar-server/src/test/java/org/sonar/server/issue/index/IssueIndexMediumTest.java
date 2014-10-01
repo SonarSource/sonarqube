@@ -639,7 +639,7 @@ public class IssueIndexMediumTest {
       .setSubProjectId(project.getId())
       .setKey("MyComponent");
     db.componentDao().insert(session, resource);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource, project));
 
     List<String> issueKeys = newArrayList();
     for (int i = 0; i < numberOfIssues; i++) {
