@@ -21,14 +21,10 @@ package org.sonar.server.issue;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueChangeDao;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collection;
@@ -43,18 +39,18 @@ public class IssueChangelogService implements ServerComponent {
 
   private final IssueChangeDao changeDao;
   private final UserFinder userFinder;
-  private final DefaultIssueFinder finder;
+  private final IssueService issueService;
   private final IssueChangelogFormatter formatter;
 
-  public IssueChangelogService(IssueChangeDao changeDao, UserFinder userFinder, DefaultIssueFinder finder, IssueChangelogFormatter formatter) {
+  public IssueChangelogService(IssueChangeDao changeDao, UserFinder userFinder, IssueService issueService, IssueChangelogFormatter formatter) {
     this.changeDao = changeDao;
     this.userFinder = userFinder;
-    this.finder = finder;
+    this.issueService = issueService;
     this.formatter = formatter;
   }
 
   public IssueChangelog changelog(String issueKey) {
-    Issue issue = loadIssue(issueKey).first();
+    Issue issue = issueService.getByKey(issueKey);
     return changelog(issue);
   }
 
@@ -70,14 +66,6 @@ public class IssueChangelogService implements ServerComponent {
     }
     Collection<User> users = userFinder.findByLogins(logins);
     return new IssueChangelog(changes, users);
-  }
-
-  public IssueQueryResult loadIssue(String issueKey) {
-    IssueQueryResult result = finder.find(IssueQuery.builder().issueKeys(newArrayList(issueKey)).requiredRole(UserRole.USER).build());
-    if (result.issues().size() != 1) {
-      throw new NotFoundException("Issue not found: " + issueKey);
-    }
-    return result;
   }
 
   public List<String> formatDiffs(FieldDiffs diffs) {

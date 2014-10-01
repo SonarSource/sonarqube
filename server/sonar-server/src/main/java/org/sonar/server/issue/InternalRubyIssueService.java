@@ -111,12 +111,12 @@ public class InternalRubyIssueService implements ServerComponent {
     this.issueBulkChangeService = issueBulkChangeService;
   }
 
-  public Issue getIssueByKey(String issueKey){
+  public Issue getIssueByKey(String issueKey) {
     return issueService.getByKey(issueKey);
   }
 
   public IssueStatsFinder.IssueStatsResult findIssueAssignees(Map<String, Object> params) {
-    return issueStatsFinder.findIssueAssignees(PublicRubyIssueService.toQuery(params));
+    return issueStatsFinder.findIssueAssignees(toQuery(params));
   }
 
   public List<Transition> listTransitions(String issueKey) {
@@ -156,11 +156,11 @@ public class InternalRubyIssueService implements ServerComponent {
     }));
   }
 
-  public List<DefaultIssueComment> findComments(String issueKey){
+  public List<DefaultIssueComment> findComments(String issueKey) {
     return commentService.findComments(issueKey);
   }
 
-  public List<DefaultIssueComment> findCommentsByIssueKeys(Collection<String> issueKeys){
+  public List<DefaultIssueComment> findCommentsByIssueKeys(Collection<String> issueKeys) {
     return commentService.findComments(issueKeys);
   }
 
@@ -429,7 +429,7 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public IssueQuery emptyIssueQuery() {
-    return PublicRubyIssueService.toQuery(Maps.<String, Object>newHashMap());
+    return toQuery(Maps.<String, Object>newHashMap());
   }
 
   @CheckForNull
@@ -635,7 +635,7 @@ public class InternalRubyIssueService implements ServerComponent {
     }
   }
 
-  public int maxPageSize(){
+  public int maxPageSize() {
     return IssueQuery.MAX_PAGE_SIZE;
   }
 
@@ -670,7 +670,7 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   @VisibleForTesting
-  static QueryContext toContext(Map<String, Object> props){
+  static QueryContext toContext(Map<String, Object> props) {
     QueryContext context = new QueryContext();
     Integer pageIndex = RubyUtils.toInteger(props.get(IssueFilterParameters.PAGE_INDEX));
     Integer pageSize = RubyUtils.toInteger(props.get(IssueFilterParameters.PAGE_SIZE));

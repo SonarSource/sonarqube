@@ -20,9 +20,11 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.condition.Condition;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
@@ -31,6 +33,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.IssueNotifications;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
@@ -38,7 +41,10 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.rule.DefaultRuleFinder;
+import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -61,6 +67,7 @@ public class IssueBulkChangeServiceTest {
   DbClient dbClient = mock(DbClient.class);
   DbSession dbSession = mock(DbSession.class);
 
+  IssueDao issueDao = mock(IssueDao.class);
   IssueService issueService = mock(IssueService.class);
   IssueStorage issueStorage = mock(IssueStorage.class);
   DefaultRuleFinder ruleFinder = mock(DefaultRuleFinder.class);
@@ -82,6 +89,7 @@ public class IssueBulkChangeServiceTest {
   public void before() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.issueDao()).thenReturn(issueDao);
 
     rule = Rule.create("repo", "key");
     when(ruleFinder.findByKeys(newHashSet(rule.ruleKey()))).thenReturn(newArrayList(rule));
@@ -102,12 +110,13 @@ public class IssueBulkChangeServiceTest {
       .setLongName("My Component");
     when(componentDao.getByKeys(dbSession, newHashSet(file.key()))).thenReturn(newArrayList(file));
 
-    issue = new DefaultIssue()
-      .setKey("ABCD")
-      .setRuleKey(rule.ruleKey())
-      .setProjectKey(project.key())
-      .setComponentKey(file.key());
-    when(issueService.search(anyListOf(String.class))).thenReturn(newArrayList((Issue) issue));
+    IssueDto issueDto = IssueTesting.newDto(RuleTesting.newDto(rule.ruleKey()).setId(50), file, project).setKee("ABCD");
+    issue = issueDto.toDefaultIssue();
+
+    org.sonar.server.search.Result<Issue> result = mock(org.sonar.server.search.Result.class);
+    when(result.getHits()).thenReturn(newArrayList((Issue) issue));
+    when(issueService.search(any(IssueQuery.class), any(QueryContext.class))).thenReturn(result);
+    when(issueDao.getByKeys(dbSession, newArrayList(issue.key()))).thenReturn(newArrayList(issueDto));
 
     actions = newArrayList();
     service = new IssueBulkChangeService(dbClient, issueService, issueStorage, ruleFinder, issueNotifications, actions, mock(PreviewCache.class));
@@ -176,7 +185,13 @@ public class IssueBulkChangeServiceTest {
 
   @Test
   public void should_execute_bulk_change_with_comment_only_on_changed_issues() {
-    when(issueService.search(anyListOf(String.class))).thenReturn(newArrayList((Issue) new DefaultIssue().setKey("ABCD"), new DefaultIssue().setKey("EFGH")));
+    IssueDto issueDto1 = IssueTesting.newDto(RuleTesting.newDto(rule.ruleKey()).setId(50), file, project).setKee("ABCD");
+    IssueDto issueDto2 = IssueTesting.newDto(RuleTesting.newDto(rule.ruleKey()).setId(50), file, project).setKee("EFGH");
+
+    org.sonar.server.search.Result<Issue> resultIssues = mock(org.sonar.server.search.Result.class);
+    when(resultIssues.getHits()).thenReturn(Lists.<Issue>newArrayList(issueDto1.toDefaultIssue(), issueDto2.toDefaultIssue()));
+    when(issueService.search(any(IssueQuery.class), any(QueryContext.class))).thenReturn(resultIssues);
+    when(issueDao.getByKeys(dbSession, newArrayList("ABCD", "EFGH"))).thenReturn(newArrayList(issueDto1, issueDto2));
 
     Map<String, Object> properties = newHashMap();
     properties.put("issues", "ABCD,EFGH");
@@ -205,7 +220,7 @@ public class IssueBulkChangeServiceTest {
 
     // Only one issue will receive the comment
     verify(assignAction, times(1)).execute(anyMap(), any(IssueBulkChangeService.ActionContext.class));
-    verify(issueStorage).save(eq(issue));
+    verify(issueStorage).save(eq(issueDto1.toDefaultIssue()));
   }
 
   @Test

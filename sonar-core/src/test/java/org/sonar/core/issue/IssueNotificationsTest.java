@@ -25,8 +25,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.component.Component;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.notifications.Notification;
@@ -38,6 +36,7 @@ import org.sonar.core.component.ResourceComponent;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -85,10 +84,8 @@ public class IssueNotificationsTest {
       .setSendNotifications(true)
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
-    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
 
-    Notification notification = issueNotifications.sendChanges(issue, context, queryResult).get(0);
+    Notification notification = issueNotifications.sendChanges(issue, context, null, new Project("struts"), null).get(0);
 
     assertThat(notification.getFieldValue("message")).isEqualTo("the message");
     assertThat(notification.getFieldValue("key")).isEqualTo("ABCDE");
@@ -112,15 +109,12 @@ public class IssueNotificationsTest {
       .setAssignee("freddy")
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
-    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
-
-    Notification notification = issueNotifications.sendChanges(issue, context, queryResult, "I don't know how to fix it?");
+    Notification notification = issueNotifications.sendChanges(issue, context, null, new Project("struts"), null, "I don't know how to fix it?").get(0);
 
     assertThat(notification.getFieldValue("message")).isEqualTo("the message");
     assertThat(notification.getFieldValue("key")).isEqualTo("ABCDE");
     assertThat(notification.getFieldValue("comment")).isEqualTo("I don't know how to fix it?");
-    Mockito.verify(manager).scheduleForSending(notification);
+    Mockito.verify(manager).scheduleForSending(eq(Arrays.asList(notification)));
   }
 
   @Test
@@ -134,11 +128,8 @@ public class IssueNotificationsTest {
       .setSendNotifications(true)
       .setComponentKey("struts:Action.java")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
-    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
-    queryResult.addComponents(Arrays.<Component>asList(new ResourceComponent(File.create("Action.java", "Action.java", null, false).setEffectiveKey("struts:Action.java"))));
-
-    Notification notification = issueNotifications.sendChanges(issue, context, queryResult).get(0);
+    Notification notification = issueNotifications.sendChanges(issue, context, null, new Project("struts"),
+      new ResourceComponent(File.create("Action.java", "Action.java", null, false).setEffectiveKey("struts:Action.java"))).get(0);
 
     assertThat(notification.getFieldValue("message")).isEqualTo("the message");
     assertThat(notification.getFieldValue("key")).isEqualTo("ABCDE");
@@ -157,12 +148,9 @@ public class IssueNotificationsTest {
       .setKey("ABCDE")
       .setComponentKey("struts:Action")
       .setProjectKey("struts");
-    DefaultIssueQueryResult queryResult = new DefaultIssueQueryResult(Arrays.<Issue>asList(issue));
-    queryResult.addProjects(Arrays.<Component>asList(new Project("struts")));
+    List<Notification> notifications = issueNotifications.sendChanges(issue, context, null, new Project("struts"), null);
 
-    Notification notification = issueNotifications.sendChanges(issue, context, queryResult, null);
-
-    assertThat(notification).isNull();
+    assertThat(notifications).isEmpty();
     Mockito.verifyZeroInteractions(manager);
   }
 }

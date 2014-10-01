@@ -22,12 +22,6 @@
 # as an API and can evolve through time.
 class Api
 
-  # See the javadoc of org.sonar.api.issue.RubyIssueService.
-  # Since 3.6
-  def self.issues
-    Internal.issues_api
-  end
-
   # See the javadoc of org.sonar.api.user.RubyUserService
   # Since 3.6
   def self.users

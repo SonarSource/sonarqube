@@ -24,26 +24,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
-import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.user.DefaultUser;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Locale;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -57,7 +49,7 @@ public class IssueChangelogServiceTest {
   UserFinder userFinder;
 
   @Mock
-  DefaultIssueFinder issueFinder;
+  IssueService issueService;
 
   @Mock
   IssueChangelogFormatter formatter;
@@ -66,7 +58,7 @@ public class IssueChangelogServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    service = new IssueChangelogService(changeDao, userFinder, issueFinder, formatter);
+    service = new IssueChangelogService(changeDao, userFinder, issueService, formatter);
   }
 
   @Test
@@ -77,8 +69,7 @@ public class IssueChangelogServiceTest {
     User arthur = new DefaultUser().setLogin("arthur").setName("Arthur");
     when(userFinder.findByLogins(Arrays.asList("arthur"))).thenReturn(Arrays.asList(arthur));
 
-    IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(newArrayList((Issue) new DefaultIssue().setKey("ABCDE")));
-    when(issueFinder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
+    when(issueService.getByKey("ABCDE")).thenReturn(new DefaultIssue().setKey("ABCDE"));
 
     IssueChangelog changelog = service.changelog("ABCDE");
 
@@ -86,21 +77,6 @@ public class IssueChangelogServiceTest {
     assertThat(changelog.changes()).containsOnly(userChange, scanChange);
     assertThat(changelog.user(scanChange)).isNull();
     assertThat(changelog.user(userChange)).isSameAs(arthur);
-  }
-
-  @Test
-  public void not_load_changelog_on_unkown_issue() throws Exception {
-    try {
-      IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(Collections.<Issue>emptyList());
-      when(issueFinder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
-
-      service.changelog("ABCDE");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-      verifyNoMoreInteractions(changeDao);
-      verifyNoMoreInteractions(userFinder);
-    }
   }
 
   @Test

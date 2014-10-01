@@ -61,7 +61,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
@@ -389,7 +388,7 @@ public class IssueServiceMediumTest {
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
 
-    List<Issue> result = service.search(newArrayList(issue.getKey()));
+    List<Issue> result = service.search(IssueQuery.builder().build(), new QueryContext()).getHits();
     assertThat(result).hasSize(1);
   }
 

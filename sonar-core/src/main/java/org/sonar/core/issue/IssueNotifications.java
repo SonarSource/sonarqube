@@ -24,7 +24,6 @@ import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
-import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.issue.internal.IssueChangeContext;
@@ -69,13 +68,6 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
   }
 
   @CheckForNull
-  public List<Notification> sendChanges(DefaultIssue issue, IssueChangeContext context, IssueQueryResult queryResult) {
-    Map<DefaultIssue, Rule> issues = Maps.newHashMap();
-    issues.put(issue, queryResult.rule(issue));
-    return sendChanges(issue, context, queryResult.rule(issue), queryResult.project(issue), queryResult.component(issue));
-  }
-
-  @CheckForNull
   public List<Notification> sendChanges(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component) {
     return sendChanges(issue, context, rule, project, component, null);
   }
@@ -96,22 +88,15 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
         notifications.add(notification);
       }
     }
-    notificationsManager.scheduleForSending(notifications);
+    if (!notifications.isEmpty()) {
+      notificationsManager.scheduleForSending(notifications);
+    }
     return notifications;
   }
 
   @CheckForNull
-  public Notification sendChanges(DefaultIssue issue, IssueChangeContext context, IssueQueryResult queryResult, @Nullable String comment) {
-    Notification notification = createChangeNotification(issue, context, queryResult.rule(issue), queryResult.project(issue), queryResult.component(issue), comment);
-    if (notification != null) {
-      notificationsManager.scheduleForSending(notification);
-    }
-    return notification;
-  }
-
-  @CheckForNull
   private Notification createChangeNotification(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project,
-                                                @Nullable Component component, @Nullable String comment) {
+    @Nullable Component component, @Nullable String comment) {
     Notification notification = null;
     if (comment != null || issue.mustSendNotifications()) {
       FieldDiffs currentChange = issue.currentChange();

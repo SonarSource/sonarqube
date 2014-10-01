@@ -20,26 +20,31 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.IssueNotifications;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.DefaultRuleFinder;
+import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.*;
 
@@ -77,7 +82,7 @@ public class IssueBulkChangeService {
 
     IssueBulkChangeResult result = new IssueBulkChangeResult();
 
-    List<Issue> issues = issueService.search(issueBulkChangeQuery.issues());
+    List<Issue> issues = getByKeysForUpdate(issueBulkChangeQuery.issues());
     Referentials referentials = new Referentials(issues);
 
     List<Action> bulkActions = getActionsToApply(issueBulkChangeQuery, issues, userSession);
@@ -112,6 +117,30 @@ public class IssueBulkChangeService {
     }
     LOG.debug("BulkChange execution time : {} ms", System.currentTimeMillis() - start);
     return result;
+  }
+
+  private List<Issue> getByKeysForUpdate(List<String> issueKeys) {
+    // Load from index to check permission
+    List<Issue> authorizedIndexIssues = issueService.search(IssueQuery.builder().issueKeys(issueKeys).build(), new QueryContext().setMaxLimit()).getHits();
+    List<String> authorizedIssueKeys = newArrayList(Iterables.transform(authorizedIndexIssues, new Function<Issue, String>() {
+      @Override
+      public String apply(@Nullable Issue input) {
+        return input != null ? input.key() : null;
+      }
+    }));
+
+    DbSession session = dbClient.openSession(false);
+    try {
+      List<IssueDto> issueDtos = dbClient.issueDao().getByKeys(session, authorizedIssueKeys);
+      return newArrayList(Iterables.transform(issueDtos, new Function<IssueDto, Issue>() {
+        @Override
+        public Issue apply(@Nullable IssueDto input) {
+          return input != null ? input.toDefaultIssue() : null;
+        }
+      }));
+    } finally {
+      session.close();
+    }
   }
 
   private List<Action> getActionsToApply(IssueBulkChangeQuery issueBulkChangeQuery, List<Issue> issues, UserSession userSession) {

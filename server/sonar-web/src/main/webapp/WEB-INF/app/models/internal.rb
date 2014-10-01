@@ -26,10 +26,6 @@ class Internal
     component(Java::OrgSonarServerIssue::InternalRubyIssueService.java_class)
   end
 
-  def self.issues_api
-    component(Java::OrgSonarApiIssue::RubyIssueService.java_class)
-  end
-
   def self.text
     component(Java::OrgSonarServerText::RubyTextService.java_class)
   end
