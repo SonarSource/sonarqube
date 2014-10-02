@@ -626,9 +626,9 @@ define(
             f.set('id', idObj.value);
             f.fetch({
               success: function () {
-                var parsedFilter = that.parseQuery(f.get('query'))
+                var parsedFilter = that.parseQuery(f.get('query'));
                 params = _.extend({}, params);
-                params = _.extent(params, parsedFilter)
+                params = _.extent(params, parsedFilter);
                 that.loadResults(params);
               }
             });
