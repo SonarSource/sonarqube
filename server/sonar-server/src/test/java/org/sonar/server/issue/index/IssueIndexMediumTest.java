@@ -408,10 +408,38 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void sort_by_severity() throws Exception {
+    db.issueDao().insert(session,
+      IssueTesting.newDto(rule, file, project).setSeverity(Severity.BLOCKER),
+      IssueTesting.newDto(rule, file, project).setSeverity(Severity.INFO),
+      IssueTesting.newDto(rule, file, project).setSeverity(Severity.MINOR),
+      IssueTesting.newDto(rule, file, project).setSeverity(Severity.CRITICAL),
+      IssueTesting.newDto(rule, file, project).setSeverity(Severity.MAJOR)
+    );
+    session.commit();
+
+    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(true);
+    Result<Issue> result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits().get(0).severity()).isEqualTo(Severity.INFO);
+    assertThat(result.getHits().get(1).severity()).isEqualTo(Severity.MINOR);
+    assertThat(result.getHits().get(2).severity()).isEqualTo(Severity.MAJOR);
+    assertThat(result.getHits().get(3).severity()).isEqualTo(Severity.CRITICAL);
+    assertThat(result.getHits().get(4).severity()).isEqualTo(Severity.BLOCKER);
+
+    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(false);
+    result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits().get(0).severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(result.getHits().get(1).severity()).isEqualTo(Severity.CRITICAL);
+    assertThat(result.getHits().get(2).severity()).isEqualTo(Severity.MAJOR);
+    assertThat(result.getHits().get(3).severity()).isEqualTo(Severity.MINOR);
+    assertThat(result.getHits().get(4).severity()).isEqualTo(Severity.INFO);
+  }
+
+  @Test
   public void sort_by_assignee() throws Exception {
-    IssueDto issue1 = IssueTesting.newDto(rule, file, project).setAssignee("steph");
-    IssueDto issue2 = IssueTesting.newDto(rule, file, project).setAssignee("simon");
-    db.issueDao().insert(session, issue1, issue2);
+    db.issueDao().insert(session,
+      IssueTesting.newDto(rule, file, project).setAssignee("steph"),
+      IssueTesting.newDto(rule, file, project).setAssignee("simon"));
     session.commit();
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_ASSIGNEE).asc(true);
@@ -429,9 +457,9 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_creation_date() throws Exception {
-    IssueDto issue1 = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-23"));
-    IssueDto issue2 = IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-24"));
-    db.issueDao().insert(session, issue1, issue2);
+    db.issueDao().insert(session,
+      IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-23")),
+      IssueTesting.newDto(rule, file, project).setIssueCreationDate(DateUtils.parseDate("2014-09-24")));
     session.commit();
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(true);
@@ -449,9 +477,9 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_update_date() throws Exception {
-    IssueDto issue1 = IssueTesting.newDto(rule, file, project).setIssueUpdateDate(DateUtils.parseDate("2014-09-23"));
-    IssueDto issue2 = IssueTesting.newDto(rule, file, project).setIssueUpdateDate(DateUtils.parseDate("2014-09-24"));
-    db.issueDao().insert(session, issue1, issue2);
+    db.issueDao().insert(session,
+      IssueTesting.newDto(rule, file, project).setIssueUpdateDate(DateUtils.parseDate("2014-09-23")),
+      IssueTesting.newDto(rule, file, project).setIssueUpdateDate(DateUtils.parseDate("2014-09-24")));
     session.commit();
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(true);
@@ -469,10 +497,10 @@ public class IssueIndexMediumTest {
 
   @Test
   public void sort_by_close_date() throws Exception {
-    IssueDto issue1 = IssueTesting.newDto(rule, file, project).setIssueCloseDate(DateUtils.parseDate("2014-09-23"));
-    IssueDto issue2 = IssueTesting.newDto(rule, file, project).setIssueCloseDate(DateUtils.parseDate("2014-09-24"));
-    IssueDto issue3 = IssueTesting.newDto(rule, file, project).setIssueCloseDate(null);
-    db.issueDao().insert(session, issue1, issue2, issue3);
+    db.issueDao().insert(session,
+      IssueTesting.newDto(rule, file, project).setIssueCloseDate(DateUtils.parseDate("2014-09-23")),
+      IssueTesting.newDto(rule, file, project).setIssueCloseDate(DateUtils.parseDate("2014-09-24")),
+      IssueTesting.newDto(rule, file, project).setIssueCloseDate(null));
     session.commit();
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(true);

@@ -21,6 +21,7 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableList;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
@@ -65,6 +66,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField REPORTER = add(IndexField.Type.STRING, "reporter");
     public static final IndexField STATUS = addSortable(IndexField.Type.STRING, "status");
     public static final IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
+    public static final IndexField SEVERITY_VALUE = addSortable(IndexField.Type.NUMERIC, "severityValue");
     public static final IndexField LANGUAGE = add(IndexField.Type.STRING, "language");
     public static final IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
 
@@ -119,6 +121,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     update.put(IssueField.REPORTER.field(), dto.getReporter());
     update.put(IssueField.STATUS.field(), dto.getStatus());
     update.put(IssueField.SEVERITY.field(), dto.getSeverity());
+    update.put(IssueField.SEVERITY_VALUE.field(), Severity.ALL.indexOf(dto.getSeverity()));
     update.put(IssueField.DEBT.field(), dto.getDebt());
     update.put(IssueField.LANGUAGE.field(), dto.getLanguage());
     update.put(IssueField.RULE_KEY.field(), dto.getRuleKey().toString());
