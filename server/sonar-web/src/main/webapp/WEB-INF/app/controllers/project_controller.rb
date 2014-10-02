@@ -182,17 +182,19 @@ class ProjectController < ApplicationController
       flash[:error] = message('update_key.fieds_cant_be_blank_for_bulk_update')
       redirect_to :action => 'key', :id => @project.id
     else
-      @key_check_results = java_facade.checkModuleKeysBeforeRenaming(@project.id, @string_to_replace, @replacement_string)
-      @can_update = false
-      @duplicate_key_found = false
-      @key_check_results.each do |key, value|
-        if value=="#duplicate_key#"
-          @duplicate_key_found = true
-        else
-          @can_update = true
+      call_backend do
+        @key_check_results = Internal.component_api.checkModuleKeysBeforeRenaming(@project.key, @string_to_replace, @replacement_string)
+        @can_update = false
+        @duplicate_key_found = false
+        @key_check_results.each do |key, value|
+          if value=="#duplicate_key#"
+            @duplicate_key_found = true
+          else
+            @can_update = true
+          end
         end
+        @can_update = false if @duplicate_key_found
       end
-      @can_update = false if @duplicate_key_found
     end
   end
 

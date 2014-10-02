@@ -120,6 +120,10 @@ public class DefaultRubyComponentService implements RubyComponentService {
     componentService.updateKey(projectOrModuleKey, newKey);
   }
 
+  public Map<String, String> checkModuleKeysBeforeRenaming(String projectKey, String stringToReplace, String replacementString) {
+    return componentService.checkModuleKeysBeforeRenaming(projectKey, stringToReplace, replacementString);
+  }
+
   public void bulkUpdateKey(String projectKey, String stringToReplace, String replacementString) {
     componentService.bulkUpdateKey(projectKey, stringToReplace, replacementString);
   }

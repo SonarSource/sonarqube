@@ -23,9 +23,11 @@ package org.sonar.server.component;
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
+import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.permission.InternalPermissionService;
@@ -34,6 +36,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 
 import java.util.Date;
+import java.util.Map;
 
 public class ComponentService implements ServerComponent {
 
@@ -50,20 +53,20 @@ public class ComponentService implements ServerComponent {
     this.previewCache = previewCache;
   }
 
-  public ComponentDto getByKey(String key) {
+  public AuthorizedComponentDto getByKey(String key) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().getByKey(session, key);
+      return dbClient.componentDao().getAuthorizedComponentByKey(key, session);
     } finally {
       session.close();
     }
   }
 
   @CheckForNull
-  public ComponentDto getNullableByKey(String key) {
+  public AuthorizedComponentDto getNullableByKey(String key) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().getNullableByKey(session, key);
+      return dbClient.componentDao().getNullableAuthorizedComponentByKey(key, session);
     } finally {
       session.close();
     }
@@ -78,18 +81,29 @@ public class ComponentService implements ServerComponent {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto projectOrModule = getByKey(projectOrModuleKey);
-      ComponentDto oldRootProject = dbClient.componentDao().getRootProjectByKey(projectOrModuleKey, session);
+      AuthorizedComponentDto projectOrModule = getByKey(projectOrModuleKey);
+      ResourceDto oldRootProject = dbClient.resourceDao().getRootProjectByComponentKey(session, projectOrModuleKey);
 
       resourceKeyUpdaterDao.updateKey(projectOrModule.getId(), newKey);
       session.commit();
 
-      ComponentDto newRootProject = dbClient.componentDao().getRootProjectByKey(newKey, session);
-      updateIssuesIndex(session, oldRootProject.key(), newRootProject.key());
+      ResourceDto newRootProject = dbClient.resourceDao().getRootProjectByComponentKey(session, newKey);
+      updateIssuesIndex(session, oldRootProject.getKey(), newRootProject.getKey());
 
-      previewCache.reportResourceModification(newRootProject.key());
+      previewCache.reportResourceModification(newRootProject.getKey());
 
       session.commit();
+    } finally {
+      session.close();
+    }
+  }
+
+  public Map<String, String> checkModuleKeysBeforeRenaming(String projectKey, String stringToReplace, String replacementString) {
+    UserSession.get().checkProjectPermission(UserRole.ADMIN, projectKey);
+    DbSession session = dbClient.openSession(false);
+    try {
+      AuthorizedComponentDto project = getByKey(projectKey);
+      return resourceKeyUpdaterDao.checkModuleKeysBeforeRenaming(project.getId(), stringToReplace, replacementString);
     } finally {
       session.close();
     }
@@ -100,12 +114,12 @@ public class ComponentService implements ServerComponent {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto project = getByKey(projectKey);
+      AuthorizedComponentDto project = getByKey(projectKey);
 
       resourceKeyUpdaterDao.bulkUpdateKey(project.getId(), stringToReplace, replacementString);
       session.commit();
 
-      ComponentDto newProject = dbClient.componentDao().getById(project.getId(), session);
+      AuthorizedComponentDto newProject = dbClient.componentDao().getNullableAuthorizedComponentById(project.getId(), session);
       updateIssuesIndex(session, projectKey, newProject.key());
 
       previewCache.reportResourceModification(newProject.key());

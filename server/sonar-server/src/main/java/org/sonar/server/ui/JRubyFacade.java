@@ -34,7 +34,6 @@ import org.sonar.api.web.*;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceIndexerDao;
-import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.db.migrations.DatabaseMigrator;
@@ -361,19 +360,6 @@ public final class JRubyFacade {
 
   public ComponentContainer getContainer() {
     return Platform.getInstance().getContainer();
-  }
-
-  // UPDATE PROJECT KEY ------------------------------------------------------------------
-  public void updateResourceKey(long projectId, String newKey) {
-    get(ResourceKeyUpdaterDao.class).updateKey(projectId, newKey);
-  }
-
-  public Map<String, String> checkModuleKeysBeforeRenaming(long projectId, String stringToReplace, String replacementString) {
-    return get(ResourceKeyUpdaterDao.class).checkModuleKeysBeforeRenaming(projectId, stringToReplace, replacementString);
-  }
-
-  public void bulkUpdateKey(long projectId, String stringToReplace, String replacementString) {
-    get(ResourceKeyUpdaterDao.class).bulkUpdateKey(projectId, stringToReplace, replacementString);
   }
 
   // USERS

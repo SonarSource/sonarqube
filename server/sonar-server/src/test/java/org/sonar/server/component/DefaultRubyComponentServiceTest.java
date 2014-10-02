@@ -263,6 +263,12 @@ public class DefaultRubyComponentServiceTest {
   }
 
   @Test
+  public void check_module_keys_before_renaming() {
+    service.checkModuleKeysBeforeRenaming("oldKey", "old", "new");
+    verify(componentService).checkModuleKeysBeforeRenaming("oldKey", "old", "new");
+  }
+
+  @Test
   public void bulk_update_key() {
     service.bulkUpdateKey("oldKey", "old", "new");
     verify(componentService).bulkUpdateKey("oldKey", "old", "new");

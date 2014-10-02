@@ -35,18 +35,19 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.SearchClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Date;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -130,11 +131,12 @@ public class ComponentServiceMediumTest {
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).projectKey()).isEqualTo("sample2:root");
 
     // Check that no new issue has been added
-    assertThat(tester.get(IssueIndex.class).search(IssueQuery.builder().build(), new QueryContext()).getTotal()).isEqualTo(1);
+    assertThat(tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES.getIndexName()).setTypes(IndexDefinition.ISSUES.getIndexType()).get().getCount()).isEqualTo(1);
 
     // Check Issue Authorization index
     assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNull();
     assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey("sample2:root")).isNotNull();
+    assertThat(tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES_AUTHORIZATION.getIndexName()).setTypes(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType()).get().getCount()).isEqualTo(1);
 
     // Check dry run cache have been updated
     assertThat(db.propertiesDao().selectProjectProperties("sample2:root", session)).hasSize(1);
@@ -181,10 +183,75 @@ public class ComponentServiceMediumTest {
     assertThat(db.propertiesDao().selectProjectProperties(project.key(), session)).hasSize(1);
   }
 
+  @Test
+  public void update_provisioned_project_key() throws Exception {
+    ComponentDto provisionedProject = ComponentTesting.newProjectDto().setKey("provisionedProject");
+    tester.get(ComponentDao.class).insert(session, provisionedProject);
+
+    session.commit();
+
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.ADMIN, provisionedProject.key(), provisionedProject.key());
+    service.updateKey(provisionedProject.key(), "provisionedProject2");
+    session.commit();
+
+    // Check project key has been updated
+    assertThat(service.getNullableByKey(provisionedProject.key())).isNull();
+    assertThat(service.getNullableByKey("provisionedProject2")).isNotNull();
+
+    // Check dry run cache have been updated
+    assertThat(db.propertiesDao().selectProjectProperties("provisionedProject2", session)).hasSize(1);
+  }
+
   @Test(expected = ForbiddenException.class)
   public void fail_to_update_project_key_without_admin_permission() throws Exception {
     MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, project.key(), project.key());
     service.updateKey(project.key(), "sample2:root");
+  }
+
+  @Test
+  public void check_module_keys_before_renaming() throws Exception {
+    ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
+    tester.get(ComponentDao.class).insert(session, module);
+    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(module, project));
+
+    ComponentDto file = ComponentTesting.newFileDto(module).setKey("sample:root:module:src/File.xoo");
+    tester.get(ComponentDao.class).insert(session, file);
+    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project));
+
+    session.commit();
+
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ADMIN, project.key());
+    Map<String, String> result = service.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
+
+    assertThat(result).hasSize(2);
+    assertThat(result.get("sample:root")).isEqualTo("sample2:root");
+    assertThat(result.get("sample:root:module")).isEqualTo("sample2:root:module");
+  }
+
+  @Test
+  public void check_module_keys_before_renaming_return_duplicate_key() throws Exception {
+    ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
+    tester.get(ComponentDao.class).insert(session, module);
+    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(module, project));
+
+    ComponentDto module2 = ComponentTesting.newModuleDto(project).setKey("foo:module");
+    tester.get(ComponentDao.class).insert(session, module2);
+    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(module2, project));
+
+    session.commit();
+
+    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ADMIN, project.key());
+    Map<String, String> result = service.checkModuleKeysBeforeRenaming(project.key(), "sample:root", "foo");
+
+    assertThat(result).hasSize(2);
+    assertThat(result.get("sample:root")).isEqualTo("foo");
+    assertThat(result.get("sample:root:module")).isEqualTo("#duplicate_key#");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void fail_to_check_module_keys_before_renaming_without_admin_permission() throws Exception {
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, project.key(), project.key());
+    service.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
   }
 
   @Test
@@ -203,7 +270,7 @@ public class ComponentServiceMediumTest {
     session.commit();
 
     MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ADMIN, project.key());
-    service.bulkUpdateKey("sample:root", "sample", "sample2");
+    service.bulkUpdateKey(project.key(), "sample", "sample2");
     session.commit();
 
     // Check project key has been updated
@@ -223,14 +290,34 @@ public class ComponentServiceMediumTest {
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).projectKey()).isEqualTo("sample2:root");
 
     // Check that no new issue has been added
-    assertThat(tester.get(IssueIndex.class).search(IssueQuery.builder().build(), new QueryContext()).getTotal()).isEqualTo(1);
+    assertThat(tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES.getIndexName()).setTypes(IndexDefinition.ISSUES.getIndexType()).get().getCount()).isEqualTo(1);
 
     // Check Issue Authorization index
     assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNull();
     assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey("sample2:root")).isNotNull();
+    assertThat(tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES_AUTHORIZATION.getIndexName()).setTypes(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType()).get().getCount()).isEqualTo(1);
 
     // Check dry run cache have been updated
     assertThat(db.propertiesDao().selectProjectProperties("sample2:root", session)).hasSize(1);
+  }
+
+  @Test
+  public void bulk_update_provisioned_project_key() throws Exception {
+    ComponentDto provisionedProject = ComponentTesting.newProjectDto().setKey("provisionedProject");
+    tester.get(ComponentDao.class).insert(session, provisionedProject);
+
+    session.commit();
+
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.ADMIN, provisionedProject.key(), provisionedProject.key());
+    service.bulkUpdateKey(provisionedProject.key(), "provisionedProject", "provisionedProject2");
+    session.commit();
+
+    // Check project key has been updated
+    assertThat(service.getNullableByKey(provisionedProject.key())).isNull();
+    assertThat(service.getNullableByKey("provisionedProject2")).isNotNull();
+
+    // Check dry run cache have been updated
+    assertThat(db.propertiesDao().selectProjectProperties("provisionedProject2", session)).hasSize(1);
   }
 
   @Test(expected = ForbiddenException.class)

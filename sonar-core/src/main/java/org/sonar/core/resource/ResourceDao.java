@@ -220,19 +220,24 @@ public class ResourceDao implements DaoComponent {
    * The implementation should rather use a new column already containing the root project, see https://jira.codehaus.org/browse/SONAR-5188.
    */
   @CheckForNull
+  public ResourceDto getRootProjectByComponentKey(DbSession session, String componentKey) {
+    ResourceDto component = getResource(ResourceQuery.create().setKey(componentKey), session);
+    if (component != null) {
+      Long rootId = component.getRootId();
+      if (rootId != null) {
+        return getParentModuleByComponentId(rootId, session);
+      } else {
+        return component;
+      }
+    }
+    return null;
+  }
+
+  @CheckForNull
   public ResourceDto getRootProjectByComponentKey(String componentKey) {
     DbSession session = mybatis.openSession(false);
     try {
-      ResourceDto component = getResource(ResourceQuery.create().setKey(componentKey), session);
-      if (component != null) {
-        Long rootId = component.getRootId();
-        if (rootId != null) {
-          return getParentModuleByComponentId(rootId, session);
-        } else {
-          return component;
-        }
-      }
-      return null;
+      return getRootProjectByComponentKey(session, componentKey);
     } finally {
       MyBatis.closeQuietly(session);
     }
