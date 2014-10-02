@@ -82,13 +82,6 @@ public class MeasureModel implements Cloneable {
   @Column(name = "rule_id", updatable = true, nullable = true)
   private Integer ruleId;
 
-  /**
-   * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
-   */
-  @Deprecated
-  @Column(name = "rules_category_id", nullable = true)
-  private Integer rulesCategoryId;// NOSONAR this field is kept for backward-compatiblity of API
-
   @Column(name = "rule_priority", updatable = false, nullable = true)
   @Enumerated(EnumType.ORDINAL)
   private RulePriority rulePriority;

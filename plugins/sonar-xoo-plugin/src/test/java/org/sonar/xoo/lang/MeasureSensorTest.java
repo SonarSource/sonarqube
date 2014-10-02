@@ -91,7 +91,7 @@ public class MeasureSensorTest {
   @Test
   public void testExecution() throws IOException {
     File measures = new File(baseDir, "src/foo.xoo.measures");
-    FileUtils.write(measures, "ncloc:12\nbranch_coverage:5.3\nsqale_index:300\nbool:true\ncomment_lines_data:1=1,2=1\n\n#comment");
+    FileUtils.write(measures, "ncloc:12\nbranch_coverage:5.3\nsqale_index:300\nbool:true\n\n#comment");
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage("xoo");
     fileSystem.add(inputFile);
 
@@ -101,7 +101,6 @@ public class MeasureSensorTest {
     when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.findByKey("branch_coverage")).thenReturn(CoreMetrics.BRANCH_COVERAGE);
     when(metricFinder.findByKey("sqale_index")).thenReturn(CoreMetrics.TECHNICAL_DEBT);
-    when(metricFinder.findByKey("comment_lines_data")).thenReturn(CoreMetrics.COMMENT_LINES_DATA);
     when(metricFinder.findByKey("bool")).thenReturn(booleanMetric);
 
     sensor.execute(context);
@@ -110,8 +109,6 @@ public class MeasureSensorTest {
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.BRANCH_COVERAGE).onFile(inputFile).withValue(5.3));
     verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.TECHNICAL_DEBT).onFile(inputFile).withValue(300L));
     verify(storage).store(new DefaultMeasure().forMetric(booleanMetric).onFile(inputFile).withValue(true));
-    verify(storage).store(new DefaultMeasure().forMetric(CoreMetrics.COMMENT_LINES_DATA).onFile(inputFile).withValue("1=1,2=1"));
-
   }
 
   @Test

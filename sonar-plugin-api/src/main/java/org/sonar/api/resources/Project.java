@@ -53,12 +53,6 @@ public class Project extends Resource implements Component {
   public static final String SCOPE = Scopes.PROJECT;
 
   /**
-   * @deprecated since version 1.11. Constant moved to CoreProperties
-   */
-  @Deprecated
-  public static final String PARAM_REUSE_RULES_CONFIG = CoreProperties.REUSE_RULES_CONFIGURATION_PROPERTY;
-
-  /**
    * Enumerates the type of possible analysis
    * @deprecated since 4.4 Since 4.3 SQ will no more run tests. So basically it's always reuse report.
    */

@@ -83,7 +83,7 @@ public class DefaultCpdEngineTest {
 
   @Test
   public void defaultMinimumTokens() {
-    assertThat(engine.getMinimumTokens("java")).isEqualTo(CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE);
+    assertThat(engine.getMinimumTokens("java")).isEqualTo(100);
   }
 
   @Test

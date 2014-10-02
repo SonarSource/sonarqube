@@ -46,11 +46,6 @@ public final class CoreMetrics {
   public static String DOMAIN_DOCUMENTATION = "Documentation";
   public static String DOMAIN_SCM = "SCM";
 
-  /**
-   * @deprecated in 3.6. Replaced by concept of issues.
-   */
-  @Deprecated
-  public static String DOMAIN_REVIEWS = "Reviews";
   public static String DOMAIN_ISSUES = "Issues";
   public static String DOMAIN_GENERAL = "General";
   public static String DOMAIN_DUPLICATION = "Duplication";
@@ -231,27 +226,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setDomain(DOMAIN_DOCUMENTATION)
-    .create();
-
-  /**
-   * @deprecated since 3.3 - see SONAR-3768
-   */
-  @Deprecated
-  public static final String COMMENT_BLANK_LINES_KEY = "comment_blank_lines";
-
-  /**
-   * @deprecated since 3.3 - see SONAR-3768
-   */
-  @Deprecated
-  public static final Metric<Integer> COMMENT_BLANK_LINES = new Metric.Builder(COMMENT_BLANK_LINES_KEY, "Blank comments", Metric.ValueType.INT)
-    .setDescription("Comments that do not contain comments")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DOCUMENTATION)
-    .setFormula(new SumChildValuesFormula(false))
-    .setBestValue(0.0)
-    .setOptimizedBestValue(true)
-    .setHidden(true)
     .create();
 
   public static final String PUBLIC_DOCUMENTED_API_DENSITY_KEY = "public_documented_api_density";
@@ -1576,57 +1550,6 @@ public final class CoreMetrics {
   // --------------------------------------------------------------------------------------------------------------------
 
   /**
-   * @deprecated since 3.7.1
-   */
-  @Deprecated
-  public static final String ABSTRACTNESS_KEY = "abstractness";
-  /**
-   * @deprecated since 3.7.1
-   */
-  @Deprecated
-  public static final Metric<Double> ABSTRACTNESS = new Metric.Builder(ABSTRACTNESS_KEY, "Abstractness", Metric.ValueType.PERCENT)
-    .setDescription("Abstractness")
-    .setDirection(Metric.DIRECTION_NONE)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DESIGN)
-    .setHidden(true)
-    .create();
-
-  /**
-   * @deprecated since 3.7.1
-   */
-  @Deprecated
-  public static final String INSTABILITY_KEY = "instability";
-  /**
-   * @deprecated since 3.7.1
-   */
-  @Deprecated
-  public static final Metric<Double> INSTABILITY = new Metric.Builder(INSTABILITY_KEY, "Instability", Metric.ValueType.PERCENT)
-    .setDescription("Instability")
-    .setDirection(Metric.DIRECTION_NONE)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DESIGN)
-    .setHidden(true)
-    .create();
-
-  /**
-   * @deprecated since 3.7.1
-   */
-  @Deprecated
-  public static final String DISTANCE_KEY = "distance";
-  /**
-   * @deprecated since 3.7.1
-   */
-  @Deprecated
-  public static final Metric<Double> DISTANCE = new Metric.Builder(DISTANCE_KEY, "Distance", Metric.ValueType.FLOAT)
-    .setDescription("Distance")
-    .setDirection(Metric.DIRECTION_NONE)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DESIGN)
-    .setHidden(true)
-    .create();
-
-  /**
    * @deprecated since 4.0. See SONAR-4643
    */
   @Deprecated
@@ -1769,40 +1692,6 @@ public final class CoreMetrics {
     .setDescription("Density of classes having LCOM4>1")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_DESIGN)
-    .setHidden(true)
-    .create();
-
-  /**
-   * @deprecated since 3.7.1
-   */
-  @Deprecated
-  public static final String AFFERENT_COUPLINGS_KEY = "ca";
-  /**
-   * @deprecated since 3.7.1
-   */
-  @Deprecated
-  public static final Metric<Integer> AFFERENT_COUPLINGS = new Metric.Builder(AFFERENT_COUPLINGS_KEY, "Afferent couplings", Metric.ValueType.INT)
-    .setDescription("Afferent couplings")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DESIGN)
-    .setHidden(true)
-    .create();
-
-  /**
-   * @deprecated since 3.7.1
-   */
-  @Deprecated
-  public static final String EFFERENT_COUPLINGS_KEY = "ce";
-  /**
-   * @deprecated since 3.7.1
-   */
-  @Deprecated
-  public static final Metric<Integer> EFFERENT_COUPLINGS = new Metric.Builder(EFFERENT_COUPLINGS_KEY, "Efferent couplings", Metric.ValueType.INT)
-    .setDescription("Efferent couplings")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
     .setDomain(DOMAIN_DESIGN)
     .setHidden(true)
     .create();
@@ -2037,139 +1926,6 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_SCM)
     .create();
 
-  // --------------------------------------------------------------------------------------------------------------------
-  //
-  // REVIEWS (since 2.14)
-  //
-  // --------------------------------------------------------------------------------------------------------------------
-
-  /**
-   * @since 2.14
-   * @deprecated in 3.6. This measure is not fed anymore since introduction of issues.
-   */
-  @Deprecated
-  public static final String UNREVIEWED_VIOLATIONS_KEY = "unreviewed_violations";
-
-  /**
-   * @since 2.14
-   * @deprecated in 3.6. This measure is not fed anymore since introduction of issues.
-   */
-  @Deprecated
-  public static final Metric<Integer> UNREVIEWED_VIOLATIONS = new Metric.Builder(UNREVIEWED_VIOLATIONS_KEY, "Unreviewed violations", Metric.ValueType.INT)
-    .setDescription("Violations that have not been reviewed yet")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_REVIEWS)
-    .setBestValue(0.0)
-    .setOptimizedBestValue(true)
-    .setHidden(true)
-    .create();
-
-  /**
-   * @since 2.14
-   * @deprecated in 3.6. This measure is not fed anymore since introduction of issues.
-   */
-  @Deprecated
-  public static final String NEW_UNREVIEWED_VIOLATIONS_KEY = "new_unreviewed_violations";
-
-  /**
-   * @since 2.14
-   * @deprecated in 3.6. This measure is not fed anymore since introduction of issues.
-   */
-  @Deprecated
-  public static final Metric<Integer> NEW_UNREVIEWED_VIOLATIONS = new Metric.Builder(NEW_UNREVIEWED_VIOLATIONS_KEY, "New unreviewed violations", Metric.ValueType.INT)
-    .setDescription("New violations that have not been reviewed yet")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(true)
-    .setDomain(DOMAIN_REVIEWS)
-    .setBestValue(0.0)
-    .setOptimizedBestValue(true)
-    .setDeleteHistoricalData(true)
-    .setHidden(true)
-    .create();
-
-  /**
-   * @since 2.14
-   * @deprecated in 3.6. This measure is replaced by {@link #FALSE_POSITIVE_ISSUES_KEY}.
-   */
-  @Deprecated
-  public static final String FALSE_POSITIVE_REVIEWS_KEY = "false_positive_reviews";
-
-  /**
-   * @since 2.14
-   * @deprecated in 3.6. This measure is replaced by {@link #FALSE_POSITIVE_ISSUES}.
-   */
-  @Deprecated
-  public static final Metric<Integer> FALSE_POSITIVE_REVIEWS = new Metric.Builder(FALSE_POSITIVE_REVIEWS_KEY, "False-positive reviews", Metric.ValueType.INT)
-    .setDescription("Active false-positive reviews")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_REVIEWS)
-    .setBestValue(0.0)
-    .setOptimizedBestValue(true)
-    .setHidden(true)
-    .create();
-
-  /**
-   * @since 2.14
-   * @deprecated in 3.6. This measure is not fed anymore since introduction of issues.
-   */
-  @Deprecated
-  public static final String ACTIVE_REVIEWS_KEY = "active_reviews";
-
-  /**
-   * @since 2.14
-   * @deprecated in 3.6. This measure is not fed anymore since introduction of issues.
-   */
-  @Deprecated
-  public static final Metric<Integer> ACTIVE_REVIEWS = new Metric.Builder(ACTIVE_REVIEWS_KEY, "Active reviews", Metric.ValueType.INT)
-    .setDescription("Active open and reopened reviews")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_REVIEWS)
-    .setBestValue(0.0)
-    .setOptimizedBestValue(true)
-    .setHidden(true)
-    .create();
-
-  /**
-   * @since 2.14
-   * @deprecated in 3.6. This measure is not fed anymore since introduction of issues.
-   */
-  @Deprecated
-  public static final String UNASSIGNED_REVIEWS_KEY = "unassigned_reviews";
-
-  /**
-   * @since 2.14
-   * @deprecated in 3.6. This measure is not fed anymore since introduction of issues.
-   */
-  @Deprecated
-  public static final Metric<Integer> UNASSIGNED_REVIEWS = new Metric.Builder(UNASSIGNED_REVIEWS_KEY, "Unassigned reviews", Metric.ValueType.INT)
-    .setDescription("Active unassigned reviews")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_REVIEWS)
-    .setBestValue(0.0)
-    .setOptimizedBestValue(true)
-    .setHidden(true)
-    .create();
-
-  /**
-   * @since 2.14
-   * @deprecated in 3.6. This measure is not fed anymore since introduction of issues.
-   */
-  @Deprecated
-  public static final String UNPLANNED_REVIEWS_KEY = "unplanned_reviews";
-
-  /**
-   * @since 2.14
-   * @deprecated in 3.6. This measure is not fed anymore since introduction of issues.
-   */
-  @Deprecated
-  public static final Metric<Integer> UNPLANNED_REVIEWS = new Metric.Builder(UNPLANNED_REVIEWS_KEY, "Unplanned reviews", Metric.ValueType.INT)
-    .setDescription("Active unplanned reviews")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_REVIEWS)
-    .setBestValue(0.0)
-    .setOptimizedBestValue(true)
-    .setHidden(true)
-    .create();
 
   // --------------------------------------------------------------------------------------------------------------------
   //

@@ -46,21 +46,6 @@ public final class ZipUtils {
   }
 
   /**
-   * Unzip a file into a new temporary directory. The directory is not deleted on JVM exit, so it
-   * must be explicitely deleted.
-   *
-   * @return the temporary directory
-   * @since 2.2
-   * @deprecated since 3.4 use by {@link org.sonar.api.scan.filesystem.ModuleFileSystem#workingDir()} or {@link org.sonar.api.platform.ServerFileSystem#getTempDir}
-   */
-  @Deprecated
-  public static File unzipToTempDir(File zip) throws IOException {
-    File toDir = TempFileUtils.createTempDirectory();
-    unzip(zip, toDir);
-    return toDir;
-  }
-
-  /**
    * Unzip a file into a directory. The directory is created if it does not exist.
    *
    * @return the target directory

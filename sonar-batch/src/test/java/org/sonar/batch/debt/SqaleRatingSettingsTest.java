@@ -34,7 +34,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class SqaleRatingSettingsTest {
 
-  private static final Metric[] metrics = {CoreMetrics.NCLOC, CoreMetrics.ABSTRACTNESS, CoreMetrics.COMPLEXITY};
+  private static final Metric[] metrics = {CoreMetrics.NCLOC, CoreMetrics.COMPLEXITY};
 
   private Settings settings;
 

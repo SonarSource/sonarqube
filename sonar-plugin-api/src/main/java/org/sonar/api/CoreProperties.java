@@ -184,17 +184,6 @@ public interface CoreProperties {
   String PROJECT_TEST_EXCLUSIONS_PROPERTY = "sonar.test.exclusions";
   String GLOBAL_EXCLUSIONS_PROPERTY = "sonar.global.exclusions";
   String GLOBAL_TEST_EXCLUSIONS_PROPERTY = "sonar.global.test.exclusions";
-  /**
-   * @deprecated since 4.2. See http://jira.codehaus.org/browse/SONAR-5058
-   */
-  @Deprecated
-  String GLOBAL_TEST_EXCLUSIONS_DEFAULT = "";
-
-  /**
-   * @deprecated since 2.5. See discussion from http://jira.codehaus.org/browse/SONAR-1873
-   */
-  @Deprecated
-  String REUSE_RULES_CONFIGURATION_PROPERTY = "sonar.reuseExistingRulesConfiguration";
 
   /* Sonar Core */
 
@@ -220,18 +209,6 @@ public interface CoreProperties {
    */
   @Deprecated
   String CORE_INCLUDED_MODULES_PROPERTY = "sonar.includedModules";
-
-  /**
-   * @deprecated since 3.6. See http://jira.codehaus.org/browse/SONAR-4145
-   */
-  @Deprecated
-  String CORE_TENDENCY_DEPTH_PROPERTY = "tendency.depth";
-
-  /**
-   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-4145
-   */
-  @Deprecated
-  int CORE_TENDENCY_DEPTH_DEFAULT_VALUE = 30;
 
   String CORE_FORCE_AUTHENTICATION_PROPERTY = "sonar.forceAuthentication";
   boolean CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE = false;
@@ -266,18 +243,6 @@ public interface CoreProperties {
   String SERVER_STARTTIME = "sonar.core.startTime";
 
   /**
-   * @deprecated since 3.6. See http://jira.codehaus.org/browse/SONAR-4145
-   */
-  @Deprecated
-  String SKIP_TENDENCIES_PROPERTY = "sonar.skipTendencies";
-
-  /**
-   * @deprecated since 3.6. See http://jira.codehaus.org/browse/SONAR-4145
-   */
-  @Deprecated
-  boolean SKIP_TENDENCIES_DEFAULT_VALUE = false;
-
-  /**
    * @since 2.10
    */
   String SERVER_BASE_URL = "sonar.core.serverBaseURL";
@@ -297,52 +262,7 @@ public interface CoreProperties {
   @Deprecated
   String CPD_MINIMUM_TOKENS_PROPERTY = "sonar.cpd.minimumTokens";
 
-  /**
-   * @deprecated in 3.1
-   */
-  @Deprecated
-  int CPD_MINIMUM_TOKENS_DEFAULT_VALUE = 100;
-
-  /**
-   * @deprecated in 3.1
-   */
-  @Deprecated
-  String CPD_IGNORE_LITERALS_PROPERTY = "sonar.cpd.ignore_literals";
-
-  /**
-   * @deprecated in 3.1
-   */
-  @Deprecated
-  String CPD_IGNORE_LITERALS_DEFAULT_VALUE = "true";
-
-  /**
-   * @deprecated in 3.1
-   */
-  @Deprecated
-  String CPD_IGNORE_IDENTIFIERS_PROPERTY = "sonar.cpd.ignore_identifiers";
-
-  /**
-   * @deprecated in 3.1
-   */
-  @Deprecated
-  String CPD_IGNORE_IDENTIFIERS_DEFAULT_VALUE = "false";
-
   String CPD_SKIP_PROPERTY = "sonar.cpd.skip";
-
-  /**
-   * @since 2.11
-   * @deprecated in 3.1
-   */
-  @Deprecated
-  String CPD_ENGINE = "sonar.cpd.engine";
-
-  /**
-   * @see #CPD_ENGINE
-   * @since 2.11
-   * @deprecated in 3.1
-   */
-  @Deprecated
-  String CPD_ENGINE_DEFAULT_VALUE = "sonar";
 
   /**
    * @since 2.11

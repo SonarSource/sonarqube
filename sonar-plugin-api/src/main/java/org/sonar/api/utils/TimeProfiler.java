@@ -47,7 +47,7 @@ public class TimeProfiler {
    * Use the default Sonar logger
    */
   public TimeProfiler() {
-    this.logger = Logs.INFO;
+    this.logger = LoggerFactory.getLogger(getClass());
   }
 
   public TimeProfiler start(String name) {

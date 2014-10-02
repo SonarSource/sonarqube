@@ -21,8 +21,8 @@ package org.sonar.server.source;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.utils.Logs;
 import org.sonar.api.web.CodeColorizerFormat;
 import org.sonar.colorizer.CodeColorizer;
 import org.sonar.colorizer.HtmlOptions;
@@ -47,7 +47,7 @@ public class CodeColorizers implements ServerExtension {
       byLang.put(format.getLanguageKey(), format);
     }
 
-    Logs.INFO.info("Code colorizer, supported languages: " + StringUtils.join(byLang.keySet(), ","));
+    LoggerFactory.getLogger(getClass()).info("Code colorizer, supported languages: " + StringUtils.join(byLang.keySet(), ","));
   }
 
   /**

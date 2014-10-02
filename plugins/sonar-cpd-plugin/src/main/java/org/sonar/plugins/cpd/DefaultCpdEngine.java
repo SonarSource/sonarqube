@@ -187,7 +187,7 @@ public class DefaultCpdEngine extends CpdEngine {
       minimumTokens = settings.getInt(CoreProperties.CPD_MINIMUM_TOKENS_PROPERTY);
     }
     if (minimumTokens == 0) {
-      minimumTokens = CoreProperties.CPD_MINIMUM_TOKENS_DEFAULT_VALUE;
+      minimumTokens = 100;
     }
 
     return minimumTokens;
