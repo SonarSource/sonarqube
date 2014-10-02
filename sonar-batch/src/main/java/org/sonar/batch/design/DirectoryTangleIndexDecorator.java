@@ -24,7 +24,7 @@ import org.sonar.api.measures.CoreMetrics;
 public class DirectoryTangleIndexDecorator extends TangleIndexDecorator {
 
   public DirectoryTangleIndexDecorator() {
-    super(CoreMetrics.PACKAGE_TANGLES, CoreMetrics.PACKAGE_EDGES_WEIGHT, CoreMetrics.PACKAGE_TANGLE_INDEX);
+    super(CoreMetrics.DIRECTORY_TANGLES, CoreMetrics.DIRECTORY_EDGES_WEIGHT, CoreMetrics.DIRECTORY_TANGLE_INDEX);
   }
 
   @Override
