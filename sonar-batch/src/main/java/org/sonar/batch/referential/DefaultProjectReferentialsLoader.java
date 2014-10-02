@@ -105,7 +105,7 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
             authors = ((MeasureModel) measureByKey[1]).getData(CoreMetrics.SCM_AUTHORS_BY_LINE);
           }
         }
-        ref.addFileData(projectKey, path, new FileData(hash, lastCommits, revisions, authors));
+        ref.addFileData(module.getKeyWithBranch(), path, new FileData(hash, lastCommits, revisions, authors));
       }
     }
     return ref;
