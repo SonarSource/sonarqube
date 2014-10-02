@@ -33,7 +33,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Settings;
-import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.duplication.BlockCache;
@@ -70,21 +69,18 @@ public class DefaultCpdEngine extends CpdEngine {
   private final Settings settings;
   private final BlockCache duplicationCache;
   private final Project project;
-  private final FileLinesContextFactory contextFactory;
 
-  public DefaultCpdEngine(@Nullable Project project, IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings, BlockCache duplicationCache,
-    FileLinesContextFactory contextFactory) {
+  public DefaultCpdEngine(@Nullable Project project, IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings, BlockCache duplicationCache) {
     this.project = project;
     this.indexFactory = indexFactory;
     this.mappings = mappings;
     this.fs = fs;
     this.settings = settings;
     this.duplicationCache = duplicationCache;
-    this.contextFactory = contextFactory;
   }
 
-  public DefaultCpdEngine(IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings, BlockCache duplicationCache, FileLinesContextFactory contextFactory) {
-    this(null, indexFactory, mappings, fs, settings, duplicationCache, contextFactory);
+  public DefaultCpdEngine(IndexFactory indexFactory, CpdMappings mappings, FileSystem fs, Settings settings, BlockCache duplicationCache) {
+    this(null, indexFactory, mappings, fs, settings, duplicationCache);
   }
 
   @Override
@@ -135,7 +131,7 @@ public class DefaultCpdEngine extends CpdEngine {
           throw new SonarException("Fail during detection of duplication for " + inputFile, e);
         }
 
-        JavaCpdEngine.save(context, inputFile, filtered, contextFactory);
+        JavaCpdEngine.save(context, inputFile, filtered);
       }
     } finally {
       executorService.shutdown();

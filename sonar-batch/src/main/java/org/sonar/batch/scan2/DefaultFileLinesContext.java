@@ -25,32 +25,27 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.KeyValueFormat.Converter;
-import org.sonar.core.component.ComponentKeys;
 
 import java.util.Map;
 
 public class DefaultFileLinesContext implements FileLinesContext {
 
-  private final MeasureCache measureCache;
+  private final SensorStorage sensorStorage;
   private final InputFile inputFile;
 
   /**
    * metric key -> line -> value
    */
   private final Map<String, Map<Integer, Object>> map = Maps.newHashMap();
-  private String projectKey;
   private MetricFinder metricFinder;
 
-  public DefaultFileLinesContext(MetricFinder metricFinder, MeasureCache measureCache, String projectKey, InputFile inputFile) {
+  public DefaultFileLinesContext(MetricFinder metricFinder, SensorStorage sensorStorage, InputFile inputFile) {
     this.metricFinder = metricFinder;
-    this.projectKey = projectKey;
-    Preconditions.checkNotNull(measureCache);
-    this.measureCache = measureCache;
+    this.sensorStorage = sensorStorage;
     this.inputFile = inputFile;
   }
 
@@ -62,16 +57,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
   }
 
   public Integer getIntValue(String metricKey, int line) {
-    Preconditions.checkNotNull(metricKey);
-    Preconditions.checkArgument(line > 0);
-
-    Map lines = map.get(metricKey);
-    if (lines == null) {
-      // not in memory, so load
-      lines = loadData(metricKey, KeyValueFormat.newIntegerConverter());
-      map.put(metricKey, lines);
-    }
-    return (Integer) lines.get(line);
+    throw new UnsupportedOperationException();
   }
 
   public void setStringValue(String metricKey, int line, String value) {
@@ -83,16 +69,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
   }
 
   public String getStringValue(String metricKey, int line) {
-    Preconditions.checkNotNull(metricKey);
-    Preconditions.checkArgument(line > 0);
-
-    Map lines = map.get(metricKey);
-    if (lines == null) {
-      // not in memory, so load
-      lines = loadData(metricKey, KeyValueFormat.newStringConverter());
-      map.put(metricKey, lines);
-    }
-    return (String) lines.get(line);
+    throw new UnsupportedOperationException();
   }
 
   private Map<Integer, Object> getOrCreateLines(String metricKey) {
@@ -116,34 +93,14 @@ public class DefaultFileLinesContext implements FileLinesContext {
         throw new IllegalStateException("Unable to find metric with key: " + metricKey);
       }
       Map<Integer, Object> lines = entry.getValue();
-      if (shouldSave(lines)) {
-        String data = KeyValueFormat.format(lines);
-        measureCache.put(projectKey, ComponentKeys.createEffectiveKey(projectKey, inputFile), new DefaultMeasure<String>()
-          .forMetric(metric)
-          .onFile(inputFile)
-          .withValue(data));
-        entry.setValue(ImmutableMap.copyOf(lines));
-      }
+      String data = KeyValueFormat.format(lines);
+      new DefaultMeasure<String>(sensorStorage)
+        .forMetric(metric)
+        .onFile(inputFile)
+        .withValue(data)
+        .save();
+      entry.setValue(ImmutableMap.copyOf(lines));
     }
-  }
-
-  private Map loadData(String metricKey, Converter converter) {
-    Measure measure = measureCache.byMetric(projectKey, ComponentKeys.createEffectiveKey(projectKey, inputFile), metricKey);
-    if (measure == null) {
-      // no such measure
-      return ImmutableMap.of();
-    }
-    return ImmutableMap.copyOf(KeyValueFormat.parse((String) measure.value(), KeyValueFormat.newIntegerConverter(), converter));
-  }
-
-  /**
-   * Checks that measure was not saved.
-   *
-   * @see #loadData(String, Converter)
-   * @see #save()
-   */
-  private boolean shouldSave(Map<Integer, Object> lines) {
-    return !(lines instanceof ImmutableMap);
   }
 
   @Override

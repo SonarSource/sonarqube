@@ -19,9 +19,8 @@
  */
 package org.sonar.api.measures;
 
-
 /**
- * Provides access to measures for the lines of file.
+ * Provides facility to store measures for the lines of file.
  * Examples:
  * <ul>
  * <li>line 1 is a line of code</li>
@@ -47,7 +46,9 @@ public interface FileLinesContext {
 
   /**
    * @return value, or null if no such metric for given line
+   * @deprecated since 5.0 sensors should not read data
    */
+  @Deprecated
   Integer getIntValue(String metricKey, int line);
 
   /**
@@ -57,7 +58,9 @@ public interface FileLinesContext {
 
   /**
    * @return value, or null if no such metric for given line
+   * @deprecated since 5.0 sensors should not read data
    */
+  @Deprecated
   String getStringValue(String metricKey, int line);
 
   /**

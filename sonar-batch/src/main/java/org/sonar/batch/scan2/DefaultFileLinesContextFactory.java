@@ -23,6 +23,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Resource;
@@ -30,16 +31,16 @@ import org.sonar.batch.scan.filesystem.InputPathCache;
 
 public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
 
-  private final MeasureCache measureCache;
+  private final SensorStorage sensorStorage;
   private final MetricFinder metricFinder;
   private final ProjectDefinition def;
-  private InputPathCache fileCache;
+  private final InputPathCache fileCache;
 
-  public DefaultFileLinesContextFactory(InputPathCache fileCache, FileSystem fs, MetricFinder metricFinder, MeasureCache measureCache,
+  public DefaultFileLinesContextFactory(InputPathCache fileCache, FileSystem fs, MetricFinder metricFinder, SensorStorage sensorStorage,
     ProjectDefinition def) {
     this.fileCache = fileCache;
     this.metricFinder = metricFinder;
-    this.measureCache = measureCache;
+    this.sensorStorage = sensorStorage;
     this.def = def;
   }
 
@@ -53,7 +54,7 @@ public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
     if (fileCache.getFile(def.getKey(), inputFile.relativePath()) == null) {
       throw new IllegalStateException("InputFile is not indexed: " + inputFile);
     }
-    return new DefaultFileLinesContext(metricFinder, measureCache, def.getKey(), inputFile);
+    return new DefaultFileLinesContext(metricFinder, sensorStorage, inputFile);
   }
 
 }
