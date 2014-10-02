@@ -311,8 +311,7 @@ public class ComponentAppAction implements RequestHandler {
     Map<String, String> result = newHashMap();
     List<String> providedExtensions = newArrayList("tests_viewer", "coverage", "duplications", "issues", "source");
     for (ViewProxy<Page> page : extensions) {
-      // Gwt components viewer tab can not be displayed
-      if (!providedExtensions.contains(page.getId()) && !page.isGwt()) {
+      if (!providedExtensions.contains(page.getId())) {
         addExtension(page, result, component, userSession);
       }
     }

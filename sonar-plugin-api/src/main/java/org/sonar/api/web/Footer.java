@@ -27,7 +27,7 @@ import org.sonar.api.ServerExtension;
 public interface Footer extends ServerExtension {
 
   /**
-   * Static HTML (no Ruby on Rails nor GWT)
+   * Static HTML (no Ruby on Rails)
    */
   String getHtml();
 }

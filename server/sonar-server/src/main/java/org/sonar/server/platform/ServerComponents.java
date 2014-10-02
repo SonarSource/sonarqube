@@ -40,7 +40,6 @@ import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
-import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.issue.IssueFilterSerializer;
 import org.sonar.core.issue.IssueNotifications;
@@ -265,7 +264,6 @@ import org.sonar.server.source.ws.SourcesWs;
 import org.sonar.server.startup.CleanPreviewAnalysisCache;
 import org.sonar.server.startup.CopyRequirementsFromCharacteristicsToRules;
 import org.sonar.server.startup.GeneratePluginIndex;
-import org.sonar.server.startup.GwtPublisher;
 import org.sonar.server.startup.JdbcDriverDeployer;
 import org.sonar.server.startup.LogServerId;
 import org.sonar.server.startup.RegisterDashboards;
@@ -427,7 +425,6 @@ class ServerComponents {
       JRubyI18n.class,
       DefaultI18n.class,
       RuleI18nManager.class,
-      GwtI18n.class,
       Durations.class,
 
       // ws
@@ -751,7 +748,6 @@ class ServerComponents {
     /** Index startup Synchronization */
     startupContainer.addSingleton(IndexSynchronizer.class);
 
-    startupContainer.addSingleton(GwtPublisher.class);
     startupContainer.addSingleton(RegisterMetrics.class);
     startupContainer.addSingleton(RegisterQualityGates.class);
     startupContainer.addSingleton(RegisterRules.class);

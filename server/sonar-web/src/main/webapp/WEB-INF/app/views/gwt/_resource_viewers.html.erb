@@ -1,9 +1,0 @@
-<%
-   controller.java_facade.getResourceTabs().each do |tab|
-     if tab.isGwt()
-%>
-    <script src="<%= ApplicationController.root_context -%>/deploy/gwt/<%= tab.getId() -%>/<%= tab.getId() -%>.nocache.js"></script>
-  <%
-     end
-     end
-  %>

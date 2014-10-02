@@ -37,12 +37,7 @@ class Plugins::ConfigurationController < ApplicationController
 
     if authorized
       @page=@page_proxy.getTarget()
-      if @page_proxy.isGwt()
-        @gwt_id = @page.getGwtId()
-        render :template => 'gwt/page'
-      else
-        render :template => 'plugins/rails_page'
-      end
+      render :template => 'plugins/rails_page'
     else
       access_denied
     end

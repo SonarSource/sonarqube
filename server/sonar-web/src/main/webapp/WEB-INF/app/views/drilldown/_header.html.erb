@@ -1,6 +1,3 @@
-<%= render :partial => 'gwt/base', :locals => {:resource => nil, :popup => false, :metric => (@metric ? @metric.key : nil)} -%>
-<%= render :partial => 'gwt/resource_viewers' -%>
-
 <script type="text/javascript">
   /* display resource */
   function d(resourceId, is_file) {
@@ -19,14 +16,5 @@
     } else {
       window.location.reload();
     }
-  }
-
-  function loadGWT(gwtId, resourceId, resourceKey, resourceName, resourceScope, resourceQualifier, resourceLanguage) {
-    config["resource"] = [
-      {"id":resourceId, "key":resourceKey, "name":resourceName, "scope":resourceScope, "qualifier":resourceQualifier,
-        "lang":resourceLanguage}
-    ];
-    config["resource_key"] = resourceId;
-    modules[gwtId]();
   }
 </script>

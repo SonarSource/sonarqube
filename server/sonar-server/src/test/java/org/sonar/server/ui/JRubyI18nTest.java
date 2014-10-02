@@ -27,7 +27,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.i18n.GwtI18n;
 
 import java.util.Date;
 import java.util.Locale;
@@ -44,9 +43,6 @@ public class JRubyI18nTest {
   I18n i18n;
 
   @Mock
-  GwtI18n gwtI18n;
-
-  @Mock
   Durations durations;
 
   JRubyI18n jRubyI18n;
@@ -54,7 +50,7 @@ public class JRubyI18nTest {
 
   @Before
   public void setUp() throws Exception {
-    jRubyI18n = new JRubyI18n(i18n, durations, gwtI18n);
+    jRubyI18n = new JRubyI18n(i18n, durations);
   }
 
   @Test
@@ -82,12 +78,6 @@ public class JRubyI18nTest {
   public void message() throws Exception {
     jRubyI18n.message("en", "my.key", "default");
     verify(i18n).message(any(Locale.class), eq("my.key"), eq("default"));
-  }
-
-  @Test
-  public void get_js_dictionnary() throws Exception {
-    jRubyI18n.getJsDictionnary("en");
-    verify(gwtI18n).getJsDictionnary(any(Locale.class));
   }
 
   @Test

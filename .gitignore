@@ -1,6 +1,5 @@
 # The following should be moved in related sub-directories
 server/sonar-web/src/main/webapp/stylesheets/sonar-colorizer.css
-server/sonar-web/src/main/webapp/deploy/gwt
 server/sonar-web/src/main/webapp/deploy/plugins
 server/sonar-web/src/main/webapp/deploy/bootstrap
 server/sonar-web/src/main/webapp/deploy/maven/org

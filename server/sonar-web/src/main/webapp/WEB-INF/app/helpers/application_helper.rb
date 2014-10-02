@@ -168,30 +168,6 @@ module ApplicationHelper
     end
   end
 
-  def url_for_gwt(page)
-    "#{ApplicationController.root_context}/plugins/home/#{page}"
-  end
-
-  # URL to GWT page for a given resource.
-  #
-  # === Optional parameters
-  #
-  # * <tt>:resource</tt> - id or key of the selected resource. Default value is the current resource.
-  #
-  # === Examples
-  #
-  #   url_for_resource_gwt('org.sonar.tests:reference/org.sonar.plugins.core.hotspots.GwtHotspots')
-  #   url_for_resource_gwt('org.sonar.tests:reference/org.sonar.plugins.core.hotspots.GwtHotspots', :resource => 'org.apache.struts:struts-parent')
-  def url_for_resource_gwt(page, options={})
-    if options[:resource]
-      "#{ApplicationController.root_context}/plugins/resource/#{options[:resource]}?page=#{page}"
-    elsif @resource
-      "#{ApplicationController.root_context}/plugins/resource/#{@resource.id}?page=#{page}"
-    else
-      ''
-    end
-  end
-
   # URL to measures drilldown page for a given metric.
   #
   # === Optional parameters

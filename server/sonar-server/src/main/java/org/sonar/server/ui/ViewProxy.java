@@ -29,7 +29,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.web.DefaultTab;
 import org.sonar.api.web.Description;
-import org.sonar.api.web.GwtPage;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.RequiredMeasures;
 import org.sonar.api.web.ResourceLanguage;
@@ -279,10 +278,6 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
   public boolean isGlobal() {
     return isGlobal;
-  }
-
-  public boolean isGwt() {
-    return view instanceof GwtPage;
   }
 
   public WidgetLayoutType getWidgetLayout() {

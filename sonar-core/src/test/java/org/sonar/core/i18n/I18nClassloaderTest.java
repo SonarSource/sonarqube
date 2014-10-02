@@ -55,7 +55,6 @@ public class I18nClassloaderTest {
   @Test
   public void contain_its_own_classloader() {
     assertThat(i18nClassloader.getResource("org/sonar/l10n/core.properties")).isNotNull();
-    assertThat(i18nClassloader.getResource("org/sonar/l10n/gwt.properties")).isNotNull();
   }
 
   @Test

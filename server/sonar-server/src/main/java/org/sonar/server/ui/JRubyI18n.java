@@ -25,7 +25,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.i18n.GwtI18n;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
@@ -44,12 +43,10 @@ public class JRubyI18n implements ServerComponent {
   private I18n i18n;
   private Durations durations;
   private Map<String, Locale> localesByRubyKey = Maps.newHashMap();
-  private GwtI18n gwtI18n;
 
-  public JRubyI18n(I18n i18n, Durations durations, GwtI18n gwtI18n) {
+  public JRubyI18n(I18n i18n, Durations durations) {
     this.i18n = i18n;
     this.durations = durations;
-    this.gwtI18n = gwtI18n;
   }
 
   Locale getLocale(String rubyKey) {
@@ -82,10 +79,6 @@ public class JRubyI18n implements ServerComponent {
 
   public String message(String rubyLocale, String key, String defaultValue, Object... parameters) {
     return StringUtils.defaultString(i18n.message(getLocale(rubyLocale), key, defaultValue, parameters), key);
-  }
-
-  public String getJsDictionnary(String rubyLocale) {
-    return gwtI18n.getJsDictionnary(toLocale(rubyLocale));
   }
 
   public String ageFromNow(Date date) {

@@ -318,10 +318,6 @@ public final class JRubyFacade {
     return getJRubyI18n().message(rubyLocale, key, defaultValue, parameters);
   }
 
-  public String getJsL10nDictionnary(String rubyLocale) {
-    return getJRubyI18n().getJsDictionnary(rubyLocale);
-  }
-
   public void indexProjects() {
     get(ResourceIndexerDao.class).indexProjects();
   }
