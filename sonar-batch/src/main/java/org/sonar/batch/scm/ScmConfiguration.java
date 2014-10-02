@@ -29,10 +29,12 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Settings;
+import org.sonar.core.DryRunIncompatible;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@DryRunIncompatible
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public final class ScmConfiguration implements BatchComponent, Startable {
   private static final Logger LOG = LoggerFactory.getLogger(ScmConfiguration.class);

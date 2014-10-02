@@ -21,6 +21,7 @@ package org.sonar.batch.scm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -33,11 +34,12 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectReferentials;
+import org.sonar.core.DryRunIncompatible;
 
-import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 
+@DryRunIncompatible
 public final class ScmSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(ScmSensor.class);
@@ -71,11 +73,9 @@ public final class ScmSensor implements Sensor {
       return;
     }
     if (configuration.provider() == null) {
-      LOG.info("No SCM provider for this project");
+      LOG.info("No SCM system was detected. You can use the '" + CoreProperties.SCM_PROVIDER_KEY + "' property to explicitly specify it.");
       return;
     }
-
-    TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information with encoding " + Charset.defaultCharset());
 
     List<InputFile> filesToBlame = new LinkedList<InputFile>();
     for (InputFile f : fs.inputFiles(fs.predicates().all())) {
@@ -91,9 +91,11 @@ public final class ScmSensor implements Sensor {
       }
     }
     if (!filesToBlame.isEmpty()) {
+      LOG.info("SCM provider for this project is: " + configuration.provider().key());
+      TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
       configuration.provider().blameCommand().blame(fs, filesToBlame, new DefaultBlameResult(context));
+      profiler.stop();
     }
-    profiler.stop();
   }
 
   /**
