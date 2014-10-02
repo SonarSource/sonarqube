@@ -3,13 +3,13 @@
 
      search_options = {}
      search_options['componentRoots'] = @project.key
-     #search_options['resolved'] = 'true'
+     search_options['resolved'] = 'true'
      search_options['resolutions'] = 'FALSE-POSITIVE'
      title = message('widget.false_positive_reviews.name')
 %>
 
   <%= render :partial => 'project/widgets/issues/issues_list_widget',
-             :locals => {:search_options => search_options, :title => title,
+             :locals => {:search_options => search_options, :title => title, 
                          :widget_id => widget.id.to_s, :widget_properties => widget_properties} %>
 
 <% end %>

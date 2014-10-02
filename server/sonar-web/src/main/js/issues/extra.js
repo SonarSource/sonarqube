@@ -621,14 +621,12 @@ define(
           var idObj = _.findWhere(params, { key: 'id' });
           if (idObj) {
             var that = this,
-              f = this.app.favoriteFilter;
+                f = this.app.favoriteFilter;
             this.app.canSave = false;
             f.set('id', idObj.value);
             f.fetch({
               success: function () {
-                var parsedFilter = that.parseQuery(f.get('query'))
-                params = _.extend({}, params);
-                params = _.extent(params, parsedFilter)
+                params = _.extend({}, that.parseQuery(f.get('query')), params);
                 that.loadResults(params);
               }
             });
