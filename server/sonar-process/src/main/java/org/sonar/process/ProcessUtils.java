@@ -58,7 +58,7 @@ public class ProcessUtils {
         process.destroy();
         sentSignal = true;
       } catch (Exception e) {
-        LoggerFactory.getLogger(ProcessUtils.class).error("Fail to kill " + process);
+        LoggerFactory.getLogger(ProcessUtils.class).error("Fail to kill " + process, e);
       }
     }
     return sentSignal;
