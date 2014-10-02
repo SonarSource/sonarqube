@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.measure.Metric;
@@ -32,6 +34,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SensorWrapper implements org.sonar.api.batch.Sensor {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SensorWrapper.class);
 
   private Sensor wrappedSensor;
   private SensorContext adaptor;
@@ -72,6 +76,6 @@ public class SensorWrapper implements org.sonar.api.batch.Sensor {
 
   @Override
   public String toString() {
-    return descriptor.name() + " (wrapped)";
+    return descriptor.name() + (LOG.isDebugEnabled() ? " (wrapped)" : "");
   }
 }

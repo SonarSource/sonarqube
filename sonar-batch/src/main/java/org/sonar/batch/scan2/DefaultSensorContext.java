@@ -110,8 +110,7 @@ public class DefaultSensorContext extends BaseSensorContext {
   public void store(Measure newMeasure) {
     DefaultMeasure<Serializable> measure = (DefaultMeasure<Serializable>) newMeasure;
     if (!measure.isFromCore() && INTERNAL_METRICS.contains(measure.metric())) {
-      LOG.warn("Metric " + measure.metric().key() + " is an internal metric computed by SonarQube. Please remove or update offending plugin.");
-      return;
+      throw new IllegalArgumentException("Metric " + measure.metric().key() + " is an internal metric computed by SonarQube. Please remove or update offending plugin.");
     }
     InputFile inputFile = measure.inputFile();
     if (inputFile != null) {

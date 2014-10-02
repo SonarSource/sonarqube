@@ -216,7 +216,7 @@ public class DefaultIndex extends SonarIndex {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
       }
       if (!isTechnicalProjectCopy(resource) && !measure.isFromCore() && DefaultSensorContext.INTERNAL_METRICS.contains(metric)) {
-        LOG.warn("Metric " + metric.key() + " is an internal metric computed by SonarQube. Please update your plugin.");
+        LOG.debug("Metric " + metric.key() + " is an internal metric computed by SonarQube. Please update your plugin.");
         return measure;
       }
       measure.setMetric(metric);
