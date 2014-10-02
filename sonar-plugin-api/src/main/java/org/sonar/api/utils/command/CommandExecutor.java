@@ -65,7 +65,7 @@ public class CommandExecutor {
     StreamGobbler outputGobbler = null;
     StreamGobbler errorGobbler = null;
     try {
-      ProcessBuilder builder = new ProcessBuilder(command.toStrings());
+      ProcessBuilder builder = new ProcessBuilder(command.toStrings(false));
       if (command.getDirectory() != null) {
         builder.directory(command.getDirectory());
       }

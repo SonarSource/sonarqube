@@ -61,6 +61,18 @@ public class CommandTest {
   }
 
   @Test
+  public void create_command_with_masked_arguments() {
+    Command command = Command.create("java");
+    command.addArgument("-Xmx512m");
+    command.addMaskedArgument("s3cr3t");
+    command.addArguments(new String[] {"-x", "-y"});
+    assertThat(command.getExecutable()).isEqualTo("java");
+    assertThat(command.getArguments()).hasSize(4);
+    assertThat(command.toCommandLine()).isEqualTo("java -Xmx512m s3cr3t -x -y");
+    assertThat(command.toString()).isEqualTo("java -Xmx512m ******** -x -y");
+  }
+
+  @Test
   public void toString_is_the_command_line() {
     Command command = Command.create("java");
     command.addArgument("-Xmx512m");
@@ -100,7 +112,7 @@ public class CommandTest {
     Command command = new Command("foo.bat", system);
     command.setNewShell(true);
     assertThat(command.toCommandLine()).isEqualTo("cmd /C call foo.bat");
-      assertThat(command.isNewShell()).isTrue();
+    assertThat(command.isNewShell()).isTrue();
 
   }
 

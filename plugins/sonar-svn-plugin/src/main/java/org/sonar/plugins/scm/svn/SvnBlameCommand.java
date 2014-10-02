@@ -58,7 +58,7 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
 
   @Override
   public void blame(final FileSystem fs, Iterable<InputFile> files, final BlameResult result) {
-    LOG.info("Working directory: " + fs.baseDir().getAbsolutePath());
+    LOG.debug("Working directory: " + fs.baseDir().getAbsolutePath());
     ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
     List<Future<Void>> tasks = new ArrayList<Future<Void>>();
     for (InputFile inputFile : files) {
@@ -95,7 +95,7 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
   }
 
   public int execute(Command cl, StreamConsumer consumer, StreamConsumer stderr) {
-    LOG.info("Executing: " + cl);
+    LOG.debug("Executing: " + cl);
     return commandExecutor.execute(cl, consumer, stderr, 0);
   }
 
@@ -121,11 +121,11 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
     String username = configuration.username();
     if (username != null) {
       cl.addArgument("--username");
-      cl.addArgument(username);
+      cl.addMaskedArgument(username);
       String password = configuration.password();
       if (password != null) {
         cl.addArgument("--password");
-        cl.addArgument(password);
+        cl.addMaskedArgument(password);
       }
     }
     if (configuration.trustServerCert()) {

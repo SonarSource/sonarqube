@@ -39,6 +39,7 @@ import java.util.Map;
 public class Command {
   private final String executable;
   private final List<String> arguments = Lists.newArrayList();
+  private final List<String> argumentsForLogs = Lists.newArrayList();
   private final Map<String, String> env;
   private File directory;
   private boolean newShell = false;
@@ -70,16 +71,25 @@ public class Command {
 
   public Command addArgument(String arg) {
     arguments.add(arg);
+    argumentsForLogs.add(arg);
+    return this;
+  }
+
+  public Command addMaskedArgument(String arg) {
+    arguments.add(arg);
+    argumentsForLogs.add("********");
     return this;
   }
 
   public Command addArguments(List<String> args) {
     arguments.addAll(args);
+    argumentsForLogs.addAll(args);
     return this;
   }
 
   public Command addArguments(String[] args) {
     Collections.addAll(arguments, args);
+    Collections.addAll(argumentsForLogs, args);
     return this;
   }
 
@@ -139,7 +149,7 @@ public class Command {
     return this;
   }
 
-  List<String> toStrings() {
+  List<String> toStrings(boolean forLogs) {
     ImmutableList.Builder<String> command = ImmutableList.builder();
     if (newShell) {
       if (system.isOsWindows()) {
@@ -149,16 +159,16 @@ public class Command {
       }
     }
     command.add(executable);
-    command.addAll(arguments);
+    command.addAll(forLogs ? argumentsForLogs : arguments);
     return command.build();
   }
 
   public String toCommandLine() {
-    return Joiner.on(" ").join(toStrings());
+    return Joiner.on(" ").join(toStrings(false));
   }
 
   @Override
   public String toString() {
-    return toCommandLine();
+    return Joiner.on(" ").join(toStrings(true));
   }
 }

@@ -37,7 +37,7 @@ public class SvnConfiguration implements BatchComponent {
 
   private static final String CATEGORY_SVN = "SVN";
   private static final String USER_PROP_KEY = "sonar.svn.username";
-  private static final String PASSWORD_PROP_KEY = "sonar.svn.password";
+  private static final String PASSWORD_PROP_KEY = "sonar.svn.password.secured";
   private static final String CONFIG_DIR_PROP_KEY = "sonar.svn.config_dir";
   private static final String TRUST_SERVER_PROP_KEY = "sonar.svn.trust_server_cert";
   private final Settings settings;
@@ -60,7 +60,7 @@ public class SvnConfiguration implements BatchComponent {
       PropertyDefinition.builder(PASSWORD_PROP_KEY)
         .name("Password")
         .description("Password to be used for SVN authentication")
-        .type(PropertyType.STRING)
+        .type(PropertyType.PASSWORD)
         .onQualifiers(Qualifiers.PROJECT)
         .category(CoreProperties.CATEGORY_SCM)
         .subCategory(CATEGORY_SVN)

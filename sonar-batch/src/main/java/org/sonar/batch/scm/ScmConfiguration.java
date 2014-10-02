@@ -57,7 +57,7 @@ public final class ScmConfiguration implements BatchComponent, Startable {
 
   @Override
   public void start() {
-    if (!settings.getBoolean(CoreProperties.SCM_ENABLED_KEY)) {
+    if (isDisabled()) {
       LOG.debug("SCM Step is disabled by configuration");
       return;
     }
@@ -90,6 +90,10 @@ public final class ScmConfiguration implements BatchComponent, Startable {
 
   public ScmProvider provider() {
     return provider;
+  }
+
+  public boolean isDisabled() {
+    return !settings.getBoolean(CoreProperties.SCM_ENABLED_KEY);
   }
 
   @Override

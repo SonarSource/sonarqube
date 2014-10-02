@@ -25,32 +25,22 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
-import org.sonar.api.batch.scm.BlameCommand.BlameResult;
-import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PropertiesBuilder;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.protocol.input.FileData;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 
 import java.nio.charset.Charset;
-import java.text.Normalizer;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public final class ScmSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(ScmSensor.class);
-
-  private static final Pattern NON_ASCII_CHARS = Pattern.compile("[^\\x00-\\x7F]");
-  private static final Pattern ACCENT_CODES = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
   private final ProjectDefinition projectDefinition;
   private final ScmConfiguration configuration;
@@ -76,8 +66,12 @@ public final class ScmSensor implements Sensor {
 
   @Override
   public void execute(final SensorContext context) {
+    if (configuration.isDisabled()) {
+      LOG.info("SCM Sensor is disabled");
+      return;
+    }
     if (configuration.provider() == null) {
-      LOG.info("No SCM provider");
+      LOG.info("No SCM provider for this project");
       return;
     }
 
@@ -96,60 +90,16 @@ public final class ScmSensor implements Sensor {
         filesToBlame.add(f);
       }
     }
-    configuration.provider().blameCommand().blame(fs, filesToBlame, new BlameResult() {
-
-      @Override
-      public void add(InputFile file, List<BlameLine> lines) {
-
-        PropertiesBuilder<Integer, String> authors = propertiesBuilder(CoreMetrics.SCM_AUTHORS_BY_LINE);
-        PropertiesBuilder<Integer, String> dates = propertiesBuilder(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
-        PropertiesBuilder<Integer, String> revisions = propertiesBuilder(CoreMetrics.SCM_REVISIONS_BY_LINE);
-
-        int lineNumber = 1;
-        for (BlameLine line : lines) {
-          authors.add(lineNumber, normalizeString(line.getAuthor()));
-          dates.add(lineNumber, DateUtils.formatDateTime(line.getDate()));
-          revisions.add(lineNumber, line.getRevision());
-
-          lineNumber++;
-          // SONARPLUGINS-3097 For some SCM blame is missing on last empty line
-          if (lineNumber > lines.size() && lineNumber == file.lines()) {
-            authors.add(lineNumber, normalizeString(line.getAuthor()));
-            dates.add(lineNumber, DateUtils.formatDateTime(line.getDate()));
-            revisions.add(lineNumber, line.getRevision());
-          }
-        }
-
-        saveMeasures(context, file, authors.buildData(), dates.buildData(), revisions.buildData());
-
-      }
-    });
+    if (!filesToBlame.isEmpty()) {
+      configuration.provider().blameCommand().blame(fs, filesToBlame, new DefaultBlameResult(context));
+    }
     profiler.stop();
-  }
-
-  private String normalizeString(String inputString) {
-    String lowerCasedString = inputString.toLowerCase();
-    String stringWithoutAccents = removeAccents(lowerCasedString);
-    return removeNonAsciiCharacters(stringWithoutAccents);
-  }
-
-  private String removeAccents(String inputString) {
-    String unicodeDecomposedString = Normalizer.normalize(inputString, Normalizer.Form.NFD);
-    return ACCENT_CODES.matcher(unicodeDecomposedString).replaceAll("");
-  }
-
-  private String removeNonAsciiCharacters(String inputString) {
-    return NON_ASCII_CHARS.matcher(inputString).replaceAll("_");
-  }
-
-  private static PropertiesBuilder<Integer, String> propertiesBuilder(Metric metric) {
-    return new PropertiesBuilder<Integer, String>(metric);
   }
 
   /**
    * This method is synchronized since it is allowed for plugins to compute blame in parallel.
    */
-  private synchronized void saveMeasures(SensorContext context, InputFile f, String scmAuthorsByLine, String scmLastCommitDatetimesByLine, String scmRevisionsByLine) {
+  static synchronized void saveMeasures(SensorContext context, InputFile f, String scmAuthorsByLine, String scmLastCommitDatetimesByLine, String scmRevisionsByLine) {
     ((DefaultMeasure<String>) context.<String>newMeasure()
       .onFile(f)
       .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
