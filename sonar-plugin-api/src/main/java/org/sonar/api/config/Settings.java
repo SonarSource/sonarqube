@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Project Settings on batch side, Global Settings on server side. This component does not access to database, so
+ * Project settings on batch side, or global settings on server side. This component does not access to database, so
  * property changed via setter methods are not persisted.
  * <p/>
  * <p>

@@ -19,10 +19,11 @@
  */
 package org.sonar.api.charts;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.util.Locale;
+
+import static org.junit.Assert.*;
 
 public class ChartParametersTest {
   @Test

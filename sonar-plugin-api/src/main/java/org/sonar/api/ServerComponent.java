@@ -20,8 +20,7 @@
 package org.sonar.api;
 
 /**
- * Dependency Injection : all the classes implementing this interface are available in the server IoC container.
- * Just add a parameter to the constructor of your component.
+ * Same than {@link org.sonar.api.BatchComponent} but for server-side components.
  *
  * @since 2.2
  */

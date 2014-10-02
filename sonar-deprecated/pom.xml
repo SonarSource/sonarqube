@@ -15,6 +15,10 @@
       <artifactId>sonar-plugin-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>jfree</groupId>
+      <artifactId>jfreechart</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-project</artifactId>
     </dependency>
@@ -23,6 +27,7 @@
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
     </dependency>
+
 
     <!-- unit test -->
     <dependency>

@@ -30,10 +30,12 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 /**
- * An extension point to generate JFreeChart charts
+ * Base implementation to generate charts with JFreechart
  * 
  * @since 1.10
+ * @deprecated in 4.5.1, replaced by Javascript charts
  */
+@Deprecated
 public abstract class AbstractChart implements Chart {
 
   public static final int FONT_SIZE = 13;

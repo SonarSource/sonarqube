@@ -17,35 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.config.internal;
+package org.sonar.api.config;
 
-import org.junit.Test;
+/**
+ * @since 3.7
+ */
+class SubCategory extends Category {
 
-import static org.fest.assertions.Assertions.assertThat;
-
-public class CategoryTest {
-
-  @Test
-  public void category_key_is_case_insentive() {
-    assertThat(new Category("Licenses")).isEqualTo(new Category("licenses"));
-
-    // Just to raise coverage
-    assertThat(new Category("Licenses")).isNotEqualTo("Licenses");
+  SubCategory(String originalKey) {
+    super(originalKey);
   }
 
-  @Test
-  public void should_preserve_original_key() {
-    assertThat(new Category("Licenses").originalKey()).isEqualTo("Licenses");
-  }
-
-  @Test
-  public void should_normalize_key() throws Exception {
-    assertThat(new Category("Licenses").key()).isEqualTo("licenses");
-  }
-
-  @Test
-  public void should_use_original_key() throws Exception {
-    assertThat(new Category("Licenses").toString()).isEqualTo("Licenses");
+  SubCategory(String originalKey, boolean special) {
+    super(originalKey, special);
   }
 
 }

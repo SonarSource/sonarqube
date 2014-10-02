@@ -20,7 +20,10 @@
 package org.sonar.api;
 
 /**
- * A plugin is a group of extensions. See {@link Extension} interface to get all extension points.
+ * Plugin entry-point used to declare its extensions (see {@link org.sonar.api.Extension}.
+ * <p/>
+ * <p>The JAR manifest must declare the name of the implementation class in the property <code>Plugin-Class</code>.
+ * This property is automatically set by sonar-packaging-maven-plugin when building plugin.</p>
  * 
  * @since 2.8
  */

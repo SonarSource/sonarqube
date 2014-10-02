@@ -33,7 +33,9 @@ import java.util.Map;
 /**
  * The class to hold parameters to configure a chart
  * @since 1.10
+ * @deprecated in 4.5.1, replaced by Javascript charts
  */
+@Deprecated
 public class ChartParameters {
   private static final String[] EMPTY = new String[0];
 

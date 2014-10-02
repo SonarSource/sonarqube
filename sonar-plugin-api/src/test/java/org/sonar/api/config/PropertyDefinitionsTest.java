@@ -22,8 +22,6 @@ package org.sonar.api.config;
 import org.junit.Test;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.config.internal.Category;
-import org.sonar.api.config.internal.SubCategory;
 import org.sonar.api.resources.Qualifiers;
 
 import java.util.Arrays;

@@ -20,8 +20,20 @@
 package org.sonar.api;
 
 /**
- * Dependency Injection : all the classes implementing this interface are available in the batch IoC container.
- * Just add a parameter to the constructor of your component.
+ * Marker interface for all the components available in container of batch (code analyzer). Note that
+ * injection of dependencies by constructor is used :
+ * <pre>
+ *   public class Foo implements BatchComponent {
+ *
+ *   }
+ *   public class Bar implements BatchComponent {
+ *     private final Foo foo;
+ *     public Bar(Foo f) {
+ *       this.foo = f;
+ *     }
+ *   }
+ *
+ * </pre>
  *
  * @since 2.2
  */

@@ -20,8 +20,7 @@
 package org.sonar.api;
 
 /**
- * CoreProperties is used to group various properties of Sonar as well
- * as default values of configuration in a single place
+ * Non-exhaustive list of constants of core properties.
  *
  * @since 1.11
  */

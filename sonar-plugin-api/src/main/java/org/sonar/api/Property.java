@@ -28,18 +28,11 @@ import java.lang.annotation.Target;
  * Property value can be set in different ways :
  * <ul>
  * <li>System property</li>
- * <li>Maven command-line (-Dfoo=bar)</li>
+ * <li>Batch command-line (-Dfoo=bar in Maven or sonar-runner)</li>
  * <li>Maven pom.xml (element <properties>)</li>
  * <li>Maven settings.xml</li>
- * <li>Sonar web interface</li>
+ * <li>SonarQube web administration console</li>
  * </ul>
- * <p/>
- * Value is accessible in batch extensions via the Configuration object of class <code>org.sonar.api.resources.Project</code>
- * (see method <code>getConfiguration()</code>).
- * <p/>
- * <p><strong>Must be used in <code>org.sonar.api.Plugin</code> classes only.</strong></p>
- * <p></p>
- * It's recommended to use the class {@link org.sonar.api.config.PropertyDefinition} since v3.6.
  *
  * @since 1.10
  */
