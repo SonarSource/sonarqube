@@ -25,6 +25,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -49,6 +50,11 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
 
   public IssueIndex(IssueNormalizer normalizer, SearchClient client) {
     super(IndexDefinition.ISSUES, normalizer, client);
+  }
+
+  @Override
+  protected ImmutableSettings.Builder addCustomIndexSettings(ImmutableSettings.Builder baseIndexSettings) {
+    return baseIndexSettings.put("index.number_of_shards", 4);
   }
 
   @Override

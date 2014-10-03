@@ -231,7 +231,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   protected abstract String getKeyValue(KEY key);
 
-  private final Settings getIndexSettings() {
+  public final Settings getIndexSettings() {
     return this.addCustomIndexSettings
       (this.getBaseIndexSettings()).build();
   }

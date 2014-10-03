@@ -21,6 +21,7 @@ package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
+import org.elasticsearch.common.settings.Settings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -721,5 +722,19 @@ public class IssueIndexMediumTest {
 
     assertThat(results.get(2).getKey()).isEqualTo("_notAssigned_");
     assertThat(results.get(2).getValue()).isEqualTo(1);
+  }
+
+
+  @Test
+  public void index_has_4_shards() {
+
+    // 0 Assert configuration is correct
+    String shardSettingKey = "index.number_of_shards";
+    Settings settings = index.getIndexSettings();
+    assertThat(settings.get(shardSettingKey)).isEqualTo("4");
+
+    // 1 Assert index has 4 shards
+    assertThat(tester.get(SearchClient.class).admin().indices().prepareGetSettings(IndexDefinition.ISSUES.getIndexName())
+      .get().getSetting(IndexDefinition.ISSUES.getIndexName(), shardSettingKey)).isEqualTo("4");
   }
 }
