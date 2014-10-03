@@ -145,7 +145,7 @@ public class SearchServer implements Monitored {
 
   @Override
   public boolean isReady() {
-    return node.client().admin().cluster().prepareHealth()
+    return node != null && node.client().admin().cluster().prepareHealth()
       .setWaitForYellowStatus()
       .setTimeout(TimeValue.timeValueSeconds(3L))
       .get()
@@ -248,7 +248,7 @@ public class SearchServer implements Monitored {
   }
 
   @Override
-  public synchronized void stop() {
+  public void stop() {
     if (node != null && !node.isClosed()) {
       node.close();
     }
