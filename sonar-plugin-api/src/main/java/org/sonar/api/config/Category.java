@@ -26,7 +26,7 @@ import java.util.Locale;
 /**
  * @since 3.7
  */
-class Category {
+public class Category {
 
   private final String originalKey;
   private final boolean special;
@@ -40,15 +40,15 @@ class Category {
     this.special = special;
   }
 
-  String originalKey() {
+  public String originalKey() {
     return originalKey;
   }
 
-  String key() {
+  public String key() {
     return StringUtils.lowerCase(originalKey, Locale.ENGLISH);
   }
 
-  boolean isSpecial() {
+  public boolean isSpecial() {
     return special;
   }
 

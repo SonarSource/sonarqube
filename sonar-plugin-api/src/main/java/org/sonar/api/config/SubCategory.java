@@ -22,7 +22,7 @@ package org.sonar.api.config;
 /**
  * @since 3.7
  */
-class SubCategory extends Category {
+public class SubCategory extends Category {
 
   SubCategory(String originalKey) {
     super(originalKey);

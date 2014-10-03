@@ -128,12 +128,6 @@ public class PropertyDefinitionsTest {
       PropertyDefinition.builder("view").name("View").category("catView").onlyOnQualifiers(Qualifiers.VIEW).build()
     );
 
-    assertThat(def.getPropertiesByCategory(null).keySet()).containsOnly("catGlobal1", "catGlobal2");
-    assertThat(def.getPropertiesByCategory(Qualifiers.PROJECT).keySet()).containsOnly("catProject");
-    assertThat(def.getPropertiesByCategory(Qualifiers.MODULE).keySet()).containsOnly("catModule");
-    assertThat(def.getPropertiesByCategory(Qualifiers.VIEW).keySet()).containsOnly("catView");
-    assertThat(def.getPropertiesByCategory("Unkown").keySet()).isEmpty();
-
     assertThat(def.propertiesByCategory(null).keySet()).contains(new Category("catGlobal1"), new Category("catGlobal2"));
     assertThat(def.propertiesByCategory(Qualifiers.PROJECT).keySet()).containsOnly(new Category("catProject"));
     assertThat(def.propertiesByCategory(Qualifiers.MODULE).keySet()).containsOnly(new Category("catModule"));
@@ -150,9 +144,6 @@ public class PropertyDefinitionsTest {
       PropertyDefinition.builder("global4").name("Global4").category("catGlobal2").build()
     );
 
-    assertThat(def.getPropertiesByCategory(null).get("catGlobal1").keySet()).containsOnly("catGlobal1", "sub1", "sub2");
-    assertThat(def.getPropertiesByCategory(null).get("catGlobal2").keySet()).containsOnly("catGlobal2");
-
     assertThat(def.propertiesByCategory(null).get(new Category("catGlobal1")).keySet()).containsOnly(new SubCategory("catGlobal1"), new SubCategory("sub1"),
       new SubCategory("sub2"));
     assertThat(def.propertiesByCategory(null).get(new Category("catGlobal2")).keySet()).containsOnly(new SubCategory("catGlobal2"));
@@ -161,10 +152,6 @@ public class PropertyDefinitionsTest {
   @Test
   public void should_group_by_category_on_annotation_plugin() {
     PropertyDefinitions def = new PropertyDefinitions(ByCategory.class);
-
-    assertThat(def.getPropertiesByCategory().keySet()).containsOnly("catGlobal1", "catGlobal2");
-    assertThat(def.getPropertiesByCategory(Qualifiers.PROJECT).keySet()).containsOnly("catProject");
-    assertThat(def.getPropertiesByCategory(Qualifiers.MODULE).keySet()).containsOnly("catModule");
 
     assertThat(def.propertiesByCategory(null).keySet()).contains(new Category("catglobal1"), new Category("catglobal2"));
     assertThat(def.propertiesByCategory(Qualifiers.PROJECT).keySet()).containsOnly(new Category("catproject"));
