@@ -118,7 +118,7 @@ public final class ScmConfiguration implements BatchComponent, Startable {
   }
 
   public boolean isDisabled() {
-    return !settings.getBoolean(CoreProperties.SCM_ENABLED_KEY);
+    return settings.getBoolean(CoreProperties.SCM_DISABLED_KEY);
   }
 
   @Override

@@ -26,6 +26,7 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
+import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.command.Command;
 import org.sonar.api.utils.command.CommandExecutor;
 import org.sonar.api.utils.command.StreamConsumer;
@@ -89,7 +90,12 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
         if (exitCode != 0) {
           throw new IllegalStateException("The svn blame command [" + cl.toString() + "] failed: " + stderr.getOutput());
         }
-        result.add(inputFile, consumer.getLines());
+        List<BlameLine> lines = consumer.getLines();
+        if (lines.size() == inputFile.lines() - 1) {
+          // SONARPLUGINS-3097 SVN do not report blame on last empty line
+          lines.add(lines.get(lines.size() - 1));
+        }
+        result.add(inputFile, lines);
         return null;
       }
     });

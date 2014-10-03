@@ -543,7 +543,7 @@ public interface CoreProperties {
   /**
    * @since 5.0
    */
-  String SCM_ENABLED_KEY = "sonar.scm.enabled";
+  String SCM_DISABLED_KEY = "sonar.scm.disabled";
 
   /**
    * @since 5.0

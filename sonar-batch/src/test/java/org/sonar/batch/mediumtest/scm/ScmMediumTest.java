@@ -72,7 +72,6 @@ public class ScmMediumTest {
         .put("sonar.projectVersion", "1.0-SNAPSHOT")
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
-        .put("sonar.scm.enabled", "true")
         .put("sonar.scm.provider", "xoo")
         .build())
       .start();
@@ -104,7 +103,6 @@ public class ScmMediumTest {
         .put("sonar.projectVersion", "1.0-SNAPSHOT")
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
-        .put("sonar.scm.enabled", "true")
         .put("sonar.links.scm_dev", "scm:xoo:foobar")
         .build())
       .start();
@@ -157,7 +155,7 @@ public class ScmMediumTest {
         .put("sonar.projectVersion", "1.0-SNAPSHOT")
         .put("sonar.projectDescription", "Description of Foo Project")
         .put("sonar.sources", "src")
-        .put("sonar.scm.enabled", "false")
+        .put("sonar.scm.disabled", "true")
         .put("sonar.scm.provider", "xoo")
         .build())
       .start();

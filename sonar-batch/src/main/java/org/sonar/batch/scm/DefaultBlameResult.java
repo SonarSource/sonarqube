@@ -48,7 +48,8 @@ class DefaultBlameResult implements BlameResult {
   public void add(InputFile file, List<BlameLine> lines) {
     Preconditions.checkNotNull(file);
     Preconditions.checkNotNull(lines);
-    Preconditions.checkArgument(lines.size() == file.lines(), "Expected one blame result per line");
+    Preconditions.checkArgument(lines.size() == file.lines(),
+      "Expected one blame result per line but provider returned " + lines.size() + " blame lines while file has " + file.lines() + " lines");
 
     PropertiesBuilder<Integer, String> authors = propertiesBuilder(CoreMetrics.SCM_AUTHORS_BY_LINE);
     PropertiesBuilder<Integer, String> dates = propertiesBuilder(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
