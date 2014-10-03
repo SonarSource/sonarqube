@@ -55,6 +55,10 @@ public class JGitBlameCommand implements BlameCommand, BatchComponent {
             blameResult.getSourceAuthor(i).getEmailAddress(),
             blameResult.getSourceCommitter(i).getEmailAddress()));
         }
+        if (lines.size() == inputFile.lines() - 1) {
+          // SONARPLUGINS-3097 Git do not report blame on last empty line
+          lines.add(lines.get(lines.size() - 1));
+        }
         result.add(inputFile, lines);
       }
     } catch (IOException e) {
