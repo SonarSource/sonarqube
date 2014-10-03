@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
@@ -38,9 +39,7 @@ import java.util.Set;
 
 /**
  * @since 1.10
- * @deprecated since 4.5
  */
-@Deprecated
 public interface SensorContext {
 
   /**
@@ -170,17 +169,23 @@ public interface SensorContext {
    *
    * @param force allows to force creation of violation even if it was supressed by {@link org.sonar.api.rules.ViolationFilter}
    * @since 2.5
+   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
    */
+  @Deprecated
   void saveViolation(Violation violation, boolean force);
 
   /**
    * Save a coding rule violation.
+   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
    */
+  @Deprecated
   void saveViolation(Violation violation);
 
   /**
    * Saves a list of violations.
+   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
    */
+  @Deprecated
   void saveViolations(Collection<Violation> violations);
 
   // ----------- DEPENDENCIES BETWEEN RESOURCES --------------
@@ -247,14 +252,16 @@ public interface SensorContext {
   void deleteEvent(Event event);
 
   /**
-   * Experimental
+   * Experimental - do not use
    * @since 4.2
    */
+  @Beta
   Measure saveMeasure(InputFile inputFile, Metric metric, Double value);
 
   /**
-   * Experimental
+   * Experimental - do not use
    * @since 4.2
    */
+  @Beta
   Measure saveMeasure(InputFile inputFile, Measure measure);
 }
