@@ -98,6 +98,35 @@ public class SvnBlameCommandTest {
   }
 
   @Test
+  public void shouldFailIfFileContainsLocalModification() throws IOException {
+    File source = new File(baseDir, "src/foo.xoo");
+    FileUtils.write(source, "sample content");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath());
+    fs.add(inputFile);
+
+    BlameResult result = mock(BlameResult.class);
+    CommandExecutor commandExecutor = mock(CommandExecutor.class);
+
+    when(commandExecutor.execute(any(Command.class), any(StreamConsumer.class), any(StreamConsumer.class), anyLong())).thenAnswer(new Answer<Integer>() {
+
+      @Override
+      public Integer answer(InvocationOnMock invocation) throws Throwable {
+        StreamConsumer outConsumer = (StreamConsumer) invocation.getArguments()[1];
+        List<String> lines = FileUtils.readLines(new File("src/test/resources/blame-with-uncomitted-changes.xml"), "UTF-8");
+        for (String line : lines) {
+          outConsumer.consumeLine(line);
+        }
+        return 0;
+      }
+    });
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Unable to blame file src/foo.xoo. No blame info at line 2. Is file commited?");
+
+    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(fs, Arrays.<InputFile>asList(inputFile), result);
+  }
+
+  @Test
   public void testExecutionError() throws IOException {
     File source = new File(baseDir, "src/foo.xoo");
     FileUtils.write(source, "sample content");

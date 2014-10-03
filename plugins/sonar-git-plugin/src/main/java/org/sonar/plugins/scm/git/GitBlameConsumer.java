@@ -133,7 +133,7 @@ public class GitBlameConsumer implements StreamConsumer {
       revision = parts[0];
 
       if (StringUtils.containsOnly(revision, "0")) {
-        throw new IllegalStateException("Unable to blame file " + filename + ". Is file commited?");
+        throw new IllegalStateException("Unable to blame file " + filename + ". No blame info at line " + (getLines().size() + 1) + ". Is file commited?");
       }
 
       BlameLine oldLine = commitInfo.get(revision);

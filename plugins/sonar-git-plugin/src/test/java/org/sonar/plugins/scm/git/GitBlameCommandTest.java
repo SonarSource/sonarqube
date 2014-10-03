@@ -140,7 +140,7 @@ public class GitBlameCommandTest {
     });
 
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Unable to blame file src/foo.xoo. Is file commited?");
+    thrown.expectMessage("Unable to blame file src/foo.xoo. No blame info at line 1. Is file commited?");
     new GitBlameCommand(commandExecutor).blame(fs, Arrays.<InputFile>asList(inputFile), result);
   }
 

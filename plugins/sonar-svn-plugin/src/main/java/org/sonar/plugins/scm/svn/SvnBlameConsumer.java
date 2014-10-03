@@ -70,12 +70,15 @@ public class SvnBlameConsumer implements StreamConsumer {
 
   private List<BlameLine> lines = new ArrayList<BlameLine>();
 
-  public SvnBlameConsumer() {
+  private final String filename;
+
+  public SvnBlameConsumer(String filename) {
+    this.filename = filename;
     dateFormat = new SimpleDateFormat(SVN_TIMESTAMP_PATTERN);
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
   }
 
-  private int lineNumber;
+  private int lineNumber = 0;
 
   private String revision;
 
@@ -85,6 +88,9 @@ public class SvnBlameConsumer implements StreamConsumer {
   public void consumeLine(String line) {
     Matcher matcher;
     if ((matcher = LINE_PATTERN.matcher(line)).find()) {
+      if (lineNumber != 0) {
+        throw new IllegalStateException("Unable to blame file " + filename + ". No blame info at line " + lineNumber + ". Is file commited?");
+      }
       String lineNumberStr = matcher.group(1);
       lineNumber = Integer.parseInt(lineNumberStr);
     }
@@ -99,6 +105,7 @@ public class SvnBlameConsumer implements StreamConsumer {
       String time = matcher.group(2);
       Date dateTime = parseDateTime(date + " " + time);
       lines.add(new BlameLine(dateTime, revision, author));
+      lineNumber = 0;
     }
   }
 

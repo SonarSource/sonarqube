@@ -81,7 +81,7 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
       public Void call() {
         String filename = inputFile.relativePath();
         Command cl = createCommandLine(fs.baseDir(), filename);
-        SvnBlameConsumer consumer = new SvnBlameConsumer();
+        SvnBlameConsumer consumer = new SvnBlameConsumer(filename);
         StringStreamConsumer stderr = new StringStreamConsumer();
 
         int exitCode = execute(cl, consumer, stderr);
