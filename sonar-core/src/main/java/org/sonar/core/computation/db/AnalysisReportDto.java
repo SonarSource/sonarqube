@@ -19,6 +19,7 @@
  */
 package org.sonar.core.computation.db;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.Nullable;
@@ -29,6 +30,18 @@ public class AnalysisReportDto extends Dto<String> {
   private String projectKey;
   private Status status;
   private String data;
+
+  public AnalysisReportDto() {
+    super();
+  }
+
+  @VisibleForTesting
+  public static AnalysisReportDto newForTests(Long id) {
+    AnalysisReportDto report = new AnalysisReportDto();
+    report.id = id;
+
+    return report;
+  }
 
   public String getProjectKey() {
     return projectKey;

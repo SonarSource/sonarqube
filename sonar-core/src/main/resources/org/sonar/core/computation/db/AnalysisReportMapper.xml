@@ -3,10 +3,10 @@
 
 <mapper namespace="org.sonar.core.computation.db.AnalysisReportMapper">
   <sql id="reportColumns">
+    <!-- the data report is not brought back by default as it could be too big in memory -->
     ar.id,
     ar.project_key as projectKey,
     ar.report_status as status,
-    ar.report_data as data,
     ar.created_at as createdAt,
     ar.updated_at as updatedAt
   </sql>
@@ -22,9 +22,29 @@
     set report_status=#{status}, updated_at=#{updatedAt}
   </update>
 
+  <update id="updateWithBookingReport" parameterType="map">
+    update analysis_reports ar1
+    set report_status=#{busyStatus},
+    updated_at=#{updatedAt}
+    where ar1.id=#{id} and ar1.report_status=#{availableStatus}
+    and not exists(
+    select 1
+    from analysis_reports ar2
+    where ar1.project_key=ar2.project_key
+    and ar2.report_status=#{busyStatus}
+    )
+  </update>
+
   <delete id="cleanWithTruncate">
     truncate table analysis_reports
   </delete>
+
+  <select id="selectById" resultType="AnalysisReport">
+    select
+    <include refid="reportColumns"/>
+    from analysis_reports ar
+    where id = #{id}
+  </select>
 
   <select id="selectByProjectKey" parameterType="String" resultType="AnalysisReport">
     select

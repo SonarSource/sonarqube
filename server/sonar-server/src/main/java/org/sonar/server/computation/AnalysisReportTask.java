@@ -39,7 +39,7 @@ public class AnalysisReportTask extends Thread {
   @Override
   public void run() {
     while (!this.isInterrupted()) {
-      AnalysisReportDto report = service.findAndBookNextAnalysisReport();
+      AnalysisReportDto report = service.findAndBookNextAvailableAnalysisReport();
       if (report == null) {
         sleepBeforeNextAttempt();
       } else {

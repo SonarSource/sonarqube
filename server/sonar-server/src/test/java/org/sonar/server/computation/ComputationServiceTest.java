@@ -29,16 +29,14 @@ import org.sonar.server.db.DbClient;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ComputationServiceTest {
 
-  ComputationService sut;
-  DbClient dbClient;
-  AnalysisReportDao analysisReportDao;
-  DbSession session;
+  private ComputationService sut;
+  private DbClient dbClient;
+  private AnalysisReportDao analysisReportDao;
+  private DbSession session;
 
   @Before
   public void before() {
@@ -67,7 +65,5 @@ public class ComputationServiceTest {
   @Test
   public void test_unimplemented_methods_for_code_coverage_purpose_only() {
     sut.analyzeReport(new AnalysisReportDto());
-    sut.findAndBookNextAnalysisReport();
   }
-
 }

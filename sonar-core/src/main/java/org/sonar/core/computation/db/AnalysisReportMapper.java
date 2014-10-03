@@ -42,4 +42,9 @@ public interface AnalysisReportMapper {
   void cleanWithTruncate();
 
   int update(AnalysisReportDto report);
+
+  int updateWithBookingReport(@Param("id") Long id, @Param("updatedAt") Date updatedAt, @Param("availableStatus") AnalysisReportDto.Status availableStatus,
+    @Param("busyStatus") AnalysisReportDto.Status busyStatus);
+
+  AnalysisReportDto selectById(Long id);
 }

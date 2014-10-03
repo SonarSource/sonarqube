@@ -27,6 +27,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 
+import javax.annotation.CheckForNull;
 import java.util.List;
 
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
@@ -66,9 +67,25 @@ public class ComputationService implements ServerComponent {
     }
   }
 
-  public AnalysisReportDto findAndBookNextAnalysisReport() {
-    // TODO TBE – implementation needed
-    return null;
+  /**
+   * @return a booked analysis report if one is available, null otherwise
+   */
+  @CheckForNull
+  public synchronized AnalysisReportDto findAndBookNextAvailableAnalysisReport() {
+    DbSession session = dbClient.openSession(false);
+    try {
+      AnalysisReportDto nextAvailableReport = dao.getNextAvailableReport(session);
+      if (nextAvailableReport == null) {
+        return null;
+      }
+
+      AnalysisReportDto report = dao.tryToBookReportAnalysis(session, nextAvailableReport);
+      session.commit();
+
+      return report;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public void analyzeReport(AnalysisReportDto report) {

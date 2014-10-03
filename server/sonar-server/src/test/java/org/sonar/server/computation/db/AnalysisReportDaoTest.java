@@ -38,6 +38,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
+import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
 public class AnalysisReportDaoTest {
   @Rule
@@ -51,6 +52,8 @@ public class AnalysisReportDaoTest {
     this.session = db.myBatis().openSession(false);
     this.system2 = mock(System2.class);
     this.dao = new AnalysisReportDao(system2);
+
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-26").getTime());
   }
 
   @After
@@ -60,8 +63,6 @@ public class AnalysisReportDaoTest {
 
   @Test
   public void insert_multiple_reports() {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-26").getTime());
-
     AnalysisReportDto report = new AnalysisReportDto()
       .setProjectKey("123456789-987654321")
       .setData("data-project")
@@ -79,8 +80,6 @@ public class AnalysisReportDaoTest {
 
   @Test
   public void update_all_to_status() {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-26").getTime());
-
     db.prepareDbUnit(getClass(), "update-all-to-status-pending.xml");
 
     dao.cleanWithUpdateAllToPendingStatus(session);
@@ -153,6 +152,77 @@ public class AnalysisReportDaoTest {
     assertThat(nextAvailableReport).isNull();
   }
 
+  @Test
+  public void getById_maps_all_the_fields_except_report_data() {
+    db.prepareDbUnit(getClass(), "select.xml");
+
+    AnalysisReportDto report = dao.getById(session, 1L);
+    assertThat(report.getId()).isEqualTo(1L);
+    assertThat(report.getStatus()).isEqualTo(WORKING);
+    assertThat(report.getProjectKey()).isEqualTo("123456789-987654321");
+    assertThat(report.getData()).isNull();
+    assertThat(report.getCreatedAt()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+    assertThat(report.getUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-25"));
+  }
+
+  @Test
+  public void getById_returns_null_when_id_not_found() {
+    db.prepareDbUnit(getClass(), "select.xml");
+
+    AnalysisReportDto report = dao.getById(session, 4L);
+
+    assertThat(report).isNull();
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void nullPointerExc_when_trying_to_book_a_report_without_id() {
+    dao.tryToBookReportAnalysis(session, new AnalysisReportDto());
+  }
+
+  @Test
+  public void cannot_book_an_already_working_report_analysis() {
+    db.prepareDbUnit(getClass(), "one_busy_report_analysis.xml");
+
+    AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
+    AnalysisReportDto reportBooked = dao.tryToBookReportAnalysis(session, report);
+
+    assertThat(reportBooked).isNull();
+  }
+
+  @Test
+  public void book_one_available_report_analysis() {
+    Date mockedNow = DateUtils.parseDate("2014-09-30");
+    when(system2.now()).thenReturn(mockedNow.getTime());
+    db.prepareDbUnit(getClass(), "one_available_analysis.xml");
+
+    AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
+    AnalysisReportDto reportBooked = dao.tryToBookReportAnalysis(session, report);
+
+    assertThat(reportBooked.getId()).isEqualTo(1L);
+    assertThat(reportBooked.getStatus()).isEqualTo(WORKING);
+    assertThat(reportBooked.getUpdatedAt()).isEqualTo(mockedNow);
+  }
+
+  @Test
+  public void cannot_book_available_report_analysis_while_having_a_working_one_on_the_same_project() {
+    db.prepareDbUnit(getClass(), "one_available_analysis_but_another_busy_on_same_project.xml");
+
+    AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
+    AnalysisReportDto reportBooked = dao.tryToBookReportAnalysis(session, report);
+
+    assertThat(reportBooked).isNull();
+  }
+
+  @Test
+  public void book_available_report_analysis_while_having_one_working_one_another() {
+    db.prepareDbUnit(getClass(), "book_available_report_analysis_while_having_one_working_one_another.xml");
+
+    AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
+    AnalysisReportDto reportBooked = dao.tryToBookReportAnalysis(session, report);
+
+    assertThat(reportBooked.getId()).isEqualTo(1L);
+  }
+
   @Test(expected = UnsupportedOperationException.class)
   public void doGetNullableByKey_is_not_implemented_yet() {
     dao.doGetNullableByKey(session, "ANY_STRING");
@@ -167,10 +237,4 @@ public class AnalysisReportDaoTest {
   public void doUpdate_is_not_implemented_yet() {
     dao.doUpdate(session, new AnalysisReportDto());
   }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void tryToBookReport_is_not_implemented_yet() {
-    dao.tryToBookReport(session, new AnalysisReportDto());
-  }
-
 }

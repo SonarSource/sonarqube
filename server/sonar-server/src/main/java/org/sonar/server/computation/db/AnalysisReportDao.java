@@ -28,10 +28,12 @@ import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
+import javax.annotation.CheckForNull;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
@@ -78,13 +80,22 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
     return reports.get(0);
   }
 
-  public int tryToBookReport(DbSession session, AnalysisReportDto report) {
-    // checkArgument(report.getId() != null);
-    //
-    // report.setStatus(WORKING);
-    //
-    // return mapper(session).update(report);
-    throw new UnsupportedOperationException();
+  @VisibleForTesting
+  AnalysisReportDto getById(DbSession session, Long id) {
+    return mapper(session).selectById(id);
+  }
+
+  @CheckForNull
+  public AnalysisReportDto tryToBookReportAnalysis(DbSession session, AnalysisReportDto report) {
+    checkNotNull(report.getId());
+
+    int nbOfReportBooked = mapper(session).updateWithBookingReport(report.getId(), new Date(system2.now()), PENDING, WORKING);
+
+    if (nbOfReportBooked == 0) {
+      return null;
+    }
+
+    return mapper(session).selectById(report.getId());
   }
 
   @Override
@@ -94,14 +105,6 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
 
   @Override
   protected AnalysisReportDto doUpdate(DbSession session, AnalysisReportDto report) {
-    // int nbOfReportsChanged = mapper(session).update(report);
-    // checkState(nbOfReportsChanged < 2);
-    //
-    // if (nbOfReportsChanged == 0) {
-    // return null;
-    // }
-    //
-    // return report;
     throw new UnsupportedOperationException();
   }
 
