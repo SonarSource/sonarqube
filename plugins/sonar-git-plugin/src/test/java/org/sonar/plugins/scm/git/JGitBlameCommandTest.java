@@ -24,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -46,6 +47,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class JGitBlameCommandTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -97,6 +101,57 @@ public class JGitBlameCommandTest {
         new BlameLine(revisionDate, revision, author),
         new BlameLine(revisionDate, revision, author)));
 
+  }
+
+  @Test
+  public void testBlameOnModifiedFile() throws IOException {
+    File projectDir = temp.newFolder();
+    javaUnzip(new File("test-repos/dummy-git.zip"), projectDir);
+
+    JGitBlameCommand jGitBlameCommand = new JGitBlameCommand();
+
+    DefaultFileSystem fs = new DefaultFileSystem();
+    File baseDir = new File(projectDir, "dummy-git");
+    fs.setBaseDir(baseDir);
+    String relativePath = "src/main/java/org/dummy/Dummy.java";
+    DefaultInputFile inputFile = new DefaultInputFile("foo", relativePath);
+    fs.add(inputFile);
+
+    // Emulate a modification
+    FileUtils.write(new File(baseDir, relativePath), "modification and \n some new line", true);
+
+    BlameResult blameResult = mock(BlameResult.class);
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Unable to blame file " + relativePath + ". No blame info at line 27. Is file commited?");
+    jGitBlameCommand.blame(fs, Arrays.<InputFile>asList(inputFile), blameResult);
+  }
+
+  @Test
+  public void testBlameOnNewFile() throws IOException {
+    File projectDir = temp.newFolder();
+    javaUnzip(new File("test-repos/dummy-git.zip"), projectDir);
+
+    JGitBlameCommand jGitBlameCommand = new JGitBlameCommand();
+
+    DefaultFileSystem fs = new DefaultFileSystem();
+    File baseDir = new File(projectDir, "dummy-git");
+    fs.setBaseDir(baseDir);
+    String relativePath = "src/main/java/org/dummy/Dummy.java";
+    String relativePath2 = "src/main/java/org/dummy/Dummy2.java";
+    DefaultInputFile inputFile = new DefaultInputFile("foo", relativePath);
+    fs.add(inputFile);
+    DefaultInputFile inputFile2 = new DefaultInputFile("foo", relativePath2);
+    fs.add(inputFile2);
+
+    // Emulate a new file
+    FileUtils.copyFile(new File(baseDir, relativePath), new File(baseDir, relativePath2));
+
+    BlameResult blameResult = mock(BlameResult.class);
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Unable to blame file " + relativePath2 + ". No blame info at line 1. Is file commited?");
+    jGitBlameCommand.blame(fs, Arrays.<InputFile>asList(inputFile, inputFile2), blameResult);
   }
 
   private static void javaUnzip(File zip, File toDir) {

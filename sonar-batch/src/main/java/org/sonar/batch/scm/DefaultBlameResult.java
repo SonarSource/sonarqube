@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scm;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand.BlameResult;
 import org.sonar.api.batch.scm.BlameLine;
@@ -45,6 +46,9 @@ class DefaultBlameResult implements BlameResult {
 
   @Override
   public void add(InputFile file, List<BlameLine> lines) {
+    Preconditions.checkNotNull(file);
+    Preconditions.checkNotNull(lines);
+    Preconditions.checkArgument(lines.size() == file.lines(), "Expected one blame result per line");
 
     PropertiesBuilder<Integer, String> authors = propertiesBuilder(CoreMetrics.SCM_AUTHORS_BY_LINE);
     PropertiesBuilder<Integer, String> dates = propertiesBuilder(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE);
@@ -55,16 +59,8 @@ class DefaultBlameResult implements BlameResult {
       authors.add(lineNumber, normalizeString(line.getAuthor()));
       dates.add(lineNumber, DateUtils.formatDateTime(line.getDate()));
       revisions.add(lineNumber, line.getRevision());
-
       lineNumber++;
-      // SONARPLUGINS-3097 For some SCM blame is missing on last empty line
-      if (lineNumber > lines.size() && lineNumber == file.lines()) {
-        authors.add(lineNumber, normalizeString(line.getAuthor()));
-        dates.add(lineNumber, DateUtils.formatDateTime(line.getDate()));
-        revisions.add(lineNumber, line.getRevision());
-      }
     }
-
     ScmSensor.saveMeasures(context, file, authors.buildData(), dates.buildData(), revisions.buildData());
 
   }

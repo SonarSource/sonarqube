@@ -98,7 +98,7 @@ public class ScmMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     File xooMeasureFile = new File(srcDir, "sample.xoo.measures");
     File xooScmFile = new File(srcDir, "sample.xoo.scm");
-    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile, "Sample xoo\ncontent\n3\n4\n5");
     FileUtils.write(xooMeasureFile, "lines:5");
     FileUtils.write(xooScmFile,
       // revision,author,dateTime

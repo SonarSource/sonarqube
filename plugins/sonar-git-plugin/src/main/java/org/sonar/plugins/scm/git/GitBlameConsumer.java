@@ -20,6 +20,7 @@
 package org.sonar.plugins.scm.git;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.command.StreamConsumer;
 
@@ -56,6 +57,11 @@ public class GitBlameConsumer implements StreamConsumer {
   private String author = null;
   private String committer = null;
   private Date time = null;
+  private final String filename;
+
+  public GitBlameConsumer(String filename) {
+    this.filename = filename;
+  }
 
   public void consumeLine(String line) {
     if (line == null) {
@@ -125,6 +131,10 @@ public class GitBlameConsumer implements StreamConsumer {
 
     if (parts.length >= 1) {
       revision = parts[0];
+
+      if (StringUtils.containsOnly(revision, "0")) {
+        throw new IllegalStateException("Unable to blame file " + filename + ". Is file commited?");
+      }
 
       BlameLine oldLine = commitInfo.get(revision);
 

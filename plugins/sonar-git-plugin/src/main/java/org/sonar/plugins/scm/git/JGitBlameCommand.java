@@ -20,6 +20,7 @@
 package org.sonar.plugins.scm.git;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.FileSystem;
@@ -28,6 +29,7 @@ import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.BlameLine;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +47,9 @@ public class JGitBlameCommand implements BlameCommand, BatchComponent {
         org.eclipse.jgit.blame.BlameResult blameResult = git.blame().setFilePath(filename).call();
         List<BlameLine> lines = new ArrayList<BlameLine>();
         for (int i = 0; i < blameResult.getResultContents().size(); i++) {
+          if (blameResult.getSourceAuthor(i) == null || blameResult.getSourceCommit(i) == null || blameResult.getSourceCommitter(i) == null) {
+            throw new IllegalStateException("Unable to blame file " + inputFile.relativePath() + ". No blame info at line " + (i + 1) + ". Is file commited?");
+          }
           lines.add(new org.sonar.api.batch.scm.BlameLine(blameResult.getSourceAuthor(i).getWhen(),
             blameResult.getSourceCommit(i).getName(),
             blameResult.getSourceAuthor(i).getEmailAddress(),
@@ -52,8 +57,10 @@ public class JGitBlameCommand implements BlameCommand, BatchComponent {
         }
         result.add(inputFile, lines);
       }
-    } catch (Exception e) {
-      throw new IllegalStateException("JGit blame failure!", e);
+    } catch (IOException e) {
+      throw new IllegalStateException("Unable to open Git repository", e);
+    } catch (GitAPIException e) {
+      throw new IllegalStateException("Unable to blame", e);
     } finally {
       if (git != null && git.getRepository() != null) {
         git.getRepository().close();

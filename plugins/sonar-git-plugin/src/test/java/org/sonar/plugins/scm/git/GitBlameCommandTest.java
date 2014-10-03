@@ -106,6 +106,45 @@ public class GitBlameCommandTest {
   }
 
   @Test
+  public void shouldFailOnFileWithLocalModification() throws IOException {
+    File source = new File(baseDir, "src/foo.xoo");
+    FileUtils.write(source, "sample content");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath());
+    fs.add(inputFile);
+
+    BlameResult result = mock(BlameResult.class);
+    CommandExecutor commandExecutor = mock(CommandExecutor.class);
+
+    when(commandExecutor.execute(any(Command.class), any(StreamConsumer.class), any(StreamConsumer.class), anyLong())).thenAnswer(new Answer<Integer>() {
+
+      @Override
+      public Integer answer(InvocationOnMock invocation) throws Throwable {
+        StreamConsumer outConsumer = (StreamConsumer) invocation.getArguments()[1];
+        outConsumer.consumeLine("000000000000000000000000000000000000000 68 54 1");
+        outConsumer.consumeLine("author Not Committed Yet");
+        outConsumer.consumeLine("author-mail <not.committed.yet>");
+        outConsumer.consumeLine("author-time 1312534171");
+        outConsumer.consumeLine("author-tz +0200");
+        outConsumer.consumeLine("committer Not Committed Yet");
+        outConsumer.consumeLine("committer-mail <not.committed.yet>");
+        outConsumer.consumeLine("committer-time 1312534171");
+        outConsumer.consumeLine("committer-tz +0200");
+        outConsumer.consumeLine("summary Move to nexus.codehaus.org + configuration of maven release plugin is back");
+        outConsumer.consumeLine("previous 1bec1c3a77f6957175be13e4433110f7fc8e387e pom.xml");
+        outConsumer.consumeLine("filename pom.xml");
+        outConsumer.consumeLine("\t<id>codehaus-nexus-staging</id>");
+        outConsumer.consumeLine("2c68c473da7fc293e12ca50f19380c5118be7ead 72 60 1");
+        outConsumer.consumeLine("\t<url>${sonar.snapshotRepository.url}</url>");
+        return 0;
+      }
+    });
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Unable to blame file src/foo.xoo. Is file commited?");
+    new GitBlameCommand(commandExecutor).blame(fs, Arrays.<InputFile>asList(inputFile), result);
+  }
+
+  @Test
   public void testExecutionError() throws IOException {
     File source = new File(baseDir, "src/foo.xoo");
     FileUtils.write(source, "sample content");

@@ -26,11 +26,13 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
+import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.command.Command;
 import org.sonar.api.utils.command.CommandExecutor;
 import org.sonar.api.utils.command.StreamConsumer;
 
 import java.io.File;
+import java.util.List;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class GitBlameCommand implements BlameCommand, BatchComponent {
@@ -52,14 +54,19 @@ public class GitBlameCommand implements BlameCommand, BatchComponent {
     for (InputFile inputFile : files) {
       String filename = inputFile.relativePath();
       Command cl = createCommandLine(fs.baseDir(), filename);
-      GitBlameConsumer consumer = new GitBlameConsumer();
+      GitBlameConsumer consumer = new GitBlameConsumer(filename);
       StringStreamConsumer stderr = new StringStreamConsumer();
 
       int exitCode = execute(cl, consumer, stderr);
       if (exitCode != 0) {
         throw new IllegalStateException("The git blame command [" + cl.toString() + "] failed: " + stderr.getOutput());
       }
-      result.add(inputFile, consumer.getLines());
+      List<BlameLine> lines = consumer.getLines();
+      if (lines.size() == inputFile.lines() - 1) {
+        // SONARPLUGINS-3097 Git do not report blame on last empty line
+        lines.add(lines.get(lines.size() - 1));
+      }
+      result.add(inputFile, lines);
     }
   }
 

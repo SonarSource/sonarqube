@@ -31,7 +31,8 @@ public interface BlameCommand {
 
   /**
    * Compute blame of the provided files. Computation can be done in parallel.
-   * If there is an error that prevent to blame a file then an exception should be raised.
+   * If there is an error that prevent to blame a file then an exception should be raised. If 
+   * one file is new or contains local modifications then an exception should be raised.
    */
   void blame(FileSystem fs, Iterable<InputFile> files, BlameResult result);
 
@@ -40,6 +41,10 @@ public interface BlameCommand {
    */
   public static interface BlameResult {
 
+    /**
+     * Add result of the blame command for a single file. Number of lines should
+     * be consistent with {@link InputFile#lines()}.
+     */
     void add(InputFile file, List<BlameLine> lines);
 
   }
