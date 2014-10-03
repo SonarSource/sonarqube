@@ -20,6 +20,8 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
@@ -36,6 +38,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.SimpleQueryStringBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -67,6 +70,10 @@ import java.util.Set;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
+
+  public static final String FACET_LANGUAGES = "languages";
+  public static final String FACET_TAGS = "tags";
+  public static final String FACET_REPOSITORIES = "repositories";
 
   public RuleIndex(RuleNormalizer normalizer, SearchClient client) {
     super(IndexDefinition.RULE, normalizer, client);
@@ -118,13 +125,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
 
     esSearch.setFetchSource(fields.toArray(new String[fields.size()]), null);
-  }
-
-  private void setFacets(QueryOptions options, SearchRequestBuilder esSearch) {
-    /* Integrate Facets */
-    if (options.isFacet()) {
-      this.setFacets(esSearch);
-    }
   }
 
   private void setSorting(RuleQuery query, SearchRequestBuilder esSearch) {
@@ -202,62 +202,92 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   /* Build main filter (match based) */
-  protected FilterBuilder getFilter(RuleQuery query, QueryOptions options) {
+  protected HashMap<String, FilterBuilder> getFilters(RuleQuery query, QueryOptions options) {
 
-    BoolFilterBuilder fb = FilterBuilders.boolFilter();
+    HashMap<String, FilterBuilder> filters = new HashMap<String, FilterBuilder>();
 
     /* Add enforced filter on rules that are REMOVED */
-    fb.mustNot(FilterBuilders
-      .termFilter(RuleNormalizer.RuleField.STATUS.field(),
-        RuleStatus.REMOVED.toString()));
+    filters.put(RuleNormalizer.RuleField.STATUS.field(),
+      FilterBuilders.boolFilter().mustNot(
+        FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(),
+          RuleStatus.REMOVED.toString())));
 
-    this.addTermFilter(fb, RuleNormalizer.RuleField.INTERNAL_KEY.field(), query.getInternalKey());
-    this.addTermFilter(fb, RuleNormalizer.RuleField.RULE_KEY.field(), query.getRuleKey());
-    this.addTermFilter(fb, RuleNormalizer.RuleField.LANGUAGE.field(), query.getLanguages());
-    this.addTermFilter(fb, RuleNormalizer.RuleField.REPOSITORY.field(), query.getRepositories());
-    this.addTermFilter(fb, RuleNormalizer.RuleField.SEVERITY.field(), query.getSeverities());
-    this.addTermFilter(fb, RuleNormalizer.RuleField.KEY.field(), query.getKey());
-    this.addTermFilter(fb, RuleNormalizer.RuleField._TAGS.field(), query.getTags());
+    if (!StringUtils.isEmpty(query.getInternalKey())) {
+      filters.put(RuleNormalizer.RuleField.INTERNAL_KEY.field(),
+        FilterBuilders.termFilter(RuleNormalizer.RuleField.INTERNAL_KEY.field(), query.getInternalKey()));
+    }
+
+    if (!StringUtils.isEmpty(query.getRuleKey())) {
+      filters.put(RuleNormalizer.RuleField.RULE_KEY.field(),
+        FilterBuilders.termFilter(RuleNormalizer.RuleField.RULE_KEY.field(), query.getRuleKey()));
+    }
+
+    if (!CollectionUtils.isEmpty(query.getLanguages())) {
+      filters.put(RuleNormalizer.RuleField.LANGUAGE.field(),
+        FilterBuilders.termsFilter(RuleNormalizer.RuleField.LANGUAGE.field(), query.getLanguages()));
+    }
+
+    if (!CollectionUtils.isEmpty(query.getRepositories())) {
+      filters.put(RuleNormalizer.RuleField.REPOSITORY.field(),
+        FilterBuilders.termsFilter(RuleNormalizer.RuleField.REPOSITORY.field(), query.getRepositories()));
+    }
+
+    if (!CollectionUtils.isEmpty(query.getSeverities())) {
+      filters.put(RuleNormalizer.RuleField.SEVERITY.field(),
+        FilterBuilders.termsFilter(RuleNormalizer.RuleField.SEVERITY.field(), query.getSeverities()));
+    }
+
+    if (!StringUtils.isEmpty(query.getKey())) {
+      filters.put(RuleNormalizer.RuleField.KEY.field(),
+        FilterBuilders.termFilter(RuleNormalizer.RuleField.KEY.field(), query.getKey()));
+    }
+
+    if (!CollectionUtils.isEmpty(query.getTags())) {
+      filters.put(RuleNormalizer.RuleField._TAGS.field(),
+        FilterBuilders.termsFilter(RuleNormalizer.RuleField._TAGS.field(), query.getTags()));
+    }
 
     // Construct the debt filter on effective char and subChar
     Collection<String> debtCharacteristics = query.getDebtCharacteristics();
     if (debtCharacteristics != null && !debtCharacteristics.isEmpty()) {
-      fb.must(
-        FilterBuilders.orFilter(
-          // Match only when NONE (overridden)
-          FilterBuilders.andFilter(
-            FilterBuilders.notFilter(
-              FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE)),
-            FilterBuilders.orFilter(
-              FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), debtCharacteristics),
-              FilterBuilders.termsFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field(), debtCharacteristics))
-          ),
+      filters.put("debtCharacteristics",
+        FilterBuilders.boolFilter().must(
+          FilterBuilders.orFilter(
+            // Match only when NONE (overridden)
+            FilterBuilders.andFilter(
+              FilterBuilders.notFilter(
+                FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE)),
+              FilterBuilders.orFilter(
+                FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), debtCharacteristics),
+                FilterBuilders.termsFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field(), debtCharacteristics))
+              ),
 
-          // Match only when NOT NONE (not overridden)
-          FilterBuilders.andFilter(
-            FilterBuilders.orFilter(
-              FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), ""),
-              FilterBuilders.notFilter(FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()))),
-            FilterBuilders.orFilter(
-              FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), debtCharacteristics),
-              FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field(), debtCharacteristics)))
-        )
-      );
+            // Match only when NOT NONE (not overridden)
+            FilterBuilders.andFilter(
+              FilterBuilders.orFilter(
+                FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), ""),
+                FilterBuilders.notFilter(FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()))),
+              FilterBuilders.orFilter(
+                FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), debtCharacteristics),
+                FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field(), debtCharacteristics)))
+            )
+          ));
     }
 
     // Debt char exist filter
     Boolean hasDebtCharacteristic = query.getHasDebtCharacteristic();
     if (hasDebtCharacteristic != null && hasDebtCharacteristic) {
-      fb.mustNot(
-        FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE))
-        .should(
-          FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()))
-        .should(
-          FilterBuilders.existsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
+      filters.put("hasDebtCharacteristic",
+        FilterBuilders.boolFilter().mustNot(
+          FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE))
+          .should(
+            FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()))
+          .should(
+            FilterBuilders.existsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field())));
     }
 
     if (query.getAvailableSince() != null) {
-      fb.must(FilterBuilders.rangeFilter(RuleNormalizer.RuleField.CREATED_AT.field())
+      filters.put("availableSince", FilterBuilders.rangeFilter(RuleNormalizer.RuleField.CREATED_AT.field())
         .gte(query.getAvailableSince()));
     }
 
@@ -267,17 +297,20 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       for (RuleStatus status : statusValues) {
         stringStatus.add(status.name());
       }
-      this.addTermFilter(fb, RuleNormalizer.RuleField.STATUS.field(), stringStatus);
+      filters.put(RuleNormalizer.RuleField.STATUS.field(),
+        FilterBuilders.termsFilter(RuleNormalizer.RuleField.STATUS.field(), stringStatus));
     }
 
     Boolean isTemplate = query.isTemplate();
     if (isTemplate != null) {
-      this.addTermFilter(fb, RuleNormalizer.RuleField.IS_TEMPLATE.field(), Boolean.toString(isTemplate));
+      filters.put(RuleNormalizer.RuleField.IS_TEMPLATE.field(),
+        FilterBuilders.termFilter(RuleNormalizer.RuleField.IS_TEMPLATE.field(), Boolean.toString(isTemplate)));
     }
 
     String template = query.templateKey();
     if (template != null) {
-      this.addTermFilter(fb, RuleNormalizer.RuleField.TEMPLATE_KEY.field(), template);
+      filters.put(RuleNormalizer.RuleField.TEMPLATE_KEY.field(),
+        FilterBuilders.termFilter(RuleNormalizer.RuleField.TEMPLATE_KEY.field(), template));
     }
 
     // ActiveRule Filter (profile and inheritance)
@@ -296,41 +329,86 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     /** Implementation of activation query */
     if (Boolean.TRUE.equals(query.getActivation())) {
-      fb.must(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
-        childQuery));
+      filters.put("activation",
+        FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
+          childQuery));
     } else if (Boolean.FALSE.equals(query.getActivation())) {
-      fb.mustNot(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
-        childQuery));
+      filters.put("activation",
+        FilterBuilders.boolFilter().mustNot(
+          FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
+            childQuery)));
     }
 
-    return fb;
+    return filters;
   }
 
-  protected void setFacets(SearchRequestBuilder query) {
+  protected Map<String, AggregationBuilder> getFacets(QueryBuilder query, HashMap<String, FilterBuilder> filters) {
+    Map<String, AggregationBuilder> aggregations = new HashMap<String, AggregationBuilder>();
 
+    BoolFilterBuilder langFacetFilter = FilterBuilders.boolFilter();// .must(FilterBuilders.queryFilter(query));
+    for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
+      if (filter.getKey() != RuleNormalizer.RuleField.LANGUAGE.field()) {
+        langFacetFilter.must(filter.getValue());
+      }
+    }
     /* the Lang facet */
-    query.addAggregation(AggregationBuilders
-      .terms("languages")
-      .field(RuleNormalizer.RuleField.LANGUAGE.field())
-      .order(Terms.Order.count(false))
-      .size(10)
-      .minDocCount(1));
+    aggregations.put(FACET_LANGUAGES + "global",
+      AggregationBuilders
+        .global(FACET_LANGUAGES)
+        .subAggregation(
+          AggregationBuilders
+            .filter(FACET_LANGUAGES + "_filter")
+            .filter(langFacetFilter)
+            .subAggregation(
+              AggregationBuilders.terms(FACET_LANGUAGES)
+                .field(RuleNormalizer.RuleField.LANGUAGE.field())
+                .order(Terms.Order.count(false))
+                .size(10)
+                .minDocCount(1))));
 
+    BoolFilterBuilder tagsFacetFilter = FilterBuilders.boolFilter();// .must(FilterBuilders.queryFilter(query));
+    for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
+      if (filter.getKey() != RuleNormalizer.RuleField._TAGS.field()) {
+        tagsFacetFilter.must(filter.getValue());
+      }
+    }
     /* the Tag facet */
-    query.addAggregation(AggregationBuilders
-      .terms("tags")
-      .field(RuleNormalizer.RuleField._TAGS.field())
-      .order(Terms.Order.count(false))
-      .size(10)
-      .minDocCount(1));
+    aggregations.put(FACET_TAGS + "global",
+      AggregationBuilders
+        .global(FACET_TAGS)
+        .subAggregation(
+          AggregationBuilders
+            .filter(FACET_TAGS + "_filter")
+            .filter(tagsFacetFilter)
+            .subAggregation(
+              AggregationBuilders.terms(FACET_TAGS)
+                .field(RuleNormalizer.RuleField._TAGS.field())
+                .order(Terms.Order.count(false))
+                .size(10)
+                .minDocCount(1))));
 
+    BoolFilterBuilder repositoriesFacetFilter = FilterBuilders.boolFilter();// .must(FilterBuilders.queryFilter(query));
+    for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
+      if (filter.getKey() != RuleNormalizer.RuleField.REPOSITORY.field()) {
+        repositoriesFacetFilter.must(filter.getValue());
+      }
+    }
     /* the Repo facet */
-    query.addAggregation(AggregationBuilders
-      .terms("repositories")
-      .field(RuleNormalizer.RuleField.REPOSITORY.field())
-      .order(Terms.Order.count(false))
-      .size(10)
-      .minDocCount(1));
+    aggregations.put(FACET_REPOSITORIES + "global",
+      AggregationBuilders
+        .global(FACET_REPOSITORIES)
+        .subAggregation(
+          AggregationBuilders
+            .filter(FACET_REPOSITORIES + "_filter")
+            .filter(repositoriesFacetFilter)
+            .subAggregation(
+              AggregationBuilders.terms(FACET_REPOSITORIES)
+                .field(RuleNormalizer.RuleField.REPOSITORY.field())
+                .order(Terms.Order.count(false))
+                .size(10)
+                .minDocCount(1))));
+
+    return aggregations;
 
   }
 
@@ -345,15 +423,25 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       esSearch.setScroll(TimeValue.timeValueMinutes(3));
     }
 
-    setFacets(options, esSearch);
+    QueryBuilder qb = this.getQuery(query, options);
+    HashMap<String, FilterBuilder> filters = this.getFilters(query, options);
+
+    if (options.isFacet()) {
+      for (AggregationBuilder aggregation : getFacets(qb, filters).values()) {
+        esSearch.addAggregation(aggregation);
+      }
+    }
+
     setSorting(query, esSearch);
     setPagination(options, esSearch);
     setFields(options, esSearch);
 
-    FilterBuilder fb = this.getFilter(query, options);
-    QueryBuilder qb = this.getQuery(query, options);
-    esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
+    BoolFilterBuilder fb = FilterBuilders.boolFilter();
+    for (FilterBuilder ffb : filters.values()) {
+      fb.must(ffb);
+    }
 
+    esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
     SearchResponse esResult = getClient().execute(esSearch);
 
     return new Result<Rule>(this, esResult);
