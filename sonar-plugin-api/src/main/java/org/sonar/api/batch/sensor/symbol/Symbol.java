@@ -20,10 +20,13 @@
 
 package org.sonar.api.batch.sensor.symbol;
 
+import com.google.common.annotations.Beta;
+
 /**
- * Represent a symbol in a source file.
+ * Represent a symbol in a source file. Experimental, do not use
  * @since 4.5
  */
+@Beta
 public interface Symbol {
 
   int getDeclarationStartOffset();

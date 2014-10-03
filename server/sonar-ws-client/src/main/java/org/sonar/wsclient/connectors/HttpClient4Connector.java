@@ -203,6 +203,7 @@ public class HttpClient4Connector extends Connector {
 
     static final String ATTRIBUTE = "preemptive-auth";
 
+    @Override
     public void process(
       final HttpRequest request,
       final HttpContext context) throws HttpException {

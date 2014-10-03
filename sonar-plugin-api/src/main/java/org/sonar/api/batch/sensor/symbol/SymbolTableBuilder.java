@@ -19,11 +19,16 @@
  */
 package org.sonar.api.batch.sensor.symbol;
 
+import com.google.common.annotations.Beta;
+
 /**
+ * Experimental, do not use.
+ * <p/>
  * Use this builder to create symbol references. For now only references
  * in the same file are supported.
  * @since 4.5
  */
+@Beta
 public interface SymbolTableBuilder {
 
   /**

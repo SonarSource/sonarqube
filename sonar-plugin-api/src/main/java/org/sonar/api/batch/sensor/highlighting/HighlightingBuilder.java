@@ -19,10 +19,15 @@
  */
 package org.sonar.api.batch.sensor.highlighting;
 
+import com.google.common.annotations.Beta;
+
 /**
+ * Experimental, do not use.
+ * <p/>
  * This builder is used to define syntax highlighting (aka code coloration) on files.
  * @since 4.5
  */
+@Beta
 public interface HighlightingBuilder {
 
   /**

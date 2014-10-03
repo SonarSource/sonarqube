@@ -24,7 +24,7 @@ import com.google.common.annotations.Beta;
 import java.io.Serializable;
 
 /**
- * Metric definition.
+ * Experimental - do not use
  * @since 4.4
  */
 @Beta

@@ -19,11 +19,14 @@
  */
 package org.sonar.api.batch.sensor.duplication;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
 
 import java.util.List;
 
 /**
+ * Experimental, do not use.
+ * <p/>
  * This builder is used to declare duplications on files of the project.
  * Usage:
  * <code><pre>
@@ -38,6 +41,7 @@ import java.util.List;
  * </pre></code>
  * @since 4.5
  */
+@Beta
 public interface DuplicationBuilder {
 
   /**
