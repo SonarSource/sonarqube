@@ -300,6 +300,8 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
   private IndexField toIndexField(String sort) {
     if (IssueQuery.SORT_BY_ASSIGNEE.equals(sort)) {
       return IssueNormalizer.IssueField.ASSIGNEE;
+    } else if (IssueQuery.SORT_BY_STATUS.equals(sort)) {
+      return IssueNormalizer.IssueField.STATUS;
     } else if (IssueQuery.SORT_BY_SEVERITY.equals(sort)) {
       return IssueNormalizer.IssueField.SEVERITY_VALUE;
     } else if (IssueQuery.SORT_BY_CREATION_DATE.equals(sort)) {

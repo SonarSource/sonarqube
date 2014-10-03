@@ -50,11 +50,7 @@ import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.*;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -406,6 +402,28 @@ public class IssueIndexMediumTest {
     IssueQuery.Builder query = IssueQuery.builder();
     Result<Issue> result = index.search(query.build(), new QueryContext().setMaxLimit());
     assertThat(result.getHits()).hasSize(500);
+  }
+
+  @Test
+  public void sort_by_status() throws Exception {
+    db.issueDao().insert(session,
+      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN),
+      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_CLOSED),
+      IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_REOPENED)
+    );
+    session.commit();
+
+    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).asc(true);
+    Result<Issue> result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits().get(0).status()).isEqualTo(Issue.STATUS_CLOSED);
+    assertThat(result.getHits().get(1).status()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(result.getHits().get(2).status()).isEqualTo(Issue.STATUS_REOPENED);
+
+    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).asc(false);
+    result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits().get(0).status()).isEqualTo(Issue.STATUS_REOPENED);
+    assertThat(result.getHits().get(1).status()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(result.getHits().get(2).status()).isEqualTo(Issue.STATUS_CLOSED);
   }
 
   @Test
