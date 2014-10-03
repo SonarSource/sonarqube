@@ -146,9 +146,22 @@ public class BackendCleanup implements ServerComponent {
     }
   }
 
+  /**
+   * Completely remove a index with all types
+   */
   public void clearIndex(IndexDefinition indexDefinition){
     searchClient.prepareDeleteByQuery(searchClient.admin().cluster().prepareState().get()
       .getState().getMetaData().concreteIndices(new String[]{indexDefinition.getIndexName()}))
+      .setQuery(QueryBuilders.matchAllQuery())
+      .get();
+  }
+
+  /**
+   * Remove only the type of an index
+   */
+  public void clearIndexType(IndexDefinition indexDefinition){
+    searchClient.prepareDeleteByQuery(searchClient.admin().cluster().prepareState().get()
+      .getState().getMetaData().concreteIndices(new String[]{indexDefinition.getIndexName()})).setTypes(indexDefinition.getIndexType())
       .setQuery(QueryBuilders.matchAllQuery())
       .get();
   }

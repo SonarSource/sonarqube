@@ -340,7 +340,8 @@ public class IssueQuery {
 
     public IssueQuery build() {
       if (issueKeys != null) {
-        Preconditions.checkArgument(issueKeys.size() <= QueryContext.MAX_LIMIT, "Number of issue keys must be less than " + QueryContext.MAX_LIMIT + " (got " + issueKeys.size() + ")");
+        Preconditions.checkArgument(issueKeys.size() <= QueryContext.MAX_LIMIT, "Number of issue keys must be less than " + QueryContext.MAX_LIMIT + " (got " + issueKeys.size()
+          + ")");
       }
       return new IssueQuery(this);
     }

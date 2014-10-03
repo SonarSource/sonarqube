@@ -293,7 +293,7 @@ public class IssueService implements ServerComponent {
     Map<String, Integer> result = newLinkedHashMap();
     List<FacetValue> facetValues = indexClient.get(IssueIndex.class).listAssignees(query);
     for (FacetValue facetValue : facetValues) {
-      if (facetValue.getKey().equals("_notAssigned_")) {
+      if ("_notAssigned_".equals(facetValue.getKey())) {
         result.put(null, facetValue.getValue());
       } else {
         result.put(facetValue.getKey(), facetValue.getValue());

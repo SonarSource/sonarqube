@@ -26,8 +26,6 @@ import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.db.DbClient;
 
 import java.util.Date;
@@ -45,8 +43,8 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
   }
 
   protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
-    long componentId = componentId(issue);
-    long projectId = projectId(issue);
+    long componentId = componentId(session, issue);
+    long projectId = projectId(session, issue);
     int ruleId = ruleId(issue);
     IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, projectId, ruleId, now);
 
@@ -54,26 +52,16 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
   }
 
   protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
-    IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(issue), now);
+    IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(session, issue), now);
 
     dbClient.issueDao().update(session, dto);
   }
 
-  protected long componentId(DefaultIssue issue) {
-    // TODO should be using ComponentDao
-    ResourceDto resourceDto = dbClient.resourceDao().getResource(ResourceQuery.create().setKey(issue.componentKey()));
-    if (resourceDto == null) {
-      throw new IllegalStateException("Unknown component: " + issue.componentKey());
-    }
-    return resourceDto.getId();
+  protected long componentId(DbSession session, DefaultIssue issue) {
+    return dbClient.componentDao().getAuthorizedComponentByKey(issue.componentKey(), session).getId();
   }
 
-  protected long projectId(DefaultIssue issue) {
-    // TODO should be using ComponentDao
-    ResourceDto resourceDto = dbClient.resourceDao().getResource(ResourceQuery.create().setKey(issue.projectKey()));
-    if (resourceDto == null) {
-      throw new IllegalStateException("Unknown project: " + issue.projectKey());
-    }
-    return resourceDto.getId();
+  protected long projectId(DbSession session, DefaultIssue issue) {
+    return dbClient.componentDao().getAuthorizedComponentByKey(issue.projectKey(), session).getId();
   }
 }

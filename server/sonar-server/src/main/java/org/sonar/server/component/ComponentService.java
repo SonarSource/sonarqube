@@ -30,6 +30,7 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.user.UserSession;
 
@@ -87,10 +88,10 @@ public class ComponentService implements ServerComponent {
       resourceKeyUpdaterDao.updateKey(projectOrModule.getId(), newKey);
       session.commit();
 
-      ResourceDto newRootProject = dbClient.resourceDao().getRootProjectByComponentKey(session, newKey);
-      updateIssuesIndex(session, oldRootProject.getKey(), newRootProject.getKey());
+      String newRootProjectKey = getRootProjectKeyByComponentKey(session, newKey);
+      updateIssuesIndex(session, oldRootProject.getKey(), newRootProjectKey);
 
-      previewCache.reportResourceModification(newRootProject.getKey());
+      previewCache.reportResourceModification(newRootProjectKey);
 
       session.commit();
     } finally {
@@ -119,7 +120,7 @@ public class ComponentService implements ServerComponent {
       resourceKeyUpdaterDao.bulkUpdateKey(project.getId(), stringToReplace, replacementString);
       session.commit();
 
-      AuthorizedComponentDto newProject = dbClient.componentDao().getNullableAuthorizedComponentById(project.getId(), session);
+      AuthorizedComponentDto newProject = dbClient.componentDao().getAuthorizedComponentById(project.getId(), session);
       updateIssuesIndex(session, projectKey, newProject.key());
 
       previewCache.reportResourceModification(newProject.key());
@@ -140,6 +141,14 @@ public class ComponentService implements ServerComponent {
     // Reindex issues on new project key
     dbClient.issueDao().synchronizeAfter(session, new Date(0),
       ImmutableMap.of("project", newKey));
+  }
+
+  private String getRootProjectKeyByComponentKey(DbSession session, String key){
+    ResourceDto root = dbClient.resourceDao().getRootProjectByComponentKey(session, key);
+    if (root != null) {
+      return root.getKey();
+    }
+    throw new NotFoundException(String.format("Root project of '%s' has not been found", key));
   }
 
 }

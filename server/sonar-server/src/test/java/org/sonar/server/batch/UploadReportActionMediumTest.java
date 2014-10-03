@@ -96,28 +96,6 @@ public class UploadReportActionMediumTest {
   }
 
   @Test
-  public void add_project_issue_permission_index() throws Exception {
-    ComponentDto project = new ComponentDto()
-      .setKey("MyProject");
-    db.componentDao().insert(session, project);
-
-    // project can be seen by anyone
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
-
-    session.commit();
-
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNull();
-
-    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-    WsTester.TestRequest request = wsTester.newGetRequest(BatchWs.API_ENDPOINT, UploadReportAction.UPLOAD_REPORT_ACTION);
-    request.setParam(UploadReportAction.PARAM_PROJECT, project.key());
-    request.execute();
-
-    // Check that issue authorization index has been created
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNotNull();
-  }
-  
-  @Test
   public void add_analysis_report_in_database() throws Exception {
     final String projectKey = "123456789-987654321";
     ComponentDto project = new ComponentDto()
@@ -157,7 +135,29 @@ public class UploadReportActionMediumTest {
   }
 
   @Test
-  public void index_project_issues() throws Exception {
+  public void add_project_issue_permission_in_index() throws Exception {
+    ComponentDto project = new ComponentDto()
+      .setKey("MyProject");
+    db.componentDao().insert(session, project);
+
+    // project can be seen by anyone
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+
+    session.commit();
+
+    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNull();
+
+    MockUserSession.set().setLogin("john").setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+    WsTester.TestRequest request = wsTester.newGetRequest(BatchWs.API_ENDPOINT, UploadReportAction.UPLOAD_REPORT_ACTION);
+    request.setParam(UploadReportAction.PARAM_PROJECT, project.key());
+    request.execute();
+
+    // Check that issue authorization index has been created
+    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNotNull();
+  }
+
+  @Test
+  public void add_issues_in_index() throws Exception {
     ComponentDto project = new ComponentDto()
       .setKey("MyProject");
     db.componentDao().insert(session, project);
@@ -189,8 +189,8 @@ public class UploadReportActionMediumTest {
 
     session.commit();
 
-    // Clear issue index to simulate that the issue has been inserted by the batch, so that it's not yet index in E/S
-    tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
+    // Clear issue index (and not issue authorization index) to simulate that the issue has been inserted by the batch, so that it's not yet index in E/S
+    tester.get(BackendCleanup.class).clearIndexType(IndexDefinition.ISSUES);
     assertThat(db.issueDao().getByKey(session, issue.getKey())).isNotNull();
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNull();
 

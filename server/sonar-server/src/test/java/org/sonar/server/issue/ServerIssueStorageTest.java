@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -33,6 +34,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -42,11 +44,11 @@ import java.util.Collection;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 
 public class ServerIssueStorageTest extends AbstractDaoTestCase {
 
   DbClient dbClient;
+  DbSession session;
 
   ServerIssueStorage storage;
 
@@ -56,50 +58,34 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
       new ComponentDao(System2.INSTANCE),
       new IssueDao(System2.INSTANCE),
       new ResourceDao(getMyBatis(), System2.INSTANCE));
+    session = dbClient.openSession(false);
 
     storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), dbClient);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
   public void load_component_id_from_db() throws Exception {
     setupData("load_component_id_from_db");
+    session.commit();
 
-    long componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
+    long componentId = storage.componentId(session, new DefaultIssue().setComponentKey("struts:Action.java"));
 
     assertThat(componentId).isEqualTo(123);
   }
 
   @Test
-  public void fail_to_load_component_id_if_unknown_component() throws Exception {
-    setupData("empty");
-
-    try {
-      storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Unknown component: struts:Action.java");
-    }
-  }
-
-  @Test
   public void load_project_id_from_db() throws Exception {
     setupData("load_project_id_from_db");
+    session.commit();
 
-    long projectId = storage.projectId(new DefaultIssue().setProjectKey("struts"));
+    long projectId = storage.projectId(session, new DefaultIssue().setProjectKey("struts"));
 
     assertThat(projectId).isEqualTo(1);
-  }
-
-  @Test
-  public void fail_to_load_project_id_if_unknown_component() throws Exception {
-    setupData("empty");
-
-    try {
-      storage.projectId(new DefaultIssue().setProjectKey("struts"));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Unknown project: struts");
-    }
   }
 
   @Test
@@ -116,6 +102,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
       .setNew(true)
 
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setProjectKey("struts")
       .setLine(5000)
       .setDebt(Duration.create(10L))
       .setReporter("emmerik")
