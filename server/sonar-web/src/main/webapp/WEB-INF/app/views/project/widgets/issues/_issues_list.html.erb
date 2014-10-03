@@ -17,9 +17,14 @@
    paging = results.paging()
 
    user_logins = Set.new
+   comments_by_issue = {}
    comments = Internal.issues.findCommentsByIssueKeys(issues.map {|i| i.key()})
    comments.each do |c|
      user_logins << c.userLogin()
+     current_comments = comments_by_issue[c.issueKey()]
+     current_comments = [] unless current_comments
+     current_comments << c
+     comments_by_issue[c.issueKey()] = current_comments
    end
 
    users = Internal.users_api.find({'logins', user_logins})
@@ -43,7 +48,8 @@
     <tbody>
     <%
        issues.each do |issue|
-         last_comment = comments.get(comments.size - 1) unless comments.isEmpty()
+         current_comments = comments_by_issue[issue.key]
+         last_comment = current_comments[-1] unless current_comments.nil? || current_comments.empty?
     %>
       <tr class="<%= cycle 'even', 'odd', :name => ('issues-widget-list-' + widget_id) -%>">
         <td><i class="icon-severity-<%= issue.severity.downcase -%>"></i></td>
