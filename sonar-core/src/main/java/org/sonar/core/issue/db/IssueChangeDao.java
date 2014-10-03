@@ -31,7 +31,11 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -109,7 +113,7 @@ public class IssueChangeDao implements BatchComponent, ServerComponent {
   }
 
   public void insert(DbSession session, IssueChangeDto change) {
-      session.getMapper(IssueChangeMapper.class).insert(change);
+    session.getMapper(IssueChangeMapper.class).insert(change);
   }
 
   public boolean delete(String key) {

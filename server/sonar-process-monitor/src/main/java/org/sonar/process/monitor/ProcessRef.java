@@ -19,7 +19,6 @@
  */
 package org.sonar.process.monitor;
 
-import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessCommands;
 import org.sonar.process.ProcessUtils;

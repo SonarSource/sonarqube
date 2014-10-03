@@ -99,10 +99,7 @@ public class Transition {
     if (!key.equals(that.key)) {
       return false;
     }
-    if (!to.equals(that.to)) {
-      return false;
-    }
-    return true;
+    return to.equals(that.to);
   }
 
   @Override

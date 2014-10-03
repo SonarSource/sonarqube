@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.referential;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -53,11 +52,6 @@ import java.util.Map;
 public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoader {
 
   private static final String BATCH_PROJECT_URL = "/batch/project";
-
-  private static final List<Metric> METRICS = ImmutableList.<Metric>of(
-    CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE,
-    CoreMetrics.SCM_REVISIONS_BY_LINE,
-    CoreMetrics.SCM_AUTHORS_BY_LINE);
 
   private final ServerClient serverClient;
   private final AnalysisMode analysisMode;
