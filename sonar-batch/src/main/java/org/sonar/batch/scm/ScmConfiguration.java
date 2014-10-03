@@ -65,27 +65,48 @@ public final class ScmConfiguration implements BatchComponent, Startable {
     }
     if (settings.hasKey(CoreProperties.SCM_PROVIDER_KEY)) {
       String forcedProviderKey = settings.getString(CoreProperties.SCM_PROVIDER_KEY);
-      if (providerPerKey.containsKey(forcedProviderKey)) {
-        this.provider = providerPerKey.get(forcedProviderKey);
-      } else {
-        throw new IllegalArgumentException("SCM provider was set to \"" + forcedProviderKey + "\" but no provider found for this key. Supported providers are "
-          + Joiner.on(",").join(providerPerKey.keySet()));
-      }
+      setProviderIfSupported(forcedProviderKey);
     } else {
-      // Autodetection
-      for (ScmProvider provider : providerPerKey.values()) {
-        if (provider.supports(projectReactor.getRoot().getBaseDir())) {
-          if (this.provider == null) {
-            this.provider = provider;
-          } else {
-            throw new IllegalStateException("SCM provider autodetection failed. Both " + this.provider.key() + " and " + provider.key()
-              + " claim to support this project. Please use " + CoreProperties.SCM_PROVIDER_KEY + " to define SCM of your project.");
-          }
-        }
-      }
+      autodetection();
       if (this.provider == null) {
+        considerOldScmUrl();
         LOG.warn("SCM provider autodetection failed. No SCM provider claims to support this project. Please use " + CoreProperties.SCM_PROVIDER_KEY
           + " to define SCM of your project.");
+      }
+    }
+  }
+
+  private void setProviderIfSupported(String forcedProviderKey) {
+    if (providerPerKey.containsKey(forcedProviderKey)) {
+      this.provider = providerPerKey.get(forcedProviderKey);
+    } else {
+      throw new IllegalArgumentException("SCM provider was set to \"" + forcedProviderKey + "\" but no provider found for this key. Supported providers are "
+        + Joiner.on(",").join(providerPerKey.keySet()));
+    }
+  }
+
+  private void considerOldScmUrl() {
+    if (settings.hasKey(CoreProperties.LINKS_SOURCES_DEV)) {
+      String url = settings.getString(CoreProperties.LINKS_SOURCES_DEV);
+      if (url.startsWith("scm:")) {
+        String[] split = url.split(":");
+        if (split.length > 1) {
+          setProviderIfSupported(split[1]);
+        }
+      }
+    }
+
+  }
+
+  private void autodetection() {
+    for (ScmProvider provider : providerPerKey.values()) {
+      if (provider.supports(projectReactor.getRoot().getBaseDir())) {
+        if (this.provider == null) {
+          this.provider = provider;
+        } else {
+          throw new IllegalStateException("SCM provider autodetection failed. Both " + this.provider.key() + " and " + provider.key()
+            + " claim to support this project. Please use " + CoreProperties.SCM_PROVIDER_KEY + " to define SCM of your project.");
+        }
       }
     }
   }
