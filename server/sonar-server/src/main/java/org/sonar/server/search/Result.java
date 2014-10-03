@@ -26,13 +26,13 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.HasAggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -68,16 +68,25 @@ public class Result<K> {
     }
     if (response.getAggregations() != null) {
       for (Map.Entry<String, Aggregation> facet : response.getAggregations().asMap().entrySet()) {
-        if (Terms.class.isAssignableFrom(facet.getValue().getClass())) {
-          Terms aggregation = (Terms) facet.getValue();
-          for (Terms.Bucket value : aggregation.getBuckets()) {
-            this.facets.put(facet.getKey(), new FacetValue(value.getKey(), (int) value.getDocCount()));
-          }
-        } else {
-          LOGGER.warn("Cannot process {} type of aggregation", facet.getValue().getClass());
-        }
+        this.processAggregation(facet.getValue());
       }
     }
+  }
+
+  private void processAggregation(Aggregation aggregation) {
+    if (Terms.class.isAssignableFrom(aggregation.getClass())) {
+      Terms termAggregation = (Terms) aggregation;
+      for (Terms.Bucket value : termAggregation.getBuckets()) {
+        this.facets.put(aggregation.getName(), new FacetValue(value.getKey(), (int) value.getDocCount()));
+      }
+    } else if (HasAggregations.class.isAssignableFrom(aggregation.getClass())) {
+      HasAggregations hasAggregations = (HasAggregations) aggregation;
+      for (Aggregation internalAggregation : ((HasAggregations) aggregation).getAggregations())
+        this.processAggregation(internalAggregation);
+    } else {
+      LOGGER.warn("Cannot process {} type of aggregation", aggregation.getClass());
+    }
+
   }
 
   public Iterator<K> scroll() {

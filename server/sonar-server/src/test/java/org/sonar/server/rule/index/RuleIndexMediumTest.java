@@ -20,6 +20,7 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -939,6 +940,71 @@ public class RuleIndexMediumTest extends SearchMediumTest {
     List<Rule> results = index.search(protectedCharsQuery, new QueryContext()).getHits();
     assertThat(results).hasSize(1);
     assertThat(results.get(0).key()).isEqualTo(RuleTesting.XOO_X1);
+  }
+
+  @Test
+  public void sticky_facets() {
+
+    Integer numberOfSystemTags = 2;
+    dao.insert(dbSession,
+      RuleTesting.newDto(RuleKey.of("xoo", "S001")).setLanguage("java").setTags(ImmutableSet.<String>of()),
+      RuleTesting.newDto(RuleKey.of("xoo", "S002")).setLanguage("java").setTags(ImmutableSet.<String>of()),
+      RuleTesting.newDto(RuleKey.of("xoo", "S003")).setLanguage("java").setTags(ImmutableSet.<String>of("T1", "T2")),
+      RuleTesting.newDto(RuleKey.of("xoo", "S011")).setLanguage("cobol").setTags(ImmutableSet.<String>of()),
+      RuleTesting.newDto(RuleKey.of("xoo", "S012")).setLanguage("cobol").setTags(ImmutableSet.<String>of()),
+      RuleTesting.newDto(RuleKey.of("foo", "S013")).setLanguage("cobol").setTags(ImmutableSet.<String>of("T3", "T4")),
+      RuleTesting.newDto(RuleKey.of("foo", "S111")).setLanguage("cpp").setTags(ImmutableSet.<String>of()),
+      RuleTesting.newDto(RuleKey.of("foo", "S112")).setLanguage("cpp").setTags(ImmutableSet.<String>of()),
+      RuleTesting.newDto(RuleKey.of("foo", "S113")).setLanguage("cpp").setTags(ImmutableSet.<String>of("T2", "T3")));
+    dbSession.commit();
+
+    // 0 assert Base
+    assertThat(index.countAll()).isEqualTo(9);
+    assertThat(index.search(new RuleQuery(), new QueryContext()).getHits()).hasSize(9);
+
+    // 1 Facet with no filters at all
+    Map<String, Collection<FacetValue>> facets = index.search(new RuleQuery(), new QueryContext().setFacet(true)).getFacets();
+    assertThat(facets.keySet()).hasSize(3);
+    assertThat(facets.get(RuleIndex.FACET_LANGUAGES)).hasSize(3);
+    assertThat(facets.get(RuleIndex.FACET_REPOSITORIES)).hasSize(2);
+    assertThat(facets.get(RuleIndex.FACET_TAGS)).hasSize(4 + numberOfSystemTags);
+
+    // 2 Facet with a language filter
+    // -- lang facet should still have all language
+    Result<Rule> result = index.search(new RuleQuery()
+      .setLanguages(ImmutableList.<String>of("cpp"))
+      , new QueryContext().setFacet(true));
+    assertThat(result.getHits()).hasSize(3);
+    assertThat(result.getFacets()).hasSize(3);
+    assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).hasSize(3);
+
+    // 3 facet with 2 filters
+    // -- lang facet for tag T2
+    // -- tag facet for lang cpp
+    // -- repository for cpp & T2
+    result = index.search(new RuleQuery()
+      .setLanguages(ImmutableList.<String>of("cpp"))
+      .setTags(ImmutableList.<String>of("T2"))
+      , new QueryContext().setFacet(true));
+    assertThat(result.getHits()).hasSize(1);
+    assertThat(result.getFacets().keySet()).hasSize(3);
+    assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).hasSize(2); // java & cpp
+    assertThat(result.getFacets().get(RuleIndex.FACET_REPOSITORIES)).hasSize(1); // foo
+    assertThat(result.getFacets().get(RuleIndex.FACET_TAGS)).hasSize(2 + numberOfSystemTags); // T2 & T3 + SystemTags
+
+    // 4 facet with 2 filters
+    // -- lang facet for tag T2
+    // -- tag facet for lang cpp & java
+    // -- repository for (cpp || java) & T2
+    result = index.search(new RuleQuery()
+      .setLanguages(ImmutableList.<String>of("cpp", "java"))
+      .setTags(ImmutableList.<String>of("T2"))
+      , new QueryContext().setFacet(true));
+    assertThat(result.getHits()).hasSize(2);
+    assertThat(result.getFacets().keySet()).hasSize(3);
+    assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).hasSize(2); // java & cpp
+    assertThat(result.getFacets().get(RuleIndex.FACET_REPOSITORIES)).hasSize(2); // foo & xoo
+    assertThat(result.getFacets().get(RuleIndex.FACET_TAGS)).hasSize(3 + numberOfSystemTags); // T1 & T2 & T3 + SystemTags
   }
 
   private static List<String> ruleKeys(List<Rule> rules) {
