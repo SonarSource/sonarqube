@@ -325,10 +325,10 @@ class ApplicationController < ActionController::Base
 
     if params[:category].nil?
       # Select the 'general' category by default. If 'general' category is not found, then return the first one.
-      default_category = @categories.empty? ? nil : (@categories.find {|c| c && c.key == 'general'} || @categories[0])
+      default_category = @categories.empty? ? nil : (@categories.find {|c| c && c.key.downcase == 'general'} || @categories[0])
       @category = default_category
     else
-      @category = @categories.find {|c| c && c.key == params[:category]}
+      @category = @categories.find {|c| c && c.key.casecmp(params[:category])==0}
       not_found('category') if @category.nil?
     end
 
@@ -342,7 +342,7 @@ class ApplicationController < ActionController::Base
                   ((@subcategories_per_categories[@category].include? @category) ? @category : @subcategories_per_categories[@category][0])
         @subcategory = default_subcategory
       else
-        @subcategory = @subcategories_per_categories[@category].find {|s| s && s.key == params[:subcategory]}
+        @subcategory = @subcategories_per_categories[@category].find {|s| s && s.key.casecmp(params[:subcategory])==0}
         not_found('subcategory') if @subcategory.nil?
       end
 
