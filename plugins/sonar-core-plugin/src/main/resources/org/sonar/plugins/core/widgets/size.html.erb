@@ -29,6 +29,13 @@
             <%= dashboard_configuration.selected_period? ? format_variation(ncloc) : trend_icon(ncloc) -%>
           </span>
         </p>
+        <%  if generated_ncloc && generated_ncloc.value>0 %>
+          <p class="widget-label nowrap" style="margin-bottom: 7px">
+            <%= message('including_abbreviated') -%>
+            <%= format_measure(generated_ncloc, :url => url_for_drilldown(generated_ncloc)) -%> <%= dashboard_configuration.selected_period? ? format_variation(generated_ncloc) : trend_icon(generated_ncloc) -%>
+            <%= message('metric.generated_ncloc.name.suffix') -%>
+          </p>
+        <% end %>
 
         <% if ncloc_language_dist_hash %>
           <% if ncloc_language_dist_hash.size > 1 %>
@@ -105,16 +112,6 @@
         </p>
       <% end %>
 
-      <% if ncloc && generated_ncloc && generated_ncloc.value > 0 %>
-        <p>
-          <%= format_measure(generated_ncloc, :url => url_for_drilldown(generated_ncloc)) -%>
-          <span class="nowrap">
-            <%= dashboard_configuration.selected_period? ? format_variation(generated_ncloc) : trend_icon(generated_ncloc) %>
-            <span class="widget-label"><%= message('metric.generated_ncloc.name.suffix') -%></span>
-          </span>
-        </p>
-      <% end %>
-
       <p class="widget-measure">
         <span class="widget-label"><%= message('metric.lines.name') -%></span>
         <span class="nowrap">
@@ -124,7 +121,11 @@
       </p>
 
       <%  if generated_lines && generated_lines.value>0 %>
-        <p>incl. <%= format_measure(generated_lines, :suffix => ' ' + message('metric.generated_lines.name.suffix'), :url => url_for_drilldown(generated_lines)) -%> <%= dashboard_configuration.selected_period? ? format_variation(generated_lines) : trend_icon(generated_lines) -%></p>
+        <p class="widget-label nowrap" style="margin-bottom: 7px">
+          <%= message('including_abbreviated') -%>
+          <%= format_measure(generated_lines, :url => url_for_drilldown(generated_lines)) -%> <%= dashboard_configuration.selected_period? ? format_variation(generated_lines) : trend_icon(generated_lines) -%>
+          <%= message('metric.generated_lines.name.suffix') -%>
+        </p>
       <% end %>
 
       <% if projects %>

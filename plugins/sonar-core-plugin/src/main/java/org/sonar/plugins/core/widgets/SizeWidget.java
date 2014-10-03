@@ -22,6 +22,6 @@ package org.sonar.plugins.core.widgets;
 public class SizeWidget extends CoreWidget {
 
   public SizeWidget() {
-    super("size", "Size metrics", "/org/sonar/plugins/core/widgets/size.html.erb");
+    super("size", "Size metrics", "/Users/jean-baptiste.lievremont/Dev/Source/sonar/plugins/sonar-core-plugin/src/main/resources/org/sonar/plugins/core/widgets/size.html.erb");
   }
 }
