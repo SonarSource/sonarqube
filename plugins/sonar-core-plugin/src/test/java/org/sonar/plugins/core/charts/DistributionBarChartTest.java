@@ -20,7 +20,6 @@
 package org.sonar.plugins.core.charts;
 
 import org.junit.Test;
-import org.sonar.api.charts.AbstractChartTest;
 import org.sonar.api.charts.ChartParameters;
 
 import java.awt.image.BufferedImage;

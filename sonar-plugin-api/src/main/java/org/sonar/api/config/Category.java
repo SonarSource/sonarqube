@@ -17,20 +17,57 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.config.internal;
+package org.sonar.api.config;
 
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Locale;
 
 /**
  * @since 3.7
  */
-public class SubCategory extends Category {
+class Category {
 
-  public SubCategory(String originalKey) {
-    super(originalKey);
+  private final String originalKey;
+  private final boolean special;
+
+  Category(String originalKey) {
+    this(originalKey, false);
   }
 
-  public SubCategory(String originalKey, boolean special) {
-    super(originalKey, special);
+  Category(String originalKey, boolean special) {
+    this.originalKey = originalKey;
+    this.special = special;
+  }
+
+  String originalKey() {
+    return originalKey;
+  }
+
+  String key() {
+    return StringUtils.lowerCase(originalKey, Locale.ENGLISH);
+  }
+
+  boolean isSpecial() {
+    return special;
+  }
+
+  @Override
+  public int hashCode() {
+    return key().hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof Category)) {
+      return false;
+    }
+    return StringUtils.equalsIgnoreCase(((Category) obj).originalKey, this.originalKey);
+  }
+
+  @Override
+  public String toString() {
+    return this.originalKey;
   }
 
 }

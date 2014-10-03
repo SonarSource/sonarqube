@@ -24,10 +24,12 @@ import org.sonar.api.ServerExtension;
 import java.awt.image.BufferedImage;
 
 /**
- * An Extension to create charts
+ * Extension point to generate charts
  *
  * @since 1.10
+ * @deprecated in 4.5.1, replaced by Javascript charts
  */
+@Deprecated
 public interface Chart extends ServerExtension {
   String getKey();
 

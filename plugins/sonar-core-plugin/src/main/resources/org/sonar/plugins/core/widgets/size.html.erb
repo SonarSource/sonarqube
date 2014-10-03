@@ -110,7 +110,7 @@
           <%= format_measure(generated_ncloc, :url => url_for_drilldown(generated_ncloc)) -%>
           <span class="nowrap">
             <%= dashboard_configuration.selected_period? ? format_variation(generated_ncloc) : trend_icon(generated_ncloc) %>
-            <span class="widget-label"><%= message('metric.generated.name.suffix') -%></span>
+            <span class="widget-label"><%= message('metric.generated_ncloc.name.suffix') -%></span>
           </span>
         </p>
       <% end %>
@@ -124,7 +124,7 @@
       </p>
 
       <%  if generated_lines && generated_lines.value>0 %>
-        <p>incl. <%= format_measure(generated_lines, :suffix => message('metric.generated.name.suffix'), :url => url_for_drilldown(generated_lines)) -%> <%= dashboard_configuration.selected_period? ? format_variation(generated_lines) : trend_icon(generated_lines) -%></p>
+        <p>incl. <%= format_measure(generated_lines, :suffix => ' ' + message('metric.generated_lines.name.suffix'), :url => url_for_drilldown(generated_lines)) -%> <%= dashboard_configuration.selected_period? ? format_variation(generated_lines) : trend_icon(generated_lines) -%></p>
       <% end %>
 
       <% if projects %>

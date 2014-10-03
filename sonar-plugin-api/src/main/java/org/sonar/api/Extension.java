@@ -20,7 +20,7 @@
 package org.sonar.api;
 
 /**
- * Extension point.
+ * Plugin extension point
  *
  * @since 1.10
  */

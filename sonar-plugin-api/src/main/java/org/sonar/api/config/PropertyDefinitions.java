@@ -24,8 +24,6 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.*;
 import org.sonar.api.Properties;
-import org.sonar.api.config.internal.Category;
-import org.sonar.api.config.internal.SubCategory;
 import org.sonar.api.utils.AnnotationUtils;
 
 import javax.annotation.Nullable;

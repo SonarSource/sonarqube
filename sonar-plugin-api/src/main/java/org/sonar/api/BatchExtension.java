@@ -20,7 +20,8 @@
 package org.sonar.api;
 
 /**
- * Batch extension point.
+ * Marker interface for all the batch extension points, which are aimed to be implemented
+ * by plugins.
  *
  * @since 1.10
  */
