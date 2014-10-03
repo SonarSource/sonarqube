@@ -93,14 +93,11 @@ public class SvnBlameConsumer implements StreamConsumer {
       }
       String lineNumberStr = matcher.group(1);
       lineNumber = Integer.parseInt(lineNumberStr);
-    }
-    else if ((matcher = REVISION_PATTERN.matcher(line)).find()) {
+    } else if ((matcher = REVISION_PATTERN.matcher(line)).find()) {
       revision = matcher.group(1);
-    }
-    else if ((matcher = AUTHOR_PATTERN.matcher(line)).find()) {
+    } else if ((matcher = AUTHOR_PATTERN.matcher(line)).find()) {
       author = matcher.group(1);
-    }
-    else if ((matcher = DATE_PATTERN.matcher(line)).find()) {
+    } else if ((matcher = DATE_PATTERN.matcher(line)).find()) {
       String date = matcher.group(1);
       String time = matcher.group(2);
       Date dateTime = parseDateTime(date + " " + time);

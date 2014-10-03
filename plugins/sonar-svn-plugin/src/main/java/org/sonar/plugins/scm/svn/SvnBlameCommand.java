@@ -29,6 +29,7 @@ import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.utils.command.Command;
 import org.sonar.api.utils.command.CommandExecutor;
 import org.sonar.api.utils.command.StreamConsumer;
+import org.sonar.api.utils.command.StringStreamConsumer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -133,20 +134,4 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
     }
     return cl;
   }
-
-  private static class StringStreamConsumer implements StreamConsumer {
-    private StringBuffer string = new StringBuffer();
-
-    private String ls = System.getProperty("line.separator");
-
-    @Override
-    public void consumeLine(String line) {
-      string.append(line + ls);
-    }
-
-    public String getOutput() {
-      return string.toString();
-    }
-  }
-
 }

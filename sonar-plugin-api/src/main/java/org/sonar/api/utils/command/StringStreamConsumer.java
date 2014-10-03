@@ -17,6 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.api.batch.sensor.test;
+package org.sonar.api.utils.command;
 
+/**
+ * @since 5.0
+ */
+public class StringStreamConsumer implements StreamConsumer {
+  private StringBuilder string = new StringBuilder();
+
+  private String ls = System.getProperty("line.separator");
+
+  @Override
+  public void consumeLine(String line) {
+    string.append(line + ls);
+  }
+
+  public String getOutput() {
+    return string.toString();
+  }
+}
