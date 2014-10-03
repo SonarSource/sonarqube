@@ -131,40 +131,6 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
   }
 
   /**
-   * @since 3.6
-   * @deprecated since 3.7 use {@link #propertiesByCategory(String)}
-   */
-  @Deprecated
-  public Map<String, Map<String, Collection<PropertyDefinition>>> getPropertiesByCategory(@Nullable String qualifier) {
-    Map<String, Map<String, Collection<PropertyDefinition>>> byCategory = new HashMap<String, Map<String, Collection<PropertyDefinition>>>();
-
-    for (PropertyDefinition definition : getAll()) {
-      if (qualifier == null ? definition.global() : definition.qualifiers().contains(qualifier)) {
-        String category = getCategory(definition.key());
-        if (!byCategory.containsKey(category)) {
-          byCategory.put(category, new HashMap<String, Collection<PropertyDefinition>>());
-        }
-        String subCategory = getSubCategory(definition.key());
-        if (!byCategory.get(category).containsKey(subCategory)) {
-          byCategory.get(category).put(subCategory, new ArrayList<PropertyDefinition>());
-        }
-        byCategory.get(category).get(subCategory).add(definition);
-      }
-    }
-
-    return byCategory;
-  }
-
-  /**
-   * @since 3.6
-   * @deprecated since 3.7 use {@link #propertiesByCategory(String)}
-   */
-  @Deprecated
-  public Map<String, Map<String, Collection<PropertyDefinition>>> getPropertiesByCategory() {
-    return getPropertiesByCategory(null);
-  }
-
-  /**
    * @since 3.7
    */
   public Map<Category, Map<SubCategory, Collection<PropertyDefinition>>> propertiesByCategory(@Nullable String qualifier) {
