@@ -249,6 +249,16 @@ public class SearchActionMediumTest {
   }
 
   @Test
+  public void issue_contains_component_id_for_eclipse() throws Exception {
+    IssueDto issue = IssueTesting.newDto(rule, file, project);
+    db.issueDao().insert(session, issue);
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
+    assertThat(result.outputAsString()).contains("\"componentId\":" + file.getId() + ",");
+  }
+
+  @Test
   public void return_full_number_of_issues_when_only_one_component_is_set() throws Exception {
     for (int i = 0; i < QueryContext.MAX_LIMIT + 1; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);

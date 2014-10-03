@@ -238,6 +238,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     Set<String> actionPlanKeys = newHashSet();
     List<String> userLogins = newArrayList();
     Map<String, User> usersByLogin = newHashMap();
+    Map<String, ComponentDto> componentsByKey = newHashMap();
     Multimap<String, DefaultIssueComment> commentsByIssues = ArrayListMultimap.create();
 
     for (Issue issue : result.getHits()) {
@@ -266,9 +267,12 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       List<ComponentDto> componentDtos = dbClient.componentDao().getByKeys(session, componentKeys);
       List<ComponentDto> subProjectDtos = dbClient.componentDao().findSubProjectsByComponentKeys(session, componentKeys);
       List<ComponentDto> projectDtos = dbClient.componentDao().getByKeys(session, projectKeys);
-
       componentDtos.addAll(subProjectDtos);
       componentDtos.addAll(projectDtos);
+
+      for (ComponentDto componentDto : componentDtos) {
+        componentsByKey.put(componentDto.key(), componentDto);
+      }
       writeProjects(json, projectDtos);
       writeComponents(json, componentDtos);
     } finally {
@@ -277,7 +281,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
     Map<String, ActionPlan> actionPlanByKeys = getActionPlanByKeys(actionPlanKeys);
 
-    writeIssues(result, commentsByIssues, usersByLogin, actionPlanByKeys, request.paramAsStrings(EXTRA_FIELDS_PARAM), json);
+    writeIssues(result, commentsByIssues, usersByLogin, actionPlanByKeys, componentsByKey, request.paramAsStrings(EXTRA_FIELDS_PARAM), json);
     writeRules(json, !request.mandatoryParamAsBoolean(IssueFilterParameters.HIDE_RULES) ? ruleService.getByKeys(ruleKeys) : Collections.<Rule>emptyList());
     writeUsers(json, usersByLogin);
     writeActionPlans(json, actionPlanByKeys.values());
@@ -323,19 +327,22 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   private void writeIssues(Result<Issue> result, Multimap<String, DefaultIssueComment> commentsByIssues, Map<String, User> usersByLogin, Map<String, ActionPlan> actionPlanByKeys,
-                           @Nullable List<String> extraFields, JsonWriter json) {
+                           Map<String, ComponentDto> componentsByKey, @Nullable List<String> extraFields, JsonWriter json) {
     json.name("issues").beginArray();
 
     for (Issue issue : result.getHits()) {
       json.beginObject();
 
       String actionPlanKey = issue.actionPlanKey();
+      ComponentDto componentDto = componentsByKey.get(issue.componentKey());
       Duration debt = issue.debt();
       Date updateDate = issue.updateDate();
 
       json
         .prop("key", issue.key())
         .prop("component", issue.componentKey())
+        // Only used for the compatibility with the Issues Java WS Client <= 4.4 used by Eclipse
+        .prop("componentId", componentDto.getId())
         .prop("project", issue.projectKey())
         .prop("rule", issue.ruleKey().toString())
         .prop("status", issue.status())
