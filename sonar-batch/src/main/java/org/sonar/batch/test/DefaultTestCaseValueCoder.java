@@ -72,7 +72,7 @@ class DefaultTestCaseValueCoder implements ValueCoder {
     long duration = value.getLong();
     TestCase.Type type = TestCase.Type.values()[value.getInt()];
     TestCase.Status status = TestCase.Status.values()[value.getInt()];
-    return new DefaultTestCase(null)
+    return new DefaultTestCase()
       .inTestFile(testFile)
       .ofType(type)
       .name(name)

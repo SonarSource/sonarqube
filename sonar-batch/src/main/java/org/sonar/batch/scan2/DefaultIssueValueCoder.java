@@ -73,7 +73,7 @@ class DefaultIssueValueCoder implements ValueCoder {
 
   @Override
   public Object get(Value value, Class clazz, CoderContext context) {
-    DefaultIssue newIssue = new DefaultIssue(null);
+    DefaultIssue newIssue = new DefaultIssue();
     newIssue.withKey(value.getString());
     if (value.isNull(true)) {
       newIssue.onProject();

@@ -79,22 +79,32 @@ public final class ScmSensor implements Sensor {
 
     List<InputFile> filesToBlame = new LinkedList<InputFile>();
     for (InputFile f : fs.inputFiles(fs.predicates().all())) {
-      FileData fileData = projectReferentials.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
-      if (f.status() == Status.SAME
-        && fileData != null
-        && fileData.scmAuthorsByLine() != null
-        && fileData.scmLastCommitDatetimesByLine() != null
-        && fileData.scmRevisionsByLine() != null) {
-        saveMeasures(context, f, fileData.scmAuthorsByLine(), fileData.scmLastCommitDatetimesByLine(), fileData.scmRevisionsByLine());
-      } else {
-        filesToBlame.add(f);
-      }
+      copyPreviousMeasuresForUnmodifiedFiles(context, filesToBlame, f);
     }
     if (!filesToBlame.isEmpty()) {
       LOG.info("SCM provider for this project is: " + configuration.provider().key());
       TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
       configuration.provider().blameCommand().blame(fs, filesToBlame, new DefaultBlameResult(context));
       profiler.stop();
+    }
+  }
+
+  private void copyPreviousMeasuresForUnmodifiedFiles(final SensorContext context, List<InputFile> filesToBlame, InputFile f) {
+    FileData fileData = projectReferentials.fileData(projectDefinition.getKeyWithBranch(), f.relativePath());
+
+    if (f.status() == Status.SAME && fileData != null) {
+      String scmAuthorsByLine = fileData.scmAuthorsByLine();
+      String scmLastCommitDatetimesByLine = fileData.scmLastCommitDatetimesByLine();
+      String scmRevisionsByLine = fileData.scmRevisionsByLine();
+      if (scmAuthorsByLine != null
+        && scmLastCommitDatetimesByLine != null
+        && scmRevisionsByLine != null) {
+        saveMeasures(context, f, scmAuthorsByLine, scmLastCommitDatetimesByLine, scmRevisionsByLine);
+      } else {
+        filesToBlame.add(f);
+      }
+    } else {
+      filesToBlame.add(f);
     }
   }
 

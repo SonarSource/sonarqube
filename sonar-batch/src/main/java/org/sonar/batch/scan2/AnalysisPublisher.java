@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -104,8 +105,9 @@ public final class AnalysisPublisher {
         jsonWriter.beginObject()
           .prop("repository", issue.ruleKey().repository())
           .prop("rule", issue.ruleKey().rule());
-        if (issue.inputPath() != null) {
-          jsonWriter.prop("path", issue.inputPath().relativePath());
+        InputPath inputPath = issue.inputPath();
+        if (inputPath != null) {
+          jsonWriter.prop("path", inputPath.relativePath());
         }
         jsonWriter.prop("message", issue.message())
           .prop("effortToFix", issue.effortToFix())

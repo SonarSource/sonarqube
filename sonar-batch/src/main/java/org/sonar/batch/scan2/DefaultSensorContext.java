@@ -27,6 +27,7 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.DefaultActiveRule;
@@ -123,8 +124,9 @@ public class DefaultSensorContext extends BaseSensorContext {
   @Override
   public void store(Issue issue) {
     String resourceKey;
-    if (issue.inputPath() != null) {
-      resourceKey = ComponentKeys.createEffectiveKey(def.getKey(), issue.inputPath());
+    InputPath inputPath = issue.inputPath();
+    if (inputPath != null) {
+      resourceKey = ComponentKeys.createEffectiveKey(def.getKey(), inputPath);
     } else {
       resourceKey = def.getKey();
     }

@@ -70,6 +70,8 @@ public final class ScmConfiguration implements BatchComponent, Startable {
       autodetection();
       if (this.provider == null) {
         considerOldScmUrl();
+      }
+      if (this.provider == null) {
         LOG.warn("SCM provider autodetection failed. No SCM provider claims to support this project. Please use " + CoreProperties.SCM_PROVIDER_KEY
           + " to define SCM of your project.");
       }
@@ -99,12 +101,12 @@ public final class ScmConfiguration implements BatchComponent, Startable {
   }
 
   private void autodetection() {
-    for (ScmProvider provider : providerPerKey.values()) {
-      if (provider.supports(projectReactor.getRoot().getBaseDir())) {
+    for (ScmProvider installedProvider : providerPerKey.values()) {
+      if (installedProvider.supports(projectReactor.getRoot().getBaseDir())) {
         if (this.provider == null) {
-          this.provider = provider;
+          this.provider = installedProvider;
         } else {
-          throw new IllegalStateException("SCM provider autodetection failed. Both " + this.provider.key() + " and " + provider.key()
+          throw new IllegalStateException("SCM provider autodetection failed. Both " + this.provider.key() + " and " + installedProvider.key()
             + " claim to support this project. Please use " + CoreProperties.SCM_PROVIDER_KEY + " to define SCM of your project.");
         }
       }
@@ -121,7 +123,7 @@ public final class ScmConfiguration implements BatchComponent, Startable {
 
   @Override
   public void stop() {
-
+    // Nothing to do
   }
 
 }
