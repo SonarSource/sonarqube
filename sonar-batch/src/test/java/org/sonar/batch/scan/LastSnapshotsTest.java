@@ -28,7 +28,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.source.db.SnapshotSourceDao;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,15 +37,16 @@ import java.net.URISyntaxException;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class LastSnapshotsTest extends AbstractDbUnitTestCase {
+public class LastSnapshotsTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  @Rule
+  public TestDatabase db = new TestDatabase();
+
   private AnalysisMode mode;
 
   @Before
@@ -55,10 +57,10 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
 
   @Test
   public void should_get_source_of_last_snapshot() {
-    setupData("last_snapshot");
-    ServerClient server = mock(ServerClient.class);
+    db.prepareDbUnit(getClass(), "last_snapshot.xml");
 
-    LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
+    ServerClient server = mock(ServerClient.class);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, new SnapshotSourceDao(db.myBatis()), server);
 
     assertThat(lastSnapshots.getSource(newFile())).isEqualTo("this is bar");
     verifyZeroInteractions(server);
@@ -66,10 +68,10 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
 
   @Test
   public void should_return_empty_source_if_no_last_snapshot() {
-    setupData("no_last_snapshot");
+    db.prepareDbUnit(getClass(), "no_last_snapshot.xml");
     ServerClient server = mock(ServerClient.class);
 
-    LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, new SnapshotSourceDao(db.myBatis()), server);
 
     assertThat(lastSnapshots.getSource(newFile())).isEqualTo("");
     verifyZeroInteractions(server);
@@ -77,12 +79,12 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
 
   @Test
   public void should_download_source_from_ws_if_preview_mode() {
-    setupData("last_snapshot");
+    db.prepareDbUnit(getClass(), "last_snapshot.xml");
     ServerClient server = mock(ServerClient.class);
     when(server.request(anyString(), eq(false), eq(30 * 1000))).thenReturn("downloaded source of Bar.c");
 
     when(mode.isPreview()).thenReturn(true);
-    LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, new SnapshotSourceDao(db.myBatis()), server);
 
     String source = lastSnapshots.getSource(newFile());
     assertThat(source).isEqualTo("downloaded source of Bar.c");
@@ -91,12 +93,12 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
 
   @Test
   public void should_fail_to_download_source_from_ws() throws URISyntaxException {
-    setupData("last_snapshot");
+    db.prepareDbUnit(getClass(), "last_snapshot.xml");
     ServerClient server = mock(ServerClient.class);
     when(server.request(anyString(), eq(false), eq(30 * 1000))).thenThrow(new HttpDownloader.HttpException(new URI(""), 500));
 
     when(mode.isPreview()).thenReturn(true);
-    LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, new SnapshotSourceDao(db.myBatis()), server);
 
     thrown.expect(HttpDownloader.HttpException.class);
     lastSnapshots.getSource(newFile());
@@ -104,12 +106,12 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
 
   @Test
   public void should_return_empty_source_if_preview_mode_and_no_last_snapshot() throws URISyntaxException {
-    setupData("last_snapshot");
+    db.prepareDbUnit(getClass(), "last_snapshot.xml");
     ServerClient server = mock(ServerClient.class);
     when(server.request(anyString(), eq(false), eq(30 * 1000))).thenThrow(new HttpDownloader.HttpException(new URI(""), 404));
 
     when(mode.isPreview()).thenReturn(true);
-    LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, new SnapshotSourceDao(db.myBatis()), server);
 
     String source = lastSnapshots.getSource(newFile());
     assertThat(source).isEqualTo("");
@@ -118,10 +120,10 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
 
   @Test
   public void should_not_load_source_of_non_files() throws URISyntaxException {
-    setupData("last_snapshot");
+    db.prepareDbUnit(getClass(), "last_snapshot.xml");
     ServerClient server = mock(ServerClient.class);
 
-    LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, new SnapshotSourceDao(db.myBatis()), server);
 
     String source = lastSnapshots.getSource(new Project("my-project"));
     assertThat(source).isEqualTo("");

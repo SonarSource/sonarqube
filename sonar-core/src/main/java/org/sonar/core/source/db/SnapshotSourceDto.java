@@ -17,21 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.core.source.db;
 
-import javax.annotation.CheckForNull;
+public class SnapshotSourceDto {
+  private Long id;
+  private Long snapshotId;
+  private String data;
 
-/**
- * @since 3.6
- */
-public interface SnapshotSourceMapper {
+  public Long getId() {
+    return id;
+  }
 
-  @CheckForNull
-  String selectSnapshotSource(long snapshotId);
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-  @CheckForNull
-  String selectSnapshotSourceByComponentKey(String componentKey);
+  public Long getSnapshotId() {
+    return snapshotId;
+  }
 
-  void insert(SnapshotSourceDto dto);
+  public void setSnapshotId(Long snapshotId) {
+    this.snapshotId = snapshotId;
+  }
+
+  public String getData() {
+    return data;
+  }
+
+  public void setData(String data) {
+    this.data = data;
+  }
 }

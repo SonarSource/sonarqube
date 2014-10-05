@@ -25,23 +25,25 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.DuplicatedSourceException;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
-import org.sonar.jpa.test.AbstractDbUnitTestCase;
+import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.source.db.SnapshotSourceDao;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SourcePersisterTest extends AbstractDbUnitTestCase {
+public class SourcePersisterTest extends AbstractDaoTestCase {
 
   private SourcePersister sourcePersister;
 
   @Before
   public void before() {
     setupData("shared");
-    Snapshot snapshot = getSession().getSingleResult(Snapshot.class, "id", 1000);
     ResourcePersister resourcePersister = mock(ResourcePersister.class);
+    Snapshot snapshot = new Snapshot();
+    snapshot.setId(1000);
     when(resourcePersister.getSnapshotOrFail(any(Resource.class))).thenReturn(snapshot);
-    sourcePersister = new SourcePersister(getSession(), resourcePersister);
+    sourcePersister = new SourcePersister(resourcePersister, new SnapshotSourceDao(getMyBatis()));
   }
 
   @Test

@@ -21,6 +21,7 @@
 package org.sonar.core.source.db;
 
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
@@ -29,7 +30,7 @@ import javax.annotation.CheckForNull;
 /**
  * @since 3.6
  */
-public class SnapshotSourceDao implements ServerComponent {
+public class SnapshotSourceDao implements BatchComponent, ServerComponent {
 
   private final MyBatis mybatis;
 
@@ -61,6 +62,16 @@ public class SnapshotSourceDao implements ServerComponent {
     SqlSession session = mybatis.openSession(false);
     try {
       return selectSnapshotSourceByComponentKey(componentKey, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void insert(SnapshotSourceDto dto) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      session.getMapper(SnapshotSourceMapper.class).insert(dto);
+      session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }

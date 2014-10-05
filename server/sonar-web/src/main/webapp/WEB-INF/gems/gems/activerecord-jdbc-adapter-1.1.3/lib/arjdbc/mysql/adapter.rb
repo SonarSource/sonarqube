@@ -103,7 +103,7 @@ module ::ArJdbc
 	    # But we would like the bigger MEDIUMTEXT for the snapshot_sources table (16777215  characters).
 	    # This hack works only for ActiveRecord-JDBC (Jruby use).
 	    # See http://www.headius.com/jrubywiki/index.php/Adding_Datatypes_to_ActiveRecord-JDBC
-	    tp[:text] = { :name => "mediumtext" }
+	    tp[:text] = { :name => "longtext" }
       tp[:binary] = { :name => "longblob" }
       tp[:big_integer] = { :name => "bigint"}
       # /SonarQube

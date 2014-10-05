@@ -27,6 +27,11 @@
       <artifactId>commons-email</artifactId>
       <version>1.3.2</version>
     </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- unit tests -->
     <dependency>
