@@ -2604,9 +2604,11 @@ div.rule-title {
 
 .sonar-d3 .treemap-cell-drilldown {
   cursor: pointer;
-  .trans(opacity);
+  .trans;
 
-  &:hover { opacity: 0.8; }
+  &:hover {
+    .scale(0.95);
+  }
 }
 
 .sonar-d3 .treemap-inner {

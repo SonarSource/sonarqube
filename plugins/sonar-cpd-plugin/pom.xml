@@ -41,6 +41,11 @@
       <artifactId>sonar-plugin-api</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- unit tests -->
     <dependency>

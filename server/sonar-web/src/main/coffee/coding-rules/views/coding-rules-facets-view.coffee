@@ -33,18 +33,21 @@ define [
     selectOption: (e) ->
       option = jQuery(e.currentTarget)
       option.toggleClass 'active'
+      property = option.closest('.navigator-facets-list-item').data('property')
+      value = option.data('key')
+      @options.app.filterBarView.toggle(property, value)
       @applyOptions()
 
 
     applyOptions: ->
-      @options.app.fetchFirstPage true
+      @options.app.fetchFirstPage()
 
 
-    getQuery: ->
-      q = {}
-      if @ui.facets.each
-        @ui.facets.each ->
-          property = jQuery(@).data 'property'
-          activeOptions = jQuery(@).find('.active').map(-> jQuery(@).data 'key').get()
-          q[property] = activeOptions.join ',' if activeOptions.length > 0
-      q
+    restoreFromQuery: (params) ->
+      @ui.options.each ->
+        jQuery(@).removeClass('active')
+      @ui.facets.each ->
+        property = jQuery(@).data 'property'
+        if !!params[property]
+          _(params[property].split(',')).map (value) ->
+            jQuery('.navigator-facets-list-item[data-property="' + property + '"] .navigator-facets-list-item-option[data-key="' + value + '"]').addClass 'active'

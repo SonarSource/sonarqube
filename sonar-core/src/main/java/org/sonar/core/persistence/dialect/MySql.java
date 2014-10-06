@@ -48,8 +48,8 @@ public class MySql extends AbstractDialect {
     public MySqlWithDecimalDialect() {
       super();
       registerColumnType(Types.DOUBLE, "decimal precision");
-      registerColumnType(Types.VARCHAR, DatabaseProperties.MAX_TEXT_SIZE, "mediumtext");
-      registerColumnType(Types.CLOB, "mediumtext");
+      registerColumnType(Types.VARCHAR, DatabaseProperties.MAX_TEXT_SIZE, "longtext");
+      registerColumnType(Types.CLOB, "longtext");
       registerColumnType(Types.BLOB, "blob");
     }
   }

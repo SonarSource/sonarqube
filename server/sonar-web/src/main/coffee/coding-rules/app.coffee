@@ -111,11 +111,8 @@ requirejs [
   App = new Marionette.Application
 
 
-  App.getQuery = (includeFacetsQuery = true) ->
-    query = @filterBarView.getQuery()
-    if includeFacetsQuery and @codingRulesFacetsView
-      _.extend query, @codingRulesFacetsView.getQuery()
-    query
+  App.getQuery = ->
+    @filterBarView.getQuery()
 
 
   App.restoreSorting = (params) ->
@@ -145,18 +142,17 @@ requirejs [
 
 
 
-  App.fetchList = (firstPage, fromFacets = false) ->
-    pristineQuery = @getQuery(false)
-    query = @getQuery(fromFacets)
+  App.fetchList = (firstPage) ->
+    query = @getQuery()
 
-    fetchQuery = _.extend { p: @pageIndex, ps: 25, facets: not fromFacets }, query
+    fetchQuery = _.extend { p: @pageIndex, ps: 25, facets: firstPage }, query
 
     if @codingRules.sorting && @codingRules.sorting.sort
       _.extend fetchQuery,
           s: @codingRules.sorting.sort,
           asc: @codingRules.sorting.asc
 
-    @storeQuery pristineQuery, @codingRules.sorting
+    @storeQuery query, @codingRules.sorting
 
     # Optimize requested fields
     _.extend fetchQuery, f: 'name,lang,status,tags,sysTags'
@@ -167,7 +163,7 @@ requirejs [
       scrollOffset = 0
 
     @layout.showSpinner 'resultsRegion'
-    @layout.showSpinner 'facetsRegion' unless fromFacets || !firstPage
+    @layout.showSpinner 'facetsRegion' if firstPage
 
 
     jQuery.ajax
@@ -206,14 +202,15 @@ requirejs [
       else
         @codingRulesListView.selectCurrent()
 
-      unless firstPage
-        jQuery('.navigator-results')[0].scrollTop = scrollOffset
-
-      unless fromFacets
+      if firstPage
         @codingRulesFacetsView = new CodingRulesFacetsView
           app: @
           collection: new Backbone.Collection r.facets, comparator: 'property'
         @layout.facetsRegion.show @codingRulesFacetsView
+        @filterBarView.restoreFromWsQuery query
+        @codingRulesFacetsView.restoreFromQuery query
+      else
+        jQuery('.navigator-results')[0].scrollTop = scrollOffset
 
       @layout.onResize()
 
@@ -224,15 +221,15 @@ requirejs [
     App.facetPropertyToLabels[property](value)
 
 
-  App.fetchFirstPage = (fromFacets = false) ->
+  App.fetchFirstPage = ->
     @pageIndex = 1
-    App.fetchList true, fromFacets
+    App.fetchList true
 
 
-  App.fetchNextPage = (fromFacets = true) ->
+  App.fetchNextPage = ->
     if @pageIndex < @codingRules.paging.pages
       @pageIndex++
-      App.fetchList false, fromFacets
+      App.fetchList false
 
 
   App.getQualityProfile = ->

@@ -27,6 +27,9 @@
       <tr>
         <td class="dsm-body-title" title="{{t 'design.rowTooltip'}}">
           {{qualifierIcon q}} {{n}}
+          {{#gt pt 0}}
+            <span class="dsm-body-title-package-tangles" title="{{t 'metric.package_cycles.name'}}">{{pt}}</span>
+          {{/gt}}
           <span class="dsm-body-title-indicator"></span>
         </td>
         {{#eachIndex v}}

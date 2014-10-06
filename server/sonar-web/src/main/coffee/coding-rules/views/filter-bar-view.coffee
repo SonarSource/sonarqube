@@ -77,3 +77,21 @@ define [
 
     fetchNextPage: ->
       @options.app.fetchNextPage()
+
+
+    restoreFromWsQuery: (query) ->
+      params = _.map(query, (value, key) ->
+        'key': key
+        'value': value
+      )
+      @restoreFromQuery params
+
+
+    toggle: (property, value) ->
+      filter = @collection.findWhere(property: property)
+      unless filter.view.isActive()
+        @moreCriteriaFilter.view.detailsView.enableByProperty(property)
+      choice = filter.view.choices.get(value)
+      choice.set 'checked', !choice.get('checked')
+      filter.view.detailsView.updateValue()
+      filter.view.detailsView.updateLists()

@@ -40,7 +40,7 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
 public class MeasureFilterAsPieChartWidget extends CoreWidget {
 
   public MeasureFilterAsPieChartWidget() {
-    super("measure_filter_pie_chart", "Measure Filter as Pie Chart", "/org/sonar/plugins/core/widgets/measures/measure_filter_pie_chart.html.erb");
+    super("measure_filter_pie_chart", "Measure Filter as Donut Chart", "/org/sonar/plugins/core/widgets/measures/measure_filter_pie_chart.html.erb");
   }
 
 }

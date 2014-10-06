@@ -33,5 +33,7 @@ define [
 
     loadResults: (params) ->
       @app.filterBarView.restoreFromQuery(params)
+      if @app.codingRulesFacetsView
+        @app.codingRulesFacetsView.restoreFromQuery(params)
       @app.restoreSorting(params)
       @app.fetchFirstPage()

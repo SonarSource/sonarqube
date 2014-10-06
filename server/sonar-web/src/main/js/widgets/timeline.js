@@ -134,7 +134,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         })
         .reduce(function(p, c) {
           return p.concat(c);
-        }, d3.extent(this.events(), function(d) { return d.d; }));
+        }, []);
 
     this.time = d3.time.scale().domain(d3.extent(timeDomain));
 
@@ -215,6 +215,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Configure events
+    this.events(this.events().filter(function (event) {
+      return event.d >= widget.time.domain()[0];
+    }));
+
     this.gevents = this.gWrap.append('g')
         .attr('class', 'axis events')
         .selectAll('.event-tick')

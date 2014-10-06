@@ -26,7 +26,7 @@ import org.sonar.plugins.core.widgets.WidgetConstants;
 
 import static org.sonar.api.web.WidgetScope.GLOBAL;
 
-@WidgetCategory({"Filters", "Global"})
+@WidgetCategory({"Filters"})
 @WidgetScope(GLOBAL)
 @WidgetProperties({
   @WidgetProperty(key = "filter", type = WidgetPropertyType.FILTER, optional = false),
@@ -34,7 +34,7 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
   @WidgetProperty(key = "sizeMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COMPLEXITY_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
   @WidgetProperty(key = "colorMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COVERAGE_KEY,
     options = { WidgetConstants.FILTER_OUT_NEW_METRICS, "type:PERCENT" }),
-  @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "100"),
+  @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "100")
 })
 public class MeasureFilterAsCloudWidget extends CoreWidget {
 

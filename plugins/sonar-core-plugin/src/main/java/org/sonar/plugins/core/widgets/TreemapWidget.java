@@ -31,7 +31,7 @@ import org.sonar.api.web.WidgetPropertyType;
   @WidgetProperty(key = "colorMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COVERAGE_KEY,
     options = {WidgetConstants.FILTER_OUT_NEW_METRICS, "type:PERCENT,RATING,LEVEL"}),
   @WidgetProperty(key = "heightInPercents", type = WidgetPropertyType.INTEGER, optional = true, defaultValue = "55"),
-  @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "30")
+  @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "100")
 })
 public class TreemapWidget extends CoreWidget {
   public TreemapWidget() {

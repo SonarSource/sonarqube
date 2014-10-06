@@ -20,23 +20,25 @@
 package org.sonar.batch.index;
 
 import com.google.common.collect.Sets;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.DuplicatedSourceException;
 import org.sonar.api.resources.Resource;
+import org.sonar.core.source.db.SnapshotSourceDao;
+import org.sonar.core.source.db.SnapshotSourceDto;
+
+import javax.annotation.CheckForNull;
 
 import java.util.Set;
 
 public final class SourcePersister {
 
-  private DatabaseSession session;
   private Set<Integer> savedSnapshotIds = Sets.newHashSet();
   private ResourcePersister resourcePersister;
+  private final SnapshotSourceDao sourceDao;
 
-  public SourcePersister(DatabaseSession session, ResourcePersister resourcePersister) {
-    this.session = session;
+  public SourcePersister(ResourcePersister resourcePersister, SnapshotSourceDao sourceDao) {
     this.resourcePersister = resourcePersister;
+    this.sourceDao = sourceDao;
   }
 
   public void saveSource(Resource resource, String source) {
@@ -44,18 +46,20 @@ public final class SourcePersister {
     if (isCached(snapshot)) {
       throw new DuplicatedSourceException(resource);
     }
-    session.save(new SnapshotSource(snapshot.getId(), source));
-    session.commit();
+    SnapshotSourceDto dto = new SnapshotSourceDto();
+    dto.setSnapshotId(snapshot.getId().longValue());
+    dto.setData(source);
+    sourceDao.insert(dto);
     addToCache(snapshot);
   }
 
+  @CheckForNull
   public String getSource(Resource resource) {
-    SnapshotSource source = null;
     Snapshot snapshot = resourcePersister.getSnapshot(resource);
-    if (snapshot!=null && snapshot.getId()!=null) {
-      source = session.getSingleResult(SnapshotSource.class, "snapshotId", snapshot.getId());
+    if (snapshot != null && snapshot.getId() != null) {
+      return sourceDao.selectSnapshotSource(snapshot.getId());
     }
-    return source!=null ? source.getData() : null;
+    return null;
   }
 
   private boolean isCached(Snapshot snapshot) {

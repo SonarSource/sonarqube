@@ -22,30 +22,27 @@ package org.sonar.batch.scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.database.model.ResourceModel;
-import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.database.model.SnapshotSource;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
+import org.sonar.core.source.db.SnapshotSourceDao;
 
-import javax.persistence.Query;
+import javax.annotation.CheckForNull;
 
 public class LastSnapshots implements BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(LastSnapshots.class);
 
   private final AnalysisMode analysisMode;
-  private final DatabaseSession session;
   private final ServerClient server;
+  private final SnapshotSourceDao sourceDao;
 
-  public LastSnapshots(AnalysisMode analysisMode, DatabaseSession session, ServerClient server) {
+  public LastSnapshots(AnalysisMode analysisMode, SnapshotSourceDao dao, ServerClient server) {
     this.analysisMode = analysisMode;
-    this.session = session;
+    this.sourceDao = dao;
     this.server = server;
   }
 
@@ -75,22 +72,8 @@ public class LastSnapshots implements BatchComponent {
     }
   }
 
+  @CheckForNull
   private String loadSourceFromDb(Resource resource) {
-    Snapshot snapshot = getSnapshot(resource);
-    if (snapshot != null) {
-      SnapshotSource source = session.getSingleResult(SnapshotSource.class, "snapshotId", snapshot.getId());
-      if (source != null) {
-        return source.getData();
-      }
-    }
-    return "";
-  }
-
-  private Snapshot getSnapshot(Resource resource) {
-    Query query = session.createQuery("from " + Snapshot.class.getSimpleName() + " s where s.last=:last and s.resourceId=(select r.id from "
-      + ResourceModel.class.getSimpleName() + " r where r.key=:key)");
-    query.setParameter("key", resource.getEffectiveKey());
-    query.setParameter("last", Boolean.TRUE);
-    return session.getSingleResult(query, null);
+    return sourceDao.selectSnapshotSourceByComponentKey(resource.getEffectiveKey());
   }
 }

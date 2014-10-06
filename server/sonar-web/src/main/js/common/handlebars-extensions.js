@@ -116,6 +116,10 @@ define(['handlebars'], function (Handlebars) {
     return v1 != v2 ? options.fn(this) : options.inverse(this);
   });
 
+  Handlebars.registerHelper('gt', function(v1, v2, options) {
+    return v1 > v2 ? options.fn(this) : options.inverse(this);
+  });
+
   Handlebars.registerHelper('notNull', function(value, options) {
     return value != null ? options.fn(this) : options.inverse(this);
   });
