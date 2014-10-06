@@ -25,6 +25,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.scan.filesystem.PathResolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +47,7 @@ public class GitScmProviderTest {
   @Test
   public void selectImplem() {
     GitBlameCommand blameCommand = new GitBlameCommand();
-    JGitBlameCommand jblameCommand = new JGitBlameCommand();
+    JGitBlameCommand jblameCommand = new JGitBlameCommand(new PathResolver());
     Settings settings = new Settings(new PropertyDefinitions(new GitPlugin().getExtensions()));
     GitScmProvider gitScmProvider = new GitScmProvider(settings, blameCommand, jblameCommand);
 

@@ -21,12 +21,15 @@ package org.sonar.plugins.scm.git;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.scan.filesystem.PathResolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,14 +39,26 @@ import java.util.List;
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class JGitBlameCommand implements BlameCommand, BatchComponent {
 
+  private final PathResolver pathResolver;
+
+  public JGitBlameCommand(PathResolver pathResolver) {
+    this.pathResolver = pathResolver;
+  }
+
   @Override
   public void blame(FileSystem fs, Iterable<InputFile> files, BlameResult result) {
     Git git = null;
     File basedir = fs.baseDir();
     try {
-      git = Git.open(basedir);
+      Repository repo = new RepositoryBuilder()
+        .findGitDir(basedir)
+        .setMustExist(true)
+        .build();
+      git = Git.wrap(repo);
+      File gitBaseDir = repo.getWorkTree();
       for (InputFile inputFile : files) {
-        String filename = inputFile.relativePath();
+
+        String filename = pathResolver.relativePath(gitBaseDir, inputFile.file());
         org.eclipse.jgit.blame.BlameResult blameResult = git.blame().setFilePath(filename).call();
         List<BlameLine> lines = new ArrayList<BlameLine>();
         for (int i = 0; i < blameResult.getResultContents().size(); i++) {

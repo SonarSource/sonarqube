@@ -31,6 +31,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.BlameCommand.BlameResult;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.DateUtils;
 
 import java.io.File;
@@ -48,6 +49,8 @@ import static org.mockito.Mockito.verify;
 
 public class JGitBlameCommandTest {
 
+  private static final String DUMMY_JAVA = "src/main/java/org/dummy/Dummy.java";
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -59,11 +62,13 @@ public class JGitBlameCommandTest {
     File projectDir = temp.newFolder();
     javaUnzip(new File("test-repos/dummy-git.zip"), projectDir);
 
-    JGitBlameCommand jGitBlameCommand = new JGitBlameCommand();
+    JGitBlameCommand jGitBlameCommand = new JGitBlameCommand(new PathResolver());
 
     DefaultFileSystem fs = new DefaultFileSystem();
-    fs.setBaseDir(new File(projectDir, "dummy-git"));
-    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/main/java/org/dummy/Dummy.java");
+    File baseDir = new File(projectDir, "dummy-git");
+    fs.setBaseDir(baseDir);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", DUMMY_JAVA)
+      .setFile(new File(baseDir, DUMMY_JAVA));
     fs.add(inputFile);
 
     BlameResult blameResult = mock(BlameResult.class);
@@ -100,7 +105,56 @@ public class JGitBlameCommandTest {
         new BlameLine(revisionDate, revision, author),
         new BlameLine(revisionDate, revision, author),
         new BlameLine(revisionDate, revision, author)));
+  }
 
+  @Test
+  public void testBlameOnNestedModule() throws IOException {
+    File projectDir = temp.newFolder();
+    javaUnzip(new File("test-repos/dummy-git-nested.zip"), projectDir);
+
+    JGitBlameCommand jGitBlameCommand = new JGitBlameCommand(new PathResolver());
+
+    DefaultFileSystem fs = new DefaultFileSystem();
+    File baseDir = new File(projectDir, "dummy-git-nested/dummy-project");
+    fs.setBaseDir(baseDir);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", DUMMY_JAVA)
+      .setFile(new File(baseDir, DUMMY_JAVA));
+    fs.add(inputFile);
+
+    BlameResult blameResult = mock(BlameResult.class);
+    jGitBlameCommand.blame(fs, Arrays.<InputFile>asList(inputFile), blameResult);
+
+    Date revisionDate = DateUtils.parseDateTime("2012-07-17T16:12:48+0200");
+    String revision = "6b3aab35a3ea32c1636fee56f996e677653c48ea";
+    String author = "david@gageot.net";
+    verify(blameResult).add(inputFile,
+      Arrays.asList(
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author),
+        new BlameLine(revisionDate, revision, author)));
   }
 
   @Test
@@ -108,13 +162,14 @@ public class JGitBlameCommandTest {
     File projectDir = temp.newFolder();
     javaUnzip(new File("test-repos/dummy-git.zip"), projectDir);
 
-    JGitBlameCommand jGitBlameCommand = new JGitBlameCommand();
+    JGitBlameCommand jGitBlameCommand = new JGitBlameCommand(new PathResolver());
 
     DefaultFileSystem fs = new DefaultFileSystem();
     File baseDir = new File(projectDir, "dummy-git");
     fs.setBaseDir(baseDir);
-    String relativePath = "src/main/java/org/dummy/Dummy.java";
-    DefaultInputFile inputFile = new DefaultInputFile("foo", relativePath);
+    String relativePath = DUMMY_JAVA;
+    DefaultInputFile inputFile = new DefaultInputFile("foo", relativePath)
+      .setFile(new File(baseDir, relativePath));
     fs.add(inputFile);
 
     // Emulate a modification
@@ -132,16 +187,18 @@ public class JGitBlameCommandTest {
     File projectDir = temp.newFolder();
     javaUnzip(new File("test-repos/dummy-git.zip"), projectDir);
 
-    JGitBlameCommand jGitBlameCommand = new JGitBlameCommand();
+    JGitBlameCommand jGitBlameCommand = new JGitBlameCommand(new PathResolver());
 
     DefaultFileSystem fs = new DefaultFileSystem();
     File baseDir = new File(projectDir, "dummy-git");
     fs.setBaseDir(baseDir);
-    String relativePath = "src/main/java/org/dummy/Dummy.java";
+    String relativePath = DUMMY_JAVA;
     String relativePath2 = "src/main/java/org/dummy/Dummy2.java";
-    DefaultInputFile inputFile = new DefaultInputFile("foo", relativePath);
+    DefaultInputFile inputFile = new DefaultInputFile("foo", relativePath)
+      .setFile(new File(baseDir, relativePath));
     fs.add(inputFile);
-    DefaultInputFile inputFile2 = new DefaultInputFile("foo", relativePath2);
+    DefaultInputFile inputFile2 = new DefaultInputFile("foo", relativePath2)
+      .setFile(new File(baseDir, relativePath2));
     fs.add(inputFile2);
 
     // Emulate a new file
