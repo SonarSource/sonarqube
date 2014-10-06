@@ -98,21 +98,9 @@ public class SearchClient extends TransportClient implements Startable {
           fullProfile.stop("ES Request: %s", request.toString().replaceAll("\n", ""));
         }
       }
-
-      if (profiling.isProfilingEnabled(Profiling.Level.FULL)) {
-        if (ToXContent.class.isAssignableFrom(response.getClass())) {
-          XContentBuilder debugResponse = XContentFactory.jsonBuilder();
-          debugResponse.startObject();
-          ((ToXContent) response).toXContent(debugResponse, ToXContent.EMPTY_PARAMS);
-          debugResponse.endObject();
-          fullProfile.stop("ES Response: %s", debugResponse.string());
-        } else {
-          fullProfile.stop("ES Response: %s", response.toString());
-        }
-      }
       return response;
     } catch (Exception e) {
-      LOGGER.error("could not execute request: " + response);
+      LOGGER.error("could not execute request: " + response, e);
       throw new IllegalStateException("ES error: ", e);
     }
   }
