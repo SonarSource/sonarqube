@@ -73,7 +73,7 @@ public class GitBlameCommand implements BlameCommand, BatchComponent {
 
   public int execute(Command cl, StreamConsumer consumer, StreamConsumer stderr) {
     LOG.debug("Executing: " + cl);
-    return commandExecutor.execute(cl, consumer, stderr, 0);
+    return commandExecutor.execute(cl, consumer, stderr, -1);
   }
 
   private Command createCommandLine(File workingDirectory, String filename) {

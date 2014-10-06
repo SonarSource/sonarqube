@@ -56,7 +56,7 @@ public class CommandExecutor {
   /**
    * @throws org.sonar.api.utils.command.TimeoutException on timeout, since 4.4
    * @throws CommandException on any other error
-   * @param timeoutMilliseconds set it to 0 for no timeout.
+   * @param timeoutMilliseconds any negative value means no timeout.
    * @since 3.0
    */
   public int execute(Command command, StreamConsumer stdOut, StreamConsumer stdErr, long timeoutMilliseconds) {
@@ -86,7 +86,7 @@ public class CommandExecutor {
         }
       });
       int exitCode;
-      if (timeoutMilliseconds == 0) {
+      if (timeoutMilliseconds < 0) {
         exitCode = ft.get();
       } else {
         exitCode = ft.get(timeoutMilliseconds, TimeUnit.MILLISECONDS);
@@ -128,6 +128,7 @@ public class CommandExecutor {
    * Execute command and display error and output streams in log.
    * Method {@link #execute(Command, StreamConsumer, StreamConsumer, long)} is preferable,
    * when fine-grained control of output of command required.
+   * @param timeoutMilliseconds any negative value means no timeout.
    *
    * @throws CommandException
    */
