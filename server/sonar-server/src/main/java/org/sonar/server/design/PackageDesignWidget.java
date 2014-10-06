@@ -33,7 +33,7 @@ public final class PackageDesignWidget extends AbstractRubyTemplate implements R
   }
 
   public String getTitle() {
-    return "Package design";
+    return "File design";
   }
 
   @Override

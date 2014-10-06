@@ -112,6 +112,7 @@
       $('#widget_title_' + widgetId).hide();
       $('#widget_' + widgetId).hide();
       $('#widget_props_' + widgetId).show();
+      $($('#block_' + widgetId + ' a.link-action')[0]).hide();
     },
 
 
@@ -119,6 +120,7 @@
       $('widget_title_' + widgetId).show();
       $('#widget_' + widgetId).show();
       $('#widget_props_' + widgetId).hide();
+      $($('#block_' + widgetId + ' a.link-action')[0]).show();
     },
 
 

@@ -19,11 +19,15 @@
  */
 package org.sonar.api.batch.sensor.highlighting;
 
+import com.google.common.annotations.Beta;
+
 /**
- * Possible types for highlighting code.
- * See sonar-colorizer.css
+ * Experimental, do not use.
+ * <p/>
+ * Possible types for highlighting code. See sonar-colorizer.css
  * @since 4.5
  */
+@Beta
 public enum TypeOfText {
   ANNOTATION("a"),
   CONSTANT("c"),

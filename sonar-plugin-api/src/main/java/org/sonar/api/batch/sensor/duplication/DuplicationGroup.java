@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.sensor.duplication;
 
+import com.google.common.annotations.Beta;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -29,12 +30,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Experimental, do not use.
+ * <p/>
  * A {@link DuplicationGroup} is a list of duplicated {@link Block}s. One block
  * is considered as the original code and all others are duplicates.
  * Use {@link SensorContext#duplicationBuilder(org.sonar.api.batch.fs.InputFile)} and
  * {@link SensorContext#saveDuplications(org.sonar.api.batch.fs.InputFile, List)}.
  * @since 4.5
  */
+@Beta
 public class DuplicationGroup {
 
   public static class Block {

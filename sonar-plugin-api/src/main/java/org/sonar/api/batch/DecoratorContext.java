@@ -108,14 +108,18 @@ public interface DecoratorContext {
    * @param violationQuery
    *          the request parameters specified as a {@link ViolationQuery}
    * @return the list of violations that match those parameters
+   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
    */
+  @Deprecated
   List<Violation> getViolations(ViolationQuery violationQuery);
 
   /**
    * Returns all the active (= non switched-off) violations found on the current resource.
    * 
    * @return the list of violations
+   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
    */
+  @Deprecated
   List<Violation> getViolations();
 
   /**
@@ -123,12 +127,16 @@ public interface DecoratorContext {
    * 
    * @since 2.5
    * @param force allows to force creation of violation even if it was suppressed by {@link org.sonar.api.rules.ViolationFilter}
+   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
    */
+  @Deprecated
   DecoratorContext saveViolation(Violation violation, boolean force);
 
   /**
    * Save a coding rule violation. The decorator which calls this method must be depended upon BatchBarriers.END_OF_VIOLATIONS_GENERATION.
+   * @deprecated in 3.6, replaced by {@link org.sonar.api.issue.Issuable}
    */
+  @Deprecated
   DecoratorContext saveViolation(Violation violation);
 
   // EVENTS

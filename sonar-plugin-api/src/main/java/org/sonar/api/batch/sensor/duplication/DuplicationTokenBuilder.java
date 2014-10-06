@@ -20,7 +20,11 @@
 package org.sonar.api.batch.sensor.duplication;
 
 
+import com.google.common.annotations.Beta;
+
 /**
+ * Experimental, do not use.
+ * <p/>
  * This builder is used to define token on files. Tokens are later used to compute duplication.
  * Tokens should be declared in sequential order.
  * Example:
@@ -35,6 +39,7 @@ package org.sonar.api.batch.sensor.duplication;
  * </pre></code>
  * @since 4.5
  */
+@Beta
 public interface DuplicationTokenBuilder {
 
   /**

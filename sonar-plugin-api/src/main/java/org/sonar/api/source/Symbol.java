@@ -20,10 +20,6 @@
 
 package org.sonar.api.source;
 
-/**
- * @deprecated since 4.5 replaced by {@link org.sonar.api.batch.sensor.symbol.Symbol}
- */
-@Deprecated
 public interface Symbol extends org.sonar.api.batch.sensor.symbol.Symbol {
 
   @Override

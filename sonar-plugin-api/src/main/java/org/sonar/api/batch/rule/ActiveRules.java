@@ -57,9 +57,7 @@ public interface ActiveRules extends BatchComponent {
 
   /**
    * The active rules for a given language, like <code>java</code>
-   * @deprecated since 4.5 Not sure rules will continue to be linked to a language
    */
-  @Deprecated
   Collection<ActiveRule> findByLanguage(String language);
 
   /**
