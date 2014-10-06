@@ -138,6 +138,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.projectId()).isEqualTo(1);
 
     assertThat(dao.getByIds(session, newArrayList(123L))).isEmpty();
+    assertThat(dao.getByIds(session, Collections.<Long>emptyList())).isEmpty();
   }
 
   @Test

@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableMap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.AuthorizedComponentDto;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceDto;
@@ -73,22 +72,18 @@ public class ComponentService implements ServerComponent {
     }
   }
 
-  public ComponentDto getByKey(DbSession session, String key) {
-    return dbClient.componentDao().getByKey(session, key);
-  }
-
   public void updateKey(String projectOrModuleKey, String newKey) {
     UserSession.get().checkComponentPermission(UserRole.ADMIN, projectOrModuleKey);
 
     DbSession session = dbClient.openSession(false);
     try {
       AuthorizedComponentDto projectOrModule = getByKey(projectOrModuleKey);
-      ResourceDto oldRootProject = dbClient.resourceDao().getRootProjectByComponentKey(session, projectOrModuleKey);
+      ResourceDto oldRootProject = getRootProjectByComponentKey(session, projectOrModuleKey);
 
       resourceKeyUpdaterDao.updateKey(projectOrModule.getId(), newKey);
       session.commit();
 
-      String newRootProjectKey = getRootProjectKeyByComponentKey(session, newKey);
+      String newRootProjectKey = getRootProjectByComponentKey(session, newKey).getKey();
       updateIssuesIndex(session, oldRootProject.getKey(), newRootProjectKey);
 
       previewCache.reportResourceModification(newRootProjectKey);
@@ -143,10 +138,10 @@ public class ComponentService implements ServerComponent {
       ImmutableMap.of("project", newKey));
   }
 
-  private String getRootProjectKeyByComponentKey(DbSession session, String key){
+  private ResourceDto getRootProjectByComponentKey(DbSession session, String key) {
     ResourceDto root = dbClient.resourceDao().getRootProjectByComponentKey(session, key);
     if (root != null) {
-      return root.getKey();
+      return root;
     }
     throw new NotFoundException(String.format("Root project of '%s' has not been found", key));
   }
