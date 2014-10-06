@@ -41,7 +41,9 @@ import org.sonar.server.user.MockUserSession;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.sonar.server.qualityprofile.QProfileTesting.*;
+import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
+import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_KEY;
+import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P3_KEY;
 
 public class QProfileFactoryMediumTest {
 
@@ -87,6 +89,26 @@ public class QProfileFactoryMediumTest {
 
     assertThat(db.qualityProfileDao().findAll(dbSession)).hasSize(1);
   }
+
+  @Test
+  public void fail_to_create_if_name_empty() {
+    QProfileName name = new QProfileName("xoo", null);
+    try {
+      factory.create(dbSession, name);
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e).hasMessage("quality_profiles.profile_name_cant_be_blank");
+    }
+
+    name = new QProfileName("xoo", "");
+    try {
+      factory.create(dbSession, name);
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e).hasMessage("quality_profiles.profile_name_cant_be_blank");
+    }
+  }
+
 
   @Test
   public void fail_to_create_if_already_exists() {

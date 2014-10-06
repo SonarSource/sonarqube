@@ -72,6 +72,9 @@ public class QProfileFactory implements ServerComponent {
   }
 
   private QualityProfileDto doCreate(DbSession dbSession, QProfileName name) {
+    if (StringUtils.isEmpty(name.getName())) {
+      throw new BadRequestException("quality_profiles.profile_name_cant_be_blank");
+    }
     Date now = new Date();
     for (int i = 0; i < 20; i++) {
       String key = Slug.slugify(String.format("%s %s %s", name.getLanguage(), name.getName(), RandomStringUtils.randomNumeric(5)));
