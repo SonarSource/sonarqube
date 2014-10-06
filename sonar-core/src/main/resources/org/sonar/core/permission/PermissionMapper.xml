@@ -15,6 +15,7 @@
       AND user_role.resource_id IS NULL
     </if>
     <where>
+      u.active = ${_true}
       <choose>
         <when test="query.membership() == 'IN'">
           AND user_role.role IS NOT NULL
