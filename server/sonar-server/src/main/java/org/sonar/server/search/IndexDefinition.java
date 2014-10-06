@@ -26,9 +26,6 @@ public class IndexDefinition {
   private final String indexName;
   private final String indexType;
 
-  private static final String MANAGEMENT_INDEX = "sonarindex";
-  private static final String MANAGEMENT_TYPE = "index";
-
   private IndexDefinition(String indexName, String indexType) {
     this.indexName = indexName;
     this.indexType = indexType;
@@ -40,14 +37,6 @@ public class IndexDefinition {
 
   public String getIndexType() {
     return indexType;
-  }
-
-  public String getManagementIndex() {
-    return MANAGEMENT_INDEX;
-  }
-
-  public String getManagementType() {
-    return MANAGEMENT_TYPE;
   }
 
   public static final IndexDefinition RULE = new IndexDefinition("rules", "rule");

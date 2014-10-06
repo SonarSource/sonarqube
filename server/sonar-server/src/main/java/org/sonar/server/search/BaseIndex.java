@@ -232,8 +232,14 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected abstract String getKeyValue(KEY key);
 
   public final Settings getIndexSettings() {
-    return this.addCustomIndexSettings
-      (this.getBaseIndexSettings()).build();
+    ImmutableSettings.Builder settings = this.addCustomIndexSettings(this.getBaseIndexSettings());
+
+    // In case there is a replication factor set by the index,
+    // it is removed since we're using global cluster state
+    // see https://jira.codehaus.org/browse/SONAR-5687
+    settings.remove("index.number_of_replicas");
+
+    return settings.build();
   }
 
   protected ImmutableSettings.Builder addCustomIndexSettings(ImmutableSettings.Builder baseIndexSettings) {

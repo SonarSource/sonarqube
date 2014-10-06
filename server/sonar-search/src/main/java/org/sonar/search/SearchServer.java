@@ -41,6 +41,7 @@ import java.util.Set;
 
 public class SearchServer implements Monitored {
 
+  public static final String CLUSTER_ACTIVATION = "sonar.cluster.activation";
   public static final String SONAR_NODE_NAME = "sonar.node.name";
   public static final String ES_PORT_PROPERTY = "sonar.search.port";
   public static final String ES_CLUSTER_PROPERTY = "sonar.cluster.name";
@@ -114,6 +115,9 @@ public class SearchServer implements Monitored {
       .put("path.logs", esLogDir().getAbsolutePath());
 
     if (!nodes.isEmpty()) {
+      // When sonar as a master, for the cluster mode
+      // see https://jira.codehaus.org/browse/SONAR-5687
+      props.set(CLUSTER_ACTIVATION, Boolean.TRUE.toString());
 
       LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with master: {}", nodes);
       esSettings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(nodes, ","));
@@ -144,6 +148,14 @@ public class SearchServer implements Monitored {
         LoggerFactory.getLogger(SearchServer.class).warn("Could not determine hostname", e);
         esSettings.put("node.name", "sq-" + System.currentTimeMillis());
       }
+    }
+
+    // When SQ is ran as a cluster
+    // see https://jira.codehaus.org/browse/SONAR-5687
+    if (props.valueAsBoolean(CLUSTER_ACTIVATION)) {
+      esSettings.put("index.number_of_replicas", 1);
+    } else {
+      esSettings.put("index.number_of_replicas", 0);
     }
 
     // And building our ES Node

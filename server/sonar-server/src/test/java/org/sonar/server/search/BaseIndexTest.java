@@ -20,6 +20,7 @@
 package org.sonar.server.search;
 
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -75,6 +76,7 @@ public class BaseIndexTest {
   public void setup() throws IOException {
     File dataDir = temp.newFolder();
     Settings settings = new Settings();
+    settings.setProperty(IndexProperties.CLUSTER_ACTIVATION, false);
     settings.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
     settings.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
     settings.setProperty("sonar.path.home", dataDir.getAbsolutePath());
@@ -95,6 +97,49 @@ public class BaseIndexTest {
       .prepareExists(IndexDefinition.TEST.getIndexName()).execute().actionGet();
 
     assertThat(indexExistsResponse.isExists()).isTrue();
+  }
+
+  @Test
+  public void settings_has_no_replication_factor() {
+    BaseIndex index = getIndex(this.searchClient);
+
+    // base case, there are no replication factors.
+    assertThat(index.getIndexSettings().get("index.number_of_replicas")).isNull();
+
+    // replication factor removed from settings when set in index
+    BaseIndex newIndex = new BaseIndex(
+      IndexDefinition.TEST,
+      null, searchClient) {
+
+      @Override
+      protected ImmutableSettings.Builder addCustomIndexSettings(ImmutableSettings.Builder baseIndexSettings) {
+        return baseIndexSettings.put("index.number_of_replicas", 22);
+      }
+
+      @Override
+      protected String getKeyValue(Serializable key) {
+        return null;
+      }
+
+      @Override
+      protected Map mapProperties() {
+        return Collections.emptyMap();
+      }
+
+      @Override
+      protected Map mapKey() {
+        return Collections.emptyMap();
+      }
+
+      @Override
+      public Object toDoc(Map fields) {
+        return null;
+      }
+    };
+    newIndex.start();
+
+    assertThat(index.getIndexSettings().get("index.number_of_replicas")).isNull();
+
   }
 
   private BaseIndex getIndex(final SearchClient searchClient) {
