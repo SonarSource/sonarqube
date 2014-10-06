@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -47,7 +48,7 @@ public class LastSnapshots implements BatchComponent {
   }
 
   public String getSource(Resource resource) {
-    String source = "";
+    String source = null;
     if (ResourceUtils.isFile(resource)) {
       if (analysisMode.isPreview()) {
         source = loadSourceFromWs(resource);
@@ -55,7 +56,7 @@ public class LastSnapshots implements BatchComponent {
         source = loadSourceFromDb(resource);
       }
     }
-    return source;
+    return StringUtils.defaultString(source, "");
   }
 
   private String loadSourceFromWs(Resource resource) {
