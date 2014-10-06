@@ -1,4 +1,5 @@
 @import (reference) 'variables';
+@import (reference) 'mixins';
 
 .component-viewer-source {
 
@@ -37,7 +38,12 @@
   }
 
   .sym {
-    color: darken(saturate(@green, 10%), 15%);
+    @symColor: darken(saturate(@green, 10%), 15%);
+    border-bottom: 1px dotted @symColor;
+    .trans(color);
+
+    &:hover,
+    &.highlighted { color: @symColor; }
   }
 
 }
