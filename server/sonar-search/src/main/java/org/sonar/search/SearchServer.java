@@ -23,8 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
+import org.elasticsearch.node.internal.InternalNode;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
@@ -53,13 +52,11 @@ public class SearchServer implements Monitored {
   public static final String SONAR_PATH_TEMP = "sonar.path.temp";
   public static final String SONAR_PATH_LOG = "sonar.path.log";
 
-  private static final Integer MINIMUM_INDEX_REPLICATION = 1;
-
   private final Set<String> nodes = new HashSet<String>();
   private final Set<String> marvels = new HashSet<String>();
   private final Props props;
 
-  private Node node;
+  private InternalNode node;
 
   public SearchServer(Props props) {
     this.props = props;
@@ -83,15 +80,16 @@ public class SearchServer implements Monitored {
 
     LoggerFactory.getLogger(SearchServer.class).info("Starting ES[{}] on port: {}", clusterName, port);
 
+    Integer replicationFactor = 0;
+
     ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
 
       // Disable MCast
       .put("discovery.zen.ping.multicast.enabled", "false")
 
       // Index storage policies
-      .put("index.refresh_interval", "30s")
       .put("index.number_of_shards", "1")
-      .put("index.number_of_replicas", MINIMUM_INDEX_REPLICATION)
+      .put("index.refresh_interval", "30s")
       .put("index.store.type", "mmapfs")
       .put("indices.store.throttle.type", "none")
       .put("index.merge.scheduler.max_thread_count",
@@ -115,9 +113,9 @@ public class SearchServer implements Monitored {
       .put("path.logs", esLogDir().getAbsolutePath());
 
     if (!nodes.isEmpty()) {
-      // When sonar as a master, for the cluster mode
+      // When sonar has a master, for the cluster mode
       // see https://jira.codehaus.org/browse/SONAR-5687
-      props.set(CLUSTER_ACTIVATION, Boolean.TRUE.toString());
+      replicationFactor = 1;
 
       LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with master: {}", nodes);
       esSettings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(nodes, ","));
@@ -127,6 +125,13 @@ public class SearchServer implements Monitored {
       // Change master pool requirement when in distributed mode
       // esSettings.put("discovery.zen.minimum_master_nodes", (int) Math.floor(nodes.size() / 2.0) + 1);
     }
+
+    // When SQ is ran as a cluster
+    // see https://jira.codehaus.org/browse/SONAR-5687
+    if (props.valueAsBoolean(CLUSTER_ACTIVATION)) {
+      replicationFactor = 1;
+    }
+    esSettings.put("index.number_of_replicas", replicationFactor.toString());
 
     // Enable marvel's index creation:
     esSettings.put("action.auto_create_index", ".marvel-*");
@@ -150,18 +155,9 @@ public class SearchServer implements Monitored {
       }
     }
 
-    // When SQ is ran as a cluster
-    // see https://jira.codehaus.org/browse/SONAR-5687
-    if (props.valueAsBoolean(CLUSTER_ACTIVATION)) {
-      esSettings.put("index.number_of_replicas", 1);
-    } else {
-      esSettings.put("index.number_of_replicas", 0);
-    }
-
     // And building our ES Node
-    node = NodeBuilder.nodeBuilder()
-      .settings(esSettings)
-      .build().start();
+    node = new InternalNode(esSettings.build(), true);
+    node.start();
 
     node.client().admin().indices()
       .preparePutTemplate("default")

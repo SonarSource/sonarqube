@@ -65,11 +65,7 @@ public class SearchServerTest {
     searchServer.start();
     assertThat(searchServer.isReady()).isTrue();
 
-    Settings settings = ImmutableSettings.settingsBuilder()
-      .put("cluster.name", cluster).build();
-    Client client = new TransportClient(settings)
-      .addTransportAddress(new InetSocketTransportAddress("localhost", port));
-    assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
+    Client client = getSearchClient();
 
     searchServer.stop();
     searchServer.awaitStop();
@@ -78,5 +74,61 @@ public class SearchServerTest {
     } catch (NoNodeAvailableException exception) {
       assertThat(exception.getMessage()).isEqualTo("No node available");
     }
+  }
+
+  @Test
+  public void default_has_no_replication() throws Exception {
+
+    Properties props = new Properties();
+    props.put(SearchServer.ES_PORT_PROPERTY, port.toString());
+    props.put(SearchServer.ES_CLUSTER_PROPERTY, cluster);
+    props.put(SearchServer.SONAR_PATH_HOME, temp.getRoot().getAbsolutePath());
+
+    SearchServer searchServer = new SearchServer(new Props(props));
+    assertThat(searchServer).isNotNull();
+
+    searchServer.start();
+    assertThat(searchServer.isReady()).isTrue();
+
+    Client client = getSearchClient();
+    client.admin().indices().prepareCreate("test").get();
+
+    assertThat(client.admin().indices().prepareGetSettings("test")
+      .get()
+      .getSetting("test", "index.number_of_replicas"))
+      .isEqualTo("0");
+  }
+
+  @Test
+  public void cluster_has_replication() throws Exception {
+
+    Properties props = new Properties();
+    props.put(SearchServer.CLUSTER_ACTIVATION, Boolean.TRUE.toString());
+    props.put(SearchServer.ES_PORT_PROPERTY, port.toString());
+    props.put(SearchServer.ES_CLUSTER_PROPERTY, cluster);
+    props.put(SearchServer.SONAR_PATH_HOME, temp.getRoot().getAbsolutePath());
+
+    SearchServer searchServer = new SearchServer(new Props(props));
+    assertThat(searchServer).isNotNull();
+
+    searchServer.start();
+    assertThat(searchServer.isReady()).isTrue();
+
+    Client client = getSearchClient();
+    client.admin().indices().prepareCreate("test").get();
+
+    assertThat(client.admin().indices().prepareGetSettings("test")
+      .get()
+      .getSetting("test", "index.number_of_replicas"))
+      .isEqualTo("1");
+  }
+
+  private Client getSearchClient() {
+    Settings settings = ImmutableSettings.settingsBuilder()
+      .put("cluster.name", cluster).build();
+    Client client = new TransportClient(settings)
+      .addTransportAddress(new InetSocketTransportAddress("localhost", port));
+    assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
+    return client;
   }
 }
