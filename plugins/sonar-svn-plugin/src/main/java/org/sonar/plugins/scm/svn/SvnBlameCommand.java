@@ -28,6 +28,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.command.Command;
+import org.sonar.api.utils.command.CommandException;
 import org.sonar.api.utils.command.CommandExecutor;
 import org.sonar.api.utils.command.StreamConsumer;
 import org.sonar.api.utils.command.StringStreamConsumer;
@@ -71,6 +72,7 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
       try {
         task.get();
       } catch (ExecutionException e) {
+        // Unwrap ExecutionException
         throw e.getCause() instanceof RuntimeException ? (RuntimeException) e.getCause() : new IllegalStateException(e.getCause());
       } catch (InterruptedException e) {
         // Ignore
@@ -85,8 +87,13 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
         Command cl = createCommandLine(fs.baseDir(), filename);
         SvnBlameConsumer consumer = new SvnBlameConsumer(filename);
         StringStreamConsumer stderr = new StringStreamConsumer();
-
-        int exitCode = execute(cl, consumer, stderr);
+        int exitCode;
+        try {
+          exitCode = execute(cl, consumer, stderr);
+        } catch (CommandException e) {
+          // Unwrap CommandException
+          throw e.getCause() instanceof RuntimeException ? (RuntimeException) e.getCause() : new IllegalStateException(e.getCause());
+        }
         if (exitCode != 0) {
           throw new IllegalStateException("The svn blame command [" + cl.toString() + "] failed: " + stderr.getOutput());
         }
