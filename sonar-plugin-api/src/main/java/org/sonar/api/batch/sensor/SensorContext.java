@@ -19,32 +19,26 @@
  */
 package org.sonar.api.batch.sensor;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
 import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.issue.IssueBuilder;
 import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.measure.MeasureBuilder;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
+import org.sonar.api.batch.sensor.test.TestCase;
 import org.sonar.api.config.Settings;
-
-import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
 import java.util.List;
 
 /**
- * Experimental - do not use
- * @since 4.4
+ * See {@link Sensor#execute(SensorContext)}
+ * @since 5.0
  */
-@Beta
 public interface SensorContext {
 
   /**
@@ -65,56 +59,16 @@ public interface SensorContext {
   // ----------- MEASURES --------------
 
   /**
-   * Builder to create a new {@link Measure}.
+   * Fluent builder to create a new {@link Measure}. Don't forget to call {@link Measure#save()} once all parameters are provided.
    */
-  <G extends Serializable> MeasureBuilder<G> measureBuilder();
-
-  /**
-   * Find a project measure.
-   */
-  @CheckForNull
-  Measure getMeasure(String metricKey);
-
-  /**
-   * Find a project measure.
-   */
-  @CheckForNull
-  <G extends Serializable> Measure<G> getMeasure(Metric<G> metric);
-
-  /**
-   * Find a file measure.
-   */
-  @CheckForNull
-  Measure getMeasure(InputFile file, String metricKey);
-
-  /**
-   * Find a file measure.
-   */
-  @CheckForNull
-  <G extends Serializable> Measure<G> getMeasure(InputFile file, Metric<G> metric);
-
-  /**
-   * Add a measure. Use {@link #measureBuilder()} to create the new measure.
-   * A measure for a given metric can only be saved once for the same resource.
-   */
-  void addMeasure(Measure<?> measure);
+  <G extends Serializable> Measure<G> newMeasure();
 
   // ----------- ISSUES --------------
 
   /**
-   * Builder to create a new {@link Issue}.
+   * Fluent builder to create a new {@link Issue}. Don't forget to call {@link Issue#save()} once all parameters are provided.
    */
-  IssueBuilder issueBuilder();
-
-  /**
-   * Add an issue. Use {@link #issueBuilder()} to create the new issue.
-   * @return <code>true</code> if the new issue is registered, <code>false</code> if:
-   * <ul>
-   * <li>the rule does not exist</li>
-   * <li>the rule is disabled in the Quality profile</li>
-   * </ul>
-   */
-  boolean addIssue(Issue issue);
+  Issue newIssue();
 
   // ------------ HIGHLIGHTING ------------
 
@@ -150,7 +104,36 @@ public interface SensorContext {
   /**
    * Register all duplications of an {@link InputFile}. Use {@link #duplicationBuilder(InputFile)} to create
    * list of duplications.
+   * @since 4.5
    */
   void saveDuplications(InputFile inputFile, List<DuplicationGroup> duplications);
+
+  // ------------ TESTS ------------
+
+  /**
+   * Create a new test case for the given test file.
+   * Don't forget to call {@link TestCase#save()} once all parameters are provided.
+   * @since 5.0
+   */
+  TestCase newTestCase();
+
+  /**
+   * Register coverage of a given test case on another main file. TestCase should have been registered using {@link #testPlanBuilder(InputFile)}
+   * @param testFile test file containing the test case
+   * @param testCaseName name of the test case
+   * @param coveredFile main file that is covered
+   * @param coveredLines list of covered lines
+   * @since 5.0
+   */
+  void saveCoveragePerTest(TestCase testCase, InputFile coveredFile, List<Integer> coveredLines);
+
+  // ------------ DEPENDENCIES ------------
+
+  /**
+   * Declare a dependency between 2 files.
+   * @param weight Weight of the dependency
+   * @since 5.0
+   */
+  void saveDependency(InputFile from, InputFile to, int weight);
 
 }
