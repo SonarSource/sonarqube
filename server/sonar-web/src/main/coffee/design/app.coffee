@@ -31,7 +31,16 @@ requirejs [
 
 
   App.addInitializer ->
-    $.get RESOURCES_URL, resource: window.resourceKey, metrics: 'dsm', (rawData) ->
+    packageTangles = {}
+
+    packageTanglesXHR = $.get RESOURCES_URL, resource: window.resourceKey, depth: 1, metrics: 'package_tangles', (data) ->
+      data.forEach (component) ->
+        packageTangles[component.id] = component.msr[0].frmt_val
+
+    dsmXHR = $.get RESOURCES_URL, resource: window.resourceKey, metrics: 'dsm'
+
+    $.when(packageTanglesXHR, dsmXHR).done ->
+      rawData = dsmXHR.responseJSON
       data = JSON.parse rawData[0].msr[0].data
       data.forEach (row, rowIndex) ->
         row.v.forEach (cell, columnIndex) ->
@@ -40,7 +49,10 @@ requirejs [
               cell.status = 'cycle'
             else
               cell.status = 'dependency'
-      @view = new DesignView app: @, collection: new Backbone.Collection data
+      collection = new Backbone.Collection data
+      collection.forEach (model) ->
+        model.set 'pt', packageTangles[model.get 'i']
+      @view = new DesignView app: @, collection: collection
       $('#project-design').empty().append @view.render().el
 
 
