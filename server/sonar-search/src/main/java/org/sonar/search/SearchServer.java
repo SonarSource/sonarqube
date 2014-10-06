@@ -21,7 +21,9 @@ package org.sonar.search;
 
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.common.hppc.cursors.ObjectCursor;
 import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.internal.InternalNode;
 import org.slf4j.LoggerFactory;
@@ -40,13 +42,15 @@ import java.util.Set;
 
 public class SearchServer implements Monitored {
 
+  public static final String WRONG_MASTER_REPLICATION_FACTOR = "Index configuration is not set to cluster. Please start the master node with 'sonar.cluster.activation=true'";
+
   public static final String CLUSTER_ACTIVATION = "sonar.cluster.activation";
   public static final String SONAR_NODE_NAME = "sonar.node.name";
   public static final String ES_PORT_PROPERTY = "sonar.search.port";
   public static final String ES_CLUSTER_PROPERTY = "sonar.cluster.name";
   public static final String ES_CLUSTER_INET = "sonar.cluster.master";
-  public static final String ES_MARVEL_HOST = "sonar.search.marvel";
 
+  public static final String ES_MARVEL_HOST = "sonar.search.marvel";
   public static final String SONAR_PATH_HOME = "sonar.path.home";
   public static final String SONAR_PATH_DATA = "sonar.path.data";
   public static final String SONAR_PATH_TEMP = "sonar.path.temp";
@@ -113,10 +117,6 @@ public class SearchServer implements Monitored {
       .put("path.logs", esLogDir().getAbsolutePath());
 
     if (!nodes.isEmpty()) {
-      // When sonar has a master, for the cluster mode
-      // see https://jira.codehaus.org/browse/SONAR-5687
-      replicationFactor = 1;
-
       LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with master: {}", nodes);
       esSettings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(nodes, ","));
       esSettings.put("node.master", false);
@@ -158,6 +158,20 @@ public class SearchServer implements Monitored {
     // And building our ES Node
     node = new InternalNode(esSettings.build(), true);
     node.start();
+
+    // When joining a cluster, make sur the master(s) have a
+    // replication factor on all indices > 0
+    if (!nodes.isEmpty()) {
+      for (ObjectCursor<Settings> settingCursor : node.client().admin().indices()
+        .prepareGetSettings().get().getIndexToSettings().values()) {
+        Settings settings = settingCursor.value;
+        String clusterReplicationFactor = settings.get("index.number_of_replicas", "-1");
+        if (Integer.parseInt(clusterReplicationFactor) <= 0) {
+          node.stop();
+          throw new IllegalStateException(WRONG_MASTER_REPLICATION_FACTOR);
+        }
+      }
+    }
 
     node.client().admin().indices()
       .preparePutTemplate("default")
