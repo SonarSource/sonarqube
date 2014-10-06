@@ -30,6 +30,11 @@ requirejs [
   App = new Marionette.Application
 
 
+  App.noDataAvailable = ->
+    message = t 'design.noData'
+    $('#project-design').html "<p class=\"message-alert\"><i class=\"icon-alert-warn\"></i> #{message}</p>"
+
+
   App.addInitializer ->
     packageTangles = {}
 
@@ -38,9 +43,13 @@ requirejs [
         packageTangles[component.id] = component.msr[0].frmt_val
 
     dsmXHR = $.get RESOURCES_URL, resource: window.resourceKey, metrics: 'dsm'
+    dsmXHR.fail -> App.noDataAvailable()
 
     $.when(packageTanglesXHR, dsmXHR).done ->
       rawData = dsmXHR.responseJSON
+      unless _.isArray(rawData) && rawData.length == 1 && _.isArray(rawData[0].msr)
+        App.noDataAvailable()
+        return
       data = JSON.parse rawData[0].msr[0].data
       data.forEach (row, rowIndex) ->
         row.v.forEach (cell, columnIndex) ->
