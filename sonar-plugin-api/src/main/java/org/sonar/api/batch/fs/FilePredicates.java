@@ -29,33 +29,75 @@ import java.util.Collection;
  */
 public interface FilePredicates {
   /**
-   * Returns a predicate that always evaluates to true
+   * Predicate that always evaluates to true
    */
   FilePredicate all();
 
   /**
-   * Returns a predicate that always evaluates to false
+   * Predicate that always evaluates to false
    */
   FilePredicate none();
 
   /**
+   * Predicate that gets a file by its absolute path. The parameter
+   * accepts forward/back slashes as separator and non-normalized values
+   * (<code>/path/to/../foo.txt</code> is same as <code>/path/foo.txt</code>).
+   * <p/>
    * Warning - not efficient because absolute path is not indexed yet.
    */
   FilePredicate hasAbsolutePath(String s);
 
   /**
-   * TODO document that non-normalized path and Windows-style path are supported
+   * Predicate that gets a file by its relative path. The parameter
+   * accepts forward/back slashes as separator and non-normalized values
+   * (<code>foo/../bar.txt</code> is same as <code>bar.txt</code>). It must
+   * not be <code>null</code>.
    */
   FilePredicate hasRelativePath(String s);
 
+  /**
+   * Predicate that gets the files which relative or absolute path matches a wildcard pattern.
+   * <p/>
+   * If the parameter starts with <code>file:</code>, then absolute path is used, else relative path. Pattern
+   * is case-sensitive, except for file extension.
+   * <p/>
+   * Supported wildcards are <code>&#42;</code> and <code>&#42;&#42;</code>, but not <code>?</code>.
+   * <p/>
+   * Examples:
+   * <ul>
+   *   <li><code>&#42;&#42;/&#42;Foo.java</code> matches Foo.java, src/Foo.java and src/java/SuperFoo.java</li>
+   *   <li><code>&#42;&#42;/&#42;Foo&#42;.java</code> matches src/Foo.java, src/BarFoo.java, src/FooBar.java
+   *   and src/BarFooBaz.java</li>
+   *   <li><code>&#42;&#42;/&#42;FOO.JAVA</code> matches FOO.java and FOO.JAVA but not Foo.java</li>
+   *   <li><code>file:&#42;&#42;/src/&#42;Foo.java</code> matches /path/to/src/Foo.java on unix and c:\path\to\Foo.java on MSWindows</li>
+   * </ul>
+   */
   FilePredicate matchesPathPattern(String inclusionPattern);
 
+  /**
+   * Predicate that gets the files matching at least one wildcard pattern. No filter is applied when
+   * zero wildcard patterns (similar to {@link #all()}.
+   * @see #matchesPathPattern(String)
+   */
   FilePredicate matchesPathPatterns(String[] inclusionPatterns);
 
+  /**
+   * Predicate that gets the files that do not match the given wildcard pattern.
+   * @see #matchesPathPattern(String)
+   */
   FilePredicate doesNotMatchPathPattern(String exclusionPattern);
 
+  /**
+   * Predicate that gets the files that do not match any of the given wildcard patterns. No filter is applied when
+   * zero wildcard patterns (similar to {@link #all()}.
+   * @see #matchesPathPattern(String)
+   */
   FilePredicate doesNotMatchPathPatterns(String[] exclusionPatterns);
 
+  /**
+   * if the parameter represents an absolute path for the running environment, then
+   * returns {@link #hasAbsolutePath(String)}, else {@link #hasRelativePath(String)}
+   */
   FilePredicate hasPath(String s);
 
   FilePredicate is(File ioFile);
