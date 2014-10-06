@@ -90,9 +90,9 @@
         </td>
 
         <td align="right" nowrap>
-          <form method="post" action="<%= ApplicationController.root_context -%>/profiles/backup" id="backup-<%= profile.key() -%>-form">
+          <form method="post" action="<%= ApplicationController.root_context -%>/profiles/backup" id="backup-<%= profile.key().parameterize -%>-form">
             <input type="hidden" name="key" value="<%= profile.key() -%>"/>
-            <a href="#" class="link-action" name="button_backup" id="backup_<%= u profile.key() -%>" onclick="$j('#backup-<%= profile.key() -%>-form').submit();return false;"><%= message('backup_verb') -%></a>
+            <a href="#" class="link-action" name="button_backup" id="backup_<%= u profile.key() -%>" onclick="$j('#backup-<%= profile.key().parameterize -%>-form').submit();return false;"><%= message('backup_verb') -%></a>
           </form>
         </td>
         <% if profiles_administrator? %>
