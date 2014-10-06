@@ -20,14 +20,24 @@
 
 package org.sonar.server.computation;
 
+import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.index.IssueAuthorizationIndex;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.search.IndexClient;
+import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
@@ -36,26 +46,43 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
  * since 5.0
  */
 public class ComputationService implements ServerComponent {
+  private static final Logger LOG = LoggerFactory.getLogger(ComputationService.class);
+
   private final DbClient dbClient;
   private final AnalysisReportDao dao;
+  private final IndexClient index;
+  private final InternalPermissionService permissionService;
 
-  public ComputationService(DbClient dbClient) {
+  public ComputationService(DbClient dbClient, IndexClient index, InternalPermissionService permissionService) {
     this.dbClient = dbClient;
-    dao = this.dbClient.analysisReportDao();
+    this.dao = this.dbClient.analysisReportDao();
+    this.index = index;
+    this.permissionService = permissionService;
   }
 
   public void create(String projectKey) {
-    AnalysisReportDto report = new AnalysisReportDto()
-      .setProjectKey(projectKey)
-      .setStatus(PENDING);
+    UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
+
+    AnalysisReportDto report = newPendingAnalysisReport(projectKey);
 
     DbSession session = dbClient.openSession(false);
     try {
+      checkThatProjectExistsInDatabase(projectKey, session);
+
       dao.insert(session, report);
       session.commit();
     } finally {
+      LOG.debug(String.format("Analysis for project '%s' inserted in the queue", projectKey));
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private void checkThatProjectExistsInDatabase(String projectKey, DbSession session) {
+    dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
+  }
+
+  private AnalysisReportDto newPendingAnalysisReport(String projectKey) {
+    return new AnalysisReportDto().setProjectKey(projectKey).setStatus(PENDING);
   }
 
   public List<AnalysisReportDto> findByProjectKey(String projectKey) {
@@ -89,6 +116,32 @@ public class ComputationService implements ServerComponent {
   }
 
   public void analyzeReport(AnalysisReportDto report) {
-    // TODO TBE – implementation needed
+    // Synchronization of lot of data can only be done with a batch session for the moment
+    DbSession session = dbClient.openSession(true);
+    String projectKey = report.getProjectKey();
+
+    try {
+      synchronizeProjectPermissionsIfNotFound(session, projectKey);
+      indexProjectIssues(session, projectKey);
+    } catch (Exception exception) {
+      LOG.debug(String.format("Error during analysis '%s' of project '%s'", report.getId(), projectKey), exception);
+    } finally {
+      MyBatis.closeQuietly(session);
+      LOG.debug(String.format("Analysis '%s' of project '%s' finished.", report.getId(), projectKey));
+    }
+  }
+
+  private void indexProjectIssues(DbSession session, String projectKey) {
+    dbClient.issueDao().synchronizeAfter(session,
+      index.get(IssueIndex.class).getLastSynchronization(),
+      ImmutableMap.of("project", projectKey));
+    session.commit();
+  }
+
+  private void synchronizeProjectPermissionsIfNotFound(DbSession session, String projectKey) {
+    if (index.get(IssueAuthorizationIndex.class).getNullableByKey(projectKey) == null) {
+      permissionService.synchronizePermissions(session, projectKey);
+      session.commit();
+    }
   }
 }

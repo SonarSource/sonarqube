@@ -18,42 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation;
+package org.sonar.server.batch;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.computation.db.AnalysisReportDao;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.permission.InternalPermissionService;
-import org.sonar.server.search.IndexClient;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.server.computation.ComputationService;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-public class ComputationServiceTest {
+public class UploadReportActionTest {
 
-  private ComputationService sut;
-  private DbClient dbClient;
-  private AnalysisReportDao analysisReportDao;
-  private DbSession session;
+  private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
+  private UploadReportAction sut;
+
+  private ComputationService computationService;
 
   @Before
   public void before() {
-    analysisReportDao = mock(AnalysisReportDao.class);
-    dbClient = mock(DbClient.class);
-    session = mock(DbSession.class);
+    computationService = mock(ComputationService.class);
 
-    when(dbClient.analysisReportDao()).thenReturn(analysisReportDao);
-    when(dbClient.openSession(false)).thenReturn(session);
-
-    sut = new ComputationService(dbClient, mock(IndexClient.class), mock(InternalPermissionService.class));
+    sut = new UploadReportAction(computationService);
   }
 
   @Test
-  public void findByProjectKey_call_corresponding_dao() {
-    sut.findByProjectKey("ANY_STRING");
-    verify(analysisReportDao).findByProjectKey(any(DbSession.class), anyString());
+  public void verify_that_computation_service_is_called() throws Exception {
+    Response response = mock(Response.class);
+    Request request = mock(Request.class);
+    when(request.mandatoryParam(anyString())).thenReturn(DEFAULT_PROJECT_KEY);
+
+    sut.handle(request, response);
+
+    verify(computationService).create(DEFAULT_PROJECT_KEY);
   }
+
 }

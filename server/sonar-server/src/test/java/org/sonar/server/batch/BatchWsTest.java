@@ -32,11 +32,9 @@ import org.sonar.api.resources.Languages;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.server.computation.ComputationService;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.rule.RuleService;
-import org.sonar.server.search.IndexClient;
 import org.sonar.server.ws.WsTester;
 
 import java.io.File;
@@ -66,7 +64,7 @@ public class BatchWsTest {
       new GlobalReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class)),
       new ProjectReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class), mock(QProfileFactory.class), mock(QProfileLoader.class), mock(RuleService.class),
         mock(Languages.class)),
-      new UploadReportAction(mock(DbClient.class), mock(IndexClient.class), mock(InternalPermissionService.class), mock(ComputationService.class))));
+      new UploadReportAction(mock(ComputationService.class))));
   }
 
   @Test
