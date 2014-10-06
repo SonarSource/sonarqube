@@ -13,6 +13,7 @@ define [
       unless @model.get 'value'
         @choices.each (model) -> model.set 'checked', model.id == 'true'
         @model.set 'value', ['true']
+        @detailsView.updateLists()
 
 
 
