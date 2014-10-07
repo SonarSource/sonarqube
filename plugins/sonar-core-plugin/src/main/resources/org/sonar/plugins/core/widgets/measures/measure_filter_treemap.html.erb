@@ -4,6 +4,11 @@
    filterId = widget_properties['filter'].to_i
    maxItems = widget_properties['maxItems'].to_i
 
+   # SONAR-2456
+   # When metrics are removed, we have to manually set them to the default ones
+   colorMetric = widget_properties['colorMetric'] || Metric.by_key('coverage')
+   sizeMetric = widget_properties['sizeMetric'] || Metric.by_key('ncloc')
+
    filter = MeasureFilter.find_by_id(filterId.to_i)
    if filter
      @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
@@ -23,8 +28,8 @@
 <script>
   (function () {
     var metrics = [
-          '<%= widget_properties['colorMetric'].name -%>',
-          '<%= widget_properties['sizeMetric'].name -%>'
+          '<%= colorMetric.name -%>',
+          '<%= sizeMetric.name -%>'
         ],
         query = [
           'filter=<%= filterId -%>',
