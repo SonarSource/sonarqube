@@ -26,7 +26,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.Caches;
-import org.sonar.batch.scan.filesystem.InputPathCache;
 
 import javax.annotation.CheckForNull;
 
@@ -38,7 +37,7 @@ public class DependencyCache implements BatchComponent {
 
   private final Cache<OutgoingDependency> cache;
 
-  public DependencyCache(Caches caches, InputPathCache inputPathCache) {
+  public DependencyCache(Caches caches) {
     cache = caches.createCache("dependencies");
   }
 

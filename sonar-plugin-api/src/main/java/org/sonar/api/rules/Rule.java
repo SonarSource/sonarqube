@@ -220,23 +220,6 @@ public class Rule {
     return this;
   }
 
-  /**
-   * @deprecated since 2.5 use {@link #getRepositoryKey()} instead
-   */
-  @Deprecated
-  public String getPluginName() {
-    return pluginName;
-  }
-
-  /**
-   * @deprecated since 2.5 use {@link #setRepositoryKey(String)} instead
-   */
-  @Deprecated
-  public Rule setPluginName(String pluginName) {
-    this.pluginName = pluginName;
-    return this;
-  }
-
   public String getConfigKey() {
     return configKey;
   }
@@ -259,14 +242,6 @@ public class Rule {
   public Rule setDescription(String description) {
     this.description = StringUtils.strip(description);
     return this;
-  }
-
-  /**
-   * @deprecated in 3.6. Replaced by {@link #setStatus(String status)}.
-   */
-  @Deprecated
-  public Rule setEnabled(Boolean enabled) {
-    throw new UnsupportedOperationException("No more supported since version 3.6.");
   }
 
   public Boolean isEnabled() {
@@ -314,14 +289,6 @@ public class Rule {
   }
 
   /**
-   * @deprecated since 2.5. See http://jira.codehaus.org/browse/SONAR-2007
-   */
-  @Deprecated
-  public Integer getCategoryId() {
-    return null;
-  }
-
-  /**
    * @since 2.5
    */
   public RulePriority getSeverity() {
@@ -339,24 +306,6 @@ public class Rule {
       this.priority = severity;
     }
     return this;
-  }
-
-  /**
-   * @deprecated since 2.5 use {@link #getSeverity()} instead. See http://jira.codehaus.org/browse/SONAR-1829
-   */
-  @Deprecated
-  public RulePriority getPriority() {
-    return priority;
-  }
-
-  /**
-   * Sets the rule priority. If null, uses the default priority
-   *
-   * @deprecated since 2.5 use {@link #setSeverity(RulePriority)} instead. See http://jira.codehaus.org/browse/SONAR-1829
-   */
-  @Deprecated
-  public Rule setPriority(RulePriority priority) {
-    return setSeverity(priority);
   }
 
   public String getRepositoryKey() {
@@ -531,7 +480,7 @@ public class Rule {
   /**
    * For internal use only.
    *
-   * @deprecated since 4.4, use {@link #setCharacteristicKey(@Nullable String characteristicKey)}
+   * @deprecated since 4.4, use {@link #setCharacteristicKey(String)}
    * @since 4.3
    */
   @Deprecated
@@ -555,7 +504,7 @@ public class Rule {
   /**
    * For internal use only.
    *
-   * @deprecated since 4.4, use {@link #setDefaultCharacteristicKey(@Nullable String defaultCharacteristicKey)}
+   * @deprecated since 4.4, use {@link #setDefaultCharacteristicKey(String)}
    * @since 4.3
    */
   @Deprecated

@@ -74,7 +74,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     this(moduleInputFileCache, def.getKey(), settings, indexer, initializer, null);
   }
 
-  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, ProjectDefinition def, Project project,
+  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project project,
     Settings settings, FileIndexer indexer,
     ModuleFileSystemInitializer initializer,
     ComponentIndexer componentIndexer) {

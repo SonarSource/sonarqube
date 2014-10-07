@@ -99,11 +99,11 @@ public class QualityGateVerifier implements Decorator {
   @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (ResourceUtils.isRootProject(resource)) {
-      checkProjectConditions(resource, context);
+      checkProjectConditions(context);
     }
   }
 
-  private void checkProjectConditions(Resource resource, DecoratorContext context) {
+  private void checkProjectConditions(DecoratorContext context) {
     Metric.Level globalLevel = Metric.Level.OK;
     QualityGateDetails details = new QualityGateDetails();
     List<String> labels = Lists.newArrayList();

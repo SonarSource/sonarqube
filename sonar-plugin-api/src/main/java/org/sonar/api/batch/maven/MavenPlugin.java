@@ -393,11 +393,13 @@ public class MavenPlugin {
     if (pom.getPluginManagement() != null && pom.getPluginManagement().getPlugins() != null) {
       unregisterPlugin(pom.getPluginManagement().getPlugins(), groupId, artifactId);
     }
-    if (pom.getBuildPlugins() != null && pom.getBuildPlugins() != null) {
-      unregisterPlugin(pom.getBuildPlugins(), groupId, artifactId);
+    List plugins = pom.getBuildPlugins();
+    if (plugins != null) {
+      unregisterPlugin(plugins, groupId, artifactId);
     }
-    if (pom.getReportPlugins() != null) {
-      unregisterReportPlugin(pom.getReportPlugins(), groupId, artifactId);
+    plugins = pom.getReportPlugins();
+    if (plugins != null) {
+      unregisterReportPlugin(plugins, groupId, artifactId);
     }
   }
 

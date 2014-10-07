@@ -72,7 +72,7 @@ public class RuleMeasure extends Measure {
   }
 
   /**
-   * @deprecated since 4.4 use {@link #setRuleKey()}
+   * @deprecated since 4.4 use {@link #setRuleKey(org.sonar.api.rule.RuleKey)}
    */
   @Deprecated
   public RuleMeasure setRule(Rule rule) {
@@ -112,28 +112,12 @@ public class RuleMeasure extends Measure {
     return this;
   }
 
-  /**
-   * @deprecated since 2.5. See SONAR-2007.
-   */
-  @Deprecated
-  public Integer getRuleCategory() {
-    return null;
-  }
-
-  /**
-   * @deprecated since 2.5. See SONAR-2007.
-   */
-  @Deprecated
-  public void setRuleCategory(Integer ruleCategory) {
-    // nothing
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
       return false;
     }
-    if (!(obj.getClass().equals(RuleMeasure.class))) {// NOSONAR should be refactored but kept in the current state
+    if (!(obj.getClass().equals(RuleMeasure.class))) {
       // for the moment.
       return false;
     }

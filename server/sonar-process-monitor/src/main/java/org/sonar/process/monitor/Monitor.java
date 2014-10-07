@@ -72,7 +72,7 @@ public class Monitor {
     for (JavaCommand command : commands) {
       try {
         ProcessRef processRef = launcher.launch(command);
-        monitor(command, processRef);
+        monitor(processRef);
       } catch (RuntimeException e) {
         // fail to start or to monitor
         stop();
@@ -91,7 +91,7 @@ public class Monitor {
     }
   }
 
-  private void monitor(JavaCommand command, ProcessRef processRef) {
+  private void monitor(ProcessRef processRef) {
     // physically watch if process is alive
     WatcherThread watcherThread = new WatcherThread(processRef, this);
     watcherThread.start();

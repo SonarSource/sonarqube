@@ -205,45 +205,6 @@ public class RulesProfile implements Cloneable {
   }
 
   /**
-   * @deprecated since 3.3 not replaced
-   */
-  @Deprecated
-  public Boolean getProvided() {
-    return false;
-  }
-
-  /**
-   * @deprecated since 3.3 not replaced
-   */
-  @Deprecated
-  public void setProvided(Boolean b) {
-  }
-
-  /**
-   * @deprecated since 3.3. Always return true.
-   */
-  @Deprecated
-  public Boolean getEnabled() {
-    return Boolean.TRUE;
-  }
-
-  /**
-   * @deprecated since 3.3. Always return true.
-   */
-  @Deprecated
-  public boolean isEnabled() {
-    return true;
-  }
-
-  /**
-   * @deprecated since 3.3.
-   */
-  @Deprecated
-  public RulesProfile setEnabled(Boolean b) {
-    throw new UnsupportedOperationException("The field RulesProfile#enabled is not supported since 3.3.");
-  }
-
-  /**
    * @return the profile language
    */
   public String getLanguage() {
@@ -290,14 +251,6 @@ public class RulesProfile implements Cloneable {
       }
     }
     return result;
-  }
-
-  /**
-   * @deprecated since 2.3 use {@link #getActiveRulesByRepository(String)} instead.
-   */
-  @Deprecated
-  public List<ActiveRule> getActiveRulesByPlugin(String repositoryKey) {
-    return getActiveRulesByRepository(repositoryKey);
   }
 
   /**

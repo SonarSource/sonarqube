@@ -43,13 +43,13 @@ public abstract class AbstractCoverageDecorator implements Decorator {
   }
 
   public void decorate(final Resource resource, final DecoratorContext context) {
-    if (shouldDecorate(resource, context)) {
+    if (shouldDecorate(resource)) {
       computeMeasure(context);
       computeMeasureForNewCode(context);
     }
   }
 
-  protected boolean shouldDecorate(final Resource resource, final DecoratorContext context) {
+  protected boolean shouldDecorate(final Resource resource) {
     return !ResourceUtils.isUnitTestClass(resource);
   }
 

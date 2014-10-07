@@ -45,12 +45,12 @@ public class UnitTestDecorator implements Decorator {
     return !Project.AnalysisType.STATIC.equals(project.getAnalysisType());
   }
 
-  public boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
+  public boolean shouldDecorateResource(Resource resource) {
     return ResourceUtils.isUnitTestClass(resource) || !ResourceUtils.isEntity(resource);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
-    if (shouldDecorateResource(resource, context)) {
+    if (shouldDecorateResource(resource)) {
       sumChildren(context, CoreMetrics.TEST_EXECUTION_TIME);
       sumChildren(context, CoreMetrics.SKIPPED_TESTS);
       Double tests = sumChildren(context, CoreMetrics.TESTS);
