@@ -494,10 +494,6 @@ public class DefaultIndex extends SonarIndex {
 
   @Override
   public List<Resource> getChildren(Resource resource) {
-    return getChildren(resource, false);
-  }
-
-  public List<Resource> getChildren(Resource resource, boolean acceptExcluded) {
     List<Resource> children = Lists.newLinkedList();
     Bucket bucket = getBucket(resource);
     if (bucket != null) {
