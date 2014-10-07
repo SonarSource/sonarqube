@@ -109,6 +109,10 @@ public class ComputationService implements ServerComponent {
       AnalysisReportDto report = dao.tryToBookReportAnalysis(session, nextAvailableReport);
       session.commit();
 
+      if (report != null) { // TODO TBE remove asap !
+        analyzeReport(report);
+      }
+
       return report;
     } finally {
       MyBatis.closeQuietly(session);
