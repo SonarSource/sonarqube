@@ -26,7 +26,7 @@ import javax.persistence.Query;
 import java.util.List;
 
 /**
- * This component should not accessible from plugin API
+ * This component should not be accessed by plugins. Database is not an API.
  *
  * @since 1.10
  */
