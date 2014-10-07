@@ -14,31 +14,31 @@
     {{#if currentIssue}}
       <li><a class="item js-filter-current-issue">
         <span>{{t 'component_viewer.issues.current_issue'}}</span>
-        <i class="icon-chevron-right"></i>
+        <i class="icon-component-viewer-filter"></i>
       </a></li>
     {{/if}}
     {{#unless state.removed}}
       <li><a class="item js-filter-unresolved-issues">
         <span>{{t 'component_viewer.issues.unresolved_issues'}}</span>
-        <i class="icon-chevron-right"></i>
+        <i class="icon-component-viewer-filter"></i>
       </a></li>
     {{/unless}}
     {{#unless state.removed}}
       <li><a class="item js-filter-open-issues">
         <span>{{t 'component_viewer.issues.open_issues'}}</span>
-        <i class="icon-chevron-right"></i>
+        <i class="icon-component-viewer-filter"></i>
       </a></li>
     {{/unless}}
     {{#unless state.removed}}
       <li><a class="item js-filter-fixed-issues">
         <span>{{t 'component_viewer.issues.fixed_issues'}}</span>
-        <i class="icon-chevron-right"></i>
+        <i class="icon-component-viewer-filter"></i>
       </a></li>
     {{/unless}}
     {{#unless state.removed}}
       <li><a class="item js-filter-false-positive-issues">
         <span>{{t 'component_viewer.issues.false_positive_issues'}}</span>
-        <i class="icon-chevron-right"></i>
+        <i class="icon-component-viewer-filter"></i>
       </a></li>
     {{/unless}}
   </ul>
@@ -55,7 +55,7 @@
           <li><a class="item js-filter-{{key}}-issues">
             <span>{{severityIcon key}} {{name}}</span>
             <span class="number">{{count}}</span>
-            <i class="icon-chevron-right"></i>
+            <i class="icon-component-viewer-filter"></i>
           </a></li>
         {{else}}
           <li><span class="item">
@@ -79,7 +79,7 @@
           <li><a class="item js-filter-rule" data-rule="{{key}}" title="{{name}}">
             <span>{{name}}</span>
             <span class="number">{{count}}</span>
-            <i class="icon-chevron-right"></i>
+            <i class="icon-component-viewer-filter"></i>
           </a></li>
         {{else}}
           <li><span class="item">
