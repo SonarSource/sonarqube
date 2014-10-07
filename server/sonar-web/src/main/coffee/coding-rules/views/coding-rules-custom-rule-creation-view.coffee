@@ -68,7 +68,11 @@ define [
         postData.prevent_reactivation = true
 
       params = @ui.customRuleCreationParameters.map(->
-        key: jQuery(@).prop('name'), value: jQuery(@).val() || jQuery(@).prop('placeholder') || '').get()
+        node = jQuery(@)
+        value = node.val()
+        if !value and action == 'create'
+          value = node.prop('placeholder') || ''
+        key: node.prop('name'), value: value).get()
 
       postData.params = (params.map (param) -> param.key + '=' + param.value).join(';')
       @sendRequest(action, postData)
