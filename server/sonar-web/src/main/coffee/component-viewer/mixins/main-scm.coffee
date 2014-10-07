@@ -62,11 +62,11 @@ define [], () ->
     _filterBySCM: () ->
       formattedSource = @source.get 'formattedSource'
       period = @state.get 'period'
+      @settings.set 'scm', true
       unless period?
         return @showAllLines()
       else
         periodDate = period.get 'sinceDate'
-      @settings.set 'scm', true
       @sourceView.resetShowBlocks()
       scmBlockLine = 1
       predicate = false
