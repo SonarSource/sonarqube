@@ -25,11 +25,15 @@ class SystemController < ApplicationController
 
   def index
     @server=Server.new
-    
+
+    filename = 'SystemInfo'
+    server_id = @server.sonar_property(ServerIdConfigurationController::PROPERTY_SERVER_ID)
+    filename += '-' + server_id.to_s if server_id
+
     respond_to do |format|
       format.html
       format.csv  { 
-        send_data(to_csv, :type => 'text/csv; charset=utf-8', :disposition => 'attachment; filename=sonar_system_info.csv')
+        send_data(to_csv, :type => 'text/csv; charset=utf-8', :disposition => "attachment; filename=#{filename}.csv")
       }
     end
   end
