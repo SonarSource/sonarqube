@@ -103,6 +103,7 @@ define [
       rule = $(e.currentTarget).data 'rule'
       @header.filterLines e, 'filterByRule', rule
       @state.set 'activeHeaderItem', ".js-filter-rule[data-rule='#{rule}']"
+      setTimeout (=> @scrollToRule rule), 0
 
 
     filterByBlockerIssues: (e) ->
@@ -133,6 +134,14 @@ define [
       return @header.unsetFilter() if $(e.currentTarget).is('.active')
       @header.filterLines e, 'filterByInfoIssues'
       @state.set 'activeHeaderItem', '.js-filter-INFO-issues'
+
+
+    scrollToRule: (rule) ->
+      ruleEl = @$('.js-filter-rule').filter("[data-rule=\"#{rule}\"]")
+      container = ruleEl.closest '.component-viewer-header-expanded-bar-section-list'
+      topOffset = ruleEl.offset().top - container.offset().top
+      if topOffset > container.height()
+        container.scrollTop topOffset
 
 
     serializeData: ->
