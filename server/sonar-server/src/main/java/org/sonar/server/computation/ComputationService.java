@@ -68,9 +68,11 @@ public class ComputationService implements ServerComponent {
     DbSession session = dbClient.openSession(false);
     try {
       checkThatProjectExistsInDatabase(projectKey, session);
-
       dao.insert(session, report);
       session.commit();
+
+      analyzeReport(report);
+
     } finally {
       LOG.debug(String.format("Analysis for project '%s' inserted in the queue", projectKey));
       MyBatis.closeQuietly(session);
