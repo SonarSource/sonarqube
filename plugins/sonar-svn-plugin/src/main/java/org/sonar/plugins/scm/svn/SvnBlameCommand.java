@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.scm.svn;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -108,21 +109,20 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
     });
   }
 
-  public int execute(Command cl, StreamConsumer consumer, StreamConsumer stderr) {
+  private int execute(Command cl, StreamConsumer consumer, StreamConsumer stderr) {
     LOG.debug("Executing: " + cl);
     return commandExecutor.execute(cl, consumer, stderr, -1);
   }
 
-  public Command createCommandLine(File workingDirectory, String filename) {
+  @VisibleForTesting
+  Command createCommandLine(File baseDir, String filename) {
     Command cl = Command.create("svn");
     for (Entry<String, String> env : System.getenv().entrySet()) {
       cl.setEnvironmentVariable(env.getKey(), env.getValue());
     }
     cl.setEnvironmentVariable("LC_MESSAGES", "en");
 
-    if (workingDirectory != null) {
-      cl.setDirectory(workingDirectory);
-    }
+    cl.setDirectory(baseDir);
     cl.addArgument("blame");
     cl.addArgument("--xml");
     cl.addArgument(filename);
