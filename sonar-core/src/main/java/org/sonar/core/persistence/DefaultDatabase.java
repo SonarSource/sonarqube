@@ -155,8 +155,11 @@ public class DefaultDatabase implements Database {
     return properties;
   }
 
+  /**
+   * Override this method to add JDBC properties at runtime
+   */
   protected void doCompleteProperties(Properties properties) {
-    // nothing
+    // open-close principle
   }
 
   private static void completeProperties(Settings settings, Properties properties, String prefix) {

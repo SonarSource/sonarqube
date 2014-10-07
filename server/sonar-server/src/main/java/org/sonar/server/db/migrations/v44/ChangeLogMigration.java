@@ -51,7 +51,7 @@ public class ChangeLogMigration implements DatabaseMigration {
   private final ActivityDao dao;
   private final DbClient db;
 
-  public ChangeLogMigration(ActivityService service, ActivityDao dao, DbClient db) {
+  public ChangeLogMigration(ActivityDao dao, DbClient db) {
     this.dao = dao;
     this.db = db;
   }

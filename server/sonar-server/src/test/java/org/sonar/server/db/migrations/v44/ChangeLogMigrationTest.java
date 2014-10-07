@@ -58,7 +58,7 @@ public class ChangeLogMigrationTest {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-03-13").getTime());
     dao = new ActivityDao(system2);
     dbClient = new DbClient(db.database(), db.myBatis(), dao);
-    migration = new ChangeLogMigration(null, dao, dbClient);
+    migration = new ChangeLogMigration(dao, dbClient);
     session = dbClient.openSession(false);
   }
 
