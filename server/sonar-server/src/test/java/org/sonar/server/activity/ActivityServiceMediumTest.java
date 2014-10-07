@@ -53,13 +53,11 @@ public class ActivityServiceMediumTest {
   ActivityService service = tester.get(ActivityService.class);
   ActivityDao dao = tester.get(ActivityDao.class);
   ActivityIndex index = tester.get(ActivityIndex.class);
-  DbClient db;
   DbSession dbSession;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
-    db = tester.get(DbClient.class);
     dbSession = tester.get(DbClient.class).openSession(false);
   }
 

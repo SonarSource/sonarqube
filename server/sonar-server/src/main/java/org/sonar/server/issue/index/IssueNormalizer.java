@@ -25,7 +25,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
@@ -40,7 +39,7 @@ import static com.google.common.collect.Maps.newHashMap;
 public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
 
   public IssueNormalizer(DbClient db) {
-    super(IndexDefinition.ISSUES, db);
+    super(db);
   }
 
   public static final class IssueField extends Indexable {
@@ -84,15 +83,6 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
         }
       }
       return fields;
-    }
-
-    public static final IndexField of(String fieldName) {
-      for (IndexField field : ALL_FIELDS) {
-        if (field.field().equals(fieldName)) {
-          return field;
-        }
-      }
-      throw new IllegalStateException("Could not find an IndexField for '" + fieldName + "'");
     }
   }
 

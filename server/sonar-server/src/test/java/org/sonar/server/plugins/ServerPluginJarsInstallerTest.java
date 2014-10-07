@@ -30,7 +30,6 @@ import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.MessageException;
-import org.sonar.core.persistence.Database;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
 import java.io.File;
@@ -69,7 +68,7 @@ public class ServerPluginJarsInstallerTest {
     coreDir = new File(homeDir, "lib/core-plugins");
     FileUtils.forceMkdir(bundledDir);
 
-    fileSystem = new DefaultServerFileSystem(mock(Database.class), homeDir, server);
+    fileSystem = new DefaultServerFileSystem(homeDir, server);
     jarInstaller = new ServerPluginJarInstaller();
     jarsInstaller = new ServerPluginJarsInstaller(server, upgradeStatus, fileSystem, jarInstaller);
   }

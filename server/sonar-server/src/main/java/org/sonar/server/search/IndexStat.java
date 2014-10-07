@@ -26,17 +26,8 @@ import java.util.Date;
  */
 public class IndexStat {
 
-  private final Date statTime;
   private Date lastUpdate;
   private Long documentCount;
-
-  public IndexStat() {
-    this.statTime = new Date();
-  }
-
-  public Date getStatTime() {
-    return statTime;
-  }
 
   public Date getLastUpdate() {
     return lastUpdate;

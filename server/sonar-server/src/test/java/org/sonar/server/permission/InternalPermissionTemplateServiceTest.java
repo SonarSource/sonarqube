@@ -30,14 +30,18 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.*;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.permission.PermissionQuery;
+import org.sonar.core.permission.PermissionTemplateDao;
+import org.sonar.core.permission.PermissionTemplateDto;
+import org.sonar.core.permission.PermissionTemplateGroupDto;
+import org.sonar.core.permission.PermissionTemplateUserDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.MockUserSession;
 
@@ -71,9 +75,6 @@ public class InternalPermissionTemplateServiceTest {
   @Mock
   DbSession session;
 
-  @Mock
-  DbClient db;
-
   InternalPermissionTemplateService service;
 
   @Rule
@@ -83,11 +84,9 @@ public class InternalPermissionTemplateServiceTest {
   public void setUp() {
     MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    when(db.propertiesDao()).thenReturn(propertiesDao);
-
     MyBatis myBatis = mock(MyBatis.class);
     when(myBatis.openSession(false)).thenReturn(session);
-    service = new InternalPermissionTemplateService(db, myBatis, permissionTemplateDao, userDao, finder);
+    service = new InternalPermissionTemplateService(myBatis, permissionTemplateDao, userDao, finder);
   }
 
   @Test
@@ -164,13 +163,13 @@ public class InternalPermissionTemplateServiceTest {
       buildUserPermission("user_dry_run", GlobalPermissions.DRY_RUN_EXECUTION),
       buildUserPermission("user_scan_and_dry_run", GlobalPermissions.SCAN_EXECUTION),
       buildUserPermission("user_scan_and_dry_run", GlobalPermissions.DRY_RUN_EXECUTION)
-    );
+      );
 
     List<PermissionTemplateGroupDto> groupsPermissions = Lists.newArrayList(
       buildGroupPermission("admin_group", GlobalPermissions.SYSTEM_ADMIN),
       buildGroupPermission("scan_group", GlobalPermissions.SCAN_EXECUTION),
       buildGroupPermission(null, GlobalPermissions.DRY_RUN_EXECUTION)
-    );
+      );
 
     PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto()
       .setId(1L)

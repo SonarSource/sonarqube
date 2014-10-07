@@ -35,11 +35,9 @@ public abstract class BaseNormalizer<DTO extends Dto<KEY>, KEY extends Serializa
   public static final String UPDATED_AT_FIELD = "updatedAt";
 
   protected final DbClient db;
-  protected final IndexDefinition definition;
 
-  protected BaseNormalizer(IndexDefinition definition, DbClient db) {
+  protected BaseNormalizer(DbClient db) {
     this.db = db;
-    this.definition = definition;
   }
 
   protected Map<String, Object> getUpsertFor(Set<IndexField> fields, Map<String, Object> update) {

@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.core.persistence.Database;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -45,12 +44,10 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultServerFileSystem.class);
 
-  private Database database;
   private final Server server;
   private File homeDir;
 
-  public DefaultServerFileSystem(Database database, Settings settings, Server server) {
-    this.database = database;
+  public DefaultServerFileSystem(Settings settings, Server server) {
     this.server = server;
     this.homeDir = new File(settings.getString("sonar.path.home"));
   }
@@ -58,8 +55,7 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
   /**
    * for unit tests
    */
-  public DefaultServerFileSystem(Database database, File homeDir, Server server) {
-    this.database = database;
+  public DefaultServerFileSystem(File homeDir, Server server) {
     this.homeDir = homeDir;
     this.server = server;
   }

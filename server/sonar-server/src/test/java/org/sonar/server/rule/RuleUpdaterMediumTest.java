@@ -67,7 +67,7 @@ public class RuleUpdaterMediumTest {
   DbSession dbSession;
   RuleIndex ruleIndex = tester.get(RuleIndex.class);
   RuleUpdater updater = tester.get(RuleUpdater.class);
-  int reliabilityId, softReliabilityId, hardReliabilityId;
+  int softReliabilityId, hardReliabilityId;
 
   @Before
   public void before() {
@@ -130,7 +130,7 @@ public class RuleUpdaterMediumTest {
       .setNoteData(null)
       .setNoteUserLogin(null)
 
-        // the following fields are not supposed to be updated
+      // the following fields are not supposed to be updated
       .setTags(ImmutableSet.of("tag1"))
       .setSubCharacteristicId(33)
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
@@ -667,7 +667,6 @@ public class RuleUpdaterMediumTest {
   private void insertDebtCharacteristics(DbSession dbSession) {
     CharacteristicDto reliability = DebtTesting.newCharacteristicDto("RELIABILITY");
     db.debtCharacteristicDao().insert(reliability, dbSession);
-    reliabilityId = reliability.getId();
 
     CharacteristicDto softReliability = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY")
       .setParentId(reliability.getId());

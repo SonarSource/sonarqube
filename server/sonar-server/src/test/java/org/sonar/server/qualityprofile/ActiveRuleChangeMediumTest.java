@@ -42,13 +42,11 @@ public class ActiveRuleChangeMediumTest {
 
   ActivityService service = tester.get(ActivityService.class);
   ActivityIndex index = tester.get(ActivityIndex.class);
-  DbClient db;
   DbSession dbSession;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
-    db = tester.get(DbClient.class);
     dbSession = tester.get(DbClient.class).openSession(false);
   }
 

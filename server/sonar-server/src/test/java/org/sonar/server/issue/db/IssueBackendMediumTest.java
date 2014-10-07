@@ -56,14 +56,12 @@ public class IssueBackendMediumTest {
 
   DbClient dbClient;
   IndexClient indexClient;
-  Platform platform;
   DbSession dbSession;
 
   @Before
   public void setUp() throws Exception {
     dbClient = tester.get(DbClient.class);
     indexClient = tester.get(IndexClient.class);
-    platform = tester.get(Platform.class);
     dbSession = dbClient.openSession(false);
     tester.clearDbAndIndexes();
   }

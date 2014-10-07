@@ -22,6 +22,7 @@ package org.sonar.server.db.migrations;
 import org.slf4j.Logger;
 
 import javax.annotation.CheckForNull;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -41,12 +42,6 @@ public class SqlUtil {
       logger.error("SQL error: {}. Message: {}", next.getSQLState(), next.getMessage());
       next = next.getNextException();
     }
-  }
-
-  @CheckForNull
-  public static Long getLong(ResultSet rs, int columnIndex) throws SQLException {
-    long l = rs.getLong(columnIndex);
-    return rs.wasNull() ? null : l;
   }
 
   @CheckForNull

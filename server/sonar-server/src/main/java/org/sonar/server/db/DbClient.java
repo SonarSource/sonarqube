@@ -19,7 +19,6 @@
  */
 package org.sonar.server.db;
 
-import com.google.common.collect.Maps;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.issue.db.ActionPlanDao;
 import org.sonar.core.persistence.DaoComponent;
@@ -48,6 +47,7 @@ import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.user.db.GroupDao;
 
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
@@ -84,7 +84,7 @@ public class DbClient implements ServerComponent {
     this.db = db;
     this.myBatis = myBatis;
 
-    Map<Class, DaoComponent> map = Maps.newHashMap();
+    Map<Class, DaoComponent> map = new IdentityHashMap<Class, DaoComponent>();
     for (DaoComponent daoComponent : daoComponents) {
       map.put(daoComponent.getClass(), daoComponent);
     }

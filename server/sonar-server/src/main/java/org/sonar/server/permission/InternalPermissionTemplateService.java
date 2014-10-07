@@ -30,7 +30,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -48,15 +47,12 @@ import java.util.regex.PatternSyntaxException;
  */
 public class InternalPermissionTemplateService implements ServerComponent {
 
-  private final DbClient db;
-
   private final MyBatis myBatis;
   private final PermissionTemplateDao permissionTemplateDao;
   private final UserDao userDao;
   private final PermissionFinder finder;
 
-  public InternalPermissionTemplateService(DbClient db, MyBatis myBatis, PermissionTemplateDao permissionTemplateDao, UserDao userDao, PermissionFinder finder) {
-    this.db = db;
+  public InternalPermissionTemplateService(MyBatis myBatis, PermissionTemplateDao permissionTemplateDao, UserDao userDao, PermissionFinder finder) {
     this.myBatis = myBatis;
     this.permissionTemplateDao = permissionTemplateDao;
     this.userDao = userDao;

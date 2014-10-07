@@ -215,7 +215,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
     SearchResponse response = client.execute(request);
 
-    Max max = (Max) response.getAggregations().get("latest");
+    Max max = response.getAggregations().get("latest");
 
     if (max.getValue() > 0) {
       date = new DateTime(Double.valueOf(max.getValue()).longValue()).toDate();
@@ -441,7 +441,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   public Collection<DOMAIN> getByKeys(KEY... keys) {
-    return getByKeys(ImmutableSet.<KEY>copyOf(keys));
+    return getByKeys(ImmutableSet.copyOf(keys));
   }
 
   /* ES QueryHelper Methods */

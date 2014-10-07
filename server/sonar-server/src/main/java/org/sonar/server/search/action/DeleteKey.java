@@ -42,11 +42,6 @@ public class DeleteKey<K extends Serializable> extends IndexAction<DeleteRequest
   }
 
   @Override
-  public Class getPayloadClass() {
-    throw new IllegalStateException("Deletion by key does not have an object payload!");
-  }
-
-  @Override
   public List<DeleteRequest> doCall(Index index) throws Exception {
     List<DeleteRequest> requests = new ArrayList<DeleteRequest>();
     requests.add(Requests.deleteRequest(index.getIndexName())

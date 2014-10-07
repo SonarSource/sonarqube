@@ -40,7 +40,6 @@ import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.SearchClient;
 import org.sonar.server.tester.ServerTester;
@@ -57,11 +56,8 @@ public class ComponentServiceMediumTest {
   public static ServerTester tester = new ServerTester();
 
   DbClient db;
-  IndexClient indexClient;
   DbSession session;
-
   ComponentService service;
-
   ComponentDto project;
   RuleDto rule;
 
@@ -69,7 +65,6 @@ public class ComponentServiceMediumTest {
   public void setUp() throws Exception {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
-    indexClient = tester.get(IndexClient.class);
     session = db.openSession(false);
     service = tester.get(ComponentService.class);
 
@@ -136,7 +131,9 @@ public class ComponentServiceMediumTest {
     // Check Issue Authorization index
     assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNull();
     assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey("sample2:root")).isNotNull();
-    assertThat(tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES_AUTHORIZATION.getIndexName()).setTypes(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType()).get().getCount()).isEqualTo(1);
+    assertThat(
+      tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES_AUTHORIZATION.getIndexName()).setTypes(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType()).get()
+        .getCount()).isEqualTo(1);
 
     // Check dry run cache have been updated
     assertThat(db.propertiesDao().selectProjectProperties("sample2:root", session)).hasSize(1);
@@ -295,7 +292,9 @@ public class ComponentServiceMediumTest {
     // Check Issue Authorization index
     assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNull();
     assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey("sample2:root")).isNotNull();
-    assertThat(tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES_AUTHORIZATION.getIndexName()).setTypes(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType()).get().getCount()).isEqualTo(1);
+    assertThat(
+      tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES_AUTHORIZATION.getIndexName()).setTypes(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType()).get()
+        .getCount()).isEqualTo(1);
 
     // Check dry run cache have been updated
     assertThat(db.propertiesDao().selectProjectProperties("sample2:root", session)).hasSize(1);

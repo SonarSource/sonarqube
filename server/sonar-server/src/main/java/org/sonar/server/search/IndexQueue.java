@@ -31,10 +31,8 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.core.cluster.WorkQueue;
-import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.action.IndexAction;
 
 import java.util.HashMap;
@@ -49,8 +47,6 @@ import java.util.concurrent.TimeUnit;
 
 public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
 
-  protected final Profiling profiling;
-
   private final SearchClient searchClient;
   private final ComponentContainer container;
 
@@ -58,15 +54,13 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
 
   private static final Integer CONCURRENT_NORMALIZATION_FACTOR = 1;
 
-  public IndexQueue(Settings settings, SearchClient searchClient, ComponentContainer container) {
+  public IndexQueue(SearchClient searchClient, ComponentContainer container) {
     this.searchClient = searchClient;
     this.container = container;
-    this.profiling = new Profiling(settings);
   }
 
   @Override
   public void enqueue(List<IndexAction<?>> actions) {
-
     if (actions.isEmpty()) {
       return;
     }

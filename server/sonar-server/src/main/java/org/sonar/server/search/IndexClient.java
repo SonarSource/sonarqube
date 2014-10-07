@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Facade for all Index components
+ * Facade for all Elasticsearch indices
  */
 public class IndexClient implements ServerComponent {
 
@@ -43,15 +43,6 @@ public class IndexClient implements ServerComponent {
 
   public <K extends Index> K get(Class<K> clazz){
     return (K) this.indexComponents.get(clazz);
-  }
-
-  public <K extends Index> K getByType(String indexType) {
-    for(Index<?,?,?> index:indexComponents.values()){
-      if(index.getIndexType().equals(indexType)){
-        return (K) index;
-      }
-    }
-    throw new IllegalStateException("no index for type '"+indexType+"' is registered");
   }
 
   public Collection<Index<?, ?, ?>> allIndices() {

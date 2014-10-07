@@ -40,10 +40,6 @@ public class Result<T> {
     this.object = object;
   }
 
-  public static <T> Result<T> of(@Nullable T t) {
-    return new Result<T>(t);
-  }
-
   public static <T> Result<T> of() {
     return new Result<T>(null);
   }

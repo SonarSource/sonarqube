@@ -26,7 +26,6 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
@@ -57,7 +56,7 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, String> {
 
     public static Set<IndexField> ALL_FIELDS = getAllFields();
 
-    private static final Set<IndexField> getAllFields() {
+    private static Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();
       for (Field classField : LogFields.class.getDeclaredFields()) {
         if (Modifier.isFinal(classField.getModifiers()) && Modifier.isStatic(classField.getModifiers())) {
@@ -73,7 +72,7 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, String> {
   }
 
   public ActivityNormalizer(DbClient db) {
-    super(IndexDefinition.LOG, db);
+    super(db);
   }
 
   @Override

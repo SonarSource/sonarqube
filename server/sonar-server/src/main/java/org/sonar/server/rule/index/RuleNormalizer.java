@@ -34,7 +34,6 @@ import org.sonar.markdown.Markdown;
 import org.sonar.search.script.ListUpdate;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
@@ -133,7 +132,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       return fields;
     }
 
-    public static final IndexField of(String fieldName) {
+    public static IndexField of(String fieldName) {
       for (IndexField field : ALL_FIELDS) {
         if (field.field().equals(fieldName)) {
           return field;
@@ -144,7 +143,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   }
 
   public RuleNormalizer(DbClient db) {
-    super(IndexDefinition.RULE, db);
+    super(db);
   }
 
   @Override

@@ -37,13 +37,8 @@ public class RefreshIndex extends IndexAction<RefreshRequest> {
   }
 
   @Override
-  public Class getPayloadClass() {
-    return null;
-  }
-
-  @Override
   public List<RefreshRequest> doCall(Index index) throws Exception {
-    return ImmutableList.<RefreshRequest>of(
+    return ImmutableList.of(
       new RefreshRequest()
         .force(false)
         .indices(index.getIndexName()));

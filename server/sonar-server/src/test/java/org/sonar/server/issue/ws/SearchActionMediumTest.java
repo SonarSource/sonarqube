@@ -32,7 +32,11 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.*;
+import org.sonar.core.issue.db.ActionPlanDao;
+import org.sonar.core.issue.db.ActionPlanDto;
+import org.sonar.core.issue.db.IssueChangeDao;
+import org.sonar.core.issue.db.IssueChangeDto;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -58,11 +62,9 @@ public class SearchActionMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  IssuesWs ws;
   DbClient db;
   DbSession session;
   WsTester wsTester;
-
   RuleDto rule;
   ComponentDto project;
   ComponentDto file;
@@ -71,7 +73,6 @@ public class SearchActionMediumTest {
   public void setUp() throws Exception {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
-    ws = tester.get(IssuesWs.class);
     wsTester = tester.get(WsTester.class);
     session = db.openSession(false);
 

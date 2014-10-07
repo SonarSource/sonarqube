@@ -32,7 +32,6 @@ import org.sonar.search.script.ListUpdate;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseNormalizer;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
@@ -98,7 +97,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
   }
 
   public ActiveRuleNormalizer(DbClient db) {
-    super(IndexDefinition.ACTIVE_RULE, db);
+    super(db);
   }
 
   @Override

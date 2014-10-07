@@ -52,7 +52,6 @@ public class RuleDeleterMediumTest {
   DbClient db = tester.get(DbClient.class);
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
-  RuleCreator creator = tester.get(RuleCreator.class);
   RuleDeleter deleter = tester.get(RuleDeleter.class);
   DbSession dbSession;
 

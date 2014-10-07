@@ -33,8 +33,6 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
-import java.util.List;
-
 /**
  * Log service is used to log Activity classes which represents an event to DB and Index.
  *
@@ -62,12 +60,6 @@ public class ActivityService {
 
   public void write(DbSession session, Activity.Type type, String message) {
     save(session, ActivityDto.createFor(message).setType(type));
-  }
-
-  public <L extends ActivityLog> void write(DbSession session, Activity.Type type, List<L> logs) {
-    for (ActivityLog log : logs) {
-      this.write(session, type, log);
-    }
   }
 
   public <L extends ActivityLog> void write(DbSession session, Activity.Type type, L log) {

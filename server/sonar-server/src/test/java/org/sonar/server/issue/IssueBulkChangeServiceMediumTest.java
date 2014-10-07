@@ -44,7 +44,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
@@ -64,10 +63,8 @@ public class IssueBulkChangeServiceMediumTest {
   public static ServerTester tester = new ServerTester();
 
   DbClient db;
-  IndexClient indexClient;
   DbSession session;
   IssueBulkChangeService service;
-
   RuleDto rule;
   ComponentDto project;
   ComponentDto file;
@@ -78,7 +75,6 @@ public class IssueBulkChangeServiceMediumTest {
   public void setUp() throws Exception {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
-    indexClient = tester.get(IndexClient.class);
     session = db.openSession(false);
     service = tester.get(IssueBulkChangeService.class);
 
@@ -140,7 +136,7 @@ public class IssueBulkChangeServiceMediumTest {
   @Test
   public void bulk_change_on_500_issues() throws Exception {
     List<String> issueKeys = newArrayList();
-    for (int i=0; i<500; i++) {
+    for (int i = 0; i < 500; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN);
       tester.get(IssueDao.class).insert(session, issue);
       issueKeys.add(issue.getKey());
@@ -161,7 +157,7 @@ public class IssueBulkChangeServiceMediumTest {
   @Test
   public void fail_if_bulk_change_on_more_than_500_issues() throws Exception {
     List<String> issueKeys = newArrayList();
-    for (int i=0; i<510; i++) {
+    for (int i = 0; i < 510; i++) {
       issueKeys.add("issue-" + i);
     }
 

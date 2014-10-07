@@ -34,19 +34,19 @@ public class DefaultServerFileSystemTest {
 
   @Test
   public void find_plugins() throws Exception {
-    List<File> plugins = new DefaultServerFileSystem(null, new File(Resources.getResource(PATH + "shouldFindPlugins").toURI()), null).getUserPlugins();
+    List<File> plugins = new DefaultServerFileSystem(new File(Resources.getResource(PATH + "shouldFindPlugins").toURI()), null).getUserPlugins();
     assertThat(plugins).hasSize(2);
   }
 
   @Test
   public void not_fail_if_no_plugins() throws Exception {
-    List<File> plugins = new DefaultServerFileSystem(null, new File(Resources.getResource(PATH + "shouldNotFailIfNoPlugins").toURI()), null).getUserPlugins();
+    List<File> plugins = new DefaultServerFileSystem(new File(Resources.getResource(PATH + "shouldNotFailIfNoPlugins").toURI()), null).getUserPlugins();
     assertThat(plugins).isEmpty();
   }
 
   @Test
   public void find_checkstyle_extensions() throws Exception {
-    ServerFileSystem fs = new DefaultServerFileSystem(null, new File(Resources.getResource(PATH + "shouldFindCheckstyleExtensions").toURI()), null);
+    ServerFileSystem fs = new DefaultServerFileSystem(new File(Resources.getResource(PATH + "shouldFindCheckstyleExtensions").toURI()), null);
 
     List<File> xmls = fs.getExtensions("checkstyle", "xml");
     assertThat(xmls).hasSize(1);
@@ -57,7 +57,7 @@ public class DefaultServerFileSystemTest {
 
   @Test
   public void not_fail_if_no_checkstyle_extensions() throws Exception {
-    ServerFileSystem fs = new DefaultServerFileSystem(null, new File(Resources.getResource(PATH + "shouldNotFailIfNoCheckstyleExtensions").toURI()), null);
+    ServerFileSystem fs = new DefaultServerFileSystem(new File(Resources.getResource(PATH + "shouldNotFailIfNoCheckstyleExtensions").toURI()), null);
     List<File> xmls = fs.getExtensions("checkstyle", "xml");
     assertThat(xmls).isEmpty();
 

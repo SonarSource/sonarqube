@@ -344,10 +344,6 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
     };
   }
 
-  protected Map getSynchronizationParams(Date date) {
-    return getSynchronizationParams(date, Collections.<String, String>emptyMap());
-  }
-
   protected Map<String, Object> getSynchronizationParams(Date date, Map<String, String> params) {
     Map<String, Object> finalParams = newHashMap();
     finalParams.put("date", new Timestamp(date.getTime()));

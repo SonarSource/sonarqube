@@ -84,7 +84,6 @@ public class SearchClient extends TransportClient implements Startable {
     StopWatch fullProfile = profiling.start("search", Profiling.Level.FULL);
     K response = null;
     try {
-
       response = (K) request.get();
 
       if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {

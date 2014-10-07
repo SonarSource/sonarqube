@@ -31,10 +31,6 @@ public class InsertDto<DTO extends Dto> extends IndexAction<ActionRequest> {
 
   private final DTO dto;
 
-  public InsertDto(String indexType, DTO dto) {
-    this(indexType, dto, true);
-  }
-
   public InsertDto(String indexType, DTO dto, boolean requiresRefresh) {
     super(indexType, requiresRefresh);
     this.dto = dto;
@@ -43,11 +39,6 @@ public class InsertDto<DTO extends Dto> extends IndexAction<ActionRequest> {
   @Override
   public String getKey() {
     return dto.getKey().toString();
-  }
-
-  @Override
-  public Class getPayloadClass() {
-    return dto.getClass();
   }
 
   @Override

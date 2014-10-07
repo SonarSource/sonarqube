@@ -32,7 +32,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
@@ -48,10 +47,8 @@ public class QProfileProjectOperationsMediumTest {
 
   DbClient db;
   DbSession dbSession;
-  IndexClient index;
   QProfileFactory factory;
   QProfileProjectOperations projectOperations;
-
   ComponentDto project;
   QualityProfileDto profile;
   static final String PROJECT_KEY = "SonarQube";
@@ -64,7 +61,6 @@ public class QProfileProjectOperationsMediumTest {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
-    index = tester.get(IndexClient.class);
     factory = tester.get(QProfileFactory.class);
     projectOperations = tester.get(QProfileProjectOperations.class);
 

@@ -68,7 +68,7 @@ public class RulesWebServiceMediumTest {
   RulesWebService ws;
   RuleDao ruleDao;
   DbSession session;
-  int reliabilityId, softReliabilityId, hardReliabilityId;
+  int softReliabilityId, hardReliabilityId;
 
   @Before
   public void setUp() throws Exception {
@@ -179,16 +179,16 @@ public class RulesWebServiceMediumTest {
     insertDebtCharacteristics(session);
 
     ruleDao.insert(session, RuleTesting.newXooX1()
-        .setDefaultSubCharacteristicId(hardReliabilityId)
-        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setDefaultRemediationCoefficient("1h")
-        .setDefaultRemediationOffset("15min")
+      .setDefaultSubCharacteristicId(hardReliabilityId)
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationCoefficient("1h")
+      .setDefaultRemediationOffset("15min")
 
-        .setSubCharacteristicId(null)
-        .setRemediationFunction(null)
-        .setRemediationCoefficient(null)
-        .setRemediationOffset(null)
-    );
+      .setSubCharacteristicId(null)
+      .setRemediationFunction(null)
+      .setRemediationCoefficient(null)
+      .setRemediationOffset(null)
+      );
     session.commit();
 
     MockUserSession.set();
@@ -203,16 +203,16 @@ public class RulesWebServiceMediumTest {
     insertDebtCharacteristics(session);
 
     ruleDao.insert(session, RuleTesting.newXooX1()
-        .setDefaultSubCharacteristicId(hardReliabilityId)
-        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setDefaultRemediationCoefficient("1h")
-        .setDefaultRemediationOffset("15min")
+      .setDefaultSubCharacteristicId(hardReliabilityId)
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationCoefficient("1h")
+      .setDefaultRemediationOffset("15min")
 
-        .setSubCharacteristicId(softReliabilityId)
-        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setRemediationCoefficient("2h")
-        .setRemediationOffset("25min")
-    );
+      .setSubCharacteristicId(softReliabilityId)
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setRemediationCoefficient("2h")
+      .setRemediationOffset("25min")
+      );
     session.commit();
 
     MockUserSession.set();
@@ -227,16 +227,16 @@ public class RulesWebServiceMediumTest {
     insertDebtCharacteristics(session);
 
     ruleDao.insert(session, RuleTesting.newXooX1()
-        .setDefaultSubCharacteristicId(hardReliabilityId)
-        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setDefaultRemediationCoefficient("1h")
-        .setDefaultRemediationOffset("15min")
+      .setDefaultSubCharacteristicId(hardReliabilityId)
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationCoefficient("1h")
+      .setDefaultRemediationOffset("15min")
 
-        .setSubCharacteristicId(softReliabilityId)
-        .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
-        .setRemediationCoefficient(null)
-        .setRemediationOffset("5min")
-    );
+      .setSubCharacteristicId(softReliabilityId)
+      .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
+      .setRemediationCoefficient(null)
+      .setRemediationOffset("5min")
+      );
     session.commit();
 
     MockUserSession.set();
@@ -251,16 +251,16 @@ public class RulesWebServiceMediumTest {
     insertDebtCharacteristics(session);
 
     ruleDao.insert(session, RuleTesting.newXooX1()
-        .setDefaultSubCharacteristicId(hardReliabilityId)
-        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setDefaultRemediationCoefficient("1h")
-        .setDefaultRemediationOffset("15min")
+      .setDefaultSubCharacteristicId(hardReliabilityId)
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationCoefficient("1h")
+      .setDefaultRemediationOffset("15min")
 
-        .setSubCharacteristicId(softReliabilityId)
-        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
-        .setRemediationCoefficient("1h")
-        .setRemediationOffset(null)
-    );
+      .setSubCharacteristicId(softReliabilityId)
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
+      .setRemediationCoefficient("1h")
+      .setRemediationOffset(null)
+      );
     session.commit();
 
     MockUserSession.set();
@@ -520,7 +520,6 @@ public class RulesWebServiceMediumTest {
   private void insertDebtCharacteristics(DbSession dbSession) {
     CharacteristicDto reliability = DebtTesting.newCharacteristicDto("RELIABILITY").setName("Reliability");
     db.debtCharacteristicDao().insert(reliability, dbSession);
-    reliabilityId = reliability.getId();
 
     CharacteristicDto softReliability = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY").setName("Soft Reliability")
       .setParentId(reliability.getId());

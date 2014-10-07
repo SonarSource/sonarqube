@@ -46,7 +46,6 @@ public class Result<K> {
   private final List<K> hits;
   private final Multimap<String, FacetValue> facets;
   private final long total;
-  private final long timeInMillis;
   private final String scrollId;
   private final BaseIndex<K, ?, ?> index;
 
@@ -59,7 +58,6 @@ public class Result<K> {
     this.scrollId = response.getScrollId();
     this.facets = LinkedListMultimap.create();
     this.total = (int) response.getHits().totalHits();
-    this.timeInMillis = response.getTookInMillis();
     this.hits = new ArrayList<K>();
     if (index != null) {
       for (SearchHit hit : response.getHits()) {
@@ -100,10 +98,6 @@ public class Result<K> {
 
   public long getTotal() {
     return total;
-  }
-
-  public long getTimeInMillis() {
-    return timeInMillis;
   }
 
   public Map<String, Collection<FacetValue>> getFacets() {

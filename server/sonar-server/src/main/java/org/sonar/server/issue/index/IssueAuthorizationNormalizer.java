@@ -25,17 +25,20 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.issue.db.IssueAuthorizationDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class IssueAuthorizationNormalizer extends BaseNormalizer<IssueAuthorizationDto, String> {
 
   public IssueAuthorizationNormalizer(DbClient db) {
-    super(IndexDefinition.ISSUES, db);
+    super(db);
   }
 
   public static final class IssueAuthorizationField extends Indexable {
@@ -48,7 +51,7 @@ public class IssueAuthorizationNormalizer extends BaseNormalizer<IssueAuthorizat
 
     public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
-    private static final Set<IndexField> getAllFields() {
+    private static Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();
       for (Field classField : IssueAuthorizationField.class.getDeclaredFields()) {
         if (classField.getType().isAssignableFrom(IndexField.class)) {

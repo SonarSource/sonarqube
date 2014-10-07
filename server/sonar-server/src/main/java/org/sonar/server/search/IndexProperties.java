@@ -26,7 +26,6 @@ public final class IndexProperties {
   }
 
   public static final String CLUSTER_ACTIVATION = "sonar.cluster.activation";
-  public static final String TYPE = "sonar.search.type";
   public static final String NODE_PORT = "sonar.search.port";
   public static final String CLUSTER_NAME = "sonar.cluster.name";
   public static final String NODE_NAME = "sonar.node.name";

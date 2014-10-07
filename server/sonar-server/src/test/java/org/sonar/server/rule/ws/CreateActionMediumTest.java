@@ -35,7 +35,6 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
@@ -52,8 +51,6 @@ public class CreateActionMediumTest {
   public static ServerTester tester = new ServerTester();
 
   WsTester wsTester;
-
-  RuleService ruleService;
   RuleDao ruleDao;
   DbSession session;
 
@@ -61,7 +58,6 @@ public class CreateActionMediumTest {
   public void setUp() throws Exception {
     tester.clearDbAndIndexes();
     wsTester = tester.get(WsTester.class);
-    ruleService = tester.get(RuleService.class);
     ruleDao = tester.get(RuleDao.class);
     session = tester.get(DbClient.class).openSession(false);
   }

@@ -54,8 +54,6 @@ public class BackendCleanupMediumTest {
 
   DbClient db;
   DbSession session;
-  IssueIndex index;
-
   RuleDto rule;
   ComponentDto project;
   ComponentDto file;
@@ -68,7 +66,6 @@ public class BackendCleanupMediumTest {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     session = db.openSession(false);
-    index = tester.get(IssueIndex.class);
     backendCleanup = tester.get(BackendCleanup.class);
 
     rule = RuleTesting.newXooX1();
@@ -99,7 +96,6 @@ public class BackendCleanupMediumTest {
   public void after() {
     session.close();
   }
-
 
   @Test
   public void clear_db() throws Exception {

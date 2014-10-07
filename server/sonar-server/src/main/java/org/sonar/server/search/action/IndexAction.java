@@ -42,8 +42,6 @@ public abstract class IndexAction<K extends ActionRequest> implements ClusterAct
 
   public abstract String getKey();
 
-  public abstract Class getPayloadClass();
-
   public String getIndexType() {
     return indexType;
   }

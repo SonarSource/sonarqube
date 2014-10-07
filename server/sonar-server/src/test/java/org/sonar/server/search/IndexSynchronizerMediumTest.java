@@ -27,7 +27,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.tester.ServerTester;
@@ -42,14 +41,12 @@ public class IndexSynchronizerMediumTest {
   IndexSynchronizer synchronizer;
   DbClient dbClient;
   IndexClient indexClient;
-  Platform platform;
   DbSession dbSession;
 
   @Before
   public void setUp() throws Exception {
     dbClient = tester.get(DbClient.class);
     indexClient = tester.get(IndexClient.class);
-    platform = tester.get(Platform.class);
     dbSession = dbClient.openSession(false);
     synchronizer = new IndexSynchronizer(dbClient, indexClient);
     tester.clearDbAndIndexes();
