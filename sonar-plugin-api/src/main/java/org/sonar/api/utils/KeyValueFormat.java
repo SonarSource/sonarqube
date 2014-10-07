@@ -218,9 +218,9 @@ public final class KeyValueFormat {
     if (data != null) {
       String[] pairs = StringUtils.split(data, PAIR_SEPARATOR);
       for (String pair : pairs) {
-        String[] keyValue = StringUtils.split(pair, FIELD_SEPARATOR);
-        String key = keyValue[0];
-        String value = keyValue.length == 2 ? keyValue[1] : "";
+        int indexOfEqualSign = pair.indexOf(FIELD_SEPARATOR);
+        String key = pair.substring(0, indexOfEqualSign);
+        String value = pair.substring(indexOfEqualSign + 1);
         map.put(keyConverter.parse(key), valueConverter.parse(value));
       }
     }
