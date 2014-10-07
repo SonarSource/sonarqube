@@ -98,6 +98,37 @@ public class SvnBlameCommandTest {
   }
 
   @Test
+  public void testParsingOfOutputWithAnonymousCommit() throws IOException {
+    File source = new File(baseDir, "src/foo.xoo");
+    FileUtils.write(source, "sample content");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath());
+    fs.add(inputFile);
+
+    BlameResult result = mock(BlameResult.class);
+    CommandExecutor commandExecutor = mock(CommandExecutor.class);
+
+    when(commandExecutor.execute(any(Command.class), any(StreamConsumer.class), any(StreamConsumer.class), anyLong())).thenAnswer(new Answer<Integer>() {
+
+      @Override
+      public Integer answer(InvocationOnMock invocation) throws Throwable {
+        StreamConsumer outConsumer = (StreamConsumer) invocation.getArguments()[1];
+        List<String> lines = FileUtils.readLines(new File("src/test/resources/blame-with-anonymous-commit.xml"), "UTF-8");
+        for (String line : lines) {
+          outConsumer.consumeLine(line);
+        }
+        return 0;
+      }
+    });
+
+    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(fs, Arrays.<InputFile>asList(inputFile), result);
+    verify(result).add(inputFile,
+      Arrays.asList(
+        new BlameLine(DateUtils.parseDateTime("2009-04-18T10:29:59+0000"), "9491", "simon.brandhof"),
+        new BlameLine(DateUtils.parseDateTime("2009-04-01T10:29:59+0000"), "1", null),
+        new BlameLine(DateUtils.parseDateTime("2009-08-31T22:32:17+0000"), "10558", "david")));
+  }
+
+  @Test
   public void shouldFailIfFileContainsLocalModification() throws IOException {
     File source = new File(baseDir, "src/foo.xoo");
     FileUtils.write(source, "sample content");

@@ -86,7 +86,7 @@ public class ScmMediumTest {
     assertThat(result.measures()).contains(new DefaultMeasure<String>()
       .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue("1=julien;2=julien;3=julien;4=julien;5=simon"));
+      .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
   }
 
   @Test
@@ -117,7 +117,7 @@ public class ScmMediumTest {
     assertThat(result.measures()).contains(new DefaultMeasure<String>()
       .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
-      .withValue("1=julien;2=julien;3=julien;4=julien;5=simon"));
+      .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
   }
 
   private File prepareProject() throws IOException {
@@ -132,7 +132,7 @@ public class ScmMediumTest {
     FileUtils.write(xooMeasureFile, "lines:5");
     FileUtils.write(xooScmFile,
       // revision,author,dateTime
-      "1,julien,2013-01-04\n" +
+      "1,,2013-01-04\n" +
         "1,julien,2013-01-04\n" +
         "2,julien,2013-02-03\n" +
         "2,julien,2013-02-03\n" +

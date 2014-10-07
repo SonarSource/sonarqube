@@ -103,6 +103,8 @@ public class SvnBlameConsumer implements StreamConsumer {
       Date dateTime = parseDateTime(date + " " + time);
       lines.add(new BlameLine(dateTime, revision, author));
       lineNumber = 0;
+      revision = null;
+      author = null;
     }
   }
 

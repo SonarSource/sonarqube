@@ -29,6 +29,8 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.utils.DateUtils;
 
+import javax.annotation.Nullable;
+
 import java.text.Normalizer;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -63,10 +65,12 @@ class DefaultBlameResult implements BlameResult {
       lineNumber++;
     }
     ScmSensor.saveMeasures(context, file, authors.buildData(), dates.buildData(), revisions.buildData());
-
   }
 
-  private String normalizeString(String inputString) {
+  private String normalizeString(@Nullable String inputString) {
+    if (inputString == null) {
+      return "";
+    }
     String lowerCasedString = inputString.toLowerCase();
     String stringWithoutAccents = removeAccents(lowerCasedString);
     return removeNonAsciiCharacters(stringWithoutAccents);

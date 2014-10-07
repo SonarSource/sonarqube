@@ -24,6 +24,9 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -41,7 +44,7 @@ public class BlameLine {
    * @param revision of the commit
    * @param author will also be used as committer identification
    */
-  public BlameLine(Date date, String revision, String author) {
+  public BlameLine(Date date, String revision, @Nullable String author) {
     this(date, revision, author, author);
   }
 
@@ -52,7 +55,7 @@ public class BlameLine {
    * @param author the person who wrote the line
    * @param committer the person who committed the change
    */
-  public BlameLine(Date date, String revision, String author, String committer) {
+  public BlameLine(Date date, String revision, @Nullable String author, @Nullable String committer) {
     setDate(date);
     setRevision(revision);
     setAuthor(author);
@@ -67,19 +70,21 @@ public class BlameLine {
     this.revision = revision;
   }
 
+  @CheckForNull
   public String getAuthor() {
     return author;
   }
 
-  public void setAuthor(String author) {
+  public void setAuthor(@Nullable String author) {
     this.author = author;
   }
 
+  @CheckForNull
   public String getCommitter() {
     return committer;
   }
 
-  public void setCommitter(String committer) {
+  public void setCommitter(@Nullable String committer) {
     this.committer = committer;
   }
 

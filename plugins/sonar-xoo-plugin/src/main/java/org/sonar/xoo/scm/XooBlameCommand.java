@@ -65,7 +65,7 @@ public class XooBlameCommand implements BlameCommand, BatchComponent {
         lineNumber++;
         if (StringUtils.isNotBlank(line)) {
           // revision,author,dateTime
-          String[] fields = StringUtils.split(line, ',');
+          String[] fields = StringUtils.splitPreserveAllTokens(line, ',');
           if (fields.length < 3) {
             throw new IllegalStateException("Not enough fields on line " + lineNumber);
           }
