@@ -108,6 +108,7 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
     return finalParams;
   }
 
+  @Override
   protected void doDeleteByKey(DbSession session, String key) {
     // Nothing to do on db side, only remove the index (done in BaseDao)
   }
