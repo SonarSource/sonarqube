@@ -342,7 +342,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         .prop("key", issue.key())
         .prop("component", issue.componentKey())
         // Only used for the compatibility with the Issues Java WS Client <= 4.4 used by Eclipse
-        .prop("componentId", componentDto.getId())
+        .prop("componentId", componentDto != null ? componentDto.getId() : null)
         .prop("project", issue.projectKey())
         .prop("rule", issue.ruleKey().toString())
         .prop("status", issue.status())

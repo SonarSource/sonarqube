@@ -1,0 +1,15 @@
+{
+  "issues": [
+    {
+      "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+      "component": "MyComponent",
+      "project": "MyProject",
+      "rule": "xoo:x1",
+      "status": "OPEN",
+      "resolution": "OPEN",
+      "severity": "MAJOR",
+      "updateDate": "2014-12-04T00:00:00+0100",
+      "fUpdateAge": "less than a minute"
+    }
+  ]
+}

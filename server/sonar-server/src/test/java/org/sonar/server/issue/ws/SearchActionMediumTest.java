@@ -32,11 +32,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.ActionPlanDao;
-import org.sonar.core.issue.db.ActionPlanDto;
-import org.sonar.core.issue.db.IssueChangeDao;
-import org.sonar.core.issue.db.IssueChangeDto;
-import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.issue.db.*;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -247,6 +243,27 @@ public class SearchActionMediumTest {
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("extra_fields", "actions,transitions,assigneeName,reporterName,actionPlanName").execute();
     result.assertJson(this.getClass(), "issue_with_extra_fields.json", false);
+  }
+
+  @Test
+  public void issue_linked_on_removed_file() throws Exception {
+    IssueDto issue = IssueTesting.newDto(rule, file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setRule(rule)
+      .setRootComponent(project)
+      .setComponent(file)
+      .setStatus("OPEN").setResolution("OPEN")
+      .setSeverity("MAJOR")
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
+    db.issueDao().insert(session, issue);
+
+    // Remove the file
+    db.componentDao().deleteByKey(session, file.key());
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
+    result.assertJson(this.getClass(), "issue_linked_on_removed_file.json", false);
   }
 
   @Test

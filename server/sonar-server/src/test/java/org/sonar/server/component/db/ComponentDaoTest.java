@@ -349,12 +349,17 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
       );
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void delete() {
+    setupData("shared");
+
     dao.delete(session, new ComponentDto()
       .setId(1L)
       .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
       );
+    session.commit();
+
+    checkTable("delete", "projects");
   }
 
   @Test(expected = IllegalStateException.class)

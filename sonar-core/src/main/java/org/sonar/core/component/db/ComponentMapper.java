@@ -67,4 +67,6 @@ public interface ComponentMapper {
   AuthorizedComponentDto selectAuthorizedComponentByKey(String key);
 
   void insert(ComponentDto rule);
+
+  void deleteByKey(String key);
 }
