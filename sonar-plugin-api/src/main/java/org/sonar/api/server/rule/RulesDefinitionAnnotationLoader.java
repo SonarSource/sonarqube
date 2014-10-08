@@ -39,6 +39,7 @@ import java.util.List;
  * Read definitions of rules based on the annotations provided by sonar-check-api. It is used
  * to feed {@link RulesDefinition}.
  *
+ * @see org.sonar.api.server.rule.RulesDefinition
  * @since 4.3
  */
 public class RulesDefinitionAnnotationLoader {

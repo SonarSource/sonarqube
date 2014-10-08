@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Defines the coding rules. For example the Java Findbugs plugin provides an implementation of
+ * Defines some coding rules of the same repository. For example the Java Findbugs plugin provides an implementation of
  * this extension point in order to define the rules that it supports.
  * <p/>
  * This interface replaces the deprecated class org.sonar.api.rules.RuleRepository.

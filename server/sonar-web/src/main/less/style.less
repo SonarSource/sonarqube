@@ -1744,9 +1744,12 @@ ul.bullet li {
 }
 
 .rule-desc pre, .property pre, .bubble-popup pre, .coding-rules-detail-parameter pre {
+  display: inline-block;
+  min-width: 100%;
   margin: 10px 0 !important;
   padding: 10px !important;
   border: 1px dashed #aaa;
+  .box-sizing(border-box);
   font-size: 12px;
   font-family: monospace;;
 }
@@ -2606,8 +2609,8 @@ div.rule-title {
   cursor: pointer;
   .trans;
 
-  &:hover {
-    .scale(0.95);
+  &:hover .treemap-inner {
+    text-decoration: underline;
   }
 }
 

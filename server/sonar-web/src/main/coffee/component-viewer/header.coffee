@@ -173,7 +173,11 @@ define [
       unless active
         el.addClass 'active'
         scope = el.data 'scope'
-        @enableBar scope
+        @enableBar(scope).done =>
+          @$('.js-filter-unresolved-issues').click() if scope == 'issues'
+          @$('.js-filter-lines-to-cover').click() if scope == 'coverage'
+          @$('.js-filter-duplications').click() if scope == 'duplications'
+          @$('.js-filter-modified-lines').click() if scope == 'scm'
 
 
     changeSettings: ->

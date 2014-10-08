@@ -40,11 +40,16 @@ class ProfilesController < ApplicationController
     require_parameters 'key'
     call_backend do
       @profile = Internal.qprofile_loader.getByKey(params[:key])
-      not_found('Profile not found') unless @profile
-      @deprecated_active_rules = Internal.qprofile_loader.countDeprecatedActiveRulesByProfile(@profile.getKey())
-      @stats = Internal.qprofile_loader.getStatsByProfile(@profile.getKey())
+      if @profile
+        @deprecated_active_rules = Internal.qprofile_loader.countDeprecatedActiveRulesByProfile(@profile.getKey())
+        @stats = Internal.qprofile_loader.getStatsByProfile(@profile.getKey())
+        set_profile_breadcrumbs
+      else
+        # SONAR-5630
+        flash[:error] = message('quality_profiles.deleted_profile', :params => params[:key])
+        redirect_to :controller => 'profiles', :action => 'index'
+      end
     end
-    set_profile_breadcrumbs
   end
 
   # GET /profiles/create_form?language=<language>

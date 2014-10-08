@@ -33,7 +33,8 @@
       metrics: {
         <%= colorMetric.name -%>: {
           name: '<%= colorMetric.short_name -%>',
-          direction: <%= colorMetric.direction -%>
+          direction: <%= colorMetric.direction -%>,
+          type: '<%= colorMetric.val_type -%>'
         },
         <%= sizeMetric.name -%>: {
           name: '<%= sizeMetric.short_name -%>'

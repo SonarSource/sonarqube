@@ -77,6 +77,7 @@ import java.util.List;
  * &lt;/rules&gt;
  * </pre>
  *
+ * @see org.sonar.api.server.rule.RulesDefinition
  * @since 4.3
  */
 public class RulesDefinitionXmlLoader implements ServerComponent {

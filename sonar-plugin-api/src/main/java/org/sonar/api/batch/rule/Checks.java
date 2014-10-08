@@ -41,9 +41,9 @@ import java.util.Map;
  * <p/>
  * Example of check class:
  * <pre>
- *   @Rule(key = "S001")
+ *   {@literal @}org.sonar.check.Rule(key = "S001")
  *   public class CheckS001 {
- *     @RuleProperty
+ *     {@literal @}org.sonar.check.RuleProperty
  *     private String pattern;
  *
  *     public String getPattern() {
@@ -69,8 +69,7 @@ import java.util.Map;
  *
  *       // Checks are used to detect issues on source code
  *
- *       // checks.ruleKey(obj) can be used to create the detected
- *       // issues.
+ *       // checks.ruleKey(obj) can be used to create the related issues
  *     }
  *   }
  * </pre>

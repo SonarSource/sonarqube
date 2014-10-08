@@ -27,15 +27,25 @@ import javax.annotation.CheckForNull;
 import java.util.Collection;
 
 /**
+ * Searches for rules. This component is available by dependency injection. It must not
+ * be extended by plugins.
+ *
  * @since 4.2
  */
 public interface Rules extends BatchComponent {
 
+  /**
+   * Get a rule by its key. Returns <code>null</code> if rule does not exist.
+   */
   @CheckForNull
   Rule find(RuleKey key);
 
   Collection<Rule> findAll();
 
+  /**
+   * Get the rules of the given repository. Returns an empty collection if the
+   * repository does not exist.
+   */
   Collection<Rule> findByRepository(String repository);
 
 }

@@ -20,7 +20,7 @@
 class Server
 
   def info
-    system_info + sonar_info + system_statistics + sonar_plugins + system_properties + search_info
+    system_info + sonar_info + system_statistics + sonar_plugins + system_properties + cluster_info + nodes_info
   end
 
   def system_info
@@ -129,6 +129,9 @@ class Server
     system_properties
   end
 
+  def sonar_property(key)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponentByType(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
+  end
 
   private
 
@@ -156,7 +159,7 @@ class Server
   end
 
   def sonar_property(key)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue(key)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponentByType(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
   end
 
   def realm_name
