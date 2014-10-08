@@ -330,7 +330,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     BoolFilterBuilder langFacetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
     for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
-      if (filter.getKey() != RuleNormalizer.RuleField.LANGUAGE.field()) {
+      if (!StringUtils.equals(filter.getKey(), RuleNormalizer.RuleField.LANGUAGE.field())) {
         langFacetFilter.must(filter.getValue());
       }
     }
@@ -351,7 +351,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     BoolFilterBuilder tagsFacetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
     for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
-      if (filter.getKey() != RuleNormalizer.RuleField._TAGS.field()) {
+      if (!StringUtils.equals(filter.getKey(), RuleNormalizer.RuleField._TAGS.field())) {
         tagsFacetFilter.must(filter.getValue());
       }
     }
@@ -372,7 +372,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     BoolFilterBuilder repositoriesFacetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
     for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
-      if (filter.getKey() != RuleNormalizer.RuleField.REPOSITORY.field()) {
+      if (!StringUtils.equals(filter.getKey(), RuleNormalizer.RuleField.REPOSITORY.field())) {
         repositoriesFacetFilter.must(filter.getValue());
       }
     }
