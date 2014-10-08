@@ -51,18 +51,7 @@
 
 <div class="coding-rules-detail-description rule-desc markdown">{{{htmlDesc}}}</div>
 
-{{#if isEditable}}
-  <div class="coding-rules-detail-description">
-    <div class="button-group">
-      {{#if isManual}}
-        <button id="coding-rules-detail-manual-rule-change">{{t 'edit'}}</button>
-      {{else}}
-        <button id="coding-rules-detail-custom-rule-change">{{t 'edit'}}</button>
-      {{/if}}
-      <button id="coding-rules-detail-rule-delete" class="button-red">{{t 'delete'}}</button>
-    </div>
-  </div>
-{{else}}
+{{#unless isEditable}}
   {{#unless isManual}}
   <div class="coding-rules-detail-description coding-rules-detail-description-extra">
     <div id="coding-rules-detail-description-extra">
@@ -105,7 +94,7 @@
     </div>{{/if}}
   </div>
   {{/unless}}
-{{/if}}
+{{/unless}}
 
 
 {{#if params}}
@@ -132,6 +121,19 @@
       </dd>
     </dl>
     {{/each}}
+  </div>
+{{/if}}
+
+{{#if isEditable}}
+  <div class="coding-rules-detail-description">
+    <div class="button-group">
+      {{#if isManual}}
+        <button id="coding-rules-detail-manual-rule-change">{{t 'edit'}}</button>
+      {{else}}
+        <button id="coding-rules-detail-custom-rule-change">{{t 'edit'}}</button>
+      {{/if}}
+      <button id="coding-rules-detail-rule-delete" class="button-red">{{t 'delete'}}</button>
+    </div>
   </div>
 {{/if}}
 
