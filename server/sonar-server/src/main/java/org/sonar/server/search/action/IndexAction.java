@@ -27,6 +27,8 @@ import java.util.List;
 
 public abstract class IndexAction<K extends ActionRequest> implements ClusterAction<List<K>> {
 
+  public static final String MISSING_INDEX_EXCEPTION = "Cannot execute request on null index";
+
   protected final String indexType;
   private final boolean requiresRefresh;
   private Index index;
@@ -54,7 +56,7 @@ public abstract class IndexAction<K extends ActionRequest> implements ClusterAct
   @Override
   public final List<K> call() throws Exception {
     if (index == null) {
-      throw new IllegalStateException("Cannot execute request on null index");
+      throw new IllegalStateException(MISSING_INDEX_EXCEPTION);
     }
     return doCall(index);
   }

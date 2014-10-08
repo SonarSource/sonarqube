@@ -28,6 +28,7 @@ import org.sonar.server.search.IndexDefinition;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +49,17 @@ public class DeleteKeyTest {
     String key = "test_key";
     DeleteKey<String> deleteAction = new DeleteKey<String>(TEST_INDEX.getIndexType(), key);
 
-    List<DeleteRequest> requests = deleteAction.doCall(index);
+    try {
+      deleteAction.call();
+      fail();
+    } catch (Exception e) {
+      assertThat(e.getMessage()).isEqualTo(IndexAction.MISSING_INDEX_EXCEPTION);
+    }
+
+    // Insert Index for action
+    deleteAction.setIndex(index);
+
+    List<DeleteRequest> requests = deleteAction.call();
     assertThat(requests).hasSize(1);
 
     DeleteRequest request = requests.get(0);
