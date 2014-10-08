@@ -113,7 +113,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField NOTE_LOGIN = add(IndexField.Type.STRING, "noteLogin");
     public static final IndexField NOTE_CREATED_AT = add(IndexField.Type.DATE, "noteCreatedAt");
     public static final IndexField NOTE_UPDATED_AT = add(IndexField.Type.DATE, "noteUpdatedAt");
-    public static final IndexField _TAGS = addSearchable(IndexField.Type.STRING, "_tags");
+    public static final IndexField ALL_TAGS = addSearchable(IndexField.Type.STRING, "allTags");
     public static final IndexField PARAMS = addEmbedded("params", RuleParamField.ALL_FIELDS);
 
     public static final Set<IndexField> ALL_FIELDS = getAllFields();
@@ -193,13 +193,15 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
       // TODO Legacy PARENT_ID in DTO should be parent_key
       Integer templateId = rule.getTemplateId();
+      String templateKeyFieldValue = null;
       if (templateId != null) {
         RuleDto templateRule = db.ruleDao().getById(session, templateId);
-        RuleKey templateKey = templateRule.getKey();
-        update.put(RuleField.TEMPLATE_KEY.field(), templateKey != null ? templateKey.toString() : null);
-      } else {
-        update.put(RuleField.TEMPLATE_KEY.field(), null);
+        if (templateRule != null) {
+          RuleKey templateKey = templateRule.getKey();
+          templateKeyFieldValue = templateKey != null ? templateKey.toString() : null;
+        }
       }
+      update.put(RuleField.TEMPLATE_KEY.field(), templateKeyFieldValue);
 
       // TODO Legacy ID in DTO should be Key
       update.put(RuleField.CHARACTERISTIC.field(), null);
@@ -270,7 +272,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
       update.put(RuleField.TAGS.field(), rule.getTags());
       update.put(RuleField.SYSTEM_TAGS.field(), rule.getSystemTags());
-      update.put(RuleField._TAGS.field(), Sets.union(rule.getSystemTags(), rule.getTags()));
+      update.put(RuleField.ALL_TAGS.field(), Sets.union(rule.getSystemTags(), rule.getTags()));
 
       /** Upsert elements */
       Map<String, Object> upsert = getUpsertFor(RuleField.ALL_FIELDS, update);

@@ -82,8 +82,8 @@ public class RuleService implements ServerComponent {
    * List all tags, including system tags, defined on rules
    */
   public Set<String> listTags() {
-    /** using combined _TAGS field of ES until ES update that has multiTerms aggregation */
-    return index.terms(RuleNormalizer.RuleField._TAGS.field());
+    /** using combined ALL_TAGS field of ES until ES update that has multiTerms aggregation */
+    return index.terms(RuleNormalizer.RuleField.ALL_TAGS.field());
   }
 
   public void update(RuleUpdate update) {

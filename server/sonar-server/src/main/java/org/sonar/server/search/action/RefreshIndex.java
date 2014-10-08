@@ -37,7 +37,7 @@ public class RefreshIndex extends IndexAction<RefreshRequest> {
   }
 
   @Override
-  public List<RefreshRequest> doCall(Index index) throws Exception {
+  public List<RefreshRequest> doCall(Index index) {
     return ImmutableList.of(
       new RefreshRequest()
         .force(false)

@@ -135,22 +135,14 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
         for (ActionRequest update : updates.get()) {
 
           if (IndexRequest.class.isAssignableFrom(update.getClass())) {
-            bulkRequestBuilder.add(((IndexRequest) update));
-          }
-
-          else if (UpdateRequest.class.isAssignableFrom(update.getClass())) {
-            bulkRequestBuilder.add(((UpdateRequest) update));
-          }
-
-          else if (DeleteRequest.class.isAssignableFrom(update.getClass())) {
-            bulkRequestBuilder.add(((DeleteRequest) update));
-          }
-
-          else if (RefreshRequest.class.isAssignableFrom(update.getClass())) {
+            bulkRequestBuilder.add((IndexRequest) update);
+          } else if (UpdateRequest.class.isAssignableFrom(update.getClass())) {
+            bulkRequestBuilder.add((UpdateRequest) update);
+          } else if (DeleteRequest.class.isAssignableFrom(update.getClass())) {
+            bulkRequestBuilder.add((DeleteRequest) update);
+          } else if (RefreshRequest.class.isAssignableFrom(update.getClass())) {
             hasInlineRefreshRequest = true;
-          }
-
-          else {
+          } else {
             throw new IllegalStateException("Un-managed request type: " + update.getClass());
           }
         }

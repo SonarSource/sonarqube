@@ -182,10 +182,10 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     qb.should(this.termQuery(RuleNormalizer.RuleField.LANGUAGE, queryString, 3f));
     qb.should(this.termQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 5f));
     qb.should(this.termQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 5f));
-    qb.should(this.termQuery(RuleNormalizer.RuleField._TAGS, queryString, 10f));
+    qb.should(this.termQuery(RuleNormalizer.RuleField.ALL_TAGS, queryString, 10f));
     qb.should(this.termAnyQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 1f));
     qb.should(this.termAnyQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 1f));
-    qb.should(this.termAnyQuery(RuleNormalizer.RuleField._TAGS, queryString, 1f));
+    qb.should(this.termAnyQuery(RuleNormalizer.RuleField.ALL_TAGS, queryString, 1f));
 
     return qb;
   }
@@ -232,8 +232,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
 
     if (!CollectionUtils.isEmpty(query.getTags())) {
-      filters.put(RuleNormalizer.RuleField._TAGS.field(),
-        FilterBuilders.termsFilter(RuleNormalizer.RuleField._TAGS.field(), query.getTags()));
+      filters.put(RuleNormalizer.RuleField.ALL_TAGS.field(),
+        FilterBuilders.termsFilter(RuleNormalizer.RuleField.ALL_TAGS.field(), query.getTags()));
     }
 
     // Construct the debt filter on effective char and subChar
@@ -357,7 +357,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     BoolFilterBuilder tagsFacetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
     for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
-      if (!StringUtils.equals(filter.getKey(), RuleNormalizer.RuleField._TAGS.field())) {
+      if (!StringUtils.equals(filter.getKey(), RuleNormalizer.RuleField.ALL_TAGS.field())) {
         tagsFacetFilter.must(filter.getValue());
       }
     }
@@ -371,7 +371,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
             .filter(tagsFacetFilter)
             .subAggregation(
               AggregationBuilders.terms(FACET_TAGS)
-                .field(RuleNormalizer.RuleField._TAGS.field())
+                .field(RuleNormalizer.RuleField.ALL_TAGS.field())
                 .order(Terms.Order.count(false))
                 .size(10)
                 .minDocCount(1))));

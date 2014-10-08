@@ -54,14 +54,14 @@ public abstract class IndexAction<K extends ActionRequest> implements ClusterAct
   }
 
   @Override
-  public final List<K> call() throws Exception {
+  public final List<K> call() throws IllegalStateException {
     if (index == null) {
       throw new IllegalStateException(MISSING_INDEX_EXCEPTION);
     }
     return doCall(index);
   }
 
-  public abstract List<K> doCall(Index index) throws Exception;
+  public abstract List<K> doCall(Index index);
 
   public boolean needsRefresh() {
     return this.requiresRefresh;

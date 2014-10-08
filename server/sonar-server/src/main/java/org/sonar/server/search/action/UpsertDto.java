@@ -44,7 +44,7 @@ public class UpsertDto<DTO extends Dto> extends IndexAction<UpdateRequest> {
   }
 
   @Override
-  public List<UpdateRequest> doCall(Index index) throws Exception {
+  public List<UpdateRequest> doCall(Index index) {
     List<UpdateRequest> updates = index.getNormalizer().normalize(dto);
     for (UpdateRequest update : updates) {
       update.index(index.getIndexName())

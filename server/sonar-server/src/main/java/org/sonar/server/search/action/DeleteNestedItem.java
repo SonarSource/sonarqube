@@ -45,7 +45,7 @@ public class DeleteNestedItem<K extends Serializable> extends IndexAction<Update
   }
 
   @Override
-  public List<UpdateRequest> doCall(Index index) throws Exception {
+  public List<UpdateRequest> doCall(Index index) {
     List<UpdateRequest> updates = new ArrayList<UpdateRequest>();
     updates.addAll(deleteItem(index, item, key));
     for (Object otherItem : items) {

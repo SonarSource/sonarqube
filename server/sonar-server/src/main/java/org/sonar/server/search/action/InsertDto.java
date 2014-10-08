@@ -42,7 +42,7 @@ public class InsertDto<DTO extends Dto> extends IndexAction<ActionRequest> {
   }
 
   @Override
-  public List<ActionRequest> doCall(Index index) throws Exception {
+  public List<ActionRequest> doCall(Index index) {
     List<ActionRequest> inserts = new ArrayList<ActionRequest>();
     List<UpdateRequest> updates = index.getNormalizer().normalize(dto);
     for (UpdateRequest update : updates) {
