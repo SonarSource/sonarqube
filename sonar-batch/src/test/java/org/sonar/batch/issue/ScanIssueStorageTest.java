@@ -100,7 +100,7 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
   public void should_load_project_id() throws Exception {
     when(projectTree.getRootProject()).thenReturn((Project) new Project("struts").setId(100));
 
-    long projectId = storage.projectId(new DefaultIssue().setComponentKey("struts:Action.java"));
+    long projectId = storage.projectId();
 
     assertThat(projectId).isEqualTo(100);
   }

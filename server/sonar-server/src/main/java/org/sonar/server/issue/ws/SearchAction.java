@@ -262,7 +262,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         userLogins.add(issueComment.userLogin());
         commentsByIssues.put(issueComment.issueKey(), issueComment);
       }
-      usersByLogin = getUsersByLogin(session, userLogins);
+      usersByLogin = getUsersByLogin(userLogins);
 
       List<ComponentDto> componentDtos = dbClient.componentDao().getByKeys(session, componentKeys);
       List<ComponentDto> subProjectDtos = dbClient.componentDao().findSubProjectsByComponentKeys(session, componentKeys);
@@ -501,7 +501,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     }
   }
 
-  private Map<String, User> getUsersByLogin(DbSession session, List<String> userLogins) {
+  private Map<String, User> getUsersByLogin(List<String> userLogins) {
     Map<String, User> usersByLogin = newHashMap();
     for (User user : userFinder.findByLogins(userLogins)) {
       usersByLogin.put(user.login(), user);

@@ -51,7 +51,7 @@ public class IssueChangelogFormatter implements ServerComponent {
     for (Map.Entry<String, FieldDiffs.Diff> entry : diffs.diffs().entrySet()) {
       StringBuilder message = new StringBuilder();
       String key = entry.getKey();
-      IssueChangelogDiffFormat diffFormat = format(locale, key, entry.getValue());
+      IssueChangelogDiffFormat diffFormat = format(key, entry.getValue());
       if (diffFormat.newValue() != null) {
         message.append(i18n.message(locale, "issue.changelog.changed_to", null, i18n.message(locale, ISSUE_CHANGELOG_FIELD + key, null), diffFormat.newValue()));
       } else {
@@ -67,7 +67,7 @@ public class IssueChangelogFormatter implements ServerComponent {
     return result;
   }
 
-  private IssueChangelogDiffFormat format(Locale locale, String key, FieldDiffs.Diff diff) {
+  private IssueChangelogDiffFormat format(String key, FieldDiffs.Diff diff) {
     Serializable newValue = diff.newValue();
     Serializable oldValue = diff.oldValue();
 

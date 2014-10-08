@@ -17,37 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.core.source.db;
 
-public class SnapshotSourceDto {
-  private Long id;
-  private Long snapshotId;
-  private String data;
+import org.junit.Test;
 
-  public Long getId() {
-    return id;
-  }
+import static org.fest.assertions.Assertions.assertThat;
 
-  public SnapshotSourceDto setId(Long id) {
-    this.id = id;
-    return this;
-  }
+public class SnapshotSourceDtoTest {
 
-  public Long getSnapshotId() {
-    return snapshotId;
-  }
+  @Test
+  public void test_setters_and_getters() throws Exception {
+    SnapshotSourceDto dto = new SnapshotSourceDto()
+      .setId(1L)
+      .setSnapshotId(10L)
+      .setData("data");
 
-  public SnapshotSourceDto setSnapshotId(Long snapshotId) {
-    this.snapshotId = snapshotId;
-    return this;
-  }
-
-  public String getData() {
-    return data;
-  }
-
-  public SnapshotSourceDto setData(String data) {
-    this.data = data;
-    return this;
+    assertThat(dto.getId()).isEqualTo(1L);
+    assertThat(dto.getSnapshotId()).isEqualTo(10L);
+    assertThat(dto.getData()).isEqualTo("data");
   }
 }

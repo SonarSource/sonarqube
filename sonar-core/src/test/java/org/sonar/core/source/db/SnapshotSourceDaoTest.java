@@ -49,4 +49,12 @@ public class SnapshotSourceDaoTest extends AbstractDaoTestCase {
 
     assertThat(snapshotSource).isEqualTo("public class Foo {public Foo(){}}");
   }
+
+  @Test
+  public void insert() throws Exception {
+    dao.insert(new SnapshotSourceDto().setId(102L).setData("bar").setSnapshotId(11L));
+
+    checkTable("insert", "snapshot_sources");
+  }
+
 }

@@ -78,13 +78,11 @@ public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
 
   public List<UserDto> selectUsersByLogins(List<String> logins) {
     List<UserDto> users = Lists.newArrayList();
-    if (!logins.isEmpty()) {
-      SqlSession session = mybatis.openSession(false);
-      try {
-        users.addAll(selectUsersByLogins(session, logins));
-      } finally {
-        MyBatis.closeQuietly(session);
-      }
+    SqlSession session = mybatis.openSession(false);
+    try {
+      users.addAll(selectUsersByLogins(session, logins));
+    } finally {
+      MyBatis.closeQuietly(session);
     }
     return users;
   }

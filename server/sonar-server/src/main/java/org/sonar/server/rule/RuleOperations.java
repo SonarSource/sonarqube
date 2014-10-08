@@ -40,7 +40,6 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.Date;
 
 /**
  * @deprecated to be dropped in 4.4
@@ -82,7 +81,7 @@ public class RuleOperations implements ServerComponent {
       }
 
       boolean needUpdate = updateRule(ruleDto, subCharacteristic, ruleChange.debtRemediationFunction(), ruleChange.debtRemediationCoefficient(), ruleChange.debtRemediationOffset(),
-        new Date(system.now()), session);
+        session);
       if (needUpdate) {
         session.commit();
       }
@@ -94,7 +93,7 @@ public class RuleOperations implements ServerComponent {
   }
 
   public boolean updateRule(RuleDto ruleDto, @Nullable CharacteristicDto newSubCharacteristic, @Nullable String newFunction,
-                            @Nullable String newCoefficient, @Nullable String newOffset, Date updateDate, DbSession session) {
+                            @Nullable String newCoefficient, @Nullable String newOffset, DbSession session) {
     boolean needUpdate = false;
 
     // A sub-characteristic and a remediation function is given -> update rule debt

@@ -240,7 +240,7 @@ public class DebtModelBackup implements ServerComponent {
       ruleOperations.updateRule(rule, subCharacteristicDto,
         ruleDebt != null ? ruleDebt.function() : null,
         ruleDebt != null ? ruleDebt.coefficient() : null,
-        ruleDebt != null ? ruleDebt.offset() : null, updateDate, session);
+        ruleDebt != null ? ruleDebt.offset() : null, session);
       rule.setUpdatedAt(updateDate);
       ruleDebts.remove(ruleDebt);
     }

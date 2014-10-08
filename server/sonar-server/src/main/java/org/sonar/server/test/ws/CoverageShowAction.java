@@ -104,13 +104,13 @@ public class CoverageShowAction implements RequestHandler {
       Map<Integer, Integer> testCases = coverageService.getTestCases(fileKey, type);
       Map<Integer, Integer> conditions = coverageService.getConditions(fileKey, type);
       Map<Integer, Integer> coveredConditions = coverageService.getCoveredConditions(fileKey, type);
-      writeCoverage(fileKey, hits, testCases, conditions, coveredConditions, from, to, json);
+      writeCoverage(hits, testCases, conditions, coveredConditions, from, to, json);
     }
 
     json.endObject().close();
   }
 
-  private void writeCoverage(String fileKey, Map<Integer, Integer> hitsByLine,
+  private void writeCoverage(Map<Integer, Integer> hitsByLine,
                              Map<Integer, Integer> testCasesByLines,
                              Map<Integer, Integer> conditionsByLine,
                              Map<Integer, Integer> coveredConditionsByLine,

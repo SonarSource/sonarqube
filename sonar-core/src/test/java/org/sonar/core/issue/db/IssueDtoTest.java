@@ -26,6 +26,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.utils.Duration;
+import org.sonar.core.rule.RuleDto;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -103,6 +104,20 @@ public class IssueDtoTest {
     assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(updatedAt, Calendar.SECOND));
     assertThat(issue.closeDate()).isEqualTo(DateUtils.truncate(closedAt, Calendar.SECOND));
     assertThat(issue.isNew()).isFalse();
+  }
+
+  @Test
+  public void set_rule() {
+    IssueDto dto = new IssueDto()
+      .setKee("100")
+      .setRule(new RuleDto().setId(1).setRuleKey("AvoidCycle").setRepositoryKey("squid"))
+      .setLanguage("xoo");
+
+    assertThat(dto.getRuleId()).isEqualTo(1);
+    assertThat(dto.getRuleRepo()).isEqualTo("squid");
+    assertThat(dto.getRule()).isEqualTo("AvoidCycle");
+    assertThat(dto.getRuleKey().toString()).isEqualTo("squid:AvoidCycle");
+    assertThat(dto.getLanguage()).isEqualTo("xoo");
   }
 
 }

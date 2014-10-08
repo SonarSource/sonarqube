@@ -251,6 +251,8 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(dao.getRootProjectByComponentKey("org.struts:struts-core:src/org/struts").getKey()).isEqualTo("org.struts:struts");
     assertThat(dao.getRootProjectByComponentKey("org.struts:struts-core").getKey()).isEqualTo("org.struts:struts");
     assertThat(dao.getRootProjectByComponentKey("org.struts:struts").getKey()).isEqualTo("org.struts:struts");
+
+    assertThat(dao.getRootProjectByComponentKey("unknown")).isNull();
   }
 
   @Test

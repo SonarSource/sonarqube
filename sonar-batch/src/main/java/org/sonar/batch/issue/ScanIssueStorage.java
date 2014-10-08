@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.issue;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.Issue;
@@ -55,7 +56,7 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
   protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
     IssueMapper issueMapper = session.getMapper(IssueMapper.class);
     long componentId = componentId(issue);
-    long projectId = projectId(issue);
+    long projectId = projectId();
     int ruleId = ruleId(issue);
     IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, projectId, ruleId, now);
     issueMapper.insert(dto);
@@ -63,7 +64,7 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
 
   protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
     IssueMapper issueMapper = session.getMapper(IssueMapper.class);
-    IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(issue), now);
+    IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(), now);
     if (Issue.STATUS_CLOSED.equals(issue.status()) || issue.selectedAt() == null) {
       // Issue is closed by scan or changed by end-user
       issueMapper.update(dto);
@@ -78,7 +79,8 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
     }
   }
 
-  protected long componentId(DefaultIssue issue) {
+  @VisibleForTesting
+  long componentId(DefaultIssue issue) {
     Snapshot snapshot = snapshotCache.get(issue.componentKey());
     if (snapshot != null) {
       return snapshot.getResourceId();
@@ -92,7 +94,9 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
     return resourceDto.getId();
   }
 
-  protected long projectId(DefaultIssue issue) {
+
+  @VisibleForTesting
+  long projectId() {
     return projectTree.getRootProject().getId();
   }
 
