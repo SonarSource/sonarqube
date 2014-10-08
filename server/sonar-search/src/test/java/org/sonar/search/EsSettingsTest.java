@@ -123,7 +123,17 @@ public class EsSettingsTest {
     Settings settings = new EsSettings(props).build();
 
     assertThat(settings.get("marvel.agent.exporter.es.hosts")).isEqualTo("127.0.0.2,127.0.0.3");
+  }
 
+  @Test
+  public void enable_http_connector() throws Exception {
+    Props props = minProps();
+    props.set(EsSettings.PROP_HTTP_PORT, "9010");
+    Settings settings = new EsSettings(props).build();
+
+    assertThat(settings.get("http.port")).isEqualTo("9010");
+    assertThat(settings.get("http.host")).isEqualTo("127.0.0.1");
+    assertThat(settings.get("http.enabled")).isEqualTo("true");
   }
 
   private Props minProps() throws IOException {

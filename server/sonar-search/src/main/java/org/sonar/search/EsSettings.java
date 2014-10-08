@@ -43,6 +43,7 @@ class EsSettings {
   public static final String PROP_NODE_NAME = "sonar.node.name";
   public static final String PROP_CLUSTER_NAME = "sonar.cluster.name";
   public static final String PROP_CLUSTER_MASTER = "sonar.cluster.master";
+  public static final String PROP_HTTP_PORT = "sonar.search.httpPort";
   public static final String PROP_MARVEL = "sonar.search.marvel";
 
   public static final String SONAR_PATH_HOME = "sonar.path.home";
@@ -134,9 +135,17 @@ class EsSettings {
     // disable multicast
     builder.put("discovery.zen.ping.multicast.enabled", "false");
 
-    builder
-      .put("transport.tcp.port", tcpPort)
-      .put("http.enabled", false);
+    builder.put("transport.tcp.port", tcpPort);
+
+    Integer httpPort = props.valueAsInt(PROP_HTTP_PORT);
+    if (httpPort ==null) {
+      // standard configuration
+      builder.put("http.enabled", false);
+    } else {
+      builder.put("http.enabled", true);
+      builder.put("http.host", "127.0.0.1");
+      builder.put("http.port", httpPort);
+    }
   }
 
   private void configureStorage(ImmutableSettings.Builder builder) {
