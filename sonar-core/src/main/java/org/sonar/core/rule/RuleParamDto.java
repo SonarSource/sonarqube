@@ -92,7 +92,8 @@ public class RuleParamDto {
   }
 
   public static RuleParamDto createFor(RuleDto rule) {
-    return new RuleParamDto();
+    // Should eventually switch to RuleKey (RuleKey is available before insert)
+    return new RuleParamDto().setRuleId(rule.getId());
   }
 
 }
