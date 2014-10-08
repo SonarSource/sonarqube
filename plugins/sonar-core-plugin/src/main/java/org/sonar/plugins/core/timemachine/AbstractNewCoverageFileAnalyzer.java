@@ -35,6 +35,8 @@ import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.core.DryRunIncompatible;
 
+import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -161,7 +163,7 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
     context.saveMeasure(newUncoveredConditions);
   }
 
-  private Map<Integer, Integer> parseCountByLine(Measure measure) {
+  private Map<Integer, Integer> parseCountByLine(@Nullable Measure measure) {
     if (measure != null && measure.hasData()) {
       return KeyValueFormat.parseIntInt(measure.getData());
     }
@@ -176,7 +178,7 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
     Integer newConditions;
     Integer newCoveredConditions;
 
-    PeriodStruct(int index, Date date) {
+    PeriodStruct(int index, @Nullable Date date) {
       this.index = index;
       this.date = date;
     }
@@ -188,7 +190,7 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
       newCoveredConditions = null;
     }
 
-    void analyze(Date lineDate, int hits, int conditions, int coveredConditions) {
+    void analyze(@Nullable Date lineDate, int hits, int conditions, int coveredConditions) {
       if (lineDate == null) {
         // TODO warning
 

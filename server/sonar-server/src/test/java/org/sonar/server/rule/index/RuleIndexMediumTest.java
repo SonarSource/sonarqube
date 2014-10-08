@@ -107,7 +107,7 @@ public class RuleIndexMediumTest extends SearchMediumTest {
     assertThat(result.getFacets()).isEmpty();
 
     // should not have any facet on non matching query!
-    result = index.search(new RuleQuery().setQueryText("aeiou"), new QueryOptions().setFacet(true));
+    result = index.search(new RuleQuery().setQueryText("aeiou"), new QueryContext().setFacet(true));
     assertThat(result.getFacets()).isEmpty();
 
     // Repositories Facet is preset

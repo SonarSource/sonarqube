@@ -46,7 +46,7 @@ public class DuplicationsJsonWriter implements ServerComponent {
   void write(List<DuplicationsParser.Block> blocks, JsonWriter json, DbSession session) {
     Map<String, String> refByComponentKey = newHashMap();
     json.name("duplications").beginArray();
-    writeDuplications(blocks, refByComponentKey, json, session);
+    writeDuplications(blocks, refByComponentKey, json);
     json.endArray();
 
     json.name("files").beginObject();
@@ -54,7 +54,7 @@ public class DuplicationsJsonWriter implements ServerComponent {
     json.endObject();
   }
 
-  private void writeDuplications(List<DuplicationsParser.Block> blocks, Map<String, String> refByComponentKey, JsonWriter json, DbSession session) {
+  private void writeDuplications(List<DuplicationsParser.Block> blocks, Map<String, String> refByComponentKey, JsonWriter json) {
     for (DuplicationsParser.Block block : blocks) {
       json.beginObject().name("blocks").beginArray();
       for (DuplicationsParser.Duplication duplication : block.duplications()) {

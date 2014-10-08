@@ -45,11 +45,21 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
 
+  private Map<String, IndexField> sortColumns = newHashMap();
+
   public IssueIndex(IssueNormalizer normalizer, SearchClient client) {
     super(IndexDefinition.ISSUES, normalizer, client);
+
+    sortColumns.put(IssueQuery.SORT_BY_ASSIGNEE, IssueNormalizer.IssueField.ASSIGNEE);
+    sortColumns.put(IssueQuery.SORT_BY_STATUS, IssueNormalizer.IssueField.STATUS);
+    sortColumns.put(IssueQuery.SORT_BY_SEVERITY, IssueNormalizer.IssueField.SEVERITY_VALUE);
+    sortColumns.put(IssueQuery.SORT_BY_CREATION_DATE, IssueNormalizer.IssueField.ISSUE_CREATED_AT);
+    sortColumns.put(IssueQuery.SORT_BY_UPDATE_DATE, IssueNormalizer.IssueField.ISSUE_UPDATED_AT);
+    sortColumns.put(IssueQuery.SORT_BY_CLOSE_DATE, IssueNormalizer.IssueField.ISSUE_CLOSE_DATE);
   }
 
   @Override
@@ -221,7 +231,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     matchFilter(esFilter, IssueNormalizer.IssueField.SEVERITY, query.severities());
     matchFilter(esFilter, IssueNormalizer.IssueField.STATUS, query.statuses());
 
-    addDatesFilter(esFilter, query, options);
+    addDatesFilter(esFilter, query);
 
     return esFilter;
   }
@@ -245,7 +255,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       ));
   }
 
-  private void addDatesFilter(BoolFilterBuilder esFilter, IssueQuery query, QueryContext options) {
+  private void addDatesFilter(BoolFilterBuilder esFilter, IssueQuery query) {
     Date createdAfter = query.createdAfter();
     if (createdAfter != null) {
       esFilter.must(FilterBuilders
@@ -298,18 +308,9 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
   }
 
   private IndexField toIndexField(String sort) {
-    if (IssueQuery.SORT_BY_ASSIGNEE.equals(sort)) {
-      return IssueNormalizer.IssueField.ASSIGNEE;
-    } else if (IssueQuery.SORT_BY_STATUS.equals(sort)) {
-      return IssueNormalizer.IssueField.STATUS;
-    } else if (IssueQuery.SORT_BY_SEVERITY.equals(sort)) {
-      return IssueNormalizer.IssueField.SEVERITY_VALUE;
-    } else if (IssueQuery.SORT_BY_CREATION_DATE.equals(sort)) {
-      return IssueNormalizer.IssueField.ISSUE_CREATED_AT;
-    } else if (IssueQuery.SORT_BY_UPDATE_DATE.equals(sort)) {
-      return IssueNormalizer.IssueField.ISSUE_UPDATED_AT;
-    } else if (IssueQuery.SORT_BY_CLOSE_DATE.equals(sort)) {
-      return IssueNormalizer.IssueField.ISSUE_CLOSE_DATE;
+    IndexField indexFieldSort = sortColumns.get(sort);
+    if (indexFieldSort != null) {
+      return indexFieldSort;
     }
     throw new IllegalStateException("Unknown sort field : " + sort);
   }
