@@ -32,6 +32,8 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.scm.BlameCommand.BlameResult;
 import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.command.Command;
 import org.sonar.api.utils.command.CommandExecutor;
@@ -42,6 +44,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
@@ -183,4 +186,28 @@ public class SvnBlameCommandTest {
     new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(fs, Arrays.<InputFile>asList(inputFile), result);
   }
 
+  @Test
+  public void testAllParams() {
+    CommandExecutor commandExecutor = mock(CommandExecutor.class);
+    Settings settings = new Settings(new PropertyDefinitions(SvnConfiguration.getProperties()));
+    SvnBlameCommand svnBlameCommand = new SvnBlameCommand(commandExecutor, new SvnConfiguration(settings));
+
+    Command commandLine = svnBlameCommand.createCommandLine(baseDir, "src/main/java/Foo.java");
+    assertThat(commandLine.toCommandLine()).isEqualTo("svn blame --xml src/main/java/Foo.java --non-interactive");
+    assertThat(commandLine.toString()).isEqualTo("svn blame --xml src/main/java/Foo.java --non-interactive");
+
+    settings.setProperty(SvnConfiguration.USER_PROP_KEY, "myUser");
+    settings.setProperty(SvnConfiguration.PASSWORD_PROP_KEY, "myPass");
+    commandLine = svnBlameCommand.createCommandLine(baseDir, "src/main/java/Foo.java");
+    assertThat(commandLine.toCommandLine()).isEqualTo("svn blame --xml src/main/java/Foo.java --non-interactive --username myUser --password myPass");
+    assertThat(commandLine.toString()).isEqualTo("svn blame --xml src/main/java/Foo.java --non-interactive --username ******** --password ********");
+
+    settings.setProperty(SvnConfiguration.CONFIG_DIR_PROP_KEY, "/home/julien/.svn");
+    settings.setProperty(SvnConfiguration.TRUST_SERVER_PROP_KEY, "true");
+    commandLine = svnBlameCommand.createCommandLine(baseDir, "src/main/java/Foo.java");
+    assertThat(commandLine.toCommandLine())
+      .isEqualTo("svn blame --xml src/main/java/Foo.java --non-interactive --config-dir /home/julien/.svn --username myUser --password myPass --trust-server-cert");
+    assertThat(commandLine.toString()).isEqualTo(
+      "svn blame --xml src/main/java/Foo.java --non-interactive --config-dir /home/julien/.svn --username ******** --password ******** --trust-server-cert");
+  }
 }

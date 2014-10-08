@@ -36,10 +36,10 @@ import java.util.List;
 public class SvnConfiguration implements BatchComponent {
 
   private static final String CATEGORY_SVN = "SVN";
-  private static final String USER_PROP_KEY = "sonar.svn.username";
-  private static final String PASSWORD_PROP_KEY = "sonar.svn.password.secured";
-  private static final String CONFIG_DIR_PROP_KEY = "sonar.svn.config_dir";
-  private static final String TRUST_SERVER_PROP_KEY = "sonar.svn.trust_server_cert";
+  public static final String USER_PROP_KEY = "sonar.svn.username";
+  public static final String PASSWORD_PROP_KEY = "sonar.svn.password.secured";
+  public static final String CONFIG_DIR_PROP_KEY = "sonar.svn.config_dir";
+  public static final String TRUST_SERVER_PROP_KEY = "sonar.svn.trust_server_cert";
   private final Settings settings;
 
   public SvnConfiguration(Settings settings) {

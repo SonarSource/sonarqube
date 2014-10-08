@@ -84,29 +84,33 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
   private Future<Void> submitTask(final FileSystem fs, final BlameResult result, ExecutorService executorService, final InputFile inputFile) {
     return executorService.submit(new Callable<Void>() {
       public Void call() {
-        String filename = inputFile.relativePath();
-        Command cl = createCommandLine(fs.baseDir(), filename);
-        SvnBlameConsumer consumer = new SvnBlameConsumer(filename);
-        StringStreamConsumer stderr = new StringStreamConsumer();
-        int exitCode;
-        try {
-          exitCode = execute(cl, consumer, stderr);
-        } catch (CommandException e) {
-          // Unwrap CommandException
-          throw e.getCause() instanceof RuntimeException ? (RuntimeException) e.getCause() : new IllegalStateException(e.getCause());
-        }
-        if (exitCode != 0) {
-          throw new IllegalStateException("The svn blame command [" + cl.toString() + "] failed: " + stderr.getOutput());
-        }
-        List<BlameLine> lines = consumer.getLines();
-        if (lines.size() == inputFile.lines() - 1) {
-          // SONARPLUGINS-3097 SVN do not report blame on last empty line
-          lines.add(lines.get(lines.size() - 1));
-        }
-        result.add(inputFile, lines);
+        blame(fs, inputFile, result);
         return null;
       }
     });
+  }
+
+  private void blame(final FileSystem fs, final InputFile inputFile, final BlameResult result) {
+    String filename = inputFile.relativePath();
+    Command cl = createCommandLine(fs.baseDir(), filename);
+    SvnBlameConsumer consumer = new SvnBlameConsumer(filename);
+    StringStreamConsumer stderr = new StringStreamConsumer();
+    int exitCode;
+    try {
+      exitCode = execute(cl, consumer, stderr);
+    } catch (CommandException e) {
+      // Unwrap CommandException
+      throw e.getCause() instanceof RuntimeException ? (RuntimeException) e.getCause() : new IllegalStateException(e.getCause());
+    }
+    if (exitCode != 0) {
+      throw new IllegalStateException("The svn blame command [" + cl.toString() + "] failed: " + stderr.getOutput());
+    }
+    List<BlameLine> lines = consumer.getLines();
+    if (lines.size() == inputFile.lines() - 1) {
+      // SONARPLUGINS-3097 SVN do not report blame on last empty line
+      lines.add(lines.get(lines.size() - 1));
+    }
+    result.add(inputFile, lines);
   }
 
   private int execute(Command cl, StreamConsumer consumer, StreamConsumer stderr) {
