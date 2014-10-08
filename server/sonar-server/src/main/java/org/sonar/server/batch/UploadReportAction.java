@@ -24,6 +24,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.computation.AnalysisReportTask;
+import org.sonar.server.computation.AnalysisReportTaskLauncher;
 import org.sonar.server.computation.ComputationService;
 
 public class UploadReportAction implements RequestHandler {
@@ -33,9 +35,11 @@ public class UploadReportAction implements RequestHandler {
   static final String PARAM_PROJECT = "project";
 
   private final ComputationService computationService;
+  private final AnalysisReportTaskLauncher analysisTaskLauncher;
 
-  public UploadReportAction(ComputationService computationService) {
+  public UploadReportAction(ComputationService computationService, AnalysisReportTaskLauncher analysisTaskLauncher) {
     this.computationService = computationService;
+    this.analysisTaskLauncher = analysisTaskLauncher;
   }
 
   void define(WebService.NewController controller) {
@@ -57,7 +61,11 @@ public class UploadReportAction implements RequestHandler {
   public void handle(Request request, Response response) throws Exception {
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
 
-    computationService.create(projectKey);
-  }
+    computationService.addAnalysisReport(projectKey);
 
+    // TODO remove synchronization as soon as it won't break ITs !
+    (new AnalysisReportTask(computationService)).run();
+
+    analysisTaskLauncher.startAnalysisTaskNow();
+  }
 }

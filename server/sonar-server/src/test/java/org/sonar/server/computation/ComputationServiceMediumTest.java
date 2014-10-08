@@ -101,7 +101,7 @@ public class ComputationServiceMediumTest {
   @Test
   public void create_analysis_report_and_retrieve_it() {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    sut.create(DEFAULT_PROJECT_KEY);
+    sut.addAnalysisReport(DEFAULT_PROJECT_KEY);
 
     List<AnalysisReportDto> reports = sut.findByProjectKey(DEFAULT_PROJECT_KEY);
     AnalysisReportDto report = reports.get(0);
@@ -116,9 +116,9 @@ public class ComputationServiceMediumTest {
     insertPermissionsForProject("2");
     insertPermissionsForProject("3");
 
-    sut.create(DEFAULT_PROJECT_KEY);
-    sut.create("2");
-    sut.create("3");
+    sut.addAnalysisReport(DEFAULT_PROJECT_KEY);
+    sut.addAnalysisReport("2");
+    sut.addAnalysisReport("3");
 
     AnalysisReportDto firstBookedReport = sut.findAndBookNextAvailableAnalysisReport();
     AnalysisReportDto secondBookedReport = sut.findAndBookNextAvailableAnalysisReport();
@@ -128,6 +128,19 @@ public class ComputationServiceMediumTest {
     assertThat(firstBookedReport.getStatus()).isEqualTo(WORKING);
     assertThat(secondBookedReport.getProjectKey()).isEqualTo("2");
     assertThat(thirdBookedReport.getProjectKey()).isEqualTo("3");
+  }
+
+  @Test
+  public void analyze_report() {
+    insertPermissionsForProject(DEFAULT_PROJECT_KEY);
+    sut.addAnalysisReport(DEFAULT_PROJECT_KEY);
+
+    AnalysisReportDto report = sut.findAndBookNextAvailableAnalysisReport();
+
+    sut.analyzeReport(report);
+
+    assertThat(sut.findByProjectKey(DEFAULT_PROJECT_KEY)).isEmpty();
+
   }
 
   private ComponentDto insertPermissionsForProject(String projectKey) {
@@ -158,7 +171,7 @@ public class ComputationServiceMediumTest {
 
     MockUserSession.set().setLogin("gandalf").addProjectPermissions(UserRole.USER, project.key());
 
-    sut.create(project.getKey());
+    sut.addAnalysisReport(project.getKey());
   }
 
   @Test
@@ -181,7 +194,7 @@ public class ComputationServiceMediumTest {
 
     clearIssueIndexToSimulateBatchInsertWithoutIndexing();
 
-    sut.create(DEFAULT_PROJECT_KEY);
+    sut.addAnalysisReport(DEFAULT_PROJECT_KEY);
     List<AnalysisReportDto> reports = sut.findByProjectKey(DEFAULT_PROJECT_KEY);
 
     sut.analyzeReport(reports.get(0));
@@ -194,7 +207,7 @@ public class ComputationServiceMediumTest {
   public void add_project_issue_permission_in_index() throws Exception {
     ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
 
-    sut.create(DEFAULT_PROJECT_KEY);
+    sut.addAnalysisReport(DEFAULT_PROJECT_KEY);
     List<AnalysisReportDto> reports = sut.findByProjectKey(DEFAULT_PROJECT_KEY);
 
     sut.analyzeReport(reports.get(0));
@@ -230,7 +243,7 @@ public class ComputationServiceMediumTest {
 
     clearIssueIndexToSimulateBatchInsertWithoutIndexing();
 
-    sut.create(DEFAULT_PROJECT_KEY);
+    sut.addAnalysisReport(DEFAULT_PROJECT_KEY);
     List<AnalysisReportDto> reports = sut.findByProjectKey(DEFAULT_PROJECT_KEY);
 
     sut.analyzeReport(reports.get(0));

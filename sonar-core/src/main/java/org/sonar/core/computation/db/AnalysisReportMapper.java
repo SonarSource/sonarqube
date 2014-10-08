@@ -47,4 +47,6 @@ public interface AnalysisReportMapper {
     @Param("busyStatus") AnalysisReportDto.Status busyStatus);
 
   AnalysisReportDto selectById(Long id);
+
+  void delete(Long id);
 }

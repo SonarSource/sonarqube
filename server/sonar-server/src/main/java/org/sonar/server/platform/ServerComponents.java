@@ -86,6 +86,7 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.component.ws.*;
 import org.sonar.server.computation.AnalysisReportTaskCleaner;
+import org.sonar.server.computation.AnalysisReportTaskLauncher;
 import org.sonar.server.computation.ComputationService;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.config.ws.PropertiesWs;
@@ -588,6 +589,7 @@ class ServerComponents {
 
     // Compute engine
     pico.addSingleton(ComputationService.class);
+    pico.addSingleton(AnalysisReportTaskLauncher.class);
 
     for (Object components : level4AddedComponents) {
       pico.addSingleton(components);

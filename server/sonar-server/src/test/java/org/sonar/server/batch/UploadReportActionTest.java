@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
+import org.sonar.server.computation.AnalysisReportTaskLauncher;
 import org.sonar.server.computation.ComputationService;
 
 import static org.mockito.Matchers.anyString;
@@ -35,12 +36,14 @@ public class UploadReportActionTest {
   private UploadReportAction sut;
 
   private ComputationService computationService;
+  private AnalysisReportTaskLauncher analysisTaskLauncher;
 
   @Before
   public void before() {
     computationService = mock(ComputationService.class);
+    analysisTaskLauncher = mock(AnalysisReportTaskLauncher.class);
 
-    sut = new UploadReportAction(computationService);
+    sut = new UploadReportAction(computationService, analysisTaskLauncher);
   }
 
   @Test
@@ -51,7 +54,8 @@ public class UploadReportActionTest {
 
     sut.handle(request, response);
 
-    verify(computationService).create(DEFAULT_PROJECT_KEY);
+    verify(computationService).addAnalysisReport(DEFAULT_PROJECT_KEY);
+    verify(analysisTaskLauncher).startAnalysisTaskNow();
   }
 
 }

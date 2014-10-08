@@ -29,6 +29,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -122,5 +123,10 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
   @Override
   protected Map<String, Object> getSynchronizationParams(Date date, Map<String, String> params) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void doDeleteByKey(DbSession session, String id) {
+    mapper(session).delete(Long.valueOf(id));
   }
 }

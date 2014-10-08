@@ -60,7 +60,7 @@ public class ComputationService implements ServerComponent {
     this.permissionService = permissionService;
   }
 
-  public void create(String projectKey) {
+  public void addAnalysisReport(String projectKey) {
     UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
 
     AnalysisReportDto report = newPendingAnalysisReport(projectKey);
@@ -68,15 +68,16 @@ public class ComputationService implements ServerComponent {
     DbSession session = dbClient.openSession(false);
     try {
       checkThatProjectExistsInDatabase(projectKey, session);
-      dao.insert(session, report);
-      session.commit();
-
-      analyzeReport(report);
-
+      insertReportInDatabase(report, session);
     } finally {
       LOG.debug(String.format("Analysis for project '%s' inserted in the queue", projectKey));
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private void insertReportInDatabase(AnalysisReportDto report, DbSession session) {
+    dao.insert(session, report);
+    session.commit();
   }
 
   private void checkThatProjectExistsInDatabase(String projectKey, DbSession session) {
@@ -111,10 +112,6 @@ public class ComputationService implements ServerComponent {
       AnalysisReportDto report = dao.tryToBookReportAnalysis(session, nextAvailableReport);
       session.commit();
 
-      if (report != null) { // TODO TBE remove asap !
-        analyzeReport(report);
-      }
-
       return report;
     } finally {
       MyBatis.closeQuietly(session);
@@ -132,9 +129,16 @@ public class ComputationService implements ServerComponent {
     } catch (Exception exception) {
       LOG.debug(String.format("Error during analysis '%s' of project '%s'", report.getId(), projectKey), exception);
     } finally {
+      deleteReportFromQueue(session, report);
       MyBatis.closeQuietly(session);
-      LOG.debug(String.format("Analysis '%s' of project '%s' finished.", report.getId(), projectKey));
     }
+
+    LOG.debug(String.format("Analysis '%s' of project '%s' successfully finished.", report.getId(), projectKey));
+  }
+
+  private void deleteReportFromQueue(DbSession session, AnalysisReportDto report) {
+    dao.delete(session, report);
+    session.commit();
   }
 
   private void indexProjectIssues(DbSession session, String projectKey) {

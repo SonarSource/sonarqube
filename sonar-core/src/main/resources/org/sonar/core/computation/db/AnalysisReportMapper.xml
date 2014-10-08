@@ -39,6 +39,10 @@
     truncate table analysis_reports
   </delete>
 
+  <delete id="delete">
+    delete analysis_reports where id=#{id}
+  </delete>
+
   <select id="selectById" resultType="AnalysisReport">
     select
     <include refid="reportColumns"/>

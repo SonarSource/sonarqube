@@ -20,28 +20,58 @@
 
 package org.sonar.server.computation;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.picocontainer.Startable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 public class AnalysisReportTaskLauncher implements Startable, ServerComponent {
+  private final Logger LOG = LoggerFactory.getLogger(AnalysisReportTaskLauncher.class);
 
   private final ComputationService service;
+  private final ScheduledExecutorService executorService;
 
-  private AnalysisReportTask task;
+  private final long delayBetweenTasks;
+  private final long delayForFirstStart;
+  private final TimeUnit timeUnit;
 
   public AnalysisReportTaskLauncher(ComputationService service) {
+    this.service = service;
+    this.executorService = Executors.newSingleThreadScheduledExecutor();
+
+    this.delayBetweenTasks = 10;
+    this.delayForFirstStart = 0;
+    this.timeUnit = TimeUnit.SECONDS;
+  }
+
+  @VisibleForTesting
+  AnalysisReportTaskLauncher(ComputationService service, long delayForFirstStart, long delayBetweenTasks, TimeUnit timeUnit) {
+    this.executorService = Executors.newSingleThreadScheduledExecutor();
+
+    this.delayBetweenTasks = delayBetweenTasks;
+    this.delayForFirstStart = delayForFirstStart;
+    this.timeUnit = timeUnit;
     this.service = service;
   }
 
   @Override
   public void start() {
-    task = new AnalysisReportTask(service);
-    task.start();
+    executorService.scheduleAtFixedRate(new AnalysisReportTask(service), delayForFirstStart, delayBetweenTasks, timeUnit);
+    LOG.info("AnalysisReportTaskLauncher started");
   }
 
   @Override
   public void stop() {
-    task.interrupt();
+    executorService.shutdown();
+    LOG.info("AnalysisReportTaskLauncher stopped");
   }
 
+  public void startAnalysisTaskNow() {
+    executorService.execute(new AnalysisReportTask(service));
+  }
 }

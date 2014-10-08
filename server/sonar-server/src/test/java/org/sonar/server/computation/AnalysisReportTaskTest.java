@@ -20,21 +20,40 @@
 
 package org.sonar.server.computation;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.sonar.core.computation.db.AnalysisReportDto;
 
-public class AnalysisReportTask implements Runnable {
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
-  private final ComputationService service;
+public class AnalysisReportTaskTest {
 
-  public AnalysisReportTask(ComputationService service) {
-    this.service = service;
+  private AnalysisReportTask sut;
+  private ComputationService service;
+
+  @Before
+  public void before() {
+    this.service = mock(ComputationService.class);
+    this.sut = new AnalysisReportTask(service);
   }
 
-  @Override
-  public void run() {
-    AnalysisReportDto report = service.findAndBookNextAvailableAnalysisReport();
-    if (report != null) {
-      service.analyzeReport(report);
-    }
+  @Test
+  public void call_findAndBook_and_no_call_to_analyze_if_no_report_found() {
+    sut.run();
+
+    verify(service).findAndBookNextAvailableAnalysisReport();
+    verify(service, times(0)).analyzeReport(any(AnalysisReportDto.class));
   }
+
+  @Test
+  public void call_findAndBook_and_then_analyze_if_there_is_a_report() {
+    when(service.findAndBookNextAvailableAnalysisReport()).thenReturn(AnalysisReportDto.newForTests(1L));
+
+    sut.run();
+
+    verify(service).findAndBookNextAvailableAnalysisReport();
+    verify(service).analyzeReport(any(AnalysisReportDto.class));
+  }
+
 }

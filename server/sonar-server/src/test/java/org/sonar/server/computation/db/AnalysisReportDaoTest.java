@@ -223,6 +223,16 @@ public class AnalysisReportDaoTest {
     assertThat(reportBooked.getId()).isEqualTo(1L);
   }
 
+  @Test
+  public void delete_one_analysis_report() {
+    db.prepareDbUnit(getClass(), "one_analysis_report.xml");
+
+    dao.delete(session, AnalysisReportDto.newForTests(1L));
+    session.commit();
+
+    db.assertDbUnit(getClass(), "truncate-result.xml", "analysis_reports");
+  }
+
   @Test(expected = UnsupportedOperationException.class)
   public void doGetNullableByKey_is_not_implemented_yet() {
     dao.doGetNullableByKey(session, "ANY_STRING");

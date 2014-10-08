@@ -72,7 +72,7 @@ public class AnalysisReportDto extends Dto<String> {
 
   @Override
   public String getKey() {
-    return getProjectKey();
+    return String.valueOf(getId());
   }
 
   public Long getId() {
