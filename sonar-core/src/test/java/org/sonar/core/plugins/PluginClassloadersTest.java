@@ -62,8 +62,8 @@ public class PluginClassloadersTest {
 
   @Test
   public void shouldImport() throws Exception {
-    classloaders.add(DefaultPluginMetadata.create(null).setKey("foo").addDeployedFile(getFile("PluginClassloadersTest/foo.jar")));
-    classloaders.add(DefaultPluginMetadata.create(null).setKey("bar").addDeployedFile(getFile("PluginClassloadersTest/bar.jar")));
+    classloaders.add(DefaultPluginMetadata.create("foo").addDeployedFile(getFile("PluginClassloadersTest/foo.jar")));
+    classloaders.add(DefaultPluginMetadata.create("bar").addDeployedFile(getFile("PluginClassloadersTest/bar.jar")));
     classloaders.done();
 
     String resourceName = "org/sonar/plugins/bar/api/resource.txt";
@@ -74,8 +74,7 @@ public class PluginClassloadersTest {
   @Test
   public void shouldCreateBaseClassloader() {
     classloaders = new PluginClassloaders(getClass().getClassLoader());
-    DefaultPluginMetadata checkstyle = DefaultPluginMetadata.create(null)
-      .setKey("checkstyle")
+    DefaultPluginMetadata checkstyle = DefaultPluginMetadata.create("checkstyle")
       .setMainClass("org.sonar.plugins.checkstyle.CheckstylePlugin")
       .addDeployedFile(getFile("sonar-checkstyle-plugin-2.8.jar"));
 
@@ -90,13 +89,11 @@ public class PluginClassloadersTest {
   public void shouldExtendPlugin() {
     classloaders = new PluginClassloaders(getClass().getClassLoader());
 
-    DefaultPluginMetadata checkstyle = DefaultPluginMetadata.create(null)
-      .setKey("checkstyle")
+    DefaultPluginMetadata checkstyle = DefaultPluginMetadata.create("checkstyle")
       .setMainClass("org.sonar.plugins.checkstyle.CheckstylePlugin")
       .addDeployedFile(getFile("sonar-checkstyle-plugin-2.8.jar"));
 
-    DefaultPluginMetadata checkstyleExt = DefaultPluginMetadata.create(null)
-      .setKey("checkstyle-ext")
+    DefaultPluginMetadata checkstyleExt = DefaultPluginMetadata.create("checkstyle-ext")
       .setBasePlugin("checkstyle")
       .setMainClass("com.mycompany.sonar.checkstyle.CheckstyleExtensionsPlugin")
       .addDeployedFile(getFile("sonar-checkstyle-extensions-plugin-0.1-SNAPSHOT.jar"));
@@ -119,8 +116,7 @@ public class PluginClassloadersTest {
 
     classloaders = new PluginClassloaders(getClass().getClassLoader(), world);
 
-    DefaultPluginMetadata checkstyle = DefaultPluginMetadata.create(null)
-      .setKey("checkstyle")
+    DefaultPluginMetadata checkstyle = DefaultPluginMetadata.create("checkstyle")
       .setMainClass("org.sonar.plugins.checkstyle.CheckstylePlugin")
       .addDeployedFile(getFile("sonar-checkstyle-plugin-2.8.jar"));
 

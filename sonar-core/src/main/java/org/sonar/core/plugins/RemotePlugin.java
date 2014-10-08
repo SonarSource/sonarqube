@@ -45,7 +45,7 @@ public class RemotePlugin {
     RemotePlugin result = new RemotePlugin(fields[0], Boolean.parseBoolean(fields[1]));
     if (fields.length > 2) {
       String[] nameAndHash = StringUtils.split(fields[2], "|");
-      result.setFile(nameAndHash[0], nameAndHash.length > 1 ? nameAndHash[1] : null);
+      result.setFile(nameAndHash[0], nameAndHash[1]);
     }
     return result;
   }
@@ -72,7 +72,7 @@ public class RemotePlugin {
   }
 
   public RemotePlugin setFile(File f) {
-    return this.setFile(f.getName(), f.exists() ? new FileHashes().of(f) : null);
+    return this.setFile(f.getName(), new FileHashes().of(f));
   }
 
   public RemotePluginFile file() {

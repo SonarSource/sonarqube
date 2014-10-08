@@ -95,10 +95,10 @@ public class VariationDecorator implements Decorator {
 
   private void computeVariation(Resource resource, DecoratorContext context, PastSnapshot pastSnapshot) {
     List<Object[]> pastMeasures = pastMeasuresLoader.getPastMeasures(resource, pastSnapshot);
-    compareWithPastMeasures(resource, context, pastSnapshot.getIndex(), pastMeasures);
+    compareWithPastMeasures(context, pastSnapshot.getIndex(), pastMeasures);
   }
 
-  void compareWithPastMeasures(Resource resource, DecoratorContext context, int index, List<Object[]> pastMeasures) {
+  private void compareWithPastMeasures(DecoratorContext context, int index, List<Object[]> pastMeasures) {
     Map<MeasureKey, Object[]> pastMeasuresByKey = Maps.newHashMap();
     for (Object[] pastMeasure : pastMeasures) {
       pastMeasuresByKey.put(new MeasureKey(pastMeasure), pastMeasure);

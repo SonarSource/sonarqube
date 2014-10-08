@@ -89,7 +89,7 @@ public class BatchMediumTester {
   public static class BatchMediumTesterBuilder {
     private final FakeGlobalReferentialsLoader globalRefProvider = new FakeGlobalReferentialsLoader();
     private final FakeProjectReferentialsLoader projectRefProvider = new FakeProjectReferentialsLoader();
-    private final FackPluginsReferential pluginsReferential = new FackPluginsReferential();
+    private final FakePluginsReferential pluginsReferential = new FakePluginsReferential();
     private final Map<String, String> bootstrapProperties = new HashMap<String, String>();
 
     public BatchMediumTester build() {
@@ -378,7 +378,7 @@ public class BatchMediumTester {
     }
   }
 
-  private static class FackPluginsReferential implements PluginsReferential {
+  private static class FakePluginsReferential implements PluginsReferential {
 
     private List<RemotePlugin> pluginList = new ArrayList<RemotePlugin>();
     private Map<RemotePlugin, File> pluginFiles = new HashMap<RemotePlugin, File>();
@@ -394,15 +394,15 @@ public class BatchMediumTester {
       return pluginFiles.get(remote);
     }
 
-    public FackPluginsReferential addPlugin(String pluginKey, File location) {
+    public FakePluginsReferential addPlugin(String pluginKey, File location) {
       RemotePlugin plugin = new RemotePlugin(pluginKey, false);
       pluginList.add(plugin);
       pluginFiles.put(plugin, location);
       return this;
     }
 
-    public FackPluginsReferential addPlugin(String pluginKey, SonarPlugin pluginInstance) {
-      localPlugins.put(DefaultPluginMetadata.create(null).setKey(pluginKey), pluginInstance);
+    public FakePluginsReferential addPlugin(String pluginKey, SonarPlugin pluginInstance) {
+      localPlugins.put(DefaultPluginMetadata.create(pluginKey), pluginInstance);
       return this;
     }
 
