@@ -46,7 +46,8 @@ public class DeleteKey<K extends Serializable> extends IndexAction<DeleteRequest
     List<DeleteRequest> requests = new ArrayList<DeleteRequest>();
     requests.add(Requests.deleteRequest(index.getIndexName())
       .id(getKey())
-      .type(indexType));
+      .type(indexType)
+      .refresh(needsRefresh()));
     return requests;
   }
 

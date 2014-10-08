@@ -22,26 +22,25 @@ package org.sonar.server.search.action;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.sonar.server.search.Index;
 import org.sonar.server.search.IndexDefinition;
 
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DeleteKeyTest {
 
   IndexDefinition TEST_INDEX = IndexDefinition.createFor("TEST", "TESTING");
 
-  @Mock
   Index index;
 
   @Before
   public void setUp() throws Exception {
+    index = mock(Index.class);
     when(index.getIndexName()).thenReturn(TEST_INDEX.getIndexName());
-
   }
 
   @Test
