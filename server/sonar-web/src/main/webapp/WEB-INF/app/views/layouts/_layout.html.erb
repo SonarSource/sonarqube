@@ -184,7 +184,7 @@
     %>
     <div <%= html_id_class -%>>
       <% if @project %>
-        <div class="print"><h2><%= h @project.name(true) %></h2></div>
+        <div class="print"><h2><%= h @project.name() %></h2></div>
       <% end %>
       <div class="error" id="error" style="display:none">
         <span id="errormsg"></span> &nbsp;&nbsp;[<a href="#" onclick="javascript:$j('#error').hide();return false;"><%= message('hide').downcase -%></a>]
