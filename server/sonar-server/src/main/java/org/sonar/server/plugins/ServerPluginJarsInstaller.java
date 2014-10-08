@@ -53,7 +53,7 @@ public class ServerPluginJarsInstaller {
   private final ServerPluginJarInstaller installer;
   private final Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
   private final ServerUpgradeStatus serverUpgradeStatus;
-  private final static Set<String> BLACKLISTED_PLUGINS = new HashSet<String>(Arrays.asList("scmactivity"));
+  private static final Set<String> BLACKLISTED_PLUGINS = new HashSet<String>(Arrays.asList("scmactivity"));
 
   public ServerPluginJarsInstaller(Server server, ServerUpgradeStatus serverUpgradeStatus,
     DefaultServerFileSystem fs, ServerPluginJarInstaller installer) {

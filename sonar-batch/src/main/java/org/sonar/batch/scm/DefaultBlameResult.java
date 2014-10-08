@@ -32,6 +32,7 @@ import org.sonar.api.utils.DateUtils;
 import javax.annotation.Nullable;
 
 import java.text.Normalizer;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -60,7 +61,8 @@ class DefaultBlameResult implements BlameResult {
     int lineNumber = 1;
     for (BlameLine line : lines) {
       authors.add(lineNumber, normalizeString(line.getAuthor()));
-      dates.add(lineNumber, DateUtils.formatDateTime(line.getDate()));
+      Date date = line.getDate();
+      dates.add(lineNumber, date != null ? DateUtils.formatDateTime(date) : "");
       revisions.add(lineNumber, line.getRevision());
       lineNumber++;
     }

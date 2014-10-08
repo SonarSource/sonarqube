@@ -57,24 +57,7 @@ public class JGitBlameCommand implements BlameCommand, BatchComponent {
       git = Git.wrap(repo);
       File gitBaseDir = repo.getWorkTree();
       for (InputFile inputFile : files) {
-
-        String filename = pathResolver.relativePath(gitBaseDir, inputFile.file());
-        org.eclipse.jgit.blame.BlameResult blameResult = git.blame().setFilePath(filename).call();
-        List<BlameLine> lines = new ArrayList<BlameLine>();
-        for (int i = 0; i < blameResult.getResultContents().size(); i++) {
-          if (blameResult.getSourceAuthor(i) == null || blameResult.getSourceCommit(i) == null || blameResult.getSourceCommitter(i) == null) {
-            throw new IllegalStateException("Unable to blame file " + inputFile.relativePath() + ". No blame info at line " + (i + 1) + ". Is file commited?");
-          }
-          lines.add(new org.sonar.api.batch.scm.BlameLine(blameResult.getSourceAuthor(i).getWhen(),
-            blameResult.getSourceCommit(i).getName(),
-            blameResult.getSourceAuthor(i).getEmailAddress(),
-            blameResult.getSourceCommitter(i).getEmailAddress()));
-        }
-        if (lines.size() == inputFile.lines() - 1) {
-          // SONARPLUGINS-3097 Git do not report blame on last empty line
-          lines.add(lines.get(lines.size() - 1));
-        }
-        result.add(inputFile, lines);
+        blame(result, git, gitBaseDir, inputFile);
       }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to open Git repository", e);
@@ -85,6 +68,26 @@ public class JGitBlameCommand implements BlameCommand, BatchComponent {
         git.getRepository().close();
       }
     }
+  }
+
+  private void blame(BlameResult result, Git git, File gitBaseDir, InputFile inputFile) throws GitAPIException {
+    String filename = pathResolver.relativePath(gitBaseDir, inputFile.file());
+    org.eclipse.jgit.blame.BlameResult blameResult = git.blame().setFilePath(filename).call();
+    List<BlameLine> lines = new ArrayList<BlameLine>();
+    for (int i = 0; i < blameResult.getResultContents().size(); i++) {
+      if (blameResult.getSourceAuthor(i) == null || blameResult.getSourceCommit(i) == null || blameResult.getSourceCommitter(i) == null) {
+        throw new IllegalStateException("Unable to blame file " + inputFile.relativePath() + ". No blame info at line " + (i + 1) + ". Is file commited?");
+      }
+      lines.add(new org.sonar.api.batch.scm.BlameLine(blameResult.getSourceAuthor(i).getWhen(),
+        blameResult.getSourceCommit(i).getName(),
+        blameResult.getSourceAuthor(i).getEmailAddress(),
+        blameResult.getSourceCommitter(i).getEmailAddress()));
+    }
+    if (lines.size() == inputFile.lines() - 1) {
+      // SONARPLUGINS-3097 Git do not report blame on last empty line
+      lines.add(lines.get(lines.size() - 1));
+    }
+    result.add(inputFile, lines);
   }
 
 }

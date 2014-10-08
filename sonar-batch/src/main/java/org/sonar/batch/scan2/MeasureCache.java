@@ -49,7 +49,7 @@ public class MeasureCache implements BatchComponent {
     return cache.values(projectKey);
   }
 
-  public DefaultMeasure<?> byMetric(String projectKey, String resourceKey, String metricKey) {
+  public DefaultMeasure byMetric(String projectKey, String resourceKey, String metricKey) {
     return cache.get(projectKey, resourceKey, metricKey);
   }
 

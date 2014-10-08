@@ -91,21 +91,18 @@ public class BlameLine {
   /**
    * @return the commit date
    */
+  @CheckForNull
   public Date getDate() {
-    if (date != null)
-    {
+    if (date != null) {
       return (Date) date.clone();
     }
     return null;
   }
 
-  public void setDate(Date date) {
-    if (date != null)
-    {
+  public void setDate(@Nullable Date date) {
+    if (date != null) {
       this.date = new Date(date.getTime());
-    }
-    else
-    {
+    } else {
       this.date = null;
     }
   }
