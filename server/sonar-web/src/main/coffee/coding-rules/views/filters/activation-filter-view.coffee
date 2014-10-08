@@ -10,7 +10,8 @@ define [
 
     makeActive: ->
       super
-      unless @model.get 'value'
+      filterValue = @model.get 'value'
+      if !filterValue or filterValue.length == 0
         @choices.each (model) -> model.set 'checked', model.id == 'true'
         @model.set 'value', ['true']
         @detailsView.updateLists()
