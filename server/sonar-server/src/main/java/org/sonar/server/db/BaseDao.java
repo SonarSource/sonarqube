@@ -34,14 +34,22 @@ import org.sonar.core.persistence.Dto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.search.DbSynchronizationHandler;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.action.*;
+import org.sonar.server.search.action.DeleteKey;
+import org.sonar.server.search.action.DeleteNestedItem;
+import org.sonar.server.search.action.InsertDto;
+import org.sonar.server.search.action.RefreshIndex;
+import org.sonar.server.search.action.UpsertDto;
+import org.sonar.server.search.action.UpsertNestedItem;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -187,11 +195,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
 
   @Override
   public DTO update(DbSession session, DTO item, DTO... others) {
-    Date now = new Date(system2.now());
-    update(session, item, now);
-    for (DTO other : others) {
-      update(session, other, now);
-    }
+    update(session, Lists.<DTO>asList(item, others));
     return item;
   }
 
@@ -233,11 +237,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
 
   @Override
   public DTO insert(DbSession session, DTO item, DTO... others) {
-    Date now = new Date(system2.now());
-    insert(session, item, now);
-    for (DTO other : others) {
-      insert(session, other, now);
-    }
+    insert(session, Lists.<DTO>asList(item, others));
     return item;
   }
 
@@ -263,10 +263,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
 
   @Override
   public void delete(DbSession session, DTO item, DTO... others) {
-    delete(session, item);
-    for (DTO e : others) {
-      delete(session, e);
-    }
+    delete(session, Lists.<DTO>asList(item, others));
   }
 
   @Override
