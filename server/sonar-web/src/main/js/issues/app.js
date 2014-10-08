@@ -371,7 +371,7 @@ requirejs(
 
           var detailsEl = jQuery('.navigator-details'),
               detailsWidth = jQuery(window).width() - detailsEl.offset().left -
-                  parseInt(detailsEl.css('margin-right'), 10),
+                  parseInt(detailsEl.css('margin-right'), 10) - 20,
               detailsHeight = jQuery(window).height() - detailsEl.offset().top -
                   parseInt(detailsEl.css('margin-bottom'), 10) - footerHeight;
           detailsEl.width(detailsWidth).height(detailsHeight);
