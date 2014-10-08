@@ -66,7 +66,7 @@ class IssuesController < ApplicationController
     require_parameters :id
 
     @filter = Internal.issues.updateIssueFilterQuery(params[:id].to_i, criteria_params)
-    redirect_to :action => 'filter', :id => @filter.id.to_s
+    render :text => @filter.id.to_s, :status => 200
   end
 
   # GET /issues/edit_form/<filter id>
