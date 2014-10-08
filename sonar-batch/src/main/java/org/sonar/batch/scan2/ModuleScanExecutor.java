@@ -20,7 +20,6 @@
 package org.sonar.batch.scan2;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.rule.QProfileVerifier;
@@ -60,7 +59,7 @@ public final class ModuleScanExecutor {
   /**
    * Executed on each module
    */
-  public void execute(ProjectDefinition moduleDefinition) {
+  public void execute() {
     fsLogger.log();
 
     // Index and lock the filesystem
