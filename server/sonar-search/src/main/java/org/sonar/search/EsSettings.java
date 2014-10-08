@@ -175,6 +175,7 @@ class EsSettings {
 
     // Set cluster coordinates
     builder.put("cluster.name", clusterName);
+    builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
     builder.put("node.rack_id", props.value(PROP_NODE_NAME, "unknown"));
     if (props.contains(PROP_NODE_NAME)) {
       builder.put("node.name", props.value(PROP_NODE_NAME));
