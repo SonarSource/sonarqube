@@ -26,6 +26,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.component.Component;
 import org.sonar.api.config.Settings;
 
+import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,7 +49,7 @@ public class Project extends Resource implements Component {
     }
   };
 
-  private static final String MAVEN_KEY_FORMAT = "%s:%s";
+  static final String MAVEN_KEY_FORMAT = "%s:%s";
   private static final String BRANCH_KEY_FORMAT = "%s:%s";
 
   public static final String SCOPE = Scopes.PROJECT;
@@ -414,7 +416,11 @@ public class Project extends Resource implements Component {
   }
 
   public static Project createFromMavenIds(String groupId, String artifactId) {
-    return new Project(String.format(MAVEN_KEY_FORMAT, groupId, artifactId));
+    return createFromMavenIds(groupId, artifactId, null);
+  }
+
+  public static Project createFromMavenIds(String groupId, String artifactId, @Nullable String branch) {
+    return new Project(String.format(MAVEN_KEY_FORMAT, groupId, artifactId), branch, "");
   }
 
   @Override

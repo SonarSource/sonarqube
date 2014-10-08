@@ -7,7 +7,7 @@ define [
 ) ->
 
   class CodingRulesQualityProfileActivationView extends Marionette.ItemView
-    className: 'modal'
+    className: 'modal coding-rules-modal'
     template: Templates['coding-rules-quality-profile-activation']
 
 

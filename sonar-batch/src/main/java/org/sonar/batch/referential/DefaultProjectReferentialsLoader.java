@@ -20,6 +20,8 @@
 package org.sonar.batch.referential;
 
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.database.DatabaseSession;
@@ -51,6 +53,8 @@ import java.util.Map;
 
 public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoader {
 
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectReferentialsLoader.class);
+
   private static final String BATCH_PROJECT_URL = "/batch/project";
 
   private final ServerClient serverClient;
@@ -71,6 +75,8 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
     String projectKey = reactor.getRoot().getKeyWithBranch();
     String url = BATCH_PROJECT_URL + "?key=" + projectKey;
     if (taskProperties.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {
+      LOG.warn("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
+        + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
       try {
         url += "&profile=" + URLEncoder.encode(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP), "UTF-8");
       } catch (UnsupportedEncodingException e) {

@@ -191,7 +191,7 @@ public class MavenDependenciesSensor implements Sensor {
 
         public boolean endVisit(DependencyNode node) {
           if (node.getParent() != null && node.getParent() != node) {
-            saveDependency(node, context);
+            saveDependency(project, node, context);
           }
           return true;
         }
@@ -238,20 +238,20 @@ public class MavenDependenciesSensor implements Sensor {
     return result;
   }
 
-  protected void saveDependency(DependencyNode node, SensorContext context) {
-    Resource from = (node.getParent().getParent() == null) ? index.getProject() : toResource(node.getParent().getArtifact(), context);
-    Resource to = toResource(node.getArtifact(), context);
+  protected void saveDependency(final Project project, DependencyNode node, SensorContext context) {
+    Resource from = (node.getParent().getParent() == null) ? index.getProject() : toResource(project, node.getParent().getArtifact(), context);
+    Resource to = toResource(project, node.getArtifact(), context);
     Dependency dependency = new Dependency(from, to);
     dependency.setUsage(node.getArtifact().getScope());
     dependency.setWeight(1);
     context.saveDependency(dependency);
   }
 
-  protected static Resource toResource(Artifact artifact, SensorContext context) {
-    Project project = Project.createFromMavenIds(artifact.getGroupId(), artifact.getArtifactId());
-    Resource result = context.getResource(project);
+  protected static Resource toResource(final Project project, Artifact artifact, SensorContext context) {
+    Project depWithBranch = Project.createFromMavenIds(artifact.getGroupId(), artifact.getArtifactId(), project.getBranch());
+    Resource result = context.getResource(depWithBranch);
     if (result == null || !((Project) result).getAnalysisVersion().equals(artifact.getBaseVersion())) {
-      Library lib = new Library(project.getKey(), artifact.getBaseVersion());
+      Library lib = Library.createFromMavenIds(artifact.getGroupId(), artifact.getArtifactId(), artifact.getBaseVersion());
       context.saveResource(lib);
       result = context.getResource(lib);
     }

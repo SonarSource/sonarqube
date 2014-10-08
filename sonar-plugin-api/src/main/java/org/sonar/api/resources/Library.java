@@ -87,6 +87,10 @@ public final class Library extends Resource {
     return false;
   }
 
+  public static Library createFromMavenIds(String groupId, String artifactId, String version) {
+    return new Library(String.format(Project.MAVEN_KEY_FORMAT, groupId, artifactId), version);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
