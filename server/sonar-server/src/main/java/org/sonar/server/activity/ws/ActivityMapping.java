@@ -19,14 +19,12 @@
  */
 package org.sonar.server.activity.ws;
 
-import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.activity.Activity;
 import org.sonar.server.activity.index.ActivityDoc;
 import org.sonar.server.activity.index.ActivityNormalizer;
 import org.sonar.server.search.ws.BaseMapping;
 import org.sonar.server.search.ws.SearchOptions;
-import org.sonar.server.text.MacroInterpreter;
 
 import java.util.Map;
 
@@ -35,7 +33,7 @@ import java.util.Map;
  */
 public class ActivityMapping extends BaseMapping<ActivityDoc, Object> {
 
-  public ActivityMapping(Languages languages, MacroInterpreter macroInterpreter) {
+  public ActivityMapping() {
     map("type", ActivityNormalizer.LogFields.TYPE.field());
     map("action", ActivityNormalizer.LogFields.ACTION.field());
     mapDateTime("createdAt", ActivityNormalizer.LogFields.CREATED_AT.field());
