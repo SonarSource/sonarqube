@@ -130,7 +130,7 @@ class Server
   end
 
   def sonar_property(key)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponentByType(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getConfigurationValue(key)
   end
 
   private
@@ -158,10 +158,6 @@ class Server
     java.text.SimpleDateFormat.new("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(date)
   end
 
-  def sonar_property(key)
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getContainer().getComponentByType(Java::OrgApacheCommonsConfiguration::Configuration.java_class).getProperty(key)
-  end
-
   def realm_name
     realm_factory = Api::Utils.java_facade.getCoreComponentByClassname('org.sonar.server.user.SecurityRealmFactory')
     if realm_factory && realm_factory.getRealm()
@@ -173,9 +169,9 @@ class Server
 
   def jdbc_metadata
     @metadata ||=
-      begin
-        ActiveRecord::Base.connection.instance_variable_get('@connection').connection.get_meta_data
-      end
+        begin
+          ActiveRecord::Base.connection.instance_variable_get('@connection').connection.get_meta_data
+        end
   end
 
   def system_load_average
