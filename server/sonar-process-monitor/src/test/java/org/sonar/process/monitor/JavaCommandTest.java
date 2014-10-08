@@ -65,8 +65,13 @@ public class JavaCommandTest {
   }
 
   @Test
-  public void split_java_options() throws Exception {
+  public void add_java_options() throws Exception {
     JavaCommand command = new JavaCommand("foo");
+    assertThat(command.getJavaOptions()).isEmpty();
+
+    command.addJavaOptions("");
+    assertThat(command.getJavaOptions()).isEmpty();
+
     command.addJavaOptions("-Xmx512m -Xms256m -Dfoo");
     assertThat(command.getJavaOptions()).containsOnly("-Xmx512m", "-Xms256m", "-Dfoo");
   }

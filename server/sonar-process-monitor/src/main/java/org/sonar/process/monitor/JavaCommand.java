@@ -19,6 +19,8 @@
  */
 package org.sonar.process.monitor;
 
+import org.apache.commons.lang.StringUtils;
+
 import javax.annotation.Nullable;
 
 import java.io.File;
@@ -84,12 +86,16 @@ public class JavaCommand {
   }
 
   public JavaCommand addJavaOption(String s) {
-    javaOptions.add(s);
+    if (StringUtils.isNotBlank(s)) {
+      javaOptions.add(s);
+    }
     return this;
   }
 
   public JavaCommand addJavaOptions(String s) {
-    Collections.addAll(javaOptions, s.split(" "));
+    for (String opt : s.split(" ")) {
+      addJavaOption(opt);
+    }
     return this;
   }
 

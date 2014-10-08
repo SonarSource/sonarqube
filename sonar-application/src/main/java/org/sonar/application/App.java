@@ -70,7 +70,8 @@ public class App implements Stoppable {
     JavaCommand elasticsearch = new JavaCommand("search");
     elasticsearch
       .setWorkDir(homeDir)
-      .addJavaOptions(props.value(DefaultSettings.SEARCH_JAVA_OPTS))
+      .addJavaOptions(props.nonNullValue(DefaultSettings.SEARCH_JAVA_OPTS))
+      .addJavaOptions(props.nonNullValue(DefaultSettings.SEARCH_JAVA_ADDITIONAL_OPTS))
       .setTempDir(tempDir.getAbsoluteFile())
       .setClassName("org.sonar.search.SearchServer")
       .setArguments(props.rawProperties())
@@ -83,6 +84,7 @@ public class App implements Stoppable {
       JavaCommand webServer = new JavaCommand("web")
         .setWorkDir(homeDir)
         .addJavaOptions(props.nonNullValue(DefaultSettings.WEB_JAVA_OPTS))
+        .addJavaOptions(props.nonNullValue(DefaultSettings.WEB_JAVA_ADDITIONAL_OPTS))
         .setTempDir(tempDir.getAbsoluteFile())
         // required for logback tomcat valve
         .setEnvVariable("sonar.path.logs", props.nonNullValue("sonar.path.logs"))
