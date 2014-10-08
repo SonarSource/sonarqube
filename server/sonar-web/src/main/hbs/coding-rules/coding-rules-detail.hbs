@@ -115,14 +115,16 @@
     <dl class="coding-rules-detail-parameter">
       <dt class="coding-rules-detail-parameter-name">{{key}}</dt>
       <dd class="coding-rules-detail-parameter-description" data-key="{{key}}">
+        <p>{{{htmlDesc}}}</p>
         {{#if ../../templateKey}}
+        <div class="subtitle">
           {{#if defaultValue }}
             <span class="value">{{defaultValue}}</span>
           {{else}}
-            <span class="subtitle">{{t 'coding_rules.parameter.empty'}}</span>
+            {{t 'coding_rules.parameter.empty'}}
           {{/if}}
+        </div>
         {{else}}
-          {{{htmlDesc}}}
           {{#if defaultValue}}
           <div class="subtitle">{{t 'coding_rules.parameters.default_value'}} <span class="value">{{defaultValue}}</span></div>
           {{/if}}
