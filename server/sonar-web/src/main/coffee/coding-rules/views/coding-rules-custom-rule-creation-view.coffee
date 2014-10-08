@@ -7,7 +7,7 @@ define [
 ) ->
 
   class CodingRulesCustomRuleCreationView extends Marionette.ItemView
-    className: 'modal'
+    className: 'modal coding-rules-modal'
     template: Templates['coding-rules-custom-rule-creation']
 
 

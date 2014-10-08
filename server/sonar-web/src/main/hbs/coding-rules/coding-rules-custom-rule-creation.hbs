@@ -23,7 +23,7 @@
         <th><h3>{{t 'key'}}{{#unless change}} <em class="mandatory">*</em>{{/unless}}</h3></th>
         <td>
           {{#if change}}
-            {{key}}
+            <span class="coding-rules-detail-custom-rule-key" title="{{key}}">{{key}}</span>
           {{else}}
             <input type="text" name="key" id="coding-rules-custom-rule-creation-key"
               class="coding-rules-name-key" value="{{internalKey}}"/>
