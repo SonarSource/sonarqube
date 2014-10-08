@@ -33,7 +33,7 @@ public class RefreshIndex extends IndexAction<RefreshRequest> {
 
   @Override
   public String getKey() {
-    return null;
+    throw new IllegalStateException("Refresh Action has no key");
   }
 
   @Override
