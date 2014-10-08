@@ -21,13 +21,11 @@ package org.sonar.core.persistence;
 
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
+import org.sonar.core.cluster.ClusterAction;
 import org.sonar.core.cluster.WorkQueue;
 
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class BatchSessionTest {
   @Test
@@ -43,6 +41,28 @@ public class BatchSessionTest {
       verify(mybatisSession, never()).commit(anyBoolean());
     }
     session.insert("id9");
+    verify(mybatisSession).commit();
+  }
+
+  @Test
+  public void shouldCommitWhenReachingBatchSizeWithoutCommits() {
+    SqlSession mybatisSession = mock(SqlSession.class);
+    WorkQueue queue = mock(WorkQueue.class);
+    BatchSession session = new BatchSession(queue, mybatisSession, 10);
+
+    ClusterAction action = new ClusterAction() {
+      @Override
+      public Object call() throws Exception {
+        return null;
+      }
+    };
+
+    for (int i = 0; i < 9; i++) {
+      session.enqueue(action);
+      verify(mybatisSession, never()).commit();
+      verify(mybatisSession, never()).commit(anyBoolean());
+    }
+    session.enqueue(action);
     verify(mybatisSession).commit();
   }
 
