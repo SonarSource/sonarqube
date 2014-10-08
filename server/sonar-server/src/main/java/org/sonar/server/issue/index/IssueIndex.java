@@ -157,7 +157,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     Terms aggregation = (Terms) response.getAggregations().getAsMap().get(IssueNormalizer.IssueField.ASSIGNEE.field());
     List<FacetValue> facetValues = newArrayList();
     for (Terms.Bucket value : aggregation.getBuckets()) {
-      facetValues.add(new FacetValue(value.getKey(), (int) value.getDocCount()).setSort(FacetValue.Sort.BY_VALUE));
+      facetValues.add(new FacetValue(value.getKey(), (int) value.getDocCount()));
     }
     facetValues.add(new FacetValue("_notAssigned_", (int) ((InternalMissing) response.getAggregations().get("notAssigned")).getDocCount()));
 
