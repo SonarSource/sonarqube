@@ -29,14 +29,7 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.SimpleQueryStringBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -50,22 +43,12 @@ import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
-import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.IndexField;
-import org.sonar.server.search.QueryOptions;
-import org.sonar.server.search.Result;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.*;
 
 import javax.annotation.CheckForNull;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -168,7 +151,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   /* Build main query (search based) */
-  protected QueryBuilder getQuery(RuleQuery query, QueryOptions options) {
+  protected QueryBuilder getQuery(RuleQuery query) {
 
     // No contextual query case
     String queryText = query.getQueryText();
@@ -423,7 +406,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       esSearch.setScroll(TimeValue.timeValueMinutes(3));
     }
 
-    QueryBuilder qb = this.getQuery(query, options);
+    QueryBuilder qb = this.getQuery(query);
     HashMap<String, FilterBuilder> filters = this.getFilters(query, options);
 
     if (options.isFacet()) {
