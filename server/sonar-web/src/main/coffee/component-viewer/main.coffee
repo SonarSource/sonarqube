@@ -131,7 +131,7 @@ define [
 
       width = @elementToFit.width()
       height = @elementToFit.height()
-      availableWidth = width - workspace.outerWidth(true)
+      availableWidth = width - workspace.outerWidth(true) - 20
       availableHeight = height - @$(@headerRegion.$el).outerHeight(true)
 
       source.removeClass 'overflow'

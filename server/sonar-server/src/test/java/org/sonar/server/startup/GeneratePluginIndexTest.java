@@ -22,7 +22,9 @@ package org.sonar.server.startup;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.Is;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.core.plugins.DefaultPluginMetadata;
@@ -39,6 +41,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GeneratePluginIndexTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private DefaultServerFileSystem fileSystem;
   private File index;
@@ -65,10 +70,11 @@ public class GeneratePluginIndexTest {
     assertThat(lines.get(1), containsString("checkstyle"));
   }
 
-  private PluginMetadata newMetadata(String pluginKey) {
+  private PluginMetadata newMetadata(String pluginKey) throws IOException {
     PluginMetadata plugin = mock(DefaultPluginMetadata.class);
     when(plugin.getKey()).thenReturn(pluginKey);
-    when(plugin.getFile()).thenReturn(new File(pluginKey + ".jar"));
+    File pluginFile = temp.newFile(pluginKey + ".jar");
+    when(plugin.getFile()).thenReturn(pluginFile);
     return plugin;
   }
 }

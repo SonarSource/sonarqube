@@ -22,7 +22,6 @@ package org.sonar.batch.scan.filesystem;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.AnalysisMode;
 
@@ -33,14 +32,12 @@ public class InputFileBuilderFactoryTest {
   @Test
   public void create_builder() throws Exception {
     PathResolver pathResolver = new PathResolver();
-    Project project = new Project("struts");
     LanguageDetectionFactory langDetectionFactory = mock(LanguageDetectionFactory.class, Mockito.RETURNS_MOCKS);
     StatusDetectionFactory statusDetectionFactory = mock(StatusDetectionFactory.class, Mockito.RETURNS_MOCKS);
     DefaultModuleFileSystem fs = mock(DefaultModuleFileSystem.class);
     AnalysisMode analysisMode = mock(AnalysisMode.class);
 
-    InputFileBuilderFactory factory = new InputFileBuilderFactory(
-      project, ProjectDefinition.create(), pathResolver, langDetectionFactory,
+    InputFileBuilderFactory factory = new InputFileBuilderFactory(ProjectDefinition.create().setKey("struts"), pathResolver, langDetectionFactory,
       statusDetectionFactory, analysisMode);
     InputFileBuilder builder = factory.create(fs);
 

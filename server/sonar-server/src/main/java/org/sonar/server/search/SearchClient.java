@@ -99,7 +99,7 @@ public class SearchClient extends TransportClient implements Startable {
       }
       return response;
     } catch (Exception e) {
-      LOGGER.error("could not execute request: " + response, e);
+      LOGGER.error("could not execute request: {}", request);
       throw new IllegalStateException("ES error: ", e);
     }
   }

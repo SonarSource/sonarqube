@@ -152,7 +152,7 @@ define [
         @$(@qualityProfilesRegion.el).show()
         @qualityProfilesRegion.show @qualityProfilesView
 
-        if @options.app.getQualityProfile()
+        if @options.app.getQualityProfile() and (@options.app.canWrite or @contextProfile.has('severity'))
           @$(@contextRegion.el).show()
           @contextRegion.show @contextQualityProfileView
         else

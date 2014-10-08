@@ -139,7 +139,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    getComponentByType(ModuleScanExecutor.class).execute(moduleDefinition);
+    getComponentByType(ModuleScanExecutor.class).execute();
   }
 
 }

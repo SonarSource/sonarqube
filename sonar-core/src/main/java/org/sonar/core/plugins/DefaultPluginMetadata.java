@@ -63,6 +63,10 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return new DefaultPluginMetadata().setFile(file);
   }
 
+  public static DefaultPluginMetadata create(String key) {
+    return new DefaultPluginMetadata().setKey(key);
+  }
+
   public File getFile() {
     return file;
   }

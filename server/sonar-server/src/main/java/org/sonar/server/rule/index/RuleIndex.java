@@ -56,7 +56,6 @@ import org.sonar.server.search.Result;
 import org.sonar.server.search.SearchClient;
 
 import javax.annotation.CheckForNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -158,7 +157,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   /* Build main query (search based) */
-  protected QueryBuilder getQuery(RuleQuery query, QueryContext options) {
+  protected QueryBuilder getQuery(RuleQuery query) {
 
     // No contextual query case
     String queryText = query.getQueryText();
@@ -413,7 +412,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       esSearch.setScroll(TimeValue.timeValueMinutes(3));
     }
 
-    QueryBuilder qb = this.getQuery(query, options);
+    QueryBuilder qb = this.getQuery(query);
     HashMap<String, FilterBuilder> filters = this.getFilters(query, options);
 
     if (options.isFacet()) {

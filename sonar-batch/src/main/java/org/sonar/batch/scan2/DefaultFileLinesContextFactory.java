@@ -20,7 +20,6 @@
 package org.sonar.batch.scan2;
 
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.SensorStorage;
@@ -36,7 +35,7 @@ public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
   private final ProjectDefinition def;
   private final InputPathCache fileCache;
 
-  public DefaultFileLinesContextFactory(InputPathCache fileCache, FileSystem fs, MetricFinder metricFinder, SensorStorage sensorStorage,
+  public DefaultFileLinesContextFactory(InputPathCache fileCache, MetricFinder metricFinder, SensorStorage sensorStorage,
     ProjectDefinition def) {
     this.fileCache = fileCache;
     this.metricFinder = metricFinder;

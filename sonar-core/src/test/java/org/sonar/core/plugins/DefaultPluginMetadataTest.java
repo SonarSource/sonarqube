@@ -36,19 +36,19 @@ public class DefaultPluginMetadataTest {
   public void testGettersAndSetters() {
     DefaultPluginMetadata metadata = DefaultPluginMetadata.create(new File("sonar-checkstyle-plugin.jar"));
     metadata.setKey("checkstyle")
-        .setParent("java")
-        .setLicense("LGPL")
-        .setDescription("description")
-        .setHomepage("http://home")
-        .setIssueTrackerUrl("http://jira.codehuas.org")
-        .setMainClass("org.Main")
-        .setOrganization("SonarSource")
-        .setOrganizationUrl("http://sonarsource.org")
-        .setVersion("1.1")
-        .setSonarVersion("3.0")
-        .setUseChildFirstClassLoader(true)
-        .setCore(false)
-        .setImplementationBuild("abcdef");
+      .setParent("java")
+      .setLicense("LGPL")
+      .setDescription("description")
+      .setHomepage("http://home")
+      .setIssueTrackerUrl("http://jira.codehuas.org")
+      .setMainClass("org.Main")
+      .setOrganization("SonarSource")
+      .setOrganizationUrl("http://sonarsource.org")
+      .setVersion("1.1")
+      .setSonarVersion("3.0")
+      .setUseChildFirstClassLoader(true)
+      .setCore(false)
+      .setImplementationBuild("abcdef");
 
     assertThat(metadata.getKey()).isEqualTo("checkstyle");
     assertThat(metadata.getParent()).isEqualTo("java");
@@ -72,8 +72,8 @@ public class DefaultPluginMetadataTest {
   @Test
   public void testDeployedFiles() {
     DefaultPluginMetadata metadata = DefaultPluginMetadata.create(new File("sonar-checkstyle-plugin.jar"))
-        .addDeployedFile(new File("foo.jar"))
-        .addDeployedFile(new File("bar.jar"));
+      .addDeployedFile(new File("foo.jar"))
+      .addDeployedFile(new File("bar.jar"));
 
     assertThat(metadata.getDeployedFiles()).hasSize(2);
   }
@@ -81,7 +81,7 @@ public class DefaultPluginMetadataTest {
   @Test
   public void testInternalPathToDependencies() {
     DefaultPluginMetadata metadata = DefaultPluginMetadata.create(new File("sonar-checkstyle-plugin.jar"))
-        .setPathsToInternalDeps(newArrayList("META-INF/lib/commons-lang.jar", "META-INF/lib/commons-io.jar"));
+      .setPathsToInternalDeps(newArrayList("META-INF/lib/commons-lang.jar", "META-INF/lib/commons-io.jar"));
 
     assertThat(metadata.getPathsToInternalDeps()).containsOnly("META-INF/lib/commons-lang.jar", "META-INF/lib/commons-io.jar");
   }
@@ -99,11 +99,11 @@ public class DefaultPluginMetadataTest {
   @Test
   public void shouldCompare() {
     DefaultPluginMetadata checkstyle = DefaultPluginMetadata.create(new File("sonar-checkstyle-plugin.jar"))
-        .setKey("checkstyle")
-        .setName("Checkstyle");
+      .setKey("checkstyle")
+      .setName("Checkstyle");
     DefaultPluginMetadata pmd = DefaultPluginMetadata.create(new File("sonar-pmd-plugin.jar"))
-        .setKey("pmd")
-        .setName("PMD");
+      .setKey("pmd")
+      .setName("PMD");
     List<DefaultPluginMetadata> plugins = Arrays.asList(pmd, checkstyle);
 
     assertThat(natural().sortedCopy(plugins)).onProperty("key").containsExactly("checkstyle", "pmd");
@@ -141,6 +141,6 @@ public class DefaultPluginMetadataTest {
   }
 
   static DefaultPluginMetadata pluginWithVersion(String version) {
-    return DefaultPluginMetadata.create(null).setSonarVersion(version);
+    return DefaultPluginMetadata.create("foo").setSonarVersion(version);
   }
 }
