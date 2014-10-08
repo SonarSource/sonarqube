@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonar.core.config.Logback;
 import org.sonar.core.profiling.Profiling;
+import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 
 import java.io.File;
@@ -67,7 +68,7 @@ class Logging {
     String configProfilingLevel = props.value(Profiling.CONFIG_PROFILING_LEVEL, "NONE");
     Profiling.Level profilingLevel = Profiling.Level.fromConfigString(configProfilingLevel);
     Map<String, String> variables = ImmutableMap.of(
-      "sonar.path.logs", props.nonNullValue("sonar.path.logs"),
+      ProcessConstants.PATH_LOGS, props.nonNullValue(ProcessConstants.PATH_LOGS),
       "LOGGING_FORMAT", profilingLevel == Profiling.Level.FULL ? LOGFILE_FULL_LOGGING_FORMAT : LOGFILE_STANDARD_LOGGING_FORMAT);
     Logback.configure("/org/sonar/server/platform/logback.xml", variables);
   }
@@ -82,7 +83,7 @@ class Logging {
     if (props.valueAsBoolean(PROPERTY_ENABLE_ACCESS_LOGS, true)) {
       LogbackValve valve = new LogbackValve();
       valve.setQuiet(true);
-      valve.setFilename(new File(props.nonNullValue("sonar.path.web"), ACCESS_RELATIVE_PATH).getAbsolutePath());
+      valve.setFilename(new File(props.nonNullValue(ProcessConstants.PATH_WEB), ACCESS_RELATIVE_PATH).getAbsolutePath());
       tomcat.getHost().getPipeline().addValve(valve);
     }
   }

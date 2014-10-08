@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.Timeout;
 import org.sonar.process.NetworkUtils;
+import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 
 import java.util.Properties;
@@ -67,9 +68,9 @@ public class SearchServerTest {
   @Test
   public void start_stop_server() throws Exception {
     Props props = new Props(new Properties());
-    props.set(EsSettings.PROP_TCP_PORT, String.valueOf(port));
-    props.set(EsSettings.PROP_CLUSTER_NAME, CLUSTER_NAME);
-    props.set(EsSettings.SONAR_PATH_HOME, temp.newFolder().getAbsolutePath());
+    props.set(ProcessConstants.SEARCH_PORT, String.valueOf(port));
+    props.set(ProcessConstants.CLUSTER_NAME, CLUSTER_NAME);
+    props.set(ProcessConstants.PATH_HOME, temp.newFolder().getAbsolutePath());
 
     searchServer = new SearchServer(props);
     searchServer.start();
@@ -91,11 +92,11 @@ public class SearchServerTest {
   public void slave_success_replication() throws Exception {
 
     Props props = new Props(new Properties());
-    props.set(EsSettings.PROP_CLUSTER_ACTIVATION, "true");
-    props.set(EsSettings.PROP_TCP_PORT, String.valueOf(port));
-    props.set(EsSettings.PROP_NODE_NAME, "MASTER");
-    props.set(EsSettings.PROP_CLUSTER_NAME, CLUSTER_NAME);
-    props.set(EsSettings.SONAR_PATH_HOME, temp.newFolder().getAbsolutePath());
+    props.set(ProcessConstants.CLUSTER_ACTIVATION, "true");
+    props.set(ProcessConstants.SEARCH_PORT, String.valueOf(port));
+    props.set(ProcessConstants.CLUSTER_NODE_NAME, "MASTER");
+    props.set(ProcessConstants.CLUSTER_NAME, CLUSTER_NAME);
+    props.set(ProcessConstants.PATH_HOME, temp.newFolder().getAbsolutePath());
     searchServer = new SearchServer(props);
     assertThat(searchServer).isNotNull();
 
@@ -107,11 +108,11 @@ public class SearchServerTest {
 
     // start a slave
     props = new Props(new Properties());
-    props.set(EsSettings.PROP_CLUSTER_MASTER, "localhost:" + port);
-    props.set(EsSettings.PROP_NODE_NAME, "SLAVE");
-    props.set(EsSettings.PROP_TCP_PORT, String.valueOf(NetworkUtils.freePort()));
-    props.set(EsSettings.PROP_CLUSTER_NAME, CLUSTER_NAME);
-    props.set(EsSettings.SONAR_PATH_HOME, temp.newFolder().getAbsolutePath());
+    props.set(ProcessConstants.CLUSTER_MASTER_HOSTS, "localhost:" + port);
+    props.set(ProcessConstants.CLUSTER_NODE_NAME, "SLAVE");
+    props.set(ProcessConstants.SEARCH_PORT, String.valueOf(NetworkUtils.freePort()));
+    props.set(ProcessConstants.CLUSTER_NAME, CLUSTER_NAME);
+    props.set(ProcessConstants.PATH_HOME, temp.newFolder().getAbsolutePath());
     SearchServer slaveServer = new SearchServer(props);
     assertThat(slaveServer).isNotNull();
 
@@ -130,11 +131,11 @@ public class SearchServerTest {
   @Test
   public void slave_failed_replication() throws Exception {
     Props props = new Props(new Properties());
-    props.set(EsSettings.PROP_CLUSTER_ACTIVATION, "false");
-    props.set(EsSettings.PROP_TCP_PORT, String.valueOf(port));
-    props.set(EsSettings.PROP_NODE_NAME, "MASTER");
-    props.set(EsSettings.PROP_CLUSTER_NAME, CLUSTER_NAME);
-    props.set(EsSettings.SONAR_PATH_HOME, temp.newFolder().getAbsolutePath());
+    props.set(ProcessConstants.CLUSTER_ACTIVATION, "false");
+    props.set(ProcessConstants.SEARCH_PORT, String.valueOf(port));
+    props.set(ProcessConstants.CLUSTER_NODE_NAME, "MASTER");
+    props.set(ProcessConstants.CLUSTER_NAME, CLUSTER_NAME);
+    props.set(ProcessConstants.PATH_HOME, temp.newFolder().getAbsolutePath());
     searchServer = new SearchServer(props);
     assertThat(searchServer).isNotNull();
 
@@ -146,11 +147,11 @@ public class SearchServerTest {
 
     // start a slave
     props = new Props(new Properties());
-    props.set(EsSettings.PROP_CLUSTER_MASTER, "localhost:" + port);
-    props.set(EsSettings.PROP_NODE_NAME, "SLAVE");
-    props.set(EsSettings.PROP_TCP_PORT, String.valueOf(NetworkUtils.freePort()));
-    props.set(EsSettings.PROP_CLUSTER_NAME, CLUSTER_NAME);
-    props.set(EsSettings.SONAR_PATH_HOME, temp.newFolder().getAbsolutePath());
+    props.set(ProcessConstants.CLUSTER_MASTER_HOSTS, "localhost:" + port);
+    props.set(ProcessConstants.CLUSTER_NODE_NAME, "SLAVE");
+    props.set(ProcessConstants.SEARCH_PORT, String.valueOf(NetworkUtils.freePort()));
+    props.set(ProcessConstants.CLUSTER_NAME, CLUSTER_NAME);
+    props.set(ProcessConstants.PATH_HOME, temp.newFolder().getAbsolutePath());
     SearchServer slaveServer = new SearchServer(props);
     assertThat(slaveServer).isNotNull();
 

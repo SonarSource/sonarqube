@@ -35,6 +35,7 @@ import org.sonar.core.persistence.Database;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.timemachine.Periods;
+import org.sonar.process.ProcessConstants;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.measure.MeasureFilterEngine;
@@ -355,7 +356,7 @@ public final class JRubyFacade {
   }
 
   public String getServerHome() {
-    return get(Settings.class).getString("sonar.path.home");
+    return get(Settings.class).getString(ProcessConstants.PATH_HOME);
   }
 
   public ComponentContainer getContainer() {

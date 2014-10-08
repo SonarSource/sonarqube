@@ -40,6 +40,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
 import org.sonar.process.LoopbackAddress;
+import org.sonar.process.ProcessConstants;
 
 /**
  * ElasticSearch Node used to connect to index.
@@ -52,14 +53,14 @@ public class SearchClient extends TransportClient implements Startable {
 
   public SearchClient(Settings settings) {
     super(ImmutableSettings.settingsBuilder()
-      .put("node.name", StringUtils.defaultIfEmpty(settings.getString(IndexProperties.NODE_NAME), "sq_local_client"))
+      .put("node.name", StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.CLUSTER_NODE_NAME), "sq_local_client"))
       .put("network.bind_host", "localhost")
-      .put("node.rack_id", StringUtils.defaultIfEmpty(settings.getString(IndexProperties.NODE_NAME), "unknown"))
-      .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(IndexProperties.CLUSTER_NAME), "sonarqube"))
+      .put("node.rack_id", StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.CLUSTER_NODE_NAME), "unknown"))
+      .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(ProcessConstants.CLUSTER_NAME), "sonarqube"))
       .build());
     initLogging();
     this.addTransportAddress(new InetSocketTransportAddress(LoopbackAddress.get().getHostAddress(),
-      settings.getInt(IndexProperties.NODE_PORT)));
+      settings.getInt(ProcessConstants.SEARCH_PORT)));
     this.profiling = new Profiling(settings);
   }
 

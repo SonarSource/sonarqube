@@ -22,6 +22,7 @@ package org.sonar.application;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
+import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 
 import javax.annotation.CheckForNull;
@@ -36,8 +37,6 @@ import java.util.regex.Pattern;
 
 public class JdbcSettings {
 
-  static final String PROPERTY_DRIVER_PATH = "sonar.jdbc.driverPath";
-
   static enum Provider {
     h2(null), jtds("lib/jdbc/jtds"), mysql("lib/jdbc/mysql"), oracle("extensions/jdbc-driver/oracle"),
     postgresql("lib/jdbc/postgresql");
@@ -50,12 +49,12 @@ public class JdbcSettings {
   }
 
   public void checkAndComplete(File homeDir, Props props) {
-    String url = props.nonNullValue(DefaultSettings.JDBC_URL);
+    String url = props.nonNullValue(ProcessConstants.JDBC_URL);
     Provider provider = driverProvider(url);
     checkUrlParameters(provider, url);
     String driverPath = driverPath(homeDir, provider);
     if (driverPath != null) {
-      props.set(PROPERTY_DRIVER_PATH, driverPath);
+      props.set(ProcessConstants.JDBC_DRIVER_PATH, driverPath);
     }
   }
 

@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.process.ProcessConstants;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -49,7 +50,7 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
 
   public DefaultServerFileSystem(Settings settings, Server server) {
     this.server = server;
-    this.homeDir = new File(settings.getString("sonar.path.home"));
+    this.homeDir = new File(settings.getString(ProcessConstants.PATH_HOME));
   }
 
   /**

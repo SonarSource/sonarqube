@@ -27,11 +27,11 @@ import org.junit.rules.ExternalResource;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.resources.Language;
 import org.sonar.process.NetworkUtils;
+import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 import org.sonar.search.SearchServer;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.search.IndexProperties;
 import org.sonar.server.ws.WsTester;
 
 import javax.annotation.Nullable;
@@ -70,9 +70,9 @@ public class ServerTester extends ExternalResource {
     clusterName = "cluster-mem-" + System.currentTimeMillis();
     clusterPort = NetworkUtils.freePort();
     Properties properties = new Properties();
-    properties.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
-    properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
-    properties.setProperty("sonar.path.home", homeDir.getAbsolutePath());
+    properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
+    properties.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
+    properties.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
     searchServer = new SearchServer(new Props(properties));
   }
 
@@ -92,11 +92,9 @@ public class ServerTester extends ExternalResource {
 
     Properties properties = new Properties();
     properties.putAll(initialProps);
-
-    properties.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
-    properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
-
-    properties.setProperty("sonar.path.home", homeDir.getAbsolutePath());
+    properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
+    properties.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
+    properties.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
     properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");
     for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
       String key = entry.getKey().toString();

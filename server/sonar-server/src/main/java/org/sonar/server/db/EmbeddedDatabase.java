@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.SonarException;
+import org.sonar.process.ProcessConstants;
 
 import java.io.File;
 import java.sql.DriverManager;
@@ -83,7 +84,7 @@ public class EmbeddedDatabase implements Startable {
 
   @VisibleForTesting
   File getDataDirectory(Settings settings) {
-    return new File(settings.getString("sonar.path.data"));
+    return new File(settings.getString(ProcessConstants.PATH_DATA));
   }
 
   private String getSetting(String name, String defaultValue) {

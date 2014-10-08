@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
+import org.sonar.process.ProcessConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,7 +78,7 @@ public final class ServerImpl extends Server implements Startable {
         // Remove trailing slashes
         .replaceFirst("(\\/+)$", "");
 
-      sonarHome = new File(settings.getString("sonar.path.home"));
+      sonarHome = new File(settings.getString(ProcessConstants.PATH_HOME));
       if (!sonarHome.isDirectory()) {
         throw new IllegalStateException("SonarQube home directory is not valid");
       }

@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.MessageException;
+import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 
 import java.io.File;
@@ -33,7 +34,7 @@ import java.util.Properties;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
-public class EsSettingsTest {
+public class SearchSettingsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -41,7 +42,7 @@ public class EsSettingsTest {
   @Test
   public void fail_if_tcp_port_is_not_set() throws Exception {
     try {
-      new EsSettings(new Props(new Properties()));
+      new SearchSettings(new Props(new Properties()));
       fail();
     } catch (MessageException e) {
       assertThat(e).hasMessage("Property is not set: sonar.search.port");
@@ -52,16 +53,16 @@ public class EsSettingsTest {
   public void test_default_settings() throws Exception {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(EsSettings.PROP_TCP_PORT, "1234");
-    props.set(EsSettings.SONAR_PATH_HOME, homeDir.getAbsolutePath());
-    props.set(EsSettings.PROP_CLUSTER_NAME, "test");
+    props.set(ProcessConstants.SEARCH_PORT, "1234");
+    props.set(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
+    props.set(ProcessConstants.CLUSTER_NAME, "test");
 
-    EsSettings esSettings = new EsSettings(props);
-    assertThat(esSettings.inCluster()).isFalse();
-    assertThat(esSettings.clusterName()).isEqualTo("test");
-    assertThat(esSettings.tcpPort()).isEqualTo(1234);
+    SearchSettings searchSettings = new SearchSettings(props);
+    assertThat(searchSettings.inCluster()).isFalse();
+    assertThat(searchSettings.clusterName()).isEqualTo("test");
+    assertThat(searchSettings.tcpPort()).isEqualTo(1234);
 
-    Settings generated = esSettings.build();
+    Settings generated = searchSettings.build();
     assertThat(generated.get("transport.tcp.port")).isEqualTo("1234");
     assertThat(generated.get("cluster.name")).isEqualTo("test");
     assertThat(generated.get("path.data")).isNotNull();
@@ -81,14 +82,14 @@ public class EsSettingsTest {
   public void override_dirs() throws Exception {
     File homeDir = temp.newFolder(), dataDir = temp.newFolder(), logDir = temp.newFolder(), tempDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(EsSettings.PROP_TCP_PORT, "1234");
-    props.set(EsSettings.SONAR_PATH_HOME, homeDir.getAbsolutePath());
-    props.set(EsSettings.SONAR_PATH_DATA, dataDir.getAbsolutePath());
-    props.set(EsSettings.SONAR_PATH_LOG, logDir.getAbsolutePath());
-    props.set(EsSettings.SONAR_PATH_TEMP, tempDir.getAbsolutePath());
-    props.set(EsSettings.PROP_CLUSTER_NAME, "test");
+    props.set(ProcessConstants.SEARCH_PORT, "1234");
+    props.set(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
+    props.set(ProcessConstants.PATH_DATA, dataDir.getAbsolutePath());
+    props.set(ProcessConstants.PATH_LOGS, logDir.getAbsolutePath());
+    props.set(ProcessConstants.PATH_TEMP, tempDir.getAbsolutePath());
+    props.set(ProcessConstants.CLUSTER_NAME, "test");
 
-    Settings settings = new EsSettings(props).build();
+    Settings settings = new SearchSettings(props).build();
 
     assertThat(settings.get("path.data")).isEqualTo(new File(dataDir, "es").getAbsolutePath());
     assertThat(settings.get("path.logs")).isEqualTo(logDir.getAbsolutePath());
@@ -98,8 +99,8 @@ public class EsSettingsTest {
   @Test
   public void test_cluster_master() throws Exception {
     Props props = minProps();
-    props.set(EsSettings.PROP_CLUSTER_ACTIVATION, "true");
-    Settings settings = new EsSettings(props).build();
+    props.set(ProcessConstants.CLUSTER_ACTIVATION, "true");
+    Settings settings = new SearchSettings(props).build();
 
     assertThat(settings.get("index.number_of_replicas")).isEqualTo("1");
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isNull();
@@ -109,8 +110,8 @@ public class EsSettingsTest {
   @Test
   public void test_cluster_slave() throws Exception {
     Props props = minProps();
-    props.set(EsSettings.PROP_CLUSTER_MASTER, "127.0.0.2,127.0.0.3");
-    Settings settings = new EsSettings(props).build();
+    props.set(ProcessConstants.CLUSTER_MASTER_HOSTS, "127.0.0.2,127.0.0.3");
+    Settings settings = new SearchSettings(props).build();
 
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("127.0.0.2,127.0.0.3");
     assertThat(settings.get("node.master")).isEqualTo("false");
@@ -119,8 +120,8 @@ public class EsSettingsTest {
   @Test
   public void enable_marvel() throws Exception {
     Props props = minProps();
-    props.set(EsSettings.PROP_MARVEL, "127.0.0.2,127.0.0.3");
-    Settings settings = new EsSettings(props).build();
+    props.set(SearchSettings.PROP_MARVEL_HOSTS, "127.0.0.2,127.0.0.3");
+    Settings settings = new SearchSettings(props).build();
 
     assertThat(settings.get("marvel.agent.exporter.es.hosts")).isEqualTo("127.0.0.2,127.0.0.3");
   }
@@ -128,8 +129,8 @@ public class EsSettingsTest {
   @Test
   public void enable_http_connector() throws Exception {
     Props props = minProps();
-    props.set(EsSettings.PROP_HTTP_PORT, "9010");
-    Settings settings = new EsSettings(props).build();
+    props.set(SearchSettings.PROP_HTTP_PORT, "9010");
+    Settings settings = new SearchSettings(props).build();
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.1");
@@ -139,9 +140,9 @@ public class EsSettingsTest {
   private Props minProps() throws IOException {
     File homeDir = temp.newFolder();
     Props props = new Props(new Properties());
-    props.set(EsSettings.PROP_TCP_PORT, "1234");
-    props.set(EsSettings.SONAR_PATH_HOME, homeDir.getAbsolutePath());
-    props.set(EsSettings.PROP_CLUSTER_NAME, "test");
+    props.set(ProcessConstants.SEARCH_PORT, "1234");
+    props.set(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
+    props.set(ProcessConstants.CLUSTER_NAME, "test");
     return props;
   }
 }

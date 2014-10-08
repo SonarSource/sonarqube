@@ -34,11 +34,11 @@ import org.sonar.process.Props;
 
 public class SearchServer implements Monitored {
 
-  private final EsSettings settings;
+  private final SearchSettings settings;
   private InternalNode node;
 
   public SearchServer(Props props) {
-    this.settings = new EsSettings(props);
+    this.settings = new SearchSettings(props);
     new MinimumViableSystem().check();
   }
 

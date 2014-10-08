@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.process.NetworkUtils;
+import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 import org.sonar.search.SearchServer;
 
@@ -56,9 +57,9 @@ public class BaseIndexTest {
     clusterName = "cluster-mem-" + System.currentTimeMillis();
     clusterPort = NetworkUtils.freePort();
     Properties properties = new Properties();
-    properties.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
-    properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
-    properties.setProperty("sonar.path.home", temp.getRoot().getAbsolutePath());
+    properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
+    properties.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
+    properties.setProperty(ProcessConstants.PATH_HOME, temp.getRoot().getAbsolutePath());
     try {
       searchServer = new SearchServer(new Props(properties));
     } catch (Exception e) {
@@ -76,10 +77,10 @@ public class BaseIndexTest {
   public void setup() throws IOException {
     File dataDir = temp.newFolder();
     Settings settings = new Settings();
-    settings.setProperty(IndexProperties.CLUSTER_ACTIVATION, false);
-    settings.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
-    settings.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
-    settings.setProperty("sonar.path.home", dataDir.getAbsolutePath());
+    settings.setProperty(ProcessConstants.CLUSTER_ACTIVATION, false);
+    settings.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
+    settings.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
+    settings.setProperty(ProcessConstants.PATH_HOME, dataDir.getAbsolutePath());
     searchClient = new SearchClient(settings);
   }
 

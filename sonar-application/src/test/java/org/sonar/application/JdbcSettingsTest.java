@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.MessageException;
+import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 
 import java.io.File;
@@ -89,7 +90,7 @@ public class JdbcSettingsTest {
     Props props = new Props(new Properties());
     props.set("sonar.jdbc.url", "jdbc:oracle:thin:@localhost/XE");
     settings.checkAndComplete(home, props);
-    assertThat(props.nonNullValueAsFile(JdbcSettings.PROPERTY_DRIVER_PATH)).isEqualTo(driverFile);
+    assertThat(props.nonNullValueAsFile(ProcessConstants.JDBC_DRIVER_PATH)).isEqualTo(driverFile);
   }
 
   @Test
@@ -98,7 +99,7 @@ public class JdbcSettingsTest {
     Props props = new Props(new Properties());
     props.set("sonar.jdbc.url", "jdbc:h2:tcp://localhost:9092/sonar");
     settings.checkAndComplete(home, props);
-    assertThat(props.value(JdbcSettings.PROPERTY_DRIVER_PATH)).isNull();
+    assertThat(props.value(ProcessConstants.JDBC_DRIVER_PATH)).isNull();
   }
 
   @Test
@@ -110,7 +111,7 @@ public class JdbcSettingsTest {
     Props props = new Props(new Properties());
     props.set("sonar.jdbc.url", "jdbc:postgresql://localhost/sonar");
     settings.checkAndComplete(home, props);
-    assertThat(props.nonNullValueAsFile(JdbcSettings.PROPERTY_DRIVER_PATH)).isEqualTo(driverFile);
+    assertThat(props.nonNullValueAsFile(ProcessConstants.JDBC_DRIVER_PATH)).isEqualTo(driverFile);
   }
 
   @Test
@@ -122,7 +123,7 @@ public class JdbcSettingsTest {
     Props props = new Props(new Properties());
     props.set("sonar.jdbc.url", "jdbc:jtds:sqlserver://localhost/sonar;SelectMethod=Cursor");
     settings.checkAndComplete(home, props);
-    assertThat(props.nonNullValueAsFile(JdbcSettings.PROPERTY_DRIVER_PATH)).isEqualTo(driverFile);
+    assertThat(props.nonNullValueAsFile(ProcessConstants.JDBC_DRIVER_PATH)).isEqualTo(driverFile);
   }
 
   @Test

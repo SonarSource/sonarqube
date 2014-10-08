@@ -23,6 +23,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.ProcessCommands;
+import org.sonar.process.ProcessConstants;
 import org.sonar.process.ProcessLogging;
 import org.sonar.process.Props;
 import org.sonar.process.StopWatcher;
@@ -52,9 +53,9 @@ public class App implements Stoppable {
   }
 
   public void start(Props props) {
-    if (props.valueAsBoolean("sonar.enableStopCommand", false)) {
+    if (props.valueAsBoolean(ProcessConstants.ENABLE_STOP_COMMAND, false)) {
       // stop application when file <temp>/app.stop is created
-      File tempDir = props.nonNullValueAsFile("sonar.path.temp");
+      File tempDir = props.nonNullValueAsFile(ProcessConstants.PATH_TEMP);
       ProcessCommands commands = new ProcessCommands(tempDir, "app");
       stopWatcher = new StopWatcher(commands, this);
       stopWatcher.start();
@@ -65,14 +66,14 @@ public class App implements Stoppable {
 
   List<JavaCommand> createCommands(Props props) {
     List<JavaCommand> commands = new ArrayList<JavaCommand>();
-    File homeDir = props.nonNullValueAsFile("sonar.path.home");
-    File tempDir = props.nonNullValueAsFile("sonar.path.temp");
+    File homeDir = props.nonNullValueAsFile(ProcessConstants.PATH_HOME);
+    File tempDir = props.nonNullValueAsFile(ProcessConstants.PATH_TEMP);
     JavaCommand elasticsearch = new JavaCommand("search");
     elasticsearch
       .setWorkDir(homeDir)
       .addJavaOptions("-Djava.awt.headless=true")
-      .addJavaOptions(props.nonNullValue(DefaultSettings.SEARCH_JAVA_OPTS))
-      .addJavaOptions(props.nonNullValue(DefaultSettings.SEARCH_JAVA_ADDITIONAL_OPTS))
+      .addJavaOptions(props.nonNullValue(ProcessConstants.SEARCH_JAVA_OPTS))
+      .addJavaOptions(props.nonNullValue(ProcessConstants.SEARCH_JAVA_ADDITIONAL_OPTS))
       .setTempDir(tempDir.getAbsoluteFile())
       .setClassName("org.sonar.search.SearchServer")
       .setArguments(props.rawProperties())
@@ -81,20 +82,20 @@ public class App implements Stoppable {
     commands.add(elasticsearch);
 
     // do not yet start SQ in cluster mode. See SONAR-5483 & SONAR-5391
-    if (StringUtils.isEmpty(props.value(DefaultSettings.CLUSTER_MASTER))) {
+    if (StringUtils.isEmpty(props.value(ProcessConstants.CLUSTER_MASTER_HOSTS))) {
       JavaCommand webServer = new JavaCommand("web")
         .setWorkDir(homeDir)
         .addJavaOptions("-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false")
-        .addJavaOptions(props.nonNullValue(DefaultSettings.WEB_JAVA_OPTS))
-        .addJavaOptions(props.nonNullValue(DefaultSettings.WEB_JAVA_ADDITIONAL_OPTS))
+        .addJavaOptions(props.nonNullValue(ProcessConstants.WEB_JAVA_OPTS))
+        .addJavaOptions(props.nonNullValue(ProcessConstants.WEB_JAVA_ADDITIONAL_OPTS))
         .setTempDir(tempDir.getAbsoluteFile())
         // required for logback tomcat valve
-        .setEnvVariable("sonar.path.logs", props.nonNullValue("sonar.path.logs"))
+        .setEnvVariable(ProcessConstants.PATH_LOGS, props.nonNullValue(ProcessConstants.PATH_LOGS))
         .setClassName("org.sonar.server.app.WebServer")
         .setArguments(props.rawProperties())
         .addClasspath("./lib/common/*")
         .addClasspath("./lib/server/*");
-      String driverPath = props.value(JdbcSettings.PROPERTY_DRIVER_PATH);
+      String driverPath = props.value(ProcessConstants.JDBC_DRIVER_PATH);
       if (driverPath != null) {
         webServer.addClasspath(driverPath);
       }

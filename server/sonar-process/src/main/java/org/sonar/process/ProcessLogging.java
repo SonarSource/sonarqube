@@ -30,15 +30,13 @@ import org.slf4j.LoggerFactory;
 
 public class ProcessLogging {
 
-  private static final String PATH_LOGS_PROPERTY = "sonar.path.logs";
-
   public void configure(Props props, String logbackXmlResource) {
     LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
     try {
       JoranConfigurator configurator = new JoranConfigurator();
       configurator.setContext(context);
       context.reset();
-      context.putProperty(PATH_LOGS_PROPERTY, props.nonNullValue(PATH_LOGS_PROPERTY));
+      context.putProperty(ProcessConstants.PATH_LOGS, props.nonNullValue(ProcessConstants.PATH_LOGS));
       doConfigure(configurator, logbackXmlResource);
     } catch (JoranException ignored) {
       // StatusPrinter will handle this

@@ -22,6 +22,7 @@ package org.sonar.application;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.process.ConfigurationUtils;
+import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 
 import java.io.File;
@@ -53,7 +54,7 @@ class PropsBuilder {
   Props build() throws IOException {
     Properties p = loadPropertiesFile(homeDir);
     p.putAll(rawProperties);
-    p.setProperty("sonar.path.home", homeDir.getAbsolutePath());
+    p.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
     p = ConfigurationUtils.interpolateVariables(p, System.getenv());
 
     // the difference between Properties and Props is that the latter
@@ -63,9 +64,9 @@ class PropsBuilder {
     DefaultSettings.init(props);
 
     // init file system
-    initExistingDir(props, "sonar.path.data", "data");
-    initExistingDir(props, "sonar.path.web", "web");
-    initExistingDir(props, "sonar.path.logs", "logs");
+    initExistingDir(props, ProcessConstants.PATH_DATA, "data");
+    initExistingDir(props, ProcessConstants.PATH_WEB, "web");
+    initExistingDir(props, ProcessConstants.PATH_LOGS, "logs");
     initTempDir(props);
 
     // check JDBC properties and set path to driver
@@ -94,7 +95,7 @@ class PropsBuilder {
   }
 
   private void initTempDir(Props props) throws IOException {
-    File dir = configureDir(props, "sonar.path.temp", "temp");
+    File dir = configureDir(props, ProcessConstants.PATH_TEMP, "temp");
     FileUtils.deleteQuietly(dir);
     FileUtils.forceMkdir(dir);
   }

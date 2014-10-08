@@ -27,6 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.process.ProcessConstants;
 
 import java.io.File;
 
@@ -47,7 +48,7 @@ public class ServerImplTest {
 
   @Before
   public void setUp() throws Exception {
-    settings = new Settings().setProperty("sonar.path.home", sonarHome.getRoot().getAbsolutePath());
+    settings = new Settings().setProperty(ProcessConstants.PATH_HOME, sonarHome.getRoot().getAbsolutePath());
     new File(sonarHome.getRoot(), "web/deploy").mkdirs();
 
     server = new ServerImpl(settings, "/org/sonar/server/platform/ServerImplTest/build.properties", "/org/sonar/server/platform/ServerImplTest/version.txt");

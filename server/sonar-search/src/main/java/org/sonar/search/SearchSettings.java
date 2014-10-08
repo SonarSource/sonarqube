@@ -22,8 +22,10 @@ package org.sonar.search;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
+import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 import org.sonar.search.script.ListUpdate;
 
@@ -34,36 +36,25 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-class EsSettings {
+class SearchSettings {
 
-  // set by monitor process, so value is never null
-  public static final String PROP_TCP_PORT = "sonar.search.port";
+  private static Logger LOGGER = LoggerFactory.getLogger(SearchSettings.class);
 
-  public static final String PROP_CLUSTER_ACTIVATION = "sonar.cluster.activation";
-  public static final String PROP_NODE_NAME = "sonar.node.name";
-  public static final String PROP_CLUSTER_NAME = "sonar.cluster.name";
-  public static final String PROP_CLUSTER_MASTER = "sonar.cluster.master";
   public static final String PROP_HTTP_PORT = "sonar.search.httpPort";
-  public static final String PROP_MARVEL = "sonar.search.marvel";
-
-  public static final String SONAR_PATH_HOME = "sonar.path.home";
-  public static final String SONAR_PATH_DATA = "sonar.path.data";
-  public static final String SONAR_PATH_TEMP = "sonar.path.temp";
-  public static final String SONAR_PATH_LOG = "sonar.path.log";
+  public static final String PROP_MARVEL_HOSTS = "sonar.search.marvelHosts";
 
   private final Props props;
   private final Set<String> clusterNodes = new LinkedHashSet<String>();
   private final String clusterName;
   private final int tcpPort;
 
-  EsSettings(Props props) {
+  SearchSettings(Props props) {
     this.props = props;
-    clusterNodes.addAll(Arrays.asList(StringUtils.split(props.value(PROP_CLUSTER_MASTER, ""), ",")));
-
-    clusterName = props.value(PROP_CLUSTER_NAME);
-    Integer port = props.valueAsInt(PROP_TCP_PORT);
+    clusterNodes.addAll(Arrays.asList(StringUtils.split(props.value(ProcessConstants.CLUSTER_MASTER_HOSTS, ""), ",")));
+    clusterName = props.value(ProcessConstants.CLUSTER_NAME);
+    Integer port = props.valueAsInt(ProcessConstants.SEARCH_PORT);
     if (port == null) {
-      throw new MessageException("Property is not set: " + PROP_TCP_PORT);
+      throw new MessageException("Property is not set: " + ProcessConstants.SEARCH_PORT);
     }
     tcpPort = port.intValue();
   }
@@ -88,16 +79,15 @@ class EsSettings {
     configureNetwork(builder);
     configureCluster(builder);
     configureMarvel(builder);
-    System.out.println(builder.build());
     return builder.build();
   }
 
   private void configureFileSystem(ImmutableSettings.Builder builder) {
-    File homeDir = props.nonNullValueAsFile(SONAR_PATH_HOME);
+    File homeDir = props.nonNullValueAsFile(ProcessConstants.PATH_HOME);
     File dataDir, workDir, logDir;
 
     // data dir
-    String dataPath = props.value(SONAR_PATH_DATA);
+    String dataPath = props.value(ProcessConstants.PATH_DATA);
     if (StringUtils.isNotEmpty(dataPath)) {
       dataDir = new File(dataPath, "es");
     } else {
@@ -106,7 +96,7 @@ class EsSettings {
     builder.put("path.data", dataDir.getAbsolutePath());
 
     // working dir
-    String workPath = props.value(SONAR_PATH_TEMP);
+    String workPath = props.value(ProcessConstants.PATH_TEMP);
     if (StringUtils.isNotEmpty(workPath)) {
       workDir = new File(workPath);
     } else {
@@ -116,7 +106,7 @@ class EsSettings {
     builder.put("path.plugins", workDir.getAbsolutePath());
 
     // log dir
-    String logPath = props.value(SONAR_PATH_LOG);
+    String logPath = props.value(ProcessConstants.PATH_LOGS);
     if (StringUtils.isNotEmpty(logPath)) {
       logDir = new File(logPath);
     } else {
@@ -134,14 +124,15 @@ class EsSettings {
   private void configureNetwork(ImmutableSettings.Builder builder) {
     // disable multicast
     builder.put("discovery.zen.ping.multicast.enabled", "false");
-
     builder.put("transport.tcp.port", tcpPort);
 
     Integer httpPort = props.valueAsInt(PROP_HTTP_PORT);
-    if (httpPort ==null) {
+    if (httpPort == null) {
       // standard configuration
       builder.put("http.enabled", false);
     } else {
+      LOGGER.warn(String.format(
+        "Elasticsearch HTTP connector is enabled on port %d. MUST NOT BE USED INTO PRODUCTION", httpPort));
       builder.put("http.enabled", true);
       builder.put("http.host", "127.0.0.1");
       builder.put("http.port", httpPort);
@@ -170,15 +161,15 @@ class EsSettings {
 
     // When SQ is ran as a cluster
     // see https://jira.codehaus.org/browse/SONAR-5687
-    int replicationFactor = props.valueAsBoolean(PROP_CLUSTER_ACTIVATION, false) ? 1 : 0;
+    int replicationFactor = props.valueAsBoolean(ProcessConstants.CLUSTER_ACTIVATION, false) ? 1 : 0;
     builder.put("index.number_of_replicas", replicationFactor);
 
     // Set cluster coordinates
     builder.put("cluster.name", clusterName);
     builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
-    builder.put("node.rack_id", props.value(PROP_NODE_NAME, "unknown"));
-    if (props.contains(PROP_NODE_NAME)) {
-      builder.put("node.name", props.value(PROP_NODE_NAME));
+    builder.put("node.rack_id", props.value(ProcessConstants.CLUSTER_NODE_NAME, "unknown"));
+    if (props.contains(ProcessConstants.CLUSTER_NODE_NAME)) {
+      builder.put("node.name", props.value(ProcessConstants.CLUSTER_NODE_NAME));
     } else {
       try {
         builder.put("node.name", InetAddress.getLocalHost().getHostName());
@@ -191,13 +182,15 @@ class EsSettings {
 
   private void configureMarvel(ImmutableSettings.Builder builder) {
     Set<String> marvels = new TreeSet<String>();
-    marvels.addAll(Arrays.asList(StringUtils.split(props.value(PROP_MARVEL, ""), ",")));
+    marvels.addAll(Arrays.asList(StringUtils.split(props.value(PROP_MARVEL_HOSTS, ""), ",")));
 
     // Enable marvel's index creation
     builder.put("action.auto_create_index", ".marvel-*");
     // If we're collecting indexing data send them to the Marvel host(s)
     if (!marvels.isEmpty()) {
-      builder.put("marvel.agent.exporter.es.hosts", StringUtils.join(marvels, ","));
+      String hosts = StringUtils.join(marvels, ",");
+      LOGGER.info(String.format("Elasticsearch Marvel is enabled for %s", hosts));
+      builder.put("marvel.agent.exporter.es.hosts", hosts);
     }
   }
 }

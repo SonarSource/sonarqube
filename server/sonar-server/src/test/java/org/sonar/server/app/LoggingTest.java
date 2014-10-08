@@ -31,6 +31,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
+import org.sonar.process.ProcessConstants;
 import org.sonar.process.Props;
 
 import java.io.File;
@@ -57,7 +58,7 @@ public class LoggingTest {
   public void enable_access_logs_by_Default() throws Exception {
     Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
     Props props = new Props(new Properties());
-    props.set("sonar.path.web", temp.newFolder().getAbsolutePath());
+    props.set(ProcessConstants.PATH_WEB, temp.newFolder().getAbsolutePath());
     Logging.configure(tomcat, props);
 
     verify(tomcat.getHost().getPipeline()).addValve(argThat(new ArgumentMatcher<Valve>() {

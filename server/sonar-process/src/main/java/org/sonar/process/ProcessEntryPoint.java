@@ -70,7 +70,7 @@ public class ProcessEntryPoint implements Stoppable {
     monitored = mp;
 
     try {
-      LoggerFactory.getLogger(getClass()).warn("Starting " + getKey());
+      LoggerFactory.getLogger(getClass()).info("Starting " + getKey());
       Runtime.getRuntime().addShutdownHook(shutdownHook);
       stopWatcher.start();
 
