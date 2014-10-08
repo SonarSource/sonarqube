@@ -72,7 +72,7 @@ public class ServerTester extends ExternalResource {
     Properties properties = new Properties();
     properties.setProperty(IndexProperties.CLUSTER_NAME, clusterName);
     properties.setProperty(IndexProperties.NODE_PORT, clusterPort.toString());
-    properties.setProperty(SearchServer.SONAR_PATH_HOME, homeDir.getAbsolutePath());
+    properties.setProperty("sonar.path.home", homeDir.getAbsolutePath());
     searchServer = new SearchServer(new Props(properties));
   }
 

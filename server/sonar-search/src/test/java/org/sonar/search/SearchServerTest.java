@@ -27,29 +27,31 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.Timeout;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.Props;
 
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class SearchServerTest {
 
-  Integer port;
-  String cluster;
+  static final String CLUSTER_NAME = "unitTest";
+
+  int port = NetworkUtils.freePort();
   SearchServer searchServer;
   Client client;
 
-  @Before
-  public void setUp() throws Exception {
-    port = NetworkUtils.freePort();
-    cluster = "unitTest";
-  }
+  @Rule
+  public Timeout timeout = new Timeout(30000);
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @After
   public void tearDown() throws Exception {
@@ -62,23 +64,14 @@ public class SearchServerTest {
     }
   }
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
-  public TemporaryFolder temp2 = new TemporaryFolder();
-
-  @Test(timeout = 15000L)
+  @Test
   public void start_stop_server() throws Exception {
+    Props props = new Props(new Properties());
+    props.set(EsSettings.PROP_TCP_PORT, String.valueOf(port));
+    props.set(EsSettings.PROP_CLUSTER_NAME, CLUSTER_NAME);
+    props.set(EsSettings.SONAR_PATH_HOME, temp.newFolder().getAbsolutePath());
 
-    Properties props = new Properties();
-    props.put(SearchServer.ES_PORT_PROPERTY, port.toString());
-    props.put(SearchServer.ES_CLUSTER_PROPERTY, cluster);
-    props.put(SearchServer.SONAR_PATH_HOME, temp.getRoot().getAbsolutePath());
-
-    searchServer = new SearchServer(new Props(props));
-    assertThat(searchServer).isNotNull();
-
+    searchServer = new SearchServer(props);
     searchServer.start();
     assertThat(searchServer.isReady()).isTrue();
 
@@ -95,68 +88,15 @@ public class SearchServerTest {
   }
 
   @Test
-  public void default_has_no_replication() throws Exception {
-
-    Properties props = new Properties();
-    props.put(SearchServer.ES_PORT_PROPERTY, port.toString());
-    props.put(SearchServer.ES_CLUSTER_PROPERTY, cluster);
-    props.put(SearchServer.SONAR_PATH_HOME, temp.getRoot().getAbsolutePath());
-
-    searchServer = new SearchServer(new Props(props));
-    assertThat(searchServer).isNotNull();
-
-    searchServer.start();
-    assertThat(searchServer.isReady()).isTrue();
-
-    client = getSearchClient();
-    client.admin().indices().prepareCreate("test").get();
-
-    assertThat(client.admin().indices().prepareGetSettings("test")
-      .get()
-      .getSetting("test", "index.number_of_replicas"))
-      .isEqualTo("0");
-
-    searchServer.stop();
-    searchServer.awaitStop();
-  }
-
-  @Test
-  public void cluster_has_replication() throws Exception {
-
-    Properties props = new Properties();
-    props.put(SearchServer.CLUSTER_ACTIVATION, Boolean.TRUE.toString());
-    props.put(SearchServer.ES_PORT_PROPERTY, port.toString());
-    props.put(SearchServer.ES_CLUSTER_PROPERTY, cluster);
-    props.put(SearchServer.SONAR_PATH_HOME, temp.getRoot().getAbsolutePath());
-
-    searchServer = new SearchServer(new Props(props));
-    assertThat(searchServer).isNotNull();
-
-    searchServer.start();
-    assertThat(searchServer.isReady()).isTrue();
-
-    client = getSearchClient();
-    client.admin().indices().prepareCreate("test").get();
-
-    assertThat(client.admin().indices().prepareGetSettings("test")
-      .get()
-      .getSetting("test", "index.number_of_replicas"))
-      .isEqualTo("1");
-
-    searchServer.stop();
-    searchServer.awaitStop();
-  }
-
-  @Test
   public void slave_success_replication() throws Exception {
 
-    Properties props = new Properties();
-    props.put(SearchServer.CLUSTER_ACTIVATION, Boolean.TRUE.toString());
-    props.put(SearchServer.ES_PORT_PROPERTY, port.toString());
-    props.put(SearchServer.SONAR_NODE_NAME, "MASTER");
-    props.put(SearchServer.ES_CLUSTER_PROPERTY, cluster);
-    props.put(SearchServer.SONAR_PATH_HOME, temp.getRoot().getAbsolutePath());
-    searchServer = new SearchServer(new Props(props));
+    Props props = new Props(new Properties());
+    props.set(EsSettings.PROP_CLUSTER_ACTIVATION, "true");
+    props.set(EsSettings.PROP_TCP_PORT, String.valueOf(port));
+    props.set(EsSettings.PROP_NODE_NAME, "MASTER");
+    props.set(EsSettings.PROP_CLUSTER_NAME, CLUSTER_NAME);
+    props.set(EsSettings.SONAR_PATH_HOME, temp.newFolder().getAbsolutePath());
+    searchServer = new SearchServer(props);
     assertThat(searchServer).isNotNull();
 
     searchServer.start();
@@ -166,13 +106,13 @@ public class SearchServerTest {
     client.admin().indices().prepareCreate("test").get();
 
     // start a slave
-    props = new Properties();
-    props.put(SearchServer.ES_CLUSTER_INET, "localhost:" + port);
-    props.put(SearchServer.SONAR_NODE_NAME, "SLAVE");
-    props.put(SearchServer.ES_PORT_PROPERTY, NetworkUtils.freePort() + "");
-    props.put(SearchServer.ES_CLUSTER_PROPERTY, cluster);
-    props.put(SearchServer.SONAR_PATH_HOME, temp2.getRoot().getAbsolutePath());
-    SearchServer slaveServer = new SearchServer(new Props(props));
+    props = new Props(new Properties());
+    props.set(EsSettings.PROP_CLUSTER_MASTER, "localhost:" + port);
+    props.set(EsSettings.PROP_NODE_NAME, "SLAVE");
+    props.set(EsSettings.PROP_TCP_PORT, String.valueOf(NetworkUtils.freePort()));
+    props.set(EsSettings.PROP_CLUSTER_NAME, CLUSTER_NAME);
+    props.set(EsSettings.SONAR_PATH_HOME, temp.newFolder().getAbsolutePath());
+    SearchServer slaveServer = new SearchServer(props);
     assertThat(slaveServer).isNotNull();
 
     slaveServer.start();
@@ -189,14 +129,13 @@ public class SearchServerTest {
 
   @Test
   public void slave_failed_replication() throws Exception {
-
-    Properties props = new Properties();
-    props.put(SearchServer.CLUSTER_ACTIVATION, Boolean.FALSE.toString());
-    props.put(SearchServer.ES_PORT_PROPERTY, port.toString());
-    props.put(SearchServer.SONAR_NODE_NAME, "MASTER");
-    props.put(SearchServer.ES_CLUSTER_PROPERTY, cluster);
-    props.put(SearchServer.SONAR_PATH_HOME, temp.getRoot().getAbsolutePath());
-    searchServer = new SearchServer(new Props(props));
+    Props props = new Props(new Properties());
+    props.set(EsSettings.PROP_CLUSTER_ACTIVATION, "false");
+    props.set(EsSettings.PROP_TCP_PORT, String.valueOf(port));
+    props.set(EsSettings.PROP_NODE_NAME, "MASTER");
+    props.set(EsSettings.PROP_CLUSTER_NAME, CLUSTER_NAME);
+    props.set(EsSettings.SONAR_PATH_HOME, temp.newFolder().getAbsolutePath());
+    searchServer = new SearchServer(props);
     assertThat(searchServer).isNotNull();
 
     searchServer.start();
@@ -206,19 +145,20 @@ public class SearchServerTest {
     client.admin().indices().prepareCreate("test").get();
 
     // start a slave
-    props = new Properties();
-    props.put(SearchServer.ES_CLUSTER_INET, "localhost:" + port);
-    props.put(SearchServer.SONAR_NODE_NAME, "SLAVE");
-    props.put(SearchServer.ES_PORT_PROPERTY, NetworkUtils.freePort() + "");
-    props.put(SearchServer.ES_CLUSTER_PROPERTY, cluster);
-    props.put(SearchServer.SONAR_PATH_HOME, temp2.getRoot().getAbsolutePath());
-    SearchServer slaveServer = new SearchServer(new Props(props));
+    props = new Props(new Properties());
+    props.set(EsSettings.PROP_CLUSTER_MASTER, "localhost:" + port);
+    props.set(EsSettings.PROP_NODE_NAME, "SLAVE");
+    props.set(EsSettings.PROP_TCP_PORT, String.valueOf(NetworkUtils.freePort()));
+    props.set(EsSettings.PROP_CLUSTER_NAME, CLUSTER_NAME);
+    props.set(EsSettings.SONAR_PATH_HOME, temp.newFolder().getAbsolutePath());
+    SearchServer slaveServer = new SearchServer(props);
     assertThat(slaveServer).isNotNull();
 
     try {
       slaveServer.start();
+      fail();
     } catch (Exception e) {
-      assertThat(e.getMessage()).isEqualTo(SearchServer.WRONG_MASTER_REPLICATION_FACTOR);
+      assertThat(e).hasMessage("Index configuration is not set to cluster. Please start the master node with 'sonar.cluster.activation=true'");
     }
 
     assertThat(client.admin().cluster().prepareClusterStats().get()
@@ -230,7 +170,7 @@ public class SearchServerTest {
 
   private Client getSearchClient() {
     Settings settings = ImmutableSettings.settingsBuilder()
-      .put("cluster.name", cluster).build();
+      .put("cluster.name", CLUSTER_NAME).build();
     Client client = new TransportClient(settings)
       .addTransportAddress(new InetSocketTransportAddress("localhost", port));
     assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isEqualTo(ClusterHealthStatus.GREEN);

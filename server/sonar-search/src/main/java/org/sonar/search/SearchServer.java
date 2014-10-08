@@ -19,156 +19,46 @@
  */
 package org.sonar.search;
 
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.hppc.cursors.ObjectCursor;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.internal.InternalNode;
 import org.slf4j.LoggerFactory;
+import org.sonar.process.MessageException;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessLogging;
 import org.sonar.process.Props;
-import org.sonar.search.script.ListUpdate;
-
-import java.io.File;
-import java.net.InetAddress;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 public class SearchServer implements Monitored {
 
-  public static final String WRONG_MASTER_REPLICATION_FACTOR = "Index configuration is not set to cluster. Please start the master node with 'sonar.cluster.activation=true'";
-
-  public static final String CLUSTER_ACTIVATION = "sonar.cluster.activation";
-  public static final String SONAR_NODE_NAME = "sonar.node.name";
-  public static final String ES_PORT_PROPERTY = "sonar.search.port";
-  public static final String ES_CLUSTER_PROPERTY = "sonar.cluster.name";
-  public static final String ES_CLUSTER_INET = "sonar.cluster.master";
-
-  public static final String ES_MARVEL_HOST = "sonar.search.marvel";
-  public static final String SONAR_PATH_HOME = "sonar.path.home";
-  public static final String SONAR_PATH_DATA = "sonar.path.data";
-  public static final String SONAR_PATH_TEMP = "sonar.path.temp";
-  public static final String SONAR_PATH_LOG = "sonar.path.log";
-
-  private final Set<String> nodes = new HashSet<String>();
-  private final Set<String> marvels = new HashSet<String>();
-  private final Props props;
-
+  private final EsSettings settings;
   private InternalNode node;
 
   public SearchServer(Props props) {
-    this.props = props;
+    this.settings = new EsSettings(props);
     new MinimumViableSystem().check();
-
-    String esNodesInets = props.value(ES_CLUSTER_INET);
-    if (StringUtils.isNotEmpty(esNodesInets)) {
-      Collections.addAll(nodes, esNodesInets.split(","));
-    }
-
-    String esMarvelInets = props.value(ES_MARVEL_HOST);
-    if (StringUtils.isNotEmpty(esMarvelInets)) {
-      Collections.addAll(marvels, esMarvelInets.split(","));
-    }
   }
 
   @Override
-  public synchronized void start() {
-    Integer port = props.valueAsInt(ES_PORT_PROPERTY);
-    String clusterName = props.value(ES_CLUSTER_PROPERTY);
+  public void start() {
+    LoggerFactory.getLogger(SearchServer.class).info("Starting Elasticsearch[{}] on port {}", settings.clusterName(), settings.tcpPort());
 
-    LoggerFactory.getLogger(SearchServer.class).info("Starting ES[{}] on port: {}", clusterName, port);
-
-    Integer replicationFactor = 0;
-
-    ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
-
-      // Disable MCast
-      .put("discovery.zen.ping.multicast.enabled", "false")
-
-      // Index storage policies
-      .put("index.number_of_shards", "1")
-      .put("index.refresh_interval", "30s")
-      .put("index.store.type", "mmapfs")
-      .put("indices.store.throttle.type", "none")
-      .put("index.merge.scheduler.max_thread_count",
-        Math.max(1, Math.min(3, Runtime.getRuntime().availableProcessors() / 2)))
-
-      // Optimization TBD (second one must have ES > 1.2) can be:
-      // indices.memory.index_buffer_size=512mb
-      // index.translog.flush_threshold_size=1gb
-
-      // Install our own listUpdate scripts
-      .put("script.default_lang", "native")
-      .put("script.native." + ListUpdate.NAME + ".type", ListUpdate.UpdateListScriptFactory.class.getName())
-
-      // Node is pure transport
-      .put("transport.tcp.port", port)
-      .put("http.enabled", false)
-
-      // Setting up ES paths
-      .put("path.data", esDataDir().getAbsolutePath())
-      .put("path.work", esWorkDir().getAbsolutePath())
-      .put("path.logs", esLogDir().getAbsolutePath());
-
-    if (!nodes.isEmpty()) {
-      LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with master: {}", nodes);
-      esSettings.put("discovery.zen.ping.unicast.hosts", StringUtils.join(nodes, ","));
-      esSettings.put("node.master", false);
-      // Enforce a N/2+1 number of masters in cluster
-      esSettings.put("discovery.zen.minimum_master_nodes", 1);
-      // Change master pool requirement when in distributed mode
-      // esSettings.put("discovery.zen.minimum_master_nodes", (int) Math.floor(nodes.size() / 2.0) + 1);
-    }
-
-    // When SQ is ran as a cluster
-    // see https://jira.codehaus.org/browse/SONAR-5687
-    if (props.valueAsBoolean(CLUSTER_ACTIVATION)) {
-      replicationFactor = 1;
-    }
-    esSettings.put("index.number_of_replicas", replicationFactor.toString());
-
-    // Enable marvel's index creation:
-    esSettings.put("action.auto_create_index", ".marvel-*");
-    // If we're collecting indexing data send them to the Marvel host(s)
-    if (!marvels.isEmpty()) {
-      esSettings.put("marvel.agent.exporter.es.hosts", StringUtils.join(marvels, ","));
-    }
-
-    // Set cluster coordinates
-    esSettings.put("cluster.name", clusterName);
-    esSettings.put("node.rack_id", props.value(SONAR_NODE_NAME, "unknown"));
-    esSettings.put("cluster.routing.allocation.awareness.attributes", "rack_id");
-    if (props.contains(SONAR_NODE_NAME)) {
-      esSettings.put("node.name", props.value(SONAR_NODE_NAME));
-    } else {
-      try {
-        esSettings.put("node.name", InetAddress.getLocalHost().getHostName());
-      } catch (Exception e) {
-        LoggerFactory.getLogger(SearchServer.class).warn("Could not determine hostname", e);
-        esSettings.put("node.name", "sq-" + System.currentTimeMillis());
-      }
-    }
-
-    // And building our ES Node
-    node = new InternalNode(esSettings.build(), true);
+    node = new InternalNode(settings.build(), true);
     node.start();
 
     // When joining a cluster, make sur the master(s) have a
     // replication factor on all indices > 0
-    if (!nodes.isEmpty()) {
+    if (settings.inCluster()) {
       for (ObjectCursor<Settings> settingCursor : node.client().admin().indices()
         .prepareGetSettings().get().getIndexToSettings().values()) {
         Settings settings = settingCursor.value;
         String clusterReplicationFactor = settings.get("index.number_of_replicas", "-1");
         if (Integer.parseInt(clusterReplicationFactor) <= 0) {
           node.stop();
-          throw new IllegalStateException(WRONG_MASTER_REPLICATION_FACTOR);
+          throw new MessageException("Index configuration is not set to cluster. Please start the master node with 'sonar.cluster.activation=true'");
         }
       }
     }
@@ -198,34 +88,6 @@ public class SearchServer implements Monitored {
         // Ignore
       }
     }
-  }
-
-  private File esHomeDir() {
-    return props.nonNullValueAsFile(SONAR_PATH_HOME);
-  }
-
-  private File esDataDir() {
-    String dataDir = props.value(SONAR_PATH_DATA);
-    if (StringUtils.isNotEmpty(dataDir)) {
-      return new File(dataDir, "es");
-    }
-    return new File(esHomeDir(), "data/es");
-  }
-
-  private File esLogDir() {
-    String logDir = props.value(SONAR_PATH_LOG);
-    if (StringUtils.isNotEmpty(logDir)) {
-      return new File(logDir);
-    }
-    return new File(esHomeDir(), "log");
-  }
-
-  private File esWorkDir() {
-    String workDir = props.value(SONAR_PATH_TEMP);
-    if (StringUtils.isNotEmpty(workDir)) {
-      return new File(workDir);
-    }
-    return new File(esHomeDir(), "temp");
   }
 
   @Override
