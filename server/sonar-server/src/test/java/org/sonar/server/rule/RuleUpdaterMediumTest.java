@@ -400,8 +400,10 @@ public class RuleUpdaterMediumTest {
     // Create template rule
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
     ruleDao.insert(dbSession, templateRule);
-    RuleParamDto templateRuleParam = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam);
+    RuleParamDto templateRuleParam1 = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    RuleParamDto templateRuleParam2 = RuleParamDto.createFor(templateRule).setName("format").setType("STRING").setDescription("Format");
+    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam1);
+    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam2);
 
     // Create custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule)
@@ -410,7 +412,8 @@ public class RuleUpdaterMediumTest {
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA);
     ruleDao.insert(dbSession, customRule);
-    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam.setDefaultValue("a.*"));
+    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam1.setDefaultValue("a.*"));
+    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam2.setDefaultValue(null));
 
     dbSession.commit();
 
@@ -432,10 +435,45 @@ public class RuleUpdaterMediumTest {
     assertThat(customRuleReloaded.htmlDescription()).isEqualTo("New description");
     assertThat(customRuleReloaded.severity()).isEqualTo("MAJOR");
     assertThat(customRuleReloaded.status()).isEqualTo(RuleStatus.READY);
-    assertThat(customRuleReloaded.params()).hasSize(1);
+    assertThat(customRuleReloaded.params()).hasSize(2);
 
+    assertThat(customRuleReloaded.params().get(0).defaultValue()).isEqualTo("b.*");
+    assertThat(customRuleReloaded.params().get(1).defaultValue()).isNull();
+  }
+
+  @Test
+  public void update_custom_rule_with_empty_parameter() throws Exception {
+    // Create template rule
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    ruleDao.insert(dbSession, templateRule);
+    RuleParamDto templateRuleParam = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex");
+    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam);
+
+    // Create custom rule
+    RuleDto customRule = RuleTesting.newCustomRule(templateRule)
+      .setName("Old name")
+      .setDescription("Old description")
+      .setSeverity(Severity.MINOR)
+      .setStatus(RuleStatus.BETA);
+    ruleDao.insert(dbSession, customRule);
+    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam);
+
+    dbSession.commit();
+
+    // Update custom rule without setting a value for the parameter
+    RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
+      .setName("New name")
+      .setMarkdownDescription("New description")
+      .setSeverity("MAJOR")
+      .setStatus(RuleStatus.READY);
+    updater.update(update, UserSession.get());
+
+    dbSession.clearCache();
+
+    // Verify custom rule is updated
+    Rule customRuleReloaded = ruleIndex.getByKey(customRule.getKey());
     RuleParam param = customRuleReloaded.params().get(0);
-    assertThat(param.defaultValue()).isEqualTo("b.*");
+    assertThat(param.defaultValue()).isNull();
   }
 
   @Test
@@ -450,11 +488,12 @@ public class RuleUpdaterMediumTest {
     RuleParamDto templateRuleParam3 = RuleParamDto.createFor(templateRule).setName("message").setType("STRING").setDescription("message");
     ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam3);
 
-    // Create custom rule with 2 parameters
+    // Create custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule).setSeverity(Severity.MAJOR).setLanguage("xoo");
     ruleDao.insert(dbSession, customRule);
     ruleDao.addRuleParam(dbSession, customRule, templateRuleParam1.setDefaultValue("a.*"));
     ruleDao.addRuleParam(dbSession, customRule, templateRuleParam2.setDefaultValue("txt"));
+    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam3);
 
     // Create a quality profile
     QualityProfileDto profileDto = QProfileTesting.newXooP1();
@@ -476,12 +515,13 @@ public class RuleUpdaterMediumTest {
 
     // Verify custom rule parameters has been updated
     Rule customRuleReloaded = ruleIndex.getByKey(customRule.getKey());
-    assertThat(customRuleReloaded.params()).hasSize(2);
+    assertThat(customRuleReloaded.params()).hasSize(3);
     assertThat(customRuleReloaded.param("regex")).isNotNull();
     assertThat(customRuleReloaded.param("regex").defaultValue()).isEqualTo("b.*");
     assertThat(customRuleReloaded.param("message")).isNotNull();
     assertThat(customRuleReloaded.param("message").defaultValue()).isEqualTo("a message");
-    assertThat(customRuleReloaded.param("format")).isNull();
+    assertThat(customRuleReloaded.param("format")).isNotNull();
+    assertThat(customRuleReloaded.param("format").defaultValue()).isNull();
 
     RuleParam param = customRuleReloaded.params().get(0);
     assertThat(param.defaultValue()).isEqualTo("b.*");
@@ -490,8 +530,8 @@ public class RuleUpdaterMediumTest {
     ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getByKey(ActiveRuleKey.of(profileDto.getKey(), customRule.getKey()));
     assertThat(activeRule.params()).hasSize(2);
     assertThat(activeRule.params().get("regex")).isEqualTo("b.*");
-    assertThat(activeRule.params().get("format")).isNull();
     assertThat(activeRule.params().get("message")).isEqualTo("a message");
+    assertThat(activeRule.params().get("format")).isNull();
 
     // Verify that severity has not changed
     assertThat(activeRule.severity()).isEqualTo(Severity.BLOCKER);

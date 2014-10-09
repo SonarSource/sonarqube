@@ -53,6 +53,7 @@ import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.notification.db.NotificationQueueMapper;
 import org.sonar.core.permission.*;
 import org.sonar.core.persistence.migration.v44.Migration44Mapper;
+import org.sonar.core.persistence.migration.v45.Migration45Mapper;
 import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
@@ -170,7 +171,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
       org.sonar.api.database.model.MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
-      MeasureMapper.class, MetricMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, ProjectQgateAssociationMapper.class
+      MeasureMapper.class, MetricMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, ProjectQgateAssociationMapper.class,
+      Migration45Mapper.class
     };
     loadMappers(conf, mappers);
     configureLogback(mappers);
