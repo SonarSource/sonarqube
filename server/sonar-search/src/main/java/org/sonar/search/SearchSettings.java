@@ -37,7 +37,7 @@ import java.util.TreeSet;
 
 class SearchSettings {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(SearchSettings.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchSettings.class);
 
   public static final String PROP_HTTP_PORT = "sonar.search.httpPort";
   public static final String PROP_MARVEL_HOSTS = "sonar.search.marvelHosts";
