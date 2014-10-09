@@ -1,7 +1,25 @@
+@import (reference) "mixins";
+@import (reference) "variables";
+@import (reference) "ui";
+
+
+@pendingColor: #fdfce2;
+@workingColor: #ecf9fc;
+
+
 .monitoring-navigator {
   margin: -10px;
 
-  .navigator-results { margin-top: 0; }
+  .navigator-side {
+    width: 50%;
+    max-width: none;
+  }
+
+  .navigator-results {
+    width: auto;
+    max-width: none;
+    margin-top: 0;
+  }
 
   .navigator-results-list > li {
     cursor: default;
@@ -9,4 +27,66 @@
     &:hover { background: transparent; }
   }
 
+  .navigator-details { text-align: center; }
+
 }
+
+.monitoring-report-pending {
+  background-color: @pendingColor !important;
+}
+
+.monitoring-report-working {
+  background-color: @workingColor !important;
+}
+
+.monitoring-report-done {
+  opacity: 0.75;
+}
+
+.monitoring-project {
+  display: inline-block;
+  vertical-align: middle;
+  width: 30%;
+  .text-ellipsis;
+}
+
+.monitoring-timestamp {
+  display: inline-block;
+  vertical-align: middle;
+  width: 180px;
+  margin-left: 15px;
+}
+
+.monitoring-report-id {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  opacity: 0.3;
+  font-size: @bigFontSize;
+
+  &:before { content: '#'; }
+}
+
+.monitoring-spinner {
+  .size(200px, 200px);
+  margin-top: 20px;
+}
+
+.monitoring-spinner,
+.monitoring-spinner:before
+.monitoring-spinner:after {
+  -webkit-animation-duration: 6s;
+  animation-duration: 6s;
+}
+
+.monitoring-timestamp-spinner {
+  margin-left: 10px;
+}
+
+.monitoring-timestamp-spinner,
+.monitoring-timestamp-spinner:before,
+.monitoring-timestamp-spinner:after {
+  -webkit-animation-duration: 2s;
+  animation-duration: 2s;
+}
+

@@ -1,2 +1,9 @@
 <h1 class="navigator-header-title">{{t 'monitoring.page'}}</h1>
 
+<div class="navigator-header-actions button-group">
+  {{#if state.active}}
+    <button class="js-monitoring-past">{{t 'monitoring.show_past_reports'}}</button>
+  {{else}}
+    <button class="js-monitoring-current">{{t 'monitoring.show_current_activity'}}</button>
+  {{/if}}
+</div>

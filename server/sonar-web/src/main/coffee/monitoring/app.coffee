@@ -42,7 +42,11 @@ requirejs [
   App = new Marionette.Application
 
 
-  # Construct layout
+  App.addInitializer ->
+    @state = new Backbone.Model active: true
+    @state.on 'change:active', => @reports?.fetch()
+
+
   App.addInitializer ->
     @layout = new MonitoringLayout app: @
     jQuery('#monitoring').empty().append @layout.render().el
@@ -65,15 +69,5 @@ requirejs [
     @reports.fetch()
 
 
-#  App.addInitializer ->
-#    @codingRulesActionsView = new CodingRulesActionsView
-#      app: @
-#      collection: @reports
-#    @layout.actionsRegion.show @codingRulesActionsView
-
-
-  # Message bundles
   l10nXHR = window.requestMessages()
-
-
   jQuery.when(l10nXHR).done -> App.start()

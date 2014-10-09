@@ -1,7 +1,19 @@
-<div class="line line-small">
-  Started: {{dt startTime}}
-</div>
+{{#if endDate}}
+  <div class="line line-small">
+    Finished: {{dt endDate}}
+  </div>
+{{/if}}
 
 <div class="line">
-  <i class="icon-qualifier-trk"></i> {{projectName}}
+  <span class="monitoring-project">
+    <i class="icon-qualifier-trk"></i>
+    <a href="{{dashboardUrl project}}">{{projectName}}</a>
+  </span>
+
+  <span class="monitoring-timestamp line-small">
+    Started: {{dt startDate}}
+    {{#eq status 'WORKING'}}<i class="spinner monitoring-timestamp-spinner"></i> {{/eq}}
+  </span>
 </div>
+
+<div class="monitoring-report-id">{{id}} {{status}}</div>
