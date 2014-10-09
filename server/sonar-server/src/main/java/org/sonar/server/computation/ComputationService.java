@@ -108,7 +108,7 @@ public class ComputationService implements ServerComponent {
         return null;
       }
 
-      AnalysisReportDto report = dao.tryToBookReportAnalysis(session, nextAvailableReport);
+      AnalysisReportDto report = dao.bookAnalysisReport(session, nextAvailableReport);
       session.commit();
 
       return report;

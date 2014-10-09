@@ -87,11 +87,10 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
   }
 
   @CheckForNull
-  public AnalysisReportDto tryToBookReportAnalysis(DbSession session, AnalysisReportDto report) {
+  public AnalysisReportDto bookAnalysisReport(DbSession session, AnalysisReportDto report) {
     checkNotNull(report.getId());
-    checkNotNull(report.getProjectKey());
 
-    int nbOfReportBooked = mapper(session).updateWithBookingReport(report.getId(), report.getProjectKey(), new Date(system2.now()), PENDING, WORKING);
+    int nbOfReportBooked = mapper(session).updateWithBookingReport(report.getId(), new Date(system2.now()), PENDING, WORKING);
 
     if (nbOfReportBooked == 0) {
       return null;

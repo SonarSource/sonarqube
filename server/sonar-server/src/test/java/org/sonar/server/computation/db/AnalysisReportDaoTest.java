@@ -178,7 +178,7 @@ public class AnalysisReportDaoTest {
 
   @Test(expected = NullPointerException.class)
   public void nullPointerExc_when_trying_to_book_a_report_without_id() {
-    dao.tryToBookReportAnalysis(session, new AnalysisReportDto());
+    dao.bookAnalysisReport(session, new AnalysisReportDto());
   }
 
   @Test
@@ -186,7 +186,7 @@ public class AnalysisReportDaoTest {
     db.prepareDbUnit(getClass(), "one_busy_report_analysis.xml");
 
     AnalysisReportDto report = newDefaultReport();
-    AnalysisReportDto reportBooked = dao.tryToBookReportAnalysis(session, report);
+    AnalysisReportDto reportBooked = dao.bookAnalysisReport(session, report);
 
     assertThat(reportBooked).isNull();
   }
@@ -198,7 +198,7 @@ public class AnalysisReportDaoTest {
     db.prepareDbUnit(getClass(), "one_available_analysis.xml");
 
     AnalysisReportDto report = newDefaultReport();
-    AnalysisReportDto reportBooked = dao.tryToBookReportAnalysis(session, report);
+    AnalysisReportDto reportBooked = dao.bookAnalysisReport(session, report);
 
     assertThat(reportBooked.getId()).isEqualTo(1L);
     assertThat(reportBooked.getStatus()).isEqualTo(WORKING);
@@ -206,21 +206,21 @@ public class AnalysisReportDaoTest {
   }
 
   @Test
-  public void cannot_book_available_report_analysis_while_having_a_working_one_on_the_same_project() {
+  public void can_book_report_while_another_one_working_on_the_same_project() {
     db.prepareDbUnit(getClass(), "one_available_analysis_but_another_busy_on_same_project.xml");
 
     AnalysisReportDto report = newDefaultReport();
-    AnalysisReportDto reportBooked = dao.tryToBookReportAnalysis(session, report);
+    AnalysisReportDto reportBooked = dao.bookAnalysisReport(session, report);
 
-    assertThat(reportBooked).isNull();
+    assertThat(reportBooked).isNotNull();
   }
 
   @Test
-  public void book_available_report_analysis_while_having_one_working_one_another() {
-    db.prepareDbUnit(getClass(), "book_available_report_analysis_while_having_one_working_one_another.xml");
+  public void book_available_report_analysis_while_having_one_working_on_another_project() {
+    db.prepareDbUnit(getClass(), "book_available_report_analysis_while_having_one_working_on_another_project.xml");
 
     AnalysisReportDto report = newDefaultReport();
-    AnalysisReportDto reportBooked = dao.tryToBookReportAnalysis(session, report);
+    AnalysisReportDto reportBooked = dao.bookAnalysisReport(session, report);
 
     assertThat(reportBooked.getId()).isEqualTo(1L);
   }

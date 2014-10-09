@@ -43,7 +43,7 @@ public interface AnalysisReportMapper {
 
   int update(AnalysisReportDto report);
 
-  int updateWithBookingReport(@Param("id") Long id, @Param("projectKey") String projectKey, @Param("updatedAt") Date updatedAt,
+  int updateWithBookingReport(@Param("id") Long id, @Param("updatedAt") Date updatedAt,
     @Param("availableStatus") AnalysisReportDto.Status availableStatus,
     @Param("busyStatus") AnalysisReportDto.Status busyStatus);
 

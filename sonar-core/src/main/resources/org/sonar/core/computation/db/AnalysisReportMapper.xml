@@ -27,12 +27,6 @@
     set report_status=#{busyStatus},
     updated_at=#{updatedAt}
     where id=#{id} and report_status=#{availableStatus}
-    and not exists(
-    select 1
-    from analysis_reports ar
-    where ar.project_key=#{projectKey}
-    and ar.report_status=#{busyStatus}
-    )
   </update>
 
   <delete id="cleanWithTruncate">
