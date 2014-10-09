@@ -25,8 +25,9 @@ package org.sonar.process;
  */
 public interface ProcessConstants {
 
-  String CLUSTER_ACTIVATION = "sonar.cluster.activation";
-  String CLUSTER_MASTER_HOSTS = "sonar.cluster.master";
+  String CLUSTER_ACTIVATE = "sonar.cluster.activate";
+  String CLUSTER_MASTER = "sonar.cluster.master";
+  String CLUSTER_MASTER_HOST = "sonar.cluster.masterHost";
   String CLUSTER_NAME = "sonar.cluster.name";
   String CLUSTER_NODE_NAME = "sonar.node.name";
 

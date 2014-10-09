@@ -30,7 +30,6 @@ import org.sonar.process.Props;
 import org.sonar.search.script.ListUpdate;
 
 import java.io.File;
-import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -44,13 +43,13 @@ class SearchSettings {
   public static final String PROP_MARVEL_HOSTS = "sonar.search.marvelHosts";
 
   private final Props props;
-  private final Set<String> clusterNodes = new LinkedHashSet<String>();
+  private final Set<String> masterHosts = new LinkedHashSet<String>();
   private final String clusterName;
   private final int tcpPort;
 
   SearchSettings(Props props) {
     this.props = props;
-    clusterNodes.addAll(Arrays.asList(StringUtils.split(props.value(ProcessConstants.CLUSTER_MASTER_HOSTS, ""), ",")));
+    masterHosts.addAll(Arrays.asList(StringUtils.split(props.value(ProcessConstants.CLUSTER_MASTER_HOST, ""), ",")));
     clusterName = props.value(ProcessConstants.CLUSTER_NAME);
     Integer port = props.valueAsInt(ProcessConstants.SEARCH_PORT);
     if (port == null) {
@@ -60,7 +59,7 @@ class SearchSettings {
   }
 
   boolean inCluster() {
-    return !clusterNodes.isEmpty();
+    return props.valueAsBoolean(ProcessConstants.CLUSTER_ACTIVATE, false);
   }
 
   String clusterName() {
@@ -150,34 +149,30 @@ class SearchSettings {
   }
 
   private void configureCluster(ImmutableSettings.Builder builder) {
-    if (!clusterNodes.isEmpty()) {
-      LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with master: {}", clusterNodes);
-      builder.put("discovery.zen.ping.unicast.hosts", StringUtils.join(clusterNodes, ","));
-      builder.put("node.master", false);
+    int replicationFactor = 0;
+    if (inCluster()) {
+      replicationFactor = 1;
+      if (props.valueAsBoolean(ProcessConstants.CLUSTER_MASTER, false)) {
+        // master node
+        builder.put("node.master", true);
+      } else if (!masterHosts.isEmpty()) {
+        LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with master: {}", masterHosts);
+        builder.put("discovery.zen.ping.unicast.hosts", StringUtils.join(masterHosts, ","));
+        builder.put("node.master", false);
 
-      // Enforce a N/2+1 number of masters in cluster
-      builder.put("discovery.zen.minimum_master_nodes", 1);
+        // Enforce a N/2+1 number of masters in cluster
+        builder.put("discovery.zen.minimum_master_nodes", 1);
+      } else {
+        throw new MessageException(String.format("Not a master nor a slave. Please check properties %s and %s",
+          ProcessConstants.CLUSTER_MASTER, ProcessConstants.CLUSTER_MASTER_HOST));
+      }
     }
 
-    // When SQ is ran as a cluster
-    // see https://jira.codehaus.org/browse/SONAR-5687
-    int replicationFactor = props.valueAsBoolean(ProcessConstants.CLUSTER_ACTIVATION, false) ? 1 : 0;
     builder.put("index.number_of_replicas", replicationFactor);
-
-    // Set cluster coordinates
     builder.put("cluster.name", clusterName);
     builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
     builder.put("node.rack_id", props.value(ProcessConstants.CLUSTER_NODE_NAME, "unknown"));
-    if (props.contains(ProcessConstants.CLUSTER_NODE_NAME)) {
-      builder.put("node.name", props.value(ProcessConstants.CLUSTER_NODE_NAME));
-    } else {
-      try {
-        builder.put("node.name", InetAddress.getLocalHost().getHostName());
-      } catch (Exception e) {
-        LoggerFactory.getLogger(SearchServer.class).warn("Could not determine hostname", e);
-        builder.put("node.name", "sq-" + System.currentTimeMillis());
-      }
-    }
+    builder.put("node.name", props.value(ProcessConstants.CLUSTER_NODE_NAME));
   }
 
   private void configureMarvel(ImmutableSettings.Builder builder) {

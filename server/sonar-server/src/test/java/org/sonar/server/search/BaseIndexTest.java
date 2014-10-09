@@ -58,6 +58,7 @@ public class BaseIndexTest {
     clusterPort = NetworkUtils.freePort();
     Properties properties = new Properties();
     properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
+    properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, "test");
     properties.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
     properties.setProperty(ProcessConstants.PATH_HOME, temp.getRoot().getAbsolutePath());
     try {
@@ -77,8 +78,9 @@ public class BaseIndexTest {
   public void setup() throws IOException {
     File dataDir = temp.newFolder();
     Settings settings = new Settings();
-    settings.setProperty(ProcessConstants.CLUSTER_ACTIVATION, false);
+    settings.setProperty(ProcessConstants.CLUSTER_ACTIVATE, false);
     settings.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
+    settings.setProperty(ProcessConstants.CLUSTER_NODE_NAME, "test");
     settings.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
     settings.setProperty(ProcessConstants.PATH_HOME, dataDir.getAbsolutePath());
     searchClient = new SearchClient(settings);

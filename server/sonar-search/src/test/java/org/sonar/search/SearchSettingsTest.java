@@ -55,16 +55,19 @@ public class SearchSettingsTest {
     Props props = new Props(new Properties());
     props.set(ProcessConstants.SEARCH_PORT, "1234");
     props.set(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
-    props.set(ProcessConstants.CLUSTER_NAME, "test");
+    props.set(ProcessConstants.CLUSTER_NAME, "tests");
+    props.set(ProcessConstants.CLUSTER_NODE_NAME, "test");
 
     SearchSettings searchSettings = new SearchSettings(props);
     assertThat(searchSettings.inCluster()).isFalse();
-    assertThat(searchSettings.clusterName()).isEqualTo("test");
+    assertThat(searchSettings.clusterName()).isEqualTo("tests");
     assertThat(searchSettings.tcpPort()).isEqualTo(1234);
 
     Settings generated = searchSettings.build();
     assertThat(generated.get("transport.tcp.port")).isEqualTo("1234");
-    assertThat(generated.get("cluster.name")).isEqualTo("test");
+    assertThat(generated.get("cluster.name")).isEqualTo("tests");
+    assertThat(generated.get("node.name")).isEqualTo("test");
+
     assertThat(generated.get("path.data")).isNotNull();
     assertThat(generated.get("path.logs")).isNotNull();
     assertThat(generated.get("path.work")).isNotNull();
@@ -75,19 +78,15 @@ public class SearchSettingsTest {
     // no cluster, but node name is set though
     assertThat(generated.get("index.number_of_replicas")).isEqualTo("0");
     assertThat(generated.get("discovery.zen.ping.unicast.hosts")).isNull();
-    assertThat(generated.get("node.name")).isNotEmpty();
   }
 
   @Test
   public void override_dirs() throws Exception {
-    File homeDir = temp.newFolder(), dataDir = temp.newFolder(), logDir = temp.newFolder(), tempDir = temp.newFolder();
-    Props props = new Props(new Properties());
-    props.set(ProcessConstants.SEARCH_PORT, "1234");
-    props.set(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
+    File dataDir = temp.newFolder(), logDir = temp.newFolder(), tempDir = temp.newFolder();
+    Props props = minProps();
     props.set(ProcessConstants.PATH_DATA, dataDir.getAbsolutePath());
     props.set(ProcessConstants.PATH_LOGS, logDir.getAbsolutePath());
     props.set(ProcessConstants.PATH_TEMP, tempDir.getAbsolutePath());
-    props.set(ProcessConstants.CLUSTER_NAME, "test");
 
     Settings settings = new SearchSettings(props).build();
 
@@ -99,22 +98,35 @@ public class SearchSettingsTest {
   @Test
   public void test_cluster_master() throws Exception {
     Props props = minProps();
-    props.set(ProcessConstants.CLUSTER_ACTIVATION, "true");
+    props.set(ProcessConstants.CLUSTER_ACTIVATE, "true");
+    props.set(ProcessConstants.CLUSTER_MASTER, "true");
     Settings settings = new SearchSettings(props).build();
 
     assertThat(settings.get("index.number_of_replicas")).isEqualTo("1");
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isNull();
-    // TODO set node.master=true ?
+    assertThat(settings.get("node.master")).isEqualTo("true");
   }
 
   @Test
   public void test_cluster_slave() throws Exception {
     Props props = minProps();
-    props.set(ProcessConstants.CLUSTER_MASTER_HOSTS, "127.0.0.2,127.0.0.3");
+    props.set(ProcessConstants.CLUSTER_ACTIVATE, "true");
+    props.set(ProcessConstants.CLUSTER_MASTER_HOST, "127.0.0.2,127.0.0.3");
     Settings settings = new SearchSettings(props).build();
 
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("127.0.0.2,127.0.0.3");
     assertThat(settings.get("node.master")).isEqualTo("false");
+  }
+
+  @Test
+  public void bad_cluster_configuration() throws Exception {
+    Props props = minProps();
+    props.set(ProcessConstants.CLUSTER_ACTIVATE, "true");
+    try {
+      new SearchSettings(props).build();
+      fail();
+    } catch (MessageException e) {
+    }
   }
 
   @Test
@@ -142,7 +154,8 @@ public class SearchSettingsTest {
     Props props = new Props(new Properties());
     props.set(ProcessConstants.SEARCH_PORT, "1234");
     props.set(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
-    props.set(ProcessConstants.CLUSTER_NAME, "test");
+    props.set(ProcessConstants.CLUSTER_NAME, "tests");
+    props.set(ProcessConstants.CLUSTER_NODE_NAME, "test");
     return props;
   }
 }

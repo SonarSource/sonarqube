@@ -81,8 +81,8 @@ public class App implements Stoppable {
       .addClasspath("./lib/search/*");
     commands.add(elasticsearch);
 
-    // do not yet start SQ in cluster mode. See SONAR-5483 & SONAR-5391
-    if (StringUtils.isEmpty(props.value(ProcessConstants.CLUSTER_MASTER_HOSTS))) {
+    // do not yet start SQ on elasticsearch slaves
+    if (StringUtils.isBlank(props.value(ProcessConstants.CLUSTER_MASTER_HOST))) {
       JavaCommand webServer = new JavaCommand("web")
         .setWorkDir(homeDir)
         .addJavaOptions("-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false")

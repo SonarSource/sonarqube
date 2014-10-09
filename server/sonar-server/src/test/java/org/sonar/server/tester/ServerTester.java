@@ -71,6 +71,7 @@ public class ServerTester extends ExternalResource {
     clusterPort = NetworkUtils.freePort();
     Properties properties = new Properties();
     properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
+    properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, "test");
     properties.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
     properties.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
     searchServer = new SearchServer(new Props(properties));
@@ -93,6 +94,7 @@ public class ServerTester extends ExternalResource {
     Properties properties = new Properties();
     properties.putAll(initialProps);
     properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
+    properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, "test");
     properties.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
     properties.setProperty(ProcessConstants.PATH_HOME, homeDir.getAbsolutePath());
     properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");

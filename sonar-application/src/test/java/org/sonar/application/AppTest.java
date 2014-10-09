@@ -91,11 +91,11 @@ public class AppTest {
   }
 
   @Test
-  public void do_not_start_tomcat_if_elasticsearch_single_node() throws Exception {
+  public void do_not_start_tomcat_if_elasticsearch_slave() throws Exception {
     Monitor monitor = mock(Monitor.class);
     App app = new App(monitor);
     Props props = initDefaultProps();
-    props.set("sonar.cluster.master", "x.y.z");
+    props.set("sonar.cluster.masterHost", "1.2.3.4");
     app.start(props);
 
     Class<List<JavaCommand>> listClass = (Class<List<JavaCommand>>)(Class)List.class;
