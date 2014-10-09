@@ -118,6 +118,9 @@ public class SubProjectDsmDecorator implements Decorator {
   }
 
   private boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
-    return ResourceUtils.isProject(resource) && ((Project) resource).getModules().isEmpty();
+    // Should not execute on views
+    return (ResourceUtils.isRootProject(resource) || ResourceUtils.isModuleProject(resource))
+      // Only on leaf projects
+      && ((Project) resource).getModules().isEmpty();
   }
 }
