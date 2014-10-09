@@ -41,6 +41,8 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
 public class AnalysisReportDaoTest {
+  private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
+
   @Rule
   public TestDatabase db = new TestDatabase();
   private AnalysisReportDao dao;
@@ -64,7 +66,7 @@ public class AnalysisReportDaoTest {
   @Test
   public void insert_multiple_reports() {
     AnalysisReportDto report = new AnalysisReportDto()
-      .setProjectKey("123456789-987654321")
+      .setProjectKey(DEFAULT_PROJECT_KEY)
       .setData("data-project")
       .setStatus(PENDING);
     report.setCreatedAt(DateUtils.parseDate("2014-09-24"))
@@ -183,7 +185,7 @@ public class AnalysisReportDaoTest {
   public void cannot_book_an_already_working_report_analysis() {
     db.prepareDbUnit(getClass(), "one_busy_report_analysis.xml");
 
-    AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
+    AnalysisReportDto report = newDefaultReport();
     AnalysisReportDto reportBooked = dao.tryToBookReportAnalysis(session, report);
 
     assertThat(reportBooked).isNull();
@@ -195,7 +197,7 @@ public class AnalysisReportDaoTest {
     when(system2.now()).thenReturn(mockedNow.getTime());
     db.prepareDbUnit(getClass(), "one_available_analysis.xml");
 
-    AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
+    AnalysisReportDto report = newDefaultReport();
     AnalysisReportDto reportBooked = dao.tryToBookReportAnalysis(session, report);
 
     assertThat(reportBooked.getId()).isEqualTo(1L);
@@ -207,7 +209,7 @@ public class AnalysisReportDaoTest {
   public void cannot_book_available_report_analysis_while_having_a_working_one_on_the_same_project() {
     db.prepareDbUnit(getClass(), "one_available_analysis_but_another_busy_on_same_project.xml");
 
-    AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
+    AnalysisReportDto report = newDefaultReport();
     AnalysisReportDto reportBooked = dao.tryToBookReportAnalysis(session, report);
 
     assertThat(reportBooked).isNull();
@@ -217,7 +219,7 @@ public class AnalysisReportDaoTest {
   public void book_available_report_analysis_while_having_one_working_one_another() {
     db.prepareDbUnit(getClass(), "book_available_report_analysis_while_having_one_working_one_another.xml");
 
-    AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
+    AnalysisReportDto report = newDefaultReport();
     AnalysisReportDto reportBooked = dao.tryToBookReportAnalysis(session, report);
 
     assertThat(reportBooked.getId()).isEqualTo(1L);
@@ -227,7 +229,7 @@ public class AnalysisReportDaoTest {
   public void delete_one_analysis_report() {
     db.prepareDbUnit(getClass(), "one_analysis_report.xml");
 
-    dao.delete(session, AnalysisReportDto.newForTests(1L));
+    dao.delete(session, newDefaultReport());
     session.commit();
 
     db.assertDbUnit(getClass(), "truncate-result.xml", "analysis_reports");
@@ -246,5 +248,16 @@ public class AnalysisReportDaoTest {
   @Test(expected = UnsupportedOperationException.class)
   public void doUpdate_is_not_implemented_yet() {
     dao.doUpdate(session, new AnalysisReportDto());
+  }
+
+  private AnalysisReportDto newDefaultReport() {
+    AnalysisReportDto report = AnalysisReportDto.newForTests(1L)
+      .setStatus(PENDING)
+      .setProjectKey(DEFAULT_PROJECT_KEY);
+    report
+      .setCreatedAt(DateUtils.parseDate("2014-09-30"))
+      .setUpdatedAt(DateUtils.parseDate("2014-09-30"));
+
+    return report;
   }
 }

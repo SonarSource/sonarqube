@@ -23,15 +23,15 @@
   </update>
 
   <update id="updateWithBookingReport" parameterType="map">
-    update analysis_reports ar1
+    update analysis_reports
     set report_status=#{busyStatus},
     updated_at=#{updatedAt}
-    where ar1.id=#{id} and ar1.report_status=#{availableStatus}
+    where id=#{id} and report_status=#{availableStatus}
     and not exists(
     select 1
-    from analysis_reports ar2
-    where ar1.project_key=ar2.project_key
-    and ar2.report_status=#{busyStatus}
+    from analysis_reports ar
+    where ar.project_key=#{projectKey}
+    and ar.report_status=#{busyStatus}
     )
   </update>
 
@@ -40,7 +40,7 @@
   </delete>
 
   <delete id="delete">
-    delete analysis_reports where id=#{id}
+    delete from analysis_reports where id=#{id}
   </delete>
 
   <select id="selectById" resultType="AnalysisReport">

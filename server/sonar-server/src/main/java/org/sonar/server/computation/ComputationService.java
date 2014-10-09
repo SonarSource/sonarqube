@@ -70,7 +70,6 @@ public class ComputationService implements ServerComponent {
       checkThatProjectExistsInDatabase(projectKey, session);
       insertReportInDatabase(report, session);
     } finally {
-      LOG.debug(String.format("Analysis for project '%s' inserted in the queue", projectKey));
       MyBatis.closeQuietly(session);
     }
   }
@@ -127,18 +126,22 @@ public class ComputationService implements ServerComponent {
       synchronizeProjectPermissionsIfNotFound(session, projectKey);
       indexProjectIssues(session, projectKey);
     } catch (Exception exception) {
-      LOG.debug(String.format("Error during analysis '%s' of project '%s'", report.getId(), projectKey), exception);
+      LOG.error(String.format("Error while analyzing %s'", report), exception);
     } finally {
-      deleteReportFromQueue(session, report);
+      removeSilentlyReportFromQueue(session, report);
       MyBatis.closeQuietly(session);
     }
 
-    LOG.debug(String.format("Analysis '%s' of project '%s' successfully finished.", report.getId(), projectKey));
+    LOG.info(String.format("Analysis of %s successfully finished.", report));
   }
 
-  private void deleteReportFromQueue(DbSession session, AnalysisReportDto report) {
-    dao.delete(session, report);
-    session.commit();
+  private void removeSilentlyReportFromQueue(DbSession session, AnalysisReportDto report) {
+    try {
+      dao.delete(session, report);
+      session.commit();
+    } catch (Exception exception) {
+      LOG.error(String.format("Error while the report analysis, deleting %s", report), exception);
+    }
   }
 
   private void indexProjectIssues(DbSession session, String projectKey) {

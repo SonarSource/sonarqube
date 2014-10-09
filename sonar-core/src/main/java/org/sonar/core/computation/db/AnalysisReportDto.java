@@ -79,6 +79,11 @@ public class AnalysisReportDto extends Dto<String> {
     return id;
   }
 
+  @Override
+  public String toString() {
+    return String.format("analysis report {id:%s;project:'%s'}", getId(), getProjectKey());
+  }
+
   public enum Status {
     PENDING, WORKING
   }
