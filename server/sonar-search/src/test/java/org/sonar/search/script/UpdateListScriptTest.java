@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.script.ExecutableScript;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.process.ProcessConstants;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class UpdateListScriptTest {
     }
 
     // Missing ID_VALUE
-    params.put(ListUpdate.ID_FIELD, "test");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, "test");
     try {
       factory.newScript(params);
       fail();
@@ -62,7 +63,7 @@ public class UpdateListScriptTest {
     }
 
     // Missing FIELD
-    params.put(ListUpdate.ID_VALUE, "test");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, "test");
     try {
       factory.newScript(params);
       fail();
@@ -71,12 +72,12 @@ public class UpdateListScriptTest {
     }
 
     // Has all required attributes and Null Value
-    params.put(ListUpdate.FIELD, "test");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, "test");
     ExecutableScript script = factory.newScript(params);
     assertThat(script).isNotNull();
 
     // Has all required attributes and VALUE of wrong type
-    params.put(ListUpdate.VALUE, new Integer(52));
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, new Integer(52));
     try {
       factory.newScript(params);
       fail();
@@ -85,12 +86,12 @@ public class UpdateListScriptTest {
     }
 
     // Has all required attributes and Proper VALUE
-    params.put(ListUpdate.VALUE, ImmutableMap.of("key", "value"));
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, ImmutableMap.of("key", "value"));
     script = factory.newScript(params);
     assertThat(script).isNotNull();
 
     // Missing ID_FIELD
-    params.remove(ListUpdate.ID_FIELD);
+    params.remove(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD);
     try {
       factory.newScript(params);
       fail();
@@ -109,10 +110,10 @@ public class UpdateListScriptTest {
 
     // 0 Create list when field does not exists
     Map<String, Object> params = new HashMap<String, Object>();
-    params.put(ListUpdate.FIELD, listField);
-    params.put(ListUpdate.ID_FIELD, "key");
-    params.put(ListUpdate.ID_VALUE, "1");
-    params.put(ListUpdate.VALUE, mapOf("key", "1", "value", "A"));
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, listField);
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, "key");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, "1");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, mapOf("key", "1", "value", "A"));
 
     ExecutableScript script = factory.newScript(params);
     script.setNextVar("ctx", ImmutableMap.of("_source", source));
@@ -124,10 +125,10 @@ public class UpdateListScriptTest {
 
     // Add item to existing list
     params = new HashMap<String, Object>();
-    params.put(ListUpdate.FIELD, listField);
-    params.put(ListUpdate.ID_FIELD, "key");
-    params.put(ListUpdate.ID_VALUE, "2");
-    params.put(ListUpdate.VALUE, mapOf("key", "2", "value", "B"));
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, listField);
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, "key");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, "2");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, mapOf("key", "2", "value", "B"));
     script = factory.newScript(params);
     script.setNextVar("ctx", ImmutableMap.of("_source", source));
     script.run();
@@ -136,10 +137,10 @@ public class UpdateListScriptTest {
 
     // updated first item in list
     params = new HashMap<String, Object>();
-    params.put(ListUpdate.FIELD, listField);
-    params.put(ListUpdate.ID_FIELD, "key");
-    params.put(ListUpdate.ID_VALUE, "1");
-    params.put(ListUpdate.VALUE, mapOf("key", "1", "value", "a"));
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, listField);
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, "key");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, "1");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, mapOf("key", "1", "value", "a"));
     script = factory.newScript(params);
     script.setNextVar("ctx", ImmutableMap.of("_source", source));
     script.run();
@@ -148,10 +149,10 @@ public class UpdateListScriptTest {
 
     // updated second item in list
     params = new HashMap<String, Object>();
-    params.put(ListUpdate.FIELD, listField);
-    params.put(ListUpdate.ID_FIELD, "key");
-    params.put(ListUpdate.ID_VALUE, "2");
-    params.put(ListUpdate.VALUE, mapOf("key", "2", "value", "b"));
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, listField);
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, "key");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, "2");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, mapOf("key", "2", "value", "b"));
     script = factory.newScript(params);
     script.setNextVar("ctx", ImmutableMap.of("_source", source));
     script.run();
@@ -160,10 +161,10 @@ public class UpdateListScriptTest {
 
     // delete first item
     params = new HashMap<String, Object>();
-    params.put(ListUpdate.FIELD, listField);
-    params.put(ListUpdate.ID_FIELD, "key");
-    params.put(ListUpdate.ID_VALUE, "1");
-    params.put(ListUpdate.VALUE, null);
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, listField);
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, "key");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, "1");
+    params.put(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, null);
     script = factory.newScript(params);
     script.setNextVar("ctx", ImmutableMap.of("_source", source));
     script.run();

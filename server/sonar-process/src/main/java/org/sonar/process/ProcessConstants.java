@@ -55,4 +55,11 @@ public interface ProcessConstants {
    */
   String ENABLE_STOP_COMMAND = "sonar.enableStopCommand";
 
+  // Constants declared by the ES plugin ListUpdate (see sonar-search)
+  // that are used by sonar-server
+  String ES_PLUGIN_LISTUPDATE_SCRIPT_NAME = "listUpdate";
+  String ES_PLUGIN_LISTUPDATE_ID_FIELD = "idField";
+  String ES_PLUGIN_LISTUPDATE_ID_VALUE = "idValue";
+  String ES_PLUGIN_LISTUPDATE_FIELD = "field";
+  String ES_PLUGIN_LISTUPDATE_VALUE = "value";
 }

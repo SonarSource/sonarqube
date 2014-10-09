@@ -28,7 +28,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.search.script.ListUpdate;
+import org.sonar.process.ProcessConstants;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseNormalizer;
@@ -194,11 +194,11 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
         .replicationType(ReplicationType.ASYNC)
         .routing(key.ruleKey().toString())
         .id(key.toString())
-        .script(ListUpdate.NAME)
-        .addScriptParam(ListUpdate.FIELD, ActiveRuleField.PARAMS.field())
-        .addScriptParam(ListUpdate.VALUE, newParam)
-        .addScriptParam(ListUpdate.ID_FIELD, ActiveRuleParamField.NAME.field())
-        .addScriptParam(ListUpdate.ID_VALUE, param.getKey())
+        .script(ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
+        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, ActiveRuleField.PARAMS.field())
+        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, newParam)
+        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, ActiveRuleParamField.NAME.field())
+        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getKey())
     );
   }
 
@@ -207,11 +207,11 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
         .replicationType(ReplicationType.ASYNC)
         .routing(key.ruleKey().toString())
         .id(key.toString())
-        .script(ListUpdate.NAME)
-        .addScriptParam(ListUpdate.FIELD, ActiveRuleField.PARAMS.field())
-        .addScriptParam(ListUpdate.VALUE, null)
-        .addScriptParam(ListUpdate.ID_FIELD, ActiveRuleParamField.NAME.field())
-        .addScriptParam(ListUpdate.ID_VALUE, param.getKey())
+        .script(ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
+        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, ActiveRuleField.PARAMS.field())
+        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, null)
+        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, ActiveRuleParamField.NAME.field())
+        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getKey())
     );
   }
 }

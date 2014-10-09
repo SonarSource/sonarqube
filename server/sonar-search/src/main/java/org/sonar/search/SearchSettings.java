@@ -117,7 +117,8 @@ class SearchSettings {
   private void configurePlugins(ImmutableSettings.Builder builder) {
     builder
       .put("script.default_lang", "native")
-      .put("script.native." + ListUpdate.NAME + ".type", ListUpdate.UpdateListScriptFactory.class.getName());
+      .put(String.format("script.native.%s.type", ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME),
+        ListUpdate.UpdateListScriptFactory.class.getName());
   }
 
   private void configureNetwork(ImmutableSettings.Builder builder) {
