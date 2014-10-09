@@ -140,19 +140,37 @@ class ProfilesController < ApplicationController
     render :partial => 'profiles/copy_form'
   end
 
-  # POST /profiles/copy/<id>?name=<name of new profile>
+  # POST /profiles/copy/<id>?name=<name of new profile>[&overwrite=<name of overwritten profile>]
   def copy
     verify_post_request
     verify_ajax_request
     require_parameters 'id'
 
-    source_key=profile_id_to_key(params[:id].to_i)
+    source_id = params[:id].to_i
+    source_profile = Internal.quality_profiles.profile(source_id)
+
+    source_key=profile_id_to_key(source_id)
     target_name = params['name']
 
-    call_backend do
-      Internal.qprofile_service.copyToName(source_key, target_name)
-      flash[:notice]= message('quality_profiles.profile_x_not_activated', :params => target_name)
-      render :text => 'ok', :status => 200
+    overwrite = (params['overwrite'] == target_name)
+    target_profile = nil
+
+    unless overwrite
+      target_profile = Internal.quality_profiles.profile(target_name, source_profile.language())
+    end
+
+    if target_profile.nil? || overwrite
+      call_backend do
+        Internal.qprofile_service.copyToName(source_key, target_name)
+        if overwrite
+          flash[:notice] = message('quality_profiles.copy_x_overwritten', :params => target_name)
+        else
+          flash[:notice] = message('quality_profiles.profile_x_not_activated', :params => target_name)
+        end
+        render :text => 'ok', :status => 200
+      end
+    else
+      render :text => message('quality_profiles.copy_overwrite_x', :params => target_name), :status => 409
     end
   end
 
