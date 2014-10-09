@@ -22,6 +22,7 @@ package org.sonar.api.measures;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
@@ -58,7 +59,7 @@ public class MeasureTest {
   @Test
   public void persistenceModeIsDatabaseForBigDataMeasures() {
     Measure bigDataMeasure = new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "long data")
-        .setPersistenceMode(PersistenceMode.DATABASE);
+      .setPersistenceMode(PersistenceMode.DATABASE);
     assertThat(bigDataMeasure.getPersistenceMode()).isEqualTo(PersistenceMode.DATABASE);
   }
 
@@ -203,6 +204,12 @@ public class MeasureTest {
     assertThat(new Measure(CoreMetrics.VIOLATIONS).setVariation3(1.0).isBestValue()).isFalse();
     assertThat(new Measure(CoreMetrics.VIOLATIONS).setVariation4(1.0).isBestValue()).isFalse();
     assertThat(new Measure(CoreMetrics.VIOLATIONS).setVariation5(1.0).isBestValue()).isFalse();
+  }
+
+  @Test
+  public void testBooleanValue() {
+    assertThat(new Measure(new Metric.Builder("foo", "Sample boolean", ValueType.BOOL).create()).setValue(1.0).value()).isEqualTo(Boolean.TRUE);
+    assertThat(new Measure(new Metric.Builder("foo", "Sample boolean", ValueType.BOOL).create()).setValue(0.0).value()).isEqualTo(Boolean.FALSE);
   }
 
 }

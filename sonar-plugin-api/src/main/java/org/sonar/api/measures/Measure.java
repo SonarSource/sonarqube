@@ -248,7 +248,7 @@ public class Measure<G extends Serializable> implements Serializable {
   public G value() {
     switch (getMetric().getType()) {
       case BOOL:
-        return (G) Boolean.valueOf(1.0 == value);
+        return (G) Boolean.valueOf(Double.doubleToRawLongBits(value) != 0L);
       case INT:
       case MILLISEC:
         return (G) Integer.valueOf(value.intValue());
