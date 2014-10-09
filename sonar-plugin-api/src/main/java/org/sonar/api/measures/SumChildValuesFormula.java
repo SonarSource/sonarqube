@@ -33,10 +33,12 @@ public class SumChildValuesFormula implements Formula {
     this.saveZeroIfNoChildValues = saveZeroIfNoChildValues;
   }
 
+  @Override
   public List<Metric> dependsUponMetrics() {
     return Collections.emptyList();
   }
 
+  @Override
   public Measure calculate(FormulaData data, FormulaContext context) {
     Double sum = MeasureUtils.sum(saveZeroIfNoChildValues, data.getChildrenMeasures(context.getTargetMetric()));
     if (sum != null) {

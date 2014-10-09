@@ -64,6 +64,7 @@ public final class FormulaDecorator implements Decorator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -92,6 +93,7 @@ public final class FormulaDecorator implements Decorator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (context.getMeasure(metric) != null) {
       return;

@@ -86,6 +86,7 @@ public class IssueChangelogDebtCalculator implements BatchComponent {
       // Changelog have to be sorted from newest to oldest.
       // Null date should be the first as this happen when technical debt has changed since previous analysis.
       Ordering<FieldDiffs> ordering = Ordering.natural().reverse().nullsFirst().onResultOf(new Function<FieldDiffs, Date>() {
+        @Override
         public Date apply(FieldDiffs diff) {
           return diff.creationDate();
         }

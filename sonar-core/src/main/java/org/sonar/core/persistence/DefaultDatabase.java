@@ -129,10 +129,12 @@ public class DefaultDatabase implements Database {
     }
   }
 
+  @Override
   public final Dialect getDialect() {
     return dialect;
   }
 
+  @Override
   public Properties getHibernateProperties() {
     Properties props = new Properties();
 
@@ -147,6 +149,7 @@ public class DefaultDatabase implements Database {
     return props;
   }
 
+  @Override
   public final DataSource getDataSource() {
     return datasource;
   }

@@ -33,6 +33,7 @@ import java.util.Collection;
 
 public abstract class AbstractCoverageDecorator implements Decorator {
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -42,6 +43,7 @@ public abstract class AbstractCoverageDecorator implements Decorator {
     return Arrays.asList(getGeneratedMetric(), getGeneratedMetricForNewCode());
   }
 
+  @Override
   public void decorate(final Resource resource, final DecoratorContext context) {
     if (shouldDecorate(resource)) {
       computeMeasure(context);

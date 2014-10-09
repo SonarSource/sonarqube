@@ -28,10 +28,12 @@ import org.sonar.api.web.WidgetCategory;
 @WidgetCategory({"Design"})
 public final class FileDesignWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 
+  @Override
   public String getId() {
     return "file_design";
   }
 
+  @Override
   public String getTitle() {
     return "File design";
   }

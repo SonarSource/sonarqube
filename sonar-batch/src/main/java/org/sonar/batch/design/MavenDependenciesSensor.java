@@ -94,6 +94,7 @@ public class MavenDependenciesSensor implements Sensor {
     this.index = index;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -157,6 +158,7 @@ public class MavenDependenciesSensor implements Sensor {
 
   }
 
+  @Override
   public void analyse(final Project project, final SensorContext context) {
     if (settings.hasKey(SONAR_MAVEN_PROJECT_DEPENDENCY)) {
       LOG.debug("Using dependency provided by property " + SONAR_MAVEN_PROJECT_DEPENDENCY);
@@ -185,10 +187,12 @@ public class MavenDependenciesSensor implements Sensor {
       DependencyNode root = treeBuilder.buildDependencyTree(project.getPom(), localRepository, artifactFactory, artifactMetadataSource, null, artifactCollector);
 
       DependencyNodeVisitor visitor = new BuildingDependencyNodeVisitor(new DependencyNodeVisitor() {
+        @Override
         public boolean visit(DependencyNode node) {
           return true;
         }
 
+        @Override
         public boolean endVisit(DependencyNode node) {
           if (node.getParent() != null && node.getParent() != node) {
             saveDependency(project, node, context);

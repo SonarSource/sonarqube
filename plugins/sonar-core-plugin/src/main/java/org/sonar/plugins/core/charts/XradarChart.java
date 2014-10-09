@@ -41,6 +41,7 @@ public class XradarChart extends AbstractChart {
   public static final String PARAM_LABELS = "l";
   public static final String PARAM_VALUES = "v";
 
+  @Override
   public String getKey() {
     return "xradar";
   }

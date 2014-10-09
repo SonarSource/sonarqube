@@ -87,6 +87,7 @@ class IssuesFinderSort {
     @Override
     Function sortFieldFunction() {
       return new Function<IssueDto, String>() {
+        @Override
         public String apply(IssueDto issueDto) {
           return sortField(issueDto);
         }
@@ -123,6 +124,7 @@ class IssuesFinderSort {
     @Override
     Function sortFieldFunction() {
       return new Function<IssueDto, Integer>() {
+        @Override
         public Integer apply(IssueDto issueDto) {
           return Severity.ALL.indexOf(issueDto.getSeverity());
         }
@@ -143,6 +145,7 @@ class IssuesFinderSort {
     @Override
     Function sortFieldFunction() {
       return new Function<IssueDto, Date>() {
+        @Override
         public Date apply(IssueDto issueDto) {
           return sortField(issueDto);
         }

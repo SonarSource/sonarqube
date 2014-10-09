@@ -36,15 +36,18 @@ public class DefaultBulkChange implements BulkChange {
   private Integer totalIssuesNotChanged;
   private final List<String> issuesNotChangedKeys = new ArrayList<String>();
 
+  @Override
   public List<String> issuesNotChangedKeys() {
     return issuesNotChangedKeys;
   }
 
+  @Override
   @CheckForNull
   public Integer totalIssuesChanged() {
     return totalIssuesChanged;
   }
 
+  @Override
   @CheckForNull
   public Integer totalIssuesNotChanged() {
     return totalIssuesNotChanged;

@@ -72,6 +72,7 @@ public class JavaConstantTokenizer extends Tokenizer {
 
   private EndMatcher endTokenMatcher = new EndMatcher() {
 
+    @Override
     public boolean match(int endFlag) {
       return !isJavaConstantPart(endFlag);
     }

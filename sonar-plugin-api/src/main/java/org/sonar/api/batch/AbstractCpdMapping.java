@@ -33,6 +33,7 @@ public abstract class AbstractCpdMapping implements CpdMapping {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Resource createResource(java.io.File file, List<java.io.File> sourceDirs) {
     throw new UnsupportedOperationException("Deprecated since 4.2");
   }

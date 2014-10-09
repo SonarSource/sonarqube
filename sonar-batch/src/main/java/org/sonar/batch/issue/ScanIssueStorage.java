@@ -53,6 +53,7 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
     this.projectTree = projectTree;
   }
 
+  @Override
   protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
     IssueMapper issueMapper = session.getMapper(IssueMapper.class);
     long componentId = componentId(issue);
@@ -62,6 +63,7 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
     issueMapper.insert(dto);
   }
 
+  @Override
   protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
     IssueMapper issueMapper = session.getMapper(IssueMapper.class);
     IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(), now);

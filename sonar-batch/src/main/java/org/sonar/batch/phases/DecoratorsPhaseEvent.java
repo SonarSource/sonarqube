@@ -34,6 +34,7 @@ class DecoratorsPhaseEvent extends AbstractPhaseEvent<DecoratorsPhaseHandler>
     this.decorators = decorators;
   }
 
+  @Override
   public List<Decorator> getDecorators() {
     return decorators;
   }

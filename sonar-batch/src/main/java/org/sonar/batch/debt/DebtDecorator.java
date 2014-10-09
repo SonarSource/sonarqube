@@ -79,6 +79,7 @@ public final class DebtDecorator implements Decorator {
     this.ruleFinder = ruleFinder;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -88,6 +89,7 @@ public final class DebtDecorator implements Decorator {
     return Arrays.<Metric>asList(CoreMetrics.TECHNICAL_DEBT);
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     Issuable issuable = perspectives.as(Issuable.class, resource);
     if (issuable != null && shouldSaveMeasure(context)) {

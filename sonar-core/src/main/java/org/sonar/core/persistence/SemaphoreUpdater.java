@@ -49,6 +49,7 @@ public class SemaphoreUpdater implements TaskComponent, ServerComponent {
   public void scheduleForUpdate(final Semaphores.Semaphore semaphore, int updatePeriodInSeconds) {
     ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     Runnable updater = new Runnable() {
+      @Override
       public void run() {
         try {
           LOG.debug("Updating semaphore " + semaphore.getName());

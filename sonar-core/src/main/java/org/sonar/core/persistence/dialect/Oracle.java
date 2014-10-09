@@ -36,10 +36,12 @@ public class Oracle extends AbstractDialect {
     super(ID, "oracle", "oracle.jdbc.OracleDriver", "1", "0", "SELECT 1 FROM DUAL");
   }
 
+  @Override
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
     return Oracle10gWithDecimalDialect.class;
   }
 
+  @Override
   public boolean matchesJdbcURL(String jdbcConnectionURL) {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:oracle:");
   }

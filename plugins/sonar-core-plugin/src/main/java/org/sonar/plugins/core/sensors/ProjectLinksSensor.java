@@ -40,10 +40,12 @@ public class ProjectLinksSensor implements Sensor {
     this.defaultI18n = defaultI18n;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
 
+  @Override
   public void analyse(Project project, SensorContext context) {
     handleLink(context, CoreProperties.LINKS_HOME_PAGE);
     handleLink(context, CoreProperties.LINKS_CI);

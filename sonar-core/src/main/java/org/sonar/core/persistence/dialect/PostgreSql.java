@@ -38,10 +38,12 @@ public class PostgreSql extends AbstractDialect {
     super(ID, "postgre", "org.postgresql.Driver", "true", "false", "SELECT 1");
   }
 
+  @Override
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
     return PostgreSQLWithDecimalDialect.class;
   }
 
+  @Override
   public boolean matchesJdbcURL(String jdbcConnectionURL) {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:postgresql:");
   }

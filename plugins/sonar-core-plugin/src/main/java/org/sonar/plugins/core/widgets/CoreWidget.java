@@ -31,10 +31,12 @@ public abstract class CoreWidget extends AbstractRubyTemplate implements RubyRai
     this.templatePath = templatePath;
   }
 
+  @Override
   public String getId() {
     return id;
   }
 
+  @Override
   public String getTitle() {
     return title;
   }

@@ -27,6 +27,7 @@ import java.util.List;
 
 public abstract class AbstractUnmarshaller<M extends Model> implements Unmarshaller<M> {
 
+  @Override
   public final M toModel(String json) {
     WSUtils utils = WSUtils.getINSTANCE();
     M result = null;
@@ -45,6 +46,7 @@ public abstract class AbstractUnmarshaller<M extends Model> implements Unmarshal
 
   }
 
+  @Override
   public final List<M> toModels(String json) {
     WSUtils utils = WSUtils.getINSTANCE();
     List<M> result = new ArrayList<M>();

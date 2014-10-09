@@ -40,6 +40,7 @@ public class DefaultResourcePermissions implements ResourcePermissions {
     this.permissionFacade = permissionFacade;
   }
 
+  @Override
   public boolean hasRoles(Resource resource) {
     DbSession session = myBatis.openSession(false);
     try {
@@ -53,6 +54,7 @@ public class DefaultResourcePermissions implements ResourcePermissions {
     return false;
   }
 
+  @Override
   public void grantUserRole(Resource resource, String login, String role) {
     if (resource.getId() != null) {
       DbSession session = myBatis.openSession(false);
@@ -69,6 +71,7 @@ public class DefaultResourcePermissions implements ResourcePermissions {
     }
   }
 
+  @Override
   public void grantGroupRole(Resource resource, String groupName, String role) {
     if (resource.getId() != null) {
       DbSession session = myBatis.openSession(false);
@@ -86,6 +89,7 @@ public class DefaultResourcePermissions implements ResourcePermissions {
     permissionFacade.grantDefaultRoles(session, Long.valueOf(resource.getId()), resource.getQualifier());
   }
 
+  @Override
   public void grantDefaultRoles(Resource resource) {
     DbSession session = myBatis.openSession(false);
     try {

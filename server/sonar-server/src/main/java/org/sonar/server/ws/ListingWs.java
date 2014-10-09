@@ -124,6 +124,7 @@ public class ListingWs implements WebService {
 
     // sort controllers by path
     Ordering<Controller> ordering = Ordering.natural().onResultOf(new Function<Controller, String>() {
+      @Override
       public String apply(Controller controller) {
         return controller.path();
       }
@@ -144,6 +145,7 @@ public class ListingWs implements WebService {
       writer.prop("description", controller.description());
       // sort actions by key
       Ordering<Action> ordering = Ordering.natural().onResultOf(new Function<Action, String>() {
+        @Override
         public String apply(Action action) {
           return action.key();
         }
@@ -169,6 +171,7 @@ public class ListingWs implements WebService {
       if (!action.params().isEmpty()) {
         // sort parameters by key
         Ordering<Param> ordering = Ordering.natural().onResultOf(new Function<Param, String>() {
+          @Override
           public String apply(@Nullable Param param) {
             return param != null ? param.key() : null;
           }

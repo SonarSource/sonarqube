@@ -349,6 +349,7 @@ public class RulesProfile implements Cloneable {
     clone.setParentName(getParentName());
     if (activeRules != null && !activeRules.isEmpty()) {
       clone.setActiveRules(new ArrayList<ActiveRule>(CollectionUtils.collect(activeRules, new Transformer() {
+        @Override
         public Object transform(Object input) {
           return ((ActiveRule) input).clone();
         }

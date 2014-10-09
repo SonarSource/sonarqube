@@ -294,6 +294,7 @@ public class ActiveRule implements Cloneable {
     clone.setInheritance(getInheritance());
     if (CollectionUtils.isNotEmpty(getActiveRuleParams())) {
       clone.setActiveRuleParams(new ArrayList<ActiveRuleParam>(CollectionUtils.collect(getActiveRuleParams(), new Transformer() {
+        @Override
         public Object transform(Object input) {
           ActiveRuleParam activeRuleParamClone = (ActiveRuleParam) ((ActiveRuleParam) input).clone();
           activeRuleParamClone.setActiveRule(clone);

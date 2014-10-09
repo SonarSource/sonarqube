@@ -31,10 +31,12 @@ class RuleMacro implements Macro {
   /**
    * First parameter is the repository, second one is the rule key. Exemple : {rule:squid:ArchitecturalConstraint}
    */
+  @Override
   public String getRegex() {
     return "\\{rule:([a-zA-Z0-9._-]++):([a-zA-Z0-9._-]++)\\}";
   }
 
+  @Override
   public String getReplacement() {
     return "<a href='" + contextPath + "/coding_rules#rule_key=$1:$2'>$2</a>";
   }

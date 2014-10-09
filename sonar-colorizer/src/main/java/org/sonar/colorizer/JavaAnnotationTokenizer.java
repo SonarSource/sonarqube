@@ -33,6 +33,7 @@ public class JavaAnnotationTokenizer extends Tokenizer {
   }
 
   private static final EndMatcher END_TOKEN_MATCHER = new EndMatcher() {
+    @Override
     public boolean match(int endFlag) {
       return !Character.isJavaIdentifierPart(endFlag);
     }

@@ -63,6 +63,7 @@ public class DefaultSensorContext implements SensorContext {
     return project;
   }
 
+  @Override
   public boolean index(Resource resource) {
     // SONAR-5006
     if (indexedByCore(resource)) {
@@ -176,6 +177,7 @@ public class DefaultSensorContext implements SensorContext {
     }
   }
 
+  @Override
   public void saveViolation(Violation violation, boolean force) {
     if (violation.getResource() == null) {
       violation.setResource(resourceOrProject(violation.getResource()));
@@ -183,10 +185,12 @@ public class DefaultSensorContext implements SensorContext {
     index.addViolation(violation, force);
   }
 
+  @Override
   public void saveViolation(Violation violation) {
     saveViolation(violation, false);
   }
 
+  @Override
   public void saveViolations(Collection<Violation> violations) {
     if (violations != null) {
       for (Violation violation : violations) {
@@ -195,42 +199,52 @@ public class DefaultSensorContext implements SensorContext {
     }
   }
 
+  @Override
   public Dependency saveDependency(Dependency dependency) {
     return index.addDependency(dependency);
   }
 
+  @Override
   public Set<Dependency> getDependencies() {
     return index.getDependencies();
   }
 
+  @Override
   public Collection<Dependency> getIncomingDependencies(Resource to) {
     return index.getIncomingEdges(resourceOrProject(to));
   }
 
+  @Override
   public Collection<Dependency> getOutgoingDependencies(Resource from) {
     return index.getOutgoingEdges(resourceOrProject(from));
   }
 
+  @Override
   public void saveSource(Resource reference, String source) {
     // useless since 4.2.
   }
 
+  @Override
   public void saveLink(ProjectLink link) {
     index.addLink(link);
   }
 
+  @Override
   public void deleteLink(String key) {
     index.deleteLink(key);
   }
 
+  @Override
   public List<Event> getEvents(Resource resource) {
     return index.getEvents(resource);
   }
 
+  @Override
   public Event createEvent(Resource resource, String name, String description, String category, Date date) {
     return index.addEvent(resource, name, description, category, date);
   }
 
+  @Override
   public void deleteEvent(Event event) {
     index.deleteEvent(event);
   }

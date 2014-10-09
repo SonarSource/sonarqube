@@ -42,12 +42,14 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, DecoratorExec
   private TimeProfiler profiler = new TimeProfiler(LOG);
   private DecoratorsProfiler decoratorsProfiler = new DecoratorsProfiler();
 
+  @Override
   public void onSensorsPhase(SensorsPhaseEvent event) {
     if (event.isStart()) {
       LOG.debug("Sensors : {}", StringUtils.join(event.getSensors(), " -> "));
     }
   }
 
+  @Override
   public void onSensorExecution(SensorExecutionEvent event) {
     if (event.isStart()) {
       profiler.start("Sensor " + event.getSensor());
@@ -56,6 +58,7 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, DecoratorExec
     }
   }
 
+  @Override
   public void onDecoratorExecution(DecoratorExecutionEvent event) {
     if (event.isStart()) {
       decoratorsProfiler.start(event.getDecorator());
@@ -64,6 +67,7 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, DecoratorExec
     }
   }
 
+  @Override
   public void onDecoratorsPhase(DecoratorsPhaseEvent event) {
     if (event.isStart()) {
       LOG.info("Execute decorators...");

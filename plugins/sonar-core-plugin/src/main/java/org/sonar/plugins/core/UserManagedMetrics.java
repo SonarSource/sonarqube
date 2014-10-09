@@ -28,6 +28,7 @@ import java.util.List;
 public final class UserManagedMetrics implements Metrics {
   private static final String DOMAIN = "Management";
 
+  @Override
   public List<Metric> getMetrics() {
     return ImmutableList.<Metric>of(
       new Metric.Builder("burned_budget", "Burned budget", Metric.ValueType.FLOAT)

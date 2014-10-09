@@ -117,6 +117,7 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
     propertyToBundles = null;
   }
 
+  @Override
   @CheckForNull
   public String message(Locale locale, String key, @Nullable String defaultValue, Object... parameters) {
     String bundleKey = propertyToBundles.get(key);
@@ -135,15 +136,18 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
     return formatMessage(value, parameters);
   }
 
+  @Override
   public String age(Locale locale, long durationInMillis) {
     DurationLabel.Result duration = DurationLabel.label(durationInMillis);
     return message(locale, duration.key(), null, duration.value());
   }
 
+  @Override
   public String age(Locale locale, Date fromDate, Date toDate) {
     return age(locale, toDate.getTime() - fromDate.getTime());
   }
 
+  @Override
   public String ageFromNow(Locale locale, Date date) {
     return age(locale, system2.now() - date.getTime());
   }
@@ -151,14 +155,17 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
   /**
    * Format date for the given locale. JVM timezone is used.
    */
+  @Override
   public String formatDateTime(Locale locale, Date date) {
     return DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT, locale).format(date);
   }
 
+  @Override
   public String formatDate(Locale locale, Date date) {
     return DateFormat.getDateInstance(DateFormat.DEFAULT, locale).format(date);
   }
 
+  @Override
   public String formatDouble(Locale locale, Double value) {
     NumberFormat format = DecimalFormat.getNumberInstance(locale);
     format.setMinimumFractionDigits(1);
@@ -166,6 +173,7 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
     return format.format(value);
   }
 
+  @Override
   public String formatInteger(Locale locale, Integer value) {
     return NumberFormat.getNumberInstance(locale).format(value);
   }

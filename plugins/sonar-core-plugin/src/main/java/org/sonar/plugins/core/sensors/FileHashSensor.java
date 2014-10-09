@@ -51,6 +51,7 @@ public final class FileHashSensor implements Sensor {
     this.componentDataCache = componentDataCache;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }

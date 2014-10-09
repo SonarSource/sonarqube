@@ -45,10 +45,12 @@ public class CommentDensityDecorator implements Decorator {
     return Arrays.<Metric>asList(CoreMetrics.COMMENT_LINES_DENSITY, CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY);
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     saveCommentsDensity(context);
     savePublicApiDensity(context);

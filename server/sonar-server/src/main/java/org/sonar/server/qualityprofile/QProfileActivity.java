@@ -75,6 +75,7 @@ public class QProfileActivity extends ActivityDoc implements Activity {
     return RuleKey.parse((String) getField("ruleKey"));
   }
 
+  @Override
   @CheckForNull
   public String login() {
     return getNullableField(ActivityNormalizer.LogFields.LOGIN.field());

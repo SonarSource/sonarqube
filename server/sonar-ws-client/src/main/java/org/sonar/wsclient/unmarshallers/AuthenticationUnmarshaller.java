@@ -26,6 +26,7 @@ import java.util.List;
 
 public class AuthenticationUnmarshaller implements Unmarshaller<Authentication> {
 
+  @Override
   public Authentication toModel(String json) {
     WSUtils utils = WSUtils.getINSTANCE();
     Object map = utils.parse(json);
@@ -34,6 +35,7 @@ public class AuthenticationUnmarshaller implements Unmarshaller<Authentication> 
     return new Authentication().setValid(validJson != null ? validJson : false);
   }
 
+  @Override
   public List<Authentication> toModels(String json) {
     throw new UnsupportedOperationException();
   }

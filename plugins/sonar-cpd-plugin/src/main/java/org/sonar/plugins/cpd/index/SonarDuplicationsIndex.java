@@ -59,6 +59,7 @@ public class SonarDuplicationsIndex extends AbstractCloneIndex {
     return mem.getByResourceId(resourceKey);
   }
 
+  @Override
   public Collection<Block> getBySequenceHash(ByteArray hash) {
     if (db == null) {
       return mem.getBySequenceHash(hash);
@@ -69,10 +70,12 @@ public class SonarDuplicationsIndex extends AbstractCloneIndex {
     }
   }
 
+  @Override
   public Collection<Block> getByResourceId(String resourceId) {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public void insert(Block block) {
     throw new UnsupportedOperationException();
   }

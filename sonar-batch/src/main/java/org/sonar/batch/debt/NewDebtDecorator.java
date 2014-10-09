@@ -63,6 +63,7 @@ public final class NewDebtDecorator implements Decorator {
     this.issueChangelogDebtCalculator = issueChangelogDebtCalculator;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -74,6 +75,7 @@ public final class NewDebtDecorator implements Decorator {
       );
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     Issuable issuable = perspectives.as(Issuable.class, resource);
     if (issuable != null && shouldSaveNewMetrics(context)) {

@@ -34,19 +34,23 @@ public class DefaultUser implements User {
   private String login, name, email;
   private boolean active;
 
+  @Override
   public String login() {
     return login;
   }
 
+  @Override
   public String name() {
     return name;
   }
 
+  @Override
   @CheckForNull
   public String email() {
     return email;
   }
 
+  @Override
   public boolean active() {
     return active;
   }

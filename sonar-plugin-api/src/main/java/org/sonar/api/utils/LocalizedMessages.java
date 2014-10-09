@@ -113,10 +113,12 @@ public class LocalizedMessages extends ResourceBundle {
       i = keys.iterator();
     }
 
+    @Override
     public boolean hasMoreElements() {
       return i.hasNext();
     }
 
+    @Override
     public String nextElement() {
       return i.next();
     }

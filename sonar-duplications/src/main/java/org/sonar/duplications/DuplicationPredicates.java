@@ -42,6 +42,7 @@ public final class DuplicationPredicates {
       this.min = min;
     }
 
+    @Override
     public boolean apply(@Nullable CloneGroup input) {
       return input != null && input.getLengthInUnits() >= min;
     }

@@ -77,6 +77,7 @@ public class DefaultProjectTree implements ProjectTree {
     return projects;
   }
 
+  @Override
   public Project getRootProject() {
     for (Project project : projects) {
       if (project.getParent() == null) {
@@ -86,6 +87,7 @@ public class DefaultProjectTree implements ProjectTree {
     throw new IllegalStateException("Can not find the root project from the list of Maven modules");
   }
 
+  @Override
   public ProjectDefinition getProjectDefinition(Project project) {
     for (Map.Entry<ProjectDefinition, Project> entry : projectsByDef.entrySet()) {
       if (ObjectUtils.equals(entry.getValue(), project)) {

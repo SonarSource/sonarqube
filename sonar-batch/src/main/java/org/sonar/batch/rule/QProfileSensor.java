@@ -39,11 +39,13 @@ public class QProfileSensor implements Sensor {
     this.fs = fs;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     // Should be only executed on leaf modules
     return project.getModules().isEmpty();
   }
 
+  @Override
   public void analyse(Project project, SensorContext context) {
     UsedQProfiles used = new UsedQProfiles();
     for (String language : fs.languages()) {

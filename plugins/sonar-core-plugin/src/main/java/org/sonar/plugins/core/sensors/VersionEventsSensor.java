@@ -31,10 +31,12 @@ import java.util.Iterator;
 @DryRunIncompatible
 public class VersionEventsSensor implements Sensor {
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
 
+  @Override
   public void analyse(Project project, SensorContext context) {
     if (StringUtils.isBlank(project.getAnalysisVersion())) {
       return;

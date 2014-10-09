@@ -100,6 +100,7 @@ public class NotificationService implements ServerComponent {
   public void start() {
     executorService = Executors.newSingleThreadScheduledExecutor();
     executorService.scheduleWithFixedDelay(new Runnable() {
+      @Override
       public void run() {
         try {
           processQueue();
@@ -167,10 +168,12 @@ public class NotificationService implements ServerComponent {
     final SetMultimap<String, NotificationChannel> recipients = HashMultimap.create();
     for (NotificationDispatcher dispatcher : dispatchers) {
       NotificationDispatcher.Context context = new NotificationDispatcher.Context() {
+        @Override
         public void addUser(String username) {
           // This method is not used anymore
         }
 
+        @Override
         public void addUser(String userLogin, NotificationChannel notificationChannel) {
           if (userLogin != null) {
             recipients.put(userLogin, notificationChannel);

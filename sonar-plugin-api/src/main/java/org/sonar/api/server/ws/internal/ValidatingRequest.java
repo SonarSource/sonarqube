@@ -47,6 +47,7 @@ public abstract class ValidatingRequest extends Request {
     return action;
   }
 
+  @Override
   @CheckForNull
   public String param(String key) {
     return param(key, true);

@@ -32,6 +32,7 @@ class SensorExecutionEvent extends AbstractPhaseEvent<SensorExecutionHandler>
     this.sensor = sensor;
   }
 
+  @Override
   public Sensor getSensor() {
     return sensor;
   }

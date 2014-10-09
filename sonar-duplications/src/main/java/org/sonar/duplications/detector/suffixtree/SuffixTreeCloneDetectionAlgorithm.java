@@ -108,6 +108,7 @@ public final class SuffixTreeCloneDetectionAlgorithm {
   }
 
   private static final Comparator<Block> BLOCK_COMPARATOR = new Comparator<Block>() {
+    @Override
     public int compare(Block o1, Block o2) {
       return o1.getIndexInFile() - o2.getIndexInFile();
     }

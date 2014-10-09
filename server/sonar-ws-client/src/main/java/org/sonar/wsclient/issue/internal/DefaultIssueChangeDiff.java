@@ -37,16 +37,19 @@ public class DefaultIssueChangeDiff implements IssueChangeDiff {
     this.json = json;
   }
 
+  @Override
   public String key() {
     return JsonUtils.getString(json, "key");
   }
 
+  @Override
   @CheckForNull
   public Object newValue() {
     return parseValue("newValue");
 
   }
 
+  @Override
   @CheckForNull
   public Object oldValue() {
     return parseValue("oldValue");

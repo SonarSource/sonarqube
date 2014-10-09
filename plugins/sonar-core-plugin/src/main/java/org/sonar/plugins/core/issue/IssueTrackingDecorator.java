@@ -90,10 +90,12 @@ public class IssueTrackingDecorator implements Decorator {
     this.ruleFinder = ruleFinder;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     Issuable issuable = perspectives.as(Issuable.class, resource);
     if (issuable != null) {

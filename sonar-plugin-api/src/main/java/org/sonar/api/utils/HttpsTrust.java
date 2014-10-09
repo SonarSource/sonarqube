@@ -73,6 +73,7 @@ class HttpsTrust {
    */
   private HostnameVerifier createHostnameVerifier() {
     return new HostnameVerifier() {
+      @Override
       public boolean verify(String hostname, SSLSession session) {
         return true;
       }
@@ -80,14 +81,17 @@ class HttpsTrust {
   }
 
   static class AlwaysTrustManager implements X509TrustManager {
+    @Override
     public X509Certificate[] getAcceptedIssuers() {
       return new X509Certificate[0];
     }
 
+    @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType) {
       // Do not check
     }
 
+    @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType) {
       // Do not check
     }

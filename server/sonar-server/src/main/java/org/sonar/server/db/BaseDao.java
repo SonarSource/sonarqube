@@ -152,11 +152,13 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
     return session.getMapper(mapperClass);
   }
 
+  @Override
   @CheckForNull
   public DTO getNullableByKey(DbSession session, KEY key) {
     return doGetNullableByKey(session, key);
   }
 
+  @Override
   public DTO getByKey(DbSession session, KEY key) {
     DTO value = doGetNullableByKey(session, key);
     if (value == null) {

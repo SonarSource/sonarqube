@@ -59,6 +59,7 @@ public class DefaultTimeMachine implements TimeMachine {
     this.techDebtModel = techDebtModel;
   }
 
+  @Override
   public List<Measure> getMeasures(TimeMachineQuery query) {
     Map<Integer, Metric> metricById = getMetricsById(query);
 
@@ -76,6 +77,7 @@ public class DefaultTimeMachine implements TimeMachine {
     return result;
   }
 
+  @Override
   public List<Object[]> getMeasuresFields(TimeMachineQuery query) {
     Map<Integer, Metric> metricById = getMetricsById(query);
     List<Object[]> rows = execute(query, false, metricById.keySet());

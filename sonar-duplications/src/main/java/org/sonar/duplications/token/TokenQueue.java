@@ -72,6 +72,7 @@ public class TokenQueue implements Iterable<Token> {
     return nextToken.getValue().equals(expectedValue);
   }
 
+  @Override
   public Iterator<Token> iterator() {
     return tokenQueue.iterator();
   }

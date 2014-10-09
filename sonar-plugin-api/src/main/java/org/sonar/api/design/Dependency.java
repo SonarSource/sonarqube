@@ -45,10 +45,12 @@ public class Dependency implements Edge<Resource> {
     this.to = to;
   }
 
+  @Override
   public Resource getFrom() {
     return from;
   }
 
+  @Override
   public Resource getTo() {
     return to;
   }
@@ -62,6 +64,7 @@ public class Dependency implements Edge<Resource> {
     return this;
   }
 
+  @Override
   public int getWeight() {
     return weight;
   }

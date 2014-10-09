@@ -50,6 +50,7 @@ public class TokensLine implements CodeFragment {
     return value;
   }
 
+  @Override
   public int getStartLine() {
     return startLine;
   }
@@ -57,6 +58,7 @@ public class TokensLine implements CodeFragment {
   /**
    * Same as {@link #getStartLine()}
    */
+  @Override
   public int getEndLine() {
     return startLine;
   }

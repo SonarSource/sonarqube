@@ -205,6 +205,7 @@ final class BlocksGroup {
 
     public static final BlockComparator INSTANCE = new BlockComparator();
 
+    @Override
     public int compare(Block b1, Block b2) {
       int c = RESOURCE_ID_COMPARATOR.compare(b1.getResourceId(), b2.getResourceId());
       if (c == 0) {

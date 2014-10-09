@@ -86,6 +86,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     this.indexDefinition = indexDefinition;
   }
 
+  @Override
   public BaseNormalizer<DTO, KEY> getNormalizer() {
     return normalizer;
   }
@@ -118,6 +119,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   // Scrolling within the index
+  @Override
   public Iterator<DOMAIN> scroll(final String scrollId) {
     return new Iterator<DOMAIN>() {
 
@@ -185,6 +187,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     }
   }
 
+  @Override
   public IndexStat getIndexStat() {
     IndexStat stat = new IndexStat();
 

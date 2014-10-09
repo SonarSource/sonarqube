@@ -239,6 +239,7 @@ public class DebtModelXMLExporter implements ServerComponent {
 
     private List<DebtCharacteristic> sortByOrder(List<DebtCharacteristic> characteristics) {
       Collections.sort(characteristics, new Ordering<DebtCharacteristic>() {
+        @Override
         public int compare(@Nullable DebtCharacteristic left, @Nullable DebtCharacteristic right) {
           if (left == null || left.order() == null || right == null || right.order() == null) {
             return -1;
@@ -251,6 +252,7 @@ public class DebtModelXMLExporter implements ServerComponent {
 
     private List<DebtCharacteristic> sortByName(List<DebtCharacteristic> characteristics) {
       Collections.sort(characteristics, new Ordering<DebtCharacteristic>() {
+        @Override
         public int compare(@Nullable DebtCharacteristic left, @Nullable DebtCharacteristic right) {
           if (left == null || right == null) {
             return -1;

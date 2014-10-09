@@ -31,14 +31,17 @@ public class MemoryCloneIndex implements CloneIndex {
   private Multimap<String, Block> byResource = ArrayListMultimap.create();
   private Multimap<ByteArray, Block> byHash = ArrayListMultimap.create();
 
+  @Override
   public Collection<Block> getByResourceId(String resourceId) {
     return byResource.get(resourceId);
   }
 
+  @Override
   public Collection<Block> getBySequenceHash(ByteArray sequenceHash) {
     return byHash.get(sequenceHash);
   }
 
+  @Override
   public void insert(Block block) {
     byResource.put(block.getResourceId(), block);
     byHash.put(block.getBlockHash(), block);

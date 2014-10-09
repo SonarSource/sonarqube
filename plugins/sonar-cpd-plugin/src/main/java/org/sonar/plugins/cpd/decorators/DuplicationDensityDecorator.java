@@ -48,10 +48,12 @@ public class DuplicationDensityDecorator implements Decorator {
     return CoreMetrics.DUPLICATED_LINES_DENSITY;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     Measure nbDuplicatedLines = context.getMeasure(CoreMetrics.DUPLICATED_LINES);
     if (nbDuplicatedLines == null) {

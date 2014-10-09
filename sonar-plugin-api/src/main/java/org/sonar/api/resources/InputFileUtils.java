@@ -121,10 +121,12 @@ public final class InputFileUtils {
       this.relativePath = relativePath;
     }
 
+    @Override
     public java.io.File getFileBaseDir() {
       return basedir;
     }
 
+    @Override
     public java.io.File getFile() {
       return new java.io.File(basedir, relativePath);
     }
@@ -132,10 +134,12 @@ public final class InputFileUtils {
     /**
      * @since 3.1
      */
+    @Override
     public InputStream getInputStream() throws FileNotFoundException {
       return new BufferedInputStream(new FileInputStream(getFile()));
     }
 
+    @Override
     public String getRelativePath() {
       return relativePath;
     }

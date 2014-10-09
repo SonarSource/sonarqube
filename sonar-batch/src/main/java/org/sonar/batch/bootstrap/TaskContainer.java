@@ -84,6 +84,7 @@ public class TaskContainer extends ComponentContainer {
 
   private void installTaskExtensions() {
     getComponentByType(ExtensionInstaller.class).install(this, new ExtensionMatcher() {
+      @Override
       public boolean accept(Object extension) {
         return ExtensionUtils.isType(extension, TaskComponent.class);
       }

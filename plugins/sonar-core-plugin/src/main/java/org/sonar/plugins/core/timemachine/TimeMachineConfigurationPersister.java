@@ -46,6 +46,7 @@ public final class TimeMachineConfigurationPersister implements Decorator {
     this.session = session;
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (ResourceUtils.isProject(resource)) {
       persistConfiguration();
@@ -63,6 +64,7 @@ public final class TimeMachineConfigurationPersister implements Decorator {
     session.commit();
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }

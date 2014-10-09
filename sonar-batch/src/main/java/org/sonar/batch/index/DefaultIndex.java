@@ -297,6 +297,7 @@ public class DefaultIndex extends SonarIndex {
     return dependencies;
   }
 
+  @Override
   public Dependency getEdge(Resource from, Resource to) {
     Map<Resource, Dependency> map = outgoingDependenciesByResource.get(from);
     if (map != null) {
@@ -305,14 +306,17 @@ public class DefaultIndex extends SonarIndex {
     return null;
   }
 
+  @Override
   public boolean hasEdge(Resource from, Resource to) {
     return getEdge(from, to) != null;
   }
 
+  @Override
   public Set<Resource> getVertices() {
     return buckets.keySet();
   }
 
+  @Override
   public Collection<Dependency> getOutgoingEdges(Resource from) {
     Map<Resource, Dependency> deps = outgoingDependenciesByResource.get(from);
     if (deps != null) {
@@ -321,6 +325,7 @@ public class DefaultIndex extends SonarIndex {
     return Collections.emptyList();
   }
 
+  @Override
   public Collection<Dependency> getIncomingEdges(Resource to) {
     Map<Resource, Dependency> deps = incomingDependenciesByResource.get(to);
     if (deps != null) {

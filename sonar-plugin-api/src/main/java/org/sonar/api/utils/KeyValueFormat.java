@@ -489,6 +489,7 @@ public final class KeyValueFormat {
    */
   @Deprecated
   public static class StringNumberPairTransformer implements Transformer<String, Double> {
+    @Override
     public KeyValue<String, Double> transform(String key, String value) {
       return new KeyValue<String, Double>(key, toDouble(value));
     }
@@ -501,6 +502,7 @@ public final class KeyValueFormat {
    */
   @Deprecated
   public static class DoubleNumbersPairTransformer implements Transformer<Double, Double> {
+    @Override
     public KeyValue<Double, Double> transform(String key, String value) {
       return new KeyValue<Double, Double>(toDouble(key), toDouble(value));
     }
@@ -513,6 +515,7 @@ public final class KeyValueFormat {
    */
   @Deprecated
   public static class IntegerNumbersPairTransformer implements Transformer<Integer, Integer> {
+    @Override
     public KeyValue<Integer, Integer> transform(String key, String value) {
       return new KeyValue<Integer, Integer>(toInteger(key), toInteger(value));
     }
@@ -527,6 +530,7 @@ public final class KeyValueFormat {
   @Deprecated
   public static class RulePriorityNumbersPairTransformer implements Transformer<RulePriority, Integer> {
 
+    @Override
     public KeyValue<RulePriority, Integer> transform(String key, String value) {
       try {
         if (StringUtils.isBlank(value)) {

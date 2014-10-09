@@ -48,10 +48,12 @@ public class ClonePart implements CodeFragment {
     return startUnit;
   }
 
+  @Override
   public int getStartLine() {
     return startLine;
   }
 
+  @Override
   public int getEndLine() {
     return endLine;
   }

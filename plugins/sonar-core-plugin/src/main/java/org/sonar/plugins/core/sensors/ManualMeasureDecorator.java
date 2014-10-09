@@ -43,10 +43,12 @@ public class ManualMeasureDecorator implements Decorator {
     this.metricFinder = metricFinder;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (resource.getId() != null) {
       List<ManualMeasure> manualMeasures = session.getResults(ManualMeasure.class, "resourceId", resource.getId());

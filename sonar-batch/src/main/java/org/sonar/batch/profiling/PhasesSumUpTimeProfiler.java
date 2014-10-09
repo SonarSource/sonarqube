@@ -132,6 +132,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     println("");
   }
 
+  @Override
   public void onSensorsPhase(SensorsPhaseEvent event) {
     if (event.isStart()) {
       currentModuleProfiling.addPhaseProfiling(Phases.Phase.SENSOR);
@@ -140,6 +141,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     }
   }
 
+  @Override
   public void onSensorExecution(SensorExecutionEvent event) {
     PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phases.Phase.SENSOR);
     if (event.isStart()) {
@@ -149,6 +151,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     }
   }
 
+  @Override
   public void onPersistersPhase(PersistersPhaseEvent event) {
     if (event.isStart()) {
       currentModuleProfiling.addPhaseProfiling(Phases.Phase.PERSISTER);
@@ -157,6 +160,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     }
   }
 
+  @Override
   public void onPersisterExecution(PersisterExecutionEvent event) {
     PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phases.Phase.PERSISTER);
     if (event.isStart()) {
@@ -166,6 +170,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     }
   }
 
+  @Override
   public void onDecoratorExecution(DecoratorExecutionEvent event) {
     PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phases.Phase.DECORATOR);
     if (event.isStart()) {
@@ -178,6 +183,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     }
   }
 
+  @Override
   public void onDecoratorsPhase(DecoratorsPhaseEvent event) {
     if (event.isStart()) {
       currentModuleProfiling.addPhaseProfiling(Phases.Phase.DECORATOR);
@@ -190,6 +196,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     }
   }
 
+  @Override
   public void onPostJobsPhase(PostJobsPhaseEvent event) {
     if (event.isStart()) {
       currentModuleProfiling.addPhaseProfiling(Phases.Phase.POSTJOB);
@@ -198,6 +205,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     }
   }
 
+  @Override
   public void onPostJobExecution(PostJobExecutionEvent event) {
     PhaseProfiling profiling = currentModuleProfiling.getProfilingPerPhase(Phases.Phase.POSTJOB);
     if (event.isStart()) {

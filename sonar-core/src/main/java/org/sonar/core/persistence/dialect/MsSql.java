@@ -33,10 +33,12 @@ public class MsSql extends AbstractDialect {
     super(ID, "sqlserver", "net.sourceforge.jtds.jdbc.Driver", "1", "0", "SELECT 1");
   }
 
+  @Override
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
     return MsSqlDialect.class;
   }
 
+  @Override
   public boolean matchesJdbcURL(String jdbcConnectionURL) {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:microsoft:sqlserver:")
       || StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:jtds:sqlserver:");

@@ -184,6 +184,7 @@ public class RegisterQualityProfiles implements ServerComponent {
 
   private static Map<String, Collection<RulesProfile>> profilesByName(List<RulesProfile> profiles) {
     return Multimaps.index(profiles, new Function<RulesProfile, String>() {
+      @Override
       public String apply(@Nullable RulesProfile profile) {
         return profile != null ? profile.getName() : null;
       }

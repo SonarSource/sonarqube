@@ -32,6 +32,7 @@ public class MockSourceFile implements SourceFile {
   private MockSourceFile() {
   }
 
+  @Override
   public String key() {
     return key;
   }
@@ -51,6 +52,7 @@ public class MockSourceFile implements SourceFile {
     return this;
   }
 
+  @Override
   public String qualifier() {
     return qualifier;
   }
@@ -69,6 +71,7 @@ public class MockSourceFile implements SourceFile {
     return this;
   }
 
+  @Override
   public String name() {
     return name;
   }
@@ -78,6 +81,7 @@ public class MockSourceFile implements SourceFile {
     return this;
   }
 
+  @Override
   public String longName() {
     return longName;
   }

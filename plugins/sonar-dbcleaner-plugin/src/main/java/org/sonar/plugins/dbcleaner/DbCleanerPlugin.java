@@ -33,6 +33,7 @@ import java.util.List;
 
 public final class DbCleanerPlugin extends SonarPlugin {
 
+  @Override
   public List getExtensions() {
     return ImmutableList.builder().add(DefaultPeriodCleaner.class, DefaultPurgeTask.class, ProjectPurgePostJob.class)
       .addAll(propertyDefinitions()).build();

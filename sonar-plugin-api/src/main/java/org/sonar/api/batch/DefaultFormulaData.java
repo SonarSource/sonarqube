@@ -39,22 +39,27 @@ public class DefaultFormulaData implements FormulaData {
     this.decoratorContext = decoratorContext;
   }
 
+  @Override
   public Measure getMeasure(Metric metric) {
     return decoratorContext.getMeasure(metric);
   }
 
+  @Override
   public <M> M getMeasures(MeasuresFilter<M> filter) {
     return decoratorContext.getMeasures(filter);
   }
 
+  @Override
   public Collection<Measure> getChildrenMeasures(MeasuresFilter filter) {
     return decoratorContext.getChildrenMeasures(filter);
   }
 
+  @Override
   public Collection<Measure> getChildrenMeasures(Metric metric) {
     return decoratorContext.getChildrenMeasures(metric);
   }
 
+  @Override
   public Collection<FormulaData> getChildren() {
     List<FormulaData> result = Lists.newArrayList();
     for (DecoratorContext childContext : decoratorContext.getChildren()) {

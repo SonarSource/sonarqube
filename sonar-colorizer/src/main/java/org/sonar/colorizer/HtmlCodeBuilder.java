@@ -30,6 +30,7 @@ public class HtmlCodeBuilder implements Appendable {
   private StringBuilder colorizedCode = new StringBuilder();
   private Map variables = new HashMap();
 
+  @Override
   public Appendable append(CharSequence csq) {
     for (int i = 0; i < csq.length(); i++) {
       append(csq.charAt(i));
@@ -37,6 +38,7 @@ public class HtmlCodeBuilder implements Appendable {
     return this;
   }
 
+  @Override
   public Appendable append(char c) {
     if (c == '<') {
       colorizedCode.append("&lt;");
@@ -50,6 +52,7 @@ public class HtmlCodeBuilder implements Appendable {
     return this;
   }
 
+  @Override
   public Appendable append(CharSequence csq, int start, int end) {
     for (int i = start; i < end; i++) {
       append(csq.charAt(i));

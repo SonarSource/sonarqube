@@ -81,17 +81,20 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
   }
 
 
+  @Override
   @CheckForNull
   public String getName(String repositoryKey, String ruleKey) {
     return message(repositoryKey, ruleKey, NAME_SUFFIX);
   }
 
+  @Override
   @CheckForNull
   public String getName(Rule rule) {
     String name = message(rule.getRepositoryKey(), rule.getKey(), NAME_SUFFIX);
     return name != null ? name : rule.getName();
   }
 
+  @Override
   public String getDescription(String repositoryKey, String ruleKey) {
     String relatedProperty = new StringBuilder().append(RULE_PREFIX).append(repositoryKey).append(".").append(ruleKey).append(NAME_SUFFIX).toString();
 
@@ -114,6 +117,7 @@ public class RuleI18nManager implements RuleI18n, ServerExtension, BatchExtensio
     return defaultI18n.messageFromFile(Locale.ENGLISH, ruleKey + ".html", relatedProperty);
   }
 
+  @Override
   @CheckForNull
   public String getParamDescription(String repositoryKey, String ruleKey, String paramKey) {
     return message(repositoryKey, ruleKey, ".param." + paramKey);

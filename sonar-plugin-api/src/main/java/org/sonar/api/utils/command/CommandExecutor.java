@@ -201,6 +201,7 @@ public class CommandExecutor {
   }
 
   private static class DefaultConsumer implements StreamConsumer {
+    @Override
     public void consumeLine(String line) {
       LOG.info(line);
     }

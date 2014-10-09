@@ -36,6 +36,7 @@ import java.util.Collection;
  */
 public final class FilesDecorator implements Decorator {
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -45,6 +46,7 @@ public final class FilesDecorator implements Decorator {
     return CoreMetrics.FILES;
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (MeasureUtils.hasValue(context.getMeasure(CoreMetrics.FILES))) {
       return;

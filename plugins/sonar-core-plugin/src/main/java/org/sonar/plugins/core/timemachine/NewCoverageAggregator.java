@@ -38,6 +38,7 @@ import java.util.List;
 @DependedUpon(DecoratorBarriers.END_OF_TIME_MACHINE)
 public final class NewCoverageAggregator implements Decorator {
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -50,6 +51,7 @@ public final class NewCoverageAggregator implements Decorator {
       CoreMetrics.NEW_OVERALL_LINES_TO_COVER, CoreMetrics.NEW_OVERALL_UNCOVERED_LINES, CoreMetrics.NEW_OVERALL_CONDITIONS_TO_COVER, CoreMetrics.NEW_OVERALL_UNCOVERED_CONDITIONS);
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorate(resource)) {
       int maxPeriods = Qualifiers.isView(resource, true) ? 3 : 5;

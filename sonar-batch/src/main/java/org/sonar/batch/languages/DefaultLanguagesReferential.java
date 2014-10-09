@@ -41,6 +41,7 @@ public class DefaultLanguagesReferential implements LanguagesReferential {
   /**
    * Get language.
    */
+  @Override
   @CheckForNull
   public Language get(String languageKey) {
     org.sonar.api.resources.Language language = languages.get(languageKey);
@@ -50,6 +51,7 @@ public class DefaultLanguagesReferential implements LanguagesReferential {
   /**
    * Get list of all supported languages.
    */
+  @Override
   public Collection<Language> all() {
     org.sonar.api.resources.Language[] all = languages.all();
     Collection<Language> result = new ArrayList<Language>(all.length);

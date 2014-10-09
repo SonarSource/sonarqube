@@ -87,10 +87,12 @@ public final class FeedbackCycle implements Iterable<FeedbackEdge>, Comparable<F
     return totalOccurrencesOfEdgesInCycle;
   }
 
+  @Override
   public Iterator<FeedbackEdge> iterator() {
     return orderedFeedbackEdges.iterator();
   }
 
+  @Override
   public int compareTo(FeedbackCycle feedbackCycle) {
     if (getTotalOccurrencesOfEdgesInCycle() < feedbackCycle.getTotalOccurrencesOfEdgesInCycle()) {//NOSONAR this class has a natural ordering that is inconsistent with equals
       return -1;

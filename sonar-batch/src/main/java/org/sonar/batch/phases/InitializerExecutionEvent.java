@@ -32,6 +32,7 @@ class InitializerExecutionEvent extends AbstractPhaseEvent<InitializerExecutionH
     this.initializer = initializer;
   }
 
+  @Override
   public Initializer getInitializer() {
     return initializer;
   }

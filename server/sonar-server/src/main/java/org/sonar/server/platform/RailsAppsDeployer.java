@@ -90,6 +90,7 @@ public class RailsAppsDeployer implements Startable {
       LOG.info("Deploy app: " + pluginKey);
       File appDir = new File(appsDir, pluginKey);
       ClassLoaderUtils.copyResources(appClassLoader, pathToRubyInitFile(pluginKey), appDir, new Function<String, String>() {
+        @Override
         public String apply(@Nullable String relativePath) {
           // Relocate the deployed files :
           // relativePath format is: org/sonar/ror/sqale/app/controllers/foo_controller.rb

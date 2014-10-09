@@ -54,10 +54,12 @@ public class Statement implements CodeFragment {
     this.endLine = tokens.get(tokens.size() - 1).getLine();
   }
 
+  @Override
   public int getStartLine() {
     return startLine;
   }
 
+  @Override
   public int getEndLine() {
     return endLine;
   }

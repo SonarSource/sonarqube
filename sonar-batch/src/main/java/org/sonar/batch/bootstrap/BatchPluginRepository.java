@@ -106,14 +106,17 @@ public class BatchPluginRepository implements PluginRepository {
     }
   }
 
+  @Override
   public Plugin getPlugin(String key) {
     return pluginsByKey.get(key);
   }
 
+  @Override
   public Collection<PluginMetadata> getMetadata() {
     return metadataByKey.values();
   }
 
+  @Override
   public PluginMetadata getMetadata(String pluginKey) {
     return metadataByKey.get(pluginKey);
   }

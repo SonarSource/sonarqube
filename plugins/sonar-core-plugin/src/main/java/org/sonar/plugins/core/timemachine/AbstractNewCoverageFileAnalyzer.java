@@ -76,6 +76,7 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
 
   public abstract Metric getNewUncoveredConditionsMetric();
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return !structs.isEmpty();
   }
@@ -96,6 +97,7 @@ public abstract class AbstractNewCoverageFileAnalyzer implements Decorator {
     return Arrays.asList(getNewLinesToCoverMetric(), getNewUncoveredLinesMetric(), getNewConditionsToCoverMetric(), getNewUncoveredConditionsMetric());
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorate(resource)) {
       doDecorate(context);

@@ -48,6 +48,7 @@ public class GraphPersister implements ScanPersister {
     this.builders = builders;
   }
 
+  @Override
   public void persist() {
     DbSession session = myBatis.openSession(true);
     GraphDtoMapper mapper = session.getMapper(GraphDtoMapper.class);

@@ -25,6 +25,7 @@ import org.sonar.api.SonarPlugin;
 import java.util.List;
 
 public class EmailNotificationsPlugin extends SonarPlugin {
+  @Override
   public List getExtensions() {
     return ImmutableList.of(
       EmailNotificationChannel.class,

@@ -35,10 +35,12 @@ public class DefaultFormulaContext implements FormulaContext {
     this.metric = metric;
   }
 
+  @Override
   public Metric getTargetMetric() {
     return metric;
   }
 
+  @Override
   public Resource getResource() {
     return decoratorContext.getResource();
   }

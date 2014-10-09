@@ -34,6 +34,7 @@ class PersistersPhaseEvent extends AbstractPhaseEvent<PersistersPhaseHandler>
     this.persisters = persisters;
   }
 
+  @Override
   public List<ScanPersister> getPersisters() {
     return persisters;
   }

@@ -50,6 +50,7 @@ public class DefaultCharacteristic implements Characteristic {
   private Integer offsetValue;
   private WorkDuration.UNIT offsetUnit;
 
+  @Override
   public Integer id() {
     return id;
   }
@@ -59,6 +60,7 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   @CheckForNull
   public String key() {
     return key;
@@ -69,6 +71,7 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   @CheckForNull
   public String name() {
     return name;
@@ -79,6 +82,7 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   @CheckForNull
   public Integer order() {
     return order;
@@ -89,6 +93,7 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   @CheckForNull
   public Integer parentId() {
     return parentId;
@@ -99,6 +104,7 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   @CheckForNull
   public Integer rootId() {
     return rootId;
@@ -112,6 +118,7 @@ public class DefaultCharacteristic implements Characteristic {
   /**
    * @deprecated since 4.2
    */
+  @Override
   @Deprecated
   @CheckForNull
   public RuleKey ruleKey() {
@@ -130,6 +137,7 @@ public class DefaultCharacteristic implements Characteristic {
   /**
    * @deprecated since 4.2
    */
+  @Override
   @Deprecated
   @CheckForNull
   public String function() {
@@ -148,6 +156,7 @@ public class DefaultCharacteristic implements Characteristic {
   /**
    * @deprecated since 4.2
    */
+  @Override
   @Deprecated
   @CheckForNull
   public WorkUnit factor() {
@@ -172,6 +181,7 @@ public class DefaultCharacteristic implements Characteristic {
   /**
    * @deprecated since 4.3
    */
+  @Override
   @Deprecated
   @CheckForNull
   public Integer factorValue() {
@@ -187,6 +197,7 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   @CheckForNull
   public WorkDuration.UNIT factorUnit() {
     return factorUnit;
@@ -204,6 +215,7 @@ public class DefaultCharacteristic implements Characteristic {
   /**
    * @deprecated since 4.2
    */
+  @Override
   @Deprecated
   public WorkUnit offset() {
     if (offsetValue != null && offsetUnit != null) {
@@ -227,6 +239,7 @@ public class DefaultCharacteristic implements Characteristic {
   /**
    * @deprecated since 4.3
    */
+  @Override
   @Deprecated
   @CheckForNull
   public Integer offsetValue() {
@@ -245,6 +258,7 @@ public class DefaultCharacteristic implements Characteristic {
   /**
    * @deprecated since 4.3
    */
+  @Override
   @Deprecated
   @CheckForNull
   public WorkDuration.UNIT offsetUnit() {
@@ -289,6 +303,7 @@ public class DefaultCharacteristic implements Characteristic {
     throw new IllegalStateException("Invalid unit : " + unit);
   }
 
+  @Override
   public boolean isRoot() {
     return parentId == null;
   }
@@ -296,6 +311,7 @@ public class DefaultCharacteristic implements Characteristic {
   /**
    * @deprecated since 4.3
    */
+  @Override
   @Deprecated
   public boolean isRequirement() {
     return ruleKey != null;

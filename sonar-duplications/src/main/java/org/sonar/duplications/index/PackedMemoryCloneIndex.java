@@ -92,6 +92,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
    * <strong>Note that this implementation does not guarantee that blocks would be sorted by index.</strong>
    * </p>
    */
+  @Override
   public Collection<Block> getByResourceId(String resourceId) {
     ensureSorted();
 
@@ -134,6 +135,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Collection<Block> getBySequenceHash(ByteArray sequenceHash) {
     ensureSorted();
 
@@ -179,6 +181,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
    * <strong>Note that this implementation allows insertion of two blocks with same index for one resource.</strong>
    * </p>
    */
+  @Override
   public void insert(Block block) {
     sorted = false;
     ensureCapacity();
@@ -257,6 +260,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
   }
 
   private final DataUtils.Sortable byBlockHash = new DataUtils.Sortable() {
+    @Override
     public void swap(int i, int j) {
       String tmp = resourceIds[i];
       resourceIds[i] = resourceIds[j];
@@ -271,28 +275,33 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
       }
     }
 
+    @Override
     public boolean isLess(int i, int j) {
       return isLessByHash(i, j);
     }
 
+    @Override
     public int size() {
       return size;
     }
   };
 
   private final DataUtils.Sortable byResourceId = new DataUtils.Sortable() {
+    @Override
     public void swap(int i, int j) {
       int tmp = resourceIdsIndex[i];
       resourceIdsIndex[i] = resourceIdsIndex[j];
       resourceIdsIndex[j] = tmp;
     }
 
+    @Override
     public boolean isLess(int i, int j) {
       String s1 = resourceIds[resourceIdsIndex[i]];
       String s2 = resourceIds[resourceIdsIndex[j]];
       return FastStringComparator.INSTANCE.compare(s1, s2) < 0;
     }
 
+    @Override
     public int size() {
       return size;
     }

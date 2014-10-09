@@ -113,6 +113,7 @@ public class StaxParser {
   }
 
   private static class UndeclaredEntitiesXMLResolver implements XMLResolver {
+    @Override
     public Object resolveEntity(String arg0, String arg1, String fileName, String undeclaredEntity) throws XMLStreamException {
       // avoid problems with XML docs containing undeclared entities.. return the entity under its raw form if not an unicode expression
       if (StringUtils.startsWithIgnoreCase(undeclaredEntity, "u") && undeclaredEntity.length() == 5) {

@@ -50,6 +50,7 @@ public abstract class InlineDocTokenizer extends Tokenizer {
   }
 
   private static final EndMatcher LINE_END_MATCHER = new EndMatcher() {
+    @Override
     public boolean match(int endFlag) {
       return endFlag == '\r' || endFlag == '\n';
     }

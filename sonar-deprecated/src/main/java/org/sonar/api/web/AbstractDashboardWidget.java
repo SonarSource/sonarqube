@@ -26,10 +26,12 @@ package org.sonar.api.web;
 @Deprecated
 public abstract class AbstractDashboardWidget extends AbstractRubyTemplate implements RubyRailsWidget {
 
+  @Override
   public String getId() {
     return getClass().getSimpleName();
   }
 
+  @Override
   public String getTitle() {
     return getClass().getSimpleName();
   }

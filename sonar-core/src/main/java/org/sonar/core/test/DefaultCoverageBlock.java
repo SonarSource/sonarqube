@@ -29,14 +29,17 @@ import java.util.List;
 
 public class DefaultCoverageBlock extends BeanEdge implements CoverageBlock {
 
+  @Override
   public TestCase testCase() {
     return getVertex(DefaultTestCase.class, Direction.OUT);
   }
 
+  @Override
   public Testable testable() {
     return getVertex(DefaultTestable.class, Direction.IN);
   }
 
+  @Override
   public List<Integer> lines() {
     return (List<Integer>) getProperty("lines");
   }

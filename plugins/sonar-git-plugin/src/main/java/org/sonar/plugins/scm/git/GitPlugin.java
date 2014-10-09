@@ -34,6 +34,7 @@ public final class GitPlugin extends SonarPlugin {
   static final String JGIT = "jgit";
   static final String EXE = "exe";
 
+  @Override
   public List getExtensions() {
     return ImmutableList.of(
       GitScmProvider.class,

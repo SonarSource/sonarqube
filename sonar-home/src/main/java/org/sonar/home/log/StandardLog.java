@@ -20,15 +20,19 @@
 package org.sonar.home.log;
 
 public class StandardLog implements Log {
+  @Override
   public void debug(String s) {
   }
 
+  @Override
   public void info(String s) {
   }
 
+  @Override
   public void warn(String s) {
   }
 
+  @Override
   public void error(String s, Throwable throwable) {
   }
 }

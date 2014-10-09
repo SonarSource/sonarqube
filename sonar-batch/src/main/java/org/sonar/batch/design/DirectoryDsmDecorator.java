@@ -50,10 +50,12 @@ public class DirectoryDsmDecorator implements Decorator {
     this.index = index;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
 
+  @Override
   public void decorate(final Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(resource, context)) {
       List<DecoratorContext> fileContexts = context.getChildren();

@@ -43,10 +43,12 @@ public abstract class AbstractSourceImporter implements Sensor {
     this.language = language;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return false;
   }
 
+  @Override
   public void analyse(Project project, SensorContext context) {
     // Do not remove for backward compatibility
   }

@@ -29,6 +29,7 @@ public abstract class StringTextComparator implements SequenceComparator<StringT
    */
   public static final StringTextComparator IGNORE_WHITESPACE = new StringTextComparator() {
 
+    @Override
     public boolean equals(StringText a, int ai, StringText b, int bi) {
       ai++;
       bi++;
@@ -72,6 +73,7 @@ public abstract class StringTextComparator implements SequenceComparator<StringT
 
   };
 
+  @Override
   public int hash(StringText seq, int line) {
     final int begin = seq.lines.get(line + 1);
     final int end = seq.lines.get(line + 2);

@@ -84,6 +84,7 @@ public class Node implements Comparable<Node> {
     return dependencies;
   }
 
+  @Override
   public int compareTo(final Node other) {
     int orderInd = 0;
 

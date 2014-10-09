@@ -60,6 +60,7 @@ public class ResourceTypeTree implements TaskExtension, ServerExtension {
 
   public List<String> getLeaves() {
     return ImmutableList.copyOf(Collections2.filter(relations.values(), new Predicate<String>() {
+      @Override
       public boolean apply(String qualifier) {
         return relations.get(qualifier).isEmpty();
       }

@@ -129,10 +129,12 @@ public final class Block implements CodeFragment {
     return indexInFile;
   }
 
+  @Override
   public int getStartLine() {
     return startLine;
   }
 
+  @Override
   public int getEndLine() {
     return endLine;
   }

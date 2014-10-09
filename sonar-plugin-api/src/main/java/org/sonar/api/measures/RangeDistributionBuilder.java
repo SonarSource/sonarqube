@@ -208,6 +208,7 @@ public class RangeDistributionBuilder implements MeasureBuilder {
    *
    * @return the built measure
    */
+  @Override
   public Measure<String> build() {
     return build(true);
   }
@@ -226,6 +227,7 @@ public class RangeDistributionBuilder implements MeasureBuilder {
   }
 
   private class RangeTransformer implements Transformer {
+    @Override
     public Object transform(Object o) {
       Number n = (Number) o;
       for (int i = bottomLimits.length - 1; i >= 0; i--) {

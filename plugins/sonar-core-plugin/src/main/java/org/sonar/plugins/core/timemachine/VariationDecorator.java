@@ -67,6 +67,7 @@ public class VariationDecorator implements Decorator {
     this.ruleFinder = ruleFinder;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -76,6 +77,7 @@ public class VariationDecorator implements Decorator {
     return pastMeasuresLoader.getMetrics();
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     for (PastSnapshot projectPastSnapshot : projectPastSnapshots) {
       if (shouldComputeVariation(resource)) {

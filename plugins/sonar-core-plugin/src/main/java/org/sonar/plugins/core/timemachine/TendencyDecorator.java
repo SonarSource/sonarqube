@@ -94,10 +94,12 @@ public class TendencyDecorator implements Decorator {
     return query;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(resource)) {
       resetQuery(context.getProject(), resource);

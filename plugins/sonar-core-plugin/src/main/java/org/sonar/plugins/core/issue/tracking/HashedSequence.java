@@ -51,6 +51,7 @@ public final class HashedSequence<S extends Sequence> implements Sequence {
     return new HashedSequence<S>(base, hashes, linesByHash);
   }
 
+  @Override
   public int length() {
     return base.length();
   }

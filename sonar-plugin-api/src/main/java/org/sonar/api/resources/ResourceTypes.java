@@ -47,6 +47,7 @@ import java.util.Map;
 public class ResourceTypes implements TaskComponent, ServerComponent {
 
   public static final Predicate<ResourceType> AVAILABLE_FOR_FILTERS = new Predicate<ResourceType>() {
+    @Override
     public boolean apply(@Nullable ResourceType input) {
       return input != null && input.getBooleanProperty("supportsMeasureFilters");
     }
@@ -102,6 +103,7 @@ public class ResourceTypes implements TaskComponent, ServerComponent {
       this.propertyKey = propertyKey;
     }
 
+    @Override
     public boolean apply(@Nullable ResourceType input) {
       return input != null && input.hasProperty(propertyKey);
     }
@@ -120,6 +122,7 @@ public class ResourceTypes implements TaskComponent, ServerComponent {
       this.propertyKey = propertyKey;
     }
 
+    @Override
     public boolean apply(@Nullable ResourceType input) {
       return input != null && Objects.equal(propertyValue, input.getStringProperty(propertyKey));
     }
@@ -138,6 +141,7 @@ public class ResourceTypes implements TaskComponent, ServerComponent {
       this.propertyValue = propertyValue;
     }
 
+    @Override
     public boolean apply(@Nullable ResourceType input) {
       return input != null && input.getBooleanProperty(propertyKey) == propertyValue;
     }
@@ -157,6 +161,7 @@ public class ResourceTypes implements TaskComponent, ServerComponent {
 
   public List<ResourceType> getChildren(String qualifier) {
     return Lists.transform(getChildrenQualifiers(qualifier), new Function<String, ResourceType>() {
+      @Override
       public ResourceType apply(String s) {
         return typeByQualifier.get(s);
       }

@@ -130,6 +130,7 @@ public class ModuleScanContainer extends ComponentContainer {
   private void addExtensions() {
     ExtensionInstaller installer = getComponentByType(ExtensionInstaller.class);
     installer.install(this, new ExtensionMatcher() {
+      @Override
       public boolean accept(Object extension) {
         return ExtensionUtils.isType(extension, BatchComponent.class)
           && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT);

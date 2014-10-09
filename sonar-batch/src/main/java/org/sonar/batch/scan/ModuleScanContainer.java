@@ -200,6 +200,7 @@ public class ModuleScanContainer extends ComponentContainer {
   private void addExtensions() {
     ExtensionInstaller installer = getComponentByType(ExtensionInstaller.class);
     installer.install(this, new ExtensionMatcher() {
+      @Override
       public boolean accept(Object extension) {
         if (ExtensionUtils.isType(extension, BatchComponent.class) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT)) {
           // Special use-case: the extension point ProjectBuilder is used in a Maven environment to define some

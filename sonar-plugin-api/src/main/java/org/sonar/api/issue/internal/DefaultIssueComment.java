@@ -52,6 +52,7 @@ public class DefaultIssueComment implements Serializable, IssueComment {
     return this;
   }
 
+  @Override
   public String issueKey() {
     return issueKey;
   }

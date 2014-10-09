@@ -27,6 +27,7 @@ import java.util.List;
 
 public final class SvnPlugin extends SonarPlugin {
 
+  @Override
   public List getExtensions() {
     List result = new ArrayList();
     result.addAll(ImmutableList.of(

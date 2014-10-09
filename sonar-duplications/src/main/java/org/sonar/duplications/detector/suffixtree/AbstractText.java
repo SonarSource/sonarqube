@@ -34,14 +34,17 @@ public abstract class AbstractText implements Text {
     this.symbols = symbols;
   }
 
+  @Override
   public int length() {
     return symbols.size();
   }
 
+  @Override
   public Object symbolAt(int index) {
     return symbols.get(index);
   }
 
+  @Override
   public List<Object> sequence(int fromIndex, int toIndex) {
     return symbols.subList(fromIndex, toIndex);
   }

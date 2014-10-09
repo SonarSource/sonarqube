@@ -77,11 +77,13 @@ public class DefaultNotificationManager implements NotificationManager {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void scheduleForSending(Notification notification) {
     NotificationQueueDto dto = NotificationQueueDto.toNotificationQueueDto(notification);
     notificationQueueDao.insert(Arrays.asList(dto));
   }
 
+  @Override
   public void scheduleForSending(List<Notification> notification) {
     notificationQueueDao.insert(Lists.transform(notification, new Function<Notification, NotificationQueueDto>() {
       @Override
@@ -136,6 +138,7 @@ public class DefaultNotificationManager implements NotificationManager {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Multimap<String, NotificationChannel> findSubscribedRecipientsForDispatcher(NotificationDispatcher dispatcher, @Nullable Integer resourceId) {
     String dispatcherKey = dispatcher.getKey();
 

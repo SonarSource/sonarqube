@@ -34,6 +34,7 @@ class SensorsPhaseEvent extends AbstractPhaseEvent<SensorsPhaseHandler>
     this.sensors = sensors;
   }
 
+  @Override
   public List<Sensor> getSensors() {
     return sensors;
   }

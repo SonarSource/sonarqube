@@ -36,10 +36,12 @@ public class MySql extends AbstractDialect {
     super(ID, "mysql", "com.mysql.jdbc.Driver", "true", "false", "SELECT 1");
   }
 
+  @Override
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
     return MySqlWithDecimalDialect.class;
   }
 
+  @Override
   public boolean matchesJdbcURL(String jdbcConnectionURL) {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:mysql:");
   }

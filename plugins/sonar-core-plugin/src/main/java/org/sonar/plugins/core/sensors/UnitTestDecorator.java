@@ -41,6 +41,7 @@ public class UnitTestDecorator implements Decorator {
     return Arrays.<Metric>asList(CoreMetrics.TEST_EXECUTION_TIME, CoreMetrics.TESTS, CoreMetrics.TEST_ERRORS, CoreMetrics.TEST_FAILURES, CoreMetrics.TEST_SUCCESS_DENSITY);
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return !Project.AnalysisType.STATIC.equals(project.getAnalysisType());
   }
@@ -49,6 +50,7 @@ public class UnitTestDecorator implements Decorator {
     return ResourceUtils.isUnitTestClass(resource) || !ResourceUtils.isEntity(resource);
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(resource)) {
       sumChildren(context, CoreMetrics.TEST_EXECUTION_TIME);

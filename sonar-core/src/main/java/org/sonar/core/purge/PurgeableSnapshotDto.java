@@ -66,6 +66,7 @@ public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
     return this;
   }
 
+  @Override
   public int compareTo(PurgeableSnapshotDto other) {
     return date.compareTo(other.date);
   }

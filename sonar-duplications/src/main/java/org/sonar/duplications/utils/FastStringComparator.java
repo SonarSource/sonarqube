@@ -33,6 +33,7 @@ public final class FastStringComparator implements Comparator<String> {
   /**
    * Compares two strings (not lexicographically).
    */
+  @Override
   public int compare(String s1, String s2) {
     if (s1 == s2) { // NOSONAR false-positive: Compare Objects With Equals
       return 0;

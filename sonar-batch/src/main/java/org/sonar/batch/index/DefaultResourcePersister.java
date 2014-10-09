@@ -69,6 +69,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     this.resourceCache = resourceCache;
   }
 
+  @Override
   public Snapshot saveProject(Project project, @Nullable Project parent) {
     Snapshot snapshot = snapshotsByResource.get(project);
     if (snapshot == null) {
@@ -129,11 +130,13 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return snapshot;
   }
 
+  @Override
   @CheckForNull
   public Snapshot getSnapshot(@Nullable Resource reference) {
     return snapshotsByResource.get(reference);
   }
 
+  @Override
   public Snapshot getSnapshotOrFail(Resource resource) {
     Snapshot snapshot = getSnapshot(resource);
     if (snapshot == null) {
@@ -158,10 +161,12 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return snapshotsByResource;
   }
 
+  @Override
   public Snapshot saveResource(Project project, Resource resource) {
     return saveResource(project, resource, null);
   }
 
+  @Override
   public Snapshot saveResource(Project project, Resource resource, @Nullable Resource parent) {
     Snapshot snapshot = snapshotsByResource.get(resource);
     if (snapshot == null) {
@@ -245,6 +250,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return snapshot;
   }
 
+  @Override
   @CheckForNull
   public Snapshot getLastSnapshot(Snapshot snapshot, boolean onlyOlder) {
     String hql = "SELECT s FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=:last AND s.resourceId=:resourceId";
@@ -260,6 +266,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return session.getSingleResult(query, null);
   }
 
+  @Override
   public void clear() {
     // we keep cache of projects
     for (Iterator<Map.Entry<Resource, Snapshot>> it = snapshotsByResource.entrySet().iterator(); it.hasNext();) {

@@ -42,6 +42,7 @@ class MeasureValueCoder implements ValueCoder {
     this.techDebtModel = techDebtModel;
   }
 
+  @Override
   public void put(Value value, Object object, CoderContext context) {
     Measure<?> m = (Measure) object;
     value.putUTF(m.getMetricKey());
@@ -76,6 +77,7 @@ class MeasureValueCoder implements ValueCoder {
     }
   }
 
+  @Override
   public Object get(Value value, Class clazz, CoderContext context) {
     Measure<?> m = new Measure();
     String metricKey = value.getString();

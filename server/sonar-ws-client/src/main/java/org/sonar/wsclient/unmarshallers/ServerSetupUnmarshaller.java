@@ -28,6 +28,7 @@ import java.util.List;
  * @since 2.9
  */
 public class ServerSetupUnmarshaller implements Unmarshaller<ServerSetup> {
+  @Override
   public ServerSetup toModel(String json) {
     WSUtils utils = WSUtils.getINSTANCE();
     Object map = utils.parse(json);
@@ -36,6 +37,7 @@ public class ServerSetupUnmarshaller implements Unmarshaller<ServerSetup> {
       .setMessage(utils.getString(map, "msg"));
   }
 
+  @Override
   public List<ServerSetup> toModels(String json) {
     throw new UnsupportedOperationException();
   }

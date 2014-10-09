@@ -32,6 +32,7 @@ class ProjectAnalysisEvent extends AbstractPhaseEvent<ProjectAnalysisHandler>
     this.project = project;
   }
 
+  @Override
   public Project getProject() {
     return project;
   }

@@ -54,6 +54,7 @@ public class DefaultActionPlan implements ActionPlan {
     return actionPlan;
   }
 
+  @Override
   public String key() {
     return key;
   }
@@ -63,6 +64,7 @@ public class DefaultActionPlan implements ActionPlan {
     return this;
   }
 
+  @Override
   public String name() {
     return name;
   }
@@ -72,6 +74,7 @@ public class DefaultActionPlan implements ActionPlan {
     return this;
   }
 
+  @Override
   public String projectKey() {
     return projectKey;
   }
@@ -81,6 +84,7 @@ public class DefaultActionPlan implements ActionPlan {
     return this;
   }
 
+  @Override
   @CheckForNull
   public String description() {
     return description;
@@ -91,6 +95,7 @@ public class DefaultActionPlan implements ActionPlan {
     return this;
   }
 
+  @Override
   public String userLogin() {
     return userLogin;
   }
@@ -100,6 +105,7 @@ public class DefaultActionPlan implements ActionPlan {
     return this;
   }
 
+  @Override
   public String status() {
     return status;
   }
@@ -109,6 +115,7 @@ public class DefaultActionPlan implements ActionPlan {
     return this;
   }
 
+  @Override
   @CheckForNull
   public Date deadLine() {
     return deadLine != null ? new Date(deadLine.getTime()) : null;
@@ -119,6 +126,7 @@ public class DefaultActionPlan implements ActionPlan {
     return this;
   }
 
+  @Override
   public Date createdAt() {
     return createdAt;
   }
@@ -128,6 +136,7 @@ public class DefaultActionPlan implements ActionPlan {
     return this;
   }
 
+  @Override
   public Date updatedAt() {
     return updatedAt;
   }

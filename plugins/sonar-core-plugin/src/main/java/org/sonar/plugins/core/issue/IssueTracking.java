@@ -336,6 +336,7 @@ public class IssueTracking implements BatchExtension {
   }
 
   private static final Comparator<LinePair> LINE_PAIR_COMPARATOR = new Comparator<LinePair>() {
+    @Override
     public int compare(LinePair o1, LinePair o2) {
       int weightDiff = o2.weight - o1.weight;
       if (weightDiff != 0) {

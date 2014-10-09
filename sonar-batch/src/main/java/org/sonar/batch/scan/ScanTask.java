@@ -43,6 +43,7 @@ public class ScanTask implements Task {
     this.taskContainer = taskContainer;
   }
 
+  @Override
   public void execute() {
     boolean sensorMode = CoreProperties.ANALYSIS_MODE_SENSOR.equals(taskContainer.getComponentByType(BootstrapProperties.class).property(CoreProperties.ANALYSIS_MODE));
     if (sensorMode) {

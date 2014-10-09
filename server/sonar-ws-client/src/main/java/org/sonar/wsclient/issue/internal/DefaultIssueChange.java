@@ -39,14 +39,17 @@ public class DefaultIssueChange implements IssueChange {
     this.json = json;
   }
 
+  @Override
   public String user() {
     return JsonUtils.getString(json, "user");
   }
 
+  @Override
   public Date creationDate() {
     return JsonUtils.getDateTime(json, "creationDate");
   }
 
+  @Override
   public List<IssueChangeDiff> diffs() {
     List<IssueChangeDiff> diffs = new ArrayList<IssueChangeDiff>();
     List<Map> jsonDiffs = (List<Map>) json.get("diffs");

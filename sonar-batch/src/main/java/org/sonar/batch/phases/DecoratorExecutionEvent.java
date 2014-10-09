@@ -32,6 +32,7 @@ class DecoratorExecutionEvent extends AbstractPhaseEvent<DecoratorExecutionHandl
     this.decorator = decorator;
   }
 
+  @Override
   public Decorator getDecorator() {
     return decorator;
   }

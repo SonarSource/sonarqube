@@ -39,11 +39,13 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
   // Return by join for the moment
   private Long projectId;
 
+  @Override
   public ComponentDto setId(Long id) {
     super.setId(id);
     return this;
   }
 
+  @Override
   public ComponentDto setKey(String key) {
     super.setKey(key);
     return this;

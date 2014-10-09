@@ -34,6 +34,7 @@ class PostJobPhaseEvent extends AbstractPhaseEvent<PostJobsPhaseHandler>
     this.postJobs = postJobs;
   }
 
+  @Override
   public List<PostJob> getPostJobs() {
     return postJobs;
   }

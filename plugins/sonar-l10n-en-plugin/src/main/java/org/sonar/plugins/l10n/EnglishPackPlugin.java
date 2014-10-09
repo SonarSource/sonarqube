@@ -27,6 +27,7 @@ import java.util.List;
 
 public final class EnglishPackPlugin extends SonarPlugin {
 
+  @Override
   public List getExtensions() {
     return Collections.emptyList();
   }

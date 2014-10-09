@@ -56,6 +56,7 @@ public class DefaultPluginsReferential implements PluginsReferential {
     try {
       final RemotePluginFile file = remote.file();
       return fileCache.get(file.getFilename(), file.getHash(), new FileCache.Downloader() {
+        @Override
         public void download(String filename, File toFile) throws IOException {
           String url = "/deploy/plugins/" + remote.getKey() + "/" + file.getFilename();
           if (LOG.isDebugEnabled()) {

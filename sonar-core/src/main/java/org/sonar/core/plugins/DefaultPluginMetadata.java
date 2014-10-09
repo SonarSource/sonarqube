@@ -67,6 +67,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return new DefaultPluginMetadata().setKey(key);
   }
 
+  @Override
   public File getFile() {
     return file;
   }
@@ -76,6 +77,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public List<File> getDeployedFiles() {
     return deployedFiles;
   }
@@ -94,6 +96,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public String getKey() {
     return key;
   }
@@ -103,6 +106,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public String getName() {
     return name;
   }
@@ -112,6 +116,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public String getMainClass() {
     return mainClass;
   }
@@ -121,6 +126,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public String getDescription() {
     return description;
   }
@@ -130,6 +136,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public String getOrganization() {
     return organization;
   }
@@ -139,6 +146,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public String getOrganizationUrl() {
     return organizationUrl;
   }
@@ -148,6 +156,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public String getLicense() {
     return license;
   }
@@ -157,6 +166,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public String getVersion() {
     return version;
   }
@@ -175,6 +185,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public String getParent() {
     return parent;
   }
@@ -184,6 +195,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public List<String> getRequiredPlugins() {
     return ImmutableList.copyOf(requiredPlugins);
   }
@@ -212,6 +224,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return actualVersion.compareTo(minimumVersion) >= 0;
   }
 
+  @Override
   public String getHomepage() {
     return homepage;
   }
@@ -221,6 +234,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public String getIssueTrackerUrl() {
     return issueTrackerUrl;
   }
@@ -235,6 +249,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public boolean isUseChildFirstClassLoader() {
     return useChildFirstClassLoader;
   }
@@ -244,10 +259,12 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
     return this;
   }
 
+  @Override
   public String getBasePlugin() {
     return basePlugin;
   }
 
+  @Override
   public boolean isCore() {
     return core;
   }
@@ -292,6 +309,7 @@ public class DefaultPluginMetadata implements PluginMetadata, Comparable<PluginM
       .toString();
   }
 
+  @Override
   public int compareTo(PluginMetadata other) {
     return name.compareTo(other.getName());
   }

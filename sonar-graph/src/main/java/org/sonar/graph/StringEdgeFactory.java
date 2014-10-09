@@ -21,10 +21,12 @@ package org.sonar.graph;
 
 public class StringEdgeFactory implements EdgeFactory<String, StringEdge> {
 
+  @Override
   public StringEdge createEdge(String from, String to) {
     return new StringEdge(from, to);
   }
 
+  @Override
   public StringEdge createEdge(String from, String to, int weight) {
     return new StringEdge(from, to, weight);
   }

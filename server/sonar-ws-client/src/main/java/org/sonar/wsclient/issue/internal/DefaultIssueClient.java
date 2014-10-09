@@ -45,6 +45,7 @@ public class DefaultIssueClient implements IssueClient {
     this.parser = new IssueJsonParser();
   }
 
+  @Override
   public Issues find(IssueQuery query) {
     String json = requestFactory.get(SEARCH_URL, query.urlParams());
     return parser.parseIssues(json);

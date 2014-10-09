@@ -132,6 +132,7 @@ public class TokenEntry implements Comparable<TokenEntry> {
     return other.hashCode == hashCode;
   }
 
+  @Override
   public int compareTo(TokenEntry other) {
     return getIndex() - other.getIndex();
   }

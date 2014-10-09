@@ -36,14 +36,17 @@ public class DefaultMetricFinder implements MetricFinder {
     this.sessionFactory = sessionFactory;
   }
 
+  @Override
   public Metric findById(int id) {
     return sessionFactory.getSession().getSingleResult(Metric.class, "id", id, ENABLED, true);
   }
 
+  @Override
   public Metric findByKey(String key) {
     return sessionFactory.getSession().getSingleResult(Metric.class, "key", key, ENABLED, true);
   }
 
+  @Override
   public Collection<Metric> findAll(List<String> metricKeys) {
     List<Metric> result = Lists.newLinkedList();
     for (String metricKey : metricKeys) {
@@ -55,6 +58,7 @@ public class DefaultMetricFinder implements MetricFinder {
     return result;
   }
 
+  @Override
   public Collection<Metric> findAll() {
     return doFindAll();
   }

@@ -140,6 +140,7 @@ public class CountDistributionBuilder implements MeasureBuilder {
    *
    * @return the built measure
    */
+  @Override
   public Measure build() {
     return build(true);
   }

@@ -71,6 +71,7 @@ public class ResourceIndexerDao {
     try {
       final ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
       session.select("org.sonar.core.resource.ResourceIndexerMapper.selectRootProjectIds", /* workaround to get booleans */ResourceIndexerQuery.create(), new ResultHandler() {
+        @Override
         public void handleResult(ResultContext context) {
           Integer rootProjectId = (Integer) context.getResultObject();
           doIndexProject(rootProjectId, session, mapper);
@@ -93,6 +94,7 @@ public class ResourceIndexerDao {
       .setRootProjectId(rootProjectId);
 
     session.select(SELECT_RESOURCES, query, new ResultHandler() {
+      @Override
       public void handleResult(ResultContext context) {
         ResourceDto resource = (ResourceDto) context.getResultObject();
         doIndex(resource, mapper);
@@ -108,6 +110,7 @@ public class ResourceIndexerDao {
       .setRootProjectId(rootProjectId);
 
     session.select(SELECT_RESOURCES, query, new ResultHandler() {
+      @Override
       public void handleResult(ResultContext context) {
         ResourceDto resource = (ResourceDto) context.getResultObject();
 

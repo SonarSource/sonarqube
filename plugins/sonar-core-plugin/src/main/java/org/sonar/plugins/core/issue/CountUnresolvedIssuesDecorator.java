@@ -78,6 +78,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
     this.timeMachineConfiguration = timeMachineConfiguration;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -103,6 +104,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
       );
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     Issuable issuable = perspectives.as(Issuable.class, resource);
     if (issuable != null) {

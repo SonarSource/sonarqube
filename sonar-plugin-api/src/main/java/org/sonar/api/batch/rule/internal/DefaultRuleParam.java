@@ -34,10 +34,12 @@ class DefaultRuleParam implements RuleParam {
     this.description = p.description;
   }
 
+  @Override
   public String key() {
     return key;
   }
 
+  @Override
   @Nullable
   public String description() {
     return description;

@@ -29,14 +29,17 @@ package org.sonar.api;
  */
 public abstract class SonarPlugin implements Plugin {
 
+  @Override
   public final String getKey() {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public final String getName() {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public final String getDescription() {
     throw new UnsupportedOperationException();
   }

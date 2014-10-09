@@ -50,6 +50,7 @@ public class DefaultRuleFinder implements RuleFinder {
     this.index = indexes.get(RuleIndex.class);
   }
 
+  @Override
   @CheckForNull
   public org.sonar.api.rules.Rule findById(int ruleId) {
     Rule rule = index.getById(ruleId);
@@ -81,6 +82,7 @@ public class DefaultRuleFinder implements RuleFinder {
     return rules;
   }
 
+  @Override
   @CheckForNull
   public org.sonar.api.rules.Rule findByKey(RuleKey key) {
     Rule rule = index.getNullableByKey(key);
@@ -91,11 +93,13 @@ public class DefaultRuleFinder implements RuleFinder {
     }
   }
 
+  @Override
   @CheckForNull
   public org.sonar.api.rules.Rule findByKey(String repositoryKey, String key) {
     return findByKey(RuleKey.of(repositoryKey, key));
   }
 
+  @Override
   public final org.sonar.api.rules.Rule find(org.sonar.api.rules.RuleQuery query) {
     Result<Rule> result = index.search(toQuery(query), new QueryContext());
     if (!result.getHits().isEmpty()) {
@@ -105,6 +109,7 @@ public class DefaultRuleFinder implements RuleFinder {
     }
   }
 
+  @Override
   public final Collection<org.sonar.api.rules.Rule> findAll(org.sonar.api.rules.RuleQuery query) {
     List<org.sonar.api.rules.Rule> rules = newArrayList();
     for (Rule rule : index.search(toQuery(query), new QueryContext()).getHits()) {

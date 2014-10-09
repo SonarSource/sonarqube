@@ -45,6 +45,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
   private SortedMap<String, String> missingKeys;
   private SortedMap<String, String> additionalKeys;
 
+  @Override
   public boolean matches(Object arg0) {
     if (!(arg0 instanceof String)) {
       return false;
@@ -78,6 +79,7 @@ public class BundleSynchronizedMatcher extends BaseMatcher<String> {
     }
   }
 
+  @Override
   public void describeTo(Description description) {
     // report file
     File dumpFile = new File("target/l10n/" + bundleName + ".report.txt");

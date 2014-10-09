@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.WebService;
 
 public class ManualMeasuresWs implements WebService {
 
+  @Override
   public void define(Context context) {
     NewController controller = context.createController("api/manual_measures");
     controller.setDescription("Manual measures management");

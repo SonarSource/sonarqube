@@ -54,6 +54,7 @@ public class ServerPluginJarInstaller extends PluginJarInstaller {
   }
 
   private static final class LibFilter implements ZipUtils.ZipEntryFilter {
+    @Override
     public boolean accept(ZipEntry entry) {
       return entry.getName().startsWith("META-INF/lib");
     }

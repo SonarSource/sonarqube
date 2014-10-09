@@ -47,72 +47,88 @@ public class DefaultIssues implements Issues {
   private Paging paging;
   private Boolean maxResultsReached;
 
+  @Override
   public List<Issue> list() {
     return list;
   }
 
+  @Override
   public int size() {
     return list.size();
   }
 
+  @Override
   public Collection<Rule> rules() {
     return rulesByKey.values();
   }
 
+  @Override
   public Rule rule(Issue issue) {
     return rulesByKey.get(issue.ruleKey());
   }
 
+  @Override
   public Collection<User> users() {
     return usersByKey.values();
   }
 
+  @Override
   @CheckForNull
   public User user(String login) {
     return usersByKey.get(login);
   }
 
+  @Override
   public Collection<Component> components() {
     return componentsByKey.values();
   }
 
+  @Override
   @CheckForNull
   public Component component(Issue issue) {
     return componentsByKey.get(issue.componentKey());
   }
 
+  @Override
   @CheckForNull
   public Component componentById(long id) {
     return componentsById.get(id);
   }
 
+  @Override
   @CheckForNull
   public Component componentByKey(String key) {
     return componentsByKey.get(key);
   }
 
+  @Override
   public Collection<Component> projects() {
     return projectsByKey.values();
   }
 
+  @Override
   @CheckForNull
   public Component project(Issue issue) {
     return projectsByKey.get(issue.projectKey());
   }
 
+  @Override
   public Collection<ActionPlan> actionPlans() {
     return actionPlansByKey.values();
   }
 
+  @Override
   @CheckForNull
   public ActionPlan actionPlans(Issue issue) {
     return actionPlansByKey.get(issue.actionPlan());
   }
 
+  @Override
   public Paging paging() {
     return paging;
   }
 
+  @Override
   @Nullable
   public Boolean maxResultsReached() {
     return maxResultsReached;

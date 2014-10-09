@@ -103,6 +103,7 @@ public class DefaultIssue implements Issue {
   // Date when issue was loaded from db (only when isNew=false)
   private Date selectedAt;
 
+  @Override
   public String key() {
     return key;
   }
@@ -112,6 +113,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   public String componentKey() {
     return componentKey;
   }
@@ -134,6 +136,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   public String projectKey() {
     return projectKey;
   }
@@ -143,6 +146,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   public RuleKey ruleKey() {
     return ruleKey;
   }
@@ -152,6 +156,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   public String language() {
     return language;
   }
@@ -161,6 +166,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   public String severity() {
     return severity;
   }
@@ -180,6 +186,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   @CheckForNull
   public String message() {
     return message;
@@ -190,6 +197,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   @CheckForNull
   public Integer line() {
     return line;
@@ -201,6 +209,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   @CheckForNull
   public Double effortToFix() {
     return effortToFix;
@@ -215,6 +224,7 @@ public class DefaultIssue implements Issue {
   /**
    * Elapsed time to fix the issue
    */
+  @Override
   @CheckForNull
   public Duration debt() {
     return debt;
@@ -230,6 +240,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   public String status() {
     return status;
   }
@@ -240,6 +251,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   @CheckForNull
   public String resolution() {
     return resolution;
@@ -250,6 +262,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   @CheckForNull
   public String reporter() {
     return reporter;
@@ -260,6 +273,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   @CheckForNull
   public String assignee() {
     return assignee;
@@ -270,6 +284,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   public Date creationDate() {
     return creationDate;
   }
@@ -280,6 +295,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   @CheckForNull
   public Date updateDate() {
     return updateDate;
@@ -290,6 +306,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   @CheckForNull
   public Date closeDate() {
     return closeDate;
@@ -364,6 +381,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   @CheckForNull
   public String attribute(String key) {
     return attributes == null ? null : attributes.get(key);
@@ -381,6 +399,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   public Map<String, String> attributes() {
     return attributes == null ? Collections.<String, String>emptyMap() : ImmutableMap.copyOf(attributes);
   }
@@ -395,6 +414,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   @CheckForNull
   public String authorLogin() {
     return authorLogin;
@@ -405,6 +425,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   @CheckForNull
   public String actionPlanKey() {
     return actionPlanKey;
@@ -461,6 +482,7 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  @Override
   @SuppressWarnings("unchcked")
   public List<IssueComment> comments() {
     if (comments == null) {

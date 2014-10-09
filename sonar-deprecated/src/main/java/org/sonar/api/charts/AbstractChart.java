@@ -56,6 +56,7 @@ public abstract class AbstractChart implements Chart {
    * @param params the chart parameters
    * @return the generated chart
    */
+  @Override
   public BufferedImage generateImage(ChartParameters params) {
     JFreeChart chart = new JFreeChart(null, TextTitle.DEFAULT_FONT, getPlot(params), hasLegend());
     improveChart(chart, params);

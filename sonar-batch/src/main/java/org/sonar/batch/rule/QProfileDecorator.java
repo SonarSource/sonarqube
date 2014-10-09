@@ -39,6 +39,7 @@ public class QProfileDecorator implements Decorator {
     return CoreMetrics.QUALITY_PROFILES;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return !project.getModules().isEmpty();
   }

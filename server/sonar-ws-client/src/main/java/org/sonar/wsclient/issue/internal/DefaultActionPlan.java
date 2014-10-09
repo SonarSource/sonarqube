@@ -40,23 +40,28 @@ public class DefaultActionPlan implements ActionPlan {
   /**
    * Unique key
    */
+  @Override
   public String key() {
     return JsonUtils.getString(json, "key");
   }
 
+  @Override
   public String project() {
     return JsonUtils.getString(json, "project");
   }
 
+  @Override
   public String name() {
     return JsonUtils.getString(json, "name");
   }
 
+  @Override
   @CheckForNull
   public String description() {
     return JsonUtils.getString(json, "desc");
   }
 
+  @Override
   public String status() {
     return JsonUtils.getString(json, "status");
   }
@@ -64,28 +69,34 @@ public class DefaultActionPlan implements ActionPlan {
   /**
    * Login of the user who created the action plan.
    */
+  @Override
   public String userLogin() {
     return JsonUtils.getString(json, "userLogin");
   }
 
+  @Override
   @CheckForNull
   public Date deadLine() {
     return JsonUtils.getDateTime(json, "deadLine");
   }
 
+  @Override
   public Date createdAt() {
     return JsonUtils.getDateTime(json, "createdAt");
   }
 
+  @Override
   public Date updatedAt() {
     return JsonUtils.getDateTime(json, "updatedAt");
   }
 
+  @Override
   @CheckForNull
   public Integer totalIssues() {
     return JsonUtils.getInteger(json, "totalIssues");
   }
 
+  @Override
   @CheckForNull
   public Integer unresolvedIssues() {
     return JsonUtils.getInteger(json, "unresolvedIssues");

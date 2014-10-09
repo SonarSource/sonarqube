@@ -70,6 +70,7 @@ class ComponentsFinderSort {
     @Override
     Function sortFieldFunction() {
       return new Function<Component, String>() {
+        @Override
         public String apply(Component component) {
           return sortField(component);
         }

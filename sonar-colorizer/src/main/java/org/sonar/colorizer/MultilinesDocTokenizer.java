@@ -78,6 +78,7 @@ public class MultilinesDocTokenizer extends Tokenizer {
       this.codeBuilder = codeBuilder;
     }
 
+    @Override
     public boolean match(int endFlag) {
       commentSize++;
       if (commentSize >= endToken.length + startToken.length || (commentSize >= endToken.length && isCommentStartedOnPreviousLine(codeBuilder))) {

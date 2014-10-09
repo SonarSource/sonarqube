@@ -63,6 +63,7 @@ public class GitBlameConsumer implements StreamConsumer {
     this.filename = filename;
   }
 
+  @Override
   public void consumeLine(String line) {
     if (line == null) {
       return;

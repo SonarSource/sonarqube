@@ -50,11 +50,13 @@ public class DefaultPurgeTask implements PurgeTask {
     this.profiler = profiler;
   }
 
+  @Override
   public PurgeTask delete(long resourceId) {
     purgeDao.deleteResourceTree(resourceId);
     return this;
   }
 
+  @Override
   public PurgeTask purge(long resourceId) {
     long start = System.currentTimeMillis();
     profiler.reset();

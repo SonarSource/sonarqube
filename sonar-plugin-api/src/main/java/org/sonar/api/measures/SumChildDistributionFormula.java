@@ -34,6 +34,7 @@ public class SumChildDistributionFormula implements Formula {
 
   private String minimumScopeToPersist= Scopes.FILE;
 
+  @Override
   public List<Metric> dependsUponMetrics() {
     return Collections.emptyList();
   }
@@ -47,6 +48,7 @@ public class SumChildDistributionFormula implements Formula {
     return this;
   }
 
+  @Override
   public Measure calculate(FormulaData data, FormulaContext context) {
     Collection<Measure> measures = data.getChildrenMeasures(context.getTargetMetric());
     if (measures == null || measures.isEmpty()) {

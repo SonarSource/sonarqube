@@ -44,11 +44,13 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
 
   private static final String COVERS = "covers";
 
+  @Override
   public Component component() {
     Vertex component = GraphUtil.singleAdjacent(element(), Direction.IN, "testable");
     return beanGraph().wrap(component, ComponentVertex.class);
   }
 
+  @Override
   public List<TestCase> testCases() {
     ImmutableList.Builder<TestCase> cases = ImmutableList.builder();
     for (Edge coversEdge : coverEdges()) {
@@ -58,14 +60,17 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
     return cases.build();
   }
 
+  @Override
   public TestCase testCaseByName(final String name) {
     return Iterables.find(testCases(), new Predicate<TestCase>() {
+      @Override
       public boolean apply(TestCase input) {
         return input.name().equals(name);
       }
     }, null);
   }
 
+  @Override
   public int countTestCasesOfLine(Integer line) {
     int number = 0;
     for (Edge edge : coverEdges()) {
@@ -76,6 +81,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
     return number;
   }
 
+  @Override
   public Map<Integer, Integer> testCasesByLines() {
     Map<Integer, Integer> testCasesByLines = newHashMap();
     for (Integer line : testedLines()) {
@@ -84,6 +90,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
     return testCasesByLines;
   }
 
+  @Override
   public List<TestCase> testCasesOfLine(int line) {
     ImmutableList.Builder<TestCase> cases = ImmutableList.builder();
     for (Edge edge : coverEdges()) {
@@ -96,6 +103,7 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
     return cases.build();
   }
 
+  @Override
   public SortedSet<Integer> testedLines() {
     ImmutableSortedSet.Builder<Integer> coveredLines = ImmutableSortedSet.naturalOrder();
     for (Edge edge : coverEdges()) {
@@ -104,14 +112,17 @@ public class DefaultTestable extends BeanVertex implements MutableTestable {
     return coveredLines.build();
   }
 
+  @Override
   public CoverageBlock coverageBlock(final TestCase testCase) {
     return Iterables.find(getEdges(DefaultCoverageBlock.class, Direction.IN, COVERS), new Predicate<CoverageBlock>() {
+      @Override
       public boolean apply(CoverageBlock input) {
         return input.testCase().name().equals(testCase.name());
       }
     }, null);
   }
 
+  @Override
   public Iterable<CoverageBlock> coverageBlocks() {
     return (Iterable) getEdges(DefaultCoverageBlock.class, Direction.IN, COVERS);
   }

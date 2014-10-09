@@ -35,18 +35,22 @@ public class DefaultIssueComment implements IssueComment {
     this.json = json;
   }
 
+  @Override
   public String key() {
     return JsonUtils.getString(json, "key");
   }
 
+  @Override
   public String htmlText() {
     return JsonUtils.getString(json, "htmlText");
   }
 
+  @Override
   public String login() {
     return JsonUtils.getString(json, "login");
   }
 
+  @Override
   public Date createdAt() {
     return JsonUtils.getDateTime(json, "createdAt");
   }

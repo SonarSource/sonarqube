@@ -43,30 +43,37 @@ abstract class AbstractDialect implements Dialect {
     this.validationQuery = validationQuery;
   }
 
+  @Override
   public String getId() {
     return id;
   }
 
+  @Override
   public String getActiveRecordDialectCode() {
     return activeRecordDialectCode;
   }
 
+  @Override
   public String getDefaultDriverClassName() {
     return defaultDriverClassName;
   }
 
+  @Override
   public final String getTrueSqlValue() {
     return trueSqlValue;
   }
 
+  @Override
   public final String getFalseSqlValue() {
     return falseSqlValue;
   }
 
+  @Override
   public final String getValidationQuery() {
     return validationQuery;
   }
 
+  @Override
   public List<String> getConnectionInitStatements() {
     return Collections.emptyList();
   }

@@ -56,6 +56,7 @@ public class DefaultRequirement implements Requirement {
   private Date createdAt;
   private Date updatedAt;
 
+  @Override
   public Integer id() {
     return id;
   }
@@ -65,6 +66,7 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
+  @Override
   public RuleKey ruleKey() {
     return ruleKey;
   }
@@ -74,6 +76,7 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
+  @Override
   public DefaultCharacteristic characteristic() {
     return characteristic;
   }
@@ -84,6 +87,7 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
+  @Override
   public DefaultCharacteristic rootCharacteristic() {
     return rootCharacteristic;
   }
@@ -93,6 +97,7 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
+  @Override
   public String function() {
     return function;
   }
@@ -105,6 +110,7 @@ public class DefaultRequirement implements Requirement {
   /**
    * @deprecated since 4.2
    */
+  @Override
   @Deprecated
   public WorkUnit factor() {
     return WorkUnit.create((double) factorValue, fromUnit(factorUnit));
@@ -120,6 +126,7 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
+  @Override
   public int factorValue() {
     return factorValue;
   }
@@ -129,6 +136,7 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
+  @Override
   @CheckForNull
   public WorkDuration.UNIT factorUnit() {
     return factorUnit;
@@ -142,6 +150,7 @@ public class DefaultRequirement implements Requirement {
   /**
    * @deprecated since 4.2
    */
+  @Override
   @Deprecated
   public WorkUnit offset() {
     return WorkUnit.create((double) offsetValue, fromUnit(offsetUnit));
@@ -157,6 +166,7 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
+  @Override
   public int offsetValue() {
     return offsetValue;
   }
@@ -166,6 +176,7 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
+  @Override
   @CheckForNull
   public WorkDuration.UNIT offsetUnit() {
     return offsetUnit;
@@ -176,6 +187,7 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
+  @Override
   public Date createdAt() {
     return createdAt;
   }
@@ -185,6 +197,7 @@ public class DefaultRequirement implements Requirement {
     return this;
   }
 
+  @Override
   public Date updatedAt() {
     return updatedAt;
   }

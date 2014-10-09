@@ -45,6 +45,7 @@ public class DefaultDatabaseConnector extends AbstractDatabaseConnector {
     }
   }
 
+  @Override
   public Connection getConnection() throws SQLException {
     return database != null && database.getDataSource() != null ? database.getDataSource().getConnection() : null;
   }

@@ -44,6 +44,7 @@ public class GenerateQualityGateEvents implements Decorator {
     this.notificationManager = notificationManager;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return qualityGate.isEnabled();
   }
@@ -53,6 +54,7 @@ public class GenerateQualityGateEvents implements Decorator {
     return CoreMetrics.ALERT_STATUS;
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (!shouldDecorateResource(resource)) {
       return;

@@ -42,6 +42,7 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
     this.dbClient = dbClient;
   }
 
+  @Override
   protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
     long componentId = componentId(session, issue);
     long projectId = projectId(session, issue);
@@ -51,6 +52,7 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
     dbClient.issueDao().insert(session, dto);
   }
 
+  @Override
   protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
     IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(session, issue), now);
 

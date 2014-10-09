@@ -63,6 +63,7 @@ public final class SqaleRatingDecorator implements Decorator {
     this.fs = null;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -79,6 +80,7 @@ public final class SqaleRatingDecorator implements Decorator {
     return Lists.<Metric>newArrayList(CoreMetrics.SQALE_RATING, CoreMetrics.DEVELOPMENT_COST, CoreMetrics.SQALE_DEBT_RATIO);
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (ResourceUtils.isPersistable(resource) && !ResourceUtils.isUnitTestClass(resource)) {
       Long developmentCost = getDevelopmentCost(context);

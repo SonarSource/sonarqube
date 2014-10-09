@@ -30,6 +30,7 @@ public class ThreadLocalDatabaseSessionFactory implements DatabaseSessionFactory
     this.connector = connector;
   }
 
+  @Override
   public DatabaseSession getSession() {
     JpaDatabaseSession session = threadSession.get();
     if (session == null) {
@@ -40,6 +41,7 @@ public class ThreadLocalDatabaseSessionFactory implements DatabaseSessionFactory
     return session;
   }
 
+  @Override
   public void clear() {
     JpaDatabaseSession session = threadSession.get();
     if (session != null) {

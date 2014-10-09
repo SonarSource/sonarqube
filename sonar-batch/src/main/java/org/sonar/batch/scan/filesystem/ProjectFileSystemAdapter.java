@@ -68,14 +68,17 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
     // used to avoid NPE in Project#getFileSystem()
   }
 
+  @Override
   public Charset getSourceCharset() {
     return target.sourceCharset();
   }
 
+  @Override
   public File getBasedir() {
     return target.baseDir();
   }
 
+  @Override
   public File getBuildDir() {
     File dir = target.buildDir();
     if (dir == null) {
@@ -85,6 +88,7 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
     return dir;
   }
 
+  @Override
   public File getBuildOutputDir() {
     File dir = Iterables.getFirst(target.binaryDirs(), null);
     if (dir == null) {
@@ -95,24 +99,29 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
     return dir;
   }
 
+  @Override
   public List<File> getSourceDirs() {
     return target.sourceDirs();
   }
 
+  @Override
   public ProjectFileSystem addSourceDir(File dir) {
     target.addSourceDir(dir);
     return this;
   }
 
+  @Override
   public List<File> getTestDirs() {
     return target.testDirs();
   }
 
+  @Override
   public ProjectFileSystem addTestDir(File dir) {
     target.addTestDir(dir);
     return this;
   }
 
+  @Override
   public File getReportOutputDir() {
     if (pom != null) {
       return resolvePath(pom.getReporting().getOutputDirectory());
@@ -121,10 +130,12 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
     return new File(getBuildDir(), "site");
   }
 
+  @Override
   public File getSonarWorkingDirectory() {
     return target.workingDir();
   }
 
+  @Override
   public File resolvePath(String path) {
     File file = new File(path);
     if (!file.isAbsolute()) {
@@ -137,43 +148,51 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
     return file;
   }
 
+  @Override
   public List<File> getSourceFiles(Language... langs) {
     return Lists.newArrayList(target.files(target.predicates().and(
       target.predicates().hasType(org.sonar.api.batch.fs.InputFile.Type.MAIN),
       newHasLanguagesPredicate(langs))));
   }
 
+  @Override
   public List<File> getJavaSourceFiles() {
     return getSourceFiles(Java.INSTANCE);
   }
 
+  @Override
   public boolean hasJavaSourceFiles() {
     return !getJavaSourceFiles().isEmpty();
   }
 
+  @Override
   public List<File> getTestFiles(Language... langs) {
     return Lists.newArrayList(target.files(target.predicates().and(
       target.predicates().hasType(org.sonar.api.batch.fs.InputFile.Type.TEST),
       newHasLanguagesPredicate(langs))));
   }
 
+  @Override
   public boolean hasTestFiles(Language lang) {
     return target.hasFiles(target.predicates().and(
       target.predicates().hasType(org.sonar.api.batch.fs.InputFile.Type.TEST),
       target.predicates().hasLanguage(lang.getKey())));
   }
 
+  @Override
   public File writeToWorkingDirectory(String content, String fileName) throws IOException {
     File file = new File(target.workingDir(), fileName);
     FileUtils.writeStringToFile(file, content, CharEncoding.UTF_8);
     return file;
   }
 
+  @Override
   public File getFileFromBuildDirectory(String filename) {
     File file = new File(getBuildDir(), filename);
     return file.exists() ? file : null;
   }
 
+  @Override
   public Resource toResource(File file) {
     if (file == null || !file.exists()) {
       return null;
@@ -185,6 +204,7 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
     return file.isFile() ? org.sonar.api.resources.File.create(relativePath) : org.sonar.api.resources.Directory.create(relativePath);
   }
 
+  @Override
   public List<InputFile> mainFiles(String... langs) {
     return Lists.newArrayList((Iterable) target.inputFiles(target.predicates().and(
       target.predicates().hasType(org.sonar.api.batch.fs.InputFile.Type.MAIN),
@@ -193,6 +213,7 @@ public class ProjectFileSystemAdapter implements ProjectFileSystem {
 
   }
 
+  @Override
   public List<InputFile> testFiles(String... langs) {
     return Lists.newArrayList((Iterable) target.inputFiles(target.predicates().and(
       target.predicates().hasType(org.sonar.api.batch.fs.InputFile.Type.TEST),

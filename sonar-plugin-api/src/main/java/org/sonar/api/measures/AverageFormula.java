@@ -71,6 +71,7 @@ public class AverageFormula implements Formula {
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<Metric> dependsUponMetrics() {
     return fallbackMetric != null ? newArrayList(mainMetric, fallbackMetric, byMetric) : newArrayList(mainMetric, byMetric);
   }
@@ -78,6 +79,7 @@ public class AverageFormula implements Formula {
   /**
    * {@inheritDoc}
    */
+  @Override
   public Measure calculate(FormulaData data, FormulaContext context) {
     if (!shouldDecorateResource(data, context)) {
       return null;

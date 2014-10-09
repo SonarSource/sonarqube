@@ -35,6 +35,7 @@ import org.sonar.api.resources.ResourceUtils;
 
 public class LanguageDistributionDecorator implements Decorator {
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -49,6 +50,7 @@ public class LanguageDistributionDecorator implements Decorator {
     return CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION;
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     CountDistributionBuilder nclocDistribution = new CountDistributionBuilder(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION);
     if (ResourceUtils.isFile(resource)) {

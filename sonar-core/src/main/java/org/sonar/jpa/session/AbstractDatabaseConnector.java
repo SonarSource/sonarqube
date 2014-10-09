@@ -55,6 +55,7 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
     database = null;
   }
 
+  @Override
   public EntityManagerFactory getEntityManagerFactory() {
     return factory;
   }
@@ -74,14 +75,17 @@ public abstract class AbstractDatabaseConnector implements DatabaseConnector {
     }
   }
 
+  @Override
   public EntityManager createEntityManager() {
     return factory.createEntityManager();
   }
 
+  @Override
   public final int getDatabaseVersion() {
     throw new UnsupportedOperationException("Moved to " + DatabaseVersion.class.getCanonicalName());
   }
 
+  @Override
   public final Dialect getDialect() {
     return database.getDialect();
   }

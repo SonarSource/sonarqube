@@ -84,6 +84,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
     edges.put(vertexKey2, edge);
   }
 
+  @Override
   public E getEdge(V from, V to) {
     Map<V, E> outgoingEdgesFrom = outgoingEdgesByVertex.get(from);
     if (outgoingEdgesFrom == null) {
@@ -93,6 +94,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
     }
   }
 
+  @Override
   public boolean hasEdge(V from, V to) {
     Map<V, E> outgoingEdges = outgoingEdgesByVertex.get(from);
     if (outgoingEdges == null) {
@@ -111,6 +113,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
     }
   }
 
+  @Override
   public Set<V> getVertices() {
     return vertices;
   }
@@ -126,6 +129,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
     return result;
   }
 
+  @Override
   public Collection<E> getOutgoingEdges(V from) {
     Map<V, E> outgoingEdges = outgoingEdgesByVertex.get(from);
     if (outgoingEdges == null) {
@@ -134,6 +138,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
     return outgoingEdges.values();
   }
 
+  @Override
   public Collection<E> getIncomingEdges(V to) {
     Map<V, E> incomingEdges = incomingEdgesByVertex.get(to);
     if (incomingEdges == null) {

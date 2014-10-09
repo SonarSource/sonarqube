@@ -34,6 +34,7 @@ import java.text.NumberFormat;
 public class DistributionAreaChart extends AbstractChart {
   private static final String PARAM_COLORS = "c";
 
+  @Override
   public String getKey() {
     return "distarea";
   }

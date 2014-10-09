@@ -63,6 +63,7 @@ public class JdbcDriverHolder {
           String hash = nameAndHash[1];
 
           File jdbcDriver = fileCache.get(filename, hash, new FileCache.Downloader() {
+            @Override
             public void download(String filename, File toFile) throws IOException {
               String url = "/deploy/" + filename;
               if (LOG.isDebugEnabled()) {

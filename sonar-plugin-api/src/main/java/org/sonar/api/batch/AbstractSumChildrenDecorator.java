@@ -49,6 +49,7 @@ public abstract class AbstractSumChildrenDecorator implements Decorator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -61,6 +62,7 @@ public abstract class AbstractSumChildrenDecorator implements Decorator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (!shouldDecorateResource(resource)) {
       return;

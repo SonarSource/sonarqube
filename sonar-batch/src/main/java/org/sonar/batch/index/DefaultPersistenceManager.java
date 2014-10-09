@@ -48,15 +48,18 @@ public final class DefaultPersistenceManager implements PersistenceManager {
     this.eventPersister = eventPersister;
   }
 
+  @Override
   public void clear() {
     resourcePersister.clear();
     sourcePersister.clear();
   }
 
+  @Override
   public void saveProject(Project project, @Nullable Project parent) {
     resourcePersister.saveProject(project, parent);
   }
 
+  @Override
   public Snapshot saveResource(Project project, Resource resource, @Nullable Resource parent) {
     if (ResourceUtils.isPersistable(resource)) {
       return resourcePersister.saveResource(project, resource, parent);
@@ -64,36 +67,44 @@ public final class DefaultPersistenceManager implements PersistenceManager {
     return null;
   }
 
+  @Override
   public void setSource(Resource file, String source) {
     sourcePersister.saveSource(file, source);
   }
 
+  @Override
   public String getSource(Resource resource) {
     return sourcePersister.getSource(resource);
   }
 
+  @Override
   public void saveDependency(Project project, Dependency dependency, Dependency parentDependency) {
     if (ResourceUtils.isPersistable(dependency.getFrom()) && ResourceUtils.isPersistable(dependency.getTo())) {
       dependencyPersister.saveDependency(project, dependency, parentDependency);
     }
   }
 
+  @Override
   public void saveLink(Project project, ProjectLink link) {
     linkPersister.saveLink(project, link);
   }
 
+  @Override
   public void deleteLink(Project project, String key) {
     linkPersister.deleteLink(project, key);
   }
 
+  @Override
   public List<Event> getEvents(Resource resource) {
     return eventPersister.getEvents(resource);
   }
 
+  @Override
   public void deleteEvent(Event event) {
     eventPersister.deleteEvent(event);
   }
 
+  @Override
   public void saveEvent(Resource resource, Event event) {
     if (ResourceUtils.isPersistable(resource)) {
       eventPersister.saveEvent(resource, event);

@@ -35,11 +35,13 @@ public class HibernateUserFinder implements UserFinder {
     this.sessionFactory = sessionFactory;
   }
 
+  @Override
   public User findById(int id) {
     DatabaseSession session = sessionFactory.getSession();
     return session.getSingleResult(User.class, "id", id);
   }
 
+  @Override
   public User findByLogin(String login) {
     DatabaseSession session = sessionFactory.getSession();
     return session.getSingleResult(User.class, "login", login);

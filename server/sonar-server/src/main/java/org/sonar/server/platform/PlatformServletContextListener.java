@@ -30,6 +30,7 @@ import java.util.Properties;
 
 public final class PlatformServletContextListener implements ServletContextListener {
 
+  @Override
   public void contextInitialized(ServletContextEvent event) {
     try {
       Properties props = new Properties();
@@ -59,6 +60,7 @@ public final class PlatformServletContextListener implements ServletContextListe
     }
   }
 
+  @Override
   public void contextDestroyed(ServletContextEvent event) {
     Platform.getInstance().doStop();
   }

@@ -49,19 +49,23 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
   private static final String LINES = "lines";
   private static final String TESTCASE = "testcase";
 
+  @Override
   public String type() {
     return (String) getProperty(TYPE);
   }
 
+  @Override
   public MutableTestCase setType(@Nullable String s) {
     setProperty(TYPE, s);
     return this;
   }
 
+  @Override
   public Long durationInMs() {
     return (Long) getProperty(DURATION);
   }
 
+  @Override
   public MutableTestCase setDurationInMs(@Nullable Long l) {
     if (l != null && l < 0) {
       throw new IllegalDurationException("Test duration must be positive (got: " + l + ")");
@@ -70,15 +74,18 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     return this;
   }
 
+  @Override
   public Status status() {
     return Status.of((String) getProperty(STATUS));
   }
 
+  @Override
   public MutableTestCase setStatus(@Nullable Status s) {
     setProperty(STATUS, s == null ? null : s.name());
     return this;
   }
 
+  @Override
   public String name() {
     return (String) getProperty(NAME);
   }
@@ -88,24 +95,29 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     return this;
   }
 
+  @Override
   public String message() {
     return (String) getProperty(MESSAGE);
   }
 
+  @Override
   public MutableTestCase setMessage(String s) {
     setProperty(MESSAGE, s);
     return this;
   }
 
+  @Override
   public String stackTrace() {
     return (String) getProperty(STACK_TRACE);
   }
 
+  @Override
   public MutableTestCase setStackTrace(String s) {
     setProperty(STACK_TRACE, s);
     return this;
   }
 
+  @Override
   public MutableTestCase setCoverageBlock(Testable testable, List<Integer> lines) {
     if (coverageBlock(testable) != null) {
       throw new CoverageAlreadyExistsException("The link between " + name() + " and " + testable.component().key() + " already exists");
@@ -114,15 +126,18 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     return this;
   }
 
+  @Override
   public TestPlan testPlan() {
     Vertex plan = GraphUtil.singleAdjacent(element(), Direction.IN, TESTCASE);
     return beanGraph().wrap(plan, DefaultTestPlan.class);
   }
 
+  @Override
   public boolean doesCover() {
     return edgeCovers().iterator().hasNext();
   }
 
+  @Override
   public int countCoveredLines() {
     int result = 0;
     for (Edge edge : edgeCovers()) {
@@ -132,12 +147,15 @@ public class DefaultTestCase extends BeanVertex implements MutableTestCase {
     return result;
   }
 
+  @Override
   public Iterable<CoverageBlock> coverageBlocks() {
     return (Iterable) getEdges(DefaultCoverageBlock.class, Direction.OUT, COVERS);
   }
 
+  @Override
   public CoverageBlock coverageBlock(final Testable testable) {
     return Iterables.find(getEdges(DefaultCoverageBlock.class, Direction.OUT, COVERS), new Predicate<CoverageBlock>() {
+      @Override
       public boolean apply(CoverageBlock input) {
         return input.testable().component().key().equals(testable.component().key());
       }

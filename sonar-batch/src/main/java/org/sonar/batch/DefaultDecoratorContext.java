@@ -86,10 +86,12 @@ public class DefaultDecoratorContext implements DecoratorContext {
     return this;
   }
 
+  @Override
   public Project getProject() {
     return sonarIndex.getProject();
   }
 
+  @Override
   public List<DecoratorContext> getChildren() {
     checkReadOnly("getModules");
     return childrenContexts;
@@ -101,6 +103,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
     }
   }
 
+  @Override
   public <M> M getMeasures(MeasuresFilter<M> filter) {
     Collection<Measure> unfiltered;
     if (filter instanceof MeasuresFilters.MetricFilter) {
@@ -112,10 +115,12 @@ public class DefaultDecoratorContext implements DecoratorContext {
     return filter.filter(unfiltered);
   }
 
+  @Override
   public Measure getMeasure(Metric metric) {
     return getMeasures(MeasuresFilters.metric(metric));
   }
 
+  @Override
   public Collection<Measure> getChildrenMeasures(MeasuresFilter filter) {
     List<Measure> result = Lists.newArrayList();
     for (DecoratorContext childContext : childrenContexts) {
@@ -131,14 +136,17 @@ public class DefaultDecoratorContext implements DecoratorContext {
     return result;
   }
 
+  @Override
   public Collection<Measure> getChildrenMeasures(Metric metric) {
     return getChildrenMeasures(MeasuresFilters.metric(metric));
   }
 
+  @Override
   public Resource getResource() {
     return resource;
   }
 
+  @Override
   public DecoratorContext saveMeasure(Measure measure) {
     checkReadOnly(SAVE_MEASURE_METHOD);
     Metric metric = metricFinder.findByKey(measure.getMetricKey());
@@ -167,6 +175,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
     return this;
   }
 
+  @Override
   public DecoratorContext saveMeasure(Metric metric, Double value) {
     checkReadOnly(SAVE_MEASURE_METHOD);
     saveMeasure(new Measure(metric, value));
@@ -176,6 +185,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
   /**
   * {@inheritDoc}
   */
+  @Override
   public List<Violation> getViolations(ViolationQuery violationQuery) {
     return sonarIndex.getViolations(violationQuery);
   }
@@ -183,39 +193,48 @@ public class DefaultDecoratorContext implements DecoratorContext {
   /**
   * {@inheritDoc}
   */
+  @Override
   public List<Violation> getViolations() {
     return sonarIndex.getViolations(resource);
   }
 
+  @Override
   public Dependency saveDependency(Dependency dependency) {
     checkReadOnly("addDependency");
     return sonarIndex.addDependency(dependency);
   }
 
+  @Override
   public Set<Dependency> getDependencies() {
     return sonarIndex.getDependencies();
   }
 
+  @Override
   public Collection<Dependency> getIncomingDependencies() {
     return sonarIndex.getIncomingEdges(resource);
   }
 
+  @Override
   public Collection<Dependency> getOutgoingDependencies() {
     return sonarIndex.getOutgoingEdges(resource);
   }
 
+  @Override
   public List<Event> getEvents() {
     return sonarIndex.getEvents(resource);
   }
 
+  @Override
   public Event createEvent(String name, String description, String category, Date date) {
     return sonarIndex.addEvent(resource, name, description, category, date);
   }
 
+  @Override
   public void deleteEvent(Event event) {
     sonarIndex.deleteEvent(event);
   }
 
+  @Override
   public DefaultDecoratorContext saveViolation(Violation violation, boolean force) {
     if (violation.getResource() == null) {
       violation.setResource(resource);
@@ -224,6 +243,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
     return this;
   }
 
+  @Override
   public DefaultDecoratorContext saveViolation(Violation violation) {
     return saveViolation(violation, false);
   }

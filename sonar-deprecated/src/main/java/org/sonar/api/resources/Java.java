@@ -67,6 +67,7 @@ public class Java extends AbstractLanguage {
    *
    * @see AbstractLanguage#getFileSuffixes()
    */
+  @Override
   public String[] getFileSuffixes() {
     return SUFFIXES;
   }

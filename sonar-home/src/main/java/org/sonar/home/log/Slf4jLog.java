@@ -38,18 +38,22 @@ public class Slf4jLog implements Log {
     return logger.isDebugEnabled();
   }
 
+  @Override
   public void debug(String s) {
     logger.debug(s);
   }
 
+  @Override
   public void info(String s) {
     logger.info(s);
   }
 
+  @Override
   public void warn(String s) {
     logger.warn(s);
   }
 
+  @Override
   public void error(String s, Throwable throwable) {
     logger.error(s, throwable);
   }

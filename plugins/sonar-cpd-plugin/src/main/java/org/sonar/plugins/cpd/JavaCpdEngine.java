@@ -183,6 +183,7 @@ public class JavaCpdEngine extends CpdEngine {
       this.fileBlocks = fileBlocks;
     }
 
+    @Override
     public List<CloneGroup> call() {
       return SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
     }

@@ -24,22 +24,27 @@ import org.sonar.core.graph.BeanVertex;
 
 public class ComponentVertex extends BeanVertex implements Component {
 
+  @Override
   public String key() {
     return (String) getProperty("key");
   }
 
+  @Override
   public String path() {
     return (String) getProperty("path");
   }
 
+  @Override
   public String name() {
     return (String) getProperty("name");
   }
 
+  @Override
   public String longName() {
     return (String) getProperty("longName");
   }
 
+  @Override
   public String qualifier() {
     return (String) getProperty("qualifier");
   }

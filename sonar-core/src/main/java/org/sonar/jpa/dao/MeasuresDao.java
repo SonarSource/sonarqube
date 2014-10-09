@@ -62,6 +62,7 @@ public class MeasuresDao {
 
   public Collection<Metric> getEnabledMetrics() {
     return CollectionUtils.select(getMetricsByName().values(), new Predicate() {
+      @Override
       public boolean evaluate(Object o) {
         return ((Metric) o).getEnabled();
       }
@@ -70,6 +71,7 @@ public class MeasuresDao {
 
   public Collection<Metric> getUserDefinedMetrics() {
     return CollectionUtils.select(getMetricsByName().values(), new Predicate() {
+      @Override
       public boolean evaluate(Object o) {
         Metric m = (Metric) o;
         return m.getEnabled() && m.getOrigin() != Metric.Origin.JAV;

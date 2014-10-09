@@ -56,6 +56,7 @@ public class ResourceComponent implements Component {
     this(resource, null);
   }
 
+  @Override
   public String key() {
     return key;
   }
@@ -65,14 +66,17 @@ public class ResourceComponent implements Component {
     return path;
   }
 
+  @Override
   public String name() {
     return name;
   }
 
+  @Override
   public String longName() {
     return longName;
   }
 
+  @Override
   public String qualifier() {
     return qualifier;
   }

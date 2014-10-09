@@ -48,6 +48,7 @@ public final class DialectUtils {
   @CheckForNull
   private static Dialect findByJdbcUrl(final String jdbcConnectionUrl) {
     return findDialect(new Predicate<Dialect>() {
+      @Override
       public boolean apply(@Nullable Dialect dialect) {
         return dialect != null && dialect.matchesJdbcURL(StringUtils.trimToEmpty(jdbcConnectionUrl));
       }
@@ -57,6 +58,7 @@ public final class DialectUtils {
   @CheckForNull
   private static Dialect findById(final String dialectId) {
     return findDialect(new Predicate<Dialect>() {
+      @Override
       public boolean apply(@Nullable Dialect dialect) {
         return dialect != null && dialect.getId().equals(dialectId);
       }

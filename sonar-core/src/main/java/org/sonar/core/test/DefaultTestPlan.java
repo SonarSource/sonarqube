@@ -36,11 +36,13 @@ import java.util.List;
 public class DefaultTestPlan extends BeanVertex implements MutableTestPlan {
   private static final String TESTCASE = "testcase";
 
+  @Override
   public Component component() {
     Vertex component = GraphUtil.singleAdjacent(element(), Direction.IN, "testplan");
     return beanGraph().wrap(component, ComponentVertex.class);
   }
 
+  @Override
   @CheckForNull
   public Iterable<MutableTestCase> testCasesByName(String name) {
     List<MutableTestCase> result = Lists.newArrayList();
@@ -52,12 +54,14 @@ public class DefaultTestPlan extends BeanVertex implements MutableTestPlan {
     return result;
   }
 
+  @Override
   public MutableTestCase addTestCase(String name) {
     DefaultTestCase testCase = beanGraph().createAdjacentVertex(this, DefaultTestCase.class, TESTCASE);
     testCase.setName(name);
     return testCase;
   }
 
+  @Override
   public Iterable<MutableTestCase> testCases() {
     return (Iterable) getVertices(DefaultTestCase.class, Direction.OUT, TESTCASE);
   }

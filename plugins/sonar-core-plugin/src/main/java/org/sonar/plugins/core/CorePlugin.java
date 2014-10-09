@@ -280,6 +280,7 @@ import java.util.List;
 public final class CorePlugin extends SonarPlugin {
 
   @SuppressWarnings("rawtypes")
+  @Override
   public List getExtensions() {
     ImmutableList.Builder<Object> extensions = ImmutableList.builder();
 

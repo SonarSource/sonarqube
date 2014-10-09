@@ -28,6 +28,7 @@ import java.util.List;
  * @author Evgeny Mandrikov
  */
 public class ServerUnmarshaller implements Unmarshaller<Server> {
+  @Override
   public Server toModel(String json) {
     WSUtils utils = WSUtils.getINSTANCE();
     Object map = utils.parse(json);
@@ -42,6 +43,7 @@ public class ServerUnmarshaller implements Unmarshaller<Server> {
     return server;
   }
 
+  @Override
   public List<Server> toModels(String json) {
     throw new UnsupportedOperationException();
   }

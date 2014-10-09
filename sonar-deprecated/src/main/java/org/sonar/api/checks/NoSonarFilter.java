@@ -53,6 +53,7 @@ public class NoSonarFilter implements ViolationFilter {
     }
   }
 
+  @Override
   public boolean isIgnored(Violation violation) {
     boolean ignored = false;
     if (violation.getResource() != null && violation.getLineId() != null) {

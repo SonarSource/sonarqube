@@ -33,10 +33,12 @@ public class H2 extends AbstractDialect {
     super(ID, ".h2.", "org.h2.Driver", "true", "false", "SELECT 1");
   }
 
+  @Override
   public Class<? extends org.hibernate.dialect.Dialect> getHibernateDialectClass() {
     return H2Dialect.class;
   }
 
+  @Override
   public boolean matchesJdbcURL(String jdbcConnectionURL) {
     return StringUtils.startsWithIgnoreCase(jdbcConnectionURL, "jdbc:h2:");
   }

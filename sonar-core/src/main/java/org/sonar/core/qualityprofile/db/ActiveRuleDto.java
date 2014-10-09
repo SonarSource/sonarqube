@@ -60,6 +60,7 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
     return this;
   }
 
+  @Override
   public ActiveRuleKey getKey() {
     return ActiveRuleKey.of(profileKey, RuleKey.of(repository, ruleField));
   }

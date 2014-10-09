@@ -44,6 +44,7 @@ public class DefaultFilePredicates implements FilePredicates {
   /**
    * Returns a predicate that always evaluates to true
    */
+  @Override
   public FilePredicate all() {
     return TruePredicate.TRUE;
   }
@@ -51,6 +52,7 @@ public class DefaultFilePredicates implements FilePredicates {
   /**
    * Returns a predicate that always evaluates to false
    */
+  @Override
   public FilePredicate none() {
     return FalsePredicate.FALSE;
   }
@@ -58,6 +60,7 @@ public class DefaultFilePredicates implements FilePredicates {
   /**
    * Warning - not efficient because absolute path is not indexed yet.
    */
+  @Override
   public FilePredicate hasAbsolutePath(String s) {
     return new AbsolutePathPredicate(s);
   }
@@ -65,14 +68,17 @@ public class DefaultFilePredicates implements FilePredicates {
   /**
    * TODO document that non-normalized path and Windows-style path are supported
    */
+  @Override
   public FilePredicate hasRelativePath(String s) {
     return new RelativePathPredicate(s);
   }
 
+  @Override
   public FilePredicate matchesPathPattern(String inclusionPattern) {
     return new PathPatternPredicate(PathPattern.create(inclusionPattern));
   }
 
+  @Override
   public FilePredicate matchesPathPatterns(String[] inclusionPatterns) {
     if (inclusionPatterns.length == 0) {
       return TruePredicate.TRUE;
@@ -84,10 +90,12 @@ public class DefaultFilePredicates implements FilePredicates {
     return or(predicates);
   }
 
+  @Override
   public FilePredicate doesNotMatchPathPattern(String exclusionPattern) {
     return not(matchesPathPattern(exclusionPattern));
   }
 
+  @Override
   public FilePredicate doesNotMatchPathPatterns(String[] exclusionPatterns) {
     if (exclusionPatterns.length == 0) {
       return TruePredicate.TRUE;
@@ -95,6 +103,7 @@ public class DefaultFilePredicates implements FilePredicates {
     return not(matchesPathPatterns(exclusionPatterns));
   }
 
+  @Override
   public FilePredicate hasPath(String s) {
     File file = new File(s);
     if (file.isAbsolute()) {
@@ -103,6 +112,7 @@ public class DefaultFilePredicates implements FilePredicates {
     return hasRelativePath(s);
   }
 
+  @Override
   public FilePredicate is(File ioFile) {
     if (ioFile.isAbsolute()) {
       return hasAbsolutePath(ioFile.getAbsolutePath());
@@ -110,10 +120,12 @@ public class DefaultFilePredicates implements FilePredicates {
     return hasRelativePath(ioFile.getPath());
   }
 
+  @Override
   public FilePredicate hasLanguage(String language) {
     return new LanguagePredicate(language);
   }
 
+  @Override
   public FilePredicate hasLanguages(Collection<String> languages) {
     List<FilePredicate> list = new ArrayList<FilePredicate>();
     for (String language : languages) {
@@ -122,6 +134,7 @@ public class DefaultFilePredicates implements FilePredicates {
     return or(list);
   }
 
+  @Override
   public FilePredicate hasLanguages(String... languages) {
     List<FilePredicate> list = new ArrayList<FilePredicate>();
     for (String language : languages) {
@@ -130,38 +143,47 @@ public class DefaultFilePredicates implements FilePredicates {
     return or(list);
   }
 
+  @Override
   public FilePredicate hasStatus(InputFile.Status status) {
     return new StatusPredicate(status);
   }
 
+  @Override
   public FilePredicate hasType(InputFile.Type type) {
     return new TypePredicate(type);
   }
 
+  @Override
   public FilePredicate not(FilePredicate p) {
     return new NotPredicate(p);
   }
 
+  @Override
   public FilePredicate or(Collection<FilePredicate> or) {
     return new OrPredicate(or);
   }
 
+  @Override
   public FilePredicate or(FilePredicate... or) {
     return new OrPredicate(Arrays.asList(or));
   }
 
+  @Override
   public FilePredicate or(FilePredicate first, FilePredicate second) {
     return new OrPredicate(Arrays.asList(first, second));
   }
 
+  @Override
   public FilePredicate and(Collection<FilePredicate> and) {
     return new AndPredicate(and);
   }
 
+  @Override
   public FilePredicate and(FilePredicate... and) {
     return new AndPredicate(Arrays.asList(and));
   }
 
+  @Override
   public FilePredicate and(FilePredicate first, FilePredicate second) {
     return new AndPredicate(Arrays.asList(first, second));
   }

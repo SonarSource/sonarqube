@@ -244,20 +244,24 @@ class MeasureFilterSql {
   }
 
   static class TextSortRowProcessor extends RowProcessor {
+    @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
       MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
       row.setSortText(rs.getString(4));
       return row;
     }
 
+    @Override
     Function sortFieldFunction() {
       return new Function<MeasureFilterRow, String>() {
+        @Override
         public String apply(MeasureFilterRow row) {
           return row.getSortText();
         }
       };
     }
 
+    @Override
     Ordering sortFieldOrdering(boolean ascending) {
       Ordering<String> ordering = Ordering.from(String.CASE_INSENSITIVE_ORDER);
       if (!ascending) {
@@ -268,8 +272,10 @@ class MeasureFilterSql {
   }
 
   static class AlertSortRowProcessor extends TextSortRowProcessor {
+    @Override
     Function sortFieldFunction() {
       return new Function<MeasureFilterRow, Integer>() {
+        @Override
         public Integer apply(MeasureFilterRow row) {
           return ImmutableList.of("OK", "WARN", "ERROR").indexOf(row.getSortText());
         }
@@ -287,6 +293,7 @@ class MeasureFilterSql {
   }
 
   static class NumericSortRowProcessor extends RowProcessor {
+    @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
       MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
       double value = rs.getDouble(4);
@@ -296,34 +303,41 @@ class MeasureFilterSql {
       return row;
     }
 
+    @Override
     Function sortFieldFunction() {
       return new Function<MeasureFilterRow, Double>() {
+        @Override
         public Double apply(MeasureFilterRow row) {
           return row.getSortDouble();
         }
       };
     }
 
+    @Override
     Ordering sortFieldOrdering(boolean ascending) {
       return ascending ? Ordering.natural().nullsLast() : Ordering.natural().reverse().nullsLast();
     }
   }
 
   static class DateSortRowProcessor extends RowProcessor {
+    @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
       MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
       row.setSortDate(rs.getTimestamp(4));
       return row;
     }
 
+    @Override
     Function sortFieldFunction() {
       return new Function<MeasureFilterRow, Timestamp>() {
+        @Override
         public Timestamp apply(MeasureFilterRow row) {
           return row.getSortDate();
         }
       };
     }
 
+    @Override
     Ordering sortFieldOrdering(boolean ascending) {
       return newObjectOrdering(ascending);
     }
@@ -332,6 +346,7 @@ class MeasureFilterSql {
   private static Ordering newObjectOrdering(boolean ascending) {
     if (ascending) {
       return Ordering.from(new Comparator<Comparable>() {
+        @Override
         public int compare(@Nullable Comparable left, @Nullable Comparable right) {
           if (left == null) {
             return 1;
@@ -345,6 +360,7 @@ class MeasureFilterSql {
       });
     }
     return Ordering.from(new Comparator<Comparable>() {
+      @Override
       public int compare(@Nullable Comparable left, @Nullable Comparable right) {
         if (left == null) {
           return 1;

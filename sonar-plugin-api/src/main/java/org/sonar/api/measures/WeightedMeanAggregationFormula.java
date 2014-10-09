@@ -38,10 +38,12 @@ public class WeightedMeanAggregationFormula implements Formula {
     this.zeroIfNoValues = zeroIfNoValues;
   }
 
+  @Override
   public List<Metric> dependsUponMetrics() {
     return Collections.emptyList();
   }
 
+  @Override
   public Measure calculate(FormulaData data, FormulaContext context) {
     double sum=0.0;
     double count=0.0;

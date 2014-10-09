@@ -83,6 +83,7 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
 
   private Future<Void> submitTask(final FileSystem fs, final BlameResult result, ExecutorService executorService, final InputFile inputFile) {
     return executorService.submit(new Callable<Void>() {
+      @Override
       public Void call() {
         blame(fs, inputFile, result);
         return null;

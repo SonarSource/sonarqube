@@ -43,6 +43,7 @@ public class CountFalsePositivesDecorator implements Decorator {
     this.perspectives = perspectives;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -52,6 +53,7 @@ public class CountFalsePositivesDecorator implements Decorator {
     return CoreMetrics.FALSE_POSITIVE_ISSUES;
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     Issuable issuable = perspectives.as(Issuable.class, resource);
     if (issuable != null) {

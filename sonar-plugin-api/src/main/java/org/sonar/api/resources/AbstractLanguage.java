@@ -56,6 +56,7 @@ public abstract class AbstractLanguage implements Language {
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getKey() {
     return key;
   }
@@ -63,6 +64,7 @@ public abstract class AbstractLanguage implements Language {
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getName() {
     return name;
   }

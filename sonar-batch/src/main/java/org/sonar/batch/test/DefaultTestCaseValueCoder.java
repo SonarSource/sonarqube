@@ -38,6 +38,7 @@ class DefaultTestCaseValueCoder implements ValueCoder {
     this.inputPathCache = inputPathCache;
   }
 
+  @Override
   public void put(Value value, Object object, CoderContext context) {
     DefaultTestCase t = (DefaultTestCase) object;
     value.putUTF(((DefaultInputFile) t.testFile()).moduleKey());
@@ -59,6 +60,7 @@ class DefaultTestCaseValueCoder implements ValueCoder {
     }
   }
 
+  @Override
   public Object get(Value value, Class clazz, CoderContext context) {
     String moduleKey = value.getString();
     String relativePath = value.getString();

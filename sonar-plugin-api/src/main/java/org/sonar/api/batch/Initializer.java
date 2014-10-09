@@ -36,6 +36,7 @@ import org.sonar.api.resources.Project;
  */
 public abstract class Initializer implements BatchExtension, CheckProject {
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }

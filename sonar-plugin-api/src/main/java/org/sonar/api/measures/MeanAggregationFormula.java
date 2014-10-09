@@ -38,10 +38,12 @@ public class MeanAggregationFormula implements Formula {
     this(false);
   }
 
+  @Override
   public List<Metric> dependsUponMetrics() {
     return Collections.emptyList();
   }
 
+  @Override
   public Measure calculate(FormulaData data, FormulaContext context) {
     double sum=0.0;
     int count=0;

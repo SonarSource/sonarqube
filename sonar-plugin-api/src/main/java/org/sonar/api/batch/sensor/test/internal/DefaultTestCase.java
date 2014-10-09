@@ -99,6 +99,7 @@ public class DefaultTestCase implements TestCase {
     return this;
   }
 
+  @Override
   public InputFile testFile() {
     return testFile;
   }

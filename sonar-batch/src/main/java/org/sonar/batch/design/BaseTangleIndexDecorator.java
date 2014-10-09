@@ -57,6 +57,7 @@ public class BaseTangleIndexDecorator implements Decorator {
     return tangleIndexMetric;
   }
 
+  @Override
   public final boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -64,6 +65,7 @@ public class BaseTangleIndexDecorator implements Decorator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public final void decorate(Resource resource, DecoratorContext context) {
     if (!shouldDecorateResource(context)) {
       return;

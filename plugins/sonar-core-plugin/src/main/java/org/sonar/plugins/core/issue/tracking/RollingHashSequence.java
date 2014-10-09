@@ -55,6 +55,7 @@ public class RollingHashSequence<S extends Sequence> implements Sequence {
     this.hashes = hashes;
   }
 
+  @Override
   public int length() {
     return base.length();
   }

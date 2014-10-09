@@ -38,14 +38,17 @@ public class StringEdge implements Edge<String> {
     this.weight = weight;
   }
 
+  @Override
   public String getFrom() {
     return from;
   }
 
+  @Override
   public String getTo() {
     return to;
   }
 
+  @Override
   public int getWeight() {
     return weight;
   }

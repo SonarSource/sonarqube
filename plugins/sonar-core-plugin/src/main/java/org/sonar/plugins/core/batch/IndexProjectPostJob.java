@@ -36,6 +36,7 @@ public class IndexProjectPostJob implements PostJob {
     this.indexer = indexer;
   }
 
+  @Override
   public void executeOn(Project project, SensorContext context) {
     if (project.getId() != null) {
       indexer.indexProject(project.getId());

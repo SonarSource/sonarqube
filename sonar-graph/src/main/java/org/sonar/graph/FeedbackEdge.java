@@ -51,6 +51,7 @@ public class FeedbackEdge implements Comparable<FeedbackEdge> {
     return occurences;
   }
 
+  @Override
   public int compareTo(FeedbackEdge feedbackEdge) {
     if (this.getRelativeWeight() < feedbackEdge.getRelativeWeight()) {
       return -1;

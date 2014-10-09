@@ -41,10 +41,12 @@ public class ApplyProjectRolesDecorator implements Decorator {
     this.resourcePermissions = resourcePermissions;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
 
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (shouldDecorateResource(resource)) {
       LoggerFactory.getLogger(ApplyProjectRolesDecorator.class).info("Grant default permissions to {}", resource.getKey());

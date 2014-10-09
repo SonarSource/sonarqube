@@ -84,6 +84,7 @@ public class TaskDefinition implements TaskExtension, Comparable<TaskDefinition>
     return key.hashCode();
   }
 
+  @Override
   public int compareTo(TaskDefinition o) {
     return key.compareTo(o.key);
   }

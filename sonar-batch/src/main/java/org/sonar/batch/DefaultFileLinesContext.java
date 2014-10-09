@@ -52,6 +52,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
     this.resource = resource;
   }
 
+  @Override
   public void setIntValue(String metricKey, int line, int value) {
     Preconditions.checkNotNull(metricKey);
     Preconditions.checkArgument(line > 0);
@@ -59,6 +60,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
     setValue(metricKey, line, value);
   }
 
+  @Override
   public Integer getIntValue(String metricKey, int line) {
     Preconditions.checkNotNull(metricKey);
     Preconditions.checkArgument(line > 0);
@@ -72,6 +74,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
     return (Integer) lines.get(line);
   }
 
+  @Override
   public void setStringValue(String metricKey, int line, String value) {
     Preconditions.checkNotNull(metricKey);
     Preconditions.checkArgument(line > 0);
@@ -80,6 +83,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
     setValue(metricKey, line, value);
   }
 
+  @Override
   public String getStringValue(String metricKey, int line) {
     Preconditions.checkNotNull(metricKey);
     Preconditions.checkArgument(line > 0);
@@ -106,6 +110,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
     getOrCreateLines(metricKey).put(line, value);
   }
 
+  @Override
   public void save() {
     for (Map.Entry<String, Map<Integer, Object>> entry : map.entrySet()) {
       String metricKey = entry.getKey();

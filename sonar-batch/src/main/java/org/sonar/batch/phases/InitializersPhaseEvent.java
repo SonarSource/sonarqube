@@ -34,6 +34,7 @@ class InitializersPhaseEvent extends AbstractPhaseEvent<InitializersPhaseHandler
     this.initializers = initializers;
   }
 
+  @Override
   public List<Initializer> getInitializers() {
     return initializers;
   }

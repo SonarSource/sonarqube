@@ -34,16 +34,19 @@ public class SemaphoresImpl implements Semaphores {
     this.updater = updater;
   }
 
+  @Override
   public Semaphore acquire(String name, int maxAgeInSeconds, int updatePeriodInSeconds) {
     Semaphore semaphore = dao.acquire(name, maxAgeInSeconds);
     updater.scheduleForUpdate(semaphore, updatePeriodInSeconds);
     return semaphore;
   }
 
+  @Override
   public Semaphore acquire(String name) {
     return dao.acquire(name);
   }
 
+  @Override
   public void release(String name) {
     updater.stopUpdate(name);
     dao.release(name);

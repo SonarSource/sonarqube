@@ -334,6 +334,7 @@ public class ViewProxy<V extends View> implements Comparable<ViewProxy> {
 
   }
 
+  @Override
   public int compareTo(ViewProxy other) {
     return new CompareToBuilder()
       .append(getTitle(), other.getTitle())

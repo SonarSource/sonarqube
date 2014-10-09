@@ -55,6 +55,7 @@ public class DefaultTechnicalDebtModel implements TechnicalDebtModel {
     }));
   }
 
+  @Override
   @CheckForNull
   public DefaultCharacteristic characteristicByKey(final String key) {
     return Iterables.find(characteristics(), new Predicate<DefaultCharacteristic>() {
@@ -65,6 +66,7 @@ public class DefaultTechnicalDebtModel implements TechnicalDebtModel {
     }, null);
   }
 
+  @Override
   @CheckForNull
   public DefaultCharacteristic characteristicById(final Integer id) {
     return Iterables.find(characteristics(), new Predicate<DefaultCharacteristic>() {
@@ -75,16 +77,19 @@ public class DefaultTechnicalDebtModel implements TechnicalDebtModel {
     }, null);
   }
 
+  @Override
   @CheckForNull
   public DefaultRequirement requirementsByRule(final RuleKey ruleKey) {
     return null;
   }
 
+  @Override
   @CheckForNull
   public DefaultRequirement requirementsById(final Integer id) {
     return null;
   }
 
+  @Override
   public List<DefaultCharacteristic> characteristics() {
     List<DefaultCharacteristic> flatCharacteristics = newArrayList();
     for (DebtCharacteristic characteristic : model.characteristics()) {
@@ -97,6 +102,7 @@ public class DefaultTechnicalDebtModel implements TechnicalDebtModel {
     return flatCharacteristics;
   }
 
+  @Override
   public List<DefaultRequirement> requirements() {
     return Collections.emptyList();
   }

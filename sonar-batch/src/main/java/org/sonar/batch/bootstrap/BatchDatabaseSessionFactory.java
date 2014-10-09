@@ -30,10 +30,12 @@ public class BatchDatabaseSessionFactory implements DatabaseSessionFactory {
     this.session = session;
   }
 
+  @Override
   public DatabaseSession getSession() {
     return session;
   }
 
+  @Override
   public void clear() {
   }
 }

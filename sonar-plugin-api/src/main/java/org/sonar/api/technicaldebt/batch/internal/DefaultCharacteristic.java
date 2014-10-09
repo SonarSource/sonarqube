@@ -56,6 +56,7 @@ public class DefaultCharacteristic implements Characteristic {
     this.requirements = newArrayList();
   }
 
+  @Override
   public Integer id() {
     return id;
   }
@@ -65,6 +66,7 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   public String key() {
     return key;
   }
@@ -74,6 +76,7 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   public String name() {
     return name;
   }
@@ -92,6 +95,7 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   @CheckForNull
   public Integer order() {
     return order;
@@ -102,6 +106,7 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   @CheckForNull
   public DefaultCharacteristic parent() {
     return parent;
@@ -125,6 +130,7 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   public List<DefaultCharacteristic> children() {
     return children;
   }
@@ -143,10 +149,12 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   public boolean isRoot() {
     return parent == null;
   }
 
+  @Override
   public Date createdAt() {
     return createdAt;
   }
@@ -156,6 +164,7 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @Override
   @CheckForNull
   public Date updatedAt() {
     return updatedAt;

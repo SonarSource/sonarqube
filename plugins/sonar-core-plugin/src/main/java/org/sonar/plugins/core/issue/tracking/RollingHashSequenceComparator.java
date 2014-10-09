@@ -30,6 +30,7 @@ public class RollingHashSequenceComparator<S extends Sequence> implements Sequen
     this.cmp = cmp;
   }
 
+  @Override
   public boolean equals(RollingHashSequence<S> a, int ai, RollingHashSequence<S> b, int bi) {
     if (a.hashes[ai] == b.hashes[bi]) {
       return cmp.equals(a.base, ai, b.base, bi);
@@ -37,6 +38,7 @@ public class RollingHashSequenceComparator<S extends Sequence> implements Sequen
     return false;
   }
 
+  @Override
   public int hash(RollingHashSequence<S> seq, int i) {
     return seq.hashes[i];
   }

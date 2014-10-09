@@ -41,45 +41,55 @@ public class DefaultIssue implements Issue {
   /**
    * Unique key
    */
+  @Override
   public String key() {
     return JsonUtils.getString(json, "key");
   }
 
+  @Override
   public Long componentId() {
     return JsonUtils.getLong(json, "componentId");
   }
 
+  @Override
   public String componentKey() {
     return JsonUtils.getString(json, "component");
   }
 
+  @Override
   public String projectKey() {
     return JsonUtils.getString(json, "project");
   }
 
+  @Override
   public String ruleKey() {
     return JsonUtils.getString(json, "rule");
   }
 
+  @Override
   public String severity() {
     return JsonUtils.getString(json, "severity");
   }
 
+  @Override
   @CheckForNull
   public String message() {
     return JsonUtils.getString(json, "message");
   }
 
+  @Override
   @CheckForNull
   public Integer line() {
     return JsonUtils.getInteger(json, "line");
   }
 
+  @Override
   @CheckForNull
   public String debt() {
     return JsonUtils.getString(json, "debt");
   }
 
+  @Override
   public String status() {
     return JsonUtils.getString(json, "status");
   }
@@ -87,11 +97,13 @@ public class DefaultIssue implements Issue {
   /**
    * The resolution type. Null if the issue is not resolved.
    */
+  @Override
   @CheckForNull
   public String resolution() {
     return JsonUtils.getString(json, "resolution");
   }
 
+  @Override
   @CheckForNull
   public String reporter() {
     return JsonUtils.getString(json, "reporter");
@@ -100,6 +112,7 @@ public class DefaultIssue implements Issue {
   /**
    * Login of assignee. Null if issue is not assigned.
    */
+  @Override
   @CheckForNull
   public String assignee() {
     return JsonUtils.getString(json, "assignee");
@@ -108,34 +121,41 @@ public class DefaultIssue implements Issue {
   /**
    * SCM account
    */
+  @Override
   @CheckForNull
   public String author() {
     return JsonUtils.getString(json, "author");
   }
 
+  @Override
   @CheckForNull
   public String actionPlan() {
     return JsonUtils.getString(json, "actionPlan");
   }
 
+  @Override
   public Date creationDate() {
     return JsonUtils.getDateTime(json, "creationDate");
   }
 
+  @Override
   public Date updateDate() {
     return JsonUtils.getDateTime(json, "updateDate");
   }
 
+  @Override
   @CheckForNull
   public Date closeDate() {
     return JsonUtils.getDateTime(json, "closeDate");
   }
 
+  @Override
   @CheckForNull
   public String attribute(String key) {
     return attributes().get(key);
   }
 
+  @Override
   public Map<String, String> attributes() {
     Map<String, String> attr = (Map<String, String>) json.get("attr");
     if (attr == null) {
@@ -147,6 +167,7 @@ public class DefaultIssue implements Issue {
   /**
    * Non-null list of comments
    */
+  @Override
   public List<IssueComment> comments() {
     List<IssueComment> comments = new ArrayList<IssueComment>();
     List<Map> jsonComments = (List<Map>) json.get("comments");

@@ -62,6 +62,7 @@ public class QProfileEventsDecorator implements Decorator {
     return CoreMetrics.QUALITY_PROFILES;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }

@@ -30,6 +30,7 @@ public class HashedSequenceComparator<S extends Sequence> implements SequenceCom
     this.cmp = cmp;
   }
 
+  @Override
   public boolean equals(HashedSequence<S> a, int ai, HashedSequence<S> b, int bi) {
     if (a.hashes[ai] == b.hashes[bi]) {
       return cmp.equals(a.base, ai, b.base, bi);
@@ -37,6 +38,7 @@ public class HashedSequenceComparator<S extends Sequence> implements SequenceCom
     return false;
   }
 
+  @Override
   public int hash(HashedSequence<S> seq, int i) {
     return seq.hashes[i];
   }

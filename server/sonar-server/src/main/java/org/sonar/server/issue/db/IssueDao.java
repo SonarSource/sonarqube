@@ -52,6 +52,7 @@ public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements 
     return mapper(session).selectByKey(key);
   }
 
+  @Override
   protected List<IssueDto> doGetByKeys(DbSession session, Collection<String> keys) {
     return mapper(session).selectByKeys(keys);
   }

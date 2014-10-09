@@ -35,18 +35,22 @@ public class BeanIterable<T extends BeanElement> implements Iterable<T> {
     this.beanClass = beanClass;
   }
 
+  @Override
   public Iterator<T> iterator() {
     return new Iterator<T>() {
       private final Iterator<? extends Element> iterator = iterable.iterator();
 
+      @Override
       public void remove() {
         throw new UnsupportedOperationException();
       }
 
+      @Override
       public boolean hasNext() {
         return this.iterator.hasNext();
       }
 
+      @Override
       public T next() {
         return graph.wrap(this.iterator.next(), beanClass);
       }

@@ -110,6 +110,7 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return components;
   }
 
+  @Override
   protected List<ComponentDto> doGetByKeys(DbSession session, Collection<String> keys) {
     return mapper(session).findByKeys(keys);
   }

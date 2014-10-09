@@ -54,6 +54,7 @@ public final class Search {
   }
 
   private static final Comparator<Node> DEPTH_COMPARATOR = new Comparator<Node>() {
+    @Override
     public int compare(Node o1, Node o2) {
       return o2.depth - o1.depth;
     }

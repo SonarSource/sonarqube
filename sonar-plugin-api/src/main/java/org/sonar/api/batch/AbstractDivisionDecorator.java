@@ -60,6 +60,7 @@ public abstract class AbstractDivisionDecorator implements Decorator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -67,6 +68,7 @@ public abstract class AbstractDivisionDecorator implements Decorator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (!shouldDecorateResource(context)) {
       return;

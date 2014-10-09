@@ -76,6 +76,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     super(IndexDefinition.RULE, normalizer, client);
   }
 
+  @Override
   protected String getKeyValue(RuleKey key) {
     return key.toString();
   }

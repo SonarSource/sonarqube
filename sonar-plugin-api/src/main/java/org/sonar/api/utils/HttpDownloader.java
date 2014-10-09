@@ -268,6 +268,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
         this.readTimeoutMillis = readTimeoutMillis;
       }
 
+      @Override
       public InputStream getInput() throws IOException {
         LoggerFactory.getLogger(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri, ProxySelector.getDefault()) + ")");
 

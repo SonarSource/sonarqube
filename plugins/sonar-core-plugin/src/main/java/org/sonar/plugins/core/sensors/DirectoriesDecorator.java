@@ -37,6 +37,7 @@ import java.util.Collection;
  */
 public final class DirectoriesDecorator implements Decorator {
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
@@ -49,6 +50,7 @@ public final class DirectoriesDecorator implements Decorator {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (MeasureUtils.hasValue(context.getMeasure(CoreMetrics.DIRECTORIES))) {
       return;

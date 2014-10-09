@@ -45,10 +45,12 @@ public class DebtModelService implements DebtModel {
     this.debtModelBackup = debtModelBackup;
   }
 
+  @Override
   public List<DebtCharacteristic> characteristics() {
     return debtModelLookup.rootCharacteristics();
   }
 
+  @Override
   public List<DebtCharacteristic> allCharacteristics() {
     return debtModelLookup.allCharacteristics();
   }
@@ -58,6 +60,7 @@ public class DebtModelService implements DebtModel {
     return debtModelLookup.characteristicById(id);
   }
 
+  @Override
   @CheckForNull
   public DebtCharacteristic characteristicByKey(String key) {
     return debtModelLookup.characteristicByKey(key);

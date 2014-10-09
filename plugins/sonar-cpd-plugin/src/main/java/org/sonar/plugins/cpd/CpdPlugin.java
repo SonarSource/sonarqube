@@ -33,6 +33,7 @@ import java.util.List;
 
 public final class CpdPlugin extends SonarPlugin {
 
+  @Override
   public List getExtensions() {
     return ImmutableList.of(
       PropertyDefinition.builder(CoreProperties.CPD_CROSS_PROJECT)
