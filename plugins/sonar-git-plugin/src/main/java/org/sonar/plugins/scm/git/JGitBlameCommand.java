@@ -23,6 +23,8 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.FileSystem;
@@ -38,6 +40,8 @@ import java.util.List;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class JGitBlameCommand implements BlameCommand, BatchComponent {
+
+  private static final Logger LOG = LoggerFactory.getLogger(JGitBlameCommand.class);
 
   private final PathResolver pathResolver;
 
@@ -76,6 +80,9 @@ public class JGitBlameCommand implements BlameCommand, BatchComponent {
     List<BlameLine> lines = new ArrayList<BlameLine>();
     for (int i = 0; i < blameResult.getResultContents().size(); i++) {
       if (blameResult.getSourceAuthor(i) == null || blameResult.getSourceCommit(i) == null || blameResult.getSourceCommitter(i) == null) {
+        LOG.info("Author: " + blameResult.getSourceAuthor(i));
+        LOG.info("Committer: " + blameResult.getSourceCommitter(i));
+        LOG.info("Source commit: " + blameResult.getSourceCommit(i));
         throw new IllegalStateException("Unable to blame file " + inputFile.relativePath() + ". No blame info at line " + (i + 1) + ". Is file commited?");
       }
       lines.add(new org.sonar.api.batch.scm.BlameLine(blameResult.getSourceAuthor(i).getWhen(),

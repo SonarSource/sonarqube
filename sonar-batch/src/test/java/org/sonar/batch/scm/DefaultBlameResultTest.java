@@ -38,7 +38,7 @@ public class DefaultBlameResultTest {
     InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(10);
 
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Expected one blame result per line but provider returned 1 blame lines while file has 10 lines");
+    thrown.expectMessage("Expected one blame result per line but provider returned 1 blame lines while file src/main/java/Foo.java has 10 lines");
 
     new DefaultBlameResult(null).add(file, Arrays.asList(new BlameLine(null, "1", "guy")));
   }
