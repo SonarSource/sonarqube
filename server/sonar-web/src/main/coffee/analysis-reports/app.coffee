@@ -44,9 +44,25 @@ requirejs [
   App = new Marionette.Application
 
 
+  App.fetchReports = ->
+    fetch = if @state.get 'active' then @reports.fetchActive() else @reports.fetchHistory()
+    @layout.showSpinner 'actionsRegion'
+    @layout.resultsRegion.reset()
+    fetch.done =>
+      @reportsView = new ReportsView
+        app: @
+        collection: @reports
+      @layout.resultsRegion.show @reportsView
+
+      @actionsView = new ActionsView
+        app: @
+        collection: @reports
+      @layout.actionsRegion.show @actionsView
+
+
   App.addInitializer ->
     @state = new Backbone.Model active: true
-    @state.on 'change:active', => @reports?.fetch()
+    @state.on 'change:active', => @fetchReports()
 
 
   App.addInitializer ->
@@ -57,23 +73,12 @@ requirejs [
 
   App.addInitializer ->
     @reports = new Reports()
-
-    @reportsView = new ReportsView
-      app: @
-      collection: @reports
-    @layout.resultsRegion.show @reportsView
-
-    @reports.fetch()
+    @fetchReports()
 
 
   App.addInitializer ->
     @headerView = new HeaderView app: @
     @layout.headerRegion.show @headerView
-
-    @actionsView = new ActionsView
-      app: @
-      collection: @reports
-    @layout.actionsRegion.show @actionsView
 
 
 

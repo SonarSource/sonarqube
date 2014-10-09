@@ -11,10 +11,14 @@ define [
     model: Report
 
 
-    url: ->
-      "#{baseUrl}/api/analysis_reports/search"
-
-
     parse: (r) ->
       @paging = r.paging
       r.reports
+
+
+    fetchActive: ->
+      @fetch { url: "#{baseUrl}/api/analysis_reports/active" }, { reset: true }
+
+
+    fetchHistory: ->
+      @fetch { url: "#{baseUrl}/api/analysis_reports/history" }, { reset: true }
