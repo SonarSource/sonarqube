@@ -17,36 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.scm;
+package org.sonar.batch.scm;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.scm.BlameLine;
 
-import java.util.Date;
+import java.util.Arrays;
 
-import static org.fest.assertions.Assertions.assertThat;
+public class DefaultBlameResultTest {
 
-public class BlameLineTest {
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testBlameLine() {
-    Date date = new Date();
-    BlameLine line1 = new BlameLine(date, "1", "foo");
-    BlameLine line1b = new BlameLine(date, "1", "foo");
-    BlameLine line2 = new BlameLine(null, "2", "foo2");
+  public void shouldFailIfNotSameNumberOfLines() {
+    InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(10);
 
-    assertThat(line1.author()).isEqualTo("foo");
-    assertThat(line1.date()).isEqualTo(date);
-    assertThat(line1.revision()).isEqualTo("1");
-    assertThat(line1.committer()).isEqualTo("foo");
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Expected one blame result per line but provider returned 1 blame lines while file has 10 lines");
 
-    assertThat(line1).isEqualTo(line1);
-    assertThat(line1).isNotEqualTo(null);
-    assertThat(line1).isEqualTo(line1b);
-    assertThat(line1.hashCode()).isEqualTo(line1b.hashCode());
-    assertThat(line1).isNotEqualTo(line2);
-    assertThat(line1).isNotEqualTo("foo");
-
-    assertThat(line1.toString()).contains("revision=1,author=foo,committer=foo");
+    new DefaultBlameResult(null).add(file, Arrays.asList(new BlameLine(null, "1", "guy")));
   }
 
 }

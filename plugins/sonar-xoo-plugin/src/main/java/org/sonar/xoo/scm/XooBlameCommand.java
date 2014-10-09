@@ -69,11 +69,11 @@ public class XooBlameCommand implements BlameCommand, BatchComponent {
           if (fields.length < 3) {
             throw new IllegalStateException("Not enough fields on line " + lineNumber);
           }
-          String revision = fields[0];
-          String author = fields[1];
+          String revision = StringUtils.trimToNull(fields[0]);
+          String author = StringUtils.trimToNull(fields[1]);
+          String dateStr = StringUtils.trimToNull(fields[2]);
           // Will throw an exception, when date is not in format "yyyy-MM-dd"
-          Date date = DateUtils.parseDate(fields[2]);
-
+          Date date = dateStr != null ? DateUtils.parseDate(dateStr) : null;
           blame.add(new BlameLine(date, revision, author));
         }
       }

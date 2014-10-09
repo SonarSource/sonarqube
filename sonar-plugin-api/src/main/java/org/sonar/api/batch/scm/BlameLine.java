@@ -44,7 +44,7 @@ public class BlameLine {
    * @param revision of the commit
    * @param author will also be used as committer identification
    */
-  public BlameLine(Date date, String revision, @Nullable String author) {
+  public BlameLine(@Nullable Date date, String revision, @Nullable String author) {
     this(date, revision, author, author);
   }
 
@@ -55,56 +55,40 @@ public class BlameLine {
    * @param author the person who wrote the line
    * @param committer the person who committed the change
    */
-  public BlameLine(Date date, String revision, @Nullable String author, @Nullable String committer) {
-    setDate(date);
-    setRevision(revision);
-    setAuthor(author);
-    setCommitter(committer);
+  public BlameLine(@Nullable Date date, String revision, @Nullable String author, @Nullable String committer) {
+    if (date != null) {
+      this.date = new Date(date.getTime());
+    } else {
+      this.date = null;
+    }
+    this.revision = revision;
+    this.author = author;
+    this.committer = committer;
   }
 
-  public String getRevision() {
+  public String revision() {
     return revision;
   }
 
-  public void setRevision(String revision) {
-    this.revision = revision;
-  }
-
   @CheckForNull
-  public String getAuthor() {
+  public String author() {
     return author;
   }
 
-  public void setAuthor(@Nullable String author) {
-    this.author = author;
-  }
-
   @CheckForNull
-  public String getCommitter() {
+  public String committer() {
     return committer;
-  }
-
-  public void setCommitter(@Nullable String committer) {
-    this.committer = committer;
   }
 
   /**
    * @return the commit date
    */
   @CheckForNull
-  public Date getDate() {
+  public Date date() {
     if (date != null) {
       return (Date) date.clone();
     }
     return null;
-  }
-
-  public void setDate(@Nullable Date date) {
-    if (date != null) {
-      this.date = new Date(date.getTime());
-    } else {
-      this.date = null;
-    }
   }
 
   // For testing purpose

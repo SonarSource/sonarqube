@@ -140,9 +140,9 @@ public class GitBlameConsumer implements StreamConsumer {
 
       if (oldLine != null) {
         // restore the commit info
-        author = oldLine.getAuthor();
-        committer = oldLine.getCommitter();
-        time = oldLine.getDate();
+        author = oldLine.author();
+        committer = oldLine.committer();
+        time = oldLine.date();
       }
 
       expectRevisionLine = false;

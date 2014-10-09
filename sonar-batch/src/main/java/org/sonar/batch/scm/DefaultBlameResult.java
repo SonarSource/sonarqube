@@ -60,10 +60,10 @@ class DefaultBlameResult implements BlameResult {
 
     int lineNumber = 1;
     for (BlameLine line : lines) {
-      authors.add(lineNumber, normalizeString(line.getAuthor()));
-      Date date = line.getDate();
+      authors.add(lineNumber, normalizeString(line.author()));
+      Date date = line.date();
       dates.add(lineNumber, date != null ? DateUtils.formatDateTime(date) : "");
-      revisions.add(lineNumber, line.getRevision());
+      revisions.add(lineNumber, line.revision());
       lineNumber++;
     }
     ScmSensor.saveMeasures(context, file, authors.buildData(), dates.buildData(), revisions.buildData());

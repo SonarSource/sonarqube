@@ -19,34 +19,30 @@
  */
 package org.sonar.api.batch.scm;
 
+import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.Date;
+import org.junit.rules.ExpectedException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class BlameLineTest {
+public class ScmProviderTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testBlameLine() {
-    Date date = new Date();
-    BlameLine line1 = new BlameLine(date, "1", "foo");
-    BlameLine line1b = new BlameLine(date, "1", "foo");
-    BlameLine line2 = new BlameLine(null, "2", "foo2");
+  public void testDefaultImplementation() {
+    ScmProvider provider = new ScmProvider() {
 
-    assertThat(line1.author()).isEqualTo("foo");
-    assertThat(line1.date()).isEqualTo(date);
-    assertThat(line1.revision()).isEqualTo("1");
-    assertThat(line1.committer()).isEqualTo("foo");
+      @Override
+      public String key() {
+        return "foo";
+      }
+    };
 
-    assertThat(line1).isEqualTo(line1);
-    assertThat(line1).isNotEqualTo(null);
-    assertThat(line1).isEqualTo(line1b);
-    assertThat(line1.hashCode()).isEqualTo(line1b.hashCode());
-    assertThat(line1).isNotEqualTo(line2);
-    assertThat(line1).isNotEqualTo("foo");
-
-    assertThat(line1.toString()).contains("revision=1,author=foo,committer=foo");
+    assertThat(provider.supports(null)).isFalse();
+    thrown.expect(UnsupportedOperationException.class);
+    provider.blameCommand();
   }
 
 }
