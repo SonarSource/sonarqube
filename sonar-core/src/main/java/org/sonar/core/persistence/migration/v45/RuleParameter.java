@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.core.rule;
+package org.sonar.core.persistence.migration.v45;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -26,10 +25,18 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class RuleParamDto {
+/**
+ * SONAR-5575
+ * <p/>
+ * Used in the Active Record Migration 601.
+ *
+ * @since 4.5
+ */
+public class RuleParameter {
 
   private Integer id;
   private Integer ruleId;
+  private Integer ruleTemplateId;
   private String name;
   private String type;
   private String defaultValue;
@@ -39,7 +46,7 @@ public class RuleParamDto {
     return id;
   }
 
-  public RuleParamDto setId(Integer id) {
+  public RuleParameter setId(Integer id) {
     this.id = id;
     return this;
   }
@@ -48,8 +55,18 @@ public class RuleParamDto {
     return ruleId;
   }
 
-  public RuleParamDto setRuleId(Integer ruleId) {
+  public RuleParameter setRuleId(Integer ruleId) {
     this.ruleId = ruleId;
+    return this;
+  }
+
+  @CheckForNull
+  public Integer getRuleTemplateId() {
+    return ruleTemplateId;
+  }
+
+  public RuleParameter setRuleTemplateId(@Nullable Integer ruleTemplateId) {
+    this.ruleTemplateId = ruleTemplateId;
     return this;
   }
 
@@ -57,7 +74,7 @@ public class RuleParamDto {
     return name;
   }
 
-  public RuleParamDto setName(String name) {
+  public RuleParameter setName(String name) {
     this.name = name;
     return this;
   }
@@ -66,7 +83,7 @@ public class RuleParamDto {
     return type;
   }
 
-  public RuleParamDto setType(String type) {
+  public RuleParameter setType(String type) {
     this.type = type;
     return this;
   }
@@ -76,7 +93,7 @@ public class RuleParamDto {
     return defaultValue;
   }
 
-  public RuleParamDto setDefaultValue(@Nullable String defaultValue) {
+  public RuleParameter setDefaultValue(@Nullable String defaultValue) {
     this.defaultValue = defaultValue;
     return this;
   }
@@ -85,7 +102,7 @@ public class RuleParamDto {
     return description;
   }
 
-  public RuleParamDto setDescription(String description) {
+  public RuleParameter setDescription(String description) {
     this.description = description;
     return this;
   }
@@ -94,10 +111,4 @@ public class RuleParamDto {
   public String toString() {
     return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
-
-  public static RuleParamDto createFor(RuleDto rule) {
-    // Should eventually switch to RuleKey (RuleKey is available before insert)
-    return new RuleParamDto().setRuleId(rule.getId());
-  }
-
 }

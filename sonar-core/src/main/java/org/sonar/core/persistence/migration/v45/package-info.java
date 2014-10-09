@@ -17,33 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.dashboards;
+@ParametersAreNonnullByDefault
+package org.sonar.core.persistence.migration.v45;
 
-import org.junit.Test;
-import org.sonar.api.web.Dashboard;
-import org.sonar.api.web.DashboardLayout;
-import org.sonar.plugins.core.CorePlugin;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class ProjectDefaultDashboardTest {
-  ProjectDefaultDashboard template = new ProjectDefaultDashboard();
-
-  @Test
-  public void should_have_a_name() {
-    assertThat(template.getName()).isEqualTo("Dashboard");
-  }
-
-  @Test
-  public void should_be_registered_as_an_extension() {
-    assertThat(new CorePlugin().getExtensions()).contains(template.getClass());
-  }
-
-  @Test
-  public void should_create_dashboard() {
-    Dashboard dashboard = template.createDashboard();
-
-    assertThat(dashboard.getLayout()).isEqualTo(DashboardLayout.TWO_COLUMNS);
-    assertThat(dashboard.getWidgets()).hasSize(10);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

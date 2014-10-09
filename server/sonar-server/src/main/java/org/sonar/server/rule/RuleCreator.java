@@ -33,6 +33,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.index.RuleDoc;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class RuleCreator implements ServerComponent {
 
@@ -168,20 +169,18 @@ public class RuleCreator implements ServerComponent {
     dbClient.ruleDao().insert(dbSession, ruleDto);
 
     for (RuleParamDto templateRuleParamDto : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, templateRuleDto.getKey())) {
-      String newRuleParam = newRule.parameter(templateRuleParamDto.getName());
-      if (newRuleParam != null) {
-        createCustomRuleParams(newRuleParam, ruleDto, templateRuleParamDto, dbSession);
-      }
+      String customRuleParamValue = Strings.emptyToNull(newRule.parameter(templateRuleParamDto.getName()));
+      createCustomRuleParams(customRuleParamValue, ruleDto, templateRuleParamDto, dbSession);
     }
     return ruleKey;
   }
 
-  private void createCustomRuleParams(String param, RuleDto ruleDto, RuleParamDto templateRuleParam, DbSession dbSession){
+  private void createCustomRuleParams(@Nullable String paramValue, RuleDto ruleDto, RuleParamDto templateRuleParam, DbSession dbSession){
     RuleParamDto ruleParamDto = RuleParamDto.createFor(ruleDto)
       .setName(templateRuleParam.getName())
       .setType(templateRuleParam.getType())
       .setDescription(templateRuleParam.getDescription())
-      .setDefaultValue(param);
+      .setDefaultValue(paramValue);
     dbClient.ruleDao().addRuleParam(dbSession, ruleDto, ruleParamDto);
   }
 

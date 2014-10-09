@@ -113,6 +113,55 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
+  public void create_custom_rule_with_empty_parameter_value() throws Exception {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+
+    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("regex", ""));
+
+    RuleKey customRuleKey = creator.create(newRule);
+    dbSession.clearCache();
+
+    List<RuleParamDto> params = db.ruleDao().findRuleParamsByRuleKey(dbSession, customRuleKey);
+    assertThat(params).hasSize(1);
+
+    RuleParamDto param = params.get(0);
+    assertThat(param.getName()).isEqualTo("regex");
+    assertThat(param.getDescription()).isEqualTo("Reg ex");
+    assertThat(param.getType()).isEqualTo("STRING");
+    assertThat(param.getDefaultValue()).isNull();
+  }
+
+  @Test
+  public void create_custom_rule_with_no_parameter_value() throws Exception {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+
+    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY);
+
+    RuleKey customRuleKey = creator.create(newRule);
+    dbSession.clearCache();
+
+    List<RuleParamDto> params = db.ruleDao().findRuleParamsByRuleKey(dbSession, customRuleKey);
+    assertThat(params).hasSize(1);
+
+    RuleParamDto param = params.get(0);
+    assertThat(param.getName()).isEqualTo("regex");
+    assertThat(param.getDescription()).isEqualTo("Reg ex");
+    assertThat(param.getType()).isEqualTo("STRING");
+    assertThat(param.getDefaultValue()).isNull();
+  }
+
+  @Test
   public void reactivate_custom_rule_if_already_exists_in_removed_status() throws Exception {
     String key = "CUSTOM_RULE";
 
@@ -190,42 +239,6 @@ public class RuleCreatorMediumTest {
       assertThat(e).isInstanceOf(ReactivationException.class);
       ReactivationException reactivationException = (ReactivationException) e;
       assertThat(reactivationException.ruleKey()).isEqualTo(rule.getKey());
-    }
-  }
-
-  @Test
-  public void not_fail_to_create_custom_rule_when_a_param_is_missing() throws Exception {
-    // insert template rule
-    RuleDto templateRule = createTemplateRule();
-
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
-      .setName("My custom")
-      .setHtmlDescription("Some description")
-      .setSeverity(Severity.MAJOR)
-      .setStatus(RuleStatus.READY);
-
-    RuleKey customRuleKey = creator.create(newRule);
-    dbSession.clearCache();
-
-    List<RuleParamDto> params = db.ruleDao().findRuleParamsByRuleKey(dbSession, customRuleKey);
-    assertThat(params).hasSize(0);
-  }
-
-  @Test
-  public void fail_to_create_custom_rule_when_missing_key() throws Exception {
-    // insert template rule
-    RuleDto templateRule = createTemplateRule();
-
-    try {
-      NewRule newRule = NewRule.createForCustomRule("", templateRule.getKey())
-        .setName("My custom")
-        .setHtmlDescription("Some description")
-        .setSeverity(Severity.MAJOR)
-        .setStatus(RuleStatus.READY)
-        .setParameters(ImmutableMap.of("regex", "a.*"));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Custom key should be set");
     }
   }
 
