@@ -34,14 +34,16 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent {
   private final Logger LOG = LoggerFactory.getLogger(AnalysisReportTaskLauncher.class);
 
   private final ComputationService service;
+  private final AnalysisReportQueue queue;
   private final ScheduledExecutorService executorService;
 
   private final long delayBetweenTasks;
   private final long delayForFirstStart;
   private final TimeUnit timeUnit;
 
-  public AnalysisReportTaskLauncher(ComputationService service) {
+  public AnalysisReportTaskLauncher(ComputationService service, AnalysisReportQueue queue) {
     this.service = service;
+    this.queue = queue;
     this.executorService = Executors.newSingleThreadScheduledExecutor();
 
     this.delayBetweenTasks = 10;
@@ -50,7 +52,8 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent {
   }
 
   @VisibleForTesting
-  AnalysisReportTaskLauncher(ComputationService service, long delayForFirstStart, long delayBetweenTasks, TimeUnit timeUnit) {
+  AnalysisReportTaskLauncher(ComputationService service, AnalysisReportQueue queue, long delayForFirstStart, long delayBetweenTasks, TimeUnit timeUnit) {
+    this.queue = queue;
     this.executorService = Executors.newSingleThreadScheduledExecutor();
 
     this.delayBetweenTasks = delayBetweenTasks;
@@ -61,7 +64,7 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent {
 
   @Override
   public void start() {
-    executorService.scheduleAtFixedRate(new AnalysisReportTask(service), delayForFirstStart, delayBetweenTasks, timeUnit);
+    executorService.scheduleAtFixedRate(new AnalysisReportTask(queue, service), delayForFirstStart, delayBetweenTasks, timeUnit);
     LOG.info("AnalysisReportTaskLauncher started");
   }
 
@@ -72,6 +75,6 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent {
   }
 
   public void startAnalysisTaskNow() {
-    executorService.execute(new AnalysisReportTask(service));
+    executorService.execute(new AnalysisReportTask(queue, service));
   }
 }

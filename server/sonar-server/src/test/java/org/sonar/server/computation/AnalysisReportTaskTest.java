@@ -31,29 +31,33 @@ public class AnalysisReportTaskTest {
 
   private AnalysisReportTask sut;
   private ComputationService service;
+  private AnalysisReportQueue queue;
 
   @Before
   public void before() {
     this.service = mock(ComputationService.class);
-    this.sut = new AnalysisReportTask(service);
+    this.queue = mock(AnalysisReportQueue.class);
+    this.sut = new AnalysisReportTask(queue, service);
   }
 
   @Test
   public void call_findAndBook_and_no_call_to_analyze_if_no_report_found() {
     sut.run();
 
-    verify(service).findAndBookNextAvailableAnalysisReport();
+    verify(queue).bookNextAvailable();
     verify(service, times(0)).analyzeReport(any(AnalysisReportDto.class));
   }
 
   @Test
   public void call_findAndBook_and_then_analyze_if_there_is_a_report() {
-    when(service.findAndBookNextAvailableAnalysisReport()).thenReturn(AnalysisReportDto.newForTests(1L));
+    when(queue.bookNextAvailable()).thenReturn(AnalysisReportDto.newForTests(1L));
 
     sut.run();
 
-    verify(service).findAndBookNextAvailableAnalysisReport();
+    verify(queue).bookNextAvailable();
     verify(service).analyzeReport(any(AnalysisReportDto.class));
   }
+
+
 
 }

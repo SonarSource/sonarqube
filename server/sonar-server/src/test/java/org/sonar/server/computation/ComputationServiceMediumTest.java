@@ -39,7 +39,6 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.db.IssueDao;
@@ -55,12 +54,12 @@ import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
 public class ComputationServiceMediumTest {
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
@@ -70,6 +69,7 @@ public class ComputationServiceMediumTest {
 
   private ComputationService sut;
 
+  private AnalysisReportQueue queue;
   private DbClient db;
   private DbSession session;
   private MockUserSession userSession;
@@ -79,6 +79,7 @@ public class ComputationServiceMediumTest {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     session = db.openSession(false);
+    queue = tester.get(AnalysisReportQueue.class);
 
     sut = tester.get(ComputationService.class);
 
@@ -99,48 +100,15 @@ public class ComputationServiceMediumTest {
   }
 
   @Test
-  public void create_analysis_report_and_retrieve_it() {
-    insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    sut.addAnalysisReport(DEFAULT_PROJECT_KEY);
-
-    List<AnalysisReportDto> reports = sut.findByProjectKey(DEFAULT_PROJECT_KEY);
-    AnalysisReportDto report = reports.get(0);
-
-    assertThat(reports).hasSize(1);
-    assertThat(report.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
-  }
-
-  @Test
-  public void create_and_book_oldest_available_analysis_report_thrice() {
-    insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    insertPermissionsForProject("2");
-    insertPermissionsForProject("3");
-
-    sut.addAnalysisReport(DEFAULT_PROJECT_KEY);
-    sut.addAnalysisReport("2");
-    sut.addAnalysisReport("3");
-
-    AnalysisReportDto firstBookedReport = sut.findAndBookNextAvailableAnalysisReport();
-    AnalysisReportDto secondBookedReport = sut.findAndBookNextAvailableAnalysisReport();
-    AnalysisReportDto thirdBookedReport = sut.findAndBookNextAvailableAnalysisReport();
-
-    assertThat(firstBookedReport.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
-    assertThat(firstBookedReport.getStatus()).isEqualTo(WORKING);
-    assertThat(secondBookedReport.getProjectKey()).isEqualTo("2");
-    assertThat(thirdBookedReport.getProjectKey()).isEqualTo("3");
-  }
-
-  @Test
   public void analyze_report() {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    sut.addAnalysisReport(DEFAULT_PROJECT_KEY);
+    queue.add(DEFAULT_PROJECT_KEY);
 
-    AnalysisReportDto report = sut.findAndBookNextAvailableAnalysisReport();
+    AnalysisReportDto report = queue.bookNextAvailable();
 
     sut.analyzeReport(report);
 
-    assertThat(sut.findByProjectKey(DEFAULT_PROJECT_KEY)).isEmpty();
-
+    assertThat(queue.findByProjectKey(DEFAULT_PROJECT_KEY)).isEmpty();
   }
 
   private ComponentDto insertPermissionsForProject(String projectKey) {
@@ -153,25 +121,6 @@ public class ComputationServiceMediumTest {
     session.commit();
 
     return project;
-  }
-
-  @Test
-  public void search_for_available_report_when_no_report_available() {
-    AnalysisReportDto nullAnalysisReport = sut.findAndBookNextAvailableAnalysisReport();
-
-    assertThat(nullAnalysisReport).isNull();
-  }
-
-  @Test(expected = ForbiddenException.class)
-  public void fail_without_global_scan_permission() {
-    ComponentDto project = new ComponentDto()
-      .setKey("MyProject");
-    db.componentDao().insert(session, project);
-    session.commit();
-
-    MockUserSession.set().setLogin("gandalf").addProjectPermissions(UserRole.USER, project.key());
-
-    sut.addAnalysisReport(project.getKey());
   }
 
   @Test
@@ -194,8 +143,8 @@ public class ComputationServiceMediumTest {
 
     clearIssueIndexToSimulateBatchInsertWithoutIndexing();
 
-    sut.addAnalysisReport(DEFAULT_PROJECT_KEY);
-    List<AnalysisReportDto> reports = sut.findByProjectKey(DEFAULT_PROJECT_KEY);
+    queue.add(DEFAULT_PROJECT_KEY);
+    List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
 
     sut.analyzeReport(reports.get(0));
 
@@ -207,8 +156,8 @@ public class ComputationServiceMediumTest {
   public void add_project_issue_permission_in_index() throws Exception {
     ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
 
-    sut.addAnalysisReport(DEFAULT_PROJECT_KEY);
-    List<AnalysisReportDto> reports = sut.findByProjectKey(DEFAULT_PROJECT_KEY);
+    queue.add(DEFAULT_PROJECT_KEY);
+    List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
 
     sut.analyzeReport(reports.get(0));
 
@@ -243,8 +192,8 @@ public class ComputationServiceMediumTest {
 
     clearIssueIndexToSimulateBatchInsertWithoutIndexing();
 
-    sut.addAnalysisReport(DEFAULT_PROJECT_KEY);
-    List<AnalysisReportDto> reports = sut.findByProjectKey(DEFAULT_PROJECT_KEY);
+    queue.add(DEFAULT_PROJECT_KEY);
+    List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
 
     sut.analyzeReport(reports.get(0));
 
@@ -253,5 +202,10 @@ public class ComputationServiceMediumTest {
 
     Result<Issue> issueIndex = tester.get(IssueIndex.class).search(IssueQuery.builder().build(), new QueryContext());
     assertThat(issueIndex.getTotal()).isEqualTo(2001);
+  }
+
+  @Test(expected = SQLException.class)
+  public void exceptions_thrown_are_transmitted() {
+
   }
 }

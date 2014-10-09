@@ -20,21 +20,31 @@
 
 package org.sonar.server.computation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.core.computation.db.AnalysisReportDto;
 
 public class AnalysisReportTask implements Runnable {
+  private static final Logger LOG = LoggerFactory.getLogger(AnalysisReportTask.class);
 
+  private final AnalysisReportQueue queue;
   private final ComputationService service;
 
-  public AnalysisReportTask(ComputationService service) {
+  public AnalysisReportTask(AnalysisReportQueue queue, ComputationService service) {
+    this.queue = queue;
     this.service = service;
   }
 
   @Override
   public void run() {
-    AnalysisReportDto report = service.findAndBookNextAvailableAnalysisReport();
+    AnalysisReportDto report = queue.bookNextAvailable();
     if (report != null) {
-      service.analyzeReport(report);
+      try {
+        service.analyzeReport(report);
+        queue.remove(report);
+      } catch (Exception exception) {
+        LOG.error(String.format("Analysis of report %s failed", report), exception);
+      }
     }
   }
 }

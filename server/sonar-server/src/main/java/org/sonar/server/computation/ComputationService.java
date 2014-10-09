@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.computation.db.AnalysisReportDao;
@@ -34,13 +33,6 @@ import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.search.IndexClient;
-import org.sonar.server.user.UserSession;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
-
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 
 /**
  * since 5.0
@@ -60,63 +52,6 @@ public class ComputationService implements ServerComponent {
     this.permissionService = permissionService;
   }
 
-  public void addAnalysisReport(String projectKey) {
-    UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
-
-    AnalysisReportDto report = newPendingAnalysisReport(projectKey);
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      checkThatProjectExistsInDatabase(projectKey, session);
-      insertReportInDatabase(report, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  private void insertReportInDatabase(AnalysisReportDto report, DbSession session) {
-    dao.insert(session, report);
-    session.commit();
-  }
-
-  private void checkThatProjectExistsInDatabase(String projectKey, DbSession session) {
-    dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
-  }
-
-  private AnalysisReportDto newPendingAnalysisReport(String projectKey) {
-    return new AnalysisReportDto().setProjectKey(projectKey).setStatus(PENDING);
-  }
-
-  public List<AnalysisReportDto> findByProjectKey(String projectKey) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      return dao.findByProjectKey(session, projectKey);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  /**
-   * @return a booked analysis report if one is available, null otherwise
-   */
-  @CheckForNull
-  public synchronized AnalysisReportDto findAndBookNextAvailableAnalysisReport() {
-    DbSession session = dbClient.openSession(false);
-    try {
-      AnalysisReportDto nextAvailableReport = dao.getNextAvailableReport(session);
-      if (nextAvailableReport == null) {
-        return null;
-      }
-
-      AnalysisReportDto report = dao.bookAnalysisReport(session, nextAvailableReport);
-      session.commit();
-
-      return report;
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public void analyzeReport(AnalysisReportDto report) {
     // Synchronization of lot of data can only be done with a batch session for the moment
     DbSession session = dbClient.openSession(true);
@@ -125,23 +60,11 @@ public class ComputationService implements ServerComponent {
     try {
       synchronizeProjectPermissionsIfNotFound(session, projectKey);
       indexProjectIssues(session, projectKey);
-    } catch (Exception exception) {
-      LOG.error(String.format("Error while analyzing %s'", report), exception);
     } finally {
-      removeSilentlyReportFromQueue(session, report);
       MyBatis.closeQuietly(session);
     }
 
     LOG.info(String.format("Analysis of %s successfully finished.", report));
-  }
-
-  private void removeSilentlyReportFromQueue(DbSession session, AnalysisReportDto report) {
-    try {
-      dao.delete(session, report);
-      session.commit();
-    } catch (Exception exception) {
-      LOG.error(String.format("Error while the report analysis, deleting %s", report), exception);
-    }
   }
 
   private void indexProjectIssues(DbSession session, String projectKey) {

@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
+import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.computation.AnalysisReportTaskLauncher;
 import org.sonar.server.computation.ComputationService;
 
@@ -37,13 +38,15 @@ public class UploadReportActionTest {
 
   private ComputationService computationService;
   private AnalysisReportTaskLauncher analysisTaskLauncher;
+  private AnalysisReportQueue queue;
 
   @Before
   public void before() {
     computationService = mock(ComputationService.class);
     analysisTaskLauncher = mock(AnalysisReportTaskLauncher.class);
+    queue = mock(AnalysisReportQueue.class);
 
-    sut = new UploadReportAction(computationService, analysisTaskLauncher);
+    sut = new UploadReportAction(queue, computationService, analysisTaskLauncher);
   }
 
   @Test
@@ -54,7 +57,7 @@ public class UploadReportActionTest {
 
     sut.handle(request, response);
 
-    verify(computationService).addAnalysisReport(DEFAULT_PROJECT_KEY);
+    verify(queue).add(DEFAULT_PROJECT_KEY);
     verify(analysisTaskLauncher).startAnalysisTaskNow();
   }
 

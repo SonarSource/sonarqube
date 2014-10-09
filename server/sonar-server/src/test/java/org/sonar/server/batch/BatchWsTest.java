@@ -30,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.resources.Languages;
 import org.sonar.core.properties.PropertiesDao;
+import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.computation.AnalysisReportTaskLauncher;
 import org.sonar.server.computation.ComputationService;
 import org.sonar.server.db.DbClient;
@@ -62,10 +63,10 @@ public class BatchWsTest {
   @Before
   public void before() throws IOException {
     tester = new WsTester(new BatchWs(batchIndex,
-        new GlobalReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class)),
-        new ProjectReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class), mock(QProfileFactory.class), mock(QProfileLoader.class), mock(RuleService.class),
-            mock(Languages.class)),
-        new UploadReportAction(mock(ComputationService.class), mock(AnalysisReportTaskLauncher.class))));
+      new GlobalReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class)),
+      new ProjectReferentialsAction(mock(DbClient.class), mock(PropertiesDao.class), mock(QProfileFactory.class), mock(QProfileLoader.class), mock(RuleService.class),
+        mock(Languages.class)),
+      new UploadReportAction(mock(AnalysisReportQueue.class), mock(ComputationService.class), mock(AnalysisReportTaskLauncher.class))));
   }
 
   @Test
