@@ -67,7 +67,7 @@ public class ServerTester extends ExternalResource {
     homeDir = createTempDir();
     platform = new Platform();
 
-    clusterName = "cluster-mem-" + System.currentTimeMillis();
+    clusterName = "cluster-" + System.currentTimeMillis();
     clusterPort = NetworkUtils.freePort();
     Properties properties = new Properties();
     properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
