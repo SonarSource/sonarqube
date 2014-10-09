@@ -35,7 +35,10 @@
           </select>
         </td>
       </tr>
-      {{#unless isCustomRule}}
+      {{#if isCustomRule}}
+      <tr class="property">
+        <td colspan="2">{{t 'coding_rules.custom_rule.activation_notice'}}</td>
+      {{else}}
       {{#each params}}
         <tr class="property">
           <th><h3>{{key}}</h3></th>
@@ -60,7 +63,7 @@
           </td>
         </tr>
       {{/each}}
-      {{/unless}}
+      {{/if}}
     </table>
   </div>
 
