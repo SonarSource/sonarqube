@@ -37,7 +37,10 @@ import java.net.URISyntaxException;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class LastSnapshotsTest {
 
@@ -88,7 +91,21 @@ public class LastSnapshotsTest {
 
     String source = lastSnapshots.getSource(newFile());
     assertThat(source).isEqualTo("downloaded source of Bar.c");
-    verify(server).request("/api/sources?resource=myproject:org/foo/Bar.c&format=txt", false, 30 * 1000);
+    verify(server).request("/api/sources?resource=myproject%3Aorg%2Ffoo%2FBar.c&format=txt", false, 30 * 1000);
+  }
+
+  @Test
+  public void should_download_source_with_space_from_ws_if_preview_mode() {
+    db.prepareDbUnit(getClass(), "last_snapshot.xml");
+    ServerClient server = mock(ServerClient.class);
+    when(server.request(anyString(), eq(false), eq(30 * 1000))).thenReturn("downloaded source of Foo Bar.c");
+
+    when(mode.isPreview()).thenReturn(true);
+    LastSnapshots lastSnapshots = new LastSnapshots(mode, new SnapshotSourceDao(db.myBatis()), server);
+
+    String source = lastSnapshots.getSource(newFile());
+    assertThat(source).isEqualTo("downloaded source of Foo Bar.c");
+    verify(server).request("/api/sources?resource=myproject%3Aorg%2Ffoo%2FBar.c&format=txt", false, 30 * 1000);
   }
 
   @Test
@@ -113,9 +130,9 @@ public class LastSnapshotsTest {
     when(mode.isPreview()).thenReturn(true);
     LastSnapshots lastSnapshots = new LastSnapshots(mode, new SnapshotSourceDao(db.myBatis()), server);
 
-    String source = lastSnapshots.getSource(newFile());
+    String source = lastSnapshots.getSource(newFileWithSpace());
     assertThat(source).isEqualTo("");
-    verify(server).request("/api/sources?resource=myproject:org/foo/Bar.c&format=txt", false, 30 * 1000);
+    verify(server).request("/api/sources?resource=myproject%3Aorg%2Ffoo%2FFoo+Bar.c&format=txt", false, 30 * 1000);
   }
 
   @Test
@@ -132,6 +149,12 @@ public class LastSnapshotsTest {
   private File newFile() {
     File file = new File("org/foo", "Bar.c");
     file.setEffectiveKey("myproject:org/foo/Bar.c");
+    return file;
+  }
+
+  private File newFileWithSpace() {
+    File file = new File("org/foo", "Foo Bar.c");
+    file.setEffectiveKey("myproject:org/foo/Foo Bar.c");
     return file;
   }
 }

@@ -28,9 +28,6 @@ import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.batch.rule.ModuleQProfiles;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
 public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoader {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectReferentialsLoader.class);
@@ -51,11 +48,7 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
     if (taskProperties.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {
       LOG.warn("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
         + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
-      try {
-        url += "&profile=" + URLEncoder.encode(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP), "UTF-8");
-      } catch (UnsupportedEncodingException e) {
-        throw new IllegalStateException("Unable to encode URL", e);
-      }
+      url += "&profile=" + ServerClient.encodeForUrl(taskProperties.properties().get(ModuleQProfiles.SONAR_PROFILE_PROP));
     }
     url += "&preview=" + analysisMode.isPreview();
     return ProjectReferentials.fromJson(serverClient.request(url));
