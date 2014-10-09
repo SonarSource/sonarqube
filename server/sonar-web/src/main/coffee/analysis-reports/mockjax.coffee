@@ -5,7 +5,7 @@ define ['third-party/jquery.mockjax'], ->
 
   # GET /api/codingrules/app
   jQuery.mockjax
-    url: "#{baseUrl}/api/reports/search"
+    url: "#{baseUrl}/api/analysis_reports/search"
     responseText: JSON.stringify
       paging:
         pageIndex: 1

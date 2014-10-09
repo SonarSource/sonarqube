@@ -5,15 +5,15 @@
 {{/if}}
 
 <div class="line">
-  <span class="monitoring-project">
+  <span class="analysis-reports-project">
     <i class="icon-qualifier-trk"></i>
     <a href="{{dashboardUrl project}}">{{projectName}}</a>
   </span>
 
-  <span class="monitoring-timestamp line-small">
+  <span class="analysis-reports-timestamp line-small">
     Started: {{dt startDate}}
-    {{#eq status 'WORKING'}}<i class="spinner monitoring-timestamp-spinner"></i> {{/eq}}
+    {{#eq status 'WORKING'}}<i class="spinner analysis-reports-timestamp-spinner"></i> {{/eq}}
   </span>
 </div>
 
-<div class="monitoring-report-id">{{id}} {{status}}</div>
+<div class="analysis-reports-report-id">{{id}} {{status}}</div>

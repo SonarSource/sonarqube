@@ -19,16 +19,16 @@ requirejs.config
 requirejs [
   'backbone', 'backbone.marionette'
 
-  'monitoring/layout'
-  'monitoring/models/reports'
-  'monitoring/views/reports-view'
-  'monitoring/views/header-view'
+  'analysis-reports/layout'
+  'analysis-reports/models/reports'
+  'analysis-reports/views/reports-view'
+  'analysis-reports/views/header-view'
 
   'common/handlebars-extensions'
-  'monitoring/mockjax'
+  'analysis-reports/mockjax'
 ], (
   Backbone, Marionette
-  MonitoringLayout
+  Layout
   Reports
   ReportsView
   HeaderView
@@ -48,8 +48,8 @@ requirejs [
 
 
   App.addInitializer ->
-    @layout = new MonitoringLayout app: @
-    jQuery('#monitoring').empty().append @layout.render().el
+    @layout = new Layout app: @
+    jQuery('#analysis-reports').empty().append @layout.render().el
     @layout.onResize()
 
 

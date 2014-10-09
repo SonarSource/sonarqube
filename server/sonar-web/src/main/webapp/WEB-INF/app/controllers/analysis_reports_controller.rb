@@ -18,7 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-class MonitoringController < ApplicationController
+class AnalysisReportsController < ApplicationController
 
   before_filter :admin_required
 

@@ -7,7 +7,7 @@
 @workingColor: #ecf9fc;
 
 
-.monitoring-navigator {
+.analysis-reports-navigator {
   margin: -10px;
 
   .navigator-side {
@@ -31,33 +31,33 @@
 
 }
 
-.monitoring-report-pending {
+.analysis-reports-report-pending {
   background-color: @pendingColor !important;
 }
 
-.monitoring-report-working {
+.analysis-reports-report-working {
   background-color: @workingColor !important;
 }
 
-.monitoring-report-done {
+.analysis-reports-report-done {
   opacity: 0.75;
 }
 
-.monitoring-project {
+.analysis-reports-project {
   display: inline-block;
   vertical-align: middle;
   width: 30%;
   .text-ellipsis;
 }
 
-.monitoring-timestamp {
+.analysis-reports-timestamp {
   display: inline-block;
   vertical-align: middle;
   width: 180px;
   margin-left: 15px;
 }
 
-.monitoring-report-id {
+.analysis-reports-report-id {
   position: absolute;
   top: 6px;
   right: 6px;
@@ -67,25 +67,25 @@
   &:before { content: '#'; }
 }
 
-.monitoring-spinner {
+.analysis-reports-spinner {
   .size(200px, 200px);
   margin-top: 20px;
 }
 
-.monitoring-spinner,
-.monitoring-spinner:before
-.monitoring-spinner:after {
+.analysis-reports-spinner,
+.analysis-reports-spinner:before
+.analysis-reports-spinner:after {
   -webkit-animation-duration: 6s;
   animation-duration: 6s;
 }
 
-.monitoring-timestamp-spinner {
+.analysis-reports-timestamp-spinner {
   margin-left: 10px;
 }
 
-.monitoring-timestamp-spinner,
-.monitoring-timestamp-spinner:before,
-.monitoring-timestamp-spinner:after {
+.analysis-reports-timestamp-spinner,
+.analysis-reports-timestamp-spinner:before,
+.analysis-reports-timestamp-spinner:after {
   -webkit-animation-duration: 2s;
   animation-duration: 2s;
 }

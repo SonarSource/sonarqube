@@ -1,6 +1,6 @@
 define [
   'backbone'
-  'monitoring/models/report'
+  'analysis-reports/models/report'
 ], (
   Backbone
   Report
@@ -12,7 +12,7 @@ define [
 
 
     url: ->
-      "#{baseUrl}/api/reports/search"
+      "#{baseUrl}/api/analysis_reports/search"
 
 
     parse: (r) ->

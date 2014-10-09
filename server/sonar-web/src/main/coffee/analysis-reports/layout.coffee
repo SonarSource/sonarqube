@@ -1,14 +1,14 @@
 define [
   'backbone.marionette',
-  'templates/monitoring'
+  'templates/analysis-reports'
 ], (
   Marionette,
   Templates
 ) ->
 
   class extends Marionette.Layout
-    className: 'navigator monitoring-navigator'
-    template: Templates['monitoring-layout']
+    className: 'navigator analysis-reports-navigator'
+    template: Templates['analysis-reports-layout']
 
 
     regions:

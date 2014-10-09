@@ -211,8 +211,8 @@ module.exports = (grunt) ->
         out: '<%= pkg.assets %>build/js/libraries/app.js'
 
       monitoring: options:
-        name: 'monitoring/app'
-        out: '<%= pkg.assets %>build/js/monitoring/app.js'
+        name: 'analysis-reports/app'
+        out: '<%= pkg.assets %>build/js/analysis-reports/app.js'
 
 
     handlebars:
@@ -262,8 +262,8 @@ module.exports = (grunt) ->
           '<%= pkg.assets %>js/templates/dashboard.js': [
             '<%= pkg.sources %>hbs/dashboard/**/*.hbs'
           ]
-          '<%= pkg.assets %>js/templates/monitoring.js': [
-            '<%= pkg.sources %>hbs/monitoring/**/*.hbs'
+          '<%= pkg.assets %>js/templates/analysis-reports.js': [
+            '<%= pkg.sources %>hbs/analysis-reports/**/*.hbs'
           ]
 
 

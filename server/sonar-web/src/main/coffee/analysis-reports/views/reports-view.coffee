@@ -1,6 +1,6 @@
 define [
   'backbone.marionette'
-  'monitoring/views/report-view'
+  'analysis-reports/views/report-view'
 ], (
   Marionette
   ReportView

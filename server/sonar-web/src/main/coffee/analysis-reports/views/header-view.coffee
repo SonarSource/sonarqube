@@ -1,18 +1,18 @@
 define [
   'backbone.marionette'
-  'templates/monitoring'
+  'templates/analysis-reports'
 ], (
   Marionette
   Templates
 ) ->
 
   class extends Marionette.ItemView
-    template: Templates['monitoring-header']
+    template: Templates['analysis-reports-header']
     
 
     events:
-      'click .js-monitoring-past': 'showPastReports'
-      'click .js-monitoring-current': 'showCurrentActivity'
+      'click .js-analysis-reports-past': 'showPastReports'
+      'click .js-analysis-reports-current': 'showCurrentActivity'
 
 
     initialize: (options) ->
