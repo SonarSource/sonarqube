@@ -33,12 +33,7 @@ import java.util.List;
  */
 public class DatabaseVersion implements BatchComponent, ServerComponent {
 
-  public static final int LAST_VERSION = 702;
-
-  public static enum Status {
-    UP_TO_DATE, REQUIRES_UPGRADE, REQUIRES_DOWNGRADE, FRESH_INSTALL
-  }
-
+  public static final int LAST_VERSION = 703;
   /**
    * List of all the tables.
    * This list is hardcoded because we didn't succeed in using java.sql.DatabaseMetaData#getTables() in the same way
@@ -93,12 +88,30 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "user_roles",
     "widgets",
     "widget_properties"
-  );
-
+    );
   private MyBatis mybatis;
 
   public DatabaseVersion(MyBatis mybatis) {
     this.mybatis = mybatis;
+  }
+
+  public Status getStatus() {
+    return getStatus(getVersion(), LAST_VERSION);
+  }
+
+  @VisibleForTesting
+  static Status getStatus(Integer currentVersion, int lastVersion) {
+    Status status = Status.FRESH_INSTALL;
+    if (currentVersion != null) {
+      if (currentVersion == lastVersion) {
+        status = Status.UP_TO_DATE;
+      } else if (currentVersion > lastVersion) {
+        status = Status.REQUIRES_DOWNGRADE;
+      } else {
+        status = Status.REQUIRES_UPGRADE;
+      }
+    }
+    return status;
   }
 
   public Integer getVersion() {
@@ -120,22 +133,7 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     }
   }
 
-  public Status getStatus() {
-    return getStatus(getVersion(), LAST_VERSION);
-  }
-
-  @VisibleForTesting
-  static Status getStatus(Integer currentVersion, int lastVersion) {
-    Status status = Status.FRESH_INSTALL;
-    if (currentVersion != null) {
-      if (currentVersion == lastVersion) {
-        status = Status.UP_TO_DATE;
-      } else if (currentVersion > lastVersion) {
-        status = Status.REQUIRES_DOWNGRADE;
-      } else {
-        status = Status.REQUIRES_UPGRADE;
-      }
-    }
-    return status;
+  public static enum Status {
+    UP_TO_DATE, REQUIRES_UPGRADE, REQUIRES_DOWNGRADE, FRESH_INSTALL
   }
 }

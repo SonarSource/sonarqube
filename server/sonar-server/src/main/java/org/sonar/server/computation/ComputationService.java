@@ -27,12 +27,13 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.search.IndexClient;
+
+import java.util.List;
 
 /**
  * since 5.0
@@ -41,13 +42,11 @@ public class ComputationService implements ServerComponent {
   private static final Logger LOG = LoggerFactory.getLogger(ComputationService.class);
 
   private final DbClient dbClient;
-  private final AnalysisReportDao dao;
   private final IndexClient index;
   private final InternalPermissionService permissionService;
 
   public ComputationService(DbClient dbClient, IndexClient index, InternalPermissionService permissionService) {
     this.dbClient = dbClient;
-    this.dao = this.dbClient.analysisReportDao();
     this.index = index;
     this.permissionService = permissionService;
   }
@@ -79,5 +78,9 @@ public class ComputationService implements ServerComponent {
       permissionService.synchronizePermissions(session, projectKey);
       session.commit();
     }
+  }
+
+  public List<AnalysisReportDto> findAllUnfinishedAnalysisReports() {
+    return null;
   }
 }

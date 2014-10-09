@@ -18,53 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.batch;
+package org.sonar.server.computation.ws;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.tester.ServerTester;
+import org.sonar.server.computation.ComputationService;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-public class UploadReportActionMediumTest {
+public class AnalysisReportWebServiceTest {
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
-
-  DbClient db;
-  DbSession session;
-
-  WsTester wsTester;
-  WebService.Controller controller;
+  private WsTester tester;
 
   @Before
   public void setUp() throws Exception {
-    tester.clearDbAndIndexes();
-
-    db = tester.get(DbClient.class);
-    session = db.openSession(false);
-
-    wsTester = tester.get(WsTester.class);
-    controller = wsTester.controller(BatchWs.API_ENDPOINT);
-  }
-
-  @After
-  public void after() {
-    MyBatis.closeQuietly(session);
+    this.tester = new WsTester(new AnalysisReportWebService(new ActiveAnalysisReportsAction(mock(ComputationService.class)), new IsAnalysisReportQueueEmptyAction(
+      mock(ComputationService.class))));
   }
 
   @Test
   public void define() throws Exception {
-    WebService.Action restoreProfiles = controller.action(UploadReportAction.UPLOAD_REPORT_ACTION);
+    WebService.Controller controller = tester.controller(AnalysisReportWebService.API_ENDPOINT);
 
-    assertThat(restoreProfiles).isNotNull();
-    assertThat(restoreProfiles.params()).hasSize(1);
+    assertThat(controller).isNotNull();
+    assertThat(controller.description()).isNotEmpty();
+    assertThat(controller.actions()).hasSize(2);
   }
 }

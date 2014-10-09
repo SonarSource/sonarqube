@@ -33,14 +33,14 @@ public class UploadReportAction implements RequestHandler {
 
   public static final String UPLOAD_REPORT_ACTION = "upload_report";
 
-  static final String PARAM_PROJECT = "project";
+  static final String PARAM_PROJECT_KEY = "project";
 
-  private final AnalysisReportQueue queue;
+  private final AnalysisReportQueue analysisReportQueue;
   private final ComputationService computationService;
   private final AnalysisReportTaskLauncher analysisTaskLauncher;
 
-  public UploadReportAction(AnalysisReportQueue queue, ComputationService computationService, AnalysisReportTaskLauncher analysisTaskLauncher) {
-    this.queue = queue;
+  public UploadReportAction(AnalysisReportQueue analysisReportQueue, ComputationService computationService, AnalysisReportTaskLauncher analysisTaskLauncher) {
+    this.analysisReportQueue = analysisReportQueue;
     this.computationService = computationService;
     this.analysisTaskLauncher = analysisTaskLauncher;
   }
@@ -54,7 +54,7 @@ public class UploadReportAction implements RequestHandler {
       .setHandler(this);
 
     action
-      .createParam(PARAM_PROJECT)
+      .createParam(PARAM_PROJECT_KEY)
       .setRequired(true)
       .setDescription("Project key")
       .setExampleValue("org.codehaus.sonar:sonar");
@@ -62,12 +62,12 @@ public class UploadReportAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String projectKey = request.mandatoryParam(PARAM_PROJECT);
+    String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
 
-    queue.add(projectKey);
+    analysisReportQueue.add(projectKey);
 
     // TODO remove synchronization as soon as it won't break ITs !
-    (new AnalysisReportTask(queue, computationService)).run();
+    (new AnalysisReportTask(analysisReportQueue, computationService)).run();
 
     analysisTaskLauncher.startAnalysisTaskNow();
   }

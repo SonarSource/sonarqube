@@ -20,8 +20,6 @@
 
 package org.sonar.server.computation;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -38,8 +36,6 @@ import java.util.List;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 
 public class AnalysisReportQueue implements ServerComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(ComputationService.class);
-
   private final DbClient dbClient;
   private final AnalysisReportDao dao;
 
@@ -52,7 +48,6 @@ public class AnalysisReportQueue implements ServerComponent {
     UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
 
     AnalysisReportDto report = newPendingAnalysisReport(projectKey);
-
     DbSession session = dbClient.openSession(false);
     try {
       checkThatProjectExistsInDatabase(projectKey, session);
@@ -62,21 +57,22 @@ public class AnalysisReportQueue implements ServerComponent {
     }
   }
 
-  private AnalysisReportDto insertInDatabase(AnalysisReportDto reportTemplate, DbSession session) {
-    AnalysisReportDto report = dao.insert(session, reportTemplate);
-    session.commit();
-
-    return report;
+  private AnalysisReportDto newPendingAnalysisReport(String projectKey) {
+    return new AnalysisReportDto()
+      .setProjectKey(projectKey)
+      .setProjectName(projectKey)
+      .setStatus(PENDING);
   }
 
   private void checkThatProjectExistsInDatabase(String projectKey, DbSession session) {
     dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
   }
 
-  private AnalysisReportDto newPendingAnalysisReport(String projectKey) {
-    return new AnalysisReportDto()
-      .setProjectKey(projectKey)
-      .setStatus(PENDING);
+  private AnalysisReportDto insertInDatabase(AnalysisReportDto reportTemplate, DbSession session) {
+    AnalysisReportDto report = dao.insert(session, reportTemplate);
+    session.commit();
+
+    return report;
   }
 
   public void remove(AnalysisReportDto report) {
@@ -102,7 +98,7 @@ public class AnalysisReportQueue implements ServerComponent {
         return null;
       }
 
-      AnalysisReportDto report = dao.tryToBookReportAnalysis(session, nextAvailableReport);
+      AnalysisReportDto report = dao.bookAnalysisReport(session, nextAvailableReport);
       session.commit();
 
       return report;
@@ -115,6 +111,15 @@ public class AnalysisReportQueue implements ServerComponent {
     DbSession session = dbClient.openSession(false);
     try {
       return dao.findByProjectKey(session, projectKey);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<AnalysisReportDto> all() {
+    DbSession session = dbClient.openSession(false);
+    try {
+      return dao.findAll(session);
     } finally {
       MyBatis.closeQuietly(session);
     }

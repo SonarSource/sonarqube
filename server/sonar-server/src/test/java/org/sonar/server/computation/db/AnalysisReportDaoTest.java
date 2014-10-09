@@ -42,6 +42,7 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
 public class AnalysisReportDaoTest {
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
+  private static final String DEFAULT_PROJECT_NAME = "default project name";
 
   @Rule
   public TestDatabase db = new TestDatabase();
@@ -69,6 +70,7 @@ public class AnalysisReportDaoTest {
   public void insert_multiple_reports() {
     AnalysisReportDto report = new AnalysisReportDto()
       .setProjectKey(DEFAULT_PROJECT_KEY)
+      .setProjectName(DEFAULT_PROJECT_NAME)
       .setData("data-project")
       .setStatus(PENDING);
     report.setCreatedAt(DateUtils.parseDate("2014-09-24"))
@@ -234,6 +236,48 @@ public class AnalysisReportDaoTest {
     session.commit();
 
     db.assertDbUnit(getClass(), "truncate-result.xml", "analysis_reports");
+  }
+
+  @Test
+  public void getById_maps_all_the_fields_except_the_data() {
+    db.prepareDbUnit(getClass(), "one_analysis_report.xml");
+
+    AnalysisReportDto report = dao.getById(session, 1L);
+
+    assertThat(report.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
+    assertThat(report.getProjectName()).isEqualTo(DEFAULT_PROJECT_NAME);
+    assertThat(report.getCreatedAt()).isEqualTo(DateUtils.parseDate("2014-09-24"));
+    assertThat(report.getUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-25"));
+    assertThat(report.getStatus()).isEqualTo(WORKING);
+    assertThat(report.getData()).isNull();
+    assertThat(report.getKey()).isEqualTo("1");
+  }
+
+  @Test
+  public void findAll_one_analysis_report() {
+    db.prepareDbUnit(getClass(), "one_analysis_report.xml");
+
+    List<AnalysisReportDto> reports = dao.findAll(session);
+
+    assertThat(reports).hasSize(1);
+  }
+
+  @Test
+  public void findAll_empty_table() {
+    db.prepareDbUnit(getClass(), "empty.xml");
+
+    List<AnalysisReportDto> reports = dao.findAll(session);
+
+    assertThat(reports).isEmpty();
+  }
+
+  @Test
+  public void findAll_three_analysis_reports() {
+    db.prepareDbUnit(getClass(),  "three_analysis_reports.xml");
+
+    List<AnalysisReportDto> reports = dao.findAll(session);
+
+    assertThat(reports).hasSize(3);
   }
 
   @Test(expected = UnsupportedOperationException.class)

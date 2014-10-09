@@ -50,4 +50,6 @@ public interface AnalysisReportMapper {
   AnalysisReportDto selectById(Long id);
 
   void delete(Long id);
+
+  List<AnalysisReportDto> selectAll();
 }

@@ -28,6 +28,7 @@ public class AnalysisReportDto extends Dto<String> {
 
   private Long id;
   private String projectKey;
+  private String projectName;
   private Status status;
   private String data;
 
@@ -82,6 +83,15 @@ public class AnalysisReportDto extends Dto<String> {
   @Override
   public String toString() {
     return String.format("analysis report {id:%s;project:'%s'}", getId(), getProjectKey());
+  }
+
+  public String getProjectName() {
+    return projectName;
+  }
+
+  public AnalysisReportDto setProjectName(String projectName) {
+    this.projectName = projectName;
+    return this;
   }
 
   public enum Status {

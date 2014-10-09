@@ -130,10 +130,23 @@ public class AnalysisReportQueueMediumTest {
     assertThat(nullAnalysisReport).isNull();
   }
 
+  @Test
+  public void all() {
+    insertPermissionsForProject(DEFAULT_PROJECT_KEY);
+
+    sut.add(DEFAULT_PROJECT_KEY);
+    sut.add(DEFAULT_PROJECT_KEY);
+    sut.add(DEFAULT_PROJECT_KEY);
+
+    List<AnalysisReportDto> reports = sut.all();
+
+    assertThat(reports).hasSize(3);
+  }
+
   @Test(expected = ForbiddenException.class)
   public void cannot_add_report_when_not_the_right_rights() {
     ComponentDto project = new ComponentDto()
-        .setKey("MyProject");
+      .setKey("MyProject");
     db.componentDao().insert(session, project);
     session.commit();
 

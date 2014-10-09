@@ -54,7 +54,6 @@ import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -100,30 +99,6 @@ public class ComputationServiceMediumTest {
   }
 
   @Test
-  public void analyze_report() {
-    insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    queue.add(DEFAULT_PROJECT_KEY);
-
-    AnalysisReportDto report = queue.bookNextAvailable();
-
-    sut.analyzeReport(report);
-
-    assertThat(queue.findByProjectKey(DEFAULT_PROJECT_KEY)).isEmpty();
-  }
-
-  private ComponentDto insertPermissionsForProject(String projectKey) {
-    ComponentDto project = new ComponentDto().setKey(projectKey);
-    db.componentDao().insert(session, project);
-
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
-    userSession.addProjectPermissions(UserRole.USER, project.key());
-
-    session.commit();
-
-    return project;
-  }
-
-  @Test
   public void add_issues_in_index() {
     ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
 
@@ -144,12 +119,28 @@ public class ComputationServiceMediumTest {
     clearIssueIndexToSimulateBatchInsertWithoutIndexing();
 
     queue.add(DEFAULT_PROJECT_KEY);
-    List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
+    AnalysisReportDto report = queue.bookNextAvailable();
 
-    sut.analyzeReport(reports.get(0));
+    sut.analyzeReport(report);
 
     // Check that the issue has well be indexed in E/S
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNotNull();
+  }
+
+  private ComponentDto insertPermissionsForProject(String projectKey) {
+    ComponentDto project = new ComponentDto().setKey(projectKey);
+    db.componentDao().insert(session, project);
+
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    userSession.addProjectPermissions(UserRole.USER, project.key());
+
+    session.commit();
+
+    return project;
+  }
+
+  private void clearIssueIndexToSimulateBatchInsertWithoutIndexing() {
+    tester.get(BackendCleanup.class).clearIndexType(IndexDefinition.ISSUES);
   }
 
   @Test
@@ -163,10 +154,6 @@ public class ComputationServiceMediumTest {
 
     IssueAuthorizationDoc issueAuthorizationIndex = tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey());
     assertThat(issueAuthorizationIndex).isNotNull();
-  }
-
-  private void clearIssueIndexToSimulateBatchInsertWithoutIndexing() {
-    tester.get(BackendCleanup.class).clearIndexType(IndexDefinition.ISSUES);
   }
 
   @Test
@@ -204,8 +191,8 @@ public class ComputationServiceMediumTest {
     assertThat(issueIndex.getTotal()).isEqualTo(2001);
   }
 
-  @Test(expected = SQLException.class)
+  @Test(expected = IllegalStateException.class)
   public void exceptions_thrown_are_transmitted() {
-
+    sut.analyzeReport(new AnalysisReportDto());
   }
 }

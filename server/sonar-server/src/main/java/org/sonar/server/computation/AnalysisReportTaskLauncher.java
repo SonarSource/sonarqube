@@ -31,7 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class AnalysisReportTaskLauncher implements Startable, ServerComponent {
-  private final Logger LOG = LoggerFactory.getLogger(AnalysisReportTaskLauncher.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AnalysisReportTaskLauncher.class);
 
   private final ComputationService service;
   private final AnalysisReportQueue queue;

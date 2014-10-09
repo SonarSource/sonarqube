@@ -99,6 +99,10 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
     return mapper(session).selectById(report.getId());
   }
 
+  public List<AnalysisReportDto> findAll(DbSession session) {
+    return mapper(session).selectAll();
+  }
+
   @Override
   protected AnalysisReportDto doGetNullableByKey(DbSession session, String projectKey) {
     throw new UnsupportedOperationException();
