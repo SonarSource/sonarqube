@@ -23,7 +23,12 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 
@@ -50,13 +55,13 @@ class FileMetadata {
   Metadata read(File file, Charset encoding) {
     Reader reader = null;
     int lines = 0;
-    char c = (char)-1;
+    char c = (char) -1;
     try {
       MessageDigest md5Digest = DigestUtils.getMd5Digest();
       md5Digest.reset();
       reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
       int i = reader.read();
-      boolean afterCR = true;
+      boolean afterCR = false;
       while (i != -1) {
         c = (char) i;
         if (afterCR) {
@@ -77,7 +82,7 @@ class FileMetadata {
         md5Digest.update(charToBytesUTF(c));
         i = reader.read();
       }
-      if (c != (char)-1) {
+      if (c != (char) -1) {
         lines++;
       }
       String hash = Hex.encodeHexString(md5Digest.digest());
@@ -91,7 +96,7 @@ class FileMetadata {
   }
 
   private byte[] charToBytesUTF(char c) {
-    char[] buffer = new char[]{c};
+    char[] buffer = new char[] {c};
     byte[] b = new byte[buffer.length << 1];
     for (int i = 0; i < buffer.length; i++) {
       int bpos = i << 1;
