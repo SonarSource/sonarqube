@@ -167,7 +167,7 @@
 <%   else %>
   <% timeline = 'timeline' + widget.id.to_s %>
 
-  <div id="timeline-chart-<%= widget.id -%>" style="height: <%= chartHeight -%>px;"></div>
+  <div id="timeline-chart-<%= widget.id -%>"></div>
   <script>
     function d(y, m, d, h, min, s) {
       return new Date(y, m, d, h, min, s);
@@ -182,6 +182,7 @@
       .snapshots(snapshots)
       .metrics(metrics)
       .events(events);
+    <%= timeline -%>.limitedHistoricalData = '<%= message('widget.timeline.limited_histortical_data') -%>';
     <%= timeline -%>.render();
 
     autoResize(200, function() {

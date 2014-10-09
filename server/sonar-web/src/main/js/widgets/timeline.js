@@ -153,6 +153,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .ticks(5);
 
 
+    this.showLimitHistoryMessage();
+
+
     // Configure lines and points
     this.lines = [];
     this.glines = [];
@@ -280,6 +283,17 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     return this;
   };
 
+
+  window.SonarWidgets.Timeline.prototype.showLimitHistoryMessage = function () {
+    var minEvent = d3.min(this.events(), function (d) {
+          return d.d;
+        }),
+        minData = this.time.domain()[0];
+    if (minEvent < minData) {
+      var maxResultsReachedLabel = this.container.append('div').text(this.limitedHistoricalData);
+      maxResultsReachedLabel.classed('max-results-reached-message', true);
+    }
+  };
 
 
   window.SonarWidgets.Timeline.prototype.update = function() {
