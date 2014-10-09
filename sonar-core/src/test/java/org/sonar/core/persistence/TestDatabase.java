@@ -41,6 +41,7 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
+import org.junit.internal.AssumptionViolatedException;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +112,11 @@ public class TestDatabase extends ExternalResource {
     db.start();
     if (schemaPath != null) {
       // will fail if not H2
-      ((H2Database) db).executeScript(schemaPath);
+      if (db.getDialect().getId().equals("h2")) {
+        ((H2Database) db).executeScript(schemaPath);
+      } else {
+        throw new AssumptionViolatedException("Test disabled because it supports only H2");
+      }
     }
     LOG.info("Test Database: " + db);
 
