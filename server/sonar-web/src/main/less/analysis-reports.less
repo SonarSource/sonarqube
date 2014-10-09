@@ -1,10 +1,13 @@
 @import (reference) "mixins";
 @import (reference) "variables";
 @import (reference) "ui";
+@import (reference) "navigator/base";
 
 
 @pendingColor: #fdfce2;
 @workingColor: #ecf9fc;
+@doneColor: #ecfced;
+@failedColor: #fcecec;
 
 
 .analysis-reports-navigator {
@@ -40,7 +43,13 @@
 }
 
 .analysis-reports-report-done {
-  opacity: 0.75;
+  background-color: @doneColor !important;
+}
+
+.analysis-reports-report-failed {
+  background-color: @failedColor !important;
+
+  .analysis-reports-report-id { color: darken(@failedColor, 60%); }
 }
 
 .analysis-reports-project {
@@ -90,3 +99,7 @@
   animation-duration: 2s;
 }
 
+.analysis-reports-actions {
+  padding: 0 @navigatorPadding;
+  line-height: 30px;
+}

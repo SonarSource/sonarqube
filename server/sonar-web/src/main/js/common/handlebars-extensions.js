@@ -240,6 +240,10 @@ define(['handlebars'], function (Handlebars) {
     return moment(date).fromNow();
   });
 
+  Handlebars.registerHelper('durationFromNow', function(date, units) {
+    return moment(new Date()).diff(date, units);
+  });
+
   Handlebars.registerHelper('pluginActions', function(actions, options) {
     var pluginActions = _.difference(actions, defaultActions);
     return pluginActions.reduce(function(prev, current) {

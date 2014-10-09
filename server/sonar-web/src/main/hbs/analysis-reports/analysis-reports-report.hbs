@@ -12,8 +12,14 @@
 
   <span class="analysis-reports-timestamp line-small">
     Started: {{dt startDate}}
-    {{#eq status 'WORKING'}}<i class="spinner analysis-reports-timestamp-spinner"></i> {{/eq}}
   </span>
+
+  {{#eq status 'WORKING'}}
+    <span class="analysis-reports-timestamp line-small">
+      Duration: {{durationFromNow startDate 'minutes'}} minutes
+      <i class="spinner analysis-reports-timestamp-spinner"></i>
+    </span>
+  {{/eq}}
 </div>
 
 <div class="analysis-reports-report-id">{{id}} {{status}}</div>

@@ -23,6 +23,7 @@ requirejs [
   'analysis-reports/models/reports'
   'analysis-reports/views/reports-view'
   'analysis-reports/views/header-view'
+  'analysis-reports/views/actions-view'
 
   'common/handlebars-extensions'
   'analysis-reports/mockjax'
@@ -32,6 +33,7 @@ requirejs [
   Reports
   ReportsView
   HeaderView
+  ActionsView
 ) ->
 
   # Add html class to mark the page as navigator page
@@ -54,11 +56,6 @@ requirejs [
 
 
   App.addInitializer ->
-    @headerView = new HeaderView app: @
-    @layout.headerRegion.show @headerView
-
-
-  App.addInitializer ->
     @reports = new Reports()
 
     @reportsView = new ReportsView
@@ -67,6 +64,17 @@ requirejs [
     @layout.resultsRegion.show @reportsView
 
     @reports.fetch()
+
+
+  App.addInitializer ->
+    @headerView = new HeaderView app: @
+    @layout.headerRegion.show @headerView
+
+    @actionsView = new ActionsView
+      app: @
+      collection: @reports
+    @layout.actionsRegion.show @actionsView
+
 
 
   l10nXHR = window.requestMessages()

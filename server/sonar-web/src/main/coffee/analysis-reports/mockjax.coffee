@@ -14,24 +14,24 @@ define ['third-party/jquery.mockjax'], ->
         pages: 1
       reports: [
         {
-          id: 84
-          project: "org.codehaus.sonar-plugins.visualstudio:sonar-visual-studio-plugin"
-          projectName: "Analysis Bootstrapper for Visual Studio Projects"
-          startDate: "2014-07-19T23:11:33+06:00"
-          status: "PENDING"
-        }
-        {
-          id: 83
-          project: "org.codehaus.sonar:sonar"
-          projectName: "SonarQube"
-          startDate: "2014-07-19T23:11:33+06:00"
-          status: "WORKING"
-        }
-        {
           id: 82
           project: "org.codehaus.sonar:sonar"
           projectName: "SonarQube"
-          startDate: "2014-07-19T23:11:33+06:00"
+          startDate: "2014-10-09T11:11:11+02:00"
+          status: "WORKING"
+        }
+        {
+          id: 83
+          project: "org.codehaus.sonar-plugins.visualstudio:sonar-visual-studio-plugin"
+          projectName: "Analysis Bootstrapper for Visual Studio Projects"
+          startDate: "2014-10-09T11:13:11+02:00"
+          status: "PENDING"
+        }
+        {
+          id: 84
+          project: "org.codehaus.sonar:sonar"
+          projectName: "SonarQube"
+          startDate: "2014-10-09T11:14:11+02:00"
           status: "PENDING"
         }
       ]

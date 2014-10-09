@@ -1,0 +1,11 @@
+<div class="analysis-reports-actions">
+  {{#if state.active}}
+    {{t 'analysis_reports.current_activity'}} ({{tp 'analysis_reports.x_reports' total}})
+    &nbsp;&nbsp;&nbsp;
+    <a class="js-show-past-reports">{{t 'analysis_reports.show_past_reports'}}</a>
+  {{else}}
+    {{t 'analysis_reports.past_reports'}} ({{tp 'analysis_reports.x_reports' total}})
+    &nbsp;&nbsp;&nbsp;
+    <a class="js-show-current-activity">{{t 'analysis_reports.show_current_activity'}}</a>
+  {{/if}}
+</div>

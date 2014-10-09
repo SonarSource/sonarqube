@@ -13,6 +13,7 @@ define [
 
     regions:
       headerRegion: '.navigator-header'
+      actionsRegion: '.navigator-actions'
       resultsRegion: '.navigator-results'
 
 
