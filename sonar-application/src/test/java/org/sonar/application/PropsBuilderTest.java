@@ -117,4 +117,10 @@ public class PropsBuilderTest {
     // command-line arguments override sonar.properties file
     assertThat(props.value("sonar.origin")).isEqualTo("raw");
   }
+
+  @Test
+  public void detectHomeDir() throws Exception {
+    assertThat(PropsBuilder.detectHomeDir()).isDirectory().exists();
+
+  }
 }

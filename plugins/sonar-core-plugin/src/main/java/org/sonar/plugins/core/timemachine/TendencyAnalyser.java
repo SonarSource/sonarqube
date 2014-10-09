@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.core.timemachine;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class TendencyAnalyser {
@@ -142,11 +145,12 @@ public class TendencyAnalyser {
       this.yIntercept = yIntercept;
     }
 
+    @CheckForNull
     public Double getSlope() {
       return slope;
     }
 
-    public void setSlope(Double slope) {
+    public void setSlope(@Nullable Double slope) {
       this.slope = slope;
     }
 

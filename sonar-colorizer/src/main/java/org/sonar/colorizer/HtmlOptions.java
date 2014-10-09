@@ -19,6 +19,9 @@
  */
 package org.sonar.colorizer;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 public class HtmlOptions {
   public static final HtmlOptions DEFAULT = new HtmlOptions(true, null, true);
   public static final OnlySyntaxHtmlOptions ONLY_SYNTAX = new OnlySyntaxHtmlOptions();
@@ -31,7 +34,7 @@ public class HtmlOptions {
   public HtmlOptions() {
   }
 
-  public HtmlOptions(boolean generateTable, String tableId, boolean generateHtmlHeader) {
+  public HtmlOptions(boolean generateTable, @Nullable String tableId, boolean generateHtmlHeader) {
     this.generateTable = generateTable;
     this.generateHtmlHeader = generateHtmlHeader;
     this.tableId = tableId;
@@ -61,6 +64,7 @@ public class HtmlOptions {
     return this;
   }
 
+  @CheckForNull
   public String getTableId() {
     return tableId;
   }

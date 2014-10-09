@@ -32,13 +32,13 @@ import org.sonar.api.resources.Resource;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class TangleIndexDecorator implements Decorator {
+public class BaseTangleIndexDecorator implements Decorator {
 
-  private Metric tanglesMetric;
-  private Metric edgesWeightMetric;
-  private Metric tangleIndexMetric;
+  private final Metric tanglesMetric;
+  private final Metric edgesWeightMetric;
+  private final Metric tangleIndexMetric;
 
-  protected TangleIndexDecorator(Metric tanglesMetric, Metric edgesWeightMetric, Metric tangleIndexMetric) {
+  protected BaseTangleIndexDecorator(Metric tanglesMetric, Metric edgesWeightMetric, Metric tangleIndexMetric) {
     this.tanglesMetric = tanglesMetric;
     this.edgesWeightMetric = edgesWeightMetric;
     this.tangleIndexMetric = tangleIndexMetric;

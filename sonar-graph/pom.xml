@@ -7,7 +7,6 @@
     <version>5.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
-  <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar-graph</artifactId>
   <packaging>jar</packaging>
   <name>SonarQube :: Graph</name>
@@ -21,6 +20,12 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

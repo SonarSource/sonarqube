@@ -23,10 +23,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-email</artifactId>
       <version>1.3.2</version>
@@ -80,7 +76,7 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>600000</maxsize>
+                  <maxsize>620000</maxsize>
                   <minsize>590000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>

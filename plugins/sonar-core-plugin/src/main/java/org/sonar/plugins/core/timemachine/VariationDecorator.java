@@ -160,7 +160,7 @@ public class VariationDecorator implements Decorator {
       ruleId = PastMeasuresLoader.getRuleId(pastFields);
     }
 
-    MeasureKey(int metricId, Integer characteristicId, Integer personId, @Nullable Integer ruleId) {
+    MeasureKey(int metricId, @Nullable Integer characteristicId, @Nullable Integer personId, @Nullable Integer ruleId) {
       this.metricId = metricId;
       this.characteristicId = characteristicId;
       this.personId = personId;

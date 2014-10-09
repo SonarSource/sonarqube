@@ -21,7 +21,7 @@ package org.sonar.batch.design;
 
 import org.sonar.api.measures.CoreMetrics;
 
-public class FileTangleIndexDecorator extends TangleIndexDecorator {
+public class FileTangleIndexDecorator extends BaseTangleIndexDecorator {
 
   public FileTangleIndexDecorator() {
     super(CoreMetrics.FILE_TANGLES, CoreMetrics.FILE_EDGES_WEIGHT, CoreMetrics.FILE_TANGLE_INDEX);

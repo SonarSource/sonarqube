@@ -34,6 +34,7 @@ public class AnalysisReportTaskLauncherTest {
 
   @Rule
   public Timeout timeout = new Timeout(5000);
+
   private AnalysisReportTaskLauncher sut;
   private ComputationService service;
 
@@ -72,7 +73,7 @@ public class AnalysisReportTaskLauncherTest {
 
   private void sleep() {
     try {
-      TimeUnit.MILLISECONDS.sleep(5L);
+      TimeUnit.MILLISECONDS.sleep(50L);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }

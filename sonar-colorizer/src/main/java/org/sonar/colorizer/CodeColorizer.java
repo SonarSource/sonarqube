@@ -19,6 +19,8 @@
  */
 package org.sonar.colorizer;
 
+import javax.annotation.Nullable;
+
 import java.io.Reader;
 import java.util.List;
 
@@ -38,7 +40,7 @@ public class CodeColorizer {
     return toHtml(code, null);
   }
 
-  public String toHtml(Reader code, HtmlOptions options) {
+  public String toHtml(Reader code, @Nullable HtmlOptions options) {
     HtmlOptions opts = options == null ? HtmlOptions.DEFAULT : options;
     return new HtmlRenderer(opts).render(code, tokenizers);
   }

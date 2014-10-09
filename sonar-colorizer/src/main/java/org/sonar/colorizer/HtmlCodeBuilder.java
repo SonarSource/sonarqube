@@ -19,6 +19,9 @@
  */
 package org.sonar.colorizer;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,13 +78,14 @@ public class HtmlCodeBuilder implements Appendable {
    * @param value
    *          can be null
    */
-  public void setVariable(Object key, Object value) {
+  public void setVariable(Object key, @Nullable Object value) {
     variables.put(key, value);
   }
 
   /**
    * Get a stateful variable. Return null if not found.
    */
+  @CheckForNull
   public Object getVariable(Object key) {
     return variables.get(key);
   }

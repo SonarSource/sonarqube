@@ -20,6 +20,7 @@
 package org.sonar.application;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessConstants;
@@ -27,10 +28,8 @@ import org.sonar.process.Props;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,8 +37,8 @@ import java.util.regex.Pattern;
 public class JdbcSettings {
 
   static enum Provider {
-    h2(null), jtds("lib/jdbc/jtds"), mysql("lib/jdbc/mysql"), oracle("extensions/jdbc-driver/oracle"),
-    postgresql("lib/jdbc/postgresql");
+    H2(null), JTDS("lib/jdbc/jtds"), MYSQL("lib/jdbc/mysql"), ORACLE("extensions/jdbc-driver/oracle"),
+    POSTGRESQL("lib/jdbc/postgresql");
 
     final String path;
 
@@ -86,15 +85,14 @@ public class JdbcSettings {
     }
     String key = matcher.group(1);
     try {
-      return Provider.valueOf(key);
+      return Provider.valueOf(StringUtils.upperCase(key));
     } catch (IllegalArgumentException e) {
-      throw new MessageException(String.format(String.format("Unsupported JDBC driver provider: %s. Accepted values are %s", key,
-        Arrays.toString(Provider.values()))));
+      throw new MessageException(String.format(String.format("Unsupported JDBC driver provider: %s", key)));
     }
   }
 
   void checkUrlParameters(Provider provider, String url) {
-    if (Provider.mysql.equals(provider)) {
+    if (Provider.MYSQL.equals(provider)) {
       checkRequiredParameter(url, "useUnicode=true");
       checkRequiredParameter(url, "characterEncoding=utf8");
       checkRecommendedParameter(url, "rewriteBatchedStatements=true");

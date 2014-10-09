@@ -42,14 +42,14 @@ public class JdbcSettingsTest {
 
   @Test
   public void driver_provider() throws Exception {
-    assertThat(settings.driverProvider("jdbc:oracle:thin:@localhost/XE")).isEqualTo(JdbcSettings.Provider.oracle);
+    assertThat(settings.driverProvider("jdbc:oracle:thin:@localhost/XE")).isEqualTo(JdbcSettings.Provider.ORACLE);
     assertThat(settings.driverProvider("jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance"))
-      .isEqualTo(JdbcSettings.Provider.mysql);
+      .isEqualTo(JdbcSettings.Provider.MYSQL);
     try {
       settings.driverProvider("jdbc:sqlserver://localhost");
       fail();
     } catch (MessageException e) {
-      assertThat(e).hasMessage("Unsupported JDBC driver provider: sqlserver. Accepted values are [h2, jtds, mysql, oracle, postgresql]");
+      assertThat(e).hasMessage("Unsupported JDBC driver provider: sqlserver");
     }
     try {
       settings.driverProvider("oracle:thin:@localhost/XE");
@@ -64,16 +64,16 @@ public class JdbcSettingsTest {
     Props props = new Props(new Properties());
 
     // minimal -> ok
-    settings.checkUrlParameters(JdbcSettings.Provider.mysql,
+    settings.checkUrlParameters(JdbcSettings.Provider.MYSQL,
       "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8");
 
     // full -> ok
-    settings.checkUrlParameters(JdbcSettings.Provider.mysql,
+    settings.checkUrlParameters(JdbcSettings.Provider.MYSQL,
       "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance");
 
     // missing required -> ko
     try {
-      settings.checkUrlParameters(JdbcSettings.Provider.mysql,
+      settings.checkUrlParameters(JdbcSettings.Provider.MYSQL,
         "jdbc:mysql://localhost:3306/sonar?characterEncoding=utf8");
       fail();
     } catch (MessageException e) {
@@ -132,7 +132,7 @@ public class JdbcSettingsTest {
     File driverFile = new File(home, "extensions/jdbc-driver/oracle/ojdbc6.jar");
     FileUtils.touch(driverFile);
 
-    String path = settings.driverPath(home, JdbcSettings.Provider.oracle);
+    String path = settings.driverPath(home, JdbcSettings.Provider.ORACLE);
     assertThat(path).isEqualTo(driverFile.getAbsolutePath());
   }
 
@@ -140,7 +140,7 @@ public class JdbcSettingsTest {
   public void driver_dir_does_not_exist() throws Exception {
     File home = temp.newFolder();
     try {
-      settings.driverPath(home, JdbcSettings.Provider.oracle);
+      settings.driverPath(home, JdbcSettings.Provider.ORACLE);
       fail();
     } catch (MessageException e) {
       assertThat(e).hasMessage("Directory does not exist: extensions/jdbc-driver/oracle");
@@ -152,7 +152,7 @@ public class JdbcSettingsTest {
     File home = temp.newFolder();
     FileUtils.forceMkdir(new File(home, "extensions/jdbc-driver/oracle"));
     try {
-      settings.driverPath(home, JdbcSettings.Provider.oracle);
+      settings.driverPath(home, JdbcSettings.Provider.ORACLE);
       fail();
     } catch (MessageException e) {
       assertThat(e).hasMessage("Directory does not contain JDBC driver: extensions/jdbc-driver/oracle");
@@ -166,7 +166,7 @@ public class JdbcSettingsTest {
     FileUtils.touch(new File(home, "extensions/jdbc-driver/oracle/ojdbc6.jar"));
 
     try {
-      settings.driverPath(home, JdbcSettings.Provider.oracle);
+      settings.driverPath(home, JdbcSettings.Provider.ORACLE);
       fail();
     } catch (MessageException e) {
       assertThat(e).hasMessage("Directory must contain only one JAR file: extensions/jdbc-driver/oracle");

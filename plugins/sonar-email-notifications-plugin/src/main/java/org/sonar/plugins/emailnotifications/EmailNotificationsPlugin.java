@@ -21,7 +21,6 @@ package org.sonar.plugins.emailnotifications;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.SonarPlugin;
-import org.sonar.plugins.emailnotifications.templates.alerts.AlertsEmailTemplate;
 
 import java.util.List;
 

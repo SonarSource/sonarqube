@@ -58,7 +58,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     public static final IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
     public static final IndexField UPDATED_AT = addSortable(IndexField.Type.DATE, UPDATED_AT_FIELD);
 
-    public static Set<IndexField> ALL_FIELDS = getAllFields();
+    public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
     private static Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();

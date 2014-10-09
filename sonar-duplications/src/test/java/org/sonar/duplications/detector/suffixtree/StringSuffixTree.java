@@ -19,15 +19,10 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
+import com.google.common.base.Objects;
+
 import java.util.LinkedList;
 import java.util.Queue;
-
-import org.sonar.duplications.detector.suffixtree.Edge;
-import org.sonar.duplications.detector.suffixtree.Node;
-import org.sonar.duplications.detector.suffixtree.SuffixTree;
-import org.sonar.duplications.detector.suffixtree.Text;
-
-import com.google.common.base.Objects;
 
 public class StringSuffixTree {
 

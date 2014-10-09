@@ -17,18 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.design;
+@ParametersAreNonnullByDefault
+package org.sonar.core.duplication;
 
-import org.sonar.api.measures.CoreMetrics;
-
-public class DirectoryTangleIndexDecorator extends BaseTangleIndexDecorator {
-
-  public DirectoryTangleIndexDecorator() {
-    super(CoreMetrics.DIRECTORY_TANGLES, CoreMetrics.DIRECTORY_EDGES_WEIGHT, CoreMetrics.DIRECTORY_TANGLE_INDEX);
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
