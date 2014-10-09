@@ -27,7 +27,6 @@ import org.sonar.plugins.design.batch.MavenDependenciesSensor;
 import org.sonar.plugins.design.batch.PackageTangleIndexDecorator;
 import org.sonar.plugins.design.batch.ProjectDsmDecorator;
 import org.sonar.plugins.design.ui.widgets.FileDesignWidget;
-import org.sonar.plugins.design.ui.widgets.PackageDesignWidget;
 
 import java.util.List;
 
@@ -42,7 +41,6 @@ public class DesignPlugin extends SonarPlugin {
       FileTangleIndexDecorator.class,
 
       // UI
-      FileDesignWidget.class,
-      PackageDesignWidget.class);
+      FileDesignWidget.class);
   }
 }

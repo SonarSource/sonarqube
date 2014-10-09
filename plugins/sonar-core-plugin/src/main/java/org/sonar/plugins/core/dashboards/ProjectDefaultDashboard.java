@@ -57,7 +57,6 @@ public final class ProjectDefaultDashboard extends DashboardTemplate {
     dashboard.addWidget("rules", 2);
     dashboard.addWidget("alerts", 2);
     dashboard.addWidget("file_design", 2);
-    dashboard.addWidget("package_design", 2);
     dashboard.addWidget("code_coverage", 2);
   }
 
