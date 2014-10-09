@@ -33,6 +33,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class FileMetadataTest {
 
   private static final String EXPECTED_HASH_WITHOUT_LATEST_EOL = "c80cc50d65ace6c4eb63f189d274dbeb";
+  private static final String EXPECTED_HASH_NEW_LINE_FIRST = "cf2d41454b5b451eeb5122f0848c1d2a";
   private static final String EXPECTED_HASH_WITH_LATEST_EOL = "bf77e51d219e7d7d643faac86f1b5d15";
 
   @Rule
@@ -109,6 +110,16 @@ public class FileMetadataTest {
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
+  }
+
+  @Test
+  public void start_with_newline() throws Exception {
+    File tempFile = temp.newFile();
+    FileUtils.write(tempFile, "\nfoo\nbar\r\nbaz", Charsets.UTF_8, true);
+
+    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    assertThat(metadata.lines).isEqualTo(4);
+    assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_NEW_LINE_FIRST);
   }
 
   @Test

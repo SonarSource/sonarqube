@@ -32,7 +32,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.List;
 
 /**
  * Contains and provides class loader extended with the JDBC Driver hosted on the server-side.
@@ -177,11 +176,7 @@ public class JdbcDriverHolder {
         Class<?> lpClass = defineClass("org.sonar.batch.bootstrap.JdbcLeakPrevention", classBytes, 0, offset, this.getClass().getProtectionDomain());
         Object obj = lpClass.newInstance();
 
-        List<String> driverNames = (List<String>) obj.getClass().getMethod("unregisterDrivers").invoke(obj);
-
-        for (String name : driverNames) {
-          LOG.debug("To prevent a memory leak, the JDBC Driver [{}] has been forcibly deregistered", name);
-        }
+        obj.getClass().getMethod("unregisterDrivers").invoke(obj);
       } catch (Exception e) {
         LOG.warn("JDBC driver deregistration failed", e);
       } finally {
