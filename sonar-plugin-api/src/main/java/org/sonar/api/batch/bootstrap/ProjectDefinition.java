@@ -62,7 +62,15 @@ public class ProjectDefinition {
    */
   @Deprecated
   public static final String TEST_FILES_PROPERTY = "sonar.testFiles";
+  /**
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
   public static final String BINARIES_PROPERTY = "sonar.binaries";
+  /**
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
   public static final String LIBRARIES_PROPERTY = "sonar.libraries";
   public static final String BUILD_DIR_PROPERTY = "sonar.buildDir";
 
@@ -450,6 +458,10 @@ public class ProjectDefinition {
     return tests();
   }
 
+  /**
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
   public List<String> getBinaries() {
     String sources = properties.getProperty(BINARIES_PROPERTY, "");
     return trim(StringUtils.split(sources, SEPARATOR));
@@ -458,17 +470,26 @@ public class ProjectDefinition {
   /**
    * @param path path to directory with compiled source. In case of Java this is directory with class files.
    *             It can be absolute or relative to project directory.
-   *             TODO currently Sonar supports only one such directory due to dependency on MavenProject
+   * @deprecated since 4.5.1 use SonarQube Java specific API
    */
+  @Deprecated
   public ProjectDefinition addBinaryDir(String path) {
     appendProperty(BINARIES_PROPERTY, path);
     return this;
   }
 
+  /**
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
   public ProjectDefinition addBinaryDir(File f) {
     return addBinaryDir(f.getAbsolutePath());
   }
 
+  /**
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
   public List<String> getLibraries() {
     String sources = properties.getProperty(LIBRARIES_PROPERTY, "");
     return trim(StringUtils.split(sources, SEPARATOR));
@@ -477,7 +498,9 @@ public class ProjectDefinition {
   /**
    * @param path path to file with third-party library. In case of Java this is path to jar file.
    *             It can be absolute or relative to project directory.
+   * @deprecated since 4.5.1 use SonarQube Java specific API
    */
+  @Deprecated
   public void addLibrary(String path) {
     appendProperty(LIBRARIES_PROPERTY, path);
   }
