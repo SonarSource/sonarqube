@@ -154,9 +154,9 @@
     values (#{kee}, #{name}, #{longName}, #{qualifier}, #{scope}, #{language}, #{subProjectId}, #{path}, #{createdAt}, #{authorizationUpdatedAt})
   </insert>
 
-  <insert id="deleteByKey" parameterType="String">
+  <delete id="deleteByKey" parameterType="String">
     delete from projects where kee=#{key}
-  </insert>
+  </delete>
 
 </mapper>
 
