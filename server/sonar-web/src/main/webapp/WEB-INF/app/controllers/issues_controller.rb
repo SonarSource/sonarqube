@@ -84,7 +84,7 @@ class IssuesController < ApplicationController
     require_parameters :id
 
     @filter = Internal.issues.updateIssueFilterQuery(params[:id].to_i, criteria_params)
-    redirect_to :action => 'filter', :id => @filter.id.to_s
+    render :text => @filter.id.to_s, :status => 200
   end
 
   # GET /issues/edit_form/<filter id>
@@ -186,7 +186,7 @@ class IssuesController < ApplicationController
     new_params = params.clone
     new_params.delete('controller')
     new_params.delete('action')
-    translate_unassigned(new_params)
+    new_params
   end
 
   def init_params
@@ -195,16 +195,6 @@ class IssuesController < ApplicationController
 
   def issues_query_params_sanitized
     Internal.issues.sanitizeFilterQuery(params).to_hash
-  end
-
-  def translate_unassigned(issues_query_params)
-    if issues_query_params.has_key?(:assignees) && issues_query_params[:assignees] == '<unassigned>'
-      issues_query_params.delete(:assignees)
-      issues_query_params[:assigned] = false
-    else
-      issues_query_params[:assigned] = nil
-    end
-    issues_query_params
   end
 
   def issues_query_params_from_filter(filter)
