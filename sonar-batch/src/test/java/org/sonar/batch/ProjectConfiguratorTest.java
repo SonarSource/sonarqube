@@ -19,10 +19,12 @@
  */
 package org.sonar.batch;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.System2;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.text.SimpleDateFormat;
@@ -30,15 +32,26 @@ import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
 
+  System2 system2;
+
+  @Before
+  public void setUp() throws Exception {
+    system2 = mock(System2.class);
+  }
+
   @Test
   public void analysis_is_today_by_default() {
+    Long now = new Date().getTime();
+    when(system2.now()).thenReturn(now);
+
     Project project = new Project("key");
-    new ProjectConfigurator(getSession(), new Settings()).configure(project);
-    Date today = new Date();
-    assertThat(today.getTime() - project.getAnalysisDate().getTime()).isLessThan(1000);
+    new ProjectConfigurator(getSession(), new Settings(), system2).configure(project);
+    assertThat(now - project.getAnalysisDate().getTime()).isLessThan(1000);
   }
 
   @Test
@@ -46,7 +59,7 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005-01-30");
     Project project = new Project("key");
-    new ProjectConfigurator(getSession(), settings).configure(project);
+    new ProjectConfigurator(getSession(), settings, system2).configure(project);
 
     assertThat(new SimpleDateFormat("ddMMyyyy").format(project.getAnalysisDate())).isEqualTo("30012005");
   }
@@ -56,7 +69,7 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005-01-30T08:45:10+0000");
     Project project = new Project("key");
-    new ProjectConfigurator(getSession(), settings).configure(project);
+    new ProjectConfigurator(getSession(), settings, system2).configure(project);
 
     assertThat(new SimpleDateFormat("ddMMyyyy-mmss").format(project.getAnalysisDate())).isEqualTo("30012005-4510");
   }
@@ -66,13 +79,13 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     Settings configuration = new Settings();
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2005/30/01");
     Project project = new Project("key");
-    new ProjectConfigurator(getSession(), configuration).configure(project);
+    new ProjectConfigurator(getSession(), configuration, system2).configure(project);
   }
 
   @Test
   public void default_analysis_type_is_dynamic() {
     Project project = new Project("key");
-    new ProjectConfigurator(getSession(), new Settings()).configure(project);
+    new ProjectConfigurator(getSession(), new Settings(), system2).configure(project);
     assertThat(project.getAnalysisType()).isEqualTo(Project.AnalysisType.DYNAMIC);
   }
 
@@ -81,7 +94,7 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     Settings configuration = new Settings();
     configuration.setProperty(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY, "true");
     Project project = new Project("key");
-    new ProjectConfigurator(getSession(), configuration).configure(project);
+    new ProjectConfigurator(getSession(), configuration, system2).configure(project);
     assertThat(project.getAnalysisType()).isEqualTo(Project.AnalysisType.DYNAMIC);
   }
 
@@ -90,7 +103,7 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     Settings configuration = new Settings();
     configuration.setProperty(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY, "false");
     Project project = new Project("key");
-    new ProjectConfigurator(getSession(), configuration).configure(project);
+    new ProjectConfigurator(getSession(), configuration, system2).configure(project);
     assertThat(project.getAnalysisType()).isEqualTo(Project.AnalysisType.STATIC);
   }
 
@@ -99,7 +112,7 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     Settings configuration = new Settings();
     configuration.setProperty(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY, "reuseReports");
     Project project = new Project("key");
-    new ProjectConfigurator(getSession(), configuration).configure(project);
+    new ProjectConfigurator(getSession(), configuration, system2).configure(project);
     assertThat(project.getAnalysisType()).isEqualTo(Project.AnalysisType.REUSE_REPORTS);
   }
 
@@ -123,7 +136,7 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2010-12-25");
 
     Project project = new Project("my:key");
-    new ProjectConfigurator(getSession(), configuration).configure(project);
+    new ProjectConfigurator(getSession(), configuration, system2).configure(project);
 
     assertThat(new SimpleDateFormat("ddMMyyyy").format(project.getAnalysisDate())).isEqualTo("25122010");
   }
@@ -136,7 +149,7 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     configuration.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, "2010-12-25");
 
     Project project = new Project("my:key");
-    new ProjectConfigurator(getSession(), configuration).configure(project);
+    new ProjectConfigurator(getSession(), configuration, system2).configure(project);
 
     assertThat(new SimpleDateFormat("ddMMyyyy").format(project.getAnalysisDate())).isEqualTo("25122010");
   }
@@ -151,11 +164,13 @@ public class ProjectConfiguratorTest extends AbstractDbUnitTestCase {
     Project project = new Project("my:key");
 
     try {
-      new ProjectConfigurator(getSession(), configuration).configure(project);
+      new ProjectConfigurator(getSession(), configuration, system2).configure(project);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. " +
-        "Value: '2005-12-25'. Latest quality snapshot: '2010-12-02'. This property may only be used to rebuild the past in a chronological order.");
+      assertThat(e).isInstanceOf(IllegalArgumentException.class);
+      assertThat(e.getMessage()).contains("'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '2005-12-25'.");
+      assertThat(e.getMessage()).contains("Latest quality snapshot: '2010-12-02");
+      assertThat(e.getMessage()).contains("This property may only be used to rebuild the past in a chronological order.");
     }
   }
 

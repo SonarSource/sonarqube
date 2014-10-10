@@ -33,6 +33,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.System2;
 
 import java.util.Date;
 
@@ -42,10 +43,12 @@ public class ProjectConfigurator implements BatchComponent {
 
   private DatabaseSession databaseSession;
   private Settings settings;
+  private final System2 system2;
 
-  public ProjectConfigurator(DatabaseSession databaseSession, Settings settings) {
+  public ProjectConfigurator(DatabaseSession databaseSession, Settings settings, System2 system2) {
     this.databaseSession = databaseSession;
     this.settings = settings;
+    this.system2 = system2;
   }
 
   public Project create(ProjectDefinition definition) {
@@ -88,10 +91,9 @@ public class ProjectConfigurator implements BatchComponent {
         throw new IllegalArgumentException(
           "'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '" +
             settings.getString(CoreProperties.PROJECT_DATE_PROPERTY) + "'. " +
-            "Latest quality snapshot: '" + DateUtils.formatDate(lastSnapshot.getCreatedAt()) + "'. This property may only be used to rebuild the past in a chronological order.");
+            "Latest quality snapshot: '" + DateUtils.formatDateTime(lastSnapshot.getCreatedAt()) + "'. This property may only be used to rebuild the past in a chronological order.");
       }
     }
-
   }
 
   private Date loadAnalysisDate() {
@@ -104,7 +106,7 @@ public class ProjectConfigurator implements BatchComponent {
       date = settings.getDate(CoreProperties.PROJECT_DATE_PROPERTY);
     }
     if (date == null) {
-      date = new Date();
+      date = new Date(system2.now());
       settings.setProperty(CoreProperties.PROJECT_DATE_PROPERTY, date, true);
     }
     return date;
