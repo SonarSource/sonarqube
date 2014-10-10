@@ -341,7 +341,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
     private final String responseContent;
 
     public HttpException(URI uri, int responseContent) {
-      this(uri, responseContent, null);
+      this(uri, responseContent, "");
     }
 
     public HttpException(URI uri, int responseCode, String responseContent) {

@@ -129,11 +129,12 @@ public class DefaultFileLinesContext implements FileLinesContext {
   private Map loadData(String metricKey, Converter converter) {
     // FIXME no way to load measure only by key
     Measure measure = index.getMeasure(resource, new Metric(metricKey));
-    if (measure == null || measure.getData() == null) {
-      // no such measure
-      return ImmutableMap.of();
+    String data = measure != null ? measure.getData() : null;
+    if (data != null) {
+      return ImmutableMap.copyOf(KeyValueFormat.parse(data, KeyValueFormat.newIntegerConverter(), converter));
     }
-    return ImmutableMap.copyOf(KeyValueFormat.parse(measure.getData(), KeyValueFormat.newIntegerConverter(), converter));
+    // no such measure
+    return ImmutableMap.of();
   }
 
   /**
