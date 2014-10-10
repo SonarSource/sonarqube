@@ -21,6 +21,7 @@ package org.sonar.plugins.scm.git;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.slf4j.Logger;
@@ -76,7 +77,10 @@ public class JGitBlameCommand implements BlameCommand, BatchComponent {
 
   private void blame(BlameResult result, Git git, File gitBaseDir, InputFile inputFile) throws GitAPIException {
     String filename = pathResolver.relativePath(gitBaseDir, inputFile.file());
-    org.eclipse.jgit.blame.BlameResult blameResult = git.blame().setFilePath(filename).call();
+    org.eclipse.jgit.blame.BlameResult blameResult = git.blame()
+      // Equivalent to -w command line option
+      .setTextComparator(RawTextComparator.WS_IGNORE_ALL)
+      .setFilePath(filename).call();
     List<BlameLine> lines = new ArrayList<BlameLine>();
     for (int i = 0; i < blameResult.getResultContents().size(); i++) {
       if (blameResult.getSourceAuthor(i) == null || blameResult.getSourceCommit(i) == null || blameResult.getSourceCommitter(i) == null) {
