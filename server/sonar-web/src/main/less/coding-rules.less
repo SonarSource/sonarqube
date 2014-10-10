@@ -3,10 +3,13 @@
 @import (reference) 'ui';
 @import (reference) 'navigator/config';
 
-@facetsHeight: 40px;
-
+@facetsHeight: 36px;
 
 .coding-rules-page {
+
+  .navigator-facets {
+    min-height: 3 * @facetsHeight;
+  }
 
   .navigator-results .spinner {
     margin: @navigatorPadding;
