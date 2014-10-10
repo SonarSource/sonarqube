@@ -29,6 +29,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.RulePriority;
 
+import javax.annotation.Nullable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -213,7 +214,7 @@ public final class KeyValueFormat {
     }
   }
 
-  public static <K, V> Map<K, V> parse(String data, Converter<K> keyConverter, Converter<V> valueConverter) {
+  public static <K, V> Map<K, V> parse(@Nullable String data, Converter<K> keyConverter, Converter<V> valueConverter) {
     Map<K, V> map = Maps.newLinkedHashMap();
     if (data != null) {
       String[] pairs = StringUtils.split(data, PAIR_SEPARATOR);
