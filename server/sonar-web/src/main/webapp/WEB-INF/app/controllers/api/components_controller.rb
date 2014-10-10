@@ -27,9 +27,13 @@ class Api::ComponentsController < Api::ApiController
     search = params[:s]
     bad_request("Minimum search is #{ResourceIndex::MIN_SEARCH_SIZE} characters") if search.empty? || search.to_s.size<ResourceIndex::MIN_SEARCH_SIZE
 
+    # SONAR-5198 Escape '_' on Oracle and MsSQL
+    dialect = java_facade.getDatabase().getDialect().getId()
+    additional_escape = dialect == 'oracle' || dialect == 'mssql' ? "ESCAPE '\\'" : ''
+
     key = escape_like(search).downcase
     results = ResourceIndex.all(:select => 'distinct(resource_id),root_project_id,qualifier,name_size', # optimization to not load unused columns like 'kee'
-                                :conditions => ['kee like ?', key + '%'],
+                                :conditions => ['kee like ? ' + additional_escape, key + '%'],
                                 :order => 'name_size')
 
     results = select_authorized(:user, results)
