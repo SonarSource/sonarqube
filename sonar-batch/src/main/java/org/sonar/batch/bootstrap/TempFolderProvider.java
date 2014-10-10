@@ -36,7 +36,7 @@ public class TempFolderProvider extends ProviderAdapter {
   public TempFolder provide(BootstrapProperties bootstrapProps) {
     if (tempFolder == null) {
       String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
-      File workingDir = new File(workingDirPath);
+      File workingDir = new File(workingDirPath).getAbsoluteFile();
       File tempDir = new File(workingDir, ".sonartmp");
       try {
         FileUtils.forceMkdir(tempDir);

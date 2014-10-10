@@ -26,6 +26,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.utils.PathUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +41,7 @@ public class PathResolver implements BatchComponent {
     File file = new File(path);
     if (!file.isAbsolute()) {
       try {
-        file = new File(dir, path).getCanonicalFile();
+        file = new File(dir, path).getAbsoluteFile();
       } catch (Exception e) {
         throw new IllegalStateException("Fail to resolve path '" + path + "' relative to: " + dir.getAbsolutePath(), e);
       }
