@@ -215,8 +215,8 @@ public class NotificationServiceTest {
     // Emulate processing of each notification take 10 min to have a log each time
     when(service.now()).thenReturn(0L).thenReturn(10 * 60 * 1000 + 1L).thenReturn(20 * 60 * 1000 + 2L);
     service.start();
-    verify(service, timeout(100)).log(1, 1, 10);
-    verify(service, timeout(100)).log(2, 0, 20);
+    verify(service, timeout(200)).log(1, 1, 10);
+    verify(service, timeout(200)).log(2, 0, 20);
     service.stop();
   }
 
