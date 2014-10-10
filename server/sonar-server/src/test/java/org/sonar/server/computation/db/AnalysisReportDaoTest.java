@@ -56,6 +56,8 @@ public class AnalysisReportDaoTest {
     this.dao = new AnalysisReportDao(system2);
 
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-26").getTime());
+
+    db.prepareDbUnit(getClass(), "empty.xml");
   }
 
   @After
@@ -65,8 +67,6 @@ public class AnalysisReportDaoTest {
 
   @Test
   public void insert_multiple_reports() {
-    db.prepareDbUnit(getClass(), "empty.xml");
-
     AnalysisReportDto report = new AnalysisReportDto()
       .setProjectKey(DEFAULT_PROJECT_KEY)
       .setData("data-project")
@@ -75,8 +75,6 @@ public class AnalysisReportDaoTest {
       .setUpdatedAt(DateUtils.parseDate("2014-09-25"));
 
     dao.insert(session, report);
-    session.commit();
-
     dao.insert(session, report);
     session.commit();
 
