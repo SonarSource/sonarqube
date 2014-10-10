@@ -98,6 +98,7 @@ public class JdbcSettings {
     if (Provider.mysql.equals(provider)) {
       checkRequiredParameter(url, "useUnicode=true");
       checkRequiredParameter(url, "characterEncoding=utf8");
+      checkRequiredParameter(url, "useCursorFetch=true");
       checkRecommendedParameter(url, "rewriteBatchedStatements=true");
       checkRecommendedParameter(url, "useConfigs=maxPerformance");
     }
