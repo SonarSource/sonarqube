@@ -73,8 +73,9 @@ public class AnalysisReportDaoTest {
       .setUpdatedAt(DateUtils.parseDate("2014-09-25"));
 
     dao.insert(session, report);
-    dao.insert(session, report);
+    session.commit();
 
+    dao.insert(session, report);
     session.commit();
 
     db.assertDbUnit(getClass(), "insert-result.xml", "analysis_reports");
