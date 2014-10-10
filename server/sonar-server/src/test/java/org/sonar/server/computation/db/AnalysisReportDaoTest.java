@@ -65,6 +65,8 @@ public class AnalysisReportDaoTest {
 
   @Test
   public void insert_multiple_reports() {
+    db.prepareDbUnit(getClass(), "empty.xml");
+
     AnalysisReportDto report = new AnalysisReportDto()
       .setProjectKey(DEFAULT_PROJECT_KEY)
       .setData("data-project")
