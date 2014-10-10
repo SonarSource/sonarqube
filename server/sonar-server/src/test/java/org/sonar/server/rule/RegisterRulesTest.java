@@ -170,14 +170,26 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     execute(new FakeRepositoryV1());
     assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
 
+    RuleDto rule2 = dbClient.ruleDao().getByKey(dbSession, RuleKey.of("fake", "rule2"));
+    assertThat(rule2.getStatus()).isEqualTo(RuleStatus.READY);
+
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV2());
+
+    // On MySQL, need to update a rule otherwise rule2 will be seen as READY, but why ???
+    dbClient.ruleDao().update(dbSession, dbClient.ruleDao().getByKey(dbSession, RuleKey.of("fake", "rule1")));
+    dbSession.commit();
+
     // rule2 is removed
+    rule2 = dbClient.ruleDao().getNullableByKey(dbSession, RuleKey.of("fake", "rule2"));
+    assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED);
 
     when(system.now()).thenReturn(DATE3.getTime());
     execute(new FakeRepositoryV2());
+    dbSession.commit();
+
     // -> rule2 is still removed, but not update at DATE3
-    RuleDto rule2 = dbClient.ruleDao().getNullableByKey(dbSession, RuleKey.of("fake", "rule2"));
+    rule2 = dbClient.ruleDao().getNullableByKey(dbSession, RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2);
   }
