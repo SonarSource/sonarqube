@@ -49,7 +49,7 @@ public class AnalysisReportTaskLauncherTest {
   }
 
   @Test
-  public void call_findAndBook_when_launching_a_recurrent_task() {
+  public void call_findAndBook_when_launching_a_recurrent_task() throws Exception {
     sut = new AnalysisReportTaskLauncher(service, 0, 1, TimeUnit.MILLISECONDS);
 
     sut.start();
@@ -60,7 +60,7 @@ public class AnalysisReportTaskLauncherTest {
   }
 
   @Test
-  public void call_findAndBook_when_executing_task_immediatly() {
+  public void call_findAndBook_when_executing_task_immediatly() throws Exception {
     sut = new AnalysisReportTaskLauncher(service, 1, 1, TimeUnit.HOURS);
     sut.start();
 
@@ -71,12 +71,7 @@ public class AnalysisReportTaskLauncherTest {
     verify(service, atLeastOnce()).findAndBookNextAvailableAnalysisReport();
   }
 
-  private void sleep() {
-    try {
-      TimeUnit.MILLISECONDS.sleep(50L);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+  private void sleep() throws InterruptedException {
+    TimeUnit.MILLISECONDS.sleep(200L);
   }
-
 }
