@@ -32,8 +32,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.test.TestCase;
-import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
+import org.sonar.api.batch.sensor.test.TestCaseCoverage;
+import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseCoverage;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,19 +86,24 @@ public class CoveragePerTestSensorTest {
 
     final SensorStorage sensorStorage = mock(SensorStorage.class);
 
-    when(context.newTestCase()).thenAnswer(new Answer<TestCase>() {
+    when(context.newTestCaseCoverage()).thenAnswer(new Answer<TestCaseCoverage>() {
       @Override
-      public TestCase answer(InvocationOnMock invocation) throws Throwable {
-        return new DefaultTestCase(sensorStorage);
+      public TestCaseCoverage answer(InvocationOnMock invocation) throws Throwable {
+        return new DefaultTestCaseCoverage(sensorStorage);
       }
     });
 
-    TestCase test1 = new DefaultTestCase(null).inTestFile(testFile).name("test1");
-    TestCase test2 = new DefaultTestCase(null).inTestFile(testFile).name("test2");
-
     sensor.execute(context);
 
-    verify(context).saveCoveragePerTest(test1, inputFile, Arrays.asList(1, 2, 3, 4));
-    verify(context).saveCoveragePerTest(test2, inputFile, Arrays.asList(5, 6, 7));
+    verify(sensorStorage).store(new DefaultTestCaseCoverage()
+      .testFile(testFile)
+      .testName("test1")
+      .cover(inputFile)
+      .onLines(Arrays.asList(1, 2, 3, 4)));
+    verify(sensorStorage).store(new DefaultTestCaseCoverage()
+      .testFile(testFile)
+      .testName("test2")
+      .cover(inputFile)
+      .onLines(Arrays.asList(5, 6, 7)));
   }
 }

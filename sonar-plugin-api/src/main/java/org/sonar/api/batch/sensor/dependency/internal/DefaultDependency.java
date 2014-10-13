@@ -22,28 +22,26 @@ package org.sonar.api.batch.sensor.dependency.internal;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.dependency.Dependency;
+import org.sonar.api.batch.sensor.internal.DefaultStorable;
 
 import javax.annotation.Nullable;
 
-public class DefaultDependency implements Dependency {
+public class DefaultDependency extends DefaultStorable implements Dependency {
 
-  private final SensorStorage storage;
   private InputFile from;
   private InputFile to;
   private int weight = 1;
   private boolean saved = false;
 
   public DefaultDependency() {
-    this.storage = null;
+    super(null);
   }
 
   public DefaultDependency(@Nullable SensorStorage storage) {
-    this.storage = storage;
+    super(storage);
   }
 
   @Override
@@ -68,14 +66,11 @@ public class DefaultDependency implements Dependency {
   }
 
   @Override
-  public void save() {
-    Preconditions.checkNotNull(this.storage, "No persister on this object");
-    Preconditions.checkState(!saved, "This dependency was already saved");
+  public void doSave() {
     Preconditions.checkState(!this.from.equals(this.to), "From and To can't be the same inputFile");
     Preconditions.checkNotNull(this.from, "From inputFile can't be null");
     Preconditions.checkNotNull(this.to, "To inputFile can't be null");
     storage.store((Dependency) this);
-    this.saved = true;
   }
 
   @Override
@@ -121,11 +116,6 @@ public class DefaultDependency implements Dependency {
       append(to).
       append(weight).
       toHashCode();
-  }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }

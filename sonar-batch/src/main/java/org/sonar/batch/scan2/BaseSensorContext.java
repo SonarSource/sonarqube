@@ -38,8 +38,10 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
-import org.sonar.api.batch.sensor.test.TestCase;
-import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
+import org.sonar.api.batch.sensor.test.TestCaseCoverage;
+import org.sonar.api.batch.sensor.test.TestCaseExecution;
+import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseCoverage;
+import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseExecution;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DefaultTokenBuilder;
@@ -153,8 +155,13 @@ public abstract class BaseSensorContext implements SensorContext, SensorStorage 
   }
 
   @Override
-  public TestCase newTestCase() {
-    return new DefaultTestCase(this);
+  public TestCaseExecution newTestCaseExecution() {
+    return new DefaultTestCaseExecution(this);
+  }
+
+  @Override
+  public TestCaseCoverage newTestCaseCoverage() {
+    return new DefaultTestCaseCoverage(this);
   }
 
   @Override

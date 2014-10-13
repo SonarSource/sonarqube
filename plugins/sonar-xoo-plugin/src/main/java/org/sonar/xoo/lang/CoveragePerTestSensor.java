@@ -30,7 +30,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.test.TestCase;
 import org.sonar.xoo.Xoo;
 
 import java.io.File;
@@ -81,13 +80,12 @@ public class CoveragePerTestSensor implements Sensor {
       while (lines.hasNext()) {
         coveredLines.add(Integer.parseInt(lines.next()));
       }
-      TestCase testCase = context.newTestCase()
-        .inTestFile(testFile)
-        .name(testCaseName);
-      if (testCase == null) {
-        throw new IllegalStateException("No test case with name " + testCaseName + " on file " + testFile);
-      }
-      context.saveCoveragePerTest(testCase, mainFile, coveredLines);
+      context.newTestCaseCoverage()
+        .testFile(testFile)
+        .testName(testCaseName)
+        .cover(mainFile)
+        .onLines(coveredLines)
+        .save();
     } catch (Exception e) {
       throw new IllegalStateException("Error processing line " + lineNumber + " of file " + coverPerTest.getAbsolutePath(), e);
     }

@@ -21,12 +21,11 @@ package org.sonar.api.batch.sensor.issue.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.sensor.SensorStorage;
+import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 
@@ -35,7 +34,7 @@ import javax.annotation.Nullable;
 
 import java.util.UUID;
 
-public class DefaultIssue implements Issue {
+public class DefaultIssue extends DefaultStorable implements Issue {
 
   private static final String INPUT_DIR_SHOULD_BE_NON_NULL = "InputDir should be non null";
   private static final String INPUT_FILE_SHOULD_BE_NON_NULL = "InputFile should be non null";
@@ -49,16 +48,15 @@ public class DefaultIssue implements Issue {
   private Integer line;
   private Double effortToFix;
   private Severity overridenSeverity;
-  private final SensorStorage storage;
 
   public DefaultIssue() {
+    super(null);
     this.key = UUID.randomUUID().toString();
-    this.storage = null;
   }
 
   public DefaultIssue(SensorStorage storage) {
+    super(storage);
     this.key = UUID.randomUUID().toString();
-    this.storage = storage;
   }
 
   @Override
@@ -154,11 +152,9 @@ public class DefaultIssue implements Issue {
   }
 
   @Override
-  public void save() {
-    Preconditions.checkNotNull(this.storage, "No persister on this object");
+  public void doSave() {
     Preconditions.checkNotNull(this.ruleKey, "ruleKey is mandatory on issue");
     Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
-
     storage.store(this);
   }
 
@@ -187,8 +183,4 @@ public class DefaultIssue implements Issue {
     return key.hashCode();
   }
 
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-  }
 }

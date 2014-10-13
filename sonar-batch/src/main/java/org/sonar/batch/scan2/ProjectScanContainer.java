@@ -48,8 +48,8 @@ import org.sonar.batch.scan.ProjectSettings;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
-import org.sonar.batch.test.CoveragePerTestCache;
-import org.sonar.batch.test.TestCaseCache;
+import org.sonar.batch.test.TestCaseCoverageCache;
+import org.sonar.batch.test.TestCaseExecutionCache;
 
 public class ProjectScanContainer extends ComponentContainer {
   public ProjectScanContainer(ComponentContainer taskContainer) {
@@ -118,8 +118,8 @@ public class ProjectScanContainer extends ComponentContainer {
       DuplicationCache.class,
 
       // Tests
-      TestCaseCache.class,
-      CoveragePerTestCache.class,
+      TestCaseExecutionCache.class,
+      TestCaseCoverageCache.class,
 
       // Dependencies
       DependencyCache.class,

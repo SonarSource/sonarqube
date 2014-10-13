@@ -30,7 +30,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.batch.sensor.test.TestCase;
+import org.sonar.api.batch.sensor.test.TestCaseExecution;
 import org.sonar.xoo.Xoo;
 
 import java.io.File;
@@ -77,11 +77,11 @@ public class TestCaseSensor implements Sensor {
       String message = split.next();
       String stack = split.next();
       long duration = Long.parseLong(split.next());
-      context.newTestCase()
+      context.newTestCaseExecution()
         .inTestFile(testFile)
         .name(name)
-        .ofType(TestCase.Type.valueOf(type))
-        .status(TestCase.Status.valueOf(status))
+        .ofType(TestCaseExecution.Type.valueOf(type))
+        .status(TestCaseExecution.Status.valueOf(status))
         .message(StringUtils.trimToNull(message))
         .stackTrace(StringUtils.trimToNull(stack))
         .durationInMs(duration)

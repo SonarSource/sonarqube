@@ -24,12 +24,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.test.TestCase.Status;
-import org.sonar.api.batch.sensor.test.TestCase.Type;
+import org.sonar.api.batch.sensor.test.TestCaseExecution.Status;
+import org.sonar.api.batch.sensor.test.TestCaseExecution.Type;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DefaultTestCaseTest {
+public class DefaultTestCaseExecutionTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -38,7 +38,7 @@ public class DefaultTestCaseTest {
 
   @Test
   public void testCreation() throws Exception {
-    DefaultTestCase testCase = new DefaultTestCase(null)
+    DefaultTestCaseExecution testCase = new DefaultTestCaseExecution(null)
       .inTestFile(parent)
       .name("myTest")
       .durationInMs(1)
@@ -58,7 +58,7 @@ public class DefaultTestCaseTest {
 
   @Test
   public void testCreationWithDefaultValues() throws Exception {
-    DefaultTestCase testCase = new DefaultTestCase(null)
+    DefaultTestCaseExecution testCase = new DefaultTestCaseExecution(null)
       .inTestFile(parent)
       .name("myTest");
 
@@ -73,7 +73,7 @@ public class DefaultTestCaseTest {
 
   @Test
   public void testInvalidDuration() throws Exception {
-    DefaultTestCase builder = new DefaultTestCase(null)
+    DefaultTestCaseExecution builder = new DefaultTestCaseExecution(null)
       .inTestFile(parent)
       .name("myTest");
 
@@ -84,7 +84,7 @@ public class DefaultTestCaseTest {
 
   @Test
   public void testEqualsHashCodeToString() {
-    DefaultTestCase testCase1 = new DefaultTestCase(null)
+    DefaultTestCaseExecution testCase1 = new DefaultTestCaseExecution(null)
       .inTestFile(parent)
       .name("myTest")
       .durationInMs(1)
@@ -92,7 +92,7 @@ public class DefaultTestCaseTest {
       .stackTrace("stack")
       .status(Status.ERROR)
       .ofType(Type.UNIT);
-    DefaultTestCase testCase1a = new DefaultTestCase(null)
+    DefaultTestCaseExecution testCase1a = new DefaultTestCaseExecution(null)
       .inTestFile(parent)
       .name("myTest")
       .durationInMs(1)
@@ -100,7 +100,7 @@ public class DefaultTestCaseTest {
       .stackTrace("stack")
       .status(Status.ERROR)
       .ofType(Type.UNIT);
-    DefaultTestCase testCase2 = new DefaultTestCase(null)
+    DefaultTestCaseExecution testCase2 = new DefaultTestCaseExecution(null)
       .inTestFile(new DefaultInputFile("foo2", "src/Foo.php").setType(InputFile.Type.TEST))
       .name("myTest2")
       .durationInMs(2)
@@ -116,7 +116,7 @@ public class DefaultTestCaseTest {
     assertThat(testCase1).isNotEqualTo("foo");
 
     assertThat(testCase1.toString()).isEqualTo(
-      "DefaultTestCase[file=[moduleKey=foo, relative=src/Foo.php, abs=null],name=myTest,duration=1,status=ERROR,message=message,type=UNIT,stackTrace=stack]");
+      "DefaultTestCaseExecution[testFile=[moduleKey=foo, relative=src/Foo.php, abs=null],name=myTest,duration=1,status=ERROR,message=message,type=UNIT,stackTrace=stack]");
     assertThat(testCase1.hashCode()).isEqualTo(testCase1a.hashCode());
   }
 

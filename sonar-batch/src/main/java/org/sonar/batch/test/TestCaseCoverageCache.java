@@ -23,8 +23,8 @@ import com.google.common.base.Preconditions;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.test.TestCase;
-import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
+import org.sonar.api.batch.sensor.test.TestCaseCoverage;
+import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseCoverage;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.Caches;
@@ -33,37 +33,33 @@ import org.sonar.batch.scan.filesystem.InputPathCache;
 import javax.annotation.CheckForNull;
 
 /**
- * Cache of all TestCases. This cache is shared amongst all project modules.
+ * Cache of coverage per test. This cache is shared amongst all project modules.
  */
-public class TestCaseCache implements BatchComponent {
+public class TestCaseCoverageCache implements BatchComponent {
 
-  private final Cache<TestCase> cache;
+  private final Cache<TestCaseCoverage> cache;
 
-  public TestCaseCache(Caches caches, InputPathCache inputPathCache) {
-    caches.registerValueCoder(DefaultTestCase.class, new DefaultTestCaseValueCoder(inputPathCache));
-    cache = caches.createCache("testCases");
+  public TestCaseCoverageCache(Caches caches, InputPathCache inputPathCache) {
+    caches.registerValueCoder(DefaultTestCaseCoverage.class, new DefaultTestCaseCoverageValueCoder(inputPathCache));
+    cache = caches.createCache("testCaseCoverage");
   }
 
-  public Iterable<Entry<TestCase>> entries() {
+  public Iterable<Entry<TestCaseCoverage>> entries() {
     return cache.entries();
   }
 
   @CheckForNull
-  public TestCase get(InputFile testFile, String testCaseName) {
+  public TestCaseCoverage getCoverage(InputFile testFile, String testCaseName, InputFile mainFile) {
     Preconditions.checkNotNull(testFile);
     Preconditions.checkNotNull(testCaseName);
-    return cache.get(((DefaultInputFile) testFile).key(), testCaseName);
+    Preconditions.checkNotNull(mainFile);
+    return cache.get(((DefaultInputFile) testFile).key(), testCaseName, ((DefaultInputFile) mainFile).key());
   }
 
-  public TestCaseCache put(InputFile testFile, TestCase testCase) {
-    Preconditions.checkNotNull(testFile);
-    Preconditions.checkNotNull(testCase);
-    cache.put(((DefaultInputFile) testFile).key(), testCase.name(), testCase);
+  public TestCaseCoverageCache put(TestCaseCoverage coverage) {
+    Preconditions.checkNotNull(coverage);
+    cache.put(((DefaultInputFile) coverage.testFile()).key(), coverage.testName(), ((DefaultInputFile) coverage.coveredFile()).key(), coverage);
     return this;
-  }
-
-  public boolean contains(InputFile testFile, String name) {
-    return cache.containsKey(((DefaultInputFile) testFile).key(), name);
   }
 
 }

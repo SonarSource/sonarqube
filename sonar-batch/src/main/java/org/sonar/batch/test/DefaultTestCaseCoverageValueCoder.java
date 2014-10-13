@@ -24,63 +24,58 @@ import com.persistit.encoding.CoderContext;
 import com.persistit.encoding.ValueCoder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.test.TestCase;
-import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
+import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseCoverage;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 
-import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
-class DefaultTestCaseValueCoder implements ValueCoder {
+class DefaultTestCaseCoverageValueCoder implements ValueCoder {
 
   private InputPathCache inputPathCache;
 
-  public DefaultTestCaseValueCoder(InputPathCache inputPathCache) {
+  public DefaultTestCaseCoverageValueCoder(InputPathCache inputPathCache) {
     this.inputPathCache = inputPathCache;
   }
 
   @Override
   public void put(Value value, Object object, CoderContext context) {
-    DefaultTestCase t = (DefaultTestCase) object;
+    DefaultTestCaseCoverage t = (DefaultTestCaseCoverage) object;
     value.putUTF(((DefaultInputFile) t.testFile()).moduleKey());
     value.putUTF(((DefaultInputFile) t.testFile()).relativePath());
-    value.putUTF(t.name());
-    putUTFOrNull(value, t.message());
-    putUTFOrNull(value, t.stackTrace());
-    Long durationInMs = t.durationInMs();
-    value.put(durationInMs != null ? durationInMs.longValue() : -1);
-    value.put(t.type().ordinal());
-    value.put(t.status().ordinal());
-  }
-
-  private void putUTFOrNull(Value value, @Nullable String utfOrNull) {
-    if (utfOrNull != null) {
-      value.putUTF(utfOrNull);
-    } else {
-      value.putNull();
+    value.putUTF(t.testName());
+    value.putUTF(((DefaultInputFile) t.coveredFile()).moduleKey());
+    value.putUTF(((DefaultInputFile) t.coveredFile()).relativePath());
+    value.put(t.coveredLines().size());
+    for (Integer line : t.coveredLines()) {
+      value.put(line.intValue());
     }
   }
 
   @Override
   public Object get(Value value, Class clazz, CoderContext context) {
-    String moduleKey = value.getString();
-    String relativePath = value.getString();
-    InputFile testFile = inputPathCache.getFile(moduleKey, relativePath);
+    String testModuleKey = value.getString();
+    String testRelativePath = value.getString();
+    InputFile testFile = inputPathCache.getFile(testModuleKey, testRelativePath);
     if (testFile == null) {
-      throw new IllegalStateException("Unable to load InputFile " + moduleKey + ":" + relativePath);
+      throw new IllegalStateException("Unable to load InputFile " + testModuleKey + ":" + testRelativePath);
     }
     String name = value.getString();
-    String message = value.getString();
-    String stack = value.getString();
-    long duration = value.getLong();
-    TestCase.Type type = TestCase.Type.values()[value.getInt()];
-    TestCase.Status status = TestCase.Status.values()[value.getInt()];
-    return new DefaultTestCase()
-      .inTestFile(testFile)
-      .ofType(type)
-      .name(name)
-      .durationInMs(duration != -1 ? duration : null)
-      .status(status)
-      .message(message)
-      .stackTrace(stack);
+    String mainModuleKey = value.getString();
+    String mainRelativePath = value.getString();
+    InputFile mainFile = inputPathCache.getFile(mainModuleKey, mainRelativePath);
+    if (mainFile == null) {
+      throw new IllegalStateException("Unable to load InputFile " + mainModuleKey + ":" + mainRelativePath);
+    }
+    int size = value.getInt();
+    List<Integer> lines = new ArrayList<Integer>(size);
+    for (int i = 0; i < size; i++) {
+      lines.add(value.getInt());
+    }
+    return new DefaultTestCaseCoverage()
+      .testFile(testFile)
+      .testName(name)
+      .cover(mainFile)
+      .onLines(lines);
   }
 }

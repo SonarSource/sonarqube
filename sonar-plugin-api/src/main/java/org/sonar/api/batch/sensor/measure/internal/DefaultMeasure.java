@@ -22,11 +22,10 @@ package org.sonar.api.batch.sensor.measure.internal;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.sensor.SensorStorage;
+import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.measure.Measure;
 
 import javax.annotation.CheckForNull;
@@ -34,22 +33,20 @@ import javax.annotation.Nullable;
 
 import java.io.Serializable;
 
-public class DefaultMeasure<G extends Serializable> implements Measure<G> {
+public class DefaultMeasure<G extends Serializable> extends DefaultStorable implements Measure<G> {
 
-  private final SensorStorage storage;
   private boolean onProject = false;
   private InputFile file;
   private Metric<G> metric;
   private G value;
-  private boolean saved = false;
   private boolean fromCore = false;
 
   public DefaultMeasure() {
-    this.storage = null;
+    super();
   }
 
   public DefaultMeasure(@Nullable SensorStorage storage) {
-    this.storage = storage;
+    super(storage);
   }
 
   @Override
@@ -101,14 +98,11 @@ public class DefaultMeasure<G extends Serializable> implements Measure<G> {
   }
 
   @Override
-  public void save() {
-    Preconditions.checkNotNull(this.storage, "No persister on this object");
-    Preconditions.checkState(!saved, "This measure was already saved");
+  public void doSave() {
     Preconditions.checkNotNull(this.value, "Measure value can't be null");
     Preconditions.checkNotNull(this.metric, "Measure metric can't be null");
     Preconditions.checkState(this.metric.valueType().equals(this.value.getClass()), "Measure value should be of type " + this.metric.valueType());
     storage.store((Measure<Serializable>) this);
-    this.saved = true;
   }
 
   @Override
@@ -155,11 +149,6 @@ public class DefaultMeasure<G extends Serializable> implements Measure<G> {
       append(metric).
       append(value).
       toHashCode();
-  }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }

@@ -30,7 +30,8 @@ import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
-import org.sonar.api.batch.sensor.test.TestCase;
+import org.sonar.api.batch.sensor.test.TestCaseCoverage;
+import org.sonar.api.batch.sensor.test.TestCaseExecution;
 import org.sonar.api.config.Settings;
 
 import java.io.Serializable;
@@ -112,21 +113,18 @@ public interface SensorContext {
   // ------------ TESTS ------------
 
   /**
-   * Create a new test case.
-   * Don't forget to call {@link TestCase#save()} once all parameters are provided.
+   * Create a new test case execution report.
+   * Don't forget to call {@link TestCaseExecution#save()} once all parameters are provided.
    * @since 5.0
    */
-  TestCase newTestCase();
+  TestCaseExecution newTestCaseExecution();
 
   /**
-   * Register coverage of a given test case on another main file. TestCase should have been registered using {@link #testPlanBuilder(InputFile)}
-   * @param testFile test file containing the test case
-   * @param testCaseName name of the test case
-   * @param coveredFile main file that is covered
-   * @param coveredLines list of covered lines
+   * Create a new test case coverage report.
+   * Don't forget to call {@link TestCaseCoverage#save()} once all parameters are provided.
    * @since 5.0
    */
-  void saveCoveragePerTest(TestCase testCase, InputFile coveredFile, List<Integer> coveredLines);
+  TestCaseCoverage newTestCaseCoverage();
 
   // ------------ DEPENDENCIES ------------
 

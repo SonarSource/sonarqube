@@ -24,10 +24,10 @@ import org.sonar.api.batch.fs.InputFile;
 import javax.annotation.Nullable;
 
 /**
- * Represents a single test in a test file.
+ * Represents result of execution of a single test in a test file.
  * @since 5.0
  */
-public interface TestCase {
+public interface TestCaseExecution {
 
   /**
    * Test execution status.
@@ -55,7 +55,7 @@ public interface TestCase {
   /**
    * Set file where this test is located. Mandatory.
    */
-  TestCase inTestFile(InputFile testFile);
+  TestCaseExecution inTestFile(InputFile testFile);
 
   /**
    * Duration in milliseconds
@@ -65,7 +65,7 @@ public interface TestCase {
   /**
    * Duration in milliseconds
    */
-  TestCase durationInMs(long duration);
+  TestCaseExecution durationInMs(long duration);
 
   /**
    * Name of this test case.
@@ -75,7 +75,7 @@ public interface TestCase {
   /**
    * Set name of this test. Name is mandatory.
    */
-  TestCase name(String name);
+  TestCaseExecution name(String name);
 
   /**
    * Status of execution of the test.
@@ -85,7 +85,7 @@ public interface TestCase {
   /**
    * Status of execution of the test.
    */
-  TestCase status(Status status);
+  TestCaseExecution status(Status status);
 
   /**
    * Message (usually in case of {@link Status#ERROR} or {@link Status#FAILURE}).
@@ -95,7 +95,7 @@ public interface TestCase {
   /**
    * Message (usually in case of {@link Status#ERROR} or {@link Status#FAILURE}).
    */
-  TestCase message(String message);
+  TestCaseExecution message(String message);
 
   /**
    * Type of test.
@@ -105,7 +105,7 @@ public interface TestCase {
   /**
    * Type of test.
    */
-  TestCase ofType(Type type);
+  TestCaseExecution ofType(Type type);
 
   /**
    * Stacktrace (usually in case of {@link Status#ERROR}).
@@ -115,10 +115,10 @@ public interface TestCase {
   /**
    * Set stacktrace (usually in case of {@link Status#ERROR}).
    */
-  TestCase stackTrace(String stackTrace);
+  TestCaseExecution stackTrace(String stackTrace);
 
   /**
-   * Call this method only once when your are done with defining the test case.
+   * Call this method only once when your are done with defining the test case execution.
    */
   void save();
 

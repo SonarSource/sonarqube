@@ -36,7 +36,8 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.Symbol;
-import org.sonar.api.batch.sensor.test.TestCase;
+import org.sonar.api.batch.sensor.test.TestCaseCoverage;
+import org.sonar.api.batch.sensor.test.TestCaseExecution;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.platform.PluginMetadata;
@@ -61,8 +62,8 @@ import org.sonar.batch.scan2.MeasureCache;
 import org.sonar.batch.scan2.ProjectScanContainer;
 import org.sonar.batch.scan2.ScanTaskObserver;
 import org.sonar.batch.symbol.SymbolData;
-import org.sonar.batch.test.CoveragePerTestCache;
-import org.sonar.batch.test.TestCaseCache;
+import org.sonar.batch.test.TestCaseCoverageCache;
+import org.sonar.batch.test.TestCaseExecutionCache;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.core.source.SnapshotDataTypes;
@@ -233,7 +234,7 @@ public class BatchMediumTester {
     private Map<String, InputDir> inputDirs = new HashMap<String, InputDir>();
     private Map<InputFile, SyntaxHighlightingData> highlightingPerFile = new HashMap<InputFile, SyntaxHighlightingData>();
     private Map<InputFile, SymbolData> symbolTablePerFile = new HashMap<InputFile, SymbolData>();
-    private Map<String, Map<String, TestCase>> testCasesPerFile = new HashMap<String, Map<String, TestCase>>();
+    private Map<String, Map<String, TestCaseExecution>> testCasesPerFile = new HashMap<String, Map<String, TestCaseExecution>>();
     private Map<String, Map<String, Map<String, List<Integer>>>> coveragePerTest = new HashMap<String, Map<String, Map<String, List<Integer>>>>();
     private Map<String, Map<String, Integer>> dependencies = new HashMap<String, Map<String, Integer>>();
 
@@ -258,8 +259,8 @@ public class BatchMediumTester {
     }
 
     private void storeCoveragePerTest(ProjectScanContainer container) {
-      CoveragePerTestCache coveragePerTestCache = container.getComponentByType(CoveragePerTestCache.class);
-      for (Entry<List<Integer>> entry : coveragePerTestCache.entries()) {
+      TestCaseCoverageCache testCaseCoverageCache = container.getComponentByType(TestCaseCoverageCache.class);
+      for (Entry<TestCaseCoverage> entry : testCaseCoverageCache.entries()) {
         String testFileKey = entry.key()[0].toString();
         if (!coveragePerTest.containsKey(testFileKey)) {
           coveragePerTest.put(testFileKey, new HashMap<String, Map<String, List<Integer>>>());
@@ -268,16 +269,16 @@ public class BatchMediumTester {
         if (!coveragePerTest.get(testFileKey).containsKey(testName)) {
           coveragePerTest.get(testFileKey).put(testName, new HashMap<String, List<Integer>>());
         }
-        coveragePerTest.get(testFileKey).get(testName).put(entry.key()[2].toString(), entry.value());
+        coveragePerTest.get(testFileKey).get(testName).put(entry.key()[2].toString(), entry.value().coveredLines());
       }
     }
 
     private void storeTestCases(ProjectScanContainer container) {
-      TestCaseCache testCaseCache = container.getComponentByType(TestCaseCache.class);
-      for (Entry<TestCase> entry : testCaseCache.entries()) {
+      TestCaseExecutionCache testCaseCache = container.getComponentByType(TestCaseExecutionCache.class);
+      for (Entry<TestCaseExecution> entry : testCaseCache.entries()) {
         String effectiveKey = entry.key()[0].toString();
         if (!testCasesPerFile.containsKey(effectiveKey)) {
-          testCasesPerFile.put(effectiveKey, new HashMap<String, TestCase>());
+          testCasesPerFile.put(effectiveKey, new HashMap<String, TestCaseExecution>());
         }
         testCasesPerFile.get(effectiveKey).put(entry.value().name(), entry.value());
       }
@@ -358,7 +359,7 @@ public class BatchMediumTester {
       return duplications.get(((DefaultInputFile) inputFile).key());
     }
 
-    public Collection<TestCase> testCasesFor(InputFile inputFile) {
+    public Collection<TestCaseExecution> testCasesFor(InputFile inputFile) {
       String key = ((DefaultInputFile) inputFile).key();
       if (testCasesPerFile.containsKey(key)) {
         return testCasesPerFile.get(key).values();
@@ -367,7 +368,7 @@ public class BatchMediumTester {
       }
     }
 
-    public TestCase testCase(InputFile inputFile, String testCaseName) {
+    public TestCaseExecution testCase(InputFile inputFile, String testCaseName) {
       return testCasesPerFile.get(((DefaultInputFile) inputFile).key()).get(testCaseName);
     }
 

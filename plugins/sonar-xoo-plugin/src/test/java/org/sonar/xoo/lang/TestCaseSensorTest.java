@@ -32,8 +32,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.test.TestCase;
-import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
+import org.sonar.api.batch.sensor.test.TestCaseExecution;
+import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseExecution;
 
 import java.io.File;
 import java.io.IOException;
@@ -83,24 +83,24 @@ public class TestCaseSensorTest {
 
     final SensorStorage sensorStorage = mock(SensorStorage.class);
 
-    when(context.newTestCase()).thenAnswer(new Answer<TestCase>() {
+    when(context.newTestCaseExecution()).thenAnswer(new Answer<TestCaseExecution>() {
       @Override
-      public TestCase answer(InvocationOnMock invocation) throws Throwable {
-        return new DefaultTestCase(sensorStorage);
+      public TestCaseExecution answer(InvocationOnMock invocation) throws Throwable {
+        return new DefaultTestCaseExecution(sensorStorage);
       }
     });
 
     sensor.execute(context);
 
-    verify(sensorStorage).store(new DefaultTestCase(null)
+    verify(sensorStorage).store(new DefaultTestCaseExecution(null)
       .inTestFile(testFile)
       .name("test1")
       .durationInMs(10));
-    verify(sensorStorage).store(new DefaultTestCase(null)
+    verify(sensorStorage).store(new DefaultTestCaseExecution(null)
       .inTestFile(testFile)
       .name("test2")
-      .ofType(TestCase.Type.INTEGRATION)
-      .status(TestCase.Status.ERROR)
+      .ofType(TestCaseExecution.Type.INTEGRATION)
+      .status(TestCaseExecution.Status.ERROR)
       .message("message")
       .stackTrace("stack")
       .durationInMs(15));

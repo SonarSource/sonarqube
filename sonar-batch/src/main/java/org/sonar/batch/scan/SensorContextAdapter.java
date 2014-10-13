@@ -19,13 +19,11 @@
  */
 package org.sonar.batch.scan;
 
-import com.google.common.base.Preconditions;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
@@ -33,8 +31,9 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.Issue.Severity;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
-import org.sonar.api.batch.sensor.test.TestCase;
-import org.sonar.api.batch.sensor.test.internal.DefaultTestCase;
+import org.sonar.api.batch.sensor.test.TestCaseCoverage;
+import org.sonar.api.batch.sensor.test.TestCaseExecution;
+import org.sonar.api.batch.sensor.test.internal.DefaultTestCaseExecution;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.design.Dependency;
@@ -60,8 +59,6 @@ import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.scan2.BaseSensorContext;
 import org.sonar.core.component.ComponentKeys;
-
-import java.util.List;
 
 /**
  * Implements {@link SensorContext} but forward everything to {@link org.sonar.api.batch.SensorContext} for backward compatibility.
@@ -178,8 +175,8 @@ public class SensorContextAdapter extends BaseSensorContext {
   }
 
   @Override
-  public void store(TestCase testCase) {
-    File testRes = getTestResource(((DefaultTestCase) testCase).testFile());
+  public void store(TestCaseExecution testCase) {
+    File testRes = getTestResource(((DefaultTestCaseExecution) testCase).testFile());
     MutableTestPlan testPlan = perspectives.as(MutableTestPlan.class, testRes);
     if (testPlan != null) {
       testPlan
@@ -193,16 +190,15 @@ public class SensorContextAdapter extends BaseSensorContext {
   }
 
   @Override
-  public void saveCoveragePerTest(TestCase testCase, InputFile coveredFile, List<Integer> coveredLines) {
-    Preconditions.checkArgument(coveredFile.type() == Type.MAIN, "Should be a main file: " + coveredFile);
-    File testRes = getTestResource(((DefaultTestCase) testCase).testFile());
-    File mainRes = getMainResource(coveredFile);
+  public void store(TestCaseCoverage testCaseCoverage) {
+    File testRes = getTestResource(testCaseCoverage.testFile());
+    File mainRes = getMainResource(testCaseCoverage.coveredFile());
     Testable testAbleFile = perspectives.as(MutableTestable.class, mainRes);
     if (testAbleFile != null) {
       MutableTestPlan testPlan = perspectives.as(MutableTestPlan.class, testRes);
       if (testPlan != null) {
-        for (MutableTestCase mutableTestCase : testPlan.testCasesByName(testCase.name())) {
-          mutableTestCase.setCoverageBlock(testAbleFile, coveredLines);
+        for (MutableTestCase mutableTestCase : testPlan.testCasesByName(testCaseCoverage.testName())) {
+          mutableTestCase.setCoverageBlock(testAbleFile, testCaseCoverage.coveredLines());
         }
       } else {
         throw new IllegalStateException("Unable to get MutableTestPlan perspective from " + testRes);

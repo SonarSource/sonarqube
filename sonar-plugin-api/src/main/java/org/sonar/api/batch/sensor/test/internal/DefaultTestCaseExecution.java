@@ -23,36 +23,34 @@ import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorStorage;
-import org.sonar.api.batch.sensor.test.TestCase;
+import org.sonar.api.batch.sensor.internal.DefaultStorable;
+import org.sonar.api.batch.sensor.test.TestCaseExecution;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class DefaultTestCase implements TestCase {
+public class DefaultTestCaseExecution extends DefaultStorable implements TestCaseExecution {
 
-  private final SensorStorage storage;
   private InputFile testFile;
   private String name;
   private Long duration;
-  private TestCase.Status status = Status.OK;
+  private TestCaseExecution.Status status = Status.OK;
   private String message;
-  private TestCase.Type type = Type.UNIT;
+  private TestCaseExecution.Type type = Type.UNIT;
   private String stackTrace;
 
-  public DefaultTestCase() {
-    this.storage = null;
+  public DefaultTestCaseExecution() {
+    super(null);
   }
 
-  public DefaultTestCase(SensorStorage storage) {
-    this.storage = storage;
+  public DefaultTestCaseExecution(SensorStorage storage) {
+    super(storage);
   }
 
   @Override
-  public DefaultTestCase inTestFile(InputFile testFile) {
+  public DefaultTestCaseExecution inTestFile(InputFile testFile) {
     Preconditions.checkNotNull(testFile, "TestFile cannot be null");
     Preconditions.checkArgument(testFile.type() == InputFile.Type.TEST, "Should be a test file: " + testFile);
     this.testFile = testFile;
@@ -60,41 +58,41 @@ public class DefaultTestCase implements TestCase {
   }
 
   @Override
-  public DefaultTestCase name(String name) {
+  public DefaultTestCaseExecution name(String name) {
     Preconditions.checkArgument(StringUtils.isNotBlank(name), "Test name is mandatory and should not be blank");
     this.name = name;
     return this;
   }
 
   @Override
-  public DefaultTestCase durationInMs(long duration) {
+  public DefaultTestCaseExecution durationInMs(long duration) {
     Preconditions.checkArgument(duration >= 0, "Test duration must be positive (got: " + duration + ")");
     this.duration = duration;
     return this;
   }
 
   @Override
-  public DefaultTestCase status(TestCase.Status status) {
+  public DefaultTestCaseExecution status(TestCaseExecution.Status status) {
     Preconditions.checkNotNull(status);
     this.status = status;
     return this;
   }
 
   @Override
-  public DefaultTestCase message(@Nullable String message) {
+  public DefaultTestCaseExecution message(@Nullable String message) {
     this.message = message;
     return this;
   }
 
   @Override
-  public DefaultTestCase ofType(TestCase.Type type) {
+  public DefaultTestCaseExecution ofType(TestCaseExecution.Type type) {
     Preconditions.checkNotNull(type);
     this.type = type;
     return this;
   }
 
   @Override
-  public DefaultTestCase stackTrace(@Nullable String stackTrace) {
+  public DefaultTestCaseExecution stackTrace(@Nullable String stackTrace) {
     this.stackTrace = stackTrace;
     return this;
   }
@@ -138,10 +136,9 @@ public class DefaultTestCase implements TestCase {
   }
 
   @Override
-  public void save() {
-    Preconditions.checkNotNull(this.storage, "No persister on this object");
+  public void doSave() {
     Preconditions.checkNotNull(testFile, "TestFile is mandatory");
-    Preconditions.checkNotNull(name, "TestFile is mandatory");
+    Preconditions.checkNotNull(name, "Test name is mandatory");
     storage.store(this);
   }
 
@@ -157,7 +154,7 @@ public class DefaultTestCase implements TestCase {
     if (obj.getClass() != getClass()) {
       return false;
     }
-    DefaultTestCase rhs = (DefaultTestCase) obj;
+    DefaultTestCaseExecution rhs = (DefaultTestCaseExecution) obj;
     return new EqualsBuilder()
       .append(testFile, rhs.testFile)
       .append(name, rhs.name)
@@ -181,18 +178,4 @@ public class DefaultTestCase implements TestCase {
       .append(stackTrace)
       .toHashCode();
   }
-
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-      .append("file", testFile)
-      .append("name", name)
-      .append("duration", duration)
-      .append("status", status)
-      .append("message", message)
-      .append("type", type)
-      .append("stackTrace", stackTrace)
-      .toString();
-  }
-
 }
