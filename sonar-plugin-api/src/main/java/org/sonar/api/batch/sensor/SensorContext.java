@@ -22,6 +22,7 @@ package org.sonar.api.batch.sensor;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.sensor.dependency.Dependency;
 import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
@@ -111,7 +112,7 @@ public interface SensorContext {
   // ------------ TESTS ------------
 
   /**
-   * Create a new test case for the given test file.
+   * Create a new test case.
    * Don't forget to call {@link TestCase#save()} once all parameters are provided.
    * @since 5.0
    */
@@ -130,10 +131,10 @@ public interface SensorContext {
   // ------------ DEPENDENCIES ------------
 
   /**
-   * Declare a dependency between 2 files.
-   * @param weight Weight of the dependency
+   * Create a new dependency.
+   * Don't forget to call {@link Dependency#save()} once all parameters are provided.
    * @since 5.0
    */
-  void saveDependency(InputFile from, InputFile to, int weight);
+  Dependency newDependency();
 
 }

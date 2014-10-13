@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.mediumtest.symbol;
+package org.sonar.batch.mediumtest.dependency;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.InputFile;
+import org.junit.rules.TestName;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.xoo.XooPlugin;
@@ -35,10 +36,13 @@ import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class SymbolMediumTest {
+public class DependencyMediumTest {
 
-  @org.junit.Rule
+  @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public TestName testName = new TestName();
 
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
@@ -57,16 +61,20 @@ public class SymbolMediumTest {
   }
 
   @Test
-  public void computeSyntaxHighlightingOnTempProject() throws IOException {
+  public void populateDependenciesOnTempProject() throws IOException {
 
     File baseDir = temp.newFolder();
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();
 
     File xooFile = new File(srcDir, "sample.xoo");
-    File xooSymbolFile = new File(srcDir, "sample.xoo.symbol");
-    FileUtils.write(xooFile, "Sample xoo\ncontent\nanother xoo");
-    FileUtils.write(xooSymbolFile, "7,10,27");
+    File xooFile2 = new File(srcDir, "sample2.xoo");
+    File xooFile3 = new File(srcDir, "foo/sample3.xoo");
+    File xooDepsFile = new File(srcDir, "sample.xoo.deps");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooFile2, "Sample xoo\ncontent");
+    FileUtils.write(xooFile3, "Sample xoo\ncontent");
+    FileUtils.write(xooDepsFile, "src/sample2.xoo:3\nsrc/foo/sample3.xoo:6");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -80,8 +88,8 @@ public class SymbolMediumTest {
         .build())
       .start();
 
-    InputFile file = result.inputFile("src/sample.xoo");
-    assertThat(result.symbolReferencesFor(file, 7, 10)).containsOnly(7, 27);
+    assertThat(result.dependencyWeight(result.inputFile("src/sample.xoo"), result.inputFile("src/sample2.xoo"))).isEqualTo(3);
+    assertThat(result.dependencyWeight(result.inputFile("src/sample.xoo"), result.inputFile("src/foo/sample3.xoo"))).isEqualTo(6);
   }
 
 }

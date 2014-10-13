@@ -23,41 +23,44 @@ import com.google.common.base.Preconditions;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.dependency.Dependency;
+import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.Caches;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 
 import javax.annotation.CheckForNull;
 
 /**
  * Cache of all dependencies. This cache is shared amongst all project modules.
- * module key -> from key -> to key -> OutgoingDependency
+ * module key -> from key -> to key -> Dependency
  */
 public class DependencyCache implements BatchComponent {
 
-  private final Cache<OutgoingDependency> cache;
+  private final Cache<Dependency> cache;
 
-  public DependencyCache(Caches caches) {
+  public DependencyCache(Caches caches, InputPathCache inputPathCache) {
+    caches.registerValueCoder(DefaultDependency.class, new DefaultDependencyValueCoder(inputPathCache));
     cache = caches.createCache("dependencies");
   }
 
-  public Iterable<Entry<OutgoingDependency>> entries() {
+  public Iterable<Entry<Dependency>> entries() {
     return cache.entries();
   }
 
   @CheckForNull
-  public OutgoingDependency get(String moduleKey, InputFile from, InputFile to) {
+  public Dependency get(String moduleKey, InputFile from, InputFile to) {
     Preconditions.checkNotNull(moduleKey);
     Preconditions.checkNotNull(from);
     Preconditions.checkNotNull(to);
     return cache.get(moduleKey, ((DefaultInputFile) from).key(), ((DefaultInputFile) to).key());
   }
 
-  public DependencyCache put(String moduleKey, InputFile from, OutgoingDependency dependency) {
+  public DependencyCache put(String moduleKey, Dependency dependency) {
     Preconditions.checkNotNull(moduleKey);
-    Preconditions.checkNotNull(from);
     Preconditions.checkNotNull(dependency);
-    cache.put(moduleKey, ((DefaultInputFile) from).key(), ((DefaultInputFile) dependency.to()).key(), dependency);
+    cache.put(moduleKey, ((DefaultInputFile) dependency.from()).key(), ((DefaultInputFile) dependency.to()).key(), dependency);
     return this;
   }
 

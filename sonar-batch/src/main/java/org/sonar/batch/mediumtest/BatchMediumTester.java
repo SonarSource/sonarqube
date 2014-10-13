@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.dependency.Dependency;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -44,7 +45,6 @@ import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.dependency.DependencyCache;
-import org.sonar.batch.dependency.OutgoingDependency;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.highlighting.SyntaxHighlightingRule;
@@ -229,8 +229,8 @@ public class BatchMediumTester {
     private List<Issue> issues = new ArrayList<Issue>();
     private List<Measure> measures = new ArrayList<Measure>();
     private Map<String, List<DuplicationGroup>> duplications = new HashMap<String, List<DuplicationGroup>>();
-    private List<InputFile> inputFiles = new ArrayList<InputFile>();
-    private List<InputDir> inputDirs = new ArrayList<InputDir>();
+    private Map<String, InputFile> inputFiles = new HashMap<String, InputFile>();
+    private Map<String, InputDir> inputDirs = new HashMap<String, InputDir>();
     private Map<InputFile, SyntaxHighlightingData> highlightingPerFile = new HashMap<InputFile, SyntaxHighlightingData>();
     private Map<InputFile, SymbolData> symbolTablePerFile = new HashMap<InputFile, SymbolData>();
     private Map<String, Map<String, TestCase>> testCasesPerFile = new HashMap<String, Map<String, TestCase>>();
@@ -293,7 +293,7 @@ public class BatchMediumTester {
 
     private void storeComponentData(ProjectScanContainer container) {
       ComponentDataCache componentDataCache = container.getComponentByType(ComponentDataCache.class);
-      for (InputFile file : inputFiles) {
+      for (InputFile file : inputFiles.values()) {
         SyntaxHighlightingData highlighting = componentDataCache.getData(((DefaultInputFile) file).key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING);
         if (highlighting != null) {
           highlightingPerFile.put(file, highlighting);
@@ -309,16 +309,16 @@ public class BatchMediumTester {
       InputPathCache inputFileCache = container.getComponentByType(InputPathCache.class);
       for (InputPath inputPath : inputFileCache.all()) {
         if (inputPath instanceof InputFile) {
-          inputFiles.add((InputFile) inputPath);
+          inputFiles.put(inputPath.relativePath(), (InputFile) inputPath);
         } else {
-          inputDirs.add((InputDir) inputPath);
+          inputDirs.put(inputPath.relativePath(), (InputDir) inputPath);
         }
       }
     }
 
     private void storeDependencies(ProjectScanContainer container) {
       DependencyCache dependencyCache = container.getComponentByType(DependencyCache.class);
-      for (Entry<OutgoingDependency> entry : dependencyCache.entries()) {
+      for (Entry<Dependency> entry : dependencyCache.entries()) {
         String fromKey = entry.key()[1].toString();
         String toKey = entry.key()[2].toString();
         if (!dependencies.containsKey(fromKey)) {
@@ -336,12 +336,22 @@ public class BatchMediumTester {
       return measures;
     }
 
-    public List<InputFile> inputFiles() {
-      return inputFiles;
+    public Collection<InputFile> inputFiles() {
+      return inputFiles.values();
     }
 
-    public List<InputDir> inputDirs() {
-      return inputDirs;
+    @CheckForNull
+    public InputFile inputFile(String relativePath) {
+      return inputFiles.get(relativePath);
+    }
+
+    public Collection<InputDir> inputDirs() {
+      return inputDirs.values();
+    }
+
+    @CheckForNull
+    public InputDir inputDir(String relativePath) {
+      return inputDirs.get(relativePath);
     }
 
     public List<DuplicationGroup> duplicationsFor(InputFile inputFile) {

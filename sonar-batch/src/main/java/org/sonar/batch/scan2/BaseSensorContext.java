@@ -26,6 +26,8 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorStorage;
+import org.sonar.api.batch.sensor.dependency.Dependency;
+import org.sonar.api.batch.sensor.dependency.internal.DefaultDependency;
 import org.sonar.api.batch.sensor.duplication.DuplicationBuilder;
 import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.batch.sensor.duplication.DuplicationTokenBuilder;
@@ -153,6 +155,11 @@ public abstract class BaseSensorContext implements SensorContext, SensorStorage 
   @Override
   public TestCase newTestCase() {
     return new DefaultTestCase(this);
+  }
+
+  @Override
+  public Dependency newDependency() {
+    return new DefaultDependency(this);
   }
 
 }

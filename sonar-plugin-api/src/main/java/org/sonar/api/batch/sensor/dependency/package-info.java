@@ -17,25 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor;
-
-import org.sonar.api.batch.sensor.dependency.Dependency;
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.test.TestCase;
-
-/**
- * Interface for storing data computed by sensors.
- * @since 5.0
- */
-public interface SensorStorage {
-
-  void store(Measure measure);
-
-  void store(Issue issue);
-
-  void store(TestCase testCase);
-
-  void store(Dependency dependency);
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.api.batch.sensor.dependency;

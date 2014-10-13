@@ -105,7 +105,7 @@ public class CpdMediumTest {
     // 4 measures per file
     assertThat(result.measures()).hasSize(8);
 
-    InputFile inputFile = result.inputFiles().get(0);
+    InputFile inputFile = result.inputFile("src/sample1.xoo");
     // One clone group
     List<DuplicationGroup> duplicationGroups = result.duplicationsFor(inputFile);
     assertThat(duplicationGroups).hasSize(1);

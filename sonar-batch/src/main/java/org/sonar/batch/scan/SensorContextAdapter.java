@@ -70,6 +70,7 @@ import java.util.List;
  */
 public class SensorContextAdapter extends BaseSensorContext {
 
+  private static final String USES = "USES";
   private final org.sonar.api.batch.SensorContext sensorContext;
   private final MetricFinder metricFinder;
   private final Project project;
@@ -241,11 +242,11 @@ public class SensorContextAdapter extends BaseSensorContext {
   }
 
   @Override
-  public void saveDependency(InputFile from, InputFile to, int weight) {
-    File fromResource = getFile(from);
-    File toResource = getFile(to);
+  public void store(org.sonar.api.batch.sensor.dependency.Dependency dep) {
+    File fromResource = getFile(dep.from());
+    File toResource = getFile(dep.to());
     if (sonarIndex.getEdge(fromResource, toResource) != null) {
-      throw new IllegalStateException("Dependency between " + from + " and " + to + " was already saved.");
+      throw new IllegalStateException("Dependency between " + dep.from() + " and " + dep.to() + " was already saved.");
     }
     Directory fromParent = fromResource.getParent();
     Directory toParent = toResource.getParent();
@@ -255,13 +256,13 @@ public class SensorContextAdapter extends BaseSensorContext {
       if (parentDep != null) {
         parentDep.setWeight(parentDep.getWeight() + 1);
       } else {
-        parentDep = new Dependency(fromParent, toParent).setUsage("USES").setWeight(1);
+        parentDep = new Dependency(fromParent, toParent).setUsage(USES).setWeight(1);
         parentDep = sensorContext.saveDependency(parentDep);
       }
     }
     sensorContext.saveDependency(new Dependency(fromResource, toResource)
-      .setUsage("USES")
-      .setWeight(weight)
+      .setUsage(USES)
+      .setWeight(dep.weight())
       .setParent(parentDep));
   }
 

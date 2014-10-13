@@ -17,26 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.dependency;
+package org.sonar.api.batch.sensor.dependency;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
 
-public class OutgoingDependency {
+/**
+ * @since 5.0
+ */
+@Beta
+public interface Dependency {
 
-  private final InputFile to;
-  private final int weight;
+  InputFile from();
 
-  public OutgoingDependency(InputFile to, int weight) {
-    this.to = to;
-    this.weight = weight;
-  }
+  Dependency from(InputFile from);
 
-  public InputFile to() {
-    return to;
-  }
+  InputFile to();
 
-  public int weight() {
-    return weight;
-  }
+  Dependency to(InputFile to);
+
+  /**
+   * Default weight value is 1.
+   */
+  int weight();
+
+  /**
+   * Set the weight of the dependency.
+   */
+  Dependency weight(int weight);
+
+  /**
+   * Save the dependency.
+   */
+  void save();
 
 }

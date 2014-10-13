@@ -31,6 +31,7 @@ import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.DefaultActiveRule;
+import org.sonar.api.batch.sensor.dependency.Dependency;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
@@ -42,7 +43,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.dependency.DependencyCache;
-import org.sonar.batch.dependency.OutgoingDependency;
 import org.sonar.batch.duplication.BlockCache;
 import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.index.ComponentDataCache;
@@ -172,11 +172,11 @@ public class DefaultSensorContext extends BaseSensorContext {
   }
 
   @Override
-  public void saveDependency(InputFile from, InputFile to, int weight) {
-    Preconditions.checkNotNull(from);
-    Preconditions.checkNotNull(to);
-    OutgoingDependency dep = new OutgoingDependency(to, weight);
-    dependencyCache.put(def.getKey(), from, dep);
+  public void store(Dependency dep) {
+    if (dependencyCache.get(def.getKey(), dep.from(), dep.to()) != null) {
+      throw new IllegalStateException("Dependency between " + dep.from() + " and " + dep.to() + " was already saved.");
+    }
+    dependencyCache.put(def.getKey(), dep);
   }
 
 }
