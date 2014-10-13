@@ -19,23 +19,32 @@
  */
 package org.sonar.server.qualityprofile;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.ProfileExporter;
+import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.ServerTester;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Writer;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -45,9 +54,26 @@ public class QProfileExportersTest {
   @ClassRule
   public static ServerTester tester = new ServerTester().addXoo().addComponents(
     XooRulesDefinition.class, XooProfileDefinition.class,
-    XooExporter.class, StandardExporter.class);
+    XooExporter.class, StandardExporter.class,
+    XooProfileImporter.class, XooProfileImporterWithMessages.class, XooProfileImporterWithError.class);
 
-  QProfileExporters exporters = tester.get(QProfileExporters.class);
+  DbClient db;
+  DbSession dbSession;
+  QProfileExporters exporters;
+  QProfileLoader loader;
+
+  @Before
+  public void before() {
+    db = tester.get(DbClient.class);
+    dbSession = db.openSession(false);
+    exporters = tester.get(QProfileExporters.class);
+    loader = tester.get(QProfileLoader.class);
+  }
+
+  @After
+  public void after() throws Exception {
+    dbSession.close();
+  }
 
   @Test
   public void exportersForLanguage() throws Exception {
@@ -89,6 +115,58 @@ public class QProfileExportersTest {
       fail();
     } catch (NotFoundException e) {
       assertThat(e).hasMessage("Unknown Quality profile: unknown");
+    }
+  }
+
+  @Test
+  public void profile_importers_for_language() throws Exception {
+    assertThat(exporters.findProfileImportersForLanguage("xoo")).hasSize(3);
+  }
+
+  @Test
+  public void import_xml() throws Exception {
+    QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor("xoo", "import_xml"), "import_xml");
+    db.qualityProfileDao().insert(dbSession, profileDto);
+    dbSession.commit();
+
+    assertThat(loader.findActiveRulesByProfile(profileDto.getKey())).isEmpty();
+
+    exporters.importXml(profileDto, "XooProfileImporter", "<xml/>", dbSession);
+    dbSession.commit();
+
+    List<ActiveRule> activeRules = loader.findActiveRulesByProfile(profileDto.getKey());
+    assertThat(activeRules).hasSize(1);
+    ActiveRule activeRule = activeRules.get(0);
+    assertThat(activeRule.key().ruleKey()).isEqualTo(RuleKey.of("xoo", "R1"));
+    assertThat(activeRule.severity()).isEqualTo(Severity.CRITICAL);
+  }
+
+  @Test
+  public void import_xml_return_messages() throws Exception {
+    QProfileResult result = exporters.importXml(QProfileTesting.newXooP1(), "XooProfileImporterWithMessages", "<xml/>", dbSession);
+    dbSession.commit();
+
+    assertThat(result.infos()).containsOnly("an info");
+    assertThat(result.warnings()).containsOnly("a warning");
+  }
+
+  @Test
+  public void fail_to_import_xml_when_error_in_importer() throws Exception {
+    try {
+      exporters.importXml(QProfileTesting.newXooP1(), "XooProfileImporterWithError", "<xml/>", dbSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("error!");
+    }
+  }
+
+  @Test
+  public void fail_to_import_xml_on_unknown_importer() throws Exception {
+    try {
+      exporters.importXml(QProfileTesting.newXooP1(), "Unknown", "<xml/>", dbSession);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("No such importer : Unknown");
     }
   }
 
@@ -154,6 +232,54 @@ public class QProfileExportersTest {
       RulesProfile profile = RulesProfile.create("P1", "xoo");
       profile.activateRule(new Rule("xoo", "R1"), RulePriority.BLOCKER).setParameter("acceptWhitespace", "true");
       return profile;
+    }
+  }
+
+  public static class XooProfileImporter extends ProfileImporter {
+    public XooProfileImporter() {
+      super("XooProfileImporter", "Xoo Profile Importer");
+    }
+
+    @Override
+    public String[] getSupportedLanguages() {
+      return new String[] {"xoo"};
+    }
+
+    @Override
+    public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
+      RulesProfile rulesProfile = RulesProfile.create();
+      rulesProfile.activateRule(Rule.create("xoo", "R1"), RulePriority.CRITICAL);
+      return rulesProfile;
+    }
+  }
+
+  public static class XooProfileImporterWithMessages extends ProfileImporter {
+    public XooProfileImporterWithMessages() {
+      super("XooProfileImporterWithMessages", "Xoo Profile Importer With Message");
+    }
+
+    @Override
+    public String[] getSupportedLanguages() {
+      return new String[] {};
+    }
+
+    @Override
+    public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
+      messages.addWarningText("a warning");
+      messages.addInfoText("an info");
+      return RulesProfile.create();
+    }
+  }
+
+  public static class XooProfileImporterWithError extends ProfileImporter {
+    public XooProfileImporterWithError() {
+      super("XooProfileImporterWithError", "Xoo Profile Importer With Error");
+    }
+
+    @Override
+    public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
+      messages.addErrorText("error!");
+      return RulesProfile.create();
     }
   }
 

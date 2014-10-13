@@ -17,45 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo;
+package org.sonar.xoo.rule;
 
-import org.sonar.api.SonarPlugin;
-import org.sonar.xoo.lang.*;
-import org.sonar.xoo.rule.*;
+import org.sonar.api.profiles.ProfileImporter;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.ValidationMessages;
+import org.sonar.xoo.Xoo;
 
-import java.util.Arrays;
-import java.util.List;
+import java.io.Reader;
 
 /**
- * Plugin entry-point, as declared in pom.xml.
+ * Fake importer just for test, it will NOT take into account the given file but will create some hard-coded rules
  */
-public class XooPlugin extends SonarPlugin {
-
-  /**
-   * Declares all the extensions implemented in the plugin
-   */
-  @Override
-  public List getExtensions() {
-    return Arrays.asList(
-      Xoo.class,
-      XooRulesDefinition.class,
-      XooQualityProfile.class,
-
-      XooFakeExporter.class,
-      XooFakeImporter.class,
-      XooFakeImporterWithMessages.class,
-
-      // sensors
-      MeasureSensor.class,
-      ScmActivitySensor.class,
-      SyntaxHighlightingSensor.class,
-      SymbolReferencesSensor.class,
-      XooTokenizerSensor.class,
-
-      OneIssuePerLineSensor.class,
-      OneIssueOnDirPerFileSensor.class,
-      CreateIssueByInternalKeySensor.class
-      );
+public class XooFakeImporter extends ProfileImporter {
+  public XooFakeImporter() {
+    super("XooProfileImporter", "Xoo Profile Importer");
   }
 
+  @Override
+  public String[] getSupportedLanguages() {
+    return new String[] {Xoo.KEY};
+  }
+
+  @Override
+  public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
+    RulesProfile rulesProfile = RulesProfile.create();
+    rulesProfile.activateRule(Rule.create(XooRulesDefinition.XOO_REPOSITORY, "x1"), RulePriority.CRITICAL);
+    return rulesProfile;
+  }
 }

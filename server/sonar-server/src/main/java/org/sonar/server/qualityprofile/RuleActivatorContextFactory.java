@@ -47,7 +47,7 @@ public class RuleActivatorContextFactory implements ServerComponent {
       throw new BadRequestException("Quality profile not found: " + profileKey);
     }
     context.setProfile(profile);
-    return create(profile, ruleKey, session, context);
+    return create(ruleKey, session, context);
   }
 
   RuleActivatorContext create(QProfileName profileName, RuleKey ruleKey, DbSession session) {
@@ -57,13 +57,17 @@ public class RuleActivatorContextFactory implements ServerComponent {
       throw new BadRequestException("Quality profile not found: " + profileName);
     }
     context.setProfile(profile);
-    return create(profile, ruleKey, session, context);
+    return create(ruleKey, session, context);
   }
 
-  private RuleActivatorContext create(QualityProfileDto profile, RuleKey ruleKey, DbSession session, RuleActivatorContext context) {
+  RuleActivatorContext create(QualityProfileDto profile, RuleKey ruleKey, DbSession session) {
+    return create(ruleKey, session, new RuleActivatorContext().setProfile(profile));
+  }
+
+  private RuleActivatorContext create(RuleKey ruleKey, DbSession session, RuleActivatorContext context) {
     initRule(ruleKey, context, session);
-    initActiveRules(profile.getKey(), ruleKey, context, session, false);
-    String parentKee = profile.getParentKee();
+    initActiveRules(context.profile().getKey(), ruleKey, context, session, false);
+    String parentKee = context.profile().getParentKee();
     if (parentKee != null) {
       initActiveRules(parentKee, ruleKey, context, session, true);
     }

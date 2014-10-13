@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.activity.Activity;
@@ -86,6 +85,11 @@ public class RuleActivator implements ServerComponent {
 
   public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, QProfileName profileName) {
     RuleActivatorContext context = contextFactory.create(profileName, activation.getRuleKey(), dbSession);
+    return doActivate(dbSession, activation, context);
+  }
+
+  List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, QualityProfileDto profileDto) {
+    RuleActivatorContext context = contextFactory.create(profileDto, activation.getRuleKey(), dbSession);
     return doActivate(dbSession, activation, context);
   }
 

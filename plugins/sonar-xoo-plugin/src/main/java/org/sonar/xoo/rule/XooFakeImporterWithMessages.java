@@ -17,45 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo;
+package org.sonar.xoo.rule;
 
-import org.sonar.api.SonarPlugin;
-import org.sonar.xoo.lang.*;
-import org.sonar.xoo.rule.*;
+import org.sonar.api.profiles.ProfileImporter;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.utils.ValidationMessages;
 
-import java.util.Arrays;
-import java.util.List;
+import java.io.Reader;
 
 /**
- * Plugin entry-point, as declared in pom.xml.
+ * Fake importer just for test, it will NOT take into account the given file but will display some info and warning messages
  */
-public class XooPlugin extends SonarPlugin {
-
-  /**
-   * Declares all the extensions implemented in the plugin
-   */
-  @Override
-  public List getExtensions() {
-    return Arrays.asList(
-      Xoo.class,
-      XooRulesDefinition.class,
-      XooQualityProfile.class,
-
-      XooFakeExporter.class,
-      XooFakeImporter.class,
-      XooFakeImporterWithMessages.class,
-
-      // sensors
-      MeasureSensor.class,
-      ScmActivitySensor.class,
-      SyntaxHighlightingSensor.class,
-      SymbolReferencesSensor.class,
-      XooTokenizerSensor.class,
-
-      OneIssuePerLineSensor.class,
-      OneIssueOnDirPerFileSensor.class,
-      CreateIssueByInternalKeySensor.class
-      );
+public class XooFakeImporterWithMessages extends ProfileImporter {
+  public XooFakeImporterWithMessages() {
+    super("XooFakeImporterWithMessages", "Xoo Profile Importer With Messages");
   }
 
+  @Override
+  public String[] getSupportedLanguages() {
+    return new String[] {};
+  }
+
+  @Override
+  public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
+    messages.addWarningText("a warning");
+    messages.addInfoText("an info");
+    return RulesProfile.create();
+  }
 }

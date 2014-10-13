@@ -17,45 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo;
+package org.sonar.xoo.rule;
 
-import org.sonar.api.SonarPlugin;
-import org.sonar.xoo.lang.*;
-import org.sonar.xoo.rule.*;
+import org.sonar.api.profiles.ProfileExporter;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.xoo.Xoo;
 
-import java.util.Arrays;
-import java.util.List;
+import java.io.IOException;
+import java.io.Writer;
 
 /**
- * Plugin entry-point, as declared in pom.xml.
+ * Fake exporter just for test
  */
-public class XooPlugin extends SonarPlugin {
-
-  /**
-   * Declares all the extensions implemented in the plugin
-   */
-  @Override
-  public List getExtensions() {
-    return Arrays.asList(
-      Xoo.class,
-      XooRulesDefinition.class,
-      XooQualityProfile.class,
-
-      XooFakeExporter.class,
-      XooFakeImporter.class,
-      XooFakeImporterWithMessages.class,
-
-      // sensors
-      MeasureSensor.class,
-      ScmActivitySensor.class,
-      SyntaxHighlightingSensor.class,
-      SymbolReferencesSensor.class,
-      XooTokenizerSensor.class,
-
-      OneIssuePerLineSensor.class,
-      OneIssueOnDirPerFileSensor.class,
-      CreateIssueByInternalKeySensor.class
-      );
+public class XooFakeExporter extends ProfileExporter {
+  public XooFakeExporter() {
+    super("XooFakeExporter", "Xoo Fake Exporter");
   }
 
+  @Override
+  public String[] getSupportedLanguages() {
+    return new String[]{Xoo.KEY};
+  }
+
+  @Override
+  public String getMimeType() {
+    return "plain/custom";
+  }
+
+  @Override
+  public void exportProfile(RulesProfile profile, Writer writer) {
+    try {
+      writer.write("xoo -> " + profile.getName() + " -> " + profile.getActiveRules().size());
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+  }
 }

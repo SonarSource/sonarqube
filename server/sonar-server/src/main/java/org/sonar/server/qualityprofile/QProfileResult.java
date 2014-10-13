@@ -20,6 +20,8 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -29,7 +31,7 @@ public class QProfileResult {
   private List<String> warnings;
   private List<String> infos;
 
-  private QProfile profile;
+  private QualityProfileDto profile;
 
   public QProfileResult() {
     warnings = newArrayList();
@@ -54,11 +56,11 @@ public class QProfileResult {
     return this;
   }
 
-  public QProfile profile() {
+  public QualityProfileDto profile() {
     return profile;
   }
 
-  public QProfileResult setProfile(QProfile profile) {
+  public QProfileResult setProfile(QualityProfileDto profile) {
     this.profile = profile;
     return this;
   }

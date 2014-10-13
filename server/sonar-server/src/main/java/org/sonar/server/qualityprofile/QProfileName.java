@@ -37,6 +37,10 @@ public class QProfileName {
     return name;
   }
 
+  public static QProfileName createFor(String lang, String name){
+    return new QProfileName(lang, name);
+  }
+
   @Override
   public boolean equals(@Nullable Object o) {
     if (this == o) {

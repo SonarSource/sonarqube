@@ -71,10 +71,9 @@ class ProfilesController < ApplicationController
         end
       end
       profile_name = Java::OrgSonarServerQualityprofile::QProfileName.new(params[:language], params[:name])
-      Internal.qprofile_service.create(profile_name)
-      # TODO use files_by_key
-      #flash[:notice] = message('quality_profiles.profile_x_created', :params => result.profile.name)
-      #flash_result(result)
+      result = Internal.qprofile_service.create(profile_name, files_by_key)
+      flash[:notice] = message('quality_profiles.profile_x_created', :params => result.profile().getName())
+      flash_result(result)
     end
     redirect_to :action => 'index'
   end
@@ -530,7 +529,7 @@ class ProfilesController < ApplicationController
   def flash_result(result)
     # only 4 messages are kept each time to avoid cookie overflow.
     unless result.infos.empty?
-      flash[:notice] += result.infos.to_a[0...4].join('<br/>')
+      flash[:notice] += '<br/>' + result.infos.to_a[0...4].join('<br/>')
     end
     unless result.warnings.empty?
       flash[:warning] = result.warnings.to_a[0...4].join('<br/>')

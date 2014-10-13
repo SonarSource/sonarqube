@@ -19,19 +19,27 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.profiles.ProfileExporter;
+import org.sonar.api.profiles.ProfileImporter;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.activity.ActivityService;
@@ -44,6 +52,9 @@ import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +66,7 @@ import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_KEY;
 public class QProfileServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().addComponents(XooProfileImporter.class, XooExporter.class);
 
   DbClient db;
   DbSession dbSession;
@@ -85,6 +96,35 @@ public class QProfileServiceMediumTest {
   @After
   public void after() throws Exception {
     dbSession.close();
+  }
+
+  @Test
+  public void create_profile() throws Exception {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
+
+    QualityProfileDto profile = service.create(QProfileName.createFor("xoo", "New Profile"), null).profile();
+
+    assertThat(loader.getByKey(profile.getKey())).isNotNull();
+    assertThat(loader.getByKey(profile.getKey()).getLanguage()).isEqualTo("xoo");
+    assertThat(loader.getByKey(profile.getKey()).getName()).isEqualTo("New Profile");
+  }
+
+  @Test
+  public void create_profile_with_xml() throws Exception {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
+
+    db.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "R1")).setLanguage("xoo").setSeverity("MINOR"));
+    dbSession.commit();
+
+    QProfileResult result = service.create(QProfileName.createFor("xoo", "New Profile"), ImmutableMap.of("XooProfileImporter", "<xml/>"));
+    QualityProfileDto profile = result.profile();
+
+    assertThat(loader.getByKey(profile.getKey())).isNotNull();
+    assertThat(loader.getByKey(profile.getKey()).getLanguage()).isEqualTo("xoo");
+    assertThat(loader.getByKey(profile.getKey()).getName()).isEqualTo("New Profile");
+
+    List<ActiveRule> activeRules = loader.findActiveRulesByProfile(profile.getKey());
+    assertThat(activeRules).hasSize(1);
   }
 
   @Test
@@ -292,6 +332,53 @@ public class QProfileServiceMediumTest {
     dbSession.clearCache();
 
     assertThat(service.getDefault("xoo").getKey()).isEqualTo(XOO_P1_KEY);
+  }
+
+
+  public static class XooExporter extends ProfileExporter {
+    public XooExporter() {
+      super("xootool", "Xoo Tool");
+    }
+
+    @Override
+    public String[] getSupportedLanguages() {
+      return new String[]{"xoo"};
+    }
+
+    @Override
+    public String getMimeType() {
+      return "plain/custom";
+    }
+
+    @Override
+    public void exportProfile(RulesProfile profile, Writer writer) {
+      try {
+        writer.write("xoo -> " + profile.getName() + " -> " + profile.getActiveRules().size());
+      } catch (IOException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+  }
+
+  public static class XooProfileImporter extends ProfileImporter {
+    public XooProfileImporter() {
+      super("XooProfileImporter", "Xoo Profile Importer");
+    }
+
+    @Override
+    public String[] getSupportedLanguages() {
+      return new String[]{"xoo"};
+    }
+
+    @Override
+    public RulesProfile importProfile(Reader reader, ValidationMessages messages) {
+      RulesProfile rulesProfile = RulesProfile.create();
+      Rule rule = Rule.create("xoo", "R1");
+      rule.createParameter("acceptWhitespace");
+      org.sonar.api.rules.ActiveRule activeRule = rulesProfile.activateRule(rule, RulePriority.CRITICAL);
+      activeRule.setParameter("acceptWhitespace", "true");
+      return rulesProfile;
+    }
   }
 
 }

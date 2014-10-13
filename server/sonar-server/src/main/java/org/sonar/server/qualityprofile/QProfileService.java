@@ -48,6 +48,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class QProfileService implements ServerComponent {
 
@@ -58,9 +59,10 @@ public class QProfileService implements ServerComponent {
   private final QProfileBackuper backuper;
   private final QProfileCopier copier;
   private final QProfileReset reset;
+  private final QProfileExporters exporters;
 
   public QProfileService(DbClient db, IndexClient index, RuleActivator ruleActivator, QProfileFactory factory,
-    QProfileBackuper backuper, QProfileCopier copier, QProfileReset reset) {
+                         QProfileBackuper backuper, QProfileCopier copier, QProfileReset reset, QProfileExporters exporters) {
     this.db = db;
     this.index = index;
     this.ruleActivator = ruleActivator;
@@ -68,15 +70,23 @@ public class QProfileService implements ServerComponent {
     this.backuper = backuper;
     this.copier = copier;
     this.reset = reset;
+    this.exporters = exporters;
   }
 
-  public QualityProfileDto create(QProfileName name) {
+  public QProfileResult create(QProfileName name, @Nullable Map<String, String> xmlQProfilesByPlugin) {
     verifyAdminPermission();
     DbSession dbSession = db.openSession(false);
     try {
+      QProfileResult result = new QProfileResult();
       QualityProfileDto profile = factory.create(dbSession, name);
+      result.setProfile(profile);
+      if (xmlQProfilesByPlugin != null) {
+        for (Map.Entry<String, String> entry : xmlQProfilesByPlugin.entrySet()) {
+          result.add(exporters.importXml(profile, entry.getKey(), entry.getValue(), dbSession));
+        }
+      }
       dbSession.commit();
-      return profile;
+      return result;
     } finally {
       dbSession.close();
     }
