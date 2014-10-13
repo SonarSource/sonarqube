@@ -130,7 +130,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
   private Class<MAPPER> mapperClass;
   private System2 system2;
 
-  private boolean hasIndex() {
+  protected boolean hasIndex() {
     return indexDefinition != null;
   }
 
