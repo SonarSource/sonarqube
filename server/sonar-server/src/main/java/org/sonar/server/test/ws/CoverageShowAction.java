@@ -95,7 +95,7 @@ public class CoverageShowAction implements RequestHandler {
 
     int from = Math.max(request.mandatoryParamAsInt(FROM), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt(TO), Integer.MAX_VALUE);
-    CoverageService.TYPE type = CoverageService.TYPE.valueOf(request.param(TYPE));
+    CoverageService.TYPE type = CoverageService.TYPE.valueOf(request.mandatoryParam(TYPE));
 
     JsonWriter json = response.newJsonWriter().beginObject();
 

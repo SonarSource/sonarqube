@@ -110,8 +110,9 @@ public class CoverageService implements ServerComponent {
     DbSession session = myBatis.openSession(false);
     try {
       MeasureDto data = measureDao.getNullableByKey(session, MeasureKey.of(fileKey, metricKey));
-      if (data != null) {
-        return KeyValueFormat.parseIntInt(data.getData());
+      String dataValue = data != null ? data.getData() : null;
+      if (dataValue != null) {
+        return KeyValueFormat.parseIntInt(dataValue);
       }
       return Maps.newHashMap();
     } finally {

@@ -137,14 +137,14 @@ public final class SqaleRatingDecorator implements Decorator {
     if (measure != null) {
       return measure.getValue().longValue();
     }
-    return 0;
+    return 0L;
   }
 
   protected double computeDensity(double debt, double developmentCost) {
-    if (developmentCost != 0) {
+    if (developmentCost != 0f) {
       return debt / developmentCost;
     }
-    return 0;
+    return 0f;
   }
 
 }
