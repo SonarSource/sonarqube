@@ -30,9 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class KeyValueFormatTest {
 
@@ -42,7 +40,8 @@ public class KeyValueFormatTest {
     map.put("lucky", "luke");
     map.put("aste", "rix");
     String s = KeyValueFormat.format(map);
-    assertThat(s, is("lucky=luke;aste=rix"));// same order
+    // same order
+    assertThat(s).isEqualTo("lucky=luke;aste=rix");
   }
 
   @Test
@@ -51,7 +50,7 @@ public class KeyValueFormatTest {
     map.put(3, "three");
     map.put(5, "five");
     String s = KeyValueFormat.formatIntString(map);
-    assertThat(s, is("3=three;5=five"));// same order
+    assertThat(s).isEqualTo("3=three;5=five");
   }
 
   @Test
@@ -60,7 +59,7 @@ public class KeyValueFormatTest {
     map.put(13, 2.0);
     map.put(5, 5.75);
     String s = KeyValueFormat.formatIntDouble(map);
-    assertThat(s, is("13=2.0;5=5.75"));// same order
+    assertThat(s).isEqualTo("13=2.0;5=5.75");
   }
 
   @Test
@@ -69,14 +68,14 @@ public class KeyValueFormatTest {
     map.put(13, null);
     map.put(5, 5.75);
     String s = KeyValueFormat.formatIntDouble(map);
-    assertThat(s, is("13=;5=5.75"));// same order
+    assertThat(s).isEqualTo("13=;5=5.75");
   }
 
   @Test
   public void shouldFormatBlank() {
     Map<Integer, String> map = Maps.newTreeMap();
     String s = KeyValueFormat.formatIntString(map);
-    assertThat(s, is(""));
+    assertThat(s).isEqualTo("");
   }
 
   @Test
@@ -86,46 +85,46 @@ public class KeyValueFormatTest {
     map.put(20, new SimpleDateFormat("yyyy-MM-dd").parse("2009-05-28"));
     map.put(12, null);
     String s = KeyValueFormat.formatIntDate(map);
-    assertThat(s, is("4=2010-12-25;20=2009-05-28;12="));
+    assertThat(s).isEqualTo("4=2010-12-25;20=2009-05-28;12=");
   }
 
   @Test
   public void shouldParseStrings() {
     Map<String, String> map = KeyValueFormat.parse("one=un;two=deux");
-    assertThat(map.size(), is(2));
-    assertThat(map.get("one"), is("un"));
-    assertThat(map.get("two"), is("deux"));
-    assertThat(map.keySet().iterator().next(), is("one"));// same order as in string
+    assertThat(map.size()).isEqualTo(2);
+    assertThat(map.get("one")).isEqualTo("un");
+    assertThat(map.get("two")).isEqualTo("deux");
+    assertThat(map.keySet().iterator().next()).isEqualTo("one");// same order as in string
   }
 
   @Test
   public void shouldParseBlank() {
     Map<String, String> map = KeyValueFormat.parse("");
-    assertThat(map.size(), is(0));
+    assertThat(map.size()).isEqualTo(0);
   }
 
   @Test
   public void shouldParseNull() {
     Map<String, String> map = KeyValueFormat.parse(null);
-    assertThat(map.size(), is(0));
+    assertThat(map.size()).isEqualTo(0);
   }
 
   @Test
   public void shouldParseEmptyFields() {
     Map<Integer, Double> map = KeyValueFormat.parseIntDouble("4=4.2;2=;6=6.68");
-    assertThat(map.size(), is(3));
-    assertThat(map.get(4), is(4.2));
-    assertThat(map.get(2), nullValue());
-    assertThat(map.get(6), is(6.68));
+    assertThat(map.size()).isEqualTo(3);
+    assertThat(map.get(4)).isEqualTo(4.2);
+    assertThat(map.get(2)).isNull();
+    assertThat(map.get(6)).isEqualTo(6.68);
   }
 
   @Test
   public void shouldConvertPriority() {
-    assertThat(KeyValueFormat.newPriorityConverter().format(RulePriority.BLOCKER), is("BLOCKER"));
-    assertThat(KeyValueFormat.newPriorityConverter().format(null), is(""));
+    assertThat(KeyValueFormat.newPriorityConverter().format(RulePriority.BLOCKER)).isEqualTo("BLOCKER");
+    assertThat(KeyValueFormat.newPriorityConverter().format(null)).isEqualTo("");
 
-    assertThat(KeyValueFormat.newPriorityConverter().parse("MAJOR"), is(RulePriority.MAJOR));
-    assertThat(KeyValueFormat.newPriorityConverter().parse(""), nullValue());
+    assertThat(KeyValueFormat.newPriorityConverter().parse("MAJOR")).isEqualTo(RulePriority.MAJOR);
+    assertThat(KeyValueFormat.newPriorityConverter().parse("")).isNull();
   }
 
   @Test
@@ -134,16 +133,16 @@ public class KeyValueFormatTest {
     set.add("foo");
     set.add("foo");
     set.add("bar");
-    assertThat(KeyValueFormat.format(set), is("foo=2;bar=1"));
+    assertThat(KeyValueFormat.format(set)).isEqualTo("foo=2;bar=1");
   }
 
   @Test
   public void shouldParseMultiset() {
     Multiset<String> multiset = KeyValueFormat.parseMultiset("foo=2;bar=1;none=");
-    assertThat(multiset.count("foo"), is(2));
-    assertThat(multiset.count("bar"), is(1));
-    assertThat(multiset.count("none"), is(0));
-    assertThat(multiset.contains("none"), is(false));
+    assertThat(multiset.count("foo")).isEqualTo(2);
+    assertThat(multiset.count("bar")).isEqualTo(1);
+    assertThat(multiset.count("none")).isEqualTo(0);
+    assertThat(multiset.contains("none")).isFalse();
   }
 
   @Test
@@ -151,6 +150,6 @@ public class KeyValueFormatTest {
     Multiset<String> multiset = KeyValueFormat.parseMultiset("foo=2;bar=1");
 
     // first one is foo
-    assertThat(multiset.iterator().next(), is("foo"));
+    assertThat(multiset.iterator().next()).isEqualTo("foo");
   }
 }

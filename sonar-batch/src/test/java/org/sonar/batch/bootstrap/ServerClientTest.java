@@ -135,6 +135,11 @@ public class ServerClientTest {
     newServerClient().request("/foo");
   }
 
+  @Test
+  public void testEncode() {
+    assertThat(ServerClient.encodeForUrl("my value")).isEqualTo("my+value");
+  }
+
   private ServerClient newServerClient() {
     when(bootstrapProps.property("sonar.host.url")).thenReturn("http://localhost:" + server.getPort());
     return new ServerClient(bootstrapProps, new EnvironmentInformation("Junit", "4"));

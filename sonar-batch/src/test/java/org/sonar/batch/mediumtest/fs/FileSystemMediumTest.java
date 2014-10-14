@@ -29,6 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
 import org.sonar.batch.protocol.input.ActiveRule;
@@ -38,6 +39,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assume.assumeFalse;
 
 public class FileSystemMediumTest {
 
@@ -167,6 +169,18 @@ public class FileSystemMediumTest {
         .build())
       .start();
 
+  }
+
+  // SONAR-5330
+  @Test
+  public void scanProjectWithSourceSymlink() throws Exception {
+    assumeFalse(System2.INSTANCE.isOsWindows());
+    File projectDir = new File("src/test/resources/mediumtest/xoo/sample-with-symlink");
+    TaskResult result = tester
+      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .start();
+
+    assertThat(result.inputFiles()).hasSize(3);
   }
 
 }

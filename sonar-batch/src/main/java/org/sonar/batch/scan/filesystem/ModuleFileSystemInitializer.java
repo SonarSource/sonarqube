@@ -109,6 +109,10 @@ public class ModuleFileSystemInitializer implements BatchComponent {
     return testDirsOrFiles;
   }
 
+  /**
+   * @deprecated since 4.5.1 use SonarQube Java specific API
+   */
+  @Deprecated
   List<File> binaryDirs() {
     return binaryDirs;
   }

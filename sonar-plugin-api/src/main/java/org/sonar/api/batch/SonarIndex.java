@@ -105,9 +105,11 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
   public abstract void setSource(Resource reference, String source);
 
   /**
-   * @return source code associated with a specified resource, <code>null</code> if not available
+   * @return source code associated with a specified resource, <code>null</code> if not available 
+   * (for example when sonar.importSources=false)
    * @since 2.9
    */
+  @CheckForNull
   public abstract String getSource(Resource resource);
 
   public abstract Project getProject();

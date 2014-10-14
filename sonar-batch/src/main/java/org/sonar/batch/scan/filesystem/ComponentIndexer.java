@@ -22,6 +22,8 @@ package org.sonar.batch.scan.filesystem;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.io.Files;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SonarIndex;
@@ -44,6 +46,8 @@ import org.sonar.batch.util.DeprecatedKeyUtils;
  */
 public class ComponentIndexer implements BatchComponent {
 
+  private static final Logger LOG = LoggerFactory.getLogger(ComponentIndexer.class);
+
   private final Languages languages;
   private final Settings settings;
   private final SonarIndex sonarIndex;
@@ -62,6 +66,9 @@ public class ComponentIndexer implements BatchComponent {
     migration.migrateIfNeeded(module, fs);
 
     boolean shouldImportSource = settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
+    if (!shouldImportSource) {
+      LOG.warn("Not importing source will prevent issues to be properly tracked between consecutive analyses");
+    }
     for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
       String languageKey = inputFile.language();
       boolean unitTest = InputFile.Type.TEST == inputFile.type();

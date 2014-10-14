@@ -36,7 +36,9 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 
 /**
  * Replace the deprecated org.sonar.batch.ServerMetadata
@@ -143,5 +145,14 @@ public class ServerClient implements BatchComponent {
 
   private String getPassword() {
     return props.property(CoreProperties.PASSWORD);
+  }
+
+  public static String encodeForUrl(String url) {
+    try {
+      return URLEncoder.encode(url, "UTF-8");
+
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException("Encoding not supported", e);
+    }
   }
 }

@@ -19,8 +19,7 @@
  */
 package org.sonar.plugins.core.issue;
 
-import java.util.Collection;
-
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.scan.LastSnapshots;
@@ -28,7 +27,7 @@ import org.sonar.plugins.core.issue.tracking.HashedSequence;
 import org.sonar.plugins.core.issue.tracking.StringText;
 import org.sonar.plugins.core.issue.tracking.StringTextComparator;
 
-
+import java.util.Collection;
 
 public class SourceHashHolder {
 
@@ -66,15 +65,15 @@ public class SourceHashHolder {
   }
 
   public String getSource() {
-    if (! sourceInitialized) {
-      source = index.getSource(resource);
+    if (!sourceInitialized) {
+      source = StringUtils.defaultString(index.getSource(resource), "");
       sourceInitialized = true;
     }
     return source;
   }
 
   public String getReferenceSource() {
-    if (! referenceSourceInitialized) {
+    if (!referenceSourceInitialized) {
       if (resource != null) {
         referenceSource = lastSnapshots.getSource(resource);
       }
@@ -88,7 +87,7 @@ public class SourceHashHolder {
   }
 
   private void initHashesIfNull(Object required) {
-    if(required == null) {
+    if (required == null) {
       initHashes();
     }
   }
@@ -97,4 +96,3 @@ public class SourceHashHolder {
     return getHashedSource().getLinesForHash(getHashedReference().getHash(originLine));
   }
 }
-
