@@ -60,11 +60,10 @@ class DefaultSettings {
     defaults.put(ProcessConstants.CLUSTER_NAME, "sonarqube");
     defaults.put(ProcessConstants.SEARCH_JAVA_OPTS, "-Xmx256m -Xms256m -Xss256k -Djava.net.preferIPv4Stack=true " +
       "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +
-      "-XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true");
+      "-XX:+HeapDumpOnOutOfMemoryError");
     defaults.put(ProcessConstants.SEARCH_JAVA_ADDITIONAL_OPTS, "");
     defaults.put(ProcessConstants.CLUSTER_NODE_NAME, "sonar-" + System.currentTimeMillis());
-    defaults.put(ProcessConstants.WEB_JAVA_OPTS, "-Xmx768m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true " +
-      "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false");
+    defaults.put(ProcessConstants.WEB_JAVA_OPTS, "-Xmx768m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true");
     defaults.put(ProcessConstants.WEB_JAVA_ADDITIONAL_OPTS, "");
     defaults.put(ProcessConstants.JDBC_URL, "jdbc:h2:tcp://localhost:9092/sonar");
     defaults.put(ProcessConstants.JDBC_LOGIN, "sonar");
