@@ -62,12 +62,6 @@ public class SearchServer implements Monitored {
         }
       }
     }
-
-    node.client().admin().indices()
-      .preparePutTemplate("default")
-      .setTemplate("*")
-      .addMapping("_default_", "{\"dynamic\": \"strict\"}")
-      .get();
   }
 
   @Override

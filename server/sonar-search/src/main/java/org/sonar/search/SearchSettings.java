@@ -168,7 +168,6 @@ class SearchSettings {
           ProcessConstants.CLUSTER_MASTER, ProcessConstants.CLUSTER_MASTER_HOST));
       }
     }
-
     builder.put("index.number_of_replicas", replicationFactor);
     builder.put("cluster.name", clusterName);
     builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
@@ -182,6 +181,8 @@ class SearchSettings {
 
     // Enable marvel's index creation
     builder.put("action.auto_create_index", ".marvel-*");
+    // Only marvel on sq's indices
+    builder.put("marvel.agent.indices", "issues,logs,rules");
     // If we're collecting indexing data send them to the Marvel host(s)
     if (!marvels.isEmpty()) {
       String hosts = StringUtils.join(marvels, ",");
