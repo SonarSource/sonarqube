@@ -6,17 +6,37 @@
     </div>
     <div class="modal-body">
       <div class="modal-error"/>
+      <div class="modal-warning"/>
       <div class="modal-field">
         <label for="name"><%= message 'quality_profiles.copy_new_name' -%> <em class="mandatory">*</em></label>
         <input id="copy-name" name="name" type="text" size="50" maxlength="100" autofocus="autofocus"/>
       </div>
     </div>
     <div class="modal-foot">
+      <input type="hidden" value="" name="overwrite" id="copy-overwrite"/>
       <input type="submit" value="<%= h message('copy') -%>" id="copy-submit"/>
       <a href="#" onclick="return closeModalWindow()" id="copy-cancel"><%= h message('cancel') -%></a>
     </div>
   </fieldset>
 </form>
 <script>
-  $j("#copy-profile-form").modalForm();
+  $j("#copy-profile-form").modalForm({
+    error: function (xhr) {
+      if (xhr.status == 409) {
+        $j('#copy-profile-form .modal-error').hide();
+        var warningElt = $j('#copy-profile-form .modal-warning');
+        $j('#copy-overwrite').val($j('#copy-name').val());
+        $j('#copy-profile-form input[type=submit]').removeAttr('disabled');
+        warningElt.html(xhr.responseText);
+        warningElt.show();
+      } else {
+        $j('#copy-profile-form .modal-warning').hide();
+        var errorElt = $j('#copy-profile-form .modal-error');
+        $j('.loading-image').addClass("hidden");
+        $j('#copy-profile-form input[type=submit]').removeAttr('disabled');
+        errorElt.html(xhr.responseText);
+        errorElt.show();
+      }
+    }
+  });
 </script>

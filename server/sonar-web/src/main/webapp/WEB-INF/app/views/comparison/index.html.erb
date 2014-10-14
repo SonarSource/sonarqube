@@ -93,7 +93,7 @@
               });
             </script>
           </div>
-          
+
           <div id="resource_div" style="display: inline-block; margin-left: 30px">
             <%= resource_select_tag 'new_resource', {
               :resource_type_property => 'comparable',
@@ -147,14 +147,14 @@
               });
             </script>
           </div>
-	    
+
 	  </div>
 
       <table class="data">
         <thead>
-          
+
           <tr id="edit-columns-header">
-            <th></th>            
+            <th></th>
             <%
                last_index = @snapshots.size-1
                @snapshots.each_with_index do |s, index|
@@ -184,9 +184,9 @@
                 </tr>
               </table>
             </th>
-            <% end %>            
+            <% end %>
             <th></th>
-          </tr>    
+          </tr>
           <tr id="resource-info-header">
             <th></th>
             <%
@@ -205,7 +205,7 @@
               </th>
             <% end %>
             <th></th>
-          </tr>      
+          </tr>
         </thead>
 
         <tbody>
@@ -236,7 +236,7 @@
                 <%= format_measure s.measure(m) -%>
               </td>
             <% end %>
-            
+
             <td></td>
           </tr>
         <% end %>
