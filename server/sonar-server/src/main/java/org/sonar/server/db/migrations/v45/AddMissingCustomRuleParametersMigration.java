@@ -83,27 +83,34 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
       for (Integer templateRuleId : templateRuleParamsByRuleId.keySet()) {
         for (RuleParameter templateRuleParam : templateRuleParamsByRuleId.get(templateRuleId)) {
           // Each custom rule should have this parameter
-          for (Integer customRuleId : customRuleIdsByTemplateRuleId.get(templateRuleId)) {
-            if (!hasParameter(templateRuleParam.getName(), customRuleParamsByRuleId.get(customRuleId))) {
-              // Insert new custom rule parameter
-              mapper.insertRuleParameter(new RuleParameter()
-                .setRuleId(customRuleId)
-                .setRuleTemplateId(templateRuleId)
-                .setName(templateRuleParam.getName())
-                .setDescription(templateRuleParam.getDescription())
-                .setType(templateRuleParam.getType())
-              );
-
-              // Update updated at date of custom rule in order to allow E/S indexation
-              mapper.updateRuleUpdateAt(customRuleId, new Date(system.now()));
-            }
-          }
+          insertCustomRuleParameterIfNotAlreadyExisting(templateRuleParam, templateRuleId, customRuleIdsByTemplateRuleId, customRuleParamsByRuleId, session);
         }
       }
 
       session.commit();
     } finally {
       session.close();
+    }
+  }
+
+  private void insertCustomRuleParameterIfNotAlreadyExisting(RuleParameter templateRuleParam, Integer templateRuleId,
+    Multimap<Integer, Integer> customRuleIdsByTemplateRuleId,
+    Multimap<Integer, RuleParameter> customRuleParamsByRuleId,
+    DbSession session) {
+    for (Integer customRuleId : customRuleIdsByTemplateRuleId.get(templateRuleId)) {
+      if (!hasParameter(templateRuleParam.getName(), customRuleParamsByRuleId.get(customRuleId))) {
+        // Insert new custom rule parameter
+        session.getMapper(Migration45Mapper.class).insertRuleParameter(new RuleParameter()
+          .setRuleId(customRuleId)
+          .setRuleTemplateId(templateRuleId)
+          .setName(templateRuleParam.getName())
+          .setDescription(templateRuleParam.getDescription())
+          .setType(templateRuleParam.getType())
+          );
+
+        // Update updated at date of custom rule in order to allow E/S indexation
+        session.getMapper(Migration45Mapper.class).updateRuleUpdateAt(customRuleId, new Date(system.now()));
+      }
     }
   }
 

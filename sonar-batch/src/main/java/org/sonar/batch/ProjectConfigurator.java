@@ -91,7 +91,8 @@ public class ProjectConfigurator implements BatchComponent {
         throw new IllegalArgumentException(
           "'sonar.projectDate' property cannot be older than the date of the last known quality snapshot on this project. Value: '" +
             settings.getString(CoreProperties.PROJECT_DATE_PROPERTY) + "'. " +
-            "Latest quality snapshot: '" + DateUtils.formatDateTime(lastSnapshot.getCreatedAt()) + "'. This property may only be used to rebuild the past in a chronological order.");
+            "Latest quality snapshot: '" + DateUtils.formatDateTime(lastSnapshot.getCreatedAt())
+            + "'. This property may only be used to rebuild the past in a chronological order.");
       }
     }
   }
