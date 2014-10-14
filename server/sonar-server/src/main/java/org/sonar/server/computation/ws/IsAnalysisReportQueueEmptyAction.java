@@ -26,15 +26,15 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.ComputationService;
+import org.sonar.server.computation.AnalysisReportQueue;
 
 import java.util.List;
 
 public class IsAnalysisReportQueueEmptyAction implements RequestHandler {
-  private final ComputationService service;
+  private final AnalysisReportQueue queue;
 
-  public IsAnalysisReportQueueEmptyAction(ComputationService service) {
-    this.service = service;
+  public IsAnalysisReportQueueEmptyAction(AnalysisReportQueue queue) {
+    this.queue = queue;
   }
 
   void define(WebService.NewController controller) {
@@ -47,7 +47,7 @@ public class IsAnalysisReportQueueEmptyAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    List<AnalysisReportDto> reports = service.findAllUnfinishedAnalysisReports();
+    List<AnalysisReportDto> reports = queue.all();
     boolean isQueueEmpty = reports.isEmpty();
 
     IOUtils.write(String.valueOf(isQueueEmpty), response.stream().output());

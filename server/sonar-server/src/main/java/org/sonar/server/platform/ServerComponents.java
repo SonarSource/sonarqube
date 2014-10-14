@@ -90,6 +90,9 @@ import org.sonar.server.computation.AnalysisReportTaskCleaner;
 import org.sonar.server.computation.AnalysisReportTaskLauncher;
 import org.sonar.server.computation.ComputationService;
 import org.sonar.server.computation.db.AnalysisReportDao;
+import org.sonar.server.computation.ws.ActiveAnalysisReportsAction;
+import org.sonar.server.computation.ws.AnalysisReportWebService;
+import org.sonar.server.computation.ws.IsAnalysisReportQueueEmptyAction;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.db.DashboardDao;
 import org.sonar.server.dashboard.db.WidgetDao;
@@ -270,7 +273,7 @@ class ServerComponents {
       ActivityNormalizer.class,
       ActivityIndex.class,
       ActivityDao.class
-      ));
+    ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
     components.addAll(DaoUtils.getDaoClasses());
@@ -303,7 +306,7 @@ class ServerComponents {
       // ws
       RestartHandler.class,
       SystemWs.class
-      );
+    );
   }
 
   /**
@@ -320,7 +323,7 @@ class ServerComponents {
       HttpDownloader.class,
       UriReader.class,
       ServerIdGenerator.class
-      );
+    );
   }
 
   void startLevel4Components(ComponentContainer pico) {
@@ -591,6 +594,9 @@ class ServerComponents {
     pico.addSingleton(ComputationService.class);
     pico.add(AnalysisReportQueue.class);
     pico.addSingleton(AnalysisReportTaskLauncher.class);
+    pico.addSingleton(ActiveAnalysisReportsAction.class);
+    pico.addSingleton(AnalysisReportWebService.class);
+    pico.addSingleton(IsAnalysisReportQueueEmptyAction.class);
 
     for (Object components : level4AddedComponents) {
       pico.addSingleton(components);

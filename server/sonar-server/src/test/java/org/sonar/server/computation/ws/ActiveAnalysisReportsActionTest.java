@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.ComputationService;
+import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.ws.WsTester;
 
 import java.util.List;
@@ -37,13 +37,14 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 
 public class ActiveAnalysisReportsActionTest {
 
-  ComputationService service = mock(ComputationService.class);
+  private AnalysisReportQueue queue;
 
   WsTester tester;
 
   @Before
   public void setup() throws Exception {
-    tester = new WsTester(new AnalysisReportWebService(new ActiveAnalysisReportsAction(service), new IsAnalysisReportQueueEmptyAction(service)));
+    queue = mock(AnalysisReportQueue.class);
+    tester = new WsTester(new AnalysisReportWebService(new ActiveAnalysisReportsAction(queue), new IsAnalysisReportQueueEmptyAction(queue)));
   }
 
   @Test
@@ -57,7 +58,7 @@ public class ActiveAnalysisReportsActionTest {
     report.setCreatedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200"))
       .setUpdatedAt(DateUtils.parseDateTime("2014-10-14T00:00:00+0200"));
     List<AnalysisReportDto> reports = Lists.newArrayList(report);
-    when(service.findAllUnfinishedAnalysisReports()).thenReturn(reports);
+    when(queue.all()).thenReturn(reports);
 
     WsTester.TestRequest request = tester.newGetRequest(AnalysisReportWebService.API_ENDPOINT, "active");
     request.execute().assertJson(getClass(), "list_active_reports.json");

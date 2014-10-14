@@ -79,8 +79,4 @@ public class ComputationService implements ServerComponent {
       session.commit();
     }
   }
-
-  public List<AnalysisReportDto> findAllUnfinishedAnalysisReports() {
-    return null;
-  }
 }

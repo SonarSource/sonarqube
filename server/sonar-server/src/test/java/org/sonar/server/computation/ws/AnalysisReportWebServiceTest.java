@@ -23,7 +23,7 @@ package org.sonar.server.computation.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.computation.ComputationService;
+import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -35,8 +35,8 @@ public class AnalysisReportWebServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    this.tester = new WsTester(new AnalysisReportWebService(new ActiveAnalysisReportsAction(mock(ComputationService.class)), new IsAnalysisReportQueueEmptyAction(
-      mock(ComputationService.class))));
+    this.tester = new WsTester(new AnalysisReportWebService(new ActiveAnalysisReportsAction(mock(AnalysisReportQueue.class)), new IsAnalysisReportQueueEmptyAction(
+      mock(AnalysisReportQueue.class))));
   }
 
   @Test

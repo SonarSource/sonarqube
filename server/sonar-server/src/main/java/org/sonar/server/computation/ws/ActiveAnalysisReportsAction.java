@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.server.computation.ComputationService;
+import org.sonar.server.computation.AnalysisReportQueue;
 
 import java.util.List;
 
@@ -35,15 +35,15 @@ import java.util.List;
  * @since 5.0
  */
 public class ActiveAnalysisReportsAction implements RequestHandler {
-  private final ComputationService service;
+  private final AnalysisReportQueue queue;
 
-  public ActiveAnalysisReportsAction(ComputationService service) {
-    this.service = service;
+  public ActiveAnalysisReportsAction(AnalysisReportQueue queue) {
+    this.queue = queue;
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    List<AnalysisReportDto> reports = service.findAllUnfinishedAnalysisReports();
+    List<AnalysisReportDto> reports = queue.all();
 
     JsonWriter json = response.newJsonWriter().beginObject();
     writeReports(reports, json);
@@ -68,11 +68,11 @@ public class ActiveAnalysisReportsAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     controller
-      .createAction("active")
-      .setDescription("List all the active analysis reports")
-      .setSince("5.0")
-      .setResponseExample(Resources.getResource(getClass(), "example-list.json"))
-      .setHandler(this);
+        .createAction("active")
+        .setDescription("List all the active analysis reports")
+        .setSince("5.0")
+        .setResponseExample(Resources.getResource(getClass(), "example-list.json"))
+        .setHandler(this);
   }
 
 }
