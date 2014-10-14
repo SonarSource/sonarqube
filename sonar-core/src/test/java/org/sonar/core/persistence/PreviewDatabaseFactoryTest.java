@@ -32,7 +32,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 
 import javax.sql.DataSource;
-
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -68,9 +67,9 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
     byte[] db = createDb(null);
     dataSource = createDatabase(db);
 
-    assertThat(rowCount("projects")).isZero();
-    assertThat(rowCount("events")).isZero();
-    assertThat(rowCount("users")).isEqualTo(3);
+    assertThat(countRows("projects")).isZero();
+    assertThat(countRows("events")).isZero();
+    assertThat(countRows("users")).isEqualTo(3);
     // Verify that password column was not exported into dryRun DB
     assertThat(getUserPassword(dataSource, 1)).isNull();
   }
@@ -86,10 +85,10 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
     byte[] database = createDb(123L);
     dataSource = createDatabase(database);
 
-    assertThat(rowCount("projects")).isEqualTo(1);
-    assertThat(rowCount("snapshots")).isEqualTo(1);
-    assertThat(rowCount("project_measures")).isEqualTo(1);
-    assertThat(rowCount("events")).isEqualTo(2);
+    assertThat(countRows("projects")).isEqualTo(1);
+    assertThat(countRows("snapshots")).isEqualTo(1);
+    assertThat(countRows("project_measures")).isEqualTo(1);
+    assertThat(countRows("events")).isEqualTo(2);
   }
 
   @Test
@@ -99,7 +98,7 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
     byte[] database = createDb(399L);
     dataSource = createDatabase(database);
 
-    assertThat(rowCount("issues")).isEqualTo(1);
+    assertThat(countRows("issues")).isEqualTo(1);
   }
 
   @Test
@@ -109,11 +108,11 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
     // 300 : root module -> export issues of all modules
     byte[] database = createDb(300L);
     dataSource = createDatabase(database);
-    assertThat(rowCount("issues")).isEqualTo(1);
-    assertThat(rowCount("projects")).isEqualTo(4);
-    assertThat(rowCount("snapshots")).isEqualTo(4);
-    assertThat(rowCount("snapshot_data")).isEqualTo(2);
-    assertThat(rowCount("project_measures")).isEqualTo(4);
+    assertThat(countRows("issues")).isEqualTo(1);
+    assertThat(countRows("projects")).isEqualTo(4);
+    assertThat(countRows("snapshots")).isEqualTo(4);
+    assertThat(countRows("snapshot_data")).isEqualTo(2);
+    assertThat(countRows("project_measures")).isEqualTo(4);
   }
 
   @Test
@@ -123,10 +122,10 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
     // 301 : sub module with 1 closed issue and 1 open issue
     byte[] database = createDb(301L);
     dataSource = createDatabase(database);
-    assertThat(rowCount("issues")).isEqualTo(1);
-    assertThat(rowCount("projects")).isEqualTo(2);
-    assertThat(rowCount("snapshots")).isEqualTo(2);
-    assertThat(rowCount("project_measures")).isEqualTo(4);
+    assertThat(countRows("issues")).isEqualTo(1);
+    assertThat(countRows("projects")).isEqualTo(2);
+    assertThat(countRows("snapshots")).isEqualTo(2);
+    assertThat(countRows("project_measures")).isEqualTo(4);
   }
 
   @Test
@@ -136,7 +135,7 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
     // 302 : sub module without any issues
     byte[] database = createDb(302L);
     dataSource = createDatabase(database);
-    assertThat(rowCount("issues")).isEqualTo(0);
+    assertThat(countRows("issues")).isEqualTo(0);
   }
 
   @Test
@@ -145,9 +144,9 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
 
     byte[] database = createDb(null);
     dataSource = createDatabase(database);
-    assertThat(rowCount("permission_templates")).isEqualTo(1);
-    assertThat(rowCount("perm_templates_users")).isEqualTo(1);
-    assertThat(rowCount("perm_templates_groups")).isEqualTo(1);
+    assertThat(countRows("permission_templates")).isEqualTo(1);
+    assertThat(countRows("perm_templates_users")).isEqualTo(1);
+    assertThat(countRows("perm_templates_groups")).isEqualTo(1);
   }
 
   private BasicDataSource createDatabase(byte[] db) throws IOException {
@@ -156,8 +155,23 @@ public class PreviewDatabaseFactoryTest extends AbstractDaoTestCase {
     return new DbTemplate(new Profiling(new Settings())).dataSource("org.h2.Driver", "sonar", "sonar", "jdbc:h2:" + file.getAbsolutePath().replaceAll(".h2.db", ""));
   }
 
-  private int rowCount(String table) {
-    return new DbTemplate(new Profiling(new Settings())).getRowCount(dataSource, table);
+  private int countRows(String table) {
+    Connection connection = null;
+    Statement statement = null;
+    ResultSet resultSet = null;
+    try {
+      connection = dataSource.getConnection();
+      statement = connection.createStatement();
+      resultSet = statement.executeQuery("SELECT count(*) FROM " + table);
+
+      return resultSet.next() ? resultSet.getInt(1) : 0;
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to get row count for table " + table, e);
+    } finally {
+      DbUtils.closeQuietly(resultSet);
+      DbUtils.closeQuietly(statement);
+      DbUtils.closeQuietly(connection);
+    }
   }
 
   public String getUserPassword(DataSource dataSource, int userId) {

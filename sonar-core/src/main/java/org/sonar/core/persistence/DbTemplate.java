@@ -151,26 +151,6 @@ public class DbTemplate implements ServerComponent {
     return columnTypes;
   }
 
-  public int getRowCount(DataSource dataSource, String table) {
-    Connection connection = null;
-    Statement statement = null;
-    ResultSet resultSet = null;
-    try {
-      connection = dataSource.getConnection();
-      statement = connection.createStatement();
-      resultSet = statement.executeQuery("SELECT count(*) FROM " + table);
-
-      return resultSet.next() ? resultSet.getInt(1) : 0;
-    } catch (SQLException e) {
-      LOG.error("Fail to get row count for table " + table, e);
-      throw new SonarException("Fail to get row count for table " + table, e);
-    } finally {
-      DbUtils.closeQuietly(resultSet);
-      DbUtils.closeQuietly(statement);
-      DbUtils.closeQuietly(connection);
-    }
-  }
-
   public DbTemplate truncate(DataSource dataSource, String table) {
     Connection connection = null;
     Statement statement = null;

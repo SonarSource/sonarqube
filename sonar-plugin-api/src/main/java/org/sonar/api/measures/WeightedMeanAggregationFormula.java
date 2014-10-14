@@ -63,7 +63,7 @@ public class WeightedMeanAggregationFormula implements Formula {
       return null;
     }
 
-    double result = count==0.0 ? 0.0 : sum/count;
+    double result = Double.doubleToRawLongBits(count)==0L ? 0.0 : sum/count;
     return new Measure(context.getTargetMetric(), result);
   }
 }

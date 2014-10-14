@@ -82,9 +82,8 @@ public class BaseTangleIndexDecorator implements Decorator {
     return context.getMeasure(tangleIndexMetric) == null;
   }
 
-
   private double compute(double tangles, double totalWeight) {
-    if (totalWeight==0.0) {
+    if (Double.doubleToRawLongBits(totalWeight) == 0L) {
       return 0.0;
     }
     double result = 2 * tangles / totalWeight;

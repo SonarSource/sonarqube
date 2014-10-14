@@ -44,7 +44,6 @@ import java.util.UUID;
  */
 public final class IssueDto extends Dto<String> implements Serializable {
 
-
   private Long id;
   private String kee;
   private Long componentId;
@@ -87,12 +86,10 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return getKee();
   }
 
-  @Deprecated
   public Long getId() {
     return id;
   }
 
-  @Deprecated
   public IssueDto setId(@Nullable Long id) {
     this.id = id;
     return this;
@@ -118,9 +115,8 @@ public final class IssueDto extends Dto<String> implements Serializable {
   }
 
   /**
-   * @deprecated please use setComponent(ComponentDto component)
+   * please use setComponent(ComponentDto component)
    */
-  @Deprecated
   public IssueDto setComponentId(Long componentId) {
     this.componentId = componentId;
     return this;
@@ -137,9 +133,8 @@ public final class IssueDto extends Dto<String> implements Serializable {
   }
 
   /**
-   * @deprecated please use setRootComponent
+   * please use setRootComponent
    */
-  @Deprecated
   public IssueDto setRootComponentId(Long rootComponentId) {
     this.rootComponentId = rootComponentId;
     return this;
@@ -159,9 +154,8 @@ public final class IssueDto extends Dto<String> implements Serializable {
   }
 
   /**
-   * @deprecated please use setRule(RuleDto rule)
+   * please use setRule(RuleDto rule)
    */
-  @Deprecated
   public IssueDto setRuleId(Integer ruleId) {
     this.ruleId = ruleId;
     return this;

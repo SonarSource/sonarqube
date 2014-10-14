@@ -21,11 +21,15 @@ package org.sonar.api.resources;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.task.TaskExtension;
 
-import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -33,12 +37,11 @@ import java.util.List;
 /**
  * @since 2.14
  */
-@Immutable
 public class ResourceTypeTree implements TaskExtension, ServerExtension {
 
-  private List<ResourceType> types;
-  private ListMultimap<String, String> relations;
-  private ResourceType root;
+  private final List<ResourceType> types;
+  private final ListMultimap<String, String> relations;
+  private final ResourceType root;
 
   private ResourceTypeTree(Builder builder) {
     this.types = ImmutableList.copyOf(builder.types);

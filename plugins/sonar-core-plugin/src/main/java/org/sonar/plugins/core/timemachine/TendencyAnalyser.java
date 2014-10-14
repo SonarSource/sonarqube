@@ -52,17 +52,17 @@ public class TendencyAnalyser {
     for (Double p : values) {
       if (p != null) {
         nullValuesYList = false;
-        //SumY calculation
+        // SumY calculation
         sumY += p;
         // sumYPower2 calculation
         sumYPower2 += p * p;
-        //sumXY calculation
+        // sumXY calculation
         sumXY += p * (i + 1);
-        //SumX calculation
+        // SumX calculation
         sumX += (i + 1);
-        //sumXPower2 calculation
+        // sumXPower2 calculation
         sumXPower2 += (i + 1) * (i + 1);
-        //Point number calculation
+        // Point number calculation
         nbrPoints++;
       }
       i++;
@@ -77,10 +77,10 @@ public class TendencyAnalyser {
 
     SlopeData result = new SlopeData();
 
-    //yIntercept Calculation the value when X equals zero
+    // yIntercept Calculation the value when X equals zero
     result.setYIntercept(n1 / d);
     // Slope Calculation
-    if (n0 == 0d && d == 0d) {
+    if (Double.doubleToRawLongBits(n0) == 0L && Double.doubleToRawLongBits(d) == 0L) {
       result.setSlope(0.0);
     } else {
       Double slope = n0 / d;
@@ -94,7 +94,7 @@ public class TendencyAnalyser {
     result.setSumXY(sumXY);
     result.setSumYPower2(sumYPower2);
 
-    if (sumXPower2 == 0 || sumYPower2 == 0) {
+    if (Double.doubleToRawLongBits(sumXPower2) == 0L || Double.doubleToRawLongBits(sumYPower2) == 0L) {
       result.setCorrelationRate(0.0);
     } else {
       result.setCorrelationRate(sumXY / Math.sqrt(sumXPower2 * sumYPower2));
@@ -102,7 +102,6 @@ public class TendencyAnalyser {
 
     return result;
   }
-
 
   static class SlopeData {
     private double sumXPower2;

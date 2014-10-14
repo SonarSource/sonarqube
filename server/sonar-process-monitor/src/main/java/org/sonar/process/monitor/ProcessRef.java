@@ -19,6 +19,7 @@
  */
 package org.sonar.process.monitor;
 
+import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessCommands;
 import org.sonar.process.ProcessUtils;
@@ -90,9 +91,9 @@ class ProcessRef {
         // signal is sent, waiting for shutdown hooks to be executed (or not... it depends on OS)
         process.waitFor();
 
-      } catch (InterruptedException ignored) {
+      } catch (InterruptedException e) {
         // can't wait for the termination of process. Let's assume it's down.
-        // TODO log warning
+        LoggerFactory.getLogger(getClass()).warn(String.format("Interrupted while stopping process %s", key), e);
       }
     }
     ProcessUtils.closeStreams(process);
