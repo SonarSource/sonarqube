@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.db;
 
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -362,7 +363,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     checkTable("delete", "projects");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = PersistenceException.class)
   public void synchronize_after() {
     dao.synchronizeAfter(session, new Date(0L));
   }

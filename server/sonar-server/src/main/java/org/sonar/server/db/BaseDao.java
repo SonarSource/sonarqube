@@ -360,15 +360,11 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
       LOGGER.warn("Synchronizer should only be used with BatchSession!");
     }
 
-    try {
-      DbSynchronizationHandler handler = getSynchronizationResultHandler(session, params);
-      session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date, params), handler);
-      handler.enqueueCollected();
-      session.enqueue(new RefreshIndex(this.getIndexType()));
-      session.commit();
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-    }
+    DbSynchronizationHandler handler = getSynchronizationResultHandler(session, params);
+    session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date, params), handler);
+    handler.enqueueCollected();
+    session.enqueue(new RefreshIndex(this.getIndexType()));
+    session.commit();
   }
 
   private String getSynchronizeStatementFQN() {
