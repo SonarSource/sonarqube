@@ -28,6 +28,7 @@ import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +131,12 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public Map<String, String> attributes() {
-    return KeyValueFormat.parse((String) getNullableField(IssueNormalizer.IssueField.ATTRIBUTES.field()));
+    String data = getNullableField(IssueNormalizer.IssueField.ATTRIBUTES.field());
+    if (data == null) {
+      return Collections.emptyMap();
+    } else {
+      return KeyValueFormat.parse(data);
+    }
   }
 
   @Override
