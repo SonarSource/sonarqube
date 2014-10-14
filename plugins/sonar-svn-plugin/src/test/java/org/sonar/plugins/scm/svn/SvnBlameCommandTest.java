@@ -20,6 +20,7 @@
 package org.sonar.plugins.scm.svn;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,9 +48,7 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class SvnBlameCommandTest {
 
@@ -84,7 +83,7 @@ public class SvnBlameCommandTest {
       @Override
       public Integer answer(InvocationOnMock invocation) throws Throwable {
         StreamConsumer outConsumer = (StreamConsumer) invocation.getArguments()[1];
-        List<String> lines = FileUtils.readLines(new File("src/test/resources/blame.xml"), "UTF-8");
+        List<String> lines = IOUtils.readLines(getClass().getResourceAsStream("/blame.xml"), "UTF-8");
         for (String line : lines) {
           outConsumer.consumeLine(line);
         }
@@ -115,7 +114,7 @@ public class SvnBlameCommandTest {
       @Override
       public Integer answer(InvocationOnMock invocation) throws Throwable {
         StreamConsumer outConsumer = (StreamConsumer) invocation.getArguments()[1];
-        List<String> lines = FileUtils.readLines(new File("src/test/resources/blame-with-anonymous-commit.xml"), "UTF-8");
+        List<String> lines = IOUtils.readLines(getClass().getResourceAsStream("/blame-with-anonymous-commit.xml"), "UTF-8");
         for (String line : lines) {
           outConsumer.consumeLine(line);
         }
@@ -146,7 +145,7 @@ public class SvnBlameCommandTest {
       @Override
       public Integer answer(InvocationOnMock invocation) throws Throwable {
         StreamConsumer outConsumer = (StreamConsumer) invocation.getArguments()[1];
-        List<String> lines = FileUtils.readLines(new File("src/test/resources/blame-with-uncomitted-changes.xml"), "UTF-8");
+        List<String> lines = IOUtils.readLines(getClass().getResourceAsStream("/blame-with-uncomitted-changes.xml"), "UTF-8");
         for (String line : lines) {
           outConsumer.consumeLine(line);
         }
