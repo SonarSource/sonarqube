@@ -71,11 +71,10 @@ class DefaultSettings {
     defaults.put(CLUSTER_NAME, "sonarqube");
     defaults.put(SEARCH_JAVA_OPTS, "-Xmx256m -Xms256m -Xss256k -Djava.net.preferIPv4Stack=true " +
       "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +
-      "-XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true");
+      "-XX:+HeapDumpOnOutOfMemoryError");
     defaults.put(SEARCH_JAVA_ADDITIONAL_OPTS, "");
     defaults.put(CLUSTER_NODE_NAME, "sonar-" + System.currentTimeMillis());
-    defaults.put(WEB_JAVA_OPTS, "-Xmx768m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true " +
-      "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false");
+    defaults.put(WEB_JAVA_OPTS, "-Xmx768m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError");
     defaults.put(WEB_JAVA_ADDITIONAL_OPTS, "");
     defaults.put(JDBC_URL, "jdbc:h2:tcp://localhost:9092/sonar");
     defaults.put(JDBC_LOGIN, "sonar");
