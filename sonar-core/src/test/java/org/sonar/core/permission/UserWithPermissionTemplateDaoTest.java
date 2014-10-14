@@ -20,10 +20,14 @@
 
 package org.sonar.core.permission;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+
+import javax.annotation.Nullable;
 
 import java.util.List;
 
@@ -96,6 +100,23 @@ public class UserWithPermissionTemplateDaoTest extends AbstractDaoTestCase {
 
     // Only user3 has not the user permission
     assertThat(dao.selectUsers(PermissionQuery.builder().permission("user").membership(PermissionQuery.OUT).build(), TEMPLATE_ID)).hasSize(1);
+  }
+
+  @Test
+  public void select_only_enable_users() throws Exception {
+    setupData("select_only_enable_users");
+
+    PermissionQuery query = PermissionQuery.builder().permission("user").build();
+    List<UserWithPermissionDto> result = dao.selectUsers(query, 999L);
+    assertThat(result).hasSize(3);
+
+    // Disabled user should not be returned
+    assertThat(Iterables.find(result, new Predicate<UserWithPermissionDto>() {
+      @Override
+      public boolean apply(@Nullable UserWithPermissionDto input) {
+        return input.getLogin().equals("disabledUser");
+      }
+    }, null)).isNull();
   }
 
   @Test

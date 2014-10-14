@@ -261,3 +261,9 @@ DatabaseVersion.automatic_setup
 # All these changes are prefixed by the comment #sonar
 #
 #
+
+# Increase size of form parameters
+# See http://jira.codehaus.org/browse/SONAR-5577
+Rack::Utils.key_space_limit = 262144 # 4 times the default size
+
+

@@ -170,7 +170,7 @@ class IssuesController < ApplicationController
     new_params = params.clone
     new_params.delete('controller')
     new_params.delete('action')
-    translate_unassigned(new_params)
+    new_params
   end
 
   def init_params
@@ -179,16 +179,6 @@ class IssuesController < ApplicationController
 
   def issues_query_params_sanitized
     Internal.issues.sanitizeFilterQuery(params).to_hash
-  end
-
-  def translate_unassigned(issues_query_params)
-    if issues_query_params.has_key?(:assignees) && issues_query_params[:assignees] == '<unassigned>'
-      issues_query_params.delete(:assignees)
-      issues_query_params[:assigned] = false
-    else
-      issues_query_params[:assigned] = nil
-    end
-    issues_query_params
   end
 
   def issues_query_params_from_filter(filter)

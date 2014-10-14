@@ -73,6 +73,7 @@
       AND ptu.permission_reference=#{query.permission}
       AND ptu.template_id=#{templateId}
     <where>
+      u.active = ${_true}
       <choose>
         <when test="query.membership() == 'IN'">
           AND ptu.permission_reference IS NOT NULL

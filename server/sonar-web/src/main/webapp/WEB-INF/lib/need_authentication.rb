@@ -64,6 +64,10 @@ class PluginRealm
     result = nil
     if !username.blank? && !password.blank?
       user = User.find_active_by_login(username)
+      # SONAR-4950 Use a transaction to prevent multiple insertion of same groups
+      User.transaction do
+        user.save(false)
+      end
       result = user if user && user.authenticated?(password)
     end
     result
@@ -117,40 +121,46 @@ class PluginRealm
   def synchronize(username, password, details)
     username=details.getName() if username.blank? && details
     user = User.find_by_login(username)
-    if !user
-      # No such user in Sonar database
-      return nil if !Api::Utils.java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
-      # Automatically create a user in the sonar db if authentication has been successfully done
-      user = User.new(:login => username, :name => username, :email => '')
-      if details
-        user.name = details.getName()
-        user.email = details.getEmail()
-      end
-      default_group_name = Api::Utils.java_facade.getSettings().getString('sonar.defaultGroup')
-      default_group = Group.find_by_name(default_group_name)
-      if default_group
-        user.groups << default_group
+
+    # SONAR-4950 Use a transaction to prevent multiple insertion of same groups
+    User.transaction do
+      if !user
+        # No such user in Sonar database
+        return nil if !Api::Utils.java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
+        # Automatically create a user in the sonar db if authentication has been successfully done
+        user = User.new(:login => username, :name => username, :email => '')
+        if details
+          user.name = details.getName()
+          user.email = details.getEmail()
+        end
+        default_group_name = Api::Utils.java_facade.getSettings().getString('sonar.defaultGroup')
+        default_group = Group.find_by_name(default_group_name)
+        if default_group
+          user.groups << default_group
+        else
+          Rails.logger.error("The default user group does not exist: #{default_group_name}. Please check the parameter 'Default user group' in general settings.")
+        end
       else
-        Rails.logger.error("The default user group does not exist: #{default_group_name}. Please check the parameter 'Default user group' in general settings.")
+        # Existing user
+        if details && Api::Utils.java_facade.getSettings().getBoolean('sonar.security.updateUserAttributes')
+          user.name = details.getName()
+          user.email = details.getEmail()
+        end
       end
-    else
-      # Existing user
-      if details && Api::Utils.java_facade.getSettings().getBoolean('sonar.security.updateUserAttributes')
-        user.name = details.getName()
-        user.email = details.getEmail()
+      if @save_password
+        user.password = password
+        user.password_confirmation = password
       end
+
+      # A user that is synchronized with an external system is always set to 'active' (see SONAR-3258 for the deactivation concept)
+      user.active=true
+      # Note that validation disabled
+      user.save(false)
+
+      synchronize_groups(user)
+      user.notify_creation_handlers
+      user
     end
-    if @save_password
-      user.password = password
-      user.password_confirmation = password
-    end
-    synchronize_groups(user)
-    # A user that is synchronized with an external system is always set to 'active' (see SONAR-3258 for the deactivation concept)
-    user.active=true
-    # Note that validation disabled
-    user.save(false)
-    user.notify_creation_handlers
-    user
   end
 
   def synchronize_groups(user)

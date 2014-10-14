@@ -65,11 +65,11 @@ public class JdbcSettingsTest {
 
     // minimal -> ok
     settings.checkUrlParameters(JdbcSettings.Provider.MYSQL,
-      "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8");
+      "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&useCursorFetch=true");
 
     // full -> ok
     settings.checkUrlParameters(JdbcSettings.Provider.MYSQL,
-      "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance");
+      "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance&useCursorFetch=true");
 
     // missing required -> ko
     try {

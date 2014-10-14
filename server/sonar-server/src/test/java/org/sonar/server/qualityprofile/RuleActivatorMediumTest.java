@@ -32,6 +32,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
@@ -69,6 +70,8 @@ public class RuleActivatorMediumTest {
   RuleActivator ruleActivator;
   ActiveRuleIndex index;
 
+  QualityProfileDto profileDto;
+
   @Before
   public void before() {
     tester.clearDbAndIndexes();
@@ -100,7 +103,8 @@ public class RuleActivatorMediumTest {
       .setName("format").setDefaultValue("txt").setType(RuleParamType.STRING.type()));
 
     // create pre-defined profile P1
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    profileDto = QProfileTesting.newXooP1();
+    db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
     dbSession.clearCache();
   }
@@ -117,6 +121,23 @@ public class RuleActivatorMediumTest {
     activation.setParameter("max", "7");
     activation.setParameter("min", "3");
     List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, XOO_P1_KEY);
+    dbSession.commit();
+    dbSession.clearCache();
+
+    assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
+    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.BLOCKER, null,
+      ImmutableMap.of("max", "7", "min", "3"));
+    assertThat(changes).hasSize(1);
+    assertThat(changes.get(0).getType()).isEqualTo(ActiveRuleChange.Type.ACTIVATED);
+  }
+
+  @Test
+  public void activate_with_profile_dto() throws Exception {
+    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
+    activation.setSeverity(Severity.BLOCKER);
+    activation.setParameter("max", "7");
+    activation.setParameter("min", "3");
+    List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profileDto);
     dbSession.commit();
     dbSession.clearCache();
 

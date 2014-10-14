@@ -88,6 +88,11 @@ public class RuleActivator implements ServerComponent {
     return doActivate(dbSession, activation, context);
   }
 
+  List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, QualityProfileDto profileDto) {
+    RuleActivatorContext context = contextFactory.create(profileDto, activation.getRuleKey(), dbSession);
+    return doActivate(dbSession, activation, context);
+  }
+
   private List<ActiveRuleChange> doActivate(DbSession dbSession, RuleActivation activation, RuleActivatorContext context) {
     context.verifyForActivation();
     List<ActiveRuleChange> changes = Lists.newArrayList();
