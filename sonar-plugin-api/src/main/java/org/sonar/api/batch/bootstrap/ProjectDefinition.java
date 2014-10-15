@@ -313,7 +313,7 @@ public class ProjectDefinition {
   public ProjectDefinition addSourceFiles(String... paths) {
     // Hack for visual studio project builder that used to add baseDir first as source dir
     List<String> sourceDirs = getSourceDirs();
-    if (sourceDirs.size() == 1 && new File(sourceDirs.get(0)).isDirectory()) {
+    if (sourceDirs.size() == 1 && isDirectory(sourceDirs.get(0))) {
       resetSources();
     }
     return addSources(paths);
@@ -326,7 +326,7 @@ public class ProjectDefinition {
   public ProjectDefinition addSourceFiles(File... files) {
     // Hack for visual studio project builder that used to add baseDir first as source dir
     List<String> sourceDirs = getSourceDirs();
-    if (sourceDirs.size() == 1 && new File(sourceDirs.get(0)).isDirectory()) {
+    if (sourceDirs.size() == 1 && isDirectory(sourceDirs.get(0))) {
       resetSources();
     }
     return addSources(files);
@@ -436,10 +436,18 @@ public class ProjectDefinition {
   public ProjectDefinition addTestFiles(String... paths) {
     // Hack for visual studio project builder that used to add baseDir first as test dir
     List<String> testDirs = getTestDirs();
-    if (testDirs.size() == 1 && new File(testDirs.get(0)).isDirectory()) {
+    if (testDirs.size() == 1 && isDirectory(testDirs.get(0))) {
       resetTests();
     }
     return addTests(paths);
+  }
+
+  private boolean isDirectory(String relativeOrAbsoluteDir) {
+    File file = new File(relativeOrAbsoluteDir);
+    if (!file.isAbsolute()) {
+      file = new File(baseDir, relativeOrAbsoluteDir);
+    }
+    return file.isDirectory();
   }
 
   /**
@@ -447,6 +455,11 @@ public class ProjectDefinition {
    */
   @Deprecated
   public ProjectDefinition addTestFiles(File... files) {
+    // Hack for visual studio project builder that used to add baseDir first as test dir
+    List<String> testDirs = getTestDirs();
+    if (testDirs.size() == 1 && isDirectory(testDirs.get(0))) {
+      resetTests();
+    }
     return addTests(files);
   }
 

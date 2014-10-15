@@ -19,18 +19,25 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
-import org.junit.Test;
-import org.sonar.api.CoreProperties;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class ProjectDefinitionTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void shouldSetKey() {
@@ -181,6 +188,60 @@ public class ProjectDefinitionTest {
 
     root.resetTestDirs();
     assertThat(root.getTestDirs().size(), is(0));
+  }
+
+  @Test
+  public void shouldResetSourceDirsWhenUsindDeprecatedMethod() throws IOException {
+    File baseDir = temp.newFolder();
+    ProjectDefinition root = ProjectDefinition.create().setBaseDir(baseDir);
+    File src = new File(baseDir, "src");
+    src.mkdir();
+    root.addSourceDirs("src");
+    assertThat(root.getSourceDirs()).containsOnly("src");
+
+    root.addSourceFiles("foo.java");
+    assertThat(root.getSourceDirs()).containsOnly("foo.java");
+  }
+
+  @Test
+  public void shouldResetTestDirsWhenUsindDeprecatedMethod() throws IOException {
+    File baseDir = temp.newFolder();
+    ProjectDefinition root = ProjectDefinition.create().setBaseDir(baseDir);
+    File test = new File(baseDir, "test");
+    test.mkdir();
+    root.addTestDirs("test");
+    assertThat(root.getTestDirs()).containsOnly("test");
+
+    root.addTestFiles("fooTest.java");
+    assertThat(root.getTestDirs()).containsOnly("fooTest.java");
+  }
+
+  @Test
+  public void shouldResetSourceDirsWhenUsindDeprecatedFileMethod() throws IOException {
+    File baseDir = temp.newFolder();
+    ProjectDefinition root = ProjectDefinition.create().setBaseDir(baseDir);
+    File src = new File(baseDir, "src");
+    src.mkdir();
+    root.addSourceDirs("src");
+    assertThat(root.getSourceDirs()).containsOnly("src");
+
+    File file = new File(src, "foo.java");
+    root.addSourceFiles(file);
+    assertThat(root.getSourceDirs()).containsOnly(file.getAbsolutePath());
+  }
+
+  @Test
+  public void shouldResetTestDirsWhenUsindDeprecatedFileMethod() throws IOException {
+    File baseDir = temp.newFolder();
+    ProjectDefinition root = ProjectDefinition.create().setBaseDir(baseDir);
+    File test = new File(baseDir, "test");
+    test.mkdir();
+    root.addTestDirs("test");
+    assertThat(root.getTestDirs()).containsOnly("test");
+
+    File file = new File(test, "fooTest.java");
+    root.addTestFiles(file);
+    assertThat(root.getTestDirs()).containsOnly(file.getAbsolutePath());
   }
 
   private static void assertFiles(List<String> paths, String... values) {
