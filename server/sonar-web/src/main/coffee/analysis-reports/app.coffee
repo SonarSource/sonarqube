@@ -74,6 +74,7 @@ requirejs [
   App.addInitializer ->
     @reports = new Reports()
     @fetchReports()
+    setInterval (=> @fetchReports()), 30000 # Once every 30s
 
 
   App.addInitializer ->
