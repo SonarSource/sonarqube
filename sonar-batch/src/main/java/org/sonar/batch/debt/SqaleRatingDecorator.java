@@ -141,7 +141,7 @@ public final class SqaleRatingDecorator implements Decorator {
   }
 
   protected double computeDensity(double debt, double developmentCost) {
-    if (developmentCost != 0f) {
+    if (Double.doubleToRawLongBits(developmentCost) != 0L) {
       return debt / developmentCost;
     }
     return 0f;

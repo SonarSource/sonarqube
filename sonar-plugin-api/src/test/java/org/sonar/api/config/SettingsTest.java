@@ -28,6 +28,9 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
+import org.sonar.api.utils.DateUtils;
+
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -120,6 +123,17 @@ public class SettingsTest {
   }
 
   @Test
+  public void setProperty_date() throws Exception {
+    Settings settings = new Settings();
+    Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+0100");
+    settings.setProperty("aDate", date);
+    settings.setProperty("aDateTime", date, true);
+
+    assertThat(settings.getString("aDate")).isEqualTo("2010-05-18");
+    assertThat(settings.getString("aDateTime")).startsWith("2010-05-18T1");
+  }
+
+  @Test
   public void test_get_date() {
     Settings settings = new Settings(definitions);
     assertThat(settings.getDate("unknown")).isNull();
@@ -128,7 +142,7 @@ public class SettingsTest {
   }
 
   @Test
-  public void test_get_dat_enot_found() {
+  public void test_get_date_not_found() {
     Settings settings = new Settings(definitions);
     assertThat(settings.getDate("unknown")).isNull();
   }

@@ -19,12 +19,14 @@
  */
 package org.sonar.graph;
 
+import javax.annotation.Nullable;
+
 public class DsmCell {
 
   private final Edge edge;
   private final boolean feedbackEdge;
 
-  public DsmCell(Edge edge, boolean isFeedbackEdge) {
+  public DsmCell(@Nullable Edge edge, boolean isFeedbackEdge) {
     this.feedbackEdge = isFeedbackEdge;
     this.edge = edge;
   }

@@ -390,6 +390,9 @@ public class Settings implements BatchComponent, ServerComponent {
   }
 
   public Settings setProperty(String key, @Nullable Date date, boolean includeTime) {
+    if (date == null) {
+      return removeProperty(key);
+    }
     return setProperty(key, includeTime ? DateUtils.formatDateTime(date) : DateUtils.formatDate(date));
   }
 

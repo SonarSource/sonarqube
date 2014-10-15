@@ -228,56 +228,56 @@ public final class KeyValueFormat {
     return map;
   }
 
-  public static Map<String, String> parse(String data) {
+  public static Map<String, String> parse(@Nullable String data) {
     return parse(data, newStringConverter(), newStringConverter());
   }
 
   /**
    * @since 2.7
    */
-  public static Map<String, Integer> parseStringInt(String data) {
+  public static Map<String, Integer> parseStringInt(@Nullable String data) {
     return parse(data, newStringConverter(), newIntegerConverter());
   }
 
   /**
    * @since 2.7
    */
-  public static Map<String, Double> parseStringDouble(String data) {
+  public static Map<String, Double> parseStringDouble(@Nullable String data) {
     return parse(data, newStringConverter(), newDoubleConverter());
   }
 
   /**
    * @since 2.7
    */
-  public static Map<Integer, String> parseIntString(String data) {
+  public static Map<Integer, String> parseIntString(@Nullable String data) {
     return parse(data, newIntegerConverter(), newStringConverter());
   }
 
   /**
    * @since 2.7
    */
-  public static Map<Integer, Double> parseIntDouble(String data) {
+  public static Map<Integer, Double> parseIntDouble(@Nullable String data) {
     return parse(data, newIntegerConverter(), newDoubleConverter());
   }
 
   /**
    * @since 2.7
    */
-  public static Map<Integer, Date> parseIntDate(String data) {
+  public static Map<Integer, Date> parseIntDate(@Nullable String data) {
     return parse(data, newIntegerConverter(), newDateConverter());
   }
 
   /**
    * @since 2.7
    */
-  public static Map<Integer, Integer> parseIntInt(String data) {
+  public static Map<Integer, Integer> parseIntInt(@Nullable String data) {
     return parse(data, newIntegerConverter(), newIntegerConverter());
   }
 
   /**
    * @since 2.7
    */
-  public static Map<Integer, Date> parseIntDateTime(String data) {
+  public static Map<Integer, Date> parseIntDateTime(@Nullable String data) {
     return parse(data, newIntegerConverter(), newDateTimeConverter());
   }
 
@@ -288,7 +288,7 @@ public final class KeyValueFormat {
   /**
    * @since 2.7
    */
-  public static <K> Multiset<K> parseMultiset(String data, Converter<K> keyConverter) {
+  public static <K> Multiset<K> parseMultiset(@Nullable String data, Converter<K> keyConverter) {
     // to keep the same order
     Multiset<K> multiset = LinkedHashMultiset.create();
     if (data != null) {
@@ -307,14 +307,14 @@ public final class KeyValueFormat {
   /**
    * @since 2.7
    */
-  public static Multiset<Integer> parseIntegerMultiset(String data) {
+  public static Multiset<Integer> parseIntegerMultiset(@Nullable String data) {
     return parseMultiset(data, newIntegerConverter());
   }
 
   /**
    * @since 2.7
    */
-  public static Multiset<String> parseMultiset(String data) {
+  public static Multiset<String> parseMultiset(@Nullable String data) {
     return parseMultiset(data, newStringConverter());
   }
 
@@ -328,7 +328,7 @@ public final class KeyValueFormat {
    * @deprecated since 2.7
    */
   @Deprecated
-  public static <K, V> Map<K, V> parse(String data, Transformer<K, V> transformer) {
+  public static <K, V> Map<K, V> parse(@Nullable String data, Transformer<K, V> transformer) {
     Map<String, String> rawData = parse(data);
     Map<K, V> map = new HashMap<K, V>();
     for (Map.Entry<String, String> entry : rawData.entrySet()) {

@@ -155,7 +155,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
 
     private String userAgent;
 
-    public BaseHttpDownloader(Map<String, String> settings, String userAgent) {
+    public BaseHttpDownloader(Map<String, String> settings, @Nullable String userAgent) {
       initProxy(settings);
       initUserAgent(userAgent);
     }
@@ -167,7 +167,7 @@ public class HttpDownloader extends UriReader.SchemeProcessor implements BatchCo
       }
     }
 
-    private void initUserAgent(String sonarVersion) {
+    private void initUserAgent(@Nullable String sonarVersion) {
       userAgent = (sonarVersion == null ? "SonarQube" : String.format("SonarQube %s", sonarVersion));
       System.setProperty("http.agent", userAgent);
     }
