@@ -1,9 +1,3 @@
-<% if @snapshot %>
-  <a href="<%= url_for :controller => :dashboard2, :action => :index, :did => @dashboard.id, :id => @resource.id -%>">New Version</a>
-<% else %>
-  <a href="<%= url_for :controller => :dashboard2, :action => :index, :did => @dashboard.id -%>">New Version</a>
-<% end %>
-
 <% if logged_in? || @snapshot %>
 <div class="line-block">
 
