@@ -65,7 +65,7 @@ public class DefaultTestCaseCoverage extends DefaultStorable implements TestCase
   }
 
   @Override
-  public TestCaseCoverage cover(InputFile mainFile) {
+  public DefaultTestCaseCoverage cover(InputFile mainFile) {
     Preconditions.checkNotNull(mainFile, "InputFile cannot be null");
     Preconditions.checkArgument(mainFile.type() == InputFile.Type.MAIN, "Should be a main file: " + mainFile);
     this.mainFile = mainFile;
@@ -90,9 +90,9 @@ public class DefaultTestCaseCoverage extends DefaultStorable implements TestCase
   }
 
   @Override
-  public TestCaseCoverage onLines(List<Integer> lines) {
+  public DefaultTestCaseCoverage onLines(List<Integer> lines) {
     Preconditions.checkNotNull(lines, "Lines list cannot be null");
-    Preconditions.checkArgument(lines.size() > 0, "No need to register test coverage if no line is covered");
+    Preconditions.checkArgument(!lines.isEmpty(), "No need to register test coverage if no line is covered");
     this.lines = lines;
     return this;
   }
