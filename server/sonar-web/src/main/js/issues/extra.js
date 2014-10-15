@@ -372,14 +372,18 @@ define(
 
 
         serializeData: function () {
-          var data = Marionette.ItemView.prototype.serializeData.apply(this, arguments);
+          var data = Marionette.ItemView.prototype.serializeData.apply(this, arguments),
+              bulkChangeData = this.options.app.getQuery(true),
+              bulkChangeQuery = _.map(bulkChangeData,function (v, k) {
+                return [k, encodeURIComponent(v)].join('=');
+              }).join('&');
           return _.extend(data || {}, {
             paging: this.collection.paging,
             sorting: this.collection.sorting,
             maxResultsReached: this.collection.maxResultsReached,
             appState: window.SS.appState.toJSON(),
             bulkChangeUrl: baseUrl + '/issues/bulk_change_form',
-            query: (Backbone.history.fragment || '').replace(/\|/g, '&')
+            query: bulkChangeQuery
           });
         }
       });
