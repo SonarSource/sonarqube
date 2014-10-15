@@ -101,10 +101,6 @@
       <artifactId>log4j-over-slf4j</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.thoughtworks.xstream</groupId>
-      <artifactId>xstream</artifactId>
-    </dependency>
-    <dependency>
       <groupId>xpp3</groupId>
       <artifactId>xpp3</artifactId>
     </dependency>
