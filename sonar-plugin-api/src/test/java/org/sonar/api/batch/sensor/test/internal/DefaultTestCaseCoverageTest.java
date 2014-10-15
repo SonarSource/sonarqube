@@ -39,7 +39,7 @@ public class DefaultTestCaseCoverageTest {
 
   @Test
   public void testCreation() throws Exception {
-    DefaultTestCaseCoverage testCaseCoverage = new DefaultTestCaseCoverage(null)
+    DefaultTestCaseCoverage testCaseCoverage = new DefaultTestCaseCoverage()
       .testFile(testFile)
       .testName("myTest")
       .cover(mainFile)
@@ -53,17 +53,17 @@ public class DefaultTestCaseCoverageTest {
 
   @Test
   public void testEqualsHashCodeToString() {
-    DefaultTestCaseCoverage testCaseCoverage1 = new DefaultTestCaseCoverage(null)
+    DefaultTestCaseCoverage testCaseCoverage1 = new DefaultTestCaseCoverage()
       .testFile(testFile)
       .testName("myTest")
       .cover(mainFile)
       .onLines(Arrays.asList(1, 2, 3));
-    DefaultTestCaseCoverage testCaseCoverage1a = new DefaultTestCaseCoverage(null)
+    DefaultTestCaseCoverage testCaseCoverage1a = new DefaultTestCaseCoverage()
       .testFile(testFile)
       .testName("myTest")
       .cover(mainFile)
       .onLines(Arrays.asList(1, 2, 3));
-    DefaultTestCaseCoverage testCaseCoverage2 = new DefaultTestCaseCoverage(null)
+    DefaultTestCaseCoverage testCaseCoverage2 = new DefaultTestCaseCoverage()
       .testFile(testFile)
       .testName("myTest2")
       .cover(mainFile)

@@ -30,6 +30,7 @@ import org.sonar.api.batch.sensor.highlighting.HighlightingBuilder;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
+import org.sonar.api.batch.sensor.test.Coverage;
 import org.sonar.api.batch.sensor.test.TestCaseCoverage;
 import org.sonar.api.batch.sensor.test.TestCaseExecution;
 import org.sonar.api.config.Settings;
@@ -111,6 +112,13 @@ public interface SensorContext {
   void saveDuplications(InputFile inputFile, List<DuplicationGroup> duplications);
 
   // ------------ TESTS ------------
+
+  /**
+   * Create a new coverage report.
+   * Don't forget to call {@link Coverage#save()} once all parameters are provided.
+   * @since 5.0
+   */
+  Coverage newCoverage();
 
   /**
    * Create a new test case execution report.

@@ -41,7 +41,7 @@ public abstract class DefaultStorable {
 
   public final void save() {
     Preconditions.checkNotNull(this.storage, "No persister on this object");
-    Preconditions.checkState(!saved, "This measure was already saved");
+    Preconditions.checkState(!saved, "This object was already saved");
     doSave();
     this.saved = true;
   }
