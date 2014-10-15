@@ -28,7 +28,6 @@ import org.sonar.core.persistence.migration.v44.ChangeLog;
 import org.sonar.core.persistence.migration.v44.Migration44Mapper;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.rule.SeverityUtil;
-import org.sonar.server.activity.ActivityService;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
