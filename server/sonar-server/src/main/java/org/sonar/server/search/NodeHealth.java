@@ -21,8 +21,10 @@ package org.sonar.server.search;
 
 import org.elasticsearch.action.admin.cluster.node.stats.NodeStats;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class NodeHealth {
 
@@ -36,6 +38,9 @@ public class NodeHealth {
   private int cpuPercent;
   private long openFiles;
   private long jvmUptimeMillis;
+  private long fieldCacheMemory;
+  private long filterCacheMemory;
+  private List<Performance> performanceStats;
 
   public boolean isMaster() {
     return master;
@@ -127,6 +132,18 @@ public class NodeHealth {
     return calendar.getTime();
   }
 
+  public List<Performance> getPerformanceStats() {
+    return performanceStats;
+  }
+
+  public long getFieldCacheMemory() {
+    return fieldCacheMemory;
+  }
+
+  public long getFilterCacheMemory() {
+    return filterCacheMemory;
+  }
+
   NodeHealth(NodeStats nodesStats) {
     // Master/slave
     setMaster(nodesStats.getNode().isMasterNode());
@@ -148,7 +165,7 @@ public class NodeHealth {
     setJvmThreads(nodesStats.getJvm().getThreads().count());
 
     // CPU
-    if(nodesStats.getProcess().getCpu() != null) {
+    if (nodesStats.getProcess().getCpu() != null) {
       setProcessCpuPercent(nodesStats.getProcess().cpu().getPercent());
     }
 
@@ -157,5 +174,147 @@ public class NodeHealth {
 
     // Uptime
     setJvmUptimeMillis(nodesStats.getJvm().getUptime().getMillis());
+
+    // Performance Stat
+    performanceStats = new ArrayList<Performance>();
+
+    // IndexStat
+    double indexCount = nodesStats.getIndices().getIndexing().getTotal().getIndexCount();
+    double indexTotalTime = nodesStats.getIndices().getIndexing().getTotal().getIndexTimeInMillis();
+    performanceStats.add(
+      new Performance("Indexing")
+        .setWarnThreshold(10)
+        .setErrorThreshold(50)
+        .setMessage("Too complex documents or low IO/CPU")
+        .setValue(indexTotalTime / indexCount));
+
+    // Query stats
+    long queryCount = nodesStats.getIndices().getSearch().getTotal().getQueryCount();
+    long queryTotalTime = nodesStats.getIndices().getSearch().getTotal().getQueryTimeInMillis();
+    performanceStats.add(
+      new Performance("Querying")
+        .setWarnThreshold(50)
+        .setErrorThreshold(500)
+        .setMessage("Inefficient query and/or filters")
+        .setValue(queryTotalTime / queryCount));
+
+    // Fetch stats
+    long fetchCount = nodesStats.getIndices().getSearch().getTotal().getFetchCount();
+    long fetchTotalTime = nodesStats.getIndices().getSearch().getTotal().getFetchTimeInMillis();
+    performanceStats.add(
+      new Performance("Fetching")
+        .setWarnThreshold(8)
+        .setErrorThreshold(15)
+        .setMessage("Slow IO, fetch-size too large or documents too big")
+        .setValue(fetchTotalTime / fetchCount));
+
+    // Get stats
+    long getCount = nodesStats.getIndices().getGet().getCount();
+    long getTotalTime = nodesStats.getIndices().getGet().getTimeInMillis();
+    performanceStats.add(
+      new Performance("Get")
+        .setWarnThreshold(5)
+        .setErrorThreshold(10)
+        .setMessage("Slow IO")
+        .setValue(getTotalTime / getCount));
+
+    // Refresh Stat
+    long refreshCount = nodesStats.getIndices().getRefresh().getTotal();
+    long refreshTotalTime = nodesStats.getIndices().getRefresh().getTotalTimeInMillis();
+    performanceStats.add(
+      new Performance("Refreshing")
+        .setWarnThreshold(10)
+        .setErrorThreshold(20)
+        .setMessage("Slow IO")
+        .setValue(refreshTotalTime / refreshCount));
+
+    // Warmer Stat
+    // long warmingCount = // NO API AVAILABLE YET
+    // long warmingTotalTime = // NO API AVAILABLE YET
+    // performanceStats.add(
+    // new Performance("Warming")
+    // .setWarnThreshold(10)
+    // .setErrorThreshold(20)
+    // .setMessage("Refresh time too long or too complex warming queries")
+    // .setValue(warmingTotalTime / warmingCount));
+
+    // Field Cache
+    fieldCacheMemory = nodesStats.getIndices().getFieldData().getMemorySizeInBytes();
+    long fieldCacheEviction = nodesStats.getIndices().getFieldData().getEvictions();
+    performanceStats.add(
+      new Performance("Field Cache Eviction")
+        .setWarnThreshold(1)
+        .setErrorThreshold(1)
+        .setMessage("Insufficient RAM available for queries")
+        .setValue(fieldCacheEviction));
+
+    // Filter Cache
+    filterCacheMemory = nodesStats.getIndices().getFilterCache().getMemorySizeInBytes();
+    long filterCacheEviction = nodesStats.getIndices().getFilterCache().getEvictions();
+    performanceStats.add(
+      new Performance("Filter Cache Eviction")
+        .setWarnThreshold(1)
+        .setErrorThreshold(1)
+        .setMessage("Insufficient RAM or too many orphaned filters")
+        .setValue(filterCacheEviction));
+  }
+
+  static public class Performance {
+
+    public static enum Status {
+      OK, WARN, ERROR
+    }
+
+    final private String name;
+    private String message;
+    private double value;
+    private long warnThreshold;
+    private long errorThreshold;
+
+    public Performance(String name) {
+      this.name = name;
+    }
+
+    public Status getStatus() {
+      if (value >= errorThreshold) {
+        return Status.ERROR;
+      } else if (value >= warnThreshold) {
+        return Status.WARN;
+      } else {
+        return Status.OK;
+      }
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getMessage() {
+      return message;
+    }
+
+    public Performance setMessage(String message) {
+      this.message = message;
+      return this;
+    }
+
+    public double getValue() {
+      return value;
+    }
+
+    public Performance setValue(double value) {
+      this.value = value;
+      return this;
+    }
+
+    public Performance setWarnThreshold(long warnThreshold) {
+      this.warnThreshold = warnThreshold;
+      return this;
+    }
+
+    public Performance setErrorThreshold(long errorThreshold) {
+      this.errorThreshold = errorThreshold;
+      return this;
+    }
   }
 }

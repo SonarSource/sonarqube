@@ -30,6 +30,7 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -40,7 +41,7 @@ public class SearchHealthMediumTest {
   public static ServerTester tester = new ServerTester();
 
   @Test
-  public void get_search_health(){
+  public void get_search_health() {
     DbSession dbSession = tester.get(DbClient.class).openSession(false);
     tester.get(RuleDao.class).insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S001")));
     dbSession.commit();
@@ -59,6 +60,8 @@ public class SearchHealthMediumTest {
     assertThat(nodeHealth.getJvmHeapUsedPercent()).contains("%");
     assertThat(nodeHealth.getFsUsedPercent()).contains("%");
     assertThat(nodeHealth.getJvmThreads()).isGreaterThanOrEqualTo(0L);
+    assertThat(nodeHealth.getFieldCacheMemory()).isGreaterThanOrEqualTo(0L);
+    assertThat(nodeHealth.getFilterCacheMemory()).isGreaterThanOrEqualTo(0L);
     assertThat(nodeHealth.getProcessCpuPercent()).contains("%");
     long openFiles = nodeHealth.getOpenFiles();
     if (!tester.get(System2.class).isOsWindows()) {
@@ -66,9 +69,18 @@ public class SearchHealthMediumTest {
     }
     assertThat(nodeHealth.getJvmUpSince().before(now)).isTrue();
 
+    List<NodeHealth.Performance> performances = nodeHealth.getPerformanceStats();
+    assertThat(performances).hasSize(7);
+    for (NodeHealth.Performance performance : performances) {
+      assertThat(performance.getName()).isNotNull();
+      assertThat(performance.getValue()).isNotNull();
+      assertThat(performance.getMessage()).isNotNull();
+      assertThat(performance.getStatus()).isNotNull();
+    }
+
     Map<String, IndexHealth> indexHealth = health.getIndexHealth();
     assertThat(indexHealth).isNotEmpty();
-    for(IndexHealth index: indexHealth.values()) {
+    for (IndexHealth index : indexHealth.values()) {
       assertThat(index.getDocumentCount()).isGreaterThanOrEqualTo(0L);
       assertThat(index.getLastSynchronization().before(now)).isTrue();
       assertThat(index.isOptimized()).isIn(true, false);
