@@ -73,7 +73,7 @@ public class TestMediumTest {
     File xooTestFile = new File(testDir, "sampleTest.xoo");
     File xooTestPlanFile = new File(testDir, "sampleTest.xoo.testplan");
     FileUtils.write(xooTestFile, "Sample test xoo\ncontent");
-    FileUtils.write(xooTestPlanFile, "test1:UNIT:OK:::3\ntest2:INTEGRATION:ERROR:Assertion failure:A very long stack:12");
+    FileUtils.write(xooTestPlanFile, "test1:UNIT:OK:::\ntest2:INTEGRATION:ERROR:Assertion failure:A very long stack:12");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()

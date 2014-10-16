@@ -74,13 +74,17 @@ class DefaultTestCaseExecutionValueCoder implements ValueCoder {
     long duration = value.getLong();
     TestCaseExecution.Type type = TestCaseExecution.Type.values()[value.getInt()];
     TestCaseExecution.Status status = TestCaseExecution.Status.values()[value.getInt()];
-    return new DefaultTestCaseExecution()
+    DefaultTestCaseExecution testCaseExecution = new DefaultTestCaseExecution();
+    testCaseExecution
       .inTestFile(testFile)
       .ofType(type)
       .name(name)
-      .durationInMs(duration != -1 ? duration : null)
       .status(status)
       .message(message)
       .stackTrace(stack);
+    if (duration != -1) {
+      testCaseExecution.durationInMs(duration);
+    }
+    return testCaseExecution;
   }
 }

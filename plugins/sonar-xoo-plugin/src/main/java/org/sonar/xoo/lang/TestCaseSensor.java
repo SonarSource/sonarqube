@@ -76,16 +76,18 @@ public class TestCaseSensor implements Sensor {
       String status = split.next();
       String message = split.next();
       String stack = split.next();
-      long duration = Long.parseLong(split.next());
-      context.newTestCaseExecution()
+      String durationStr = StringUtils.trimToNull(split.next());
+      TestCaseExecution test = context.newTestCaseExecution()
         .inTestFile(testFile)
         .name(name)
         .ofType(TestCaseExecution.Type.valueOf(type))
         .status(TestCaseExecution.Status.valueOf(status))
         .message(StringUtils.trimToNull(message))
-        .stackTrace(StringUtils.trimToNull(stack))
-        .durationInMs(duration)
-        .save();
+        .stackTrace(StringUtils.trimToNull(stack));
+      if (durationStr != null) {
+        test.durationInMs(Long.parseLong(durationStr));
+      }
+      test.save();
     } catch (Exception e) {
       throw new IllegalStateException("Error processing line " + lineNumber + " of file " + testplanFile.getAbsolutePath(), e);
     }
