@@ -35,6 +35,11 @@
   #content {
     margin-left: 0 !important;
   }
+
+  .widget thead {
+    // Fix for phantomjs bug about wrapping tables
+    display: table-row-group;
+  }
 }
 
 @media screen {
