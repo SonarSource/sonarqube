@@ -75,6 +75,9 @@ public class CoveragePerTestSensor implements Sensor {
       String mainFileRelativePath = split.next();
       FileSystem fs = context.fileSystem();
       InputFile mainFile = fs.inputFile(fs.predicates().hasRelativePath(mainFileRelativePath));
+      if (mainFile == null) {
+        throw new IllegalStateException("Unable to find file " + mainFileRelativePath);
+      }
       List<Integer> coveredLines = new ArrayList<Integer>();
       Iterator<String> lines = Splitter.on(",").split(split.next()).iterator();
       while (lines.hasNext()) {

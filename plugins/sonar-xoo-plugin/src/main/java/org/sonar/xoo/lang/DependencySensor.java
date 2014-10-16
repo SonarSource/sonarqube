@@ -73,6 +73,9 @@ public class DependencySensor implements Sensor {
       String otherFileRelativePath = split.next();
       FileSystem fs = context.fileSystem();
       InputFile otherFile = fs.inputFile(fs.predicates().hasRelativePath(otherFileRelativePath));
+      if (otherFile == null) {
+        throw new IllegalStateException("Unable to find file " + otherFileRelativePath);
+      }
       int weight = Integer.parseInt(split.next());
       context.newDependency()
         .from(file)

@@ -269,7 +269,8 @@ public class BatchMediumTester {
         if (!coveragePerTest.get(testFileKey).containsKey(testName)) {
           coveragePerTest.get(testFileKey).put(testName, new HashMap<String, List<Integer>>());
         }
-        coveragePerTest.get(testFileKey).get(testName).put(entry.key()[2].toString(), entry.value().coveredLines());
+        TestCaseCoverage value = entry.value();
+        coveragePerTest.get(testFileKey).get(testName).put(entry.key()[2].toString(), value != null ? value.coveredLines() : null);
       }
     }
 
