@@ -27,9 +27,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 
-import static java.net.HttpURLConnection.HTTP_CREATED;
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.*;
 
 /**
  * Not an API. Please do not use this class, except maybe for unit tests.
@@ -149,8 +147,8 @@ public class HttpRequestFactory {
       if (isSuccess(request)) {
         return request.body(HttpRequest.CHARSET_UTF8);
       }
-      // TODO handle error messages
-      throw new HttpException(request.url().toString(), request.code());
+      // TODO better handle error messages
+      throw new HttpException(request.url().toString(), request.code(), request.body());
 
     } catch (HttpRequest.HttpRequestException e) {
       throw new IllegalStateException("Fail to request " + request.url(), e.getCause());
