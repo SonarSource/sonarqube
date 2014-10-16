@@ -37,14 +37,14 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 
 public class ActiveAnalysisReportsActionTest {
 
-  private AnalysisReportQueue queue;
-
   WsTester tester;
+  private AnalysisReportQueue queue;
 
   @Before
   public void setup() throws Exception {
     queue = mock(AnalysisReportQueue.class);
-    tester = new WsTester(new AnalysisReportWebService(new ActiveAnalysisReportsAction(queue), new IsAnalysisReportQueueEmptyAction(queue)));
+    tester = new WsTester(new AnalysisReportWebService(new ActiveAnalysisReportsAction(queue), new IsAnalysisReportQueueEmptyAction(queue),
+      mock(AnalysisReportHistorySearchAction.class)));
   }
 
   @Test

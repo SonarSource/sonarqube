@@ -33,8 +33,6 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.search.IndexClient;
 
-import java.util.List;
-
 /**
  * since 5.0
  */

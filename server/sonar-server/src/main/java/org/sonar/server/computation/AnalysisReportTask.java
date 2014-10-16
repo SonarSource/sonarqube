@@ -41,10 +41,21 @@ public class AnalysisReportTask implements Runnable {
     if (report != null) {
       try {
         service.analyzeReport(report);
-        queue.remove(report);
+        report.succeed();
       } catch (Exception exception) {
         LOG.error(String.format("Analysis of report %s failed", report), exception);
+        report.fail();
+      } finally {
+        removeFromQueue(report);
       }
+    }
+  }
+
+  private void removeFromQueue(AnalysisReportDto report) {
+    try {
+      queue.remove(report);
+    } catch (Exception exception) {
+      LOG.error(String.format("Removing of report %s failed", report), exception);
     }
   }
 }

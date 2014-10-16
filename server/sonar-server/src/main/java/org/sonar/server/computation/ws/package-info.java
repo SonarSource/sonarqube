@@ -17,30 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.activity;
 
-import java.util.Date;
-import java.util.Map;
+@ParametersAreNonnullByDefault
+package org.sonar.server.computation.ws;
 
-/**
- * @since 4.4
- */
-public interface Activity {
-
-  Type type();
-
-  String action();
-
-  Date time();
-
-  String login();
-
-  Map<String, String> details();
-
-  String message();
-
-  public static enum Type {
-    NONE, QPROFILE, SERVER, ANALYSIS_REPORT
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

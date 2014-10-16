@@ -20,9 +20,13 @@
 package org.sonar.core.computation.db;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Objects;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.Nullable;
+
+import static org.sonar.core.computation.db.AnalysisReportDto.Status.FAILED;
+import static org.sonar.core.computation.db.AnalysisReportDto.Status.SUCCESS;
 
 public class AnalysisReportDto extends Dto<String> {
 
@@ -62,6 +66,14 @@ public class AnalysisReportDto extends Dto<String> {
     return this;
   }
 
+  public void fail() {
+    this.status = FAILED;
+  }
+
+  public void succeed() {
+    this.status = SUCCESS;
+  }
+
   public String getData() {
     return data;
   }
@@ -82,6 +94,11 @@ public class AnalysisReportDto extends Dto<String> {
 
   @Override
   public String toString() {
+    Objects.toStringHelper(this)
+      .add("id", getId())
+      .add("projectKey", getProjectKey())
+      .add("projectName", getProjectName())
+      .add("status", getStatus());
     return String.format("analysis report {id:%s;project:'%s'}", getId(), getProjectKey());
   }
 
@@ -95,6 +112,10 @@ public class AnalysisReportDto extends Dto<String> {
   }
 
   public enum Status {
-    PENDING, WORKING
+    PENDING, WORKING, SUCCESS, FAILED;
+
+    public boolean isInFinalState() {
+      return SUCCESS.equals(this) || FAILED.equals(this);
+    }
   }
 }

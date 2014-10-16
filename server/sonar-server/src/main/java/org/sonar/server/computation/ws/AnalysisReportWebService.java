@@ -27,10 +27,13 @@ public class AnalysisReportWebService implements WebService {
 
   private final ActiveAnalysisReportsAction activeAnalysisReportsAction;
   private final IsAnalysisReportQueueEmptyAction isAnalysisReportQueueEmptyAction;
+  private final AnalysisReportHistorySearchAction historySearchAction;
 
-  public AnalysisReportWebService(ActiveAnalysisReportsAction activeReports, IsAnalysisReportQueueEmptyAction isAnalysisReportQueueEmptyAction) {
+  public AnalysisReportWebService(ActiveAnalysisReportsAction activeReports, IsAnalysisReportQueueEmptyAction isAnalysisReportQueueEmptyAction,
+    AnalysisReportHistorySearchAction historySearchAction) {
     this.activeAnalysisReportsAction = activeReports;
     this.isAnalysisReportQueueEmptyAction = isAnalysisReportQueueEmptyAction;
+    this.historySearchAction = historySearchAction;
   }
 
   @Override
@@ -41,6 +44,7 @@ public class AnalysisReportWebService implements WebService {
 
     activeAnalysisReportsAction.define(controller);
     isAnalysisReportQueueEmptyAction.define(controller);
+    historySearchAction.define(controller);
 
     controller.done();
   }

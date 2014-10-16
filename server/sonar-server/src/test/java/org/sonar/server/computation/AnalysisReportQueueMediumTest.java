@@ -33,6 +33,7 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.ServerTester;
@@ -41,6 +42,7 @@ import org.sonar.server.user.MockUserSession;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.core.computation.db.AnalysisReportDto.Status.SUCCESS;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
 public class AnalysisReportQueueMediumTest {
@@ -141,6 +143,19 @@ public class AnalysisReportQueueMediumTest {
     List<AnalysisReportDto> reports = sut.all();
 
     assertThat(reports).hasSize(3);
+  }
+
+  @Test
+  public void remove_remove_from_queue_and_log_a_new_activity() {
+    insertPermissionsForProject(DEFAULT_PROJECT_KEY);
+    sut.add(DEFAULT_PROJECT_KEY);
+    AnalysisReportDto report = sut.bookNextAvailable();
+    report.setStatus(SUCCESS);
+
+    sut.remove(report);
+
+    assertThat(sut.all()).isEmpty();
+    assertThat(tester.get(ActivityIndex.class).findAll().getHits()).hasSize(1);
   }
 
   @Test(expected = ForbiddenException.class)

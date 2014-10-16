@@ -91,6 +91,7 @@ import org.sonar.server.computation.AnalysisReportTaskLauncher;
 import org.sonar.server.computation.ComputationService;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.computation.ws.ActiveAnalysisReportsAction;
+import org.sonar.server.computation.ws.AnalysisReportHistorySearchAction;
 import org.sonar.server.computation.ws.AnalysisReportWebService;
 import org.sonar.server.computation.ws.IsAnalysisReportQueueEmptyAction;
 import org.sonar.server.config.ws.PropertiesWs;
@@ -594,9 +595,10 @@ class ServerComponents {
     pico.addSingleton(ComputationService.class);
     pico.add(AnalysisReportQueue.class);
     pico.addSingleton(AnalysisReportTaskLauncher.class);
-    pico.addSingleton(ActiveAnalysisReportsAction.class);
     pico.addSingleton(AnalysisReportWebService.class);
+    pico.addSingleton(ActiveAnalysisReportsAction.class);
     pico.addSingleton(IsAnalysisReportQueueEmptyAction.class);
+    pico.addSingleton(AnalysisReportHistorySearchAction.class);
 
     for (Object components : level4AddedComponents) {
       pico.addSingleton(components);

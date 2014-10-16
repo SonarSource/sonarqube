@@ -28,6 +28,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.TestDatabase;
 
 import java.util.Date;
@@ -62,8 +63,8 @@ public class AnalysisReportDaoTest {
   }
 
   @After
-  public void after() throws Exception {
-    session.close();
+  public void after() {
+    MyBatis.closeQuietly(session);
   }
 
   @Test
@@ -273,7 +274,7 @@ public class AnalysisReportDaoTest {
 
   @Test
   public void findAll_three_analysis_reports() {
-    db.prepareDbUnit(getClass(),  "three_analysis_reports.xml");
+    db.prepareDbUnit(getClass(), "three_analysis_reports.xml");
 
     List<AnalysisReportDto> reports = dao.findAll(session);
 
