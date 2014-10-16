@@ -19,7 +19,6 @@
  */
 package org.sonar.core.issue.db;
 
-import com.google.common.collect.Lists;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -31,9 +30,10 @@ import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Save issues into database. It is executed :
@@ -55,38 +55,46 @@ public abstract class IssueStorage {
   }
 
   public void save(DefaultIssue issue) {
-    save(Arrays.asList(issue));
+    save(newArrayList(issue));
+  }
+
+  public void save(DbSession session, DefaultIssue issue) {
+    save(session, newArrayList(issue));
   }
 
   public void save(Iterable<DefaultIssue> issues) {
+    DbSession session = mybatis.openSession(true);
+    try {
+      save(session, issues);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private void save(DbSession session, Iterable<DefaultIssue> issues) {
     // Batch session can not be used for updates. It does not return the number of updated rows,
     // required for detecting conflicts.
     Date now = new Date();
-    List<DefaultIssue> toBeUpdated = batchInsert(issues, now);
+    List<DefaultIssue> toBeUpdated = batchInsert(session, issues, now);
     update(toBeUpdated, now);
   }
 
-  private List<DefaultIssue> batchInsert(Iterable<DefaultIssue> issues, Date now) {
-    List<DefaultIssue> toBeUpdated = Lists.newArrayList();
-    DbSession batchSession = mybatis.openSession(true);
+  private List<DefaultIssue> batchInsert(DbSession session, Iterable<DefaultIssue> issues, Date now) {
+    List<DefaultIssue> toBeUpdated = newArrayList();
     int count = 0;
-    IssueChangeMapper issueChangeMapper = batchSession.getMapper(IssueChangeMapper.class);
-    try {
-      for (DefaultIssue issue : issues) {
-        if (issue.isNew()) {
-          doInsert(batchSession, now, issue);
-          insertChanges(issueChangeMapper, issue);
-          if (count > BatchSession.MAX_BATCH_SIZE) {
-            batchSession.commit();
-          }
-          count++;
-        } else if (issue.isChanged()) {
-          toBeUpdated.add(issue);
+    IssueChangeMapper issueChangeMapper = session.getMapper(IssueChangeMapper.class);
+    for (DefaultIssue issue : issues) {
+      if (issue.isNew()) {
+        doInsert(session, now, issue);
+        insertChanges(issueChangeMapper, issue);
+        if (count > BatchSession.MAX_BATCH_SIZE) {
+          session.commit();
         }
+        count++;
+      } else if (issue.isChanged()) {
+        toBeUpdated.add(issue);
       }
-      batchSession.commit();
-    } finally {
-      MyBatis.closeQuietly(batchSession);
     }
     return toBeUpdated;
   }

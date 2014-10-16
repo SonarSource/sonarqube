@@ -317,7 +317,7 @@ public class IssueService implements ServerComponent {
     if (projectKey == null) {
       throw new IllegalStateException(String.format("Issue '%s' has no project key", issue.key()));
     }
-    issueStorage.save(issue);
+    issueStorage.save(session, issue);
     issueNotifications.sendChanges(issue, context,
       getRuleByKey(issue.ruleKey()),
       dbClient.componentDao().getByKey(session, projectKey),

@@ -19,6 +19,8 @@
  */
 package org.sonar.core.issue.db;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
@@ -40,8 +42,20 @@ public class IssueStorageTest extends AbstractDaoTestCase {
 
   IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");
 
+  DbSession session;
+
+  @Before
+  public void before() {
+    session = getMyBatis().openSession(false);
+  }
+
+  @After
+  public void after() throws Exception {
+    session.close();
+  }
+
   @Test
-  public void should_insert_new_issues() throws Exception {
+  public void insert_new_issues() throws Exception {
     FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
@@ -74,7 +88,41 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_update_issues() throws Exception {
+  public void insert_new_issues_with_session() throws Exception {
+    FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
+
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    // override generated key
+    comment.setKey("FGHIJ");
+
+    Date date = DateUtils.parseDate("2013-05-18");
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setNew(true)
+
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setLine(5000)
+      .setDebt(Duration.create(10L))
+      .setReporter("emmerik")
+      .setResolution("OPEN")
+      .setStatus("OPEN")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .addComment(comment)
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date)
+
+      .setComponentKey("struts:Action");
+
+    saver.save(session, issue);
+    session.commit();
+
+    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+  }
+
+  @Test
+  public void update_issues() throws Exception {
     setupData("should_update_issues");
 
     FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());

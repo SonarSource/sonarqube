@@ -100,7 +100,11 @@ public class IssueCommentService implements ServerComponent {
 
       issueService.saveIssue(session, issue, context, text);
       session.commit();
-      List<DefaultIssueComment> comments = findComments(session, issueKey);
+
+      List<DefaultIssueComment> comments = findComments(issueKey);
+      if (comments.isEmpty()) {
+        throw new BadRequestException(String.format("Fail to add a comment on issue %s", issueKey));
+      }
       return comments.get(comments.size() - 1);
     } finally {
       session.close();

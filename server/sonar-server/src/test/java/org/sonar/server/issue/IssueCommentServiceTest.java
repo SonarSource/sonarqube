@@ -45,7 +45,11 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.user.MockUserSession;
 
+import java.util.Collections;
+
 import static com.google.common.collect.Lists.newArrayList;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -140,6 +144,21 @@ public class IssueCommentServiceTest {
 
     verify(updater, never()).addComment(any(DefaultIssue.class), anyString(), any(IssueChangeContext.class));
     verifyZeroInteractions(issueService);
+  }
+
+  @Test
+  public void fail_if_comment_not_inserted_in_db() throws Exception {
+    IssueDto issueDto = IssueTesting.newDto(RuleTesting.newXooX1().setId(500), ComponentTesting.newFileDto(ComponentTesting.newProjectDto()), ComponentTesting.newProjectDto());
+    when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issueDto);
+    // Comment has not be inserted in db
+    when(issueCommentService.findComments(session, "ABCD")).thenReturn(Collections.<DefaultIssueComment>emptyList());
+
+    try {
+      issueCommentService.addComment("ABCD", "my comment", MockUserSession.get());
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Fail to add a comment on issue ABCD");
+    }
   }
 
   @Test
