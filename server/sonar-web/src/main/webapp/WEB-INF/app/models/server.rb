@@ -111,7 +111,7 @@ class Server
       add_property(node_info, 'Field Cache Size') { number_to_human_size(node_health.getFieldCacheMemory()) }
       add_property(node_info, 'Filter Cache Size') { number_to_human_size(node_health.getFilterCacheMemory()) }
       node_health.getPerformanceStats().each do |performance|
-        message = performance.getStatus() == "ERROR" || performance.getStatus() == "WARN" ? "- #{performance.getStatus()}: #{performance.getMessage()}" : "";
+        message = performance.getStatus().toString() == "ERROR" || performance.getStatus().toString() == "WARN" ? "- #{performance.getStatus()}: #{performance.getMessage()}" : "";
         if performance.getName().include? "Eviction"
           add_property(node_info, performance.getName()) { "#{performance.getValue()} #{message} " }
         else
