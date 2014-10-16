@@ -106,6 +106,16 @@ class Server
       add_property(node_info, 'Disk Usage') { node_health.getFsUsedPercent() }
       add_property(node_info, 'Open Files') { node_health.getOpenFiles() }
       add_property(node_info, 'CPU Load Average') { node_health.getProcessCpuPercent() }
+      add_property(node_info, 'Field Cache Size') { "#{ format_double(node_health.getFieldCacheMemory() / 1000.0)} KB" }
+      add_property(node_info, 'Filter Cache Size') { "#{ format_double(node_health.getFilterCacheMemory() / 1000.0)} KB" }
+      node_health.getPerformanceStats().each do |performance|
+        message = performance.getStatus() == "ERROR" || performance.getStatus() == "WARN" ? "- #{performance.getStatus()}: #{performance.getMessage()}" : "";
+        if performance.getName().include? "Eviction"
+          add_property(node_info, performance.getName()) { "#{performance.getValue()} #{message} " }
+        else
+          add_property(node_info, performance.getName()) { "#{format_double(performance.getValue())} ms #{message} " }
+        end
+      end
       nodes_info.push(node_info)
     end
 

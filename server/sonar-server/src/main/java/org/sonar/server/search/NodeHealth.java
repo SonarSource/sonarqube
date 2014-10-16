@@ -182,7 +182,7 @@ public class NodeHealth {
     double indexCount = nodesStats.getIndices().getIndexing().getTotal().getIndexCount();
     double indexTotalTime = nodesStats.getIndices().getIndexing().getTotal().getIndexTimeInMillis();
     performanceStats.add(
-      new Performance("Indexing")
+      new Performance("Average Indexing Time")
         .setWarnThreshold(10)
         .setErrorThreshold(50)
         .setMessage("Too complex documents or low IO/CPU")
@@ -192,7 +192,7 @@ public class NodeHealth {
     long queryCount = nodesStats.getIndices().getSearch().getTotal().getQueryCount();
     long queryTotalTime = nodesStats.getIndices().getSearch().getTotal().getQueryTimeInMillis();
     performanceStats.add(
-      new Performance("Querying")
+      new Performance("Average Querying Time")
         .setWarnThreshold(50)
         .setErrorThreshold(500)
         .setMessage("Inefficient query and/or filters")
@@ -202,7 +202,7 @@ public class NodeHealth {
     long fetchCount = nodesStats.getIndices().getSearch().getTotal().getFetchCount();
     long fetchTotalTime = nodesStats.getIndices().getSearch().getTotal().getFetchTimeInMillis();
     performanceStats.add(
-      new Performance("Fetching")
+      new Performance("Average Fetching Time")
         .setWarnThreshold(8)
         .setErrorThreshold(15)
         .setMessage("Slow IO, fetch-size too large or documents too big")
@@ -212,7 +212,7 @@ public class NodeHealth {
     long getCount = nodesStats.getIndices().getGet().getCount();
     long getTotalTime = nodesStats.getIndices().getGet().getTimeInMillis();
     performanceStats.add(
-      new Performance("Get")
+      new Performance("Average Get Time")
         .setWarnThreshold(5)
         .setErrorThreshold(10)
         .setMessage("Slow IO")
@@ -222,7 +222,7 @@ public class NodeHealth {
     long refreshCount = nodesStats.getIndices().getRefresh().getTotal();
     long refreshTotalTime = nodesStats.getIndices().getRefresh().getTotalTimeInMillis();
     performanceStats.add(
-      new Performance("Refreshing")
+      new Performance("Average Refreshing Time")
         .setWarnThreshold(10)
         .setErrorThreshold(20)
         .setMessage("Slow IO")
@@ -242,7 +242,7 @@ public class NodeHealth {
     fieldCacheMemory = nodesStats.getIndices().getFieldData().getMemorySizeInBytes();
     long fieldCacheEviction = nodesStats.getIndices().getFieldData().getEvictions();
     performanceStats.add(
-      new Performance("Field Cache Eviction")
+      new Performance("Field Cache Eviction Count")
         .setWarnThreshold(1)
         .setErrorThreshold(1)
         .setMessage("Insufficient RAM available for queries")
@@ -252,7 +252,7 @@ public class NodeHealth {
     filterCacheMemory = nodesStats.getIndices().getFilterCache().getMemorySizeInBytes();
     long filterCacheEviction = nodesStats.getIndices().getFilterCache().getEvictions();
     performanceStats.add(
-      new Performance("Filter Cache Eviction")
+      new Performance("Filter Cache Eviction Count")
         .setWarnThreshold(1)
         .setErrorThreshold(1)
         .setMessage("Insufficient RAM or too many orphaned filters")
