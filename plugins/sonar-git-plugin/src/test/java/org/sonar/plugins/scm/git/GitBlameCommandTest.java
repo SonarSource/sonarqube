@@ -30,7 +30,8 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.scm.BlameCommand.BlameResult;
+import org.sonar.api.batch.scm.BlameCommand.BlameInput;
+import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.command.Command;
@@ -57,12 +58,15 @@ public class GitBlameCommandTest {
 
   private DefaultFileSystem fs;
   private File baseDir;
+  private BlameInput input;
 
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     fs = new DefaultFileSystem();
     fs.setBaseDir(baseDir);
+    input = mock(BlameInput.class);
+    when(input.fileSystem()).thenReturn(fs);
   }
 
   @Test
@@ -72,7 +76,7 @@ public class GitBlameCommandTest {
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath());
     fs.add(inputFile);
 
-    BlameResult result = mock(BlameResult.class);
+    BlameOutput result = mock(BlameOutput.class);
     CommandExecutor commandExecutor = mock(CommandExecutor.class);
 
     when(commandExecutor.execute(any(Command.class), any(StreamConsumer.class), any(StreamConsumer.class), anyLong())).thenAnswer(new Answer<Integer>() {
@@ -98,11 +102,13 @@ public class GitBlameCommandTest {
         return 0;
       }
     });
-
-    new GitBlameCommand(commandExecutor).blame(fs, Arrays.<InputFile>asList(inputFile), result);
-    verify(result).add(inputFile,
-      Arrays.asList(new BlameLine(DateUtils.parseDateTime("2011-08-05T10:49:31+0200"), "2c68c473da7fc293e12ca50f19380c5118be7ead", "simon.brandhof@gmail.com"),
-        new BlameLine(DateUtils.parseDateTime("2011-08-05T10:49:31+0200"), "2c68c473da7fc293e12ca50f19380c5118be7ead", "simon.brandhof@gmail.com")));
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+    new GitBlameCommand(commandExecutor).blame(input, result);
+    verify(result).blameResult(
+      inputFile,
+      Arrays.asList(
+        new BlameLine().date(DateUtils.parseDateTime("2011-08-05T10:49:31+0200")).revision("2c68c473da7fc293e12ca50f19380c5118be7ead").author("simon.brandhof@gmail.com"),
+        new BlameLine().date(DateUtils.parseDateTime("2011-08-05T10:49:31+0200")).revision("2c68c473da7fc293e12ca50f19380c5118be7ead").author("simon.brandhof@gmail.com")));
   }
 
   @Test
@@ -112,7 +118,7 @@ public class GitBlameCommandTest {
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath());
     fs.add(inputFile);
 
-    BlameResult result = mock(BlameResult.class);
+    BlameOutput result = mock(BlameOutput.class);
     CommandExecutor commandExecutor = mock(CommandExecutor.class);
 
     when(commandExecutor.execute(any(Command.class), any(StreamConsumer.class), any(StreamConsumer.class), anyLong())).thenAnswer(new Answer<Integer>() {
@@ -141,7 +147,8 @@ public class GitBlameCommandTest {
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Unable to blame file src/foo.xoo. No blame info at line 1. Is file commited?");
-    new GitBlameCommand(commandExecutor).blame(fs, Arrays.<InputFile>asList(inputFile), result);
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+    new GitBlameCommand(commandExecutor).blame(input, result);
   }
 
   @Test
@@ -151,7 +158,7 @@ public class GitBlameCommandTest {
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath());
     fs.add(inputFile);
 
-    BlameResult result = mock(BlameResult.class);
+    BlameOutput result = mock(BlameOutput.class);
     CommandExecutor commandExecutor = mock(CommandExecutor.class);
 
     when(commandExecutor.execute(any(Command.class), any(StreamConsumer.class), any(StreamConsumer.class), anyLong())).thenAnswer(new Answer<Integer>() {
@@ -167,7 +174,8 @@ public class GitBlameCommandTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The git blame command [git blame --porcelain src/foo.xoo -w] failed: My error");
 
-    new GitBlameCommand(commandExecutor).blame(fs, Arrays.<InputFile>asList(inputFile), result);
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+    new GitBlameCommand(commandExecutor).blame(input, result);
   }
 
 }

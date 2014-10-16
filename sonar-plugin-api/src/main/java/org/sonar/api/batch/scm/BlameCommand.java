@@ -19,33 +19,55 @@
  */
 package org.sonar.api.batch.scm;
 
+import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 
 import java.util.List;
 
 /**
+ * This class should be implemented by SCM providers.
  * @since 5.0
  */
-public interface BlameCommand {
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+public abstract class BlameCommand implements BatchComponent {
 
   /**
-   * Compute blame of the provided files. Computation can be done in parallel.
+   * Compute blame of the provided files. 
+   * Computation can be done in parallel if this is more efficient.
    * If there is an error that prevent to blame a file then an exception should be raised. If 
    * one file is new or contains local modifications then an exception should be raised.
    */
-  void blame(FileSystem fs, Iterable<InputFile> files, BlameResult result);
+  public abstract void blame(BlameInput input, BlameOutput output);
 
   /**
    * Callback for the provider to report results of blame per file.
    */
-  public static interface BlameResult {
+  public static interface BlameInput {
+
+    /**
+     * Filesystem of the current (sub )project.
+     */
+    FileSystem fileSystem();
+
+    /**
+     * List of files that should be blamed.
+     */
+    Iterable<InputFile> filesToBlame();
+
+  }
+
+  /**
+   * Callback for the provider to report results of blame per file.
+   */
+  public static interface BlameOutput {
 
     /**
      * Add result of the blame command for a single file. Number of lines should
-     * be consistent with {@link InputFile#lines()}.
+     * be consistent with {@link InputFile#lines()}. This method is thread safe.
      */
-    void add(InputFile file, List<BlameLine> lines);
+    void blameResult(InputFile file, List<BlameLine> lines);
 
   }
 

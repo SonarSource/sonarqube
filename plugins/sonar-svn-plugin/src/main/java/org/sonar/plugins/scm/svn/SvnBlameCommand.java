@@ -22,8 +22,6 @@ package org.sonar.plugins.scm.svn;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
@@ -44,8 +42,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class SvnBlameCommand implements BlameCommand, BatchComponent {
+public class SvnBlameCommand extends BlameCommand {
 
   private static final Logger LOG = LoggerFactory.getLogger(SvnBlameCommand.class);
   private final CommandExecutor commandExecutor;
@@ -61,12 +58,13 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
   }
 
   @Override
-  public void blame(final FileSystem fs, Iterable<InputFile> files, final BlameResult result) {
+  public void blame(final BlameInput input, final BlameOutput output) {
+    FileSystem fs = input.fileSystem();
     LOG.debug("Working directory: " + fs.baseDir().getAbsolutePath());
     ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
     List<Future<Void>> tasks = new ArrayList<Future<Void>>();
-    for (InputFile inputFile : files) {
-      tasks.add(submitTask(fs, result, executorService, inputFile));
+    for (InputFile inputFile : input.filesToBlame()) {
+      tasks.add(submitTask(fs, output, executorService, inputFile));
     }
 
     for (Future<Void> task : tasks) {
@@ -81,7 +79,7 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
     }
   }
 
-  private Future<Void> submitTask(final FileSystem fs, final BlameResult result, ExecutorService executorService, final InputFile inputFile) {
+  private Future<Void> submitTask(final FileSystem fs, final BlameOutput result, ExecutorService executorService, final InputFile inputFile) {
     return executorService.submit(new Callable<Void>() {
       @Override
       public Void call() {
@@ -91,7 +89,7 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
     });
   }
 
-  private void blame(final FileSystem fs, final InputFile inputFile, final BlameResult result) {
+  private void blame(final FileSystem fs, final InputFile inputFile, final BlameOutput output) {
     String filename = inputFile.relativePath();
     Command cl = createCommandLine(fs.baseDir(), filename);
     SvnBlameConsumer consumer = new SvnBlameConsumer(filename);
@@ -111,7 +109,7 @@ public class SvnBlameCommand implements BlameCommand, BatchComponent {
       // SONARPLUGINS-3097 SVN do not report blame on last empty line
       lines.add(lines.get(lines.size() - 1));
     }
-    result.add(inputFile, lines);
+    output.blameResult(inputFile, lines);
   }
 
   private int execute(Command cl, StreamConsumer consumer, StreamConsumer stderr) {

@@ -28,7 +28,8 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.scm.BlameCommand.BlameResult;
+import org.sonar.api.batch.scm.BlameCommand.BlameInput;
+import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.xoo.Xoo;
@@ -39,6 +40,7 @@ import java.util.Arrays;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class XooBlameCommandTest {
 
@@ -50,11 +52,14 @@ public class XooBlameCommandTest {
 
   private DefaultFileSystem fs;
   private File baseDir;
+  private BlameInput input;
 
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     fs = new DefaultFileSystem();
+    input = mock(BlameInput.class);
+    when(input.fileSystem()).thenReturn(fs);
   }
 
   @Test
@@ -66,10 +71,11 @@ public class XooBlameCommandTest {
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath()).setLanguage(Xoo.KEY);
     fs.add(inputFile);
 
-    BlameResult result = mock(BlameResult.class);
-    new XooBlameCommand().blame(fs, Arrays.<InputFile>asList(inputFile), result);
-    verify(result).add(inputFile, Arrays.asList(new BlameLine(DateUtils.parseDate("2014-12-12"), "123", "julien"),
-      new BlameLine(DateUtils.parseDate("2014-12-24"), "234", "julien")));
+    BlameOutput result = mock(BlameOutput.class);
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+    new XooBlameCommand().blame(input, result);
+    verify(result).blameResult(inputFile, Arrays.asList(
+      new BlameLine().revision("123").author("julien").date(DateUtils.parseDate("2014-12-12")),
+      new BlameLine().revision("234").author("julien").date(DateUtils.parseDate("2014-12-24"))));
   }
-
 }

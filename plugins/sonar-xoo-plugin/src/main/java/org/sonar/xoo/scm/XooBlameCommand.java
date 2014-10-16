@@ -23,9 +23,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.BlameLine;
@@ -34,27 +31,25 @@ import org.sonar.api.utils.DateUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class XooBlameCommand implements BlameCommand, BatchComponent {
+public class XooBlameCommand extends BlameCommand {
 
   private static final String SCM_EXTENSION = ".scm";
 
   @Override
-  public void blame(FileSystem fs, Iterable<InputFile> files, BlameResult result) {
-    for (InputFile inputFile : files) {
+  public void blame(BlameInput input, BlameOutput result) {
+    for (InputFile inputFile : input.filesToBlame()) {
       processFile(inputFile, result);
     }
   }
 
   @VisibleForTesting
-  protected void processFile(InputFile inputFile, BlameResult result) {
+  protected void processFile(InputFile inputFile, BlameOutput result) {
     File ioFile = inputFile.file();
     File scmDataFile = new java.io.File(ioFile.getParentFile(), ioFile.getName() + SCM_EXTENSION);
     if (!scmDataFile.exists()) {
-      throw new IllegalStateException("Missing file " + scmDataFile);
+      return;
     }
 
     try {
@@ -71,13 +66,16 @@ public class XooBlameCommand implements BlameCommand, BatchComponent {
           }
           String revision = StringUtils.trimToNull(fields[0]);
           String author = StringUtils.trimToNull(fields[1]);
+          BlameLine blameLine = new BlameLine().revision(revision).author(author);
           String dateStr = StringUtils.trimToNull(fields[2]);
           // Will throw an exception, when date is not in format "yyyy-MM-dd"
-          Date date = dateStr != null ? DateUtils.parseDate(dateStr) : null;
-          blame.add(new BlameLine(date, revision, author));
+          if (dateStr != null) {
+            blameLine.date(DateUtils.parseDate(dateStr));
+          }
+          blame.add(blameLine);
         }
       }
-      result.add(inputFile, blame);
+      result.blameResult(inputFile, blame);
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }

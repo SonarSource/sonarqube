@@ -22,6 +22,7 @@ package org.sonar.plugins.scm.git;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,7 +30,8 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.scm.BlameCommand.BlameResult;
+import org.sonar.api.batch.scm.BlameCommand.BlameInput;
+import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.DateUtils;
@@ -46,6 +48,7 @@ import java.util.zip.ZipFile;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class JGitBlameCommandTest {
 
@@ -57,6 +60,16 @@ public class JGitBlameCommandTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  private DefaultFileSystem fs;
+  private BlameInput input;
+
+  @Before
+  public void prepare() throws IOException {
+    fs = new DefaultFileSystem();
+    input = mock(BlameInput.class);
+    when(input.fileSystem()).thenReturn(fs);
+  }
+
   @Test
   public void testBlame() throws IOException {
     File projectDir = temp.newFolder();
@@ -64,47 +77,47 @@ public class JGitBlameCommandTest {
 
     JGitBlameCommand jGitBlameCommand = new JGitBlameCommand(new PathResolver());
 
-    DefaultFileSystem fs = new DefaultFileSystem();
     File baseDir = new File(projectDir, "dummy-git");
     fs.setBaseDir(baseDir);
     DefaultInputFile inputFile = new DefaultInputFile("foo", DUMMY_JAVA)
       .setFile(new File(baseDir, DUMMY_JAVA));
     fs.add(inputFile);
 
-    BlameResult blameResult = mock(BlameResult.class);
-    jGitBlameCommand.blame(fs, Arrays.<InputFile>asList(inputFile), blameResult);
+    BlameOutput blameResult = mock(BlameOutput.class);
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+    jGitBlameCommand.blame(input, blameResult);
 
     Date revisionDate = DateUtils.parseDateTime("2012-07-17T16:12:48+0200");
     String revision = "6b3aab35a3ea32c1636fee56f996e677653c48ea";
     String author = "david@gageot.net";
-    verify(blameResult).add(inputFile,
+    verify(blameResult).blameResult(inputFile,
       Arrays.asList(
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author)));
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author)));
   }
 
   @Test
@@ -114,47 +127,47 @@ public class JGitBlameCommandTest {
 
     JGitBlameCommand jGitBlameCommand = new JGitBlameCommand(new PathResolver());
 
-    DefaultFileSystem fs = new DefaultFileSystem();
     File baseDir = new File(projectDir, "dummy-git-nested/dummy-project");
     fs.setBaseDir(baseDir);
     DefaultInputFile inputFile = new DefaultInputFile("foo", DUMMY_JAVA)
       .setFile(new File(baseDir, DUMMY_JAVA));
     fs.add(inputFile);
 
-    BlameResult blameResult = mock(BlameResult.class);
-    jGitBlameCommand.blame(fs, Arrays.<InputFile>asList(inputFile), blameResult);
+    BlameOutput blameResult = mock(BlameOutput.class);
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+    jGitBlameCommand.blame(input, blameResult);
 
     Date revisionDate = DateUtils.parseDateTime("2012-07-17T16:12:48+0200");
     String revision = "6b3aab35a3ea32c1636fee56f996e677653c48ea";
     String author = "david@gageot.net";
-    verify(blameResult).add(inputFile,
+    verify(blameResult).blameResult(inputFile,
       Arrays.asList(
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author),
-        new BlameLine(revisionDate, revision, author)));
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author),
+        new BlameLine().revision(revision).date(revisionDate).author(author)));
   }
 
   @Test
@@ -164,7 +177,6 @@ public class JGitBlameCommandTest {
 
     JGitBlameCommand jGitBlameCommand = new JGitBlameCommand(new PathResolver());
 
-    DefaultFileSystem fs = new DefaultFileSystem();
     File baseDir = new File(projectDir, "dummy-git");
     fs.setBaseDir(baseDir);
     String relativePath = DUMMY_JAVA;
@@ -175,11 +187,12 @@ public class JGitBlameCommandTest {
     // Emulate a modification
     FileUtils.write(new File(baseDir, relativePath), "modification and \n some new line", true);
 
-    BlameResult blameResult = mock(BlameResult.class);
+    BlameOutput blameResult = mock(BlameOutput.class);
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Unable to blame file " + relativePath + ". No blame info at line 27. Is file commited?");
-    jGitBlameCommand.blame(fs, Arrays.<InputFile>asList(inputFile), blameResult);
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+    jGitBlameCommand.blame(input, blameResult);
   }
 
   @Test
@@ -189,7 +202,6 @@ public class JGitBlameCommandTest {
 
     JGitBlameCommand jGitBlameCommand = new JGitBlameCommand(new PathResolver());
 
-    DefaultFileSystem fs = new DefaultFileSystem();
     File baseDir = new File(projectDir, "dummy-git");
     fs.setBaseDir(baseDir);
     String relativePath = DUMMY_JAVA;
@@ -204,11 +216,12 @@ public class JGitBlameCommandTest {
     // Emulate a new file
     FileUtils.copyFile(new File(baseDir, relativePath), new File(baseDir, relativePath2));
 
-    BlameResult blameResult = mock(BlameResult.class);
+    BlameOutput blameResult = mock(BlameOutput.class);
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Unable to blame file " + relativePath2 + ". No blame info at line 1. Is file commited?");
-    jGitBlameCommand.blame(fs, Arrays.<InputFile>asList(inputFile, inputFile2), blameResult);
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile, inputFile2));
+    jGitBlameCommand.blame(input, blameResult);
   }
 
   private static void javaUnzip(File zip, File toDir) {

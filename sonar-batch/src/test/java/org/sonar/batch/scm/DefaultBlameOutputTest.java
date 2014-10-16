@@ -28,7 +28,7 @@ import org.sonar.api.batch.scm.BlameLine;
 
 import java.util.Arrays;
 
-public class DefaultBlameResultTest {
+public class DefaultBlameOutputTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -40,7 +40,18 @@ public class DefaultBlameResultTest {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Expected one blame result per line but provider returned 1 blame lines while file src/main/java/Foo.java has 10 lines");
 
-    new DefaultBlameResult(null).add(file, Arrays.asList(new BlameLine(null, "1", "guy")));
+    new DefaultBlameOutput(null, Arrays.asList(file)).blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
+  }
+
+  @Test
+  public void shouldFailIfNotExpectedFile() {
+    InputFile file = new DefaultInputFile("foo", "src/main/java/Foo.java").setLines(1);
+
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("It was not expected to blame file src/main/java/Foo.java");
+
+    new DefaultBlameOutput(null, Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/main/java/Foo2.java")))
+      .blameResult(file, Arrays.asList(new BlameLine().revision("1").author("guy")));
   }
 
 }

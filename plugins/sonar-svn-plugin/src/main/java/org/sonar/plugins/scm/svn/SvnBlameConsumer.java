@@ -43,6 +43,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.utils.command.StreamConsumer;
 
+import javax.annotation.CheckForNull;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -101,13 +103,14 @@ public class SvnBlameConsumer implements StreamConsumer {
       String date = matcher.group(1);
       String time = matcher.group(2);
       Date dateTime = parseDateTime(date + " " + time);
-      lines.add(new BlameLine(dateTime, revision, author));
+      lines.add(new BlameLine().revision(revision).author(author).date(dateTime));
       lineNumber = 0;
       revision = null;
       author = null;
     }
   }
 
+  @CheckForNull
   protected Date parseDateTime(String dateTimeStr) {
     try {
       return dateFormat.parse(dateTimeStr);

@@ -30,14 +30,13 @@ public class BlameLineTest {
   @Test
   public void testBlameLine() {
     Date date = new Date();
-    BlameLine line1 = new BlameLine(date, "1", "foo");
-    BlameLine line1b = new BlameLine(date, "1", "foo");
-    BlameLine line2 = new BlameLine(null, "2", "foo2");
+    BlameLine line1 = new BlameLine().date(date).revision("1").author("foo");
+    BlameLine line1b = new BlameLine().date(date).revision("1").author("foo");
+    BlameLine line2 = new BlameLine().date(null).revision("2").author("foo2");
 
     assertThat(line1.author()).isEqualTo("foo");
     assertThat(line1.date()).isEqualTo(date);
     assertThat(line1.revision()).isEqualTo("1");
-    assertThat(line1.committer()).isEqualTo("foo");
 
     assertThat(line1).isEqualTo(line1);
     assertThat(line1).isNotEqualTo(null);
@@ -46,7 +45,7 @@ public class BlameLineTest {
     assertThat(line1).isNotEqualTo(line2);
     assertThat(line1).isNotEqualTo("foo");
 
-    assertThat(line1.toString()).contains("revision=1,author=foo,committer=foo");
+    assertThat(line1.toString()).contains("revision=1,author=foo");
   }
 
 }

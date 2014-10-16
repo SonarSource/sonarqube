@@ -31,7 +31,8 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.scm.BlameCommand.BlameResult;
+import org.sonar.api.batch.scm.BlameCommand.BlameInput;
+import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -48,7 +49,9 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SvnBlameCommandTest {
 
@@ -60,12 +63,15 @@ public class SvnBlameCommandTest {
 
   private DefaultFileSystem fs;
   private File baseDir;
+  private BlameInput input;
 
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     fs = new DefaultFileSystem();
     fs.setBaseDir(baseDir);
+    input = mock(BlameInput.class);
+    when(input.fileSystem()).thenReturn(fs);
   }
 
   @Test
@@ -75,7 +81,7 @@ public class SvnBlameCommandTest {
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath());
     fs.add(inputFile);
 
-    BlameResult result = mock(BlameResult.class);
+    BlameOutput result = mock(BlameOutput.class);
     CommandExecutor commandExecutor = mock(CommandExecutor.class);
 
     when(commandExecutor.execute(any(Command.class), any(StreamConsumer.class), any(StreamConsumer.class), anyLong())).thenAnswer(new Answer<Integer>() {
@@ -91,12 +97,14 @@ public class SvnBlameCommandTest {
       }
     });
 
-    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(fs, Arrays.<InputFile>asList(inputFile), result);
-    verify(result).add(inputFile,
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+
+    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(input, result);
+    verify(result).blameResult(inputFile,
       Arrays.asList(
-        new BlameLine(DateUtils.parseDateTime("2009-04-18T10:29:59+0000"), "9491", "simon.brandhof"),
-        new BlameLine(DateUtils.parseDateTime("2009-04-18T10:29:59+0000"), "9491", "simon.brandhof"),
-        new BlameLine(DateUtils.parseDateTime("2009-08-31T22:32:17+0000"), "10558", "david")));
+        new BlameLine().date(DateUtils.parseDateTime("2009-04-18T10:29:59+0000")).revision("9491").author("simon.brandhof"),
+        new BlameLine().date(DateUtils.parseDateTime("2009-04-18T10:29:59+0000")).revision("9491").author("simon.brandhof"),
+        new BlameLine().date(DateUtils.parseDateTime("2009-08-31T22:32:17+0000")).revision("10558").author("david")));
   }
 
   @Test
@@ -106,7 +114,7 @@ public class SvnBlameCommandTest {
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath());
     fs.add(inputFile);
 
-    BlameResult result = mock(BlameResult.class);
+    BlameOutput result = mock(BlameOutput.class);
     CommandExecutor commandExecutor = mock(CommandExecutor.class);
 
     when(commandExecutor.execute(any(Command.class), any(StreamConsumer.class), any(StreamConsumer.class), anyLong())).thenAnswer(new Answer<Integer>() {
@@ -122,12 +130,14 @@ public class SvnBlameCommandTest {
       }
     });
 
-    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(fs, Arrays.<InputFile>asList(inputFile), result);
-    verify(result).add(inputFile,
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+
+    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(input, result);
+    verify(result).blameResult(inputFile,
       Arrays.asList(
-        new BlameLine(DateUtils.parseDateTime("2009-04-18T10:29:59+0000"), "9491", "simon.brandhof"),
-        new BlameLine(DateUtils.parseDateTime("2009-04-01T10:29:59+0000"), "1", null),
-        new BlameLine(DateUtils.parseDateTime("2009-08-31T22:32:17+0000"), "10558", "david")));
+        new BlameLine().date(DateUtils.parseDateTime("2009-04-18T10:29:59+0000")).revision("9491").author("simon.brandhof"),
+        new BlameLine().date(DateUtils.parseDateTime("2009-04-01T10:29:59+0000")).revision("1"),
+        new BlameLine().date(DateUtils.parseDateTime("2009-08-31T22:32:17+0000")).revision("10558").author("david")));
   }
 
   @Test
@@ -137,7 +147,7 @@ public class SvnBlameCommandTest {
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath());
     fs.add(inputFile);
 
-    BlameResult result = mock(BlameResult.class);
+    BlameOutput result = mock(BlameOutput.class);
     CommandExecutor commandExecutor = mock(CommandExecutor.class);
 
     when(commandExecutor.execute(any(Command.class), any(StreamConsumer.class), any(StreamConsumer.class), anyLong())).thenAnswer(new Answer<Integer>() {
@@ -156,7 +166,8 @@ public class SvnBlameCommandTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Unable to blame file src/foo.xoo. No blame info at line 2. Is file commited?");
 
-    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(fs, Arrays.<InputFile>asList(inputFile), result);
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(input, result);
   }
 
   @Test
@@ -166,7 +177,7 @@ public class SvnBlameCommandTest {
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath());
     fs.add(inputFile);
 
-    BlameResult result = mock(BlameResult.class);
+    BlameOutput result = mock(BlameOutput.class);
     CommandExecutor commandExecutor = mock(CommandExecutor.class);
 
     when(commandExecutor.execute(any(Command.class), any(StreamConsumer.class), any(StreamConsumer.class), anyLong())).thenAnswer(new Answer<Integer>() {
@@ -182,7 +193,8 @@ public class SvnBlameCommandTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The svn blame command [svn blame --xml src/foo.xoo --non-interactive] failed: My error");
 
-    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(fs, Arrays.<InputFile>asList(inputFile), result);
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(input, result);
   }
 
   @Test

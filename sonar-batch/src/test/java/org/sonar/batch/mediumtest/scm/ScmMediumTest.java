@@ -23,7 +23,9 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
@@ -41,6 +43,9 @@ public class ScmMediumTest {
 
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
@@ -87,6 +92,31 @@ public class ScmMediumTest {
       .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
       .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
       .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
+  }
+
+  @Test
+  public void failIfMissingFile() throws IOException {
+
+    File baseDir = prepareProject();
+    File xooFile = new File(baseDir, "src/sample2.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent\n3\n4\n5");
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Some files were not blamed");
+
+    tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .put("sonar.scm.provider", "xoo")
+        .build())
+      .start();
+
   }
 
   @Test

@@ -84,7 +84,11 @@ public final class ScmSensor implements Sensor {
     if (!filesToBlame.isEmpty()) {
       LOG.info("SCM provider for this project is: " + configuration.provider().key());
       TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
-      configuration.provider().blameCommand().blame(fs, filesToBlame, new DefaultBlameResult(context));
+      DefaultBlameOutput output = new DefaultBlameOutput(context, filesToBlame);
+      configuration.provider().blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
+      if (!output.remainingFiles().isEmpty()) {
+        throw new IllegalStateException("Some files were not blamed");
+      }
       profiler.stop();
     }
   }

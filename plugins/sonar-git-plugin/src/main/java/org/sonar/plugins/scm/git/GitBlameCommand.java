@@ -21,8 +21,6 @@ package org.sonar.plugins.scm.git;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
@@ -35,8 +33,7 @@ import org.sonar.api.utils.command.StringStreamConsumer;
 import java.io.File;
 import java.util.List;
 
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class GitBlameCommand implements BlameCommand, BatchComponent {
+public class GitBlameCommand extends BlameCommand {
 
   private static final Logger LOG = LoggerFactory.getLogger(GitBlameCommand.class);
   private final CommandExecutor commandExecutor;
@@ -50,9 +47,10 @@ public class GitBlameCommand implements BlameCommand, BatchComponent {
   }
 
   @Override
-  public void blame(FileSystem fs, Iterable<InputFile> files, BlameResult result) {
+  public void blame(BlameInput input, BlameOutput output) {
+    FileSystem fs = input.fileSystem();
     LOG.debug("Working directory: " + fs.baseDir().getAbsolutePath());
-    for (InputFile inputFile : files) {
+    for (InputFile inputFile : input.filesToBlame()) {
       String filename = inputFile.relativePath();
       Command cl = createCommandLine(fs.baseDir(), filename);
       GitBlameConsumer consumer = new GitBlameConsumer(filename);
@@ -67,7 +65,7 @@ public class GitBlameCommand implements BlameCommand, BatchComponent {
         // SONARPLUGINS-3097 Git do not report blame on last empty line
         lines.add(lines.get(lines.size() - 1));
       }
-      result.add(inputFile, lines);
+      output.blameResult(inputFile, lines);
     }
   }
 

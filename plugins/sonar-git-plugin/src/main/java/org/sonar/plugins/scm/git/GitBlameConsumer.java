@@ -35,7 +35,6 @@ public class GitBlameConsumer implements StreamConsumer {
   private static final String GIT_COMMITTER_PREFIX = "committer";
   private static final String GIT_COMMITTER_TIME = GIT_COMMITTER_PREFIX + "-time ";
   private static final String GIT_AUTHOR_EMAIL = "author-mail ";
-  private static final String GIT_COMMITTER_EMAIL = GIT_COMMITTER_PREFIX + "-mail ";
   private static final String OPENING_EMAIL_FIELD = "<";
   private static final String CLOSING_EMAIL_FIELD = ">";
 
@@ -55,7 +54,6 @@ public class GitBlameConsumer implements StreamConsumer {
 
   private String revision = null;
   private String author = null;
-  private String committer = null;
   private Date time = null;
   private final String filename;
 
@@ -93,11 +91,6 @@ public class GitBlameConsumer implements StreamConsumer {
       return true;
     }
 
-    if (line.startsWith(GIT_COMMITTER_EMAIL)) {
-      committer = extractEmail(line);
-      return true;
-    }
-
     if (line.startsWith(GIT_COMMITTER_TIME)) {
       String timeStr = line.substring(GIT_COMMITTER_TIME.length());
       time = new Date(Long.parseLong(timeStr) * 1000L);
@@ -118,7 +111,7 @@ public class GitBlameConsumer implements StreamConsumer {
   }
 
   private void consumeContentLine() {
-    BlameLine blameLine = new BlameLine(time, revision, author, committer);
+    BlameLine blameLine = new BlameLine().date(time).revision(revision).author(author);
     getLines().add(blameLine);
 
     // keep commitinfo for this sha-1
@@ -142,7 +135,6 @@ public class GitBlameConsumer implements StreamConsumer {
       if (oldLine != null) {
         // restore the commit info
         author = oldLine.author();
-        committer = oldLine.committer();
         time = oldLine.date();
       }
 

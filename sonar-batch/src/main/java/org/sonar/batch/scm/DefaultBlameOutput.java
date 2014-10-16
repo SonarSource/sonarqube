@@ -21,7 +21,7 @@ package org.sonar.batch.scm;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.scm.BlameCommand.BlameResult;
+import org.sonar.api.batch.scm.BlameCommand.BlameOutput;
 import org.sonar.api.batch.scm.BlameLine;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
@@ -33,24 +33,29 @@ import javax.annotation.Nullable;
 
 import java.text.Normalizer;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
-class DefaultBlameResult implements BlameResult {
+class DefaultBlameOutput implements BlameOutput {
 
   private static final Pattern NON_ASCII_CHARS = Pattern.compile("[^\\x00-\\x7F]");
   private static final Pattern ACCENT_CODES = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
 
   private final SensorContext context;
+  private final Set<InputFile> allFilesToBlame = new HashSet<InputFile>();
 
-  DefaultBlameResult(SensorContext context) {
+  DefaultBlameOutput(SensorContext context, List<InputFile> filesToBlame) {
     this.context = context;
+    this.allFilesToBlame.addAll(filesToBlame);
   }
 
   @Override
-  public void add(InputFile file, List<BlameLine> lines) {
+  public void blameResult(InputFile file, List<BlameLine> lines) {
     Preconditions.checkNotNull(file);
     Preconditions.checkNotNull(lines);
+    Preconditions.checkArgument(allFilesToBlame.contains(file), "It was not expected to blame file " + file.relativePath());
     Preconditions.checkArgument(lines.size() == file.lines(),
       "Expected one blame result per line but provider returned " + lines.size() + " blame lines while file " + file.relativePath() + " has " + file.lines() + " lines");
 
@@ -67,6 +72,7 @@ class DefaultBlameResult implements BlameResult {
       lineNumber++;
     }
     ScmSensor.saveMeasures(context, file, authors.buildData(), dates.buildData(), revisions.buildData());
+    allFilesToBlame.remove(file);
   }
 
   private String normalizeString(@Nullable String inputString) {
@@ -89,5 +95,9 @@ class DefaultBlameResult implements BlameResult {
 
   private static PropertiesBuilder<Integer, String> propertiesBuilder(Metric metric) {
     return new PropertiesBuilder<Integer, String>(metric);
+  }
+
+  public Set<InputFile> remainingFiles() {
+    return allFilesToBlame;
   }
 }

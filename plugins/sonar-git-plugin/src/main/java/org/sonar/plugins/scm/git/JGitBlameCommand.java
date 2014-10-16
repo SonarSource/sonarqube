@@ -26,9 +26,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.BlameLine;
@@ -39,8 +36,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class JGitBlameCommand implements BlameCommand, BatchComponent {
+public class JGitBlameCommand extends BlameCommand {
 
   private static final Logger LOG = LoggerFactory.getLogger(JGitBlameCommand.class);
 
@@ -51,9 +47,9 @@ public class JGitBlameCommand implements BlameCommand, BatchComponent {
   }
 
   @Override
-  public void blame(FileSystem fs, Iterable<InputFile> files, BlameResult result) {
+  public void blame(BlameInput input, BlameOutput output) {
     Git git = null;
-    File basedir = fs.baseDir();
+    File basedir = input.fileSystem().baseDir();
     try {
       Repository repo = new RepositoryBuilder()
         .findGitDir(basedir)
@@ -61,8 +57,8 @@ public class JGitBlameCommand implements BlameCommand, BatchComponent {
         .build();
       git = Git.wrap(repo);
       File gitBaseDir = repo.getWorkTree();
-      for (InputFile inputFile : files) {
-        blame(result, git, gitBaseDir, inputFile);
+      for (InputFile inputFile : input.filesToBlame()) {
+        blame(output, git, gitBaseDir, inputFile);
       }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to open Git repository", e);
@@ -75,7 +71,7 @@ public class JGitBlameCommand implements BlameCommand, BatchComponent {
     }
   }
 
-  private void blame(BlameResult result, Git git, File gitBaseDir, InputFile inputFile) throws GitAPIException {
+  private void blame(BlameOutput output, Git git, File gitBaseDir, InputFile inputFile) throws GitAPIException {
     String filename = pathResolver.relativePath(gitBaseDir, inputFile.file());
     org.eclipse.jgit.blame.BlameResult blameResult = git.blame()
       // Equivalent to -w command line option
@@ -83,22 +79,19 @@ public class JGitBlameCommand implements BlameCommand, BatchComponent {
       .setFilePath(filename).call();
     List<BlameLine> lines = new ArrayList<BlameLine>();
     for (int i = 0; i < blameResult.getResultContents().size(); i++) {
-      if (blameResult.getSourceAuthor(i) == null || blameResult.getSourceCommit(i) == null || blameResult.getSourceCommitter(i) == null) {
+      if (blameResult.getSourceAuthor(i) == null || blameResult.getSourceCommit(i) == null) {
         LOG.info("Author: " + blameResult.getSourceAuthor(i));
-        LOG.info("Committer: " + blameResult.getSourceCommitter(i));
         LOG.info("Source commit: " + blameResult.getSourceCommit(i));
         throw new IllegalStateException("Unable to blame file " + inputFile.relativePath() + ". No blame info at line " + (i + 1) + ". Is file commited?");
       }
-      lines.add(new org.sonar.api.batch.scm.BlameLine(blameResult.getSourceAuthor(i).getWhen(),
-        blameResult.getSourceCommit(i).getName(),
-        blameResult.getSourceAuthor(i).getEmailAddress(),
-        blameResult.getSourceCommitter(i).getEmailAddress()));
+      lines.add(new org.sonar.api.batch.scm.BlameLine().date(blameResult.getSourceAuthor(i).getWhen()).revision(blameResult.getSourceCommit(i).getName())
+        .author(blameResult.getSourceAuthor(i).getEmailAddress()));
     }
     if (lines.size() == inputFile.lines() - 1) {
       // SONARPLUGINS-3097 Git do not report blame on last empty line
       lines.add(lines.get(lines.size() - 1));
     }
-    result.add(inputFile, lines);
+    output.blameResult(inputFile, lines);
   }
 
 }

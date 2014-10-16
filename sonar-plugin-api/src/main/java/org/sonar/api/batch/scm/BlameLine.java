@@ -37,37 +37,14 @@ public class BlameLine {
   private Date date;
   private String revision;
   private String author;
-  private String committer;
-
-  /**
-   * @param date of the commit
-   * @param revision of the commit
-   * @param author will also be used as committer identification
-   */
-  public BlameLine(@Nullable Date date, String revision, @Nullable String author) {
-    this(date, revision, author, author);
-  }
-
-  /**
-   *
-   * @param date of the commit
-   * @param revision of the commit
-   * @param author the person who wrote the line
-   * @param committer the person who committed the change
-   */
-  public BlameLine(@Nullable Date date, String revision, @Nullable String author, @Nullable String committer) {
-    if (date != null) {
-      this.date = new Date(date.getTime());
-    } else {
-      this.date = null;
-    }
-    this.revision = revision;
-    this.author = author;
-    this.committer = committer;
-  }
 
   public String revision() {
     return revision;
+  }
+
+  public BlameLine revision(String revision) {
+    this.revision = revision;
+    return this;
   }
 
   @CheckForNull
@@ -75,9 +52,9 @@ public class BlameLine {
     return author;
   }
 
-  @CheckForNull
-  public String committer() {
-    return committer;
+  public BlameLine author(@Nullable String author) {
+    this.author = author;
+    return this;
   }
 
   /**
@@ -85,10 +62,12 @@ public class BlameLine {
    */
   @CheckForNull
   public Date date() {
-    if (date != null) {
-      return (Date) date.clone();
-    }
-    return null;
+    return date;
+  }
+
+  public BlameLine date(@Nullable Date date) {
+    this.date = date;
+    return this;
   }
 
   // For testing purpose
@@ -109,7 +88,6 @@ public class BlameLine {
       .append(date, rhs.date)
       .append(revision, rhs.revision)
       .append(author, rhs.author)
-      .append(committer, rhs.committer)
       .isEquals();
   }
 
@@ -119,7 +97,6 @@ public class BlameLine {
       append(date)
       .append(revision)
       .append(author)
-      .append(committer)
       .toHashCode();
   }
 
