@@ -26,12 +26,7 @@ import com.google.common.collect.Multimap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.count.CountResponse;
-import org.elasticsearch.action.get.GetRequestBuilder;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.get.MultiGetItemResponse;
-import org.elasticsearch.action.get.MultiGetRequest;
-import org.elasticsearch.action.get.MultiGetRequestBuilder;
-import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
@@ -59,17 +54,9 @@ import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable>
   implements Index<DOMAIN, DTO, KEY> {
@@ -420,6 +407,9 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   public List<DOMAIN> getByKeys(Collection<KEY> keys) {
+    if (keys.isEmpty()) {
+      return Collections.emptyList();
+    }
     List<DOMAIN> results = new ArrayList<DOMAIN>();
     MultiGetRequestBuilder request = client.prepareMultiGet()
       .setPreference("_local");
@@ -430,15 +420,14 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
           .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
     }
 
-    try {
-      MultiGetResponse response = client.execute(request);
-      if (response.getResponses() != null) {
-        for (MultiGetItemResponse item : response.getResponses()) {
-          results.add(toDoc(item.getResponse().getSource()));
+    MultiGetResponse response = client.execute(request);
+    if (response.getResponses() != null) {
+      for (MultiGetItemResponse item : response.getResponses()) {
+        Map<String, Object> source = item.getResponse().getSource();
+        if (source != null) {
+          results.add(toDoc(source));
         }
       }
-    } catch (Exception e) {
-      LOG.debug("could not multi-get.", e);
     }
     return results;
   }

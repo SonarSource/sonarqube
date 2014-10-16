@@ -43,6 +43,7 @@ import org.sonar.server.user.MockUserSession;
 import java.util.Collections;
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
@@ -121,6 +122,21 @@ public class RuleServiceMediumTest {
     Rule rule = service.getByKey(manualRule.getKey());
     assertThat(rule).isNotNull();
     assertThat(rule.htmlDescription()).isEqualTo("&lt;div&gt;Manual rule desc&lt;/div&gt;");
+  }
+
+  @Test
+  public void get_rule_by_keys() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")));
+    dbSession.commit();
+    dbSession.clearCache();
+
+    assertThat(service.getByKeys(newArrayList(RuleKey.of("java", "S001")))).hasSize(1);
+    assertThat(service.getByKeys(newArrayList(RuleKey.of("un", "known")))).isEmpty();
+    assertThat(service.getByKeys(Collections.<RuleKey>emptyList())).isEmpty();
   }
 
   @Test
