@@ -438,11 +438,15 @@ requirejs(
 
 
       NavigatorApp.getQuery = function (withoutId) {
-        var query = this.filterBarView.getQuery();
-        if (!withoutId && this.favoriteFilter.id) {
-          query['id'] = this.favoriteFilter.id;
+        if (this.filterBarView) {
+          var query = this.filterBarView.getQuery();
+          if (!withoutId && this.favoriteFilter.id) {
+            query['id'] = this.favoriteFilter.id;
+          }
+          return query;
+        } else {
+          return {};
         }
-        return query;
       };
 
 

@@ -106,8 +106,8 @@
 
 
   var queryParams = [
-    { key: 'qualifiers[]', value: <%= @filter.criteria['qualifiers'].to_json -%> },
-    { key: 'alertLevels[]', value: <%= @filter.criteria['alertLevels'].to_json -%> },
+    { key: 'qualifiers[]', value: <%= json_escape(@filter.criteria['qualifiers'].to_json) -%> },
+    { key: 'alertLevels[]', value: <%= json_escape(@filter.criteria['alertLevels'].to_json) -%> },
     { key: 'fromDate', value: '<%= h @filter.criteria['fromDate'] -%>' },
     { key: 'toDate', value: '<%= h @filter.criteria['toDate'] -%>' },
     { key: 'ageMinDays', value: '<%= h @filter.criteria('ageMinDays') -%>' },

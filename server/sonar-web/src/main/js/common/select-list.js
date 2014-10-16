@@ -51,8 +51,10 @@ requirejs(['backbone'], function (Backbone) {
               settings = $.extend(this.settings, options);
 
           settings.data.page = nextPage;
-
+          settings.remove = false;
           this.fetch(settings);
+        } else {
+          options.error();
         }
       }
 
@@ -171,6 +173,28 @@ requirejs(['backbone'], function (Backbone) {
         this.listenTo(this.collection, 'remove', this.removeModel);
         this.listenTo(this.collection, 'change:selected', this.confirmFilter);
         this.settings = options.settings;
+
+        var that = this;
+        this.showFetchSpinner = function () {
+          that.$listContainer.addClass('loading');
+        };
+        this.hideFetchSpinner = function () {
+          that.$listContainer.removeClass('loading');
+        };
+
+        var onScroll = function () {
+          that.showFetchSpinner();
+
+          that.collection.fetchNextPage({
+            success: function () {
+              that.hideFetchSpinner();
+            },
+            error: function () {
+              that.hideFetchSpinner();
+            }
+          });
+        };
+        this.onScroll = _.throttle(onScroll, 1000);
       },
 
       render: function () {
@@ -331,29 +355,12 @@ requirejs(['backbone'], function (Backbone) {
         this.filterBySelection();
       },
 
-      showFetchSpinner: function () {
-        this.$listContainer.addClass('loading');
-      },
-
-      hideFetchSpinner: function () {
-        this.$listContainer.removeClass('loading');
-      },
-
       scroll: function () {
         var scrollBottom = this.$listContainer.scrollTop() >=
-                this.$list[0].scrollHeight - this.$listContainer.outerHeight(),
-            that = this;
+                this.$list[0].scrollHeight - this.$listContainer.outerHeight();
 
         if (scrollBottom && this.collection.more) {
-          $.throttle(250, function () {
-            that.showFetchSpinner();
-
-            that.collection.fetchNextPage({
-              success: function () {
-                that.hideFetchSpinner();
-              }
-            });
-          })();
+          this.onScroll();
         }
       }
 
