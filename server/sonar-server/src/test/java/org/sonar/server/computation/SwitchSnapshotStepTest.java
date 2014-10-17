@@ -18,41 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.batch;
+package org.sonar.server.computation;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
+import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.tester.ServerTester;
-import org.sonar.server.ws.WsTester;
+import org.sonar.core.persistence.TestDatabase;
+import org.sonar.server.component.db.SnapshotDao;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class UploadReportActionMediumTest {
+public class SwitchSnapshotStepTest {
+  @Rule
+  public TestDatabase db = new TestDatabase();
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
-
-  DbClient db;
-  DbSession session;
-
-  WsTester wsTester;
-  WebService.Controller controller;
+  private DbSession session;
+  private SwitchSnapshotStep sut;
+  private SnapshotDao dao;
 
   @Before
-  public void setUp() throws Exception {
-    tester.clearDbAndIndexes();
+  public void before() {
+    this.session = db.myBatis().openSession(false);
 
-    db = tester.get(DbClient.class);
-    session = db.openSession(false);
-
-    wsTester = tester.get(WsTester.class);
-    controller = wsTester.controller(BatchWs.API_ENDPOINT);
+    System2 system2 = mock(System2.class);
+    when(system2.now()).thenReturn(DateUtils.parseDate("2011-09-29").getTime());
+    this.sut = new SwitchSnapshotStep(new SnapshotDao(system2));
+    this.dao = new SnapshotDao(system2);
   }
 
   @After
@@ -61,10 +59,12 @@ public class UploadReportActionMediumTest {
   }
 
   @Test
-  public void define() throws Exception {
-    WebService.Action restoreProfiles = controller.action(UploadReportAction.UPLOAD_REPORT_ACTION);
+  public void one_switch_with_a_snapshot_and_his_children() {
+    db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    assertThat(restoreProfiles).isNotNull();
-    assertThat(restoreProfiles.params()).hasSize(2);
+    sut.execute(session, AnalysisReportDto.newForTests(1L).setSnapshotId(1L));
+    session.commit();
+
+    db.assertDbUnit(getClass(), "snapshots-result.xml", "snapshots");
   }
 }

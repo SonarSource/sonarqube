@@ -20,6 +20,7 @@
 package org.sonar.batch.phases;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
@@ -27,13 +28,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
-import org.sonar.api.security.ResourcePermissions;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.index.DefaultResourcePersister;
-import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.index.ResourcePersister;
-import org.sonar.batch.index.SnapshotCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import javax.persistence.Query;
@@ -41,10 +37,7 @@ import javax.persistence.Query;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
 
@@ -56,16 +49,19 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
   }
 
   @Test
+  @Ignore("logic moved on server side - need to check this specific test is covered")
   public void shouldUnflagPenultimateLastSnapshot() {
     assertAnalysis(11, "shouldUnflagPenultimateLastSnapshot");
   }
 
   @Test
+  @Ignore("logic moved on server side - need to check this specific test is covered")
   public void doNotFailIfNoPenultimateLast() {
     assertAnalysis(5, "doNotFailIfNoPenultimateLast");
   }
 
   @Test
+  @Ignore("logic moved on server side - need to check this specific test is covered")
   public void shouldNotEnableSnapshotWhenNotLatest() {
     assertAnalysis(6, "shouldNotEnableSnapshotWhenNotLatest");
   }
@@ -76,8 +72,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     DatabaseSession session = getSession();
     Project project = new Project("foo");
     project.setId(1);
-    UpdateStatusJob job = new UpdateStatusJob(new Settings().appendProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/"), mock(ServerClient.class), session,
-      new DefaultResourcePersister(session, mock(ResourcePermissions.class), mock(SnapshotCache.class), mock(ResourceCache.class)),
+    UpdateStatusJob job = new UpdateStatusJob(new Settings().appendProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/"), mock(ServerClient.class),
       project, loadSnapshot(snapshotId), mode);
     job.execute();
 
@@ -95,8 +90,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
     Project project = new Project("struts");
-    UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), mock(DatabaseSession.class),
-      mock(ResourcePersister.class), project, mock(Snapshot.class), mode);
+    UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), project, mock(Snapshot.class), mode);
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
@@ -109,8 +103,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     Settings settings = new Settings();
     when(mode.isPreview()).thenReturn(true);
     Project project = new Project("struts");
-    UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), mock(DatabaseSession.class),
-      mock(ResourcePersister.class), project, mock(Snapshot.class), mode);
+    UpdateStatusJob job = new UpdateStatusJob(settings, mock(ServerClient.class), project, mock(Snapshot.class), mode);
 
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
@@ -123,8 +116,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     Settings settings = new Settings();
     Project project = new Project("struts");
     ServerClient serverClient = mock(ServerClient.class);
-    UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, mock(DatabaseSession.class),
-      mock(ResourcePersister.class), project, mock(Snapshot.class), mode);
+    UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, project, mock(Snapshot.class), mode);
 
     job.uploadReport();
     verify(serverClient).request(contains("/batch_bootstrap/evict"), eq("POST"));
@@ -137,8 +129,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     when(mode.isPreview()).thenReturn(true);
     Project project = new Project("struts");
     ServerClient serverClient = mock(ServerClient.class);
-    UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, mock(DatabaseSession.class),
-      mock(ResourcePersister.class), project, mock(Snapshot.class), mode);
+    UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, project, mock(Snapshot.class), mode);
 
     job.uploadReport();
     verify(serverClient, never()).request(anyString());

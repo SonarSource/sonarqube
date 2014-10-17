@@ -35,6 +35,7 @@ public class AnalysisReportDto extends Dto<String> {
   private String projectName;
   private Status status;
   private String data;
+  private Long snapshotId;
 
   public AnalysisReportDto() {
     super();
@@ -108,6 +109,15 @@ public class AnalysisReportDto extends Dto<String> {
 
   public AnalysisReportDto setProjectName(String projectName) {
     this.projectName = projectName;
+    return this;
+  }
+
+  public Long getSnapshotId() {
+    return snapshotId;
+  }
+
+  public AnalysisReportDto setSnapshotId(Long snapshotId) {
+    this.snapshotId = snapshotId;
     return this;
   }
 

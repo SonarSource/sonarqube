@@ -36,23 +36,63 @@
   </sql>
 
   <select id="selectByKey" parameterType="Long" resultType="Snapshot">
-    SELECT <include refid="snapshotColumns"/>
+    SELECT
+    <include refid="snapshotColumns"/>
     FROM snapshots s
     <where>
       AND s.id=#{key}
     </where>
   </select>
 
+  <select id="selectLastSnapshot" resultType="Snapshot">
+    select
+    <include refid="snapshotColumns"/>
+    from snapshots s
+    where s.islast and s.project_id = #{resource}
+  </select>
+
+  <select id="selectLastSnapshotOlderThan" parameterType="map" resultType="Snapshot">
+    select
+    <include refid="snapshotColumns"/>
+    from snapshots s
+    where s.islast
+    and s.project_id = #{resource}
+    and s.created_at &lt; #{createdAt}
+  </select>
+
+  <select id="selectSnapshotAndChildrenOfScope" parameterType="map" resultType="Snapshot">
+    select
+    <include refid="snapshotColumns"/>
+    from snapshots s
+    where s.scope = #{scope}
+    AND (s.id = #{snapshot} or s.root_snapshot_id = #{snapshot})
+  </select>
+
   <sql id="insertColumns">
-    (parent_snapshot_id, root_snapshot_id, root_project_id, project_id, created_at, build_date, status, purge_status, islast, scope, qualifier, version, path, depth,
+    (parent_snapshot_id, root_snapshot_id, root_project_id, project_id, created_at, build_date, status, purge_status,
+    islast, scope, qualifier, version, path, depth,
     period1_mode, period2_mode, period3_mode, period4_mode, period5_mode,
     period1_param, period2_param, period3_param, period4_param, period5_param,
     period1_date, period2_date, period3_date, period4_date, period5_date)
   </sql>
 
+  <update id="updateSnapshotAndChildrenLastFlagAndStatus" parameterType="map">
+    update snapshots
+    set isLast = #{isLast}, status = #{status}
+    where root_snapshot_id=#{root} or id=#{root} or (path like #{path} and root_snapshot_id=#{pathRootId})
+  </update>
+
+  <update id="updateSnapshotAndChildrenLastFlag" parameterType="map">
+    update snapshots
+    set isLast = #{isLast}
+    where root_snapshot_id=#{root} or id=#{root} or (path like #{path} and root_snapshot_id=#{pathRootId})
+  </update>
+
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    insert into snapshots <include refid="insertColumns"/>
-    values (#{parentId}, #{rootId}, #{rootProjectId}, #{resourceId}, #{createdAt}, #{buildDate}, #{status}, #{purgeStatus}, #{last}, #{scope}, #{qualifier}, #{version}, #{path}, #{depth},
+    insert into snapshots
+    <include refid="insertColumns"/>
+    values (#{parentId}, #{rootId}, #{rootProjectId}, #{resourceId}, #{createdAt}, #{buildDate}, #{status},
+    #{purgeStatus}, #{last}, #{scope}, #{qualifier}, #{version}, #{path}, #{depth},
     #{period1Mode}, #{period2Mode}, #{period3Mode}, #{period4Mode}, #{period5Mode},
     #{period1Param}, #{period2Param}, #{period3Param}, #{period4Param}, #{period5Param},
     #{period1Date}, #{period2Date}, #{period3Date}, #{period4Date}, #{period5Date})

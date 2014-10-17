@@ -20,61 +20,39 @@
 
 package org.sonar.server.computation;
 
-import com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.index.IssueAuthorizationIndex;
-import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.permission.InternalPermissionService;
-import org.sonar.server.search.IndexClient;
 
 /**
  * since 5.0
  */
 public class ComputationService implements ServerComponent {
-  private static final Logger LOG = LoggerFactory.getLogger(ComputationService.class);
-
   private final DbClient dbClient;
-  private final IndexClient index;
-  private final InternalPermissionService permissionService;
+  private final SynchronizeProjectPermissionsStep synchronizeProjectPermissionsStep;
+  private final IndexProjectIssuesStep indexProjectIssuesStep;
+  private final SwitchSnapshotStep switchSnapshotStep;
 
-  public ComputationService(DbClient dbClient, IndexClient index, InternalPermissionService permissionService) {
+  public ComputationService(DbClient dbClient, SynchronizeProjectPermissionsStep synchronizeProjectPermissionsStep,
+    IndexProjectIssuesStep indexProjectIssuesStep, SwitchSnapshotStep switchSnapshotStep) {
     this.dbClient = dbClient;
-    this.index = index;
-    this.permissionService = permissionService;
+    this.synchronizeProjectPermissionsStep = synchronizeProjectPermissionsStep;
+    this.indexProjectIssuesStep = indexProjectIssuesStep;
+    this.switchSnapshotStep = switchSnapshotStep;
   }
 
   public void analyzeReport(AnalysisReportDto report) {
     // Synchronization of lot of data can only be done with a batch session for the moment
     DbSession session = dbClient.openSession(true);
-    String projectKey = report.getProjectKey();
 
     try {
-      synchronizeProjectPermissionsIfNotFound(session, projectKey);
-      indexProjectIssues(session, projectKey);
+      synchronizeProjectPermissionsStep.execute(session, report);
+      indexProjectIssuesStep.execute(session, report);
+      switchSnapshotStep.execute(session, report);
     } finally {
       MyBatis.closeQuietly(session);
-    }
-
-    LOG.info(String.format("Analysis of %s successfully finished.", report));
-  }
-
-  private void indexProjectIssues(DbSession session, String projectKey) {
-    dbClient.issueDao().synchronizeAfter(session,
-      index.get(IssueIndex.class).getLastSynchronization(),
-      ImmutableMap.of("project", projectKey));
-    session.commit();
-  }
-
-  private void synchronizeProjectPermissionsIfNotFound(DbSession session, String projectKey) {
-    if (index.get(IssueAuthorizationIndex.class).getNullableByKey(projectKey) == null) {
-      permissionService.synchronizePermissions(session, projectKey);
-      session.commit();
     }
   }
 }

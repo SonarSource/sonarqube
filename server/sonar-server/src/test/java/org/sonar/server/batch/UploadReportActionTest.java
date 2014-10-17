@@ -28,7 +28,6 @@ import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.computation.AnalysisReportTaskLauncher;
 import org.sonar.server.computation.ComputationService;
 
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class UploadReportActionTest {
@@ -53,11 +52,12 @@ public class UploadReportActionTest {
   public void verify_that_computation_service_is_called() throws Exception {
     Response response = mock(Response.class);
     Request request = mock(Request.class);
-    when(request.mandatoryParam(anyString())).thenReturn(DEFAULT_PROJECT_KEY);
+    when(request.mandatoryParam(UploadReportAction.PARAM_PROJECT_KEY)).thenReturn(DEFAULT_PROJECT_KEY);
+    when(request.mandatoryParam(UploadReportAction.PARAM_SNAPSHOT)).thenReturn("123");
 
     sut.handle(request, response);
 
-    verify(queue).add(DEFAULT_PROJECT_KEY);
+    verify(queue).add(DEFAULT_PROJECT_KEY, 123L);
     verify(analysisTaskLauncher).startAnalysisTaskNow();
   }
 

@@ -24,49 +24,32 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.UserDto;
-import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.IssueQuery;
-import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.index.IssueAuthorizationDoc;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
-import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.platform.BackendCleanup;
-import org.sonar.server.rule.RuleTesting;
-import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
-import java.util.Date;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ComputationServiceMediumTest {
+public class SynchronizeProjectPermissionsStepMediumTest {
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  private ComputationService sut;
+  private SynchronizeProjectPermissionsStep sut;
 
   private AnalysisReportQueue queue;
   private DbClient db;
@@ -80,7 +63,7 @@ public class ComputationServiceMediumTest {
     session = db.openSession(false);
     queue = tester.get(AnalysisReportQueue.class);
 
-    sut = tester.get(ComputationService.class);
+    sut = tester.get(SynchronizeProjectPermissionsStep.class);
 
     UserDto connectedUser = new UserDto().setLogin("gandalf").setName("Gandalf");
     db.userDao().insert(session, connectedUser);
@@ -98,35 +81,6 @@ public class ComputationServiceMediumTest {
     MyBatis.closeQuietly(session);
   }
 
-  @Test
-  public void add_issues_in_index() {
-    ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
-
-    ComponentDto file = ComponentTesting.newFileDto(project);
-    db.componentDao().insert(session, file);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
-
-    RuleDto rule = RuleTesting.newXooX1();
-    tester.get(RuleDao.class).insert(session, rule);
-
-    IssueDto issue = IssueTesting.newDto(rule, file, project);
-    db.issueDao().insert(session, issue);
-
-    session.commit();
-
-    clearIssueIndexToSimulateBatchInsertWithoutIndexing();
-
-    queue.add(DEFAULT_PROJECT_KEY);
-    AnalysisReportDto report = queue.bookNextAvailable();
-
-    sut.analyzeReport(report);
-
-    // Check that the issue has well be indexed in E/S
-    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNotNull();
-  }
-
   private ComponentDto insertPermissionsForProject(String projectKey) {
     ComponentDto project = new ComponentDto().setKey(projectKey);
     db.componentDao().insert(session, project);
@@ -139,60 +93,16 @@ public class ComputationServiceMediumTest {
     return project;
   }
 
-  private void clearIssueIndexToSimulateBatchInsertWithoutIndexing() {
-    tester.get(BackendCleanup.class).clearIndexType(IndexDefinition.ISSUES);
-  }
-
   @Test
   public void add_project_issue_permission_in_index() throws Exception {
     ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
 
-    queue.add(DEFAULT_PROJECT_KEY);
+    queue.add(DEFAULT_PROJECT_KEY, 123L);
     List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
 
-    sut.analyzeReport(reports.get(0));
+    sut.execute(session, reports.get(0));
 
     IssueAuthorizationDoc issueAuthorizationIndex = tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey());
     assertThat(issueAuthorizationIndex).isNotNull();
-  }
-
-  @Test
-  public void index_a_lot_of_issues() throws Exception {
-    ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
-
-    ComponentDto file = ComponentTesting.newFileDto(project);
-    db.componentDao().insert(session, file);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
-
-    RuleDto rule = RuleTesting.newXooX1();
-    tester.get(RuleDao.class).insert(session, rule);
-
-    List<String> issueKeys = newArrayList();
-    for (int i = 0; i < 2001; i++) {
-      IssueDto issue = IssueTesting.newDto(rule, file, project);
-      tester.get(IssueDao.class).insert(session, issue);
-      issueKeys.add(issue.getKey());
-    }
-    session.commit();
-    session.clearCache();
-
-    clearIssueIndexToSimulateBatchInsertWithoutIndexing();
-
-    queue.add(DEFAULT_PROJECT_KEY);
-    List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
-
-    sut.analyzeReport(reports.get(0));
-
-    session.commit();
-    session.clearCache();
-
-    Result<Issue> issueIndex = tester.get(IssueIndex.class).search(IssueQuery.builder().build(), new QueryContext());
-    assertThat(issueIndex.getTotal()).isEqualTo(2001);
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void exceptions_thrown_are_transmitted() {
-    sut.analyzeReport(new AnalysisReportDto());
   }
 }

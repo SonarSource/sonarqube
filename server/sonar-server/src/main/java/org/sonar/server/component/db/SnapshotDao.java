@@ -21,6 +21,7 @@
 package org.sonar.server.component.db;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.component.db.SnapshotMapper;
@@ -29,6 +30,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
+
+import java.util.List;
 
 public class SnapshotDao extends BaseDao<SnapshotMapper, SnapshotDto, Long> implements ServerComponent, DaoComponent {
 
@@ -46,5 +49,35 @@ public class SnapshotDao extends BaseDao<SnapshotMapper, SnapshotDto, Long> impl
   protected SnapshotDto doInsert(DbSession session, SnapshotDto item) {
     mapper(session).insert(item);
     return item;
+  }
+
+  @CheckForNull
+  public SnapshotDto getLastSnapshot(DbSession session, SnapshotDto snapshot) {
+    return mapper(session).selectLastSnapshot(snapshot.getResourceId());
+  }
+
+  @CheckForNull
+  public SnapshotDto getLastSnapshotOlderThan(DbSession session, SnapshotDto snapshot) {
+    return mapper(session).selectLastSnapshotOlderThan(snapshot.getResourceId(), snapshot.getCreatedAt());
+  }
+
+  public List<SnapshotDto> findSnapshotAndChildrenOfProjectScope(DbSession session, SnapshotDto snapshot) {
+    return mapper(session).selectSnapshotAndChildrenOfScope(snapshot.getId(), Scopes.PROJECT);
+  }
+
+  public int updateSnapshotAndChildrenLastFlagAndStatus(DbSession session, SnapshotDto snapshot, boolean isLast, String status) {
+    Long rootId = snapshot.getId();
+    String path = snapshot.getPath() + snapshot.getId() + ".%";
+    Long pathRootId = snapshot.getRootId() == null ? snapshot.getId() : snapshot.getRootId();
+
+    return mapper(session).updateSnapshotAndChildrenLastFlagAndStatus(rootId, pathRootId, path, isLast, status);
+  }
+
+  public int updateSnapshotAndChildrenLastFlag(DbSession session, SnapshotDto snapshot, boolean isLast) {
+    Long rootId = snapshot.getId();
+    String path = snapshot.getPath() + snapshot.getId() + ".%";
+    Long pathRootId = snapshot.getRootId() == null ? snapshot.getId() : snapshot.getRootId();
+
+    return mapper(session).updateSnapshotAndChildrenLastFlag(rootId, pathRootId, path, isLast);
   }
 }

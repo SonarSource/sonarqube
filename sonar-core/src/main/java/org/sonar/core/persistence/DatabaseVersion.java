@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class DatabaseVersion implements BatchComponent, ServerComponent {
 
-  public static final int LAST_VERSION = 705;
+  public static final int LAST_VERSION = 706;
   /**
    * List of all the tables.
    * This list is hardcoded because we didn't succeed in using java.sql.DatabaseMetaData#getTables() in the same way
@@ -95,10 +95,6 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     this.mybatis = mybatis;
   }
 
-  public Status getStatus() {
-    return getStatus(getVersion(), LAST_VERSION);
-  }
-
   @VisibleForTesting
   static Status getStatus(Integer currentVersion, int lastVersion) {
     Status status = Status.FRESH_INSTALL;
@@ -112,6 +108,10 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
       }
     }
     return status;
+  }
+
+  public Status getStatus() {
+    return getStatus(getVersion(), LAST_VERSION);
   }
 
   public Integer getVersion() {

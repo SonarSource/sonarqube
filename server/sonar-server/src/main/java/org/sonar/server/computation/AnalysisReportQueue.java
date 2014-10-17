@@ -49,10 +49,10 @@ public class AnalysisReportQueue implements ServerComponent {
     this.dao = dbClient.analysisReportDao();
   }
 
-  public AnalysisReportDto add(String projectKey) {
+  public AnalysisReportDto add(String projectKey, Long snapshotId) {
     UserSession.get().checkGlobalPermission(GlobalPermissions.SCAN_EXECUTION);
 
-    AnalysisReportDto report = newPendingAnalysisReport(projectKey);
+    AnalysisReportDto report = newPendingAnalysisReport(projectKey).setSnapshotId(snapshotId);
     DbSession session = dbClient.openSession(false);
     try {
       checkThatProjectExistsInDatabase(projectKey, session);

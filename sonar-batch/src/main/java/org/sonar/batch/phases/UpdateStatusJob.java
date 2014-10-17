@@ -25,36 +25,25 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Scopes;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
-import org.sonar.batch.index.ResourcePersister;
-
-import javax.persistence.Query;
-
-import java.util.List;
 
 public class UpdateStatusJob implements BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(UpdateStatusJob.class);
 
-  private DatabaseSession session;
   private ServerClient server;
   // TODO remove this component
   private Snapshot snapshot;
-  private ResourcePersister resourcePersister;
   private Settings settings;
   private Project project;
   private AnalysisMode analysisMode;
 
-  public UpdateStatusJob(Settings settings, ServerClient server, DatabaseSession session,
-    ResourcePersister resourcePersister, Project project, Snapshot snapshot, AnalysisMode analysisMode) {
-    this.session = session;
+  public UpdateStatusJob(Settings settings, ServerClient server,
+    Project project, Snapshot snapshot, AnalysisMode analysisMode) {
     this.server = server;
-    this.resourcePersister = resourcePersister;
     this.project = project;
     this.snapshot = snapshot;
     this.settings = settings;
@@ -62,9 +51,8 @@ public class UpdateStatusJob implements BatchComponent {
   }
 
   public void execute() {
-    disablePreviousSnapshot();
-    enableCurrentSnapshot();
     uploadReport();
+    logSuccess(LoggerFactory.getLogger(getClass()));
   }
 
   @VisibleForTesting
@@ -80,34 +68,13 @@ public class UpdateStatusJob implements BatchComponent {
     } catch (Exception e) {
       throw new IllegalStateException("Unable to evict preview database: " + url, e);
     }
-    url = "/batch/upload_report?project=" + project.getEffectiveKey();
+    url = "/batch/upload_report?project=" + project.getEffectiveKey() + "&snapshot=" + snapshot.getId();
     try {
       LOG.debug("Publish results");
       server.request(url, "POST");
     } catch (Exception e) {
       throw new IllegalStateException("Unable to publish results: " + url, e);
     }
-  }
-
-  private void disablePreviousSnapshot() {
-    // disable on all modules
-    Query query = session.createQuery("FROM " + Snapshot.class.getSimpleName() + " WHERE (root_snapshot_id=:rootId OR id=:rootId) AND scope=:scope");
-    query.setParameter("rootId", snapshot.getId());
-    query.setParameter("scope", Scopes.PROJECT);
-    List<Snapshot> moduleSnapshots = query.getResultList();
-    for (Snapshot moduleSnapshot : moduleSnapshots) {
-      Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(moduleSnapshot, true);
-      if (previousLastSnapshot != null) {
-        setFlags(previousLastSnapshot, false, null);
-      }
-    }
-  }
-
-  private void enableCurrentSnapshot() {
-    Snapshot previousLastSnapshot = resourcePersister.getLastSnapshot(snapshot, false);
-    boolean isLast = previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(snapshot.getCreatedAt());
-    setFlags(snapshot, isLast, Snapshot.STATUS_PROCESSED);
-    logSuccess(LoggerFactory.getLogger(getClass()));
   }
 
   @VisibleForTesting
@@ -127,27 +94,5 @@ public class UpdateStatusJob implements BatchComponent {
       String url = baseUrl + "dashboard/index/" + project.getKey();
       logger.info("ANALYSIS SUCCESSFUL, you can browse {}", url);
     }
-  }
-
-  private void setFlags(Snapshot snapshot, boolean last, String status) {
-    String hql = "UPDATE " + Snapshot.class.getSimpleName() + " SET last=:last";
-    if (status != null) {
-      hql += ", status=:status ";
-    }
-    hql += " WHERE root_snapshot_id=:rootId OR id=:rootId OR (path LIKE :path AND root_snapshot_id=:pathRootId)";
-
-    Query query = session.createQuery(hql);
-    if (status != null) {
-      query.setParameter("status", status);
-      snapshot.setStatus(status);
-    }
-    query.setParameter("last", last);
-    query.setParameter("rootId", snapshot.getId());
-    query.setParameter("path", snapshot.getPath() + snapshot.getId() + ".%");
-    query.setParameter("pathRootId", snapshot.getRootId() == null ? snapshot.getId() : snapshot.getRootId());
-    query.executeUpdate();
-    session.commit();
-
-    snapshot.setLast(last);
   }
 }

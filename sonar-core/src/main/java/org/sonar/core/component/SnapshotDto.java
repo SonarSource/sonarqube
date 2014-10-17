@@ -29,6 +29,7 @@ public final class SnapshotDto extends Dto<Long> {
    * This status is set on the snapshot at the beginning of the batch
    */
   public static final String STATUS_UNPROCESSED = "U";
+  public static final String STATUS_PROCESSED = "P";
 
   private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
 

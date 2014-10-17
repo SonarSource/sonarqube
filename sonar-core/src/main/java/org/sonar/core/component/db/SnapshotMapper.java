@@ -20,9 +20,13 @@
 
 package org.sonar.core.component.db;
 
+import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.SnapshotDto;
 
 import javax.annotation.CheckForNull;
+
+import java.util.Date;
+import java.util.List;
 
 public interface SnapshotMapper {
 
@@ -30,4 +34,18 @@ public interface SnapshotMapper {
   SnapshotDto selectByKey(long id);
 
   void insert(SnapshotDto rule);
+
+  @CheckForNull
+  SnapshotDto selectLastSnapshot(Long resourceId);
+
+  @CheckForNull
+  SnapshotDto selectLastSnapshotOlderThan(@Param(value = "resource") Long resourceId, @Param(value = "createdAt") Date createdAtBefore);
+
+  List<SnapshotDto> selectSnapshotAndChildrenOfScope(@Param(value = "snapshot") Long resourceId, @Param(value = "scope") String scope);
+
+  int updateSnapshotAndChildrenLastFlagAndStatus(@Param(value = "root") Long rootId, @Param(value = "pathRootId") Long pathRootId,
+    @Param(value = "path") String path, @Param(value = "isLast") boolean isLast, @Param(value = "status") String status);
+
+  int updateSnapshotAndChildrenLastFlag(@Param(value = "root") Long rootId, @Param(value = "pathRootId") Long pathRootId,
+                                        @Param(value = "path") String path, @Param(value = "isLast") boolean isLast);
 }

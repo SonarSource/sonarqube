@@ -80,9 +80,9 @@ public class AnalysisReportHistorySearchActionMediumTest {
   @Test
   public void add_and_try_to_retrieve_activities() throws Exception {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    queue.add(DEFAULT_PROJECT_KEY);
-    queue.add(DEFAULT_PROJECT_KEY);
-    queue.add(DEFAULT_PROJECT_KEY);
+    queue.add(DEFAULT_PROJECT_KEY, 123L);
+    queue.add(DEFAULT_PROJECT_KEY, 123L);
+    queue.add(DEFAULT_PROJECT_KEY, 123L);
 
     List<AnalysisReportDto> reports = queue.all();
     for (AnalysisReportDto report : reports) {
@@ -116,7 +116,7 @@ public class AnalysisReportHistorySearchActionMediumTest {
   @Test(expected = ForbiddenException.class)
   public void user_rights_is_not_enough_throw_ForbiddenException() throws Exception {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    queue.add(DEFAULT_PROJECT_KEY);
+    queue.add(DEFAULT_PROJECT_KEY, 123L);
 
     AnalysisReportDto report = queue.all().get(0);
     report.succeed();

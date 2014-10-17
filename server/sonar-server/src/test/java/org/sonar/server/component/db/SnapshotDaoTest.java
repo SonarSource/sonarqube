@@ -29,9 +29,12 @@ import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
+import java.util.List;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.component.SnapshotTesting.defaultSnapshot;
 
 public class SnapshotDaoTest extends AbstractDaoTestCase {
 
@@ -101,35 +104,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-06-18").getTime());
 
-    SnapshotDto dto = new SnapshotDto()
-      .setResourceId(3L)
-      .setRootProjectId(1L)
-      .setParentId(2L)
-      .setRootId(1L)
-      .setStatus("P")
-      .setLast(true)
-      .setPurgeStatus(1)
-      .setDepth(1)
-      .setScope("DIR")
-      .setQualifier("PAC")
-      .setVersion("2.1-SNAPSHOT")
-      .setPath("1.2.")
-      .setPeriodMode(1, "days1")
-      .setPeriodMode(2, "days2")
-      .setPeriodMode(3, "days3")
-      .setPeriodMode(4, "days4")
-      .setPeriodMode(5, "days5")
-      .setPeriodParam(1, "30")
-      .setPeriodParam(2, "31")
-      .setPeriodParam(3, "32")
-      .setPeriodParam(4, "33")
-      .setPeriodParam(5, "34")
-      .setPeriodDate(1, DateUtils.parseDate("2011-09-24"))
-      .setPeriodDate(2, DateUtils.parseDate("2011-09-25"))
-      .setPeriodDate(3, DateUtils.parseDate("2011-09-26"))
-      .setPeriodDate(4, DateUtils.parseDate("2011-09-27"))
-      .setPeriodDate(5, DateUtils.parseDate("2011-09-28"))
-      .setBuildDate(DateUtils.parseDate("2011-09-29"));
+    SnapshotDto dto = defaultSnapshot();
 
     dao.insert(session, dto);
     session.commit();
@@ -138,4 +113,102 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     checkTables("insert", "snapshots");
   }
 
+  @Test
+  public void lastSnapshot_returns_null_when_no_last_snapshot() {
+    setupData("empty");
+
+    SnapshotDto snapshot = dao.getLastSnapshot(session, defaultSnapshot());
+
+    assertThat(snapshot).isNull();
+  }
+
+  @Test
+  public void lastSnapshot_from_one_resource() {
+    setupData("snapshots");
+
+    SnapshotDto snapshot = dao.getLastSnapshot(session, defaultSnapshot().setResourceId(2L));
+
+    assertThat(snapshot).isNotNull();
+    assertThat(snapshot.getId()).isEqualTo(4L);
+  }
+
+  @Test
+  public void lastSnapshot_from_one_resource_without_last_is_null() {
+    setupData("snapshots");
+
+    SnapshotDto snapshot = dao.getLastSnapshot(session, defaultSnapshot().setResourceId(5L));
+
+    assertThat(snapshot).isNull();
+  }
+
+  @Test
+  public void no_last_snapshot_older_than_another_one_in_a_empty_table() {
+    setupData("empty");
+
+    SnapshotDto snapshot = dao.getLastSnapshotOlderThan(session, defaultSnapshot());
+
+    assertThat(snapshot).isNull();
+  }
+
+  @Test
+  public void last_snapshot_older__than_a_reference() {
+    setupData("snapshots");
+
+    SnapshotDto referenceSnapshot = defaultSnapshot().setResourceId(1L);
+    referenceSnapshot.setCreatedAt(DateUtils.parseDate("2008-12-03"));
+    SnapshotDto snapshot = dao.getLastSnapshotOlderThan(session, referenceSnapshot);
+
+    assertThat(snapshot).isNotNull();
+    assertThat(snapshot.getId()).isEqualTo(1L);
+  }
+
+  @Test
+  public void last_snapshot_earlier__than_a_reference() {
+    setupData("snapshots");
+
+    SnapshotDto referenceSnapshot = defaultSnapshot().setResourceId(1L);
+    referenceSnapshot.setCreatedAt(DateUtils.parseDate("2008-12-01"));
+    SnapshotDto snapshot = dao.getLastSnapshotOlderThan(session, referenceSnapshot);
+
+    assertThat(snapshot).isNull();
+  }
+
+  @Test
+  public void snapshot_and_child_retrieved() {
+    setupData("snapshots");
+
+    List<SnapshotDto> snapshots = dao.findSnapshotAndChildrenOfProjectScope(session, defaultSnapshot().setId(1L));
+
+    assertThat(snapshots).isNotEmpty();
+    assertThat(snapshots).onProperty("id").containsOnly(1L, 6L);
+  }
+
+  @Test
+  public void set_snapshot_and_children_to_false_and_status_processed() {
+    setupData("snapshots");
+    SnapshotDto snapshot = defaultSnapshot().setId(1L);
+
+    dao.updateSnapshotAndChildrenLastFlagAndStatus(session, snapshot, false, SnapshotDto.STATUS_PROCESSED);
+    session.commit();
+
+    List<SnapshotDto> snapshots = dao.findSnapshotAndChildrenOfProjectScope(session, snapshot);
+    assertThat(snapshots).hasSize(2);
+    assertThat(snapshots).onProperty("id").containsOnly(1L, 6L);
+    assertThat(snapshots).onProperty("last").containsOnly(false);
+    assertThat(snapshots).onProperty("status").containsOnly(SnapshotDto.STATUS_PROCESSED);
+  }
+
+  @Test
+  public void set_snapshot_and_children_isLast_flag_to_false() {
+    setupData("snapshots");
+    SnapshotDto snapshot = defaultSnapshot().setId(1L);
+
+    dao.updateSnapshotAndChildrenLastFlag(session, snapshot, false);
+    session.commit();
+
+    List<SnapshotDto> snapshots = dao.findSnapshotAndChildrenOfProjectScope(session, snapshot);
+    assertThat(snapshots).hasSize(2);
+    assertThat(snapshots).onProperty("id").containsOnly(1L, 6L);
+    assertThat(snapshots).onProperty("last").containsOnly(false);
+  }
 }

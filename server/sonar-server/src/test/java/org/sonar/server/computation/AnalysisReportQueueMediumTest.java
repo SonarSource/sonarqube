@@ -84,13 +84,14 @@ public class AnalysisReportQueueMediumTest {
   @Test
   public void create_analysis_report_and_retrieve_it() {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    sut.add(DEFAULT_PROJECT_KEY);
+    sut.add(DEFAULT_PROJECT_KEY, 123L);
 
     List<AnalysisReportDto> reports = sut.findByProjectKey(DEFAULT_PROJECT_KEY);
     AnalysisReportDto report = reports.get(0);
 
     assertThat(reports).hasSize(1);
     assertThat(report.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
+    assertThat(report.getSnapshotId()).isEqualTo(123L);
   }
 
   private ComponentDto insertPermissionsForProject(String projectKey) {
@@ -111,9 +112,9 @@ public class AnalysisReportQueueMediumTest {
     insertPermissionsForProject("2");
     insertPermissionsForProject("3");
 
-    sut.add(DEFAULT_PROJECT_KEY);
-    sut.add("2");
-    sut.add("3");
+    sut.add(DEFAULT_PROJECT_KEY, 123L);
+    sut.add("2", 123L);
+    sut.add("3", 123L);
 
     AnalysisReportDto firstBookedReport = sut.bookNextAvailable();
     AnalysisReportDto secondBookedReport = sut.bookNextAvailable();
@@ -136,9 +137,9 @@ public class AnalysisReportQueueMediumTest {
   public void all() {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
 
-    sut.add(DEFAULT_PROJECT_KEY);
-    sut.add(DEFAULT_PROJECT_KEY);
-    sut.add(DEFAULT_PROJECT_KEY);
+    sut.add(DEFAULT_PROJECT_KEY, 123L);
+    sut.add(DEFAULT_PROJECT_KEY, 123L);
+    sut.add(DEFAULT_PROJECT_KEY, 123L);
 
     List<AnalysisReportDto> reports = sut.all();
 
@@ -148,7 +149,7 @@ public class AnalysisReportQueueMediumTest {
   @Test
   public void remove_remove_from_queue_and_log_a_new_activity() {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-    sut.add(DEFAULT_PROJECT_KEY);
+    sut.add(DEFAULT_PROJECT_KEY, 123L);
     AnalysisReportDto report = sut.bookNextAvailable();
     report.setStatus(SUCCESS);
 
@@ -167,7 +168,7 @@ public class AnalysisReportQueueMediumTest {
 
     MockUserSession.set().setLogin("gandalf").addProjectPermissions(UserRole.USER, project.key());
 
-    sut.add(project.getKey());
+    sut.add(project.getKey(), 123L);
   }
 
 }

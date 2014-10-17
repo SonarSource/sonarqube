@@ -85,10 +85,7 @@ import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.component.ws.*;
-import org.sonar.server.computation.AnalysisReportQueue;
-import org.sonar.server.computation.AnalysisReportTaskCleaner;
-import org.sonar.server.computation.AnalysisReportTaskLauncher;
-import org.sonar.server.computation.ComputationService;
+import org.sonar.server.computation.*;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.computation.ws.ActiveAnalysisReportsAction;
 import org.sonar.server.computation.ws.AnalysisReportHistorySearchAction;
@@ -274,7 +271,7 @@ class ServerComponents {
       ActivityNormalizer.class,
       ActivityIndex.class,
       ActivityDao.class
-    ));
+      ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
     components.addAll(DaoUtils.getDaoClasses());
@@ -307,7 +304,7 @@ class ServerComponents {
       // ws
       RestartHandler.class,
       SystemWs.class
-    );
+      );
   }
 
   /**
@@ -324,7 +321,7 @@ class ServerComponents {
       HttpDownloader.class,
       UriReader.class,
       ServerIdGenerator.class
-    );
+      );
   }
 
   void startLevel4Components(ComponentContainer pico) {
@@ -593,6 +590,9 @@ class ServerComponents {
 
     // Compute engine
     pico.addSingleton(ComputationService.class);
+    pico.addSingleton(SwitchSnapshotStep.class);
+    pico.addSingleton(SynchronizeProjectPermissionsStep.class);
+    pico.addSingleton(IndexProjectIssuesStep.class);
     pico.add(AnalysisReportQueue.class);
     pico.addSingleton(AnalysisReportTaskLauncher.class);
     pico.addSingleton(AnalysisReportWebService.class);

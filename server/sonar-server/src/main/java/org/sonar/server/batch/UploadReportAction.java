@@ -34,6 +34,7 @@ public class UploadReportAction implements RequestHandler {
   public static final String UPLOAD_REPORT_ACTION = "upload_report";
 
   static final String PARAM_PROJECT_KEY = "project";
+  static final String PARAM_SNAPSHOT = "snapshot";
 
   private final AnalysisReportQueue analysisReportQueue;
   private final ComputationService computationService;
@@ -58,13 +59,20 @@ public class UploadReportAction implements RequestHandler {
       .setRequired(true)
       .setDescription("Project key")
       .setExampleValue("org.codehaus.sonar:sonar");
+
+    action
+      .createParam(PARAM_SNAPSHOT)
+      .setRequired(true)
+      .setDescription("Snapshot id")
+      .setExampleValue("123");
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String projectKey = request.mandatoryParam(PARAM_PROJECT_KEY);
+    String snapshotId = request.mandatoryParam(PARAM_SNAPSHOT);
 
-    analysisReportQueue.add(projectKey);
+    analysisReportQueue.add(projectKey, Long.valueOf(snapshotId));
 
     // TODO remove synchronization as soon as it won't break ITs !
     (new AnalysisReportTask(analysisReportQueue, computationService)).run();
