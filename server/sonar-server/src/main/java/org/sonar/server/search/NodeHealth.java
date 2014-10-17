@@ -179,8 +179,8 @@ public class NodeHealth {
     performanceStats = new ArrayList<Performance>();
 
     // IndexStat
-    double indexCount = nodesStats.getIndices().getIndexing().getTotal().getIndexCount();
-    double indexTotalTime = nodesStats.getIndices().getIndexing().getTotal().getIndexTimeInMillis();
+    long indexCount = nodesStats.getIndices().getIndexing().getTotal().getIndexCount();
+    long indexTotalTime = nodesStats.getIndices().getIndexing().getTotal().getIndexTimeInMillis();
     performanceStats.add(
       new Performance("Average Indexing Time")
         .setWarnThreshold(10)
@@ -189,58 +189,48 @@ public class NodeHealth {
         .setValue(indexTotalTime / indexCount));
 
     // Query stats
-    double queryCount = nodesStats.getIndices().getSearch().getTotal().getQueryCount();
-    double queryTotalTime = nodesStats.getIndices().getSearch().getTotal().getQueryTimeInMillis();
+    long queryCount = nodesStats.getIndices().getSearch().getTotal().getQueryCount();
+    long queryTotalTime = nodesStats.getIndices().getSearch().getTotal().getQueryTimeInMillis();
     performanceStats.add(
       new Performance("Average Querying Time")
         .setWarnThreshold(50)
         .setErrorThreshold(500)
         .setMessage("Inefficient query and/or filters")
-        .setValue(queryTotalTime / queryCount));
+        .setValue(queryCount > 0L ? queryTotalTime / queryCount : 0.0));
 
     // Fetch stats
-    double fetchCount = nodesStats.getIndices().getSearch().getTotal().getFetchCount();
-    double fetchTotalTime = nodesStats.getIndices().getSearch().getTotal().getFetchTimeInMillis();
+    long fetchCount = nodesStats.getIndices().getSearch().getTotal().getFetchCount();
+    long fetchTotalTime = nodesStats.getIndices().getSearch().getTotal().getFetchTimeInMillis();
     performanceStats.add(
       new Performance("Average Fetching Time")
         .setWarnThreshold(8)
         .setErrorThreshold(15)
         .setMessage("Slow IO, fetch-size too large or documents too big")
-        .setValue(fetchTotalTime / fetchCount));
+        .setValue(fetchCount > 0L ? fetchTotalTime / fetchCount : 0.0));
 
     // Get stats
-    double getCount = nodesStats.getIndices().getGet().getCount();
-    double getTotalTime = nodesStats.getIndices().getGet().getTimeInMillis();
+    long getCount = nodesStats.getIndices().getGet().getCount();
+    long getTotalTime = nodesStats.getIndices().getGet().getTimeInMillis();
     performanceStats.add(
       new Performance("Average Get Time")
         .setWarnThreshold(5)
         .setErrorThreshold(10)
         .setMessage("Slow IO")
-        .setValue(getTotalTime / getCount));
+        .setValue(getCount > 0L ? getTotalTime / getCount : 0.0));
 
     // Refresh Stat
-    double refreshCount = nodesStats.getIndices().getRefresh().getTotal();
-    double refreshTotalTime = nodesStats.getIndices().getRefresh().getTotalTimeInMillis();
+    long refreshCount = nodesStats.getIndices().getRefresh().getTotal();
+    long refreshTotalTime = nodesStats.getIndices().getRefresh().getTotalTimeInMillis();
     performanceStats.add(
       new Performance("Average Refreshing Time")
         .setWarnThreshold(10)
         .setErrorThreshold(20)
         .setMessage("Slow IO")
-        .setValue(refreshTotalTime / refreshCount));
-
-    // Warmer Stat
-    // long warmingCount = // NO API AVAILABLE YET
-    // long warmingTotalTime = // NO API AVAILABLE YET
-    // performanceStats.add(
-    // new Performance("Warming")
-    // .setWarnThreshold(10)
-    // .setErrorThreshold(20)
-    // .setMessage("Refresh time too long or too complex warming queries")
-    // .setValue(warmingTotalTime / warmingCount));
+        .setValue(refreshCount > 0L ? refreshTotalTime / refreshCount : 0.0));
 
     // Field Cache
     fieldCacheMemory = nodesStats.getIndices().getFieldData().getMemorySizeInBytes();
-    double fieldCacheEviction = nodesStats.getIndices().getFieldData().getEvictions();
+    long fieldCacheEviction = nodesStats.getIndices().getFieldData().getEvictions();
     performanceStats.add(
       new Performance("Field Cache Eviction Count")
         .setWarnThreshold(1)
@@ -250,7 +240,7 @@ public class NodeHealth {
 
     // Filter Cache
     filterCacheMemory = nodesStats.getIndices().getFilterCache().getMemorySizeInBytes();
-    double filterCacheEviction = nodesStats.getIndices().getFilterCache().getEvictions();
+    long filterCacheEviction = nodesStats.getIndices().getFilterCache().getEvictions();
     performanceStats.add(
       new Performance("Filter Cache Eviction Count")
         .setWarnThreshold(1)
