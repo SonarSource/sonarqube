@@ -54,6 +54,8 @@ import org.sonar.server.rule.RuleService;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchRequestHandler;
+import org.sonar.server.source.SourceService;
+import org.sonar.server.source.ws.ScmWriter;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -87,9 +89,11 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   private final UserFinder userFinder;
   private final I18n i18n;
   private final Durations durations;
+  private final SourceService sourceService;
+  private final ScmWriter scmWriter;
 
   public SearchAction(DbClient dbClient, IssueChangeDao issueChangeDao, IssueService service, IssueActionsWriter actionsWriter, RuleService ruleService,
-    ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Durations durations) {
+    ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Durations durations, SourceService sourceService, ScmWriter scmWriter) {
     super(SEARCH_ACTION);
     this.dbClient = dbClient;
     this.issueChangeDao = issueChangeDao;
@@ -100,6 +104,8 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     this.userFinder = userFinder;
     this.i18n = i18n;
     this.durations = durations;
+    this.sourceService = sourceService;
+    this.scmWriter = scmWriter;
   }
 
   @Override
@@ -361,6 +367,9 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         .prop("fUpdateAge", formatAgeDate(updateDate))
         .prop("closeDate", isoDate(issue.closeDate()));
 
+      if (issue.line() != null) {
+        writeIssueSnippet(issue, json);
+      }
       writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
       writeIssueAttributes(issue, json);
       writeIssueExtraFields(issue, usersByLogin, actionPlanByKeys, extraFields, json);
@@ -368,6 +377,24 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     }
 
     json.endArray();
+  }
+
+  private void writeIssueSnippet(Issue issue, JsonWriter json) {
+    String componentKey = issue.componentKey();
+    int from = Math.max(issue.line() - 1, 1);
+    int to = from + 2;
+    int lineCounter = from;
+    List<String> lines = sourceService.getLinesAsHtml(componentKey, from, to);
+    if (lines != null) {
+      json.name("sources").beginArray();
+      for(String line: lines) {
+        json.beginArray().value(lineCounter ++).value(line).endArray();
+      }
+      json.endArray();
+      String scmAuthorData = sourceService.getScmAuthorData(componentKey);
+      String scmDateData = sourceService.getScmDateData(componentKey);
+      scmWriter.write(scmAuthorData, scmDateData, from, to, true, json);
+    }
   }
 
   private void writeIssueComments(Collection<DefaultIssueComment> issueComments, Map<String, User> usersByLogin, JsonWriter json) {

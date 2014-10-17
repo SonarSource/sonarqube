@@ -30,7 +30,7 @@ import java.util.Map;
 
 public class ScmWriter implements ServerComponent {
 
-  void write(@Nullable String authorsData, @Nullable String datesData, int from, int to, boolean showCommitsByLine, JsonWriter json) {
+  public void write(@Nullable String authorsData, @Nullable String datesData, int from, int to, boolean showCommitsByLine, JsonWriter json) {
     json.name("scm").beginArray();
     if (authorsData != null) {
       Map<Integer, String> authors = KeyValueFormat.parseIntString(authorsData);

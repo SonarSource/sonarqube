@@ -51,6 +51,8 @@ import org.sonar.server.issue.*;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
+import org.sonar.server.source.SourceService;
+import org.sonar.server.source.ws.ScmWriter;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
@@ -110,6 +112,9 @@ public class IssueShowActionTest {
   @Mock
   Durations durations;
 
+  @Mock
+  SourceService sourceService;
+
   Date issueCreationDate;
 
   Rule rule;
@@ -137,7 +142,7 @@ public class IssueShowActionTest {
       new IssueShowAction(dbClient, issueService, issueChangelogService, commentService,
         new IssueActionsWriter(issueService, actionService), actionPlanService, userFinder, debtModel, ruleService, i18n, durations),
       new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class), mock(RuleService.class),
-        mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class))));
+        mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class), mock(SourceService.class), mock(ScmWriter.class))));
   }
 
   @Test

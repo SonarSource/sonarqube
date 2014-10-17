@@ -32,10 +32,13 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.issue.db.*;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.source.db.SnapshotSourceDao;
+import org.sonar.core.source.db.SnapshotSourceDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
@@ -85,20 +88,27 @@ public class SearchActionMediumTest {
 
     // project can be seen by anyone
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.CODEVIEWER, session);
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
     file = new ComponentDto()
       .setKey("MyComponent")
       .setSubProjectId(project.getId());
     db.componentDao().insert(session, file);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
+    SnapshotDto snapshot = db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
+    SnapshotSourceDto snapshotSource = new SnapshotSourceDto().setSnapshotId(snapshot.getId()).setData("First Line\n"
+      + "Second Line\n"
+      + "Third Line\n"
+      + "Fourth Line\n"
+      + "Fifth Line\n");
+    tester.get(SnapshotSourceDao.class).insert(snapshotSource );
 
     UserDto john = new UserDto().setLogin("john").setName("John").setEmail("john@email.com");
     db.userDao().insert(session, john);
 
     session.commit();
 
-    MockUserSession.set().setLogin("john");
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.CODEVIEWER, project.getKey(), file.getKey());
   }
 
   @After
@@ -414,6 +424,33 @@ public class SearchActionMediumTest {
 
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "default_page_size_is_100.json", false);
+  }
+
+  @Test
+  public void issue_on_line() throws Exception {
+    db.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
+    db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
+
+    IssueDto issue = IssueTesting.newDto(rule, file, project)
+      .setLine(3)
+      .setRule(rule)
+      .setDebt(10L)
+      .setRootComponent(project)
+      .setComponent(file)
+      .setStatus("OPEN").setResolution("OPEN")
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setSeverity("MAJOR")
+      .setAuthorLogin("John")
+      .setAssignee("simon")
+      .setReporter("fabrice")
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
+    db.issueDao().insert(session, issue);
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
+    // TODO date assertion is complex to test, and components id are not predictable, that's why strict boolean is set to false
+    result.assertJson(this.getClass(), "issue_with_snippet.json", false);
   }
 
 }

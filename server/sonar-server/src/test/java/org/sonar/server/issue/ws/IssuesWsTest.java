@@ -34,6 +34,8 @@ import org.sonar.server.issue.IssueCommentService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.rule.RuleService;
+import org.sonar.server.source.SourceService;
+import org.sonar.server.source.ws.ScmWriter;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -56,7 +58,7 @@ public class IssuesWsTest {
     showAction = new IssueShowAction(mock(DbClient.class), mock(IssueService.class), issueChangelogService, mock(IssueCommentService.class), actionsWriter, mock(ActionPlanService.class), mock(UserFinder.class),
       debtModelService, mock(RuleService.class), i18n, durations);
     SearchAction searchAction = new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class), mock(RuleService.class),
-      mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class));
+      mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class), mock(SourceService.class), mock(ScmWriter.class));
     tester = new WsTester(new IssuesWs(showAction, searchAction));
   }
 
