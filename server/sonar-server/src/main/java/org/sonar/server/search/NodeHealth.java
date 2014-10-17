@@ -186,7 +186,7 @@ public class NodeHealth {
         .setWarnThreshold(10)
         .setErrorThreshold(50)
         .setMessage("Too complex documents or low IO/CPU")
-        .setValue(indexTotalTime / indexCount));
+        .setValue(indexCount > 0L ? indexTotalTime / indexCount : 0.0));
 
     // Query stats
     long queryCount = nodesStats.getIndices().getSearch().getTotal().getQueryCount();
