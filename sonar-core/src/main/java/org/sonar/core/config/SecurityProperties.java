@@ -38,7 +38,7 @@ class SecurityProperties {
       PropertyDefinition.builder(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY)
         .defaultValue("" + CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE)
         .name("Import sources")
-        .description("[DEPRECATED] Set to false if sources should not be imported and therefore not available in the Web UI (e.g. for security reasons).")
+        .description("Set to false if sources should not be imported and therefore not available in the Web UI (e.g. for security reasons).")
         .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
         .category(CoreProperties.CATEGORY_SECURITY)
@@ -74,7 +74,7 @@ class SecurityProperties {
         .type(PropertyType.BOOLEAN)
         .category(CoreProperties.CATEGORY_SECURITY)
         .build()
-      );
+    );
 
   }
 }

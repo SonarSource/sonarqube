@@ -67,8 +67,7 @@ public class ComponentIndexer implements BatchComponent {
 
     boolean shouldImportSource = settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
     if (!shouldImportSource) {
-      LOG.warn("/!\\ Property '" + CoreProperties.CORE_IMPORT_SOURCES_PROPERTY
-        + "' is deprecated. Not importing source will prevent issues to be properly tracked between consecutive analyses.");
+      LOG.warn("Not importing source will prevent issues to be properly tracked between consecutive analyses");
     }
     for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
       String languageKey = inputFile.language();

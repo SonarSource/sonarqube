@@ -193,10 +193,6 @@ public interface CoreProperties {
   String CORE_VIOLATION_LOCALE_PROPERTY = "sonar.violationLocale";
 
   String CORE_VIOLATION_LOCALE_DEFAULT_VALUE = "en";
-  /**
-   * @deprecated since 4.5.1.
-   */
-  @Deprecated
   String CORE_IMPORT_SOURCES_PROPERTY = "sonar.importSources";
   boolean CORE_IMPORT_SOURCES_DEFAULT_VALUE = true;
 
