@@ -26,14 +26,17 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.activity.Activity;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.activity.index.ActivityQuery;
 import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
+import org.sonar.server.user.UserSession;
 
 import java.util.Arrays;
+import java.util.Map;
 
 public class AnalysisReportHistorySearchAction implements RequestHandler {
 
@@ -64,6 +67,12 @@ public class AnalysisReportHistorySearchAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
+    /*
+     * TODO should be done in a specific service, not logService but maybe something like AnalysisReportHistory ? A Facade Service could be
+     * needed
+     */
+    checkUserRights();
+
     ActivityQuery query = logService.newActivityQuery();
     query.setTypes(Arrays.asList(Activity.Type.ANALYSIS_REPORT));
 
@@ -74,14 +83,22 @@ public class AnalysisReportHistorySearchAction implements RequestHandler {
 
     JsonWriter json = response.newJsonWriter().beginObject();
     searchOptions.writeStatistics(json, results);
-    writeLogs(results, json, searchOptions);
+    writeReports(results, json, searchOptions);
     json.endObject().close();
   }
 
-  private void writeLogs(Result<Activity> result, JsonWriter json, SearchOptions options) {
+  private void checkUserRights() {
+    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
+  }
+
+  private void writeReports(Result<Activity> result, JsonWriter json, SearchOptions options) {
     json.name("reports").beginArray();
-    for (Activity report : result.getHits()) {
-      mapping.write(report, json, options);
+    for (Activity reportActivity : result.getHits()) {
+      json.beginObject();
+      for (Map.Entry<String, String> detail : reportActivity.details().entrySet()) {
+        json.prop(detail.getKey(), detail.getValue());
+      }
+      json.endObject();
     }
     json.endArray();
   }

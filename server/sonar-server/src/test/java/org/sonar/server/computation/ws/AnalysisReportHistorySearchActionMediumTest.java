@@ -35,6 +35,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.computation.AnalysisReportQueue;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
@@ -89,14 +90,14 @@ public class AnalysisReportHistorySearchActionMediumTest {
       queue.remove(report);
     }
 
-    session.commit();
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     WsTester.TestRequest request = wsTester.newGetRequest(AnalysisReportWebService.API_ENDPOINT, AnalysisReportHistorySearchAction.SEARCH_ACTION);
     WsTester.Result result = request.execute();
 
     assertThat(result).isNotNull();
-    // TODO find a way to mock System2 to control date and then assert the Json
-    System.out.println(result.outputAsString());
+    // TODO add the createdAt and updatedAt field in the json file when System2 is easily mockable
+    result.assertJson(getClass(), "list_history_reports.json", false);
   }
 
   private ComponentDto insertPermissionsForProject(String projectKey) {
@@ -104,10 +105,25 @@ public class AnalysisReportHistorySearchActionMediumTest {
     dbClient.componentDao().insert(session, project);
 
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    userSession.addProjectPermissions(UserRole.ADMIN, project.key());
     userSession.addProjectPermissions(UserRole.USER, project.key());
 
     session.commit();
 
     return project;
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void user_rights_is_not_enough_throw_ForbiddenException() throws Exception {
+    insertPermissionsForProject(DEFAULT_PROJECT_KEY);
+    queue.add(DEFAULT_PROJECT_KEY);
+
+    AnalysisReportDto report = queue.all().get(0);
+    report.succeed();
+    queue.remove(report);
+    userSession.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    WsTester.TestRequest sut = wsTester.newGetRequest(AnalysisReportWebService.API_ENDPOINT, AnalysisReportHistorySearchAction.SEARCH_ACTION);
+    sut.execute();
   }
 }
