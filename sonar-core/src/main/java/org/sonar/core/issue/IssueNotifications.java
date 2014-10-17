@@ -68,12 +68,13 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
   }
 
   @CheckForNull
-  public List<Notification> sendChanges(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component) {
+  public List<Notification> sendChanges(DefaultIssue issue, IssueChangeContext context, @Nullable Rule rule, Component project, @Nullable Component component) {
     return sendChanges(issue, context, rule, project, component, null);
   }
 
   @CheckForNull
-  public List<Notification> sendChanges(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project, @Nullable Component component, @Nullable String comment) {
+  public List<Notification> sendChanges(DefaultIssue issue, IssueChangeContext context, @Nullable Rule rule, Component project, @Nullable Component component,
+                                        @Nullable String comment) {
     Map<DefaultIssue, Rule> issues = Maps.newHashMap();
     issues.put(issue, rule);
     return sendChanges(issues, context, project, component, comment);
@@ -95,7 +96,7 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
   }
 
   @CheckForNull
-  private Notification createChangeNotification(DefaultIssue issue, IssueChangeContext context, Rule rule, Component project,
+  private Notification createChangeNotification(DefaultIssue issue, IssueChangeContext context, @Nullable Rule rule, Component project,
     @Nullable Component component, @Nullable String comment) {
     Notification notification = null;
     if (comment != null || issue.mustSendNotifications()) {

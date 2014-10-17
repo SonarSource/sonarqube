@@ -28,6 +28,7 @@ import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
@@ -340,6 +341,11 @@ public class IssueServiceMediumTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issues can be created only on rules marked as 'manual': xoo:x1");
     }
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void fail_create_manual_issue_if_rule_does_not_exists() {
+    service.createManualIssue(file.key(), RuleKey.of("rule", "unknown"), 10, "Fix it", null, 2d);
   }
 
   @Test(expected = ForbiddenException.class)

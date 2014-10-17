@@ -247,7 +247,10 @@ public class IssueService implements ServerComponent {
       if (!ruleKey.isManual()) {
         throw new IllegalArgumentException("Issues can be created only on rules marked as 'manual': " + ruleKey);
       }
-      Rule rule = getRuleByKey(ruleKey);
+      Rule rule = getNullableRuleByKey(ruleKey);
+      if (rule == null) {
+        throw new IllegalArgumentException("Unknown rule: " + ruleKey);
+      }
 
       DefaultIssue issue = new DefaultIssueBuilder()
         .componentKey(component.getKey())
@@ -319,7 +322,7 @@ public class IssueService implements ServerComponent {
     }
     issueStorage.save(session, issue);
     issueNotifications.sendChanges(issue, context,
-      getRuleByKey(issue.ruleKey()),
+      getNullableRuleByKey(issue.ruleKey()),
       dbClient.componentDao().getByKey(session, projectKey),
       dbClient.componentDao().getNullableByKey(session, issue.componentKey()),
       comment);
@@ -328,13 +331,10 @@ public class IssueService implements ServerComponent {
 
   /**
    * Should use {@link org.sonar.server.rule.RuleService#getByKey(org.sonar.api.rule.RuleKey)}, but it's not possible as IssueNotifications is still used by the batch.
+   * Can be null for removed rules
    */
-  private Rule getRuleByKey(RuleKey ruleKey) {
-    Rule rule = ruleFinder.findByKey(ruleKey);
-    if (rule == null) {
-      throw new IllegalArgumentException("Unknown rule: " + ruleKey);
-    }
-    return rule;
+  private Rule getNullableRuleByKey(RuleKey ruleKey) {
+    return ruleFinder.findByKey(ruleKey);
   }
 
   public org.sonar.server.search.Result<Issue> search(IssueQuery query, QueryContext options) {

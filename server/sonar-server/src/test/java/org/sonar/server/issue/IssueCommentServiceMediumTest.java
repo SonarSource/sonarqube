@@ -24,7 +24,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -99,6 +102,22 @@ public class IssueCommentServiceMediumTest {
   @Test
   public void add_comment() throws Exception {
     IssueDto issue = IssueTesting.newDto(rule, file, project);
+    tester.get(IssueDao.class).insert(session, issue);
+    session.commit();
+
+    service.addComment(issue.getKey(), "my comment", MockUserSession.get());
+
+    List<DefaultIssueComment> comments = service.findComments(issue.getKey());
+    assertThat(comments).hasSize(1);
+    assertThat(comments.get(0).markdownText()).isEqualTo("my comment");
+  }
+
+  @Test
+  public void add_comment_on_removed_issue() throws Exception {
+    RuleDto removedRule = RuleTesting.newDto(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED);
+    tester.get(RuleDao.class).insert(session, removedRule);
+
+    IssueDto issue = IssueTesting.newDto(removedRule, file, project).setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_REMOVED);
     tester.get(IssueDao.class).insert(session, issue);
     session.commit();
 
