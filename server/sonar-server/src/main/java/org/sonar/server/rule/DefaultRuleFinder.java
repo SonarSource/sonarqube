@@ -86,7 +86,7 @@ public class DefaultRuleFinder implements RuleFinder {
   @CheckForNull
   public org.sonar.api.rules.Rule findByKey(RuleKey key) {
     Rule rule = index.getNullableByKey(key);
-    if (rule != null && rule.status() != RuleStatus.REMOVED) { // Why removed ?
+    if (rule != null && rule.status() != RuleStatus.REMOVED) {
       return toRule(rule);
     } else {
       return null;
