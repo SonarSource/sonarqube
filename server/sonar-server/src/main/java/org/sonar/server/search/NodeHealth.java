@@ -186,7 +186,7 @@ public class NodeHealth {
         .setWarnThreshold(10)
         .setErrorThreshold(50)
         .setMessage("Too complex documents or low IO/CPU")
-        .setValue(indexCount > 0L ? indexTotalTime / indexCount : 0.0));
+        .setValue(indexCount > 0L ? indexTotalTime / (double)indexCount : 0.0));
 
     // Query stats
     long queryCount = nodesStats.getIndices().getSearch().getTotal().getQueryCount();
@@ -196,7 +196,7 @@ public class NodeHealth {
         .setWarnThreshold(50)
         .setErrorThreshold(500)
         .setMessage("Inefficient query and/or filters")
-        .setValue(queryCount > 0L ? queryTotalTime / queryCount : 0.0));
+        .setValue(queryCount > 0L ? queryTotalTime / (double)queryCount : 0.0));
 
     // Fetch stats
     long fetchCount = nodesStats.getIndices().getSearch().getTotal().getFetchCount();
@@ -206,7 +206,7 @@ public class NodeHealth {
         .setWarnThreshold(8)
         .setErrorThreshold(15)
         .setMessage("Slow IO, fetch-size too large or documents too big")
-        .setValue(fetchCount > 0L ? fetchTotalTime / fetchCount : 0.0));
+        .setValue(fetchCount > 0L ? fetchTotalTime / (double)fetchCount : 0.0));
 
     // Get stats
     long getCount = nodesStats.getIndices().getGet().getCount();
@@ -216,7 +216,7 @@ public class NodeHealth {
         .setWarnThreshold(5)
         .setErrorThreshold(10)
         .setMessage("Slow IO")
-        .setValue(getCount > 0L ? getTotalTime / getCount : 0.0));
+        .setValue(getCount > 0L ? getTotalTime / (double)getCount : 0.0));
 
     // Refresh Stat
     long refreshCount = nodesStats.getIndices().getRefresh().getTotal();
@@ -226,7 +226,7 @@ public class NodeHealth {
         .setWarnThreshold(10)
         .setErrorThreshold(20)
         .setMessage("Slow IO")
-        .setValue(refreshCount > 0L ? refreshTotalTime / refreshCount : 0.0));
+        .setValue(refreshCount > 0L ? refreshTotalTime / (double)refreshCount : 0.0));
 
     // Field Cache
     fieldCacheMemory = nodesStats.getIndices().getFieldData().getMemorySizeInBytes();
