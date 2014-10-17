@@ -189,8 +189,8 @@ public class NodeHealth {
         .setValue(indexTotalTime / indexCount));
 
     // Query stats
-    long queryCount = nodesStats.getIndices().getSearch().getTotal().getQueryCount();
-    long queryTotalTime = nodesStats.getIndices().getSearch().getTotal().getQueryTimeInMillis();
+    double queryCount = nodesStats.getIndices().getSearch().getTotal().getQueryCount();
+    double queryTotalTime = nodesStats.getIndices().getSearch().getTotal().getQueryTimeInMillis();
     performanceStats.add(
       new Performance("Average Querying Time")
         .setWarnThreshold(50)
@@ -199,8 +199,8 @@ public class NodeHealth {
         .setValue(queryTotalTime / queryCount));
 
     // Fetch stats
-    long fetchCount = nodesStats.getIndices().getSearch().getTotal().getFetchCount();
-    long fetchTotalTime = nodesStats.getIndices().getSearch().getTotal().getFetchTimeInMillis();
+    double fetchCount = nodesStats.getIndices().getSearch().getTotal().getFetchCount();
+    double fetchTotalTime = nodesStats.getIndices().getSearch().getTotal().getFetchTimeInMillis();
     performanceStats.add(
       new Performance("Average Fetching Time")
         .setWarnThreshold(8)
@@ -209,8 +209,8 @@ public class NodeHealth {
         .setValue(fetchTotalTime / fetchCount));
 
     // Get stats
-    long getCount = nodesStats.getIndices().getGet().getCount();
-    long getTotalTime = nodesStats.getIndices().getGet().getTimeInMillis();
+    double getCount = nodesStats.getIndices().getGet().getCount();
+    double getTotalTime = nodesStats.getIndices().getGet().getTimeInMillis();
     performanceStats.add(
       new Performance("Average Get Time")
         .setWarnThreshold(5)
@@ -219,8 +219,8 @@ public class NodeHealth {
         .setValue(getTotalTime / getCount));
 
     // Refresh Stat
-    long refreshCount = nodesStats.getIndices().getRefresh().getTotal();
-    long refreshTotalTime = nodesStats.getIndices().getRefresh().getTotalTimeInMillis();
+    double refreshCount = nodesStats.getIndices().getRefresh().getTotal();
+    double refreshTotalTime = nodesStats.getIndices().getRefresh().getTotalTimeInMillis();
     performanceStats.add(
       new Performance("Average Refreshing Time")
         .setWarnThreshold(10)
@@ -240,7 +240,7 @@ public class NodeHealth {
 
     // Field Cache
     fieldCacheMemory = nodesStats.getIndices().getFieldData().getMemorySizeInBytes();
-    long fieldCacheEviction = nodesStats.getIndices().getFieldData().getEvictions();
+    double fieldCacheEviction = nodesStats.getIndices().getFieldData().getEvictions();
     performanceStats.add(
       new Performance("Field Cache Eviction Count")
         .setWarnThreshold(1)
@@ -250,7 +250,7 @@ public class NodeHealth {
 
     // Filter Cache
     filterCacheMemory = nodesStats.getIndices().getFilterCache().getMemorySizeInBytes();
-    long filterCacheEviction = nodesStats.getIndices().getFilterCache().getEvictions();
+    double filterCacheEviction = nodesStats.getIndices().getFilterCache().getEvictions();
     performanceStats.add(
       new Performance("Filter Cache Eviction Count")
         .setWarnThreshold(1)
@@ -268,8 +268,8 @@ public class NodeHealth {
     final private String name;
     private String message;
     private double value;
-    private long warnThreshold;
-    private long errorThreshold;
+    private double warnThreshold;
+    private double errorThreshold;
 
     public Performance(String name) {
       this.name = name;
