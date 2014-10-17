@@ -26,7 +26,6 @@ requirejs [
   'analysis-reports/views/actions-view'
 
   'common/handlebars-extensions'
-  'analysis-reports/mockjax'
 ], (
   Backbone, Marionette
   Layout
