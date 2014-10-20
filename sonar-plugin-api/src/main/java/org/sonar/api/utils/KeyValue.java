@@ -23,7 +23,9 @@ package org.sonar.api.utils;
  * A utility class to store a key / value couple of generic types
  *
  * @since 1.10
+ * @deprecated in 2.7. Used only in deprecated methods of {@link org.sonar.api.utils.KeyValueFormat}
  */
+@Deprecated
 public class KeyValue<K, V> {
 
   private K key;

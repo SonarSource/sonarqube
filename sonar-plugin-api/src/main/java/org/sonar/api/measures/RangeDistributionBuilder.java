@@ -27,6 +27,8 @@ import org.apache.commons.lang.NumberUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.SonarException;
 
+import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -144,9 +146,9 @@ public class RangeDistributionBuilder implements MeasureBuilder {
    * @param measure the measure to add to the current one
    * @return the current object
    */
-  public RangeDistributionBuilder add(Measure<String> measure) {
+  public RangeDistributionBuilder add(@Nullable Measure<String> measure) {
     if (measure != null && measure.getData() != null) {
-      Map<Double, Double> map = KeyValueFormat.parse(measure.getData(), new KeyValueFormat.DoubleNumbersPairTransformer());
+      Map<Double, Double> map = KeyValueFormat.parse(measure.getData(), KeyValueFormat.newDoubleConverter(), KeyValueFormat.newDoubleConverter());
       Number[] limits = map.keySet().toArray(new Number[map.size()]);
       if (bottomLimits == null) {
         init(limits);

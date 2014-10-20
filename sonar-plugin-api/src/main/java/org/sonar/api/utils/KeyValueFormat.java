@@ -26,12 +26,14 @@ import com.google.common.collect.Multiset;
 import org.apache.commons.collections.Bag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.RulePriority;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>Formats and parses key/value pairs with the string representation : "key1=value1;key2=value2". Conversion
@@ -203,16 +205,6 @@ public final class KeyValueFormat {
     return new DateConverter(format);
   }
 
-  /**
-   * @deprecated in version 2.13. Replaced by {@link org.sonar.api.utils.KeyValueFormat#newDateTimeConverter()}
-   */
-  @Deprecated
-  public static class DateTimeConverter extends DateConverter {
-    public DateTimeConverter() {
-      super(DateUtils.DATETIME_FORMAT);
-    }
-  }
-
   public static <K, V> Map<K, V> parse(String data, Converter<K> keyConverter, Converter<V> valueConverter) {
     Map<K, V> map = Maps.newLinkedHashMap();
     if (data != null) {
@@ -315,28 +307,6 @@ public final class KeyValueFormat {
    */
   public static Multiset<String> parseMultiset(String data) {
     return parseMultiset(data, newStringConverter());
-  }
-
-  /**
-   * Transforms a string with the following format: "key1=value1;key2=value2..."
-   * into a Map<KEY, VALUE>. Requires to implement the transform(key,value) method
-   *
-   * @param data        the input string
-   * @param transformer the interface to implement
-   * @return a Map of <key, value>
-   * @deprecated since 2.7
-   */
-  @Deprecated
-  public static <K, V> Map<K, V> parse(String data, Transformer<K, V> transformer) {
-    Map<String, String> rawData = parse(data);
-    Map<K, V> map = new HashMap<K, V>();
-    for (Map.Entry<String, String> entry : rawData.entrySet()) {
-      KeyValue<K, V> keyVal = transformer.transform(entry.getKey(), entry.getValue());
-      if (keyVal != null) {
-        map.put(keyVal.getKey(), keyVal.getValue());
-      }
-    }
-    return map;
   }
 
   private static <K, V> String formatEntries(Collection<Map.Entry<K, V>> entries, Converter<K> keyConverter, Converter<V> valueConverter) {
@@ -447,15 +417,6 @@ public final class KeyValueFormat {
    * @deprecated use Multiset from google collections instead of commons-collections bags
    */
   @Deprecated
-  public static String format(Bag bag) {
-    return format(bag, 0);
-  }
-
-  /**
-   * @since 1.11
-   * @deprecated use Multiset from google collections instead of commons-collections bags
-   */
-  @Deprecated
   public static String format(Bag bag, int var) {
     StringBuilder sb = new StringBuilder();
     if (bag != null) {
@@ -471,80 +432,5 @@ public final class KeyValueFormat {
       }
     }
     return sb.toString();
-  }
-
-
-  /**
-   * @deprecated since 2.7. Replaced by Converter
-   */
-  @Deprecated
-  public interface Transformer<K, V> {
-    KeyValue<K, V> transform(String key, String value);
-  }
-
-  /**
-   * Implementation of Transformer<String, Double>
-   *
-   * @deprecated since 2.7 replaced by Converter
-   */
-  @Deprecated
-  public static class StringNumberPairTransformer implements Transformer<String, Double> {
-    public KeyValue<String, Double> transform(String key, String value) {
-      return new KeyValue<String, Double>(key, toDouble(value));
-    }
-  }
-
-  /**
-   * Implementation of Transformer<Double, Double>
-   *
-   * @deprecated since 2.7. Replaced by Converter
-   */
-  @Deprecated
-  public static class DoubleNumbersPairTransformer implements Transformer<Double, Double> {
-    public KeyValue<Double, Double> transform(String key, String value) {
-      return new KeyValue<Double, Double>(toDouble(key), toDouble(value));
-    }
-  }
-
-  /**
-   * Implementation of Transformer<Integer, Integer>
-   *
-   * @deprecated since 2.7. Replaced by Converter
-   */
-  @Deprecated
-  public static class IntegerNumbersPairTransformer implements Transformer<Integer, Integer> {
-    public KeyValue<Integer, Integer> transform(String key, String value) {
-      return new KeyValue<Integer, Integer>(toInteger(key), toInteger(value));
-    }
-  }
-
-
-  /**
-   * Implementation of Transformer<RulePriority, Integer>
-   *
-   * @deprecated since 2.7. Replaced by Converter
-   */
-  @Deprecated
-  public static class RulePriorityNumbersPairTransformer implements Transformer<RulePriority, Integer> {
-
-    public KeyValue<RulePriority, Integer> transform(String key, String value) {
-      try {
-        if (StringUtils.isBlank(value)) {
-          value = "0";
-        }
-        return new KeyValue<RulePriority, Integer>(RulePriority.valueOf(key.toUpperCase()), Integer.parseInt(value));
-      } catch (Exception e) {
-        LoggerFactory.getLogger(RulePriorityNumbersPairTransformer.class).warn("Property " + key + " has invalid value: " + value, e);
-        return null;
-      }
-    }
-  }
-
-  private static Double toDouble(String value) {
-    return StringUtils.isBlank(value) ? null : NumberUtils.toDouble(value);
-  }
-
-  private static Integer toInteger(String value) {
-    return StringUtils.isBlank(value) ? null : NumberUtils.toInt(value);
   }
 }

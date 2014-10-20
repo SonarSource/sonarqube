@@ -23,7 +23,6 @@ import com.google.common.collect.Multiset;
 import com.google.common.collect.TreeMultiset;
 import org.apache.commons.collections.bag.TreeBag;
 import org.junit.Test;
-import org.sonar.api.rules.RulePriority;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -49,7 +48,7 @@ public class DeprecatedKeyValueFormatTest {
     TreeBag bag = new TreeBag();
     bag.add("hello", 1);
     bag.add("key", 3);
-    assertThat(KeyValueFormat.format(bag), is("hello=1;key=3"));
+    assertThat(KeyValueFormat.format(bag, 0), is("hello=1;key=3"));
   }
 
   @Test
@@ -76,42 +75,5 @@ public class DeprecatedKeyValueFormatTest {
     assertEquals("val1", map.get("key1"));
     assertEquals("", map.get("key2"));
     assertEquals("val3", map.get("key3"));
-  }
-
-  @Test
-  public void parseWithStringNumberTransformation() {
-    Map<String, Double> map = KeyValueFormat.parse("hello=1;key1=;key2=3;key3=5.1", new KeyValueFormat.StringNumberPairTransformer());
-    assertThat(map.size(), is(4));
-    assertEquals(new Double(1), map.get("hello"));
-    assertEquals(null, map.get("key1"));
-    assertEquals(new Double(3), map.get("key2"));
-    assertEquals(new Double(5.1), map.get("key3"));
-  }
-
-  @Test
-  public void parseWithDoubleNumbersTransformation() {
-    Map<Double, Double> map = KeyValueFormat.parse("0=1;10=;60=5.1", new KeyValueFormat.DoubleNumbersPairTransformer());
-    assertThat(map.size(), is(3));
-    assertEquals(new Double(1), map.get(new Double(0)));
-    assertEquals(null, map.get(10));
-    assertEquals(new Double(5.1), map.get(new Double(60)));
-  }
-
-  @Test
-  public void parseWithIntegerNumbersTransformation() {
-    Map<Integer, Integer> map = KeyValueFormat.parse("0=1;10=;60=5", new KeyValueFormat.IntegerNumbersPairTransformer());
-    assertThat(map.size(), is(3));
-    assertEquals(new Integer(1), map.get(new Integer(0)));
-    assertEquals(null, map.get(10));
-    assertEquals(new Integer(5), map.get(new Integer(60)));
-  }
-
-  @Test
-  public void parseWithRulePriorityNumbersTransformation() {
-    Map<RulePriority, Integer> map = KeyValueFormat.parse("BLOCKER=1;MAJOR=;INFO=5", new KeyValueFormat.RulePriorityNumbersPairTransformer());
-    assertThat(map.size(), is(3));
-    assertEquals(new Integer(1), map.get(RulePriority.BLOCKER));
-    assertEquals(new Integer(0), map.get(RulePriority.MAJOR));
-    assertEquals(new Integer(5), map.get(RulePriority.INFO));
   }
 }
