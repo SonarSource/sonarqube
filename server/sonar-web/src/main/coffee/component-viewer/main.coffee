@@ -65,6 +65,8 @@ define [
 
   SCROLL_OFFSET = 10
 
+  LINES_LIMIT = 3000
+
 
 
   class ComponentViewer extends utils.mixOf Marionette.Layout, IssuesMixin, CoverageMixin, DuplicationsMixin, SCMMixin
@@ -201,10 +203,15 @@ define [
       $.get API_MEASURES, data, (data) =>
         measuresList = data[0].msr || []
         measures = @component.get 'measures'
+        lines = null
         measuresList.forEach (m) ->
           measures[m.key] = m.frmt_val || m.data
+          lines = m.val if m.key == 'ncloc'
         @component.set 'measures', measures
-        @augmentWithNclocData()
+        if lines < LINES_LIMIT
+          @augmentWithNclocData()
+        else
+          delete measures['ncloc_data']
 
 
     requestTrends: (key, period) ->

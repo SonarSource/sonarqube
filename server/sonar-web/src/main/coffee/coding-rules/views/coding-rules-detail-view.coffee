@@ -335,5 +335,5 @@ define [
         isEditable: (@options.app.canWrite and (isManual or isCustom))
         qualityProfilesVisible: qualityProfilesVisible
         subcharacteristic: @options.app.getSubcharacteristicName(@model.get 'debtSubChar')
-        createdAt: new Date(@model.get 'createdAt')
+        createdAt: moment(@model.get 'createdAt').toDate()
         allTags: _.union @model.get('sysTags'), @model.get('tags')

@@ -4,12 +4,16 @@
 
 {{else}}
 
-  {{#if state.duplicationsInDeletedFiles}}
-    <p class="marginbottom10 js-duplications-in-deleted-files">{{t 'duplications.dups_found_on_deleted_resource'}}</p>
+  {{#if linesLimitReached}}
+    <p class="message-alert marginbottom10">{{tp 'component_viewer.lines_limit_reached' linesLimit}}</p>
   {{/if}}
 
   {{#if issuesLimitReached}}
     <p class="message-alert marginbottom10">{{tp 'component_viewer.issues_limit_reached' issuesLimit}}</p>
+  {{/if}}
+
+  {{#if state.duplicationsInDeletedFiles}}
+    <p class="marginbottom10 js-duplications-in-deleted-files">{{t 'duplications.dups_found_on_deleted_resource'}}</p>
   {{/if}}
 
   <table class="code">
