@@ -1,7 +1,7 @@
 <dataset>
 
   <!-- other project -->
-  <projects id="1000" scope="PRJ" qualifier="TRK" kee="my:key" root_id="[null]"
+  <projects id="1000" scope="PRJ" qualifier="TRK" kee="my:key" root_id="[null]" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="[null]"
             name="Other project" long_name="Other" description="[null]"
             enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" created_at="[null]" path="[null]" deprecated_kee="my:key"/>
 

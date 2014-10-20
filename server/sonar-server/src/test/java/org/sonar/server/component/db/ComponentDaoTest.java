@@ -324,6 +324,10 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
 
     ComponentDto componentDto = new ComponentDto()
       .setId(1L)
+      .setUuid("GHIJ")
+      .setProjectUuid("ABCD")
+      .setModuleUuid("EFGH")
+      .setModuleUuidPath("ABCD.EFGH")
       .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
       .setName("RequestContext.java")
       .setLongName("org.struts.RequestContext")

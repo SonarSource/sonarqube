@@ -28,6 +28,11 @@ import java.util.Date;
 
 public class ComponentDto extends AuthorizedComponentDto implements Component {
 
+  private String uuid;
+  private String projectUuid;
+  private String moduleUuid;
+  private String moduleUuidPath;
+
   private String path;
   private String name;
   private String longName;
@@ -48,6 +53,58 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
   @Override
   public ComponentDto setKey(String key) {
     super.setKey(key);
+    return this;
+  }
+
+  /**
+   * Can be null on a view or a developer
+   */
+  @CheckForNull
+  public String uuid() {
+    return uuid;
+  }
+
+  public ComponentDto setUuid(@Nullable String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  /**
+   * Return the root project id. On a root project, return itself
+   */
+  @CheckForNull
+  public String projectUuid() {
+    return projectUuid;
+  }
+
+  public ComponentDto setProjectUuid(@Nullable String projectUuid) {
+    this.projectUuid = projectUuid;
+    return this;
+  }
+
+  /**
+   * Return the direct module of a component. Will be null on projects and on first modules
+   */
+  @CheckForNull
+  public String moduleUuid() {
+    return moduleUuid;
+  }
+
+  public ComponentDto setModuleUuid(@Nullable String moduleUuid) {
+    this.moduleUuid = moduleUuid;
+    return this;
+  }
+
+  /**
+   * Return the path from the project to the last modules
+   */
+  @CheckForNull
+  public String moduleUuidPath() {
+    return moduleUuidPath;
+  }
+
+  public ComponentDto setModuleUuidPath(@Nullable String moduleUuidPath) {
+    this.moduleUuidPath = moduleUuidPath;
     return this;
   }
 

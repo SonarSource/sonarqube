@@ -30,6 +30,8 @@ import java.util.Date;
 
 /**
  * @since 3.0
+ *
+ * Be careful when updating this class because it's used by the Dev Cockpit plugin.
  */
 public class AuthorDao implements BatchComponent, ServerComponent {
 

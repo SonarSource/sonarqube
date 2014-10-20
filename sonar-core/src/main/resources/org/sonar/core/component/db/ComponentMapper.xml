@@ -4,6 +4,10 @@
 
   <sql id="componentColumns">
     p.id,
+    p.uuid as uuid,
+    p.project_uuid as projectUuid,
+    p.module_uuid as moduleUuid,
+    p.module_uuid_path as moduleUuidPath,
     p.kee as kee,
     p.name as name,
     p.long_name as longName,
@@ -146,12 +150,12 @@
   </select>
 
   <sql id="insertColumns">
-    (kee, name, long_name, qualifier, scope, language, root_id, path, created_at, authorization_updated_at)
+    (kee, uuid, project_uuid, module_uuid, module_uuid_path, name, long_name, qualifier, scope, language, root_id, path, created_at, authorization_updated_at)
   </sql>
 
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into projects <include refid="insertColumns"/>
-    values (#{kee}, #{name}, #{longName}, #{qualifier}, #{scope}, #{language}, #{subProjectId}, #{path}, #{createdAt}, #{authorizationUpdatedAt})
+    values (#{kee}, #{uuid}, #{projectUuid}, #{moduleUuid}, #{moduleUuidPath}, #{name}, #{longName}, #{qualifier}, #{scope}, #{language}, #{subProjectId}, #{path}, #{createdAt}, #{authorizationUpdatedAt})
   </insert>
 
   <delete id="deleteByKey" parameterType="String">
