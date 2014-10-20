@@ -32,6 +32,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DecoratorsSelector;
 import org.sonar.batch.DefaultDecoratorContext;
+import org.sonar.batch.duplication.DuplicationCache;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.measure.MeasurementFilters;
@@ -48,11 +49,14 @@ public class DecoratorsExecutor implements BatchComponent {
   private MeasurementFilters measurementFilters;
   private MeasureCache measureCache;
   private MetricFinder metricFinder;
+  private final DuplicationCache duplicationCache;
 
   public DecoratorsExecutor(BatchExtensionDictionnary batchExtDictionnary,
-    Project project, SonarIndex index, EventBus eventBus, MeasurementFilters measurementFilters, MeasureCache measureCache, MetricFinder metricFinder) {
+    Project project, SonarIndex index, EventBus eventBus, MeasurementFilters measurementFilters, MeasureCache measureCache, MetricFinder metricFinder,
+    DuplicationCache duplicationCache) {
     this.measureCache = measureCache;
     this.metricFinder = metricFinder;
+    this.duplicationCache = duplicationCache;
     this.decoratorsSelector = new DecoratorsSelector(batchExtDictionnary);
     this.index = index;
     this.eventBus = eventBus;
@@ -75,7 +79,7 @@ public class DecoratorsExecutor implements BatchComponent {
       childrenContexts.add(childContext.end());
     }
 
-    DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts, measurementFilters, measureCache, metricFinder);
+    DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts, measurementFilters, measureCache, metricFinder, duplicationCache);
     context.init();
     if (executeDecorators) {
       for (Decorator decorator : decorators) {

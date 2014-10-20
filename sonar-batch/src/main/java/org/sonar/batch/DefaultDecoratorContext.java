@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -37,10 +38,14 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.violations.ViolationQuery;
+import org.sonar.batch.duplication.DuplicationCache;
+import org.sonar.batch.duplication.DuplicationUtils;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.measure.MeasurementFilters;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -58,17 +63,19 @@ public class DefaultDecoratorContext implements DecoratorContext {
   private ListMultimap<String, Measure> measuresByMetric = ArrayListMultimap.create();
   private MeasureCache measureCache;
   private MetricFinder metricFinder;
+  private final DuplicationCache duplicationCache;
 
   public DefaultDecoratorContext(Resource resource,
     SonarIndex index,
     List<DecoratorContext> childrenContexts,
-    MeasurementFilters measurementFilters, MeasureCache measureCache, MetricFinder metricFinder) {
+    MeasurementFilters measurementFilters, MeasureCache measureCache, MetricFinder metricFinder, DuplicationCache duplicationCache) {
     this.sonarIndex = index;
     this.resource = resource;
     this.childrenContexts = childrenContexts;
     this.measurementFilters = measurementFilters;
     this.measureCache = measureCache;
     this.metricFinder = metricFinder;
+    this.duplicationCache = duplicationCache;
   }
 
   public void init() {
@@ -105,12 +112,29 @@ public class DefaultDecoratorContext implements DecoratorContext {
   public <M> M getMeasures(MeasuresFilter<M> filter) {
     Collection<Measure> unfiltered;
     if (filter instanceof MeasuresFilters.MetricFilter) {
-      // optimization
-      unfiltered = measuresByMetric.get(((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
+      unfiltered = getMeasuresOfASingleMetric(filter);
     } else {
       unfiltered = measuresByMetric.values();
     }
     return filter.filter(unfiltered);
+  }
+
+  private <M> Collection<Measure> getMeasuresOfASingleMetric(MeasuresFilter<M> filter) {
+    Collection<Measure> unfiltered;
+    String metricKey = ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey();
+    if (CoreMetrics.DUPLICATIONS_DATA_KEY.equals(metricKey)) {
+      // Hack for SONAR-5765
+      List<DuplicationGroup> group = duplicationCache.byComponent(resource.getEffectiveKey());
+      if (group != null) {
+        unfiltered = Arrays.asList(new Measure(CoreMetrics.DUPLICATIONS_DATA, DuplicationUtils.toXml(group)));
+      } else {
+        unfiltered = Collections.<Measure>emptyList();
+      }
+    } else {
+      // optimization
+      unfiltered = measuresByMetric.get(metricKey);
+    }
+    return unfiltered;
   }
 
   public Measure getMeasure(Metric metric) {
