@@ -367,9 +367,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         .prop("fUpdateAge", formatAgeDate(updateDate))
         .prop("closeDate", isoDate(issue.closeDate()));
 
-      if (issue.line() != null) {
-        writeIssueSnippet(issue, json);
-      }
+      writeIssueSnippet(issue, json);
       writeIssueComments(commentsByIssues.get(issue.key()), usersByLogin, json);
       writeIssueAttributes(issue, json);
       writeIssueExtraFields(issue, usersByLogin, actionPlanByKeys, extraFields, json);
@@ -380,6 +378,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   private void writeIssueSnippet(Issue issue, JsonWriter json) {
+    if (issue.line() == null) {
+      return;
+    }
+
     String componentKey = issue.componentKey();
     int from = Math.max(issue.line() - 1, 1);
     int to = from + 2;
@@ -388,7 +390,8 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     if (lines != null) {
       json.name("sources").beginArray();
       for(String line: lines) {
-        json.beginArray().value(lineCounter ++).value(line).endArray();
+        json.beginArray().value(lineCounter).value(line).endArray();
+        lineCounter ++;
       }
       json.endArray();
       String scmAuthorData = sourceService.getScmAuthorData(componentKey);
