@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule;
 
+import org.sonar.server.search.BaseIndex;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -65,7 +67,7 @@ public class RuleUpdaterMediumTest {
   DbClient db = tester.get(DbClient.class);
   RuleDao ruleDao = tester.get(RuleDao.class);
   DbSession dbSession;
-  RuleIndex ruleIndex = tester.get(RuleIndex.class);
+  BaseIndex<Rule, RuleDto, RuleKey> ruleIndex = tester.get(RuleIndex.class);
   RuleUpdater updater = tester.get(RuleUpdater.class);
   int softReliabilityId, hardReliabilityId;
 

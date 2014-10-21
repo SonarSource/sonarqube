@@ -25,6 +25,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.*;
@@ -176,68 +177,90 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       esSearch.setScroll(TimeValue.timeValueMinutes(3));
     }
 
-    setFacets(options, esSearch);
     setSorting(query, esSearch);
     setPagination(options, esSearch);
 
     QueryBuilder esQuery = QueryBuilders.matchAllQuery();
-    BoolFilterBuilder esFilter = getFilter(query, options);
+    BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
+    Map<String, FilterBuilder> filters = getFilters(query, options);
+    for (FilterBuilder filter: filters.values()) {
+      if (filter != null) {
+        esFilter.must(filter);
+      }
+    }
+
     if (esFilter.hasClauses()) {
       esSearch.setQuery(QueryBuilders.filteredQuery(esQuery, esFilter));
     } else {
       esSearch.setQuery(esQuery);
     }
 
+    setFacets(options, filters, esQuery, esSearch);
+
     SearchResponse response = getClient().execute(esSearch);
     return new Result<Issue>(this, response);
   }
 
-  /* Build main filter (match based) */
-  protected BoolFilterBuilder getFilter(IssueQuery query, QueryContext options) {
+  private BoolFilterBuilder getFilter(IssueQuery query, QueryContext options) {
     BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
-
-    addAuthorizationFilter(esFilter, options);
-
-    // Issue is assigned Filter
-    if (BooleanUtils.isTrue(query.assigned())) {
-      esFilter.must(FilterBuilders.existsFilter(IssueNormalizer.IssueField.ASSIGNEE.field()));
-    } else if (BooleanUtils.isFalse(query.assigned())) {
-      esFilter.must(FilterBuilders.missingFilter(IssueNormalizer.IssueField.ASSIGNEE.field()));
+    for (FilterBuilder filter: getFilters(query, options).values()) {
+      if (filter != null) {
+        esFilter.must(filter);
+      }
     }
-
-    // Issue is planned Filter
-    if (BooleanUtils.isTrue(query.planned())) {
-      esFilter.must(FilterBuilders.existsFilter(IssueNormalizer.IssueField.ACTION_PLAN.field()));
-    } else if (BooleanUtils.isFalse(query.planned())) {
-      esFilter.must(FilterBuilders.missingFilter(IssueNormalizer.IssueField.ACTION_PLAN.field()));
-    }
-
-    // Issue is Resolved Filter
-    if (BooleanUtils.isTrue(query.resolved())) {
-      esFilter.must(FilterBuilders.existsFilter(IssueNormalizer.IssueField.RESOLUTION.field()));
-    } else if (BooleanUtils.isFalse(query.resolved())) {
-      esFilter.must(FilterBuilders.missingFilter(IssueNormalizer.IssueField.RESOLUTION.field()));
-    }
-
-    // Field Filters
-    matchFilter(esFilter, IssueNormalizer.IssueField.KEY, query.issueKeys());
-    matchFilter(esFilter, IssueNormalizer.IssueField.ACTION_PLAN, query.actionPlans());
-    matchFilter(esFilter, IssueNormalizer.IssueField.ASSIGNEE, query.assignees());
-    matchFilter(esFilter, IssueNormalizer.IssueField.PROJECT, query.componentRoots());
-    matchFilter(esFilter, IssueNormalizer.IssueField.COMPONENT, query.components());
-    matchFilter(esFilter, IssueNormalizer.IssueField.LANGUAGE, query.languages());
-    matchFilter(esFilter, IssueNormalizer.IssueField.RESOLUTION, query.resolutions());
-    matchFilter(esFilter, IssueNormalizer.IssueField.REPORTER, query.reporters());
-    matchFilter(esFilter, IssueNormalizer.IssueField.RULE_KEY, query.rules());
-    matchFilter(esFilter, IssueNormalizer.IssueField.SEVERITY, query.severities());
-    matchFilter(esFilter, IssueNormalizer.IssueField.STATUS, query.statuses());
-
-    addDatesFilter(esFilter, query);
-
     return esFilter;
   }
 
-  private void addAuthorizationFilter(BoolFilterBuilder esFilter, QueryContext options) {
+  /* Build main filter (match based) */
+  protected Map<String, FilterBuilder> getFilters(IssueQuery query, QueryContext options) {
+
+    Map<String, FilterBuilder> filters = Maps.newHashMap();
+
+    filters.put("__authorization", getAuthorizationFilter(options));
+
+    // Issue is assigned Filter
+    String isAssigned = "__isAssigned";
+    if (BooleanUtils.isTrue(query.assigned())) {
+      filters.put(isAssigned, FilterBuilders.existsFilter(IssueNormalizer.IssueField.ASSIGNEE.field()));
+    } else if (BooleanUtils.isFalse(query.assigned())) {
+      filters.put(isAssigned, FilterBuilders.missingFilter(IssueNormalizer.IssueField.ASSIGNEE.field()));
+    }
+
+    // Issue is planned Filter
+    String isPlanned = "__isPlanned";
+    if (BooleanUtils.isTrue(query.planned())) {
+      filters.put(isPlanned, FilterBuilders.existsFilter(IssueNormalizer.IssueField.ACTION_PLAN.field()));
+    } else if (BooleanUtils.isFalse(query.planned())) {
+      filters.put(isPlanned, FilterBuilders.missingFilter(IssueNormalizer.IssueField.ACTION_PLAN.field()));
+    }
+
+    // Issue is Resolved Filter
+    String isResolved = "__isResolved";
+    if (BooleanUtils.isTrue(query.resolved())) {
+      filters.put(isResolved, FilterBuilders.existsFilter(IssueNormalizer.IssueField.RESOLUTION.field()));
+    } else if (BooleanUtils.isFalse(query.resolved())) {
+      filters.put(isResolved, FilterBuilders.missingFilter(IssueNormalizer.IssueField.RESOLUTION.field()));
+    }
+
+    // Field Filters
+    filters.put(IssueNormalizer.IssueField.KEY.field(), matchFilter(IssueNormalizer.IssueField.KEY, query.issueKeys()));
+    filters.put(IssueNormalizer.IssueField.ACTION_PLAN.field(), matchFilter(IssueNormalizer.IssueField.ACTION_PLAN, query.actionPlans()));
+    filters.put(IssueNormalizer.IssueField.ASSIGNEE.field(), matchFilter(IssueNormalizer.IssueField.ASSIGNEE, query.assignees()));
+    filters.put(IssueNormalizer.IssueField.PROJECT.field(), matchFilter(IssueNormalizer.IssueField.PROJECT, query.componentRoots()));
+    filters.put(IssueNormalizer.IssueField.COMPONENT.field(), matchFilter(IssueNormalizer.IssueField.COMPONENT, query.components()));
+    filters.put(IssueNormalizer.IssueField.LANGUAGE.field(), matchFilter(IssueNormalizer.IssueField.LANGUAGE, query.languages()));
+    filters.put(IssueNormalizer.IssueField.RESOLUTION.field(), matchFilter(IssueNormalizer.IssueField.RESOLUTION, query.resolutions()));
+    filters.put(IssueNormalizer.IssueField.REPORTER.field(), matchFilter(IssueNormalizer.IssueField.REPORTER, query.reporters()));
+    filters.put(IssueNormalizer.IssueField.RULE_KEY.field(), matchFilter(IssueNormalizer.IssueField.RULE_KEY, query.rules()));
+    filters.put(IssueNormalizer.IssueField.SEVERITY.field(), matchFilter(IssueNormalizer.IssueField.SEVERITY, query.severities()));
+    filters.put(IssueNormalizer.IssueField.STATUS.field(), matchFilter(IssueNormalizer.IssueField.STATUS, query.statuses()));
+
+    addDatesFilter(filters, query);
+
+    return filters;
+  }
+
+  private FilterBuilder getAuthorizationFilter(QueryContext options) {
     String user = options.getUserLogin();
     Set<String> groups = options.getUserGroups();
     OrFilterBuilder groupsAndUser = FilterBuilders.orFilter();
@@ -247,47 +270,42 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     for (String group : groups) {
       groupsAndUser.add(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.GROUPS.field(), group));
     }
-    esFilter.must(FilterBuilders.hasParentFilter(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType(),
+    return FilterBuilders.hasParentFilter(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType(),
       QueryBuilders.filteredQuery(
         QueryBuilders.matchAllQuery(),
         FilterBuilders.boolFilter()
           .must(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.PERMISSION.field(), UserRole.USER), groupsAndUser)
           .cache(true))
-      ));
+      );
   }
 
-  private void addDatesFilter(BoolFilterBuilder esFilter, IssueQuery query) {
+  private void addDatesFilter(Map<String, FilterBuilder> filters, IssueQuery query) {
     Date createdAfter = query.createdAfter();
     if (createdAfter != null) {
-      esFilter.must(FilterBuilders
+      filters.put("__createdAfter", FilterBuilders
         .rangeFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field())
         .gte(createdAfter));
     }
     Date createdBefore = query.createdBefore();
     if (createdBefore != null) {
-      esFilter.must(FilterBuilders
+      filters.put("__createdBefore", FilterBuilders
         .rangeFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field())
         .lte(createdBefore));
     }
     Date createdAt = query.createdAt();
     if (createdAt != null) {
-      esFilter.must(FilterBuilders.termFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field(), createdAt));
+      filters.put("__createdAt", FilterBuilders.termFilter(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field(), createdAt));
     }
   }
 
-  private void setFacets(QueryContext options, SearchRequestBuilder esSearch) {
+  private void setFacets(QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch) {
     if (options.isFacet()) {
       // Execute Term aggregations
-      esSearch.addAggregation(AggregationBuilders.terms(IssueFilterParameters.SEVERITIES)
-        .field(IssueNormalizer.IssueField.SEVERITY.field()));
-      esSearch.addAggregation(AggregationBuilders.terms(IssueFilterParameters.STATUSES)
-        .field(IssueNormalizer.IssueField.STATUS.field()));
-      esSearch.addAggregation(AggregationBuilders.terms(IssueFilterParameters.RESOLUTIONS)
-        .field(IssueNormalizer.IssueField.RESOLUTION.field()));
-      esSearch.addAggregation(AggregationBuilders.terms(IssueFilterParameters.ACTION_PLANS)
-        .field(IssueNormalizer.IssueField.ACTION_PLAN.field()));
-      esSearch.addAggregation(AggregationBuilders.terms(IssueFilterParameters.COMPONENT_ROOTS)
-        .field(IssueNormalizer.IssueField.PROJECT.field()));
+      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.SEVERITY.field(), IssueFilterParameters.SEVERITIES));
+      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.STATUS.field(), IssueFilterParameters.STATUSES));
+      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.RESOLUTION.field(), IssueFilterParameters.RESOLUTIONS));
+      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.ACTION_PLAN.field(), IssueFilterParameters.ACTION_PLANS));
+      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.PROJECT.field(), IssueFilterParameters.COMPONENT_ROOTS));
     }
   }
 
@@ -323,9 +341,11 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     esSearch.setSize(options.getLimit());
   }
 
-  private void matchFilter(BoolFilterBuilder filter, IndexField field, @Nullable Collection<?> values) {
+  private FilterBuilder matchFilter(IndexField field, @Nullable Collection<?> values) {
     if (values != null && !values.isEmpty()) {
-      filter.must(FilterBuilders.termsFilter(field.field(), values));
+      return FilterBuilders.termsFilter(field.field(), values);
+    } else {
+      return null;
     }
   }
 }

@@ -23,6 +23,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
+import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.count.CountResponse;
@@ -33,12 +34,10 @@ import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
@@ -573,5 +572,26 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       .put("index.analysis.analyzer.path_analyzer.type", "custom")
       .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy");
 
+  }
+
+  protected AggregationBuilder stickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters, String fieldName, String facetName) {
+    BoolFilterBuilder facetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
+    for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
+      if (filter.getValue() != null && !StringUtils.equals(filter.getKey(), fieldName)) {
+        facetFilter.must(filter.getValue());
+      }
+    }
+    return AggregationBuilders
+      .global(facetName)
+      .subAggregation(
+        AggregationBuilders
+          .filter(facetName + "_filter")
+          .filter(facetFilter)
+          .subAggregation(
+            AggregationBuilders.terms(facetName)
+              .field(fieldName)
+              .order(Terms.Order.count(false))
+              .size(10)
+              .minDocCount(1)));
   }
 }

@@ -20,6 +20,8 @@
 
 package org.sonar.server.rule;
 
+import org.sonar.server.search.BaseIndex;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.junit.After;
@@ -53,7 +55,7 @@ public class RuleCreatorMediumTest {
   DbClient db = tester.get(DbClient.class);
   RuleDao dao = tester.get(RuleDao.class);
   RuleCreator creator = tester.get(RuleCreator.class);
-  RuleIndex ruleIndex = tester.get(RuleIndex.class);
+  BaseIndex<Rule, RuleDto, RuleKey> ruleIndex = tester.get(RuleIndex.class);
 
   @Before
   public void before() {

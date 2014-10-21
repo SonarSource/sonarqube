@@ -20,6 +20,8 @@
 
 package org.sonar.server.rule;
 
+import org.sonar.server.search.BaseIndex;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -51,7 +53,7 @@ public class RuleDeleterMediumTest {
 
   DbClient db = tester.get(DbClient.class);
   RuleDao dao = tester.get(RuleDao.class);
-  RuleIndex index = tester.get(RuleIndex.class);
+  BaseIndex<Rule, RuleDto, RuleKey> index = tester.get(RuleIndex.class);
   RuleDeleter deleter = tester.get(RuleDeleter.class);
   DbSession dbSession;
 

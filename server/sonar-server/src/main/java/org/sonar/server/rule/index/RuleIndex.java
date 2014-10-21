@@ -27,14 +27,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.SimpleQueryStringBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -48,21 +41,11 @@ import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
-import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.IndexField;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.*;
 
 import javax.annotation.CheckForNull;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -335,68 +318,9 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   protected Map<String, AggregationBuilder> getFacets(QueryBuilder query, Map<String, FilterBuilder> filters) {
     Map<String, AggregationBuilder> aggregations = new HashMap<String, AggregationBuilder>();
 
-    BoolFilterBuilder langFacetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
-    for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
-      if (!StringUtils.equals(filter.getKey(), RuleNormalizer.RuleField.LANGUAGE.field())) {
-        langFacetFilter.must(filter.getValue());
-      }
-    }
-    /* the Lang facet */
-    aggregations.put(FACET_LANGUAGES + "global",
-      AggregationBuilders
-        .global(FACET_LANGUAGES)
-        .subAggregation(
-          AggregationBuilders
-            .filter(FACET_LANGUAGES + "_filter")
-            .filter(langFacetFilter)
-            .subAggregation(
-              AggregationBuilders.terms(FACET_LANGUAGES)
-                .field(RuleNormalizer.RuleField.LANGUAGE.field())
-                .order(Terms.Order.count(false))
-                .size(10)
-                .minDocCount(1))));
-
-    BoolFilterBuilder tagsFacetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
-    for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
-      if (!StringUtils.equals(filter.getKey(), RuleNormalizer.RuleField.ALL_TAGS.field())) {
-        tagsFacetFilter.must(filter.getValue());
-      }
-    }
-    /* the Tag facet */
-    aggregations.put(FACET_TAGS + "global",
-      AggregationBuilders
-        .global(FACET_TAGS)
-        .subAggregation(
-          AggregationBuilders
-            .filter(FACET_TAGS + "_filter")
-            .filter(tagsFacetFilter)
-            .subAggregation(
-              AggregationBuilders.terms(FACET_TAGS)
-                .field(RuleNormalizer.RuleField.ALL_TAGS.field())
-                .order(Terms.Order.count(false))
-                .size(10)
-                .minDocCount(1))));
-
-    BoolFilterBuilder repositoriesFacetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
-    for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
-      if (!StringUtils.equals(filter.getKey(), RuleNormalizer.RuleField.REPOSITORY.field())) {
-        repositoriesFacetFilter.must(filter.getValue());
-      }
-    }
-    /* the Repo facet */
-    aggregations.put(FACET_REPOSITORIES + "global",
-      AggregationBuilders
-        .global(FACET_REPOSITORIES)
-        .subAggregation(
-          AggregationBuilders
-            .filter(FACET_REPOSITORIES + "_filter")
-            .filter(repositoriesFacetFilter)
-            .subAggregation(
-              AggregationBuilders.terms(FACET_REPOSITORIES)
-                .field(RuleNormalizer.RuleField.REPOSITORY.field())
-                .order(Terms.Order.count(false))
-                .size(10)
-                .minDocCount(1))));
+    aggregations.put(FACET_LANGUAGES + "global", stickyFacetBuilder(query, filters, RuleNormalizer.RuleField.LANGUAGE.field(), FACET_LANGUAGES));
+    aggregations.put(FACET_TAGS + "global", stickyFacetBuilder(query, filters, RuleNormalizer.RuleField.ALL_TAGS.field(), FACET_TAGS));
+    aggregations.put(FACET_REPOSITORIES + "global", stickyFacetBuilder(query, filters, RuleNormalizer.RuleField.REPOSITORY.field(), FACET_REPOSITORIES));
 
     return aggregations;
 
