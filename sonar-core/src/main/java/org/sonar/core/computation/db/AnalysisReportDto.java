@@ -25,6 +25,8 @@ import org.sonar.core.persistence.Dto;
 
 import javax.annotation.Nullable;
 
+import java.util.Date;
+
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.FAILED;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.SUCCESS;
 
@@ -36,6 +38,8 @@ public class AnalysisReportDto extends Dto<String> {
   private Status status;
   private String data;
   private Long snapshotId;
+  private Date startedAt;
+  private Date finishedAt;
 
   public AnalysisReportDto() {
     super();
@@ -95,12 +99,15 @@ public class AnalysisReportDto extends Dto<String> {
 
   @Override
   public String toString() {
-    Objects.toStringHelper(this)
+    return Objects.toStringHelper(this)
       .add("id", getId())
       .add("projectKey", getProjectKey())
       .add("projectName", getProjectName())
-      .add("status", getStatus());
-    return String.format("analysis report {id:%s;project:'%s'}", getId(), getProjectKey());
+      .add("status", getStatus())
+      .add("createdAt", getCreatedAt())
+      .add("startedAt", getStartedAt())
+      .add("finishedAt", getFinishedAt())
+      .toString();
   }
 
   public String getProjectName() {
@@ -118,6 +125,36 @@ public class AnalysisReportDto extends Dto<String> {
 
   public AnalysisReportDto setSnapshotId(Long snapshotId) {
     this.snapshotId = snapshotId;
+    return this;
+  }
+
+  public Date getStartedAt() {
+    return startedAt;
+  }
+
+  public AnalysisReportDto setStartedAt(Date startedAt) {
+    this.startedAt = startedAt;
+    return this;
+  }
+
+  public Date getFinishedAt() {
+    return finishedAt;
+  }
+
+  public AnalysisReportDto setFinishedAt(Date finishedAt) {
+    this.finishedAt = finishedAt;
+    return this;
+  }
+
+  @Override
+  public AnalysisReportDto setUpdatedAt(Date datetime) {
+    super.setUpdatedAt(datetime);
+    return this;
+  }
+
+  @Override
+  public AnalysisReportDto setCreatedAt(Date datetime) {
+    super.setCreatedAt(datetime);
     return this;
   }
 

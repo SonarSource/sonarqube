@@ -26,6 +26,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -40,6 +41,7 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.SUCCESS;
@@ -92,6 +94,7 @@ public class AnalysisReportQueueMediumTest {
     assertThat(reports).hasSize(1);
     assertThat(report.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(report.getSnapshotId()).isEqualTo(123L);
+    assertThat(report.getCreatedAt()).isNotNull();
   }
 
   private ComponentDto insertPermissionsForProject(String projectKey) {
@@ -122,6 +125,7 @@ public class AnalysisReportQueueMediumTest {
 
     assertThat(firstBookedReport.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
     assertThat(firstBookedReport.getStatus()).isEqualTo(WORKING);
+    assertThat(firstBookedReport.getStartedAt()).isNotNull();
     assertThat(secondBookedReport.getProjectKey()).isEqualTo("2");
     assertThat(thirdBookedReport.getProjectKey()).isEqualTo("3");
   }
@@ -156,7 +160,10 @@ public class AnalysisReportQueueMediumTest {
     sut.remove(report);
 
     assertThat(sut.all()).isEmpty();
-    assertThat(tester.get(ActivityIndex.class).findAll().getHits()).hasSize(1);
+    List<Activity> activities = tester.get(ActivityIndex.class).findAll().getHits();
+    Map<String, String> details = activities.get(0).details();
+    assertThat(activities).hasSize(1);
+    assertThat(details.get("finishedAt")).isNotEmpty();
   }
 
   @Test(expected = ForbiddenException.class)

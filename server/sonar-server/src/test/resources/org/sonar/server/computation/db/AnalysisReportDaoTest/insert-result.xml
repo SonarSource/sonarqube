@@ -7,6 +7,8 @@
       report_data="data-project"
       report_status="PENDING"
       created_at="2014-09-24"
+      started_at="2014-09-25"
+      finished_at="2014-09-27"
       updated_at="2014-09-26"
       />
   <analysis_reports
@@ -17,6 +19,8 @@
       report_data="data-project"
       report_status="PENDING"
       created_at="2014-09-24"
+      started_at="2014-09-25"
+      finished_at="2014-09-27"
       updated_at="2014-09-26"
       />
 </dataset>

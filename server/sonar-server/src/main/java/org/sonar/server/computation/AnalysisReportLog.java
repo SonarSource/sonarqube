@@ -44,8 +44,10 @@ public class AnalysisReportLog implements ActivityLog {
       .put("projectKey", report.getProjectKey())
       .put("projectName", report.getProjectName())
       .put("status", String.valueOf(report.getStatus()))
-      .put("createdAt", DateUtils.formatDateTime(report.getCreatedAt()))
-      .put("updatedAt", DateUtils.formatDateTime(report.getUpdatedAt()))
+      .put("submittedAt", DateUtils.formatDateTimeNullSafe(report.getCreatedAt()))
+      .put("updatedAt", DateUtils.formatDateTimeNullSafe(report.getUpdatedAt()))
+      .put("startedAt", DateUtils.formatDateTimeNullSafe(report.getStartedAt()))
+      .put("finishedAt", DateUtils.formatDateTimeNullSafe(report.getFinishedAt()))
       .build();
   }
 

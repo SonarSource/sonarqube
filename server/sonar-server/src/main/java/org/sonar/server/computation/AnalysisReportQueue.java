@@ -21,6 +21,7 @@
 package org.sonar.server.computation;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.api.utils.System2;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -33,6 +34,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -42,11 +44,13 @@ public class AnalysisReportQueue implements ServerComponent {
   private final DbClient dbClient;
   private final AnalysisReportDao dao;
   private final ActivityService activityService;
+  private final System2 system2;
 
-  public AnalysisReportQueue(DbClient dbClient, ActivityService activityService) {
+  public AnalysisReportQueue(DbClient dbClient, ActivityService activityService, System2 system2) {
     this.dbClient = dbClient;
     this.activityService = activityService;
     this.dao = dbClient.analysisReportDao();
+    this.system2 = system2;
   }
 
   public AnalysisReportDto add(String projectKey, Long snapshotId) {
@@ -86,6 +90,7 @@ public class AnalysisReportQueue implements ServerComponent {
     DbSession session = dbClient.openSession(false);
 
     try {
+      report.setFinishedAt(new Date(system2.now()));
       dao.delete(session, report);
       logActivity(report, session);
       session.commit();

@@ -8,6 +8,8 @@
       report_status="PENDING"
       created_at="2014-09-24"
       updated_at="2014-09-26"
+      started_at="2014-09-24"
+      finished_at="2014-09-24"
       />
   <analysis_reports
       id="2"
@@ -18,6 +20,8 @@
       report_status="PENDING"
       created_at="2014-09-25"
       updated_at="2014-09-26"
+      started_at="2014-09-24"
+      finished_at="2014-09-24"
       />
   <analysis_reports
       id="3"
@@ -28,5 +32,7 @@
       report_status="PENDING"
       created_at="2014-09-26"
       updated_at="2014-09-26"
+      started_at="2014-09-24"
+      finished_at="2014-09-24"
       />
 </dataset>

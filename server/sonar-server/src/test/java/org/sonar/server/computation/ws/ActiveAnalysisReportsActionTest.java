@@ -54,14 +54,15 @@ public class ActiveAnalysisReportsActionTest {
       .setProjectName("Project Name")
       .setProjectKey("project-name")
       .setStatus(PENDING)
-      .setData(null);
-    report.setCreatedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200"))
-      .setUpdatedAt(DateUtils.parseDateTime("2014-10-14T00:00:00+0200"));
+      .setData(null)
+      .setCreatedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200"))
+      .setStartedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200"))
+      .setFinishedAt(DateUtils.parseDateTime("2014-10-13T00:00:00+0200"));
     List<AnalysisReportDto> reports = Lists.newArrayList(report);
     when(queue.all()).thenReturn(reports);
 
     WsTester.TestRequest request = tester.newGetRequest(AnalysisReportWebService.API_ENDPOINT, "active");
-    request.execute().assertJson(getClass(), "list_active_reports.json");
+    request.execute().assertJson(getClass(), "list_active_reports.json", false);
   }
 
   @Test

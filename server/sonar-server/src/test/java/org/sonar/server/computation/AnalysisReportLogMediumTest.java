@@ -66,9 +66,11 @@ public class AnalysisReportLogMediumTest {
     AnalysisReportDto report = AnalysisReportDto.newForTests(1L)
       .setProjectKey("projectKey")
       .setProjectName("projectName")
-      .setStatus(FAILED);
-    report.setCreatedAt(DateUtils.parseDate("2014-10-15"))
-      .setUpdatedAt(DateUtils.parseDate("2014-10-16"));
+      .setStatus(FAILED)
+      .setCreatedAt(DateUtils.parseDate("2014-10-15"))
+      .setUpdatedAt(DateUtils.parseDate("2014-10-16"))
+      .setStartedAt(DateUtils.parseDate("2014-10-17"))
+      .setFinishedAt(DateUtils.parseDate("2014-10-18"));
 
     service.write(dbSession, ANALYSIS_REPORT, new AnalysisReportLog(report));
     dbSession.commit();
@@ -83,8 +85,10 @@ public class AnalysisReportLogMediumTest {
     assertThat(details.get("projectKey")).isEqualTo(report.getProjectKey());
     assertThat(details.get("projectName")).isEqualTo(report.getProjectName());
     assertThat(details.get("status")).isEqualTo("FAILED");
-    assertThat(details.get("createdAt")).isEqualTo("2014-10-15T00:00:00+0200");
+    assertThat(details.get("submittedAt")).isEqualTo("2014-10-15T00:00:00+0200");
     assertThat(details.get("updatedAt")).isEqualTo("2014-10-16T00:00:00+0200");
+    assertThat(details.get("startedAt")).isEqualTo("2014-10-17T00:00:00+0200");
+    assertThat(details.get("finishedAt")).isEqualTo("2014-10-18T00:00:00+0200");
   }
 
 }

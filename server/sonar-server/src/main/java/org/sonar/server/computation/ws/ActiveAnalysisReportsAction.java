@@ -58,8 +58,9 @@ public class ActiveAnalysisReportsAction implements RequestHandler {
       json.prop("id", report.getId());
       json.prop("project", report.getProjectKey());
       json.prop("projectName", report.getProjectName());
-      json.propDateTime("startDate", report.getCreatedAt());
-      json.propDateTime("updateDate", report.getUpdatedAt());
+      json.propDateTime("startedAt", report.getStartedAt());
+      json.propDateTime("finishedAt", report.getFinishedAt());
+      json.propDateTime("submittedAt", report.getCreatedAt());
       json.prop("status", report.getStatus().toString());
       json.endObject();
     }
@@ -68,11 +69,11 @@ public class ActiveAnalysisReportsAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     controller
-        .createAction("active")
-        .setDescription("List all the active analysis reports")
-        .setSince("5.0")
-        .setResponseExample(Resources.getResource(getClass(), "example-list.json"))
-        .setHandler(this);
+      .createAction("active")
+      .setDescription("List all the active analysis reports")
+      .setSince("5.0")
+      .setResponseExample(Resources.getResource(getClass(), "example-list.json"))
+      .setHandler(this);
   }
 
 }

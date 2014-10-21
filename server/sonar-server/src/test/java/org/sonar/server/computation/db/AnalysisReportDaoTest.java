@@ -75,8 +75,10 @@ public class AnalysisReportDaoTest {
       .setProjectName(DEFAULT_PROJECT_NAME)
       .setSnapshotId(DEFAULT_SNAPSHOT_ID)
       .setData("data-project")
-      .setStatus(PENDING);
-    report.setCreatedAt(DateUtils.parseDate("2014-09-24"))
+      .setStatus(PENDING)
+      .setStartedAt(DateUtils.parseDate("2014-09-25"))
+      .setFinishedAt(DateUtils.parseDate("2014-09-27"))
+      .setCreatedAt(DateUtils.parseDate("2014-09-24"))
       .setUpdatedAt(DateUtils.parseDate("2014-09-25"));
 
     sut.insert(session, report);
@@ -161,16 +163,20 @@ public class AnalysisReportDaoTest {
   }
 
   @Test
-  public void getById_maps_all_the_fields_except_report_data() {
-    db.prepareDbUnit(getClass(), "select.xml");
+  public void getById_maps_all_the_fields_except_the_data() {
+    db.prepareDbUnit(getClass(), "one_analysis_report.xml");
 
     AnalysisReportDto report = sut.getById(session, 1L);
-    assertThat(report.getId()).isEqualTo(1L);
-    assertThat(report.getStatus()).isEqualTo(WORKING);
-    assertThat(report.getProjectKey()).isEqualTo("123456789-987654321");
-    assertThat(report.getData()).isNull();
+
+    assertThat(report.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
+    assertThat(report.getProjectName()).isEqualTo(DEFAULT_PROJECT_NAME);
     assertThat(report.getCreatedAt()).isEqualTo(DateUtils.parseDate("2014-09-24"));
     assertThat(report.getUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-25"));
+    assertThat(report.getStartedAt()).isEqualTo(DateUtils.parseDate("2014-09-26"));
+    assertThat(report.getFinishedAt()).isEqualTo(DateUtils.parseDate("2014-09-27"));
+    assertThat(report.getStatus()).isEqualTo(WORKING);
+    assertThat(report.getData()).isNull();
+    assertThat(report.getKey()).isEqualTo("1");
   }
 
   @Test
@@ -208,7 +214,7 @@ public class AnalysisReportDaoTest {
 
     assertThat(reportBooked.getId()).isEqualTo(1L);
     assertThat(reportBooked.getStatus()).isEqualTo(WORKING);
-    assertThat(reportBooked.getUpdatedAt()).isEqualTo(mockedNow);
+    assertThat(reportBooked.getStartedAt()).isEqualTo(mockedNow);
   }
 
   @Test
@@ -239,21 +245,6 @@ public class AnalysisReportDaoTest {
     session.commit();
 
     db.assertDbUnit(getClass(), "truncate-result.xml", "analysis_reports");
-  }
-
-  @Test
-  public void getById_maps_all_the_fields_except_the_data() {
-    db.prepareDbUnit(getClass(), "one_analysis_report.xml");
-
-    AnalysisReportDto report = sut.getById(session, 1L);
-
-    assertThat(report.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
-    assertThat(report.getProjectName()).isEqualTo(DEFAULT_PROJECT_NAME);
-    assertThat(report.getCreatedAt()).isEqualTo(DateUtils.parseDate("2014-09-24"));
-    assertThat(report.getUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-25"));
-    assertThat(report.getStatus()).isEqualTo(WORKING);
-    assertThat(report.getData()).isNull();
-    assertThat(report.getKey()).isEqualTo("1");
   }
 
   @Test
@@ -301,9 +292,10 @@ public class AnalysisReportDaoTest {
   private AnalysisReportDto newDefaultReport() {
     AnalysisReportDto report = AnalysisReportDto.newForTests(1L)
       .setStatus(PENDING)
-      .setProjectKey(DEFAULT_PROJECT_KEY);
-    report
+      .setProjectKey(DEFAULT_PROJECT_KEY)
       .setCreatedAt(DateUtils.parseDate("2014-09-30"))
+      .setFinishedAt(DateUtils.parseDate("2014-09-30"))
+      .setStartedAt(DateUtils.parseDate("2014-09-30"))
       .setUpdatedAt(DateUtils.parseDate("2014-09-30"));
 
     return report;

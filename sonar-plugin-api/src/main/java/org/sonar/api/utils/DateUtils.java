@@ -20,6 +20,7 @@
 package org.sonar.api.utils;
 
 import javax.annotation.Nullable;
+
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -53,6 +54,14 @@ public final class DateUtils {
 
   public static String formatDateTime(Date d) {
     return THREAD_SAFE_DATETIME_FORMAT.format(d);
+  }
+
+  public static String formatDateTimeNullSafe(@Nullable Date date) {
+    if (date == null) {
+      return "";
+    }
+
+    return THREAD_SAFE_DATETIME_FORMAT.format(date);
   }
 
   /**
@@ -123,11 +132,6 @@ public final class DateUtils {
 
   static class ThreadSafeDateFormat extends DateFormat {
     private final String format;
-
-    ThreadSafeDateFormat(String format) {
-      this.format = format;
-    }
-
     private final ThreadLocal<Reference<DateFormat>> cache = new ThreadLocal<Reference<DateFormat>>() {
       @Override
       public Reference<DateFormat> get() {
@@ -139,6 +143,10 @@ public final class DateUtils {
         return softRef;
       }
     };
+
+    ThreadSafeDateFormat(String format) {
+      this.format = format;
+    }
 
     private DateFormat getDateFormat() {
       return (DateFormat) ((Reference) cache.get()).get();
