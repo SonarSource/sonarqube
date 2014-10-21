@@ -38,6 +38,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.search.*;
 
 import javax.annotation.Nullable;
@@ -277,15 +278,15 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
   private void setFacets(QueryContext options, SearchRequestBuilder esSearch) {
     if (options.isFacet()) {
       // Execute Term aggregations
-      esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.SEVERITY.field())
+      esSearch.addAggregation(AggregationBuilders.terms(IssueFilterParameters.SEVERITIES)
         .field(IssueNormalizer.IssueField.SEVERITY.field()));
-      esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.STATUS.field())
+      esSearch.addAggregation(AggregationBuilders.terms(IssueFilterParameters.STATUSES)
         .field(IssueNormalizer.IssueField.STATUS.field()));
-      esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.RESOLUTION.field())
+      esSearch.addAggregation(AggregationBuilders.terms(IssueFilterParameters.RESOLUTIONS)
         .field(IssueNormalizer.IssueField.RESOLUTION.field()));
-      esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.ACTION_PLAN.field())
+      esSearch.addAggregation(AggregationBuilders.terms(IssueFilterParameters.ACTION_PLANS)
         .field(IssueNormalizer.IssueField.ACTION_PLAN.field()));
-      esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.PROJECT.field())
+      esSearch.addAggregation(AggregationBuilders.terms(IssueFilterParameters.COMPONENT_ROOTS)
         .field(IssueNormalizer.IssueField.PROJECT.field()));
     }
   }

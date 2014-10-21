@@ -14,7 +14,7 @@
   ],
   "facets": [
     {
-      "property": "status",
+      "property": "statuses",
       "values": [
         {
           "val": "OPEN",
@@ -23,7 +23,7 @@
       ]
     },
     {
-      "property": "severity",
+      "property": "severities",
       "values": [
         {
           "val": "MAJOR",
@@ -32,7 +32,7 @@
       ]
     },
     {
-      "property": "resolution",
+      "property": "resolutions",
       "values": [
         {
           "val": "OPEN",
@@ -41,7 +41,7 @@
       ]
     },
     {
-      "property": "project",
+      "property": "componentRoots",
       "values": [
         {
           "val": "MyProject",
