@@ -41,7 +41,7 @@ public final class DefaultCoverage implements Coverage {
   private SortedMap<Integer, Integer> conditionsByLine = Maps.newTreeMap();
   private SortedMap<Integer, Integer> coveredConditionsByLine = Maps.newTreeMap();
 
-  protected transient final SensorStorage storage;
+  protected final transient SensorStorage storage;
   private transient boolean saved = false;
 
   public DefaultCoverage() {
@@ -54,23 +54,27 @@ public final class DefaultCoverage implements Coverage {
 
   @Override
   public DefaultCoverage lineHits(int lineId, int hits) {
-    if (!hitsByLine.containsKey(lineId)) {
-      hitsByLine.put(lineId, hits);
-      if (hits > 0) {
-        totalCoveredLines += 1;
-      }
+    Preconditions.checkArgument(lineId >= 1, "Line number should be positive and non zero [" + file.relativePath() + ":" + lineId + "]");
+    Preconditions.checkArgument(hits >= 0, "Hits should be positive [" + file.relativePath() + ":" + lineId + "]");
+    Preconditions.checkArgument(!hitsByLine.containsKey(lineId), "Hits already saved on line [" + file.relativePath() + ":" + lineId + "]");
+    hitsByLine.put(lineId, hits);
+    if (hits > 0) {
+      totalCoveredLines += 1;
     }
     return this;
   }
 
   @Override
   public DefaultCoverage conditions(int lineId, int conditions, int coveredConditions) {
-    if (conditions > 0 && !conditionsByLine.containsKey(lineId)) {
-      totalConditions += conditions;
-      totalCoveredConditions += coveredConditions;
-      conditionsByLine.put(lineId, conditions);
-      coveredConditionsByLine.put(lineId, coveredConditions);
-    }
+    Preconditions.checkArgument(lineId >= 1, "Line number should be positive and non zero [" + file.relativePath() + ":" + lineId + "]");
+    Preconditions.checkArgument(conditions >= 0, "Number of conditions should be positive [" + file.relativePath() + ":" + lineId + "]");
+    Preconditions.checkArgument(coveredConditions >= 0, "Number of covered conditions should be positive [" + file.relativePath() + ":" + lineId + "]");
+    Preconditions.checkArgument(conditions >= coveredConditions, "Number of covered conditions can't exceed conditions [" + file.relativePath() + ":" + lineId + "]");
+    Preconditions.checkArgument(!conditionsByLine.containsKey(lineId), "Conditions already saved on line [" + file.relativePath() + ":" + lineId + "]");
+    totalConditions += conditions;
+    totalCoveredConditions += coveredConditions;
+    conditionsByLine.put(lineId, conditions);
+    coveredConditionsByLine.put(lineId, coveredConditions);
     return this;
   }
 
@@ -81,7 +85,7 @@ public final class DefaultCoverage implements Coverage {
   @Override
   public DefaultCoverage onFile(InputFile inputFile) {
     Preconditions.checkNotNull(inputFile, INPUT_FILE_SHOULD_BE_NON_NULL);
-    Preconditions.checkArgument(inputFile.type() == Type.MAIN, "Coverage is only supported on main files");
+    Preconditions.checkArgument(inputFile.type() == Type.MAIN, "Coverage is only supported on main files [" + inputFile.relativePath() + "]");
     this.file = inputFile;
     return this;
   }
@@ -97,13 +101,14 @@ public final class DefaultCoverage implements Coverage {
     return this;
   }
 
+  @Override
   public void save() {
     Preconditions.checkNotNull(this.storage, "No persister on this object");
     Preconditions.checkState(!saved, "This object was already saved");
     Preconditions.checkNotNull(this.file, "File is mandatory on Coverage");
     Preconditions.checkNotNull(this.type, "Type is mandatory on Coverage");
 
-    if (hitsByLine.size() > 0) {
+    if (!hitsByLine.isEmpty()) {
       new DefaultMeasure<Integer>(storage)
         .onFile(file)
         .forMetric(type.linesToCover())
@@ -142,6 +147,7 @@ public final class DefaultCoverage implements Coverage {
         .withValue(KeyValueFormat.format(conditionsByLine))
         .save();
     }
+    this.saved = true;
   }
 
 }

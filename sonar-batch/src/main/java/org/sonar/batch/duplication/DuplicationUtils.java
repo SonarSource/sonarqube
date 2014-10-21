@@ -24,6 +24,10 @@ import org.sonar.api.batch.sensor.duplication.DuplicationGroup;
 
 public class DuplicationUtils {
 
+  private DuplicationUtils() {
+    // Utility class
+  }
+
   public static String toXml(Iterable<DuplicationGroup> duplications) {
     StringBuilder xml = new StringBuilder();
     xml.append("<duplications>");
