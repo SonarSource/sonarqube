@@ -29,6 +29,7 @@ import org.sonar.server.db.migrations.v45.AddMissingCustomRuleParametersMigratio
 import org.sonar.server.db.migrations.v45.AddMissingRuleParameterDefaultValuesMigration;
 import org.sonar.server.db.migrations.v45.DeleteMeasuresOnDeletedProfilesMigration;
 import org.sonar.server.db.migrations.v50.InsertProjectsAuthorizationUpdatedAtMigration;
+import org.sonar.server.db.migrations.v50.PopulateProjectsUuidColumnsMigration;
 
 import java.util.List;
 
@@ -63,7 +64,8 @@ public interface DatabaseMigrations {
     AddMissingCustomRuleParametersMigration.class,
 
     // 5.0
-    InsertProjectsAuthorizationUpdatedAtMigration.class
+    InsertProjectsAuthorizationUpdatedAtMigration.class,
+    PopulateProjectsUuidColumnsMigration.class
   );
 
 }
