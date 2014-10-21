@@ -20,25 +20,11 @@
 
 #
 # SonarQube 4.5.1
-# SONAR-4950 Unique constraint cannot be created because it would be on resource_id that is nullable
+# SONAR-5758
 #
-class RemoveDuplicationInGroupRoles < ActiveRecord::Migration
-
-  class GroupRole < ActiveRecord::Base
-  end
+class DeleteUnescapedActivities < ActiveRecord::Migration
 
   def self.up
-    GroupRole.reset_column_information
-
-    duplicated_ids = ActiveRecord::Base.connection.select_rows('select group_id,resource_id,role from group_roles group by group_id,resource_id,role having count(*) > 1')
-    say_with_time "Remove #{duplicated_ids.size} duplicated group roles" do
-      duplicated_ids.each do |fields|
-        rows = GroupRole.find(:all, :conditions => {:group_id => fields[0], :resource_id => fields[1], :role => fields[2]})
-        # delete all rows except the last one
-        rows[0...-1].each do |row|
-          GroupRole.delete(row.id)
-        end
-      end
-    end
+    execute_java_migration 'org.sonar.server.db.migrations.v451.DeleteUnescapedActivities'
   end
 end

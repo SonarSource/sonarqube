@@ -19,7 +19,7 @@
 #
 
 #
-# SonarQube 4.5
+# SonarQube 4.5.1
 # SONAR-5625
 #
 class AddEnabledToProjectsKeeIndex < ActiveRecord::Migration

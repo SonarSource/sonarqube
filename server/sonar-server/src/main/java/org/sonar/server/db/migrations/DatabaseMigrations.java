@@ -25,9 +25,10 @@ import org.sonar.server.db.migrations.v42.CompleteIssueMessageMigration;
 import org.sonar.server.db.migrations.v42.PackageKeysMigration;
 import org.sonar.server.db.migrations.v43.*;
 import org.sonar.server.db.migrations.v44.*;
-import org.sonar.server.db.migrations.v45.AddMissingCustomRuleParametersMigration;
+import org.sonar.server.db.migrations.v451.AddMissingCustomRuleParametersMigration;
 import org.sonar.server.db.migrations.v45.AddMissingRuleParameterDefaultValuesMigration;
 import org.sonar.server.db.migrations.v45.DeleteMeasuresOnDeletedProfilesMigration;
+import org.sonar.server.db.migrations.v451.DeleteUnescapedActivities;
 
 import java.util.List;
 
@@ -59,7 +60,10 @@ public interface DatabaseMigrations {
     // 4.5
     AddMissingRuleParameterDefaultValuesMigration.class,
     DeleteMeasuresOnDeletedProfilesMigration.class,
-    AddMissingCustomRuleParametersMigration.class
+
+    // 4.5.1
+    AddMissingCustomRuleParametersMigration.class,
+    DeleteUnescapedActivities.class
   );
 
 }
