@@ -90,46 +90,61 @@ public final class KeyValueFormat {
       return next(';');
     }
 
+    private class Context {
+      private StringBuilder result = new StringBuilder();
+      private boolean escaped = false;
+      private char firstChar;
+      private char previous = (char) -1;
+    }
+
     @CheckForNull
     private String next(char separator) {
       if (position >= csv.length()) {
         return null;
       }
-      StringBuilder result = new StringBuilder();
-      boolean escaped = false;
-      char firstChar = csv.charAt(position);
-      char previous = (char) -1;
+      Context context = new Context();
+      context.firstChar = csv.charAt(position);
       // check if value is escaped by analyzing first character
-      if (firstChar == DOUBLE_QUOTE) {
-        escaped = true;
-        position++;
-        previous = firstChar;
-      }
+      checkEscaped(context);
 
-      boolean end = false;
-      while (position < csv.length() && !end) {
-        char c = csv.charAt(position);
-        if (c == separator && !escaped) {
-          end = true;
-          position++;
-        } else if (c == '\\' && escaped && position < csv.length() + 1 && csv.charAt(position + 1) == DOUBLE_QUOTE) {
-          // on a backslash that escapes double-quotes -> keep double-quotes and jump after
-          previous = DOUBLE_QUOTE;
-          result.append(previous);
-          position += 2;
-        } else if (c == '"' && escaped && previous != '\\') {
-          // on unescaped double-quotes -> end of escaping.
-          // assume that next character is a separator (= or ;). This could be
-          // improved to enforce check.
-          end = true;
-          position += 2;
-        } else {
-          result.append(c);
-          previous = c;
-          position++;
-        }
+      boolean isEnd = false;
+      while (position < csv.length() && !isEnd) {
+        isEnd = advance(separator, context);
       }
-      return result.toString();
+      return context.result.toString();
+    }
+
+    private boolean advance(char separator, Context context) {
+      boolean end = false;
+      char c = csv.charAt(position);
+      if (c == separator && !context.escaped) {
+        end = true;
+        position++;
+      } else if (c == '\\' && context.escaped && position < csv.length() + 1 && csv.charAt(position + 1) == DOUBLE_QUOTE) {
+        // on a backslash that escapes double-quotes -> keep double-quotes and jump after
+        context.previous = DOUBLE_QUOTE;
+        context.result.append(context.previous);
+        position += 2;
+      } else if (c == '"' && context.escaped && context.previous != '\\') {
+        // on unescaped double-quotes -> end of escaping.
+        // assume that next character is a separator (= or ;). This could be
+        // improved to enforce check.
+        end = true;
+        position += 2;
+      } else {
+        context.result.append(c);
+        context.previous = c;
+        position++;
+      }
+      return end;
+    }
+
+    private void checkEscaped(Context context) {
+      if (context.firstChar == DOUBLE_QUOTE) {
+        context.escaped = true;
+        position++;
+        context.previous = context.firstChar;
+      }
     }
   }
 
