@@ -19,15 +19,14 @@
  */
 package org.sonar.api.utils;
 
-import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
 import org.apache.commons.collections.Bag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.rules.RulePriority;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.text.ParseException;
@@ -38,15 +37,33 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * <p>Formats and parses key/value pairs with the string representation : "key1=value1;key2=value2". Conversion
- * of fields is supported and can be extended.</p>
+ * <p>Formats and parses key/value pairs with the text representation : "key1=value1;key2=value2". Field typing
+ * is supported, to make conversion from/to primitive types easier for example.
+ * <p/>
+ * Since version 4.5.1, text keys and values are escaped if they contain the separator characters '=' or ';'.
+ * <p/>
+ * <b>Parsing examples</b>
+ * <pre>
+ *   Map&lt;String,String&gt; mapOfStrings = KeyValueFormat.parse("hello=world;foo=bar");
+ *   Map&lt;String,Integer&gt; mapOfStringInts = KeyValueFormat.parseStringInt("one=1;two=2");
+ *   Map&lt;Integer,String&gt; mapOfIntStrings = KeyValueFormat.parseIntString("1=one;2=two");
+ *   Map&lt;String,Date&gt; mapOfStringDates = KeyValueFormat.parseStringDate("d1=2014-01-14;d2=2015-07-28");
  *
- * <p>This format can easily be parsed with Ruby code: <code>hash=Hash[*(my_string.split(';').map { |elt| elt.split('=') }.flatten)]</code></p>
+ *   // custom conversion
+ *   Map&lt;String,MyClass&gt; mapOfStringMyClass = KeyValueFormat.parse("foo=xxx;bar=yyy",
+ *     KeyValueFormat.newStringConverter(), new MyClassConverter());
+ * </pre>
+ * <p/>
+ * <b>Formatting examples</b>
+ * <pre>
+ *   String output = KeyValueFormat.format(map);
  *
+ *   Map&lt;Integer,String&gt; mapIntString;
+ *   KeyValueFormat.formatIntString(mapIntString);
+ * </pre>
  * @since 1.10
  */
 public final class KeyValueFormat {
-
   public static final String PAIR_SEPARATOR = ";";
   public static final String FIELD_SEPARATOR = "=";
 
@@ -54,13 +71,82 @@ public final class KeyValueFormat {
     // only static methods
   }
 
+  static class FieldParser {
+    private static final char DOUBLE_QUOTE = '"';
+    private final String csv;
+    private int position = 0;
+
+    FieldParser(String csv) {
+      this.csv = csv;
+    }
+
+    @CheckForNull
+    String nextKey() {
+      return next('=');
+    }
+
+    @CheckForNull
+    String nextVal() {
+      return next(';');
+    }
+
+    @CheckForNull
+    private String next(char separator) {
+      if (position >= csv.length()) {
+        return null;
+      }
+      StringBuilder result = new StringBuilder();
+      boolean escaped = false;
+      char firstChar = csv.charAt(position);
+      char previous = (char) -1;
+      // check if value is escaped by analyzing first character
+      if (firstChar == DOUBLE_QUOTE) {
+        escaped = true;
+        position++;
+        previous = firstChar;
+      }
+
+      boolean end = false;
+      while (position < csv.length() && !end) {
+        char c = csv.charAt(position);
+        if (c == separator && !escaped) {
+          end = true;
+          position++;
+        } else if (c == '\\' && escaped && position < csv.length() + 1 && csv.charAt(position + 1) == DOUBLE_QUOTE) {
+          // on a backslash that escapes double-quotes -> keep double-quotes and jump after
+          previous = DOUBLE_QUOTE;
+          result.append(previous);
+          position += 2;
+        } else if (c == '"' && escaped && previous != '\\') {
+          // on unescaped double-quotes -> end of escaping.
+          // assume that next character is a separator (= or ;). This could be
+          // improved to enforce check.
+          end = true;
+          position += 2;
+        } else {
+          result.append(c);
+          previous = c;
+          position++;
+        }
+      }
+      return result.toString();
+    }
+  }
+
   public abstract static class Converter<T> {
     abstract String format(T type);
 
+    @CheckForNull
     abstract T parse(String s);
 
-    boolean requiresEscaping() {
-      return false;
+    String escape(String s) {
+      if (s.contains(FIELD_SEPARATOR) || s.contains(PAIR_SEPARATOR)) {
+        return new StringBuilder()
+          .append(FieldParser.DOUBLE_QUOTE)
+          .append(s.replace("\"", "\\\""))
+          .append(FieldParser.DOUBLE_QUOTE).toString();
+      }
+      return s;
     }
   }
 
@@ -72,39 +158,12 @@ public final class KeyValueFormat {
 
     @Override
     String format(String s) {
-      return s;
+      return escape(s);
     }
 
     @Override
     String parse(String s) {
       return s;
-    }
-
-    @Override
-    boolean requiresEscaping() {
-      return true;
-    }
-  }
-
-  public static final class UnescapedStringConverter extends Converter<String> {
-    private static final UnescapedStringConverter INSTANCE = new UnescapedStringConverter();
-
-    private UnescapedStringConverter() {
-    }
-
-    @Override
-    String format(String s) {
-      return s;
-    }
-
-    @Override
-    String parse(String s) {
-      return s;
-    }
-
-    @Override
-    boolean requiresEscaping() {
-      return false;
     }
   }
 
@@ -120,17 +179,12 @@ public final class KeyValueFormat {
 
     @Override
     String format(Object o) {
-      return o.toString();
+      return escape(o.toString());
     }
 
     @Override
     String parse(String s) {
-      throw new IllegalStateException("Can not parse with ToStringConverter: " + s);
-    }
-
-    @Override
-    boolean requiresEscaping() {
-      return true;
+      throw new UnsupportedOperationException("Can not parse with ToStringConverter: " + s);
     }
   }
 
@@ -204,14 +258,6 @@ public final class KeyValueFormat {
   public static class DateConverter extends Converter<Date> {
     private SimpleDateFormat dateFormat;
 
-    /**
-     * @deprecated in version 2.13. Replaced by {@link org.sonar.api.utils.KeyValueFormat#newDateConverter()}
-     */
-    @Deprecated
-    public DateConverter() {
-      this(DateUtils.DATE_FORMAT);
-    }
-
     private DateConverter(String format) {
       this.dateFormat = new SimpleDateFormat(format);
     }
@@ -226,32 +272,39 @@ public final class KeyValueFormat {
       try {
         return StringUtils.isBlank(s) ? null : dateFormat.parse(s);
       } catch (ParseException e) {
-        throw new SonarException("Not a date with format: " + dateFormat.toPattern(), e);
+        throw new IllegalArgumentException("Not a date with format: " + dateFormat.toPattern(), e);
       }
     }
   }
 
   public static DateConverter newDateConverter() {
-    return new DateConverter(DateUtils.DATE_FORMAT);
+    return newDateConverter(DateUtils.DATE_FORMAT);
   }
 
   public static DateConverter newDateTimeConverter() {
-    return new DateConverter(DateUtils.DATETIME_FORMAT);
+    return newDateConverter(DateUtils.DATETIME_FORMAT);
   }
 
   public static DateConverter newDateConverter(String format) {
     return new DateConverter(format);
   }
 
-  public static <K, V> Map<K, V> parse(@Nullable String data, Converter<K> keyConverter, Converter<V> valueConverter) {
+  /**
+   * If input is null, then an empty map is returned.
+   */
+  public static <K, V> Map<K, V> parse(@Nullable String input, Converter<K> keyConverter, Converter<V> valueConverter) {
     Map<K, V> map = Maps.newLinkedHashMap();
-    if (data != null) {
-      String[] pairs = StringUtils.split(data, PAIR_SEPARATOR);
-      for (String pair : pairs) {
-        int indexOfEqualSign = pair.indexOf(FIELD_SEPARATOR);
-        String key = pair.substring(0, indexOfEqualSign);
-        String value = pair.substring(indexOfEqualSign + 1);
-        map.put(keyConverter.parse(key), valueConverter.parse(value));
+    if (input != null) {
+      FieldParser reader = new FieldParser(input);
+      boolean end = false;
+      while (!end) {
+        String key = reader.nextKey();
+        if (key == null) {
+          end = true;
+        } else {
+          String val = StringUtils.defaultString(reader.nextVal(), "");
+          map.put(keyConverter.parse(key), valueConverter.parse(val));
+        }
       }
     }
     return map;
@@ -310,43 +363,6 @@ public final class KeyValueFormat {
     return parse(data, newIntegerConverter(), newDateTimeConverter());
   }
 
-  /**
-   * Value of pairs is the occurrences of the same single key. A multiset is sometimes called a bag.
-   * For example parsing "foo=2;bar=1" creates a multiset with 3 elements : foo, foo and bar.
-   */
-  /**
-   * @since 2.7
-   */
-  public static <K> Multiset<K> parseMultiset(@Nullable String data, Converter<K> keyConverter) {
-    // to keep the same order
-    Multiset<K> multiset = LinkedHashMultiset.create();
-    if (data != null) {
-      String[] pairs = StringUtils.split(data, PAIR_SEPARATOR);
-      for (String pair : pairs) {
-        String[] keyValue = StringUtils.split(pair, FIELD_SEPARATOR);
-        String key = keyValue[0];
-        String value = keyValue.length == 2 ? keyValue[1] : "0";
-        multiset.add(keyConverter.parse(key), new IntegerConverter().parse(value));
-      }
-    }
-    return multiset;
-  }
-
-
-  /**
-   * @since 2.7
-   */
-  public static Multiset<Integer> parseIntegerMultiset(@Nullable String data) {
-    return parseMultiset(data, newIntegerConverter());
-  }
-
-  /**
-   * @since 2.7
-   */
-  public static Multiset<String> parseMultiset(@Nullable String data) {
-    return parseMultiset(data, newStringConverter());
-  }
-
   private static <K, V> String formatEntries(Collection<Map.Entry<K, V>> entries, Converter<K> keyConverter, Converter<V> valueConverter) {
     StringBuilder sb = new StringBuilder();
     boolean first = true;
@@ -373,12 +389,11 @@ public final class KeyValueFormat {
       }
       sb.append(keyConverter.format(entry.getElement()));
       sb.append(FIELD_SEPARATOR);
-      sb.append(new IntegerConverter().format(entry.getCount()));
+      sb.append(newIntegerConverter().format(entry.getCount()));
       first = false;
     }
     return sb.toString();
   }
-
 
   /**
    * @since 2.7
@@ -430,15 +445,6 @@ public final class KeyValueFormat {
   }
 
   /**
-   * Limitation: there's currently no methods to parse into Multimap.
-   *
-   * @since 2.7
-   */
-  public static <K, V> String format(Multimap<K, V> map, Converter<K> keyConverter, Converter<V> valueConverter) {
-    return formatEntries(map.entries(), keyConverter, valueConverter);
-  }
-
-  /**
    * @since 2.7
    */
   public static <K> String format(Multiset<K> multiset, Converter<K> keyConverter) {
@@ -446,9 +452,8 @@ public final class KeyValueFormat {
   }
 
   public static String format(Multiset multiset) {
-    return formatEntries(multiset.entrySet(), newToStringConverter());
+    return format(multiset, newToStringConverter());
   }
-
 
   /**
    * @since 1.11
