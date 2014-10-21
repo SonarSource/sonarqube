@@ -71,6 +71,13 @@ public final class KeyValueFormat {
     // only static methods
   }
 
+  private static class FieldParserContext {
+    private final StringBuilder result = new StringBuilder();
+    private boolean escaped = false;
+    private char firstChar;
+    private char previous = (char) -1;
+  }
+
   static class FieldParser {
     private static final char DOUBLE_QUOTE = '"';
     private final String csv;
@@ -90,19 +97,12 @@ public final class KeyValueFormat {
       return next(';');
     }
 
-    private class Context {
-      private StringBuilder result = new StringBuilder();
-      private boolean escaped = false;
-      private char firstChar;
-      private char previous = (char) -1;
-    }
-
     @CheckForNull
     private String next(char separator) {
       if (position >= csv.length()) {
         return null;
       }
-      Context context = new Context();
+      FieldParserContext context = new FieldParserContext();
       context.firstChar = csv.charAt(position);
       // check if value is escaped by analyzing first character
       checkEscaped(context);
@@ -114,7 +114,7 @@ public final class KeyValueFormat {
       return context.result.toString();
     }
 
-    private boolean advance(char separator, Context context) {
+    private boolean advance(char separator, FieldParserContext context) {
       boolean end = false;
       char c = csv.charAt(position);
       if (c == separator && !context.escaped) {
@@ -139,7 +139,7 @@ public final class KeyValueFormat {
       return end;
     }
 
-    private void checkEscaped(Context context) {
+    private void checkEscaped(FieldParserContext context) {
       if (context.firstChar == DOUBLE_QUOTE) {
         context.escaped = true;
         position++;
