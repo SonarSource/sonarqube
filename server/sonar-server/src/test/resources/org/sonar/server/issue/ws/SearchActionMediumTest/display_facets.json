@@ -39,5 +39,14 @@
           "count": 1
         }
       ]
+    },
+    {
+      "property": "project",
+      "values": [
+        {
+          "val": "MyProject",
+          "count": 1
+        }
+      ]
     }
   ]}

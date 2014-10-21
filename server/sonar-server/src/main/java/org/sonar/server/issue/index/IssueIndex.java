@@ -285,6 +285,8 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
         .field(IssueNormalizer.IssueField.RESOLUTION.field()));
       esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.ACTION_PLAN.field())
         .field(IssueNormalizer.IssueField.ACTION_PLAN.field()));
+      esSearch.addAggregation(AggregationBuilders.terms(IssueNormalizer.IssueField.PROJECT.field())
+        .field(IssueNormalizer.IssueField.PROJECT.field()));
     }
   }
 

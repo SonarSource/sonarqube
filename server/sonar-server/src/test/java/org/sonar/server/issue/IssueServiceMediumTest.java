@@ -150,7 +150,7 @@ public class IssueServiceMediumTest {
     assertThat(result.getFacets()).isEmpty();
 
     result = service.search(IssueQuery.builder().build(), new QueryContext().setFacet(true));
-    assertThat(result.getFacets().keySet()).hasSize(4);
+    assertThat(result.getFacets().keySet()).hasSize(5);
     assertThat(result.getFacetKeys("actionPlan")).hasSize(2);
   }
 
