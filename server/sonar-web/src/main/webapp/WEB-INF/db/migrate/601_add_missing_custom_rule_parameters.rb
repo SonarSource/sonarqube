@@ -25,6 +25,6 @@
 class AddMissingCustomRuleParameters < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration 'org.sonar.server.db.migrations.v45.AddMissingCustomRuleParametersMigration'
+    execute_java_migration 'org.sonar.server.db.migrations.v451.AddMissingCustomRuleParametersMigration'
   end
 end

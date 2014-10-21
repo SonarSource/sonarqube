@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations.v45;
+package org.sonar.server.db.migrations.v451;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
@@ -33,7 +33,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +42,7 @@ import java.util.List;
  *
  * Add missing parameters (with no value) on each custom rules
  *
- * @since 4.5
+ * @since 4.5.1
  */
 public class AddMissingCustomRuleParametersMigration implements DatabaseMigration {
 
