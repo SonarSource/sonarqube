@@ -23,7 +23,13 @@
 # SONAR-5696
 #
 class AddSnapshotIdToAnalysisReports < ActiveRecord::Migration
+
+  class AnalysisReport < ActiveRecord::Base
+    set_table_name 'analysis_reports'
+  end
+
   def self.up
+    AnalysisReport.delete_all
     add_column 'analysis_reports', :snapshot_id, :integer, :null => false
   end
 end
