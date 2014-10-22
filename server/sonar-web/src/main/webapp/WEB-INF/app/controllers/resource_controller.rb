@@ -38,7 +38,7 @@ class ResourceController < ApplicationController
 
     anchor = "component=#{component_key}"
     anchor += "&tab=#{params[:tab]}" if params[:tab]
-    redirect_to :controller => 'component', :action => 'index', :anchor => anchor
+    redirect_to url_for(:controller => 'component', :action => 'index') + '#' + anchor
   end
 
   # deprecated stuff for drilldown
