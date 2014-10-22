@@ -15,5 +15,5 @@ define [
       status = @model.get 'status'
       @$el.addClass 'analysis-reports-report-pending' if status is 'PENDING'
       @$el.addClass 'analysis-reports-report-working' if status is 'WORKING'
-      @$el.addClass 'analysis-reports-report-done' if status is 'DONE'
-      @$el.addClass 'analysis-reports-report-failed' if status is 'FAILED'
+      @$el.addClass 'analysis-reports-report-done' if status is 'SUCCESS'
+      @$el.addClass 'analysis-reports-report-failed' if status is 'FAIL'

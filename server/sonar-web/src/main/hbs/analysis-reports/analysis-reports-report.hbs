@@ -1,21 +1,24 @@
 <div class="line">
   <span class="analysis-reports-project">
     <i class="icon-qualifier-trk"></i>
-    <a href="{{dashboardUrl project}}">{{projectName}}</a>
+    <a href="{{dashboardUrl projectKey}}">{{projectName}}</a>
   </span>
 
-  <span class="analysis-reports-timestamp line-small">
-    {{#if endDate}}
-      Finished: {{dt startDate}}
-    {{else}}
-      Started: {{dt startDate}}
-    {{/if}}
-
-  </span>
-
-  {{#if duration}}
+  {{#if submittedAt}}
     <span class="analysis-reports-timestamp line-small">
-      Duration: {{duration}}
+      Submitted: {{dt submittedAt}}
+    </span>
+  {{/if}}
+
+  {{#if startedAt}}
+    <span class="analysis-reports-timestamp line-small">
+      Started: {{dt startedAt}}
+    </span>
+  {{/if}}
+
+  {{#if finishedAt}}
+    <span class="analysis-reports-timestamp line-small">
+      Finished: {{dt finishedAt}}
     </span>
   {{/if}}
 </div>
