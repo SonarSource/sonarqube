@@ -78,13 +78,13 @@
 
   <update id="updateSnapshotAndChildrenLastFlagAndStatus" parameterType="map">
     update snapshots
-    set isLast = #{isLast}, status = #{status}
+    set islast = #{isLast}, status = #{status}
     where root_snapshot_id=#{root} or id=#{root} or (path like #{path} and root_snapshot_id=#{pathRootId})
   </update>
 
   <update id="updateSnapshotAndChildrenLastFlag" parameterType="map">
     update snapshots
-    set isLast = #{isLast}
+    set islast = #{isLast}
     where root_snapshot_id=#{root} or id=#{root} or (path like #{path} and root_snapshot_id=#{pathRootId})
   </update>
 
