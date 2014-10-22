@@ -19,6 +19,7 @@
  */
 package org.sonar.server.search;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -40,6 +41,7 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.max.Max;
@@ -574,24 +576,33 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   }
 
-  protected AggregationBuilder stickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters, String fieldName, String facetName) {
+  protected AggregationBuilder stickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters, String fieldName, String facetName, String... selected) {
     BoolFilterBuilder facetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
     for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
       if (filter.getValue() != null && !StringUtils.equals(filter.getKey(), fieldName)) {
         facetFilter.must(filter.getValue());
       }
     }
+
+    FilterAggregationBuilder facetTopAggregation = AggregationBuilders
+      .filter(facetName + "_filter")
+      .filter(facetFilter)
+      .subAggregation(
+        AggregationBuilders.terms(facetName)
+          .field(fieldName)
+          .order(Terms.Order.count(false))
+          .size(10)
+          .minDocCount(1));
+
+    if (selected.length > 0) {
+      facetTopAggregation = facetTopAggregation.subAggregation(
+        AggregationBuilders.terms(facetName + "_selected")
+          .field(fieldName)
+          .include(Joiner.on('|').join(selected)));
+    }
+
     return AggregationBuilders
       .global(facetName)
-      .subAggregation(
-        AggregationBuilders
-          .filter(facetName + "_filter")
-          .filter(facetFilter)
-          .subAggregation(
-            AggregationBuilders.terms(facetName)
-              .field(fieldName)
-              .order(Terms.Order.count(false))
-              .size(10)
-              .minDocCount(1)));
+      .subAggregation(facetTopAggregation);
   }
 }

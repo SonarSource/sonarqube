@@ -195,7 +195,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       esSearch.setQuery(esQuery);
     }
 
-    setFacets(options, filters, esQuery, esSearch);
+    setFacets(query, options, filters, esQuery, esSearch);
 
     SearchResponse response = getClient().execute(esSearch);
     return new Result<Issue>(this, response);
@@ -298,14 +298,15 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     }
   }
 
-  private void setFacets(QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch) {
+  private void setFacets(IssueQuery query, QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch) {
     if (options.isFacet()) {
       // Execute Term aggregations
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.SEVERITY.field(), IssueFilterParameters.SEVERITIES));
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.STATUS.field(), IssueFilterParameters.STATUSES));
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.RESOLUTION.field(), IssueFilterParameters.RESOLUTIONS));
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.ACTION_PLAN.field(), IssueFilterParameters.ACTION_PLANS));
-      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.PROJECT.field(), IssueFilterParameters.COMPONENT_ROOTS));
+      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.PROJECT.field(), IssueFilterParameters.COMPONENT_ROOTS,
+        query.componentRoots().toArray(new String[0])));
     }
   }
 

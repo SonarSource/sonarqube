@@ -72,7 +72,7 @@ public class Result<K> {
     if (Terms.class.isAssignableFrom(aggregation.getClass())) {
       Terms termAggregation = (Terms) aggregation;
       for (Terms.Bucket value : termAggregation.getBuckets()) {
-        this.facets.put(aggregation.getName(), new FacetValue(value.getKey(), (int) value.getDocCount()));
+        this.facets.put(aggregation.getName().replace("_selected",""), new FacetValue(value.getKey(), (int) value.getDocCount()));
       }
     } else if (HasAggregations.class.isAssignableFrom(aggregation.getClass())) {
       HasAggregations hasAggregations = (HasAggregations) aggregation;
@@ -82,7 +82,6 @@ public class Result<K> {
     } else {
       LOGGER.warn("Cannot process {} type of aggregation", aggregation.getClass());
     }
-
   }
 
   public Iterator<K> scroll() {

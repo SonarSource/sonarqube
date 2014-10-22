@@ -35,11 +35,7 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.server.search.action.IndexAction;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -130,7 +126,7 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
       boolean hasInlineRefreshRequest = false;
       ExecutorService executorService = Executors.newFixedThreadPool(CONCURRENT_NORMALIZATION_FACTOR);
       // invokeAll() blocks until ALL tasks submitted to executor complete
-      List<Future<List<? extends ActionRequest>>> requests = executorService.invokeAll(actions, 20, TimeUnit.MINUTES);
+      List<Future<List<? extends ActionRequest>>> requests = (List) executorService.invokeAll(actions, 20, TimeUnit.MINUTES);
       for (Future<List<? extends ActionRequest>> updates : requests) {
         for (ActionRequest update : updates.get()) {
 
