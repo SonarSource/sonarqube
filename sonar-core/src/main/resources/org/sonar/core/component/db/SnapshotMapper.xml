@@ -48,14 +48,14 @@
     select
     <include refid="snapshotColumns"/>
     from snapshots s
-    where s.islast and s.project_id = #{resource}
+    where s.islast=${_true} and s.project_id = #{resource}
   </select>
 
   <select id="selectLastSnapshotOlderThan" parameterType="map" resultType="Snapshot">
     select
     <include refid="snapshotColumns"/>
     from snapshots s
-    where s.islast
+    where s.islast=${_true}
     and s.project_id = #{resource}
     and s.created_at &lt; #{createdAt}
   </select>
