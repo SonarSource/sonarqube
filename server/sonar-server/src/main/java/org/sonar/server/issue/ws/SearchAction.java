@@ -378,12 +378,13 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   private void writeIssueSnippet(Issue issue, JsonWriter json) {
-    if (issue.line() == null) {
+    Integer lineNumber = issue.line();
+    if (lineNumber == null) {
       return;
     }
 
     String componentKey = issue.componentKey();
-    int from = Math.max(issue.line() - 1, 1);
+    int from = Math.max(lineNumber - 1, 1);
     int to = from + 2;
     int lineCounter = from;
     List<String> lines = sourceService.getLinesAsHtml(componentKey, from, to);
