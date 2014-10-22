@@ -98,7 +98,8 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
     persister.saveProject(singleProject, null);
 
-    checkTables("shouldSaveNewProject", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid"}, "projects", "snapshots");
+    checkTables("shouldSaveNewProject", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"},
+      "projects", "snapshots");
 
     // Need to enable snapshot to make resource visible using ComponentMapper
     enableSnapshot(1001);
@@ -106,6 +107,9 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     try {
       ComponentDto newProject = session.getMapper(ComponentMapper.class).selectByKey("foo");
       assertThat(newProject.uuid()).isNotNull();
+      assertThat(newProject.projectUuid()).isEqualTo(newProject.uuid());
+      assertThat(newProject.moduleUuid()).isNull();
+      assertThat(newProject.moduleUuidPath()).isNull();
       // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
       assertThat(newProject.getCreatedAt()).isNotNull();
     } finally {
@@ -120,13 +124,17 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
     persister.saveProject(singleCopyProject, null);
 
-    checkTables("shouldSaveCopyProject", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid"}, "projects", "snapshots");
+    checkTables("shouldSaveCopyProject", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"},
+      "projects", "snapshots");
     // Need to enable snapshot to make resource visible using ComponentMapper
     enableSnapshot(1001);
     SqlSession session = getMyBatis().openSession(false);
     try {
       ComponentDto newProject = session.getMapper(ComponentMapper.class).selectByKey("foo");
       assertThat(newProject.uuid()).isNotNull();
+      assertThat(newProject.projectUuid()).isEqualTo(newProject.uuid());
+      assertThat(newProject.moduleUuid()).isNull();
+      assertThat(newProject.moduleUuidPath()).isNull();
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -142,7 +150,8 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveProject(moduleB, multiModuleProject);
     persister.saveProject(moduleB1, moduleB);
 
-    checkTables("shouldSaveNewMultiModulesProject", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid"}, "projects", "snapshots");
+    checkTables("shouldSaveNewMultiModulesProject",
+      new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"}, "projects", "snapshots");
 
     // Need to enable snapshot to make resource visible using ComponentMapper
     enableSnapshot(1001);
@@ -153,12 +162,24 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     try {
       ComponentDto root = session.getMapper(ComponentMapper.class).selectByKey("root");
       assertThat(root.uuid()).isNotNull();
+      assertThat(root.projectUuid()).isEqualTo(root.uuid());
+      assertThat(root.moduleUuid()).isNull();
+      assertThat(root.moduleUuidPath()).isNull();
       ComponentDto a = session.getMapper(ComponentMapper.class).selectByKey("a");
       assertThat(a.uuid()).isNotNull();
+      assertThat(a.projectUuid()).isEqualTo(root.uuid());
+      assertThat(a.moduleUuid()).isEqualTo(root.uuid());
+      assertThat(a.moduleUuidPath()).isEqualTo(root.uuid());
       ComponentDto b = session.getMapper(ComponentMapper.class).selectByKey("b");
       assertThat(b.uuid()).isNotNull();
+      assertThat(b.projectUuid()).isEqualTo(root.uuid());
+      assertThat(b.moduleUuid()).isEqualTo(root.uuid());
+      assertThat(b.moduleUuidPath()).isEqualTo(root.uuid());
       ComponentDto b1 = session.getMapper(ComponentMapper.class).selectByKey("b1");
       assertThat(b1.uuid()).isNotNull();
+      assertThat(b1.projectUuid()).isEqualTo(root.uuid());
+      assertThat(b1.moduleUuid()).isEqualTo(b.uuid());
+      assertThat(b1.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid());
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -173,14 +194,20 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveResource(singleProject,
       Directory.create("src/main/java/org/foo", "org.foo").setEffectiveKey("foo:src/main/java/org/foo"));
     // check that the directory is attached to the project
-    checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid"}, "projects", "snapshots");
+    checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"},
+      "projects", "snapshots");
 
     // Need to enable snapshot to make resource visible using ComponentMapper
+    enableSnapshot(1001);
     enableSnapshot(1002);
     SqlSession session = getMyBatis().openSession(false);
     try {
+      ComponentDto newProject = session.getMapper(ComponentMapper.class).selectByKey("foo");
       ComponentDto newDir = session.getMapper(ComponentMapper.class).selectByKey("foo:src/main/java/org/foo");
       assertThat(newDir.uuid()).isNotNull();
+      assertThat(newDir.projectUuid()).isEqualTo(newProject.uuid());
+      assertThat(newDir.moduleUuid()).isEqualTo(newProject.uuid());
+      assertThat(newDir.moduleUuidPath()).isEqualTo(newProject.uuid());
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -205,7 +232,8 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));// do nothing, already saved
     persister.saveResource(singleProject, new Library("junit:junit", "3.2").setEffectiveKey("junit:junit"));
 
-    checkTables("shouldSaveNewLibrary", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid"}, "projects", "snapshots");
+    checkTables("shouldSaveNewLibrary", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"},
+      "projects", "snapshots");
 
     // Need to enable snapshot to make resource visible using ComponentMapper
     enableSnapshot(1002);
@@ -213,6 +241,9 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     try {
       ComponentDto newLib = session.getMapper(ComponentMapper.class).selectByKey("junit:junit");
       assertThat(newLib.uuid()).isNotNull();
+      assertThat(newLib.projectUuid()).isEqualTo(newLib.projectUuid());
+      assertThat(newLib.moduleUuid()).isNull();
+      assertThat(newLib.moduleUuidPath()).isNull();
     } finally {
       MyBatis.closeQuietly(session);
     }

@@ -94,7 +94,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     // temporary hack
     project.setEffectiveKey(project.getKey());
 
-    ResourceModel model = findOrCreateModel(project);
+    ResourceModel model = findOrCreateModel(project, parent);
     // Used by ResourceKeyMigration in order to know that a project has already being migrated
     model.setDeprecatedKey(project.getKey());
     // language is null for project since multi-language support
@@ -115,6 +115,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     }
     model = session.save(model);
     project.setId(model.getId());
+    project.setUuid(model.getUuid());
 
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
     snapshot.setVersion(project.getAnalysisVersion());
@@ -193,10 +194,11 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
   private Snapshot persistLibrary(Project project, Library library) {
-    ResourceModel model = findOrCreateModel(library);
+    ResourceModel model = findOrCreateModel(library, null);
     model = session.save(model);
     // TODO to be removed
     library.setId(model.getId());
+    library.setUuid(model.getUuid());
     library.setEffectiveKey(library.getKey());
 
     Snapshot snapshot = findLibrarySnapshot(model.getId(), library.getVersion());
@@ -237,10 +239,11 @@ public final class DefaultResourcePersister implements ResourcePersister {
   private Snapshot persistFileOrDirectory(Project project, Resource resource, @Nullable Resource parentReference) {
     Snapshot moduleSnapshot = snapshotsByResource.get(project);
     Integer moduleId = moduleSnapshot.getResourceId();
-    ResourceModel model = findOrCreateModel(resource);
+    ResourceModel model = findOrCreateModel(resource, parentReference != null ? parentReference : project);
     model.setRootId(moduleId);
     model = session.save(model);
     resource.setId(model.getId());
+    resource.setUuid(model.getUuid());
 
     Snapshot parentSnapshot = (Snapshot) ObjectUtils.defaultIfNull(getSnapshot(parentReference), moduleSnapshot);
     Snapshot snapshot = new Snapshot(model, parentSnapshot);
@@ -277,7 +280,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     }
   }
 
-  private ResourceModel findOrCreateModel(Resource resource) {
+  private ResourceModel findOrCreateModel(Resource resource, @Nullable Resource parentReference) {
     ResourceModel model;
     try {
       model = session.getSingleResult(ResourceModel.class, "key", resource.getEffectiveKey());
@@ -285,7 +288,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
         if (StringUtils.isBlank(resource.getEffectiveKey())) {
           throw new SonarException("Unable to persist resource " + resource.toString() + ". Resource effective key is blank. This may be caused by an outdated plugin.");
         }
-        model = createModel(resource);
+        model = createModel(resource, parentReference);
 
       } else {
         mergeModel(model, resource);
@@ -297,12 +300,12 @@ public final class DefaultResourcePersister implements ResourcePersister {
     }
   }
 
-  static ResourceModel createModel(Resource resource) {
+  ResourceModel createModel(Resource resource, @Nullable Resource parentResource) {
     ResourceModel model = new ResourceModel();
     model.setEnabled(Boolean.TRUE);
     model.setDescription(resource.getDescription());
     model.setKey(resource.getEffectiveKey());
-    model.setUuid(UUID.randomUUID().toString());
+    setUuids(resource, parentResource, model);
     model.setPath(resource.getPath());
     Language language = resource.getLanguage();
     if (language != null) {
@@ -317,6 +320,35 @@ public final class DefaultResourcePersister implements ResourcePersister {
     model.setScope(resource.getScope());
     model.setQualifier(resource.getQualifier());
     return model;
+  }
+
+  private void setUuids(Resource resource, Resource parentResource, ResourceModel model) {
+    model.setUuid(UUID.randomUUID().toString());
+    if (parentResource != null) {
+      ResourceModel parentModel = session.getSingleResult(ResourceModel.class, "id", parentResource.getId());
+      if (parentModel.getProjectUuid() != null) {
+        model.setProjectUuid(parentModel.getProjectUuid());
+      } else {
+        model.setProjectUuid(parentModel.getUuid());
+      }
+      if (Qualifiers.isProject(parentResource, true)) {
+        model.setModuleUuid(parentResource.getUuid());
+      } else {
+        model.setModuleUuid(parentModel.getModuleUuid());
+      }
+      if (Qualifiers.isProject(resource, true)) {
+        String parentModuleUuidPath = parentModel.getModuleUuidPath();
+        model.setModuleUuidPath(parentModuleUuidPath != null ? parentModuleUuidPath + "." + parentModel.getUuid() : parentModel.getUuid());
+      } else {
+        String parentModuleUuidPath = parentModel.getModuleUuidPath();
+        model.setModuleUuidPath(parentModuleUuidPath != null ? parentModuleUuidPath : parentModel.getUuid());
+      }
+    } else {
+      if (Qualifiers.isProject(resource, false)) {
+        // Root module
+        model.setProjectUuid(model.getUuid());
+      }
+    }
   }
 
   static void mergeModel(ResourceModel model, Resource resource) {

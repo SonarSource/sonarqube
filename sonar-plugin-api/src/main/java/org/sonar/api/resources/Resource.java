@@ -123,15 +123,17 @@ public abstract class Resource implements Serializable {
   @Deprecated
   public static final String QUALIFIER_UNIT_TEST_CLASS = Qualifiers.UNIT_TEST_FILE;
 
-  private Integer id = null;
+  private Integer id;
 
-  private String key = null;
+  private String key;
 
-  private String deprecatedKey = null;
+  private String uuid;
 
-  private String path = null;
+  private String deprecatedKey;
 
-  private String effectiveKey = null;
+  private String path;
+
+  private String effectiveKey;
 
   /**
    * @return the resource key
@@ -145,6 +147,20 @@ public abstract class Resource implements Serializable {
    */
   public void setKey(String s) {
     this.key = s;
+  }
+
+  /**
+   * @since 5.0
+   */
+  public final String getUuid() {
+    return uuid;
+  }
+
+  /**
+   * Internal use only
+   */
+  public void setUuid(String s) {
+    this.uuid = s;
   }
 
   /**
