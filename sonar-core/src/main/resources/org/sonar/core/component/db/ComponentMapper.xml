@@ -29,25 +29,23 @@
   </sql>
 
   <select id="selectByKey" parameterType="String" resultType="Component">
-    SELECT <include refid="componentColumns"/>, max(s.version)
+    SELECT <include refid="componentColumns"/>
     FROM projects p
     INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
     <where>
       AND p.enabled=${_true}
       AND p.kee=#{key}
     </where>
-    GROUP BY p.id
   </select>
 
   <select id="selectById" parameterType="long" resultType="Component">
-    SELECT <include refid="componentColumns"/>, max(s.version)
+    SELECT <include refid="componentColumns"/>
     FROM projects p
     INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
     <where>
       AND p.enabled=${_true}
       AND p.id=#{id}
     </where>
-    GROUP BY p.id
   </select>
 
   <select id="countById" parameterType="long" resultType="long">

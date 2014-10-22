@@ -41,6 +41,7 @@ import javax.persistence.Query;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -239,7 +240,8 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     enableSnapshot(1002);
     SqlSession session = getMyBatis().openSession(false);
     try {
-      ComponentDto newLib = session.getMapper(ComponentMapper.class).selectByKey("junit:junit");
+      // FIXME selectByKey returns duplicates for libraries because of the join on snapshots table
+      ComponentDto newLib = session.getMapper(ComponentMapper.class).findByKeys(Arrays.asList("junit:junit")).get(0);
       assertThat(newLib.uuid()).isNotNull();
       assertThat(newLib.projectUuid()).isEqualTo(newLib.projectUuid());
       assertThat(newLib.moduleUuid()).isNull();
