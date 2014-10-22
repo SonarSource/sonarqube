@@ -45,7 +45,7 @@ public class DeleteUnescapedActivities extends BaseDataChange {
   public void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select id,data_field from activities where log_type='QPROFILE'");
-    massUpdate.update("delete activities where id=?");
+    massUpdate.update("delete from activities where id=?");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
