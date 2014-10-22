@@ -28,7 +28,7 @@ define [
       params = @ui.qualityProfileParameters.map(->
         key: jQuery(@).prop('name'), value: jQuery(@).val() || jQuery(@).prop('placeholder') || '').get()
 
-      paramsHash = (params.map (param) -> param.key + '=' + param.value).join(';')
+      paramsHash = (params.map (param) -> param.key + '=' + window.csvEscape(param.value)).join(';')
 
       if @model
         profileKey = @model.get('qProfile')

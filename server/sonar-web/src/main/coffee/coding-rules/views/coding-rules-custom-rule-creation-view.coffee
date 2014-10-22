@@ -74,7 +74,7 @@ define [
           value = node.prop('placeholder') || ''
         key: node.prop('name'), value: value).get()
 
-      postData.params = (params.map (param) -> param.key + '=' + param.value).join(';')
+      postData.params = (params.map (param) -> param.key + '=' + window.csvEscape(param.value)).join(';')
       @sendRequest(action, postData)
 
 
