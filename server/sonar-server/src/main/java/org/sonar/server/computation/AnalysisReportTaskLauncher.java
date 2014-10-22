@@ -25,12 +25,14 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.platform.Server;
+import org.sonar.api.platform.ServerStartHandler;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class AnalysisReportTaskLauncher implements Startable, ServerComponent {
+public class AnalysisReportTaskLauncher implements Startable, ServerComponent, ServerStartHandler {
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisReportTaskLauncher.class);
 
   private final ComputationService service;
@@ -64,17 +66,22 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent {
 
   @Override
   public void start() {
-    executorService.scheduleAtFixedRate(new AnalysisReportTask(queue, service), delayForFirstStart, delayBetweenTasks, timeUnit);
-    LOG.info("AnalysisReportTaskLauncher started");
+    // do nothing because we want to wait for the server to finish startup
   }
 
   @Override
   public void stop() {
     executorService.shutdown();
-    LOG.info("AnalysisReportTaskLauncher stopped");
+    LOG.info("AnalysisReportTaskLauncher gracefully stopped");
   }
 
   public void startAnalysisTaskNow() {
     executorService.execute(new AnalysisReportTask(queue, service));
+  }
+
+  @Override
+  public void onServerStart(Server server) {
+    executorService.scheduleAtFixedRate(new AnalysisReportTask(queue, service), delayForFirstStart, delayBetweenTasks, timeUnit);
+    LOG.info("AnalysisReportTaskLauncher started");
   }
 }

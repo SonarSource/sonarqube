@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
+import org.sonar.api.platform.Server;
 
 import java.util.concurrent.TimeUnit;
 
@@ -54,7 +55,7 @@ public class AnalysisReportTaskLauncherTest {
   public void call_findAndBook_when_launching_a_recurrent_task() throws Exception {
     sut = new AnalysisReportTaskLauncher(service, queue, 0, 1, TimeUnit.MILLISECONDS);
 
-    sut.start();
+    sut.onServerStart(mock(Server.class));
 
     sleep();
 
