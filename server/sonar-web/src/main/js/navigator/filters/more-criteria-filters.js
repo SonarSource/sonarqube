@@ -78,6 +78,12 @@ define([
     renderInput: function() {},
 
 
+    renderBase: function() {
+      ChoiceFilters.ChoiceFilterView.prototype.renderBase.call(this);
+      this.$el.prop('title', '');
+    },
+
+
     isDefaultValue: function() {
       return false;
     }
