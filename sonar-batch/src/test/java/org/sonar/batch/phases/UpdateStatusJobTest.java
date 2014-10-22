@@ -20,19 +20,15 @@
 package org.sonar.batch.phases;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-
-import javax.persistence.Query;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
@@ -49,43 +45,6 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  @Ignore("logic moved on server side - need to check this specific test is covered")
-  public void shouldUnflagPenultimateLastSnapshot() {
-    assertAnalysis(11, "shouldUnflagPenultimateLastSnapshot");
-  }
-
-  @Test
-  @Ignore("logic moved on server side - need to check this specific test is covered")
-  public void doNotFailIfNoPenultimateLast() {
-    assertAnalysis(5, "doNotFailIfNoPenultimateLast");
-  }
-
-  @Test
-  @Ignore("logic moved on server side - need to check this specific test is covered")
-  public void shouldNotEnableSnapshotWhenNotLatest() {
-    assertAnalysis(6, "shouldNotEnableSnapshotWhenNotLatest");
-  }
-
-  private void assertAnalysis(int snapshotId, String fixture) {
-    setupData("sharedFixture", fixture);
-
-    DatabaseSession session = getSession();
-    Project project = new Project("foo");
-    project.setId(1);
-    UpdateStatusJob job = new UpdateStatusJob(new Settings().appendProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/"), mock(ServerClient.class),
-      project, loadSnapshot(snapshotId), mode);
-    job.execute();
-
-    checkTables(fixture, "snapshots");
-  }
-
-  private Snapshot loadSnapshot(int id) {
-    Query query = getSession().createQuery("SELECT s FROM Snapshot s WHERE s.id=:id");
-    query.setParameter("id", id);
-    return (Snapshot) query.getSingleResult();
-  }
-
-  @Test
   public void should_log_successful_analysis() throws Exception {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "http://myserver/");
@@ -95,7 +54,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
 
-    verify(logger).info("ANALYSIS SUCCESSFUL, you can browse {}", "http://myserver/dashboard/index/struts");
+    verify(logger).info("ANALYSIS SUCCESSFUL, you will be able to browse it at {}", "http://myserver/dashboard/index/struts");
   }
 
   @Test

@@ -92,7 +92,7 @@ public class UpdateStatusJob implements BatchComponent {
         baseUrl += "/";
       }
       String url = baseUrl + "dashboard/index/" + project.getKey();
-      logger.info("ANALYSIS SUCCESSFUL, you can browse {}", url);
+      logger.info("ANALYSIS SUCCESSFUL, you will be able to browse it at {}", url);
     }
   }
 }
