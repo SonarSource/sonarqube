@@ -19,19 +19,25 @@
  */
 package org.sonar.batch.index;
 
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.model.ResourceModel;
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 import org.sonar.api.security.ResourcePermissions;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.db.ComponentMapper;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
+
+import javax.persistence.Query;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -92,11 +98,19 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
     persister.saveProject(singleProject, null);
 
-    checkTables("shouldSaveNewProject", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewProject", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid"}, "projects", "snapshots");
 
-    // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
-    ResourceModel model = getSession().getSingleResult(ResourceModel.class, "key", singleProject.getKey());
-    assertThat(model.getCreatedAt()).isNotNull();
+    // Need to enable snapshot to make resource visible using ComponentMapper
+    enableSnapshot(1001);
+    SqlSession session = getMyBatis().openSession(false);
+    try {
+      ComponentDto newProject = session.getMapper(ComponentMapper.class).selectByKey("foo");
+      assertThat(newProject.uuid()).isNotNull();
+      // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
+      assertThat(newProject.getCreatedAt()).isNotNull();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   @Test
@@ -106,7 +120,16 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
     persister.saveProject(singleCopyProject, null);
 
-    checkTables("shouldSaveCopyProject", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
+    checkTables("shouldSaveCopyProject", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid"}, "projects", "snapshots");
+    // Need to enable snapshot to make resource visible using ComponentMapper
+    enableSnapshot(1001);
+    SqlSession session = getMyBatis().openSession(false);
+    try {
+      ComponentDto newProject = session.getMapper(ComponentMapper.class).selectByKey("foo");
+      assertThat(newProject.uuid()).isNotNull();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   @Test
@@ -119,7 +142,26 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveProject(moduleB, multiModuleProject);
     persister.saveProject(moduleB1, moduleB);
 
-    checkTables("shouldSaveNewMultiModulesProject", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewMultiModulesProject", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid"}, "projects", "snapshots");
+
+    // Need to enable snapshot to make resource visible using ComponentMapper
+    enableSnapshot(1001);
+    enableSnapshot(1002);
+    enableSnapshot(1003);
+    enableSnapshot(1004);
+    SqlSession session = getMyBatis().openSession(false);
+    try {
+      ComponentDto root = session.getMapper(ComponentMapper.class).selectByKey("root");
+      assertThat(root.uuid()).isNotNull();
+      ComponentDto a = session.getMapper(ComponentMapper.class).selectByKey("a");
+      assertThat(a.uuid()).isNotNull();
+      ComponentDto b = session.getMapper(ComponentMapper.class).selectByKey("b");
+      assertThat(b.uuid()).isNotNull();
+      ComponentDto b1 = session.getMapper(ComponentMapper.class).selectByKey("b1");
+      assertThat(b1.uuid()).isNotNull();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   @Test
@@ -130,9 +172,27 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveProject(singleProject, null);
     persister.saveResource(singleProject,
       Directory.create("src/main/java/org/foo", "org.foo").setEffectiveKey("foo:src/main/java/org/foo"));
-
     // check that the directory is attached to the project
-    checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewDirectory", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid"}, "projects", "snapshots");
+
+    // Need to enable snapshot to make resource visible using ComponentMapper
+    enableSnapshot(1002);
+    SqlSession session = getMyBatis().openSession(false);
+    try {
+      ComponentDto newDir = session.getMapper(ComponentMapper.class).selectByKey("foo:src/main/java/org/foo");
+      assertThat(newDir.uuid()).isNotNull();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private void enableSnapshot(int resourceId) {
+    String hql = "UPDATE " + Snapshot.class.getSimpleName() + " SET last=true";
+    hql += " WHERE project_id=:resourceId";
+    Query query = getSession().createQuery(hql);
+    query.setParameter("resourceId", resourceId);
+    query.executeUpdate();
+    getSession().commit();
   }
 
   @Test
@@ -145,7 +205,17 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveResource(singleProject, new Library("junit:junit", "4.8.2").setEffectiveKey("junit:junit"));// do nothing, already saved
     persister.saveResource(singleProject, new Library("junit:junit", "3.2").setEffectiveKey("junit:junit"));
 
-    checkTables("shouldSaveNewLibrary", new String[] {"build_date", "created_at", "authorization_updated_at"}, "projects", "snapshots");
+    checkTables("shouldSaveNewLibrary", new String[] {"build_date", "created_at", "authorization_updated_at", "uuid"}, "projects", "snapshots");
+
+    // Need to enable snapshot to make resource visible using ComponentMapper
+    enableSnapshot(1002);
+    SqlSession session = getMyBatis().openSession(false);
+    try {
+      ComponentDto newLib = session.getMapper(ComponentMapper.class).selectByKey("junit:junit");
+      assertThat(newLib.uuid()).isNotNull();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   @Test

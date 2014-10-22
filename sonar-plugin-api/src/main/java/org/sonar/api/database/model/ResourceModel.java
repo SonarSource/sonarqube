@@ -105,6 +105,18 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
   @BatchSize(size = 8)
   private List<ProjectLink> projectLinks = new ArrayList<ProjectLink>();
 
+  @Column(name = "uuid", updatable = false, nullable = true, length = 50)
+  private String uuid;
+
+  @Column(name = "project_uuid", updatable = true, nullable = true, length = 50)
+  private String projectUuid;
+
+  @Column(name = "module_uuid", updatable = true, nullable = true, length = 50)
+  private String moduleUuid;
+
+  @Column(name = "module_uuid_path", updatable = true, nullable = true, length = 4000)
+  private String moduleUuidPath;
+
   /**
    * Default constructor
    */
@@ -314,6 +326,38 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
 
   public void setCreatedAt(Date createdAt) {
     this.createdAt = createdAt; // NOSONAR May expose internal representation by returning reference to mutable object
+  }
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
+
+  public String getProjectUuid() {
+    return projectUuid;
+  }
+
+  public void setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
+  }
+
+  public String getModuleUuid() {
+    return moduleUuid;
+  }
+
+  public void setModuleUuid(String moduleUuid) {
+    this.moduleUuid = moduleUuid;
+  }
+
+  public String getModuleUuidPath() {
+    return moduleUuidPath;
+  }
+
+  public void setModuleUuidPath(String moduleUuidPath) {
+    this.moduleUuidPath = moduleUuidPath;
   }
 
   @Override

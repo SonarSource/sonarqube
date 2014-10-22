@@ -19,9 +19,6 @@
  */
 package org.sonar.jpa.test;
 
-import org.dbunit.ext.mssql.InsertIdentityOperation;
-import org.dbunit.operation.DatabaseOperation;
-
 import org.apache.commons.io.IOUtils;
 import org.dbunit.Assertion;
 import org.dbunit.DataSourceDatabaseTester;
@@ -35,12 +32,18 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
+import org.dbunit.ext.mssql.InsertIdentityOperation;
+import org.dbunit.operation.DatabaseOperation;
 import org.junit.After;
 import org.junit.Before;
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.core.cluster.NullQueue;
+import org.sonar.core.cluster.WorkQueue;
+import org.sonar.core.config.Logback;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseCommands;
 import org.sonar.core.persistence.H2Database;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
@@ -56,9 +59,11 @@ import static org.junit.Assert.fail;
  */
 public abstract class AbstractDbUnitTestCase {
   private static Database database;
+  private static MyBatis myBatis;
   private static DatabaseCommands databaseCommands;
   private static IDatabaseTester databaseTester;
   private static JpaDatabaseSession session;
+  private WorkQueue queue = new NullQueue();
 
   @Before
   public void startDatabase() throws SQLException {
@@ -73,6 +78,9 @@ public abstract class AbstractDbUnitTestCase {
       dbConnector.start();
       session = new JpaDatabaseSession(dbConnector);
       session.start();
+
+      myBatis = new MyBatis(database, new Logback(), queue);
+      myBatis.start();
     }
 
     databaseCommands.truncateDatabase(database.getDataSource());
@@ -87,6 +95,10 @@ public abstract class AbstractDbUnitTestCase {
 
   protected DatabaseSession getSession() {
     return session;
+  }
+
+  protected MyBatis getMyBatis() {
+    return myBatis;
   }
 
   protected Database getDatabase() {

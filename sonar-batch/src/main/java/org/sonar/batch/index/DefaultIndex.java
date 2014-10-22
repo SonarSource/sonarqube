@@ -573,8 +573,8 @@ public class DefaultIndex extends SonarIndex {
     bucket = new Bucket(resource).setParent(parentBucket);
     addBucket(resource, bucket);
 
-    Resource parentSnapshot = parentBucket != null ? parentBucket.getResource() : null;
-    Snapshot snapshot = persistence.saveResource(currentProject, resource, parentSnapshot);
+    Resource parentResource = parentBucket != null ? parentBucket.getResource() : null;
+    Snapshot snapshot = persistence.saveResource(currentProject, resource, parentResource);
     if (ResourceUtils.isPersistable(resource) && !Qualifiers.LIBRARY.equals(resource.getQualifier())) {
       graph.addComponent(resource, snapshot);
     }

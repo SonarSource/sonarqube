@@ -17,7 +17,8 @@
     s.root_project_id as projectId,
     p.root_id as subProjectId,
     p.path as path,
-    p.authorization_updated_at as authorizationUpdatedAt
+    p.authorization_updated_at as authorizationUpdatedAt,
+    p.created_at as createdAt
   </sql>
 
   <sql id="authorizedComponentColumns">
@@ -28,23 +29,25 @@
   </sql>
 
   <select id="selectByKey" parameterType="String" resultType="Component">
-    SELECT <include refid="componentColumns"/>
+    SELECT <include refid="componentColumns"/>, max(s.version)
     FROM projects p
     INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
     <where>
       AND p.enabled=${_true}
       AND p.kee=#{key}
     </where>
+    GROUP BY p.id
   </select>
 
   <select id="selectById" parameterType="long" resultType="Component">
-    SELECT <include refid="componentColumns"/>
+    SELECT <include refid="componentColumns"/>, max(s.version)
     FROM projects p
     INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
     <where>
       AND p.enabled=${_true}
       AND p.id=#{id}
     </where>
+    GROUP BY p.id
   </select>
 
   <select id="countById" parameterType="long" resultType="long">

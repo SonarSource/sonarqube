@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.resources.Language;
-
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +27,7 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.File;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
@@ -47,6 +46,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public final class DefaultResourcePersister implements ResourcePersister {
 
@@ -302,6 +302,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     model.setEnabled(Boolean.TRUE);
     model.setDescription(resource.getDescription());
     model.setKey(resource.getEffectiveKey());
+    model.setUuid(UUID.randomUUID().toString());
     model.setPath(resource.getPath());
     Language language = resource.getLanguage();
     if (language != null) {
