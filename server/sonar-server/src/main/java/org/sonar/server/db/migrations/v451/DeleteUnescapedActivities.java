@@ -26,6 +26,8 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
+import javax.annotation.Nullable;
+
 import java.sql.SQLException;
 
 /**
@@ -57,11 +59,13 @@ public class DeleteUnescapedActivities extends BaseDataChange {
     });
   }
 
-  static boolean isUnescaped(String csv) {
-    String[] splits = csv.split(";");
-    for (String split : splits) {
-      if (StringUtils.countMatches(split, "=") != 1) {
-        return true;
+  static boolean isUnescaped(@Nullable String csv) {
+    if (csv != null) {
+      String[] splits = StringUtils.split(csv, ';');
+      for (String split : splits) {
+        if (StringUtils.countMatches(split, "=") != 1) {
+          return true;
+        }
       }
     }
     return false;

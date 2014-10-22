@@ -47,7 +47,11 @@ public class DeleteUnescapedActivitiesTest {
       "ruleKey=findbugs:PT_RELATIVE_PATH_TRAVERSAL;profileKey=java-findbugs-74105;severity=MAJOR;" +
         "key=java-findbugs-74105:findbugs:PT_RELATIVE_PATH_TRAVERSAL"))
       .isFalse();
+    assertThat(DeleteUnescapedActivities.isUnescaped(null)).isFalse();
+    assertThat(DeleteUnescapedActivities.isUnescaped("")).isFalse();
+    assertThat(DeleteUnescapedActivities.isUnescaped("foo=bar")).isFalse();
     assertThat(DeleteUnescapedActivities.isUnescaped("param_xpath=/foo/bar")).isFalse();
+
     assertThat(DeleteUnescapedActivities.isUnescaped("param_xpath=/foo/bar;foo;ruleKey=S001")).isTrue();
     assertThat(DeleteUnescapedActivities.isUnescaped("param_xpath=/foo=foo;ruleKey=S001")).isTrue();
 
