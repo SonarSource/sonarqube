@@ -55,8 +55,6 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     IssueDto issue = dao.selectByKey("ABCDE");
     assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100L);
-    assertThat(issue.getComponentId()).isEqualTo(401);
-    assertThat(issue.getRootComponentId()).isEqualTo(399);
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
     assertThat(issue.isManualSeverity()).isFalse();
@@ -77,8 +75,14 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getUpdatedAt()).isNotNull();
     assertThat(issue.getRuleRepo()).isEqualTo("squid");
     assertThat(issue.getRule()).isEqualTo("AvoidCycle");
+    assertThat(issue.getComponentUuid()).isEqualTo("CDEF");
     assertThat(issue.getComponentKey()).isEqualTo("Action.java");
-    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
+    assertThat(issue.getComponentId()).isEqualTo(401);
+    assertThat(issue.getModuleUuid()).isEqualTo("BCDE");
+    assertThat(issue.getModuleUuidPath()).isEqualTo("ABCD.BCDE.");
+    assertThat(issue.getProjectKey()).isEqualTo("struts"); // ABCD
+    assertThat(issue.getProjectUuid()).isEqualTo("ABCD"); // null
+    assertThat(issue.getProjectId()).isEqualTo(399);
   }
 
   @Test
@@ -94,7 +98,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRuleRepo()).isNotNull();
     assertThat(issue.getRule()).isNotNull();
     assertThat(issue.getComponentKey()).isNotNull();
-    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
+    assertThat(issue.getProjectKey()).isEqualTo("struts");
 
     // 399 is the root module, we should only find 1 issue on itself
     handler = new DefaultResultHandler();
@@ -103,7 +107,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     issue = (IssueDto) handler.getResultList().get(0);
     assertThat(issue.getComponentKey()).isEqualTo("struts");
-    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
+    assertThat(issue.getProjectKey()).isEqualTo("struts");
   }
 
   /**
@@ -124,7 +128,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRuleRepo()).isNotNull();
     assertThat(issue.getRule()).isNotNull();
     assertThat(issue.getComponentKey()).isNotNull();
-    assertThat(issue.getRootComponentKey()).isNull();
+    assertThat(issue.getProjectKey()).isNull();
   }
 
   @Test

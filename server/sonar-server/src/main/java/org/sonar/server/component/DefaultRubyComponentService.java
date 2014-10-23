@@ -33,6 +33,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.util.RubyUtils;
 
+import javax.annotation.CheckForNull;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -55,8 +57,14 @@ public class DefaultRubyComponentService implements RubyComponentService {
   }
 
   @Override
+  @CheckForNull
   public Component findByKey(String key) {
     return resourceDao.findByKey(key);
+  }
+
+  @CheckForNull
+  public Component findByUuid(String uuid) {
+    return componentService.getNullableByUuid(uuid);
   }
 
   public Long createComponent(String kee, String name, String qualifier) {

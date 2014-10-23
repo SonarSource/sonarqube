@@ -131,7 +131,7 @@ public class ActionServiceTest {
     when(userSession.login()).thenReturn("arthur");
 
     when(componentDao.getByKey(session, "struts")).thenReturn(new ComponentDto().setKey("struts"));
-    when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue.setRootComponentKey("struts"));
+    when(issueService.getByKeyForUpdate(session, "ABCD")).thenReturn(issue.setProjectKey("struts"));
 
     actions.add("link-to-jira").setConditions(new AlwaysMatch()).setFunctions(function);
     assertThat(actionService.execute("ABCD", "link-to-jira", userSession)).isNotNull();

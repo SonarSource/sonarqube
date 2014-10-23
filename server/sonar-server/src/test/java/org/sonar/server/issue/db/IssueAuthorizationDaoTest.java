@@ -51,7 +51,7 @@ public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
 
   @Test(expected = IllegalStateException.class)
   public void get_nullable_by_key_is_not_implemented() {
-    assertThat(dao.getNullableByKey(session, "sonar"));
+    assertThat(dao.getNullableByKey(session, "ABCD"));
   }
 
   @Test
@@ -69,6 +69,8 @@ public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
   public void synchronize_after_since_given_date() {
     setupData("synchronize_after_since_given_date");
 
+    assertThat(session.getActionCount()).isEqualTo(0);
+
     dao.synchronizeAfter(session, DateUtils.parseDate("2014-09-01"));
     // SynchronizeAfter adds an implicit action (refresh) after execution of synchronization
     assertThat(session.getActionCount()).isEqualTo(2);
@@ -78,7 +80,9 @@ public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
   public void synchronize_after_with_project() {
     setupData("synchronize_after_with_project");
 
-    dao.synchronizeAfter(session, DateUtils.parseDate("2014-01-01"), ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, "org.sonar:sample"));
+    assertThat(session.getActionCount()).isEqualTo(0);
+
+    dao.synchronizeAfter(session, DateUtils.parseDate("2014-01-01"), ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, "ABCD"));
     // SynchronizeAfter adds an implicit action (refresh) after execution of synchronization
     assertThat(session.getActionCount()).isEqualTo(2);
   }

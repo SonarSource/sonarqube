@@ -65,11 +65,19 @@ public class DefaultRubyComponentServiceTest {
   }
 
   @Test
-  public void should_find_by_key() {
+  public void find_by_key() {
     Component<?> component = mock(Component.class);
     when(resourceDao.findByKey("struts")).thenReturn(component);
 
     assertThat(service.findByKey("struts")).isEqualTo(component);
+  }
+
+  @Test
+  public void find_by_uuid() {
+    ComponentDto component = new ComponentDto();
+    when(componentService.getNullableByUuid("ABCD")).thenReturn(component);
+
+    assertThat(service.findByUuid("ABCD")).isEqualTo(component);
   }
 
   @Test

@@ -130,9 +130,9 @@ public class IssueService implements ServerComponent {
     List<Transition> outTransitions = workflow.outTransitions(issue);
     List<Transition> allowedTransitions = new ArrayList<Transition>();
     for (Transition transition : outTransitions) {
-      String projectKey = issue.projectKey();
+      String projectUuid = issue.projectUuid();
       if (StringUtils.isBlank(transition.requiredProjectPermission()) ||
-        (projectKey != null && UserSession.get().hasProjectPermission(transition.requiredProjectPermission(), projectKey))) {
+        (projectUuid != null && UserSession.get().hasProjectPermissionByUuid(transition.requiredProjectPermission(), projectUuid))) {
         allowedTransitions.add(transition);
       }
     }

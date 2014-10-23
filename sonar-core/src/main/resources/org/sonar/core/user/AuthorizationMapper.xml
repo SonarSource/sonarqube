@@ -65,6 +65,37 @@
     </choose>
   </sql>
 
+  <select id="selectAuthorizedRootProjectsUuids" parameterType="map" resultType="string">
+    <choose>
+      <when test="userId != null">
+        SELECT p.uuid as root_project_uuid
+        FROM group_roles gr
+        INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
+        <where>
+          and gr.role=#{role}
+          and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
+        </where>
+        UNION
+        SELECT p.uuid as root_project_uuid
+        FROM user_roles ur
+        INNER JOIN projects p on p.id = ur.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
+        <where>
+          and ur.role=#{role}
+          and ur.user_id = #{userId}
+        </where>
+      </when>
+      <otherwise>
+        SELECT p.uuid as root_project_uuid
+        FROM group_roles gr
+        INNER JOIN projects p on p.id = gr.resource_id AND p.scope = 'PRJ' AND p.qualifier = 'TRK'
+        <where>
+          and gr.role=#{role}
+          and gr.group_id is null
+        </where>
+      </otherwise>
+    </choose>
+  </select>
+
   <!-- same as selectAuthorizedRootProjectsKeysQuery but returns ids instead of keys -->
   <sql id="selectAuthorizedRootProjectIdsQuery">
     <choose>

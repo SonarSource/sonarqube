@@ -166,22 +166,22 @@ public class IssueShowAction implements RequestHandler {
   }
 
   private void addComponents(DbSession session, Issue issue, JsonWriter json) {
-    // component, module and project can be null if they were removed
-    ComponentDto component = dbClient.componentDao().getNullableByKey(session, issue.componentKey());
-    Long subProjectId = component != null ? component.subProjectId() : null;
+    ComponentDto component = dbClient.componentDao().getByUuid(session, issue.componentUuid());
+    Long subProjectId = component.subProjectId();
     ComponentDto subProject = subProjectId != null ? dbClient.componentDao().getNullableById(subProjectId, session) : null;
-    ComponentDto project = component != null ? dbClient.componentDao().getNullableById(component.projectId(), session) : null;
+    ComponentDto project = dbClient.componentDao().getByUuid(session, component.projectUuid());
 
-    String projectName = project != null ? project.longName() != null ? project.longName() : project.name() : null;
+    String projectName = project.longName() != null ? project.longName() : project.name();
     // Do not display sub project long name if sub project and project are the same
-    boolean displaySubProjectLongName = subProject != null && project != null && !subProject.getId().equals(project.getId());
+    boolean displaySubProjectLongName = subProject != null && !subProject.getId().equals(project.getId());
     String subProjectName = displaySubProjectLongName ? subProject.longName() != null ? subProject.longName() : subProject.name() : null;
 
     json
-      .prop("component", issue.componentKey())
-      .prop("componentLongName", component != null ? component.longName() : null)
-      .prop("componentQualifier", component != null ? component.qualifier() : null)
-      .prop("project", issue.projectKey())
+      .prop("component", component.key())
+      .prop("componentLongName", component.longName())
+      .prop("componentQualifier", component.qualifier())
+      .prop("componentEnabled", component.isEnabled())
+      .prop("project", project.key())
       .prop("projectName", projectName)
       .prop("subProjectName", subProjectName);
   }

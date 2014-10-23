@@ -65,11 +65,13 @@ public class IssueActionsWriterTest {
   public void write_all_standard_actions() throws Exception {
     Issue issue = new DefaultIssue()
       .setKey("ABCD")
+      .setComponentUuid("BCDE")
       .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
+      .setProjectUuid("ABCD")
       .setProjectKey("sample")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"));
 
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ISSUE_ADMIN, "sample");
+    MockUserSession.set().setLogin("john").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, "ABCD");
 
     testActions(issue,
       "{\"actions\": " +

@@ -47,7 +47,7 @@ public class IssueTesting {
       .setKee(UUID.randomUUID().toString())
       .setRule(rule)
       .setComponent(file)
-      .setRootComponent(project)
+      .setProject(project)
       .setStatus(Issue.STATUS_OPEN)
       .setResolution(null)
       .setSeverity(Severity.MAJOR)
@@ -65,7 +65,6 @@ public class IssueTesting {
     assertThat(issue.assignee()).isEqualTo(dto.getAssignee());
     assertThat(issue.authorLogin()).isEqualTo(dto.getAuthorLogin());
     assertThat(issue.closeDate()).isEqualTo(dto.getIssueCloseDate());
-    assertThat(issue.componentKey()).isEqualTo(dto.getComponentKey());
     assertThat(issue.effortToFix()).isEqualTo(dto.getEffortToFix());
     assertThat(issue.resolution()).isEqualTo(dto.getResolution());
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of(dto.getRuleRepo(), dto.getRule()));

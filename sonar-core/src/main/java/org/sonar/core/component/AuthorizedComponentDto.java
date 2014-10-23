@@ -22,8 +22,11 @@ package org.sonar.core.component;
 
 import org.sonar.core.persistence.Dto;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 /**
- * Used to check that a project exists. Can return provisionned projects and projects from analysis.
+ * Used to check that a project exists. Can return provisioned projects and projects from analysis.
  * The root project id is not available because no join on snapshot is done to retrieve it.
  *
  * Warning, this component should not be retrieve from db using a join on snapshots, otherwise provisioned projects will not be returned anymore.
@@ -31,6 +34,7 @@ import org.sonar.core.persistence.Dto;
 public class AuthorizedComponentDto extends Dto<String> {
 
   private Long id;
+  private String uuid;
   private String kee;
   private String scope;
   private String qualifier;
@@ -41,6 +45,19 @@ public class AuthorizedComponentDto extends Dto<String> {
 
   public AuthorizedComponentDto setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  /**
+   * Can be null on a view or a developer
+   */
+  @CheckForNull
+  public String uuid() {
+    return uuid;
+  }
+
+  public AuthorizedComponentDto setAuthorizedUuid(@Nullable String uuid) {
+    this.uuid = uuid;
     return this;
   }
 

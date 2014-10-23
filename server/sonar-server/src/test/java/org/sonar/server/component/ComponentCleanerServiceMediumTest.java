@@ -24,8 +24,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -65,12 +63,7 @@ public class ComponentCleanerServiceMediumTest {
 
   @Test
   public void delete_project() throws Exception {
-    ComponentDto project = new ComponentDto()
-      .setId(1L)
-      .setKey("MyProject")
-      .setScope(Scopes.PROJECT)
-      .setQualifier(Qualifiers.PROJECT)
-      .setProjectId_unit_test_only(1L);
+    ComponentDto project = ComponentTesting.newProjectDto();
     db.componentDao().insert(session, project);
     session.commit();
 
@@ -81,12 +74,7 @@ public class ComponentCleanerServiceMediumTest {
 
   @Test
   public void remove_issue_permission_index_when_deleting_a_project() throws Exception {
-    ComponentDto project = new ComponentDto()
-      .setId(1L)
-      .setKey("MyProject")
-      .setScope(Scopes.PROJECT)
-      .setQualifier(Qualifiers.PROJECT)
-      .setProjectId_unit_test_only(1L);
+    ComponentDto project = ComponentTesting.newProjectDto();
     db.componentDao().insert(session, project);
 
     // project can be seen by anyone
@@ -95,24 +83,20 @@ public class ComponentCleanerServiceMediumTest {
 
     session.commit();
 
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNotNull();
+    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNotNull();
 
     service.delete(project.getKey());
 
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNull();
+    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNull();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void fail_to_delete_not_project() throws Exception {
-    ComponentDto project = new ComponentDto()
-      .setId(1L)
-      .setKey("MyProject")
-      .setScope(Scopes.DIRECTORY)
-      .setQualifier(Qualifiers.DIRECTORY)
-      .setProjectId_unit_test_only(1L);
-    db.componentDao().insert(session, project);
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    db.componentDao().insert(session, project, file);
     session.commit();
 
-    service.delete(project.getKey());
+    service.delete(file.getKey());
   }
 }

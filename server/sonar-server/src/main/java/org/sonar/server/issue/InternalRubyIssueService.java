@@ -22,11 +22,8 @@ package org.sonar.server.issue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
@@ -83,6 +80,7 @@ public class InternalRubyIssueService implements ServerComponent {
   private static final String ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE = "action_plans.errors.action_plan_does_not_exist";
 
   private final IssueService issueService;
+  private final IssueQueryService issueQueryService;
   private final IssueCommentService commentService;
   private final IssueChangelogService changelogService;
   private final ActionPlanService actionPlanService;
@@ -93,11 +91,13 @@ public class InternalRubyIssueService implements ServerComponent {
 
   public InternalRubyIssueService(
     IssueService issueService,
+    IssueQueryService issueQueryService,
     IssueCommentService commentService,
     IssueChangelogService changelogService, ActionPlanService actionPlanService,
     ResourceDao resourceDao, ActionService actionService,
     IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService) {
     this.issueService = issueService;
+    this.issueQueryService = issueQueryService;
     this.commentService = commentService;
     this.changelogService = changelogService;
     this.actionPlanService = actionPlanService;
@@ -112,7 +112,7 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public Map<String, Integer> findIssueAssignees(Map<String, Object> params) {
-    return issueService.findIssueAssignees(toQuery(params));
+    return issueService.findIssueAssignees(issueQueryService.createFromMap(params));
   }
 
   public List<Transition> listTransitions(String issueKey) {
@@ -425,7 +425,7 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   public IssueQuery emptyIssueQuery() {
-    return toQuery(Maps.<String, Object>newHashMap());
+    return issueQueryService.createFromMap(Maps.<String, Object>newHashMap());
   }
 
   @CheckForNull
@@ -477,7 +477,7 @@ public class InternalRubyIssueService implements ServerComponent {
    * Execute issue filter from parameters
    */
   public IssueFilterService.IssueFilterResult execute(Map<String, Object> props) {
-    return issueFilterService.execute(toQuery(props), toContext(props));
+    return issueFilterService.execute(issueQueryService.createFromMap(props), toContext(props));
   }
 
   /**
@@ -636,35 +636,6 @@ public class InternalRubyIssueService implements ServerComponent {
   }
 
   @VisibleForTesting
-  static IssueQuery toQuery(Map<String, Object> props) {
-    IssueQuery.Builder builder = IssueQuery.builder()
-      .issueKeys(RubyUtils.toStrings(props.get(IssueFilterParameters.ISSUES)))
-      .severities(RubyUtils.toStrings(props.get(IssueFilterParameters.SEVERITIES)))
-      .statuses(RubyUtils.toStrings(props.get(IssueFilterParameters.STATUSES)))
-      .resolutions(RubyUtils.toStrings(props.get(IssueFilterParameters.RESOLUTIONS)))
-      .resolved(RubyUtils.toBoolean(props.get(IssueFilterParameters.RESOLVED)))
-      .components(RubyUtils.toStrings(props.get(IssueFilterParameters.COMPONENTS)))
-      .componentRoots(RubyUtils.toStrings(props.get(IssueFilterParameters.COMPONENT_ROOTS)))
-      .rules(toRules(props.get(IssueFilterParameters.RULES)))
-      .actionPlans(RubyUtils.toStrings(props.get(IssueFilterParameters.ACTION_PLANS)))
-      .reporters(RubyUtils.toStrings(props.get(IssueFilterParameters.REPORTERS)))
-      .assignees(RubyUtils.toStrings(props.get(IssueFilterParameters.ASSIGNEES)))
-      .languages(RubyUtils.toStrings(props.get(IssueFilterParameters.LANGUAGES)))
-      .assigned(RubyUtils.toBoolean(props.get(IssueFilterParameters.ASSIGNED)))
-      .planned(RubyUtils.toBoolean(props.get(IssueFilterParameters.PLANNED)))
-      .hideRules(RubyUtils.toBoolean(props.get(IssueFilterParameters.HIDE_RULES)))
-      .createdAt(RubyUtils.toDate(props.get(IssueFilterParameters.CREATED_AT)))
-      .createdAfter(RubyUtils.toDate(props.get(IssueFilterParameters.CREATED_AFTER)))
-      .createdBefore(RubyUtils.toDate(props.get(IssueFilterParameters.CREATED_BEFORE)));
-    String sort = (String) props.get(IssueFilterParameters.SORT);
-    if (!Strings.isNullOrEmpty(sort)) {
-      builder.sort(sort);
-      builder.asc(RubyUtils.toBoolean(props.get(IssueFilterParameters.ASC)));
-    }
-    return builder.build();
-  }
-
-  @VisibleForTesting
   static QueryContext toContext(Map<String, Object> props) {
     QueryContext context = new QueryContext();
     Integer pageIndex = RubyUtils.toInteger(props.get(IssueFilterParameters.PAGE_INDEX));
@@ -675,29 +646,6 @@ public class InternalRubyIssueService implements ServerComponent {
       context.setPage(pageIndex != null ? pageIndex : 1, pageSize != null ? pageSize : 100);
     }
     return context;
-  }
-
-  @VisibleForTesting
-  static Collection<RuleKey> toRules(@CheckForNull Object o) {
-    Collection<RuleKey> result = null;
-    if (o != null) {
-      if (o instanceof List) {
-        // assume that it contains only strings
-        result = stringsToRules((List<String>) o);
-      } else if (o instanceof String) {
-        result = stringsToRules(Lists.newArrayList(Splitter.on(',').omitEmptyStrings().split((String) o)));
-      }
-    }
-    return result;
-  }
-
-  private static Collection<RuleKey> stringsToRules(Collection<String> o) {
-    return Collections2.transform(o, new Function<String, RuleKey>() {
-      @Override
-      public RuleKey apply(@Nullable String s) {
-        return s != null ? RuleKey.parse(s) : null;
-      }
-    });
   }
 
 }

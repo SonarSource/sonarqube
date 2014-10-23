@@ -59,7 +59,7 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
     long componentId = componentId(issue);
     long projectId = projectId();
     int ruleId = ruleId(issue);
-    IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, projectId, ruleId, now);
+    IssueDto dto = IssueDto.toDtoForBatchInsert(issue, componentId, projectId, ruleId, now);
     issueMapper.insert(dto);
   }
 

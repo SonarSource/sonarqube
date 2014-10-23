@@ -20,8 +20,10 @@
 
 package org.sonar.server.computation;
 
+import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.search.IndexClient;
@@ -29,10 +31,12 @@ import org.sonar.server.search.IndexClient;
 public class SynchronizeProjectPermissionsStep implements AnalysisReportStep {
 
   private final IndexClient index;
+  private final DbClient dbClient;
   private final InternalPermissionService permissionService;
 
-  public SynchronizeProjectPermissionsStep(IndexClient index, InternalPermissionService permissionService) {
+  public SynchronizeProjectPermissionsStep(IndexClient index, DbClient dbClient, InternalPermissionService permissionService) {
     this.index = index;
+    this.dbClient = dbClient;
     this.permissionService = permissionService;
   }
 
@@ -43,7 +47,9 @@ public class SynchronizeProjectPermissionsStep implements AnalysisReportStep {
 
   private void synchronizeProjectPermissionsIfNotFound(DbSession session, String projectKey) {
     if (index.get(IssueAuthorizationIndex.class).getNullableByKey(projectKey) == null) {
-      permissionService.synchronizePermissions(session, projectKey);
+      // TODO Remove this db call by inserting the project uuid in the report
+      AuthorizedComponentDto project = dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
+      permissionService.synchronizePermissions(session, project.uuid());
       session.commit();
     }
   }

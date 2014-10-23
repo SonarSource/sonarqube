@@ -22,6 +22,7 @@ package org.sonar.server.issue;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.DbSession;
@@ -44,26 +45,26 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
 
   @Override
   protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
-    long componentId = componentId(session, issue);
-    long projectId = projectId(session, issue);
+    ComponentDto component = component(session, issue);
+    ComponentDto project = project(session, issue);
     int ruleId = ruleId(issue);
-    IssueDto dto = IssueDto.toDtoForInsert(issue, componentId, projectId, ruleId, now);
+    IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleId, now);
 
     dbClient.issueDao().insert(session, dto);
   }
 
   @Override
   protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
-    IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(session, issue), now);
+    IssueDto dto = IssueDto.toDtoForUpdate(issue, project(session, issue).getId(), now);
 
     dbClient.issueDao().update(session, dto);
   }
 
-  protected long componentId(DbSession session, DefaultIssue issue) {
-    return dbClient.componentDao().getAuthorizedComponentByKey(issue.componentKey(), session).getId();
+  protected ComponentDto component(DbSession session, DefaultIssue issue) {
+    return dbClient.componentDao().getByKey(session, issue.componentKey());
   }
 
-  protected long projectId(DbSession session, DefaultIssue issue) {
-    return dbClient.componentDao().getAuthorizedComponentByKey(issue.projectKey(), session).getId();
+  protected ComponentDto project(DbSession session, DefaultIssue issue) {
+    return dbClient.componentDao().getByKey(session, issue.projectKey());
   }
 }

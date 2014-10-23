@@ -29,22 +29,22 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public final class IssueAuthorizationDto extends Dto<String> implements Serializable {
 
-  private String project;
+  private String projectUuid;
   private String permission;
   private List<String> groups = newArrayList();
   private List<String> users = newArrayList();
 
   @Override
   public String getKey() {
-    return project;
+    return projectUuid;
   }
 
-  public String getProject() {
-    return project;
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
-  public IssueAuthorizationDto setProject(String project) {
-    this.project = project;
+  public IssueAuthorizationDto setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
     return this;
   }
 

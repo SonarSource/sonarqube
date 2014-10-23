@@ -41,6 +41,7 @@ public class MockUserSession extends UserSession {
   private MockUserSession() {
     globalPermissions = Collections.emptyList();
     projectKeyByPermission = HashMultimap.create();
+    projectUuidByPermission = HashMultimap.create();
     authorizationDao = mock(AuthorizationDao.class);
     resourceDao = mock(ResourceDao.class);
   }
@@ -88,6 +89,12 @@ public class MockUserSession extends UserSession {
   public MockUserSession addProjectPermissions(String projectPermission, String... projectKeys) {
     this.projectPermissions.add(projectPermission);
     this.projectKeyByPermission.putAll(projectPermission, newArrayList(projectKeys));
+    return this;
+  }
+
+  public MockUserSession addProjectUuidPermissions(String projectPermission, String... projectUuids) {
+    this.projectPermissions.add(projectPermission);
+    this.projectUuidByPermission.putAll(projectPermission, newArrayList(projectUuids));
     return this;
   }
 

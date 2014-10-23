@@ -83,6 +83,7 @@ public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements 
   @Override
   protected Map<String, Object> getSynchronizationParams(Date date, Map<String, String> params) {
     Map<String, Object> finalParams = super.getSynchronizationParams(date, params);
+    // TODO replace usage of project key by project uuid
     finalParams.put(PROJECT_KEY, params.get(PROJECT_KEY));
     return finalParams;
   }

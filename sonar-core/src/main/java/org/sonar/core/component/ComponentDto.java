@@ -28,7 +28,6 @@ import java.util.Date;
 
 public class ComponentDto extends AuthorizedComponentDto implements Component {
 
-  private String uuid;
   private String projectUuid;
   private String moduleUuid;
   private String moduleUuidPath;
@@ -56,16 +55,8 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
     return this;
   }
 
-  /**
-   * Can be null on a view or a developer
-   */
-  @CheckForNull
-  public String uuid() {
-    return uuid;
-  }
-
   public ComponentDto setUuid(@Nullable String uuid) {
-    this.uuid = uuid;
+    super.setAuthorizedUuid(uuid);
     return this;
   }
 
@@ -159,13 +150,19 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
     return this;
   }
 
+  /**
+   * @deprecated since 5.0, use projectUuid instead
+   */
+  @Deprecated
   public Long projectId() {
     return projectId;
   }
 
   /**
    * Only for unit tests
+   * @deprecated since 5.0, use projectUuid instead
    */
+  @Deprecated
   public ComponentDto setProjectId_unit_test_only(Long projectId) {
     this.projectId = projectId;
     return this;

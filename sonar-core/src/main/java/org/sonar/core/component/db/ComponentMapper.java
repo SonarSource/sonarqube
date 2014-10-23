@@ -33,11 +33,23 @@ import java.util.List;
  */
 public interface ComponentMapper {
 
+  /**
+   * Warning, projectId is always null
+   */
   @CheckForNull
   ComponentDto selectByKey(String key);
 
+  /**
+   * Warning, projectId is always null
+   */
   @CheckForNull
   ComponentDto selectById(long id);
+
+  /**
+   * Warning, projectId is always null
+   */
+  @CheckForNull
+  ComponentDto selectByUuid(String uuid);
 
   @CheckForNull
   ComponentDto selectRootProjectByKey(String key);
@@ -53,11 +65,16 @@ public interface ComponentMapper {
   /**
    * Return sub project of component keys
    */
-  List<ComponentDto> findSubProjectsByComponentKeys(@Param("keys") Collection<String> keys);
+  List<ComponentDto> findSubProjectsByComponentUuids(@Param("uuids") Collection<String> uuids);
 
   List<ComponentDto> findByIds(@Param("ids") Collection<Long> ids);
 
   List<ComponentDto> findByKeys(@Param("keys") Collection<String> keys);
+
+  /**
+   * Warning, projectId are always null
+   */
+  List<ComponentDto> findByUuids(@Param("uuids") Collection<String> uuids);
 
   long countById(long id);
 

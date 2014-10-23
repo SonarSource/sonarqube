@@ -30,6 +30,7 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationDoc;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
@@ -65,7 +66,7 @@ public class InternalPermissionServiceMediumTest {
     index = tester.get(IssueAuthorizationIndex.class);
     service = tester.get(InternalPermissionService.class);
 
-    project = new ComponentDto().setKey("Sample").setProjectId_unit_test_only(1L);
+    project = ComponentTesting.newProjectDto();
     db.componentDao().insert(session, project);
     session.commit();
   }
@@ -84,7 +85,7 @@ public class InternalPermissionServiceMediumTest {
     session.commit();
 
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), project.getId())).isEmpty();
-    assertThat(index.getNullableByKey(project.getKey())).isNull();
+    assertThat(index.getNullableByKey(project.uuid())).isNull();
 
     service.addPermission(params(user.getLogin(), null, project.key(), UserRole.USER));
     session.commit();
@@ -93,9 +94,9 @@ public class InternalPermissionServiceMediumTest {
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), project.getId())).hasSize(1);
 
     // Check in index
-    IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.getKey());
+    IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.uuid());
     assertThat(issueAuthorizationDoc).isNotNull();
-    assertThat(issueAuthorizationDoc.project()).isEqualTo(project.getKey());
+    assertThat(issueAuthorizationDoc.project()).isEqualTo(project.uuid());
     assertThat(issueAuthorizationDoc.permission()).isEqualTo(UserRole.USER);
     assertThat(issueAuthorizationDoc.users()).containsExactly(user.getLogin());
     assertThat(issueAuthorizationDoc.groups()).isEmpty();
@@ -122,9 +123,9 @@ public class InternalPermissionServiceMediumTest {
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user2.getLogin(), project.getId())).hasSize(1);
 
     // Check in index
-    IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.getKey());
+    IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.uuid());
     assertThat(issueAuthorizationDoc).isNotNull();
-    assertThat(issueAuthorizationDoc.project()).isEqualTo(project.getKey());
+    assertThat(issueAuthorizationDoc.project()).isEqualTo(project.uuid());
     assertThat(issueAuthorizationDoc.permission()).isEqualTo(UserRole.USER);
     assertThat(issueAuthorizationDoc.users()).containsExactly(user2.getLogin());
     assertThat(issueAuthorizationDoc.groups()).isEmpty();
@@ -146,7 +147,7 @@ public class InternalPermissionServiceMediumTest {
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), project.getId())).isEmpty();
 
     // Check in index
-    IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.getKey());
+    IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.uuid());
     assertThat(issueAuthorizationDoc).isNull();
   }
 

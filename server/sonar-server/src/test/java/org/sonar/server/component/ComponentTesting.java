@@ -24,10 +24,16 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentDto;
 
+import java.util.UUID;
+
 public class ComponentTesting {
 
   public static ComponentDto newFileDto(ComponentDto subProjectOrProject) {
     return new ComponentDto()
+      .setUuid(UUID.randomUUID().toString())
+      .setProjectUuid(subProjectOrProject.projectUuid())
+      .setModuleUuid(!subProjectOrProject.scope().equals(Scopes.PROJECT) ? subProjectOrProject.uuid() : null)
+      .setModuleUuidPath(subProjectOrProject.moduleUuidPath() == null ? subProjectOrProject.uuid() + "." : subProjectOrProject.moduleUuidPath() + "." + subProjectOrProject.uuid())
       .setKey("file")
       .setName("File")
       .setLongName("File")
@@ -41,6 +47,10 @@ public class ComponentTesting {
 
   public static ComponentDto newModuleDto(ComponentDto subProjectOrProject) {
     return new ComponentDto()
+      .setUuid(UUID.randomUUID().toString())
+      .setProjectUuid(subProjectOrProject.projectUuid())
+      .setModuleUuid(!subProjectOrProject.scope().equals(Scopes.PROJECT) ? subProjectOrProject.uuid() : null)
+      .setModuleUuidPath(subProjectOrProject.moduleUuidPath() == null ? subProjectOrProject.uuid() + "." : subProjectOrProject.moduleUuidPath() + "." + subProjectOrProject.uuid())
       .setKey("module")
       .setName("Module")
       .setLongName("Module")
@@ -53,7 +63,10 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newProjectDto() {
+    String uuid = UUID.randomUUID().toString();
     return new ComponentDto()
+      .setUuid(uuid)
+      .setProjectUuid(uuid)
       .setKey("project")
       .setName("Project")
       .setLongName("Project")
@@ -64,5 +77,5 @@ public class ComponentTesting {
       .setLanguage(null)
       .setEnabled(true);
   }
-  
+
 }

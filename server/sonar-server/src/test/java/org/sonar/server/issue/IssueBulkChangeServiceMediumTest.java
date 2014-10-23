@@ -27,8 +27,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -37,6 +35,7 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
@@ -81,18 +80,11 @@ public class IssueBulkChangeServiceMediumTest {
     rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(session, rule);
 
-    project = new ComponentDto()
-      .setKey("MyProject")
-      .setLongName("My Project")
-      .setQualifier(Qualifiers.PROJECT)
-      .setScope(Scopes.PROJECT);
+    project = ComponentTesting.newProjectDto().setKey("MyProject");
     tester.get(ComponentDao.class).insert(session, project);
     tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForProject(project));
 
-    file = new ComponentDto()
-      .setSubProjectId(project.getId())
-      .setKey("MyComponent")
-      .setLongName("My Component");
+    file = ComponentTesting.newFileDto(project).setKey("MyComponent");
     tester.get(ComponentDao.class).insert(session, file);
     tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project));
 

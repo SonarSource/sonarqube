@@ -246,7 +246,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     filters.put(IssueNormalizer.IssueField.KEY.field(), matchFilter(IssueNormalizer.IssueField.KEY, query.issueKeys()));
     filters.put(IssueNormalizer.IssueField.ACTION_PLAN.field(), matchFilter(IssueNormalizer.IssueField.ACTION_PLAN, query.actionPlans()));
     filters.put(IssueNormalizer.IssueField.ASSIGNEE.field(), matchFilter(IssueNormalizer.IssueField.ASSIGNEE, query.assignees()));
-    filters.put(IssueNormalizer.IssueField.PROJECT.field(), matchFilter(IssueNormalizer.IssueField.PROJECT, query.componentRoots()));
+    filters.put(IssueNormalizer.IssueField.MODULE_PATH.field(), matchFilter(IssueNormalizer.IssueField.MODULE_PATH, query.componentRoots()));
     filters.put(IssueNormalizer.IssueField.COMPONENT.field(), matchFilter(IssueNormalizer.IssueField.COMPONENT, query.components()));
     filters.put(IssueNormalizer.IssueField.LANGUAGE.field(), matchFilter(IssueNormalizer.IssueField.LANGUAGE, query.languages()));
     filters.put(IssueNormalizer.IssueField.RESOLUTION.field(), matchFilter(IssueNormalizer.IssueField.RESOLUTION, query.resolutions()));
@@ -276,7 +276,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
         FilterBuilders.boolFilter()
           .must(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.PERMISSION.field(), UserRole.USER), groupsAndUser)
           .cache(true))
-      );
+    );
   }
 
   private void addDatesFilter(Map<String, FilterBuilder> filters, IssueQuery query) {

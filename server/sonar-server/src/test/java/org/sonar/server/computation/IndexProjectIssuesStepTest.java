@@ -126,22 +126,6 @@ public class IndexProjectIssuesStepTest {
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNotNull();
   }
 
-  private ComponentDto insertPermissionsForProject(String projectKey) {
-    ComponentDto project = new ComponentDto().setKey(projectKey);
-    db.componentDao().insert(session, project);
-
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
-    userSession.addProjectPermissions(UserRole.USER, project.key());
-
-    session.commit();
-
-    return project;
-  }
-
-  private void clearIssueIndexToSimulateBatchInsertWithoutIndexing() {
-    tester.get(BackendCleanup.class).clearIndexType(IndexDefinition.ISSUES);
-  }
-
   @Test
   public void index_a_lot_of_issues() throws Exception {
     ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
@@ -175,5 +159,21 @@ public class IndexProjectIssuesStepTest {
 
     Result<Issue> issueIndex = tester.get(IssueIndex.class).search(IssueQuery.builder().build(), new QueryContext());
     assertThat(issueIndex.getTotal()).isEqualTo(2001);
+  }
+
+  private ComponentDto insertPermissionsForProject(String projectKey) {
+    ComponentDto project = ComponentTesting.newProjectDto().setKey(projectKey);
+    db.componentDao().insert(session, project);
+
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    userSession.addProjectPermissions(UserRole.USER, project.key());
+
+    session.commit();
+
+    return project;
+  }
+
+  private void clearIssueIndexToSimulateBatchInsertWithoutIndexing() {
+    tester.get(BackendCleanup.class).clearIndexType(IndexDefinition.ISSUES);
   }
 }

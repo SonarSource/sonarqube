@@ -28,11 +28,7 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -85,10 +81,30 @@ public class AuthorizationDao implements ServerComponent, DaoComponent {
     }
   }
 
+  public Collection<String> selectAuthorizedRootProjectsUuids(@Nullable Integer userId, String role) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      return selectAuthorizedRootProjectsUuids(userId, role, session);
+
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   public Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role, SqlSession session) {
     String sql;
     Map<String, Object> params = newHashMap();
     sql = "selectAuthorizedRootProjectsKeys";
+    params.put("userId", userId);
+    params.put("role", role);
+
+    return session.selectList(sql, params);
+  }
+
+  public Collection<String> selectAuthorizedRootProjectsUuids(@Nullable Integer userId, String role, SqlSession session) {
+    String sql;
+    Map<String, Object> params = newHashMap();
+    sql = "selectAuthorizedRootProjectsUuids";
     params.put("userId", userId);
     params.put("role", role);
 

@@ -44,6 +44,7 @@ import org.sonar.core.issue.db.IssueChangeDao;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.DefaultUser;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
@@ -141,17 +142,37 @@ public class IssueShowActionTest {
     tester = new WsTester(new IssuesWs(
       new IssueShowAction(dbClient, issueService, issueChangelogService, commentService,
         new IssueActionsWriter(issueService, actionService), actionPlanService, userFinder, debtModel, ruleService, i18n, durations),
-      new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class), mock(RuleService.class),
+      new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class), mock(IssueQueryService.class),
+        mock(RuleService.class),
         mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class), mock(SourceService.class), mock(ScmWriter.class))));
   }
 
   @Test
   public void show_issue() throws Exception {
     String issueKey = "ABCD";
+
+    ComponentDto project = ComponentTesting.newProjectDto()
+      .setId(1L)
+      .setKey("org.sonar.Sonar")
+      .setLongName("SonarQube")
+      .setName("SonarQube");
+    when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
+
+    ComponentDto file = ComponentTesting.newFileDto(project)
+      .setId(10L)
+      .setKey("org.sonar.server.issue.IssueClient")
+      .setLongName("SonarQube :: Issue Client")
+      .setName("SonarQube :: Issue Client")
+      .setQualifier("FIL")
+      .setSubProjectId(1L);
+    when(componentDao.getByUuid(session, file.uuid())).thenReturn(file);
+
     DefaultIssue issue = new DefaultIssue()
       .setKey(issueKey)
       .setComponentKey("org.sonar.server.issue.IssueClient")
+      .setComponentUuid(file.uuid())
       .setProjectKey("org.sonar.Sonar")
+      .setProjectUuid(project.uuid())
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setLine(12)
       .setMessage("Fix it")
@@ -160,24 +181,6 @@ public class IssueShowActionTest {
       .setSeverity("MAJOR")
       .setCreationDate(issueCreationDate);
     when(issueService.getByKey(issueKey)).thenReturn(issue);
-
-    ComponentDto file = new ComponentDto()
-      .setId(10L)
-      .setKey("org.sonar.server.issue.IssueClient")
-      .setLongName("SonarQube :: Issue Client")
-      .setName("SonarQube :: Issue Client")
-      .setQualifier("FIL")
-      .setSubProjectId(1L)
-      .setProjectId_unit_test_only(1L);
-    when(componentDao.getNullableByKey(session, file.key())).thenReturn(file);
-
-    ComponentDto project = new ComponentDto()
-      .setId(1L)
-      .setKey("org.sonar.Sonar")
-      .setLongName("SonarQube")
-      .setName("SonarQube")
-      .setProjectId_unit_test_only(1L);
-    when(componentDao.getNullableById(file.projectId(), session)).thenReturn(project);
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
@@ -187,10 +190,39 @@ public class IssueShowActionTest {
   @Test
   public void show_issue_with_sub_project() throws Exception {
     String issueKey = "ABCD";
+
+    // Project
+    ComponentDto project = ComponentTesting.newProjectDto()
+      .setId(1L)
+      .setKey("org.sonar.Sonar")
+      .setLongName("SonarQube");
+    when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
+
+    // Module
+    ComponentDto module = ComponentTesting.newModuleDto(project)
+      .setId(2L)
+      .setKey("org.sonar.server.Server")
+      .setLongName("SonarQube :: Server")
+      .setQualifier("BRC")
+      .setSubProjectId(1L);
+    when(componentDao.getNullableById(module.getId(), session)).thenReturn(module);
+
+    // File
+    ComponentDto file = ComponentTesting.newFileDto(module)
+      .setId(10L)
+      .setKey("org.sonar.server.issue.IssueClient")
+      .setLongName("SonarQube :: Issue Client")
+      .setQualifier("FIL")
+      .setSubProjectId(2L);
+    when(componentDao.getByUuid(session, file.uuid())).thenReturn(file);
+
     DefaultIssue issue = new DefaultIssue()
       .setKey(issueKey)
       .setComponentKey("org.sonar.server.issue.IssueClient")
+      .setComponentUuid(file.uuid())
       .setProjectKey("org.sonar.Sonar")
+      .setProjectUuid(project.uuid())
+      .setModuleUuid(module.uuid())
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setLine(12)
       .setMessage("Fix it")
@@ -200,33 +232,6 @@ public class IssueShowActionTest {
       .setCreationDate(issueCreationDate);
     when(issueService.getByKey(issueKey)).thenReturn(issue);
 
-    // File
-    ComponentDto file = new ComponentDto()
-      .setId(10L)
-      .setKey("org.sonar.server.issue.IssueClient")
-      .setLongName("SonarQube :: Issue Client")
-      .setQualifier("FIL")
-      .setSubProjectId(2L)
-      .setProjectId_unit_test_only(1L);
-    when(componentDao.getNullableByKey(session, file.key())).thenReturn(file);
-
-    // Module
-    ComponentDto module = new ComponentDto()
-      .setId(2L)
-      .setKey("org.sonar.server.Server")
-      .setLongName("SonarQube :: Server")
-      .setQualifier("BRC")
-      .setSubProjectId(1L)
-      .setProjectId_unit_test_only(1L);
-    when(componentDao.getNullableById(file.subProjectId(), session)).thenReturn(module);
-
-    // Project
-    ComponentDto project = new ComponentDto()
-      .setId(1L)
-      .setKey("org.sonar.Sonar")
-      .setLongName("SonarQube");
-    when(componentDao.getNullableById(file.projectId(), session)).thenReturn(project);
-
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
     request.execute().assertJson(getClass(), "show_issue_with_sub_project.json");
@@ -235,10 +240,41 @@ public class IssueShowActionTest {
   @Test
   public void use_project_and_sub_project_names_if_no_long_name() throws Exception {
     String issueKey = "ABCD";
+
+    // Project
+    ComponentDto project = ComponentTesting.newProjectDto()
+      .setId(1L)
+      .setKey("org.sonar.Sonar")
+      .setName("SonarQube")
+      .setLongName(null);
+    when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
+
+    // Module
+    ComponentDto module = ComponentTesting.newModuleDto(project)
+      .setId(2L)
+      .setKey("org.sonar.server.Server")
+      .setName("SonarQube :: Server")
+      .setLongName(null)
+      .setQualifier("BRC")
+      .setSubProjectId(1L);
+    when(componentDao.getNullableById(module.getId(), session)).thenReturn(module);
+
+    // File
+    ComponentDto file = ComponentTesting.newFileDto(module)
+      .setId(10L)
+      .setKey("org.sonar.server.issue.IssueClient")
+      .setLongName("SonarQube :: Issue Client")
+      .setQualifier("FIL")
+      .setSubProjectId(2L);
+    when(componentDao.getByUuid(session, file.uuid())).thenReturn(file);
+
     DefaultIssue issue = new DefaultIssue()
       .setKey(issueKey)
       .setComponentKey("org.sonar.server.issue.IssueClient")
+      .setComponentUuid(file.uuid())
       .setProjectKey("org.sonar.Sonar")
+      .setProjectUuid(project.uuid())
+      .setModuleUuid(module.uuid())
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setLine(12)
       .setEffortToFix(2.0)
@@ -249,33 +285,6 @@ public class IssueShowActionTest {
       .setCreationDate(issueCreationDate);
     when(issueService.getByKey(issueKey)).thenReturn(issue);
 
-    // File
-    ComponentDto file = new ComponentDto()
-      .setId(10L)
-      .setKey("org.sonar.server.issue.IssueClient")
-      .setLongName("SonarQube :: Issue Client")
-      .setQualifier("FIL")
-      .setSubProjectId(2L)
-      .setProjectId_unit_test_only(1L);
-    when(componentDao.getNullableByKey(session, file.key())).thenReturn(file);
-
-    // Module
-    ComponentDto module = new ComponentDto()
-      .setId(2L)
-      .setKey("org.sonar.server.Server")
-      .setName("SonarQube :: Server")
-      .setQualifier("BRC")
-      .setSubProjectId(1L)
-      .setProjectId_unit_test_only(1L);
-    when(componentDao.getNullableById(file.subProjectId(), session)).thenReturn(module);
-
-    // Project
-    ComponentDto project = new ComponentDto()
-      .setId(1L)
-      .setKey("org.sonar.Sonar")
-      .setName("SonarQube");
-    when(componentDao.getNullableById(file.projectId(), session)).thenReturn(project);
-
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
     request.execute().assertJson(getClass(), "show_issue_with_sub_project.json");
@@ -284,28 +293,32 @@ public class IssueShowActionTest {
   @Test
   public void show_issue_on_removed_component() throws Exception {
     String issueKey = "ABCD";
-    DefaultIssue issue = createIssue();
-    when(issueService.getByKey(issueKey)).thenReturn(issue);
 
-    ComponentDto project = mock(ComponentDto.class);
-    when(project.key()).thenReturn("org.sonar.Sonar");
-    when(project.longName()).thenReturn("SonarQube");
-    when(componentDao.getNullableByKey(session, project.key())).thenReturn(project);
+    ComponentDto project = ComponentTesting.newProjectDto()
+      .setId(1L)
+      .setKey("org.sonar.Sonar")
+      .setLongName("SonarQube")
+      .setName("SonarQube");
+    when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
+
+    ComponentDto file = ComponentTesting.newFileDto(project)
+      .setId(10L)
+      .setEnabled(false)
+      .setKey("org.sonar.server.issue.IssueClient")
+      .setLongName("SonarQube :: Issue Client")
+      .setName("SonarQube :: Issue Client")
+      .setQualifier("FIL")
+      .setSubProjectId(1L);
+    when(componentDao.getByUuid(session, file.uuid())).thenReturn(file);
+
+    DefaultIssue issue = createIssue()
+      .setComponentUuid(file.uuid())
+      .setProjectUuid(project.uuid());
+    when(issueService.getByKey(issueKey)).thenReturn(issue);
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
     request.execute().assertJson(getClass(), "show_issue_on_removed_component.json");
-  }
-
-  @Test
-  public void show_issue_on_removed_project_and_component() throws Exception {
-    String issueKey = "ABCD";
-    DefaultIssue issue = createIssue();
-    when(issueService.getByKey(issueKey)).thenReturn(issue);
-
-    MockUserSession.set();
-    WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issueKey);
-    request.execute().assertJson(getClass(), "show_issue_on_removed_project_and_component.json");
   }
 
   @Test
@@ -422,7 +435,7 @@ public class IssueShowActionTest {
         .setMarkdownText("Another comment")
         .setUserLogin("arthur")
         .setCreatedAt(date2)
-    ));
+      ));
 
     when(userFinder.findByLogin("john")).thenReturn(new DefaultUser().setLogin("john").setName("John"));
     when(userFinder.findByLogin("arthur")).thenReturn(new DefaultUser().setLogin("arthur").setName("Arthur"));
@@ -490,9 +503,25 @@ public class IssueShowActionTest {
   }
 
   private DefaultIssue createStandardIssue() {
-    DefaultIssue issue = createIssue();
-    addComponentAndProject();
-    return issue;
+    ComponentDto project = ComponentTesting.newProjectDto()
+      .setId(1L)
+      .setKey("org.sonar.Sonar")
+      .setLongName("SonarQube")
+      .setName("SonarQube");
+    when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
+
+    ComponentDto file = ComponentTesting.newFileDto(project)
+      .setId(10L)
+      .setKey("org.sonar.server.issue.IssueClient")
+      .setLongName("SonarQube :: Issue Client")
+      .setName("SonarQube :: Issue Client")
+      .setQualifier("FIL")
+      .setSubProjectId(1L);
+    when(componentDao.getByUuid(session, file.uuid())).thenReturn(file);
+
+    return createIssue()
+      .setComponentUuid(file.uuid())
+      .setProjectUuid(project.uuid());
   }
 
   private DefaultIssue createIssue() {
@@ -502,26 +531,6 @@ public class IssueShowActionTest {
       .setProjectKey("org.sonar.Sonar")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setCreationDate(issueCreationDate);
-  }
-
-  private void addComponentAndProject() {
-    ComponentDto file = new ComponentDto()
-      .setId(10L)
-      .setKey("org.sonar.server.issue.IssueClient")
-      .setLongName("SonarQube :: Issue Client")
-      .setName("SonarQube :: Issue Client")
-      .setQualifier("FIL")
-      .setSubProjectId(1L)
-      .setProjectId_unit_test_only(1L);
-    when(componentDao.getNullableByKey(session, file.key())).thenReturn(file);
-
-    ComponentDto project = new ComponentDto()
-      .setId(1L)
-      .setKey("org.sonar.Sonar")
-      .setLongName("SonarQube")
-      .setName("SonarQube")
-      .setProjectId_unit_test_only(1L);
-    when(componentDao.getNullableById(file.projectId(), session)).thenReturn(project);
   }
 
 }

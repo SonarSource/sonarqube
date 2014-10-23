@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.AuthorizedComponentDto;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceDto;
@@ -67,6 +68,25 @@ public class ComponentService implements ServerComponent {
     DbSession session = dbClient.openSession(false);
     try {
       return dbClient.componentDao().getNullableAuthorizedComponentByKey(key, session);
+    } finally {
+      session.close();
+    }
+  }
+
+  public ComponentDto getByUuid(String uuid) {
+    DbSession session = dbClient.openSession(false);
+    try {
+      return dbClient.componentDao().getByUuid(session, uuid);
+    } finally {
+      session.close();
+    }
+  }
+
+  @CheckForNull
+  public ComponentDto getNullableByUuid(String uuid) {
+    DbSession session = dbClient.openSession(false);
+    try {
+      return dbClient.componentDao().getNullableByUuid(session, uuid);
     } finally {
       session.close();
     }

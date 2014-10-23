@@ -5,18 +5,18 @@
       component = @component
     %>
 
-    <% if project && @issue.componentKey() != project.key() %>
+    <% if @issue.componentUuid() != project.uuid() %>
     <div class="subtitle">
       <%= h project.longName() -%>
     </div>
     <% end %>
     <span class="h1">
-      <% if component %>
+      <% if component.isEnabled() %>
       <%= qualifier_icon(component) %>
       <a href="<%= ApplicationController.root_context -%>/component/index#component=<%= component.key() -%>&tab=issues" class="issue-component-link"
          onclick="window.open(this.href,'resource-<%= component.key().parameterize -%>','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= h component.longName() -%></a>
       <% else %>
-        <%= h @issue.componentKey() %> [<del><%= message('issue.component_deleted') %></del>]
+        <%= h component.key() %> [<del><%= message('issue.component_deleted') %></del>]
       <% end %>
     </span>
   </div>

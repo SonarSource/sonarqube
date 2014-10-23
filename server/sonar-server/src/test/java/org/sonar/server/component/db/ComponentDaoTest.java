@@ -61,6 +61,42 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void get_by_uuid() {
+    setupData("shared");
+
+    ComponentDto result = dao.getNullableByUuid(session, "KLMN");
+    assertThat(result).isNotNull();
+    assertThat(result.uuid()).isEqualTo("KLMN");
+    assertThat(result.moduleUuid()).isEqualTo("EFGH");
+    assertThat(result.moduleUuidPath()).isEqualTo("ABCD.EFGH.");
+    assertThat(result.subProjectId()).isEqualTo(2);
+    assertThat(result.projectUuid()).isEqualTo("ABCD");
+    assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
+    assertThat(result.name()).isEqualTo("RequestContext.java");
+    assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
+    assertThat(result.qualifier()).isEqualTo("FIL");
+    assertThat(result.scope()).isEqualTo("FIL");
+    assertThat(result.language()).isEqualTo("java");
+  }
+
+  @Test
+  public void get_by_uuid_on_disabled_component() {
+    setupData("shared");
+
+    ComponentDto result = dao.getNullableByUuid(session, "DCBA");
+    assertThat(result).isNotNull();
+    assertThat(result.isEnabled()).isFalse();
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void fail_to_get_by_uuid_when_component_not_found() {
+    setupData("shared");
+
+    dao.getByUuid(session, "unknown");
+  }
+
+  @Test
   public void get_by_key() {
     setupData("shared");
 
@@ -74,9 +110,17 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.subProjectId()).isEqualTo(2);
-    assertThat(result.projectId()).isEqualTo(1);
 
     assertThat(dao.getNullableByKey(session, "unknown")).isNull();
+  }
+
+  @Test
+  public void get_by_key_on_disabled_component() {
+    setupData("shared");
+
+    ComponentDto result = dao.getNullableByKey(session, "org.disabled.project");
+    assertThat(result).isNotNull();
+    assertThat(result.isEnabled()).isFalse();
   }
 
   @Test
@@ -93,12 +137,11 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.scope()).isEqualTo("PRJ");
     assertThat(result.language()).isNull();
     assertThat(result.subProjectId()).isNull();
-    assertThat(result.projectId()).isEqualTo(1);
     assertThat(result.getAuthorizationUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-06-18"));
   }
 
   @Test
-  public void find_by_keys() {
+  public void get_by_keys() {
     setupData("shared");
 
     List<ComponentDto> results = dao.getByKeys(session, "org.struts:struts-core:src/org/struts/RequestContext.java");
@@ -120,7 +163,44 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void find_by_ids() {
+  public void get_by_uuids() {
+    setupData("shared");
+
+    List<ComponentDto> results = dao.getByUuids(session, newArrayList("KLMN"));
+    assertThat(results).hasSize(1);
+
+    ComponentDto result = results.get(0);
+    assertThat(result).isNotNull();
+    assertThat(result.uuid()).isEqualTo("KLMN");
+    assertThat(result.moduleUuid()).isEqualTo("EFGH");
+    assertThat(result.moduleUuidPath()).isEqualTo("ABCD.EFGH.");
+    assertThat(result.subProjectId()).isEqualTo(2);
+    assertThat(result.projectUuid()).isEqualTo("ABCD");
+    assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
+    assertThat(result.name()).isEqualTo("RequestContext.java");
+    assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
+    assertThat(result.qualifier()).isEqualTo("FIL");
+    assertThat(result.scope()).isEqualTo("FIL");
+    assertThat(result.language()).isEqualTo("java");
+
+    assertThat(dao.getByUuids(session, newArrayList("unknown"))).isEmpty();
+  }
+
+  @Test
+  public void get_by_uuids_on_removed_components() {
+    setupData("shared");
+
+    List<ComponentDto> results = dao.getByUuids(session, newArrayList("DCBA"));
+    assertThat(results).hasSize(1);
+
+    ComponentDto result = results.get(0);
+    assertThat(result).isNotNull();
+    assertThat(result.isEnabled()).isFalse();
+  }
+
+  @Test
+  public void get_by_ids() {
     setupData("shared");
 
     List<ComponentDto> results = dao.getByIds(session, newArrayList(4L));
@@ -147,6 +227,15 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     assertThat(dao.getById(4L, session)).isNotNull();
+  }
+
+  @Test
+  public void get_by_id_on_disabled_component() {
+    setupData("shared");
+
+    ComponentDto result = dao.getNullableById(10L, session);
+    assertThat(result).isNotNull();
+    assertThat(result.isEnabled()).isFalse();
   }
 
   @Test(expected = NotFoundException.class)
@@ -234,34 +323,34 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     setupData("multi-modules");
 
     // Sub project of a file
-    List<ComponentDto> results = dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts-core:src/org/struts/RequestContext.java"));
+    List<ComponentDto> results = dao.findSubProjectsByComponentUuids(session, newArrayList("HIJK"));
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-data");
 
     // Sub project of a directory
-    results = dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts-core:src/org/struts"));
+    results = dao.findSubProjectsByComponentUuids(session, newArrayList("GHIJ"));
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts-data");
 
     // Sub project of a sub module
-    results = dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts-data"));
+    results = dao.findSubProjectsByComponentUuids(session, newArrayList("FGHI"));
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts");
 
     // Sub project of a module
-    results = dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts-core"));
+    results = dao.findSubProjectsByComponentUuids(session, newArrayList("EFGH"));
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts");
 
     // Sub project of a project
-    assertThat(dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts"))).isEmpty();
+    assertThat(dao.findSubProjectsByComponentUuids(session, newArrayList("ABCD"))).isEmpty();
 
     // SUb projects of a component and a sub module
-    assertThat(dao.findSubProjectsByComponentKeys(session, newArrayList("org.struts:struts-core:src/org/struts/RequestContext.java", "org.struts:struts-data"))).hasSize(2);
+    assertThat(dao.findSubProjectsByComponentUuids(session, newArrayList("HIJK", "FGHI"))).hasSize(2);
 
-    assertThat(dao.findSubProjectsByComponentKeys(session, newArrayList("unknown"))).isEmpty();
+    assertThat(dao.findSubProjectsByComponentUuids(session, newArrayList("unknown"))).isEmpty();
 
-    assertThat(dao.findSubProjectsByComponentKeys(session, Collections.<String>emptyList())).isEmpty();
+    assertThat(dao.findSubProjectsByComponentUuids(session, Collections.<String>emptyList())).isEmpty();
   }
 
   @Test
@@ -344,6 +433,35 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
 
     assertThat(componentDto.getId()).isNotNull();
     checkTables("insert", "projects");
+  }
+
+  @Test
+  public void insert_disabled_component() {
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-06-18").getTime());
+    setupData("empty");
+
+    ComponentDto componentDto = new ComponentDto()
+      .setId(1L)
+      .setUuid("GHIJ")
+      .setProjectUuid("ABCD")
+      .setModuleUuid("EFGH")
+      .setModuleUuidPath("ABCD.EFGH")
+      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+      .setName("RequestContext.java")
+      .setLongName("org.struts.RequestContext")
+      .setQualifier("FIL")
+      .setScope("FIL")
+      .setLanguage("java")
+      .setPath("src/org/struts/RequestContext.java")
+      .setSubProjectId(3L)
+      .setEnabled(false)
+      .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-06-18"));
+
+    dao.insert(session, componentDto);
+    session.commit();
+
+    assertThat(componentDto.getId()).isNotNull();
+    checkTables("insert_disabled_component", "projects");
   }
 
   @Test(expected = IllegalStateException.class)

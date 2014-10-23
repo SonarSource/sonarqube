@@ -47,7 +47,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
   private Long id;
   private String kee;
   private Long componentId;
-  private Long rootComponentId;
+  private Long projectId;
   private Integer ruleId;
   private String severity;
   private boolean manualSeverity;
@@ -79,7 +79,11 @@ public final class IssueDto extends Dto<String> implements Serializable {
   private String ruleRepo;
   private String language;
   private String componentKey;
-  private String rootComponentKey;
+  private String componentUuid;
+  private String moduleUuid;
+  private String moduleUuidPath;
+  private String projectKey;
+  private String projectUuid;
 
   @Override
   public String getKey() {
@@ -111,6 +115,9 @@ public final class IssueDto extends Dto<String> implements Serializable {
   public IssueDto setComponent(ComponentDto component) {
     this.componentId = component.getId();
     this.componentKey = component.getKey();
+    this.componentUuid = component.uuid();
+    this.moduleUuid = component.moduleUuid();
+    this.moduleUuidPath = component.moduleUuidPath();
     return this;
   }
 
@@ -122,21 +129,22 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return this;
   }
 
-  public Long getRootComponentId() {
-    return rootComponentId;
+  public Long getProjectId() {
+    return projectId;
   }
 
-  public IssueDto setRootComponent(ComponentDto rootComponent) {
-    this.rootComponentId = rootComponent.getId();
-    this.rootComponentKey = rootComponent.getKey();
+  public IssueDto setProject(ComponentDto project) {
+    this.projectId = project.getId();
+    this.projectKey = project.getKey();
+    this.projectUuid = project.uuid();
     return this;
   }
 
   /**
-   * please use setRootComponent
+   * please use setProject
    */
-  public IssueDto setRootComponentId(Long rootComponentId) {
-    this.rootComponentId = rootComponentId;
+  public IssueDto setProjectId(Long projectId) {
+    this.projectId = projectId;
     return this;
   }
 
@@ -357,8 +365,27 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return componentKey;
   }
 
-  public String getRootComponentKey() {
-    return rootComponentKey;
+  public String getComponentUuid() {
+    return componentUuid;
+  }
+
+  public String getModuleUuid() {
+    return moduleUuid;
+  }
+
+  public String getModuleUuidPath() {
+    return moduleUuidPath;
+  }
+
+  /**
+   * Used by the issue tracking mechanism, but it should used the component uuid instead
+   */
+  public String getProjectKey() {
+    return projectKey;
+  }
+
+  public String getProjectUuid() {
+    return projectUuid;
   }
 
   @CheckForNull
@@ -405,10 +432,50 @@ public final class IssueDto extends Dto<String> implements Serializable {
   /**
    * Should only be used to persist in E/S
    *
-   * Please use {@link #setRootComponent(org.sonar.core.component.ComponentDto)} instead
+   * Please use {@link #setComponent(org.sonar.core.component.ComponentDto)} instead
    */
-  public IssueDto setRootComponentKey(String rootComponentKey) {
-    this.rootComponentKey = rootComponentKey;
+  public IssueDto setComponentUuid(String componentUuid) {
+    this.componentUuid = componentUuid;
+    return this;
+  }
+
+  /**
+   * Should only be used to persist in E/S
+   *
+   * Please use {@link #setComponent(org.sonar.core.component.ComponentDto)} instead
+   */
+  public IssueDto setModuleUuid(String moduleUuid) {
+    this.moduleUuid = moduleUuid;
+    return this;
+  }
+
+  /**
+   * Should only be used to persist in E/S
+   *
+   * Please use {@link #setComponent(org.sonar.core.component.ComponentDto)} instead
+   */
+  public IssueDto setModuleUuidPath(String moduleUuidPath) {
+    this.moduleUuidPath = moduleUuidPath;
+    return this;
+  }
+
+  /**
+   * Should only be used to persist in E/S
+   *
+   * Please use {@link #setProject(org.sonar.core.component.ComponentDto)} instead
+   */
+  public IssueDto setProjectKey(String projectKey) {
+    this.projectKey = projectKey;
+    return this;
+  }
+
+  /**
+   * Should only be used to persist in E/S
+   *
+   * Please use {@link #setProject(org.sonar.core.component.ComponentDto)} instead
+   */
+  public IssueDto setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
     return this;
   }
 
@@ -417,7 +484,10 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public static IssueDto toDtoForInsert(DefaultIssue issue, Long componentId, Long rootComponentId, Integer ruleId, Date now) {
+  /**
+   * On batch side, component keys and uuid are useless
+   */
+  public static IssueDto toDtoForBatchInsert(DefaultIssue issue, Long componentId, Long rootComponentId, Integer ruleId, Date now) {
     return new IssueDto()
       .setKee(issue.key())
       .setLine(issue.line())
@@ -433,10 +503,15 @@ public final class IssueDto extends Dto<String> implements Serializable {
       .setAssignee(issue.assignee())
       .setRuleId(ruleId)
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
+      .setComponentUuid(issue.componentUuid())
       .setComponentId(componentId)
       .setComponentKey(issue.componentKey())
-      .setRootComponentId(rootComponentId)
-      .setRootComponentKey(issue.projectKey())
+      .setModuleUuid(issue.moduleUuid())
+      .setModuleUuidPath(issue.moduleUuidPath())
+      .setComponentUuid(issue.componentUuid())
+      .setProjectUuid(issue.projectUuid())
+      .setProjectId(rootComponentId)
+      .setProjectKey(issue.projectKey())
       .setActionPlanKey(issue.actionPlanKey())
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
@@ -446,6 +521,15 @@ public final class IssueDto extends Dto<String> implements Serializable {
       .setSelectedAt(issue.selectedAt())
       .setCreatedAt(now)
       .setUpdatedAt(now);
+  }
+
+  /**
+   * On server side, we need component keys and uuid
+   */
+  public static IssueDto toDtoForServerInsert(DefaultIssue issue, ComponentDto component, ComponentDto project, Integer ruleId, Date now) {
+    return toDtoForBatchInsert(issue, component.getId(), project.getId(), ruleId, now)
+      .setComponent(component)
+      .setProject(project);
   }
 
   public static IssueDto toDtoForUpdate(DefaultIssue issue, Long rootComponentId, Date now) {
@@ -467,9 +551,13 @@ public final class IssueDto extends Dto<String> implements Serializable {
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
+      .setComponentUuid(issue.componentUuid())
       .setComponentKey(issue.componentKey())
-      .setRootComponentKey(issue.projectKey())
-      .setRootComponentId(rootComponentId)
+      .setModuleUuid(issue.moduleUuid())
+      .setModuleUuidPath(issue.moduleUuidPath())
+      .setProjectUuid(issue.projectUuid())
+      .setProjectKey(issue.projectKey())
+      .setProjectId(rootComponentId)
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())
       .setIssueUpdateDate(issue.updateDate())
@@ -492,7 +580,11 @@ public final class IssueDto extends Dto<String> implements Serializable {
     issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(issueAttributes, "")));
     issue.setComponentKey(componentKey);
     issue.setComponentId(componentId);
-    issue.setProjectKey(rootComponentKey);
+    issue.setComponentUuid(componentUuid);
+    issue.setModuleUuid(moduleUuid);
+    issue.setModuleUuidPath(moduleUuidPath);
+    issue.setProjectUuid(projectUuid);
+    issue.setProjectKey(projectKey);
     issue.setManualSeverity(manualSeverity);
     issue.setRuleKey(getRuleKey());
     issue.setLanguage(language);
@@ -508,7 +600,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
 
   public static IssueDto createFor(Project project, RuleDto rule) {
     return new IssueDto()
-      .setRootComponentId(Long.valueOf(project.getId()))
+      .setProjectId(Long.valueOf(project.getId()))
       .setRuleId(rule.getId())
       .setKee(UUID.randomUUID().toString());
   }

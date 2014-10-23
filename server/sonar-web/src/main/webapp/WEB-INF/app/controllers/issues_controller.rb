@@ -138,7 +138,8 @@ class IssuesController < ApplicationController
     else
       @issues = Internal.issues.execute(issues_query_params).issues()
     end
-    @projects = Set.new(@issues.map {|issue| issue.projectKey()})
+
+    @projectUuids = Set.new(@issues.map {|issue| issue.projectUuid()})
 
     render :partial => 'issues/bulk_change_form'
   end

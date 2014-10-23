@@ -61,6 +61,7 @@ public class UserSession {
   List<String> globalPermissions = null;
 
   HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
+  HashMultimap<String, String> projectUuidByPermission = HashMultimap.create();
   Map<String, String> projectKeyByComponentKey = newHashMap();
   List<String> projectPermissions = newArrayList();
 
@@ -184,6 +185,21 @@ public class UserSession {
       projectPermissions.add(permission);
     }
     return projectKeyByPermission.get(permission).contains(projectKey);
+  }
+
+
+  /**
+   * Does the user have the given project permission ?
+   */
+  public boolean hasProjectPermissionByUuid(String permission, String projectUuid) {
+    if (!projectPermissions.contains(permission)) {
+      Collection<String> projectUuids = authorizationDao().selectAuthorizedRootProjectsUuids(userId, permission);
+      for (String key : projectUuids) {
+        projectUuidByPermission.put(permission, key);
+      }
+      projectPermissions.add(permission);
+    }
+    return projectUuidByPermission.get(permission).contains(projectUuid);
   }
 
   /**

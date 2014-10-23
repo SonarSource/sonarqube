@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.index;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.issue.db.IssueAuthorizationDto;
@@ -29,11 +30,7 @@ import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class IssueAuthorizationNormalizer extends BaseNormalizer<IssueAuthorizationDto, String> {
 
@@ -70,7 +67,9 @@ public class IssueAuthorizationNormalizer extends BaseNormalizer<IssueAuthorizat
   public List<UpdateRequest> normalize(IssueAuthorizationDto dto) {
     Map<String, Object> update = new HashMap<String, Object>();
 
-    update.put(IssueAuthorizationField.PROJECT.field(), dto.getProject());
+    Preconditions.checkNotNull(dto.getProjectUuid(), "Project uuid is null");
+
+    update.put(IssueAuthorizationField.PROJECT.field(), dto.getProjectUuid());
     update.put(IssueAuthorizationField.PERMISSION.field(), dto.getPermission());
     update.put(IssueAuthorizationField.USERS.field(), dto.getUsers());
     update.put(IssueAuthorizationField.GROUPS.field(), dto.getGroups());

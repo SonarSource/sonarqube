@@ -26,12 +26,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.ActionPlanDto;
@@ -42,6 +39,7 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.component.db.SnapshotDao;
@@ -49,6 +47,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.db.IssueDao;
+import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
@@ -60,7 +59,6 @@ import org.sonar.server.user.MockUserSession;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -91,18 +89,11 @@ public class IssueServiceMediumTest {
     rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(session, rule);
 
-    project = new ComponentDto()
-      .setKey("MyProject")
-      .setLongName("My Project")
-      .setQualifier(Qualifiers.PROJECT)
-      .setScope(Scopes.PROJECT);
+    project = ComponentTesting.newProjectDto();
     tester.get(ComponentDao.class).insert(session, project);
     tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForProject(project));
 
-    file = new ComponentDto()
-      .setSubProjectId(project.getId())
-      .setKey("MyComponent")
-      .setLongName("My Component");
+    file = ComponentTesting.newFileDto(project);
     tester.get(ComponentDao.class).insert(session, file);
     tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project));
 
@@ -298,9 +289,9 @@ public class IssueServiceMediumTest {
 
     Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 10, "Fix it", Severity.MINOR, 2d);
 
-    Issue manualIssue = indexClient.get(IssueIndex.class).getByKey(result.key());
-    assertThat(manualIssue.componentKey()).isEqualTo(file.key());
-    assertThat(manualIssue.projectKey()).isEqualTo(project.key());
+    IssueDoc manualIssue = (IssueDoc) indexClient.get(IssueIndex.class).getByKey(result.key());
+    assertThat(manualIssue.componentUuid()).isEqualTo(file.uuid());
+    assertThat(manualIssue.projectUuid()).isEqualTo(project.uuid());
     assertThat(manualIssue.ruleKey()).isEqualTo(manualRule.getKey());
     assertThat(manualIssue.message()).isEqualTo("Fix it");
     assertThat(manualIssue.line()).isEqualTo(10);
@@ -420,16 +411,6 @@ public class IssueServiceMediumTest {
   }
 
   private IssueDto newIssue() {
-    return new IssueDto()
-      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
-      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
-      .setRule(rule)
-      .setDebt(10L)
-      .setRootComponent(project)
-      .setComponent(file)
-      .setStatus(Issue.STATUS_OPEN)
-      .setResolution(null)
-      .setSeverity(Severity.MAJOR)
-      .setKee(UUID.randomUUID().toString());
+    return IssueTesting.newDto(rule, file, project);
   }
 }

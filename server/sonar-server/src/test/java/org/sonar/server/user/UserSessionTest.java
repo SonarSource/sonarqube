@@ -120,6 +120,17 @@ public class UserSessionTest {
   }
 
   @Test
+  public void has_project_permission_by_uuid() throws Exception {
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);
+    when(authorizationDao.selectAuthorizedRootProjectsUuids(1, UserRole.USER)).thenReturn(newArrayList("ABCD"));
+
+    assertThat(session.hasProjectPermissionByUuid(UserRole.USER, "ABCD")).isTrue();
+    assertThat(session.hasProjectPermissionByUuid(UserRole.CODEVIEWER, "ABCD")).isFalse();
+    assertThat(session.hasProjectPermissionByUuid(UserRole.ADMIN, "ABCD")).isFalse();
+  }
+
+  @Test
   public void check_project_permission_ok() throws Exception {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao).setUserId(1);

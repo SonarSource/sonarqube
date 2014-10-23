@@ -73,9 +73,9 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
     setupData("load_component_id_from_db");
     session.commit();
 
-    long componentId = storage.componentId(session, new DefaultIssue().setComponentKey("struts:Action.java"));
+    long componentId = storage.component(session, new DefaultIssue().setComponentKey("struts:Action")).getId();
 
-    assertThat(componentId).isEqualTo(123);
+    assertThat(componentId).isEqualTo(100);
   }
 
   @Test
@@ -83,7 +83,7 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
     setupData("load_project_id_from_db");
     session.commit();
 
-    long projectId = storage.projectId(session, new DefaultIssue().setProjectKey("struts"));
+    long projectId = storage.project(session, new DefaultIssue().setProjectKey("struts")).getId();
 
     assertThat(projectId).isEqualTo(1);
   }

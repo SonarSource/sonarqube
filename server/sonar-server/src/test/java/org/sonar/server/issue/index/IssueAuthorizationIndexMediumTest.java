@@ -69,6 +69,7 @@ public class IssueAuthorizationIndexMediumTest {
   public void synchronize_all() throws Exception {
     project = new ComponentDto()
       .setKey("Sample")
+      .setUuid("ABCD")
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
     db.componentDao().insert(session, project);
 
@@ -87,9 +88,9 @@ public class IssueAuthorizationIndexMediumTest {
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
     session.commit();
 
-    IssueAuthorizationDoc issueAuthorizationDoc = index.getByKey(project.getKey());
+    IssueAuthorizationDoc issueAuthorizationDoc = index.getByKey(project.uuid());
     assertThat(issueAuthorizationDoc).isNotNull();
-    assertThat(issueAuthorizationDoc.project()).isEqualTo("Sample");
+    assertThat(issueAuthorizationDoc.project()).isEqualTo("ABCD");
     assertThat(issueAuthorizationDoc.permission()).isEqualTo("user");
     assertThat(issueAuthorizationDoc.groups()).containsExactly("devs");
     assertThat(issueAuthorizationDoc.users()).containsExactly("john");
@@ -97,13 +98,14 @@ public class IssueAuthorizationIndexMediumTest {
 
     tester.clearIndexes();
     tester.get(Platform.class).executeStartupTasks();
-    assertThat(index.getNullableByKey(project.getKey())).isNotNull();
+    assertThat(index.getNullableByKey(project.uuid())).isNotNull();
   }
 
   @Test
   public void synchronize_all_with_startup_tasks() throws Exception {
     project = new ComponentDto()
       .setKey("Sample")
+      .setUuid("ABCD")
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
     db.componentDao().insert(session, project);
 
@@ -112,16 +114,17 @@ public class IssueAuthorizationIndexMediumTest {
 
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), "devs", UserRole.USER, session);
     session.commit();
-    assertThat(index.getNullableByKey(project.getKey())).isNull();
+    assertThat(index.getNullableByKey(project.uuid())).isNull();
 
     tester.get(Platform.class).executeStartupTasks();
-    assertThat(index.getNullableByKey(project.getKey())).isNotNull();
+    assertThat(index.getNullableByKey(project.uuid())).isNotNull();
   }
 
   @Test
   public void synchronize_project() throws Exception {
     project = new ComponentDto()
       .setKey("Sample")
+      .setUuid("ABCD")
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
     db.componentDao().insert(session, project);
 
@@ -136,13 +139,13 @@ public class IssueAuthorizationIndexMediumTest {
 
     session.commit();
 
-    assertThat(index.getNullableByKey(project.getKey())).isNull();
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, project.key()));
+    assertThat(index.getNullableByKey(project.uuid())).isNull();
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, project.uuid()));
     session.commit();
 
-    IssueAuthorizationDoc issueAuthorizationDoc = index.getByKey(project.getKey());
+    IssueAuthorizationDoc issueAuthorizationDoc = index.getByKey(project.uuid());
     assertThat(issueAuthorizationDoc).isNotNull();
-    assertThat(issueAuthorizationDoc.project()).isEqualTo("Sample");
+    assertThat(issueAuthorizationDoc.project()).isEqualTo("ABCD");
     assertThat(issueAuthorizationDoc.permission()).isEqualTo("user");
     assertThat(issueAuthorizationDoc.groups()).containsExactly("devs");
     assertThat(issueAuthorizationDoc.users()).containsExactly("john");
@@ -153,6 +156,7 @@ public class IssueAuthorizationIndexMediumTest {
   public void remove_data_when_synchronizing_project_with_empty_permission() throws Exception {
     project = new ComponentDto()
       .setKey("Sample")
+      .setUuid("ABCD")
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
     db.componentDao().insert(session, project);
 
@@ -164,21 +168,22 @@ public class IssueAuthorizationIndexMediumTest {
 
     // Insert one permission
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), "devs", UserRole.USER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, project.key()));
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, project.uuid()));
     session.commit();
-    assertThat(index.getByKey(project.getKey())).isNotNull();
+    assertThat(index.getByKey(project.uuid())).isNotNull();
 
     // Delete the permission
     tester.get(PermissionFacade.class).deleteGroupPermission(project.getId(), "devs", UserRole.USER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, project.key()));
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, project.uuid()));
     session.commit();
-    assertThat(index.getNullableByKey(project.getKey())).isNull();
+    assertThat(index.getNullableByKey(project.uuid())).isNull();
   }
 
   @Test
   public void delete_index() throws Exception {
     project = new ComponentDto()
       .setKey("Sample")
+      .setUuid("ABCD")
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
     db.componentDao().insert(session, project);
 
@@ -195,12 +200,12 @@ public class IssueAuthorizationIndexMediumTest {
 
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
     session.commit();
-    assertThat(index.getNullableByKey(project.getKey())).isNotNull();
+    assertThat(index.getNullableByKey(project.uuid())).isNotNull();
 
-    db.issueAuthorizationDao().deleteByKey(session, project.key());
+    db.issueAuthorizationDao().deleteByKey(session, project.uuid());
     session.commit();
 
-    assertThat(index.getNullableByKey(project.getKey())).isNull();
+    assertThat(index.getNullableByKey(project.uuid())).isNull();
   }
 
 }

@@ -60,6 +60,20 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).selectById(id);
   }
 
+  @CheckForNull
+  public ComponentDto getNullableByUuid(DbSession session, String uuid) {
+    return mapper(session).selectByUuid(uuid);
+  }
+
+  @CheckForNull
+  public ComponentDto getByUuid(DbSession session, String uuid) {
+    ComponentDto componentDto = getNullableByUuid(session, uuid);
+    if (componentDto == null) {
+      throw new NotFoundException(String.format("Project with uuid '%s' not found", uuid));
+    }
+    return componentDto;
+  }
+
   public boolean existsById(Long id, DbSession session) {
     return mapper(session).countById(id) > 0;
   }
@@ -90,11 +104,11 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).findModulesByProject(projectKey);
   }
 
-  public List<ComponentDto> findSubProjectsByComponentKeys(DbSession session, Collection<String> keys) {
+  public List<ComponentDto> findSubProjectsByComponentUuids(DbSession session, Collection<String> keys) {
     if (keys.isEmpty()) {
       return Collections.emptyList();
     }
-    return mapper(session).findSubProjectsByComponentKeys(keys);
+    return mapper(session).findSubProjectsByComponentUuids(keys);
   }
 
   public List<ComponentDto> getByIds(DbSession session, Collection<Long> ids) {
@@ -105,6 +119,19 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     List<List<Long>> partitionList = Lists.partition(newArrayList(ids), 1000);
     for (List<Long> partition : partitionList) {
       List<ComponentDto> dtos = mapper(session).findByIds(partition);
+      components.addAll(dtos);
+    }
+    return components;
+  }
+
+  public List<ComponentDto> getByUuids(DbSession session, Collection<String> uuids) {
+    if (uuids.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<ComponentDto> components = newArrayList();
+    List<List<String>> partitionList = Lists.partition(newArrayList(uuids), 1000);
+    for (List<String> partition : partitionList) {
+      List<ComponentDto> dtos = mapper(session).findByUuids(partition);
       components.addAll(dtos);
     }
     return components;

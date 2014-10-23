@@ -1,4 +1,5 @@
-<div id="issue-<%= u issue.key -%>" class="code-issue code-issue-collapsed" data-issue-key="<%= issue.key -%>" data-issue-component="<%= issue.componentKey() -%>" data-issue-rule="<%= u issue.ruleKey().toString() -%>">
+<!-- TODO @component.key() should be replaced by issue.componentUuid -->
+<div id="issue-<%= u issue.key -%>" class="code-issue code-issue-collapsed" data-issue-key="<%= issue.key -%>" data-issue-component="<%= @component.key() -%>" data-issue-rule="<%= u issue.ruleKey().toString() -%>">
   <div class="code-issue-name code-issue-toggle">
     <div class="code-issue-name-rule">
       <i class="icon-severity-<%= issue.severity.downcase -%>"></i>
@@ -76,7 +77,7 @@
           <div class="dropdown">
             <a href="#" class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"><%= message('more_actions') -%></a>
             <ul style="display: none" class="dropdown-menu">
-              <% if Java::OrgSonarServerUser::UserSession.get().hasProjectPermission('issueadmin', issue.projectKey) %>
+              <% if Java::OrgSonarServerUser::UserSession.get().hasProjectPermissionByUuid('issueadmin', issue.projectUuid()) %>
                 <% unless issue.resolution %>
                   <li>
                     <a href="#" onclick="return issueForm('severity', this)" class="link-action spacer-right"><%= message("issue.set_severity") -%></a>

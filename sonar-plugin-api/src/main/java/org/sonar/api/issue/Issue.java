@@ -185,4 +185,14 @@ public interface Issue extends Serializable {
    * @since 5.0
    */
   String projectKey();
+
+  /**
+   * @since 5.0
+   */
+  String projectUuid();
+
+  /**
+   * @since 5.0
+   */
+  String componentUuid();
 }

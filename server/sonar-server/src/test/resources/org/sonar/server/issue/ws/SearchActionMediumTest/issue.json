@@ -31,14 +31,19 @@
   ],
   "components": [
     {
-      "key": "MyComponent"
+      "uuid": "BCDE",
+      "key": "MyComponent",
+      "enabled" : true
     },
     {
-      "key": "MyProject"
+      "uuid": "ABCD",
+      "key": "MyProject",
+      "enabled" : true
     }
   ],
   "projects": [
     {
+      "uuid": "ABCD",
       "key": "MyProject"
     }
   ],

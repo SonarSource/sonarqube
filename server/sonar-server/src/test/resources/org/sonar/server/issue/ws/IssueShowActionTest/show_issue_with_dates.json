@@ -4,6 +4,7 @@
     "component": "org.sonar.server.issue.IssueClient",
     "componentLongName": "SonarQube :: Issue Client",
     "componentQualifier": "FIL",
+    "componentEnabled": true,
     "project": "org.sonar.Sonar",
     "projectName": "SonarQube",
     "rule": "squid:AvoidCycle",

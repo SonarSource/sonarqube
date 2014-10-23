@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.rule.Severity;
@@ -68,6 +69,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField SEVERITY_VALUE = addSortable(IndexField.Type.NUMERIC, "severityValue");
     public static final IndexField LANGUAGE = add(IndexField.Type.STRING, "language");
     public static final IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
+    public static final IndexField MODULE_PATH = add(IndexField.Type.UUID_PATH, "modulePath");
 
     public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
@@ -90,7 +92,10 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
   public List<UpdateRequest> normalize(IssueDto dto) {
     Map<String, Object> update = newHashMap();
 
-    update.put("_parent", dto.getRootComponentKey());
+    Preconditions.checkNotNull(dto.getProjectUuid(), "Project uuid is null on issue %s", dto.getKey());
+//    Preconditions.checkNotNull(dto.getComponentUuid(), "Component uuid is null on issue %s", dto.getKey());
+
+    update.put("_parent", dto.getProjectUuid());
     update.put(IssueField.KEY.field(), dto.getKey());
     update.put(IssueField.UPDATED_AT.field(), dto.getUpdatedAt());
     update.put(IssueField.CREATED_AT.field(), dto.getCreatedAt());
@@ -100,8 +105,9 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     update.put(IssueField.ASSIGNEE.field(), dto.getAssignee());
     update.put(IssueField.AUTHOR_LOGIN.field(), dto.getAuthorLogin());
     update.put(IssueField.ISSUE_CLOSE_DATE.field(), dto.getIssueCloseDate());
-    update.put(IssueField.PROJECT.field(), dto.getRootComponentKey());
-    update.put(IssueField.COMPONENT.field(), dto.getComponentKey());
+    update.put(IssueField.PROJECT.field(), dto.getProjectUuid());
+    update.put(IssueField.MODULE_PATH.field(), dto.getModuleUuidPath());
+    update.put(IssueField.COMPONENT.field(), dto.getComponentUuid());
     update.put(IssueField.ISSUE_CREATED_AT.field(), dto.getIssueCreationDate());
     update.put(IssueField.ISSUE_UPDATED_AT.field(), dto.getIssueUpdateDate());
     update.put(IssueField.EFFORT.field(), dto.getEffortToFix());
@@ -123,8 +129,8 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     return ImmutableList.of(
       new UpdateRequest()
         .id(dto.getKey())
-        .routing(dto.getRootComponentKey())
-        .parent(dto.getRootComponentKey())
+        .routing(dto.getProjectUuid())
+        .parent(dto.getProjectUuid())
         .doc(update)
         .upsert(upsert));
   }

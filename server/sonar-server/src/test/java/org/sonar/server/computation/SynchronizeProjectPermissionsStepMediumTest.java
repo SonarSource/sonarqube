@@ -33,6 +33,7 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationDoc;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
@@ -81,18 +82,6 @@ public class SynchronizeProjectPermissionsStepMediumTest {
     MyBatis.closeQuietly(session);
   }
 
-  private ComponentDto insertPermissionsForProject(String projectKey) {
-    ComponentDto project = new ComponentDto().setKey(projectKey);
-    db.componentDao().insert(session, project);
-
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
-    userSession.addProjectPermissions(UserRole.USER, project.key());
-
-    session.commit();
-
-    return project;
-  }
-
   @Test
   public void add_project_issue_permission_in_index() throws Exception {
     ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
@@ -102,7 +91,19 @@ public class SynchronizeProjectPermissionsStepMediumTest {
 
     sut.execute(session, reports.get(0));
 
-    IssueAuthorizationDoc issueAuthorizationIndex = tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey());
+    IssueAuthorizationDoc issueAuthorizationIndex = tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid());
     assertThat(issueAuthorizationIndex).isNotNull();
+  }
+
+  private ComponentDto insertPermissionsForProject(String projectKey) {
+    ComponentDto project = ComponentTesting.newProjectDto().setKey(projectKey);
+    db.componentDao().insert(session, project);
+
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    userSession.addProjectPermissions(UserRole.USER, project.key());
+
+    session.commit();
+
+    return project;
   }
 }

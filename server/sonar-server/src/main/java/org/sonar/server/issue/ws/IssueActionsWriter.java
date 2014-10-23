@@ -73,8 +73,8 @@ public class IssueActionsWriter implements ServerComponent {
           actions.add("assign_to_me");
         }
         actions.add("plan");
-        String projectKey = issue.projectKey();
-        if (projectKey != null && UserSession.get().hasProjectPermission(UserRole.ISSUE_ADMIN, projectKey)) {
+        String projectUuid = issue.projectUuid();
+        if (projectUuid != null && UserSession.get().hasProjectPermissionByUuid(UserRole.ISSUE_ADMIN, projectUuid)) {
           actions.add("set_severity");
         }
         for (Action action : actionService.listAvailableActions(issue)) {

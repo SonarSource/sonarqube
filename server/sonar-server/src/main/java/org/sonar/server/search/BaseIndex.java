@@ -270,9 +270,18 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       return mapDateField(field);
     } else if (field.type() == IndexField.Type.NUMERIC) {
       return mapNumericField(field);
+    } else if (field.type() == IndexField.Type.UUID_PATH) {
+      return mapUuidPathField(field);
     } else {
       throw new IllegalStateException("Mapping does not exist for type: " + field.type());
     }
+  }
+
+  private Map mapUuidPathField(IndexField field) {
+    return ImmutableMap.of(
+      "type", "string",
+      "index", "analyzed",
+      "analyzer", "uuid_analyzer");
   }
 
   protected Map mapNumericField(IndexField field) {
@@ -572,7 +581,14 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
       // Path Analyzer
       .put("index.analysis.analyzer.path_analyzer.type", "custom")
-      .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy");
+      .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy")
+
+      // UUID Module analyzer
+      .put("index.analysis.tokenizer.dot_tokenizer.type", "pattern")
+      .put("index.analysis.tokenizer.dot_tokenizer.pattern", "\\.")
+      .put("index.analysis.analyzer.uuid_analyzer.type", "custom")
+      .putArray("index.analysis.analyzer.uuid_analyzer.filter", "trim", "lowercase")
+      .put("index.analysis.analyzer.uuid_analyzer.tokenizer", "dot_tokenizer");
 
   }
 

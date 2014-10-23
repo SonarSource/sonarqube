@@ -99,13 +99,13 @@ public class MassUpdate {
     }
   }
 
-  static class ProgressTask extends TimerTask {
+  public static class ProgressTask extends TimerTask {
     private static final Logger LOGGER = LoggerFactory.getLogger("DbMigration");
-    private static final long PERIOD_MS = 60000L;
+    public static final long PERIOD_MS = 60000L;
     private final AtomicLong counter;
     private String rowName = "rows";
 
-    ProgressTask(AtomicLong counter) {
+    public ProgressTask(AtomicLong counter) {
       this.counter = counter;
     }
 
@@ -118,7 +118,7 @@ public class MassUpdate {
       log();
     }
 
-    void log() {
+    public void log() {
       LOGGER.info(String.format("%d %s processed", counter.get(), rowName));
     }
   }

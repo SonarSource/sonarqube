@@ -35,8 +35,10 @@ import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.RuleTesting;
@@ -45,7 +47,6 @@ import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Date;
-import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -78,30 +79,17 @@ public class IssueBackendMediumTest {
     RuleDto rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(dbSession, rule);
 
-    ComponentDto project = new ComponentDto()
-      .setId(1L)
-      .setKey("MyProject");
+    ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(ComponentDao.class).insert(dbSession, project);
 
     // project can be seen by anyone
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, dbSession);
     dbClient.issueAuthorizationDao().synchronizeAfter(dbSession, new Date(0));
 
-    ComponentDto resource = new ComponentDto()
-      .setKey("MyComponent")
-      .setId(2L);
-    tester.get(ComponentDao.class).insert(dbSession, resource);
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    tester.get(ComponentDao.class).insert(dbSession, file);
 
-    IssueDto issue = new IssueDto()
-      .setIssueCreationDate(new Date())
-      .setIssueUpdateDate(new Date())
-      .setRule(rule)
-      .setRootComponent(project)
-      .setComponent(resource)
-      .setStatus("OPEN").setResolution("OPEN")
-      .setKee(UUID.randomUUID().toString())
-      .setSeverity("MAJOR")
-      .setIssueAttributes(KeyValueFormat.format(ImmutableMap.of("key", "value")));
+    IssueDto issue = IssueTesting.newDto(rule, file, project).setIssueAttributes(KeyValueFormat.format(ImmutableMap.of("key", "value")));
     dbClient.issueDao().insert(dbSession, issue);
 
     dbSession.commit();
@@ -117,7 +105,6 @@ public class IssueBackendMediumTest {
     assertThat(issueDoc.assignee()).isEqualTo(issue.getAssignee());
     assertThat(issueDoc.authorLogin()).isEqualTo(issue.getAuthorLogin());
     assertThat(issueDoc.closeDate()).isEqualTo(issue.getIssueCloseDate());
-    assertThat(issueDoc.componentKey()).isEqualTo(issue.getComponentKey());
     assertThat(issueDoc.effortToFix()).isEqualTo(issue.getEffortToFix());
     assertThat(issueDoc.resolution()).isEqualTo(issue.getResolution());
     assertThat(issueDoc.ruleKey()).isEqualTo(RuleKey.of(issue.getRuleRepo(), issue.getRule()));
@@ -130,38 +117,20 @@ public class IssueBackendMediumTest {
     assertThat(issueDoc.severity()).isEqualTo(issue.getSeverity());
     assertThat(issueDoc.attributes()).isEqualTo(KeyValueFormat.parse(issue.getIssueAttributes()));
     assertThat(issueDoc.attribute("key")).isEqualTo("value");
-
-    // assertThat(issueDoc.isNew()).isEqualTo(issue.isN());
-    // assertThat(issueDoc.comments()).isEqualTo(issue.());
   }
 
   @Test
   public void insert_and_find_after_date() throws Exception {
-
     RuleDto rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(dbSession, rule);
 
-    ComponentDto project = new ComponentDto()
-      .setId(1L)
-      .setKey("MyProject")
-      .setProjectId_unit_test_only(1L);
+    ComponentDto project = ComponentTesting.newProjectDto();
     tester.get(ComponentDao.class).insert(dbSession, project);
 
-    ComponentDto resource = new ComponentDto()
-      .setId(2L)
-      .setKey("MyComponent")
-      .setProjectId_unit_test_only(1L);
-    tester.get(ComponentDao.class).insert(dbSession, resource);
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    tester.get(ComponentDao.class).insert(dbSession, file);
 
-    IssueDto issue = new IssueDto().setId(1L)
-      .setRuleId(rule.getId())
-      .setRootComponentId(project.getId())
-      .setRootComponentKey(project.key())
-      .setComponentId(resource.getId())
-      .setComponentKey(resource.key())
-      .setRule(rule)
-      .setStatus("OPEN").setResolution("OPEN")
-      .setKee(UUID.randomUUID().toString());
+    IssueDto issue = IssueTesting.newDto(rule, file, project).setId(1L);
     dbClient.issueDao().insert(dbSession, issue);
 
     dbSession.commit();

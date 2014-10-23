@@ -62,9 +62,13 @@ public class IssueDtoTest {
       .setRuleKey("squid", "AvoidCycle")
       .setLanguage("xoo")
       .setComponentKey("org.sonar.sample:Sample")
-      .setRootComponentKey("org.sonar.sample")
+      .setComponentUuid("CDEF")
+      .setModuleUuid("BCDE")
+      .setModuleUuidPath("ABCD.BCDE.")
+      .setProjectUuid("ABCD")
+      .setProjectKey("org.sonar.sample")
       .setComponentId(1l)
-      .setRootComponentId(1l)
+      .setProjectId(1l)
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
       .setEffortToFix(15.0)
@@ -85,8 +89,12 @@ public class IssueDtoTest {
     assertThat(issue.key()).isEqualTo("100");
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
     assertThat(issue.language()).isEqualTo("xoo");
+    assertThat(issue.componentUuid()).isEqualTo("CDEF");
     assertThat(issue.componentKey()).isEqualTo("org.sonar.sample:Sample");
     assertThat(issue.componentId()).isEqualTo(1L);
+    assertThat(issue.moduleUuid()).isEqualTo("BCDE");
+    assertThat(issue.moduleUuidPath()).isEqualTo("ABCD.BCDE.");
+    assertThat(issue.projectUuid()).isEqualTo("ABCD");
     assertThat(issue.projectKey()).isEqualTo("org.sonar.sample");
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);

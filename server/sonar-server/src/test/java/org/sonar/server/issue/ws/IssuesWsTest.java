@@ -31,6 +31,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueCommentService;
+import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.rule.RuleService;
@@ -55,9 +56,11 @@ public class IssuesWsTest {
     I18n i18n = mock(I18n.class);
     Durations durations = mock(Durations.class);
 
-    showAction = new IssueShowAction(mock(DbClient.class), mock(IssueService.class), issueChangelogService, mock(IssueCommentService.class), actionsWriter, mock(ActionPlanService.class), mock(UserFinder.class),
+    showAction = new IssueShowAction(mock(DbClient.class), mock(IssueService.class), issueChangelogService, mock(IssueCommentService.class), actionsWriter,
+      mock(ActionPlanService.class), mock(UserFinder.class),
       debtModelService, mock(RuleService.class), i18n, durations);
-    SearchAction searchAction = new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class), mock(RuleService.class),
+    SearchAction searchAction = new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class),
+      mock(IssueQueryService.class), mock(RuleService.class),
       mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class), mock(SourceService.class), mock(ScmWriter.class));
     tester = new WsTester(new IssuesWs(showAction, searchAction));
   }

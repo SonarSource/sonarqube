@@ -28,10 +28,13 @@ import org.sonar.core.persistence.migration.v50.Component;
 import org.sonar.core.persistence.migration.v50.Migration50Mapper;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MassUpdate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -43,6 +46,8 @@ import static com.google.common.collect.Maps.newHashMap;
 public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
 
   private final DbClient db;
+  private final AtomicLong counter = new AtomicLong(0L);
+  private final MassUpdate.ProgressTask progressTask = new MassUpdate.ProgressTask(counter);
 
   public PopulateProjectsUuidColumnsMigration(DbClient db) {
     this.db = db;
@@ -50,6 +55,9 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
 
   @Override
   public void execute() {
+    Timer timer = new Timer("Db Migration Progress");
+    timer.schedule(progressTask, MassUpdate.ProgressTask.PERIOD_MS, MassUpdate.ProgressTask.PERIOD_MS);
+
     DbSession session = db.openSession(true);
     try {
       Migration50Mapper mapper = session.getMapper(Migration50Mapper.class);
@@ -91,12 +99,18 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
           }
 
           mapper.updateComponentUuids(component);
+          counter.getAndIncrement();
         }
       }
 
       session.commit();
+      // log the total number of process rows
+      progressTask.log();
+
     } finally {
       session.close();
+      timer.cancel();
+      timer.purge();
     }
   }
 

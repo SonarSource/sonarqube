@@ -33,9 +33,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.user.User;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.resource.ResourceDao;
@@ -53,7 +51,6 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
@@ -66,6 +63,9 @@ public class InternalRubyIssueServiceTest {
 
   @Mock
   IssueService issueService;
+
+  @Mock
+  IssueQueryService issueQueryService;
 
   @Mock
   IssueCommentService commentService;
@@ -94,7 +94,7 @@ public class InternalRubyIssueServiceTest {
   public void setUp() {
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.getResource(any(ResourceQuery.class))).thenReturn(project);
-    service = new InternalRubyIssueService(issueService, commentService, changelogService, actionPlanService, resourceDao, actionService,
+    service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService, actionPlanService, resourceDao, actionService,
       issueFilterService, issueBulkChangeService);
   }
 
@@ -574,16 +574,16 @@ public class InternalRubyIssueServiceTest {
     overrideProps.put("resolved", true);
     overrideProps.put("pageSize", 20);
     overrideProps.put("pageIndex", 2);
+
+    when(issueQueryService.createFromMap(overrideProps)).thenReturn(IssueQuery.builder().build());
+
     service.execute(10L, overrideProps);
+
     ArgumentCaptor<IssueQuery> issueQueryArgumentCaptor = ArgumentCaptor.forClass(IssueQuery.class);
     ArgumentCaptor<QueryContext> contextArgumentCaptor = ArgumentCaptor.forClass(QueryContext.class);
+
     verify(issueFilterService).execute(issueQueryArgumentCaptor.capture(), contextArgumentCaptor.capture());
     verify(issueFilterService).find(eq(10L), any(UserSession.class));
-
-    IssueQuery issueQuery = issueQueryArgumentCaptor.getValue();
-    assertThat(issueQuery.componentRoots()).contains("struts");
-    assertThat(issueQuery.statuses()).contains("CLOSED");
-    assertThat(issueQuery.resolved()).isTrue();
 
     QueryContext queryContext = contextArgumentCaptor.getValue();
     assertThat(queryContext.getLimit()).isEqualTo(20);
@@ -679,49 +679,6 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void create_query_from_parameters() {
-    Map<String, Object> map = newHashMap();
-    map.put("issues", newArrayList("ABCDE1234"));
-    map.put("severities", newArrayList("MAJOR", "MINOR"));
-    map.put("statuses", newArrayList("CLOSED"));
-    map.put("resolutions", newArrayList("FALSE-POSITIVE"));
-    map.put("resolved", true);
-    map.put("components", newArrayList("org.apache"));
-    map.put("componentRoots", newArrayList("org.sonar"));
-    map.put("reporters", newArrayList("marilyn"));
-    map.put("assignees", newArrayList("joanna"));
-    map.put("languages", newArrayList("xoo"));
-    map.put("assigned", true);
-    map.put("planned", true);
-    map.put("hideRules", true);
-    map.put("createdAfter", "2013-04-16T09:08:24+0200");
-    map.put("createdBefore", "2013-04-17T09:08:24+0200");
-    map.put("rules", "squid:AvoidCycle,findbugs:NullReference");
-    map.put("sort", "CREATION_DATE");
-    map.put("asc", true);
-
-    IssueQuery query = InternalRubyIssueService.toQuery(map);
-    assertThat(query.issueKeys()).containsOnly("ABCDE1234");
-    assertThat(query.severities()).containsOnly("MAJOR", "MINOR");
-    assertThat(query.statuses()).containsOnly("CLOSED");
-    assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");
-    assertThat(query.resolved()).isTrue();
-    assertThat(query.components()).containsOnly("org.apache");
-    assertThat(query.componentRoots()).containsOnly("org.sonar");
-    assertThat(query.reporters()).containsOnly("marilyn");
-    assertThat(query.assignees()).containsOnly("joanna");
-    assertThat(query.languages()).containsOnly("xoo");
-    assertThat(query.assigned()).isTrue();
-    assertThat(query.planned()).isTrue();
-    assertThat(query.hideRules()).isTrue();
-    assertThat(query.rules()).hasSize(2);
-    assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
-    assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDateTime("2013-04-17T09:08:24+0200"));
-    assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
-    assertThat(query.asc()).isTrue();
-  }
-
-  @Test
   public void create_context_from_parameters() {
     Map<String, Object> map = newHashMap();
     map.put("pageSize", 10l);
@@ -740,15 +697,6 @@ public class InternalRubyIssueServiceTest {
     context = InternalRubyIssueService.toContext(Maps.<String, Object>newHashMap());
     assertThat(context.getLimit()).isEqualTo(100);
     assertThat(context.getPage()).isEqualTo(1);
-  }
-
-  @Test
-  public void parse_list_of_rules() {
-    assertThat(InternalRubyIssueService.toRules(null)).isNull();
-    assertThat(InternalRubyIssueService.toRules("")).isEmpty();
-    assertThat(InternalRubyIssueService.toRules("squid:AvoidCycle")).containsOnly(RuleKey.of("squid", "AvoidCycle"));
-    assertThat(InternalRubyIssueService.toRules("squid:AvoidCycle,findbugs:NullRef")).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
-    assertThat(InternalRubyIssueService.toRules(asList("squid:AvoidCycle", "findbugs:NullRef"))).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
   }
 
   private void checkBadRequestException(Exception e, String key, Object... params) {

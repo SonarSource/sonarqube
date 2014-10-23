@@ -41,7 +41,7 @@ import java.util.Map;
 
 public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, IssueAuthorizationDto, String> implements DaoComponent {
 
-  public static final String PROJECT_KEY = "project";
+  public static final String PROJECT_UUID = "project";
 
   public IssueAuthorizationDao() {
     this(System2.INSTANCE);
@@ -72,7 +72,7 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
         IssueAuthorizationDto issueAuthorizationDto = authorizationDtoMap.get(project);
         if (issueAuthorizationDto == null) {
           issueAuthorizationDto = new IssueAuthorizationDto()
-            .setProject(project)
+            .setProjectUuid(project)
             .setPermission(UserRole.USER);
           issueAuthorizationDto.setUpdatedAt(updatedAt);
         }
@@ -87,9 +87,9 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
 
       @Override
       public void enqueueCollected() {
-        String projectKey = getParams().get("project");
-        if (authorizationDtoMap.isEmpty() && projectKey != null) {
-          getSession().enqueue(new DeleteKey<String>(getIndexType(), projectKey));
+        String projectUuid = getParams().get("project");
+        if (authorizationDtoMap.isEmpty() && projectUuid != null) {
+          getSession().enqueue(new DeleteKey<String>(getIndexType(), projectUuid));
         } else {
           for (IssueAuthorizationDto authorization : authorizationDtoMap.values()) {
             getSession().enqueue(new UpsertDto<IssueAuthorizationDto>(getIndexType(), authorization, true));
@@ -104,7 +104,7 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
     Map<String, Object> finalParams = super.getSynchronizationParams(date, params);
     finalParams.put("permission", UserRole.USER);
     finalParams.put("anyone", DefaultGroups.ANYONE);
-    finalParams.put(PROJECT_KEY, params.get(PROJECT_KEY));
+    finalParams.put(PROJECT_UUID, params.get(PROJECT_UUID));
     return finalParams;
   }
 

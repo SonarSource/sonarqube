@@ -153,6 +153,49 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void should_return_root_project_uuids_for_user() {
+    setupData("should_return_root_project_keys_for_user");
+
+    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+    Collection<String> rootProjectUuids = authorization.selectAuthorizedRootProjectsUuids(USER, "user");
+
+    assertThat(rootProjectUuids).containsOnly("ABCD");
+
+    // user does not have the role "admin"
+    rootProjectUuids = authorization.selectAuthorizedRootProjectsKeys(USER, "admin");
+    assertThat(rootProjectUuids).isEmpty();
+  }
+
+  @Test
+  public void should_return_root_project_uuids_for_group() {
+    // but user is not in an authorized group
+    setupData("should_return_root_project_keys_for_group");
+
+    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+    Collection<String> rootProjectUuids = authorization.selectAuthorizedRootProjectsUuids(USER, "user");
+
+    assertThat(rootProjectUuids).containsOnly("ABCD");
+
+    // user does not have the role "admin"
+    rootProjectUuids = authorization.selectAuthorizedRootProjectsKeys(USER, "admin");
+    assertThat(rootProjectUuids).isEmpty();
+  }
+
+  @Test
+  public void should_return_root_project_uuids_for_anonymous() {
+    setupData("should_return_root_project_keys_for_anonymous");
+
+    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+    Collection<String> rootProjectUuids = authorization.selectAuthorizedRootProjectsUuids(null, "user");
+
+    assertThat(rootProjectUuids).containsOnly("ABCD");
+
+    // group does not have the role "admin"
+    rootProjectUuids = authorization.selectAuthorizedRootProjectsKeys(null, "admin");
+    assertThat(rootProjectUuids).isEmpty();
+  }
+
+  @Test
   public void should_return_user_global_permissions() {
     setupData("should_return_user_global_permissions");
 

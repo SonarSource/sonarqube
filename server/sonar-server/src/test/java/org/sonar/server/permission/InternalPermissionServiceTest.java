@@ -34,7 +34,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
@@ -45,6 +44,7 @@ import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDao;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
@@ -169,7 +169,8 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void add_component_user_permission() throws Exception {
-    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
+    ComponentDto project = ComponentTesting.newProjectDto().setId(10L).setKey("org.sample.Sample");
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(project);
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "user");
     setUpComponentUserPermissions("user", 10L, "codeviewer");
@@ -178,7 +179,7 @@ public class InternalPermissionServiceTest {
     service.addPermission(params);
 
     verify(permissionFacade).insertUserPermission(eq(10L), eq(2L), eq("user"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", project.uuid())));
   }
 
   @Test
@@ -194,7 +195,8 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void remove_component_user_permission() throws Exception {
-    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
+    ComponentDto project = ComponentTesting.newProjectDto().setId(10L).setKey("org.sample.Sample");
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(project);
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
     setUpComponentUserPermissions("user", 10L, "codeviewer");
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
@@ -202,7 +204,7 @@ public class InternalPermissionServiceTest {
     service.removePermission(params);
 
     verify(permissionFacade).deleteUserPermission(eq(10L), eq(2L), eq("codeviewer"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", project.uuid())));
   }
 
   @Test
@@ -218,7 +220,8 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void add_component_group_permission() throws Exception {
-    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
+    ComponentDto project = ComponentTesting.newProjectDto().setId(10L).setKey("org.sample.Sample");
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(project);
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "user");
     setUpGlobalGroupPermissions("group", "codeviewer");
@@ -227,7 +230,7 @@ public class InternalPermissionServiceTest {
     service.addPermission(params);
 
     verify(permissionFacade).insertGroupPermission(eq(10L), eq(2L), eq("user"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", project.uuid())));
   }
 
   @Test
@@ -242,7 +245,8 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void add_component_permission_to_anyone_group() throws Exception {
-    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
+    ComponentDto project = ComponentTesting.newProjectDto().setId(10L).setKey("org.sample.Sample");
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(project);
 
     params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "user");
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, "org.sample.Sample");
@@ -250,7 +254,7 @@ public class InternalPermissionServiceTest {
     service.addPermission(params);
 
     verify(permissionFacade).insertGroupPermission(eq(10L), eq((Long) null), eq("user"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", project.uuid())));
   }
 
   @Test
@@ -266,7 +270,8 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void remove_component_group_permission() throws Exception {
-    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
+    ComponentDto project = ComponentTesting.newProjectDto().setId(10L).setKey("org.sample.Sample");
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(project);
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
     setUpComponentGroupPermissions("group", 10L, "codeviewer");
@@ -275,7 +280,7 @@ public class InternalPermissionServiceTest {
     service.removePermission(params);
 
     verify(permissionFacade).deleteGroupPermission(eq(10L), eq(2L), eq("codeviewer"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", project.uuid())));
   }
 
   @Test
@@ -291,7 +296,8 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void remove_component_permission_from_anyone_group() throws Exception {
-    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
+    ComponentDto project = ComponentTesting.newProjectDto().setId(10L).setKey("org.sample.Sample");
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(project);
 
     params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "codeviewer");
     setUpComponentGroupPermissions(DefaultGroups.ANYONE, 10L, "codeviewer");
@@ -300,7 +306,7 @@ public class InternalPermissionServiceTest {
     service.removePermission(params);
 
     verify(permissionFacade).deleteGroupPermission(eq(10L), eq((Long) null), eq("codeviewer"), eq(session));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", project.uuid())));
   }
 
   @Test
@@ -316,7 +322,8 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void skip_redundant_add_component_user_permission_change() throws Exception {
-    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
+    ComponentDto project = ComponentTesting.newProjectDto().setId(10L).setKey("org.sample.Sample");
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(project);
 
     params = buildPermissionChangeParams("user", null, "org.sample.Sample", "codeviewer");
     setUpComponentUserPermissions("user", 10L, "codeviewer");
@@ -341,7 +348,8 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void skip_redundant_add_component_group_permission_change() throws Exception {
-    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
+    ComponentDto project = ComponentTesting.newProjectDto().setId(10L).setKey("org.sample.Sample");
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(project);
 
     params = buildPermissionChangeParams(null, "group", "org.sample.Sample", "codeviewer");
     setUpComponentGroupPermissions("group", 10L, "codeviewer");
@@ -398,7 +406,8 @@ public class InternalPermissionServiceTest {
   @Test
   public void fail_on_insufficient_project_rights() throws Exception {
     try {
-      when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(new AuthorizedComponentDto().setId(10L).setKey("org.sample.Sample"));
+      ComponentDto project = ComponentTesting.newProjectDto().setId(10L).setKey("org.sample.Sample");
+      when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(project);
       params = buildPermissionChangeParams(null, DefaultGroups.ANYONE, "org.sample.Sample", "user");
       MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN);
 
@@ -420,15 +429,12 @@ public class InternalPermissionServiceTest {
 
   @Test
   public void apply_permission_template_on_many_projects() throws Exception {
-    ComponentDto c1 = mock(ComponentDto.class);
-    when(c1.getId()).thenReturn(1L);
-    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample1", session)).thenReturn(c1);
-    ComponentDto c2 = mock(ComponentDto.class);
-    when(c2.getId()).thenReturn(2L);
-    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample2", session)).thenReturn(c2);
-    ComponentDto c3 = mock(ComponentDto.class);
-    when(c3.getId()).thenReturn(3L);
-    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample3", session)).thenReturn(c3);
+    ComponentDto project1 = ComponentTesting.newProjectDto().setId(1L);
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample1", session)).thenReturn(project1);
+    ComponentDto project2 = ComponentTesting.newProjectDto().setId(2L);
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample2", session)).thenReturn(project2);
+    ComponentDto project3 = ComponentTesting.newProjectDto().setId(3L);
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample3", session)).thenReturn(project3);
     params = Maps.newHashMap();
     params.put("template_key", "my_template_key");
     params.put("components", "org.sample.Sample1,org.sample.Sample2,org.sample.Sample3");
@@ -439,9 +445,9 @@ public class InternalPermissionServiceTest {
     verify(permissionFacade).applyPermissionTemplate(session, "my_template_key", 2L);
     verify(permissionFacade).applyPermissionTemplate(session, "my_template_key", 3L);
 
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample1")));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample2")));
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample3")));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", project1.uuid())));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", project2.uuid())));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", project3.uuid())));
   }
 
   @Test(expected = ForbiddenException.class)
@@ -475,14 +481,13 @@ public class InternalPermissionServiceTest {
     params.put("template_key", "my_template_key");
     params.put("components", "org.sample.Sample");
 
-    ComponentDto c = mock(ComponentDto.class);
-    when(c.getId()).thenReturn(1L);
-    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(c);
+    ComponentDto project = ComponentTesting.newProjectDto().setId(1L).setKey("org.sample.Sample");
+    when(componentDao.getAuthorizedComponentByKey("org.sample.Sample", session)).thenReturn(project);
 
     service.applyPermissionTemplate(params);
 
     verify(permissionFacade).applyPermissionTemplate(session, "my_template_key", 1L);
-    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", "org.sample.Sample")));
+    verify(issueAuthorizationDao).synchronizeAfter(eq(session), any(Date.class), eq(ImmutableMap.of("project", project.uuid())));
   }
 
   @Test(expected = ForbiddenException.class)

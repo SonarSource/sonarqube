@@ -183,7 +183,7 @@ public class IssueTrackingDecorator implements Decorator {
       Long debtInMinutes = ref.getDebt();
       Duration previousTechnicalDebt = debtInMinutes != null ? Duration.create(debtInMinutes) : null;
       updater.setPastTechnicalDebt(issue, previousTechnicalDebt, changeContext);
-      updater.setPastProject(issue, ref.getRootComponentKey(), changeContext);
+      updater.setPastProject(issue, ref.getProjectKey(), changeContext);
     }
   }
 

@@ -31,6 +31,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -55,8 +56,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void insert_new_issues() throws Exception {
-    FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
+  public void batch_insert_new_issues() throws Exception {
+    FakeBatchSaver saver = new FakeBatchSaver(getMyBatis(), new FakeRuleFinder());
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     // override generated key
@@ -88,8 +89,8 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void insert_new_issues_with_session() throws Exception {
-    FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
+  public void batch_insert_new_issues_with_session() throws Exception {
+    FakeBatchSaver saver = new FakeBatchSaver(getMyBatis(), new FakeRuleFinder());
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     // override generated key
@@ -122,10 +123,46 @@ public class IssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void update_issues() throws Exception {
+  public void server_insert_new_issues_with_session() throws Exception {
+    ComponentDto project = new ComponentDto().setId(10L);
+    ComponentDto component = new ComponentDto().setId(100L);
+    FakeServerSaver saver = new FakeServerSaver(getMyBatis(), new FakeRuleFinder(), component, project);
+
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    // override generated key
+    comment.setKey("FGHIJ");
+
+    Date date = DateUtils.parseDate("2013-05-18");
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setNew(true)
+
+      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
+      .setLine(5000)
+      .setDebt(Duration.create(10L))
+      .setReporter("emmerik")
+      .setResolution("OPEN")
+      .setStatus("OPEN")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .addComment(comment)
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date)
+
+      .setComponentKey("struts:Action");
+
+    saver.save(session, issue);
+    session.commit();
+
+    checkTables("should_insert_new_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+  }
+
+  @Test
+  public void batch_update_issues() throws Exception {
     setupData("should_update_issues");
 
-    FakeSaver saver = new FakeSaver(getMyBatis(), new FakeRuleFinder());
+    FakeBatchSaver saver = new FakeBatchSaver(getMyBatis(), new FakeRuleFinder());
 
     DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
     // override generated key
@@ -163,16 +200,86 @@ public class IssueStorageTest extends AbstractDaoTestCase {
     checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
   }
 
-  static class FakeSaver extends IssueStorage {
+  @Test
+  public void server_update_issues() throws Exception {
+    setupData("should_update_issues");
 
-    protected FakeSaver(MyBatis mybatis, RuleFinder ruleFinder) {
+    ComponentDto project = new ComponentDto().setId(10L);
+    ComponentDto component = new ComponentDto().setId(100L);
+    FakeServerSaver saver = new FakeServerSaver(getMyBatis(), new FakeRuleFinder(), component, project);
+
+    DefaultIssueComment comment = DefaultIssueComment.create("ABCDE", "emmerik", "the comment");
+    // override generated key
+    comment.setKey("FGHIJ");
+
+    Date date = DateUtils.parseDate("2013-05-18");
+    DefaultIssue issue = new DefaultIssue()
+      .setKey("ABCDE")
+      .setNew(false)
+      .setChanged(true)
+
+        // updated fields
+      .setLine(5000)
+      .setDebt(Duration.create(10L))
+      .setChecksum("FFFFF")
+      .setAuthorLogin("simon")
+      .setAssignee("loic")
+      .setFieldChange(context, "severity", "INFO", "BLOCKER")
+      .setReporter("emmerik")
+      .setResolution("FIXED")
+      .setStatus("RESOLVED")
+      .setSeverity("BLOCKER")
+      .setAttribute("foo", "bar")
+      .addComment(comment)
+      .setCreationDate(date)
+      .setUpdateDate(date)
+      .setCloseDate(date)
+
+        // unmodifiable fields
+      .setRuleKey(RuleKey.of("xxx", "unknown"))
+      .setComponentKey("not:a:component");
+
+    saver.save(issue);
+
+    checkTables("should_update_issues", new String[]{"id", "created_at", "updated_at", "issue_change_creation_date"}, "issues", "issue_changes");
+  }
+
+  static class FakeBatchSaver extends IssueStorage {
+
+    protected FakeBatchSaver(MyBatis mybatis, RuleFinder ruleFinder) {
       super(mybatis, ruleFinder);
     }
 
     @Override
     protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
       int ruleId = ruleId(issue);
-      IssueDto dto = IssueDto.toDtoForInsert(issue, 100l, 10l, ruleId, now);
+      IssueDto dto = IssueDto.toDtoForBatchInsert(issue, 100l, 10l, ruleId, now);
+
+      session.getMapper(IssueMapper.class).insert(dto);
+    }
+
+    @Override
+    protected void doUpdate(DbSession session, Date now, DefaultIssue issue) {
+      IssueDto dto = IssueDto.toDtoForUpdate(issue, 10l, now);
+      session.getMapper(IssueMapper.class).update(dto);
+    }
+  }
+
+  static class FakeServerSaver extends IssueStorage {
+    
+    private final ComponentDto component;
+    private final ComponentDto project;
+
+    protected FakeServerSaver(MyBatis mybatis, RuleFinder ruleFinder, ComponentDto component, ComponentDto project) {
+      super(mybatis, ruleFinder);
+      this.component = component;
+      this.project = project;
+    }
+
+    @Override
+    protected void doInsert(DbSession session, Date now, DefaultIssue issue) {
+      int ruleId = ruleId(issue);
+      IssueDto dto = IssueDto.toDtoForServerInsert(issue, component, project, ruleId, now);
 
       session.getMapper(IssueMapper.class).insert(dto);
     }

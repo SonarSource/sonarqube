@@ -30,13 +30,13 @@ public class IssueAuthorizationDtoTest {
   @Test
   public void getter_and_setter() throws Exception {
     IssueAuthorizationDto dto = new IssueAuthorizationDto()
-      .setProject("Sample")
+      .setProjectUuid("Sample")
       .setPermission("user")
       .setGroups(newArrayList("sonar-users"))
       .setUsers(newArrayList("john"));
 
     assertThat(dto.getKey()).isEqualTo("Sample");
-    assertThat(dto.getProject()).isEqualTo("Sample");
+    assertThat(dto.getProjectUuid()).isEqualTo("Sample");
     assertThat(dto.getPermission()).isEqualTo("user");
     assertThat(dto.getGroups()).containsExactly("sonar-users");
     assertThat(dto.getUsers()).containsExactly("john");
@@ -45,7 +45,7 @@ public class IssueAuthorizationDtoTest {
   @Test
   public void add_group() throws Exception {
     IssueAuthorizationDto dto = new IssueAuthorizationDto()
-      .setProject("Sample")
+      .setProjectUuid("Sample")
       .setPermission("user")
       .setGroups(newArrayList("sonar-users"))
       .setUsers(newArrayList("john"));
@@ -60,7 +60,7 @@ public class IssueAuthorizationDtoTest {
   @Test
   public void add_user() throws Exception {
     IssueAuthorizationDto dto = new IssueAuthorizationDto()
-      .setProject("Sample")
+      .setProjectUuid("Sample")
       .setPermission("user")
       .setGroups(newArrayList("sonar-users"))
       .setUsers(newArrayList("john"));

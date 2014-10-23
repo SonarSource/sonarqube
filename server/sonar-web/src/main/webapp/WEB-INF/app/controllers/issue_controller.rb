@@ -206,8 +206,8 @@ class IssueController < ApplicationController
 
   def init_issue(issue_key)
     @issue = Internal.issues.getIssueByKey(issue_key)
-    @project = Internal.component_api.findByKey(@issue.projectKey())
-    @component = Internal.component_api.findByKey(@issue.componentKey())
+    @project = Internal.component_api.findByUuid(@issue.projectUuid())
+    @component = Internal.component_api.findByUuid(@issue.componentUuid())
     @rule = Internal.rules.findByKey(@issue.ruleKey().to_s)
     @action_plan = Internal.issues.findActionPlan(@issue.actionPlanKey()) if @issue.actionPlanKey()
     @comments = Internal.issues.findComments(issue_key)
@@ -224,7 +224,7 @@ class IssueController < ApplicationController
       @users[u.login()] = u
     end
 
-    resource = Project.by_key(@issue.componentKey())
+    resource = Project.by_key(@component.key())
     @snapshot = resource.last_snapshot if resource.last_snapshot
   end
 

@@ -51,9 +51,17 @@ import static com.google.common.collect.Lists.newArrayList;
 public class DefaultIssue implements Issue {
 
   private String key;
+
+  private String componentUuid;
   private String componentKey;
   private Long componentId;
+
+  private String moduleUuid;
+  private String moduleUuidPath;
+
+  private String projectUuid;
   private String projectKey;
+
   private RuleKey ruleKey;
   private String language;
   private String severity;
@@ -114,6 +122,16 @@ public class DefaultIssue implements Issue {
   }
 
   @Override
+  public String componentUuid() {
+    return componentUuid;
+  }
+
+  public DefaultIssue setComponentUuid(String componentUuid) {
+    this.componentUuid = componentUuid;
+    return this;
+  }
+
+  @Override
   public String componentKey() {
     return componentKey;
   }
@@ -133,6 +151,36 @@ public class DefaultIssue implements Issue {
 
   public DefaultIssue setComponentId(@Nullable Long s) {
     this.componentId = s;
+    return this;
+  }
+
+  @CheckForNull
+  public String moduleUuid() {
+    return moduleUuid;
+  }
+
+  public DefaultIssue setModuleUuid(@Nullable String moduleUuid) {
+    this.moduleUuid = moduleUuid;
+    return this;
+  }
+
+  @CheckForNull
+  public String moduleUuidPath() {
+    return moduleUuidPath;
+  }
+
+  public DefaultIssue setModuleUuidPath(@Nullable String moduleUuidPath) {
+    this.moduleUuidPath = moduleUuidPath;
+    return this;
+  }
+
+  @Override
+  public String projectUuid() {
+    return projectUuid;
+  }
+
+  public DefaultIssue setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
     return this;
   }
 

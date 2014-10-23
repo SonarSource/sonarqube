@@ -60,46 +60,41 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
     if (actions.isEmpty()) {
       return;
     }
-    try {
+    boolean refreshRequired = false;
 
-      boolean refreshRequired = false;
+    Map<String, Index> indexes = getIndexMap();
+    Set<String> indices = new HashSet<String>();
+    for (IndexAction action : actions) {
+      Index index = indexes.get(action.getIndexType());
+      action.setIndex(index);
+      if (action.needsRefresh()) {
+        refreshRequired = true;
+        indices.add(index.getIndexName());
+      }
+    }
 
-      Map<String, Index> indexes = getIndexMap();
-      Set<String> indices = new HashSet<String>();
-      for (IndexAction action : actions) {
-        Index index = indexes.get(action.getIndexType());
-        action.setIndex(index);
-        if (action.needsRefresh()) {
-          refreshRequired = true;
-          indices.add(index.getIndexName());
-        }
+    BulkRequestBuilder bulkRequestBuilder = new BulkRequestBuilder(searchClient);
+
+    long normTime = processActionsIntoQueries(bulkRequestBuilder, actions);
+
+    if (bulkRequestBuilder.numberOfActions() > 0) {
+      // execute the request
+      long indexTime = System.currentTimeMillis();
+      BulkResponse response = searchClient.execute(bulkRequestBuilder.setRefresh(false));
+
+      indexTime = System.currentTimeMillis() - indexTime;
+
+      long refreshTime = 0;
+      if (refreshRequired) {
+        refreshTime = this.refreshRequiredIndex(indices);
       }
 
-      BulkRequestBuilder bulkRequestBuilder = new BulkRequestBuilder(searchClient);
+      LOGGER.debug("-- submitted {} items with {}ms in normalization, {}ms indexing and {}ms refresh({}). Total: {}ms",
+        bulkRequestBuilder.numberOfActions(), normTime, indexTime, refreshTime, indices, (normTime + indexTime + refreshTime));
 
-      long normTime = processActionsIntoQueries(bulkRequestBuilder, actions);
-
-      if (bulkRequestBuilder.numberOfActions() > 0) {
-        // execute the request
-        long indexTime = System.currentTimeMillis();
-        BulkResponse response = searchClient.execute(bulkRequestBuilder.setRefresh(false));
-
-        indexTime = System.currentTimeMillis() - indexTime;
-
-        long refreshTime = 0;
-        if (refreshRequired) {
-          refreshTime = this.refreshRequiredIndex(indices);
-        }
-
-        LOGGER.debug("-- submitted {} items with {}ms in normalization, {}ms indexing and {}ms refresh({}). Total: {}ms",
-          bulkRequestBuilder.numberOfActions(), normTime, indexTime, refreshTime, indices, (normTime + indexTime + refreshTime));
-
-        if (response.hasFailures()) {
-          throw new IllegalStateException("Errors while indexing stack: " + response.buildFailureMessage());
-        }
+      if (response.hasFailures()) {
+        throw new IllegalStateException("Errors while indexing stack: " + response.buildFailureMessage());
       }
-    } catch (Exception e) {
-      LOGGER.error("Could not commit to ElasticSearch", e);
     }
   }
 

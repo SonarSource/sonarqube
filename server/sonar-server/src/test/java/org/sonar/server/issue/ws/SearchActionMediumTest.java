@@ -40,6 +40,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.core.source.db.SnapshotSourceDto;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueTesting;
@@ -81,7 +82,7 @@ public class SearchActionMediumTest {
       .setStatus(RuleStatus.READY);
     tester.get(RuleDao.class).insert(session, rule);
 
-    project = new ComponentDto()
+    project = ComponentTesting.newProjectDto().setUuid("ABCD").setProjectUuid("ABCD")
       .setKey("MyProject");
     db.componentDao().insert(session, project);
     db.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
@@ -91,7 +92,7 @@ public class SearchActionMediumTest {
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.CODEVIEWER, session);
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
-    file = new ComponentDto()
+    file = ComponentTesting.newFileDto(project).setUuid("BCDE")
       .setKey("MyComponent")
       .setSubProjectId(project.getId());
     db.componentDao().insert(session, file);
@@ -147,7 +148,7 @@ public class SearchActionMediumTest {
     IssueDto issue = IssueTesting.newDto(rule, file, project)
       .setRule(rule)
       .setDebt(10L)
-      .setRootComponent(project)
+      .setProject(project)
       .setComponent(file)
       .setStatus("OPEN").setResolution("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -257,19 +258,22 @@ public class SearchActionMediumTest {
 
   @Test
   public void issue_linked_on_removed_file() throws Exception {
-    IssueDto issue = IssueTesting.newDto(rule, file, project)
+    ComponentDto removedFile = ComponentTesting.newFileDto(project).setUuid("EDCB")
+      .setEnabled(false)
+      .setKey("RemovedComponent")
+      .setSubProjectId(project.getId());
+    db.componentDao().insert(session, removedFile);
+
+    IssueDto issue = IssueTesting.newDto(rule, removedFile, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setRule(rule)
-      .setRootComponent(project)
-      .setComponent(file)
+      .setProject(project)
+      .setComponent(removedFile)
       .setStatus("OPEN").setResolution("OPEN")
       .setSeverity("MAJOR")
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
       .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
     db.issueDao().insert(session, issue);
-
-    // Remove the file
-    db.componentDao().deleteByKey(session, file.key());
     session.commit();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
@@ -300,9 +304,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void components_contains_sub_projects() throws Exception {
-    ComponentDto project = new ComponentDto()
-      .setKey("ProjectHavingModule")
-      .setScope("PRJ");
+    ComponentDto project = ComponentTesting.newProjectDto().setKey("ProjectHavingModule");
     db.componentDao().insert(session, project);
     db.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
 
@@ -310,17 +312,13 @@ public class SearchActionMediumTest {
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
-    ComponentDto module = new ComponentDto()
-      .setKey("ModuleHavingFile")
+    ComponentDto module = ComponentTesting.newFileDto(project).setKey("ModuleHavingFile")
       .setScope("PRJ")
       .setSubProjectId(project.getId());
     db.componentDao().insert(session, module);
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module, project));
 
-    ComponentDto file = new ComponentDto()
-      .setKey("FileLinkedToModule")
-      .setScope("FIL")
-      .setSubProjectId(module.getId());
+    ComponentDto file = ComponentTesting.newFileDto(module).setKey("FileLinkedToModule");
     db.componentDao().insert(session, file);
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
 
@@ -339,7 +337,7 @@ public class SearchActionMediumTest {
       .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
       .setRule(rule)
       .setDebt(10L)
-      .setRootComponent(project)
+      .setProject(project)
       .setComponent(file)
       .setStatus("OPEN").setResolution("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -358,7 +356,7 @@ public class SearchActionMediumTest {
       .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
       .setRule(rule)
       .setDebt(10L)
-      .setRootComponent(project)
+      .setProject(project)
       .setComponent(file)
       .setStatus("OPEN").setResolution("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
@@ -435,7 +433,7 @@ public class SearchActionMediumTest {
       .setLine(3)
       .setRule(rule)
       .setDebt(10L)
-      .setRootComponent(project)
+      .setProject(project)
       .setComponent(file)
       .setStatus("OPEN").setResolution("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")

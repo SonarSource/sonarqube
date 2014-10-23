@@ -40,7 +40,6 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
@@ -164,27 +163,38 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  public void filter_by_projects() throws Exception {
+  public void filter_by_component_roots() throws Exception {
+    ComponentDto module = ComponentTesting.newModuleDto(project);
+    ComponentDto subModule = ComponentTesting.newModuleDto(module);
+    ComponentDto file = ComponentTesting.newFileDto(subModule);
+    tester.get(ComponentDao.class).insert(session, module, subModule, file);
+
     db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setRootComponentKey(project.key()));
+      IssueTesting.newDto(rule, file, project));
     session.commit();
 
-    assertThat(index.search(IssueQuery.builder().componentRoots(newArrayList(project.key())).build(), new QueryContext()).getHits()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder().componentRoots(newArrayList(file.key())).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().componentRoots(newArrayList(file.uuid())).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().componentRoots(newArrayList(module.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().componentRoots(newArrayList(subModule.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().componentRoots(newArrayList(project.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().componentRoots(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
   }
 
   @Test
   public void filter_by_components() throws Exception {
+    ComponentDto file1 = ComponentTesting.newFileDto(project);
+    ComponentDto file2 = ComponentTesting.newFileDto(project);
+    tester.get(ComponentDao.class).insert(session, file1, file2);
+
     db.issueDao().insert(session,
-      IssueTesting.newDto(rule, file, project).setComponentKey("file1"),
-      IssueTesting.newDto(rule, file, project).setComponentKey("file2"));
+      IssueTesting.newDto(rule, file1, project),
+      IssueTesting.newDto(rule, file2, project));
     session.commit();
 
-    assertThat(index.search(IssueQuery.builder().components(newArrayList("file1", "file2")).build(), new QueryContext()).getHits()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder().components(newArrayList("file1")).build(), new QueryContext()).getHits()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder().components(newArrayList(file1.uuid(), file2.uuid())).build(), new QueryContext()).getHits()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder().components(newArrayList(file1.uuid())).build(), new QueryContext()).getHits()).hasSize(1);
     assertThat(index.search(IssueQuery.builder().components(newArrayList("unknown")).build(), new QueryContext()).getHits()).isEmpty();
-    assertThat(index.search(IssueQuery.builder().components(newArrayList(project.key())).build(), new QueryContext()).getHits()).isEmpty();
+    assertThat(index.search(IssueQuery.builder().components(newArrayList(project.uuid())).build(), new QueryContext()).getHits()).isEmpty();
   }
 
   @Test
@@ -671,26 +681,12 @@ public class IssueIndexMediumTest {
   }
 
   @Test
-  public void synchronize_issues() throws Exception {
+  public void synchronize_a_lot_of_issues() throws Exception {
     Integer numberOfIssues = 1000;
-
-    ComponentDto project = new ComponentDto()
-      .setKey("MyProject");
-    db.componentDao().insert(session, project);
-
-    // project can be seen by anyone
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
-
-    ComponentDto resource = new ComponentDto()
-      .setSubProjectId(project.getId())
-      .setKey("MyComponent");
-    db.componentDao().insert(session, resource);
-    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(resource, project));
 
     List<String> issueKeys = newArrayList();
     for (int i = 0; i < numberOfIssues; i++) {
-      IssueDto issue = IssueTesting.newDto(rule, resource, project);
+      IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
       issueKeys.add(issue.getKey());
     }

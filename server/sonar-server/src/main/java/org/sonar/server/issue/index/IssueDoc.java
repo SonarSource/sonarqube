@@ -28,6 +28,7 @@ import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -46,7 +47,22 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public String componentKey() {
+    throw new IllegalStateException("componentKey is not available on server side");
+  }
+
+  @Override
+  public String componentUuid() {
     return getField(IssueNormalizer.IssueField.COMPONENT.field());
+  }
+
+  @Override
+  public String projectKey() {
+    throw new IllegalStateException("projectKey is not available on server side");
+  }
+
+  @Override
+  public String projectUuid() {
+    return getField(IssueNormalizer.IssueField.PROJECT.field());
   }
 
   @Override
@@ -158,7 +174,7 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public boolean isNew() {
-    throw new IllegalStateException("Only available for batch");
+    throw new IllegalStateException("isNew is only available for batch");
   }
 
   @Override
@@ -166,10 +182,5 @@ public class IssueDoc extends BaseDoc implements Issue {
   public Duration debt() {
     Integer debt = getNullableField(IssueNormalizer.IssueField.DEBT.field());
     return (debt != null) ? Duration.create(Long.valueOf(debt)) : null;
-  }
-
-  @Override
-  public String projectKey() {
-    return getField(IssueNormalizer.IssueField.PROJECT.field());
   }
 }

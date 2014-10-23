@@ -31,6 +31,7 @@ import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
@@ -71,14 +72,11 @@ public class BackendCleanupMediumTest {
     rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(session, rule);
 
-    project = new ComponentDto()
-      .setKey("MyProject");
+    project = ComponentTesting.newProjectDto().setKey("MyProject");
     tester.get(ComponentDao.class).insert(session, project);
     db.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
 
-    file = new ComponentDto()
-      .setProjectId_unit_test_only(project.getId())
-      .setKey("MyComponent");
+    file = ComponentTesting.newFileDto(project).setKey("MyComponent");
     tester.get(ComponentDao.class).insert(session, file);
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
 
@@ -110,7 +108,7 @@ public class BackendCleanupMediumTest {
 
     // Nothing should be removed from indexes
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNotNull();
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNotNull();
+    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNotNull();
     assertThat(tester.get(RuleIndex.class).getNullableByKey(rule.getKey())).isNotNull();
   }
 
@@ -127,7 +125,7 @@ public class BackendCleanupMediumTest {
 
     // Everything should be removed from indexes
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNull();
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNull();
+    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNull();
     assertThat(tester.get(RuleIndex.class).getNullableByKey(rule.getKey())).isNull();
   }
 
@@ -144,7 +142,7 @@ public class BackendCleanupMediumTest {
 
     // Everything should be removed from indexes
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNull();
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNull();
+    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNull();
     assertThat(tester.get(RuleIndex.class).getNullableByKey(rule.getKey())).isNull();
   }
 
@@ -158,7 +156,7 @@ public class BackendCleanupMediumTest {
     assertThat(tester.get(ComponentDao.class).getNullableByKey(session, file.key())).isNull();
     assertThat(tester.get(IssueDao.class).getNullableByKey(session, issue.getKey())).isNull();
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNull();
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.getKey())).isNull();
+    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNull();
 
     // Every rules should not be removed (from db and indexes)
     assertThat(tester.get(RuleDao.class).getNullableByKey(session, rule.getKey())).isNotNull();

@@ -149,7 +149,7 @@ public class InternalPermissionService implements ServerComponent {
       for (String componentKey : query.getSelectedComponents()) {
         AuthorizedComponentDto component = dbClient.componentDao().getAuthorizedComponentByKey(componentKey, session);
         permissionFacade.applyPermissionTemplate(session, query.getTemplateKey(), component.getId());
-        synchronizePermissions(session, componentKey);
+        synchronizePermissions(session, component.uuid());
       }
       session.commit();
     } finally {
@@ -176,7 +176,7 @@ public class InternalPermissionService implements ServerComponent {
       if (changed) {
         String project = permissionChangeQuery.component();
         if (project != null) {
-          synchronizePermissions(session, project);
+          synchronizePermissions(session, dbClient.componentDao().getAuthorizedComponentByKey(project, session).uuid());
         }
         session.commit();
       }
@@ -275,9 +275,9 @@ public class InternalPermissionService implements ServerComponent {
     }
   }
 
-  public void synchronizePermissions(DbSession session, String projectKey) {
+  public void synchronizePermissions(DbSession session, String projectUuid) {
     dbClient.issueAuthorizationDao().synchronizeAfter(session,
       index.get(IssueAuthorizationIndex.class).getLastSynchronization(),
-      ImmutableMap.of(IssueAuthorizationDao.PROJECT_KEY, projectKey));
+      ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, projectUuid));
   }
 }

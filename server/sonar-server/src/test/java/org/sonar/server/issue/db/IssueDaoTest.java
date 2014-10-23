@@ -65,7 +65,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100L);
     assertThat(issue.getComponentId()).isEqualTo(401);
-    assertThat(issue.getRootComponentId()).isEqualTo(399);
+    assertThat(issue.getProjectId()).isEqualTo(399);
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getLanguage()).isEqualTo("java");
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
@@ -88,7 +88,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRuleRepo()).isEqualTo("squid");
     assertThat(issue.getRule()).isEqualTo("AvoidCycle");
     assertThat(issue.getComponentKey()).isEqualTo("Action.java");
-    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
+    assertThat(issue.getProjectKey()).isEqualTo("struts");
   }
 
   @Test
@@ -102,7 +102,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getId()).isEqualTo(100L);
     assertThat(issue.getComponentId()).isEqualTo(401);
-    assertThat(issue.getRootComponentId()).isEqualTo(399);
+    assertThat(issue.getProjectId()).isEqualTo(399);
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getLanguage()).isEqualTo("java");
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
@@ -125,7 +125,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRuleRepo()).isEqualTo("squid");
     assertThat(issue.getRule()).isEqualTo("AvoidCycle");
     assertThat(issue.getComponentKey()).isEqualTo("Action.java");
-    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
+    assertThat(issue.getProjectKey()).isEqualTo("struts");
   }
 
   @Test
@@ -139,7 +139,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getKee()).isEqualTo("ABCDE");
     assertThat(issue.getActionPlanKey()).isEqualTo("AP-1");
     assertThat(issue.getComponentId()).isEqualTo(401);
-    assertThat(issue.getRootComponentId()).isEqualTo(399);
+    assertThat(issue.getProjectId()).isEqualTo(399);
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getLanguage()).isEqualTo("java");
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
@@ -162,7 +162,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRuleRepo()).isEqualTo("squid");
     assertThat(issue.getRule()).isEqualTo("AvoidCycle");
     assertThat(issue.getComponentKey()).isEqualTo("Action.java");
-    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
+    assertThat(issue.getProjectKey()).isEqualTo("struts");
   }
 
   @Test
@@ -189,7 +189,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     IssueDto dto = new IssueDto();
     dto.setComponent(new ComponentDto().setKey("struts:Action").setId(123L));
-    dto.setRootComponent(new ComponentDto().setKey("struts").setId(100L));
+    dto.setProject(new ComponentDto().setKey("struts").setId(100L));
     dto.setRule(RuleTesting.newDto(RuleKey.of("squid", "S001")).setId(200));
     dto.setKee("ABCDE");
     dto.setLine(500);
@@ -226,7 +226,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
 
     IssueDto dto = new IssueDto();
     dto.setComponent(new ComponentDto().setKey("struts:Action").setId(123L));
-    dto.setRootComponent(new ComponentDto().setKey("struts").setId(101L));
+    dto.setProject(new ComponentDto().setKey("struts").setId(101L));
     dto.setRule(RuleTesting.newDto(RuleKey.of("squid", "S001")).setId(200));
     dto.setKee("ABCDE");
     dto.setLine(500);

@@ -1,6 +1,7 @@
 <dataset>
 
-  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+  <projects id="1" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="[null]"
+            root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
             description="the description" long_name="Apache Struts"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
             authorization_updated_at="2014-01-01"/>
