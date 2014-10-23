@@ -62,45 +62,10 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
     try {
       Migration50Mapper mapper = session.getMapper(Migration50Mapper.class);
 
-      for (Component project : mapper.selectEnabledRootTrkProjects()) {
+      for (Component project : mapper.selectRootProjects()) {
         Map<Long, String> uuidByComponentId = newHashMap();
-        Map<Long, Component> componentsBySnapshotId = newHashMap();
-
-        List<Component> components = mapper.selectComponentChildrenForProjects(project.getId());
-        components.add(project);
-        for (Component component : components) {
-          componentsBySnapshotId.put(component.getSnapshotId(), component);
-
-          component.setUuid(getOrCreateUuid(component.getId(), uuidByComponentId));
-          component.setProjectUuid(getOrCreateUuid(project.getId(), uuidByComponentId));
-        }
-
-        for (Component component : components) {
-          String snapshotPath = component.getSnapshotPath();
-          StringBuilder moduleUuidPath = new StringBuilder();
-          Component lastModule = null;
-          if (!Strings.isNullOrEmpty(snapshotPath)) {
-            for (String s : Splitter.on(".").omitEmptyStrings().split(snapshotPath)) {
-              Long snapshotId = Long.valueOf(s);
-              Component currentComponent = componentsBySnapshotId.get(snapshotId);
-              if (currentComponent.getScope().equals(Scopes.PROJECT)) {
-                lastModule = currentComponent;
-                moduleUuidPath.append(currentComponent.getUuid()).append(".");
-              }
-            }
-          }
-          if (moduleUuidPath.length() > 0) {
-            component.setModuleUuidPath(moduleUuidPath.toString());
-          }
-
-          // Module UUID should contains direct module of a component, but it should be null on the first module
-          if (lastModule != null && !lastModule.getId().equals(project.getId())) {
-            component.setModuleUuid(getOrCreateUuid(lastModule.getId(), uuidByComponentId));
-          }
-
-          mapper.updateComponentUuids(component);
-          counter.getAndIncrement();
-        }
+        migrateEnabledComponents(session, mapper, project, uuidByComponentId);
+        migrateDisabledComponents(session, mapper, project, uuidByComponentId);
       }
 
       session.commit();
@@ -111,6 +76,56 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
       session.close();
       timer.cancel();
       timer.purge();
+    }
+  }
+
+  private void migrateEnabledComponents(DbSession session, Migration50Mapper mapper, Component project, Map<Long, String> uuidByComponentId) {
+      Map<Long, Component> componentsBySnapshotId = newHashMap();
+
+      List<Component> components = mapper.selectComponentChildrenForProjects(project.getId());
+      components.add(project);
+      for (Component component : components) {
+        componentsBySnapshotId.put(component.getSnapshotId(), component);
+
+        component.setUuid(getOrCreateUuid(component.getId(), uuidByComponentId));
+        component.setProjectUuid(getOrCreateUuid(project.getId(), uuidByComponentId));
+      }
+
+      for (Component component : components) {
+        String snapshotPath = component.getSnapshotPath();
+        StringBuilder moduleUuidPath = new StringBuilder();
+        Component lastModule = null;
+        if (!Strings.isNullOrEmpty(snapshotPath)) {
+          for (String s : Splitter.on(".").omitEmptyStrings().split(snapshotPath)) {
+            Long snapshotId = Long.valueOf(s);
+            Component currentComponent = componentsBySnapshotId.get(snapshotId);
+            if (currentComponent.getScope().equals(Scopes.PROJECT)) {
+              lastModule = currentComponent;
+              moduleUuidPath.append(currentComponent.getUuid()).append(".");
+            }
+          }
+        }
+        if (moduleUuidPath.length() > 0) {
+          component.setModuleUuidPath(moduleUuidPath.toString());
+        }
+
+        // Module UUID should contains direct module of a component, but it should be null on the first module
+        if (lastModule != null && !lastModule.getId().equals(project.getId())) {
+          component.setModuleUuid(getOrCreateUuid(lastModule.getId(), uuidByComponentId));
+        }
+
+        mapper.updateComponentUuids(component);
+        counter.getAndIncrement();
+      }
+  }
+
+  private void migrateDisabledComponents(DbSession session, Migration50Mapper mapper, Component project, Map<Long, String> uuidByComponentId) {
+    for (Component component : mapper.selectDisabledComponentChildrenForProjects(project.getId())) {
+      component.setUuid(getOrCreateUuid(component.getId(), uuidByComponentId));
+      component.setProjectUuid(getOrCreateUuid(project.getId(), uuidByComponentId));
+
+      mapper.updateComponentUuids(component);
+      counter.getAndIncrement();
     }
   }
 

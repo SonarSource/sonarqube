@@ -29,7 +29,7 @@ import java.util.List;
 public interface Migration50Mapper {
 
   /**
-   * Return enabled root projects (Views and Developers are NOT returned)
+   * Return root projects (Views and Developers are NOT returned)
    */
   @Select("SELECT " +
     "  p.id AS \"id\", " +
@@ -39,10 +39,10 @@ public interface Migration50Mapper {
     "  p.scope AS \"scope\" " +
     "FROM projects p " +
     "  LEFT OUTER JOIN snapshots s ON s.project_id = p.id AND s.islast = ${_true} " +
-    "  WHERE p.scope = 'PRJ' AND p.qualifier <> 'VW' AND p.qualifier <> 'DEV' AND p.root_id IS NULL AND p.enabled=${_true}")
+    "  WHERE p.scope = 'PRJ' AND p.qualifier <> 'VW' AND p.qualifier <> 'DEV' AND p.root_id IS NULL")
   @Result(javaType = Component.class)
   @Options(statementType = StatementType.PREPARED, resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = 200)
-  List<Component> selectEnabledRootTrkProjects();
+  List<Component> selectRootProjects();
 
   @Select("SELECT " +
     "  p.id AS \"id\", " +
@@ -57,6 +57,18 @@ public interface Migration50Mapper {
     "  WHERE root.id = #{id}")
   @Result(javaType = Component.class)
   List<Component> selectComponentChildrenForProjects(@Param("id") Long projectId);
+
+  /**
+   * Return disabled children
+   */
+  @Select("SELECT " +
+    "  p.id AS \"id\" " +
+    "FROM projects p " +
+    "  LEFT OUTER JOIN projects root_one ON root_one.id = p.root_id " +
+    "  LEFT OUTER JOIN projects root_two ON root_two.id = root_one.root_id " +
+    "  WHERE (root_one.id = #{id} OR root_two.id=#{id}) AND p.enabled=${_false}")
+  @Result(javaType = Component.class)
+  List<Component> selectDisabledComponentChildrenForProjects(@Param("id") Long projectId);
 
   @Select("SELECT " +
     "  p.id AS \"id\", " +

@@ -104,6 +104,45 @@ public class PopulateProjectsUuidColumnsMigrationTest {
   }
 
   @Test
+  public void migrate_disable_components() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_disable_components.xml");
+
+    migration.execute();
+    session.commit();
+
+    Component root = mapper.selectComponentByKey("org.struts:struts");
+    assertThat(root.getUuid()).isNotNull();
+
+    Component module = mapper.selectComponentByKey("org.struts:struts-core");
+    assertThat(module.getUuid()).isNotNull();
+    assertThat(module.getProjectUuid()).isEqualTo(root.getUuid());
+    // Module and module path will always be null for removed components
+    assertThat(module.getModuleUuid()).isNull();
+    assertThat(module.getModuleUuidPath()).isNull();
+
+    Component subModule = mapper.selectComponentByKey("org.struts:struts-db");
+    assertThat(subModule.getUuid()).isNotNull();
+    assertThat(subModule.getProjectUuid()).isEqualTo(root.getUuid());
+    // Module and module path will always be null for removed components
+    assertThat(subModule.getModuleUuid()).isNull();
+    assertThat(subModule.getModuleUuidPath()).isNull();
+
+    Component directory = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts");
+    assertThat(directory.getUuid()).isNotNull();
+    assertThat(directory.getProjectUuid()).isEqualTo(root.getUuid());
+    // Module and module path will always be null for removed components
+    assertThat(directory.getModuleUuid()).isNull();
+    assertThat(directory.getModuleUuidPath()).isNull();
+
+    Component file = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(file.getUuid()).isNotNull();
+    assertThat(file.getProjectUuid()).isEqualTo(root.getUuid());
+    // Module and module path will always be null for removed components
+    assertThat(file.getModuleUuid()).isNull();
+    assertThat(file.getModuleUuidPath()).isNull();
+  }
+
+  @Test
   public void migrate_provisioned_project() throws Exception {
     db.prepareDbUnit(getClass(), "migrate_provisioned_project.xml");
 
