@@ -33,19 +33,24 @@ public interface Migration50Mapper {
    */
   @Select("SELECT " +
     "  p.id AS \"id\", " +
+    "  p.uuid AS \"uuid\", " +
     "  s.root_project_id AS \"projectId\", " +
     "  s.id AS \"snapshotId\", " +
     "  s.path AS \"snapshotPath\", " +
     "  p.scope AS \"scope\" " +
     "FROM projects p " +
     "  LEFT OUTER JOIN snapshots s ON s.project_id = p.id AND s.islast = ${_true} " +
-    "  WHERE p.scope = 'PRJ' AND p.qualifier <> 'VW' AND p.qualifier <> 'DEV' AND p.root_id IS NULL")
+    "  WHERE " +
+    "   p.scope = 'PRJ' " +
+    "   AND p.root_id IS NULL " +
+    "   AND p.qualifier <> 'VW' AND p.qualifier <> 'DEV' ")
   @Result(javaType = Component.class)
   @Options(statementType = StatementType.PREPARED, resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = 200)
   List<Component> selectRootProjects();
 
   @Select("SELECT " +
     "  p.id AS \"id\", " +
+    "  p.uuid AS \"uuid\", " +
     "  s.root_project_id AS \"projectId\", " +
     "  s.id AS \"snapshotId\", " +
     "  s.path AS \"snapshotPath\", " +
@@ -53,8 +58,9 @@ public interface Migration50Mapper {
     "FROM projects root " +
     "  INNER JOIN snapshots root_snapshot ON root_snapshot.project_id = root.id AND root_snapshot.islast = ${_true} " +
     "  INNER JOIN snapshots s ON s.root_snapshot_id = root_snapshot.id AND s.islast = ${_true} " +
-    "  INNER JOIN projects p ON p.id = s.project_id" +
-    "  WHERE root.id = #{id}")
+    "  INNER JOIN projects p ON p.id = s.project_id " +
+    "  WHERE root.id = #{id} " +
+    "   AND p.uuid IS NULL ")
   @Result(javaType = Component.class)
   List<Component> selectComponentChildrenForProjects(@Param("id") Long projectId);
 
@@ -62,11 +68,14 @@ public interface Migration50Mapper {
    * Return disabled children
    */
   @Select("SELECT " +
-    "  p.id AS \"id\" " +
+    "  p.id AS \"id\", " +
+    "  p.uuid AS \"uuid\" " +
     "FROM projects p " +
     "  LEFT OUTER JOIN projects root_one ON root_one.id = p.root_id " +
     "  LEFT OUTER JOIN projects root_two ON root_two.id = root_one.root_id " +
-    "  WHERE (root_one.id = #{id} OR root_two.id=#{id}) AND p.enabled=${_false}")
+    "  WHERE (root_one.id = #{id} OR root_two.id=#{id}) " +
+    "   AND p.uuid IS NULL " +
+    "   AND p.enabled=${_false} ")
   @Result(javaType = Component.class)
   List<Component> selectDisabledComponentChildrenForProjects(@Param("id") Long projectId);
 

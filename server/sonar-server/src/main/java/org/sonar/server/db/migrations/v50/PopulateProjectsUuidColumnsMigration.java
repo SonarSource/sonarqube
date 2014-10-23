@@ -87,8 +87,8 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
       for (Component component : components) {
         componentsBySnapshotId.put(component.getSnapshotId(), component);
 
-        component.setUuid(getOrCreateUuid(component.getId(), uuidByComponentId));
-        component.setProjectUuid(getOrCreateUuid(project.getId(), uuidByComponentId));
+        component.setUuid(getOrCreateUuid(component, uuidByComponentId));
+        component.setProjectUuid(getOrCreateUuid(project, uuidByComponentId));
       }
 
       for (Component component : components) {
@@ -118,25 +118,26 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
 
     // Module UUID should contains direct module of a component, but it should be null on the first module
     if (lastModule != null && !lastModule.getId().equals(project.getId())) {
-      component.setModuleUuid(getOrCreateUuid(lastModule.getId(), uuidByComponentId));
+      component.setModuleUuid(getOrCreateUuid(lastModule, uuidByComponentId));
     }
   }
 
   private void migrateDisabledComponents(DbSession session, Migration50Mapper mapper, Component project, Map<Long, String> uuidByComponentId) {
     for (Component component : mapper.selectDisabledComponentChildrenForProjects(project.getId())) {
-      component.setUuid(getOrCreateUuid(component.getId(), uuidByComponentId));
-      component.setProjectUuid(getOrCreateUuid(project.getId(), uuidByComponentId));
+      component.setUuid(getOrCreateUuid(component, uuidByComponentId));
+      component.setProjectUuid(getOrCreateUuid(project, uuidByComponentId));
 
       mapper.updateComponentUuids(component);
       counter.getAndIncrement();
     }
   }
 
-  private static String getOrCreateUuid(Long componentId, Map<Long, String> uuidByComponentId) {
-    String uuid = uuidByComponentId.get(componentId);
+  private static String getOrCreateUuid(Component component, Map<Long, String> uuidByComponentId) {
+    String existingUuid = component.getUuid();
+    String uuid = existingUuid == null ? uuidByComponentId.get(component.getId()) : existingUuid;
     if (uuid == null) {
       String newUuid = UUID.randomUUID().toString();
-      uuidByComponentId.put(componentId, newUuid);
+      uuidByComponentId.put(component.getId(), newUuid);
       return newUuid;
     }
     return uuid;

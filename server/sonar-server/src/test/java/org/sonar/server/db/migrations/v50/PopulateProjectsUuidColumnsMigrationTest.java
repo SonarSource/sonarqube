@@ -104,6 +104,29 @@ public class PopulateProjectsUuidColumnsMigrationTest {
   }
 
   @Test
+  public void not_migrate_already_migrated_projects() throws Exception {
+    db.prepareDbUnit(getClass(), "not_migrate_already_migrated_projects.xml");
+    session.commit();
+
+    Component root = mapper.selectComponentByKey("org.struts:struts");
+    Component module = mapper.selectComponentByKey("org.struts:struts-core");
+    Component subModule = mapper.selectComponentByKey("org.struts:struts-db");
+    Component directory = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts");
+    Component file = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
+    Component removedFile = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext2.java");
+
+    migration.execute();
+    session.commit();
+
+    assertThat(mapper.selectComponentByKey("org.struts:struts").getUuid()).isEqualTo(root.getUuid());
+    assertThat(mapper.selectComponentByKey("org.struts:struts-core").getUuid()).isEqualTo(module.getUuid());
+    assertThat(mapper.selectComponentByKey("org.struts:struts-db").getUuid()).isEqualTo(subModule.getUuid());
+    assertThat(mapper.selectComponentByKey("org.struts:struts-core:src/org/struts").getUuid()).isEqualTo(directory.getUuid());
+    assertThat(mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java").getUuid()).isEqualTo(file.getUuid());
+    assertThat(mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext2.java").getUuid()).isEqualTo(removedFile.getUuid());
+  }
+
+  @Test
   public void migrate_disable_components() throws Exception {
     db.prepareDbUnit(getClass(), "migrate_disable_components.xml");
 
