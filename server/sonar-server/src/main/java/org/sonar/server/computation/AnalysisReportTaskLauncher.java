@@ -21,6 +21,7 @@
 package org.sonar.server.computation;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +31,12 @@ import org.sonar.api.platform.ServerStartHandler;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 public class AnalysisReportTaskLauncher implements Startable, ServerComponent, ServerStartHandler {
+
+  public static final String ANALYSIS_REPORT_THREAD_NAME_PREFIX = "ar-";
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisReportTaskLauncher.class);
 
   private final ComputationService service;
@@ -46,7 +50,10 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent, S
   public AnalysisReportTaskLauncher(ComputationService service, AnalysisReportQueue queue) {
     this.service = service;
     this.queue = queue;
-    this.executorService = Executors.newSingleThreadScheduledExecutor();
+    ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
+      .setNameFormat(ANALYSIS_REPORT_THREAD_NAME_PREFIX + "%d").setPriority(Thread.MIN_PRIORITY).build();
+
+    this.executorService = Executors.newSingleThreadScheduledExecutor(namedThreadFactory);
 
     this.delayBetweenTasks = 10;
     this.delayForFirstStart = 0;

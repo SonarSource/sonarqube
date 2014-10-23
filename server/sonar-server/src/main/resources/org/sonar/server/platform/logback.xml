@@ -9,12 +9,35 @@
 <configuration debug="false">
   <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
 
+  <!-- do not change appender name. See org.sonar.server.platform.SwitchLogbackAppender -->
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>
         ${LOGGING_FORMAT}
       </pattern>
     </encoder>
+  </appender>
+
+  <!-- do not change appender name. See org.sonar.server.platform.SwitchLogbackAppender -->
+  <appender name="ANALYSIS_REPORTS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>${sonar.path.logs}/analysis_reports.log</File>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <param name="FileNamePattern" value="${sonar.path.logs}/analysis_reports.%i.log"/>
+      <param name="MinIndex" value="1"/>
+      <param name="MaxIndex" value="5"/>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <param name="MaxFileSize" value="10MB"/>
+    </triggeringPolicy>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%d{yyyy.MM.dd HH:mm:ss} %-5level [%logger{20}] %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="SWITCH" class="org.sonar.server.platform.SwitchLogbackAppender">
+    <!-- do not change appender names. See org.sonar.server.platform.SwitchLogbackAppender -->
+    <appender-ref ref="CONSOLE" />
+    <appender-ref ref="ANALYSIS_REPORTS" />
   </appender>
 
   <!-- Display Rails warnings and errors  -->
@@ -67,7 +90,7 @@
 
   <root>
     <level value="INFO"/>
-    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="SWITCH"/>
   </root>
 
 </configuration>
