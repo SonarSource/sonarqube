@@ -65,7 +65,6 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).selectByUuid(uuid);
   }
 
-  @CheckForNull
   public ComponentDto getByUuid(DbSession session, String uuid) {
     ComponentDto componentDto = getNullableByUuid(session, uuid);
     if (componentDto == null) {
