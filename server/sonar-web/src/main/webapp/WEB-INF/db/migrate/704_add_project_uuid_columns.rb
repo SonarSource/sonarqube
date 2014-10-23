@@ -29,8 +29,7 @@ class AddProjectUuidColumns < ActiveRecord::Migration
     add_column 'projects', :module_uuid, :string, :limit => 50, :null => true
     add_column 'projects', :module_uuid_path, :string, :limit => 4000, :null => true
 
-    add_index 'projects', 'uuid', :name => 'projects_uuid', :unique => true
-    add_index 'projects', 'project_uuid', :name => 'projects_root_uuid'
+    add_index 'projects', 'uuid', :name => 'projects_uuid'
   end
 end
 
