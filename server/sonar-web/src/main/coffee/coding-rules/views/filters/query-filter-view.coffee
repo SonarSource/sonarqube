@@ -74,3 +74,8 @@ define [
 
     isDefaultValue: ->
       true
+
+
+    renderBase: ->
+      super
+      @$el.prop('title', '');
