@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
@@ -88,6 +89,23 @@ public class ComponentCleanerServiceMediumTest {
     service.delete(project.getKey());
 
     assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNull();
+  }
+
+  @Test
+  public void not_fail_when_deleting_a_view() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto()
+      .setQualifier(Qualifiers.VIEW)
+      .setUuid(null)
+      .setProjectUuid(null);
+    db.componentDao().insert(session, project);
+
+    // view can be seen by anyone
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+
+    session.commit();
+
+    service.delete(project.getKey());
   }
 
   @Test(expected = IllegalArgumentException.class)
