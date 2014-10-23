@@ -238,10 +238,12 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("insert");
 
     ResourceDto file1 = new ResourceDto()
+      .setUuid("ABCD").setProjectUuid("EFGH")
       .setKey("org.struts:struts:/src/main/java/org/struts/Action.java")
       .setDeprecatedKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Action").setLongName("org.struts.Action").setPath("/foo/bar");
     ResourceDto file2 = new ResourceDto()
+      .setUuid("BCDE").setProjectUuid("FGHI")
       .setKey("org.struts:struts:/src/main/java/org/struts/Filter.java")
       .setDeprecatedKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");

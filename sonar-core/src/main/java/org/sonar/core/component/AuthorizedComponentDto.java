@@ -115,4 +115,14 @@ public class AuthorizedComponentDto extends Dto<String> {
     return id.hashCode();
   }
 
+  @Override
+  public String toString() {
+    return "AuthorizedComponentDto{" +
+      "id=" + id +
+      ", uuid='" + uuid + '\'' +
+      ", kee='" + kee + '\'' +
+      ", scope='" + scope + '\'' +
+      ", qualifier='" + qualifier + '\'' +
+      '}';
+  }
 }

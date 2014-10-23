@@ -24,6 +24,8 @@ import java.util.Date;
 public class ResourceDto {
 
   private Long id;
+  private String uuid;
+  private String projectUuid;
   private String key;
   private String deprecatedKey;
   private String name;
@@ -46,6 +48,24 @@ public class ResourceDto {
 
   public ResourceDto setId(Long id) {
     this.id = id;
+    return this;
+  }
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public ResourceDto setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  public String getProjectUuid() {
+    return projectUuid;
+  }
+
+  public ResourceDto setProjectUuid(String projectUuid) {
+    this.projectUuid = projectUuid;
     return this;
   }
 

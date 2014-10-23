@@ -35,10 +35,7 @@ import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class DefaultRubyComponentService implements RubyComponentService {
 
@@ -74,8 +71,11 @@ public class DefaultRubyComponentService implements RubyComponentService {
     }
     checkKeyFormat(qualifier, kee);
 
+    String uuid = UUID.randomUUID().toString();
     resourceDao.insertOrUpdate(
       new ResourceDto()
+        .setUuid(uuid)
+        .setProjectUuid(uuid)
         .setKey(kee)
         .setDeprecatedKey(kee)
         .setName(name)

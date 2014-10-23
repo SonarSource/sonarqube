@@ -49,7 +49,11 @@ public class SynchronizeProjectPermissionsStep implements AnalysisReportStep {
     if (index.get(IssueAuthorizationIndex.class).getNullableByKey(projectKey) == null) {
       // TODO Remove this db call by inserting the project uuid in the report
       AuthorizedComponentDto project = dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
-      permissionService.synchronizePermissions(session, project.uuid());
+      String uuid = project.uuid();
+      if (uuid == null) {
+        throw new IllegalArgumentException(String.format("No uuid for project %s", project));
+      }
+      permissionService.synchronizePermissions(session, uuid);
       session.commit();
     }
   }

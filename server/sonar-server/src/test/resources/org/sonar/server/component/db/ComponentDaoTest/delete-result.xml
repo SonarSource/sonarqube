@@ -5,7 +5,7 @@
 
 
   <!-- root project -->
-  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts" deprecated_kee="[null]"
+  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts" deprecated_kee="org.struts:struts"
             uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="[null]"
             description="the description" long_name="Apache Struts"
             enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" created_at="[null]" authorization_updated_at="2014-06-18" />

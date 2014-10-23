@@ -9,6 +9,7 @@
     p.module_uuid as moduleUuid,
     p.module_uuid_path as moduleUuidPath,
     p.kee as kee,
+    p.deprecated_kee as deprecatedKey,
     p.name as name,
     p.long_name as longName,
     p.qualifier as qualifier,
@@ -151,12 +152,13 @@
   </select>
 
   <sql id="insertColumns">
-    (kee, uuid, project_uuid, module_uuid, module_uuid_path, name, long_name, qualifier, scope, language, root_id, path, enabled, created_at, authorization_updated_at)
+    (kee, deprecated_kee, uuid, project_uuid, module_uuid, module_uuid_path, name, long_name, qualifier, scope, language, root_id, path, enabled, created_at, authorization_updated_at)
   </sql>
 
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into projects <include refid="insertColumns"/>
-    values (#{kee}, #{uuid}, #{projectUuid}, #{moduleUuid}, #{moduleUuidPath}, #{name}, #{longName}, #{qualifier}, #{scope}, #{language}, #{subProjectId}, #{path}, #{enabled}, #{createdAt}, #{authorizationUpdatedAt})
+    values (#{kee}, #{deprecatedKey}, #{uuid}, #{projectUuid}, #{moduleUuid}, #{moduleUuidPath}, #{name}, #{longName}, #{qualifier}, #{scope},
+      #{language}, #{subProjectId}, #{path}, #{enabled}, #{createdAt}, #{authorizationUpdatedAt})
   </insert>
 
   <delete id="deleteByKey" parameterType="String">

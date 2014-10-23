@@ -130,6 +130,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     ComponentDto result = dao.getNullableByKey(session, "org.struts:struts");
     assertThat(result).isNotNull();
     assertThat(result.key()).isEqualTo("org.struts:struts");
+    assertThat(result.deprecatedKey()).isEqualTo("org.struts:struts");
     assertThat(result.path()).isNull();
     assertThat(result.name()).isEqualTo("Struts");
     assertThat(result.longName()).isEqualTo("Apache Struts");
@@ -394,6 +395,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
       .setModuleUuid("EFGH")
       .setModuleUuidPath("ABCD.EFGH")
       .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+      .setDeprecatedKey("org.struts:struts-core:src/org/struts/RequestContext.java")
       .setName("RequestContext.java")
       .setLongName("org.struts.RequestContext")
       .setQualifier("FIL")

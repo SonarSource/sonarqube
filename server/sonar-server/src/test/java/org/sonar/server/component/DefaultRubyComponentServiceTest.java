@@ -95,6 +95,8 @@ public class DefaultRubyComponentServiceTest {
     ArgumentCaptor<ResourceDto> resourceCaptor = ArgumentCaptor.forClass(ResourceDto.class);
     verify(resourceDao).insertOrUpdate(resourceCaptor.capture());
     ResourceDto created = resourceCaptor.getValue();
+    assertThat(created.getUuid()).isNotNull();
+    assertThat(created.getProjectUuid()).isEqualTo(created.getUuid());
     assertThat(created.getKey()).isEqualTo(componentKey);
     assertThat(created.getName()).isEqualTo(componentName);
     assertThat(created.getLongName()).isEqualTo(componentName);

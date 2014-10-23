@@ -33,6 +33,7 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
   private String moduleUuidPath;
 
   private String path;
+  private String deprecatedKey;
   private String name;
   private String longName;
   private String language;
@@ -43,6 +44,16 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
   @Override
   public ComponentDto setId(Long id) {
     super.setId(id);
+    return this;
+  }
+
+  @CheckForNull
+  public String deprecatedKey() {
+    return deprecatedKey;
+  }
+
+  public ComponentDto setDeprecatedKey(@Nullable String deprecatedKey) {
+    this.deprecatedKey = deprecatedKey;
     return this;
   }
 
