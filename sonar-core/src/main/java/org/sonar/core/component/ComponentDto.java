@@ -40,9 +40,6 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
   private boolean enabled = true;
   private Date authorizationUpdatedAt;
 
-  // Return by join for the moment
-  private Long projectId;
-
   @Override
   public ComponentDto setId(Long id) {
     super.setId(id);
@@ -147,24 +144,6 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
 
   public ComponentDto setLanguage(@Nullable String language) {
     this.language = language;
-    return this;
-  }
-
-  /**
-   * @deprecated since 5.0, use projectUuid instead
-   */
-  @Deprecated
-  public Long projectId() {
-    return projectId;
-  }
-
-  /**
-   * Only for unit tests
-   * @deprecated since 5.0, use projectUuid instead
-   */
-  @Deprecated
-  public ComponentDto setProjectId_unit_test_only(Long projectId) {
-    this.projectId = projectId;
     return this;
   }
 

@@ -103,7 +103,6 @@ public class IssueBulkChangeServiceTest {
 
     file = new ComponentDto()
       .setId(2L)
-      .setProjectId_unit_test_only(project.getId())
       .setSubProjectId(project.getId())
       .setKey("MyComponent")
       .setLongName("My Component");

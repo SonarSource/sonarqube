@@ -133,10 +133,10 @@ public class DuplicationsParser implements ServerComponent {
       } else if (file2.equals(component)) {
         // the current resource must be displayed first
         return 1;
-      } else if (file1.projectId().equals(component.projectId()) && !file2.projectId().equals(component.projectId())) {
+      } else if (file1.projectUuid().equals(component.projectUuid()) && !file2.projectUuid().equals(component.projectUuid())) {
         // if resource is in the same project, this it must be displayed first
         return -1;
-      } else if (file2.projectId().equals(component.projectId()) && !file1.projectId().equals(component.projectId())) {
+      } else if (file2.projectUuid().equals(component.projectUuid()) && !file1.projectUuid().equals(component.projectUuid())) {
         // if resource is in the same project, this it must be displayed first
         return 1;
       } else {

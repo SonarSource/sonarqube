@@ -28,6 +28,9 @@ import java.util.List;
 
 public interface Migration50Mapper {
 
+  /**
+   * Return enabled root projects (Views and Developers are NOT returned)
+   */
   @Select("SELECT " +
     "  p.id AS \"id\", " +
     "  s.root_project_id AS \"projectId\", " +

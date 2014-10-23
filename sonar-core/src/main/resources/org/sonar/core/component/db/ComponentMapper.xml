@@ -21,26 +21,6 @@
     p.created_at as createdAt
   </sql>
 
-  <sql id="oldComponentColumns">
-    p.id,
-    p.uuid as uuid,
-    p.project_uuid as projectUuid,
-    p.module_uuid as moduleUuid,
-    p.module_uuid_path as moduleUuidPath,
-    p.kee as kee,
-    p.name as name,
-    p.long_name as longName,
-    p.qualifier as qualifier,
-    p.scope as scope,
-    p.language as language,
-    s.root_project_id as projectId,
-    p.root_id as subProjectId,
-    p.path as path,
-    p.enabled as enabled,
-    p.authorization_updated_at as authorizationUpdatedAt,
-    p.created_at as createdAt
-  </sql>
-
   <sql id="authorizedComponentColumns">
     p.id,
     p.uuid as uuid,
@@ -92,10 +72,10 @@
   </select>
 
   <select id="selectParentModuleByKey" parameterType="String" resultType="Component">
-    SELECT <include refid="oldComponentColumns"/>
+    SELECT <include refid="componentColumns"/>
     FROM projects p
     INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
-    INNER JOIN snapshots child_snapshots ON child_snapshots.parent_snapshot_id=s.id AND s.islast=${_true}
+    INNER JOIN snapshots child_snapshots ON child_snapshots.parent_snapshot_id=s.id AND child_snapshots.islast=${_true}
     INNER JOIN projects child ON child.id=child_snapshots.project_id AND child.enabled=${_true} AND child.kee=#{key}
     <where>
       AND p.enabled=${_true}
@@ -104,10 +84,10 @@
   </select>
 
   <select id="findModulesByProject" parameterType="String" resultType="Component">
-    SELECT <include refid="oldComponentColumns"/>
+    SELECT <include refid="componentColumns"/>
     FROM projects p
     INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
-    INNER JOIN snapshots parent_snapshots ON parent_snapshots.id=s.parent_snapshot_id AND s.islast=${_true}
+    INNER JOIN snapshots parent_snapshots ON parent_snapshots.id=s.parent_snapshot_id AND parent_snapshots.islast=${_true}
     INNER JOIN projects parent ON parent.id=parent_snapshots.project_id AND parent.enabled=${_true} AND parent.kee=#{projectKey}
     <where>
       AND p.enabled=${_true}
@@ -115,23 +95,9 @@
     </where>
   </select>
 
-  <select id="findByIds" parameterType="long" resultType="Component">
-    select <include refid="oldComponentColumns"/>
-    from projects p
-    inner join snapshots s on s.project_id=p.id and s.islast=${_true}
-    <where>
-      p.enabled=${_true}
-      and p.id in
-      <foreach collection="ids" open="(" close=")" item="id" separator=",">
-        #{id}
-      </foreach>
-    </where>
-  </select>
-
   <select id="findByKeys" parameterType="String" resultType="Component">
-    select <include refid="oldComponentColumns"/>
+    select <include refid="componentColumns"/>
     from projects p
-    inner join snapshots s on s.project_id=p.id and s.islast=${_true}
     <where>
       p.enabled=${_true}
       and p.kee in
@@ -153,9 +119,8 @@
   </select>
 
   <select id="findSubProjectsByComponentUuids" parameterType="String" resultType="Component">
-    SELECT <include refid="oldComponentColumns"/>
+    SELECT <include refid="componentColumns"/>
     FROM projects p
-    INNER JOIN snapshots s ON s.project_id=p.id AND s.islast=${_true}
     INNER JOIN projects child ON child.root_id=p.id AND child.enabled=${_true}
     <where>
       AND p.enabled=${_true}

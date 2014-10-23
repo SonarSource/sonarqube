@@ -228,6 +228,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     Multimap<String, DefaultIssueComment> commentsByIssues = ArrayListMultimap.create();
     Collection<ComponentDto> componentDtos = newHashSet();
     List<ComponentDto> projectDtos = newArrayList();
+    Map<String, ComponentDto> projectsByComponentUuid = newHashMap();
 
     for (Issue issue : result.getHits()) {
       IssueDoc issueDoc = (IssueDoc) issue;
@@ -263,15 +264,18 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       for (ComponentDto componentDto : componentDtos) {
         componentsByUuid.put(componentDto.uuid(), componentDto);
       }
+
+      projectsByComponentUuid = getProjectsByComponentUuid(componentDtos, projectDtos);
+
       writeProjects(json, projectDtos);
-      writeComponents(json, componentDtos);
+      writeComponents(json, componentDtos, projectsByComponentUuid);
     } finally {
       session.close();
     }
 
     Map<String, ActionPlan> actionPlanByKeys = getActionPlanByKeys(actionPlanKeys);
 
-    writeIssues(result, commentsByIssues, usersByLogin, actionPlanByKeys, componentsByUuid, getProjectsByComponentUuid(componentDtos, projectDtos),
+    writeIssues(result, commentsByIssues, usersByLogin, actionPlanByKeys, componentsByUuid, projectsByComponentUuid,
       request.paramAsStrings(EXTRA_FIELDS_PARAM), json);
     writeRules(json, !request.mandatoryParamAsBoolean(IssueFilterParameters.HIDE_RULES) ? ruleService.getByKeys(ruleKeys) : Collections.<Rule>emptyList());
     writeUsers(json, usersByLogin);
@@ -450,9 +454,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     }
   }
 
-  private void writeComponents(JsonWriter json, Collection<ComponentDto> components) {
+  private void writeComponents(JsonWriter json, Collection<ComponentDto> components, Map<String, ComponentDto> projectsByComponentUuid) {
     json.name("components").beginArray();
     for (ComponentDto component : components) {
+      ComponentDto project = projectsByComponentUuid.get(component.uuid());
       json.beginObject()
         .prop("uuid", component.uuid())
         .prop("key", component.key())
@@ -463,7 +468,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         .prop("longName", component.longName())
         .prop("path", component.path())
         // On a root project, subProjectId is null but projectId is equal to itself, which make no sense.
-        .prop("projectId", (component.projectId() != null && component.subProjectId() != null) ? component.projectId() : null)
+        .prop("projectId", (component.projectUuid() != null && component.subProjectId() != null) ? project.getId() : null)
         .prop("subProjectId", component.subProjectId())
         .endObject();
     }

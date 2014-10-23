@@ -67,8 +67,6 @@ public interface ComponentMapper {
    */
   List<ComponentDto> findSubProjectsByComponentUuids(@Param("uuids") Collection<String> uuids);
 
-  List<ComponentDto> findByIds(@Param("ids") Collection<Long> ids);
-
   List<ComponentDto> findByKeys(@Param("keys") Collection<String> keys);
 
   /**

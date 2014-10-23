@@ -50,6 +50,7 @@ import org.sonar.core.properties.PropertyQuery;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.timemachine.Periods;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueService;
@@ -124,6 +125,8 @@ public class ComponentAppActionTest {
 
   WsTester tester;
 
+  ComponentDto project;
+
   @Before
   public void setUp() throws Exception {
     DbClient dbClient = mock(DbClient.class);
@@ -132,6 +135,12 @@ public class ComponentAppActionTest {
     when(dbClient.resourceDao()).thenReturn(resourceDao);
     when(dbClient.propertiesDao()).thenReturn(propertiesDao);
     when(dbClient.measureDao()).thenReturn(measureDao);
+
+    project = ComponentTesting.newProjectDto()
+      .setId(1L)
+      .setName("SonarQube")
+      .setLongName("SonarQube")
+      .setKey("org.codehaus.sonar:sonar");
 
     when(issueService.findSeveritiesByComponent(anyString(), any(Date.class), eq(session))).thenReturn(mock(Multiset.class));
     when(issueService.findRulesByComponent(anyString(), any(Date.class), eq(session))).thenReturn(mock(RulesAggregation.class));
@@ -144,12 +153,16 @@ public class ComponentAppActionTest {
   public void app() throws Exception {
     MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
 
-    ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
+    ComponentDto file = ComponentTesting.newFileDto(project)
+      .setId(10L)
+      .setKey(COMPONENT_KEY)
+      .setName("Plugin.java")
       .setLongName("src/main/java/org/sonar/api/Plugin.java")
-      .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId_unit_test_only(1L);
+      .setPath("src/main/java/org/sonar/api/Plugin.java")
+      .setSubProjectId(5L);
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
     when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
-    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube").setKey("org.codehaus.sonar:sonar"));
+    when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
@@ -161,9 +174,8 @@ public class ComponentAppActionTest {
     String componentKey = "org.codehaus.sonar:sonar";
     MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, componentKey, componentKey);
 
-    ComponentDto file = new ComponentDto().setId(1L).setQualifier("TRK").setKey(componentKey).setName("SonarQube").setProjectId_unit_test_only(1L);
-    when(componentDao.getNullableByKey(session, componentKey)).thenReturn(file);
-    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube").setKey("org.codehaus.sonar:sonar"));
+    when(componentDao.getNullableByKey(session, componentKey)).thenReturn(project);
+    when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", componentKey);
@@ -174,10 +186,16 @@ public class ComponentAppActionTest {
   public void app_with_sub_project_equals_to_project() throws Exception {
     MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
 
-    ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
-      .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(1L).setProjectId_unit_test_only(1L);
+    ComponentDto file = ComponentTesting.newFileDto(project)
+      .setId(10L)
+      .setKey(COMPONENT_KEY)
+      .setName("Plugin.java")
+      .setLongName(null)
+      .setPath("src/main/java/org/sonar/api/Plugin.java")
+      .setSubProjectId(1L);
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
-    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube").setKey("org.codehaus.sonar:sonar"));
+    when(componentDao.getById(project.getId(), session)).thenReturn(project);
+    when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
@@ -304,11 +322,16 @@ public class ComponentAppActionTest {
     String componentKey = "org.codehaus.sonar:sonar-server:src/test/java/org/sonar/server/issue/PlanActionTest.java";
     MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, componentKey);
 
-    ComponentDto file = new ComponentDto().setId(10L).setQualifier("UTS").setKey(componentKey).setName("PlanActionTest.java")
-      .setPath("src/test/java/org/sonar/server/issue/PlanActionTest.java").setSubProjectId(5L).setProjectId_unit_test_only(1L);
+    ComponentDto file = ComponentTesting.newFileDto(project)
+      .setId(10L)
+      .setQualifier("UTS")
+      .setLongName(null)
+      .setKey(componentKey).setName("PlanActionTest.java")
+      .setPath("src/test/java/org/sonar/server/issue/PlanActionTest.java")
+      .setSubProjectId(5L);
     when(componentDao.getNullableByKey(session, componentKey)).thenReturn(file);
     when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
-    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube").setKey("org.codehaus.sonar:sonar"));
+    when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
 
     addMeasure(CoreMetrics.TESTS_KEY, 10);
 
@@ -359,9 +382,9 @@ public class ComponentAppActionTest {
   public void app_with_periods() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
 
-    addComponent();
+    ComponentDto file = addComponent();
 
-    when(resourceDao.getLastSnapshotByResourceId(eq(1L), eq(session))).thenReturn(
+    when(resourceDao.getLastSnapshotByResourceUuid(file.projectUuid(), session)).thenReturn(
       new SnapshotDto().setPeriodMode(1, "previous_analysis").setPeriodDate(1, DateUtils.parseDate("2014-05-08"))
       );
     when(periods.label(anyString(), anyString(), any(Date.class))).thenReturn("since previous analysis (May 08 2014)");
@@ -420,7 +443,7 @@ public class ComponentAppActionTest {
     addComponent();
 
     Date periodDate = DateUtils.parseDate("2014-05-08");
-    when(resourceDao.getLastSnapshotByResourceId(eq(1L), eq(session))).thenReturn(
+    when(resourceDao.getLastSnapshotByResourceUuid(project.uuid(), session)).thenReturn(
       new SnapshotDto().setPeriodMode(1, "previous_analysis").setPeriodDate(1, periodDate)
       );
     when(periods.label(anyString(), anyString(), any(Date.class))).thenReturn("since previous analysis (May 08 2014)");
@@ -474,18 +497,24 @@ public class ComponentAppActionTest {
     request.execute().assertJson(getClass(), "app_with_manual_rules.json");
   }
 
-  private void addComponent() {
-    ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
+  private ComponentDto addComponent() {
+    ComponentDto file = ComponentTesting.newFileDto(project)
+      .setId(10L)
+      .setQualifier("FIL")
+      .setKey(COMPONENT_KEY)
+      .setName("Plugin.java")
       .setLongName("src/main/java/org/sonar/api/Plugin.java")
-      .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId_unit_test_only(1L);
+      .setPath("src/main/java/org/sonar/api/Plugin.java")
+      .setSubProjectId(5L);
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
     when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
-    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube").setKey("org.codehaus.sonar:sonar"));
+    when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
+    return file;
   }
 
   private void addPeriod() {
     Date periodDate = DateUtils.parseDate("2014-05-08");
-    when(resourceDao.getLastSnapshotByResourceId(eq(1L), eq(session))).thenReturn(
+    when(resourceDao.getLastSnapshotByResourceUuid(project.uuid(), session)).thenReturn(
       new SnapshotDto().setPeriodMode(1, "previous_analysis").setPeriodDate(1, periodDate)
       );
     when(periods.label(anyString(), anyString(), any(Date.class))).thenReturn("since previous analysis (May 08 2014)");

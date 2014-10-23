@@ -84,7 +84,7 @@ public class DuplicationsJsonWriter implements ServerComponent {
   }
 
   private void writeFiles(Map<String, String> refByComponentKey, JsonWriter json, DbSession session) {
-    Map<Long, ComponentDto> projectsById = newHashMap();
+    Map<String, ComponentDto> projectsByUuid = newHashMap();
     Map<Long, ComponentDto> subProjectsById = newHashMap();
     for (Map.Entry<String, String> entry : refByComponentKey.entrySet()) {
       String componentKey = entry.getKey();
@@ -94,8 +94,8 @@ public class DuplicationsJsonWriter implements ServerComponent {
         json.name(ref).beginObject();
 
         addFile(json, file);
-        ComponentDto project = getProject(file.projectId(), projectsById, session);
-        ComponentDto subProject = getProject(file.subProjectId(), subProjectsById, session);
+        ComponentDto project = getProject(file.projectUuid(), projectsByUuid, session);
+        ComponentDto subProject = getSubProject(file.subProjectId(), subProjectsById, session);
         addProject(json, project, subProject);
 
         json.endObject();
@@ -122,12 +122,23 @@ public class DuplicationsJsonWriter implements ServerComponent {
     }
   }
 
-  private ComponentDto getProject(@Nullable Long projectId, Map<Long, ComponentDto> projectsById, DbSession session) {
-    ComponentDto project = projectsById.get(projectId);
+  private ComponentDto getProject(@Nullable String projectUuid, Map<String, ComponentDto> projectsByUuid, DbSession session) {
+    ComponentDto project = projectsByUuid.get(projectUuid);
+    if (project == null && projectUuid != null) {
+      project = componentDao.getNullableByUuid(session, projectUuid);
+      if (project != null) {
+        projectsByUuid.put(project.uuid(), project);
+      }
+    }
+    return project;
+  }
+
+  private ComponentDto getSubProject(@Nullable Long projectId, Map<Long, ComponentDto> subProjectsById, DbSession session) {
+    ComponentDto project = subProjectsById.get(projectId);
     if (project == null && projectId != null) {
       project = componentDao.getNullableById(projectId, session);
       if (project != null) {
-        projectsById.put(project.getId(), project);
+        subProjectsById.put(project.getId(), project);
       }
     }
     return project;

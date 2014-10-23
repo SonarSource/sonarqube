@@ -21,7 +21,6 @@ package org.sonar.core.resource;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.component.Component;
 import org.sonar.api.utils.System2;
@@ -114,8 +113,8 @@ public class ResourceDao implements DaoComponent {
   }
 
   @CheckForNull
-  public SnapshotDto getLastSnapshotByResourceId(long resourceId, SqlSession session) {
-    return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceId(resourceId);
+  public SnapshotDto getLastSnapshotByResourceUuid(String componentUuid, SqlSession session) {
+    return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceUuid(componentUuid);
   }
 
   public List<ResourceDto> getDescendantProjects(long projectId) {
@@ -170,24 +169,6 @@ public class ResourceDao implements DaoComponent {
     session.getMapper(ResourceMapper.class).updateAuthorizationDate(projectId, new Date(system2.now()));
   }
 
-  public Collection<ComponentDto> selectComponentsByIds(Collection<Long> ids) {
-    if (ids.isEmpty()) {
-      return Collections.emptyList();
-    }
-    SqlSession session = mybatis.openSession(false);
-    try {
-      List<ComponentDto> components = newArrayList();
-      List<List<Long>> partitionList = Lists.partition(newArrayList(ids), 1000);
-      for (List<Long> partition : partitionList) {
-        List<ComponentDto> dtos = session.getMapper(ResourceMapper.class).selectComponentsByIds(partition);
-        components.addAll(dtos);
-      }
-      return components;
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   @CheckForNull
   public Component findByKey(String key) {
     ResourceDto resourceDto = getResource(ResourceQuery.create().setKey(key));
@@ -198,18 +179,6 @@ public class ResourceDao implements DaoComponent {
   public Component findById(Long id, SqlSession session) {
     ResourceDto resourceDto = getResource(id, session);
     return resourceDto != null ? toComponent(resourceDto) : null;
-  }
-
-  public List<Integer> findAuthorizedChildrenComponentIds(Collection<String> componentRootKeys, @Nullable Integer userId, String role) {
-    if (componentRootKeys.isEmpty()) {
-      return Collections.emptyList();
-    }
-    SqlSession session = mybatis.openSession(false);
-    try {
-      return session.getMapper(ResourceMapper.class).selectAuthorizedChildrenComponentIds(componentRootKeys, userId, role);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   /**

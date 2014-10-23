@@ -1,6 +1,7 @@
 {
   "key": "org.codehaus.sonar:sonar",
   "name": "SonarQube",
+  "longName": "SonarQube",
   "q": "TRK",
   "project" : "org.codehaus.sonar:sonar",
   "projectName": "SonarQube",

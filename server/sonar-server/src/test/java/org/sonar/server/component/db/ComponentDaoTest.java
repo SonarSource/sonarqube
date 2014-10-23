@@ -157,7 +157,6 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.subProjectId()).isEqualTo(2);
-    assertThat(result.projectId()).isEqualTo(1);
 
     assertThat(dao.getByKeys(session, "unknown")).isEmpty();
   }
@@ -197,29 +196,6 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     ComponentDto result = results.get(0);
     assertThat(result).isNotNull();
     assertThat(result.isEnabled()).isFalse();
-  }
-
-  @Test
-  public void get_by_ids() {
-    setupData("shared");
-
-    List<ComponentDto> results = dao.getByIds(session, newArrayList(4L));
-    assertThat(results).hasSize(1);
-
-    ComponentDto result = results.get(0);
-    assertThat(result).isNotNull();
-    assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
-    assertThat(result.name()).isEqualTo("RequestContext.java");
-    assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
-    assertThat(result.qualifier()).isEqualTo("FIL");
-    assertThat(result.scope()).isEqualTo("FIL");
-    assertThat(result.language()).isEqualTo("java");
-    assertThat(result.subProjectId()).isEqualTo(2);
-    assertThat(result.projectId()).isEqualTo(1);
-
-    assertThat(dao.getByIds(session, newArrayList(123L))).isEmpty();
-    assertThat(dao.getByIds(session, Collections.<Long>emptyList())).isEmpty();
   }
 
   @Test

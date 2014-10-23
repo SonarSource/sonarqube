@@ -37,7 +37,6 @@ import org.sonar.core.persistence.DbSession;
 
 import javax.annotation.Nullable;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -167,7 +166,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void getResourceIds_filter_by_qualifier() {
     setupData("fixture");
 
-    List<Long> ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[]{"TRK", "BRC"}));
+    List<Long> ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[] {"TRK", "BRC"}));
     assertThat(ids).containsOnly(1L, 2L);
 
     ids = dao.getResourceIds(ResourceQuery.create().setQualifiers(new String[] {"XXX"}));
@@ -183,64 +182,6 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     assertThat(dao.getResourceIds(ResourceQuery.create().setExcludeDisabled(false))).containsOnly(1L, 2L);
     assertThat(dao.getResourceIds(ResourceQuery.create().setExcludeDisabled(true))).containsOnly(2L);
-  }
-
-  @Test
-  public void select_components_by_ids() {
-    setupData("fixture");
-
-    // File
-    Collection<ComponentDto> results = dao.selectComponentsByIds(newArrayList(4L));
-    assertThat(results).hasSize(1);
-
-    ComponentDto component = results.iterator().next();
-    assertThat(component.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(component.name()).isEqualTo("RequestContext.java");
-    assertThat(component.longName()).isEqualTo("org.struts.RequestContext");
-    assertThat(component.qualifier()).isEqualTo("FIL");
-    assertThat(component.projectId()).isEqualTo(1);
-    assertThat(component.subProjectId()).isEqualTo(2);
-    assertThat(component.path()).isEqualTo("src/org/struts/RequestContext.java");
-
-    // Module
-    results = dao.selectComponentsByIds(newArrayList(2L));
-    assertThat(results).hasSize(1);
-
-    component = results.iterator().next();
-    assertThat(component.key()).isEqualTo("org.struts:struts-core");
-    assertThat(component.name()).isEqualTo("Struts Core");
-    assertThat(component.longName()).isEqualTo("Struts Core");
-    assertThat(component.qualifier()).isEqualTo("BRC");
-    assertThat(component.subProjectId()).isEqualTo(1);
-    assertThat(component.projectId()).isEqualTo(1);
-    assertThat(component.path()).isNull();
-
-    // Project
-    results = dao.selectComponentsByIds(newArrayList(1L));
-    assertThat(results).hasSize(1);
-
-    component = results.iterator().next();
-    assertThat(component.key()).isEqualTo("org.struts:struts");
-    assertThat(component.name()).isEqualTo("Struts");
-    assertThat(component.longName()).isEqualTo("Apache Struts");
-    assertThat(component.qualifier()).isEqualTo("TRK");
-    assertThat(component.subProjectId()).isNull();
-    assertThat(component.projectId()).isEqualTo(1);
-    assertThat(component.path()).isNull();
-  }
-
-  @Test
-  public void select_components_by_ids_on_huge_number_of_ids() {
-    setupData("fixture");
-
-    List<Long> hugeNbOfIds = newArrayList();
-    for (long i = 0; i < 4500; i++) {
-      hugeNbOfIds.add(i);
-    }
-    Collection<ComponentDto> results = dao.selectComponentsByIds(hugeNbOfIds);
-
-    // The goal of this test is only to check that the query do no fail, not to check the number of results
-    assertThat(results).isNotNull();
   }
 
   @Test
@@ -341,45 +282,6 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_find_children_component_ids_for_unsecured_project() {
-    setupData("fixture");
-
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts"), null, "user")).hasSize(4);
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts-core"), null, "user")).hasSize(3);
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts-core:src/org/struts"), null, "user")).hasSize(2);
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts-core:src/org/struts/RequestContext.java"), null, "user")).hasSize(1);
-
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("unknown"), null, "user")).isEmpty();
-    assertThat(dao.findAuthorizedChildrenComponentIds(Collections.<String>emptyList(), null, "user")).isEmpty();
-  }
-
-  @Test
-  public void should_find_children_component_ids_for_secured_project_for_user() {
-    setupData("should_find_children_component_ids_for_secured_project_for_user");
-
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts"), 100, "user")).hasSize(4);
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts-core"), 100, "user")).hasSize(3);
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts:org.struts"), 100, "user")).hasSize(2);
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts:org.struts.RequestContext"), 100, "user")).hasSize(1);
-
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("unknown"), 100, "user")).isEmpty();
-    assertThat(dao.findAuthorizedChildrenComponentIds(Collections.<String>emptyList(), 100, "user")).isEmpty();
-  }
-
-  @Test
-  public void should_find_children_component_ids_for_secured_project_for_group() {
-    setupData("should_find_children_component_ids_for_secured_project_for_group");
-
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts"), 100, "user")).hasSize(4);
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts-core"), 100, "user")).hasSize(3);
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts:org.struts"), 100, "user")).hasSize(2);
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("org.struts:struts:org.struts.RequestContext"), 100, "user")).hasSize(1);
-
-    assertThat(dao.findAuthorizedChildrenComponentIds(newArrayList("unknown"), 100, "user")).isEmpty();
-    assertThat(dao.findAuthorizedChildrenComponentIds(Collections.<String>emptyList(), 100, "user")).isEmpty();
-  }
-
-  @Test
   public void should_find_component_by_key() {
     setupData("fixture");
 
@@ -457,10 +359,10 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void get_last_snapshot_by_resource_id() {
-    setupData("get_last_snapshot_by_resource_id");
+  public void get_last_snapshot_by_component_uuid() {
+    setupData("get_last_snapshot_by_component_uuid");
 
-    SnapshotDto snapshotDto = dao.getLastSnapshotByResourceId(1L, session);
+    SnapshotDto snapshotDto = dao.getLastSnapshotByResourceUuid("ABCD", session);
     assertThat(snapshotDto.getId()).isEqualTo(1);
 
     assertThat(snapshotDto.getPeriodMode(1)).isEqualTo("previous_analysis");
@@ -483,13 +385,13 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(snapshotDto.getPeriodModeParameter(5)).isNull();
     assertThat(snapshotDto.getPeriodDate(5)).isNull();
 
-    snapshotDto = dao.getLastSnapshotByResourceId(2L, session);
+    snapshotDto = dao.getLastSnapshotByResourceUuid("EFGH", session);
     assertThat(snapshotDto.getId()).isEqualTo(2L);
 
-    snapshotDto = dao.getLastSnapshotByResourceId(3L, session);
+    snapshotDto = dao.getLastSnapshotByResourceUuid("GHIJ", session);
     assertThat(snapshotDto.getId()).isEqualTo(3L);
 
-    assertThat(dao.getLastSnapshotByResourceId(42L, session)).isNull();
+    assertThat(dao.getLastSnapshotByResourceUuid("UNKNOWN", session)).isNull();
   }
 
   @Test

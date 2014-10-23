@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 
 import javax.annotation.Nullable;
@@ -58,21 +59,32 @@ public class DuplicationsParserTest {
 
   DuplicationsParser parser;
 
+  ComponentDto project1;
+  ComponentDto project2;
+
   @Before
   public void setUp() throws Exception {
+    project1 = ComponentTesting.newProjectDto()
+      .setId(1L)
+      .setName("SonarQube")
+      .setLongName("SonarQube")
+      .setKey("org.codehaus.sonar:sonar");
+
+    project2 = ComponentTesting.newProjectDto().setId(2L);
+
     // Current file
     String key1 = "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/utils/command/CommandExecutor.java";
-    currentFile = new ComponentDto().setId(10L).setQualifier("FIL").setKey(key1).setLongName("CommandExecutor").setProjectId_unit_test_only(1L);
+    currentFile = ComponentTesting.newFileDto(project1).setId(10L).setKey(key1).setLongName("CommandExecutor");
     when(componentDao.getNullableByKey(session, key1)).thenReturn(currentFile);
 
     // File on same project
     String key2 = "org.codehaus.sonar:sonar-plugin-api:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java";
-    fileOnSameProject = new ComponentDto().setId(11L).setQualifier("FIL").setKey(key2).setLongName("CommandExecutor").setProjectId_unit_test_only(1L);
+    fileOnSameProject = ComponentTesting.newFileDto(project1).setId(11L).setKey(key2).setLongName("CommandExecutor");
     when(componentDao.getNullableByKey(session, key2)).thenReturn(fileOnSameProject);
 
     // File on different project
     String key3 = "com.sonarsource.orchestrator:sonar-orchestrator:src/main/java/com/sonar/orchestrator/util/CommandExecutor.java";
-    fileOnDifferentProject = new ComponentDto().setId(12L).setQualifier("FIL").setKey(key3).setLongName("CommandExecutor").setProjectId_unit_test_only(2L);
+    fileOnDifferentProject = ComponentTesting.newFileDto(project2).setId(12L).setKey(key3).setLongName("CommandExecutor");
     when(componentDao.getNullableByKey(session, key3)).thenReturn(fileOnDifferentProject);
 
     parser = new DuplicationsParser(componentDao);
@@ -187,9 +199,9 @@ public class DuplicationsParserTest {
 
   @Test
   public void compare_duplications() throws Exception {
-    ComponentDto currentFile = new ComponentDto().setId(11L).setProjectId_unit_test_only(1L);
-    ComponentDto fileOnSameProject = new ComponentDto().setId(12L).setProjectId_unit_test_only(1L);
-    ComponentDto fileOnDifferentProject = new ComponentDto().setId(13L).setProjectId_unit_test_only(2L);
+    ComponentDto currentFile = ComponentTesting.newFileDto(project1).setId(11L);
+    ComponentDto fileOnSameProject = ComponentTesting.newFileDto(project1).setId(12L);
+    ComponentDto fileOnDifferentProject = ComponentTesting.newFileDto(project2).setId(13L);
 
     DuplicationsParser.DuplicationComparator comparator = new DuplicationsParser.DuplicationComparator(currentFile);
 
@@ -202,8 +214,9 @@ public class DuplicationsParserTest {
     assertThat(comparator.compare(new DuplicationsParser.Duplication(fileOnSameProject, 5, 2), new DuplicationsParser.Duplication(fileOnDifferentProject, 2, 2))).isEqualTo(-1);
     assertThat(comparator.compare(new DuplicationsParser.Duplication(fileOnDifferentProject, 5, 2), new DuplicationsParser.Duplication(fileOnSameProject, 2, 2))).isEqualTo(1);
     // Files on 2 different projects
+    ComponentDto project3 = ComponentTesting.newProjectDto().setId(3L);
     assertThat(comparator.compare(new DuplicationsParser.Duplication(fileOnDifferentProject, 5, 2),
-      new DuplicationsParser.Duplication(new ComponentDto().setId(30L).setProjectId_unit_test_only(3L), 2, 2))).isEqualTo(1);
+      new DuplicationsParser.Duplication(project3, 2, 2))).isEqualTo(1);
 
     // With null duplications
     assertThat(comparator.compare(null, new DuplicationsParser.Duplication(fileOnSameProject, 2, 2))).isEqualTo(-1);

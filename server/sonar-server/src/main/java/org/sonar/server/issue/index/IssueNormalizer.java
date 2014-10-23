@@ -93,7 +93,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     Map<String, Object> update = newHashMap();
 
     Preconditions.checkNotNull(dto.getProjectUuid(), "Project uuid is null on issue %s", dto.getKey());
-//    Preconditions.checkNotNull(dto.getComponentUuid(), "Component uuid is null on issue %s", dto.getKey());
+    Preconditions.checkNotNull(dto.getComponentUuid(), "Component uuid is null on issue %s", dto.getKey());
 
     update.put("_parent", dto.getProjectUuid());
     update.put(IssueField.KEY.field(), dto.getKey());

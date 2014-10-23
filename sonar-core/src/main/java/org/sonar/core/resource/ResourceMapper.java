@@ -21,10 +21,7 @@ package org.sonar.core.resource;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
-
-import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Date;
@@ -35,7 +32,7 @@ public interface ResourceMapper {
 
   SnapshotDto selectLastSnapshotByResourceKey(String resourceKey);
 
-  SnapshotDto selectLastSnapshotByResourceId(long resourceId);
+  SnapshotDto selectLastSnapshotByResourceUuid(String componentUuid);
 
   ResourceDto selectResource(long id);
 
@@ -61,18 +58,10 @@ public interface ResourceMapper {
    */
   ResourceDto selectRootProjectByComponentKey(@Param("componentKey") String componentKey);
 
-  List<ComponentDto> selectComponentsByIds(@Param("ids") List<Long> ids);
-
   /**
    * @since 3.6
    */
   ResourceDto selectRootProjectByComponentId(@Param("componentId") long componentId);
-
-  /**
-   * @since 3.6
-   */
-  List<Integer> selectAuthorizedChildrenComponentIds(@Param("componentRootKeys") Collection<String> componentRootKeys,
-                                                     @Param("userId") @Nullable Integer userId, @Param("role") String role);
 
   List<ResourceDto> selectProjectsIncludingNotCompletedOnesByQualifiers(@Param("qualifiers") Collection<String> qualifier);
 

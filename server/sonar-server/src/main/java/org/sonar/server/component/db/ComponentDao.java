@@ -111,19 +111,6 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return mapper(session).findSubProjectsByComponentUuids(keys);
   }
 
-  public List<ComponentDto> getByIds(DbSession session, Collection<Long> ids) {
-    if (ids.isEmpty()) {
-      return Collections.emptyList();
-    }
-    List<ComponentDto> components = newArrayList();
-    List<List<Long>> partitionList = Lists.partition(newArrayList(ids), 1000);
-    for (List<Long> partition : partitionList) {
-      List<ComponentDto> dtos = mapper(session).findByIds(partition);
-      components.addAll(dtos);
-    }
-    return components;
-  }
-
   public List<ComponentDto> getByUuids(DbSession session, Collection<String> uuids) {
     if (uuids.isEmpty()) {
       return Collections.emptyList();

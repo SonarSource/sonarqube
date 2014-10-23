@@ -38,7 +38,6 @@ public class ComponentDtoTest {
       .setScope("FIL")
       .setLanguage("java")
       .setPath("src/org/struts/RequestContext.java")
-      .setProjectId_unit_test_only(2L)
       .setSubProjectId(3L)
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
 
@@ -50,7 +49,6 @@ public class ComponentDtoTest {
     assertThat(componentDto.scope()).isEqualTo("FIL");
     assertThat(componentDto.path()).isEqualTo("src/org/struts/RequestContext.java");
     assertThat(componentDto.language()).isEqualTo("java");
-    assertThat(componentDto.projectId()).isEqualTo(2L);
     assertThat(componentDto.subProjectId()).isEqualTo(3L);
     assertThat(componentDto.getAuthorizationUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-11"));
   }

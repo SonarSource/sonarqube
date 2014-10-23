@@ -30,6 +30,7 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
 
 import java.io.StringWriter;
@@ -52,22 +53,30 @@ public class DuplicationsJsonWriterTest {
 
   DuplicationsJsonWriter writer;
 
+  ComponentDto project;
+
   @Before
   public void setUp() throws Exception {
+    project = ComponentTesting.newProjectDto()
+      .setId(1L)
+      .setName("SonarQube")
+      .setLongName("SonarQube")
+      .setKey("org.codehaus.sonar:sonar");
+
     writer = new DuplicationsJsonWriter(componentDao);
   }
 
   @Test
   public void write_duplications() throws Exception {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = new ComponentDto().setId(10L).setQualifier("FIL").setKey(key1).setLongName("PropertyDeleteQuery").setProjectId_unit_test_only(1L).setSubProjectId(5L);
+    ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery").setSubProjectId(5L);
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
-    ComponentDto file2 = new ComponentDto().setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setProjectId_unit_test_only(1L).setSubProjectId(5L);
+    ComponentDto file2 = ComponentTesting.newFileDto(project).setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setSubProjectId(5L);
 
     when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
     when(componentDao.getNullableByKey(session, key2)).thenReturn(file2);
-    when(componentDao.getNullableById(1L, session)).thenReturn(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setLongName("SonarQube"));
     when(componentDao.getNullableById(5L, session)).thenReturn(new ComponentDto().setId(5L).setKey("org.codehaus.sonar:sonar-ws-client").setLongName("SonarQube :: Web Service Client"));
+    when(componentDao.getNullableByUuid(session, project.uuid())).thenReturn(project);
 
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
@@ -112,20 +121,20 @@ public class DuplicationsJsonWriterTest {
 
     verify(componentDao, times(2)).getNullableByKey(eq(session), anyString());
     // Verify call to dao is cached when searching for project / sub project
-    verify(componentDao, times(1)).getNullableById(eq(1L), eq(session));
+    verify(componentDao, times(1)).getNullableByUuid(eq(session), eq(project.uuid()));
     verify(componentDao, times(1)).getNullableById(eq(5L), eq(session));
   }
 
   @Test
   public void write_duplications_without_sub_project() throws Exception {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = new ComponentDto().setId(10L).setQualifier("FIL").setKey(key1).setLongName("PropertyDeleteQuery").setProjectId_unit_test_only(1L);
+    ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
-    ComponentDto file2 = new ComponentDto().setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setProjectId_unit_test_only(1L);
+    ComponentDto file2 = ComponentTesting.newFileDto(project).setId(11L).setKey(key2).setLongName("PropertyUpdateQuery");
 
     when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
     when(componentDao.getNullableByKey(session, key2)).thenReturn(file2);
-    when(componentDao.getNullableById(1L, session)).thenReturn(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setLongName("SonarQube"));
+    when(componentDao.getNullableByUuid(session, project.uuid())).thenReturn(project);
 
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
@@ -168,10 +177,10 @@ public class DuplicationsJsonWriterTest {
   @Test
   public void write_duplications_with_a_removed_component() throws Exception {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = new ComponentDto().setId(10L).setQualifier("FIL").setKey(key1).setLongName("PropertyDeleteQuery").setProjectId_unit_test_only(1L);
+    ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery");
 
     when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
-    when(componentDao.getNullableById(1L, session)).thenReturn(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setLongName("SonarQube"));
+    when(componentDao.getNullableByUuid(session, project.uuid())).thenReturn(project);
 
     List<DuplicationsParser.Block> blocks = newArrayList();
 

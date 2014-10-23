@@ -25,7 +25,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multiset;
 import com.google.common.io.Resources;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -131,7 +130,7 @@ public class ComponentAppAction implements RequestHandler {
       }
       userSession.checkComponentPermission(UserRole.USER, fileKey);
 
-      List<Period> periodList = periods(component.projectId(), session);
+      List<Period> periodList = periods(component.projectUuid(), session);
       Integer periodIndex = request.paramAsInt(PARAM_PERIOD);
       Date periodDate = periodDate(periodIndex, periodList);
 
@@ -171,8 +170,8 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("longName", component.longName());
     json.prop("q", component.qualifier());
 
-    ComponentDto subProject = (ComponentDto) nullableComponentById(component.subProjectId(), session);
-    ComponentDto project = (ComponentDto) componentById(component.projectId(), session);
+    ComponentDto subProject = nullableComponentById(component.subProjectId(), session);
+    ComponentDto project = dbClient.componentDao().getByUuid(session, component.projectUuid());
 
     // Do not display sub project if sub project and project are the same
     boolean displaySubProject = subProject != null && !subProject.getId().equals(project.getId());
@@ -330,9 +329,9 @@ public class ComponentAppAction implements RequestHandler {
     }
   }
 
-  private List<Period> periods(Long projectId, DbSession session) {
+  private List<Period> periods(String projectUuid, DbSession session) {
     List<Period> periodList = newArrayList();
-    SnapshotDto snapshotDto = dbClient.resourceDao().getLastSnapshotByResourceId(projectId, session);
+    SnapshotDto snapshotDto = dbClient.resourceDao().getLastSnapshotByResourceUuid(projectUuid, session);
     if (snapshotDto != null) {
       for (int i = 1; i <= 5; i++) {
         String mode = snapshotDto.getPeriodMode(i);
@@ -376,17 +375,12 @@ public class ComponentAppAction implements RequestHandler {
   }
 
   @CheckForNull
-  private Component nullableComponentById(@Nullable Long componentId, DbSession session) {
+  private ComponentDto nullableComponentById(@Nullable Long componentId, DbSession session) {
     if (componentId != null) {
-      return componentById(componentId, session);
+      return dbClient.componentDao().getById(componentId, session);
     }
     return null;
   }
-
-  private Component componentById(Long componentId, DbSession session) {
-    return dbClient.componentDao().getById(componentId, session);
-  }
-
   @CheckForNull
   private String formatMeasureOrVariation(@Nullable MeasureDto measure, @Nullable Integer periodIndex) {
     if (periodIndex == null) {
