@@ -27,6 +27,16 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-core</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>jfree</groupId>
+          <artifactId>jcommon</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jfree</groupId>
+          <artifactId>jfreechart</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -35,6 +45,16 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-deprecated</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>jfree</groupId>
+          <artifactId>jcommon</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jfree</groupId>
+          <artifactId>jfreechart</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -54,7 +74,7 @@
         </exclusion>
         <exclusion>
           <groupId>jfree</groupId>
-          <artifactId>jfreechat</artifactId>
+          <artifactId>jfreechart</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
