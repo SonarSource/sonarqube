@@ -27,6 +27,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.HasAggregations;
+import org.elasticsearch.search.aggregations.bucket.missing.Missing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,10 @@ public class Result<K> {
   }
 
   private void processAggregation(Aggregation aggregation) {
-    if (Terms.class.isAssignableFrom(aggregation.getClass())) {
+    if (Missing.class.isAssignableFrom(aggregation.getClass())) {
+      Missing missing = (Missing) aggregation;
+      this.facets.put(aggregation.getName().replace("_missing",""), new FacetValue("", (int) missing.getDocCount()));
+    } else if (Terms.class.isAssignableFrom(aggregation.getClass())) {
       Terms termAggregation = (Terms) aggregation;
       for (Terms.Bucket value : termAggregation.getBuckets()) {
         this.facets.put(aggregation.getName().replace("_selected",""), new FacetValue(value.getKey(), (int) value.getDocCount()));

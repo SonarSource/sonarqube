@@ -29,7 +29,9 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.*;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.missing.InternalMissing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -309,11 +311,31 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
         query.componentRoots().toArray(new String[0])));
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.RULE_KEY.field(), IssueFilterParameters.RULES,
         query.rules().toArray(new String[0])));
-      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.ASSIGNEE.field(), IssueFilterParameters.ASSIGNEES,
-        query.assignees().toArray(new String[0])));
+      esSearch.addAggregation(getAssigneesFacet(query, options, filters, esQuery));
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.COMPONENT.field(), IssueFilterParameters.COMPONENTS,
         query.components().toArray(new String[0])));
     }
+  }
+
+  private AggregationBuilder getAssigneesFacet(IssueQuery query, QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+    String fieldName = IssueNormalizer.IssueField.ASSIGNEE.field();
+    String facetName = IssueFilterParameters.ASSIGNEES;
+
+    // Same as in super.stickyFacetBuilder
+    BoolFilterBuilder facetFilter = getStickyFacetFilter(esQuery, filters, fieldName);
+    FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter);
+    addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.assignees().toArray(new String[0]));
+
+    // Add missing facet for unassigned issues
+    facetTopAggregation.subAggregation(
+      AggregationBuilders
+        .missing(facetName + "_missing")
+        .field(fieldName)
+      );
+
+    return AggregationBuilders
+      .global(facetName)
+      .subAggregation(facetTopAggregation);
   }
 
   private void setSorting(IssueQuery query, SearchRequestBuilder esSearch) {

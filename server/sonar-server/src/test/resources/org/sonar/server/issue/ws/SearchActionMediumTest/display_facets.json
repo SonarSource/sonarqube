@@ -66,5 +66,14 @@
           "count": 1
         }
       ]
+    },
+    {
+      "property": "assignees",
+      "values": [
+        {
+          "val": "",
+          "count": 1
+        }
+      ]
     }
   ]}

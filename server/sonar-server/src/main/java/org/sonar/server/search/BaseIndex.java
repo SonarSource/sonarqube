@@ -593,13 +593,26 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   protected AggregationBuilder stickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters, String fieldName, String facetName, String... selected) {
+    BoolFilterBuilder facetFilter = getStickyFacetFilter(query, filters, fieldName);
+    FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter);
+    facetTopAggregation = addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, selected);
+
+    return AggregationBuilders
+      .global(facetName)
+      .subAggregation(facetTopAggregation);
+  }
+
+  protected BoolFilterBuilder getStickyFacetFilter(QueryBuilder query, Map<String, FilterBuilder> filters, String fieldName) {
     BoolFilterBuilder facetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
     for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
       if (filter.getValue() != null && !StringUtils.equals(filter.getKey(), fieldName)) {
         facetFilter.must(filter.getValue());
       }
     }
+    return facetFilter;
+  }
 
+  protected FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolFilterBuilder facetFilter) {
     FilterAggregationBuilder facetTopAggregation = AggregationBuilders
       .filter(facetName + "_filter")
       .filter(facetFilter)
@@ -609,16 +622,16 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
           .order(Terms.Order.count(false))
           .size(10)
           .minDocCount(1));
+    return facetTopAggregation;
+  }
 
+  protected FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation, String... selected) {
     if (selected.length > 0) {
       facetTopAggregation = facetTopAggregation.subAggregation(
         AggregationBuilders.terms(facetName + "_selected")
           .field(fieldName)
           .include(Joiner.on('|').join(selected)));
     }
-
-    return AggregationBuilders
-      .global(facetName)
-      .subAggregation(facetTopAggregation);
+    return facetTopAggregation;
   }
 }
