@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.core.computation.dbcleaner.DbCleanerProperties;
 
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class CorePropertyDefinitions {
     defs.addAll(ExclusionProperties.all());
     defs.addAll(SecurityProperties.all());
     defs.addAll(DebtProperties.all());
+    defs.addAll(DbCleanerProperties.all());
 
     defs.addAll(ImmutableList.of(
       // BATCH
@@ -101,7 +103,7 @@ public class CorePropertyDefinitions {
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DIFFERENTIAL_VIEWS)
         .build()
-      ));
+    ));
     return defs;
   }
 }

@@ -17,28 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.dbcleaner;
 
-import org.sonar.api.utils.DateUtils;
-import org.sonar.core.purge.PurgeableSnapshotDto;
+package org.sonar.server.computation;
 
-public final class DbCleanerTestUtils {
+import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
+import org.sonar.core.persistence.DbSession;
 
-  private DbCleanerTestUtils() {
+public class DbCleanerStep implements ComputationStep {
+  private final DefaultPurgeTask purgeTask;
+
+  public DbCleanerStep(DefaultPurgeTask purgeTask) {
+    this.purgeTask = purgeTask;
   }
 
-  public static PurgeableSnapshotDto createSnapshotWithDate(long snapshotId, String date) {
-    PurgeableSnapshotDto snapshot = new PurgeableSnapshotDto();
-    snapshot.setSnapshotId(snapshotId);
-    snapshot.setDate(DateUtils.parseDate(date));
-    return snapshot;
+  @Override
+  public void execute(DbSession session, AnalysisReportDto report) {
+    purgeTask.purge(report.getProject().getId());
   }
-
-  public static PurgeableSnapshotDto createSnapshotWithDateTime(long snapshotId, String datetime) {
-    PurgeableSnapshotDto snapshot = new PurgeableSnapshotDto();
-    snapshot.setSnapshotId(snapshotId);
-    snapshot.setDate(DateUtils.parseDateTime(datetime));
-    return snapshot;
-  }
-
 }

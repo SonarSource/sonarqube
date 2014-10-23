@@ -19,15 +19,6 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
-public interface DbCleanerConstants {
-
-  String PLUGIN_KEY = "dbcleaner";
-  String PLUGIN_NAME = "DbCleaner";
-  String PROPERTY_CLEAN_DIRECTORY = "sonar.dbcleaner.cleanDirectory";
-
-  String HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY = "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay";
-  String WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK = "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek";
-  String WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH = "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByMonth";
-  String WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS = "sonar.dbcleaner.weeksBeforeDeletingAllSnapshots";
-  String DAYS_BEFORE_DELETING_CLOSED_ISSUES = "sonar.dbcleaner.daysBeforeDeletingClosedIssues";
+@Deprecated
+public interface DbCleanerConstants extends org.sonar.core.computation.dbcleaner.DbCleanerConstants {
 }

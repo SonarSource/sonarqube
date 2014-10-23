@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.dbcleaner.period;
+
+package org.sonar.core.computation.dbcleaner.period;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.hamcrest.BaseMatcher;
@@ -35,10 +36,7 @@ import java.util.Date;
 
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DefaultPeriodCleanerTest {
 

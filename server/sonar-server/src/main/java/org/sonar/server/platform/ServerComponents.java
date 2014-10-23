@@ -37,6 +37,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.component.SnapshotPerspectives;
+import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
+import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
@@ -271,7 +273,7 @@ class ServerComponents {
       ActivityNormalizer.class,
       ActivityIndex.class,
       ActivityDao.class
-      ));
+    ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
     components.addAll(DaoUtils.getDaoClasses());
@@ -304,7 +306,7 @@ class ServerComponents {
       // ws
       RestartHandler.class,
       SystemWs.class
-      );
+    );
   }
 
   /**
@@ -321,7 +323,7 @@ class ServerComponents {
       HttpDownloader.class,
       UriReader.class,
       ServerIdGenerator.class
-      );
+    );
   }
 
   void startLevel4Components(ComponentContainer pico) {
@@ -591,15 +593,20 @@ class ServerComponents {
 
     // Compute engine
     pico.addSingleton(ComputationService.class);
-    pico.addSingleton(SwitchSnapshotStep.class);
+    pico.addSingleton(ComputationStepRegistry.class);
+    pico.addSingleton(GetAndSetProjectStep.class);
     pico.addSingleton(SynchronizeProjectPermissionsStep.class);
     pico.addSingleton(IndexProjectIssuesStep.class);
+    pico.addSingleton(SwitchSnapshotStep.class);
+    pico.addSingleton(DbCleanerStep.class);
     pico.add(AnalysisReportQueue.class);
     pico.addSingleton(AnalysisReportTaskLauncher.class);
     pico.addSingleton(AnalysisReportWebService.class);
     pico.addSingleton(ActiveAnalysisReportsAction.class);
     pico.addSingleton(IsAnalysisReportQueueEmptyAction.class);
     pico.addSingleton(AnalysisReportHistorySearchAction.class);
+    pico.addSingleton(DefaultPurgeTask.class);
+    pico.addSingleton(DefaultPeriodCleaner.class);
 
     for (Object components : level4AddedComponents) {
       pico.addSingleton(components);

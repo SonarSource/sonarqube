@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.dbcleaner;
+
+package org.sonar.core.computation.dbcleaner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,17 +26,15 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.TimeUtils;
+import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeProfiler;
-import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
-import org.sonar.plugins.dbcleaner.api.PurgeTask;
-import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 
 /**
  * @since 2.14
  */
-public class DefaultPurgeTask implements PurgeTask {
+public class DefaultPurgeTask {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPurgeTask.class);
 
   private PurgeDao purgeDao;
@@ -50,14 +49,12 @@ public class DefaultPurgeTask implements PurgeTask {
     this.profiler = profiler;
   }
 
-  @Override
-  public PurgeTask delete(long resourceId) {
+  public DefaultPurgeTask delete(long resourceId) {
     purgeDao.deleteResourceTree(resourceId);
     return this;
   }
 
-  @Override
-  public PurgeTask purge(long resourceId) {
+  public DefaultPurgeTask purge(long resourceId) {
     long start = System.currentTimeMillis();
     profiler.reset();
     cleanHistoricalData(resourceId);

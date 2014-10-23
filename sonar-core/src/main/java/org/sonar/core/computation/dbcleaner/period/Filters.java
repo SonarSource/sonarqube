@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.dbcleaner.period;
+
+package org.sonar.core.computation.dbcleaner.period;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.config.Settings;
-import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
+import org.sonar.core.computation.dbcleaner.DbCleanerConstants;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -43,10 +44,6 @@ class Filters {
     all.add(new DeleteAllFilter(dateToStartDeletingAllSnapshots));
   }
 
-  List<Filter> all() {
-    return all;
-  }
-
   static Date getDateFromWeeks(Settings settings, String propertyKey) {
     int weeks = settings.getInt(propertyKey);
     return DateUtils.addWeeks(new Date(), -weeks);
@@ -55,5 +52,9 @@ class Filters {
   static Date getDateFromHours(Settings settings, String propertyKey) {
     int hours = settings.getInt(propertyKey);
     return DateUtils.addHours(new Date(), -hours);
+  }
+
+  List<Filter> all() {
+    return all;
   }
 }

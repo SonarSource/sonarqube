@@ -17,30 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.dbcleaner.period;
 
-import org.junit.Test;
+package org.sonar.core.computation.dbcleaner.period;
+
+import com.google.common.collect.Lists;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.purge.PurgeableSnapshotDto;
-import org.sonar.plugins.dbcleaner.DbCleanerTestUtils;
 
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
-import static org.fest.assertions.Assertions.assertThat;
+class DeleteAllFilter implements Filter {
+  private final Date before;
 
-public class DeleteAllFilterTest {
+  public DeleteAllFilter(Date before) {
+    this.before = before;
+  }
 
-  @Test
-  public void shouldDeleteAllSnapshotsPriorToDate() {
-    Filter filter = new DeleteAllFilter(DateUtils.parseDate("2011-12-25"));
+  @Override
+  public List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> history) {
+    List<PurgeableSnapshotDto> result = Lists.newArrayList();
+    for (PurgeableSnapshotDto snapshot : history) {
+      if (snapshot.getDate().before(before)) {
+        result.add(snapshot);
+      }
+    }
+    return result;
+  }
 
-    List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.asList(
-      DbCleanerTestUtils.createSnapshotWithDate(1L, "2010-01-01"),
-      DbCleanerTestUtils.createSnapshotWithDate(2L, "2010-12-25"),
-      DbCleanerTestUtils.createSnapshotWithDate(3L, "2012-01-01")
-      ));
-
-    assertThat(toDelete).onProperty("snapshotId").containsOnly(1L, 2L);
+  @Override
+  public void log() {
+    LoggerFactory.getLogger(getClass()).info("-> Delete data prior to: " + DateUtils.formatDate(before));
   }
 }

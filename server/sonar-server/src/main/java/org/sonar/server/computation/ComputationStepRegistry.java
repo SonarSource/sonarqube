@@ -18,26 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.plugins.dbcleaner;
+package org.sonar.server.computation;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import org.sonar.api.SonarPlugin;
-import org.sonar.api.config.PropertyDefinition;
-import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.api.ServerComponent;
 
 import java.util.List;
 
-@Deprecated
-public final class DbCleanerPlugin extends SonarPlugin {
+public class ComputationStepRegistry implements ServerComponent {
 
-  static List<PropertyDefinition> propertyDefinitions() {
-    return Lists.newArrayList();
+  private final List<ComputationStep> steps;
+
+  public ComputationStepRegistry(
+    GetAndSetProjectStep getAndSetProjectStep,
+    SynchronizeProjectPermissionsStep synchronizeProjectPermissionsStep,
+    IndexProjectIssuesStep indexProjectIssuesStep,
+    SwitchSnapshotStep switchSnapshotStep,
+    DbCleanerStep dbCleanerStep) {
+    steps = ImmutableList.of(getAndSetProjectStep, synchronizeProjectPermissionsStep, indexProjectIssuesStep, switchSnapshotStep, dbCleanerStep);
   }
 
-  @Override
-  public List getExtensions() {
-    return ImmutableList.builder().add(DefaultPeriodCleaner.class, DeprecatedDefaultPurgeTask.class)
-      .addAll(propertyDefinitions()).build();
+  public List<ComputationStep> steps() {
+    return steps;
   }
 }

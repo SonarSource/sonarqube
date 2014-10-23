@@ -31,16 +31,11 @@ import org.sonar.server.db.DbClient;
  */
 public class ComputationService implements ServerComponent {
   private final DbClient dbClient;
-  private final SynchronizeProjectPermissionsStep synchronizeProjectPermissionsStep;
-  private final IndexProjectIssuesStep indexProjectIssuesStep;
-  private final SwitchSnapshotStep switchSnapshotStep;
+  private final ComputationStepRegistry stepRegistry;
 
-  public ComputationService(DbClient dbClient, SynchronizeProjectPermissionsStep synchronizeProjectPermissionsStep,
-    IndexProjectIssuesStep indexProjectIssuesStep, SwitchSnapshotStep switchSnapshotStep) {
+  public ComputationService(DbClient dbClient, ComputationStepRegistry stepRegistry) {
     this.dbClient = dbClient;
-    this.synchronizeProjectPermissionsStep = synchronizeProjectPermissionsStep;
-    this.indexProjectIssuesStep = indexProjectIssuesStep;
-    this.switchSnapshotStep = switchSnapshotStep;
+    this.stepRegistry = stepRegistry;
   }
 
   public void analyzeReport(AnalysisReportDto report) {
@@ -48,9 +43,9 @@ public class ComputationService implements ServerComponent {
     DbSession session = dbClient.openSession(true);
 
     try {
-      synchronizeProjectPermissionsStep.execute(session, report);
-      indexProjectIssuesStep.execute(session, report);
-      switchSnapshotStep.execute(session, report);
+      for (ComputationStep step : stepRegistry.steps()) {
+        step.execute(session, report);
+      }
     } finally {
       MyBatis.closeQuietly(session);
     }

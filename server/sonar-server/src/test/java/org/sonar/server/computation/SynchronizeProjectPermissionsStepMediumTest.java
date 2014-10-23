@@ -53,6 +53,7 @@ public class SynchronizeProjectPermissionsStepMediumTest {
   private SynchronizeProjectPermissionsStep sut;
 
   private AnalysisReportQueue queue;
+  private GetAndSetProjectStep getAndSetProjectStep;
   private DbClient db;
   private DbSession session;
   private MockUserSession userSession;
@@ -63,6 +64,7 @@ public class SynchronizeProjectPermissionsStepMediumTest {
     db = tester.get(DbClient.class);
     session = db.openSession(false);
     queue = tester.get(AnalysisReportQueue.class);
+    getAndSetProjectStep = tester.get(GetAndSetProjectStep.class);
 
     sut = tester.get(SynchronizeProjectPermissionsStep.class);
 
@@ -88,6 +90,7 @@ public class SynchronizeProjectPermissionsStepMediumTest {
 
     queue.add(DEFAULT_PROJECT_KEY, 123L);
     List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
+    getAndSetProjectStep.execute(session, reports.get(0));
 
     sut.execute(session, reports.get(0));
 

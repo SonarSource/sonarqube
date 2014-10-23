@@ -18,26 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.plugins.dbcleaner;
+package org.sonar.core.computation.dbcleaner.period;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import org.sonar.api.SonarPlugin;
-import org.sonar.api.config.PropertyDefinition;
-import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.core.purge.PurgeableSnapshotDto;
 
 import java.util.List;
 
-@Deprecated
-public final class DbCleanerPlugin extends SonarPlugin {
+interface Filter {
+  List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> snapshots);
 
-  static List<PropertyDefinition> propertyDefinitions() {
-    return Lists.newArrayList();
-  }
-
-  @Override
-  public List getExtensions() {
-    return ImmutableList.builder().add(DefaultPeriodCleaner.class, DeprecatedDefaultPurgeTask.class)
-      .addAll(propertyDefinitions()).build();
-  }
+  void log();
 }

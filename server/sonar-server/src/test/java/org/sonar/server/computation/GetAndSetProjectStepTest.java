@@ -20,46 +20,48 @@
 
 package org.sonar.server.computation;
 
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InOrder;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class ComputationServiceTest {
+public class GetAndSetProjectStepTest {
 
-  private ComputationService sut;
-
+  private GetAndSetProjectStep sut;
   private DbClient dbClient;
-  private ComputationStepRegistry stepRegistry;
+  private ComponentDto project;
+  private DbSession session;
 
   @Before
   public void before() {
     this.dbClient = mock(DbClient.class);
-    this.stepRegistry = mock(ComputationStepRegistry.class);
+    this.session = mock(DbSession.class);
+    this.project = ComponentTesting.newProjectDto();
 
-    this.sut = new ComputationService(dbClient, stepRegistry);
+    ComponentDao componentDao = mock(ComponentDao.class);
+    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(componentDao.getByKey(any(DbSession.class), anyString())).thenReturn(project);
+
+    this.sut = new GetAndSetProjectStep(dbClient);
   }
 
   @Test
-  public void call_execute_method_of_my_registry() {
-    ComputationStep firstStep = mock(ComputationStep.class);
-    ComputationStep secondStep = mock(ComputationStep.class);
-    ComputationStep thirdStep = mock(ComputationStep.class);
+  public void set_project_return_by_dbclient() {
+    AnalysisReportDto report = new AnalysisReportDto().setProjectKey("123-456-789");
 
-    when(stepRegistry.steps()).thenReturn(Lists.newArrayList(firstStep, secondStep, thirdStep));
+    sut.execute(session, report);
 
-    sut.analyzeReport(AnalysisReportDto.newForTests(1L));
-
-    InOrder order = inOrder(firstStep, secondStep, thirdStep);
-
-    order.verify(firstStep).execute(any(DbSession.class), any(AnalysisReportDto.class));
-    order.verify(secondStep).execute(any(DbSession.class), any(AnalysisReportDto.class));
-    order.verify(thirdStep).execute(any(DbSession.class), any(AnalysisReportDto.class));
+    assertThat(report.getProject()).isEqualTo(project);
   }
+
 }

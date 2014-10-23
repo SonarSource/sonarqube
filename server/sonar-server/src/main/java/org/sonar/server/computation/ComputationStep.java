@@ -20,31 +20,10 @@
 
 package org.sonar.server.computation;
 
+import org.sonar.api.ServerComponent;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.issue.index.IssueAuthorizationIndex;
-import org.sonar.server.permission.InternalPermissionService;
-import org.sonar.server.search.IndexClient;
 
-public class SynchronizeProjectPermissionsStep implements ComputationStep {
-
-  private final IndexClient index;
-  private final InternalPermissionService permissionService;
-
-  public SynchronizeProjectPermissionsStep(IndexClient index, InternalPermissionService permissionService) {
-    this.index = index;
-    this.permissionService = permissionService;
-  }
-
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report) {
-    synchronizeProjectPermissionsIfNotFound(session, report);
-  }
-
-  private void synchronizeProjectPermissionsIfNotFound(DbSession session, AnalysisReportDto report) {
-    if (index.get(IssueAuthorizationIndex.class).getNullableByKey(report.getProjectKey()) == null) {
-      permissionService.synchronizePermissions(session, report.getProject().uuid());
-      session.commit();
-    }
-  }
+public interface ComputationStep extends ServerComponent {
+  void execute(DbSession session, AnalysisReportDto analysisReportDto);
 }

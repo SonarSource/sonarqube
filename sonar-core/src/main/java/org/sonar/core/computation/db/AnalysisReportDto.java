@@ -21,12 +21,16 @@ package org.sonar.core.computation.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
+import org.sonar.core.component.AuthorizedComponentDto;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.Nullable;
 
 import java.util.Date;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.FAILED;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.SUCCESS;
 
@@ -34,12 +38,12 @@ public class AnalysisReportDto extends Dto<String> {
 
   private Long id;
   private String projectKey;
-  private String projectName;
   private Status status;
   private String data;
   private Long snapshotId;
   private Date startedAt;
   private Date finishedAt;
+  private ComponentDto project;
 
   public AnalysisReportDto() {
     super();
@@ -102,7 +106,6 @@ public class AnalysisReportDto extends Dto<String> {
     return Objects.toStringHelper(this)
       .add("id", getId())
       .add("projectKey", getProjectKey())
-      .add("projectName", getProjectName())
       .add("status", getStatus())
       .add("createdAt", getCreatedAt())
       .add("startedAt", getStartedAt())
@@ -111,12 +114,11 @@ public class AnalysisReportDto extends Dto<String> {
   }
 
   public String getProjectName() {
-    return projectName;
-  }
+    if (project == null) {
+      return getProjectKey();
+    }
 
-  public AnalysisReportDto setProjectName(String projectName) {
-    this.projectName = projectName;
-    return this;
+    return Strings.nullToEmpty(project.name());
   }
 
   public Long getSnapshotId() {
@@ -155,6 +157,15 @@ public class AnalysisReportDto extends Dto<String> {
   @Override
   public AnalysisReportDto setCreatedAt(Date datetime) {
     super.setCreatedAt(datetime);
+    return this;
+  }
+
+  public AuthorizedComponentDto getProject() {
+    return checkNotNull(project);
+  }
+
+  public AnalysisReportDto setProject(ComponentDto project) {
+    this.project = project;
     return this;
   }
 

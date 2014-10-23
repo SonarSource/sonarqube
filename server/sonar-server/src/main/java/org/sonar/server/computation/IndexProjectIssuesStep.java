@@ -27,7 +27,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.search.IndexClient;
 
-public class IndexProjectIssuesStep implements AnalysisReportStep {
+public class IndexProjectIssuesStep implements ComputationStep {
 
   private final DbClient dbClient;
   private final IndexClient index;

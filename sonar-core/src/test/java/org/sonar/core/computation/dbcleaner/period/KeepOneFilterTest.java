@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.dbcleaner.period;
+
+package org.sonar.core.computation.dbcleaner.period;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -33,9 +34,18 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.sonar.plugins.dbcleaner.DbCleanerTestUtils.createSnapshotWithDate;
+import static org.sonar.core.computation.dbcleaner.DbCleanerTestUtils.createSnapshotWithDate;
 
 public class KeepOneFilterTest {
+
+  private static List<Long> snapshotIds(List<PurgeableSnapshotDto> snapshotDtos) {
+    return newArrayList(Iterables.transform(snapshotDtos, new Function<PurgeableSnapshotDto, Long>() {
+      @Override
+      public Long apply(@Nullable PurgeableSnapshotDto input) {
+        return input != null ? input.getSnapshotId() : null;
+      }
+    }));
+  }
 
   @Test
   public void shouldOnlyOneSnapshotPerInterval() {
@@ -80,15 +90,6 @@ public class KeepOneFilterTest {
     assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01"))).isTrue();
     assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setLast(true))).isFalse();
     assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setHasEvents(true))).isFalse();
-  }
-
-  private static List<Long> snapshotIds(List<PurgeableSnapshotDto> snapshotDtos){
-    return newArrayList(Iterables.transform(snapshotDtos, new Function<PurgeableSnapshotDto, Long>() {
-      @Override
-      public Long apply(@Nullable PurgeableSnapshotDto input) {
-        return input != null ? input.getSnapshotId() : null;
-      }
-    }));
   }
 
 }

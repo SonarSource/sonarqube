@@ -17,25 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.dbcleaner;
 
-import org.sonar.api.batch.PostJob;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Project;
-import org.sonar.core.DryRunIncompatible;
-import org.sonar.plugins.dbcleaner.api.PurgeTask;
+package org.sonar.core.computation.dbcleaner.period;
 
-@DryRunIncompatible
-public class ProjectPurgePostJob implements PostJob {
+import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.computation.dbcleaner.DbCleanerTestUtils;
+import org.sonar.core.purge.PurgeableSnapshotDto;
 
-  private PurgeTask purgeTask;
+import java.util.Arrays;
+import java.util.List;
 
-  public ProjectPurgePostJob(PurgeTask purgeTask) {
-    this.purgeTask = purgeTask;
-  }
+import static org.fest.assertions.Assertions.assertThat;
 
-  @Override
-  public void executeOn(final Project project, SensorContext context) {
-    purgeTask.purge(project.getId());
+public class DeleteAllFilterTest {
+
+  @Test
+  public void shouldDeleteAllSnapshotsPriorToDate() {
+    Filter filter = new DeleteAllFilter(DateUtils.parseDate("2011-12-25"));
+
+    List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.asList(
+      DbCleanerTestUtils.createSnapshotWithDate(1L, "2010-01-01"),
+      DbCleanerTestUtils.createSnapshotWithDate(2L, "2010-12-25"),
+      DbCleanerTestUtils.createSnapshotWithDate(3L, "2012-01-01")
+      ));
+
+    assertThat(toDelete).onProperty("snapshotId").containsOnly(1L, 2L);
   }
 }

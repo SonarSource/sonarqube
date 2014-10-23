@@ -69,7 +69,6 @@ public class AnalysisReportQueue implements ServerComponent {
   private AnalysisReportDto newPendingAnalysisReport(String projectKey) {
     return new AnalysisReportDto()
       .setProjectKey(projectKey)
-      .setProjectName(projectKey)
       .setStatus(PENDING);
   }
 

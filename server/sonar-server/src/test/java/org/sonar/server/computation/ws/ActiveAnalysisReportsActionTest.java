@@ -51,7 +51,6 @@ public class ActiveAnalysisReportsActionTest {
   public void list_active_reports() throws Exception {
     AnalysisReportDto report = AnalysisReportDto
       .newForTests(1L)
-      .setProjectName("Project Name")
       .setProjectKey("project-name")
       .setStatus(PENDING)
       .setData(null)

@@ -18,26 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.plugins.dbcleaner;
+package org.sonar.core.computation.dbcleaner;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import org.sonar.api.SonarPlugin;
-import org.sonar.api.config.PropertyDefinition;
-import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
+public interface DbCleanerConstants {
 
-import java.util.List;
+  String PLUGIN_KEY = "dbcleaner";
+  String PLUGIN_NAME = "DbCleaner";
+  String PROPERTY_CLEAN_DIRECTORY = "sonar.dbcleaner.cleanDirectory";
 
-@Deprecated
-public final class DbCleanerPlugin extends SonarPlugin {
-
-  static List<PropertyDefinition> propertyDefinitions() {
-    return Lists.newArrayList();
-  }
-
-  @Override
-  public List getExtensions() {
-    return ImmutableList.builder().add(DefaultPeriodCleaner.class, DeprecatedDefaultPurgeTask.class)
-      .addAll(propertyDefinitions()).build();
-  }
+  String HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY = "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay";
+  String WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK = "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek";
+  String WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH = "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByMonth";
+  String WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS = "sonar.dbcleaner.weeksBeforeDeletingAllSnapshots";
+  String DAYS_BEFORE_DELETING_CLOSED_ISSUES = "sonar.dbcleaner.daysBeforeDeletingClosedIssues";
 }

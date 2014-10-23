@@ -18,8 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-@ParametersAreNonnullByDefault
-package org.sonar.plugins.dbcleaner.period;
+package org.sonar.server.computation;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.Before;
+import org.sonar.api.config.Settings;
+import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
+import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeProfiler;
 
+import static org.mockito.Mockito.mock;
+
+public class DbCleanStepTest {
+
+  private DbCleanerStep sut;
+
+  @Before
+  public void before() {
+    sut = new DbCleanerStep(new DefaultPurgeTask(mock(PurgeDao.class), mock(Settings.class), mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class)));
+  }
+
+}

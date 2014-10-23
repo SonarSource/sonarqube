@@ -6,7 +6,6 @@
     <!-- the data report is not brought back by default as it could be too big in memory -->
     ar.id,
     ar.project_key as projectKey,
-    ar.project_name as projectName,
     ar.report_status as status,
     ar.snapshot_id as snapshotId,
     ar.created_at as createdAt,
@@ -17,9 +16,9 @@
 
   <insert id="insert" parameterType="AnalysisReport" useGeneratedKeys="true">
     insert into analysis_reports
-    (project_key, project_name, snapshot_id, report_status, report_data, created_at, updated_at, started_at,
+    (project_key, snapshot_id, report_status, report_data, created_at, updated_at, started_at,
     finished_at)
-    values (#{projectKey}, #{projectName}, #{snapshotId}, #{status}, #{data}, #{createdAt}, #{updatedAt}, #{startedAt},
+    values (#{projectKey}, #{snapshotId}, #{status}, #{data}, #{createdAt}, #{updatedAt}, #{startedAt},
     #{finishedAt})
   </insert>
 

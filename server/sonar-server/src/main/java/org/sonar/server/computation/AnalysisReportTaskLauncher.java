@@ -50,13 +50,7 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent, S
   public AnalysisReportTaskLauncher(ComputationService service, AnalysisReportQueue queue) {
     this.service = service;
     this.queue = queue;
-
-    // all threads are named "ar-xxx", so they can have a dedicated logging output
-    // (see SwitchLogbackAppender)
-    ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-      .setNameFormat(ANALYSIS_REPORT_THREAD_NAME_PREFIX + "%d").setPriority(Thread.MIN_PRIORITY).build();
-
-    this.executorService = Executors.newSingleThreadScheduledExecutor(namedThreadFactory);
+    this.executorService = Executors.newSingleThreadScheduledExecutor(threadFactoryWithSpecificNameForLogging());
 
     this.delayBetweenTasks = 10;
     this.delayForFirstStart = 0;
@@ -66,12 +60,20 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent, S
   @VisibleForTesting
   AnalysisReportTaskLauncher(ComputationService service, AnalysisReportQueue queue, long delayForFirstStart, long delayBetweenTasks, TimeUnit timeUnit) {
     this.queue = queue;
-    this.executorService = Executors.newSingleThreadScheduledExecutor();
+    this.executorService = Executors.newSingleThreadScheduledExecutor(threadFactoryWithSpecificNameForLogging());
 
     this.delayBetweenTasks = delayBetweenTasks;
     this.delayForFirstStart = delayForFirstStart;
     this.timeUnit = timeUnit;
     this.service = service;
+  }
+
+  /**
+   * @see org.sonar.server.platform.SwitchLogbackAppender
+   */
+  private ThreadFactory threadFactoryWithSpecificNameForLogging() {
+    return new ThreadFactoryBuilder()
+      .setNameFormat(ANALYSIS_REPORT_THREAD_NAME_PREFIX + "%d").setPriority(Thread.MIN_PRIORITY).build();
   }
 
   @Override

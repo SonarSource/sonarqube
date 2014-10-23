@@ -35,6 +35,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.activity.index.ActivityIndex;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.ServerTester;
@@ -155,6 +156,7 @@ public class AnalysisReportQueueMediumTest {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
     sut.add(DEFAULT_PROJECT_KEY, 123L);
     AnalysisReportDto report = sut.bookNextAvailable();
+    report.setProject(ComponentTesting.newProjectDto());
     report.setStatus(SUCCESS);
 
     sut.remove(report);

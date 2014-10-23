@@ -18,12 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.computation;
+package org.sonar.core.computation.dbcleaner;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.persistence.DbSession;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.core.purge.PurgeableSnapshotDto;
 
-public interface AnalysisReportStep extends ServerComponent {
-  void execute(DbSession session, AnalysisReportDto analysisReportDto);
+public final class DbCleanerTestUtils {
+
+  private DbCleanerTestUtils() {
+  }
+
+  public static PurgeableSnapshotDto createSnapshotWithDate(long snapshotId, String date) {
+    PurgeableSnapshotDto snapshot = new PurgeableSnapshotDto();
+    snapshot.setSnapshotId(snapshotId);
+    snapshot.setDate(DateUtils.parseDate(date));
+    return snapshot;
+  }
+
+  public static PurgeableSnapshotDto createSnapshotWithDateTime(long snapshotId, String datetime) {
+    PurgeableSnapshotDto snapshot = new PurgeableSnapshotDto();
+    snapshot.setSnapshotId(snapshotId);
+    snapshot.setDate(DateUtils.parseDateTime(datetime));
+    return snapshot;
+  }
+
 }

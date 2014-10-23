@@ -19,18 +19,18 @@
  */
 package org.sonar.plugins.dbcleaner.api;
 
-import org.sonar.api.task.TaskExtension;
-
 import com.google.common.annotations.Beta;
+import org.sonar.api.task.TaskExtension;
 
 /**
  * @since 2.14
  */
 @Beta
+@Deprecated
 public interface PurgeTask extends TaskExtension {
   /**
    * Purges the data related to a tree of resources.
-   *
+   * <p/>
    * Exceptions are logged and are not thrown again, so this method fails only on {@link Error}s.
    *
    * @param resourceId the root of the tree

@@ -31,6 +31,7 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.activity.index.ActivityIndex;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.ServerTester;
 
@@ -65,12 +66,12 @@ public class AnalysisReportLogMediumTest {
   public void insert_find_analysis_report_log() {
     AnalysisReportDto report = AnalysisReportDto.newForTests(1L)
       .setProjectKey("projectKey")
-      .setProjectName("projectName")
       .setStatus(FAILED)
       .setCreatedAt(DateUtils.parseDate("2014-10-15"))
       .setUpdatedAt(DateUtils.parseDate("2014-10-16"))
       .setStartedAt(DateUtils.parseDate("2014-10-17"))
-      .setFinishedAt(DateUtils.parseDate("2014-10-18"));
+      .setFinishedAt(DateUtils.parseDate("2014-10-18"))
+      .setProject(ComponentTesting.newProjectDto());
 
     service.write(dbSession, ANALYSIS_REPORT, new AnalysisReportLog(report));
     dbSession.commit();

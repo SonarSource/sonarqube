@@ -20,31 +20,37 @@
 
 package org.sonar.server.computation;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.issue.index.IssueAuthorizationIndex;
-import org.sonar.server.permission.InternalPermissionService;
-import org.sonar.server.search.IndexClient;
 
-public class SynchronizeProjectPermissionsStep implements ComputationStep {
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-  private final IndexClient index;
-  private final InternalPermissionService permissionService;
+public class DbCleanerStepTest {
 
-  public SynchronizeProjectPermissionsStep(IndexClient index, InternalPermissionService permissionService) {
-    this.index = index;
-    this.permissionService = permissionService;
+  private DbCleanerStep sut;
+  private DefaultPurgeTask purgeTask;
+
+  @Before
+  public void before() {
+    this.purgeTask = mock(DefaultPurgeTask.class);
+    this.sut = new DbCleanerStep(purgeTask);
   }
 
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report) {
-    synchronizeProjectPermissionsIfNotFound(session, report);
+  @Test
+  public void call_purge_method_of_the_purge_task() {
+    AnalysisReportDto report = mock(AnalysisReportDto.class);
+    when(report.getProject()).thenReturn(mock(AuthorizedComponentDto.class));
+
+    sut.execute(mock(DbSession.class), report);
+
+    verify(purgeTask).purge(any(Long.class));
   }
 
-  private void synchronizeProjectPermissionsIfNotFound(DbSession session, AnalysisReportDto report) {
-    if (index.get(IssueAuthorizationIndex.class).getNullableByKey(report.getProjectKey()) == null) {
-      permissionService.synchronizePermissions(session, report.getProject().uuid());
-      session.commit();
-    }
-  }
 }

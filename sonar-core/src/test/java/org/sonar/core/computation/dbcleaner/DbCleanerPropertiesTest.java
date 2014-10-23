@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.dbcleaner.period;
 
-import org.sonar.core.purge.PurgeableSnapshotDto;
+package org.sonar.core.computation.dbcleaner;
 
-import java.util.List;
+import org.junit.Test;
 
-interface Filter {
-  List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> snapshots);
+import static org.fest.assertions.Assertions.assertThat;
 
-  void log();
+public class DbCleanerPropertiesTest {
+
+  @Test
+  public void shouldGetExtensions() {
+    assertThat(new DbCleanerProperties().all()).hasSize(6);
+  }
 }

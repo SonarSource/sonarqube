@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.dbcleaner.period;
+
+package org.sonar.core.computation.dbcleaner.period;
 
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
@@ -30,10 +31,21 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.sonar.plugins.dbcleaner.DbCleanerTestUtils.createSnapshotWithDate;
-import static org.sonar.plugins.dbcleaner.DbCleanerTestUtils.createSnapshotWithDateTime;
+import static org.sonar.core.computation.dbcleaner.DbCleanerTestUtils.createSnapshotWithDate;
+import static org.sonar.core.computation.dbcleaner.DbCleanerTestUtils.createSnapshotWithDateTime;
 
 public class IntervalTest {
+  static int calendarField(Interval interval, int field) {
+    if (interval.count() == 0) {
+      return -1;
+    }
+
+    PurgeableSnapshotDto first = interval.get().iterator().next();
+    GregorianCalendar cal = new GregorianCalendar();
+    cal.setTime(first.getDate());
+    return cal.get(field);
+  }
+
   @Test
   public void shouldGroupByIntervals() {
     List<PurgeableSnapshotDto> snapshots = Arrays.asList(
@@ -46,7 +58,7 @@ public class IntervalTest {
       createSnapshotWithDate(5L, "2011-06-20"),
 
       createSnapshotWithDate(6L, "2012-06-29") // out of scope
-    );
+      );
 
     List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2010-01-01"), DateUtils.parseDate("2011-12-31"), Calendar.MONTH);
     assertThat(intervals.size(), is(3));
@@ -66,7 +78,7 @@ public class IntervalTest {
     List<PurgeableSnapshotDto> snapshots = Arrays.asList(
       createSnapshotWithDate(1L, "2010-04-03"),
       createSnapshotWithDate(2L, "2011-04-13")
-    );
+      );
 
     List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2010-01-01"), DateUtils.parseDate("2011-12-31"), Calendar.MONTH);
     assertThat(intervals.size(), is(2));
@@ -86,22 +98,11 @@ public class IntervalTest {
       createSnapshotWithDateTime(1L, "2011-05-25T16:16:48+0100"),
       createSnapshotWithDateTime(2L, "2012-01-26T16:16:48+0100"),
       createSnapshotWithDateTime(3L, "2012-01-27T16:16:48+0100")
-    );
+      );
 
     List<Interval> intervals = Interval.group(snapshots, DateUtils.parseDate("2011-05-25"), DateUtils.parseDate("2012-01-26"), Calendar.MONTH);
     assertThat(intervals.size(), is(1));
     assertThat(intervals.get(0).count(), is(1));
     assertThat(intervals.get(0).get().get(0).getSnapshotId(), is(2L));
-  }
-
-  static int calendarField(Interval interval, int field) {
-    if (interval.count() == 0) {
-      return -1;
-    }
-
-    PurgeableSnapshotDto first = interval.get().iterator().next();
-    GregorianCalendar cal = new GregorianCalendar();
-    cal.setTime(first.getDate());
-    return cal.get(field);
   }
 }

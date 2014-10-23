@@ -3,7 +3,7 @@
     {
       "id": 1,
       "status": "PENDING",
-      "projectName": "Project Name",
+      "projectName": "project-name",
       "project": "project-name",
       "submittedAt": "2014-10-13T00:00:00+0200",
       "startedAt": "2014-10-13T00:00:00+0200",

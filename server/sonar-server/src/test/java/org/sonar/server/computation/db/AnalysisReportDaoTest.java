@@ -59,8 +59,6 @@ public class AnalysisReportDaoTest {
     this.sut = new AnalysisReportDao(system2);
 
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-26").getTime());
-
-    db.prepareDbUnit(getClass(), "empty.xml");
   }
 
   @After
@@ -70,9 +68,10 @@ public class AnalysisReportDaoTest {
 
   @Test
   public void insert_multiple_reports() {
+    db.prepareDbUnit(getClass(), "empty.xml");
+
     AnalysisReportDto report = new AnalysisReportDto()
       .setProjectKey(DEFAULT_PROJECT_KEY)
-      .setProjectName(DEFAULT_PROJECT_NAME)
       .setSnapshotId(DEFAULT_SNAPSHOT_ID)
       .setData("data-project")
       .setStatus(PENDING)
@@ -169,7 +168,6 @@ public class AnalysisReportDaoTest {
     AnalysisReportDto report = sut.getById(session, 1L);
 
     assertThat(report.getProjectKey()).isEqualTo(DEFAULT_PROJECT_KEY);
-    assertThat(report.getProjectName()).isEqualTo(DEFAULT_PROJECT_NAME);
     assertThat(report.getCreatedAt()).isEqualTo(DateUtils.parseDate("2014-09-24"));
     assertThat(report.getUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-25"));
     assertThat(report.getStartedAt()).isEqualTo(DateUtils.parseDate("2014-09-26"));

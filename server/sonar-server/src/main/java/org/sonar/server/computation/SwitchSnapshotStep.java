@@ -27,7 +27,7 @@ import org.sonar.server.component.db.SnapshotDao;
 
 import java.util.List;
 
-public class SwitchSnapshotStep implements AnalysisReportStep {
+public class SwitchSnapshotStep implements ComputationStep {
 
   private SnapshotDao dao;
 

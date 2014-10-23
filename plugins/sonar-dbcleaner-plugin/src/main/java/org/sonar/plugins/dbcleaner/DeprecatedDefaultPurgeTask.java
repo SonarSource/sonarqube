@@ -20,24 +20,33 @@
 
 package org.sonar.plugins.dbcleaner;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import org.sonar.api.SonarPlugin;
-import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.config.Settings;
+import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.core.purge.PurgeDao;
+import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.plugins.dbcleaner.api.PurgeTask;
 
-import java.util.List;
-
+/**
+ * @since 2.14
+ */
 @Deprecated
-public final class DbCleanerPlugin extends SonarPlugin {
+public class DeprecatedDefaultPurgeTask implements PurgeTask {
+  private final DefaultPurgeTask defaultPurgeTask;
 
-  static List<PropertyDefinition> propertyDefinitions() {
-    return Lists.newArrayList();
+  public DeprecatedDefaultPurgeTask(PurgeDao purgeDao, Settings settings, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler) {
+    defaultPurgeTask = new DefaultPurgeTask(purgeDao, settings, periodCleaner, profiler);
   }
 
   @Override
-  public List getExtensions() {
-    return ImmutableList.builder().add(DefaultPeriodCleaner.class, DeprecatedDefaultPurgeTask.class)
-      .addAll(propertyDefinitions()).build();
+  public DeprecatedDefaultPurgeTask delete(long resourceId) {
+    defaultPurgeTask.delete(resourceId);
+    return this;
+  }
+
+  @Override
+  public DeprecatedDefaultPurgeTask purge(long resourceId) {
+    defaultPurgeTask.purge(resourceId);
+    return this;
   }
 }

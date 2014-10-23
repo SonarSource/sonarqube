@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.dbcleaner;
+
+package org.sonar.core.computation.dbcleaner;
 
 import ch.qos.logback.classic.Logger;
 import org.junit.Test;
@@ -26,25 +27,22 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Scopes;
+import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeProfiler;
-import org.sonar.plugins.dbcleaner.api.DbCleanerConstants;
-import org.sonar.plugins.dbcleaner.period.DefaultPeriodCleaner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DefaultPurgeTaskTest {
+
   @Test
   public void shouldNotDeleteHistoricalDataOfDirectories() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    Settings settings = new Settings(new PropertyDefinitions(DbCleanerPlugin.propertyDefinitions()));
+    Settings settings = new Settings(new PropertyDefinitions(DbCleanerProperties.all()));
     settings.setProperty(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY, "false");
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
@@ -62,7 +60,7 @@ public class DefaultPurgeTaskTest {
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesByDefault() {
     PurgeDao purgeDao = mock(PurgeDao.class);
-    Settings settings = new Settings(new PropertyDefinitions(DbCleanerPlugin.propertyDefinitions()));
+    Settings settings = new Settings(new PropertyDefinitions(DbCleanerProperties.all()));
     DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
     task.purge(1L);
@@ -95,7 +93,7 @@ public class DefaultPurgeTaskTest {
     PurgeConfiguration conf = new PurgeConfiguration(1L, new String[0], 30);
     PurgeDao purgeDao = mock(PurgeDao.class);
     when(purgeDao.purge(conf)).thenThrow(new RuntimeException());
-    Settings settings = new Settings(new PropertyDefinitions(DbCleanerPlugin.propertyDefinitions()));
+    Settings settings = new Settings(new PropertyDefinitions(DbCleanerProperties.all()));
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, true);
     PurgeProfiler profiler = mock(PurgeProfiler.class);
 
@@ -104,4 +102,5 @@ public class DefaultPurgeTaskTest {
 
     verify(profiler).dump(anyLong(), any(Logger.class));
   }
+
 }
