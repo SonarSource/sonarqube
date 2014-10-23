@@ -25,8 +25,6 @@
     <module>sonar-home</module>
     <module>sonar-java-api</module>
     <module>sonar-markdown</module>
-    <module>sonar-maven-plugin</module>
-    <module>sonar-maven3-plugin</module>
     <module>sonar-plugin-api</module>
     <module>server</module>
     <module>sonar-testing-harness</module>
@@ -80,7 +78,7 @@
     <elasticsearch.version>1.1.2</elasticsearch.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>3.0.5</maven.min.version>
-    <maven.api.version>2.2.0</maven.api.version>
+    <maven.api.version>3.0.5</maven.api.version>
     <jdk.min.version>1.6</jdk.min.version>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
@@ -934,44 +932,13 @@
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
-        <artifactId>maven-artifact</artifactId>
+        <artifactId>maven-compat</artifactId>
         <version>${maven.api.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven</groupId>
-        <artifactId>maven-project</artifactId>
+        <artifactId>maven-artifact</artifactId>
         <version>${maven.api.version}</version>
-        <exclusions>
-          <exclusion>
-            <!-- See SONAR-2455 -->
-            <groupId>classworlds</groupId>
-            <artifactId>classworlds</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>backport-util-concurrent</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-interpolation</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-container-default</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-artifact-manager</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.maven.shared</groupId>
