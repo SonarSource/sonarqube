@@ -40,16 +40,13 @@ import static org.mockito.Mockito.mock;
 
 public class ActivityDaoTest extends AbstractDaoTestCase {
 
-
   private ActivityDao dao;
   private DbSession session;
-  private System2 system2;
 
   @Before
   public void before() throws Exception {
     this.session = getMyBatis().openSession(false);
-    this.system2 = mock(System2.class);
-    this.dao = new ActivityDao(system2);
+    this.dao = new ActivityDao(mock(System2.class));
   }
 
   @After

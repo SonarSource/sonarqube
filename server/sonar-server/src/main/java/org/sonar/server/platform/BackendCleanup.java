@@ -71,8 +71,8 @@ public class BackendCleanup implements ServerComponent {
       }
 
     } finally {
-      dbSession.close();
       DbUtils.closeQuietly(connection);
+      MyBatis.closeQuietly(dbSession);
     }
   }
 

@@ -45,6 +45,7 @@ public class SearchHealthMediumTest {
     DbSession dbSession = tester.get(DbClient.class).openSession(false);
     tester.get(RuleDao.class).insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S001")));
     dbSession.commit();
+    dbSession.close();
 
     SearchHealth health = tester.get(SearchHealth.class);
     Date now = new Date();
@@ -55,7 +56,6 @@ public class SearchHealthMediumTest {
 
     NodeHealth nodeHealth = health.getNodesHealth().values().iterator().next();
     assertThat(nodeHealth.isMaster()).isTrue();
-    System.out.println(nodeHealth.getAddress());
     assertThat(nodeHealth.getAddress()).contains(":");
     assertThat(nodeHealth.getJvmHeapUsedPercent()).contains("%");
     assertThat(nodeHealth.getFsUsedPercent()).contains("%");

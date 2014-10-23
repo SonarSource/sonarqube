@@ -115,6 +115,7 @@ public class TestDatabase extends ExternalResource {
       if (db.getDialect().getId().equals("h2")) {
         ((H2Database) db).executeScript(schemaPath);
       } else {
+        db.stop();
         throw new AssumptionViolatedException("Test disabled because it supports only H2");
       }
     }

@@ -41,7 +41,6 @@ public class SwitchSnapshotStepTest {
 
   private DbSession session;
   private SwitchSnapshotStep sut;
-  private SnapshotDao dao;
 
   @Before
   public void before() {
@@ -50,7 +49,6 @@ public class SwitchSnapshotStepTest {
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(DateUtils.parseDate("2011-09-29").getTime());
     this.sut = new SwitchSnapshotStep(new SnapshotDao(system2));
-    this.dao = new SnapshotDao(system2);
   }
 
   @After
