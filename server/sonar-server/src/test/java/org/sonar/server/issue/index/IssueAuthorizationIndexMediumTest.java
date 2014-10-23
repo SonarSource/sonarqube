@@ -32,6 +32,7 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.platform.Platform;
@@ -67,7 +68,7 @@ public class IssueAuthorizationIndexMediumTest {
 
   @Test
   public void synchronize_all() throws Exception {
-    project = new ComponentDto()
+    project = ComponentTesting.newProjectDto()
       .setKey("Sample")
       .setUuid("ABCD")
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
@@ -103,7 +104,7 @@ public class IssueAuthorizationIndexMediumTest {
 
   @Test
   public void synchronize_all_with_startup_tasks() throws Exception {
-    project = new ComponentDto()
+    project = ComponentTesting.newProjectDto()
       .setKey("Sample")
       .setUuid("ABCD")
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
@@ -122,7 +123,7 @@ public class IssueAuthorizationIndexMediumTest {
 
   @Test
   public void synchronize_project() throws Exception {
-    project = new ComponentDto()
+    project = ComponentTesting.newProjectDto()
       .setKey("Sample")
       .setUuid("ABCD")
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
@@ -154,7 +155,7 @@ public class IssueAuthorizationIndexMediumTest {
 
   @Test
   public void remove_data_when_synchronizing_project_with_empty_permission() throws Exception {
-    project = new ComponentDto()
+    project = ComponentTesting.newProjectDto()
       .setKey("Sample")
       .setUuid("ABCD")
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
@@ -181,7 +182,7 @@ public class IssueAuthorizationIndexMediumTest {
 
   @Test
   public void delete_index() throws Exception {
-    project = new ComponentDto()
+    project = ComponentTesting.newProjectDto()
       .setKey("Sample")
       .setUuid("ABCD")
       .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
