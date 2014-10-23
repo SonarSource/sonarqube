@@ -594,13 +594,13 @@
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.plugins</groupId>
-        <artifactId>sonar-git-plugin</artifactId>
+        <artifactId>sonar-scm-git-plugin</artifactId>
         <version>${project.version}</version>
         <type>sonar-plugin</type>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.plugins</groupId>
-        <artifactId>sonar-svn-plugin</artifactId>
+        <artifactId>sonar-scm-svn-plugin</artifactId>
         <version>${project.version}</version>
         <type>sonar-plugin</type>
       </dependency>

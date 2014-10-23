@@ -8,8 +8,8 @@
     <relativePath>../..</relativePath>
   </parent>
   <groupId>org.codehaus.sonar.plugins</groupId>
-  <artifactId>sonar-svn-plugin</artifactId>
-  <name>SonarQube :: Plugins :: SVN</name>
+  <artifactId>sonar-scm-svn-plugin</artifactId>
+  <name>SonarQube :: Plugins :: SCM :: SVN</name>
   <packaging>sonar-plugin</packaging>
   <description>SVN SCM Provider.</description>
 

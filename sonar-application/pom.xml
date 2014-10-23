@@ -133,13 +133,13 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
-      <artifactId>sonar-git-plugin</artifactId>
+      <artifactId>sonar-scm-git-plugin</artifactId>
       <type>sonar-plugin</type>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
-      <artifactId>sonar-svn-plugin</artifactId>
+      <artifactId>sonar-scm-svn-plugin</artifactId>
       <type>sonar-plugin</type>
       <scope>provided</scope>
     </dependency>
