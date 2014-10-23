@@ -48,5 +48,23 @@
           "count": 1
         }
       ]
+    },
+    {
+      "property": "rules",
+      "values": [
+        {
+          "val": "xoo:x1",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "property": "components",
+      "values": [
+        {
+          "val": "MyComponent",
+          "count": 1
+        }
+      ]
     }
   ]}

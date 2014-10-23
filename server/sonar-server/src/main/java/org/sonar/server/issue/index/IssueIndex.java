@@ -307,6 +307,12 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.ACTION_PLAN.field(), IssueFilterParameters.ACTION_PLANS));
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.PROJECT.field(), IssueFilterParameters.COMPONENT_ROOTS,
         query.componentRoots().toArray(new String[0])));
+      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.RULE_KEY.field(), IssueFilterParameters.RULES,
+        query.rules().toArray(new String[0])));
+      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.ASSIGNEE.field(), IssueFilterParameters.ASSIGNEES,
+        query.assignees().toArray(new String[0])));
+      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.COMPONENT.field(), IssueFilterParameters.COMPONENTS,
+        query.components().toArray(new String[0])));
     }
   }
 
