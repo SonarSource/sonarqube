@@ -87,4 +87,15 @@ public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
     assertThat(session.getActionCount()).isEqualTo(2);
   }
 
+  @Test
+  public void not_synchronize_view_dev_or_tech_projects() throws Exception {
+    setupData("not_synchronize_view_dev_or_tech_projects");
+
+    assertThat(session.getActionCount()).isEqualTo(0);
+
+    dao.synchronizeAfter(session, new Date(0));
+    // SynchronizeAfter adds an implicit action (refresh) after execution of synchronization
+    assertThat(session.getActionCount()).isEqualTo(1);
+  }
+
 }
