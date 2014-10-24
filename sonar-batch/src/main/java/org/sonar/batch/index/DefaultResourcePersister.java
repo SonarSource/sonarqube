@@ -280,7 +280,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     }
   }
 
-  private ResourceModel findOrCreateModel(Resource resource, @Nullable Resource parentReference) {
+  private ResourceModel findOrCreateModel(Resource resource, @Nullable Resource parentResource) {
     ResourceModel model;
     try {
       model = session.getSingleResult(ResourceModel.class, "key", resource.getEffectiveKey());
@@ -288,11 +288,12 @@ public final class DefaultResourcePersister implements ResourcePersister {
         if (StringUtils.isBlank(resource.getEffectiveKey())) {
           throw new SonarException("Unable to persist resource " + resource.toString() + ". Resource effective key is blank. This may be caused by an outdated plugin.");
         }
-        model = createModel(resource, parentReference);
+        model = createModel(resource, parentResource);
 
       } else {
         mergeModel(model, resource);
       }
+      updateUuids(resource, parentResource, model);
       return model;
 
     } catch (NonUniqueResultException e) {
@@ -305,7 +306,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     model.setEnabled(Boolean.TRUE);
     model.setDescription(resource.getDescription());
     model.setKey(resource.getEffectiveKey());
-    setUuids(resource, parentResource, model);
+    model.setUuid(UUID.randomUUID().toString());
     model.setPath(resource.getPath());
     Language language = resource.getLanguage();
     if (language != null) {
@@ -322,8 +323,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return model;
   }
 
-  private void setUuids(Resource resource, Resource parentResource, ResourceModel model) {
-    model.setUuid(UUID.randomUUID().toString());
+  private void updateUuids(Resource resource, Resource parentResource, ResourceModel model) {
     if (parentResource != null) {
       ResourceModel parentModel = session.getSingleResult(ResourceModel.class, "id", parentResource.getId());
       if (parentModel.getProjectUuid() != null) {
