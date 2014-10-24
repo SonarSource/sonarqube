@@ -52,6 +52,7 @@ import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
+import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchRequestHandler;
@@ -237,6 +238,19 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       if (issue.assignee() != null) {
         userLogins.add(issue.assignee());
       }
+    }
+
+    for (FacetValue rule: result.getFacetValues(IssueFilterParameters.RULES)) {
+      ruleKeys.add(RuleKey.parse(rule.getKey()));
+    }
+    for (FacetValue project: result.getFacetValues(IssueFilterParameters.COMPONENT_ROOTS)) {
+      projectUuids.add(project.getKey());
+    }
+    for (FacetValue component: result.getFacetValues(IssueFilterParameters.COMPONENTS)) {
+      componentUuids.add(component.getKey());
+    }
+    for (FacetValue user: result.getFacetValues(IssueFilterParameters.ASSIGNEES)) {
+      userLogins.add(user.getKey());
     }
 
     DbSession session = dbClient.openSession(false);
