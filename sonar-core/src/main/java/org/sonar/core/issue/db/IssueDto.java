@@ -365,14 +365,20 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return componentKey;
   }
 
+  /**
+   * Can be null on Views or Devs
+   */
+  @CheckForNull
   public String getComponentUuid() {
     return componentUuid;
   }
 
+  @CheckForNull
   public String getModuleUuid() {
     return moduleUuid;
   }
 
+  @CheckForNull
   public String getModuleUuidPath() {
     return moduleUuidPath;
   }
@@ -384,6 +390,10 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return projectKey;
   }
 
+  /**
+   * Can be null on Views or Devs
+   */
+  @CheckForNull
   public String getProjectUuid() {
     return projectUuid;
   }
@@ -434,7 +444,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
    *
    * Please use {@link #setComponent(org.sonar.core.component.ComponentDto)} instead
    */
-  public IssueDto setComponentUuid(String componentUuid) {
+  public IssueDto setComponentUuid(@Nullable String componentUuid) {
     this.componentUuid = componentUuid;
     return this;
   }
@@ -444,7 +454,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
    *
    * Please use {@link #setComponent(org.sonar.core.component.ComponentDto)} instead
    */
-  public IssueDto setModuleUuid(String moduleUuid) {
+  public IssueDto setModuleUuid(@Nullable String moduleUuid) {
     this.moduleUuid = moduleUuid;
     return this;
   }
@@ -454,7 +464,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
    *
    * Please use {@link #setComponent(org.sonar.core.component.ComponentDto)} instead
    */
-  public IssueDto setModuleUuidPath(String moduleUuidPath) {
+  public IssueDto setModuleUuidPath(@Nullable String moduleUuidPath) {
     this.moduleUuidPath = moduleUuidPath;
     return this;
   }
@@ -474,7 +484,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
    *
    * Please use {@link #setProject(org.sonar.core.component.ComponentDto)} instead
    */
-  public IssueDto setProjectUuid(String projectUuid) {
+  public IssueDto setProjectUuid(@Nullable String projectUuid) {
     this.projectUuid = projectUuid;
     return this;
   }

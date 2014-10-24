@@ -550,8 +550,8 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       projectsByComponentUuid.put(component.uuid(), Iterables.find(projects, new Predicate<ComponentDto>() {
         @Override
         public boolean apply(@Nullable ComponentDto input) {
-          String uuid = input.uuid();
-          String projectUuid = input.projectUuid();
+          String uuid = input != null ? input.uuid() : null;
+          String projectUuid = input != null ? input.projectUuid() : null;
           return input != null && uuid != null && projectUuid != null && uuid.equals(projectUuid);
         }
       }));

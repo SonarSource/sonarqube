@@ -121,12 +121,16 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  /**
+   * Can be null on Views or Devs
+   */
   @Override
+  @CheckForNull
   public String componentUuid() {
     return componentUuid;
   }
 
-  public DefaultIssue setComponentUuid(String componentUuid) {
+  public DefaultIssue setComponentUuid(@CheckForNull String componentUuid) {
     this.componentUuid = componentUuid;
     return this;
   }
@@ -174,12 +178,16 @@ public class DefaultIssue implements Issue {
     return this;
   }
 
+  /**
+   * Can be null on Views or Devs
+   */
   @Override
+  @CheckForNull
   public String projectUuid() {
     return projectUuid;
   }
 
-  public DefaultIssue setProjectUuid(String projectUuid) {
+  public DefaultIssue setProjectUuid(@Nullable String projectUuid) {
     this.projectUuid = projectUuid;
     return this;
   }

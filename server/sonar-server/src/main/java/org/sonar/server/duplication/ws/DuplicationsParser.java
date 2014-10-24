@@ -21,6 +21,7 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
@@ -133,10 +134,10 @@ public class DuplicationsParser implements ServerComponent {
       } else if (file2.equals(component)) {
         // the current resource must be displayed first
         return 1;
-      } else if (file1.projectUuid().equals(component.projectUuid()) && !file2.projectUuid().equals(component.projectUuid())) {
+      } else if (StringUtils.equals(file1.projectUuid(), component.projectUuid()) && !StringUtils.equals(file2.projectUuid(), component.projectUuid())) {
         // if resource is in the same project, this it must be displayed first
         return -1;
-      } else if (file2.projectUuid().equals(component.projectUuid()) && !file1.projectUuid().equals(component.projectUuid())) {
+      } else if (StringUtils.equals(file2.projectUuid(), component.projectUuid()) && !StringUtils.equals(file1.projectUuid(), component.projectUuid())) {
         // if resource is in the same project, this it must be displayed first
         return 1;
       } else {
