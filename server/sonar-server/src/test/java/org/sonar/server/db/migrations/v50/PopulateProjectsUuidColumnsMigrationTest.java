@@ -194,40 +194,49 @@ public class PopulateProjectsUuidColumnsMigrationTest {
   }
 
   @Test
-  public void not_migrate_view() throws Exception {
+  public void migrate_view() throws Exception {
     db.prepareDbUnit(getClass(), "migrate_view.xml");
 
     migration.execute();
     session.commit();
 
-    Component root = mapper.selectComponentByKey("view");
-    assertThat(root.getUuid()).isNull();
-    assertThat(root.getProjectUuid()).isNull();
-    assertThat(root.getModuleUuid()).isNull();
-    assertThat(root.getModuleUuidPath()).isNull();
+    Component view = mapper.selectComponentByKey("view");
+    assertThat(view.getUuid()).isNotNull();
+    assertThat(view.getProjectUuid()).isEqualTo(view.getUuid());
+    assertThat(view.getModuleUuid()).isNull();
+    assertThat(view.getModuleUuidPath()).isNull();
+
+    Component subView = mapper.selectComponentByKey("subView");
+    assertThat(subView.getUuid()).isNotNull();
+    assertThat(subView.getProjectUuid()).isEqualTo(view.getUuid());
+    assertThat(subView.getModuleUuid()).isNull();
+    assertThat(subView.getModuleUuidPath()).isEqualTo(view.getUuid());
+
+    Component techProject = mapper.selectComponentByKey("vieworg.struts:struts");
+    assertThat(techProject.getUuid()).isNotNull();
+    assertThat(techProject.getProjectUuid()).isEqualTo(view.getUuid());
+    assertThat(techProject.getModuleUuid()).isEqualTo(subView.getUuid());
+    assertThat(techProject.getModuleUuidPath()).isEqualTo(view.getUuid() + "." + subView.getUuid());
   }
 
   @Test
-  public void not_migrate_developer() throws Exception {
+  public void migrate_developer() throws Exception {
     db.prepareDbUnit(getClass(), "migrate_developer.xml");
 
     migration.execute();
     session.commit();
 
-    Component root = mapper.selectComponentByKey("DEV:developer@company.net");
-    assertThat(root.getUuid()).isNull();
-    assertThat(root.getProjectUuid()).isNull();
-    assertThat(root.getModuleUuid()).isNull();
-    assertThat(root.getModuleUuidPath()).isNull();
-  }
+    Component dev = mapper.selectComponentByKey("DEV:developer@company.net");
+    assertThat(dev.getUuid()).isNotNull();
+    assertThat(dev.getProjectUuid()).isEqualTo(dev.getUuid());
+    assertThat(dev.getModuleUuid()).isNull();
+    assertThat(dev.getModuleUuidPath()).isNull();
 
-  @Test
-  public void not_migrate_technical_projects() throws Exception {
-    db.prepareDbUnit(getClass(), "not_migrate_technical_projects.xml");
-
-    migration.execute();
-
-    db.assertDbUnit(getClass(), "not_migrate_technical_projects.xml");
+    Component techDev = mapper.selectComponentByKey("DEV:developer@company.net:org.struts:struts");
+    assertThat(techDev.getUuid()).isNotNull();
+    assertThat(techDev.getProjectUuid()).isEqualTo(dev.getUuid());
+    assertThat(techDev.getModuleUuid()).isNull();
+    assertThat(techDev.getModuleUuidPath()).isEqualTo(dev.getUuid());
   }
 
 }

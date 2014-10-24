@@ -42,8 +42,7 @@ public interface Migration50Mapper {
     "  LEFT OUTER JOIN snapshots s ON s.project_id = p.id AND s.islast = ${_true} " +
     "  WHERE " +
     "   p.scope = 'PRJ' " +
-    "   AND p.root_id IS NULL " +
-    "   AND p.qualifier <> 'VW' AND p.qualifier <> 'DEV' ")
+    "   AND p.root_id IS NULL ")
   @Result(javaType = Component.class)
   @Options(statementType = StatementType.PREPARED, resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = 200)
   List<Component> selectRootProjects();

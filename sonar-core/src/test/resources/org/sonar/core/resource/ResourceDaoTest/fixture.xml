@@ -6,6 +6,7 @@
 
   <!-- root project -->
   <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="[null]"
             description="the description" long_name="Apache Struts"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
             created_at="2008-12-02" authorization_updated_at="2014-09-03"/>
@@ -30,6 +31,7 @@
 
   <!-- module -->
   <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
+            uuid="BCDE" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="ABCD"
             scope="PRJ" qualifier="BRC" long_name="Struts Core"
             description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
             created_at="2008-12-02" authorization_updated_at="[null]"/>
@@ -45,6 +47,7 @@
 
   <!-- directory -->
   <projects long_name="org.struts" id="3" scope="DIR" qualifier="DIR" kee="org.struts:struts-core:src/org/struts"
+            uuid="CDEF" project_uuid="ABCD" module_uuid="BCDE" module_uuid_path="ABCD.BCDE"
               name="src/org/struts" root_id="2"
               description="[null]"
               enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts"
@@ -61,6 +64,7 @@
 
   <!-- file -->
   <projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="FIL" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
+            uuid="CDEF" project_uuid="ABCD" module_uuid="BCDE" module_uuid_path="ABCD.BCDE"
             name="RequestContext.java" root_id="2"
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/RequestContext.java"

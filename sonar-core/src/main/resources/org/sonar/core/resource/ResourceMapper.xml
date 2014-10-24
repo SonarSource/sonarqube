@@ -3,25 +3,6 @@
 
 <mapper namespace="org.sonar.core.resource.ResourceMapper">
 
-  <sql id="resourceColumns">
-    p.id,
-    p.kee as key,
-    p.path as path,
-    p.deprecated_kee as deprecatedKey,
-    p.name as name,
-    p.long_name as longName,
-    p.root_id as rootId,
-    p.scope as scope,
-    p.qualifier as qualifier,
-    p.enabled as enabled,
-    p.description as description,
-    p.language as language,
-    p.copy_resource_id as copyResourceId,
-    p.person_id as personId,
-    p.created_at as createdAt,
-    p.authorization_updated_at as authorizationUpdatedAt
-  </sql>
-
   <resultMap id="snapshotResultMap" type="Snapshot">
     <id property="id" column="id"/>
     <result property="parentId" column="parent_snapshot_id"/>
@@ -58,6 +39,10 @@
   <resultMap id="resourceResultMap" type="Resource">
     <id property="id" column="id"/>
     <result property="key" column="kee"/>
+    <result property="uuid" column="uuid"/>
+    <result property="projectUuid" column="project_uuid"/>
+    <result property="moduleUuid" column="module_uuid"/>
+    <result property="moduleUuidPath" column="module_uuid_path"/>
     <result property="deprecatedKey" column="deprecated_kee"/>
     <result property="path" column="path"/>
     <result property="name" column="name"/>

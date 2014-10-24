@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
@@ -64,31 +65,36 @@ public class DefaultRubyComponentService implements RubyComponentService {
     return componentService.getNullableByUuid(uuid);
   }
 
+  @CheckForNull
   public Long createComponent(String kee, String name, String qualifier) {
-    ComponentDto component = (ComponentDto) resourceDao.findByKey(kee);
-    if (component != null) {
-      throw new BadRequestException(formatMessage("Could not create %s, key already exists: %s", qualifier, kee));
-    }
-    checkKeyFormat(qualifier, kee);
+    // Sub view should not be created with provisioning. Will be fixed by http://jira.sonarsource.com/browse/VIEWS-296
+    if (!Qualifiers.SUBVIEW.equals(qualifier)) {
+      ComponentDto component = (ComponentDto) resourceDao.findByKey(kee);
+      if (component != null) {
+        throw new BadRequestException(formatMessage("Could not create %s, key already exists: %s", qualifier, kee));
+      }
+      checkKeyFormat(qualifier, kee);
 
-    String uuid = UUID.randomUUID().toString();
-    resourceDao.insertOrUpdate(
-      new ResourceDto()
-        .setUuid(uuid)
-        .setProjectUuid(uuid)
-        .setKey(kee)
-        .setDeprecatedKey(kee)
-        .setName(name)
-        .setLongName(name)
-        .setScope(Scopes.PROJECT)
-        .setQualifier(qualifier)
-        .setCreatedAt(new Date()));
-    component = (ComponentDto) resourceDao.findByKey(kee);
-    if (component == null) {
-      throw new BadRequestException(String.format("Component not created: %s", kee));
+      String uuid = UUID.randomUUID().toString();
+      resourceDao.insertOrUpdate(
+        new ResourceDto()
+          .setUuid(uuid)
+          .setProjectUuid(uuid)
+          .setKey(kee)
+          .setDeprecatedKey(kee)
+          .setName(name)
+          .setLongName(name)
+          .setScope(Scopes.PROJECT)
+          .setQualifier(qualifier)
+          .setCreatedAt(new Date()));
+      component = (ComponentDto) resourceDao.findByKey(kee);
+      if (component == null) {
+        throw new BadRequestException(String.format("Component not created: %s", kee));
+      }
+      resourceIndexerDao.indexResource(component.getId());
+      return component.getId();
     }
-    resourceIndexerDao.indexResource(component.getId());
-    return component.getId();
+    return null;
   }
 
   public void updateComponent(Long id, String key, String name) {

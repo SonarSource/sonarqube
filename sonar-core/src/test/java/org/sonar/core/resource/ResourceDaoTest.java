@@ -89,6 +89,8 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     ResourceDto resource = dao.getResource(1L);
 
+    assertThat(resource.getUuid()).isEqualTo("ABCD");
+    assertThat(resource.getProjectUuid()).isEqualTo("ABCD");
     assertThat(resource.getPath()).isNull();
     assertThat(resource.getName()).isEqualTo("Struts");
     assertThat(resource.getLongName()).isEqualTo("Apache Struts");
@@ -109,6 +111,17 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     ResourceDto file = dao.getResource(4L);
     assertThat(file.getPath()).isEqualTo("src/org/struts/RequestContext.java");
+  }
+
+  @Test
+  public void get_uuid() {
+    setupData("fixture");
+
+    ResourceDto file = dao.getResource(4L);
+    assertThat(file.getUuid()).isEqualTo("CDEF");
+    assertThat(file.getProjectUuid()).isEqualTo("ABCD");
+    assertThat(file.getModuleUuid()).isEqualTo("BCDE");
+    assertThat(file.getModuleUuidPath()).isEqualTo("ABCD.BCDE");
   }
 
   @Test

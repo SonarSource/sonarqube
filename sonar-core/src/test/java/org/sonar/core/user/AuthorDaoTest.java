@@ -72,7 +72,7 @@ public class AuthorDaoTest extends AbstractDaoTestCase {
     setupData("shouldInsertAuthorAndDeveloper");
 
     String login = "developer@company.net";
-    ResourceDto resourceDto = new ResourceDto().setName(login).setQualifier("DEV");
+    ResourceDto resourceDto = new ResourceDto().setName(login).setQualifier("DEV").setUuid("ABCD").setProjectUuid("ABCD");
     dao.insertAuthorAndDeveloper(login, resourceDto);
 
     checkTables("shouldInsertAuthorAndDeveloper",

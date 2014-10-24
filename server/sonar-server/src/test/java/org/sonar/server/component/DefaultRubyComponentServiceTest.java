@@ -81,7 +81,7 @@ public class DefaultRubyComponentServiceTest {
   }
 
   @Test
-  public void should_create_component_and_index_it() {
+  public void create_component_and_index_it() {
     String componentKey = "new-project";
     String componentName = "New Project";
     String qualifier = Qualifiers.PROJECT;
@@ -104,6 +104,22 @@ public class DefaultRubyComponentServiceTest {
     assertThat(created.getQualifier()).isEqualTo(qualifier);
     verify(resourceDao, times(2)).findByKey(componentKey);
     verify(resourceIndexerDao).indexResource(componentId);
+  }
+
+  @Test
+  public void not_create_component_on_sub_views() {
+    String componentKey = "new-project";
+    String componentName = "New Project";
+    String qualifier = Qualifiers.SUBVIEW;
+    long componentId = Long.MAX_VALUE;
+    ComponentDto component = mock(ComponentDto.class);
+    when(component.getId()).thenReturn(componentId);
+    when(resourceDao.findByKey(componentKey)).thenReturn(null).thenReturn(component);
+
+    service.createComponent(componentKey, componentName, qualifier);
+
+    verify(resourceDao, never()).insertOrUpdate(any(ResourceDto.class));
+    verifyZeroInteractions(resourceIndexerDao);
   }
 
   @Test(expected = BadRequestException.class)

@@ -26,6 +26,8 @@ public class ResourceDto {
   private Long id;
   private String uuid;
   private String projectUuid;
+  private String moduleUuid;
+  private String moduleUuidPath;
   private String key;
   private String deprecatedKey;
   private String name;
@@ -66,6 +68,24 @@ public class ResourceDto {
 
   public ResourceDto setProjectUuid(String projectUuid) {
     this.projectUuid = projectUuid;
+    return this;
+  }
+
+  public String getModuleUuid() {
+    return moduleUuid;
+  }
+
+  public ResourceDto setModuleUuid(String moduleUuid) {
+    this.moduleUuid = moduleUuid;
+    return this;
+  }
+
+  public String getModuleUuidPath() {
+    return moduleUuidPath;
+  }
+
+  public ResourceDto setModuleUuidPath(String moduleUuidPath) {
+    this.moduleUuidPath = moduleUuidPath;
     return this;
   }
 
