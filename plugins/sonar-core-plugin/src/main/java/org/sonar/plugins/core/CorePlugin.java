@@ -30,7 +30,6 @@ import org.sonar.core.timemachine.Periods;
 import org.sonar.plugins.core.batch.IndexProjectPostJob;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
-import org.sonar.plugins.core.charts.XradarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
 import org.sonar.plugins.core.dashboards.GlobalDefaultDashboard;
 import org.sonar.plugins.core.dashboards.ProjectDefaultDashboard;
@@ -328,7 +327,6 @@ public final class CorePlugin extends SonarPlugin {
       GlobalDefaultDashboard.class,
 
       // chart
-      XradarChart.class,
       DistributionBarChart.class,
       DistributionAreaChart.class,
 
