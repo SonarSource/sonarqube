@@ -20,7 +20,6 @@
 
 package org.sonar.server.component;
 
-import com.google.common.collect.ImmutableMap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.AuthorizedComponentDto;
@@ -36,7 +35,6 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
-import java.util.Date;
 import java.util.Map;
 
 public class ComponentService implements ServerComponent {
@@ -98,15 +96,10 @@ public class ComponentService implements ServerComponent {
     DbSession session = dbClient.openSession(false);
     try {
       AuthorizedComponentDto projectOrModule = getByKey(projectOrModuleKey);
-      ResourceDto oldRootProject = getRootProjectByComponentKey(session, projectOrModuleKey);
-
       resourceKeyUpdaterDao.updateKey(projectOrModule.getId(), newKey);
       session.commit();
 
-      String newRootProjectKey = getRootProjectByComponentKey(session, newKey).getKey();
-      updateIssuesIndex(session, oldRootProject.getKey(), newRootProjectKey);
-
-      previewCache.reportResourceModification(newRootProjectKey);
+      previewCache.reportResourceModification(newKey);
 
       session.commit();
     } finally {
@@ -136,26 +129,12 @@ public class ComponentService implements ServerComponent {
       session.commit();
 
       AuthorizedComponentDto newProject = dbClient.componentDao().getAuthorizedComponentById(project.getId(), session);
-      updateIssuesIndex(session, projectKey, newProject.key());
-
       previewCache.reportResourceModification(newProject.key());
 
       session.commit();
     } finally {
       session.close();
     }
-  }
-
-  private void updateIssuesIndex(DbSession session, String oldKey, String newKey) {
-    // Remove permission on old project key
-    permissionService.synchronizePermissions(session, oldKey);
-
-    // Add permission on new project key
-    permissionService.synchronizePermissions(session, newKey);
-
-    // Reindex issues on new project key
-    dbClient.issueDao().synchronizeAfter(session, new Date(0),
-      ImmutableMap.of("project", newKey));
   }
 
   private ResourceDto getRootProjectByComponentKey(DbSession session, String key) {

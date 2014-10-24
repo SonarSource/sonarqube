@@ -37,6 +37,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
+import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
@@ -131,9 +132,9 @@ public class ComponentServiceMediumTest {
     assertThat(service.getNullableByKey(file.key())).isNull();
     assertThat(service.getNullableByKey("sample2:root:src/File.xoo")).isNotNull();
 
-    // Check issue have been updated
-//    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).componentKey()).isEqualTo("sample2:root:src/File.xoo");
-//    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).projectKey()).isEqualTo("sample2:root");
+    // Check issues are still here
+    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).componentUuid()).isEqualTo(file.uuid());
+    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).projectUuid()).isEqualTo(project.uuid());
 
     // Check that no new issue has been added
     assertThat(tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES.getIndexName()).setTypes(IndexDefinition.ISSUES.getIndexType()).get().getCount()).isEqualTo(1);
@@ -178,9 +179,9 @@ public class ComponentServiceMediumTest {
     assertThat(service.getNullableByKey(file.key())).isNull();
     assertThat(service.getNullableByKey("sample:root2:module:src/File.xoo")).isNotNull();
 
-    // Check issue have been updated
-//    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).componentKey()).isEqualTo("sample:root2:module:src/File.xoo");
-//    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).projectKey()).isEqualTo(project.key());
+    // Check issues are still here
+    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).componentUuid()).isEqualTo(file.uuid());
+    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).projectUuid()).isEqualTo(project.uuid());
 
     // Check Issue Authorization index
     assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNotNull();
@@ -291,9 +292,9 @@ public class ComponentServiceMediumTest {
     assertThat(service.getNullableByKey(file.key())).isNull();
     assertThat(service.getNullableByKey("sample2:root:module:src/File.xoo")).isNotNull();
 
-    // Check issue have been updated
-//    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).componentKey()).isEqualTo("sample2:root:module:src/File.xoo");
-//    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).projectKey()).isEqualTo("sample2:root");
+    // Check issues are still here
+    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).componentUuid()).isEqualTo(file.uuid());
+    assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).projectUuid()).isEqualTo(project.uuid());
 
     // Check that no new issue has been added
     assertThat(tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES.getIndexName()).setTypes(IndexDefinition.ISSUES.getIndexType()).get().getCount()).isEqualTo(1);
