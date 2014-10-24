@@ -390,3 +390,20 @@ input[type=button] {
   background-color: #EE0000;
   a & { border-bottom-color: #EE0000; }
 }
+
+
+
+.process-spinner {
+  position: fixed;
+  top: 0; left: 50%;
+  width: 300px;
+  margin-left: -150px;
+  padding: 3px 0;
+  background-color: #f0e8ac;
+  border-radius: 0 0 3px 3px;
+  text-align: center;
+  opacity: 0;
+  .trans;
+
+  &.shown { opacity: 1; }
+}
