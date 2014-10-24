@@ -54,7 +54,8 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     Logger logger = mock(Logger.class);
     job.logSuccess(logger);
 
-    verify(logger).info("ANALYSIS SUCCESSFUL, you will be able to browse it at {}", "http://myserver/dashboard/index/struts");
+    verify(logger).info("ANALYSIS SUCCESSFUL, you can browse {}", "http://myserver/dashboard/index/struts");
+    verify(logger).info("Note that you will be able to access the updated dashboard once the server has processed the submitted analysis report.");
   }
 
   @Test
