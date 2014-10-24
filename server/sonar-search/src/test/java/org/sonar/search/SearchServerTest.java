@@ -163,7 +163,7 @@ public class SearchServerTest {
       slaveServer.start();
       fail();
     } catch (Exception e) {
-      assertThat(e).hasMessage("Index configuration is not set to cluster. Please start the master node with 'sonar.cluster.activation=true'");
+      assertThat(e).hasMessage("Index configuration is not set to cluster. Please start the master node with property " + ProcessConstants.CLUSTER_ACTIVATE + "=true");
     }
 
     assertThat(client.admin().cluster().prepareClusterStats().get()

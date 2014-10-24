@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
+import org.sonar.process.ProcessConstants;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessLogging;
 import org.sonar.process.Props;
@@ -58,7 +59,8 @@ public class SearchServer implements Monitored {
         String clusterReplicationFactor = settings.get("index.number_of_replicas", "-1");
         if (Integer.parseInt(clusterReplicationFactor) <= 0) {
           node.stop();
-          throw new MessageException("Index configuration is not set to cluster. Please start the master node with 'sonar.cluster.activation=true'");
+          throw new MessageException("Index configuration is not set to cluster. Please start the master node with " +
+            "property " + ProcessConstants.CLUSTER_ACTIVATE + "=true");
         }
       }
     }
