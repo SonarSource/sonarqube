@@ -26,11 +26,8 @@ import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
-import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -42,13 +39,11 @@ public class ComponentService implements ServerComponent {
   private final DbClient dbClient;
 
   private final ResourceKeyUpdaterDao resourceKeyUpdaterDao;
-  private final InternalPermissionService permissionService;
   private final PreviewCache previewCache;
 
-  public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, InternalPermissionService permissionService, PreviewCache previewCache) {
+  public ComponentService(DbClient dbClient, ResourceKeyUpdaterDao resourceKeyUpdaterDao, PreviewCache previewCache) {
     this.dbClient = dbClient;
     this.resourceKeyUpdaterDao = resourceKeyUpdaterDao;
-    this.permissionService = permissionService;
     this.previewCache = previewCache;
   }
 
@@ -135,14 +130,6 @@ public class ComponentService implements ServerComponent {
     } finally {
       session.close();
     }
-  }
-
-  private ResourceDto getRootProjectByComponentKey(DbSession session, String key) {
-    ResourceDto root = dbClient.resourceDao().getRootProjectByComponentKey(session, key);
-    if (root != null) {
-      return root;
-    }
-    throw new NotFoundException(String.format("Root project of '%s' has not been found", key));
   }
 
 }
