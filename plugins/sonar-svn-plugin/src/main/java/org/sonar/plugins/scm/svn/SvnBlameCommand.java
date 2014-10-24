@@ -74,7 +74,7 @@ public class SvnBlameCommand extends BlameCommand {
         // Unwrap ExecutionException
         throw e.getCause() instanceof RuntimeException ? (RuntimeException) e.getCause() : new IllegalStateException(e.getCause());
       } catch (InterruptedException e) {
-        // Ignore
+        throw new IllegalStateException(e);
       }
     }
   }

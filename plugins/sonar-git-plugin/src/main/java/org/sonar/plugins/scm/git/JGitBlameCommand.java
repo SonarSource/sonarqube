@@ -35,6 +35,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class JGitBlameCommand extends BlameCommand {
 
@@ -57,18 +62,38 @@ public class JGitBlameCommand extends BlameCommand {
         .build();
       git = Git.wrap(repo);
       File gitBaseDir = repo.getWorkTree();
+      ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+      List<Future<Void>> tasks = new ArrayList<Future<Void>>();
       for (InputFile inputFile : input.filesToBlame()) {
-        blame(output, git, gitBaseDir, inputFile);
+        tasks.add(submitTask(output, git, gitBaseDir, inputFile, executorService));
+      }
+      for (Future<Void> task : tasks) {
+        try {
+          task.get();
+        } catch (ExecutionException e) {
+          // Unwrap ExecutionException
+          throw e.getCause() instanceof RuntimeException ? (RuntimeException) e.getCause() : new IllegalStateException(e.getCause());
+        } catch (InterruptedException e) {
+          throw new IllegalStateException(e);
+        }
       }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to open Git repository", e);
-    } catch (GitAPIException e) {
-      throw new IllegalStateException("Unable to blame", e);
     } finally {
       if (git != null && git.getRepository() != null) {
         git.getRepository().close();
       }
     }
+  }
+
+  private Future<Void> submitTask(final BlameOutput output, final Git git, final File gitBaseDir, final InputFile inputFile, ExecutorService executorService) {
+    return executorService.submit(new Callable<Void>() {
+      @Override
+      public Void call() throws GitAPIException {
+        blame(output, git, gitBaseDir, inputFile);
+        return null;
+      }
+    });
   }
 
   private void blame(BlameOutput output, Git git, File gitBaseDir, InputFile inputFile) throws GitAPIException {
