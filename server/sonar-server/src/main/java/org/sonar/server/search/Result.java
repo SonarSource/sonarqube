@@ -20,7 +20,7 @@
 package org.sonar.server.search;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -54,7 +54,7 @@ public class Result<K> {
   public Result(@Nullable BaseIndex<K, ?, ?> index, SearchResponse response) {
     this.index = index;
     this.scrollId = response.getScrollId();
-    this.facets = LinkedListMultimap.create();
+    this.facets = LinkedHashMultimap.create();
     this.total = (int) response.getHits().totalHits();
     this.hits = new ArrayList<K>();
     if (index != null) {
