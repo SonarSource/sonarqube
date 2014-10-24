@@ -38,8 +38,8 @@ public class SwitchLogbackAppenderTest {
 
   LoggerContext loggerContext = new LoggerContext();
   Logger logger = loggerContext.getLogger(this.getClass().getName());
-  ListAppender<ILoggingEvent> console;
-  ListAppender<ILoggingEvent> analyisReport;
+  SwitchLogbackAppender switchAppender;
+  ListAppender<ILoggingEvent> console, analyisReports;
 
   protected void configure(URL file) throws JoranException {
     JoranConfigurator jc = new JoranConfigurator();
@@ -47,9 +47,9 @@ public class SwitchLogbackAppenderTest {
     jc.doConfigure(file);
 
     Logger root = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
-    SwitchLogbackAppender switchAppender = (SwitchLogbackAppender) root.getAppender("SWITCH");
+    switchAppender = (SwitchLogbackAppender) root.getAppender("SWITCH");
     console = (ListAppender<ILoggingEvent>) switchAppender.getAppender("CONSOLE");
-    analyisReport = (ListAppender<ILoggingEvent>) switchAppender.getAppender("ANALYSIS_REPORTS");
+    analyisReports = (ListAppender<ILoggingEvent>) switchAppender.getAppender("ANALYSIS_REPORTS");
   }
 
   /**
@@ -63,7 +63,7 @@ public class SwitchLogbackAppenderTest {
 
     assertThat(console.list).hasSize(1);
     assertThat(console.list.get(0).getMessage()).isEqualTo("hello");
-    assertThat(analyisReport.list).isEmpty();
+    assertThat(analyisReports.list).isEmpty();
   }
 
   /**
@@ -77,19 +77,19 @@ public class SwitchLogbackAppenderTest {
     Thread.currentThread().setName(AnalysisReportTaskLauncher.ANALYSIS_REPORT_THREAD_NAME_PREFIX + "test");
     try {
       logger.info("hello");
-      assertThat(analyisReport.list).hasSize(1);
-      assertThat(analyisReport.list.get(0).getMessage()).isEqualTo("hello");
+      assertThat(analyisReports.list).hasSize(1);
+      assertThat(analyisReports.list.get(0).getMessage()).isEqualTo("hello");
       assertThat(console.list).isEmpty();
 
       logger.warn("a warning");
-      assertThat(analyisReport.list).hasSize(2);
-      assertThat(analyisReport.list.get(1).getMessage()).isEqualTo("a warning");
+      assertThat(analyisReports.list).hasSize(2);
+      assertThat(analyisReports.list.get(1).getMessage()).isEqualTo("a warning");
       assertThat(console.list).hasSize(1);
       assertThat(console.list.get(0).getMessage()).isEqualTo("a warning");
 
       logger.warn("an error");
-      assertThat(analyisReport.list).hasSize(3);
-      assertThat(analyisReport.list.get(2).getMessage()).isEqualTo("an error");
+      assertThat(analyisReports.list).hasSize(3);
+      assertThat(analyisReports.list.get(2).getMessage()).isEqualTo("an error");
       assertThat(console.list).hasSize(2);
       assertThat(console.list.get(1).getMessage()).isEqualTo("an error");
 
@@ -111,5 +111,17 @@ public class SwitchLogbackAppenderTest {
       }
     }
     assertThat(foundError).isTrue();
+  }
+
+  @Test
+  public void test_logback_internals() throws Exception {
+    configure(getClass().getResource("SwitchLogbackAppenderTest/valid-switch.xml"));
+
+    assertThat(switchAppender.iteratorForAppenders()).hasSize(2);
+    assertThat(switchAppender.isAttached(console)).isTrue();
+
+    assertThat(switchAppender.detachAppender("CONSOLE")).isTrue();
+    assertThat(switchAppender.detachAppender(analyisReports)).isTrue();
+    switchAppender.detachAndStopAllAppenders();
   }
 }
