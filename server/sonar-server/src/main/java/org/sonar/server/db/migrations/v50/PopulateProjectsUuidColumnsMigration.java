@@ -80,25 +80,25 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
   }
 
   private void migrateEnabledComponents(DbSession session, Migration50Mapper mapper, Component project, Map<Long, String> uuidByComponentId) {
-      Map<Long, Component> componentsBySnapshotId = newHashMap();
+    Map<Long, Component> componentsBySnapshotId = newHashMap();
 
-      List<Component> components = mapper.selectComponentChildrenForProjects(project.getId());
-      components.add(project);
-      for (Component component : components) {
-        componentsBySnapshotId.put(component.getSnapshotId(), component);
+    List<Component> components = mapper.selectComponentChildrenForProjects(project.getId());
+    components.add(project);
+    for (Component component : components) {
+      componentsBySnapshotId.put(component.getSnapshotId(), component);
 
-        component.setUuid(getOrCreateUuid(component, uuidByComponentId));
-        component.setProjectUuid(getOrCreateUuid(project, uuidByComponentId));
-      }
+      component.setUuid(getOrCreateUuid(component, uuidByComponentId));
+      component.setProjectUuid(getOrCreateUuid(project, uuidByComponentId));
+    }
 
-      for (Component component : components) {
-        updateComponent(component, project, componentsBySnapshotId, uuidByComponentId);
-        mapper.updateComponentUuids(component);
-        counter.getAndIncrement();
-      }
+    for (Component component : components) {
+      updateComponent(component, project, componentsBySnapshotId, uuidByComponentId);
+      mapper.updateComponentUuids(component);
+      counter.getAndIncrement();
+    }
   }
 
-  private void updateComponent(Component component, Component project, Map<Long, Component> componentsBySnapshotId, Map<Long, String> uuidByComponentId){
+  private void updateComponent(Component component, Component project, Map<Long, Component> componentsBySnapshotId, Map<Long, String> uuidByComponentId) {
     String snapshotPath = component.getSnapshotPath();
     StringBuilder moduleUuidPath = new StringBuilder();
     Component lastModule = null;

@@ -93,6 +93,7 @@ public interface Migration50Mapper {
   @Update("UPDATE projects " +
     " SET uuid=#{uuid}, project_uuid=#{projectUuid}, module_uuid=#{moduleUuid}, module_uuid_path=#{moduleUuidPath} " +
     " WHERE id=#{id}")
+  @Options(useGeneratedKeys = false)
   void updateComponentUuids(Component component);
 
 }

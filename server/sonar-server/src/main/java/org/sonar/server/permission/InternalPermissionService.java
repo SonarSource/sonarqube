@@ -283,7 +283,7 @@ public class InternalPermissionService implements ServerComponent {
         ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, projectUuid));
     } else {
       // TODO Set this log in debug mode to not poluate the logs.
-      LOG.info("Try to synchronize issues permissions on a project without UUID, ignore");
+      LOG.warn("Try to synchronize issues permissions on a project without UUID, ignore");
     }
   }
 }
