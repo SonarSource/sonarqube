@@ -79,25 +79,25 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     assertThat(module.getUuid()).isNotNull();
     assertThat(module.getProjectUuid()).isEqualTo(root.getUuid());
     assertThat(module.getModuleUuid()).isNull();
-    assertThat(module.getModuleUuidPath()).isEqualTo(root.getUuid() + ".");
+    assertThat(module.getModuleUuidPath()).isEqualTo(root.getUuid());
 
     Component subModule = mapper.selectComponentByKey("org.struts:struts-db");
     assertThat(subModule.getUuid()).isNotNull();
     assertThat(subModule.getProjectUuid()).isEqualTo(root.getUuid());
     assertThat(subModule.getModuleUuid()).isEqualTo(module.getUuid());
-    assertThat(subModule.getModuleUuidPath()).isEqualTo(root.getUuid() + "." + module.getUuid() + ".");
+    assertThat(subModule.getModuleUuidPath()).isEqualTo(root.getUuid() + "." + module.getUuid());
 
     Component directory = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts");
     assertThat(directory.getUuid()).isNotNull();
     assertThat(directory.getProjectUuid()).isEqualTo(root.getUuid());
     assertThat(directory.getModuleUuid()).isEqualTo(subModule.getUuid());
-    assertThat(directory.getModuleUuidPath()).isEqualTo(root.getUuid() + "." + module.getUuid() + "." + subModule.getUuid() + ".");
+    assertThat(directory.getModuleUuidPath()).isEqualTo(root.getUuid() + "." + module.getUuid() + "." + subModule.getUuid());
 
     Component file = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(file.getUuid()).isNotNull();
     assertThat(file.getProjectUuid()).isEqualTo(root.getUuid());
     assertThat(file.getModuleUuid()).isEqualTo(subModule.getUuid());
-    assertThat(file.getModuleUuidPath()).isEqualTo(root.getUuid() + "." + module.getUuid() + "." + subModule.getUuid() + ".");
+    assertThat(file.getModuleUuidPath()).isEqualTo(root.getUuid() + "." + module.getUuid() + "." + subModule.getUuid());
 
     // Verify that each generated uuid is unique
     assertThat(ImmutableSet.of(root.getUuid(), module.getUuid(), subModule.getUuid(), directory.getUuid(), file.getUuid())).hasSize(5);

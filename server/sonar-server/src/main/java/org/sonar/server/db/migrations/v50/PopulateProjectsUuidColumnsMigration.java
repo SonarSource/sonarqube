@@ -113,6 +113,8 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
       }
     }
     if (moduleUuidPath.length() > 0) {
+      // Remove last '.'
+      moduleUuidPath.deleteCharAt(moduleUuidPath.length()-1);
       component.setModuleUuidPath(moduleUuidPath.toString());
     }
 
