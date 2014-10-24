@@ -613,7 +613,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   protected FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolFilterBuilder facetFilter) {
-    FilterAggregationBuilder facetTopAggregation = AggregationBuilders
+    return AggregationBuilders
       .filter(facetName + "_filter")
       .filter(facetFilter)
       .subAggregation(
@@ -622,12 +622,11 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
           .order(Terms.Order.count(false))
           .size(10)
           .minDocCount(1));
-    return facetTopAggregation;
   }
 
   protected FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation, String... selected) {
     if (selected.length > 0) {
-      facetTopAggregation = facetTopAggregation.subAggregation(
+      facetTopAggregation.subAggregation(
         AggregationBuilders.terms(facetName + "_selected")
           .field(fieldName)
           .include(Joiner.on('|').join(selected)));
