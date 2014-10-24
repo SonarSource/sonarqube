@@ -336,7 +336,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
       } else {
         model.setModuleUuid(parentModel.getModuleUuid());
       }
-      if (Qualifiers.isProject(resource, true)) {
+      if (Qualifiers.isProject(parentResource, true)) {
         String parentModuleUuidPath = parentModel.getModuleUuidPath();
         model.setModuleUuidPath(parentModuleUuidPath != null ? parentModuleUuidPath + "." + parentModel.getUuid() : parentModel.getUuid());
       } else {
@@ -344,10 +344,8 @@ public final class DefaultResourcePersister implements ResourcePersister {
         model.setModuleUuidPath(parentModuleUuidPath != null ? parentModuleUuidPath : parentModel.getUuid());
       }
     } else {
-      if (Qualifiers.isProject(resource, false)) {
-        // Root module
-        model.setProjectUuid(model.getUuid());
-      }
+      // Root module && libraries
+      model.setProjectUuid(model.getUuid());
     }
   }
 

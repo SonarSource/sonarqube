@@ -31,6 +31,7 @@ import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.db.ComponentMapper;
@@ -150,6 +151,10 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveProject(moduleA, multiModuleProject);
     persister.saveProject(moduleB, multiModuleProject);
     persister.saveProject(moduleB1, moduleB);
+    Resource file = File.create("src/main/java/org/Foo.java").setEffectiveKey("b1:src/main/java/org/Foo.java");
+    file.getParent().setEffectiveKey("b1:src/main/java/org");
+    persister.saveResource(moduleB1, file.getParent());
+    persister.saveResource(moduleB1, file, file.getParent());
 
     checkTables("shouldSaveNewMultiModulesProject",
       new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"}, "projects", "snapshots");
@@ -159,6 +164,8 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     enableSnapshot(1002);
     enableSnapshot(1003);
     enableSnapshot(1004);
+    enableSnapshot(1005);
+    enableSnapshot(1006);
     SqlSession session = getMyBatis().openSession(false);
     try {
       ComponentDto root = session.getMapper(ComponentMapper.class).selectByKey("root");
@@ -181,6 +188,16 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(b1.projectUuid()).isEqualTo(root.uuid());
       assertThat(b1.moduleUuid()).isEqualTo(b.uuid());
       assertThat(b1.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid());
+      ComponentDto dir = session.getMapper(ComponentMapper.class).selectByKey("b1:src/main/java/org");
+      assertThat(dir.uuid()).isNotNull();
+      assertThat(dir.projectUuid()).isEqualTo(root.uuid());
+      assertThat(dir.moduleUuid()).isEqualTo(b1.uuid());
+      assertThat(dir.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid() + "." + b1.uuid());
+      ComponentDto fileComp = session.getMapper(ComponentMapper.class).selectByKey("b1:src/main/java/org/Foo.java");
+      assertThat(fileComp.uuid()).isNotNull();
+      assertThat(fileComp.projectUuid()).isEqualTo(root.uuid());
+      assertThat(fileComp.moduleUuid()).isEqualTo(b1.uuid());
+      assertThat(fileComp.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid() + "." + b1.uuid());
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -243,7 +260,7 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       // FIXME selectByKey returns duplicates for libraries because of the join on snapshots table
       ComponentDto newLib = session.getMapper(ComponentMapper.class).findByKeys(Arrays.asList("junit:junit")).get(0);
       assertThat(newLib.uuid()).isNotNull();
-      assertThat(newLib.projectUuid()).isEqualTo(newLib.projectUuid());
+      assertThat(newLib.projectUuid()).isEqualTo(newLib.uuid());
       assertThat(newLib.moduleUuid()).isNull();
       assertThat(newLib.moduleUuidPath()).isNull();
     } finally {
