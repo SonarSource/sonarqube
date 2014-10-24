@@ -50,6 +50,9 @@ public class AnalysisReportTaskLauncher implements Startable, ServerComponent, S
   public AnalysisReportTaskLauncher(ComputationService service, AnalysisReportQueue queue) {
     this.service = service;
     this.queue = queue;
+
+    // all threads are named "ar-xxx", so they can have a dedicated logging output
+    // (see SwitchLogbackAppender)
     ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
       .setNameFormat(ANALYSIS_REPORT_THREAD_NAME_PREFIX + "%d").setPriority(Thread.MIN_PRIORITY).build();
 
