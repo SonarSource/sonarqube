@@ -18,13 +18,7 @@
       "assignee": "simon",
       "reporter": "fabrice",
       "updateDate": "2014-12-04T00:00:00+0100",
-      "fUpdateAge": "less than a minute",
-      "sources": [
-        [2, "Second Line"],
-        [3, "Third Line"],
-        [4, "Fourth Line"]
-      ],
-      "scm": []
+      "fUpdateAge": "less than a minute"
     }
   ],
   "rules": [
