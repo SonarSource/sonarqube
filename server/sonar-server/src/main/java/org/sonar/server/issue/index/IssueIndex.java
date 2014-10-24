@@ -305,7 +305,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       // Execute Term aggregations
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.SEVERITY.field(), IssueFilterParameters.SEVERITIES));
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.STATUS.field(), IssueFilterParameters.STATUSES));
-      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.RESOLUTION.field(), IssueFilterParameters.RESOLUTIONS));
+      esSearch.addAggregation(getResolutionFacet(query, options, filters, esQuery));
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.ACTION_PLAN.field(), IssueFilterParameters.ACTION_PLANS));
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.PROJECT.field(), IssueFilterParameters.COMPONENT_ROOTS,
         query.componentRoots().toArray(new String[0])));
@@ -337,6 +337,28 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       .global(facetName)
       .subAggregation(facetTopAggregation);
   }
+
+  private AggregationBuilder getResolutionFacet(IssueQuery query, QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+    String fieldName = IssueNormalizer.IssueField.RESOLUTION.field();
+    String facetName = IssueFilterParameters.RESOLUTIONS;
+
+    // Same as in super.stickyFacetBuilder
+    BoolFilterBuilder facetFilter = getStickyFacetFilter(esQuery, filters, fieldName);
+    FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter);
+    addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.resolutions().toArray(new String[0]));
+
+    // Add missing facet for unresolved issues
+    facetTopAggregation.subAggregation(
+      AggregationBuilders
+        .missing(facetName + "_missing")
+        .field(fieldName)
+      );
+
+    return AggregationBuilders
+      .global(facetName)
+      .subAggregation(facetTopAggregation);
+  }
+
 
   private void setSorting(IssueQuery query, SearchRequestBuilder esSearch) {
     /* integrate Query Sort */

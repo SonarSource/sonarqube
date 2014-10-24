@@ -72,7 +72,10 @@ public class Result<K> {
   private void processAggregation(Aggregation aggregation) {
     if (Missing.class.isAssignableFrom(aggregation.getClass())) {
       Missing missing = (Missing) aggregation;
-      this.facets.put(aggregation.getName().replace("_missing",""), new FacetValue("", (int) missing.getDocCount()));
+      int docCount = (int) missing.getDocCount();
+      if (docCount > 0) {
+        this.facets.put(aggregation.getName().replace("_missing",""), new FacetValue("", docCount));
+      }
     } else if (Terms.class.isAssignableFrom(aggregation.getClass())) {
       Terms termAggregation = (Terms) aggregation;
       for (Terms.Bucket value : termAggregation.getBuckets()) {
