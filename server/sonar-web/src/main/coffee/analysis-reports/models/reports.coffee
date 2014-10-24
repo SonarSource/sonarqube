@@ -12,7 +12,11 @@ define [
 
 
     parse: (r) ->
-      @paging = r.paging
+      @paging =
+        page: r.p
+        pageSize: r.ps
+        total: r.total
+        maxResultsReached: r.p * r.ps >= r.total
       r.reports
 
 
@@ -20,5 +24,7 @@ define [
       @fetch { url: "#{baseUrl}/api/analysis_reports/active" }, { reset: true }
 
 
-    fetchHistory: ->
-      @fetch { url: "#{baseUrl}/api/analysis_reports/history" }, { reset: true }
+    fetchHistory: (options = {  }) ->
+      _.extend options,
+        url: "#{baseUrl}/api/analysis_reports/history"
+      @fetch options, { reset: true }

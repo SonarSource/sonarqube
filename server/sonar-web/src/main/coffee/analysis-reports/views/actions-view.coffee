@@ -21,14 +21,14 @@ define [
 
 
     showPastReports: ->
-      @options.app.state.set active: false
+      @options.app.router.navigate 'past', trigger: true
 
 
     showCurrentActivity: ->
-      @options.app.state.set active: true
+      @options.app.router.navigate 'current', trigger: true
 
 
     serializeData: ->
       _.extend super,
         state: @options.app.state.toJSON()
-        total: if @collection.paging then @collection.paging.total else @collection.length
+        total: @collection.paging.total || 0

@@ -4,23 +4,21 @@
     <a href="{{dashboardUrl projectKey}}">{{projectName}}</a>
   </span>
 
-  {{#if submittedAt}}
+  <span class="analysis-reports-timestamp line-small">
+    {{#if submittedAt}}Submitted: {{dt submittedAt}}<br>{{/if}}
+    {{#if startedAt}}Started: {{dt startedAt}}<br>{{/if}}
+    {{#if finishedAt}}Finished: {{dt finishedAt}}<br>{{/if}}
+  </span>
+
+  {{#if duration}}
     <span class="analysis-reports-timestamp line-small">
-      Submitted: {{dt submittedAt}}
+      Duration:
+      {{#gt duration.hours 0}}{{duration.hours}}h{{/gt}}
+      {{#gt duration.minutes 0}}{{duration.minutes}}m{{/gt}}
+      {{duration.seconds}}s
     </span>
   {{/if}}
 
-  {{#if startedAt}}
-    <span class="analysis-reports-timestamp line-small">
-      Started: {{dt startedAt}}
-    </span>
-  {{/if}}
-
-  {{#if finishedAt}}
-    <span class="analysis-reports-timestamp line-small">
-      Finished: {{dt finishedAt}}
-    </span>
-  {{/if}}
 </div>
 
 <div class="analysis-reports-report-id">{{id}} {{status}}</div>

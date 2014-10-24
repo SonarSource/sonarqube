@@ -19,6 +19,7 @@ requirejs.config
 requirejs [
   'backbone', 'backbone.marionette'
 
+  'analysis-reports/router'
   'analysis-reports/layout'
   'analysis-reports/models/reports'
   'analysis-reports/views/reports-view'
@@ -28,6 +29,7 @@ requirejs [
   'common/handlebars-extensions'
 ], (
   Backbone, Marionette
+  Router
   Layout
   Reports
   ReportsView
@@ -44,42 +46,58 @@ requirejs [
 
 
   App.fetchReports = ->
+    process = window.process.addBackgroundProcess()
     fetch = if @state.get 'active' then @reports.fetchActive() else @reports.fetchHistory()
     @layout.showSpinner 'actionsRegion'
     @layout.resultsRegion.reset()
     fetch.done =>
+      @state.set page: @reports.paging.page
       @reportsView = new ReportsView
         app: @
         collection: @reports
       @layout.resultsRegion.show @reportsView
+      @reportsView.bindScrollEvents() unless @state.get 'active'
 
       @actionsView = new ActionsView
         app: @
         collection: @reports
       @layout.actionsRegion.show @actionsView
 
+      @layout.onResize()
+
+      window.process.finishBackgroundProcess process
+
+
+  App.fetchNextPage = ->
+    process = window.process.addBackgroundProcess()
+    @reports.fetchHistory
+      data:
+        p: @state.get('page') + 1
+      remove: false
+    .done =>
+      @state.set page: @reports.paging.page
+      window.process.finishBackgroundProcess process
+
 
   App.addInitializer ->
-    @state = new Backbone.Model active: true
+    @state = new Backbone.Model()
     @state.on 'change:active', => @fetchReports()
 
 
   App.addInitializer ->
     @layout = new Layout app: @
     jQuery('#analysis-reports').empty().append @layout.render().el
-    @layout.onResize()
-
-
-  App.addInitializer ->
-    @reports = new Reports()
-    @fetchReports()
-    setInterval (=> @fetchReports()), 30000 # Once every 30s
 
 
   App.addInitializer ->
     @headerView = new HeaderView app: @
     @layout.headerRegion.show @headerView
 
+
+  App.addInitializer ->
+    @reports = new Reports()
+    @router = new Router app: @
+    Backbone.history.start()
 
 
   l10nXHR = window.requestMessages()

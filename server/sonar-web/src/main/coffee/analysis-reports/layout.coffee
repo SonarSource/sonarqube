@@ -31,8 +31,7 @@ define [
       footerHeight = footerEl.outerHeight true
 
       resultsEl = @ui.results
-      resultsHeight = jQuery(window).height() - resultsEl.offset().top -
-        parseInt(resultsEl.css('margin-bottom'), 10) - footerHeight
+      resultsHeight = jQuery(window).height() - resultsEl.offset().top - footerHeight
       resultsEl.height resultsHeight
 
 
