@@ -21,7 +21,7 @@ package org.sonar.graph;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -30,7 +30,7 @@ public class CycleDetector<V> {
   private Set<V> vertices;
   private DirectedGraphAccessor<V, ? extends Edge> graph;
   private Set<V> analyzedVertices;
-  private Set<Cycle> cycles = new HashSet<Cycle>();
+  private Set<Cycle> cycles = new LinkedHashSet<Cycle>();
   private Set<Edge> edgesToExclude;
   private long searchCyclesCalls = 0;
   private int maxSearchDepth = -1;
@@ -38,7 +38,7 @@ public class CycleDetector<V> {
   private int maxCyclesToFound = Integer.MAX_VALUE;
 
   public CycleDetector(DirectedGraphAccessor<V, ? extends Edge> graph, Collection<V> vertices) {
-    init(graph, vertices, new HashSet<Edge>());
+    init(graph, vertices, new LinkedHashSet<Edge>());
   }
 
   public CycleDetector(DirectedGraphAccessor<V, ? extends Edge> graph, Collection<V> vertices, Set<Edge> edgesToExclude) {
@@ -46,7 +46,7 @@ public class CycleDetector<V> {
   }
 
   public CycleDetector(DirectedGraphAccessor<V, ? extends Edge> graph) {
-    init(graph, graph.getVertices(), new HashSet<Edge>());
+    init(graph, graph.getVertices(), new LinkedHashSet<Edge>());
   }
 
   public CycleDetector(DirectedGraphAccessor<V, ? extends Edge> graph, Set<Edge> edgesToExclude) {
@@ -55,8 +55,8 @@ public class CycleDetector<V> {
 
   private void init(DirectedGraphAccessor<V, ? extends Edge> graph, Collection<V> vertices, Set<Edge> edgesToExclude) {
     this.graph = graph;
-    this.vertices = new HashSet<V>(vertices);
-    this.analyzedVertices = new HashSet<V>();
+    this.vertices = new LinkedHashSet<V>(vertices);
+    this.analyzedVertices = new LinkedHashSet<V>();
     this.edgesToExclude = edgesToExclude;
   }
 
@@ -87,7 +87,7 @@ public class CycleDetector<V> {
     try {
       for (V vertex : vertices) {
         if (maxSearchDepthActivated || !analyzedVertices.contains(vertex)) {
-          Set<V> tmpAnalyzedVertices = new HashSet<V>();
+          Set<V> tmpAnalyzedVertices = new LinkedHashSet<V>();
           searchCycles(vertex, new ArrayList<V>(), tmpAnalyzedVertices);
           analyzedVertices.addAll(tmpAnalyzedVertices);
         }
@@ -104,7 +104,7 @@ public class CycleDetector<V> {
     for (Edge<V> edge : graph.getOutgoingEdges(fromVertex)) {
       V toVertex = edge.getTo();
       if (!edgesToExclude.contains(edge) && vertices.contains(toVertex)
-          && (maxSearchDepthActivated || !analyzedVertices.contains(toVertex))) {
+        && (maxSearchDepthActivated || !analyzedVertices.contains(toVertex))) {
         if (path.contains(toVertex)) {
           path.add(toVertex);
           List<V> cyclePath = path.subList(path.indexOf(toVertex), path.size());
