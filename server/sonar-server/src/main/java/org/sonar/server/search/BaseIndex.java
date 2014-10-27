@@ -592,7 +592,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   }
 
-  protected AggregationBuilder stickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters, String fieldName, String facetName, String... selected) {
+  protected AggregationBuilder stickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters, String fieldName, String facetName, Object... selected) {
     BoolFilterBuilder facetFilter = getStickyFacetFilter(query, filters, fieldName);
     FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter);
     facetTopAggregation = addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, selected);
@@ -624,7 +624,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
           .minDocCount(1));
   }
 
-  protected FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation, String... selected) {
+  protected FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation, Object... selected) {
     if (selected.length > 0) {
       facetTopAggregation.subAggregation(
         AggregationBuilders.terms(facetName + "_selected")
