@@ -44,7 +44,7 @@ public class QueryContext {
 
   private int offset = DEFAULT_OFFSET;
   private int limit = DEFAULT_LIMIT;
-  private boolean facet = DEFAULT_FACET;
+  private Set<String> facets = newHashSet();
   private Set<String> fieldsToReturn = newHashSet();
   private boolean scroll = false;
   private boolean showFullResult = false;
@@ -57,18 +57,25 @@ public class QueryContext {
   }
 
   /**
-   * Whether or not the search returns facets for the domain. Defaults to {@link #DEFAULT_OFFSET}
+   * Whether or not the search returns facets for the domain. Defaults to {@link #DEFAULT_FACET}
    */
   public boolean isFacet() {
-    return facet;
+    return !facets.isEmpty();
   }
 
   /**
-   * Sets whether or not the search returns facets for the domain.
+   * Selects facets to return for the domain.
    */
-  public QueryContext setFacet(boolean facet) {
-    this.facet = facet;
+  public QueryContext addFacets(Collection<String> facets) {
+    this.facets.addAll(facets);
     return this;
+  }
+
+  /**
+   * Lists selected facets.
+   */
+  public Collection<String> facets() {
+    return facets;
   }
 
   /**

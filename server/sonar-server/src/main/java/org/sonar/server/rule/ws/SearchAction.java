@@ -38,6 +38,7 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
@@ -213,7 +214,9 @@ public class SearchAction implements RequestHandler {
     RuleQuery query = createRuleQuery(ruleService.newRuleQuery(), request);
     SearchOptions searchOptions = SearchOptions.create(request);
     QueryContext queryContext = mapping.newQueryOptions(searchOptions);
-    queryContext.setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
+    if (Boolean.valueOf(request.paramAsBoolean("facets"))) {
+      queryContext.addFacets(Arrays.asList("languages", "repositories", "tags"));
+    }
 
     Result<Rule> results = ruleService.search(query, queryContext);
 

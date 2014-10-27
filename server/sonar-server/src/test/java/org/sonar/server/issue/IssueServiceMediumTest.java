@@ -56,6 +56,7 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -140,8 +141,8 @@ public class IssueServiceMediumTest {
     assertThat(result.getHits()).hasSize(2);
     assertThat(result.getFacets()).isEmpty();
 
-    result = service.search(IssueQuery.builder().build(), new QueryContext().setFacet(true));
-    assertThat(result.getFacets().keySet()).hasSize(9);
+    result = service.search(IssueQuery.builder().build(), new QueryContext().addFacets(Arrays.asList("actionPlans", "assignees")));
+    assertThat(result.getFacets().keySet()).hasSize(2);
     assertThat(result.getFacetKeys("actionPlans")).hasSize(2);
     assertThat(result.getFacetKeys("assignees")).hasSize(1);
   }

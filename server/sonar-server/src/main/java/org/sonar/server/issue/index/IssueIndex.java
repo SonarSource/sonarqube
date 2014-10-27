@@ -303,19 +303,37 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
   private void setFacets(IssueQuery query, QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch) {
     if (options.isFacet()) {
       // Execute Term aggregations
-      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.SEVERITY.field(), IssueFilterParameters.SEVERITIES));
-      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.STATUS.field(), IssueFilterParameters.STATUSES));
-      esSearch.addAggregation(getResolutionFacet(query, options, filters, esQuery));
-      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.ACTION_PLAN.field(), IssueFilterParameters.ACTION_PLANS));
-      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.PROJECT.field(), IssueFilterParameters.COMPONENT_ROOTS,
-        query.componentRoots().toArray()));
-      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.RULE_KEY.field(), IssueFilterParameters.RULES,
-        query.rules().toArray()));
-      esSearch.addAggregation(getAssigneesFacet(query, options, filters, esQuery));
-      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.COMPONENT.field(), IssueFilterParameters.COMPONENTS,
-        query.components().toArray()));
-      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.LANGUAGE.field(), IssueFilterParameters.LANGUAGES,
-        query.languages().toArray()));
+      if (options.facets().contains(IssueFilterParameters.SEVERITIES)) {
+        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.SEVERITY.field(), IssueFilterParameters.SEVERITIES));
+      }
+      if (options.facets().contains(IssueFilterParameters.STATUSES)) {
+        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.STATUS.field(), IssueFilterParameters.STATUSES));
+      }
+      if (options.facets().contains(IssueFilterParameters.RESOLUTIONS)) {
+        esSearch.addAggregation(getResolutionFacet(query, options, filters, esQuery));
+      }
+      if (options.facets().contains(IssueFilterParameters.ACTION_PLANS)) {
+        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.ACTION_PLAN.field(), IssueFilterParameters.ACTION_PLANS));
+      }
+      if (options.facets().contains(IssueFilterParameters.COMPONENT_ROOTS)) {
+        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.PROJECT.field(), IssueFilterParameters.COMPONENT_ROOTS,
+          query.componentRoots().toArray()));
+      }
+      if (options.facets().contains(IssueFilterParameters.RULES)) {
+        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.RULE_KEY.field(), IssueFilterParameters.RULES,
+          query.rules().toArray()));
+      }
+      if (options.facets().contains(IssueFilterParameters.ASSIGNEES)) {
+        esSearch.addAggregation(getAssigneesFacet(query, options, filters, esQuery));
+      }
+      if (options.facets().contains(IssueFilterParameters.COMPONENTS)) {
+        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.COMPONENT.field(), IssueFilterParameters.COMPONENTS,
+          query.components().toArray()));
+      }
+      if (options.facets().contains(IssueFilterParameters.LANGUAGES)) {
+        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.LANGUAGE.field(), IssueFilterParameters.LANGUAGES,
+          query.languages().toArray()));
+      }
     }
   }
 

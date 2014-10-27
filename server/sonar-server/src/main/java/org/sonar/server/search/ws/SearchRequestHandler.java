@@ -32,6 +32,7 @@ import javax.annotation.CheckForNull;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHandler {
@@ -61,6 +62,9 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
   @CheckForNull
   protected abstract Collection<String> possibleFields();
 
+  @CheckForNull
+  protected abstract Collection<String> possibleFacets();
+
   public final void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(this.actionName)
       .setHandler(this);
@@ -79,10 +83,14 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
       .setExampleValue("20")
       .setDefaultValue("100");
 
-    action.createParam(PARAM_FACETS)
-      .setDescription("Compute predefined facets")
-      .setBooleanPossibleValues()
-      .setDefaultValue("false");
+    Collection<String> possibleFacets = possibleFacets();
+    WebService.NewParam paramFacets = action.createParam(PARAM_FACETS)
+      .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
+      .setPossibleValues(possibleFacets);
+    if (possibleFacets != null && possibleFacets.size() > 1) {
+      Iterator<String> it = possibleFacets.iterator();
+      paramFacets.setExampleValue(String.format("%s,%s", it.next(), it.next()));
+    }
 
     Collection<String> possibleFields = possibleFields();
     WebService.NewParam paramFields = action.createParam(PARAM_FIELDS)
@@ -113,8 +121,11 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
 
   private QueryContext getQueryContext(Request request) {
     int pageSize = request.mandatoryParamAsInt(PARAM_PAGE_SIZE);
-    QueryContext queryContext = new QueryContext().addFieldsToReturn(request.paramAsStrings(PARAM_FIELDS))
-      .setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
+    QueryContext queryContext = new QueryContext().addFieldsToReturn(request.paramAsStrings(PARAM_FIELDS));
+    List<String> facets = request.paramAsStrings(PARAM_FACETS);
+    if(facets != null) {
+      queryContext.addFacets(facets);
+    }
     if (pageSize < 1) {
       queryContext.setPage(request.mandatoryParamAsInt(PARAM_PAGE), 0).setMaxLimit();
     } else {

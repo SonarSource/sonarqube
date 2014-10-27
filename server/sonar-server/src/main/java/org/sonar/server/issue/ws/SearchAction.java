@@ -211,6 +211,22 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   @Override
+  @CheckForNull
+  protected Collection<String> possibleFacets() {
+    return Arrays.asList(new String[]{
+      IssueFilterParameters.SEVERITIES,
+      IssueFilterParameters.STATUSES,
+      IssueFilterParameters.RESOLUTIONS,
+      IssueFilterParameters.ACTION_PLANS,
+      IssueFilterParameters.COMPONENT_ROOTS,
+      IssueFilterParameters.RULES,
+      IssueFilterParameters.ASSIGNEES,
+      IssueFilterParameters.COMPONENTS,
+      IssueFilterParameters.LANGUAGES
+    });
+  }
+
+  @Override
   protected void doContextResponse(Request request, QueryContext context, Result<Issue> result, JsonWriter json) {
     List<String> issueKeys = newArrayList();
     Set<RuleKey> ruleKeys = newHashSet();

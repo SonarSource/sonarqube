@@ -103,15 +103,15 @@ public class RuleIndexMediumTest extends SearchMediumTest {
 
     // should not have any facet!
     RuleQuery query = new RuleQuery();
-    Result result = index.search(query, new QueryContext().setFacet(false));
+    Result result = index.search(query, new QueryContext());
     assertThat(result.getFacets()).isEmpty();
 
     // should not have any facet on non matching query!
-    result = index.search(new RuleQuery().setQueryText("aeiou"), new QueryContext().setFacet(true));
+    result = index.search(new RuleQuery().setQueryText("aeiou"), new QueryContext().addFacets(Arrays.asList("repositories")));
     assertThat(result.getFacets()).isEmpty();
 
     // Repositories Facet is preset
-    result = index.search(query, new QueryContext().setFacet(true));
+    result = index.search(query, new QueryContext().addFacets(Arrays.asList("repositories", "tags")));
     assertThat(result.getFacets()).isNotNull();
     assertThat(result.getFacets()).hasSize(3);
 
@@ -967,7 +967,7 @@ public class RuleIndexMediumTest extends SearchMediumTest {
     assertThat(index.search(new RuleQuery(), new QueryContext()).getHits()).hasSize(9);
 
     // 1 Facet with no filters at all
-    Map<String, Collection<FacetValue>> facets = index.search(new RuleQuery(), new QueryContext().setFacet(true)).getFacets();
+    Map<String, Collection<FacetValue>> facets = index.search(new RuleQuery(), new QueryContext().addFacets(Arrays.asList("languages", "repositories", "tags"))).getFacets();
     assertThat(facets.keySet()).hasSize(3);
     assertThat(facets.get(RuleIndex.FACET_LANGUAGES)).onProperty("key").containsOnly("cpp", "java", "cobol");
     assertThat(facets.get(RuleIndex.FACET_REPOSITORIES)).onProperty("key").containsOnly("xoo", "foo");
@@ -977,7 +977,7 @@ public class RuleIndexMediumTest extends SearchMediumTest {
     // -- lang facet should still have all language
     Result<Rule> result = index.search(new RuleQuery()
       .setLanguages(ImmutableList.<String>of("cpp"))
-      , new QueryContext().setFacet(true));
+      , new QueryContext().addFacets(Arrays.asList("languages", "repositories", "tags")));
     assertThat(result.getHits()).hasSize(3);
     assertThat(result.getFacets()).hasSize(3);
     assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).onProperty("key").containsOnly("cpp", "java", "cobol");
@@ -989,7 +989,7 @@ public class RuleIndexMediumTest extends SearchMediumTest {
     result = index.search(new RuleQuery()
       .setLanguages(ImmutableList.<String>of("cpp"))
       .setTags(ImmutableList.<String>of("T2"))
-      , new QueryContext().setFacet(true));
+      , new QueryContext().addFacets(Arrays.asList("languages", "repositories", "tags")));
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getFacets().keySet()).hasSize(3);
     assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).onProperty("key").containsOnly("cpp", "java");
@@ -1003,7 +1003,7 @@ public class RuleIndexMediumTest extends SearchMediumTest {
     result = index.search(new RuleQuery()
       .setLanguages(ImmutableList.<String>of("cpp", "java"))
       .setTags(ImmutableList.<String>of("T2"))
-      , new QueryContext().setFacet(true));
+      , new QueryContext().addFacets(Arrays.asList("languages", "repositories", "tags")));
     assertThat(result.getHits()).hasSize(2);
     assertThat(result.getFacets().keySet()).hasSize(3);
     assertThat(result.getFacets().get(RuleIndex.FACET_LANGUAGES)).onProperty("key").containsOnly("cpp", "java");

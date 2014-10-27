@@ -345,7 +345,9 @@ public class SearchActionMediumTest {
     db.issueDao().insert(session, issue);
     session.commit();
 
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(SearchAction.PARAM_FACETS, "true").execute();
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,componentRoots,rules,components,assignees,languages")
+      .execute();
     result.assertJson(this.getClass(), "display_facets.json", false);
   }
 

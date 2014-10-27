@@ -142,7 +142,7 @@ public class QueryContextTest {
   public void do_not_request_facets_by_default() throws Exception {
     assertThat(options.isFacet()).isFalse();
 
-    options.setFacet(true);
+    options.addFacets(Arrays.asList("polop"));
     assertThat(options.isFacet()).isTrue();
   }
 }
