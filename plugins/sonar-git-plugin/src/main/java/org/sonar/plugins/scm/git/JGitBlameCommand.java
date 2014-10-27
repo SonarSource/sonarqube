@@ -53,36 +53,50 @@ public class JGitBlameCommand extends BlameCommand {
 
   @Override
   public void blame(BlameInput input, BlameOutput output) {
-    Git git = null;
     File basedir = input.fileSystem().baseDir();
+    Repository repo = buildRepository(basedir);
     try {
-      Repository repo = new RepositoryBuilder()
+      Git git = Git.wrap(repo);
+      File gitBaseDir = repo.getWorkTree();
+      ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+      List<Future<Void>> tasks = submitTasks(input, output, git, gitBaseDir, executorService);
+      waitForTaskToComplete(tasks);
+    } finally {
+      if (repo != null) {
+        repo.close();
+      }
+    }
+  }
+
+  private void waitForTaskToComplete(List<Future<Void>> tasks) {
+    for (Future<Void> task : tasks) {
+      try {
+        task.get();
+      } catch (ExecutionException e) {
+        // Unwrap ExecutionException
+        throw e.getCause() instanceof RuntimeException ? (RuntimeException) e.getCause() : new IllegalStateException(e.getCause());
+      } catch (InterruptedException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+  }
+
+  private List<Future<Void>> submitTasks(BlameInput input, BlameOutput output, Git git, File gitBaseDir, ExecutorService executorService) {
+    List<Future<Void>> tasks = new ArrayList<Future<Void>>();
+    for (InputFile inputFile : input.filesToBlame()) {
+      tasks.add(submitTask(output, git, gitBaseDir, inputFile, executorService));
+    }
+    return tasks;
+  }
+
+  private Repository buildRepository(File basedir) {
+    try {
+      return new RepositoryBuilder()
         .findGitDir(basedir)
         .setMustExist(true)
         .build();
-      git = Git.wrap(repo);
-      File gitBaseDir = repo.getWorkTree();
-      ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-      List<Future<Void>> tasks = new ArrayList<Future<Void>>();
-      for (InputFile inputFile : input.filesToBlame()) {
-        tasks.add(submitTask(output, git, gitBaseDir, inputFile, executorService));
-      }
-      for (Future<Void> task : tasks) {
-        try {
-          task.get();
-        } catch (ExecutionException e) {
-          // Unwrap ExecutionException
-          throw e.getCause() instanceof RuntimeException ? (RuntimeException) e.getCause() : new IllegalStateException(e.getCause());
-        } catch (InterruptedException e) {
-          throw new IllegalStateException(e);
-        }
-      }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to open Git repository", e);
-    } finally {
-      if (git != null && git.getRepository() != null) {
-        git.getRepository().close();
-      }
     }
   }
 
