@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
@@ -60,6 +61,7 @@ public final class PhaseExecutor {
   private final DefaultModuleFileSystem fs;
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
+  private final AnalysisMode analysisMode;
 
   public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
@@ -67,7 +69,7 @@ public final class PhaseExecutor {
     PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, UpdateStatusJob updateStatusJob, ProjectInitializer pi,
     ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader) {
+    IssueExclusionsLoader issueExclusionsLoader, AnalysisMode analysisMode) {
     this.phases = phases;
     this.decoratorsExecutor = decoratorsExecutor;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
@@ -86,6 +88,7 @@ public final class PhaseExecutor {
     this.fs = fs;
     this.profileVerifier = profileVerifier;
     this.issueExclusionsLoader = issueExclusionsLoader;
+    this.analysisMode = analysisMode;
   }
 
   public static Collection<Class> getPhaseClasses() {
@@ -137,16 +140,18 @@ public final class PhaseExecutor {
   }
 
   private void executePersisters() {
-    LOGGER.info("Store results in database");
-    eventBus.fireEvent(new PersistersPhaseEvent(Lists.newArrayList(persisters), true));
-    for (ScanPersister persister : persisters) {
-      LOGGER.debug("Execute {}", persister.getClass().getName());
-      eventBus.fireEvent(new PersisterExecutionEvent(persister, true));
-      persister.persist();
-      eventBus.fireEvent(new PersisterExecutionEvent(persister, false));
-    }
+    if (!analysisMode.isPreview()) {
+      LOGGER.info("Store results in database");
+      eventBus.fireEvent(new PersistersPhaseEvent(Lists.newArrayList(persisters), true));
+      for (ScanPersister persister : persisters) {
+        LOGGER.debug("Execute {}", persister.getClass().getName());
+        eventBus.fireEvent(new PersisterExecutionEvent(persister, true));
+        persister.persist();
+        eventBus.fireEvent(new PersisterExecutionEvent(persister, false));
+      }
 
-    eventBus.fireEvent(new PersistersPhaseEvent(Lists.newArrayList(persisters), false));
+      eventBus.fireEvent(new PersistersPhaseEvent(Lists.newArrayList(persisters), false));
+    }
   }
 
   private void updateStatusJob() {
