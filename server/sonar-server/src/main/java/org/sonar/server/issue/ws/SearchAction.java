@@ -240,18 +240,16 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       }
     }
 
-    for (FacetValue rule: result.getFacetValues(IssueFilterParameters.RULES)) {
-      ruleKeys.add(RuleKey.parse(rule.getKey()));
+    Collection<FacetValue> facetRules = result.getFacetValues(IssueFilterParameters.RULES);
+    if (facetRules != null) {
+      for (FacetValue rule: facetRules) {
+        ruleKeys.add(RuleKey.parse(rule.getKey()));
+      }
     }
-    for (FacetValue project: result.getFacetValues(IssueFilterParameters.COMPONENT_ROOTS)) {
-      projectUuids.add(project.getKey());
-    }
-    for (FacetValue component: result.getFacetValues(IssueFilterParameters.COMPONENTS)) {
-      componentUuids.add(component.getKey());
-    }
-    for (FacetValue user: result.getFacetValues(IssueFilterParameters.ASSIGNEES)) {
-      userLogins.add(user.getKey());
-    }
+
+    collectFacetKeys(result, IssueFilterParameters.COMPONENT_ROOTS, projectUuids);
+    collectFacetKeys(result, IssueFilterParameters.COMPONENTS, componentUuids);
+    collectFacetKeys(result, IssueFilterParameters.ASSIGNEES, userLogins);
 
     DbSession session = dbClient.openSession(false);
     try {
@@ -291,6 +289,15 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
     // TODO remove legacy paging. Handled by the SearchRequestHandler
     writeLegacyPaging(context, json, result);
+  }
+
+  private void collectFacetKeys(Result<Issue> result, String facetName, Collection<String> facetKeys) {
+    Collection<FacetValue> facetValues = result.getFacetValues(facetName);
+    if (facetValues != null) {
+      for (FacetValue project: facetValues) {
+        facetKeys.add(project.getKey());
+      }
+    }
   }
 
   private void writeLegacyPaging(QueryContext context, JsonWriter json, Result<?> result) {
