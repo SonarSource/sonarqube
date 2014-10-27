@@ -67,6 +67,7 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
         migrateEnabledComponents(session, mapper, project, uuidByComponentId);
         migrateDisabledComponents(session, mapper, project, uuidByComponentId);
       }
+      migrateComponentsWithoutUuid(session, mapper);
 
       session.commit();
       // log the total number of process rows
@@ -118,8 +119,8 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
       component.setModuleUuidPath(moduleUuidPath.toString());
     }
 
-    // Module UUID should contains direct module of a component, but it should be null on the first module
-    if (lastModule != null && !lastModule.getId().equals(project.getId())) {
+    // Module UUID contains direct module of a component
+    if (lastModule != null) {
       component.setModuleUuid(getOrCreateUuid(lastModule, uuidByComponentId));
     }
   }
@@ -128,6 +129,16 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
     for (Component component : mapper.selectDisabledComponentChildrenForProjects(project.getId())) {
       component.setUuid(getOrCreateUuid(component, uuidByComponentId));
       component.setProjectUuid(getOrCreateUuid(project, uuidByComponentId));
+
+      mapper.updateComponentUuids(component);
+      counter.getAndIncrement();
+    }
+  }
+
+  private void migrateComponentsWithoutUuid(DbSession session, Migration50Mapper mapper) {
+    for (Component component : mapper.selectComponentsWithoutUuid()) {
+      String uuid = UUID.randomUUID().toString();
+      component.setUuid(uuid);
 
       mapper.updateComponentUuids(component);
       counter.getAndIncrement();

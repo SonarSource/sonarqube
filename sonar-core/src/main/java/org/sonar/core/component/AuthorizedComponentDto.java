@@ -22,9 +22,6 @@ package org.sonar.core.component;
 
 import org.sonar.core.persistence.Dto;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 /**
  * Used to check that a project exists. Can return provisioned projects and projects from analysis.
  * The root project id is not available because no join on snapshot is done to retrieve it.
@@ -48,15 +45,11 @@ public class AuthorizedComponentDto extends Dto<String> {
     return this;
   }
 
-  /**
-   * Can be null on a view or a developer
-   */
-  @CheckForNull
   public String uuid() {
     return uuid;
   }
 
-  public AuthorizedComponentDto setAuthorizedUuid(@Nullable String uuid) {
+  public AuthorizedComponentDto setAuthorizedUuid(String uuid) {
     this.uuid = uuid;
     return this;
   }

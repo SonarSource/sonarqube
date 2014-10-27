@@ -337,7 +337,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       json.beginObject();
 
       String actionPlanKey = issue.actionPlanKey();
-      ComponentDto file = componentsByUuid.get(((IssueDoc) issue).componentUuid());
+      ComponentDto file = componentsByUuid.get(issue.componentUuid());
       ComponentDto project = file != null ? projectsByComponentUuid.get(file.uuid()) : null;
       Duration debt = issue.debt();
       Date updateDate = issue.updateDate();
@@ -533,9 +533,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       projectsByComponentUuid.put(component.uuid(), Iterables.find(projects, new Predicate<ComponentDto>() {
         @Override
         public boolean apply(@Nullable ComponentDto input) {
-          String uuid = input != null ? input.uuid() : null;
-          String projectUuid = input != null ? input.projectUuid() : null;
-          return input != null && uuid != null && projectUuid != null && uuid.equals(projectUuid);
+          return input != null && input.uuid().equals(input.projectUuid());
         }
       }));
     }

@@ -64,7 +64,7 @@
 
   <!-- file -->
   <projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="FIL" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
-            uuid="CDEF" project_uuid="ABCD" module_uuid="BCDE" module_uuid_path="ABCD.BCDE"
+            uuid="DEFG" project_uuid="ABCD" module_uuid="BCDE" module_uuid_path="ABCD.BCDE"
             name="RequestContext.java" root_id="2"
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/RequestContext.java"

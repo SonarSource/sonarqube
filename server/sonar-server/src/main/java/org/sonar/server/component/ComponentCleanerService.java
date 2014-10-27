@@ -45,10 +45,7 @@ public class ComponentCleanerService implements ServerComponent {
         throw new IllegalArgumentException("Only project can be deleted");
       }
       purgeDao.deleteResourceTree(project.getId());
-      String uuid = project.uuid();
-      if (uuid != null) {
-        deletePermissionIndexes(session, uuid);
-      }
+      deletePermissionIndexes(session, project.uuid());
       session.commit();
     } finally {
       session.close();

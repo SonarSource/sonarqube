@@ -78,6 +78,16 @@ public interface Migration50Mapper {
   @Result(javaType = Component.class)
   List<Component> selectDisabledComponentChildrenForProjects(@Param("id") Long projectId);
 
+  /**
+   * Return not migrated components
+   */
+  @Select("SELECT " +
+    "  p.id AS \"id\" " +
+    "FROM projects p " +
+    "  WHERE p.uuid IS NULL ")
+  @Result(javaType = Component.class)
+  List<Component> selectComponentsWithoutUuid();
+
   @Select("SELECT " +
     "  p.id AS \"id\", " +
     "  p.uuid AS \"uuid\", " +

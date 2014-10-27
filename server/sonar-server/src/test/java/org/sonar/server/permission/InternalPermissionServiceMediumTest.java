@@ -25,7 +25,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
@@ -150,31 +149,6 @@ public class InternalPermissionServiceMediumTest {
     // Check in index
     IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.uuid());
     assertThat(issueAuthorizationDoc).isNull();
-  }
-
-  @Test
-  public void add_component_user_permission_on_a_view() throws Exception {
-    ComponentDto view = ComponentTesting.newProjectDto()
-      .setKey("MASTER")
-      .setQualifier(Qualifiers.VIEW)
-      .setUuid(null)
-      .setProjectUuid(null);
-    db.componentDao().insert(session, view);
-    session.commit();
-    
-    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, view.key());
-
-    UserDto user = new UserDto().setLogin("john").setName("John");
-    db.userDao().insert(session, user);
-    session.commit();
-
-    assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), view.getId())).isEmpty();
-
-    service.addPermission(params(user.getLogin(), null, view.key(), UserRole.USER));
-    session.commit();
-
-    // Check in db
-    assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), view.getId())).hasSize(1);
   }
 
   private Map<String, Object> params(@Nullable String login, @Nullable String group, @Nullable String component, String permission) {

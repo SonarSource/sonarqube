@@ -118,7 +118,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     setupData("fixture");
 
     ResourceDto file = dao.getResource(4L);
-    assertThat(file.getUuid()).isEqualTo("CDEF");
+    assertThat(file.getUuid()).isEqualTo("DEFG");
     assertThat(file.getProjectUuid()).isEqualTo("ABCD");
     assertThat(file.getModuleUuid()).isEqualTo("BCDE");
     assertThat(file.getModuleUuidPath()).isEqualTo("ABCD.BCDE");

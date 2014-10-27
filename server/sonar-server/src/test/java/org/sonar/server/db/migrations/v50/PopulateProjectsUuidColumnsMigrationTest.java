@@ -63,8 +63,8 @@ public class PopulateProjectsUuidColumnsMigrationTest {
   }
 
   @Test
-  public void migrate_projects() throws Exception {
-    db.prepareDbUnit(getClass(), "migrate_projects.xml");
+  public void migrate_components() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_components.xml");
 
     migration.execute();
     session.commit();
@@ -78,7 +78,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     Component module = mapper.selectComponentByKey("org.struts:struts-core");
     assertThat(module.getUuid()).isNotNull();
     assertThat(module.getProjectUuid()).isEqualTo(root.getUuid());
-    assertThat(module.getModuleUuid()).isNull();
+    assertThat(module.getModuleUuid()).isEqualTo(root.getUuid());
     assertThat(module.getModuleUuidPath()).isEqualTo(root.getUuid());
 
     Component subModule = mapper.selectComponentByKey("org.struts:struts-db");
@@ -209,7 +209,7 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     Component subView = mapper.selectComponentByKey("subView");
     assertThat(subView.getUuid()).isNotNull();
     assertThat(subView.getProjectUuid()).isEqualTo(view.getUuid());
-    assertThat(subView.getModuleUuid()).isNull();
+    assertThat(subView.getModuleUuid()).isEqualTo(view.getUuid());
     assertThat(subView.getModuleUuidPath()).isEqualTo(view.getUuid());
 
     Component techProject = mapper.selectComponentByKey("vieworg.struts:struts");
@@ -235,8 +235,37 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     Component techDev = mapper.selectComponentByKey("DEV:developer@company.net:org.struts:struts");
     assertThat(techDev.getUuid()).isNotNull();
     assertThat(techDev.getProjectUuid()).isEqualTo(dev.getUuid());
-    assertThat(techDev.getModuleUuid()).isNull();
+    assertThat(techDev.getModuleUuid()).isEqualTo(dev.getUuid());
     assertThat(techDev.getModuleUuidPath()).isEqualTo(dev.getUuid());
+  }
+
+  @Test
+  public void migrate_components_without_uuid() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_components_without_uuid.xml");
+
+    migration.execute();
+    session.commit();
+
+    // Root project migrated
+    Component root = mapper.selectComponentByKey("org.struts:struts");
+    assertThat(root.getUuid()).isNotNull();
+    assertThat(root.getProjectUuid()).isEqualTo(root.getUuid());
+    assertThat(root.getModuleUuid()).isNull();
+    assertThat(root.getModuleUuidPath()).isNull();
+
+    // Module with a snapshot having no islast=true
+    Component module = mapper.selectComponentByKey("org.struts:struts-core");
+    assertThat(module.getUuid()).isNotNull();
+    assertThat(module.getProjectUuid()).isNull();
+    assertThat(module.getModuleUuid()).isNull();
+    assertThat(module.getModuleUuidPath()).isNull();
+
+    // File linked on a no more existing project
+     Component file = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(file.getUuid()).isNotNull();
+    assertThat(file.getProjectUuid()).isNull();
+    assertThat(file.getModuleUuid()).isNull();
+    assertThat(file.getModuleUuidPath()).isNull();
   }
 
 }

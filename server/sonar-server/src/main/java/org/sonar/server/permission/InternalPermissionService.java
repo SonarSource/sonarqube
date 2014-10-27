@@ -275,15 +275,9 @@ public class InternalPermissionService implements ServerComponent {
     }
   }
 
-  public void synchronizePermissions(DbSession session, @Nullable String projectUuid) {
-    if (projectUuid != null) {
-      // Views and Dev Cockpit have no uuid, but it's not an problem because they are not existing in the issue authorization index, so there's nothing to remove
-      dbClient.issueAuthorizationDao().synchronizeAfter(session,
-        index.get(IssueAuthorizationIndex.class).getLastSynchronization(),
-        ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, projectUuid));
-    } else {
-      // TODO Set this log in debug mode to not poluate the logs.
-      LOG.warn("Try to synchronize issues permissions on a project without UUID, ignore");
-    }
+  public void synchronizePermissions(DbSession session, String projectUuid) {
+    dbClient.issueAuthorizationDao().synchronizeAfter(session,
+      index.get(IssueAuthorizationIndex.class).getLastSynchronization(),
+      ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, projectUuid));
   }
 }

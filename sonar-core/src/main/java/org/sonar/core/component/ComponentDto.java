@@ -63,7 +63,7 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
     return this;
   }
 
-  public ComponentDto setUuid(@Nullable String uuid) {
+  public ComponentDto setUuid(String uuid) {
     super.setAuthorizedUuid(uuid);
     return this;
   }
@@ -71,18 +71,17 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
   /**
    * Return the root project id. On a root project, return itself
    */
-  @CheckForNull
   public String projectUuid() {
     return projectUuid;
   }
 
-  public ComponentDto setProjectUuid(@Nullable String projectUuid) {
+  public ComponentDto setProjectUuid(String projectUuid) {
     this.projectUuid = projectUuid;
     return this;
   }
 
   /**
-   * Return the direct module of a component. Will be null on projects and on first modules
+   * Return the direct module of a component. Will be null on projects
    */
   @CheckForNull
   public String moduleUuid() {
