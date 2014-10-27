@@ -181,7 +181,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     Snapshot snapshot;
     if (resource instanceof Project) {
       // should not occur, please use the method saveProject()
-      snapshot = persistProject((Project) resource, project);
+      snapshot = persistProject((Project) resource, (Project) parent);
 
     } else if (resource instanceof Library) {
       snapshot = persistLibrary(project, (Library) resource);

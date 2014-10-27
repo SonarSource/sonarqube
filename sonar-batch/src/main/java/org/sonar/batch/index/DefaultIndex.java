@@ -546,7 +546,7 @@ public class DefaultIndex extends SonarIndex {
     return bucket != null;
   }
 
-  private Bucket doIndex(Resource resource, Resource parentReference) {
+  private Bucket doIndex(Resource resource, @Nullable Resource parentReference) {
     Bucket bucket = getBucket(resource);
     if (bucket != null) {
       return bucket;

@@ -24,22 +24,30 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.security.ResourcePermissions;
+import org.sonar.batch.ProjectTree;
+import org.sonar.batch.issue.DeprecatedViolations;
+import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.component.ScanGraph;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import javax.persistence.Query;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -57,6 +65,9 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   Project singleProject, singleCopyProject, multiModuleProject, moduleA, moduleB, moduleB1, existingProject;
   SnapshotCache snapshotCache = mock(SnapshotCache.class);
@@ -184,6 +195,85 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
       assertThat(b.moduleUuid()).isEqualTo(root.uuid());
       assertThat(b.moduleUuidPath()).isEqualTo(root.uuid());
       ComponentDto b1 = session.getMapper(ComponentMapper.class).selectByKey("b1");
+      assertThat(b1.uuid()).isNotNull();
+      assertThat(b1.projectUuid()).isEqualTo(root.uuid());
+      assertThat(b1.moduleUuid()).isEqualTo(b.uuid());
+      assertThat(b1.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid());
+      ComponentDto dir = session.getMapper(ComponentMapper.class).selectByKey("b1:src/main/java/org");
+      assertThat(dir.uuid()).isNotNull();
+      assertThat(dir.projectUuid()).isEqualTo(root.uuid());
+      assertThat(dir.moduleUuid()).isEqualTo(b1.uuid());
+      assertThat(dir.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid() + "." + b1.uuid());
+      ComponentDto fileComp = session.getMapper(ComponentMapper.class).selectByKey("b1:src/main/java/org/Foo.java");
+      assertThat(fileComp.uuid()).isNotNull();
+      assertThat(fileComp.projectUuid()).isEqualTo(root.uuid());
+      assertThat(fileComp.moduleUuid()).isEqualTo(b1.uuid());
+      assertThat(fileComp.moduleUuidPath()).isEqualTo(root.uuid() + "." + b.uuid() + "." + b1.uuid());
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  // FIXME this is a kind of medium test
+  @Test
+  public void shouldSaveNewMultiModulesProjectUsingIndex() throws IOException {
+    setupData("shared");
+
+    java.io.File baseDir = temp.newFolder();
+
+    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
+
+    ProjectTree projectTree = mock(ProjectTree.class);
+    when(projectTree.getRootProject()).thenReturn(multiModuleProject);
+    when(projectTree.getProjectDefinition(multiModuleProject)).thenReturn(ProjectDefinition.create().setBaseDir(baseDir));
+    when(projectTree.getProjectDefinition(moduleA)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleA")));
+    when(projectTree.getProjectDefinition(moduleB)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB")));
+    when(projectTree.getProjectDefinition(moduleB1)).thenReturn(ProjectDefinition.create().setBaseDir(new java.io.File(baseDir, "moduleB/moduleB1")));
+
+    PersistenceManager persistenceManager = new DefaultPersistenceManager(persister, null, null, null, null);
+    DefaultIndex index = new DefaultIndex(persistenceManager, projectTree, mock(MetricFinder.class), mock(ScanGraph.class), mock(DeprecatedViolations.class),
+      mock(ResourceKeyMigration.class),
+      mock(MeasureCache.class));
+
+    index.start();
+
+    Resource file = File.create("src/main/java/org/Foo.java");
+
+    index.setCurrentProject(moduleB1, null);
+    index.index(file);
+
+    checkTables("shouldSaveNewMultiModulesProject",
+      new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"}, "projects", "snapshots");
+
+    // Need to enable snapshot to make resource visible using ComponentMapper
+    enableSnapshot(1001);
+    enableSnapshot(1002);
+    enableSnapshot(1003);
+    enableSnapshot(1004);
+    enableSnapshot(1005);
+    enableSnapshot(1006);
+    SqlSession session = getMyBatis().openSession(false);
+    try {
+      ComponentDto root = session.getMapper(ComponentMapper.class).selectByKey("root");
+      System.out.println("Root: " + root.uuid());
+      assertThat(root.uuid()).isNotNull();
+      assertThat(root.projectUuid()).isEqualTo(root.uuid());
+      assertThat(root.moduleUuid()).isNull();
+      assertThat(root.moduleUuidPath()).isNull();
+      ComponentDto a = session.getMapper(ComponentMapper.class).selectByKey("a");
+      System.out.println("A: " + a.uuid());
+      assertThat(a.uuid()).isNotNull();
+      assertThat(a.projectUuid()).isEqualTo(root.uuid());
+      assertThat(a.moduleUuid()).isEqualTo(root.uuid());
+      assertThat(a.moduleUuidPath()).isEqualTo(root.uuid());
+      ComponentDto b = session.getMapper(ComponentMapper.class).selectByKey("b");
+      System.out.println("B: " + b.uuid());
+      assertThat(b.uuid()).isNotNull();
+      assertThat(b.projectUuid()).isEqualTo(root.uuid());
+      assertThat(b.moduleUuid()).isEqualTo(root.uuid());
+      assertThat(b.moduleUuidPath()).isEqualTo(root.uuid());
+      ComponentDto b1 = session.getMapper(ComponentMapper.class).selectByKey("b1");
+      System.out.println("B1: " + b1.uuid());
       assertThat(b1.uuid()).isNotNull();
       assertThat(b1.projectUuid()).isEqualTo(root.uuid());
       assertThat(b1.moduleUuid()).isEqualTo(b.uuid());
