@@ -211,4 +211,13 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     assertThat(snapshots).onProperty("id").containsOnly(1L, 6L);
     assertThat(snapshots).onProperty("last").containsOnly(false);
   }
+
+  @Test
+  public void root_id_of_a_component_is_himself_if_root_id_is_null_root_id_otherwise() {
+    SnapshotDto snapshotWithRootId = defaultSnapshot().setId(3L).setRootId(1L);
+    assertThat(dao.componentRootIdOrSelfIfRootOf(snapshotWithRootId)).isEqualTo(1L);
+
+    SnapshotDto snapshotWithNullRootId = defaultSnapshot().setId(3L).setRootId(null);
+    assertThat(dao.componentRootIdOrSelfIfRootOf(snapshotWithNullRootId)).isEqualTo(3L);
+  }
 }
