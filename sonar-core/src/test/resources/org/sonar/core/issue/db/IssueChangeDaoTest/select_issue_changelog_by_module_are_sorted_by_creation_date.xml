@@ -1,6 +1,6 @@
 <dataset>
 
-  <projects id="399" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" />
+  <projects id="399" uuid="1" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" />
 
   <!-- Open Issue on a root module -->
   <issues

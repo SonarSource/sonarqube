@@ -10,7 +10,7 @@
       login="simon"
       />
 
-  <projects id="42" kee="org.apache:struts"/>
+  <projects id="42" uuid="A" kee="org.apache:struts"/>
 
   <properties
       id="1"

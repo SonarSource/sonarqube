@@ -6,9 +6,9 @@
 
   <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_kee="" kee="sonar_way_with_findbugs"/>
 
-  <projects id="399" kee="struts" root_id="[null]"/>
-  <projects id="400" kee="Action.java" root_id="399"/>
-  <projects id="401" kee="Filter.java" root_id="399"/>
+  <projects id="399" uuid="A" kee="struts" root_id="[null]"/>
+  <projects id="400" uuid="B" kee="Action.java" root_id="399"/>
+  <projects id="401" uuid="C" kee="Filter.java" root_id="399"/>
 
   <snapshots id="100" project_id="399" root_snapshot_id="[null]" path="" islast="[true]"/>
   <snapshots id="101" project_id="400" root_snapshot_id="100" path="100." islast="[true]"/>

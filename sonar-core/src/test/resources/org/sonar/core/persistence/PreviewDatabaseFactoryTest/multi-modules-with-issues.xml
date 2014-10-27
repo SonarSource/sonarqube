@@ -25,10 +25,10 @@
 
   <rules_profiles id="1" name="Sonar way with Findbugs" language="java" parent_kee="" kee="sonar_way_with_findbugs"/>
 
-  <projects id="300" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" />
-  <projects id="301" kee="struts-core" root_id="300" qualifier="BRC" scope="PRJ" />
-  <projects id="302" kee="struts-el" root_id="300" qualifier="BRC" scope="PRJ" />
-  <projects id="303" kee="Action.java" root_id="301" qualifier="CLA" scope="FIL" />
+  <projects id="300" uuid="A"  kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" />
+  <projects id="301" uuid="B" kee="struts-core" root_id="300" qualifier="BRC" scope="PRJ" />
+  <projects id="302" uuid="C" kee="struts-el" root_id="300" qualifier="BRC" scope="PRJ" />
+  <projects id="303" uuid="D" kee="Action.java" root_id="301" qualifier="CLA" scope="FIL" />
 
   <snapshots id="3000" project_id="300" root_project_id="300" root_snapshot_id="[null]" path="" islast="[true]"/>
   <snapshots id="3001" project_id="301" root_project_id="300" root_snapshot_id="3000" path="3000." islast="[true]"/>

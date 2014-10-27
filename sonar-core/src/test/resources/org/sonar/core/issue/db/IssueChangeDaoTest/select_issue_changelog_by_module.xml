@@ -1,9 +1,9 @@
 <dataset>
 
-  <projects id="399" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" />
-  <projects id="400" kee="struts-core" root_id="399" qualifier="BRC" scope="PRJ" />
-  <projects id="401" kee="Action.java" root_id="400" qualifier="CLA" scope="PRJ" />
-  <projects id="402" kee="Filter.java" root_id="400" qualifier="CLA" scope="PRJ" />
+  <projects id="399" uuid="1" kee="struts" root_id="[null]" qualifier="TRK" scope="PRJ" />
+  <projects id="400" uuid="2" kee="struts-core" root_id="399" qualifier="BRC" scope="PRJ" />
+  <projects id="401" uuid="3" kee="Action.java" root_id="400" qualifier="CLA" scope="PRJ" />
+  <projects id="402" uuid="4" kee="Filter.java" root_id="400" qualifier="CLA" scope="PRJ" />
 
   <!-- Open Issue on a file -->
   <issues

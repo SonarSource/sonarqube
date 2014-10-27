@@ -5,8 +5,8 @@
   <rules_profiles id="2" name="Sonar Way" language="js" parent_kee="[null]" kee="js_sonar_way"
                   rules_updated_at="[null]" created_at="[null]" updated_at="[null]"/>
 
-  <projects id="1" kee="org.codehaus.sonar:sonar" name="SonarQube"/>
-  <projects id="2" kee="org.codehaus.sonar-plugins.java:java" name="SonarQube Java"/>
+  <projects id="1" uuid="A" kee="org.codehaus.sonar:sonar" name="SonarQube"/>
+  <projects id="2" uuid="B" kee="org.codehaus.sonar-plugins.java:java" name="SonarQube Java"/>
 
   <properties id="1" prop_key="sonar.profile.java" text_value="Sonar Way" resource_id="1"/>
   <properties id="2" prop_key="sonar.profile.java" text_value="Sonar Way" resource_id="2"/>

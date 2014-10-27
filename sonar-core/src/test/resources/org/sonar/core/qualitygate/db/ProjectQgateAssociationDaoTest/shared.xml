@@ -3,13 +3,13 @@
   <quality_gates id="42" name="Golden"/>
   <quality_gates id="43" name="Ninth"/>
 
-  <projects id="1" name="Project One" qualifier="TRK" scope="PRJ"/>
-  <projects id="2" name="Project Two" qualifier="TRK" scope="PRJ"/>
-  <projects id="3" name="Project Three" qualifier="TRK" scope="PRJ"/>
-  <projects id="4" name="Project Four" qualifier="TRK" scope="PRJ"/>
-  <projects id="5" name="Project Five" qualifier="TRK" scope="PRJ"/>
-  <projects id="6" name="View Six" qualifier="VW" scope="PRJ"/>
-  <projects id="7" name="Project One" qualifier="TRK" scope="FIL"/>
+  <projects id="1" uuid="A" name="Project One" qualifier="TRK" scope="PRJ"/>
+  <projects id="2" uuid="B" name="Project Two" qualifier="TRK" scope="PRJ"/>
+  <projects id="3" uuid="C" name="Project Three" qualifier="TRK" scope="PRJ"/>
+  <projects id="4" uuid="D" name="Project Four" qualifier="TRK" scope="PRJ"/>
+  <projects id="5" uuid="E" name="Project Five" qualifier="TRK" scope="PRJ"/>
+  <projects id="6" uuid="F" name="View Six" qualifier="VW" scope="PRJ"/>
+  <projects id="7" uuid="G" name="Project One" qualifier="TRK" scope="FIL"/>
 
   <resource_index id="1" kee="project one" resource_id="1" root_project_id="1" position="0" name_size="11" qualifier="TRK"/>
   <resource_index id="2" kee="roject one" resource_id="1" root_project_id="1" position="1" name_size="11" qualifier="TRK"/>
