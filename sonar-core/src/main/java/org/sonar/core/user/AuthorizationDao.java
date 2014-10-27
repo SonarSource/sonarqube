@@ -34,6 +34,7 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class AuthorizationDao implements ServerComponent, DaoComponent {
 
+  private static final String USER_ID_PARAM = "userId";
   private final MyBatis mybatis;
 
   public AuthorizationDao(MyBatis mybatis) {
@@ -61,14 +62,10 @@ public class AuthorizationDao implements ServerComponent, DaoComponent {
       params = ImmutableMap.of("role", role, "componentKeys", componentKeys);
     } else {
       sql = "keepAuthorizedComponentKeysForUser";
-      params = ImmutableMap.of("userId", userId, "role", role, "componentKeys", componentKeys);
+      params = ImmutableMap.of(USER_ID_PARAM, userId, "role", role, "componentKeys", componentKeys);
     }
 
     return Sets.newHashSet(session.<String>selectList(sql, params));
-  }
-
-  public boolean isAuthorizedComponentKey(String componentKey, @Nullable Integer userId, String role) {
-    return keepAuthorizedComponentKeys(Sets.newHashSet(componentKey), userId, role).size() == 1;
   }
 
   public Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role) {
@@ -95,7 +92,7 @@ public class AuthorizationDao implements ServerComponent, DaoComponent {
     String sql;
     Map<String, Object> params = newHashMap();
     sql = "selectAuthorizedRootProjectsKeys";
-    params.put("userId", userId);
+    params.put(USER_ID_PARAM, userId);
     params.put("role", role);
 
     return session.selectList(sql, params);
@@ -105,7 +102,7 @@ public class AuthorizationDao implements ServerComponent, DaoComponent {
     String sql;
     Map<String, Object> params = newHashMap();
     sql = "selectAuthorizedRootProjectsUuids";
-    params.put("userId", userId);
+    params.put(USER_ID_PARAM, userId);
     params.put("role", role);
 
     return session.selectList(sql, params);
