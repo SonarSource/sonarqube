@@ -62,7 +62,8 @@ public class ComponentKeysTest {
     assertThat(ComponentKeys.isValidBranch("0123")).isTrue();
     assertThat(ComponentKeys.isValidBranch("ab 12")).isFalse();
     assertThat(ComponentKeys.isValidBranch("ab_12")).isTrue();
-    assertThat(ComponentKeys.isValidBranch("ab/12")).isFalse();
+    assertThat(ComponentKeys.isValidBranch("ab/12")).isTrue();
+    assertThat(ComponentKeys.isValidBranch("ab\\12")).isFalse();
   }
 
 }

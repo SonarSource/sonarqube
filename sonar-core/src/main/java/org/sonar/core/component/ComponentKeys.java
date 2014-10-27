@@ -35,9 +35,9 @@ public final class ComponentKeys {
    */
   private static final String VALID_MODULE_KEY_REGEXP = "[\\p{Alnum}\\-_.:]*[\\p{Alpha}\\-_.:]+[\\p{Alnum}\\-_.:]*";
   /*
-   * Allowed characters are alphanumeric, '-', '_' and '.'
+   * Allowed characters are alphanumeric, '-', '_', '.' and '/'
    */
-  private static final String VALID_BRANCH_REGEXP = "[\\p{Alnum}\\-_.]*";
+  private static final String VALID_BRANCH_REGEXP = "[\\p{Alnum}\\-_./]*";
 
   private static final String KEY_WITH_BRANCH_FORMAT = "%s:%s";
 
@@ -101,7 +101,7 @@ public final class ComponentKeys {
    *      <li>Uppercase ASCII letters A-Z</li>
    *      <li>Lowercase ASCII letters a-z</li>
    *      <li>ASCII digits 0-9</li>
-   *      <li>Punctuation signs dash '-', underscore '_', and period '.'</li>
+   *      <li>Punctuation signs dash '-', underscore '_', period '.', and '/'</li>
    *    </ul>
    *  </li>
    * </ul>
