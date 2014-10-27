@@ -331,15 +331,12 @@ public final class DefaultResourcePersister implements ResourcePersister {
       } else {
         model.setProjectUuid(parentModel.getUuid());
       }
-      if (Qualifiers.isProject(parentResource, true)) {
+      if (Scopes.isProject(parentResource)) {
         model.setModuleUuid(parentResource.getUuid());
-      } else {
-        model.setModuleUuid(parentModel.getModuleUuid());
-      }
-      if (Qualifiers.isProject(parentResource, true)) {
         String parentModuleUuidPath = parentModel.getModuleUuidPath();
         model.setModuleUuidPath(parentModuleUuidPath != null ? parentModuleUuidPath + "." + parentModel.getUuid() : parentModel.getUuid());
       } else {
+        model.setModuleUuid(parentModel.getModuleUuid());
         String parentModuleUuidPath = parentModel.getModuleUuidPath();
         model.setModuleUuidPath(parentModuleUuidPath != null ? parentModuleUuidPath : parentModel.getUuid());
       }
