@@ -25,7 +25,6 @@ import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -65,11 +64,6 @@ public class ComponentIndexer implements BatchComponent {
   public void execute(FileSystem fs) {
     migration.migrateIfNeeded(module, fs);
 
-    boolean shouldImportSource = settings.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY);
-    if (!shouldImportSource) {
-      LOG.warn("/!\\ Property '" + CoreProperties.CORE_IMPORT_SOURCES_PROPERTY
-        + "' is deprecated. Not importing source will prevent issues to be properly tracked between consecutive analyses.");
-    }
     for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
       String languageKey = inputFile.language();
       boolean unitTest = InputFile.Type.TEST == inputFile.type();
@@ -85,12 +79,12 @@ public class ComponentIndexer implements BatchComponent {
       }
       sonarIndex.index(sonarFile);
 
-      importSources(fs, shouldImportSource, inputFile, sonarFile);
+      importSources(fs, inputFile, sonarFile);
     }
   }
 
   @VisibleForTesting
-  void importSources(FileSystem fs, boolean shouldImportSource, InputFile inputFile, Resource sonarFile) {
+  void importSources(FileSystem fs, InputFile inputFile, Resource sonarFile) {
     try {
       // TODO this part deserves optimization.
       // No need to read full content in memory when shouldImportSource=false
@@ -98,9 +92,7 @@ public class ComponentIndexer implements BatchComponent {
       String source = Files.toString(inputFile.file(), fs.encoding());
       // SONAR-3860 Remove BOM character from source
       source = CharMatcher.anyOf("\uFEFF").removeFrom(source);
-      if (shouldImportSource) {
-        sonarIndex.setSource(sonarFile, source);
-      }
+      sonarIndex.setSource(sonarFile, source);
     } catch (Exception e) {
       throw new SonarException("Unable to read and import the source file : '" + inputFile.absolutePath() + "' with the charset : '"
         + fs.encoding() + "'.", e);

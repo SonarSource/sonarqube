@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
 
 import java.util.List;
 
@@ -35,14 +34,6 @@ class SecurityProperties {
 
   static List<PropertyDefinition> all() {
     return ImmutableList.of(
-      PropertyDefinition.builder(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY)
-        .defaultValue("" + CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE)
-        .name("Import sources")
-        .description("[DEPRECATED] Set to false if sources should not be imported and therefore not available in the Web UI (e.g. for security reasons).")
-        .type(PropertyType.BOOLEAN)
-        .onQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE)
-        .category(CoreProperties.CATEGORY_SECURITY)
-        .build(),
 
       PropertyDefinition.builder(CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY)
         .defaultValue("" + CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_DEAULT_VALUE)

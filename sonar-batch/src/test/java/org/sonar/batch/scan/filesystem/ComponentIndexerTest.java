@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatcher;
 import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -122,8 +121,6 @@ public class ComponentIndexerTest {
 
   @Test
   public void shouldImportSource() throws IOException {
-    settings.setProperty(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY, "true");
-
     fs.add(newInputFile("src/main/java/foo/bar/Foo.java", "sample code", "foo/bar/Foo.java", "java", false));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class));
@@ -157,8 +154,6 @@ public class ComponentIndexerTest {
 
   @Test
   public void remove_byte_order_mark_character() throws Exception {
-    settings.setProperty(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY, "true");
-
     File javaFile1 = new File(baseDir, "src/main/java/foo/bar/Foo.java");
     FileUtils.write(javaFile1, "\uFEFFpublic class Test", Charsets.UTF_8);
     fs.add(new DeprecatedDefaultInputFile("foo", "src/main/java/foo/bar/Foo.java")
@@ -181,7 +176,6 @@ public class ComponentIndexerTest {
   }
 
   private void fileEncodingTest(String encoding, String testFile) throws Exception {
-    settings.setProperty(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY, "true");
     fs.setEncoding(Charset.forName(encoding));
 
     File javaFile1 = new File(baseDir, "src/main/java/foo/bar/Foo.java");
