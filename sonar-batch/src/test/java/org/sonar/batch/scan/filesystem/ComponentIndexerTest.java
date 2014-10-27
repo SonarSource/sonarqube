@@ -33,7 +33,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
@@ -60,7 +59,6 @@ public class ComponentIndexerTest {
   SonarIndex sonarIndex;
   AbstractLanguage cobolLanguage;
   Project project;
-  Settings settings;
 
   String aClaess;
   String explicacao;
@@ -70,7 +68,6 @@ public class ComponentIndexerTest {
     baseDir = temp.newFolder();
     sonarIndex = mock(SonarIndex.class);
     project = mock(Project.class);
-    settings = new Settings();
     cobolLanguage = new AbstractLanguage("cobol") {
       @Override
       public String[] getFileSuffixes() {
@@ -88,7 +85,7 @@ public class ComponentIndexerTest {
     fs.add(newInputFile("src/main/java2/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false));
     fs.add(newInputFile("src/test/java/foo/bar/FooTest.java", "", "foo/bar/FooTest.java", "java", true));
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class));
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, mock(ResourceKeyMigration.class));
     indexer.execute(fs);
 
     verify(sonarIndex).index(org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false));
@@ -111,7 +108,7 @@ public class ComponentIndexerTest {
     fs.add(newInputFile("src/test/foo/bar/FooTest.cbl", "", "foo/bar/FooTest.cbl", "cobol", true));
 
     Languages languages = new Languages(cobolLanguage);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class));
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, mock(ResourceKeyMigration.class));
     indexer.execute(fs);
 
     verify(sonarIndex).index(org.sonar.api.resources.File.create("/src/foo/bar/Foo.cbl", "foo/bar/Foo.cbl", cobolLanguage, false));
@@ -123,7 +120,7 @@ public class ComponentIndexerTest {
   public void shouldImportSource() throws IOException {
     fs.add(newInputFile("src/main/java/foo/bar/Foo.java", "sample code", "foo/bar/Foo.java", "java", false));
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class));
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, mock(ResourceKeyMigration.class));
     indexer.execute(fs);
 
     Resource sonarFile = org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false);
@@ -161,7 +158,7 @@ public class ComponentIndexerTest {
       .setFile(javaFile1)
       .setLanguage("java"));
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class));
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, mock(ResourceKeyMigration.class));
     indexer.execute(fs);
 
     Resource sonarFile = org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false);
@@ -185,7 +182,7 @@ public class ComponentIndexerTest {
       .setFile(javaFile1)
       .setLanguage("java"));
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class));
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, mock(ResourceKeyMigration.class));
     indexer.execute(fs);
 
     Resource sonarFile = org.sonar.api.resources.File.create("/src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false);

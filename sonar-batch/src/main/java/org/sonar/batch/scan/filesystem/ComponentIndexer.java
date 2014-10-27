@@ -22,14 +22,11 @@ package org.sonar.batch.scan.filesystem;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CharMatcher;
 import com.google.common.io.Files;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
-import org.sonar.api.config.Settings;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
@@ -45,19 +42,15 @@ import org.sonar.batch.util.DeprecatedKeyUtils;
  */
 public class ComponentIndexer implements BatchComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ComponentIndexer.class);
-
   private final Languages languages;
-  private final Settings settings;
   private final SonarIndex sonarIndex;
   private final ResourceKeyMigration migration;
   private final Project module;
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, Settings settings, ResourceKeyMigration migration) {
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceKeyMigration migration) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
-    this.settings = settings;
     this.migration = migration;
   }
 
