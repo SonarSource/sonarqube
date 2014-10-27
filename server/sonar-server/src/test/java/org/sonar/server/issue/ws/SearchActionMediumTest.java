@@ -339,13 +339,14 @@ public class SearchActionMediumTest {
       .setDebt(10L)
       .setProject(project)
       .setComponent(file)
-      .setStatus("OPEN").setResolution("OPEN")
+      .setStatus("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);
     session.commit();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam("resolved", "false")
       .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,componentRoots,rules,components,assignees,languages")
       .execute();
     result.assertJson(this.getClass(), "display_facets.json", false);
@@ -360,7 +361,7 @@ public class SearchActionMediumTest {
       .setDebt(10L)
       .setProject(project)
       .setComponent(file)
-      .setStatus("OPEN").setResolution("OPEN")
+      .setStatus("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR");
     db.issueDao().insert(session, issue);

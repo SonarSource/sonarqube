@@ -342,7 +342,10 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     String facetName = IssueFilterParameters.ASSIGNEES;
 
     // Same as in super.stickyFacetBuilder
-    BoolFilterBuilder facetFilter = getStickyFacetFilter(esQuery, filters, fieldName);
+    Map<String, FilterBuilder> assigneeFilters = Maps.newHashMap(filters);
+    assigneeFilters.remove("__isAssigned");
+    assigneeFilters.remove(fieldName);
+    BoolFilterBuilder facetFilter = getStickyFacetFilter(esQuery, assigneeFilters, fieldName);
     FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter);
     addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.assignees().toArray());
 
@@ -363,7 +366,10 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     String facetName = IssueFilterParameters.RESOLUTIONS;
 
     // Same as in super.stickyFacetBuilder
-    BoolFilterBuilder facetFilter = getStickyFacetFilter(esQuery, filters, fieldName);
+    Map<String, FilterBuilder> resolutionFilters = Maps.newHashMap(filters);
+    resolutionFilters.remove("__isResolved");
+    resolutionFilters.remove(fieldName);
+    BoolFilterBuilder facetFilter = getStickyFacetFilter(esQuery, resolutionFilters, fieldName);
     FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter);
     addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.resolutions().toArray());
 

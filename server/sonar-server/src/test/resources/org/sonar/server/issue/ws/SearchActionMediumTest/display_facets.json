@@ -6,7 +6,6 @@
       "project": "MyProject",
       "rule": "xoo:x1",
       "status": "OPEN",
-      "resolution": "OPEN",
       "severity": "MAJOR",
       "debt": "10min",
       "fUpdateAge": "less than a minute"
@@ -35,7 +34,7 @@
       "property": "resolutions",
       "values": [
         {
-          "val": "OPEN",
+          "val": "",
           "count": 1
         }
       ]

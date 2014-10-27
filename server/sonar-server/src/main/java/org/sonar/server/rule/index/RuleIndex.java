@@ -22,7 +22,6 @@ package org.sonar.server.rule.index;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
@@ -342,7 +341,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     Map<String, FilterBuilder> filters = this.getFilters(query, options);
 
     if (options.isFacet()) {
-      Logger.getLogger(this.getClass()).info("Facets = " + options.facets());
       for (AggregationBuilder aggregation : getFacets(qb, filters).values()) {
         esSearch.addAggregation(aggregation);
       }
