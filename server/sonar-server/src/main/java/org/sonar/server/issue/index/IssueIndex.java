@@ -314,6 +314,8 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       esSearch.addAggregation(getAssigneesFacet(query, options, filters, esQuery));
       esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.COMPONENT.field(), IssueFilterParameters.COMPONENTS,
         query.components().toArray()));
+      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.LANGUAGE.field(), IssueFilterParameters.LANGUAGES,
+        query.languages().toArray()));
     }
   }
 
