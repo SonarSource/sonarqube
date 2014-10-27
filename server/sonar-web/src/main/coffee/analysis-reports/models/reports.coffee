@@ -27,4 +27,6 @@ define [
     fetchHistory: (options = {  }) ->
       _.extend options,
         url: "#{baseUrl}/api/analysis_reports/history"
+      options.data = options.data || {}
+      options.data.ps = 50
       @fetch options, { reset: true }

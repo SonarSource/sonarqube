@@ -56,7 +56,9 @@ requirejs [
         app: @
         collection: @reports
       @layout.resultsRegion.show @reportsView
-      @reportsView.bindScrollEvents() unless @state.get 'active'
+
+      unless @state.get('active') || @reports.paging.maxResultsReached
+        @reportsView.bindScrollEvents() unless @state.get 'active'
 
       @actionsView = new ActionsView
         app: @
