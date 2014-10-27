@@ -48,6 +48,6 @@ public class ComputationStepRegistryTest {
 
   @Test
   public void steps_returned_in_the_right_order() throws Exception {
-    assertThat(sut.steps()).containsExactly(getAndSetProjectStep, synchronizeProjectPermissionsStep, indexProjectIssuesStep, switchSnapshotStep, dbCleanerStep);
+    assertThat(sut.steps()).containsExactly(getAndSetProjectStep, synchronizeProjectPermissionsStep, switchSnapshotStep, dbCleanerStep, indexProjectIssuesStep);
   }
 }

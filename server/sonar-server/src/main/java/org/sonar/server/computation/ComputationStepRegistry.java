@@ -35,7 +35,7 @@ public class ComputationStepRegistry implements ServerComponent {
     IndexProjectIssuesStep indexProjectIssuesStep,
     SwitchSnapshotStep switchSnapshotStep,
     DbCleanerStep dbCleanerStep) {
-    steps = ImmutableList.of(getAndSetProjectStep, synchronizeProjectPermissionsStep, indexProjectIssuesStep, switchSnapshotStep, dbCleanerStep);
+    steps = ImmutableList.of(getAndSetProjectStep, synchronizeProjectPermissionsStep, switchSnapshotStep, dbCleanerStep, indexProjectIssuesStep);
   }
 
   public List<ComputationStep> steps() {
