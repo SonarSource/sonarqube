@@ -494,7 +494,7 @@ public interface WebService extends ServerExtension {
      * @since 4.4
      */
     public NewParam setBooleanPossibleValues() {
-      return setPossibleValues("true", "false");
+      return setPossibleValues("true", "false", "yes", "no");
     }
 
     /**

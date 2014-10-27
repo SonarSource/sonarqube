@@ -60,7 +60,7 @@ public abstract class Request {
    */
   public boolean mandatoryParamAsBoolean(String key) {
     String s = mandatoryParam(key);
-    return Boolean.parseBoolean(s);
+    return parseBoolean(key, s);
   }
 
   /**
@@ -122,8 +122,8 @@ public abstract class Request {
    */
   @Deprecated
   public boolean paramAsBoolean(String key, boolean defaultValue) {
-    String s = param(key);
-    return s == null ? defaultValue : Boolean.parseBoolean(s);
+    String value = param(key);
+    return value == null ? defaultValue : parseBoolean(key, value);
   }
 
   /**
@@ -149,8 +149,8 @@ public abstract class Request {
 
   @CheckForNull
   public Boolean paramAsBoolean(String key) {
-    String s = param(key);
-    return s == null ? null : Boolean.parseBoolean(s);
+    String value = param(key);
+    return value == null ? null : parseBoolean(key, value);
   }
 
   @CheckForNull
@@ -209,5 +209,15 @@ public abstract class Request {
       return DateUtils.parseDate(s);
     }
     return null;
+  }
+
+  private static boolean parseBoolean(String key, String value) {
+    if ("true".equals(value) || "yes".equals(value)) {
+      return true;
+    }
+    if ("false".equals(value) || "no".equals(value)) {
+      return false;
+    }
+    throw new IllegalArgumentException(String.format("Property %s is not a boolean value: %s", key, value));
   }
 }

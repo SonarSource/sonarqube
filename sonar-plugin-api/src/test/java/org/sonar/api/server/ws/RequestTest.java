@@ -173,7 +173,15 @@ public class RequestTest {
   @Test
   public void param_as_boolean() throws Exception {
     assertThat(request.setParam("a_boolean", "true").paramAsBoolean("a_boolean")).isTrue();
+    assertThat(request.setParam("a_boolean", "yes").paramAsBoolean("a_boolean")).isTrue();
     assertThat(request.setParam("a_boolean", "false").paramAsBoolean("a_boolean")).isFalse();
+    assertThat(request.setParam("a_boolean", "no").paramAsBoolean("a_boolean")).isFalse();
+    try {
+      request.setParam("a_boolean", "oui").paramAsBoolean("a_boolean");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Property a_boolean is not a boolean value: oui");
+    }
   }
 
   @Test

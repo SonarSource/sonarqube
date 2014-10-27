@@ -53,7 +53,7 @@
             "description": "Include web services that are implemented for internal use only. Their forward-compatibility is not assured",
             "required": false,
             "defaultValue": "false",
-            "possibleValues": ["true", "false"]
+            "possibleValues": ["true", "false", "yes", "no"]
           }
         ]
       },
