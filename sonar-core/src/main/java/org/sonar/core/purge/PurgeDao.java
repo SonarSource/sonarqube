@@ -26,6 +26,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
@@ -44,11 +45,13 @@ public class PurgeDao {
   private final ResourceDao resourceDao;
   private static final Logger LOG = LoggerFactory.getLogger(PurgeDao.class);
   private PurgeProfiler profiler;
+  private final System2 system2;
 
-  public PurgeDao(MyBatis mybatis, ResourceDao resourceDao, PurgeProfiler profiler) {
+  public PurgeDao(MyBatis mybatis, ResourceDao resourceDao, PurgeProfiler profiler, System2 system2) {
     this.mybatis = mybatis;
     this.resourceDao = resourceDao;
     this.profiler = profiler;
+    this.system2 = system2;
   }
 
   public PurgeDao purge(PurgeConfiguration conf) {
@@ -176,7 +179,7 @@ public class PurgeDao {
     mapper.deleteResourceIndex(Arrays.asList(resourceId));
     mapper.setSnapshotIsLastToFalse(resourceId);
     mapper.disableResource(resourceId);
-    mapper.resolveResourceIssuesNotAlreadyResolved(resourceId);
+    mapper.resolveResourceIssuesNotAlreadyResolved(resourceId, new Date(system2.now()));
   }
 
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {

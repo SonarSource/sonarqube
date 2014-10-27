@@ -44,7 +44,7 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
     system2 = mock(System2.class);
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-04-09").getTime());
 
-    dao = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis(), system2), new PurgeProfiler());
+    dao = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis(), system2), new PurgeProfiler(), system2);
   }
 
   @Test
