@@ -46,10 +46,17 @@ public class ComponentCleanerService implements ServerComponent {
       }
       purgeDao.deleteResourceTree(project.getId());
       deletePermissionIndexes(session, project.uuid());
+
       session.commit();
     } finally {
       session.close();
     }
+
+    deleteIssuesFromIndex(projectKey);
+  }
+
+  private void deleteIssuesFromIndex(String projectKey) {
+
   }
 
   private void deletePermissionIndexes(DbSession session, String projectUuid) {

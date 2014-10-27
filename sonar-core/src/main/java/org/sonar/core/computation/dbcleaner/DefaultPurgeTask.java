@@ -30,11 +30,12 @@ import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.plugins.dbcleaner.api.PurgeTask;
 
 /**
  * @since 2.14
  */
-public class DefaultPurgeTask {
+public class DefaultPurgeTask implements PurgeTask {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPurgeTask.class);
 
   private PurgeDao purgeDao;

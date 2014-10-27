@@ -23,6 +23,7 @@ package org.sonar.core.computation.dbcleaner.period;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.ServerExtension;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.task.TaskExtension;
@@ -33,7 +34,7 @@ import org.sonar.core.purge.PurgeableSnapshotDto;
 
 import java.util.List;
 
-public class DefaultPeriodCleaner implements TaskExtension {
+public class DefaultPeriodCleaner implements TaskExtension, ServerExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPeriodCleaner.class);
   private PurgeDao purgeDao;

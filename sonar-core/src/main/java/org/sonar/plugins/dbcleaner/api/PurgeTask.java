@@ -17,8 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.plugins.dbcleaner.api;
 
-@ParametersAreNonnullByDefault
-package org.sonar.core.computation;
+import org.sonar.api.ServerExtension;
+import org.sonar.api.task.TaskExtension;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+/**
+ * @since 2.14
+ */
+@Deprecated
+public interface PurgeTask extends TaskExtension, ServerExtension {
+  /**
+   * Purges the data related to a tree of resources.
+   * <p/>
+   * Exceptions are logged and are not thrown again, so this method fails only on {@link Error}s.
+   *
+   * @param resourceId the root of the tree
+   * @return this
+   */
+  PurgeTask purge(long resourceId);
+
+  /**
+   * Completely deletes a tree of resources.
+   *
+   * @param resourceId the root of the tree
+   * @return this
+   */
+  PurgeTask delete(long resourceId);
+}
