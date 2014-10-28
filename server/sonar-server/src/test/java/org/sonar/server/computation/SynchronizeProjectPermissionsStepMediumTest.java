@@ -109,18 +109,4 @@ public class SynchronizeProjectPermissionsStepMediumTest {
 
     return project;
   }
-
-  @Test
-  public void do_nothing_when_permissions_are_already_set() throws Exception {
-    ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-
-    queue.add(DEFAULT_PROJECT_KEY, 123L);
-    List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
-    getAndSetProjectStep.execute(session, reports.get(0));
-
-    sut.execute(session, reports.get(0));
-
-    IssueAuthorizationDoc issueAuthorizationIndex = tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid());
-    assertThat(issueAuthorizationIndex).isNotNull();
-  }
 }

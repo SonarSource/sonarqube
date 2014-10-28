@@ -52,6 +52,7 @@ public class ComputationService implements ServerComponent {
       for (ComputationStep step : stepRegistry.steps()) {
         LOG.info(String.format("# %s step started...", step.description()));
         step.execute(session, report);
+        session.commit();
         LOG.info(String.format("# %s step finished", step.description()));
       }
     } finally {

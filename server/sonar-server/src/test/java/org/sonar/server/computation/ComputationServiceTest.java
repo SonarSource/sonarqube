@@ -40,8 +40,9 @@ public class ComputationServiceTest {
 
   @Before
   public void before() {
-    this.dbClient = mock(DbClient.class);
     this.stepRegistry = mock(ComputationStepRegistry.class);
+    this.dbClient = mock(DbClient.class);
+    when(dbClient.openSession(anyBoolean())).thenReturn(mock(DbSession.class));
 
     this.sut = new ComputationService(dbClient, stepRegistry);
   }
