@@ -2,18 +2,21 @@
 
   <!-- project -->
   <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="[null]"
             root_id="[null]"
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <!-- directory -->
   <projects long_name="org.struts" id="2" scope="DIR" qualifier="PAC" kee="org.struts:struts:org.struts"
+            uuid="BCDE" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path="ABCD"
             name="org.struts" root_id="1"
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
   <!-- file -->
   <projects long_name="org.struts.RequestContext" id="3" scope="CLA" qualifier="CLA"
+            uuid="CDEF" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path="ABCD"
             kee="org.struts:struts:org.struts.RequestContext"
             name="RequestContext" root_id="1"
             description="[null]"

@@ -7,10 +7,10 @@
   <group_roles id="1" group_id="200" resource_id="300" role="user"/>
   <group_roles id="2" group_id="200" resource_id="400" role="user"/>
 
-  <projects id="301" kee="pj-w-snapshot:package" root_id="300" />
-  <projects id="302" kee="pj-w-snapshot:file" root_id="300" />
-  <projects id="303" kee="pj-w-snapshot:other" root_id="300" />
-  <projects id="300" kee="pj-w-snapshot" />
-  <projects id="400" kee="pj-wo-snapshot" />
+  <projects id="301" kee="pj-w-snapshot:package" root_id="300" uuid="ABCD"/>
+  <projects id="302" kee="pj-w-snapshot:file" root_id="300" uuid="BCDE"/>
+  <projects id="303" kee="pj-w-snapshot:other" root_id="300" uuid="CDEF"/>
+  <projects id="300" kee="pj-w-snapshot" uuid="DEFG"/>
+  <projects id="400" kee="pj-wo-snapshot" uuid="EFGH"/>
 
 </dataset>
