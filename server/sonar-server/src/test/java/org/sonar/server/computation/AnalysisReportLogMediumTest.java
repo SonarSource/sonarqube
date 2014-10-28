@@ -85,6 +85,7 @@ public class AnalysisReportLogMediumTest {
     assertThat(details.get("id")).isEqualTo(String.valueOf(report.getId()));
     assertThat(details.get("projectKey")).isEqualTo(report.getProjectKey());
     assertThat(details.get("projectName")).isEqualTo(report.getProjectName());
+    assertThat(details.get("projectUuid")).isEqualTo(report.getProjectUuid());
     assertThat(details.get("status")).isEqualTo("FAILED");
     assertThat(details.get("submittedAt")).isEqualTo("2014-10-15T00:00:00+0200");
     assertThat(details.get("startedAt")).isEqualTo("2014-10-17T00:00:00+0200");

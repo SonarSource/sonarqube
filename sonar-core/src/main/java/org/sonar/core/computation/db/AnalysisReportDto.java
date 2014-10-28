@@ -122,6 +122,14 @@ public class AnalysisReportDto extends Dto<String> {
     return Strings.nullToEmpty(project.name());
   }
 
+  public String getProjectUuid() {
+    if (project == null) {
+      return getProjectKey();
+    }
+
+    return Strings.nullToEmpty(project.uuid());
+  }
+
   public Long getSnapshotId() {
     return snapshotId;
   }
