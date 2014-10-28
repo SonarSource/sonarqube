@@ -321,6 +321,8 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
         IssueFilterParameters.LANGUAGES, IssueNormalizer.IssueField.LANGUAGE.field(), query.languages().toArray());
       addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
         IssueFilterParameters.RULES, IssueNormalizer.IssueField.RULE_KEY.field(), query.rules().toArray());
+      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+        IssueFilterParameters.REPORTERS, IssueNormalizer.IssueField.REPORTER.field());
 
       if (options.facets().contains(IssueFilterParameters.RESOLUTIONS)) {
         esSearch.addAggregation(getResolutionFacet(query, options, filters, esQuery));
