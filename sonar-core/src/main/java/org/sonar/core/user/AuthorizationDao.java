@@ -27,7 +27,6 @@ import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
-
 import java.util.*;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -66,6 +65,13 @@ public class AuthorizationDao implements ServerComponent, DaoComponent {
     }
 
     return Sets.newHashSet(session.<String>selectList(sql, params));
+  }
+
+  /**
+   * Used by the Views Plugin
+   */
+  public boolean isAuthorizedComponentKey(String componentKey, @Nullable Integer userId, String role) {
+    return keepAuthorizedComponentKeys(Sets.newHashSet(componentKey), userId, role).size() == 1;
   }
 
   public Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role) {

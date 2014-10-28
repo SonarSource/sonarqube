@@ -54,6 +54,19 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void is_authorized_component_key_for_user() {
+    // but user is not in an authorized group
+    setupData("user_should_be_authorized");
+
+    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
+
+    assertThat(authorization.isAuthorizedComponentKey(PROJECT, USER, "user")).isTrue();
+
+    // user does not have the role "admin"
+    assertThat(authorization.isAuthorizedComponentKey(PROJECT, USER, "admin")).isFalse();
+  }
+
+  @Test
   public void group_should_be_authorized() {
     // user is in an authorized group
     setupData("group_should_be_authorized");
@@ -230,4 +243,5 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
     AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
     assertThat(authorization.selectGlobalPermissions("anyone_user")).containsOnly("user", "profileadmin");
   }
+
 }
