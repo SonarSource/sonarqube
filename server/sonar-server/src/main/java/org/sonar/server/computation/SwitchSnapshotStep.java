@@ -47,7 +47,13 @@ public class SwitchSnapshotStep implements ComputationStep {
   }
 
   private void disablePreviousSnapshot(DbSession session, AnalysisReportDto report) {
-    SnapshotDto referenceSnapshot = dao.getByKey(session, report.getSnapshotId());
+    SnapshotDto referenceSnapshot;
+
+    try {
+      referenceSnapshot = dao.getByKey(session, report.getSnapshotId());
+    } catch (Exception exception) {
+      throw new IllegalStateException(String.format("Unexpected error while trying to retrieve snapshot of analysis %s", report), exception);
+    }
 
     List<SnapshotDto> snapshots = dao.findSnapshotAndChildrenOfProjectScope(session, referenceSnapshot);
     for (SnapshotDto snapshot : snapshots) {

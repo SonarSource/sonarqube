@@ -106,6 +106,7 @@ public class AnalysisReportDto extends Dto<String> {
     return Objects.toStringHelper(this)
       .add("id", getId())
       .add("projectKey", getProjectKey())
+      .add("snapshotId", getSnapshotId())
       .add("status", getStatus())
       .add("createdAt", getCreatedAt())
       .add("startedAt", getStartedAt())

@@ -65,4 +65,11 @@ public class SwitchSnapshotStepTest {
 
     db.assertDbUnit(getClass(), "snapshots-result.xml", "snapshots");
   }
+
+  @Test(expected = IllegalStateException.class)
+  public void throw_IllegalStateException_when_not_finding_snapshot() {
+    db.prepareDbUnit(getClass(), "empty.xml");
+
+    sut.execute(session, AnalysisReportDto.newForTests(1L).setSnapshotId(1L));
+  }
 }
