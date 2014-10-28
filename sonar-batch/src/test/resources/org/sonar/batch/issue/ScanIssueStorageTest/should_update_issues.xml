@@ -1,7 +1,7 @@
 <dataset>
 
-  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts"/>
-  <projects id="100" scope="FIL" qualifier="CLA" kee="struts:Action" name="Action"/>
+  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts" uuid="ABCD"/>
+  <projects id="100" scope="FIL" qualifier="CLA" kee="struts:Action" name="Action" uuid="BCDE"/>
 
   <issues id="1"
           kee="ABCDE"

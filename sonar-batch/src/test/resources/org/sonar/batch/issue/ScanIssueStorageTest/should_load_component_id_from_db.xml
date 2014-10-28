@@ -1,3 +1,3 @@
 <dataset>
-  <projects id="123" kee="struts:Action.java" />
+  <projects id="123" kee="struts:Action.java" uuid="ABCD"/>
 </dataset>
