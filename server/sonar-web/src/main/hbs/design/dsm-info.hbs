@@ -12,7 +12,7 @@
       <td {{#if changed}}class="changed"{{/if}}>
         {{#if changed}}
           {{qualifierIcon fq}}
-          <a href="/dashboard/index/{{fk}}">{{fn}}</a>
+          <a href="{{dashboardUrl fk}}">{{fn}}</a>
         {{/if}}
       </td>
       <td {{#if changed}}class="changed"{{/if}}>
@@ -22,7 +22,7 @@
       </td>
       <td {{#if changed}}class="changed"{{/if}}>
         {{qualifierIcon tq}}
-        <a href="/dashboard/index/{{tk}}"> {{tn}} </a>
+        <a href="{{dashboardUrl tk}}"> {{tn}} </a>
       </td>
     </tr>
   {{/eachChanged}}
