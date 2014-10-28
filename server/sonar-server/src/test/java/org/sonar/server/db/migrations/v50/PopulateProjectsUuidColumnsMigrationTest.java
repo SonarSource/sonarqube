@@ -277,14 +277,14 @@ public class PopulateProjectsUuidColumnsMigrationTest {
     // Module with a snapshot having no islast=true
     Component module = mapper.selectComponentByKey("org.struts:struts-core");
     assertThat(module.getUuid()).isNotNull();
-    assertThat(module.getProjectUuid()).isNull();
+    assertThat(module.getProjectUuid()).isEqualTo(module.getUuid());
     assertThat(module.getModuleUuid()).isNull();
     assertThat(module.getModuleUuidPath()).isNull();
 
     // File linked on a no more existing project
      Component file = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(file.getUuid()).isNotNull();
-    assertThat(file.getProjectUuid()).isNull();
+    assertThat(file.getProjectUuid()).isEqualTo(file.getUuid());
     assertThat(file.getModuleUuid()).isNull();
     assertThat(file.getModuleUuidPath()).isNull();
   }

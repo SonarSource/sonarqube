@@ -153,6 +153,7 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
     for (Component component : mapper.selectComponentsWithoutUuid()) {
       String uuid = UUID.randomUUID().toString();
       component.setUuid(uuid);
+      component.setProjectUuid(uuid);
 
       mapper.updateComponentUuids(component);
       counter.getAndIncrement();
