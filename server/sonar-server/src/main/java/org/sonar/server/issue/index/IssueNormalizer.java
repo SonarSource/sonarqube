@@ -49,11 +49,15 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField CREATED_AT = add(IndexField.Type.DATE, "createdAt");
     public static final IndexField UPDATED_AT = add(IndexField.Type.DATE, "updatedAt");
 
+    public static final IndexField PROJECT = add(IndexField.Type.STRING, "project");
+    public static final IndexField COMPONENT = add(IndexField.Type.STRING, "component");
+    public static final IndexField MODULE = add(IndexField.Type.STRING, "module");
+    public static final IndexField MODULE_PATH = add(IndexField.Type.UUID_PATH, "modulePath");
+
     public static final IndexField ACTION_PLAN = add(IndexField.Type.STRING, "actionPlan");
     public static final IndexField ASSIGNEE = addSortable(IndexField.Type.STRING, "assignee");
     public static final IndexField ATTRIBUTES = add(IndexField.Type.STRING, "attributes");
     public static final IndexField AUTHOR_LOGIN = add(IndexField.Type.STRING, "authorLogin");
-    public static final IndexField COMPONENT = add(IndexField.Type.STRING, "component");
     public static final IndexField DEBT = add(IndexField.Type.NUMERIC, "debt");
     public static final IndexField EFFORT = add(IndexField.Type.NUMERIC, "effort");
     public static final IndexField ISSUE_CREATED_AT = addSortable(IndexField.Type.DATE, "issueCreatedAt");
@@ -61,7 +65,6 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField ISSUE_CLOSE_DATE = addSortable(IndexField.Type.DATE, "issueClosedAt");
     public static final IndexField LINE = add(IndexField.Type.NUMERIC, "line");
     public static final IndexField MESSAGE = add(IndexField.Type.STRING, "message");
-    public static final IndexField PROJECT = add(IndexField.Type.STRING, "project");
     public static final IndexField RESOLUTION = add(IndexField.Type.STRING, "resolution");
     public static final IndexField REPORTER = add(IndexField.Type.STRING, "reporter");
     public static final IndexField STATUS = addSortable(IndexField.Type.STRING, "status");
@@ -69,7 +72,6 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField SEVERITY_VALUE = addSortable(IndexField.Type.NUMERIC, "severityValue");
     public static final IndexField LANGUAGE = add(IndexField.Type.STRING, "language");
     public static final IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
-    public static final IndexField MODULE_PATH = add(IndexField.Type.UUID_PATH, "modulePath");
 
     public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
@@ -100,14 +102,16 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     update.put(IssueField.UPDATED_AT.field(), dto.getUpdatedAt());
     update.put(IssueField.CREATED_AT.field(), dto.getCreatedAt());
 
+    update.put(IssueField.PROJECT.field(), dto.getProjectUuid());
+    update.put(IssueField.COMPONENT.field(), dto.getComponentUuid());
+    update.put(IssueField.MODULE.field(), dto.getModuleUuid());
+    update.put(IssueField.MODULE_PATH.field(), dto.getModuleUuidPath());
+
     update.put(IssueField.ACTION_PLAN.field(), dto.getActionPlanKey());
     update.put(IssueField.ATTRIBUTES.field(), dto.getIssueAttributes());
     update.put(IssueField.ASSIGNEE.field(), dto.getAssignee());
     update.put(IssueField.AUTHOR_LOGIN.field(), dto.getAuthorLogin());
     update.put(IssueField.ISSUE_CLOSE_DATE.field(), dto.getIssueCloseDate());
-    update.put(IssueField.PROJECT.field(), dto.getProjectUuid());
-    update.put(IssueField.MODULE_PATH.field(), dto.getModuleUuidPath());
-    update.put(IssueField.COMPONENT.field(), dto.getComponentUuid());
     update.put(IssueField.ISSUE_CREATED_AT.field(), dto.getIssueCreationDate());
     update.put(IssueField.ISSUE_UPDATED_AT.field(), dto.getIssueUpdateDate());
     update.put(IssueField.EFFORT.field(), dto.getEffortToFix());

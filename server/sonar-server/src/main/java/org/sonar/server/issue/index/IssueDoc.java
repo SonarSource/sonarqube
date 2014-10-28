@@ -55,6 +55,10 @@ public class IssueDoc extends BaseDoc implements Issue {
     return getField(IssueNormalizer.IssueField.COMPONENT.field());
   }
 
+  public String moduleUuid() {
+    return getField(IssueNormalizer.IssueField.MODULE.field());
+  }
+
   @Override
   public String projectKey() {
     throw new IllegalStateException("projectKey is not available on server side");

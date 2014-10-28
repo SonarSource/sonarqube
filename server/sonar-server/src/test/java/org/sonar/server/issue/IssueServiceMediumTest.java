@@ -170,7 +170,7 @@ public class IssueServiceMediumTest {
     session.commit();
 
     assertThat(db.issueDao().getByKey(session, issue.getKey())).isNotNull();
-    IssueTesting.assertIsEquivalent(issue, indexClient.get(IssueIndex.class).getByKey(issue.getKey()));
+    IssueTesting.assertIsEquivalent(issue, (IssueDoc) indexClient.get(IssueIndex.class).getByKey(issue.getKey()));
 
     assertThat(indexClient.get(IssueIndex.class).getByKey(issue.getKey()).status()).isEqualTo(Issue.STATUS_OPEN);
 

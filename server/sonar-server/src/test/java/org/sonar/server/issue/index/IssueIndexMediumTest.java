@@ -110,7 +110,7 @@ public class IssueIndexMediumTest {
     session.commit();
 
     Issue result = index.getByKey(issue.getKey());
-    IssueTesting.assertIsEquivalent(issue, result);
+    IssueTesting.assertIsEquivalent(issue, (IssueDoc) result);
   }
 
   @Test
@@ -120,7 +120,7 @@ public class IssueIndexMediumTest {
     session.commit();
 
     Issue result = index.getByKey(issue.getKey());
-    IssueTesting.assertIsEquivalent(issue, result);
+    IssueTesting.assertIsEquivalent(issue, (IssueDoc) result);
 
     assertThat(result.attribute("jira-issue-key")).isEqualTo("SONAR-1234");
   }

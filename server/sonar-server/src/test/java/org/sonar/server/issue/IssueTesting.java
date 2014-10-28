@@ -27,6 +27,7 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.server.issue.index.IssueDoc;
 
 import java.util.UUID;
 
@@ -56,11 +57,15 @@ public class IssueTesting {
       .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
   }
 
-  public static void assertIsEquivalent(IssueDto dto, Issue issue) {
+  public static void assertIsEquivalent(IssueDto dto, IssueDoc issue) {
     assertThat(issue).isNotNull();
     assertThat(dto).isNotNull();
 
     assertThat(issue.key()).isEqualTo(dto.getKey());
+    assertThat(issue.componentUuid()).isEqualTo(dto.getComponentUuid());
+    assertThat(issue.moduleUuid()).isEqualTo(dto.getModuleUuid());
+    assertThat(issue.projectUuid()).isEqualTo(dto.getProjectUuid());
+
     assertThat(issue.actionPlanKey()).isEqualTo(dto.getActionPlanKey());
     assertThat(issue.assignee()).isEqualTo(dto.getAssignee());
     assertThat(issue.authorLogin()).isEqualTo(dto.getAuthorLogin());
