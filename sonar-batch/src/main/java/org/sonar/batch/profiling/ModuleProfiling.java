@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 public class ModuleProfiling extends AbstractTimeProfiling {
 
@@ -66,11 +67,15 @@ public class ModuleProfiling extends AbstractTimeProfiling {
     profilingPerBatchStep.put(stepName, new ItemProfiling(system(), stepName));
   }
 
-  public void dump() {
+  public void dump(Properties props) {
     double percent = this.totalTime() / 100.0;
     Map<Object, AbstractTimeProfiling> categories = Maps.newLinkedHashMap();
     categories.putAll(profilingPerPhase);
     categories.putAll(profilingPerBatchStep);
+
+    for (Map.Entry<Object, AbstractTimeProfiling> batchStep : categories.entrySet()) {
+      props.setProperty(batchStep.getKey().toString(), "" + batchStep.getValue().totalTime());
+    }
 
     for (Map.Entry<Object, AbstractTimeProfiling> batchStep : sortByDescendingTotalTime(categories).entrySet()) {
       println(" * " + batchStep.getKey() + " execution time: ", percent, batchStep.getValue());

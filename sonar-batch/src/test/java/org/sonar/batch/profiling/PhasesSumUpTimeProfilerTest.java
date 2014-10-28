@@ -20,7 +20,9 @@
 package org.sonar.batch.profiling;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.Initializer;
@@ -43,29 +45,34 @@ import org.sonar.api.batch.events.SensorsPhaseHandler.SensorsPhaseEvent;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.DefaultTempFolder;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.index.ScanPersister;
 import org.sonar.batch.phases.Phases.Phase;
 import org.sonar.batch.phases.event.PersisterExecutionHandler;
 import org.sonar.batch.phases.event.PersistersPhaseHandler;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class PhasesSumUpTimeProfilerTest {
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private MockedSystem clock;
   private PhasesSumUpTimeProfiler profiler;
 
   @Before
-  public void prepare() {
+  public void prepare() throws IOException {
     clock = new MockedSystem();
-    profiler = new PhasesSumUpTimeProfiler(clock);
+    profiler = new PhasesSumUpTimeProfiler(clock, new DefaultTempFolder(temp.newFolder()));
   }
 
   @Test
@@ -146,7 +153,7 @@ public class PhasesSumUpTimeProfilerTest {
   }
 
   private Project mockProject(String name, boolean isRoot) {
-    final Project project = mock(Project.class);
+    final Project project = spy(new Project("myProject"));
     when(project.isRoot()).thenReturn(isRoot);
     when(project.getName()).thenReturn(name);
     return project;

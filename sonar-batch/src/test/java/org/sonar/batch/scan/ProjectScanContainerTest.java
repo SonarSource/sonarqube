@@ -33,6 +33,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
@@ -103,7 +104,7 @@ public class ProjectScanContainerTest {
 
   @Test
   public void should_activate_profiling() {
-    container.add(mock(ExtensionInstaller.class), projectBootstrapper);
+    container.add(mock(ExtensionInstaller.class), projectBootstrapper, mock(TempFolder.class));
     container.doBeforeStart();
 
     assertThat(container.getComponentsByType(PhasesSumUpTimeProfiler.class)).hasSize(0);
@@ -111,7 +112,7 @@ public class ProjectScanContainerTest {
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, "true");
 
     container = new ProjectScanContainer(parentContainer);
-    container.add(mock(ExtensionInstaller.class), projectBootstrapper);
+    container.add(mock(ExtensionInstaller.class), projectBootstrapper, mock(TempFolder.class));
     container.doBeforeStart();
 
     assertThat(container.getComponentsByType(PhasesSumUpTimeProfiler.class)).hasSize(1);

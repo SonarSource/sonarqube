@@ -21,6 +21,7 @@ package org.sonar.batch.profiling;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,7 @@ import org.sonar.api.batch.events.SensorExecutionHandler;
 import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.batch.events.BatchStepHandler;
 import org.sonar.batch.phases.Phases;
@@ -45,10 +47,13 @@ import org.sonar.batch.phases.event.PersistersPhaseHandler;
 
 import javax.annotation.Nullable;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.sonar.batch.profiling.AbstractTimeProfiling.sortByDescendingTotalTime;
 import static org.sonar.batch.profiling.AbstractTimeProfiling.truncate;
@@ -71,6 +76,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   private DecoratorsProfiler decoratorsProfiler;
 
   private final System2 system;
+  private final File out;
 
   static void println(String msg) {
     LOG.info(msg);
@@ -85,7 +91,8 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     println(sb.toString());
   }
 
-  public PhasesSumUpTimeProfiler(System2 system) {
+  public PhasesSumUpTimeProfiler(System2 system, TempFolder tempFolder) {
+    this.out = tempFolder.newDir("profiling");
     this.totalProfiling = new ModuleProfiling(null, system);
     this.system = system;
   }
@@ -103,10 +110,13 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
       println("");
       println(" -------- Profiling of module " + module.getName() + ": " + TimeUtils.formatDuration(moduleTotalTime) + " --------");
       println("");
-      currentModuleProfiling.dump();
+      Properties props = new Properties();
+      currentModuleProfiling.dump(props);
       println("");
       println(" -------- End of profiling of module " + module.getName() + " --------");
       println("");
+      String fileName = module.getKey() + "-profiler.xml";
+      dumpToFile(props, fileName);
       totalProfiling.merge(currentModuleProfiling);
       if (module.isRoot() && !module.getModules().isEmpty()) {
         dumpTotalExecutionSummary();
@@ -126,10 +136,27 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
       println("   o " + modulesProfiling.moduleName() + " execution time: ", percent, modulesProfiling);
     }
     println("");
-    totalProfiling.dump();
+    Properties props = new Properties();
+    totalProfiling.dump(props);
     println("");
     println(" ======== End of profiling of total execution ========");
     println("");
+    String fileName = "total-execution-profiler.xml";
+    dumpToFile(props, fileName);
+  }
+
+  private void dumpToFile(Properties props, String fileName) {
+    FileOutputStream fos = null;
+    try {
+      File file = new File(out, fileName);
+      fos = new FileOutputStream(file);
+      props.storeToXML(fos, "SonarQube");
+      println("Results stored in " + file.getAbsolutePath());
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to store profiler output", e);
+    } finally {
+      Closeables.closeQuietly(fos);
+    }
   }
 
   @Override
