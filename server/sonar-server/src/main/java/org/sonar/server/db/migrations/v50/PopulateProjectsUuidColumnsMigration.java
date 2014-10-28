@@ -36,6 +36,7 @@ import java.util.Timer;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 /**
@@ -85,14 +86,19 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
 
     List<Component> components = mapper.selectComponentChildrenForProjects(project.getId());
     components.add(project);
+    List<Component> componentsToMigrate = newArrayList();
     for (Component component : components) {
       componentsBySnapshotId.put(component.getSnapshotId(), component);
 
-      component.setUuid(getOrCreateUuid(component, uuidByComponentId));
-      component.setProjectUuid(getOrCreateUuid(project, uuidByComponentId));
+      // Not migrate components already having an UUID
+      if (component.getUuid() == null) {
+        component.setUuid(getOrCreateUuid(component, uuidByComponentId));
+        component.setProjectUuid(getOrCreateUuid(project, uuidByComponentId));
+        componentsToMigrate.add(component);
+      }
     }
 
-    for (Component component : components) {
+    for (Component component : componentsToMigrate) {
       updateComponent(component, project, componentsBySnapshotId, uuidByComponentId);
       mapper.updateComponentUuids(component);
       counter.getAndIncrement();
@@ -115,7 +121,7 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
     }
     if (moduleUuidPath.length() > 0) {
       // Remove last '.'
-      moduleUuidPath.deleteCharAt(moduleUuidPath.length()-1);
+      moduleUuidPath.deleteCharAt(moduleUuidPath.length() - 1);
       component.setModuleUuidPath(moduleUuidPath.toString());
     }
 
@@ -126,9 +132,17 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
   }
 
   private void migrateDisabledComponents(DbSession session, Migration50Mapper mapper, Component project, Map<Long, String> uuidByComponentId) {
-    for (Component component : mapper.selectDisabledComponentChildrenForProjects(project.getId())) {
+    String projectUuid = getOrCreateUuid(project, uuidByComponentId);
+    for (Component component : mapper.selectDisabledDirectComponentChildrenForProjects(project.getId())) {
       component.setUuid(getOrCreateUuid(component, uuidByComponentId));
-      component.setProjectUuid(getOrCreateUuid(project, uuidByComponentId));
+      component.setProjectUuid(projectUuid);
+
+      mapper.updateComponentUuids(component);
+      counter.getAndIncrement();
+    }
+    for (Component component : mapper.selectDisabledNoneDirectComponentChildrenForProjects(project.getId())) {
+      component.setUuid(getOrCreateUuid(component, uuidByComponentId));
+      component.setProjectUuid(projectUuid);
 
       mapper.updateComponentUuids(component);
       counter.getAndIncrement();

@@ -34,6 +34,7 @@ public interface Migration50Mapper {
   @Select("SELECT " +
     "  p.id AS \"id\", " +
     "  p.uuid AS \"uuid\", " +
+    "  p.project_uuid AS \"projectUuid\", " +
     "  s.root_project_id AS \"projectId\", " +
     "  s.id AS \"snapshotId\", " +
     "  s.path AS \"snapshotPath\", " +
@@ -50,6 +51,9 @@ public interface Migration50Mapper {
   @Select("SELECT " +
     "  p.id AS \"id\", " +
     "  p.uuid AS \"uuid\", " +
+    "  p.project_uuid AS \"projectUuid\", " +
+    "  p.module_uuid AS \"moduleUuid\", " +
+    "  p.module_uuid_path AS \"moduleUuidPath\", " +
     "  s.root_project_id AS \"projectId\", " +
     "  s.id AS \"snapshotId\", " +
     "  s.path AS \"snapshotPath\", " +
@@ -58,25 +62,40 @@ public interface Migration50Mapper {
     "  INNER JOIN snapshots root_snapshot ON root_snapshot.project_id = root.id AND root_snapshot.islast = ${_true} " +
     "  INNER JOIN snapshots s ON s.root_snapshot_id = root_snapshot.id AND s.islast = ${_true} " +
     "  INNER JOIN projects p ON p.id = s.project_id " +
-    "  WHERE root.id = #{id} " +
-    "   AND p.uuid IS NULL ")
+    "  WHERE root.id = #{id} ")
   @Result(javaType = Component.class)
   List<Component> selectComponentChildrenForProjects(@Param("id") Long projectId);
 
   /**
-   * Return disabled children
+   * Return disabled direct children from a project (1st level modules, files on single module project)
+   * For migration re-entrance, ignore components already having UUID
    */
   @Select("SELECT " +
     "  p.id AS \"id\", " +
     "  p.uuid AS \"uuid\" " +
     "FROM projects p " +
-    "  LEFT OUTER JOIN projects root_one ON root_one.id = p.root_id " +
-    "  LEFT OUTER JOIN projects root_two ON root_two.id = root_one.root_id " +
-    "  WHERE (root_one.id = #{id} OR root_two.id=#{id}) " +
+    "  INNER JOIN projects root ON root.id = p.root_id " +
+    "  WHERE root.id = #{id} " +
     "   AND p.uuid IS NULL " +
     "   AND p.enabled=${_false} ")
   @Result(javaType = Component.class)
-  List<Component> selectDisabledComponentChildrenForProjects(@Param("id") Long projectId);
+  List<Component> selectDisabledDirectComponentChildrenForProjects(@Param("id") Long projectId);
+
+  /**
+   * Return disabled none direct children (2nd level modules and more, files on modules, etc.)
+   * For migration re-entrance, ignore components already having UUID
+   */
+  @Select("SELECT " +
+    "  p.id AS \"id\", " +
+    "  p.uuid AS \"uuid\" " +
+    "FROM projects p " +
+    "  INNER JOIN projects root_one ON root_one.id = p.root_id " +
+    "  INNER JOIN projects root_two ON root_two.id = root_one.root_id " +
+    "  WHERE root_two.id=#{id} " +
+    "   AND p.uuid IS NULL " +
+    "   AND p.enabled=${_false} ")
+  @Result(javaType = Component.class)
+  List<Component> selectDisabledNoneDirectComponentChildrenForProjects(@Param("id") Long projectId);
 
   /**
    * Return not migrated components

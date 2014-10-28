@@ -104,26 +104,47 @@ public class PopulateProjectsUuidColumnsMigrationTest {
   }
 
   @Test
-  public void not_migrate_already_migrated_projects() throws Exception {
-    db.prepareDbUnit(getClass(), "not_migrate_already_migrated_projects.xml");
-    session.commit();
-
-    Component root = mapper.selectComponentByKey("org.struts:struts");
-    Component module = mapper.selectComponentByKey("org.struts:struts-core");
-    Component subModule = mapper.selectComponentByKey("org.struts:struts-db");
-    Component directory = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts");
-    Component file = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
-    Component removedFile = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext2.java");
+  public void not_migrate_already_migrated_components() throws Exception {
+    db.prepareDbUnit(getClass(), "not_migrate_already_migrated_components.xml");
 
     migration.execute();
     session.commit();
 
-    assertThat(mapper.selectComponentByKey("org.struts:struts").getUuid()).isEqualTo(root.getUuid());
-    assertThat(mapper.selectComponentByKey("org.struts:struts-core").getUuid()).isEqualTo(module.getUuid());
-    assertThat(mapper.selectComponentByKey("org.struts:struts-db").getUuid()).isEqualTo(subModule.getUuid());
-    assertThat(mapper.selectComponentByKey("org.struts:struts-core:src/org/struts").getUuid()).isEqualTo(directory.getUuid());
-    assertThat(mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java").getUuid()).isEqualTo(file.getUuid());
-    assertThat(mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext2.java").getUuid()).isEqualTo(removedFile.getUuid());
+    Component root = mapper.selectComponentByKey("org.struts:struts");
+    assertThat(root.getUuid()).isEqualTo("ABCD");
+    assertThat(root.getProjectUuid()).isEqualTo("ABCD");
+    assertThat(root.getModuleUuid()).isNull();
+    assertThat(root.getModuleUuidPath()).isNull();
+
+    Component module = mapper.selectComponentByKey("org.struts:struts-core");
+    assertThat(module.getUuid()).isEqualTo("BCDE");
+    assertThat(module.getProjectUuid()).isEqualTo("ABCD");
+    assertThat(module.getModuleUuid()).isEqualTo("ABCD");
+    assertThat(module.getModuleUuidPath()).isEqualTo("ABCD");
+
+    Component subModule = mapper.selectComponentByKey("org.struts:struts-db");
+    assertThat(subModule.getUuid()).isNotNull();
+    assertThat(subModule.getProjectUuid()).isEqualTo("ABCD");
+    assertThat(subModule.getModuleUuid()).isEqualTo("BCDE");
+    assertThat(subModule.getModuleUuidPath()).isEqualTo("ABCD.BCDE");
+
+    Component directory = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts");
+    assertThat(directory.getUuid()).isNotNull();
+    assertThat(directory.getProjectUuid()).isEqualTo("ABCD");
+    assertThat(directory.getModuleUuid()).isEqualTo(subModule.getUuid());
+    assertThat(directory.getModuleUuidPath()).isEqualTo("ABCD.BCDE." + subModule.getUuid());
+
+    Component file = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java");
+    assertThat(file.getUuid()).isNotNull();
+    assertThat(file.getProjectUuid()).isEqualTo("ABCD");
+    assertThat(file.getModuleUuid()).isEqualTo(subModule.getUuid());
+    assertThat(file.getModuleUuidPath()).isEqualTo("ABCD.BCDE." + subModule.getUuid());
+
+    Component removedFile = mapper.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext2.java");
+    assertThat(removedFile.getUuid()).isEqualTo("DCBA");
+    assertThat(removedFile.getProjectUuid()).isEqualTo("ABCD");
+    assertThat(removedFile.getModuleUuid()).isEqualTo("BCDE");
+    assertThat(removedFile.getModuleUuidPath()).isEqualTo("ABCD.BCDE");
   }
 
   @Test
