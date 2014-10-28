@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 
 /**
  * Various Elasticsearch request options: paging, fields and facets
@@ -44,7 +45,7 @@ public class QueryContext {
 
   private int offset = DEFAULT_OFFSET;
   private int limit = DEFAULT_LIMIT;
-  private Set<String> facets = newHashSet();
+  private Set<String> facets = newLinkedHashSet();
   private Set<String> fieldsToReturn = newHashSet();
   private boolean scroll = false;
   private boolean showFullResult = false;

@@ -33,7 +33,6 @@ import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHandler {
 
@@ -114,7 +113,7 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
     this.writeStatistics(json, result, context);
     doContextResponse(request, context, result, json);
     if (context.isFacet()) {
-      writeFacets(result, json);
+      writeFacets(context, result, json);
     }
     json.endObject().close();
   }
@@ -140,13 +139,13 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
     json.prop(PARAM_PAGE_SIZE, context.getLimit());
   }
 
-  protected void writeFacets(Result<?> results, JsonWriter json) {
+  protected void writeFacets(QueryContext context, Result<?> results, JsonWriter json) {
     json.name("facets").beginArray();
-    for (Map.Entry<String, Collection<FacetValue>> facet : results.getFacets().entrySet()) {
+    for (String facetName: context.facets()) {
       json.beginObject();
-      json.prop("property", facet.getKey());
+      json.prop("property", facetName);
       json.name("values").beginArray();
-      for (FacetValue facetValue : facet.getValue()) {
+      for (FacetValue facetValue : results.getFacets().get(facetName)) {
         json.beginObject();
         json.prop("val", facetValue.getKey());
         json.prop("count", facetValue.getValue());
