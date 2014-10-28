@@ -128,7 +128,7 @@ public class SearchActionMediumTest {
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(26);
+    assertThat(show.params()).hasSize(28);
   }
 
   @Test
@@ -347,7 +347,7 @@ public class SearchActionMediumTest {
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
-      .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,componentRoots,rules,components,assignees,languages")
+      .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,componentRootUuids,rules,componentUuids,assignees,languages")
       .execute();
     result.assertJson(this.getClass(), "display_facets.json", false);
   }

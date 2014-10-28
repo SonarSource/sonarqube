@@ -39,8 +39,8 @@ public class IssueQueryTest {
       .severities(newArrayList(Severity.BLOCKER))
       .statuses(Lists.newArrayList(Issue.STATUS_RESOLVED))
       .resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE))
-      .components(newArrayList("org/struts/Action.java"))
-      .componentRoots(newArrayList("org.struts:core"))
+      .componentUuids(newArrayList("org/struts/Action.java"))
+      .componentRootUuids(newArrayList("org.struts:core"))
       .rules(newArrayList(RuleKey.of("squid", "AvoidCycle")))
       .actionPlans(newArrayList("AP1", "AP2"))
       .reporters(newArrayList("crunky"))
@@ -60,8 +60,8 @@ public class IssueQueryTest {
     assertThat(query.severities()).containsOnly(Severity.BLOCKER);
     assertThat(query.statuses()).containsOnly(Issue.STATUS_RESOLVED);
     assertThat(query.resolutions()).containsOnly(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(query.components()).containsOnly("org/struts/Action.java");
-    assertThat(query.componentRoots()).containsOnly("org.struts:core");
+    assertThat(query.componentUuids()).containsOnly("org/struts/Action.java");
+    assertThat(query.componentRootUuids()).containsOnly("org.struts:core");
     assertThat(query.reporters()).containsOnly("crunky");
     assertThat(query.assignees()).containsOnly("gargantua");
     assertThat(query.languages()).containsOnly("xoo");
@@ -108,8 +108,8 @@ public class IssueQueryTest {
   public void collection_params_should_not_be_null_but_empty() throws Exception {
     IssueQuery query = IssueQuery.builder()
       .issueKeys(null)
-      .components(null)
-      .componentRoots(null)
+      .componentUuids(null)
+      .componentRootUuids(null)
       .statuses(null)
       .actionPlans(null)
       .assignees(null)
@@ -120,8 +120,8 @@ public class IssueQueryTest {
       .languages(null)
       .build();
     assertThat(query.issueKeys()).isEmpty();
-    assertThat(query.components()).isEmpty();
-    assertThat(query.componentRoots()).isEmpty();
+    assertThat(query.componentUuids()).isEmpty();
+    assertThat(query.componentRootUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
     assertThat(query.actionPlans()).isEmpty();
     assertThat(query.assignees()).isEmpty();
@@ -136,8 +136,8 @@ public class IssueQueryTest {
   public void test_default_query() throws Exception {
     IssueQuery query = IssueQuery.builder().build();
     assertThat(query.issueKeys()).isEmpty();
-    assertThat(query.components()).isEmpty();
-    assertThat(query.componentRoots()).isEmpty();
+    assertThat(query.componentUuids()).isEmpty();
+    assertThat(query.componentRootUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
     assertThat(query.actionPlans()).isEmpty();
     assertThat(query.assignees()).isEmpty();

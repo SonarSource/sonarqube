@@ -113,11 +113,11 @@ public class IssueQuery {
     return resolutions;
   }
 
-  public Collection<String> components() {
+  public Collection<String> componentUuids() {
     return components;
   }
 
-  public Collection<String> componentRoots() {
+  public Collection<String> componentRootUuids() {
     return componentRoots;
   }
 
@@ -243,12 +243,12 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder components(@Nullable Collection<String> l) {
+    public Builder componentUuids(@Nullable Collection<String> l) {
       this.components = l;
       return this;
     }
 
-    public Builder componentRoots(@Nullable Collection<String> l) {
+    public Builder componentRootUuids(@Nullable Collection<String> l) {
       this.componentRoots = l;
       return this;
     }

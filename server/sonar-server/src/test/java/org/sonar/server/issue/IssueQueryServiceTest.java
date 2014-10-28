@@ -92,8 +92,8 @@ public class IssueQueryServiceTest {
     assertThat(query.statuses()).containsOnly("CLOSED");
     assertThat(query.resolutions()).containsOnly("FALSE-POSITIVE");
     assertThat(query.resolved()).isTrue();
-    assertThat(query.components()).containsOnly("ABCD");
-    assertThat(query.componentRoots()).containsOnly("BCDE");
+    assertThat(query.componentUuids()).containsOnly("ABCD");
+    assertThat(query.componentRootUuids()).containsOnly("BCDE");
     assertThat(query.reporters()).containsOnly("marilyn");
     assertThat(query.assignees()).containsOnly("joanna");
     assertThat(query.languages()).containsOnly("xoo");
@@ -113,7 +113,7 @@ public class IssueQueryServiceTest {
     map.put("components", newArrayList("unknown"));
 
     IssueQuery query = issueQueryService.createFromMap(map);
-    assertThat(query.components()).containsOnly("<UNKNOWN>");
+    assertThat(query.componentUuids()).containsOnly("<UNKNOWN>");
   }
 
   @Test

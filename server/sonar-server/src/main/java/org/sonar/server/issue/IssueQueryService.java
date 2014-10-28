@@ -64,8 +64,6 @@ public class IssueQueryService implements ServerComponent {
         .statuses(RubyUtils.toStrings(params.get(IssueFilterParameters.STATUSES)))
         .resolutions(RubyUtils.toStrings(params.get(IssueFilterParameters.RESOLUTIONS)))
         .resolved(RubyUtils.toBoolean(params.get(IssueFilterParameters.RESOLVED)))
-        .components(componentUuids(session, RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENTS))))
-        .componentRoots(componentUuids(session, RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_ROOTS))))
         .rules(toRules(params.get(IssueFilterParameters.RULES)))
         .actionPlans(RubyUtils.toStrings(params.get(IssueFilterParameters.ACTION_PLANS)))
         .reporters(RubyUtils.toStrings(params.get(IssueFilterParameters.REPORTERS)))
@@ -77,6 +75,10 @@ public class IssueQueryService implements ServerComponent {
         .createdAt(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AT)))
         .createdAfter(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AFTER)))
         .createdBefore(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_BEFORE)));
+      addComponentUuids(builder, session,
+        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_UUIDS)), RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENTS)));
+      addComponentRootUuids(builder, session,
+        RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_ROOT_UUIDS)), RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_ROOTS)));
       String sort = (String) params.get(IssueFilterParameters.SORT);
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);
@@ -98,8 +100,6 @@ public class IssueQueryService implements ServerComponent {
         .statuses(request.paramAsStrings(IssueFilterParameters.STATUSES))
         .resolutions(request.paramAsStrings(IssueFilterParameters.RESOLUTIONS))
         .resolved(request.paramAsBoolean(IssueFilterParameters.RESOLVED))
-        .components(componentUuids(session, request.paramAsStrings(IssueFilterParameters.COMPONENTS)))
-        .componentRoots(componentUuids(session, request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOTS)))
         .rules(stringsToRules(request.paramAsStrings(IssueFilterParameters.RULES)))
         .actionPlans(request.paramAsStrings(IssueFilterParameters.ACTION_PLANS))
         .reporters(request.paramAsStrings(IssueFilterParameters.REPORTERS))
@@ -110,6 +110,10 @@ public class IssueQueryService implements ServerComponent {
         .createdAt(request.paramAsDateTime(IssueFilterParameters.CREATED_AT))
         .createdAfter(request.paramAsDateTime(IssueFilterParameters.CREATED_AFTER))
         .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE));
+      addComponentUuids(builder, session,
+        request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS), request.paramAsStrings(IssueFilterParameters.COMPONENTS));
+      addComponentRootUuids(builder, session,
+        request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOT_UUIDS), request.paramAsStrings(IssueFilterParameters.COMPONENT_ROOTS));
       String sort = request.param(SearchRequestHandler.PARAM_SORT);
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);
@@ -119,6 +123,28 @@ public class IssueQueryService implements ServerComponent {
 
     } finally {
       session.close();
+    }
+  }
+
+  private void addComponentUuids(IssueQuery.Builder builder, DbSession session, @Nullable Collection<String> componentUuids, @Nullable Collection<String> components) {
+    if (componentUuids != null) {
+      if (components != null) {
+        throw new IllegalArgumentException("components and componentUuids cannot be set simultaneously");
+      }
+      builder.componentUuids(componentUuids);
+    } else {
+      builder.componentUuids(componentUuids(session, components));
+    }
+  }
+
+  private void addComponentRootUuids(IssueQuery.Builder builder, DbSession session, @Nullable Collection<String> componentRootUuids, @Nullable Collection<String> componentRoots) {
+    if (componentRootUuids != null) {
+      if (componentRoots != null) {
+        throw new IllegalArgumentException("componentRoots and componentRootUuids cannot be set simultaneously");
+      }
+      builder.componentRootUuids(componentRootUuids);
+    } else {
+      builder.componentRootUuids(componentUuids(session, componentRoots));
     }
   }
 

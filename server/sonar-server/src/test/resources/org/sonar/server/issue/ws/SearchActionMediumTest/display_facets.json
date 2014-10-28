@@ -40,7 +40,7 @@
       ]
     },
     {
-      "property": "componentRoots",
+      "property": "componentRootUuids",
       "values": [
         {
           "val": "ABCD",
@@ -58,7 +58,7 @@
       ]
     },
     {
-      "property": "components",
+      "property": "componentUuids",
       "values": [
         {
           "val": "BCDE",

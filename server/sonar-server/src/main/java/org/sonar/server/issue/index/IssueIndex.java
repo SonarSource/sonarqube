@@ -30,12 +30,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.OrFilterBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
@@ -49,22 +44,11 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
-import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.IndexField;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.*;
 
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -268,8 +252,8 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     filters.put(IssueNormalizer.IssueField.KEY.field(), matchFilter(IssueNormalizer.IssueField.KEY, query.issueKeys()));
     filters.put(IssueNormalizer.IssueField.ACTION_PLAN.field(), matchFilter(IssueNormalizer.IssueField.ACTION_PLAN, query.actionPlans()));
     filters.put(IssueNormalizer.IssueField.ASSIGNEE.field(), matchFilter(IssueNormalizer.IssueField.ASSIGNEE, query.assignees()));
-    filters.put(IssueNormalizer.IssueField.MODULE_PATH.field(), matchFilter(IssueNormalizer.IssueField.MODULE_PATH, query.componentRoots()));
-    filters.put(IssueNormalizer.IssueField.COMPONENT.field(), matchFilter(IssueNormalizer.IssueField.COMPONENT, query.components()));
+    filters.put(IssueNormalizer.IssueField.MODULE_PATH.field(), matchFilter(IssueNormalizer.IssueField.MODULE_PATH, query.componentRootUuids()));
+    filters.put(IssueNormalizer.IssueField.COMPONENT.field(), matchFilter(IssueNormalizer.IssueField.COMPONENT, query.componentUuids()));
     filters.put(IssueNormalizer.IssueField.LANGUAGE.field(), matchFilter(IssueNormalizer.IssueField.LANGUAGE, query.languages()));
     filters.put(IssueNormalizer.IssueField.RESOLUTION.field(), matchFilter(IssueNormalizer.IssueField.RESOLUTION, query.resolutions()));
     filters.put(IssueNormalizer.IssueField.REPORTER.field(), matchFilter(IssueNormalizer.IssueField.REPORTER, query.reporters()));
@@ -330,9 +314,9 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
         IssueFilterParameters.ACTION_PLANS, IssueNormalizer.IssueField.ACTION_PLAN.field(), query.actionPlans().toArray());
       addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
-        IssueFilterParameters.COMPONENT_ROOTS, IssueNormalizer.IssueField.PROJECT.field(), query.componentRoots().toArray());
+        IssueFilterParameters.COMPONENT_ROOT_UUIDS, IssueNormalizer.IssueField.PROJECT.field(), query.componentRootUuids().toArray());
       addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
-        IssueFilterParameters.COMPONENTS, IssueNormalizer.IssueField.COMPONENT.field(), query.components().toArray());
+        IssueFilterParameters.COMPONENT_UUIDS, IssueNormalizer.IssueField.COMPONENT.field(), query.componentUuids().toArray());
       addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
         IssueFilterParameters.LANGUAGES, IssueNormalizer.IssueField.LANGUAGE.field(), query.languages().toArray());
       addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,

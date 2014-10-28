@@ -135,12 +135,23 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     action.createParam(IssueFilterParameters.COMPONENTS)
       .setDescription("To retrieve issues associated to a specific list of components (comma-separated list of component keys). " +
         "Note that if you set the value to a project key, only issues associated to this project are retrieved. " +
-        "Issues associated to its sub-components (such as files, packages, etc.) are not retrieved. See also componentRoots")
+        "Issues associated to its sub-components (such as files, packages, etc.) are not retrieved. See also componentRoots. " +
+        "If this parameter is set, componentUuids must not be set.")
       .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
     action.createParam(IssueFilterParameters.COMPONENT_ROOTS)
       .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component keys). " +
-        "Views are not supported")
+        "Views are not supported. If this parameter is set, componentRootUuids must not be set.")
       .setExampleValue("org.apache.struts:struts");
+    action.createParam(IssueFilterParameters.COMPONENT_UUIDS)
+      .setDescription("To retrieve issues associated to a specific list of components (comma-separated list of component UUIDs). " +
+        "Note that if you set the value to a project UUID, only issues associated to this project are retrieved. " +
+        "Issues associated to its sub-components (such as files, packages, etc.) are not retrieved. See also componentRootUuids. " +
+        "If this parameter is set, components must not be set.")
+      .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
+    action.createParam(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
+      .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component UUIDs). " +
+        "Views are not supported. If this parameter is set, componentRoots must not be set.")
+      .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
     action.createParam(IssueFilterParameters.RULES)
       .setDescription("Comma-separated list of coding rule keys. Format is <repository>:<rule>")
       .setExampleValue("squid:AvoidCycles");
@@ -197,7 +208,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   @Override
   protected Result<Issue> doSearch(IssueQuery query, QueryContext context) {
-    Collection<String> components = query.components();
+    Collection<String> components = query.componentUuids();
     if (components != null && components.size() == 1) {
       context.setShowFullResult(true);
     }
@@ -218,10 +229,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       IssueFilterParameters.STATUSES,
       IssueFilterParameters.RESOLUTIONS,
       IssueFilterParameters.ACTION_PLANS,
-      IssueFilterParameters.COMPONENT_ROOTS,
+      IssueFilterParameters.COMPONENT_ROOT_UUIDS,
       IssueFilterParameters.RULES,
       IssueFilterParameters.ASSIGNEES,
-      IssueFilterParameters.COMPONENTS,
+      IssueFilterParameters.COMPONENT_UUIDS,
       IssueFilterParameters.LANGUAGES
     });
   }
@@ -263,8 +274,8 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       }
     }
 
-    collectFacetKeys(result, IssueFilterParameters.COMPONENT_ROOTS, projectUuids);
-    collectFacetKeys(result, IssueFilterParameters.COMPONENTS, componentUuids);
+    collectFacetKeys(result, IssueFilterParameters.COMPONENT_ROOT_UUIDS, projectUuids);
+    collectFacetKeys(result, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
     collectFacetKeys(result, IssueFilterParameters.ASSIGNEES, userLogins);
 
     DbSession session = dbClient.openSession(false);
