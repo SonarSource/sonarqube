@@ -25,5 +25,8 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 
 public interface ComputationStep extends ServerComponent {
+
   void execute(DbSession session, AnalysisReportDto analysisReportDto);
+
+  String description();
 }

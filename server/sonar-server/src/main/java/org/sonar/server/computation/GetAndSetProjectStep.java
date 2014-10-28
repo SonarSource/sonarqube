@@ -38,4 +38,9 @@ public class GetAndSetProjectStep implements ComputationStep {
     ComponentDto project = dbClient.componentDao().getByKey(session, report.getProjectKey());
     report.setProject(project);
   }
+
+  @Override
+  public String description() {
+    return "Retrieve project based on identifier";
+  }
 }

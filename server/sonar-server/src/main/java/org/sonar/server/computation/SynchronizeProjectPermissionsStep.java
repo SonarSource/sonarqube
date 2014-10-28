@@ -41,6 +41,11 @@ public class SynchronizeProjectPermissionsStep implements ComputationStep {
     synchronizeProjectPermissionsIfNotFound(session, report);
   }
 
+  @Override
+  public String description() {
+    return "Synchronize project permissions";
+  }
+
   private void synchronizeProjectPermissionsIfNotFound(DbSession session, AnalysisReportDto report) {
     if (index.get(IssueAuthorizationIndex.class).getNullableByKey(report.getProjectKey()) == null) {
       permissionService.synchronizePermissions(session, report.getProject().uuid());

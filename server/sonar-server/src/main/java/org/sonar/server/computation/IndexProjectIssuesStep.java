@@ -42,6 +42,11 @@ public class IndexProjectIssuesStep implements ComputationStep {
     indexProjectIssues(session, report.getProjectKey());
   }
 
+  @Override
+  public String description() {
+    return "Update issues index";
+  }
+
   private void indexProjectIssues(DbSession session, String projectKey) {
     dbClient.issueDao().synchronizeAfter(session,
       index.get(IssueIndex.class).getLastSynchronization(),

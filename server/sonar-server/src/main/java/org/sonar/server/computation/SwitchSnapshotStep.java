@@ -41,6 +41,11 @@ public class SwitchSnapshotStep implements ComputationStep {
     enableCurrentSnapshot(session, report);
   }
 
+  @Override
+  public String description() {
+    return "Switch last snapshot flag";
+  }
+
   private void disablePreviousSnapshot(DbSession session, AnalysisReportDto report) {
     SnapshotDto referenceSnapshot = dao.getByKey(session, report.getSnapshotId());
 

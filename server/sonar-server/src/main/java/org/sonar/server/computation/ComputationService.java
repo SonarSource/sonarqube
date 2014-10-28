@@ -20,6 +20,8 @@
 
 package org.sonar.server.computation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
@@ -30,6 +32,8 @@ import org.sonar.server.db.DbClient;
  * since 5.0
  */
 public class ComputationService implements ServerComponent {
+  private static final Logger LOG = LoggerFactory.getLogger(ComputationService.class);
+
   private final DbClient dbClient;
   private final ComputationStepRegistry stepRegistry;
 
@@ -39,15 +43,20 @@ public class ComputationService implements ServerComponent {
   }
 
   public void analyzeReport(AnalysisReportDto report) {
+    LOG.info(String.format("### Analysis '%s' of project '%s' started ###", report.getId(), report.getProjectKey()));
+
     // Synchronization of lot of data can only be done with a batch session for the moment
     DbSession session = dbClient.openSession(true);
 
     try {
       for (ComputationStep step : stepRegistry.steps()) {
+        LOG.info(String.format("# %s step started...", step.description()));
         step.execute(session, report);
+        LOG.info(String.format("# %s step finished", step.description()));
       }
     } finally {
       MyBatis.closeQuietly(session);
+      LOG.info(String.format("### Analysis '%s' finished ###", report.getId()));
     }
   }
 }

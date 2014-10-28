@@ -35,4 +35,9 @@ public class DbCleanerStep implements ComputationStep {
   public void execute(DbSession session, AnalysisReportDto report) {
     purgeTask.purge(report.getProject().getId());
   }
+
+  @Override
+  public String description() {
+    return "Purge database";
+  }
 }
