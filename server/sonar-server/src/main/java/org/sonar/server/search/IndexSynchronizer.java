@@ -67,9 +67,10 @@ public class IndexSynchronizer {
     Date lastSynch = index.getLastSynchronization();
     if (count <= 0) {
       LOG.info("Initial indexing of {} records", index.getIndexType());
+      dao.synchronizeAfter(session);
     } else {
       LOG.info("Synchronizing {} records for updates after {}", index.getIndexType(), lastSynch);
+      dao.synchronizeAfter(session, lastSynch);
     }
-    dao.synchronizeAfter(session, lastSynch);
   }
 }

@@ -21,6 +21,8 @@ package org.sonar.server.db.fake;
 
 import org.apache.ibatis.annotations.Param;
 
+import javax.annotation.Nullable;
+
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -30,5 +32,5 @@ public interface FakeMapper {
 
   FakeDto selectByKey(@Param("key") String key);
 
-  List<FakeDto> selectAfterDate(@Param("date") Timestamp date);
+  List<FakeDto> selectAfterDate(@Nullable @Param("date") Timestamp date);
 }

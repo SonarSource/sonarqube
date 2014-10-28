@@ -23,6 +23,8 @@ package org.sonar.core.qualityprofile.db;
 import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -63,6 +65,6 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleParamDto> selectAllParams();
 
-  List<ActiveRuleDto> selectAfterDate(Timestamp date);
+  List<ActiveRuleDto> selectAfterDate(@Nullable Timestamp date);
 
 }

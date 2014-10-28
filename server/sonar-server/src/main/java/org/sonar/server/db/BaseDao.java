@@ -34,22 +34,14 @@ import org.sonar.core.persistence.Dto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.search.DbSynchronizationHandler;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.action.DeleteKey;
-import org.sonar.server.search.action.DeleteNestedItem;
-import org.sonar.server.search.action.InsertDto;
-import org.sonar.server.search.action.RefreshIndex;
-import org.sonar.server.search.action.UpsertDto;
-import org.sonar.server.search.action.UpsertNestedItem;
+import org.sonar.server.search.action.*;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -343,19 +335,26 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
     };
   }
 
-  protected Map<String, Object> getSynchronizationParams(Date date, Map<String, String> params) {
+  protected Map<String, Object> getSynchronizationParams(@Nullable Date date, Map<String, String> params) {
     Map<String, Object> finalParams = newHashMap();
-    finalParams.put("date", new Timestamp(date.getTime()));
+    if (date != null) {
+      finalParams.put("date", new Timestamp(date.getTime()));
+    }
     return finalParams;
   }
 
   @Override
-  public void synchronizeAfter(final DbSession session, Date date) {
+  public void synchronizeAfter(final DbSession session) {
+    this.synchronizeAfter(session, null, Collections.<String, String>emptyMap());
+  }
+
+  @Override
+  public void synchronizeAfter(final DbSession session, @Nullable Date date) {
     this.synchronizeAfter(session, date, Collections.<String, String>emptyMap());
   }
 
   @Override
-  public void synchronizeAfter(final DbSession session, Date date, Map<String, String> params) {
+  public void synchronizeAfter(final DbSession session, @Nullable Date date, Map<String, String> params) {
     if (!session.getClass().isAssignableFrom(BatchSession.class)) {
       LOGGER.warn("Synchronizer should only be used with BatchSession!");
     }

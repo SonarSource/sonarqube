@@ -45,7 +45,11 @@
     select
     <include refid="selectColumns"/>
     from rules r
-    where r.updated_at IS NULL or r.updated_at &gt;= #{date}
+    <where>
+      <if test="date != null">
+        r.updated_at IS NULL or r.updated_at &gt;= #{date}
+      </if>
+    </where>
   </select>
 
   <select id="selectEnablesAndNonManual" resultType="Rule">

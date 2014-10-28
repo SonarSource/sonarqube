@@ -45,7 +45,9 @@
     from active_rules a
     <include refid="activeRuleKeyJoin"/>
     <where>
-      a.updated_at IS NULL or a.updated_at &gt;= #{date}
+      <if test="date != null">
+        a.updated_at IS NULL or a.updated_at &gt;= #{date}
+      </if>
     </where>
   </select>
 

@@ -22,6 +22,8 @@ package org.sonar.core.rule;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.api.rule.RuleKey;
 
+import javax.annotation.Nullable;
+
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -61,5 +63,5 @@ public interface RuleMapper {
 
   void deleteParameter(Integer paramId);
 
-  List<RuleDto> selectAfterDate(@Param("date") Timestamp timestamp);
+  List<RuleDto> selectAfterDate(@Nullable @Param("date") Timestamp timestamp);
 }

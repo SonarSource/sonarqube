@@ -22,10 +22,12 @@ package org.sonar.core.issue.db;
 
 import org.apache.ibatis.annotations.Param;
 
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 public interface IssueAuthorizationMapper {
 
-  IssueAuthorizationDto selectAfterDate(@Param("date") Date date, @Param("permission") String permission, @Param("anyone") String anyoneGroup);
+  IssueAuthorizationDto selectAfterDate(@Nullable @Param("date") Date date, @Param("permission") String permission, @Param("anyone") String anyoneGroup);
 
 }

@@ -720,6 +720,62 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void synchronize_issue() throws Exception {
+    IssueDto issue = IssueTesting.newDto(rule, file, project);
+    tester.get(IssueDao.class).insert(session, issue);
+    session.commit();
+
+    // 0 Assert that all issues are both in ES and DB
+    assertThat(db.issueDao().findAfterDate(session, new Date(0))).hasSize(1);
+    assertThat(index.countAll()).isEqualTo(1);
+
+    // Clear issue index in order to simulate these issues have been inserted without being indexed in E/S (from a previous version of SQ or
+    // from batch)
+    tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
+    tester.clearIndexes();
+    assertThat(index.countAll()).isEqualTo(0);
+
+    DbSession newSession = db.openSession(true);
+    try {
+      db.issueDao().synchronizeAfter(newSession, index.getLastSynchronization());
+      newSession.commit();
+
+    } finally {
+      newSession.close();
+    }
+
+    assertThat(index.countAll()).isEqualTo(1);
+  }
+
+  @Test
+  public void synchronize_all_issues() throws Exception {
+    IssueDto issue = IssueTesting.newDto(rule, file, project);
+    tester.get(IssueDao.class).insert(session, issue);
+    session.commit();
+
+    // 0 Assert that all issues are both in ES and DB
+    assertThat(db.issueDao().findAfterDate(session, new Date(0))).hasSize(1);
+    assertThat(index.countAll()).isEqualTo(1);
+
+    // Clear issue index in order to simulate these issues have been inserted without being indexed in E/S (from a previous version of SQ or
+    // from batch)
+    tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
+    tester.clearIndexes();
+    assertThat(index.countAll()).isEqualTo(0);
+
+    DbSession newSession = db.openSession(true);
+    try {
+      db.issueDao().synchronizeAfter(newSession);
+      newSession.commit();
+
+    } finally {
+      newSession.close();
+    }
+
+    assertThat(index.countAll()).isEqualTo(1);
+  }
+
+  @Test
   public void synchronize_a_lot_of_issues() throws Exception {
     Integer numberOfIssues = 1000;
 

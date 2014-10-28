@@ -31,12 +31,14 @@
       INNER JOIN user_roles ON user_roles.resource_id = projects.id AND user_roles.role = #{permission}
       INNER JOIN users ON users.id = user_roles.user_id
       WHERE
-        projects.authorization_updated_at &gt;= #{date}
-        AND projects.qualifier = 'TRK'
+        projects.qualifier = 'TRK'
         AND projects.copy_resource_id is NULL
-      <if test="project != null">
-        AND projects.uuid = #{project}
-      </if>
+        <if test="date != null">
+          AND projects.authorization_updated_at &gt;= #{date}
+        </if>
+        <if test="project != null">
+          AND projects.uuid = #{project}
+        </if>
       UNION
       -- groups without Anyone
       SELECT
@@ -49,13 +51,15 @@
       INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = #{permission}
       INNER JOIN groups ON groups.id = group_roles.group_id
       WHERE
-        projects.authorization_updated_at &gt;= #{date}
-        AND projects.qualifier = 'TRK'
+        projects.qualifier = 'TRK'
         AND projects.copy_resource_id is NULL
-      <if test="project != null">
-        AND projects.uuid = #{project}
-      </if>
-      AND group_id IS NOT NULL
+        <if test="date != null">
+          AND projects.authorization_updated_at &gt;= #{date}
+        </if>
+        <if test="project != null">
+          AND projects.uuid = #{project}
+        </if>
+        AND group_id IS NOT NULL
       UNION
       -- Anyone groups
       SELECT
@@ -67,13 +71,15 @@
       FROM projects
       INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role = #{permission}
       WHERE
-        projects.authorization_updated_at &gt;= #{date}
-        AND projects.qualifier = 'TRK'
+        projects.qualifier = 'TRK'
         AND projects.copy_resource_id is NULL
-      <if test="project != null">
-        AND projects.uuid = #{project}
-      </if>
-      AND group_roles.group_id IS NULL
+        <if test="date != null">
+          AND projects.authorization_updated_at &gt;= #{date}
+        </if>
+        <if test="project != null">
+          AND projects.uuid = #{project}
+        </if>
+        AND group_roles.group_id IS NULL
     ) project_authorization
   </select>
 
