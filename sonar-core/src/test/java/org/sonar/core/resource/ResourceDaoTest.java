@@ -277,11 +277,11 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void should_insert_using_existing_session() throws Exception {
     setupData("insert");
 
-    ResourceDto file1 = new ResourceDto()
+    ResourceDto file1 = new ResourceDto().setUuid("ABCD")
       .setKey("org.struts:struts:/src/main/java/org/struts/Action.java")
       .setDeprecatedKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Action").setLongName("org.struts.Action");
-    ResourceDto file2 = new ResourceDto()
+    ResourceDto file2 = new ResourceDto().setUuid("BCDE")
       .setKey("org.struts:struts:/src/main/java/org/struts/Filter.java")
       .setDeprecatedKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
       .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");
