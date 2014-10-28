@@ -22,8 +22,6 @@ package org.sonar.server.db.migrations.v50;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v50.Component;
@@ -61,23 +59,21 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
     Timer timer = new Timer("Db Migration Progress");
     timer.schedule(progressTask, MassUpdate.ProgressTask.PERIOD_MS, MassUpdate.ProgressTask.PERIOD_MS);
 
-    final DbSession session = db.openSession(true);
+    DbSession session = db.openSession(true);
     try {
-      final Migration50Mapper mapper = session.getMapper(Migration50Mapper.class);
-      session.select("org.sonar.core.persistence.migration.v50.Migration50Mapper.selectRootProjects", new ResultHandler() {
-        @Override
-        public void handleResult(ResultContext context) {
-          Component project = (Component) context.getResultObject();
-          Map<Long, String> uuidByComponentId = newHashMap();
-          migrateEnabledComponents(session, mapper, project, uuidByComponentId);
-          migrateDisabledComponents(session, mapper, project, uuidByComponentId);
-        }
-      });
+      Migration50Mapper mapper = session.getMapper(Migration50Mapper.class);
+
+      for (Component project : mapper.selectRootProjects()) {
+        Map<Long, String> uuidByComponentId = newHashMap();
+        migrateEnabledComponents(session, mapper, project, uuidByComponentId);
+        migrateDisabledComponents(session, mapper, project, uuidByComponentId);
+      }
       migrateComponentsWithoutUuid(session, mapper);
 
       session.commit();
       // log the total number of process rows
       progressTask.log();
+
     } finally {
       session.close();
       timer.cancel();
