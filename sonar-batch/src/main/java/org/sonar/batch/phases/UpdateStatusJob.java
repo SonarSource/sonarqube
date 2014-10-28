@@ -71,7 +71,7 @@ public class UpdateStatusJob implements BatchComponent {
     url = "/batch/upload_report?project=" + project.getEffectiveKey() + "&snapshot=" + snapshot.getId();
     try {
       LOG.debug("Publish results");
-      server.request(url, "POST");
+      server.request(url, "POST", true, 0);
     } catch (Exception e) {
       throw new IllegalStateException("Unable to publish results: " + url, e);
     }
