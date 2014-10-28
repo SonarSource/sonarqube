@@ -48,7 +48,7 @@
 .dsm-body-title {
   position: relative;
   vertical-align: middle;
-  padding: 2px 15px 2px 4px;
+  padding: 2px 32px 2px 4px;
   border-right: 2px solid darken(@barBorderColor, 8%) !important;
   color: @baseFontColor;
   cursor: pointer;
@@ -114,8 +114,9 @@
 }
 
 .dsm-body-title-package-tangles {
-  float: right;
-  margin: 0 -10px 0 10px;
+  position: absolute;
+  top: 50%; right: 4px;
+  margin-top: -10px;
   padding: 2px 5px;
   border-radius: 20px;
   background: @red;
