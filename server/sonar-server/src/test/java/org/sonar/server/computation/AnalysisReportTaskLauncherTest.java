@@ -75,6 +75,6 @@ public class AnalysisReportTaskLauncherTest {
   }
 
   private void sleep() throws InterruptedException {
-    TimeUnit.MILLISECONDS.sleep(200L);
+    TimeUnit.MILLISECONDS.sleep(500L);
   }
 }
