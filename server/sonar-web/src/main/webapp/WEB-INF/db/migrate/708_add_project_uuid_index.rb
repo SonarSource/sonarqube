@@ -22,12 +22,9 @@
 # SonarQube 5.0
 # SONAR-5753
 #
-class AddProjectUuidColumns < ActiveRecord::Migration
+class AddProjectUuidIndex < ActiveRecord::Migration
   def self.up
-    add_column 'projects', :uuid, :string, :limit => 50, :null => true
-    add_column 'projects', :project_uuid, :string, :limit => 50, :null => true
-    add_column 'projects', :module_uuid, :string, :limit => 50, :null => true
-    add_column 'projects', :module_uuid_path, :string, :limit => 4000, :null => true
+    add_index 'projects', 'uuid', :name => 'projects_uuid', :unique => true
   end
 end
 
