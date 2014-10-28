@@ -37,11 +37,10 @@ import org.sonar.plugins.dbcleaner.api.PurgeTask;
  */
 public class DefaultPurgeTask implements PurgeTask {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPurgeTask.class);
-
+  private final PurgeProfiler profiler;
   private PurgeDao purgeDao;
   private Settings settings;
   private DefaultPeriodCleaner periodCleaner;
-  private final PurgeProfiler profiler;
 
   public DefaultPurgeTask(PurgeDao purgeDao, Settings settings, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler) {
     this.purgeDao = purgeDao;
@@ -50,11 +49,13 @@ public class DefaultPurgeTask implements PurgeTask {
     this.profiler = profiler;
   }
 
+  @Override
   public DefaultPurgeTask delete(long resourceId) {
     purgeDao.deleteResourceTree(resourceId);
     return this;
   }
 
+  @Override
   public DefaultPurgeTask purge(long resourceId) {
     long start = System.currentTimeMillis();
     profiler.reset();

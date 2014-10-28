@@ -30,6 +30,9 @@ import java.util.List;
 
 public final class DbCleanerProperties {
 
+  private DbCleanerProperties() {
+  }
+
   public static List<PropertyDefinition> all() {
     return Arrays.asList(
       PropertyDefinition.builder(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)
@@ -100,6 +103,6 @@ public final class DbCleanerProperties {
         .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
         .index(6)
         .build()
-    );
+      );
   }
 }

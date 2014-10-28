@@ -56,7 +56,7 @@ public class ComponentCleanerService implements ServerComponent {
   }
 
   private void deleteIssuesFromIndex(String projectKey) {
-
+    // TODO implement !
   }
 
   private void deletePermissionIndexes(DbSession session, String projectUuid) {

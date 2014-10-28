@@ -24,6 +24,7 @@ import org.sonar.api.task.TaskExtension;
 
 /**
  * @since 2.14
+ * @deprecated (is used by the plugin views only. Will rely on the implementation when views analysis views moved on the server side)
  */
 @Deprecated
 public interface PurgeTask extends TaskExtension, ServerExtension {

@@ -18,16 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.computation.dbcleaner;
+@ParametersAreNonnullByDefault
+package org.sonar.plugins.dbcleaner.api;
 
-import org.junit.Test;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class DbCleanerPropertiesTest {
-
-  @Test
-  public void shouldGetExtensions() {
-    assertThat(DbCleanerProperties.all()).hasSize(6);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
