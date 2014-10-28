@@ -45,7 +45,7 @@ import org.sonar.api.batch.events.SensorsPhaseHandler.SensorsPhaseEvent;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.internal.DefaultTempFolder;
+import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.events.BatchStepEvent;
 import org.sonar.batch.index.ScanPersister;
 import org.sonar.batch.phases.Phases.Phase;
@@ -72,7 +72,7 @@ public class PhasesSumUpTimeProfilerTest {
   @Before
   public void prepare() throws IOException {
     clock = new MockedSystem();
-    profiler = new PhasesSumUpTimeProfiler(clock, new DefaultTempFolder(temp.newFolder()));
+    profiler = new PhasesSumUpTimeProfiler(clock, new BootstrapProperties(Collections.<String, String>emptyMap()));
   }
 
   @Test

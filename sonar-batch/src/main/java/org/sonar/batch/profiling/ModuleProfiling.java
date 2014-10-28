@@ -85,7 +85,7 @@ public class ModuleProfiling extends AbstractTimeProfiling {
       if (profilingPerPhase.containsKey(phase) && getProfilingPerPhase(phase).hasItems()) {
         println("");
         println(" * " + phase + " execution time breakdown: ", getProfilingPerPhase(phase));
-        getProfilingPerPhase(phase).dump();
+        getProfilingPerPhase(phase).dump(props);
       }
     }
   }

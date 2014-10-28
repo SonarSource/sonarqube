@@ -25,6 +25,7 @@ import com.google.common.io.Closeables;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.events.DecoratorExecutionHandler;
 import org.sonar.api.batch.events.DecoratorsPhaseHandler;
@@ -38,8 +39,8 @@ import org.sonar.api.batch.events.SensorExecutionHandler;
 import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.TimeUtils;
+import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.events.BatchStepHandler;
 import org.sonar.batch.phases.Phases;
 import org.sonar.batch.phases.event.PersisterExecutionHandler;
@@ -91,8 +92,11 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     println(sb.toString());
   }
 
-  public PhasesSumUpTimeProfiler(System2 system, TempFolder tempFolder) {
-    this.out = tempFolder.newDir("profiling");
+  public PhasesSumUpTimeProfiler(System2 system, BootstrapProperties bootstrapProps) {
+    String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
+    File workingDir = new File(workingDirPath).getAbsoluteFile();
+    this.out = new File(workingDir, "profiling");
+    this.out.mkdirs();
     this.totalProfiling = new ModuleProfiling(null, system);
     this.system = system;
   }
