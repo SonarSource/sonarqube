@@ -3,5 +3,21 @@
 
 <mapper namespace="org.sonar.core.persistence.migration.v50.Migration50Mapper">
 
+  <select id="selectRootProjects" resultType="org.sonar.core.persistence.migration.v50.Component" fetchSize="200" resultSetType="FORWARD_ONLY">
+    SELECT
+    p.id AS "id",
+    p.uuid AS "uuid",
+    p.project_uuid AS "projectUuid",
+    s.root_project_id AS "projectId",
+    s.id AS "snapshotId",
+    s.path AS "snapshotPath",
+    p.scope AS "scope"
+    FROM projects p
+    LEFT OUTER JOIN snapshots s ON s.project_id = p.id AND s.islast = ${_true}
+    WHERE
+    p.scope = 'PRJ'
+    AND p.root_id IS NULL
+  </select>
+
 </mapper>
 
