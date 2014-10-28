@@ -84,6 +84,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
   private String moduleUuidPath;
   private String projectKey;
   private String projectUuid;
+  private String filePath;
 
   @Override
   public String getKey() {
@@ -118,6 +119,7 @@ public final class IssueDto extends Dto<String> implements Serializable {
     this.componentUuid = component.uuid();
     this.moduleUuid = component.moduleUuid();
     this.moduleUuidPath = component.moduleUuidPath();
+    this.filePath = component.path();
     return this;
   }
 
@@ -486,6 +488,25 @@ public final class IssueDto extends Dto<String> implements Serializable {
    */
   public IssueDto setProjectUuid(@Nullable String projectUuid) {
     this.projectUuid = projectUuid;
+    return this;
+  }
+
+  /**
+   * Should only be used to persist in E/S
+   *
+   * Please use {@link #setProject(org.sonar.core.component.ComponentDto)} instead
+   */
+  public String getFilePath() {
+    return filePath;
+  }
+
+  /**
+   * Should only be used to persist in E/S
+   *
+   * Please use {@link #setProject(org.sonar.core.component.ComponentDto)} instead
+   */
+  public IssueDto setFilePath(String filePath) {
+    this.filePath = filePath;
     return this;
   }
 

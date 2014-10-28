@@ -20,7 +20,9 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -28,7 +30,12 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.OrFilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
@@ -42,18 +49,28 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
-import org.sonar.server.search.*;
+import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
+import org.sonar.server.search.SearchClient;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 
 public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
 
-  private Map<String, IndexField> sortColumns = newHashMap();
+  private ListMultimap<String, IndexField> sortColumns = ArrayListMultimap.create();
 
   public IssueIndex(IssueNormalizer normalizer, SearchClient client) {
     super(IndexDefinition.ISSUES, normalizer, client);
@@ -64,6 +81,9 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     sortColumns.put(IssueQuery.SORT_BY_CREATION_DATE, IssueNormalizer.IssueField.ISSUE_CREATED_AT);
     sortColumns.put(IssueQuery.SORT_BY_UPDATE_DATE, IssueNormalizer.IssueField.ISSUE_UPDATED_AT);
     sortColumns.put(IssueQuery.SORT_BY_CLOSE_DATE, IssueNormalizer.IssueField.ISSUE_CLOSE_DATE);
+    sortColumns.put(IssueQuery.SORT_BY_FILE_LINE, IssueNormalizer.IssueField.PROJECT);
+    sortColumns.put(IssueQuery.SORT_BY_FILE_LINE, IssueNormalizer.IssueField.FILE_PATH);
+    sortColumns.put(IssueQuery.SORT_BY_FILE_LINE, IssueNormalizer.IssueField.LINE);
   }
 
   @Override
@@ -185,7 +205,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     QueryBuilder esQuery = QueryBuilders.matchAllQuery();
     BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
     Map<String, FilterBuilder> filters = getFilters(query, options);
-    for (FilterBuilder filter: filters.values()) {
+    for (FilterBuilder filter : filters.values()) {
       if (filter != null) {
         esFilter.must(filter);
       }
@@ -205,7 +225,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
 
   private BoolFilterBuilder getFilter(IssueQuery query, QueryContext options) {
     BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
-    for (FilterBuilder filter: getFilters(query, options).values()) {
+    for (FilterBuilder filter : getFilters(query, options).values()) {
       if (filter != null) {
         esFilter.must(filter);
       }
@@ -278,7 +298,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
         FilterBuilders.boolFilter()
           .must(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.PERMISSION.field(), UserRole.USER), groupsAndUser)
           .cache(true))
-    );
+      );
   }
 
   private void addDatesFilter(Map<String, FilterBuilder> filters, IssueQuery query) {
@@ -383,19 +403,21 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       .subAggregation(facetTopAggregation);
   }
 
-
   private void setSorting(IssueQuery query, SearchRequestBuilder esSearch) {
     /* integrate Query Sort */
     String sortField = query.sort();
     Boolean asc = query.asc();
     if (sortField != null) {
-      FieldSortBuilder sort = SortBuilders.fieldSort(toIndexField(sortField).sortField());
-      if (asc != null && asc) {
-        sort.order(SortOrder.ASC);
-      } else {
-        sort.order(SortOrder.DESC);
+      List<IndexField> fields = toIndexFields(sortField);
+      for (IndexField field : fields) {
+        FieldSortBuilder sort = SortBuilders.fieldSort(field.sortField());
+        if (asc != null && asc) {
+          sort.order(SortOrder.ASC);
+        } else {
+          sort.order(SortOrder.DESC);
+        }
+        esSearch.addSort(sort);
       }
-      esSearch.addSort(sort);
     } else {
       esSearch.addSort(IssueNormalizer.IssueField.ISSUE_UPDATED_AT.sortField(), SortOrder.DESC);
       // deterministic sort when exactly the same updated_at (same millisecond)
@@ -403,10 +425,10 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     }
   }
 
-  private IndexField toIndexField(String sort) {
-    IndexField indexFieldSort = sortColumns.get(sort);
-    if (indexFieldSort != null) {
-      return indexFieldSort;
+  private List<IndexField> toIndexFields(String sort) {
+    List<IndexField> fields = sortColumns.get(sort);
+    if (fields != null) {
+      return fields;
     }
     throw new IllegalStateException("Unknown sort field : " + sort);
   }

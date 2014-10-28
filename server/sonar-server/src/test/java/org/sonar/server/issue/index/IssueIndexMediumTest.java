@@ -49,7 +49,11 @@ import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.search.*;
+import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
+import org.sonar.server.search.SearchClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -420,7 +424,7 @@ public class IssueIndexMediumTest {
       IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_OPEN),
       IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_CLOSED),
       IssueTesting.newDto(rule, file, project).setStatus(Issue.STATUS_REOPENED)
-    );
+      );
     session.commit();
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_STATUS).asc(true);
@@ -444,7 +448,7 @@ public class IssueIndexMediumTest {
       IssueTesting.newDto(rule, file, project).setSeverity(Severity.MINOR),
       IssueTesting.newDto(rule, file, project).setSeverity(Severity.CRITICAL),
       IssueTesting.newDto(rule, file, project).setSeverity(Severity.MAJOR)
-    );
+      );
     session.commit();
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_SEVERITY).asc(true);
@@ -548,6 +552,41 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void sort_by_file_and_line() throws Exception {
+    db.issueDao().insert(session,
+      // file Foo.java
+      IssueTesting.newDto(rule, file, project).setLine(20).setFilePath("src/Foo.java"),
+      IssueTesting.newDto(rule, file, project).setLine(null).setFilePath("src/Foo.java"),
+      IssueTesting.newDto(rule, file, project).setLine(25).setFilePath("src/Foo.java"),
+
+      // file Bar.java
+      IssueTesting.newDto(rule, file, project).setLine(9).setFilePath("src/Bar.java"),
+      IssueTesting.newDto(rule, file, project).setLine(109).setFilePath("src/Bar.java")
+      );
+    session.commit();
+
+    // ascending sort -> Bar then Foo
+    IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_FILE_LINE).asc(true);
+    Result<Issue> result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits()).hasSize(5);
+    assertThat(result.getHits().get(0).line()).isEqualTo(9);
+    assertThat(result.getHits().get(1).line()).isEqualTo(109);
+    assertThat(result.getHits().get(2).line()).isEqualTo(20);
+    assertThat(result.getHits().get(3).line()).isEqualTo(25);
+    assertThat(result.getHits().get(4).line()).isEqualTo(null);
+
+    // descending sort -> Foo then Bar
+    query = IssueQuery.builder().sort(IssueQuery.SORT_BY_FILE_LINE).asc(false);
+    result = index.search(query.build(), new QueryContext());
+    assertThat(result.getHits()).hasSize(5);
+    assertThat(result.getHits().get(0).line()).isEqualTo(25);
+    assertThat(result.getHits().get(1).line()).isEqualTo(20);
+    assertThat(result.getHits().get(2).line()).isEqualTo(null);
+    assertThat(result.getHits().get(3).line()).isEqualTo(109);
+    assertThat(result.getHits().get(4).line()).isEqualTo(9);
+  }
+
+  @Test
   public void authorized_issues_on_groups() throws Exception {
     ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
     ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");
@@ -629,7 +668,7 @@ public class IssueIndexMediumTest {
       IssueTesting.newDto(rule, file1, project1),
       IssueTesting.newDto(rule, file2, project2),
       IssueTesting.newDto(rule, file2, project3)
-    );
+      );
 
     session.commit();
     session.clearCache();
@@ -696,7 +735,8 @@ public class IssueIndexMediumTest {
     assertThat(db.issueDao().findAfterDate(session, new Date(0))).hasSize(numberOfIssues);
     assertThat(index.countAll()).isEqualTo(numberOfIssues);
 
-    // Clear issue index in order to simulate these issues have been inserted without being indexed in E/S (from a previous version of SQ or from batch)
+    // Clear issue index in order to simulate these issues have been inserted without being indexed in E/S (from a previous version of SQ or
+    // from batch)
     tester.get(BackendCleanup.class).clearIndex(IndexDefinition.ISSUES);
     tester.clearIndexes();
     assertThat(index.countAll()).isEqualTo(0);
@@ -722,7 +762,7 @@ public class IssueIndexMediumTest {
       IssueTesting.newDto(rule, file, project).setAssignee("steph").setStatus(Issue.STATUS_OPEN),
       // julien should not be returned as the issue is closed
       IssueTesting.newDto(rule, file, project).setAssignee("julien").setStatus(Issue.STATUS_CLOSED)
-    );
+      );
     session.commit();
 
     List<FacetValue> results = index.listAssignees(IssueQuery.builder().statuses(newArrayList(Issue.STATUS_OPEN)).build());
@@ -737,7 +777,6 @@ public class IssueIndexMediumTest {
     assertThat(results.get(2).getKey()).isEqualTo("_notAssigned_");
     assertThat(results.get(2).getValue()).isEqualTo(1);
   }
-
 
   @Test
   public void index_has_4_shards() {

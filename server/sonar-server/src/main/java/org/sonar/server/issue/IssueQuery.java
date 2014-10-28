@@ -44,7 +44,14 @@ public class IssueQuery {
   public static final String SORT_BY_ASSIGNEE = "ASSIGNEE";
   public static final String SORT_BY_SEVERITY = "SEVERITY";
   public static final String SORT_BY_STATUS = "STATUS";
-  public static final Set<String> SORTS = ImmutableSet.of(SORT_BY_CREATION_DATE, SORT_BY_UPDATE_DATE, SORT_BY_CLOSE_DATE, SORT_BY_ASSIGNEE, SORT_BY_SEVERITY, SORT_BY_STATUS);
+
+  /**
+   * Sort by project, file path then line id
+   */
+  public static final String SORT_BY_FILE_LINE = "FILE_LINE";
+
+  public static final Set<String> SORTS = ImmutableSet.of(SORT_BY_CREATION_DATE, SORT_BY_UPDATE_DATE, SORT_BY_CLOSE_DATE, SORT_BY_ASSIGNEE, SORT_BY_SEVERITY,
+    SORT_BY_STATUS, SORT_BY_FILE_LINE);
 
   private final Collection<String> issueKeys;
   private final Collection<String> severities;

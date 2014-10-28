@@ -79,6 +79,7 @@ public class IssueTesting {
     assertThat(issue.language()).isEqualTo(dto.getLanguage());
     assertThat(issue.status()).isEqualTo(dto.getStatus());
     assertThat(issue.severity()).isEqualTo(dto.getSeverity());
+    assertThat(issue.filePath()).isEqualTo(dto.getFilePath());
 
     assertThat(issue.attributes()).isEqualTo(KeyValueFormat.parse(dto.getIssueAttributes()));
 

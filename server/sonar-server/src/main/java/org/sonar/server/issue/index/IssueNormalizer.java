@@ -49,7 +49,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField CREATED_AT = add(IndexField.Type.DATE, "createdAt");
     public static final IndexField UPDATED_AT = add(IndexField.Type.DATE, "updatedAt");
 
-    public static final IndexField PROJECT = add(IndexField.Type.STRING, "project");
+    public static final IndexField PROJECT = addSortable(IndexField.Type.STRING, "project");
     public static final IndexField COMPONENT = add(IndexField.Type.STRING, "component");
     public static final IndexField MODULE = add(IndexField.Type.STRING, "module");
     public static final IndexField MODULE_PATH = add(IndexField.Type.UUID_PATH, "modulePath");
@@ -63,7 +63,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField ISSUE_CREATED_AT = addSortable(IndexField.Type.DATE, "issueCreatedAt");
     public static final IndexField ISSUE_UPDATED_AT = addSortable(IndexField.Type.DATE, "issueUpdatedAt");
     public static final IndexField ISSUE_CLOSE_DATE = addSortable(IndexField.Type.DATE, "issueClosedAt");
-    public static final IndexField LINE = add(IndexField.Type.NUMERIC, "line");
+    public static final IndexField LINE = addSortable(IndexField.Type.NUMERIC, "line");
     public static final IndexField MESSAGE = add(IndexField.Type.STRING, "message");
     public static final IndexField RESOLUTION = add(IndexField.Type.STRING, "resolution");
     public static final IndexField REPORTER = add(IndexField.Type.STRING, "reporter");
@@ -72,6 +72,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField SEVERITY_VALUE = addSortable(IndexField.Type.NUMERIC, "severityValue");
     public static final IndexField LANGUAGE = add(IndexField.Type.STRING, "language");
     public static final IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
+    public static final IndexField FILE_PATH = addSortable(IndexField.Type.STRING, "filePath");
 
     public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
@@ -125,6 +126,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     update.put(IssueField.DEBT.field(), dto.getDebt());
     update.put(IssueField.LANGUAGE.field(), dto.getLanguage());
     update.put(IssueField.RULE_KEY.field(), dto.getRuleKey().toString());
+    update.put(IssueField.FILE_PATH.field(), dto.getFilePath());
 
     /** Upsert elements */
     Map<String, Object> upsert = getUpsertFor(IssueField.ALL_FIELDS, update);

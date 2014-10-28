@@ -187,4 +187,9 @@ public class IssueDoc extends BaseDoc implements Issue {
     Integer debt = getNullableField(IssueNormalizer.IssueField.DEBT.field());
     return (debt != null) ? Duration.create(Long.valueOf(debt)) : null;
   }
+
+  @CheckForNull
+  public String filePath() {
+    return getNullableField(IssueNormalizer.IssueField.FILE_PATH.field());
+  }
 }

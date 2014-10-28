@@ -36,6 +36,7 @@
     p.uuid as componentUuid,
     p.module_uuid as moduleUuid,
     p.module_uuid_path as moduleUuidPath,
+    p.path as filePath,
     root.kee as projectKey,
     root.uuid as projectUuid
   </sql>
