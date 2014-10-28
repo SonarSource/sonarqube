@@ -303,37 +303,35 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
   private void setFacets(IssueQuery query, QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch) {
     if (options.isFacet()) {
       // Execute Term aggregations
-      if (options.facets().contains(IssueFilterParameters.SEVERITIES)) {
-        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.SEVERITY.field(), IssueFilterParameters.SEVERITIES));
-      }
-      if (options.facets().contains(IssueFilterParameters.STATUSES)) {
-        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.STATUS.field(), IssueFilterParameters.STATUSES));
-      }
+      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+        IssueFilterParameters.SEVERITIES, IssueNormalizer.IssueField.SEVERITY.field());
+      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+        IssueFilterParameters.STATUSES, IssueNormalizer.IssueField.STATUS.field());
+      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+        IssueFilterParameters.ACTION_PLANS, IssueNormalizer.IssueField.ACTION_PLAN.field(), query.actionPlans().toArray());
+      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+        IssueFilterParameters.COMPONENT_ROOTS, IssueNormalizer.IssueField.PROJECT.field(), query.componentRoots().toArray());
+      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+        IssueFilterParameters.COMPONENTS, IssueNormalizer.IssueField.COMPONENT.field(), query.components().toArray());
+      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+        IssueFilterParameters.LANGUAGES, IssueNormalizer.IssueField.LANGUAGE.field(), query.languages().toArray());
+      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+        IssueFilterParameters.RULES, IssueNormalizer.IssueField.RULE_KEY.field(), query.rules().toArray());
+
       if (options.facets().contains(IssueFilterParameters.RESOLUTIONS)) {
         esSearch.addAggregation(getResolutionFacet(query, options, filters, esQuery));
-      }
-      if (options.facets().contains(IssueFilterParameters.ACTION_PLANS)) {
-        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.ACTION_PLAN.field(), IssueFilterParameters.ACTION_PLANS));
-      }
-      if (options.facets().contains(IssueFilterParameters.COMPONENT_ROOTS)) {
-        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.PROJECT.field(), IssueFilterParameters.COMPONENT_ROOTS,
-          query.componentRoots().toArray()));
-      }
-      if (options.facets().contains(IssueFilterParameters.RULES)) {
-        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.RULE_KEY.field(), IssueFilterParameters.RULES,
-          query.rules().toArray()));
       }
       if (options.facets().contains(IssueFilterParameters.ASSIGNEES)) {
         esSearch.addAggregation(getAssigneesFacet(query, options, filters, esQuery));
       }
-      if (options.facets().contains(IssueFilterParameters.COMPONENTS)) {
-        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.COMPONENT.field(), IssueFilterParameters.COMPONENTS,
-          query.components().toArray()));
-      }
-      if (options.facets().contains(IssueFilterParameters.LANGUAGES)) {
-        esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, IssueNormalizer.IssueField.LANGUAGE.field(), IssueFilterParameters.LANGUAGES,
-          query.languages().toArray()));
-      }
+    }
+  }
+
+  private void addSimpleStickyFacetIfNeeded(IssueQuery query, QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch,
+    String facetName, String fieldName, Object... selectedValues) {
+    if (options.facets().contains(facetName)) {
+      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, fieldName, facetName,
+        selectedValues));
     }
   }
 
