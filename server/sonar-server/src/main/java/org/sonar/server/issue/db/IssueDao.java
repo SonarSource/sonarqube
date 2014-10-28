@@ -29,6 +29,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
 
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -81,7 +83,7 @@ public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements 
   }
 
   @Override
-  protected Map<String, Object> getSynchronizationParams(Date date, Map<String, String> params) {
+  protected Map<String, Object> getSynchronizationParams(@Nullable Date date, Map<String, String> params) {
     Map<String, Object> finalParams = super.getSynchronizationParams(date, params);
     // TODO replace usage of project key by project uuid
     finalParams.put(PROJECT_KEY, params.get(PROJECT_KEY));

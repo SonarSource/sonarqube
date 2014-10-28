@@ -324,7 +324,7 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
         getSession().enqueue(new InsertDto<DTO>(getIndexType(), dto, false));
         count++;
         if (count % 100000 == 0) {
-          LOGGER.info(" - synchronized {} {}", count, getIndexType());
+          LOGGER.info("Synchronized {} {}", count, getIndexType());
         }
       }
 
