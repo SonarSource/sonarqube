@@ -49,7 +49,7 @@ public class SearchServerTest {
   Client client;
 
   @Rule
-  public Timeout timeout = new Timeout(30000);
+  public Timeout timeout = new Timeout(60000);
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
