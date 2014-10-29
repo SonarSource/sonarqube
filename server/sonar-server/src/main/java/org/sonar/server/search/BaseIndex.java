@@ -544,7 +544,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       // Sortable text analyzer
       .put("index.analysis.analyzer.sortable.type", "custom")
       .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
-      .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase", "truncate")
+      .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase")
 
       // Edge NGram index-analyzer
       .put("index.analysis.analyzer.index_grams.type", "custom")
