@@ -38,7 +38,6 @@ define [
 
 
   class IssueView extends Marionette.Layout
-    className: 'code-issues'
     template: Templates['issue']
 
 

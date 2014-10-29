@@ -1,0 +1,18 @@
+{{> '_issues-facet-header'}}
+
+<div class="issues-facet-list">
+  {{#each values}}
+    {{#eq val ''}}
+      {{! unassigned }}
+      <a class="facet issues-facet js-issues-facet" data-unassigned>
+        <span class="facet-name">Unassigned</span>
+        <span class="facet-stat">{{count}}</span>
+      </a>
+    {{else}}
+      <a class="facet issues-facet js-issues-facet" data-value="{{val}}">
+        <span class="facet-name">{{label}}</span>
+        <span class="facet-stat">{{count}}</span>
+      </a>
+    {{/eq}}
+  {{/each}}
+</div>

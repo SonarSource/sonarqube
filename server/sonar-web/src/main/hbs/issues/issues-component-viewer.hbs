@@ -1,0 +1,18 @@
+<div class="issues-workspace-component-viewer-code code-source">
+  {{#if hasSourceBefore}}
+    <i class="spinner js-component-viewer-source-before"></i>
+  {{/if}}
+
+  <table class="code">
+    {{#each source}}
+      <tr class="row" data-line-number="{{lineNumber}}">
+        <td class="stat ">{{lineNumber}}</td>
+        <td class="line"><pre>{{{code}}}</pre></td>
+      </tr>
+    {{/each}}
+  </table>
+
+  {{#if hasSourceAfter}}
+    <i class="spinner js-component-viewer-source-after"></i>
+  {{/if}}
+</div>

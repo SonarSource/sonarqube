@@ -1,0 +1,20 @@
+<form id="save-as-filter-form" method="post" action="<%= ApplicationController.root_context -%>/issues/save_as">
+  <input type="hidden" name="data" value="<%= u(@filter_query_serialized) -%>">
+  <fieldset>
+    <div class="modal-head">
+      <h2><%= message('issue_filter.save_filter') -%></h2>
+    </div>
+    <%= render :partial => 'filter_shared_form' %>
+    <div class="modal-foot">
+      <input type="submit" value="<%= message('save') -%>" id="save-as-submit" class="issue-filter"/>
+      <a href="#" onclick="return closeModalWindow()" id="save-as-cancel"><%= message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+<script>
+  $j("#save-as-filter-form").modalForm({
+    success: function (data) {
+      return onSaveAs(data);
+    }
+  });
+</script>

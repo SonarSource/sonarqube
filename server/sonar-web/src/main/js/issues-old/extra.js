@@ -7,7 +7,7 @@ define(
       'navigator/filters/favorite-filters',
       'navigator/filters/read-only-filters',
       'component-viewer/main',
-      'templates/issues'
+      'templates/issues-old'
     ],
     function (Backbone, Marionette, FilterBarView, BaseFilters, FavoriteFiltersModule, ReadOnlyFilterView,
               ComponentViewer, Templates) {

@@ -12,7 +12,7 @@ define [
 
     ui:
       facets: '.navigator-facets-list-item'
-      options: '.navigator-facets-list-item-option'
+      options: '.facet'
 
 
     events:
@@ -50,4 +50,4 @@ define [
         property = jQuery(@).data 'property'
         if !!params[property]
           _(params[property].split(',')).map (value) ->
-            jQuery('.navigator-facets-list-item[data-property="' + property + '"] .navigator-facets-list-item-option[data-key="' + value + '"]').addClass 'active'
+            jQuery('.navigator-facets-list-item[data-property="' + property + '"] .facet[data-key="' + value + '"]').addClass 'active'

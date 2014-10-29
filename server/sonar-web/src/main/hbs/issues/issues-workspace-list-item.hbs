@@ -1,0 +1,24 @@
+<div class="issue-box-component subtitle">
+  <a href="{{dashboardUrl project}}">{{projectLongName}}</a>
+   &nbsp;&nbsp;&nbsp;
+  <a href="{{dashboardUrl component}}">{{componentLongName}}</a>
+</div>
+
+{{#if source}}
+  <div class="issue-box-snippet code-source js-issues-snippet">
+    <table class="code">
+      <tr class="row">
+        {{#if scmAuthor}}
+          <td class="stat scm">
+            <span class="scm-date">{{scmDate}}</span>
+            <span class="scm-author" title="{{scmAuthor}}">{{scmAuthor}}</span>
+          </td>
+        {{/if}}
+        <td class="stat lid">{{line}}</td>
+        <td class="line issue"><pre>{{{source}}}</pre></td>
+      </tr>
+    </table>
+  </div>
+{{/if}}
+
+<div class="issue-box-details"></div>

@@ -1,0 +1,34 @@
+<div class="issues-filters-list">
+  {{#each items}}
+    <a class="issues-filters-button issues-filters-filter js-issues-filter" data-id="{{id}}">{{name}}</a>
+    <br>
+  {{/each}}
+</div>
+
+<div class="issues-filters-header">
+  {{#notEmpty items}}
+    <a class="issues-filters-button issues-filters-header-filters js-issues-toggle-filters">
+      {{default filter.name "Saved Filters"}}
+    </a>
+  {{/notEmpty}}
+
+  <span class="issues-filters-header-actions">
+    <a class="issues-filters-button js-issues-new-search">New Search</a>
+
+    {{#if state.canManageFilters}}
+      {{#if filter.canModify}}
+        {{#if state.changed}}
+          <a class="issues-filters-button js-issues-save">{{t 'save'}}</a>
+        {{/if}}
+      {{/if}}
+
+      {{#unless filter.id}}<a class="issues-filters-button js-issues-save-as">{{t 'save_as'}}</a>{{/unless}}
+
+      {{#if filter.id}}<a class="issues-filters-button js-issues-copy">{{t 'copy'}}</a>{{/if}}
+
+      {{#if filter.canModify}}
+        {{#if filter.id}}<a class="issues-filters-button js-issues-edit">{{t 'edit'}}</a>{{/if}}
+      {{/if}}
+    {{/if}}
+  </span>
+</div>

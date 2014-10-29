@@ -1,0 +1,18 @@
+{{> '_issues-facet-header'}}
+
+<div class="issues-facet-list">
+  {{#each values}}
+    {{#eq val ''}}
+    {{! unresolved }}
+      <a class="facet issues-facet issues-facet-half js-issues-facet" data-unresolved>
+        <span class="facet-name">Unresolved</span>
+        <span class="facet-stat">{{count}}</span>
+      </a>
+    {{else}}
+      <a class="facet issues-facet issues-facet-half js-issues-facet" data-value="{{val}}">
+        <span class="facet-name">{{t 'issue.resolution' val}}</span>
+        <span class="facet-stat">{{count}}</span>
+      </a>
+    {{/eq}}
+  {{/each}}
+</div>

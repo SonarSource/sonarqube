@@ -1,0 +1,24 @@
+@import (reference) "../variables";
+@import (reference) "../mixins";
+
+.issues-distribution-bar {
+  display: inline-block;
+  vertical-align: middle;
+  width: 45px;
+}
+
+.issues-distribution-bar-item {
+  display: block;
+  min-width: 1px;
+  height: 3px;
+
+  &.s-blocker { background-color: @severityBlockerColor; }
+  &.s-critical { background-color: @severityCriticalColor; }
+  &.s-major { background-color: @severityMajorColor; }
+  &.s-minor { background-color: @severityMinorColor; }
+  &.s-info { background-color: @severityInfoColor; }
+}
+
+.issues-distribution-bar-item + .issues-distribution-bar-item {
+  margin-top: 1px;
+}

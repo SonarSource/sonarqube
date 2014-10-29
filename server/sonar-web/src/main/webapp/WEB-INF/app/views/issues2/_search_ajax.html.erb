@@ -1,0 +1,10 @@
+<div class="issues-content">
+  <%
+     if @issues_result.issues && !@issues_result.issues.empty?
+  %>
+    <%= render :partial => 'operations_ajax' -%>
+    <%= render :partial => 'list' -%>
+  <% else %>
+    <%= render :partial => 'shared/no_issues' -%>
+  <% end %>
+</div>

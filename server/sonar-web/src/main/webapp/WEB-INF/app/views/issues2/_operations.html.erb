@@ -1,0 +1,53 @@
+<% if @issues_result && @issues_result.maxResultsReached() %>
+  <p class="notes"><%= message('issue_filter.max_results_reached', :params => @issues_result.paging.total()) -%></p>
+<% end %>
+
+<% unless @issues_result.issues && !@issues_result.issues.empty? %>
+  <p class="notes" style="padding: 5px;"><%= message('issue_filter.no_result') -%></p>
+<% end %>
+
+<% if logged_in? && !@first_search %>
+  <div id="issue-filters-operations" class="line-block marginbottom10">
+    <ul class="operations">
+      <% if @filter && @filter.id %>
+        <li><a id="copy" href="<%= url_for :action => 'copy_form', :id => @filter.id -%>" class="link-action open-modal"><%= message('copy') -%></a></li>
+      <% end %>
+      <% if !@unchanged && @filter && @filter.id && @filter.user == current_user.login %>
+        <li>
+          <%= link_to message('save'), params.merge({:action => 'save', :id => @filter.id}), :class => 'link-action', :id => 'save', :method => :post -%>
+        </li>
+      <% end %>
+      <% unless @filter %>
+        <li>
+          <a id="save-as" href="<%= url_for params.merge({:action => 'save_as_form'}) -%>" class="link-action open-modal"><%= message('save_as') -%></a>
+        </li>
+      <% end %>
+      <% if @issues_result.issues && !@issues_result.issues.empty? %>
+        <li class="last">
+          <a id="bulk-change" href="<%= url_for params.merge({:action => 'bulk_change_form'}) -%>"
+             class="link-action open-modal"><%= message('bulk_change') -%></a>
+        </li>
+      <% end %>
+    </ul>
+
+    <% if @filter && @filter.id && @filter.name.present? %>
+    <div class="page_title" id="filter-title">
+      <p>
+        <span class="h3"><%= h @filter.name -%></span>
+          <span class="note">
+            <% if !@filter.shared %>
+              [<%= message 'issue_filter.private' -%>]
+            <% elsif @filter.user==current_user.login %>
+              [<%= message 'issue_filter.shared_with_all_users' -%>]
+            <% elsif @filter.user %>
+              [<%= message 'shared_by' -%> <%= Api.users.findByLogin(@filter.user).name -%>]
+            <% end %>
+          </span>
+        <% if @filter.user == current_user.login %>
+          &nbsp;<a href="<%= url_for :action => 'edit_form', :id => @filter.id -%>" class="open-modal" id="edit-filter"><%= image_tag 'pencil-small.png', :alt => message('edit') -%></a>
+        <% end %>
+        </p>
+    </div>
+    <% end %>
+  </div>
+<% end %>

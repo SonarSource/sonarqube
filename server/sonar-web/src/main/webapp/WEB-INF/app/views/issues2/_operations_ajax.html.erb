@@ -1,0 +1,12 @@
+<% if logged_in? && @issues_result.issues && !@issues_result.issues.empty? %>
+  <div class="line-block marginbottom10">
+    <div id="issue-filters-operations" style="padding-right: 5px; padding-top: 5px;">
+      <ul class="operations">
+        <li class="last">
+          <a id="bulk-change" href="<%= url_for params.merge({:controller => 'issues', :action => 'bulk_change_form'}) -%>"
+             class="link-action open-modal"><%= message('bulk_change') -%></a>
+        </li>
+      </ul>
+    </div>
+  </div>
+<% end %>

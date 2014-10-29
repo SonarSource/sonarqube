@@ -254,6 +254,9 @@ module.exports = (grunt) ->
           '<%= pkg.assets %>js/templates/issues.js': [
             '<%= pkg.sources %>hbs/issues/**/*.hbs'
           ]
+          '<%= pkg.assets %>js/templates/issues-old.js': [
+            '<%= pkg.sources %>hbs/issues-old/**/*.hbs'
+          ]
           '<%= pkg.assets %>js/templates/api-documentation.js': [
             '<%= pkg.sources %>hbs/api-documentation/**/*.hbs'
           ]

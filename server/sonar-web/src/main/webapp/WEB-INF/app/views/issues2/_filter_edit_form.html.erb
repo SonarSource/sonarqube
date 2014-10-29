@@ -1,0 +1,20 @@
+<form id="edit-filter-form" method="post" action="<%= ApplicationController.root_context -%>/issues/edit">
+  <input type="hidden" name="id" value="<%= @filter.id -%>">
+  <fieldset>
+    <div class="modal-head">
+      <h2><%= message('issue_filter.edit_filter') -%></h2>
+    </div>
+    <%= render :partial => 'filter_shared_form', :locals => {:display_owner => true} %>
+    <div class="modal-foot">
+      <input type="submit" value="<%= message('save') -%>" id="save-submit" class="issue-filter"/>
+      <a href="#" onclick="return closeModalWindow()" id="save-cancel"><%= message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+<script>
+  $j("#edit-filter-form").modalForm({
+    success: function (data) {
+      return onEdit(data);
+    }
+  });
+</script>

@@ -1,0 +1,126 @@
+<%
+   if @issues_result.issues && !@issues_result.issues.empty?
+    colspan = 6
+%>
+  <div id="issues-list">
+    <table class="data width100">
+      <thead>
+        <tr>
+          <th width="1%" nowrap class="column-severity">
+            <%= column_html(@issues_query, @issues_result, message('severity_abbreviated'), message('severity'), 'SEVERITY') %>
+          </th>
+          <th width="1%" nowrap class="column-status">
+            <%= column_html(@issues_query, @issues_result, message('status'), message('status'), 'STATUS') %>
+          </th>
+          <th>
+            <%= message('description') -%>
+          </th>
+          <th nowrap>
+            <%= message('component') -%>
+          </th>
+          <th class="column-assignee">
+            <%= column_html(@issues_query, @issues_result, message('issue_filter.header.assignee'), message('issue_filter.header.assignee'), 'ASSIGNEE') %>
+          </th>
+          <th width="1%" nowrap>
+            <%= message('issue_filter.header.action_plan') -%>
+          </th>
+          <th width="1%" nowrap class="column-update-date">
+            <%= column_html(@issues_query, @issues_result, message('issue_filter.header.update_date'), message('issue_filter.header.update_date'), 'UPDATE_DATE') %>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+      <%
+         @issues_result.issues.each do |issue|
+      %>
+        <tr class="<%= cycle('even', 'odd') -%>">
+          <td width="1%" nowrap>
+            <i class="icon-severity-<%= issue.severity.downcase -%>"></i>
+          </td>
+          <td>
+            <%= message("issue.status.#{issue.status}") -%>
+            <% if issue.resolution %>
+              <span class="note" style="white-space: nowrap">[<%= message("issue.resolution.#{issue.resolution}") -%>]</span>
+            <% end %>
+          </td>
+          <td>
+            <a class='open-modal rule-modal issue-detail-link' modal-width='900' href='<%= url_for :controller => 'issue', :action => 'show', :id => issue.key, :modal => true -%>'>
+              <%= h truncate(issue.message, :length => 100) -%></a>
+          </td>
+          <td>
+            <% project = @issues_result.project(issue)
+               component = @issues_result.component(issue) -%>
+            <div class="subtitle"><%= h (truncate(project.name, :length => 100)) -%></div>
+            <% if component %>
+              <!-- Do not display component name when issue is on module -->
+              <% if component.key != project.key %>
+                <%= h component.longName() -%>
+              <% end %>
+            <% else %>
+              <del><%= h issue.componentKey() %></del>
+            <% end %>
+          </td>
+          <td>
+            <%= h @issues_result.user(issue.assignee).name if issue.assignee -%>
+          </td>
+          <td>
+            <%= h @issues_result.actionPlan(issue).name if issue.actionPlanKey() -%>
+          </td>
+          <td width="1%" nowrap>
+            <%= human_short_date(Api::Utils.java_to_ruby_datetime(issue.updateDate())) -%>
+          </td>
+        </tr>
+      <%
+         end
+      %>
+      </tbody>
+      <%= if @ajax_mode
+           paginate_java(@issues_result.paging, :colspan => colspan, :id => 'issue-filter-foot', :include_loading_icon => true,
+                :url_results => url_for({:controller => 'issues', :action => 'search'}.merge(params))) { |label, page_id|
+             link_to_function label, "refreshList('#{@issues_query.sort}', #{@issues_query.asc}, #{page_id})"
+           }
+         else
+           paginate_java(@issues_result.paging, :colspan => colspan, :id => 'issue-filter-foot', :include_loading_icon => true) { |label, page_id|
+               link_to(label, params.merge({:pageIndex => page_id}))
+           }
+        end
+      %>
+    </table>
+  </div>
+<%
+   end
+%>
+
+<script type="text/javascript">
+  var filterCriteria = <%= json_escape(@issues_query_params.to_json) -%>;
+
+  function refreshList(sort, asc, page) {
+    $j('#issue-filter-foot_pages').hide();
+    $j('#issue-filter-foot_loading').show();
+
+    filterCriteria['sort']=sort;
+    filterCriteria['asc']=asc;
+    filterCriteria['pageIndex']=page;
+    var url = baseUrl + '/issues/search?' + $j.param(filterCriteria);
+
+    <% if @ajax_mode %>
+      $j('.issues-content').load(url, function () {
+        // As issues will be loaded after open-modal has been processed by jQuery, we have to process manually modal classes
+        processModal();
+      });
+    <% else %>
+      window.location = url;
+    <% end %>
+    return false;
+  }
+
+  function processModal(){
+    $j('.issues-content .open-modal').modal();
+  }
+
+  <% if @ajax_mode %>
+    $j(document).ready(function() {
+      processModal();
+    });
+  <% end %>
+</script>

@@ -1,0 +1,21 @@
+{{#if state.component}}
+  <span class="issues-header-item">
+    <a class="js-back">Return to List</a>
+  </span>
+
+  <span class="issues-header-item">
+    {{state.component.projectName}} {{state.component.name}}
+  </span>
+{{/if}}
+
+<span class="issues-header-item issues-header-nav">
+  <a class="icon-bulk-change js-issues-bulk-change"></a>
+</span>
+
+{{#if state.total}}
+  <span class="issues-header-item issues-header-nav">
+    <a class="js-issues-prev icon-prev"></a>
+    <span class="current">{{sum state.selectedIndex 1}} / {{state.total}}</span>
+    <a class="js-issues-next icon-next"></a>
+  </span>
+{{/if}}

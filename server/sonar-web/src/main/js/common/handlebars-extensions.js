@@ -206,9 +206,9 @@ define(['handlebars'], function (Handlebars) {
   });
 
   Handlebars.registerHelper('dashboardUrl', function(componentKey, componentQualifier) {
-    var url = baseUrl + '/dashboard/index/' + decodeURIComponent(componentKey);
+    var url = baseUrl + '/dashboard/index?id=' + encodeURIComponent(componentKey);
     if (componentQualifier === 'FIL' || componentQualifier === 'CLA') {
-      url += '?metric=sqale_index';
+      url += '&metric=sqale_index';
     }
     return url;
   });
@@ -263,6 +263,14 @@ define(['handlebars'], function (Handlebars) {
   Handlebars.registerHelper('withFirst', function(list, options) {
     if (list && list.length > 0) {
       return options.fn(list[0]);
+    } else {
+      return '';
+    }
+  });
+
+  Handlebars.registerHelper('withLast', function(list, options) {
+    if (list && list.length > 0) {
+      return options.fn(list[list.length - 1]);
     } else {
       return '';
     }

@@ -25,7 +25,7 @@ requirejs.config({
 requirejs(
     [
       'backbone', 'backbone.marionette', 'handlebars',
-      'issues/extra',
+      'issues-old/extra',
       'navigator/filters/filter-bar',
       'navigator/filters/base-filters',
       'navigator/filters/checkbox-filters',

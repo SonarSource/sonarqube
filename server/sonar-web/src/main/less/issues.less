@@ -1,0 +1,302 @@
+@import (reference) "variables";
+@import (reference) "mixins";
+@import (reference) "ui";
+
+@sideWidth: 300px;
+
+
+.issues {
+
+  &.sticky {
+
+    .issues-workspace-header {
+      position: fixed;
+      z-index: 4;
+      top: 0;
+      left: @sideWidth;
+      right: 0px;
+    }
+
+    .issues-workspace-list,
+    .issues-workspace-component-viewer {
+      padding-top: 37px;
+    }
+
+    .issues-side {
+      position: fixed;
+      z-index: 4;
+      top: 0;
+      bottom: 0;
+      overflow-y: scroll;
+    }
+
+  }
+}
+
+.issues-side {
+  position: fixed;
+  width: @sideWidth;
+  top: 30px; left: 0; bottom: 0;
+  .box-sizing(border-box);
+  border-right: 1px solid @barBorderColor;
+  background-color: @barBorderColor;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+.issues-facet-box {
+  border-top: 1px solid @barBorderColor;
+  background-color: @barBackgroundColor;
+  font-size: @baseFontSize;
+}
+
+.issues-facet-box-collapsed {
+  background-color: transparent;
+
+  .issues-facet-list,
+  .issues-facet-container {
+    display: none;
+  }
+
+  .issues-facet-header {
+    color: @secondFontColor;
+    font-weight: 300;
+  }
+}
+
+.issues-facet {
+  position: relative;
+  width: @sideWidth - 22px;
+  margin: 0 22px 1px 0;
+  border-color: transparent;
+  .box-sizing(border-box);
+  background-color: @barBackgroundColor;
+  white-space: normal;
+  overflow-x: hidden;
+
+  .facet-name {
+    white-space: nowrap;
+    background-color: @barBackgroundColor;
+    color: @secondFontColor;
+  }
+
+  .facet-stat {
+    position: absolute;
+    top: 0; right: 0;
+    padding: 4px 5px;
+    border: none;
+    background-color: @barBackgroundColor;
+
+    &:before {
+      content: " ";
+      position: absolute;
+      top: 0; bottom: 0; right: 100%;
+      width: 10px;
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0), @barBackgroundColor 75%);
+    }
+  }
+
+  &.active .facet-stat:before {
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0), @lightBlue 75%);
+  }
+}
+
+.issues-facet-half {
+  width: @sideWidth / 2 - 22px;
+}
+
+.issues-facet-header {
+  display: block;
+  padding: 6px 10px;
+  border-bottom: none;
+  color: @baseFontColor;
+  font-weight: 400;
+}
+
+.issues-facet-list {
+  margin: 0 -22px 0 0;
+  padding: 0 10px 10px;
+  font-size: 0;
+}
+
+.issues-facet-container {
+  margin-top: 6px;
+  padding: 0 10px 16px;
+}
+
+.issues-facet-input {
+  width: @sideWidth * 0.4;
+//  .box-sizing(border-box);
+}
+
+.issues-filters {
+  .clearfix;
+  padding: 8px 10px;
+  background-color: @barBackgroundColor;
+  color: @secondFontColor;
+  font-size: @smallFontSize;
+  font-weight: 300;
+}
+
+.issues-filters-list {
+  display: none;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.issues-filters-filter {
+
+}
+
+.issues-filters-header {
+  font-size: @smallFontSize;
+  font-weight: 300;
+}
+
+.issues-filters-header-filters {
+  display: inline-block;
+  max-width: 50%;
+  .text-ellipsis;
+}
+
+.issues-filters-header-actions {
+  float: right;
+}
+
+.issues-filters-button {
+  border-bottom-color: @secondFontColor;
+  color: @secondFontColor;
+  font-size: @smallFontSize;
+  font-weight: 300;
+  .trans(color);
+
+  &:hover, &:active {
+    color: #fff;
+  }
+
+  &:focus {}
+}
+
+.issues-workspace {
+  padding-left: @sideWidth;
+}
+
+.issues-header {
+  .clearfix;
+  margin-bottom: 10px;
+  padding: 5px 0;
+  border: 1px solid @barBorderColor;
+  border-left: none;
+  background: @barBackgroundColor;
+  font-size: @smallFontSize;
+}
+
+.issues-header-item {
+  display: inline-block;
+  margin: 0 10px;
+}
+
+.issues-header-nav {
+  float: right;
+}
+
+.issues-workspace-list {
+  padding: 0 10px;
+}
+
+.issues-workspace-list-more {
+  margin-top: 10px;
+  padding: 5px 10px;
+  border: 1px solid @barBorderColor;
+  background: @barBackgroundColor;
+  text-align: center;
+}
+
+.issues-workspace-component-viewer {
+  padding: 0 10px;
+  overflow-x: auto;
+}
+
+.issues-workspace-component-viewer-header {
+  position: relative;
+}
+
+.issues-workspace-component-viewer-close {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  margin-top: -8px;
+}
+
+.issues-extended-view {
+
+  .issues-workspace-list {
+    display: none;
+  }
+}
+
+.issue-box {
+  .clearfix;
+  border: 1px solid @barBorderColor;
+  border-left: none;
+  overflow: hidden;
+
+  &.selected {
+    background-color: #e4ecf3;
+  }
+}
+
+.issue-box + .issue-box {
+  margin-top: 12px;
+}
+
+.issue-box-component,
+.issue-box-snippet {
+  border-left: 2px solid @red;
+}
+
+.issue-box-details {
+
+}
+
+.code-issue-modern {
+  border-left: 2px solid @red;
+
+  .code-issue-name,
+  .code-issue-actions,
+  .code-issue-details,
+  .code-issue-comment {
+    border: none;
+    background: transparent;
+  }
+
+  &.highlighted {
+    background: #E4ECF3;
+  }
+}
+
+.code-source .code-issue-modern {
+  margin: 5px 0;
+}
+
+.issue-box-snippet {
+  padding: 3px 0;
+  overflow: hidden;
+  cursor: pointer;
+
+  .code {
+    border: none;
+  }
+}
+
+.issue-box-component {
+  padding: 5px;
+}
+
+.code .issue > pre {
+  display: inline-block;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1M0M2Rjk4M0M3QUYxMUUzODkzRUREMUM5OTNDMjY4QSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1M0M2Rjk4NEM3QUYxMUUzODkzRUREMUM5OTNDMjY4QSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjUzQzZGOTgxQzdBRjExRTM4OTNFREQxQzk5M0MyNjhBIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjUzQzZGOTgyQzdBRjExRTM4OTNFREQxQzk5M0MyNjhBIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+bcqJtQAAAEhJREFUeNpi+G+swwDGDAwgbAWlwZiJAQFCgfgwEIfDRaC67ID4NRDnQ2kQnwFZwgFqnANMAQOUYY9sF0wBiCGH5CBkrAgQYACuWi4sSGW8yAAAAABJRU5ErkJggg==);
+  background-repeat: repeat-x;
+  background-size: 4px;
+  background-position: bottom;
+}

@@ -1,0 +1,161 @@
+<%
+   project_uuid = @projectUuids.to_a.first if !@projectUuids.empty? && @projectUuids.to_a.size == 1
+   project_key = Internal.component_api.findByUuid(project_uuid).key() if project_uuid
+   max_page_size_reached = @issues.size >= Internal.issues.maxPageSize()
+
+   transitions_by_issues = {}
+   unresolved_issues = 0
+   unresolved_issues_user_can_admin = 0
+   at_least_one_issue_is_planned = false
+   at_least_one_issue_is_assigned = false
+   all_issues_are_assigned_to_current_user = true
+   @issues.each do |issue|
+     transitions = Internal.issues.listTransitions(issue)
+     transitions.each do |transition|
+       issues_for_transition = transitions_by_issues[transition.key] || 0
+       issues_for_transition += 1
+       transitions_by_issues[transition.key] = issues_for_transition
+     end
+     unresolved_issues += 1 unless issue.resolution()
+     if Java::OrgSonarServerUser::UserSession.get().hasProjectPermissionByUuid('issueadmin', issue.projectUuid)
+       unresolved_issues_user_can_admin += 1 unless issue.resolution()
+     end
+     at_least_one_issue_is_planned ||= issue.actionPlanKey()
+     at_least_one_issue_is_assigned ||= issue.assignee()
+     all_issues_are_assigned_to_current_user &&= issue.assignee() == current_user.login
+   end
+%>
+<form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
+  <input type="hidden" name="issues" value="<%= @issues.map { |issue| issue.key() }.join(',') -%>">
+  <input type="hidden" name="actions[]" id="bulk-change-transition-action">
+  <fieldset>
+    <div class="modal-head">
+      <h2><%= message('issue_bulk_change.form.title', {:params => @issues.size.to_s}) -%></h2>
+    </div>
+    <div class="modal-body">
+      <div>
+      <% if max_page_size_reached %>
+        <p class="notes"><%= message('issue_bulk_change.max_issues_reached', :params => @issues.size) -%></p>
+      <% end %>
+      </div>
+      <div class="modal-error"/>
+
+      <% if unresolved_issues > 0 %>
+      <div class="modal-field">
+        <label for="assignee">
+          <%= message('issue.assign.formlink') -%>
+        </label>
+        <input id="assign-action" name="actions[]" type="checkbox" value="assign"/>
+        <%= assign_added_choices = {}
+            # SONAR-4728 Display 'Not assigned' option only if at least one issue is assigned
+            assign_added_choices[''] = escape_javascript(message('unassigned')) if at_least_one_issue_is_assigned
+            # SONAR-4728 Display 'Assign to me' option only if not not all issues are asigned to current user
+            assign_added_choices[current_user.login] = escape_javascript(message('assigned_to_me')) unless all_issues_are_assigned_to_current_user
+            user_select_tag('assign.assignee', :html_id => 'assignee', :open => false, :selected_user => current_user,
+                            :include_choices => assign_added_choices)
+        -%>
+        <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
+      </div>
+      <%
+         if project_key
+           plans = Internal.issues.findOpenActionPlans(project_key)
+           # Display action plan combo box if there are some action plans defined on the project
+           unless plans.empty?
+             first_plan = plans[0]
+             options = plans.map { |plan|
+               label = plan.deadLine ? "#{h plan.name} (#{format_date(plan.deadLine)})" : h(plan.name)
+               [label, plan.key]
+             }
+             # SONAR-4728 Display 'Unplan' option only if at least one issue is planned
+             options.unshift([escape_javascript(message('issue.unplan.submit')), '']) if at_least_one_issue_is_planned
+             plan_options = options_for_select(options, first_plan.key)
+      %>
+        <div class="modal-field">
+          <label for="plan">
+            <%= message('issue.do_plan') -%>
+          </label>
+          <input id="plan-action" name="actions[]" type="checkbox" value="plan"/>
+          <%= dropdown_tag('plan.plan', plan_options, {:show_search_box => false}, {:id => 'plan'}) -%>
+          <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
+        </div>
+        <% end %>
+      <% end %>
+      <div class="modal-field">
+        <label for="severity">
+          <%= message('issue.set_severity') -%>
+        </label>
+        <input id="set-severity-action" name="actions[]" type="checkbox" value="set_severity"/>
+        <%= severity_dropdown_tag('set_severity.severity', severitiy_select_option_tags, {:show_search_box => false},
+                         {:id => 'severity'}) -%>
+        <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues_user_can_admin.to_s) -%>)</span>
+      </div>
+      <% end %>
+
+      <% if transitions_by_issues.size > 0 %>
+      <div class="modal-field">
+        <label>
+          <%= message('issue.transition') -%>
+        </label>
+        <% transitions_by_issues.keys.sort.each do |transition| %>
+          <input type="radio" id="transition-<%= transition -%>" name="do_transition.transition" value="<%= transition -%>"
+                 onClick="addTransitionAction();">&nbsp;<label for="transition-<%= transition -%>" style="float: none; display: inline; left: 0; cursor: pointer;"><%= message("issue.transition.#{transition}") -%></label>
+          <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => transitions_by_issues[transition].to_s) %>)</span><br/>
+      <% end %>
+      </div>
+      <% end %>
+
+      <div class="modal-field">
+        <label>
+         <%= message('issue.comment.formlink') -%>
+          <span style="cursor: help;"><%= image_tag 'help.png', :title => h(message('issue_bulk_change.comment.help')) -%></span>
+        </label>
+        <div style="padding: 0 10px 10px 0;">
+          <div>
+            <textarea rows="4" name="comment" id="comment" style="width: 100%"></textarea>
+          </div>
+          <div style="float:right">
+            <%= render :partial => 'markdown/tips' -%>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-field">
+        <label for="send-notifications">
+          <%= message('issue.send_notifications') -%>
+        </label>
+        <input id="send-notifications" name="sendNotifications" type="checkbox" value="true" />
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span id="bulk-change-loading-image" class="loading-image hidden"><%= image_tag 'loading.gif' %></span>
+      <input type="submit" value="<%= message('apply') -%>" id="bulk-change-submit" class="bulk-change" onclick="return displayLoadingImage()" />
+      <a href="#" onclick="return closeModalWindow()" id="bulk-change-cancel"><%= message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+<script>
+  $j("#bulk-change-form").modalForm({
+    success: function () {
+      onBulkIssues(<%= json_escape(params.to_json) -%>);
+    }
+  });
+
+  function addTransitionAction() {
+    $j('#bulk-change-transition-action').val("do_transition");
+  }
+
+  function displayLoadingImage() {
+    $j('#bulk-change-loading-image').removeClass("hidden");
+  }
+
+  function check(id){
+    $j('#'+ id).prop('checked', true);
+  }
+
+  /**
+   * Attach some events on select boxes to automatically select associate check box when selecting an option
+   */
+  $j('#assignee').click(function() { check('assign-action'); });
+  $j('#plan').click(function() { check('plan-action'); });
+  $j('#severity').click(function() { check('set-severity-action'); });
+</script>
