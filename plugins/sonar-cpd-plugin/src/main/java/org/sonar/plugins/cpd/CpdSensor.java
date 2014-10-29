@@ -72,7 +72,15 @@ public class CpdSensor implements Sensor {
 
   @Override
   public void execute(SensorContext context) {
+    if (settings.hasKey(CoreProperties.CPD_SKIP_PROPERTY)) {
+      LOG.warn("\"sonar.cpd.skip\" property is deprecated and will be removed. Please set \"sonar.cpd.exclusions=**\" instead to disable duplication mechanism.");
+    }
+
     for (String language : fs.languages()) {
+      if (settings.hasKey("sonar.cpd." + language + ".skip")) {
+        LOG.warn("\"sonar.cpd." + language + ".skip\" property is deprecated and will be removed. Please set \"sonar.cpd.exclusions=**\" instead to disable duplication mechanism.");
+      }
+
       if (isSkipped(language)) {
         LOG.info("Detection of duplicated code is skipped for {}", language);
         continue;

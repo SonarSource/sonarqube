@@ -259,6 +259,11 @@ public interface CoreProperties {
   @Deprecated
   String CPD_MINIMUM_TOKENS_PROPERTY = "sonar.cpd.minimumTokens";
 
+  /**
+   * @deprecated in 5.0
+   * @see <a href="https://jira.codehaus.org/browse/SONAR-5339">SONAR-5339</a>
+   */
+  @Deprecated
   String CPD_SKIP_PROPERTY = "sonar.cpd.skip";
 
   /**
