@@ -26,9 +26,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * @since 4.4
- */
 public class Indexable {
 
   private static final Set<IndexField> ALL_FIELDS = new HashSet<IndexField>();
@@ -48,7 +45,7 @@ public class Indexable {
 
   public static IndexField addSearchable(IndexField.Type type, String field){
     IndexField indexField = new IndexField(type, field)
-      .searchable(true);
+      .setSearchable(true);
     ALL_FIELDS.add(indexField);
     return indexField;
   }
@@ -56,15 +53,15 @@ public class Indexable {
 
   public static IndexField addSortableAndSearchable(IndexField.Type type, String field) {
     IndexField indexField = new IndexField(type, field)
-      .searchable(true)
-      .sortable(true);
+      .setSearchable(true)
+      .setSortable(true);
     ALL_FIELDS.add(indexField);
     return indexField;
   }
 
   public static IndexField addSortable(IndexField.Type type, String field){
     IndexField indexField = new IndexField(type, field)
-      .sortable(true);
+      .setSortable(true);
     ALL_FIELDS.add(indexField);
     return indexField;
   }

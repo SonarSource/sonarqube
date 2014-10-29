@@ -78,7 +78,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
      * SQALE console.
      */
     @Deprecated
-    public static final IndexField ID = addSortable(IndexField.Type.NUMERIC, "id");
+    public static final IndexField ID = addSortable(IndexField.Type.DOUBLE, "id");
 
     public static final IndexField KEY = addSortable(IndexField.Type.STRING, "key");
     public static final IndexField _KEY = add(IndexField.Type.STRING, "_key");

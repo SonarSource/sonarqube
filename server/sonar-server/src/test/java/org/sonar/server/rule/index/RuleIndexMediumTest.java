@@ -55,10 +55,8 @@ import static org.fest.assertions.Fail.fail;
 
 public class RuleIndexMediumTest extends SearchMediumTest {
 
-
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
-
 
   @Test
   public void getByKey() throws InterruptedException {
@@ -71,9 +69,6 @@ public class RuleIndexMediumTest extends SearchMediumTest {
     assertThat(rule.htmlDescription()).isEqualTo(ruleDto.getDescription());
     assertThat(rule.key()).isEqualTo(ruleDto.getKey());
 
-    // TODO
-    // assertThat(rule.debtSubCharacteristicKey())
-    // .isEqualTo(ruleDto.getDefaultSubCharacteristicId().toString());
     assertThat(rule.debtRemediationFunction().type().name())
       .isEqualTo(ruleDto.getRemediationFunction());
 
@@ -551,7 +546,7 @@ public class RuleIndexMediumTest extends SearchMediumTest {
       new RuleQuery().setSortField(RuleNormalizer.RuleField.LANGUAGE);
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Field 'lang' is not sortable!");
+      assertThat(e).hasMessage("Field 'lang' is not sortable");
     }
   }
 

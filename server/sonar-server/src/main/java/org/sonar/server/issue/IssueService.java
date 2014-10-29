@@ -292,8 +292,8 @@ public class IssueService implements ServerComponent {
     return aggregation;
   }
 
-  public Map<String, Integer> findIssueAssignees(IssueQuery query) {
-    Map<String, Integer> result = newLinkedHashMap();
+  public Map<String, Long> findIssueAssignees(IssueQuery query) {
+    Map<String, Long> result = newLinkedHashMap();
     List<FacetValue> facetValues = indexClient.get(IssueIndex.class).listAssignees(query);
     for (FacetValue facetValue : facetValues) {
       if ("_notAssigned_".equals(facetValue.getKey())) {

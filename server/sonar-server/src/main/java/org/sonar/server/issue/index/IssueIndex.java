@@ -165,9 +165,9 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     Terms aggregation = (Terms) response.getAggregations().getAsMap().get(IssueNormalizer.IssueField.ASSIGNEE.field());
     List<FacetValue> facetValues = newArrayList();
     for (Terms.Bucket value : aggregation.getBuckets()) {
-      facetValues.add(new FacetValue(value.getKey(), (int) value.getDocCount()));
+      facetValues.add(new FacetValue(value.getKey(), value.getDocCount()));
     }
-    facetValues.add(new FacetValue("_notAssigned_", (int) ((InternalMissing) response.getAggregations().get("notAssigned")).getDocCount()));
+    facetValues.add(new FacetValue("_notAssigned_", ((InternalMissing) response.getAggregations().get("notAssigned")).getDocCount()));
 
     return facetValues;
   }
@@ -390,19 +390,18 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
   }
 
   private void setSorting(IssueQuery query, SearchRequestBuilder esSearch) {
-    /* integrate Query Sort */
     String sortField = query.sort();
-    Boolean asc = query.asc();
     if (sortField != null) {
+      Boolean asc = query.asc();
       List<IndexField> fields = toIndexFields(sortField);
       for (IndexField field : fields) {
-        FieldSortBuilder sort = SortBuilders.fieldSort(field.sortField());
+        FieldSortBuilder sortBuilder = SortBuilders.fieldSort(field.sortField());
         if (asc != null && asc) {
-          sort.order(SortOrder.ASC);
+          sortBuilder.order(SortOrder.ASC);
         } else {
-          sort.order(SortOrder.DESC);
+          sortBuilder.order(SortOrder.DESC);
         }
-        esSearch.addSort(sort);
+        esSearch.addSort(sortBuilder);
       }
     } else {
       esSearch.addSort(IssueNormalizer.IssueField.ISSUE_UPDATED_AT.sortField(), SortOrder.DESC);

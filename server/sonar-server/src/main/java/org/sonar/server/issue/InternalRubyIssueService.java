@@ -111,7 +111,7 @@ public class InternalRubyIssueService implements ServerComponent {
     return issueService.getByKey(issueKey);
   }
 
-  public Map<String, Integer> findIssueAssignees(Map<String, Object> params) {
+  public Map<String, Long> findIssueAssignees(Map<String, Object> params) {
     return issueService.findIssueAssignees(issueQueryService.createFromMap(params));
   }
 

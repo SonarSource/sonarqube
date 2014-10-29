@@ -28,7 +28,7 @@ import java.util.Collections;
 public class IndexField {
 
   public static enum Type {
-    STRING, TEXT, DATE, BOOLEAN, NUMERIC, OBJECT, UUID_PATH
+    STRING, TEXT, DATE, BOOLEAN, INTEGER, LONG, DOUBLE, OBJECT, UUID_PATH
   }
 
   public static final String SORT_SUFFIX = "sort";
@@ -52,20 +52,20 @@ public class IndexField {
     this.nestedFields = nestedFields;
   }
 
-  public boolean sortable() {
+  public boolean isSortable() {
     return sortable;
   }
 
-  public IndexField sortable(boolean b) {
+  public IndexField setSortable(boolean b) {
     this.sortable = b;
     return this;
   }
 
-  public boolean searchable() {
+  public boolean isSearchable() {
     return searchable;
   }
 
-  public IndexField searchable(boolean b) {
+  public IndexField setSearchable(boolean b) {
     this.searchable = b;
     return this;
   }
@@ -79,15 +79,15 @@ public class IndexField {
   }
 
   public Collection<IndexField> nestedFields() {
-    return this.nestedFields;
+    return nestedFields;
   }
 
   public String sortField() {
-    if (this.sortable()) {
+    if (isSortable()) {
       return this.field + ((type == IndexField.Type.TEXT
         || type == IndexField.Type.STRING) ? "." + IndexField.SORT_SUFFIX : "");
     } else {
-      throw new IllegalStateException("Cannot sort on field (Field is not sortable)");
+      throw new IllegalStateException("Field is not sortable: " + field);
     }
   }
 

@@ -230,8 +230,8 @@ public class RuleQuery {
   }
 
   public RuleQuery setSortField(@Nullable IndexField sf) {
-    if (sf != null && !sf.sortable()) {
-      throw new IllegalStateException("Field '" + sf.field() + "' is not sortable!");
+    if (sf != null && !sf.isSortable()) {
+      throw new IllegalStateException(String.format("Field '%s' is not sortable", sf.field()));
     }
     this.sortField = sf;
     return this;

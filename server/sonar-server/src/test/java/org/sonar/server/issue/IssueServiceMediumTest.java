@@ -400,12 +400,12 @@ public class IssueServiceMediumTest {
       IssueTesting.newDto(rule, file, project).setAssignee("steph"));
     session.commit();
 
-    Map<String, Integer> results = service.findIssueAssignees(IssueQuery.builder().build());
+    Map<String, Long> results = service.findIssueAssignees(IssueQuery.builder().build());
 
     assertThat(results).hasSize(3);
-    assertThat(results.get("steph")).isEqualTo(2);
-    assertThat(results.get("simon")).isEqualTo(1);
-    assertThat(results.get(null)).isEqualTo(1);
+    assertThat(results.get("steph")).isEqualTo(2L);
+    assertThat(results.get("simon")).isEqualTo(1L);
+    assertThat(results.get(null)).isEqualTo(1L);
 
     assertThat(results.keySet().toArray()[0]).isEqualTo("steph");
     assertThat(results.keySet().toArray()[1]).isEqualTo("simon");

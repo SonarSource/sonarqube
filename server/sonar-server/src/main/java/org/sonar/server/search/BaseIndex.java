@@ -268,8 +268,12 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       return mapNestedField(field);
     } else if (field.type() == IndexField.Type.DATE) {
       return mapDateField(field);
-    } else if (field.type() == IndexField.Type.NUMERIC) {
-      return mapNumericField(field);
+    } else if (field.type() == IndexField.Type.DOUBLE) {
+      return mapDoubleField(field);
+    } else if (field.type() == IndexField.Type.INTEGER) {
+      return mapIntegerField(field);
+    } else if (field.type() == IndexField.Type.LONG) {
+      return mapLongField(field);
     } else if (field.type() == IndexField.Type.UUID_PATH) {
       return mapUuidPathField(field);
     } else {
@@ -284,8 +288,16 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       "analyzer", "uuid_analyzer");
   }
 
-  protected Map mapNumericField(IndexField field) {
+  protected Map mapDoubleField(IndexField field) {
     return ImmutableMap.of("type", "double");
+  }
+
+  protected Map mapIntegerField(IndexField field) {
+    return ImmutableMap.of("type", "integer");
+  }
+
+  protected Map mapLongField(IndexField field) {
+    return ImmutableMap.of("type", "long");
   }
 
   protected Map mapBooleanField(IndexField field) {
@@ -315,14 +327,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected boolean needMultiField(IndexField field) {
     return (field.type() == IndexField.Type.TEXT
       || field.type() == IndexField.Type.STRING)
-      && (field.sortable() || field.searchable());
-  }
-
-  protected Map mapSortField(IndexField field) {
-    return ImmutableMap.of(
-      "type", "string",
-      "index", "analyzed",
-      "analyzer", "sortable");
+      && (field.isSortable() || field.isSearchable());
   }
 
   protected Map mapGramsField(IndexField field) {
@@ -343,10 +348,13 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   protected Map mapMultiField(IndexField field) {
     Map<String, Object> mapping = new HashMap<String, Object>();
-    if (field.sortable()) {
-      mapping.put(IndexField.SORT_SUFFIX, mapSortField(field));
+    if (field.isSortable()) {
+      mapping.put(IndexField.SORT_SUFFIX, ImmutableMap.of(
+        "type", "string",
+        "index", "analyzed",
+        "analyzer", "sortable"));
     }
-    if (field.searchable()) {
+    if (field.isSearchable()) {
       if (field.type() != IndexField.Type.TEXT) {
         mapping.put(IndexField.SEARCH_PARTIAL_SUFFIX, mapGramsField(field));
       }
@@ -509,16 +517,14 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     Multimap<String, FacetValue> stats = ArrayListMultimap.create();
     if (aggregations != null) {
       for (Aggregation aggregation : aggregations.asList()) {
-        if (aggregation.getClass().isAssignableFrom(StringTerms.class)) {
+        if (aggregation instanceof StringTerms) {
           for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
-
-            FacetValue facetValue = new FacetValue(value.getKey(), (int) value.getDocCount());
-            facetValue.setSubFacets(processAggregations(value.getAggregations()));
+            FacetValue facetValue = new FacetValue(value.getKey(), value.getDocCount());
             stats.put(aggregation.getName(), facetValue);
           }
-        } else if (aggregation.getClass().isAssignableFrom(InternalValueCount.class)) {
+        } else if (aggregation instanceof InternalValueCount) {
           InternalValueCount count = (InternalValueCount) aggregation;
-          FacetValue facetValue = new FacetValue(count.getName(), (int) count.getValue());
+          FacetValue facetValue = new FacetValue(count.getName(), count.getValue());
           stats.put(count.getName(), facetValue);
         }
       }

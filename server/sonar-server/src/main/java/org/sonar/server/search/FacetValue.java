@@ -19,57 +19,42 @@
  */
 package org.sonar.server.search;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 public class FacetValue {
 
-  private String key;
-  private Integer value;
-  private Multimap<String, FacetValue> subFacets;
+  private final String key;
+  private final long value;
 
-  public FacetValue(String key, Integer value){
+  public FacetValue(String key, long value) {
     this.key = key;
     this.value = value;
-    this.subFacets = ArrayListMultimap.create();
   }
 
   public String getKey() {
     return key;
   }
 
-  public FacetValue setKey(String key) {
-    this.key = key;
-    return this;
-  }
-
-  public Integer getValue() {
+  public long getValue() {
     return value;
   }
 
-  public FacetValue setValue(Integer value) {
-    this.value = value;
-    return this;
-  }
-
-  public Multimap<String, FacetValue> getSubFacets() {
-    return subFacets;
-  }
-
-  public FacetValue setSubFacets(Multimap<String, FacetValue> subFacets) {
-    this.subFacets = subFacets;
-    return this;
-  }
-
   @Override
-  public boolean equals(Object other) {
-    return EqualsBuilder.reflectionEquals(this, other);
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    FacetValue that = (FacetValue) o;
+    if (key != null ? !key.equals(that.key) : that.key != null) {
+      return false;
+    }
+    return true;
   }
 
   @Override
   public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this);
+    return key != null ? key.hashCode() : 0;
   }
 }
