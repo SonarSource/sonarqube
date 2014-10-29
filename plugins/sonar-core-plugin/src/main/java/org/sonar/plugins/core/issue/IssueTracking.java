@@ -60,6 +60,9 @@ public class IssueTracking implements BatchExtension {
   }
 
   private void setChecksumOnNewIssues(Collection<DefaultIssue> issues, SourceHashHolder sourceHashHolder) {
+    if (issues.isEmpty()) {
+      return;
+    }
     List<String> checksums = SourceChecksum.lineChecksumsOfFile(sourceHashHolder.getSource());
     for (DefaultIssue issue : issues) {
       issue.setChecksum(SourceChecksum.getChecksumForLine(checksums, issue.line()));
