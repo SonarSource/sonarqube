@@ -281,8 +281,8 @@ public class IssuesWs implements WebService {
       .setRequired(true)
       .setExampleValue("assign,plan");
     action.createParam("assign.assignee")
-      .setDescription("To assign the list of issues to a specific user (login), or unassign all the issues")
-      .setExampleValue("sbrandhof");
+      .setDescription("To assign the list of issues to a specific user (login), or un-assign all the issues")
+      .setExampleValue("john.smith");
     action.createParam("set_severity.severity")
       .setDescription("To change the severity of the list of issues")
       .setExampleValue(Severity.BLOCKER)
@@ -296,11 +296,11 @@ public class IssuesWs implements WebService {
       .setPossibleValues(DefaultTransitions.ALL);
     action.createParam("comment")
       .setDescription("To add a comment to a list of issues")
-      .setExampleValue("blabla...");
+      .setExampleValue("Here is my comment");
     action.createParam("sendNotifications")
       .setDescription("Available since version 4.0")
       .setDefaultValue("false")
-      .setBooleanPossibleValues();
+      .setPossibleValues("true", "false");
     RailsHandler.addFormatParam(action);
   }
 

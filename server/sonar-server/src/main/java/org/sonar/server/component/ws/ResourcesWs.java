@@ -90,7 +90,7 @@ public class ResourcesWs implements WebService {
     action.createParam("verbose")
       .setDescription("Add some data to response")
       .setDefaultValue("false")
-      .setBooleanPossibleValues();
+      .setPossibleValues("true", "false");
 
     action.createParam("limit")
       .setDescription("Limit the number of results. Only used if one metric, and only one, is set")
@@ -100,12 +100,12 @@ public class ResourcesWs implements WebService {
       .setDescription("Include trends and period variations in response: add &lttrend&gt (1 if better, else worse), &ltvar&gt (1 if measure value increases) " +
         "and nodes &ltp*&gt for period variations")
       .setDefaultValue("false")
-      .setBooleanPossibleValues();
+      .setPossibleValues("true", "false");
 
     action.createParam("includealerts")
       .setDescription("Include alerts data: add nodes &ltalert&gt (ERROR, WARN, OK) and &ltalert_text&gt")
       .setDefaultValue("false")
-      .setBooleanPossibleValues();
+      .setPossibleValues("true", "false");
 
     action.createParam("rules")
       .setDescription("Filter on rules: setting it to true will return rules id and rule name for measure having such info " +
@@ -131,7 +131,7 @@ public class ResourcesWs implements WebService {
     action.createParam("display_key")
       .setDescription("Return the resource key instead of the resource id")
       .setDefaultValue("false")
-      .setBooleanPossibleValues();
+      .setPossibleValues("true", "false");
 
     action.createParam("q")
       .setDescription("Comma-separated list of qualifiers")

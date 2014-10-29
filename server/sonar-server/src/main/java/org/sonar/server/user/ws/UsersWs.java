@@ -50,7 +50,7 @@ public class UsersWs implements WebService {
     action.createParam("includeDeactivated")
       .setDescription("Include deactivated users")
       .setDefaultValue("false")
-      .setBooleanPossibleValues();
+      .setPossibleValues("true", "false");
 
     action.createParam("logins")
       .setDescription("Comma-separated list of user logins")
