@@ -43,21 +43,21 @@ public class ComputationService implements ServerComponent {
   }
 
   public void analyzeReport(AnalysisReportDto report) {
-    LOG.info(String.format("### Analysis '%s' of project '%s' started ###", report.getId(), report.getProjectKey()));
+    LOG.info(String.format("#%s - %s - Analysis report processing started", report.getId(), report.getProjectKey()));
 
     // Synchronization of lot of data can only be done with a batch session for the moment
     DbSession session = dbClient.openSession(true);
 
     try {
       for (ComputationStep step : stepRegistry.steps()) {
-        LOG.info(String.format("# %s step started...", step.description()));
+        LOG.info(String.format("%s step started", step.description()));
         step.execute(session, report);
         session.commit();
-        LOG.info(String.format("# %s step finished", step.description()));
+        LOG.info(String.format("%s step finished", step.description()));
       }
     } finally {
       MyBatis.closeQuietly(session);
-      LOG.info(String.format("### Analysis '%s' finished ###", report.getId()));
+      LOG.info(String.format("#%s - %s - Analysis report processing finished", report.getId(), report.getProjectKey()));
     }
   }
 }
