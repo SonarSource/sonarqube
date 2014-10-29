@@ -20,7 +20,6 @@
 package org.sonar.batch.issue;
 
 import org.sonar.api.BatchComponent;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
@@ -50,7 +49,7 @@ public class IssueCache implements BatchComponent {
     return this;
   }
 
-  public boolean remove(Issue issue) {
-    return cache.remove(issue.componentKey(), issue.key());
+  public boolean removeAll(String componentKey) {
+    return cache.remove(componentKey);
   }
 }

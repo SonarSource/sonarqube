@@ -25,7 +25,12 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
@@ -69,13 +74,13 @@ public class IssueTrackingDecorator implements Decorator {
   private final RuleFinder ruleFinder;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
-                                LastSnapshots lastSnapshots, SonarIndex index,
-                                IssueHandlers handlers, IssueWorkflow workflow,
-                                IssueUpdater updater,
-                                Project project,
-                                ResourcePerspectives perspectives,
-                                RulesProfile rulesProfile,
-                                RuleFinder ruleFinder) {
+    LastSnapshots lastSnapshots, SonarIndex index,
+    IssueHandlers handlers, IssueWorkflow workflow,
+    IssueUpdater updater,
+    Project project,
+    ResourcePerspectives perspectives,
+    RulesProfile rulesProfile,
+    RuleFinder ruleFinder) {
     this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
@@ -107,9 +112,9 @@ public class IssueTrackingDecorator implements Decorator {
   void doDecorate(Resource resource) {
     Collection<DefaultIssue> issues = Lists.newArrayList();
     for (Issue issue : issueCache.byComponent(resource.getEffectiveKey())) {
-      issueCache.remove(issue);
       issues.add((DefaultIssue) issue);
     }
+    issueCache.removeAll(resource.getEffectiveKey());
     // issues = all the issues created by rule engines during this module scan and not excluded by filters
 
     // all the issues that are not closed in db before starting this module scan, including manual issues
