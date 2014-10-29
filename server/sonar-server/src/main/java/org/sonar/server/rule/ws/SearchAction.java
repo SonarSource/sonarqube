@@ -214,7 +214,7 @@ public class SearchAction implements RequestHandler {
     RuleQuery query = createRuleQuery(ruleService.newRuleQuery(), request);
     SearchOptions searchOptions = SearchOptions.create(request);
     QueryContext queryContext = mapping.newQueryOptions(searchOptions);
-    Boolean facets = request.paramAsBoolean("facets");
+    Boolean facets = request.paramAsBoolean(PARAM_FACETS);
     if (facets != null && facets) {
       queryContext.addFacets(Arrays.asList("languages", "repositories", "tags"));
     }
