@@ -19,29 +19,51 @@
  */
 package org.sonar.plugins.core.issue;
 
-import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.db.IssueDto;
 
+import javax.annotation.Nullable;
+
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 class IssueTrackingResult {
-  private final Set<IssueDto> unmatched = Sets.newHashSet();
-  private final Multimap<RuleKey, IssueDto> unmatchedByRule = LinkedHashMultimap.create();
+  private final Map<String, IssueDto> unmatchedByKey = new HashMap<String, IssueDto>();
+  private final Map<RuleKey, Map<String, IssueDto>> unmatchedByRuleAndKey = new HashMap<RuleKey, Map<String, IssueDto>>();
+  private final Map<RuleKey, Map<Integer, Multimap<String, IssueDto>>> unmatchedByRuleAndLineAndChecksum =
+    new HashMap<RuleKey, Map<Integer, Multimap<String, IssueDto>>>();
   private final Map<DefaultIssue, IssueDto> matched = Maps.newIdentityHashMap();
 
   Collection<IssueDto> unmatched() {
-    return unmatched;
+    return unmatchedByKey.values();
   }
 
-  Collection<IssueDto> unmatchedForRule(RuleKey ruleKey) {
-    return unmatchedByRule.get(ruleKey);
+  Map<String, IssueDto> unmatchedByKeyForRule(RuleKey ruleKey) {
+    return unmatchedByRuleAndKey.containsKey(ruleKey) ? unmatchedByRuleAndKey.get(ruleKey) : Collections.<String, IssueDto>emptyMap();
+  }
+
+  Collection<IssueDto> unmatchedForRuleAndForLineAndForChecksum(RuleKey ruleKey, @Nullable Integer line, @Nullable String checksum) {
+    if (!unmatchedByRuleAndLineAndChecksum.containsKey(ruleKey)) {
+      return Collections.emptyList();
+    }
+    Map<Integer, Multimap<String, IssueDto>> unmatchedForRule = unmatchedByRuleAndLineAndChecksum.get(ruleKey);
+    Integer lineNotNull = line != null ? line : 0;
+    if (!unmatchedForRule.containsKey(lineNotNull)) {
+      return Collections.emptyList();
+    }
+    Multimap<String, IssueDto> unmatchedForRuleAndLine = unmatchedForRule.get(lineNotNull);
+    String checksumNotNull = StringUtils.defaultString(checksum, "");
+    if (!unmatchedForRuleAndLine.containsKey(checksumNotNull)) {
+      return Collections.emptyList();
+    }
+    return unmatchedForRuleAndLine.get(checksumNotNull);
   }
 
   Collection<DefaultIssue> matched() {
@@ -57,13 +79,30 @@ class IssueTrackingResult {
   }
 
   void addUnmatched(IssueDto i) {
-    unmatched.add(i);
-    unmatchedByRule.put(RuleKey.of(i.getRuleRepo(), i.getRule()), i);
+    unmatchedByKey.put(i.getKee(), i);
+    RuleKey ruleKey = RuleKey.of(i.getRuleRepo(), i.getRule());
+    if (!unmatchedByRuleAndKey.containsKey(ruleKey)) {
+      unmatchedByRuleAndKey.put(ruleKey, new HashMap<String, IssueDto>());
+      unmatchedByRuleAndLineAndChecksum.put(ruleKey, new HashMap<Integer, Multimap<String, IssueDto>>());
+    }
+    unmatchedByRuleAndKey.get(ruleKey).put(i.getKee(), i);
+    Map<Integer, Multimap<String, IssueDto>> unmatchedForRule = unmatchedByRuleAndLineAndChecksum.get(ruleKey);
+    Integer lineNotNull = i.getLine() != null ? i.getLine() : 0;
+    if (!unmatchedForRule.containsKey(lineNotNull)) {
+      unmatchedForRule.put(lineNotNull, HashMultimap.<String, IssueDto>create());
+    }
+    Multimap<String, IssueDto> unmatchedForRuleAndLine = unmatchedForRule.get(lineNotNull);
+    String checksumNotNull = StringUtils.defaultString(i.getChecksum(), "");
+    unmatchedForRuleAndLine.put(checksumNotNull, i);
   }
 
   void setMatch(DefaultIssue issue, IssueDto matching) {
     matched.put(issue, matching);
-    unmatchedByRule.remove(RuleKey.of(matching.getRuleRepo(), matching.getRule()), matching);
-    unmatched.remove(matching);
+    RuleKey ruleKey = RuleKey.of(matching.getRuleRepo(), matching.getRule());
+    unmatchedByRuleAndKey.get(ruleKey).remove(matching.getKee());
+    unmatchedByKey.remove(matching.getKee());
+    Integer lineNotNull = matching.getLine() != null ? matching.getLine() : 0;
+    String checksumNotNull = StringUtils.defaultString(matching.getChecksum(), "");
+    unmatchedByRuleAndLineAndChecksum.get(ruleKey).get(lineNotNull).get(checksumNotNull).remove(matching);
   }
 }

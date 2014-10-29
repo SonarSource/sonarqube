@@ -20,8 +20,6 @@
 
 package org.sonar.plugins.core.issue;
 
-import org.sonar.plugins.core.issue.tracking.SourceChecksum;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.LinkedHashMultimap;
@@ -37,6 +35,7 @@ import org.sonar.plugins.core.issue.tracking.HashedSequenceComparator;
 import org.sonar.plugins.core.issue.tracking.IssueTrackingBlocksRecognizer;
 import org.sonar.plugins.core.issue.tracking.RollingHashSequence;
 import org.sonar.plugins.core.issue.tracking.RollingHashSequenceComparator;
+import org.sonar.plugins.core.issue.tracking.SourceChecksum;
 import org.sonar.plugins.core.issue.tracking.StringText;
 import org.sonar.plugins.core.issue.tracking.StringTextComparator;
 
@@ -67,7 +66,6 @@ public class IssueTracking implements BatchExtension {
     }
   }
 
-
   @VisibleForTesting
   void mapIssues(Collection<DefaultIssue> newIssues, @Nullable Collection<IssueDto> lastIssues, SourceHashHolder sourceHashHolder, IssueTrackingResult result) {
     boolean hasLastScan = false;
@@ -93,7 +91,7 @@ public class IssueTracking implements BatchExtension {
 
     // Match the key of the issue. (For manual issues)
     for (DefaultIssue newIssue : newIssues) {
-      mapIssue(newIssue, findLastIssueWithSameKey(newIssue, result.unmatchedForRule(newIssue.ruleKey())), result);
+      mapIssue(newIssue, result.unmatchedByKeyForRule(newIssue.ruleKey()).get(newIssue.key()), result);
     }
 
     // Try first to match issues on same rule with same line and with same checksum (but not necessarily with same message)
@@ -101,7 +99,7 @@ public class IssueTracking implements BatchExtension {
       if (isNotAlreadyMapped(newIssue, result)) {
         mapIssue(
           newIssue,
-          findLastIssueWithSameLineAndChecksum(newIssue, result.unmatchedForRule(newIssue.ruleKey())),
+          findLastIssueWithSameLineAndChecksum(newIssue, result),
           result);
       }
     }
@@ -176,7 +174,7 @@ public class IssueTracking implements BatchExtension {
       if (isNotAlreadyMapped(newIssue, result)) {
         mapIssue(
           newIssue,
-          findLastIssueWithSameChecksumAndMessage(newIssue, result.unmatchedForRule(newIssue.ruleKey())),
+          findLastIssueWithSameChecksumAndMessage(newIssue, result.unmatchedByKeyForRule(newIssue.ruleKey()).values()),
           result);
       }
     }
@@ -186,7 +184,7 @@ public class IssueTracking implements BatchExtension {
       if (isNotAlreadyMapped(newIssue, result)) {
         mapIssue(
           newIssue,
-          findLastIssueWithSameLineAndMessage(newIssue, result.unmatchedForRule(newIssue.ruleKey())),
+          findLastIssueWithSameLineAndMessage(newIssue, result.unmatchedByKeyForRule(newIssue.ruleKey()).values()),
           result);
       }
     }
@@ -197,7 +195,7 @@ public class IssueTracking implements BatchExtension {
       if (isNotAlreadyMapped(newIssue, result)) {
         mapIssue(
           newIssue,
-          findLastIssueWithSameChecksum(newIssue, result.unmatchedForRule(newIssue.ruleKey())),
+          findLastIssueWithSameChecksum(newIssue, result.unmatchedByKeyForRule(newIssue.ruleKey()).values()),
           result);
       }
     }
@@ -263,20 +261,10 @@ public class IssueTracking implements BatchExtension {
     return null;
   }
 
-  private IssueDto findLastIssueWithSameLineAndChecksum(DefaultIssue newIssue, Collection<IssueDto> lastIssues) {
-    for (IssueDto pastIssue : lastIssues) {
-      if (isSameLine(newIssue, pastIssue) && isSameChecksum(newIssue, pastIssue)) {
-        return pastIssue;
-      }
-    }
-    return null;
-  }
-
-  private IssueDto findLastIssueWithSameKey(DefaultIssue newIssue, Collection<IssueDto> lastIssues) {
-    for (IssueDto pastIssue : lastIssues) {
-      if (isSameKey(newIssue, pastIssue)) {
-        return pastIssue;
-      }
+  private IssueDto findLastIssueWithSameLineAndChecksum(DefaultIssue newIssue, IssueTrackingResult result) {
+    Collection<IssueDto> sameRuleAndSameLineAndSameChecksum = result.unmatchedForRuleAndForLineAndForChecksum(newIssue.ruleKey(), newIssue.line(), newIssue.checksum());
+    if (!sameRuleAndSameLineAndSameChecksum.isEmpty()) {
+      return sameRuleAndSameLineAndSameChecksum.iterator().next();
     }
     return null;
   }
@@ -299,10 +287,6 @@ public class IssueTracking implements BatchExtension {
 
   private boolean isSameMessage(DefaultIssue newIssue, IssueDto pastIssue) {
     return Objects.equal(newIssue.message(), pastIssue.getMessage());
-  }
-
-  private boolean isSameKey(DefaultIssue newIssue, IssueDto pastIssue) {
-    return Objects.equal(newIssue.key(), pastIssue.getKee());
   }
 
   private void mapIssue(DefaultIssue issue, @Nullable IssueDto ref, IssueTrackingResult result) {
