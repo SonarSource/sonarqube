@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.AuthorizedComponentDto;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
@@ -108,7 +108,7 @@ public class InternalPermissionService implements ServerComponent {
 
     DbSession session = dbClient.openSession(false);
     try {
-      AuthorizedComponentDto component = dbClient.componentDao().getAuthorizedComponentByKey(componentKey, session);
+      ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
       ResourceDto provisioned = resourceDao.selectProvisionedProject(session, componentKey);
       if (provisioned == null) {
         checkProjectAdminPermission(componentKey);
@@ -123,7 +123,7 @@ public class InternalPermissionService implements ServerComponent {
     }
   }
 
-  public void applyDefaultPermissionTemplate(DbSession session, AuthorizedComponentDto component) {
+  public void applyDefaultPermissionTemplate(DbSession session, ComponentDto component) {
     permissionFacade.grantDefaultRoles(session, component.getId(), component.qualifier());
     synchronizePermissions(session, component.key());
   }
@@ -147,7 +147,7 @@ public class InternalPermissionService implements ServerComponent {
       }
 
       for (String componentKey : query.getSelectedComponents()) {
-        AuthorizedComponentDto component = dbClient.componentDao().getAuthorizedComponentByKey(componentKey, session);
+        ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
         permissionFacade.applyPermissionTemplate(session, query.getTemplateKey(), component.getId());
         synchronizePermissions(session, component.uuid());
       }
@@ -176,7 +176,7 @@ public class InternalPermissionService implements ServerComponent {
       if (changed) {
         String project = permissionChangeQuery.component();
         if (project != null) {
-          synchronizePermissions(session, dbClient.componentDao().getAuthorizedComponentByKey(project, session).uuid());
+          synchronizePermissions(session, dbClient.componentDao().getByKey(session, project).uuid());
         }
         session.commit();
       }
@@ -253,7 +253,7 @@ public class InternalPermissionService implements ServerComponent {
     if (componentKey == null) {
       return null;
     } else {
-      AuthorizedComponentDto component = dbClient.componentDao().getAuthorizedComponentByKey(componentKey, session);
+      ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
       return component.getId();
     }
   }

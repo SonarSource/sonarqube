@@ -99,9 +99,9 @@ public class ProjectReferentialsActionTest {
     module = new ComponentDto().setKey("org.codehaus.sonar:sonar-server").setQualifier(Qualifiers.MODULE);
     subModule = new ComponentDto().setKey("org.codehaus.sonar:sonar-server-dao").setQualifier(Qualifiers.MODULE);
 
-    when(componentDao.getNullableAuthorizedComponentByKey(project.key(), session)).thenReturn(project);
-    when(componentDao.getNullableAuthorizedComponentByKey(module.key(), session)).thenReturn(module);
-    when(componentDao.getNullableAuthorizedComponentByKey(subModule.key(), session)).thenReturn(subModule);
+    when(componentDao.getNullableByKey(session, project.key())).thenReturn(project);
+    when(componentDao.getNullableByKey(session, module.key())).thenReturn(module);
+    when(componentDao.getNullableByKey(session, subModule.key())).thenReturn(subModule);
 
     when(language.getKey()).thenReturn("java");
     when(languages.all()).thenReturn(new Language[] {language});

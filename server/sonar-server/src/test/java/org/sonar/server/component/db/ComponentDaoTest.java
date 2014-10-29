@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
@@ -328,59 +327,6 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(dao.findSubProjectsByComponentUuids(session, newArrayList("unknown"))).isEmpty();
 
     assertThat(dao.findSubProjectsByComponentUuids(session, Collections.<String>emptyList())).isEmpty();
-  }
-
-  @Test
-  public void get_nullable_authorized_component_by_id() {
-    setupData("shared");
-
-    AuthorizedComponentDto result = dao.getNullableAuthorizedComponentById(4L, session);
-    assertThat(result).isNotNull();
-    assertThat(result.getId()).isEqualTo(4);
-    assertThat(result.getKey()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(result.qualifier()).isEqualTo("FIL");
-    assertThat(result.scope()).isEqualTo("FIL");
-
-    assertThat(dao.getNullableAuthorizedComponentById(111L, session)).isNull();
-  }
-
-  @Test
-  public void get_authorized_component_by_id() {
-    setupData("shared");
-
-    assertThat(dao.getAuthorizedComponentById(4L, session)).isNotNull();
-  }
-
-  @Test(expected = NotFoundException.class)
-  public void fail_to_get_authorized_component_by_id_when_project_not_found() {
-    setupData("shared");
-
-    dao.getAuthorizedComponentById(111L, session);
-  }
-
-  @Test
-  public void get_nullable_authorized_component_by_key() {
-    setupData("shared");
-
-    AuthorizedComponentDto result = dao.getNullableAuthorizedComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java", session);
-    assertThat(result).isNotNull();
-    assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
-
-    assertThat(dao.getNullableAuthorizedComponentByKey("unknown", session)).isNull();
-  }
-
-  @Test
-  public void get_authorized_component_by_key() {
-    setupData("shared");
-
-    assertThat(dao.getAuthorizedComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java", session)).isNotNull();
-  }
-
-  @Test(expected = NotFoundException.class)
-  public void fail_to_get_authorized_component_by_key_when_project_not_found() {
-    setupData("shared");
-
-    dao.getAuthorizedComponentByKey("unknown", session);
   }
 
   @Test

@@ -22,7 +22,7 @@ package org.sonar.server.qualityprofile;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.AuthorizedComponentDto;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -55,7 +55,7 @@ public class QProfileProjectOperations implements ServerComponent {
   }
 
   void addProject(int profileId, long projectId, UserSession userSession, DbSession session) {
-    AuthorizedComponentDto project = db.componentDao().getAuthorizedComponentById(projectId, session);
+    ComponentDto project = db.componentDao().getById(projectId, session);
     checkPermission(userSession, project.key());
     QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
@@ -67,7 +67,7 @@ public class QProfileProjectOperations implements ServerComponent {
   public void removeProject(int profileId, long projectId, UserSession userSession) {
     DbSession session = db.openSession(false);
     try {
-      AuthorizedComponentDto project = db.componentDao().getAuthorizedComponentById(projectId, session);
+      ComponentDto project = db.componentDao().getById(projectId, session);
       checkPermission(userSession, project.key());
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
@@ -81,7 +81,7 @@ public class QProfileProjectOperations implements ServerComponent {
   public void removeProject(String language, long projectId, UserSession userSession) {
     DbSession session = db.openSession(false);
     try {
-      AuthorizedComponentDto project = db.componentDao().getAuthorizedComponentById(projectId, session);
+      ComponentDto project = db.componentDao().getById(projectId, session);
       checkPermission(userSession, project.key());
 
       db.propertiesDao().deleteProjectProperty(QProfileProjectLookup.PROFILE_PROPERTY_PREFIX + language, project.getId(), session);

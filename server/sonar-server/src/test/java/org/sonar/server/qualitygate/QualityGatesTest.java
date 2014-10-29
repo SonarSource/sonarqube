@@ -35,7 +35,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.AuthorizedComponentDto;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -99,7 +99,7 @@ public class QualityGatesTest {
 
   @Before
   public void initialize() {
-    when(componentDao.getAuthorizedComponentById(anyLong(), eq(session))).thenReturn(new AuthorizedComponentDto().setId(1L).setKey(PROJECT_KEY));
+    when(componentDao.getById(anyLong(), eq(session))).thenReturn(new ComponentDto().setId(1L).setKey(PROJECT_KEY));
 
     when(myBatis.openSession(false)).thenReturn(session);
     qGates = new QualityGates(dao, conditionDao, metricFinder, propertiesDao, componentDao, myBatis);

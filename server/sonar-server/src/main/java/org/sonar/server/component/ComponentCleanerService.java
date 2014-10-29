@@ -22,7 +22,7 @@ package org.sonar.server.component;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Scopes;
-import org.sonar.core.component.AuthorizedComponentDto;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.server.db.DbClient;
@@ -40,7 +40,7 @@ public class ComponentCleanerService implements ServerComponent {
   public void delete(String projectKey) {
     DbSession session = dbClient.openSession(false);
     try {
-      AuthorizedComponentDto project = dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
+      ComponentDto project = dbClient.componentDao().getByKey(session, projectKey);
       if (!Scopes.PROJECT.equals(project.scope())) {
         throw new IllegalArgumentException("Only project can be deleted");
       }

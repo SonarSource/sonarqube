@@ -20,13 +20,20 @@
 package org.sonar.core.component;
 
 import org.sonar.api.component.Component;
+import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Date;
 
-public class ComponentDto extends AuthorizedComponentDto implements Component {
+public class ComponentDto extends Dto<String> implements Component {
+
+  private Long id;
+  private String uuid;
+  private String kee;
+  private String scope;
+  private String qualifier;
 
   private String projectUuid;
   private String moduleUuid;
@@ -41,9 +48,49 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
   private boolean enabled = true;
   private Date authorizationUpdatedAt;
 
-  @Override
+
+  public Long getId() {
+    return id;
+  }
+
   public ComponentDto setId(Long id) {
-    super.setId(id);
+    this.id = id;
+    return this;
+  }
+
+  public String uuid() {
+    return uuid;
+  }
+
+  public ComponentDto setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  public String key() {
+    return kee;
+  }
+
+  public ComponentDto setKey(String key) {
+    this.kee = key;
+    return this;
+  }
+
+  public String scope() {
+    return scope;
+  }
+
+  public ComponentDto setScope(String scope) {
+    this.scope = scope;
+    return this;
+  }
+
+  public String qualifier() {
+    return qualifier;
+  }
+
+  public ComponentDto setQualifier(String qualifier) {
+    this.qualifier = qualifier;
     return this;
   }
 
@@ -54,17 +101,6 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
 
   public ComponentDto setDeprecatedKey(@Nullable String deprecatedKey) {
     this.deprecatedKey = deprecatedKey;
-    return this;
-  }
-
-  @Override
-  public ComponentDto setKey(String key) {
-    super.setKey(key);
-    return this;
-  }
-
-  public ComponentDto setUuid(String uuid) {
-    super.setAuthorizedUuid(uuid);
     return this;
   }
 
@@ -137,16 +173,6 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
     return this;
   }
 
-  public ComponentDto setQualifier(String qualifier) {
-    super.setAuthorizedQualifier(qualifier);
-    return this;
-  }
-
-  public ComponentDto setScope(String scope) {
-    super.setAuthorizedScope(scope);
-    return this;
-  }
-
   @CheckForNull
   public String language() {
     return language;
@@ -187,5 +213,33 @@ public class ComponentDto extends AuthorizedComponentDto implements Component {
   public ComponentDto setAuthorizationUpdatedAt(@Nullable Date authorizationUpdatedAt) {
     this.authorizationUpdatedAt = authorizationUpdatedAt;
     return this;
+  }
+
+  @Override
+  public String getKey() {
+    return kee;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ComponentDto that = (ComponentDto) o;
+
+    if (!id.equals(that.id)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return id.hashCode();
   }
 }

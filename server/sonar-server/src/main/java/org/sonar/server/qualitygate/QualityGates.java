@@ -30,7 +30,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.AuthorizedComponentDto;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -360,7 +360,7 @@ public class QualityGates {
   }
 
   private void checkPermission(UserSession userSession, Long projectId, DbSession session) {
-    AuthorizedComponentDto project = componentDao.getAuthorizedComponentById(projectId, session);
+    ComponentDto project = componentDao.getById(projectId, session);
     if (!userSession.hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN) && !userSession.hasProjectPermission(UserRole.ADMIN, project.key())) {
       throw new ForbiddenException("Insufficient privileges");
     }

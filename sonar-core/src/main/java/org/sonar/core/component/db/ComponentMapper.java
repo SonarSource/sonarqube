@@ -20,7 +20,6 @@
 package org.sonar.core.component.db;
 
 import org.apache.ibatis.annotations.Param;
-import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 
 import javax.annotation.CheckForNull;
@@ -75,11 +74,6 @@ public interface ComponentMapper {
   List<ComponentDto> findByUuids(@Param("uuids") Collection<String> uuids);
 
   long countById(long id);
-
-  @CheckForNull
-  AuthorizedComponentDto selectAuthorizedComponentById(long id);
-
-  AuthorizedComponentDto selectAuthorizedComponentByKey(String key);
 
   void insert(ComponentDto rule);
 

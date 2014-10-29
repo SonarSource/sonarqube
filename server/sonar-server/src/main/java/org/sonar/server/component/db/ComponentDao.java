@@ -22,7 +22,6 @@ package org.sonar.server.component.db;
 import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
-import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.persistence.DaoComponent;
@@ -126,32 +125,6 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   @Override
   protected List<ComponentDto> doGetByKeys(DbSession session, Collection<String> keys) {
     return mapper(session).findByKeys(keys);
-  }
-
-  @CheckForNull
-  public AuthorizedComponentDto getNullableAuthorizedComponentById(Long id, DbSession session) {
-    return mapper(session).selectAuthorizedComponentById(id);
-  }
-
-  public AuthorizedComponentDto getAuthorizedComponentById(Long id, DbSession session) {
-    AuthorizedComponentDto componentDto = getNullableAuthorizedComponentById(id, session);
-    if (componentDto == null) {
-      throw new NotFoundException(String.format("Project with id '%s' not found", id));
-    }
-    return componentDto;
-  }
-
-  @CheckForNull
-  public AuthorizedComponentDto getNullableAuthorizedComponentByKey(String key, DbSession session) {
-    return mapper(session).selectAuthorizedComponentByKey(key);
-  }
-
-  public AuthorizedComponentDto getAuthorizedComponentByKey(String key, DbSession session) {
-    AuthorizedComponentDto componentDto = getNullableAuthorizedComponentByKey(key, session);
-    if (componentDto == null) {
-      throw new NotFoundException(String.format("Project with key '%s' not found", key));
-    }
-    return componentDto;
   }
 
   @Override

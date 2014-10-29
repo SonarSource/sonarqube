@@ -22,7 +22,6 @@ package org.sonar.core.computation.db;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.Dto;
 
@@ -169,7 +168,7 @@ public class AnalysisReportDto extends Dto<String> {
     return this;
   }
 
-  public AuthorizedComponentDto getProject() {
+  public ComponentDto getProject() {
     return checkNotNull(project);
   }
 

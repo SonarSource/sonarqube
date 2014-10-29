@@ -30,7 +30,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.core.UtcDateUtils;
-import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -119,7 +118,7 @@ public class ProjectReferentialsAction implements RequestHandler {
       String profileName = request.param(PARAM_PROFILE);
 
       String projectKey = null;
-      AuthorizedComponentDto module = dbClient.componentDao().getNullableAuthorizedComponentByKey(projectOrModuleKey, session);
+      ComponentDto module = dbClient.componentDao().getNullableByKey(session, projectOrModuleKey);
       // Current project can be null when analysing a new project
       if (module != null) {
         ComponentDto project = dbClient.componentDao().getNullableRootProjectByKey(projectOrModuleKey, session);

@@ -32,7 +32,6 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.component.db.SnapshotDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueTesting;
@@ -70,7 +69,6 @@ public class ComponentServiceMediumTest {
 
     project = ComponentTesting.newProjectDto().setKey("sample:root");
     tester.get(ComponentDao.class).insert(session, project);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForProject(project));
 
     // project can be seen by anyone
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
@@ -113,7 +111,6 @@ public class ComponentServiceMediumTest {
   public void update_project_key() throws Exception {
     ComponentDto file = ComponentTesting.newFileDto(project).setKey("sample:root:src/File.xoo");
     tester.get(ComponentDao.class).insert(session, file);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project));
 
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     db.issueDao().insert(session, issue);
@@ -153,11 +150,9 @@ public class ComponentServiceMediumTest {
   public void update_module_key() throws Exception {
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     tester.get(ComponentDao.class).insert(session, module);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(module, project));
 
     ComponentDto file = ComponentTesting.newFileDto(module).setKey("sample:root:module:src/File.xoo");
     tester.get(ComponentDao.class).insert(session, file);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project));
 
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     db.issueDao().insert(session, issue);
@@ -219,11 +214,9 @@ public class ComponentServiceMediumTest {
   public void check_module_keys_before_renaming() throws Exception {
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     tester.get(ComponentDao.class).insert(session, module);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(module, project));
 
     ComponentDto file = ComponentTesting.newFileDto(module).setKey("sample:root:module:src/File.xoo");
     tester.get(ComponentDao.class).insert(session, file);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project));
 
     session.commit();
 
@@ -239,11 +232,9 @@ public class ComponentServiceMediumTest {
   public void check_module_keys_before_renaming_return_duplicate_key() throws Exception {
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     tester.get(ComponentDao.class).insert(session, module);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(module, project));
 
     ComponentDto module2 = ComponentTesting.newModuleDto(project).setKey("foo:module");
     tester.get(ComponentDao.class).insert(session, module2);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(module2, project));
 
     session.commit();
 
@@ -265,11 +256,9 @@ public class ComponentServiceMediumTest {
   public void bulk_update_project_key() throws Exception {
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     tester.get(ComponentDao.class).insert(session, module);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(module, project));
 
     ComponentDto file = ComponentTesting.newFileDto(module).setKey("sample:root:module:src/File.xoo");
     tester.get(ComponentDao.class).insert(session, file);
-    tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project));
 
     IssueDto issue = IssueTesting.newDto(rule, file, project);
     db.issueDao().insert(session, issue);

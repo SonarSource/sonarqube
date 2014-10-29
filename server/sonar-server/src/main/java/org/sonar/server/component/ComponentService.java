@@ -22,7 +22,6 @@ package org.sonar.server.component;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.AuthorizedComponentDto;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
@@ -47,20 +46,20 @@ public class ComponentService implements ServerComponent {
     this.previewCache = previewCache;
   }
 
-  public AuthorizedComponentDto getByKey(String key) {
+  public ComponentDto getByKey(String key) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().getAuthorizedComponentByKey(key, session);
+      return dbClient.componentDao().getByKey(session, key);
     } finally {
       session.close();
     }
   }
 
   @CheckForNull
-  public AuthorizedComponentDto getNullableByKey(String key) {
+  public ComponentDto getNullableByKey(String key) {
     DbSession session = dbClient.openSession(false);
     try {
-      return dbClient.componentDao().getNullableAuthorizedComponentByKey(key, session);
+      return dbClient.componentDao().getNullableByKey(session, key);
     } finally {
       session.close();
     }
@@ -90,7 +89,7 @@ public class ComponentService implements ServerComponent {
 
     DbSession session = dbClient.openSession(false);
     try {
-      AuthorizedComponentDto projectOrModule = getByKey(projectOrModuleKey);
+      ComponentDto projectOrModule = getByKey(projectOrModuleKey);
       resourceKeyUpdaterDao.updateKey(projectOrModule.getId(), newKey);
       session.commit();
 
@@ -106,7 +105,7 @@ public class ComponentService implements ServerComponent {
     UserSession.get().checkProjectPermission(UserRole.ADMIN, projectKey);
     DbSession session = dbClient.openSession(false);
     try {
-      AuthorizedComponentDto project = getByKey(projectKey);
+      ComponentDto project = getByKey(projectKey);
       return resourceKeyUpdaterDao.checkModuleKeysBeforeRenaming(project.getId(), stringToReplace, replacementString);
     } finally {
       session.close();
@@ -118,12 +117,12 @@ public class ComponentService implements ServerComponent {
 
     DbSession session = dbClient.openSession(false);
     try {
-      AuthorizedComponentDto project = getByKey(projectKey);
+      ComponentDto project = getByKey(projectKey);
 
       resourceKeyUpdaterDao.bulkUpdateKey(project.getId(), stringToReplace, replacementString);
       session.commit();
 
-      AuthorizedComponentDto newProject = dbClient.componentDao().getAuthorizedComponentById(project.getId(), session);
+      ComponentDto newProject = dbClient.componentDao().getById(project.getId(), session);
       previewCache.reportResourceModification(newProject.key());
 
       session.commit();

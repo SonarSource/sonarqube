@@ -73,7 +73,7 @@ public class AnalysisReportQueue implements ServerComponent {
   }
 
   private void checkThatProjectExistsInDatabase(String projectKey, DbSession session) {
-    dbClient.componentDao().getAuthorizedComponentByKey(projectKey, session);
+    dbClient.componentDao().getByKey(session, projectKey);
   }
 
   private AnalysisReportDto insertInDatabase(AnalysisReportDto reportTemplate, DbSession session) {

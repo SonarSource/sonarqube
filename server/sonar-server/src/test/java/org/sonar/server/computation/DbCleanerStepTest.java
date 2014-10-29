@@ -22,15 +22,13 @@ package org.sonar.server.computation;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.component.AuthorizedComponentDto;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
 import org.sonar.core.persistence.DbSession;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DbCleanerStepTest {
 
@@ -46,7 +44,7 @@ public class DbCleanerStepTest {
   @Test
   public void call_purge_method_of_the_purge_task() {
     AnalysisReportDto report = mock(AnalysisReportDto.class);
-    when(report.getProject()).thenReturn(mock(AuthorizedComponentDto.class));
+    when(report.getProject()).thenReturn(mock(ComponentDto.class));
 
     sut.execute(mock(DbSession.class), report);
 
