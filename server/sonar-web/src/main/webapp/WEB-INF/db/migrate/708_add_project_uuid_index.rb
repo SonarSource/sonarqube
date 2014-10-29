@@ -25,6 +25,7 @@
 class AddProjectUuidIndex < ActiveRecord::Migration
   def self.up
     add_index 'projects', 'uuid', :name => 'projects_uuid', :unique => true
+    add_index 'projects', 'project_uuid', :name => 'projects_project_uuid'
   end
 end
 
