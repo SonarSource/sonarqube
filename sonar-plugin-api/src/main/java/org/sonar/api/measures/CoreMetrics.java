@@ -27,7 +27,6 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.SonarException;
 
 import javax.annotation.Nullable;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
@@ -163,13 +162,25 @@ public final class CoreMetrics {
     .setFormula(new SumChildValuesFormula(false))
     .create();
 
+  /**
+   * @deprecated since 5.0.
+   * @see <a href="https://jira.codehaus.org/browse/SONAR-5224">SONAR-5224</a>
+   */
+  @Deprecated
   public static final String ACCESSORS_KEY = "accessors";
+
+  /**
+   * @deprecated since 5.0.
+   * @see <a href="https://jira.codehaus.org/browse/SONAR-5224">SONAR-5224</a>
+   */
+  @Deprecated
   public static final Metric<Integer> ACCESSORS = new Metric.Builder(ACCESSORS_KEY, "Accessors", Metric.ValueType.INT)
     .setDescription("Accessors")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_SIZE)
     .setFormula(new SumChildValuesFormula(false))
+    .setHidden(true)
     .create();
 
   public static final String STATEMENTS_KEY = "statements";
