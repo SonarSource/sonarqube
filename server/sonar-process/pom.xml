@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.codehaus.sonar</groupId>
     <artifactId>server</artifactId>
-    <version>4.5.1-SNAPSHOT</version>
+    <version>4.5.1</version>
     <relativePath>../</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
