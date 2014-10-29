@@ -24,39 +24,43 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.search.IndexClient;
 
 public class ComponentCleanerService implements ServerComponent {
 
   private final DbClient dbClient;
   private final PurgeDao purgeDao;
+  private final IndexClient indexClient;
 
-  public ComponentCleanerService(DbClient dbClient, PurgeDao purgeDao) {
+  public ComponentCleanerService(DbClient dbClient, PurgeDao purgeDao, IndexClient indexClient) {
     this.dbClient = dbClient;
     this.purgeDao = purgeDao;
+    this.indexClient = indexClient;
   }
 
   public void delete(String projectKey) {
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentDto project = dbClient.componentDao().getByKey(session, projectKey);
+      ComponentDto project = dbClient.componentDao().getByKey(dbSession, projectKey);
       if (!Scopes.PROJECT.equals(project.scope())) {
         throw new IllegalArgumentException("Only project can be deleted");
       }
       purgeDao.deleteResourceTree(project.getId());
-      deletePermissionIndexes(session, project.uuid());
+      deletePermissionIndexes(dbSession, project.uuid());
+      dbSession.commit();
 
-      session.commit();
+      deleteIssuesFromIndex(project.uuid());
     } finally {
-      session.close();
+      MyBatis.closeQuietly(dbSession);
     }
-
-    deleteIssuesFromIndex(projectKey);
   }
 
-  private void deleteIssuesFromIndex(String projectKey) {
-    // TODO implement !
+  private void deleteIssuesFromIndex(String projectUuid) {
+    indexClient.get(IssueIndex.class).deleteByProjectUuid(projectUuid);
   }
 
   private void deletePermissionIndexes(DbSession session, String projectUuid) {

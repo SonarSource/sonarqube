@@ -118,10 +118,7 @@ import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.issue.filter.IssueFilterWriter;
 import org.sonar.server.issue.filter.IssueFilterWs;
-import org.sonar.server.issue.index.IssueAuthorizationIndex;
-import org.sonar.server.issue.index.IssueAuthorizationNormalizer;
-import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.index.IssueNormalizer;
+import org.sonar.server.issue.index.*;
 import org.sonar.server.issue.ws.IssueActionsWriter;
 import org.sonar.server.issue.ws.IssueShowAction;
 import org.sonar.server.issue.ws.IssuesWs;
@@ -606,7 +603,6 @@ class ServerComponents {
     pico.addSingleton(AnalysisReportHistorySearchAction.class);
     pico.addSingleton(DefaultPeriodCleaner.class);
     pico.addSingleton(DefaultPurgeTask.class);
-
 
     for (Object components : level4AddedComponents) {
       pico.addSingleton(components);

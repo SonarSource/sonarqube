@@ -49,11 +49,7 @@ import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.*;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -845,5 +841,26 @@ public class IssueIndexMediumTest {
     // 1 Assert index has 4 shards
     assertThat(tester.get(SearchClient.class).admin().indices().prepareGetSettings(IndexDefinition.ISSUES.getIndexName())
       .get().getSetting(IndexDefinition.ISSUES.getIndexName(), shardSettingKey)).isEqualTo("4");
+  }
+
+  @Test
+  public void delete_issues_from_one_project() {
+    // ARRANGE
+    tester.get(IssueDao.class).insert(session, IssueTesting.newDto(rule, file, project));
+    tester.get(IssueDao.class).insert(session, IssueTesting.newDto(rule, file, project));
+    tester.get(IssueDao.class).insert(session, IssueTesting.newDto(rule, file, ComponentTesting.newProjectDto()));
+    session.commit();
+
+    Result<Issue> tempSearchResult = index.search(IssueQuery.builder().componentRootUuids(newArrayList(project.uuid())).build(), new QueryContext());
+    assertThat(tempSearchResult.getTotal()).isEqualTo(2L);
+    assertThat(index.countAll()).isEqualTo(3L);
+
+    // ACT
+    index.deleteByProjectUuid(project.uuid());
+
+    // ASSERT
+    Result<Issue> searchResult = index.search(IssueQuery.builder().componentRootUuids(newArrayList(project.uuid())).build(), new QueryContext());
+    assertThat(searchResult.getHits()).isEmpty();
+    assertThat(index.countAll()).isEqualTo(1);
   }
 }

@@ -217,6 +217,19 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     return esFilter;
   }
 
+  public void deleteByProjectUuid(String uuid) {
+    QueryBuilder queryBuilder = QueryBuilders.filteredQuery(
+      QueryBuilders.matchAllQuery(),
+      FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueNormalizer.IssueField.PROJECT.field(), uuid))
+      );
+
+    getClient().prepareDeleteByQuery(getIndexName()).setQuery(queryBuilder).get();
+  }
+
+  public void deleteByProjectUuidBefore(String uuid, Date beforeDate) {
+    // TODO to implement
+  }
+
   /* Build main filter (match based) */
   protected Map<String, FilterBuilder> getFilters(IssueQuery query, QueryContext options) {
 

@@ -29,8 +29,16 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.IssueTesting;
+import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Date;
@@ -43,6 +51,7 @@ public class ComponentCleanerServiceMediumTest {
   public static ServerTester tester = new ServerTester();
 
   DbClient db;
+  IndexClient index;
   DbSession session;
 
   ComponentCleanerService service;
@@ -52,6 +61,7 @@ public class ComponentCleanerServiceMediumTest {
     tester.clearDbAndIndexes();
 
     db = tester.get(DbClient.class);
+    index = tester.get(IndexClient.class);
     session = db.openSession(false);
     service = tester.get(ComponentCleanerService.class);
   }
@@ -88,6 +98,29 @@ public class ComponentCleanerServiceMediumTest {
     service.delete(project.getKey());
 
     assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNull();
+  }
+
+  @Test
+  public void remove_issue_when_deleting_a_project() throws Exception {
+    //ARRANGE
+    ComponentDto project = ComponentTesting.newProjectDto();
+    db.componentDao().insert(session, project);
+
+    RuleDto rule = RuleTesting.newXooX1();
+    tester.get(RuleDao.class).insert(session, rule);
+
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    tester.get(ComponentDao.class).insert(session, file);
+
+    tester.get(IssueDao.class).insert(session, IssueTesting.newDto(rule, file, project));
+    session.commit();
+
+    assertThat(tester.get(IssueIndex.class).countAll()).isEqualTo(1);
+
+    //ACT
+    service.delete(project.getKey());
+
+    assertThat(tester.get(IssueIndex.class).countAll()).isEqualTo(0);
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -128,6 +128,7 @@ public class IndexProjectIssuesStepTest {
 
   @Test
   public void index_a_lot_of_issues() throws Exception {
+    // ARRANGE
     ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
@@ -152,11 +153,13 @@ public class IndexProjectIssuesStepTest {
     queue.add(DEFAULT_PROJECT_KEY, 123L);
     List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
 
+    // ACT
     sut.execute(session, reports.get(0));
 
     session.commit();
     session.clearCache();
 
+    // ASSERT
     Result<Issue> issueIndex = tester.get(IssueIndex.class).search(IssueQuery.builder().build(), new QueryContext());
     assertThat(issueIndex.getTotal()).isEqualTo(2001);
   }
