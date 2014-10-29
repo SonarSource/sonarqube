@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.component.Component;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
@@ -33,10 +34,7 @@ import org.sonar.core.persistence.MyBatis;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -141,6 +139,9 @@ public class ResourceDao implements DaoComponent {
     }
   }
 
+  /**
+   * Used by the Views Plugin
+   */
   public ResourceDao insertOrUpdate(ResourceDto... resources) {
     SqlSession session = mybatis.openSession(false);
     ResourceMapper mapper = session.getMapper(ResourceMapper.class);
@@ -148,6 +149,12 @@ public class ResourceDao implements DaoComponent {
     try {
       for (ResourceDto resource : resources) {
         if (resource.getId() == null) {
+          // Fix for Views
+          if (resource.getUuid() == null && Scopes.PROJECT.equals(resource.getScope())) {
+            String uuid = UUID.randomUUID().toString();
+            resource.setUuid(uuid);
+            resource.setProjectUuid(uuid);
+          }
           resource.setCreatedAt(now);
           resource.setAuthorizationUpdatedAt(now);
           mapper.insert(resource);

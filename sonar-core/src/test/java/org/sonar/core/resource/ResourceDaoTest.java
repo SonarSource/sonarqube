@@ -297,6 +297,29 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void insert_add_uuids_on_project_if_missing() {
+    setupData("insert");
+
+    ResourceDto project = new ResourceDto()
+      .setKey("org.struts:struts:struts")
+      .setScope(Scopes.PROJECT)
+      .setQualifier(Qualifiers.PROJECT);
+
+    ResourceDto file = new ResourceDto()
+      .setKey("org.struts:struts:/src/main/java/org/struts/Action.java")
+      .setScope(Scopes.FILE)
+      .setQualifier(Qualifiers.FILE);
+
+    dao.insertOrUpdate(project, file);
+
+    assertThat(project.getUuid()).isNotNull();
+    assertThat(project.getProjectUuid()).isEqualTo(project.getUuid());
+
+    assertThat(file.getUuid()).isNull();
+    assertThat(file.getProjectUuid()).isNull();
+  }
+
+  @Test
   public void should_find_component_by_key() {
     setupData("fixture");
 
