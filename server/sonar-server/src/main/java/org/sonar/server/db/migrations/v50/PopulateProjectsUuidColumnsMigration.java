@@ -22,6 +22,8 @@ package org.sonar.server.db.migrations.v50;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v50.Component;
@@ -59,32 +61,38 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
     Timer timer = new Timer("Db Migration Progress");
     timer.schedule(progressTask, MassUpdate.ProgressTask.PERIOD_MS, MassUpdate.ProgressTask.PERIOD_MS);
 
-    DbSession session = db.openSession(true);
+    final DbSession readSession = db.openSession(false);
+    final DbSession writeSession = db.openSession(true);
     try {
-      Migration50Mapper mapper = session.getMapper(Migration50Mapper.class);
+      readSession.select("org.sonar.core.persistence.migration.v50.Migration50Mapper.selectRootProjects", new ResultHandler() {
+        @Override
+        public void handleResult(ResultContext context) {
+          Component project = (Component) context.getResultObject();
+          Map<Long, String> uuidByComponentId = newHashMap();
+          migrateEnabledComponents(readSession, writeSession, project, uuidByComponentId);
+          migrateDisabledComponents(readSession, writeSession, project, uuidByComponentId);
+        }
+      });
+      writeSession.commit();
+      readSession.commit();
 
-      for (Component project : mapper.selectRootProjects()) {
-        Map<Long, String> uuidByComponentId = newHashMap();
-        migrateEnabledComponents(session, mapper, project, uuidByComponentId);
-        migrateDisabledComponents(session, mapper, project, uuidByComponentId);
-      }
-      migrateComponentsWithoutUuid(session, mapper);
+      migrateComponentsWithoutUuid(readSession, writeSession);
+      writeSession.commit();
 
-      session.commit();
       // log the total number of process rows
       progressTask.log();
-
     } finally {
-      session.close();
+      readSession.close();
+      writeSession.close();
       timer.cancel();
       timer.purge();
     }
   }
 
-  private void migrateEnabledComponents(DbSession session, Migration50Mapper mapper, Component project, Map<Long, String> uuidByComponentId) {
+  private void migrateEnabledComponents(DbSession readSession, DbSession writeSession, Component project, Map<Long, String> uuidByComponentId) {
     Map<Long, Component> componentsBySnapshotId = newHashMap();
 
-    List<Component> components = mapper.selectComponentChildrenForProjects(project.getId());
+    List<Component> components = readSession.getMapper(Migration50Mapper.class).selectComponentChildrenForProjects(project.getId());
     components.add(project);
     List<Component> componentsToMigrate = newArrayList();
     for (Component component : components) {
@@ -100,7 +108,25 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
 
     for (Component component : componentsToMigrate) {
       updateComponent(component, project, componentsBySnapshotId, uuidByComponentId);
-      mapper.updateComponentUuids(component);
+      writeSession.getMapper(Migration50Mapper.class).updateComponentUuids(component);
+      counter.getAndIncrement();
+    }
+  }
+
+  private void migrateDisabledComponents(DbSession readSession, DbSession writeSession, Component project, Map<Long, String> uuidByComponentId) {
+    String projectUuid = getOrCreateUuid(project, uuidByComponentId);
+    for (Component component : readSession.getMapper(Migration50Mapper.class).selectDisabledDirectComponentChildrenForProjects(project.getId())) {
+      component.setUuid(getOrCreateUuid(component, uuidByComponentId));
+      component.setProjectUuid(projectUuid);
+
+      writeSession.getMapper(Migration50Mapper.class).updateComponentUuids(component);
+      counter.getAndIncrement();
+    }
+    for (Component component : readSession.getMapper(Migration50Mapper.class).selectDisabledNoneDirectComponentChildrenForProjects(project.getId())) {
+      component.setUuid(getOrCreateUuid(component, uuidByComponentId));
+      component.setProjectUuid(projectUuid);
+
+      writeSession.getMapper(Migration50Mapper.class).updateComponentUuids(component);
       counter.getAndIncrement();
     }
   }
@@ -131,31 +157,13 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
     }
   }
 
-  private void migrateDisabledComponents(DbSession session, Migration50Mapper mapper, Component project, Map<Long, String> uuidByComponentId) {
-    String projectUuid = getOrCreateUuid(project, uuidByComponentId);
-    for (Component component : mapper.selectDisabledDirectComponentChildrenForProjects(project.getId())) {
-      component.setUuid(getOrCreateUuid(component, uuidByComponentId));
-      component.setProjectUuid(projectUuid);
-
-      mapper.updateComponentUuids(component);
-      counter.getAndIncrement();
-    }
-    for (Component component : mapper.selectDisabledNoneDirectComponentChildrenForProjects(project.getId())) {
-      component.setUuid(getOrCreateUuid(component, uuidByComponentId));
-      component.setProjectUuid(projectUuid);
-
-      mapper.updateComponentUuids(component);
-      counter.getAndIncrement();
-    }
-  }
-
-  private void migrateComponentsWithoutUuid(DbSession session, Migration50Mapper mapper) {
-    for (Component component : mapper.selectComponentsWithoutUuid()) {
+  private void migrateComponentsWithoutUuid(DbSession readSession, DbSession writeSession) {
+    for (Component component : readSession.getMapper(Migration50Mapper.class).selectComponentsWithoutUuid()) {
       String uuid = UUID.randomUUID().toString();
       component.setUuid(uuid);
       component.setProjectUuid(uuid);
 
-      mapper.updateComponentUuids(component);
+      writeSession.getMapper(Migration50Mapper.class).updateComponentUuids(component);
       counter.getAndIncrement();
     }
   }

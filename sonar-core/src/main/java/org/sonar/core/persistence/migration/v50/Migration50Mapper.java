@@ -21,6 +21,7 @@
 package org.sonar.core.persistence.migration.v50;
 
 import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.mapping.ResultSetType;
 
 import java.util.List;
 
@@ -29,6 +30,21 @@ public interface Migration50Mapper {
   /**
    * Return root projects (Views and Developers are NOT returned)
    */
+  @Select("SELECT " +
+    "  p.id AS \"id\", " +
+    "  p.uuid AS \"uuid\", " +
+    "  p.project_uuid AS \"projectUuid\", " +
+    "  s.root_project_id AS \"projectId\", " +
+    "  s.id AS \"snapshotId\", " +
+    "  s.path AS \"snapshotPath\", " +
+    "  p.scope AS \"scope\" " +
+    "FROM projects p " +
+    "  LEFT OUTER JOIN snapshots s ON s.project_id = p.id AND s.islast = ${_true} " +
+    "  WHERE " +
+    "   p.scope = 'PRJ' " +
+    "   AND p.root_id IS NULL ")
+  @Result(javaType = Component.class)
+  @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = 200)
   List<Component> selectRootProjects();
 
   @Select("SELECT " +
