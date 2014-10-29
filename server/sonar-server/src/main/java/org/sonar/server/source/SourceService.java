@@ -20,6 +20,7 @@
 
 package org.sonar.server.source;
 
+import com.google.common.base.Splitter;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
@@ -27,27 +28,33 @@ import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Collections;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class SourceService implements ServerComponent {
 
   private final DbClient dbClient;
   private final HtmlSourceDecorator sourceDecorator;
+  private final SnapshotSourceDao snapshotSourceDao;
 
   /**
    * Old service to colorize code
    */
   private final DeprecatedSourceDecorator deprecatedSourceDecorator;
 
-  public SourceService(DbClient dbClient, HtmlSourceDecorator sourceDecorator, DeprecatedSourceDecorator deprecatedSourceDecorator) {
+  public SourceService(DbClient dbClient, HtmlSourceDecorator sourceDecorator, SnapshotSourceDao snapshotSourceDao, DeprecatedSourceDecorator deprecatedSourceDecorator) {
     this.dbClient = dbClient;
     this.sourceDecorator = sourceDecorator;
+    this.snapshotSourceDao = snapshotSourceDao;
     this.deprecatedSourceDecorator = deprecatedSourceDecorator;
   }
 
@@ -65,6 +72,21 @@ public class SourceService implements ServerComponent {
       return decoratedSource;
     }
     return deprecatedSourceDecorator.getSourceAsHtml(fileKey, from, to);
+  }
+
+  public List<String> getLinesAsTxt(String fileKey) {
+    checkPermission(fileKey);
+
+    DbSession session = dbClient.openSession(false);
+    try {
+      String source = snapshotSourceDao.selectSnapshotSourceByComponentKey(fileKey, session);
+      if (source != null) {
+        return newArrayList(Splitter.onPattern("\r?\n|\r").split(source));
+      }
+      return Collections.emptyList();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   @CheckForNull
@@ -96,5 +118,4 @@ public class SourceService implements ServerComponent {
       MyBatis.closeQuietly(session);
     }
   }
-
 }

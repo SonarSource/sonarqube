@@ -41,7 +41,7 @@ public class ShowActionTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new SourcesWs(new ShowAction(sourceService), new ScmAction(sourceService, mock(ScmWriter.class))));
+    tester = new WsTester(new SourcesWs(new ShowAction(sourceService), mock(RawAction.class), new ScmAction(sourceService, mock(ScmWriter.class))));
   }
 
   @Test

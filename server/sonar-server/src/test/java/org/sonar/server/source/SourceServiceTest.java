@@ -29,10 +29,13 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.MockUserSession;
+
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -46,6 +49,9 @@ public class SourceServiceTest {
 
   @Mock
   HtmlSourceDecorator sourceDecorator;
+
+  @Mock
+  SnapshotSourceDao snapshotSourceDao;
 
   @Mock
   DeprecatedSourceDecorator deprecatedSourceDecorator;
@@ -63,11 +69,11 @@ public class SourceServiceTest {
     DbClient dbClient = mock(DbClient.class);
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.measureDao()).thenReturn(measureDao);
-    service = new SourceService(dbClient, sourceDecorator, deprecatedSourceDecorator);
+    service = new SourceService(dbClient, sourceDecorator, snapshotSourceDao, deprecatedSourceDecorator);
   }
 
   @Test
-  public void get_lines() throws Exception {
+  public void get_html_lines() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
 
     service.getLinesAsHtml(COMPONENT_KEY);
@@ -131,6 +137,26 @@ public class SourceServiceTest {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
     when(measureDao.getNullableByKey(eq(session), any(MeasureKey.class))).thenReturn(null);
     assertThat(service.getScmDateData(COMPONENT_KEY)).isNull();
+  }
+
+  @Test
+  public void get_txt_lines() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+
+    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn("line1\nline2");
+
+    List<String> result = service.getLinesAsTxt(COMPONENT_KEY);
+    assertThat(result).contains("line1", "line2");
+  }
+
+  @Test
+  public void get_txt_lines_when_no_source() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+
+    when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn(null);
+
+    List<String> result = service.getLinesAsTxt(COMPONENT_KEY);
+    assertThat(result).isEmpty();
   }
 
 }

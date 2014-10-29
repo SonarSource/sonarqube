@@ -1,0 +1,7 @@
+package org.sonar.check;
+
+public enum Priority {
+/**
+  * WARNING : DO NOT CHANGE THE ENUMERATION ORDER
+  * the enum ordinal is used for db persistence
+

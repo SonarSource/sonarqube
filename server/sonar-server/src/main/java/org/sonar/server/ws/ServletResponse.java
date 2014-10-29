@@ -21,10 +21,12 @@ package org.sonar.server.ws;
 
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.utils.text.TxtWriter;
 import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.server.plugins.MimeTypes;
 
 import javax.annotation.CheckForNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -84,6 +86,12 @@ public class ServletResponse implements Response {
   public XmlWriter newXmlWriter() {
     stream.setMediaType(MimeTypes.XML);
     return XmlWriter.of(new OutputStreamWriter(stream.output()));
+  }
+
+  @Override
+  public TxtWriter newTxtWriter() {
+    stream.setMediaType(MimeTypes.TXT);
+    return TxtWriter.of(new OutputStreamWriter(stream.output()));
   }
 
   @Override

@@ -17,35 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.server.ws;
 
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.utils.text.TxtWriter;
-import org.sonar.api.utils.text.XmlWriter;
+package org.sonar.api.utils.text;
 
-import java.io.OutputStream;
+import org.junit.Test;
 
-/**
- * HTTP response
- *
- * @since 4.2
- */
-public interface Response {
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.io.StringWriter;
 
-  interface Stream {
-    Stream setMediaType(String s);
-    Stream setStatus(int httpStatus);
-    OutputStream output();
+import static org.fest.assertions.Assertions.assertThat;
+
+public class TxtWriterTest {
+
+  @Test
+  public void write_txt() throws Exception {
+    StringWriter output = new StringWriter();
+    TxtWriter writer = TxtWriter.of(output);
+
+    writer.values("France", "Paris");
+    writer.close();
+
+    BufferedReader reader = new BufferedReader(new StringReader(output.toString()));
+    String line1 = reader.readLine();
+    assertThat(line1).isEqualTo("France");
+
+    String line2 = reader.readLine();
+    assertThat(line2).isEqualTo("Paris");
+
+    assertThat(reader.readLine()).isNull();
   }
-
-  JsonWriter newJsonWriter();
-
-  XmlWriter newXmlWriter();
-
-  TxtWriter newTxtWriter();
-
-  Response noContent();
-
-  Stream stream();
 
 }

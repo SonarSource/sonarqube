@@ -33,6 +33,7 @@ public final class MimeTypes {
 
   public static final String JSON = "application/json";
   public static final String XML = "application/xml";
+  public static final String TXT = "text/plain";
   public static final String DEFAULT = "application/octet-stream";
 
   private static final Map<String, String> MAP = new ImmutableMap.Builder<String, String>()
@@ -56,7 +57,7 @@ public final class MimeTypes {
     .put("png", "image/png")
     .put("svg", "image/svg+xml")
     .put("ico", "image/x-icon")
-    .put("txt", "text/plain")
+    .put("txt", TXT)
     .put("csv", "text/csv")
     .put("properties", "text/plain")
     .put("rtf", "text/rtf")

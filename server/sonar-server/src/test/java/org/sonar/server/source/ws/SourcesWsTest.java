@@ -31,8 +31,9 @@ import static org.mockito.Mockito.mock;
 public class SourcesWsTest {
 
   ShowAction showAction = new ShowAction(mock(SourceService.class));
+  RawAction rawAction = new RawAction(mock(SourceService.class));
   ScmAction scmAction = new ScmAction(mock(SourceService.class), new ScmWriter());
-  WsTester tester = new WsTester(new SourcesWs(showAction, scmAction));
+  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, scmAction));
 
   @Test
   public void define_ws() throws Exception {
@@ -40,6 +41,7 @@ public class SourcesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("4.2");
     assertThat(controller.description()).isNotEmpty();
+    assertThat(controller.actions()).hasSize(3);
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
@@ -48,6 +50,14 @@ public class SourcesWsTest {
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
     assertThat(show.params()).hasSize(3);
+
+    WebService.Action raw = controller.action("raw");
+    assertThat(raw).isNotNull();
+    assertThat(raw.handler()).isSameAs(rawAction);
+    assertThat(raw.since()).isEqualTo("5.0");
+    assertThat(raw.isInternal()).isFalse();
+    assertThat(raw.responseExampleAsString()).isNotEmpty();
+    assertThat(raw.params()).hasSize(1);
 
     WebService.Action scm = controller.action("scm");
     assertThat(scm).isNotNull();
