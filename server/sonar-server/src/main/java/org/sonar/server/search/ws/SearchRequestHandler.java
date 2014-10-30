@@ -145,11 +145,13 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
       json.beginObject();
       json.prop("property", facetName);
       json.name("values").beginArray();
-      for (FacetValue facetValue : results.getFacets().get(facetName)) {
-        json.beginObject();
-        json.prop("val", facetValue.getKey());
-        json.prop("count", facetValue.getValue());
-        json.endObject();
+      if (results.getFacets().containsKey(facetName)) {
+        for (FacetValue facetValue : results.getFacets().get(facetName)) {
+          json.beginObject();
+          json.prop("val", facetValue.getKey());
+          json.prop("count", facetValue.getValue());
+          json.endObject();
+        }
       }
       json.endArray().endObject();
     }

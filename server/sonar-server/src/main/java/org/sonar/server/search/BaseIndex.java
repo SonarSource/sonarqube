@@ -62,6 +62,10 @@ import java.util.*;
 public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable>
   implements Index<DOMAIN, DTO, KEY> {
 
+  private static final int FACET_DEFAULT_MIN_DOC_COUNT = 1;
+
+  private static final int FACET_DEFAULT_SIZE = 10;
+
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
   private final SearchClient client;
@@ -609,9 +613,15 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   }
 
-  protected AggregationBuilder stickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters, String fieldName, String facetName, Object... selected) {
+  protected AggregationBuilder stickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters, String fieldName, String facetName,
+      Object... selected) {
+    return stickyFacetBuilder(query, filters, fieldName, facetName, FACET_DEFAULT_SIZE, FACET_DEFAULT_MIN_DOC_COUNT, selected);
+  }
+
+  protected AggregationBuilder stickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters, String fieldName, String facetName, int size, int minDocCount,
+      Object... selected) {
     BoolFilterBuilder facetFilter = getStickyFacetFilter(query, filters, fieldName);
-    FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter);
+    FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter, size, minDocCount);
     facetTopAggregation = addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, selected);
 
     return AggregationBuilders
@@ -629,7 +639,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     return facetFilter;
   }
 
-  protected FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolFilterBuilder facetFilter) {
+  protected FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolFilterBuilder facetFilter, int size, int minDocCount) {
     return AggregationBuilders
       .filter(facetName + "_filter")
       .filter(facetFilter)
@@ -637,8 +647,12 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         AggregationBuilders.terms(facetName)
           .field(fieldName)
           .order(Terms.Order.count(false))
-          .size(10)
-          .minDocCount(1));
+          .size(size)
+          .minDocCount(minDocCount));
+  }
+
+  protected FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolFilterBuilder facetFilter) {
+    return buildTopFacetAggregation(fieldName, facetName, facetFilter, FACET_DEFAULT_SIZE, FACET_DEFAULT_MIN_DOC_COUNT);
   }
 
   protected FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation, Object... selected) {
