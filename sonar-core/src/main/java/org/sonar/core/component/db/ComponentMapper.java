@@ -23,7 +23,6 @@ import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.ComponentDto;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -72,6 +71,11 @@ public interface ComponentMapper {
    * Warning, projectId are always null
    */
   List<ComponentDto> findByUuids(@Param("uuids") Collection<String> uuids);
+
+  /**
+   * Return all project (PRJ/TRK) uuids
+   */
+  List<String> findProjectUuids();
 
   long countById(long id);
 

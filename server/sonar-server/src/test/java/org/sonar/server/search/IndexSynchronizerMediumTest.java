@@ -24,10 +24,20 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.security.DefaultGroups;
+import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.IssueTesting;
+import org.sonar.server.issue.index.IssueAuthorizationIndex;
+import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.tester.ServerTester;
 
@@ -54,9 +64,7 @@ public class IndexSynchronizerMediumTest {
 
   @After
   public void tearDown() throws Exception {
-    if (dbSession != null) {
-      dbSession.close();
-    }
+    dbSession.close();
   }
 
   @Test
@@ -76,12 +84,70 @@ public class IndexSynchronizerMediumTest {
     tester.clearIndexes();
     assertThat(indexClient.get(RuleIndex.class).countAll()).isEqualTo(0);
 
-    DbSession syncSession = dbClient.openSession(true);
-    try {
-      synchronizer.synchronize(syncSession, dbClient.ruleDao(), indexClient.get(RuleIndex.class));
-      assertThat(indexClient.get(RuleIndex.class).countAll()).isEqualTo(numberOfRules);
-    } finally {
-      syncSession.close();
-    }
+    synchronizer.execute();
+    assertThat(indexClient.get(RuleIndex.class).countAll()).isEqualTo(numberOfRules);
+  }
+
+  @Test
+  public void synchronize_issues_from_empty_index() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    dbClient.componentDao().insert(dbSession, project, file);
+
+    RuleDto rule = RuleTesting.newXooX1();
+    tester.get(RuleDao.class).insert(dbSession, rule);
+    dbClient.issueDao().insert(dbSession, IssueTesting.newDto(rule, file, project));
+
+    dbSession.commit();
+
+    assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(1);
+    tester.clearIndexes();
+    assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(0);
+
+    synchronizer.execute();
+    assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(1);
+  }
+
+  @Test
+  public void synchronize_issues_from_not_empty_index() throws Exception {
+    RuleDto rule = RuleTesting.newXooX1();
+    tester.get(RuleDao.class).insert(dbSession, rule);
+
+    ComponentDto project1 = ComponentTesting.newProjectDto();
+    ComponentDto file1 = ComponentTesting.newFileDto(project1);
+    dbClient.componentDao().insert(dbSession, project1, file1);
+    dbClient.issueDao().insert(dbSession, IssueTesting.newDto(rule, file1, project1));
+
+    ComponentDto project2 = ComponentTesting.newProjectDto();
+    ComponentDto file2 = ComponentTesting.newFileDto(project2);
+    dbClient.componentDao().insert(dbSession, project2, file2);
+    dbClient.issueDao().insert(dbSession, IssueTesting.newDto(rule, file2, project2));
+
+    dbSession.commit();
+
+    // Remove second issue to simulate that this issue has not been synchronized
+    indexClient.get(IssueIndex.class).deleteByProjectUuid(project2.uuid());
+
+    assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(1);
+    synchronizer.execute();
+    assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(2);
+  }
+
+  @Test
+  public void synchronize_issues_authorization() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    dbClient.componentDao().insert(dbSession, project, file);
+
+    RuleDto rule = RuleTesting.newXooX1();
+    tester.get(RuleDao.class).insert(dbSession, rule);
+    dbClient.issueDao().insert(dbSession, IssueTesting.newDto(rule, file, project));
+
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, dbSession);
+    dbSession.commit();
+
+    assertThat(indexClient.get(IssueAuthorizationIndex.class).countAll()).isEqualTo(0);
+    synchronizer.execute();
+    assertThat(indexClient.get(IssueAuthorizationIndex.class).countAll()).isEqualTo(1);
   }
 }

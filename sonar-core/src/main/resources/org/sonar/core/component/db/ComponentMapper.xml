@@ -132,6 +132,16 @@
     </where>
   </select>
 
+  <select id="findProjectUuids" resultType="String">
+    SELECT p.uuid
+    FROM projects p
+    <where>
+      AND p.enabled=${_true}
+      AND p.scope='PRJ'
+      AND p.qualifier='TRK'
+    </where>
+  </select>
+
   <sql id="insertColumns">
     (kee, deprecated_kee, uuid, project_uuid, module_uuid, module_uuid_path, name, long_name, qualifier, scope, language, root_id, path, enabled, created_at, authorization_updated_at)
   </sql>

@@ -409,6 +409,13 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     checkTable("delete", "projects");
   }
 
+  @Test
+  public void find_project_uuids() {
+    setupData("find_project_uuids");
+
+    assertThat(dao.findProjectUuids(session)).containsExactly("ABCD");
+  }
+
   @Test(expected = PersistenceException.class)
   public void synchronize_after() {
     dao.synchronizeAfter(session, new Date(0L));

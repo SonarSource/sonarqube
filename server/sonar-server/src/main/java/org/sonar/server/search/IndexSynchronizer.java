@@ -19,6 +19,7 @@
  */
 package org.sonar.server.search;
 
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.persistence.DbSession;
@@ -26,11 +27,15 @@ import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.Dao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
+import org.sonar.server.issue.index.IssueAuthorizationNormalizer;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueNormalizer;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @since 4.4
@@ -50,16 +55,22 @@ public class IndexSynchronizer {
   public void execute() {
     /* synchronize all activeRules until we have mng tables in INDEX */
     DbSession session = db.openSession(true);
-    LOG.info("Starting DB to Index synchronization");
-    long start = System.currentTimeMillis();
-    synchronize(session, db.ruleDao(), index.get(RuleIndex.class));
-    synchronize(session, db.issueDao(), index.get(IssueIndex.class));
-    synchronize(session, db.issueAuthorizationDao(), index.get(IssueAuthorizationIndex.class));
-    synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
-    synchronize(session, db.activityDao(), index.get(ActivityIndex.class));
-    session.commit();
-    LOG.info("Synchronization done in {}ms...", System.currentTimeMillis() - start);
-    session.close();
+    try {
+      LOG.info("Starting DB to Index synchronization");
+      long start = System.currentTimeMillis();
+      List<String> projectUuids = db.componentDao().findProjectUuids(session);
+      synchronize(session, db.ruleDao(), index.get(RuleIndex.class));
+      synchronizeByProject(session, db.issueDao(), index.get(IssueIndex.class),
+        IssueNormalizer.IssueField.PROJECT.field(), projectUuids);
+      synchronizeByProject(session, db.issueAuthorizationDao(), index.get(IssueAuthorizationIndex.class),
+        IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field(), projectUuids);
+      synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
+      synchronize(session, db.activityDao(), index.get(ActivityIndex.class));
+      session.commit();
+      LOG.info("Synchronization done in {}ms...", System.currentTimeMillis() - start);
+    } finally {
+      session.close();
+    }
   }
 
   void synchronize(DbSession session, Dao dao, Index index) {
@@ -71,6 +82,20 @@ public class IndexSynchronizer {
     } else {
       LOG.info("Synchronizing {} records for updates after {}", index.getIndexType(), lastSynch);
       dao.synchronizeAfter(session, lastSynch);
+    }
+  }
+
+  void synchronizeByProject(DbSession session, Dao dao, Index index, String projectField, List<String> projectUuids) {
+    Long count = index.getIndexStat().getDocumentCount();
+    if (count <= 0) {
+      LOG.info("Initial indexing of {} records", index.getIndexType());
+      dao.synchronizeAfter(session);
+    } else {
+      LOG.info("Synchronizing {} records for updates", index.getIndexType());
+      for (String projectUuid : projectUuids) {
+        Map<String, String> params = ImmutableMap.of(projectField, projectUuid);
+        dao.synchronizeAfter(session, index.getLastSynchronization(params), params);
+      }
     }
   }
 }

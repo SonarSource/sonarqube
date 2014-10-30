@@ -30,7 +30,6 @@ import org.sonar.server.db.BaseDao;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -143,5 +142,9 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   protected void doDeleteByKey(DbSession session, String key) {
     // TODO shouldn't we need to also delete snapshots ?
     mapper(session).deleteByKey(key);
+  }
+
+  public List<String> findProjectUuids(DbSession session) {
+    return mapper(session).findProjectUuids();
   }
 }
