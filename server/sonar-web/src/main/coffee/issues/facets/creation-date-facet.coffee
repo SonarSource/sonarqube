@@ -40,3 +40,7 @@ define [
         value = $(@).val()
         obj[property] = value
       @options.app.state.updateFilter obj
+
+
+    disable: ->
+      @options.app.state.updateFilter createdAfter: null, createdBefore: null, createdAt: null

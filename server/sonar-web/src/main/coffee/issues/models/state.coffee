@@ -12,9 +12,9 @@ define [
 
       query: {}
 
-      facets: ['severities', 'statuses', 'resolutions', 'componentRootUuids']
+      facets: ['severities', 'statuses', 'resolutions']
       allFacets: ['severities', 'statuses', 'resolutions', 'componentRootUuids', 'assignees', 'reporters', 'rules',
-                  'languages', 'actionPlans', 'creationDate']
+                  'languages', 'actionPlans', 'componentUuids', 'creationDate']
 
 
     nextPage: ->

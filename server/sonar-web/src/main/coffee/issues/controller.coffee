@@ -14,6 +14,8 @@ define [
   EXTRA_FIELDS = 'actions,transitions,assigneeName,reporterName,actionPlanName'
   PAGE_SIZE = 50
   FACET_DATA_FIELDS = ['components', 'projects', 'users', 'rules', 'actionPlans']
+  FACETS_FROM_SERVER = ['severities', 'statuses', 'resolutions', 'actionPlans', 'componentRootUuids', 'rules',
+                        'assignees', 'reporters', 'componentUuids', 'languages']
 
 
   class extends Marionette.Controller
@@ -28,11 +30,16 @@ define [
       s: 'FILE_LINE'
       asc: true
       extra_fields: EXTRA_FIELDS
-      facets: @options.app.state.get('facets').join()
+      facets: @_facetsFromServer().join()
 
 
     _allFacets: ->
       @options.app.state.get('allFacets').map (facet) -> { property: facet }
+
+
+    _facetsFromServer: ->
+      facets = @options.app.state.get 'facets'
+      facets.filter (facet) -> FACETS_FROM_SERVER.indexOf(facet) != -1
 
 
     fetchIssues: (firstPage = true) ->
@@ -79,7 +86,7 @@ define [
 
     enableFacet: (id) ->
       facet = @options.app.facets.get id
-      if facet.has 'values'
+      if facet.has('values') || FACETS_FROM_SERVER.indexOf(id) == -1
         facet.set enabled: true
       else
         @requestFacet(id).done => facet.set enabled: true
