@@ -48,3 +48,10 @@ define [
       obj = {}
       obj[property] = value
       @options.app.state.updateFilter obj
+
+
+    disable: ->
+      property = @model.get 'property'
+      obj = {}
+      obj[property] = null
+      @options.app.state.updateFilter obj

@@ -45,6 +45,10 @@ define [
       values
 
 
+    disable: ->
+      @options.app.state.updateFilter assigned: null, assignees: null
+
+
     serializeData: ->
       _.extend super,
         values: @getValuesWithLabels()

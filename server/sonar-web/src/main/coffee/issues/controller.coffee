@@ -88,6 +88,7 @@ define [
     disableFacet: (id) ->
       facet = @options.app.facets.get id
       facet.set enabled: false
+      @options.app.facetsView.children.findByModel(facet).disable()
 
 
     toggleFacet: (id) ->

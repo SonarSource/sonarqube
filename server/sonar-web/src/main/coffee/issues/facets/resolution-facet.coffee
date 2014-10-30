@@ -32,6 +32,10 @@ define [
         @options.app.state.updateFilter resolved: null, resolutions: @getValue()
 
 
+    disable: ->
+      @options.app.state.updateFilter resolved: null, resolutions: null
+
+
     sortValues: (values) ->
       order = ['FIXED', 'FALSE-POSITIVE', 'CLOSED']
       _.sortBy values, (v) -> order.indexOf v.val
