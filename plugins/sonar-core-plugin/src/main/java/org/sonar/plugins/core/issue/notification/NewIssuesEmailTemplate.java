@@ -83,12 +83,12 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
   }
 
   private void appendFooter(StringBuilder sb, Notification notification) {
-    String projectKey = notification.getFieldValue(FIELD_PROJECT_KEY);
+    String projectUuid = notification.getFieldValue("projectUuid");
     String dateString = notification.getFieldValue(FIELD_PROJECT_DATE);
-    if (projectKey != null && dateString != null) {
+    if (projectUuid != null && dateString != null) {
       Date date = DateUtils.parseDateTime(dateString);
-      String url = String.format("%s/issues/search#componentRoots=%s|createdAt=%s",
-        settings.getServerBaseURL(), encode(projectKey), encode(DateUtils.formatDateTime(date)));
+      String url = String.format("%s/issues/search#componentRootUUids=%s|createdAt=%s",
+        settings.getServerBaseURL(), encode(projectUuid), encode(DateUtils.formatDateTime(date)));
       sb.append("\n").append("See it in SonarQube: ").append(url).append("\n");
     }
   }

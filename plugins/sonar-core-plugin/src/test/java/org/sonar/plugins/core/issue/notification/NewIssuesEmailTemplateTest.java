@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.core.issue.notification;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,10 +30,11 @@ import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 
 import java.util.Locale;
-import java.util.TimeZone;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -82,6 +82,7 @@ public class NewIssuesEmailTemplateTest {
       .setFieldValue("count-BLOCKER", "0")
       .setFieldValue("projectName", "Struts")
       .setFieldValue("projectKey", "org.apache:struts")
+      .setFieldValue("projectUuid", "ABCDE")
       .setFieldValue("projectDate", "2010-05-18T14:50:45+0000");
 
     when(i18n.message(any(Locale.class), eq("severity.BLOCKER"), anyString())).thenReturn("Blocker");
@@ -102,7 +103,7 @@ public class NewIssuesEmailTemplateTest {
       "\n" +
       "   Blocker: 0   Critical: 5   Major: 10   Minor: 3   Info: 1\n" +
       "\n" +
-      "See it in SonarQube: http://nemo.sonarsource.org/issues/search#componentRoots=org.apache%3Astruts|createdAt=2010-05-1");
+      "See it in SonarQube: http://nemo.sonarsource.org/issues/search#componentRootUUids=ABCDE|createdAt=2010-05-1");
   }
 
   @Test

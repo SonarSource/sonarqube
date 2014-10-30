@@ -59,6 +59,7 @@ public class IssueNotifications implements BatchComponent, ServerComponent {
     Notification notification = newNotification(project, "new-issues")
       .setDefaultMessage(newIssues.size() + " new issues on " + project.getLongName() + ".\n")
       .setFieldValue("projectDate", DateUtils.formatDateTime(project.getAnalysisDate()))
+      .setFieldValue("projectUuid", project.getUuid())
       .setFieldValue("count", String.valueOf(newIssues.size()));
     for (String severity : Severity.ALL) {
       notification.setFieldValue("count-" + severity, String.valueOf(newIssues.issues(severity)));
