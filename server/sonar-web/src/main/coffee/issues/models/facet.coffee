@@ -13,7 +13,6 @@ define [
 
 
     getValues: ->
-      console.log @toJSON()
       @get('values') || []
 
 

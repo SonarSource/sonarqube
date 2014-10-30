@@ -24,7 +24,6 @@ define [
 
 
     onRender: ->
-      console.log @model.id, @model.get 'enabled'
       @$el.toggleClass 'issues-facet-box-collapsed', !@model.get('enabled')
 
       property = @model.get 'property'
@@ -35,7 +34,7 @@ define [
 
 
     toggle: ->
-      @model.toggle()
+      @options.app.controller.toggleFacet @model.id
 
 
     getValue: ->
@@ -49,4 +48,3 @@ define [
       obj = {}
       obj[property] = value
       @options.app.state.updateFilter obj
-

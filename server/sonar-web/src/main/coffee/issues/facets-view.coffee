@@ -41,3 +41,14 @@ define [
     itemViewOptions: ->
       app: @options.app
 
+
+    collectionEvents: ->
+      'change:enabled': 'updateState'
+
+
+    updateState: ->
+      enabledFacets = @collection.filter (model) -> model.get('enabled')
+      enabledFacetIds = enabledFacets.map (model) -> model.id
+      console.log enabledFacetIds
+      @options.app.state.set facets: enabledFacetIds
+

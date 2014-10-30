@@ -13,8 +13,8 @@ define [
       query: {}
 
       facets: ['severities', 'statuses', 'resolutions', 'componentRootUuids']
-      allFacets: ['severities', 'statuses', 'resolutions', 'componentRootUuids', 'assignees', 'reporters', 'rule',
-                  'languages', 'actionPlan', 'creationDate']
+      allFacets: ['severities', 'statuses', 'resolutions', 'componentRootUuids', 'assignees', 'reporters', 'rules',
+                  'languages', 'actionPlans', 'creationDate']
 
 
     nextPage: ->

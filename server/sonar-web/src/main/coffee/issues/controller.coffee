@@ -13,6 +13,7 @@ define [
   $ = jQuery
   EXTRA_FIELDS = 'actions,transitions,assigneeName,reporterName,actionPlanName'
   PAGE_SIZE = 50
+  FACET_DATA_FIELDS = ['components', 'projects', 'users', 'rules', 'actionPlans']
 
 
   class extends Marionette.Controller
@@ -49,12 +50,7 @@ define [
         else
           @options.app.issues.add issues
 
-        _.extend @options.app.facets,
-          components: r.components
-          projects: r.projects
-          rules: r.rules
-          users: r.users
-          actionPlans: r.actionPlans
+        FACET_DATA_FIELDS.forEach (field) => @options.app.facets[field] = r[field]
         @options.app.facets.reset @_allFacets()
         @options.app.facets.add r.facets, merge: true
         @enableFacets @options.app.state.get 'facets'
@@ -81,12 +77,42 @@ define [
         @options.app.filters.reset r.favorites
 
 
-    enableFacet: (facet) ->
-      @options.app.facets.get(facet).set enabled: true
+    enableFacet: (id) ->
+      facet = @options.app.facets.get id
+      if facet.has 'values'
+        facet.set enabled: true
+      else
+        @requestFacet(id).done => facet.set enabled: true
+
+
+    disableFacet: (id) ->
+      facet = @options.app.facets.get id
+      facet.set enabled: false
+
+
+    toggleFacet: (id) ->
+      facet = @options.app.facets.get id
+      if facet.get('enabled') then @disableFacet(id) else @enableFacet(id)
 
 
     enableFacets: (facets) ->
       facets.forEach @enableFacet, @
+
+
+    _mergeCollections: (a, b) ->
+      collection = new Backbone.Collection a
+      collection.add b, merge: true
+      collection.toJSON()
+
+
+    requestFacet: (id) ->
+      facet = @options.app.facets.get id
+      data = _.extend { facets: id, ps: 1 }, @options.app.state.get('query')
+      $.get "#{baseUrl}/api/issues/search", data, (r) =>
+        FACET_DATA_FIELDS.forEach (field) =>
+          @options.app.facets[field] = @_mergeCollections @options.app.facets[field], r[field]
+        facetData = _.findWhere r.facets, property: id
+        facet.set facetData if facetData?
 
 
     newSearch: ->
