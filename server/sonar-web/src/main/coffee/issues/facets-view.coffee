@@ -11,6 +11,7 @@ define [
   'issues/facets/creation-date-facet'
   'issues/facets/action-plan-facet'
   'issues/facets/component-facet'
+  'issues/facets/reporter-facet'
 ], (
   Marionette
   BaseFacet
@@ -23,6 +24,7 @@ define [
   CreationDateFacet
   ActionPlanFacet
   ComponentFacet
+  ReporterFacet
 ) ->
 
   class extends Marionette.CollectionView
@@ -40,6 +42,7 @@ define [
         when 'rules' then RuleFacet
         when 'actionPlans' then ActionPlanFacet
         when 'componentUuids' then ComponentFacet
+        when 'reporters' then ReporterFacet
         else BaseFacet
 
 
