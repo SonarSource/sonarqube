@@ -103,7 +103,7 @@ public class NewIssuesEmailTemplateTest {
       "\n" +
       "   Blocker: 0   Critical: 5   Major: 10   Minor: 3   Info: 1\n" +
       "\n" +
-      "See it in SonarQube: http://nemo.sonarsource.org/issues/search#componentRootUUids=ABCDE|createdAt=2010-05-1");
+      "See it in SonarQube: http://nemo.sonarsource.org/issues/search#componentRootUuids=ABCDE|createdAt=2010-05-1");
   }
 
   @Test
