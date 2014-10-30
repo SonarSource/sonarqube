@@ -30,6 +30,7 @@ class Api::ResourcesController < Api::ApiController
     page=(params[:p] ? params[:p].to_i : 1)
     page_size=(params[:ps] ? params[:ps].to_i : 10)
     display_key=params[:display_key]||false
+    display_uuid=params[:display_uuid]||false
     if params[:q]
       qualifiers=params[:q].split(',')
     elsif params[:qp]
@@ -70,7 +71,7 @@ class Api::ResourcesController < Api::ApiController
 
     resources=[]
     unless resource_ids.empty?
-      resources=Project.all(:select => 'id,qualifier,name,long_name,kee', :conditions => ['id in (?) and enabled=?', resource_ids, true])
+      resources=Project.all(:select => 'id,qualifier,name,long_name,kee,uuid', :conditions => ['id in (?) and enabled=?', resource_ids, true])
     end
 
     if select2_format
@@ -85,7 +86,7 @@ class Api::ResourcesController < Api::ApiController
       else
         json = {
           :more => (page * page_size)<total,
-          :results => resources.map { |resource| {:id => display_key ? resource.key : resource.id, :text => resource.name(true)} }
+          :results => resources.map { |resource| {:id => display_uuid ? resource.uuid : (display_key ? resource.key : resource.id), :text => resource.name(true)} }
         }
       end
     else
