@@ -23,6 +23,7 @@ package org.sonar.server.issue.db;
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -31,6 +32,7 @@ import org.sonar.core.persistence.DbSession;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore("Temporarily ignored for investigations of MySQL instability")
 public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
 
   private IssueAuthorizationDao dao;
