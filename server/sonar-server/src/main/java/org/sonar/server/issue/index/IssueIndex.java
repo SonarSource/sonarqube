@@ -327,7 +327,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
         IssueFilterParameters.ACTION_PLANS, IssueNormalizer.IssueField.ACTION_PLAN.field(), query.actionPlans().toArray());
       addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
-        IssueFilterParameters.COMPONENT_ROOT_UUIDS, IssueNormalizer.IssueField.PROJECT.field(), query.componentRootUuids().toArray());
+        IssueFilterParameters.COMPONENT_ROOT_UUIDS, IssueNormalizer.IssueField.MODULE_PATH.field(), query.componentRootUuids().toArray());
       addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
         IssueFilterParameters.COMPONENT_UUIDS, IssueNormalizer.IssueField.COMPONENT.field(), query.componentUuids().toArray());
       addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,

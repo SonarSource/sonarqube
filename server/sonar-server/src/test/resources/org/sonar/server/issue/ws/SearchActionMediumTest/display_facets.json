@@ -43,7 +43,7 @@
       "property": "componentRootUuids",
       "values": [
         {
-          "val": "ABCD",
+          "val": "abcd",
           "count": 1
         }
       ]
