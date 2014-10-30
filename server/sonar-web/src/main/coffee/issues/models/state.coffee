@@ -29,10 +29,18 @@ define [
       q
 
 
+    _areQueriesEqual: (a, b) ->
+      equal = Object.keys(a).length == Object.keys(b).length
+      Object.keys(a).forEach (key) ->
+        equal = equal && (a[key] == b[key])
+      equal
+
+
     updateFilter: (obj) ->
-      filter = @get 'query'
-      _.extend filter, obj
-      @setQuery @cleanQuery filter
+      oldQuery = @get('query')
+      query = _.extend {}, oldQuery, obj
+      query = @cleanQuery query
+      @setQuery query unless @_areQueriesEqual oldQuery, query
 
 
     setQuery: (query) ->
