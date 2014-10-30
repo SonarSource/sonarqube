@@ -19,29 +19,26 @@
  */
 package org.sonar.server.search;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.util.Date;
 
-/**
- * @since 4.4
- */
 public class IndexStat {
 
-  private Date lastUpdate;
-  private Long documentCount;
+  private final Date lastUpdate;
+  private final long documentCount;
 
+  public IndexStat(@Nullable Date lastUpdate, long documentCount) {
+    this.lastUpdate = lastUpdate;
+    this.documentCount = documentCount;
+  }
+
+  @CheckForNull
   public Date getLastUpdate() {
     return lastUpdate;
   }
 
-  public void setLastUpdate(Date lastUpdate) {
-    this.lastUpdate = lastUpdate;
-  }
-
-  public Long getDocumentCount() {
+  public long getDocumentCount() {
     return documentCount;
-  }
-
-  public void setDocumentCount(Long documentCount) {
-    this.documentCount = documentCount;
   }
 }

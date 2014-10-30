@@ -619,12 +619,8 @@ class ServerComponents {
   }
 
   public void executeStartupTasks(ComponentContainer pico) {
-
     final ComponentContainer startupContainer = pico.createChild();
-
-    /** Index startup Synchronization */
     startupContainer.addSingleton(IndexSynchronizer.class);
-
     startupContainer.addSingleton(RegisterMetrics.class);
     startupContainer.addSingleton(RegisterQualityGates.class);
     startupContainer.addSingleton(RegisterRules.class);

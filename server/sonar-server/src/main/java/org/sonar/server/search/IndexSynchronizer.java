@@ -63,7 +63,7 @@ public class IndexSynchronizer {
   }
 
   void synchronize(DbSession session, Dao dao, Index index) {
-    Long count = index.getIndexStat().getDocumentCount();
+    long count = index.getIndexStat().getDocumentCount();
     Date lastSynch = index.getLastSynchronization();
     if (count <= 0) {
       LOG.info("Initial indexing of {} records", index.getIndexType());

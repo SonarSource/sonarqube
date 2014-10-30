@@ -54,7 +54,7 @@ public class ShowAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) throws Exception {
     UserSession session = UserSession.get();
-    DefaultIssueFilter filter = service.find(Long.parseLong(request.mandatoryParam("id")), session);
+    DefaultIssueFilter filter = service.find(request.mandatoryParamAsLong("id"), session);
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject();

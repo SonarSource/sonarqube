@@ -173,18 +173,11 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   @Override
   public IndexStat getIndexStat() {
-    IndexStat stat = new IndexStat();
-
-    /** get total document count */
     CountRequestBuilder countRequest = client.prepareCount(this.getIndexName())
       .setTypes(this.getIndexType())
       .setQuery(QueryBuilders.matchAllQuery());
     CountResponse response = client.execute(countRequest);
-    stat.setDocumentCount(response.getCount());
-
-    /** get Management information */
-    stat.setLastUpdate(getLastSynchronization());
-    return stat;
+    return new IndexStat(getLastSynchronization(), response.getCount());
   }
 
   /* Synchronization methods */
