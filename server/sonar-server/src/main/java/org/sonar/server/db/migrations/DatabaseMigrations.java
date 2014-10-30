@@ -25,12 +25,13 @@ import org.sonar.server.db.migrations.v42.CompleteIssueMessageMigration;
 import org.sonar.server.db.migrations.v42.PackageKeysMigration;
 import org.sonar.server.db.migrations.v43.*;
 import org.sonar.server.db.migrations.v44.*;
-import org.sonar.server.db.migrations.v451.AddMissingCustomRuleParametersMigration;
 import org.sonar.server.db.migrations.v45.AddMissingRuleParameterDefaultValuesMigration;
 import org.sonar.server.db.migrations.v45.DeleteMeasuresOnDeletedProfilesMigration;
+import org.sonar.server.db.migrations.v451.AddMissingCustomRuleParametersMigration;
+import org.sonar.server.db.migrations.v451.DeleteUnescapedActivities;
 import org.sonar.server.db.migrations.v50.InsertProjectsAuthorizationUpdatedAtMigration;
 import org.sonar.server.db.migrations.v50.PopulateProjectsUuidColumnsMigration;
-import org.sonar.server.db.migrations.v451.DeleteUnescapedActivities;
+import org.sonar.server.db.migrations.v50.ReplaceIssueFiltersProjectKeyByUuid;
 
 import java.util.List;
 
@@ -69,7 +70,8 @@ public interface DatabaseMigrations {
 
     // 5.0
     InsertProjectsAuthorizationUpdatedAtMigration.class,
-    PopulateProjectsUuidColumnsMigration.class
+    PopulateProjectsUuidColumnsMigration.class,
+    ReplaceIssueFiltersProjectKeyByUuid.class
   );
 
 }

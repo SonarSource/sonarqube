@@ -20,7 +20,6 @@
 package org.sonar.server.db.migrations;
 
 import javax.annotation.CheckForNull;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -88,6 +87,18 @@ public interface Select extends SqlStatement<Select> {
   }
 
   static final RowReader<Long> LONG_READER = new LongReader();
+
+  static class StringReader implements RowReader<String> {
+    private StringReader() {
+    }
+
+    @Override
+    public String read(Row row) throws SQLException {
+      return row.getString(1);
+    }
+  }
+
+  static final RowReader<String> STRING_READER = new StringReader();
 
   static interface RowHandler<T> {
     void handle(Row row) throws SQLException;
