@@ -63,7 +63,7 @@ public class LastSnapshots implements BatchComponent {
     TimeProfiler profiler = new TimeProfiler(LOG).start("Load previous source code of: " + resource.getEffectiveKey()).setLevelToDebug();
     try {
       return server
-        .request("/api/sources?resource=" + ServerClient.encodeForUrl(resource.getEffectiveKey()) + "&format=txt", "GET", false, analysisMode.getPreviewReadTimeoutSec() * 1000);
+        .request("/api/sources/raw?key=" + ServerClient.encodeForUrl(resource.getEffectiveKey()), "GET", false, analysisMode.getPreviewReadTimeoutSec() * 1000);
     } catch (HttpDownloader.HttpException he) {
       if (he.getResponseCode() == 404) {
         return "";

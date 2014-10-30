@@ -91,7 +91,7 @@ public class LastSnapshotsTest {
 
     String source = lastSnapshots.getSource(newFile());
     assertThat(source).isEqualTo("downloaded source of Bar.c");
-    verify(server).request("/api/sources?resource=myproject%3Aorg%2Ffoo%2FBar.c&format=txt", "GET", false, 30 * 1000);
+    verify(server).request("/api/sources/raw?key=myproject%3Aorg%2Ffoo%2FBar.c", "GET", false, 30 * 1000);
   }
 
   @Test
@@ -105,7 +105,7 @@ public class LastSnapshotsTest {
 
     String source = lastSnapshots.getSource(newFile());
     assertThat(source).isEqualTo("downloaded source of Foo Bar.c");
-    verify(server).request("/api/sources?resource=myproject%3Aorg%2Ffoo%2FBar.c&format=txt", "GET", false, 30 * 1000);
+    verify(server).request("/api/sources/raw?key=myproject%3Aorg%2Ffoo%2FBar.c", "GET", false, 30 * 1000);
   }
 
   @Test
@@ -132,7 +132,7 @@ public class LastSnapshotsTest {
 
     String source = lastSnapshots.getSource(newFileWithSpace());
     assertThat(source).isEqualTo("");
-    verify(server).request("/api/sources?resource=myproject%3Aorg%2Ffoo%2FFoo+Bar.c&format=txt", "GET", false, 30 * 1000);
+    verify(server).request("/api/sources/raw?key=myproject%3Aorg%2Ffoo%2FFoo+Bar.c", "GET", false, 30 * 1000);
   }
 
   @Test
