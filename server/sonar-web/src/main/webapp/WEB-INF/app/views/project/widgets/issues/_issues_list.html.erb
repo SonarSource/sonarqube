@@ -9,8 +9,8 @@
    if search_options['filter']
      results = Internal.issues.execute(search_options['filter'].to_i, search_options)
    else
-     search_options['sort'] = 'UPDATE_DATE'
-     search_options['asc'] = 'FALSE'
+     search_options['sort'] = 'FILE_LINE'
+     search_options['asc'] = 'false'
      results = Internal.issues.execute(search_options)
    end
    issues = results.issues()

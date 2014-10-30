@@ -15,7 +15,7 @@
 {{#if state.total}}
   <span class="issues-header-item issues-header-nav">
     <a class="js-issues-prev icon-prev"></a>
-    <span class="current">{{sum state.selectedIndex 1}} / {{state.total}}</span>
+    <span class="current">{{sum state.selectedIndex 1}} / <span id="issues-total">{{state.total}}</span></span>
     <a class="js-issues-next icon-next"></a>
   </span>
 {{/if}}

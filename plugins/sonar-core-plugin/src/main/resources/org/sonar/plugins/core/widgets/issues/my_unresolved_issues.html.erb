@@ -2,7 +2,7 @@
    if current_user && (!@project || has_role?(:user, @project))
 
      search_options = {}
-     search_options['componentRoots'] = @project.key if @project
+     search_options['componentRootUuids'] = @project.uuid if @project
      search_options['resolved'] = 'false'
      search_options['assignees'] = current_user.login
      
