@@ -337,22 +337,23 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
 
   private void setFacets(IssueQuery query, QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch) {
     if (options.isFacet()) {
+      StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(esQuery, filters);
       // Execute Term aggregations
-      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.SEVERITIES, IssueNormalizer.IssueField.SEVERITY.field(), 0);
-      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.STATUSES, IssueNormalizer.IssueField.STATUS.field(), 0);
-      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.ACTION_PLANS, IssueNormalizer.IssueField.ACTION_PLAN.field(), 1, query.actionPlans().toArray());
-      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.COMPONENT_ROOT_UUIDS, IssueNormalizer.IssueField.MODULE_PATH.field(), 1, query.componentRootUuids().toArray());
-      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.COMPONENT_UUIDS, IssueNormalizer.IssueField.COMPONENT.field(), 1, query.componentUuids().toArray());
-      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.LANGUAGES, IssueNormalizer.IssueField.LANGUAGE.field(), 0, query.languages().toArray());
-      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.RULES, IssueNormalizer.IssueField.RULE_KEY.field(), 1, query.rules().toArray());
-      addSimpleStickyFacetIfNeeded(query, options, filters, esQuery, esSearch,
+      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.REPORTERS, IssueNormalizer.IssueField.REPORTER.field(), 1);
 
       if (options.facets().contains(IssueFilterParameters.RESOLUTIONS)) {
@@ -364,10 +365,10 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     }
   }
 
-  private void addSimpleStickyFacetIfNeeded(IssueQuery query, QueryContext options, Map<String, FilterBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch,
+  private void addSimpleStickyFacetIfNeeded(QueryContext options, StickyFacetBuilder stickyFacetBuilder, SearchRequestBuilder esSearch,
     String facetName, String fieldName, int minDocCount, Object... selectedValues) {
     if (options.facets().contains(facetName)) {
-      esSearch.addAggregation(stickyFacetBuilder(esQuery, filters, fieldName, facetName, DEFAULT_ISSUE_FACET_SIZE, minDocCount, selectedValues));
+      esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(fieldName, facetName, DEFAULT_ISSUE_FACET_SIZE, minDocCount, selectedValues));
     }
   }
 
@@ -379,9 +380,10 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     Map<String, FilterBuilder> assigneeFilters = Maps.newHashMap(filters);
     assigneeFilters.remove("__isAssigned");
     assigneeFilters.remove(fieldName);
-    BoolFilterBuilder facetFilter = getStickyFacetFilter(esQuery, assigneeFilters, fieldName);
-    FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_ISSUE_FACET_SIZE, 1);
-    addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.assignees().toArray());
+    StickyFacetBuilder assigneeFacetBuilder = new StickyFacetBuilder(esQuery, assigneeFilters);
+    BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
+    FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_ISSUE_FACET_SIZE, 1);
+    facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.assignees().toArray());
 
     // Add missing facet for unassigned issues
     facetTopAggregation.subAggregation(
@@ -403,9 +405,10 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     Map<String, FilterBuilder> resolutionFilters = Maps.newHashMap(filters);
     resolutionFilters.remove("__isResolved");
     resolutionFilters.remove(fieldName);
-    BoolFilterBuilder facetFilter = getStickyFacetFilter(esQuery, resolutionFilters, fieldName);
-    FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_ISSUE_FACET_SIZE, 0);
-    addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.resolutions().toArray());
+    StickyFacetBuilder assigneeFacetBuilder = new StickyFacetBuilder(esQuery, resolutionFilters);
+    BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
+    FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_ISSUE_FACET_SIZE, 0);
+    facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.resolutions().toArray());
 
     // Add missing facet for unresolved issues
     facetTopAggregation.subAggregation(

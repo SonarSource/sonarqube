@@ -318,9 +318,10 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   protected Map<String, AggregationBuilder> getFacets(QueryBuilder query, Map<String, FilterBuilder> filters) {
     Map<String, AggregationBuilder> aggregations = new HashMap<String, AggregationBuilder>();
 
-    aggregations.put(FACET_LANGUAGES + "global", stickyFacetBuilder(query, filters, RuleNormalizer.RuleField.LANGUAGE.field(), FACET_LANGUAGES));
-    aggregations.put(FACET_TAGS + "global", stickyFacetBuilder(query, filters, RuleNormalizer.RuleField.ALL_TAGS.field(), FACET_TAGS));
-    aggregations.put(FACET_REPOSITORIES + "global", stickyFacetBuilder(query, filters, RuleNormalizer.RuleField.REPOSITORY.field(), FACET_REPOSITORIES));
+    StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(query, filters);
+    aggregations.put(FACET_LANGUAGES + "global", stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.LANGUAGE.field(), FACET_LANGUAGES));
+    aggregations.put(FACET_TAGS + "global", stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.ALL_TAGS.field(), FACET_TAGS));
+    aggregations.put(FACET_REPOSITORIES + "global", stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.REPOSITORY.field(), FACET_REPOSITORIES));
 
     return aggregations;
 
