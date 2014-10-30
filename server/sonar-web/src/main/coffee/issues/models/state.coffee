@@ -13,8 +13,6 @@ define [
       query: {}
 
       facets: ['severities', 'statuses', 'resolutions']
-      allFacets: ['severities', 'statuses', 'resolutions', 'componentRootUuids', 'assignees', 'reporters', 'rules',
-                  'languages', 'actionPlans', 'componentUuids', 'creationDate']
 
 
     nextPage: ->

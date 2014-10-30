@@ -13,6 +13,8 @@ define [
   $ = jQuery
   EXTRA_FIELDS = 'actions,transitions,assigneeName,reporterName,actionPlanName'
   PAGE_SIZE = 50
+  ALL_FACETS = ['severities', 'statuses', 'resolutions', 'componentRootUuids', 'assignees', 'reporters', 'rules',
+                'languages', 'actionPlans', 'componentUuids', 'creationDate']
   FACET_DATA_FIELDS = ['components', 'projects', 'users', 'rules', 'actionPlans']
   FACETS_FROM_SERVER = ['severities', 'statuses', 'resolutions', 'actionPlans', 'componentRootUuids', 'rules',
                         'assignees', 'reporters', 'componentUuids', 'languages']
@@ -34,11 +36,18 @@ define [
 
 
     _allFacets: ->
-      @options.app.state.get('allFacets').map (facet) -> { property: facet }
+      ALL_FACETS.map (facet) -> { property: facet }
+
+
+    _enabledFacets: ->
+      facets = @options.app.state.get 'facets'
+      criteria = Object.keys @options.app.state.get 'query'
+      facets = facets.concat criteria
+      facets.filter (facet) -> ALL_FACETS.indexOf(facet) != -1
 
 
     _facetsFromServer: ->
-      facets = @options.app.state.get 'facets'
+      facets = @_enabledFacets()
       facets.filter (facet) -> FACETS_FROM_SERVER.indexOf(facet) != -1
 
 
@@ -60,7 +69,7 @@ define [
         FACET_DATA_FIELDS.forEach (field) => @options.app.facets[field] = r[field]
         @options.app.facets.reset @_allFacets()
         @options.app.facets.add r.facets, merge: true
-        @enableFacets @options.app.state.get 'facets'
+        @enableFacets @_enabledFacets()
 
         @options.app.state.set
           page: r.p
