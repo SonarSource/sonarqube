@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
@@ -54,7 +55,7 @@ public class ComputationService implements ServerComponent {
   }
 
   public void analyzeReport(AnalysisReportDto report) {
-    LOG.info(String.format("#%s - %s - Analysis report processing started", report.getId(), report.getProjectKey()));
+    TimeProfiler profiler = new TimeProfiler(LOG).start(String.format("#%s - %s - Analysis report processing", report.getId(), report.getProjectKey()));
 
     // Synchronization of a lot of data can only be done with a batch session for the moment
     DbSession session = dbClient.openSession(true);
@@ -64,10 +65,10 @@ public class ComputationService implements ServerComponent {
     try {
       report.succeed();
       for (ComputationStep step : stepRegistry.steps()) {
-        LOG.info(String.format("%s step started", step.description()));
+        TimeProfiler stepProfiler = new TimeProfiler(LOG).start(step.description());
         step.execute(session, report, project);
         session.commit();
-        LOG.info(String.format("%s step finished", step.description()));
+        stepProfiler.stop();
       }
 
     } catch (Exception exception) {
@@ -77,7 +78,7 @@ public class ComputationService implements ServerComponent {
       logActivity(session, report, project);
       session.commit();
       MyBatis.closeQuietly(session);
-      LOG.info(String.format("#%s - %s - Analysis report processing finished", report.getId(), report.getProjectKey()));
+      profiler.stop();
     }
   }
 
