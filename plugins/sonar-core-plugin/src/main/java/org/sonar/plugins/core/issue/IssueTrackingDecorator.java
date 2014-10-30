@@ -114,7 +114,7 @@ public class IssueTrackingDecorator implements Decorator {
     for (Issue issue : issueCache.byComponent(resource.getEffectiveKey())) {
       issues.add((DefaultIssue) issue);
     }
-    issueCache.removeAll(resource.getEffectiveKey());
+    issueCache.clear(resource.getEffectiveKey());
     // issues = all the issues created by rule engines during this module scan and not excluded by filters
 
     // all the issues that are not closed in db before starting this module scan, including manual issues

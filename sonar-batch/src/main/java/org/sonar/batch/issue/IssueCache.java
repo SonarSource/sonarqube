@@ -49,7 +49,7 @@ public class IssueCache implements BatchComponent {
     return this;
   }
 
-  public boolean removeAll(String componentKey) {
-    return cache.remove(componentKey);
+  public void clear(String componentKey) {
+    cache.clear(componentKey);
   }
 }
