@@ -82,7 +82,10 @@ public class SearchHealthMediumTest {
     assertThat(indexHealth).isNotEmpty();
     for (IndexHealth index : indexHealth.values()) {
       assertThat(index.getDocumentCount()).isGreaterThanOrEqualTo(0L);
-      assertThat(index.getLastSynchronization().before(now)).isTrue();
+      Date lastSync = index.getLastSynchronization();
+      if (lastSync != null) {
+        assertThat(lastSync.before(now)).isTrue();
+      }
       assertThat(index.isOptimized()).isIn(true, false);
     }
   }

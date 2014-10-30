@@ -34,7 +34,6 @@ import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.tester.ServerTester;
 
@@ -141,7 +140,7 @@ public class IssueAuthorizationIndexMediumTest {
     session.commit();
 
     assertThat(index.getNullableByKey(project.uuid())).isNull();
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, project.uuid()));
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of("project", project.uuid()));
     session.commit();
 
     IssueAuthorizationDoc issueAuthorizationDoc = index.getByKey(project.uuid());
@@ -151,6 +150,50 @@ public class IssueAuthorizationIndexMediumTest {
     assertThat(issueAuthorizationDoc.groups()).containsExactly("devs");
     assertThat(issueAuthorizationDoc.users()).containsExactly("john");
     assertThat(issueAuthorizationDoc.updatedAt()).isNotNull();
+  }
+
+  @Test
+  public void get_last_synchronization_with_project() throws Exception {
+    project = ComponentTesting.newProjectDto()
+      .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
+    db.componentDao().insert(session, project);
+
+    GroupDto sonarUsers = new GroupDto().setName("devs");
+    db.groupDao().insert(session, sonarUsers);
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), "devs", UserRole.USER, session);
+    session.commit();
+
+    assertThat(index.getLastSynchronization(ImmutableMap.of("project", project.uuid()))).isNull();
+
+    db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of("project", project.uuid()));
+    session.commit();
+
+    assertThat(index.getLastSynchronization(ImmutableMap.of("project", project.uuid()))).isNotNull();
+    assertThat(index.getLastSynchronization(ImmutableMap.of("project", "Another project"))).isNull();
+  }
+
+  @Test
+  public void synchronizing_another_project_should_not_update_last_synchronization_date() throws Exception {
+    project = ComponentTesting.newProjectDto()
+      .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-09-11"));
+    db.componentDao().insert(session, project);
+
+    GroupDto sonarUsers = new GroupDto().setName("devs");
+    db.groupDao().insert(session, sonarUsers);
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), "devs", UserRole.USER, session);
+    session.commit();
+
+    db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of("project", project.uuid()));
+    session.commit();
+    Date date = index.getLastSynchronization(ImmutableMap.of("project", project.uuid()));
+    assertThat(date).isNotNull();
+
+    // Another project is synchronized
+    db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of("project", "Another project"));
+    session.commit();
+
+    // Last sync date of current project is not updated
+    assertThat(index.getLastSynchronization(ImmutableMap.of("project", project.uuid()))).isEqualTo(date);
   }
 
   @Test
@@ -170,13 +213,13 @@ public class IssueAuthorizationIndexMediumTest {
     // Insert one permission
 
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), "devs", UserRole.USER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, project.uuid()));
+    db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of("project", project.uuid()));
     session.commit();
     assertThat(index.getByKey(project.uuid())).isNotNull();
 
     // Delete the permission
     tester.get(PermissionFacade.class).deleteGroupPermission(project.getId(), "devs", UserRole.USER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, project.uuid()));
+    db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of("project", project.uuid()));
     session.commit();
     assertThat(index.getNullableByKey(project.uuid())).isNull();
   }

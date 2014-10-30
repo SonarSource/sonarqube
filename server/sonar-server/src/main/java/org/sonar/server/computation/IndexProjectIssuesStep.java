@@ -25,6 +25,7 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueNormalizer;
 import org.sonar.server.search.IndexClient;
 
 public class IndexProjectIssuesStep implements ComputationStep {
@@ -39,7 +40,7 @@ public class IndexProjectIssuesStep implements ComputationStep {
 
   @Override
   public void execute(DbSession session, AnalysisReportDto report) {
-    indexProjectIssues(session, report.getProjectKey());
+    indexProjectIssues(session, report);
   }
 
   @Override
@@ -47,10 +48,10 @@ public class IndexProjectIssuesStep implements ComputationStep {
     return "Update issues index";
   }
 
-  private void indexProjectIssues(DbSession session, String projectKey) {
+  private void indexProjectIssues(DbSession session, AnalysisReportDto report) {
     dbClient.issueDao().synchronizeAfter(session,
-      index.get(IssueIndex.class).getLastSynchronization(),
-      ImmutableMap.of("project", projectKey));
+      index.get(IssueIndex.class).getLastSynchronization(ImmutableMap.of(IssueNormalizer.IssueField.PROJECT.field(), report.getProject().uuid())),
+      ImmutableMap.of(IssueNormalizer.IssueField.PROJECT.field(), report.getProject().uuid()));
     session.commit();
   }
 }

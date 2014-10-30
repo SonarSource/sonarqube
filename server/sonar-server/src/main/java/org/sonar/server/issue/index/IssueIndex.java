@@ -140,6 +140,15 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     return null;
   }
 
+  @Override
+  protected FilterBuilder getLastSynchronizationBuilder(Map<String, String> params) {
+    String projectUuid = params.get(IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field());
+    if (projectUuid != null) {
+      return FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueNormalizer.IssueField.PROJECT.field(), projectUuid));
+    }
+    return super.getLastSynchronizationBuilder(params);
+  }
+
   public List<FacetValue> listAssignees(IssueQuery query) {
     QueryContext queryContext = new QueryContext().setPage(1, 0);
 

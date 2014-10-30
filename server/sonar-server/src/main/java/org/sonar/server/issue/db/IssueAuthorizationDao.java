@@ -30,6 +30,7 @@ import org.sonar.core.issue.db.IssueAuthorizationMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
+import org.sonar.server.issue.index.IssueAuthorizationNormalizer;
 import org.sonar.server.search.DbSynchronizationHandler;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.DeleteKey;
@@ -40,8 +41,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, IssueAuthorizationDto, String> implements DaoComponent {
-
-  public static final String PROJECT_UUID = "project";
 
   public IssueAuthorizationDao() {
     this(System2.INSTANCE);
@@ -87,7 +86,7 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
 
       @Override
       public void enqueueCollected() {
-        String projectUuid = getParams().get("project");
+        String projectUuid = getParams().get(IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field());
         if (authorizationDtoMap.isEmpty() && projectUuid != null) {
           getSession().enqueue(new DeleteKey<String>(getIndexType(), projectUuid));
         } else {
@@ -104,7 +103,7 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
     Map<String, Object> finalParams = super.getSynchronizationParams(date, params);
     finalParams.put("permission", UserRole.USER);
     finalParams.put("anyone", DefaultGroups.ANYONE);
-    finalParams.put(PROJECT_UUID, params.get(PROJECT_UUID));
+    finalParams.put(IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field(), params.get(IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field()));
     return finalParams;
   }
 

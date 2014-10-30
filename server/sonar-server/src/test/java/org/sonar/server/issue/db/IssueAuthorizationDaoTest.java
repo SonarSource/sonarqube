@@ -80,7 +80,7 @@ public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
 
     assertThat(session.getActionCount()).isEqualTo(0);
 
-    dao.synchronizeAfter(session, DateUtils.parseDate("2014-01-01"), ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, "ABCD"));
+    dao.synchronizeAfter(session, DateUtils.parseDate("2014-01-01"), ImmutableMap.of("project", "ABCD"));
     // SynchronizeAfter adds an implicit action (refresh) after execution of synchronization
     assertThat(session.getActionCount()).isEqualTo(2);
   }

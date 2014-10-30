@@ -180,7 +180,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void find_after_dates_with_project() throws Exception {
     setupData("shared", "find_after_dates_with_project");
 
-    assertThat(dao.findAfterDate(session, DateUtils.parseDate("2014-01-01"), ImmutableMap.of("project", "struts"))).hasSize(1);
+    assertThat(dao.findAfterDate(session, DateUtils.parseDate("2014-01-01"), ImmutableMap.of("project", "ABCD"))).hasSize(1);
   }
 
   @Test

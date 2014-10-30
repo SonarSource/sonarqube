@@ -100,7 +100,6 @@ public class IndexProjectIssuesStepTest {
   @Test
   public void add_issues_in_index() {
     ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
-
     db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
     ComponentDto file = ComponentTesting.newFileDto(project);
@@ -119,6 +118,7 @@ public class IndexProjectIssuesStepTest {
 
     queue.add(DEFAULT_PROJECT_KEY, 123L);
     AnalysisReportDto report = queue.bookNextAvailable();
+    report.setProject(project);
 
     sut.execute(session, report);
 
@@ -152,9 +152,11 @@ public class IndexProjectIssuesStepTest {
 
     queue.add(DEFAULT_PROJECT_KEY, 123L);
     List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
+    AnalysisReportDto reportDto = reports.get(0);
+    reportDto.setProject(project);
 
     // ACT
-    sut.execute(session, reports.get(0));
+    sut.execute(session, reportDto);
 
     session.commit();
     session.clearCache();

@@ -24,9 +24,11 @@ import com.google.common.collect.ImmutableMap;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
+import org.sonar.server.issue.index.IssueAuthorizationNormalizer;
 import org.sonar.server.search.IndexClient;
+
+import java.util.Map;
 
 public class SynchronizeProjectPermissionsStep implements ComputationStep {
 
@@ -51,8 +53,8 @@ public class SynchronizeProjectPermissionsStep implements ComputationStep {
   private void synchronizeProjectPermissionsIfNotFound(DbSession session, AnalysisReportDto report) {
     String projectUuid = report.getProject().uuid();
     if (index.get(IssueAuthorizationIndex.class).getNullableByKey(projectUuid) == null) {
-      dbClient.issueAuthorizationDao().synchronizeAfter(session, null,
-        ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, projectUuid));
+      Map<String, String> params = ImmutableMap.of(IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field(), projectUuid);
+      dbClient.issueAuthorizationDao().synchronizeAfter(session, null, params);
       session.commit();
     }
   }

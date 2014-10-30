@@ -27,6 +27,7 @@ import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
+import org.sonar.server.issue.index.IssueNormalizer;
 import org.sonar.server.search.IndexDefinition;
 
 import javax.annotation.Nullable;
@@ -37,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 
 public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements DaoComponent {
-
-  public static final String PROJECT_KEY = "project";
 
   public IssueDao() {
     this(System2.INSTANCE);
@@ -85,8 +84,7 @@ public class IssueDao extends BaseDao<IssueMapper, IssueDto, String> implements 
   @Override
   protected Map<String, Object> getSynchronizationParams(@Nullable Date date, Map<String, String> params) {
     Map<String, Object> finalParams = super.getSynchronizationParams(date, params);
-    // TODO replace usage of project key by project uuid
-    finalParams.put(PROJECT_KEY, params.get(PROJECT_KEY));
+    finalParams.put(IssueNormalizer.IssueField.PROJECT.field(), params.get(IssueNormalizer.IssueField.PROJECT.field()));
     return finalParams;
   }
 }

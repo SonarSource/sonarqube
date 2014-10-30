@@ -21,6 +21,8 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.sonar.core.issue.db.IssueAuthorizationDto;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.IndexDefinition;
@@ -61,5 +63,14 @@ public class IssueAuthorizationIndex extends BaseIndex<IssueAuthorizationDoc, Is
   public IssueAuthorizationDoc toDoc(Map fields) {
     Preconditions.checkNotNull(fields, "Cannot construct IssueAuthorization with null response");
     return new IssueAuthorizationDoc(fields);
+  }
+
+  @Override
+  protected FilterBuilder getLastSynchronizationBuilder(Map<String, String> params) {
+    String projectUuid = params.get(IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field());
+    if (projectUuid != null) {
+      return FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field(), projectUuid));
+    }
+    return super.getLastSynchronizationBuilder(params);
   }
 }

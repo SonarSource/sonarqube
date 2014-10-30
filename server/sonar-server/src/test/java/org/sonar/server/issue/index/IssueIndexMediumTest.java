@@ -865,6 +865,37 @@ public class IssueIndexMediumTest {
   }
 
   @Test
+  public void get_last_synchronization_with_project() throws Exception {
+    ComponentDto project1 = ComponentTesting.newProjectDto().setKey("project1");
+    ComponentDto project2 = ComponentTesting.newProjectDto().setKey("project2");
+    tester.get(ComponentDao.class).insert(session, project1, project2);
+
+    assertThat(index.getLastSynchronization(ImmutableMap.of("project", project1.uuid()))).isNull();
+    assertThat(index.getLastSynchronization(ImmutableMap.of("project", project2.uuid()))).isNull();
+
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project1));
+    session.commit();
+    session.clearCache();
+
+    assertThat(index.getLastSynchronization(ImmutableMap.of("project", project1.uuid()))).isNotNull();
+    assertThat(index.getLastSynchronization(ImmutableMap.of("project", project2.uuid()))).isNull();
+  }
+
+  @Test
+  public void get_last_synchronization() throws Exception {
+    ComponentDto project = ComponentTesting.newProjectDto().setKey("project1");
+    tester.get(ComponentDao.class).insert(session, project);
+
+    assertThat(index.getLastSynchronization()).isNull();
+
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project));
+    session.commit();
+    session.clearCache();
+
+    assertThat(index.getLastSynchronization()).isNotNull();
+  }
+
+  @Test
   public void delete_closed_issues_from_one_project_older_than_specific_date() {
     // ARRANGE
     Date today = new Date();

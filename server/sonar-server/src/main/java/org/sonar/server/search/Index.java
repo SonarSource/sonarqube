@@ -28,6 +28,7 @@ import javax.annotation.CheckForNull;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Map;
 
 public interface Index<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable> extends Startable, ServerComponent {
 
@@ -38,7 +39,11 @@ public interface Index<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable> e
 
   String getIndexName();
 
+  @CheckForNull
   Date getLastSynchronization();
+
+  @CheckForNull
+  Date getLastSynchronization(Map<String, String> params);
 
   IndexStat getIndexStat();
 

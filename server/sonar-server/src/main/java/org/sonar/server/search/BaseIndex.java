@@ -194,12 +194,20 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   /* Synchronization methods */
 
   @Override
+  @CheckForNull
   public Date getLastSynchronization() {
+    return getLastSynchronization(Collections.<String, String>emptyMap());
+  }
 
-    Date date;
+  @Override
+  @CheckForNull
+  public Date getLastSynchronization(Map<String, String> params) {
     SearchRequestBuilder request = client.prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
-      .setQuery(QueryBuilders.matchAllQuery())
+      .setQuery(QueryBuilders.filteredQuery(
+        QueryBuilders.matchAllQuery(),
+        getLastSynchronizationBuilder(params)
+      ))
       .setSize(0)
       .addAggregation(AggregationBuilders.max("latest")
         .field(BaseNormalizer.UPDATED_AT_FIELD));
@@ -207,15 +215,18 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     SearchResponse response = client.execute(request);
 
     Max max = response.getAggregations().get("latest");
-
     if (max.getValue() > 0) {
-      date = new DateTime(Double.valueOf(max.getValue()).longValue()).toDate();
+      Date date = new DateTime(Double.valueOf(max.getValue()).longValue()).toDate();
+      LOG.debug("Index {}:{} has last update of {}", this.getIndexName(), this.getIndexType(), date);
+      return date;
     } else {
-      date = new Date(0L);
+      LOG.debug("Index {}:{} has no last update date", this.getIndexName(), this.getIndexType());
+      return null;
     }
+  }
 
-    LOG.debug("Index {}:{} has last update of {}", this.getIndexName(), this.getIndexType(), date);
-    return date;
+  protected FilterBuilder getLastSynchronizationBuilder(Map<String, String> params) {
+    return FilterBuilders.matchAllFilter();
   }
 
   /* Index management methods */

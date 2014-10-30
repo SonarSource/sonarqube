@@ -78,10 +78,10 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
 
     // 3. Assert startup picks it up
     tester.clearIndexes();
-    Date before = index.get(ActiveRuleIndex.class).getLastSynchronization();
+    assertThat(index.get(ActiveRuleIndex.class).getLastSynchronization()).isNull();
     tester.get(Platform.class).executeStartupTasks();
     assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNotNull();
-    assertThat(before.before(index.get(ActiveRuleIndex.class).getLastSynchronization())).isTrue();
+    assertThat(index.get(ActiveRuleIndex.class).getLastSynchronization()).isNotNull();
   }
 
   @Test

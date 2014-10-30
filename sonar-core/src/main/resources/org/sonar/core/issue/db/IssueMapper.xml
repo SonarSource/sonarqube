@@ -153,7 +153,7 @@
         AND (i.updated_at IS NULL or i.updated_at &gt;= #{date})
       </if>
       <if test="project != null">
-        AND root.kee = #{project}
+        AND root.uuid = #{project}
       </if>
     </where>
   </select>

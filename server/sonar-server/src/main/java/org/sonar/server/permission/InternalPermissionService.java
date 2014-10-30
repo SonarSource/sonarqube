@@ -38,8 +38,8 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
+import org.sonar.server.issue.index.IssueAuthorizationNormalizer;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.user.UserSession;
 
@@ -280,8 +280,7 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   public void synchronizeProjectPermissions(DbSession session, String projectUuid) {
-    dbClient.issueAuthorizationDao().synchronizeAfter(session,
-      index.get(IssueAuthorizationIndex.class).getLastSynchronization(),
-      ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, projectUuid));
+    Map<String, String> params = ImmutableMap.of(IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field(), projectUuid);
+    dbClient.issueAuthorizationDao().synchronizeAfter(session, index.get(IssueAuthorizationIndex.class).getLastSynchronization(params), params);
   }
 }

@@ -36,7 +36,6 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.issue.index.IssueAuthorizationDoc;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.tester.ServerTester;
@@ -105,7 +104,7 @@ public class SynchronizeProjectPermissionsStepMediumTest {
   public void not_add_project_issue_permission_if_already_existing() throws Exception {
     ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
     // Synchronisation on project is already done
-    db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, project.uuid()));
+    db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of("project", project.uuid()));
 
     // To check that permission will not be synchronized again, add a new permission on the project in db, this permission should not be in the index
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.USERS, UserRole.USER, session);
