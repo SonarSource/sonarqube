@@ -21,17 +21,11 @@ package org.sonar.core.computation.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
-import com.google.common.base.Strings;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.Nullable;
 
 import java.util.Date;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.FAILED;
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.SUCCESS;
 
 public class AnalysisReportDto extends Dto<String> {
 
@@ -42,7 +36,6 @@ public class AnalysisReportDto extends Dto<String> {
   private Long snapshotId;
   private Date startedAt;
   private Date finishedAt;
-  private ComponentDto project;
 
   public AnalysisReportDto() {
     super();
@@ -75,11 +68,11 @@ public class AnalysisReportDto extends Dto<String> {
   }
 
   public void fail() {
-    this.status = FAILED;
+    this.status = Status.FAILED;
   }
 
   public void succeed() {
-    this.status = SUCCESS;
+    this.status = Status.SUCCESS;
   }
 
   public String getData() {
@@ -111,22 +104,6 @@ public class AnalysisReportDto extends Dto<String> {
       .add("startedAt", getStartedAt())
       .add("finishedAt", getFinishedAt())
       .toString();
-  }
-
-  public String getProjectName() {
-    if (project == null) {
-      return getProjectKey();
-    }
-
-    return Strings.nullToEmpty(project.name());
-  }
-
-  public String getProjectUuid() {
-    if (project == null) {
-      return getProjectKey();
-    }
-
-    return Strings.nullToEmpty(project.uuid());
   }
 
   public Long getSnapshotId() {
@@ -165,15 +142,6 @@ public class AnalysisReportDto extends Dto<String> {
   @Override
   public AnalysisReportDto setCreatedAt(Date datetime) {
     super.setCreatedAt(datetime);
-    return this;
-  }
-
-  public ComponentDto getProject() {
-    return checkNotNull(project);
-  }
-
-  public AnalysisReportDto setProject(ComponentDto project) {
-    this.project = project;
     return this;
   }
 

@@ -20,13 +20,22 @@
 
 package org.sonar.server.computation;
 
+import com.google.common.base.Throwables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.utils.System2;
+import org.sonar.core.activity.Activity;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.activity.ActivityService;
 import org.sonar.server.db.DbClient;
+
+import java.util.Date;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * since 5.0
@@ -36,28 +45,48 @@ public class ComputationService implements ServerComponent {
 
   private final DbClient dbClient;
   private final ComputationStepRegistry stepRegistry;
+  private final ActivityService activityService;
 
-  public ComputationService(DbClient dbClient, ComputationStepRegistry stepRegistry) {
+  public ComputationService(DbClient dbClient, ComputationStepRegistry stepRegistry, ActivityService activityService) {
     this.dbClient = dbClient;
     this.stepRegistry = stepRegistry;
+    this.activityService = activityService;
   }
 
   public void analyzeReport(AnalysisReportDto report) {
     LOG.info(String.format("#%s - %s - Analysis report processing started", report.getId(), report.getProjectKey()));
 
-    // Synchronization of lot of data can only be done with a batch session for the moment
+    // Synchronization of a lot of data can only be done with a batch session for the moment
     DbSession session = dbClient.openSession(true);
 
+    ComponentDto project = findProject(report, session);
+
     try {
+      report.succeed();
       for (ComputationStep step : stepRegistry.steps()) {
         LOG.info(String.format("%s step started", step.description()));
-        step.execute(session, report);
+        step.execute(session, report, project);
         session.commit();
         LOG.info(String.format("%s step finished", step.description()));
       }
+
+    } catch (Exception exception) {
+      report.fail();
+      Throwables.propagate(exception);
     } finally {
+      logActivity(session, report, project);
+      session.commit();
       MyBatis.closeQuietly(session);
       LOG.info(String.format("#%s - %s - Analysis report processing finished", report.getId(), report.getProjectKey()));
     }
+  }
+
+  private ComponentDto findProject(AnalysisReportDto report, DbSession session) {
+    return checkNotNull(dbClient.componentDao().getByKey(session, report.getProjectKey()));
+  }
+
+  private void logActivity(DbSession session, AnalysisReportDto report, ComponentDto project) {
+    report.setFinishedAt(new Date(System2.INSTANCE.now()));
+    activityService.write(session, Activity.Type.ANALYSIS_REPORT, new AnalysisReportLog(report, project));
   }
 }

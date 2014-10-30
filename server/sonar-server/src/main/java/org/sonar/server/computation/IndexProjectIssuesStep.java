@@ -21,12 +21,15 @@
 package org.sonar.server.computation;
 
 import com.google.common.collect.ImmutableMap;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueNormalizer;
 import org.sonar.server.search.IndexClient;
+
+import java.util.Date;
 
 public class IndexProjectIssuesStep implements ComputationStep {
 
@@ -39,8 +42,8 @@ public class IndexProjectIssuesStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, AnalysisReportDto report) {
-    indexProjectIssues(session, report);
+  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
+    indexProjectIssues(session, project);
   }
 
   @Override
@@ -48,10 +51,18 @@ public class IndexProjectIssuesStep implements ComputationStep {
     return "Update issues index";
   }
 
-  private void indexProjectIssues(DbSession session, AnalysisReportDto report) {
+  private void indexProjectIssues(DbSession session, ComponentDto project) {
     dbClient.issueDao().synchronizeAfter(session,
-      index.get(IssueIndex.class).getLastSynchronization(ImmutableMap.of(IssueNormalizer.IssueField.PROJECT.field(), report.getProject().uuid())),
-      ImmutableMap.of(IssueNormalizer.IssueField.PROJECT.field(), report.getProject().uuid()));
+      getLastIndexSynchronizationDate(project),
+      parameters(project));
     session.commit();
+  }
+
+  private ImmutableMap<String, String> parameters(ComponentDto project) {
+    return ImmutableMap.of(IssueNormalizer.IssueField.PROJECT.field(), project.uuid());
+  }
+
+  private Date getLastIndexSynchronizationDate(ComponentDto project) {
+    return index.get(IssueIndex.class).getLastSynchronization(parameters(project));
   }
 }

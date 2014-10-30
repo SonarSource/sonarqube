@@ -26,6 +26,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -33,7 +34,11 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.UserDto;
+import org.sonar.server.activity.ActivityService;
+import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.computation.AnalysisReportLog;
 import org.sonar.server.computation.AnalysisReportQueue;
+import org.sonar.server.computation.ComputationService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.ServerTester;
@@ -46,6 +51,8 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class AnalysisReportHistorySearchActionMediumTest {
   private static final String DEFAULT_PROJECT_KEY = "DefaultProjectKey";
+  private static final String DEFAULT_PROJECT_NAME = "DefaultProjectName";
+
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
@@ -54,6 +61,8 @@ public class AnalysisReportHistorySearchActionMediumTest {
   private WsTester wsTester;
   private AnalysisReportQueue queue;
   private MockUserSession userSession;
+  private ComputationService computationService;
+  private ActivityService activityService;
 
   @Before
   public void before() {
@@ -62,6 +71,7 @@ public class AnalysisReportHistorySearchActionMediumTest {
     wsTester = tester.get(WsTester.class);
     session = dbClient.openSession(false);
     queue = tester.get(AnalysisReportQueue.class);
+    activityService = tester.get(ActivityService.class);
 
     UserDto connectedUser = new UserDto().setLogin("gandalf").setName("Gandalf");
     dbClient.userDao().insert(session, connectedUser);
@@ -85,23 +95,26 @@ public class AnalysisReportHistorySearchActionMediumTest {
     queue.add(DEFAULT_PROJECT_KEY, 123L);
 
     List<AnalysisReportDto> reports = queue.all();
+    ComponentDto project = ComponentTesting.newProjectDto()
+      .setName(DEFAULT_PROJECT_NAME)
+      .setKey(DEFAULT_PROJECT_KEY);
     for (AnalysisReportDto report : reports) {
       report.succeed();
-      queue.remove(report);
+      activityService.write(session, Activity.Type.ANALYSIS_REPORT, new AnalysisReportLog(report, project));
     }
 
+    session.commit();
     userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     WsTester.TestRequest request = wsTester.newGetRequest(AnalysisReportWebService.API_ENDPOINT, AnalysisReportHistorySearchAction.SEARCH_ACTION);
     WsTester.Result result = request.execute();
 
     assertThat(result).isNotNull();
-    // TODO add the createdAt and updatedAt field in the json file when System2 is easily mockable
     result.assertJson(getClass(), "list_history_reports.json", false);
   }
 
   private ComponentDto insertPermissionsForProject(String projectKey) {
-    ComponentDto project = new ComponentDto().setKey(projectKey);
+    ComponentDto project = new ComponentDto().setKey(projectKey).setId(1L);
     dbClient.componentDao().insert(session, project);
 
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);

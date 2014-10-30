@@ -30,6 +30,7 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.TestDatabase;
+import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.SnapshotDao;
 
 import static org.mockito.Mockito.mock;
@@ -60,7 +61,7 @@ public class SwitchSnapshotStepTest {
   public void one_switch_with_a_snapshot_and_his_children() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    sut.execute(session, AnalysisReportDto.newForTests(1L).setSnapshotId(1L));
+    sut.execute(session, AnalysisReportDto.newForTests(1L).setSnapshotId(1L), ComponentTesting.newProjectDto());
     session.commit();
 
     db.assertDbUnit(getClass(), "snapshots-result.xml", "snapshots");
@@ -70,6 +71,6 @@ public class SwitchSnapshotStepTest {
   public void throw_IllegalStateException_when_not_finding_snapshot() {
     db.prepareDbUnit(getClass(), "empty.xml");
 
-    sut.execute(session, AnalysisReportDto.newForTests(1L).setSnapshotId(1L));
+    sut.execute(session, AnalysisReportDto.newForTests(1L).setSnapshotId(1L), ComponentTesting.newProjectDto());
   }
 }

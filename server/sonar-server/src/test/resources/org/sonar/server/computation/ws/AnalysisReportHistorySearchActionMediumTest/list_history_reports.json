@@ -2,17 +2,17 @@
   "reports": [
     {
       "status": "SUCCESS",
-      "projectName": "DefaultProjectKey",
+      "projectName": "DefaultProjectName",
       "projectKey": "DefaultProjectKey"
     },
     {
       "status": "SUCCESS",
-      "projectName": "DefaultProjectKey",
+      "projectName": "DefaultProjectName",
       "projectKey": "DefaultProjectKey"
     },
     {
       "status": "SUCCESS",
-      "projectName": "DefaultProjectKey",
+      "projectName": "DefaultProjectName",
       "projectKey": "DefaultProjectKey"
     }
   ]

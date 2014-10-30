@@ -48,7 +48,6 @@ public class ComponentDto extends Dto<String> implements Component {
   private boolean enabled = true;
   private Date authorizationUpdatedAt;
 
-
   public Long getId() {
     return id;
   }
@@ -69,11 +68,6 @@ public class ComponentDto extends Dto<String> implements Component {
 
   public String key() {
     return kee;
-  }
-
-  public ComponentDto setKey(String key) {
-    this.kee = key;
-    return this;
   }
 
   public String scope() {
@@ -217,7 +211,12 @@ public class ComponentDto extends Dto<String> implements Component {
 
   @Override
   public String getKey() {
-    return kee;
+    return key();
+  }
+
+  public ComponentDto setKey(String key) {
+    this.kee = key;
+    return this;
   }
 
   @Override

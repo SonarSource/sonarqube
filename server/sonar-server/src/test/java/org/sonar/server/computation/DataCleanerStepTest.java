@@ -53,9 +53,9 @@ public class DataCleanerStepTest {
   @Test
   public void call_purge_method_of_the_purge_task() {
     AnalysisReportDto report = mock(AnalysisReportDto.class);
-    when(report.getProject()).thenReturn(mock(ComponentDto.class));
+    ComponentDto project = mock(ComponentDto.class);
 
-    sut.execute(mock(DbSession.class), report);
+    sut.execute(mock(DbSession.class), report, project);
 
     verify(purgeTask).purge(any(Long.class));
     verify(issueIndex).deleteClosedIssuesOfProjectBefore(anyString(), any(Date.class));

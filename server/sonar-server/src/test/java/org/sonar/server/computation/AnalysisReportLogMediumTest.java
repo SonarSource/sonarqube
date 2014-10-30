@@ -27,6 +27,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.activity.Activity;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.ActivityService;
@@ -70,10 +71,10 @@ public class AnalysisReportLogMediumTest {
       .setCreatedAt(DateUtils.parseDate("2014-10-15"))
       .setUpdatedAt(DateUtils.parseDate("2014-10-16"))
       .setStartedAt(DateUtils.parseDate("2014-10-17"))
-      .setFinishedAt(DateUtils.parseDate("2014-10-18"))
-      .setProject(ComponentTesting.newProjectDto());
+      .setFinishedAt(DateUtils.parseDate("2014-10-18"));
+    ComponentDto project = ComponentTesting.newProjectDto();
 
-    service.write(dbSession, ANALYSIS_REPORT, new AnalysisReportLog(report));
+    service.write(dbSession, ANALYSIS_REPORT, new AnalysisReportLog(report, project));
     dbSession.commit();
 
     // 0. AssertBase case
@@ -83,9 +84,9 @@ public class AnalysisReportLogMediumTest {
     assertThat(activity).isNotNull();
     Map<String, String> details = activity.details();
     assertThat(details.get("id")).isEqualTo(String.valueOf(report.getId()));
-    assertThat(details.get("projectKey")).isEqualTo(report.getProjectKey());
-    assertThat(details.get("projectName")).isEqualTo(report.getProjectName());
-    assertThat(details.get("projectUuid")).isEqualTo(report.getProjectUuid());
+    assertThat(details.get("projectKey")).isEqualTo(project.key());
+    assertThat(details.get("projectName")).isEqualTo(project.name());
+    assertThat(details.get("projectUuid")).isEqualTo(project.uuid());
     assertThat(details.get("status")).isEqualTo("FAILED");
     assertThat(details.get("submittedAt")).isEqualTo("2014-10-15T00:00:00+0200");
     assertThat(details.get("startedAt")).isEqualTo("2014-10-17T00:00:00+0200");

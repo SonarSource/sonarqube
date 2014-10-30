@@ -590,7 +590,6 @@ class ServerComponents {
     // Compute engine
     pico.addSingleton(ComputationService.class);
     pico.addSingleton(ComputationStepRegistry.class);
-    pico.addSingleton(GetAndSetProjectStep.class);
     pico.addSingleton(SynchronizeProjectPermissionsStep.class);
     pico.addSingleton(IndexProjectIssuesStep.class);
     pico.addSingleton(SwitchSnapshotStep.class);

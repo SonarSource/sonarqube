@@ -54,10 +54,8 @@ public class SynchronizeProjectPermissionsStepMediumTest {
   private SynchronizeProjectPermissionsStep sut;
 
   private AnalysisReportQueue queue;
-  private GetAndSetProjectStep getAndSetProjectStep;
   private DbClient db;
   private DbSession session;
-  private MockUserSession userSession;
 
   @Before
   public void setUp() throws Exception {
@@ -65,17 +63,14 @@ public class SynchronizeProjectPermissionsStepMediumTest {
     db = tester.get(DbClient.class);
     session = db.openSession(false);
     queue = tester.get(AnalysisReportQueue.class);
-    getAndSetProjectStep = tester.get(GetAndSetProjectStep.class);
-
-    sut = tester.get(SynchronizeProjectPermissionsStep.class);
-
     UserDto connectedUser = new UserDto().setLogin("gandalf").setName("Gandalf");
     db.userDao().insert(session, connectedUser);
-
-    userSession = MockUserSession.set()
+    MockUserSession.set()
       .setLogin(connectedUser.getLogin())
       .setUserId(connectedUser.getId().intValue())
       .setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    sut = tester.get(SynchronizeProjectPermissionsStep.class);
 
     session.commit();
   }
@@ -87,13 +82,12 @@ public class SynchronizeProjectPermissionsStepMediumTest {
 
   @Test
   public void add_project_issue_permission_in_index() throws Exception {
-    ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
+    ComponentDto project = insertProjectWithPermissions(DEFAULT_PROJECT_KEY);
 
     queue.add(DEFAULT_PROJECT_KEY, 123L);
     List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
-    getAndSetProjectStep.execute(session, reports.get(0));
 
-    sut.execute(session, reports.get(0));
+    sut.execute(session, reports.get(0), project);
 
     IssueAuthorizationDoc issueAuthorizationIndex = tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid());
     assertThat(issueAuthorizationIndex).isNotNull();
@@ -102,25 +96,25 @@ public class SynchronizeProjectPermissionsStepMediumTest {
 
   @Test
   public void not_add_project_issue_permission_if_already_existing() throws Exception {
-    ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
+    ComponentDto project = insertProjectWithPermissions(DEFAULT_PROJECT_KEY);
     // Synchronisation on project is already done
     db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of("project", project.uuid()));
 
-    // To check that permission will not be synchronized again, add a new permission on the project in db, this permission should not be in the index
+    // To check that permission will not be synchronized again, add a new permission on the project in db, this permission should not be in
+    // the index
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.USERS, UserRole.USER, session);
 
     queue.add(DEFAULT_PROJECT_KEY, 123L);
     List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
-    getAndSetProjectStep.execute(session, reports.get(0));
 
-    sut.execute(session, reports.get(0));
+    sut.execute(session, reports.get(0), project);
 
     IssueAuthorizationDoc issueAuthorizationIndex = tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid());
     assertThat(issueAuthorizationIndex).isNotNull();
     assertThat(issueAuthorizationIndex.groups()).containsExactly(DefaultGroups.ANYONE);
   }
 
-  private ComponentDto insertPermissionsForProject(String projectKey) {
+  private ComponentDto insertProjectWithPermissions(String projectKey) {
     ComponentDto project = ComponentTesting.newProjectDto().setKey(projectKey);
     db.componentDao().insert(session, project);
 

@@ -21,6 +21,7 @@
 package org.sonar.server.computation;
 
 import com.google.common.collect.ImmutableMap;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
@@ -41,8 +42,8 @@ public class SynchronizeProjectPermissionsStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, AnalysisReportDto report) {
-    synchronizeProjectPermissionsIfNotFound(session, report);
+  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
+    synchronizeProjectPermissionsIfNotFound(session, report, project);
   }
 
   @Override
@@ -50,8 +51,8 @@ public class SynchronizeProjectPermissionsStep implements ComputationStep {
     return "Synchronize project permissions";
   }
 
-  private void synchronizeProjectPermissionsIfNotFound(DbSession session, AnalysisReportDto report) {
-    String projectUuid = report.getProject().uuid();
+  private void synchronizeProjectPermissionsIfNotFound(DbSession session, AnalysisReportDto report, ComponentDto project) {
+    String projectUuid = project.uuid();
     if (index.get(IssueAuthorizationIndex.class).getNullableByKey(projectUuid) == null) {
       Map<String, String> params = ImmutableMap.of(IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field(), projectUuid);
       dbClient.issueAuthorizationDao().synchronizeAfter(session, null, params);

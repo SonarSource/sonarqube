@@ -21,6 +21,7 @@
 package org.sonar.server.computation;
 
 import org.sonar.api.config.Settings;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
 import org.sonar.core.persistence.DbSession;
@@ -41,13 +42,13 @@ public class DataCleanerStep implements ComputationStep {
   }
 
   @Override
-  public void execute(DbSession session, AnalysisReportDto report) {
-    Long projectId = report.getProject().getId();
+  public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
+    Long projectId = project.getId();
     purgeTask.purge(projectId);
-    issueIndex.deleteClosedIssuesOfProjectBefore(report.getProjectUuid(), deleteIssuesBeforeThisDate(projectId));
+    issueIndex.deleteClosedIssuesOfProjectBefore(project.uuid(), dateBeforeWhichDeleteClosedIssues(projectId));
   }
 
-  private Date deleteIssuesBeforeThisDate(Long resourceId) {
+  private Date dateBeforeWhichDeleteClosedIssues(Long resourceId) {
     return PurgeConfiguration.newDefaultPurgeConfiguration(resourceId, settings).maxLiveDateOfClosedIssues();
   }
 

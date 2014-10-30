@@ -22,12 +22,10 @@ package org.sonar.server.computation;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
-import org.sonar.core.activity.Activity;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.activity.ActivityService;
 import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
@@ -43,12 +41,10 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.PENDING;
 public class AnalysisReportQueue implements ServerComponent {
   private final DbClient dbClient;
   private final AnalysisReportDao dao;
-  private final ActivityService activityService;
   private final System2 system2;
 
-  public AnalysisReportQueue(DbClient dbClient, ActivityService activityService, System2 system2) {
+  public AnalysisReportQueue(DbClient dbClient, System2 system2) {
     this.dbClient = dbClient;
-    this.activityService = activityService;
     this.dao = dbClient.analysisReportDao();
     this.system2 = system2;
   }
@@ -91,15 +87,10 @@ public class AnalysisReportQueue implements ServerComponent {
     try {
       report.setFinishedAt(new Date(system2.now()));
       dao.delete(session, report);
-      logActivity(report, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
-  }
-
-  private void logActivity(AnalysisReportDto report, DbSession session) {
-    activityService.write(session, Activity.Type.ANALYSIS_REPORT, new AnalysisReportLog(report));
   }
 
   /**

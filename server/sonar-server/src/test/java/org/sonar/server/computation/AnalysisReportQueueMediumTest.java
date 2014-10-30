@@ -26,7 +26,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.activity.Activity;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.permission.GlobalPermissions;
@@ -34,15 +33,12 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.UserDto;
-import org.sonar.server.activity.index.ActivityIndex;
-import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.core.computation.db.AnalysisReportDto.Status.SUCCESS;
@@ -152,20 +148,15 @@ public class AnalysisReportQueueMediumTest {
   }
 
   @Test
-  public void remove_remove_from_queue_and_log_a_new_activity() {
+  public void remove_remove_from_queue() {
     insertPermissionsForProject(DEFAULT_PROJECT_KEY);
     sut.add(DEFAULT_PROJECT_KEY, 123L);
     AnalysisReportDto report = sut.bookNextAvailable();
-    report.setProject(ComponentTesting.newProjectDto());
     report.setStatus(SUCCESS);
 
     sut.remove(report);
 
     assertThat(sut.all()).isEmpty();
-    List<Activity> activities = tester.get(ActivityIndex.class).findAll().getHits();
-    Map<String, String> details = activities.get(0).details();
-    assertThat(activities).hasSize(1);
-    assertThat(details.get("finishedAt")).isNotEmpty();
   }
 
   @Test(expected = ForbiddenException.class)

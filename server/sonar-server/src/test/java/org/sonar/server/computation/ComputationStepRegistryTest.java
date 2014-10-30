@@ -29,7 +29,6 @@ import static org.mockito.Mockito.mock;
 public class ComputationStepRegistryTest {
 
   private ComputationStepRegistry sut;
-  private GetAndSetProjectStep getAndSetProjectStep;
   private SynchronizeProjectPermissionsStep synchronizeProjectPermissionsStep;
   private IndexProjectIssuesStep indexProjectIssuesStep;
   private SwitchSnapshotStep switchSnapshotStep;
@@ -37,17 +36,16 @@ public class ComputationStepRegistryTest {
 
   @Before
   public void before() {
-    getAndSetProjectStep = mock(GetAndSetProjectStep.class);
     synchronizeProjectPermissionsStep = mock(SynchronizeProjectPermissionsStep.class);
     indexProjectIssuesStep = mock(IndexProjectIssuesStep.class);
     switchSnapshotStep = mock(SwitchSnapshotStep.class);
     dataCleanerStep = mock(DataCleanerStep.class);
 
-    sut = new ComputationStepRegistry(getAndSetProjectStep, synchronizeProjectPermissionsStep, indexProjectIssuesStep, switchSnapshotStep, dataCleanerStep);
+    sut = new ComputationStepRegistry(synchronizeProjectPermissionsStep, indexProjectIssuesStep, switchSnapshotStep, dataCleanerStep);
   }
 
   @Test
   public void steps_returned_in_the_right_order() throws Exception {
-    assertThat(sut.steps()).containsExactly(getAndSetProjectStep, synchronizeProjectPermissionsStep, switchSnapshotStep, dataCleanerStep, indexProjectIssuesStep);
+    assertThat(sut.steps()).containsExactly(synchronizeProjectPermissionsStep, switchSnapshotStep, dataCleanerStep, indexProjectIssuesStep);
   }
 }

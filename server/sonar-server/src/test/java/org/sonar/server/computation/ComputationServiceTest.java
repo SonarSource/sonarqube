@@ -24,8 +24,12 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.activity.ActivityService;
+import org.sonar.server.component.ComponentTesting;
+import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 
 import static org.mockito.Matchers.any;
@@ -37,14 +41,19 @@ public class ComputationServiceTest {
 
   private DbClient dbClient;
   private ComputationStepRegistry stepRegistry;
+  private ActivityService activityService;
 
   @Before
   public void before() {
     this.stepRegistry = mock(ComputationStepRegistry.class);
+    this.activityService = mock(ActivityService.class);
     this.dbClient = mock(DbClient.class);
     when(dbClient.openSession(anyBoolean())).thenReturn(mock(DbSession.class));
+    ComponentDao componentDao = mock(ComponentDao.class);
+    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(componentDao.getByKey(any(DbSession.class), anyString())).thenReturn(ComponentTesting.newProjectDto());
 
-    this.sut = new ComputationService(dbClient, stepRegistry);
+    this.sut = new ComputationService(dbClient, stepRegistry, activityService);
   }
 
   @Test
@@ -59,8 +68,8 @@ public class ComputationServiceTest {
 
     InOrder order = inOrder(firstStep, secondStep, thirdStep);
 
-    order.verify(firstStep).execute(any(DbSession.class), any(AnalysisReportDto.class));
-    order.verify(secondStep).execute(any(DbSession.class), any(AnalysisReportDto.class));
-    order.verify(thirdStep).execute(any(DbSession.class), any(AnalysisReportDto.class));
+    order.verify(firstStep).execute(any(DbSession.class), any(AnalysisReportDto.class), any(ComponentDto.class));
+    order.verify(secondStep).execute(any(DbSession.class), any(AnalysisReportDto.class), any(ComponentDto.class));
+    order.verify(thirdStep).execute(any(DbSession.class), any(AnalysisReportDto.class), any(ComponentDto.class));
   }
 }

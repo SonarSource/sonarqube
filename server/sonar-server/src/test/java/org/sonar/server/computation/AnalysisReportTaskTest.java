@@ -24,11 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.computation.db.AnalysisReportDto;
 
-import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.FAILED;
-import static org.sonar.core.computation.db.AnalysisReportDto.Status.SUCCESS;
 
 public class AnalysisReportTaskTest {
 
@@ -58,19 +55,7 @@ public class AnalysisReportTaskTest {
 
     sut.run();
 
-    assertThat(report.getStatus()).isEqualTo(SUCCESS);
     verify(queue).bookNextAvailable();
     verify(service).analyzeReport(report);
-  }
-
-  @Test
-  public void report_failed_if_analyze_report_throws_an_exception() {
-    AnalysisReportDto report = AnalysisReportDto.newForTests(1L);
-    when(queue.bookNextAvailable()).thenReturn(report);
-    doThrow(Exception.class).when(service).analyzeReport(report);
-
-    sut.run();
-
-    assertThat(report.getStatus()).isEqualTo(FAILED);
   }
 }

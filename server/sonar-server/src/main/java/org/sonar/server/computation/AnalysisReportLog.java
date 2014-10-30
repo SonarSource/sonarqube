@@ -23,6 +23,7 @@ package org.sonar.server.computation;
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.activity.ActivityLog;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 
 import java.util.Map;
@@ -32,18 +33,20 @@ public class AnalysisReportLog implements ActivityLog {
   private static final String ACTION = "LOG_ANALYSIS_REPORT";
 
   private final AnalysisReportDto report;
+  private final ComponentDto project;
 
-  public AnalysisReportLog(AnalysisReportDto report) {
+  public AnalysisReportLog(AnalysisReportDto report, ComponentDto project) {
     this.report = report;
+    this.project = project;
   }
 
   @Override
   public Map<String, String> getDetails() {
     return ImmutableMap.<String, String>builder()
       .put("id", String.valueOf(report.getId()))
-      .put("projectKey", report.getProjectKey())
-      .put("projectName", report.getProjectName())
-      .put("projectUuid", report.getProjectUuid())
+      .put("projectKey", project.key())
+      .put("projectName", project.name())
+      .put("projectUuid", project.uuid())
       .put("status", String.valueOf(report.getStatus()))
       .put("submittedAt", DateUtils.formatDateTimeNullSafe(report.getCreatedAt()))
       .put("startedAt", DateUtils.formatDateTimeNullSafe(report.getStartedAt()))

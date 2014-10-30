@@ -118,9 +118,8 @@ public class IndexProjectIssuesStepTest {
 
     queue.add(DEFAULT_PROJECT_KEY, 123L);
     AnalysisReportDto report = queue.bookNextAvailable();
-    report.setProject(project);
 
-    sut.execute(session, report);
+    sut.execute(session, report, project);
 
     // Check that the issue has well be indexed in E/S
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey())).isNotNull();
@@ -153,10 +152,9 @@ public class IndexProjectIssuesStepTest {
     queue.add(DEFAULT_PROJECT_KEY, 123L);
     List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
     AnalysisReportDto reportDto = reports.get(0);
-    reportDto.setProject(project);
 
     // ACT
-    sut.execute(session, reportDto);
+    sut.execute(session, reportDto, project);
 
     session.commit();
     session.clearCache();
