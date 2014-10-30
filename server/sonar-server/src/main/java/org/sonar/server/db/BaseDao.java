@@ -27,7 +27,6 @@ import org.apache.ibatis.session.ResultContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.Dto;
@@ -355,10 +354,6 @@ public abstract class BaseDao<MAPPER, DTO extends Dto<KEY>, KEY extends Serializ
 
   @Override
   public void synchronizeAfter(final DbSession session, @Nullable Date date, Map<String, String> params) {
-    if (!session.getClass().isAssignableFrom(BatchSession.class)) {
-      LOGGER.warn("Synchronizer should only be used with BatchSession!");
-    }
-
     DbSynchronizationHandler handler = getSynchronizationResultHandler(session, params);
     session.select(getSynchronizeStatementFQN(), getSynchronizationParams(date, params), handler);
     handler.enqueueCollected();

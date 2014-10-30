@@ -22,6 +22,7 @@ package org.sonar.server.source.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.ws.WsTester;
 
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.mock;
 public class SourcesWsTest {
 
   ShowAction showAction = new ShowAction(mock(SourceService.class));
-  RawAction rawAction = new RawAction(mock(SourceService.class));
+  RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class));
   ScmAction scmAction = new ScmAction(mock(SourceService.class), new ScmWriter());
   WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, scmAction));
 

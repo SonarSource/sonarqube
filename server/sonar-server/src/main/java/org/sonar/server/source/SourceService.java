@@ -74,19 +74,14 @@ public class SourceService implements ServerComponent {
     return deprecatedSourceDecorator.getSourceAsHtml(fileKey, from, to);
   }
 
-  public List<String> getLinesAsTxt(String fileKey) {
+  public List<String> getLinesAsTxt(DbSession session, String fileKey) {
     checkPermission(fileKey);
 
-    DbSession session = dbClient.openSession(false);
-    try {
-      String source = snapshotSourceDao.selectSnapshotSourceByComponentKey(fileKey, session);
-      if (source != null) {
-        return newArrayList(Splitter.onPattern("\r?\n|\r").split(source));
-      }
-      return Collections.emptyList();
-    } finally {
-      MyBatis.closeQuietly(session);
+    String source = snapshotSourceDao.selectSnapshotSourceByComponentKey(fileKey, session);
+    if (source != null) {
+      return newArrayList(Splitter.onPattern("\r?\n|\r").split(source));
     }
+    return Collections.emptyList();
   }
 
   @CheckForNull

@@ -145,7 +145,7 @@ public class SourceServiceTest {
 
     when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn("line1\nline2");
 
-    List<String> result = service.getLinesAsTxt(COMPONENT_KEY);
+    List<String> result = service.getLinesAsTxt(session, COMPONENT_KEY);
     assertThat(result).contains("line1", "line2");
   }
 
@@ -155,7 +155,7 @@ public class SourceServiceTest {
 
     when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn(null);
 
-    List<String> result = service.getLinesAsTxt(COMPONENT_KEY);
+    List<String> result = service.getLinesAsTxt(session, COMPONENT_KEY);
     assertThat(result).isEmpty();
   }
 
