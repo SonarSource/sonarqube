@@ -33,6 +33,7 @@ public class ComputationStepRegistryTest {
   private IndexProjectIssuesStep indexProjectIssuesStep;
   private SwitchSnapshotStep switchSnapshotStep;
   private DataCleanerStep dataCleanerStep;
+  private InvalidatePreviewCacheStep invalidatePreviewCacheStep;
 
   @Before
   public void before() {
@@ -40,12 +41,13 @@ public class ComputationStepRegistryTest {
     indexProjectIssuesStep = mock(IndexProjectIssuesStep.class);
     switchSnapshotStep = mock(SwitchSnapshotStep.class);
     dataCleanerStep = mock(DataCleanerStep.class);
+    invalidatePreviewCacheStep = mock(InvalidatePreviewCacheStep.class);
 
-    sut = new ComputationStepRegistry(synchronizeProjectPermissionsStep, indexProjectIssuesStep, switchSnapshotStep, dataCleanerStep);
+    sut = new ComputationStepRegistry(synchronizeProjectPermissionsStep, indexProjectIssuesStep, switchSnapshotStep, dataCleanerStep, invalidatePreviewCacheStep);
   }
 
   @Test
   public void steps_returned_in_the_right_order() throws Exception {
-    assertThat(sut.steps()).containsExactly(synchronizeProjectPermissionsStep, switchSnapshotStep, dataCleanerStep, indexProjectIssuesStep);
+    assertThat(sut.steps()).containsExactly(synchronizeProjectPermissionsStep, switchSnapshotStep, invalidatePreviewCacheStep, dataCleanerStep, indexProjectIssuesStep);
   }
 }

@@ -42,7 +42,7 @@ public class UpdateStatusJob implements BatchComponent {
   private AnalysisMode analysisMode;
 
   public UpdateStatusJob(Settings settings, ServerClient server,
-    Project project, Snapshot snapshot, AnalysisMode analysisMode) {
+                         Project project, Snapshot snapshot, AnalysisMode analysisMode) {
     this.server = server;
     this.project = project;
     this.snapshot = snapshot;
@@ -61,14 +61,7 @@ public class UpdateStatusJob implements BatchComponent {
       // If this is a preview analysis then we should not upload reports
       return;
     }
-    String url = "/batch_bootstrap/evict?project=" + project.getId();
-    try {
-      LOG.debug("Upload report");
-      server.request(url, "POST");
-    } catch (Exception e) {
-      throw new IllegalStateException("Unable to evict preview database: " + url, e);
-    }
-    url = "/batch/upload_report?project=" + project.getEffectiveKey() + "&snapshot=" + snapshot.getId();
+    String url = "/batch/upload_report?project=" + project.getEffectiveKey() + "&snapshot=" + snapshot.getId();
     try {
       LOG.debug("Publish results");
       server.request(url, "POST", true, 0);

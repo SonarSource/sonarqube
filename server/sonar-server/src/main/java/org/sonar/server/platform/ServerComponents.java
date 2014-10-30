@@ -118,7 +118,10 @@ import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.issue.filter.IssueFilterWriter;
 import org.sonar.server.issue.filter.IssueFilterWs;
-import org.sonar.server.issue.index.*;
+import org.sonar.server.issue.index.IssueAuthorizationIndex;
+import org.sonar.server.issue.index.IssueAuthorizationNormalizer;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueNormalizer;
 import org.sonar.server.issue.ws.IssueActionsWriter;
 import org.sonar.server.issue.ws.IssueShowAction;
 import org.sonar.server.issue.ws.IssuesWs;
@@ -268,7 +271,7 @@ class ServerComponents {
       ActivityNormalizer.class,
       ActivityIndex.class,
       ActivityDao.class
-      ));
+    ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
     components.addAll(DaoUtils.getDaoClasses());
@@ -301,7 +304,7 @@ class ServerComponents {
       // ws
       RestartHandler.class,
       SystemWs.class
-      );
+    );
   }
 
   /**
@@ -318,7 +321,7 @@ class ServerComponents {
       HttpDownloader.class,
       UriReader.class,
       ServerIdGenerator.class
-      );
+    );
   }
 
   void startLevel4Components(ComponentContainer pico) {
@@ -590,11 +593,13 @@ class ServerComponents {
     // Compute engine
     pico.addSingleton(ComputationService.class);
     pico.addSingleton(ComputationStepRegistry.class);
-    pico.addSingleton(SynchronizeProjectPermissionsStep.class);
-    pico.addSingleton(IndexProjectIssuesStep.class);
-    pico.addSingleton(SwitchSnapshotStep.class);
-    pico.addSingleton(DataCleanerStep.class);
-    pico.add(AnalysisReportQueue.class);
+    pico.addSingletons(Lists.newArrayList(
+      SynchronizeProjectPermissionsStep.class,
+      IndexProjectIssuesStep.class,
+      SwitchSnapshotStep.class,
+      InvalidatePreviewCacheStep.class,
+      DataCleanerStep.class));
+    pico.addSingleton(AnalysisReportQueue.class);
     pico.addSingleton(AnalysisReportTaskLauncher.class);
     pico.addSingleton(AnalysisReportWebService.class);
     pico.addSingleton(ActiveAnalysisReportsAction.class);

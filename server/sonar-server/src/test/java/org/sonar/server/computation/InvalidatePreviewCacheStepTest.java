@@ -20,25 +20,32 @@
 
 package org.sonar.server.computation;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.api.ServerComponent;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 
-import java.util.List;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-public class ComputationStepRegistry implements ServerComponent {
+public class InvalidatePreviewCacheStepTest {
+  private InvalidatePreviewCacheStep sut;
+  private PropertiesDao propertiesDao;
 
-  private final List<ComputationStep> steps;
-
-  public ComputationStepRegistry(
-    SynchronizeProjectPermissionsStep synchronizeProjectPermissionsStep,
-    IndexProjectIssuesStep indexProjectIssuesStep,
-    SwitchSnapshotStep switchSnapshotStep,
-    DataCleanerStep dataCleanerStep,
-    InvalidatePreviewCacheStep invalidatePreviewCacheStep) {
-    steps = ImmutableList.of(synchronizeProjectPermissionsStep, switchSnapshotStep, invalidatePreviewCacheStep, dataCleanerStep, indexProjectIssuesStep);
+  @Before
+  public void before() {
+    this.propertiesDao = mock(PropertiesDao.class);
+    this.sut = new InvalidatePreviewCacheStep(propertiesDao);
   }
 
-  public List<ComputationStep> steps() {
-    return steps;
+  @Test
+  public void update_property_calling_propertiesDao() {
+    sut.execute(mock(DbSession.class), mock(AnalysisReportDto.class), mock(ComponentDto.class));
+
+    verify(propertiesDao).setProperty(any(PropertyDto.class));
   }
 }

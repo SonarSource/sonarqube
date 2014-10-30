@@ -35,22 +35,6 @@ class BatchBootstrapController < Api::ApiController
     send_data String.from_java_bytes(db_content)
   end
 
-  # PUT /batch_bootstrap/evict?project=<key or id>
-  def evict
-    has_scan_role = has_role?('scan')
-    return render_unauthorized("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.") if !has_scan_role
-
-    project = load_project()
-    return render_unauthorized("You're not authorized to access to project '" + project.name + "', please contact your SonarQube administrator") if project && !has_scan_role && !has_role?(:user, project)
-
-    if project
-      Property.set(Java::OrgSonarCorePreview::PreviewCache::SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY, java.lang.System.currentTimeMillis, project.root_project.id)
-      render_success('dryRun DB evicted')
-    else
-      render_bad_request('missing projectId')
-    end
-  end
-
 
   private
 
