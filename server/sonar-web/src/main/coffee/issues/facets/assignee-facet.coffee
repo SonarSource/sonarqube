@@ -23,15 +23,13 @@ define [
 
     toggleFacet: (e) ->
       unassigned = $(e.currentTarget).is "[data-unassigned]"
+      $(e.currentTarget).toggleClass 'active'
       if unassigned
-        $(e.currentTarget).toggleClass 'active'
         checked = $(e.currentTarget).is '.active'
-        if checked
-          @options.app.state.updateFilter assigned: 'false', assignees: null
-        else
-          @options.app.state.updateFilter assigned: null, assignees: null
+        value = if checked then 'false' else null
+        @options.app.state.updateFilter assigned: value, assignees: null
       else
-        super
+        @options.app.state.updateFilter assigned: null, assignees: @getValue()
 
 
     getValuesWithLabels: ->
