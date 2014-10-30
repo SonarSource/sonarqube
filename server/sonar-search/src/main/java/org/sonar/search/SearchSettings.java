@@ -62,6 +62,10 @@ class SearchSettings {
     return props.valueAsBoolean(ProcessConstants.CLUSTER_ACTIVATE, false);
   }
 
+  boolean isMaster() {
+    return props.valueAsBoolean(ProcessConstants.CLUSTER_MASTER, false);
+  }
+
   String clusterName() {
     return clusterName;
   }
@@ -153,18 +157,18 @@ class SearchSettings {
     int replicationFactor = 0;
     if (inCluster()) {
       replicationFactor = 1;
-      if (props.valueAsBoolean(ProcessConstants.CLUSTER_MASTER, false)) {
-        // master node
+      if (isMaster()) {
+        LOGGER.info("Elasticsearch cluster enabled. Master node.");
         builder.put("node.master", true);
       } else if (!masterHosts.isEmpty()) {
-        LoggerFactory.getLogger(SearchServer.class).info("Joining ES cluster with master: {}", masterHosts);
+        LOGGER.info("Elasticsearch cluster enabled. Slave node connecting to master: {}", masterHosts);
         builder.put("discovery.zen.ping.unicast.hosts", StringUtils.join(masterHosts, ","));
         builder.put("node.master", false);
 
         // Enforce a N/2+1 number of masters in cluster
         builder.put("discovery.zen.minimum_master_nodes", 1);
       } else {
-        throw new MessageException(String.format("Not a master nor a slave. Please check properties %s and %s",
+        throw new MessageException(String.format("Not an Elasticsearch master nor slave. Please check properties %s and %s",
           ProcessConstants.CLUSTER_MASTER, ProcessConstants.CLUSTER_MASTER_HOST));
       }
     }

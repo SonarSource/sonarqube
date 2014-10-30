@@ -163,7 +163,7 @@ public class SearchServerTest {
       slaveServer.start();
       fail();
     } catch (Exception e) {
-      assertThat(e).hasMessage("Index configuration is not set to cluster. Please start the master node with property " + ProcessConstants.CLUSTER_ACTIVATE + "=true");
+      assertThat(e).hasMessage("Invalid number of Elasticsearch replicas: 0");
     }
 
     assertThat(client.admin().cluster().prepareClusterStats().get()
