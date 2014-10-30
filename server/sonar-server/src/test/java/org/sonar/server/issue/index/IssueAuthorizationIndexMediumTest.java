@@ -168,14 +168,15 @@ public class IssueAuthorizationIndexMediumTest {
     db.userDao().insert(session, john);
 
     // Insert one permission
+
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), "devs", UserRole.USER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, project.uuid()));
+    db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, project.uuid()));
     session.commit();
     assertThat(index.getByKey(project.uuid())).isNotNull();
 
     // Delete the permission
     tester.get(PermissionFacade.class).deleteGroupPermission(project.getId(), "devs", UserRole.USER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0), ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, project.uuid()));
+    db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, project.uuid()));
     session.commit();
     assertThat(index.getNullableByKey(project.uuid())).isNull();
   }

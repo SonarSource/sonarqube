@@ -33,10 +33,10 @@ import java.util.Map;
 
 public class PermissionChangeQuery {
 
-  private static final String USER_KEY = "user";
-  private static final String GROUP_KEY = "group";
-  private static final String PERMISSION_KEY = "permission";
-  private static final String COMPONENT_KEY = "component";
+  static final String USER_KEY = "user";
+  static final String GROUP_KEY = "group";
+  static final String PERMISSION_KEY = "permission";
+  static final String COMPONENT_KEY = "component";
 
   private final String user;
   private final String group;

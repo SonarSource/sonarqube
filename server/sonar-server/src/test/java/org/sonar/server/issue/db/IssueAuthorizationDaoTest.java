@@ -29,8 +29,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
-import java.util.Date;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
@@ -60,7 +58,7 @@ public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
 
     assertThat(session.getActionCount()).isEqualTo(0);
 
-    dao.synchronizeAfter(session, new Date(0));
+    dao.synchronizeAfter(session);
     // SynchronizeAfter adds an implicit action (refresh) after execution of synchronization
     assertThat(session.getActionCount()).isEqualTo(2);
   }
@@ -93,7 +91,7 @@ public class IssueAuthorizationDaoTest extends AbstractDaoTestCase {
 
     assertThat(session.getActionCount()).isEqualTo(0);
 
-    dao.synchronizeAfter(session, new Date(0));
+    dao.synchronizeAfter(session);
     // SynchronizeAfter adds an implicit action (refresh) after execution of synchronization
     assertThat(session.getActionCount()).isEqualTo(1);
   }

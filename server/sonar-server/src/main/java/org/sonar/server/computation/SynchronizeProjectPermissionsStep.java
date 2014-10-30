@@ -20,20 +20,22 @@
 
 package org.sonar.server.computation;
 
+import com.google.common.collect.ImmutableMap;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
-import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.search.IndexClient;
 
 public class SynchronizeProjectPermissionsStep implements ComputationStep {
 
+  private final DbClient dbClient;
   private final IndexClient index;
-  private final InternalPermissionService permissionService;
 
-  public SynchronizeProjectPermissionsStep(IndexClient index, InternalPermissionService permissionService) {
+  public SynchronizeProjectPermissionsStep(DbClient dbClient, IndexClient index) {
+    this.dbClient = dbClient;
     this.index = index;
-    this.permissionService = permissionService;
   }
 
   @Override
@@ -47,8 +49,10 @@ public class SynchronizeProjectPermissionsStep implements ComputationStep {
   }
 
   private void synchronizeProjectPermissionsIfNotFound(DbSession session, AnalysisReportDto report) {
-    if (index.get(IssueAuthorizationIndex.class).getNullableByKey(report.getProjectKey()) == null) {
-      permissionService.synchronizePermissions(session, report.getProject().uuid());
+    String projectUuid = report.getProject().uuid();
+    if (index.get(IssueAuthorizationIndex.class).getNullableByKey(projectUuid) == null) {
+      dbClient.issueAuthorizationDao().synchronizeAfter(session, null,
+        ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, projectUuid));
       session.commit();
     }
   }

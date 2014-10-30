@@ -96,11 +96,21 @@ public class InternalPermissionService implements ServerComponent {
   }
 
   public void addPermission(final Map<String, Object> params) {
-    changePermission(ADD, params);
+    DbSession session = dbClient.openSession(false);
+    try {
+      changePermission(ADD, params, session);
+    } finally {
+      session.close();
+    }
   }
 
   public void removePermission(Map<String, Object> params) {
-    changePermission(REMOVE, params);
+    DbSession session = dbClient.openSession(false);
+    try {
+      changePermission(REMOVE, params, session);
+    } finally {
+      session.close();
+    }
   }
 
   public void applyDefaultPermissionTemplate(final String componentKey) {
@@ -125,7 +135,7 @@ public class InternalPermissionService implements ServerComponent {
 
   public void applyDefaultPermissionTemplate(DbSession session, ComponentDto component) {
     permissionFacade.grantDefaultRoles(session, component.getId(), component.qualifier());
-    synchronizePermissions(session, component.key());
+    synchronizeProjectPermissions(session, component.key());
   }
 
   public void applyPermissionTemplate(Map<String, Object> params) {
@@ -149,7 +159,7 @@ public class InternalPermissionService implements ServerComponent {
       for (String componentKey : query.getSelectedComponents()) {
         ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
         permissionFacade.applyPermissionTemplate(session, query.getTemplateKey(), component.getId());
-        synchronizePermissions(session, component.uuid());
+        synchronizeProjectPermissions(session, component.uuid());
       }
       session.commit();
     } finally {
@@ -157,33 +167,27 @@ public class InternalPermissionService implements ServerComponent {
     }
   }
 
-  private void changePermission(String permissionChange, Map<String, Object> params) {
+  private void changePermission(String permissionChange, Map<String, Object> params, DbSession session) {
     UserSession.get().checkLoggedIn();
     PermissionChangeQuery permissionChangeQuery = PermissionChangeQuery.buildFromParams(params);
     permissionChangeQuery.validate();
-    applyPermissionChange(permissionChange, permissionChangeQuery);
+    applyPermissionChange(permissionChange, permissionChangeQuery, session);
   }
 
-  private void applyPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery) {
-    DbSession session = dbClient.openSession(false);
+  private void applyPermissionChange(String operation, PermissionChangeQuery permissionChangeQuery, DbSession session) {
     boolean changed;
-    try {
-      if (permissionChangeQuery.targetsUser()) {
-        changed = applyUserPermissionChange(session, operation, permissionChangeQuery);
-      } else {
-        changed = applyGroupPermissionChange(session, operation, permissionChangeQuery);
-      }
-      if (changed) {
-        String project = permissionChangeQuery.component();
-        if (project != null) {
-          synchronizePermissions(session, dbClient.componentDao().getByKey(session, project).uuid());
-        }
-        session.commit();
-      }
-    } finally {
-      session.close();
+    if (permissionChangeQuery.targetsUser()) {
+      changed = applyUserPermissionChange(session, operation, permissionChangeQuery);
+    } else {
+      changed = applyGroupPermissionChange(session, operation, permissionChangeQuery);
     }
-
+    if (changed) {
+      String project = permissionChangeQuery.component();
+      if (project != null) {
+        synchronizeProjectPermissions(session, dbClient.componentDao().getByKey(session, project).uuid());
+      }
+      session.commit();
+    }
   }
 
   private boolean applyGroupPermissionChange(DbSession session, String operation, PermissionChangeQuery permissionChangeQuery) {
@@ -275,7 +279,7 @@ public class InternalPermissionService implements ServerComponent {
     }
   }
 
-  public void synchronizePermissions(DbSession session, String projectUuid) {
+  public void synchronizeProjectPermissions(DbSession session, String projectUuid) {
     dbClient.issueAuthorizationDao().synchronizeAfter(session,
       index.get(IssueAuthorizationIndex.class).getLastSynchronization(),
       ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, projectUuid));

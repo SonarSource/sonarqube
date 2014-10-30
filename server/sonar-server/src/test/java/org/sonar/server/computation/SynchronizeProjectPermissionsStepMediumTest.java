@@ -20,6 +20,7 @@
 
 package org.sonar.server.computation;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -35,6 +36,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.issue.index.IssueAuthorizationDoc;
 import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.tester.ServerTester;
@@ -96,6 +98,27 @@ public class SynchronizeProjectPermissionsStepMediumTest {
 
     IssueAuthorizationDoc issueAuthorizationIndex = tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid());
     assertThat(issueAuthorizationIndex).isNotNull();
+    assertThat(issueAuthorizationIndex.groups()).containsExactly(DefaultGroups.ANYONE);
+  }
+
+  @Test
+  public void not_add_project_issue_permission_if_already_existing() throws Exception {
+    ComponentDto project = insertPermissionsForProject(DEFAULT_PROJECT_KEY);
+    // Synchronisation on project is already done
+    db.issueAuthorizationDao().synchronizeAfter(session, null, ImmutableMap.of(IssueAuthorizationDao.PROJECT_UUID, project.uuid()));
+
+    // To check that permission will not be synchronized again, add a new permission on the project in db, this permission should not be in the index
+    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.USERS, UserRole.USER, session);
+
+    queue.add(DEFAULT_PROJECT_KEY, 123L);
+    List<AnalysisReportDto> reports = queue.findByProjectKey(DEFAULT_PROJECT_KEY);
+    getAndSetProjectStep.execute(session, reports.get(0));
+
+    sut.execute(session, reports.get(0));
+
+    IssueAuthorizationDoc issueAuthorizationIndex = tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid());
+    assertThat(issueAuthorizationIndex).isNotNull();
+    assertThat(issueAuthorizationIndex.groups()).containsExactly(DefaultGroups.ANYONE);
   }
 
   private ComponentDto insertPermissionsForProject(String projectKey) {
@@ -103,10 +126,7 @@ public class SynchronizeProjectPermissionsStepMediumTest {
     db.componentDao().insert(session, project);
 
     tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
-    userSession.addProjectPermissions(UserRole.USER, project.key());
-
     session.commit();
-
     return project;
   }
 }
