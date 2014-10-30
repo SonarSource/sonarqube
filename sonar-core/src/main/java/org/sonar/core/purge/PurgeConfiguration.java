@@ -21,7 +21,10 @@ package org.sonar.core.purge;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.time.DateUtils;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.core.computation.dbcleaner.DbCleanerConstants;
 
 import javax.annotation.CheckForNull;
 
@@ -44,6 +47,14 @@ public class PurgeConfiguration {
     this.scopesWithoutHistoricalData = scopesWithoutHistoricalData;
     this.maxAgeInDaysOfClosedIssues = maxAgeInDaysOfClosedIssues;
     this.system2 = system2;
+  }
+
+  public static PurgeConfiguration newDefaultPurgeConfiguration(long resourceId, Settings settings) {
+    String[] scopes = new String[] {Scopes.FILE};
+    if (settings.getBoolean(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)) {
+      scopes = new String[] {Scopes.DIRECTORY, Scopes.FILE};
+    }
+    return new PurgeConfiguration(resourceId, scopes, settings.getInt(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES));
   }
 
   public long rootProjectId() {

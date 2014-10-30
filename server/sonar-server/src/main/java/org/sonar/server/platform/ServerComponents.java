@@ -594,7 +594,7 @@ class ServerComponents {
     pico.addSingleton(SynchronizeProjectPermissionsStep.class);
     pico.addSingleton(IndexProjectIssuesStep.class);
     pico.addSingleton(SwitchSnapshotStep.class);
-    pico.addSingleton(DbCleanerStep.class);
+    pico.addSingleton(DataCleanerStep.class);
     pico.add(AnalysisReportQueue.class);
     pico.addSingleton(AnalysisReportTaskLauncher.class);
     pico.addSingleton(AnalysisReportWebService.class);

@@ -20,24 +20,44 @@
 
 package org.sonar.server.computation;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.config.Settings;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.issue.index.IssueIndex;
 
-public class DbCleanerStep implements ComputationStep {
-  private final DefaultPurgeTask purgeTask;
+import java.util.Date;
 
-  public DbCleanerStep(DefaultPurgeTask purgeTask) {
-    this.purgeTask = purgeTask;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
+public class DataCleanerStepTest {
+
+  private DataCleanerStep sut;
+  private DefaultPurgeTask purgeTask;
+  private IssueIndex issueIndex;
+  private Settings settings;
+
+  @Before
+  public void before() {
+    this.purgeTask = mock(DefaultPurgeTask.class);
+    this.issueIndex = mock(IssueIndex.class);
+    this.settings = mock(Settings.class);
+
+    this.sut = new DataCleanerStep(purgeTask, issueIndex, settings);
   }
 
-  @Override
-  public void execute(DbSession session, AnalysisReportDto report) {
-    purgeTask.purge(report.getProject().getId());
-  }
+  @Test
+  public void call_purge_method_of_the_purge_task() {
+    AnalysisReportDto report = mock(AnalysisReportDto.class);
+    when(report.getProject()).thenReturn(mock(ComponentDto.class));
 
-  @Override
-  public String description() {
-    return "Purge database";
+    sut.execute(mock(DbSession.class), report);
+
+    verify(purgeTask).purge(any(Long.class));
+    verify(issueIndex).deleteClosedIssuesOfProjectBefore(anyString(), any(Date.class));
   }
 }

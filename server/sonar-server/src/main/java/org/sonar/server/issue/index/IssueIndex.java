@@ -226,8 +226,15 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     getClient().prepareDeleteByQuery(getIndexName()).setQuery(queryBuilder).get();
   }
 
-  public void deleteByProjectUuidBefore(String uuid, Date beforeDate) {
-    // TODO to implement
+  public void deleteClosedIssuesOfProjectBefore(String uuid, Date beforeDate) {
+    FilterBuilder projectFilter = FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueNormalizer.IssueField.PROJECT.field(), uuid));
+    FilterBuilder dateFilter = FilterBuilders.rangeFilter(IssueNormalizer.IssueField.ISSUE_CLOSE_DATE.field()).lt(beforeDate.getTime());
+    QueryBuilder queryBuilder = QueryBuilders.filteredQuery(
+      QueryBuilders.matchAllQuery(),
+      FilterBuilders.andFilter(projectFilter, dateFilter)
+      );
+
+    getClient().prepareDeleteByQuery(getIndexName()).setQuery(queryBuilder).get();
   }
 
   /* Build main filter (match based) */

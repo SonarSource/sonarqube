@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.purge.PurgeConfiguration;
@@ -32,15 +31,17 @@ import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.plugins.dbcleaner.api.PurgeTask;
 
+import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
+
 /**
  * @since 2.14
  */
 public class DefaultPurgeTask implements PurgeTask {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPurgeTask.class);
   private final PurgeProfiler profiler;
-  private PurgeDao purgeDao;
-  private Settings settings;
-  private DefaultPeriodCleaner periodCleaner;
+  private final PurgeDao purgeDao;
+  private final Settings settings;
+  private final DefaultPeriodCleaner periodCleaner;
 
   public DefaultPurgeTask(PurgeDao purgeDao, Settings settings, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler) {
     this.purgeDao = purgeDao;
@@ -81,18 +82,14 @@ public class DefaultPurgeTask implements PurgeTask {
 
   private void doPurge(long resourceId) {
     try {
-      purgeDao.purge(newConf(resourceId));
+      purgeDao.purge(newPurgeConfigurationOnResource(resourceId));
     } catch (Exception e) {
       // purge errors must no fail the batch
       LOG.error("Fail to purge data [id=" + resourceId + "]", e);
     }
   }
 
-  private PurgeConfiguration newConf(long resourceId) {
-    String[] scopes = new String[] {Scopes.FILE};
-    if (settings.getBoolean(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)) {
-      scopes = new String[] {Scopes.DIRECTORY, Scopes.FILE};
-    }
-    return new PurgeConfiguration(resourceId, scopes, settings.getInt(DbCleanerConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES));
+  public PurgeConfiguration newPurgeConfigurationOnResource(long resourceId) {
+    return newDefaultPurgeConfiguration(resourceId, settings);
   }
 }

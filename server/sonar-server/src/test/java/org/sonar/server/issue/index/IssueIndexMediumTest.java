@@ -863,4 +863,31 @@ public class IssueIndexMediumTest {
     assertThat(searchResult.getHits()).isEmpty();
     assertThat(index.countAll()).isEqualTo(1);
   }
+
+  @Test
+  public void delete_closed_issues_from_one_project_older_than_specific_date() {
+    // ARRANGE
+    Date today = new Date();
+    Date yesterday = org.apache.commons.lang.time.DateUtils.addDays(today, -1);
+    Date beforeYesterday = org.apache.commons.lang.time.DateUtils.addDays(yesterday, -1);
+
+    tester.get(IssueDao.class).insert(session, IssueTesting.newDto(rule, file, project).setIssueCloseDate(today));
+    tester.get(IssueDao.class).insert(session, IssueTesting.newDto(rule, file, project).setIssueCloseDate(beforeYesterday));
+    tester.get(IssueDao.class).insert(session, IssueTesting.newDto(rule, file, project));
+    session.commit();
+    assertThat(index.countAll()).isEqualTo(3L);
+
+    // ACT
+    index.deleteClosedIssuesOfProjectBefore(project.uuid(), yesterday);
+
+    // ASSERT
+    List<Issue> issues = index.search(IssueQuery.builder().componentRootUuids(newArrayList(project.uuid())).build(), new QueryContext()).getHits();
+    List<Date> dates = newArrayList();
+    for (Issue issue : issues) {
+      dates.add(issue.closeDate());
+    }
+
+    assertThat(index.countAll()).isEqualTo(2);
+    assertThat(dates).containsOnly(null, today);
+  }
 }
