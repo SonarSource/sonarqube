@@ -61,15 +61,13 @@ public class JdbcSettingsTest {
 
   @Test
   public void check_mysql_parameters() throws Exception {
-    Props props = new Props(new Properties());
-
     // minimal -> ok
     settings.checkUrlParameters(JdbcSettings.Provider.MYSQL,
-      "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&useCursorFetch=true");
+      "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8");
 
     // full -> ok
     settings.checkUrlParameters(JdbcSettings.Provider.MYSQL,
-      "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance&useCursorFetch=true");
+      "jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance");
 
     // missing required -> ko
     try {
