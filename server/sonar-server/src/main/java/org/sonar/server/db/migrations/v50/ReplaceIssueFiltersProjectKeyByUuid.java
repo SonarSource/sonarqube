@@ -51,7 +51,7 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
     final Date now = new Date(system.now());
 
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT if.id, if.data FROM issue_filters if");
+    massUpdate.select("SELECT f.id, f.data FROM issue_filters f");
     massUpdate.update("UPDATE issue_filters SET data=?, updated_at=? WHERE id=?");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
