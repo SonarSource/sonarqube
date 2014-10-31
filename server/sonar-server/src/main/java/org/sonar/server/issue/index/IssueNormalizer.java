@@ -21,6 +21,7 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.db.IssueDto;
@@ -29,8 +30,6 @@ import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
-import java.lang.reflect.Field;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,21 +73,10 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
     public static final IndexField FILE_PATH = addSortable(IndexField.Type.STRING, "filePath");
 
-    public static final Set<IndexField> ALL_FIELDS = getAllFields();
-
-    private static final Set<IndexField> getAllFields() {
-      Set<IndexField> fields = new HashSet<IndexField>();
-      for (Field classField : IssueField.class.getDeclaredFields()) {
-        if (classField.getType().isAssignableFrom(IndexField.class)) {
-          try {
-            fields.add(IndexField.class.cast(classField.get(null)));
-          } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Could not access Field '" + classField.getName() + "'", e);
-          }
-        }
-      }
-      return fields;
-    }
+    public static final Set<IndexField> ALL_FIELDS = ImmutableSet.of(KEY, CREATED_AT, UPDATED_AT, PROJECT, COMPONENT,
+      MODULE, MODULE_PATH, ACTION_PLAN, ASSIGNEE, ATTRIBUTES, AUTHOR_LOGIN, DEBT, EFFORT, ISSUE_CREATED_AT,
+      ISSUE_UPDATED_AT, ISSUE_CLOSE_DATE, LINE, MESSAGE, RESOLUTION, REPORTER, STATUS, SEVERITY, SEVERITY_VALUE,
+      LANGUAGE, RULE_KEY, FILE_PATH);
   }
 
   @Override

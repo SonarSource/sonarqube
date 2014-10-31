@@ -20,6 +20,7 @@
 package org.sonar.server.activity.index;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.KeyValueFormat;
@@ -29,14 +30,15 @@ import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @since 4.4
  */
 public class ActivityNormalizer extends BaseNormalizer<ActivityDto, String> {
-
 
   public static final class LogFields extends Indexable {
 
@@ -48,22 +50,7 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, String> {
     public static final IndexField LOGIN = addSearchable(IndexField.Type.STRING, "login");
     public static final IndexField DETAILS = addSearchable(IndexField.Type.OBJECT, "details");
     public static final IndexField MESSAGE = addSearchable(IndexField.Type.STRING, "message");
-
-    public static Set<IndexField> ALL_FIELDS = getAllFields();
-
-    private static Set<IndexField> getAllFields() {
-      Set<IndexField> fields = new HashSet<IndexField>();
-      for (Field classField : LogFields.class.getDeclaredFields()) {
-        if (classField.getType().isAssignableFrom(IndexField.class)) {
-          try {
-            fields.add(IndexField.class.cast(classField.get(null)));
-          } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Could not access Field '" + classField.getName() + "'", e);
-          }
-        }
-      }
-      return fields;
-    }
+    public static final Set<IndexField> ALL_FIELDS = ImmutableSet.of(KEY, TYPE, ACTION, CREATED_AT, UPDATED_AT, LOGIN, DETAILS, MESSAGE);
   }
 
   public ActivityNormalizer(DbClient db) {
@@ -84,7 +71,7 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, String> {
 
     logDoc.put(LogFields.DETAILS.field(), KeyValueFormat.parse(dto.getData()));
 
-   /* Creating updateRequest */
+    /* Creating updateRequest */
     return ImmutableList.of(new UpdateRequest()
       .id(dto.getKey())
       .replicationType(ReplicationType.ASYNC)

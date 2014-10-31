@@ -22,6 +22,7 @@ package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.issue.db.IssueAuthorizationDto;
 import org.sonar.server.db.DbClient;
@@ -29,8 +30,10 @@ import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class IssueAuthorizationNormalizer extends BaseNormalizer<IssueAuthorizationDto, String> {
 
@@ -46,21 +49,7 @@ public class IssueAuthorizationNormalizer extends BaseNormalizer<IssueAuthorizat
     public static final IndexField USERS = add(IndexField.Type.STRING, "users");
     public static final IndexField UPDATED_AT = add(IndexField.Type.DATE, BaseNormalizer.UPDATED_AT_FIELD);
 
-    public static final Set<IndexField> ALL_FIELDS = getAllFields();
-
-    private static Set<IndexField> getAllFields() {
-      Set<IndexField> fields = new HashSet<IndexField>();
-      for (Field classField : IssueAuthorizationField.class.getDeclaredFields()) {
-        if (classField.getType().isAssignableFrom(IndexField.class)) {
-          try {
-            fields.add(IndexField.class.cast(classField.get(null)));
-          } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Could not access Field '" + classField.getName() + "'", e);
-          }
-        }
-      }
-      return fields;
-    }
+    public static final Set<IndexField> ALL_FIELDS = ImmutableSet.of(PROJECT, PERMISSION, GROUPS, USERS, UPDATED_AT);
   }
 
   @Override

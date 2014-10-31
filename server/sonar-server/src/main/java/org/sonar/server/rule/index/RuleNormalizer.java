@@ -21,6 +21,7 @@ package org.sonar.server.rule.index;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.rule.RuleKey;
@@ -54,21 +55,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField DESCRIPTION = addSearchable(IndexField.Type.TEXT, "description");
     public static final IndexField DEFAULT_VALUE = add(IndexField.Type.STRING, "defaultValue");
 
-    public static Set<IndexField> ALL_FIELDS = getAllFields();
-
-    private static final Set<IndexField> getAllFields() {
-      Set<IndexField> fields = new HashSet<IndexField>();
-      for (Field classField : RuleParamField.class.getDeclaredFields()) {
-        if (classField.getType().isAssignableFrom(IndexField.class)) {
-          try {
-            fields.add(IndexField.class.cast(classField.get(null)));
-          } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Could not access Field '" + classField.getName() + "'", e);
-          }
-        }
-      }
-      return fields;
-    }
+    public static final Set<IndexField> ALL_FIELDS = ImmutableSet.of(NAME, TYPE, DESCRIPTION, DEFAULT_VALUE);
   }
 
   public static final class RuleField extends Indexable {
@@ -116,22 +103,16 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField ALL_TAGS = addSearchable(IndexField.Type.STRING, "allTags");
     public static final IndexField PARAMS = addEmbedded("params", RuleParamField.ALL_FIELDS);
 
-    public static final Set<IndexField> ALL_FIELDS = getAllFields();
+    public static final Set<IndexField> ALL_FIELDS = ImmutableSet.of(ID, KEY, _KEY, REPOSITORY, RULE_KEY, NAME, CREATED_AT,
+      UPDATED_AT, HTML_DESCRIPTION, MARKDOWN_DESCRIPTION, SEVERITY, STATUS, FIX_DESCRIPTION,
+      LANGUAGE, TAGS, SYSTEM_TAGS, INTERNAL_KEY, IS_TEMPLATE, TEMPLATE_KEY, DEFAULT_DEBT_FUNCTION_TYPE,
+      DEFAULT_DEBT_FUNCTION_COEFFICIENT, DEFAULT_DEBT_FUNCTION_OFFSET, DEBT_FUNCTION_TYPE, DEBT_FUNCTION_COEFFICIENT,
+      DEBT_FUNCTION_OFFSET, DEFAULT_CHARACTERISTIC, DEFAULT_SUB_CHARACTERISTIC, CHARACTERISTIC, SUB_CHARACTERISTIC,
+      NOTE, NOTE_LOGIN, NOTE_CREATED_AT, NOTE_UPDATED_AT, ALL_TAGS, PARAMS);
 
-    private static final Set<IndexField> getAllFields() {
-      Set<IndexField> fields = new HashSet<IndexField>();
-      for (Field classField : RuleField.class.getDeclaredFields()) {
-        if (classField.getType().isAssignableFrom(IndexField.class)) {
-          try {
-            fields.add(IndexField.class.cast(classField.get(null)));
-          } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Could not access Field '" + classField.getName() + "'", e);
-          }
-        }
-      }
-      return fields;
-    }
-
+    /**
+     * Warning - O(n) complexity
+     */
     public static IndexField of(String fieldName) {
       for (IndexField field : ALL_FIELDS) {
         if (field.field().equals(fieldName)) {
@@ -323,24 +304,24 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     newParam.put(RuleParamField.DEFAULT_VALUE.field(), param.getDefaultValue());
 
     return ImmutableList.of(new UpdateRequest()
-        .id(key.toString())
-        .script(ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, RuleField.PARAMS.field())
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, newParam)
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, RuleParamField.NAME.field())
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getName())
-    );
+      .id(key.toString())
+      .script(ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, RuleField.PARAMS.field())
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, newParam)
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, RuleParamField.NAME.field())
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getName())
+      );
   }
 
   private List<UpdateRequest> nestedDelete(RuleParamDto param, RuleKey key) {
     return ImmutableList.of(new UpdateRequest()
-        .id(key.toString())
-        .script(ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, RuleField.PARAMS.field())
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, null)
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, RuleParamField.NAME.field())
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getName())
-    );
+      .id(key.toString())
+      .script(ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, RuleField.PARAMS.field())
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, null)
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, RuleParamField.NAME.field())
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getName())
+      );
   }
 
 }

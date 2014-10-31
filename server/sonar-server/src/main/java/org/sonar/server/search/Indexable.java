@@ -23,47 +23,27 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 public class Indexable {
 
-  private static final Set<IndexField> ALL_FIELDS = new HashSet<IndexField>();
-
-  public static IndexField add(IndexField.Type type, String field){
-    IndexField indexField = new IndexField(type, field);
-    ALL_FIELDS.add(indexField);
-    return indexField;
+  public static IndexField add(IndexField.Type type, String field) {
+    return new IndexField(type, field);
   }
 
   public static IndexField addEmbedded(String field, Collection<IndexField> nestedFields) {
-    IndexField indexField = new IndexField(IndexField.Type.OBJECT, field, nestedFields);
-    ALL_FIELDS.add(indexField);
-    return indexField;
+    return new IndexField(IndexField.Type.OBJECT, field, nestedFields);
   }
 
-
-  public static IndexField addSearchable(IndexField.Type type, String field){
-    IndexField indexField = new IndexField(type, field)
-      .setSearchable(true);
-    ALL_FIELDS.add(indexField);
-    return indexField;
+  public static IndexField addSearchable(IndexField.Type type, String field) {
+    return new IndexField(type, field).setSearchable(true);
   }
-
 
   public static IndexField addSortableAndSearchable(IndexField.Type type, String field) {
-    IndexField indexField = new IndexField(type, field)
-      .setSearchable(true)
-      .setSortable(true);
-    ALL_FIELDS.add(indexField);
-    return indexField;
+    return new IndexField(type, field).setSearchable(true).setSortable(true);
   }
 
-  public static IndexField addSortable(IndexField.Type type, String field){
-    IndexField indexField = new IndexField(type, field)
-      .setSortable(true);
-    ALL_FIELDS.add(indexField);
-    return indexField;
+  public static IndexField addSortable(IndexField.Type type, String field) {
+    return new IndexField(type, field).setSortable(true);
   }
 
   @Override
@@ -71,4 +51,3 @@ public class Indexable {
     return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 }
-

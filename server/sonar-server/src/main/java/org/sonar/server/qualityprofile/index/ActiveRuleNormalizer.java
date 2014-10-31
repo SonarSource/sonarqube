@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.index;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.persistence.DbSession;
@@ -35,10 +36,8 @@ import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,42 +57,14 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     public static final IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
     public static final IndexField UPDATED_AT = addSortable(IndexField.Type.DATE, UPDATED_AT_FIELD);
 
-    public static final Set<IndexField> ALL_FIELDS = getAllFields();
-
-    private static Set<IndexField> getAllFields() {
-      Set<IndexField> fields = new HashSet<IndexField>();
-      for (Field classField : ActiveRuleField.class.getDeclaredFields()) {
-        if (classField.getType().isAssignableFrom(IndexField.class)) {
-          try {
-            fields.add(IndexField.class.cast(classField.get(null)));
-          } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Can not introspect active rule fields", e);
-          }
-        }
-      }
-      return fields;
-    }
+    public static final Set<IndexField> ALL_FIELDS = ImmutableSet.of(KEY, INHERITANCE, PROFILE_KEY, SEVERITY, PARENT_KEY, RULE_KEY, PARAMS, CREATED_AT, UPDATED_AT);
 
   }
 
   public static class ActiveRuleParamField extends Indexable {
     public static final IndexField NAME = add(IndexField.Type.STRING, "name");
     public static final IndexField VALUE = add(IndexField.Type.STRING, "value");
-    public static final Set<IndexField> ALL_FIELDS = getAllFields();
-
-    private static Set<IndexField> getAllFields() {
-      Set<IndexField> fields = new HashSet<IndexField>();
-      for (Field classField : ActiveRuleParamField.class.getDeclaredFields()) {
-        if (classField.getType().isAssignableFrom(IndexField.class)) {
-          try {
-            fields.add(IndexField.class.cast(classField.get(null)));
-          } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Can not introspect active rule param fields", e);
-          }
-        }
-      }
-      return fields;
-    }
+    public static final Set<IndexField> ALL_FIELDS = ImmutableSet.of(NAME, VALUE);
   }
 
   public ActiveRuleNormalizer(DbClient db) {
@@ -150,7 +121,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
         .doc(newRule)
         .upsert(getUpsertFor(ActiveRuleField.ALL_FIELDS, newRule)));
 
-      //Get the RuleParameters
+      // Get the RuleParameters
       for (ActiveRuleParamDto param : db.activeRuleDao().findParamsByActiveRuleKey(session, key)) {
         requests.addAll(normalizeNested(param, key));
       }
@@ -191,27 +162,27 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     newParam.put(ActiveRuleParamField.VALUE.field(), param.getValue());
 
     return ImmutableList.of(new UpdateRequest()
-        .replicationType(ReplicationType.ASYNC)
-        .routing(key.ruleKey().toString())
-        .id(key.toString())
-        .script(ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, ActiveRuleField.PARAMS.field())
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, newParam)
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, ActiveRuleParamField.NAME.field())
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getKey())
-    );
+      .replicationType(ReplicationType.ASYNC)
+      .routing(key.ruleKey().toString())
+      .id(key.toString())
+      .script(ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, ActiveRuleField.PARAMS.field())
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, newParam)
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, ActiveRuleParamField.NAME.field())
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getKey())
+      );
   }
 
   private List<UpdateRequest> nestedDelete(ActiveRuleParamDto param, ActiveRuleKey key) {
     return ImmutableList.of(new UpdateRequest()
-        .replicationType(ReplicationType.ASYNC)
-        .routing(key.ruleKey().toString())
-        .id(key.toString())
-        .script(ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, ActiveRuleField.PARAMS.field())
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, null)
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, ActiveRuleParamField.NAME.field())
-        .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getKey())
-    );
+      .replicationType(ReplicationType.ASYNC)
+      .routing(key.ruleKey().toString())
+      .id(key.toString())
+      .script(ProcessConstants.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_FIELD, ActiveRuleField.PARAMS.field())
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_VALUE, null)
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_FIELD, ActiveRuleParamField.NAME.field())
+      .addScriptParam(ProcessConstants.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getKey())
+      );
   }
 }
