@@ -151,8 +151,8 @@ define [
 
 
     highlightIssue: (key) ->
-      @$("[data-issue-key]").removeClass 'highlighted'
-      @$("[data-issue-key='#{key}']").addClass 'highlighted'
+      @$("[data-issue-key]").removeClass 'selected'
+      @$("[data-issue-key='#{key}']").addClass 'selected'
 
 
     openFileByIssue: (issue) ->
