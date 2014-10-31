@@ -52,8 +52,6 @@ define [
 
 
     events:
-      'click': 'setDetailScope',
-
       'click .code-issue-toggle': 'toggleCollapsed',
 
       'click [href=#tab-issue-rule]': 'showRuleTab',
@@ -77,20 +75,11 @@ define [
       @changeLogRegion.show new ChangeLogView collection: @changeLog, issue: @model
 
 
-    setDetailScope: ->
-      key.setScope 'detail'
-
-
-    setListScope: ->
-      key.setScope 'list'
-
-
     onClose: ->
       @ruleRegion.reset() if @ruleRegion
 
 
     resetIssue: (options) ->
-      @setListScope()
       key = @model.get 'key'
       @model.clear silent: true
       @model.set { key: key }, { silent: true }
