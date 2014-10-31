@@ -7,6 +7,10 @@ HOW TO ADD A MIGRATION
     - add "INSERT INTO SCHEMA_MIGRATIONS(VERSION) VALUES ('<THE MIGRATION ID>')"
 * Update the migration id defined in sonar-core/src/main/java/org/sonar/core/persistence/DatabaseVersion.java
 * If a table is added or removed, then edit sonar-core/src/main/java/org/sonar/core/persistence/DatabaseVersion.java
+* Changes in bulk must be handled using Java migrations based on org.sonar.server.db.migrations.MassUpdate :
+  + Create the class for the Java migration in package package org.sonar.server.db.migrations.vXYZ, where XYZ is the version of SQ without dots
+  + Add the class to org.sonar.server.db.migrations.DatabaseMigrations.CLASSES
+  + Create a Ruby migration which calls execute_java_migration('org.sonar.server.db.migrations.vXYZ.MyMigration')
 
 
 RECOMMENDATIONS

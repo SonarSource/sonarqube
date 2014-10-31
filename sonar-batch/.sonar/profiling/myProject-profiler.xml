@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>SonarQube</comment>
+<entry key="FakeScanPersister">40</entry>
+<entry key="FakePostJob">30</entry>
+<entry key="FakeDecorator2">10</entry>
+<entry key="Initializers">7</entry>
+<entry key="FakeDecorator1">20</entry>
+<entry key="Post-Jobs">30</entry>
+<entry key="FakeSensor">10</entry>
+<entry key="Maven">4</entry>
+<entry key="Free memory">9</entry>
+<entry key="Persisters">40</entry>
+<entry key="Decorators">30</entry>
+<entry key="FakeInitializer">7</entry>
+<entry key="Sensors">10</entry>
+</properties>

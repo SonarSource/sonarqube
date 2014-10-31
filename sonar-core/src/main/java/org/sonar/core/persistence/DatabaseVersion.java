@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class DatabaseVersion implements BatchComponent, ServerComponent {
 
-  public static final int LAST_VERSION = 710;
+  public static final int LAST_VERSION = 712;
   /**
    * List of all the tables.
    * This list is hardcoded because we didn't succeed in using java.sql.DatabaseMetaData#getTables() in the same way

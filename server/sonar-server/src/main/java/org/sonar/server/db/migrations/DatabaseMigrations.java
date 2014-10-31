@@ -29,6 +29,7 @@ import org.sonar.server.db.migrations.v45.AddMissingRuleParameterDefaultValuesMi
 import org.sonar.server.db.migrations.v45.DeleteMeasuresOnDeletedProfilesMigration;
 import org.sonar.server.db.migrations.v451.AddMissingCustomRuleParametersMigration;
 import org.sonar.server.db.migrations.v451.DeleteUnescapedActivities;
+import org.sonar.server.db.migrations.v50.FeedSnapshotSourcesUpdatedAt;
 import org.sonar.server.db.migrations.v50.InsertProjectsAuthorizationUpdatedAtMigration;
 import org.sonar.server.db.migrations.v50.PopulateProjectsUuidColumnsMigration;
 import org.sonar.server.db.migrations.v50.ReplaceIssueFiltersProjectKeyByUuid;
@@ -71,7 +72,8 @@ public interface DatabaseMigrations {
     // 5.0
     InsertProjectsAuthorizationUpdatedAtMigration.class,
     PopulateProjectsUuidColumnsMigration.class,
-    ReplaceIssueFiltersProjectKeyByUuid.class
+    ReplaceIssueFiltersProjectKeyByUuid.class,
+    FeedSnapshotSourcesUpdatedAt.class
   );
 
 }
