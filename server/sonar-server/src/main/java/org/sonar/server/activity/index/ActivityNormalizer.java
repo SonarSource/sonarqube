@@ -30,12 +30,7 @@ import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @since 4.4
@@ -59,7 +54,7 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, String> {
     private static Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();
       for (Field classField : LogFields.class.getDeclaredFields()) {
-        if (Modifier.isFinal(classField.getModifiers()) && Modifier.isStatic(classField.getModifiers())) {
+        if (classField.getType().isAssignableFrom(IndexField.class)) {
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
           } catch (IllegalAccessException e) {
