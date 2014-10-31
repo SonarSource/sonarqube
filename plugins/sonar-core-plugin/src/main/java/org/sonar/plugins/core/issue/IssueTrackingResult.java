@@ -87,7 +87,8 @@ class IssueTrackingResult {
     }
     unmatchedByRuleAndKey.get(ruleKey).put(i.getKee(), i);
     Map<Integer, Multimap<String, IssueDto>> unmatchedForRule = unmatchedByRuleAndLineAndChecksum.get(ruleKey);
-    Integer lineNotNull = i.getLine() != null ? i.getLine() : 0;
+    Integer line = i.getLine();
+    Integer lineNotNull = line != null ? line : 0;
     if (!unmatchedForRule.containsKey(lineNotNull)) {
       unmatchedForRule.put(lineNotNull, HashMultimap.<String, IssueDto>create());
     }
