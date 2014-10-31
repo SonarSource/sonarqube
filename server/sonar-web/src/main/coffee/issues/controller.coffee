@@ -98,7 +98,10 @@ define [
       if facet.has('values') || FACETS_FROM_SERVER.indexOf(id) == -1
         facet.set enabled: true
       else
-        @requestFacet(id).done => facet.set enabled: true
+        p = window.process.addBackgroundProcess()
+        @requestFacet(id).done =>
+          facet.set enabled: true
+          window.process.finishBackgroundProcess p
 
 
     disableFacet: (id) ->

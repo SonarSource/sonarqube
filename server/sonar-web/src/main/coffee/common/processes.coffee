@@ -3,6 +3,7 @@ $ = jQuery
 process = {}
 process.queue = {}
 process.timeout = 300
+process.fadeTimeout = 100
 
 _.extend process,
 
@@ -29,7 +30,7 @@ _.extend process,
     spinner.prop 'id', id
     spinner.text t 'process.still_working'
     spinner.appendTo $('body')
-    setTimeout (-> spinner.addClass 'shown'), 100
+    setTimeout (-> spinner.addClass 'shown'), @fadeTimeout
 
 
   removeSpinner: (uid) ->

@@ -68,8 +68,8 @@
 
 .issues-facet {
   position: relative;
-  width: @sideWidth - 22px;
-  margin: 0 22px 1px 0;
+  width: 100%;
+  margin: 0 0 1px 0;
   border-color: transparent;
   .box-sizing(border-box);
   background-color: @barBackgroundColor;
@@ -104,7 +104,11 @@
 }
 
 .issues-facet-half {
-  width: @sideWidth / 2 - 22px;
+  width: 45%;
+
+  &:nth-child(odd) {
+    margin-right: 10%;
+  }
 }
 
 .issues-facet-header {
@@ -116,7 +120,7 @@
 }
 
 .issues-facet-list {
-  margin: 0 -22px 0 0;
+  margin: 0 0 0 0;
   padding: 0 10px 10px;
   font-size: 0;
 }
@@ -127,7 +131,6 @@
 }
 
 .issues-facet-custom-value {
-  margin-right: 22px;
   padding: 0 0 5px;
   font-size: @baseFontSize;
 }

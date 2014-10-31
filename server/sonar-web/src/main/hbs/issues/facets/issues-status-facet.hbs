@@ -2,7 +2,7 @@
 
 <div class="issues-facet-list">
   {{#each values}}
-    <a class="facet issues-facet issues-facet-half js-issues-facet" data-value="{{val}}">
+    <a class="facet issues-facet issues-facet-half js-issues-facet" data-value="{{val}}" title="{{t 'issue.status' val}}">
       <span class="facet-name">{{statusIcon val}} {{t 'issue.status' val}}</span>
       <span class="facet-stat">{{count}}</span>
     </a>

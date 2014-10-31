@@ -8,12 +8,12 @@
   {{#each values}}
     {{#eq val ''}}
       {{! unassigned }}
-      <a class="facet issues-facet js-issues-facet" data-unassigned>
-        <span class="facet-name">Unassigned</span>
+      <a class="facet issues-facet js-issues-facet" data-unassigned title="{{t 'unassigned'}}">
+        <span class="facet-name">{{t 'unassigned'}}</span>
         <span class="facet-stat">{{count}}</span>
       </a>
     {{else}}
-      <a class="facet issues-facet js-issues-facet" data-value="{{val}}">
+      <a class="facet issues-facet js-issues-facet" data-value="{{val}}" title="{{label}}">
         <span class="facet-name">{{label}}</span>
         <span class="facet-stat">{{count}}</span>
       </a>
