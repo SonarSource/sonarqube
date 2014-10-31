@@ -29,6 +29,8 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.issue.internal.DefaultIssueComment;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
@@ -90,9 +92,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   private final UserFinder userFinder;
   private final I18n i18n;
   private final Durations durations;
+  private final Languages languages;
 
   public SearchAction(DbClient dbClient, IssueChangeDao issueChangeDao, IssueService service, IssueActionsWriter actionsWriter, IssueQueryService issueQueryService,
-    RuleService ruleService, ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Durations durations) {
+    RuleService ruleService, ActionPlanService actionPlanService, UserFinder userFinder, I18n i18n, Durations durations, Languages languages) {
     super(SEARCH_ACTION);
     this.dbClient = dbClient;
     this.issueChangeDao = issueChangeDao;
@@ -104,6 +107,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     this.userFinder = userFinder;
     this.i18n = i18n;
     this.durations = durations;
+    this.languages = languages;
   }
 
   @Override
@@ -315,6 +319,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     writeRules(json, !request.mandatoryParamAsBoolean(IssueFilterParameters.HIDE_RULES) ? ruleService.getByKeys(ruleKeys) : Collections.<Rule>emptyList());
     writeUsers(json, usersByLogin);
     writeActionPlans(json, actionPlanByKeys.values());
+    writeLanguages(json);
 
     // TODO remove legacy paging. Handled by the SearchRequestHandler
     writeLegacyPaging(context, json, result);
@@ -517,6 +522,17 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         .prop("name", user.name())
         .prop("active", user.active())
         .prop("email", user.email())
+        .endObject();
+    }
+    json.endArray();
+  }
+
+  private void writeLanguages(JsonWriter json) {
+    json.name("languages").beginArray();
+    for (Language language: languages.all()) {
+      json.beginObject()
+        .prop("key", language.getKey())
+        .prop("name", language.getName())
         .endObject();
     }
     json.endArray();

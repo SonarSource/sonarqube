@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.UserFinder;
@@ -59,7 +60,7 @@ public class IssuesWsTest {
       debtModelService, mock(RuleService.class), i18n, durations);
     SearchAction searchAction = new SearchAction(mock(DbClient.class), mock(IssueChangeDao.class), mock(IssueService.class), mock(IssueActionsWriter.class),
       mock(IssueQueryService.class), mock(RuleService.class),
-      mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class));
+      mock(ActionPlanService.class), mock(UserFinder.class), mock(I18n.class), mock(Durations.class), mock(Languages.class));
     tester = new WsTester(new IssuesWs(showAction, searchAction));
   }
 
