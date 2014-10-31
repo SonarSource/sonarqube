@@ -29,7 +29,10 @@ import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Settings;
+import org.sonar.batch.phases.Phases;
 import org.sonar.core.DryRunIncompatible;
+
+import javax.annotation.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -42,23 +45,38 @@ public final class ScmConfiguration implements BatchComponent, Startable {
   private final ProjectReactor projectReactor;
   private final Settings settings;
   private final Map<String, ScmProvider> providerPerKey = new LinkedHashMap<String, ScmProvider>();
+  private final Phases phases;
 
   private ScmProvider provider;
 
-  public ScmConfiguration(ProjectReactor projectReactor, Settings settings, ScmProvider... providers) {
+  public ScmConfiguration(ProjectReactor projectReactor, Settings settings, @Nullable Phases phases, ScmProvider... providers) {
     this.projectReactor = projectReactor;
     this.settings = settings;
+    this.phases = phases;
     for (ScmProvider scmProvider : providers) {
       providerPerKey.put(scmProvider.key(), scmProvider);
     }
   }
 
+  // Scan 2
+  public ScmConfiguration(ProjectReactor projectReactor, Settings settings, ScmProvider... providers) {
+    this(projectReactor, settings, null, providers);
+  }
+
+  public ScmConfiguration(ProjectReactor projectReactor, Settings settings, Phases phases) {
+    this(projectReactor, settings, phases, new ScmProvider[0]);
+  }
+
+  // Scan2
   public ScmConfiguration(ProjectReactor projectReactor, Settings settings) {
-    this(projectReactor, settings, new ScmProvider[0]);
+    this(projectReactor, settings, null, new ScmProvider[0]);
   }
 
   @Override
   public void start() {
+    if (phases != null && !phases.isEnabled(Phases.Phase.SENSOR)) {
+      return;
+    }
     if (isDisabled()) {
       LOG.debug("SCM Step is disabled by configuration");
       return;

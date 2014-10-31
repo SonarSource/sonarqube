@@ -86,9 +86,7 @@ public final class ScmSensor implements Sensor {
       TimeProfiler profiler = new TimeProfiler().start("Retrieve SCM blame information");
       DefaultBlameOutput output = new DefaultBlameOutput(context, filesToBlame);
       configuration.provider().blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
-      if (!output.remainingFiles().isEmpty()) {
-        throw new IllegalStateException("Some files were not blamed");
-      }
+      output.finish();
       profiler.stop();
     }
   }
@@ -112,10 +110,7 @@ public final class ScmSensor implements Sensor {
     }
   }
 
-  /**
-   * This method is synchronized since it is allowed for plugins to compute blame in parallel.
-   */
-  static synchronized void saveMeasures(SensorContext context, InputFile f, String scmAuthorsByLine, String scmLastCommitDatetimesByLine, String scmRevisionsByLine) {
+  static void saveMeasures(SensorContext context, InputFile f, String scmAuthorsByLine, String scmLastCommitDatetimesByLine, String scmRevisionsByLine) {
     ((DefaultMeasure<String>) context.<String>newMeasure()
       .onFile(f)
       .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)

@@ -28,6 +28,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.batch.util.ProgressReport;
 
 import javax.annotation.Nullable;
 
@@ -36,6 +37,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 class DefaultBlameOutput implements BlameOutput {
@@ -45,14 +47,21 @@ class DefaultBlameOutput implements BlameOutput {
 
   private final SensorContext context;
   private final Set<InputFile> allFilesToBlame = new HashSet<InputFile>();
+  private ProgressReport progressReport;
+  private int count;
+  private int total;
 
   DefaultBlameOutput(SensorContext context, List<InputFile> filesToBlame) {
     this.context = context;
     this.allFilesToBlame.addAll(filesToBlame);
+    count = 0;
+    total = filesToBlame.size();
+    progressReport = new ProgressReport("Report about progress of SCM blame", TimeUnit.SECONDS.toMillis(10));
+    progressReport.start(total + " files to be analyzed");
   }
 
   @Override
-  public void blameResult(InputFile file, List<BlameLine> lines) {
+  public synchronized void blameResult(InputFile file, List<BlameLine> lines) {
     Preconditions.checkNotNull(file);
     Preconditions.checkNotNull(lines);
     Preconditions.checkArgument(allFilesToBlame.contains(file), "It was not expected to blame file " + file.relativePath());
@@ -73,6 +82,8 @@ class DefaultBlameOutput implements BlameOutput {
     }
     ScmSensor.saveMeasures(context, file, authors.buildData(), dates.buildData(), revisions.buildData());
     allFilesToBlame.remove(file);
+    count++;
+    progressReport.message(count + "/" + total + " files analyzed, last one was " + file.absolutePath());
   }
 
   private String normalizeString(@Nullable String inputString) {
@@ -97,7 +108,10 @@ class DefaultBlameOutput implements BlameOutput {
     return new PropertiesBuilder<Integer, String>(metric);
   }
 
-  public Set<InputFile> remainingFiles() {
-    return allFilesToBlame;
+  public void finish() {
+    if (!allFilesToBlame.isEmpty()) {
+      throw new IllegalStateException("Some files were not blamed");
+    }
+    progressReport.stop(count + "/" + count + " files analyzed");
   }
 }
