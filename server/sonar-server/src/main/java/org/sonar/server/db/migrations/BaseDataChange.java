@@ -19,8 +19,10 @@
  */
 package org.sonar.server.db.migrations;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.sonar.core.persistence.Database;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public abstract class BaseDataChange implements DataChange, DatabaseMigration {
@@ -33,11 +35,22 @@ public abstract class BaseDataChange implements DataChange, DatabaseMigration {
 
   @Override
   public final void execute() throws SQLException {
-    Context context = new Context(db);
+    Connection readConnection = null, writeConnection = null;
     try {
+      readConnection = db.getDataSource().getConnection();
+      readConnection.setAutoCommit(false);
+      if (readConnection.getMetaData().supportsTransactionIsolationLevel(Connection.TRANSACTION_READ_UNCOMMITTED)) {
+        readConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+      }
+
+      writeConnection = db.getDataSource().getConnection();
+      writeConnection.setAutoCommit(false);
+      Context context = new Context(db, readConnection, writeConnection);
       execute(context);
+
     } finally {
-      context.close();
+      DbUtils.closeQuietly(readConnection);
+      DbUtils.closeQuietly(writeConnection);
     }
   }
 }

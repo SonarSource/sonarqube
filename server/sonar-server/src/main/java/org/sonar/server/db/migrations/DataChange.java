@@ -19,58 +19,33 @@
  */
 package org.sonar.server.db.migrations;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.dbutils.DbUtils;
 import org.sonar.core.persistence.Database;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 public interface DataChange {
 
   class Context {
     private final Database db;
-    private final List<Connection> connections = Lists.newArrayList();
+    private final Connection readConnection, writeConnection;
 
-    Context(Database db) {
+    public Context(Database db, Connection readConnection, Connection writeConnection) {
       this.db = db;
+      this.readConnection = readConnection;
+      this.writeConnection = writeConnection;
     }
 
     public Select prepareSelect(String sql) throws SQLException {
-      return SelectImpl.create(db, openReadConnection(), sql);
+      return SelectImpl.create(db, readConnection, sql);
     }
 
     public Upsert prepareUpsert(String sql) throws SQLException {
-      return UpsertImpl.create(openWriteConnection(), sql);
+      return UpsertImpl.create(writeConnection, sql);
     }
 
     public MassUpdate prepareMassUpdate() throws SQLException {
-      return new MassUpdate(db, openReadConnection(), openWriteConnection());
-    }
-
-    private Connection openReadConnection() throws SQLException {
-      Connection readConnection = db.getDataSource().getConnection();
-      readConnection.setAutoCommit(false);
-      if (readConnection.getMetaData().supportsTransactionIsolationLevel(Connection.TRANSACTION_READ_UNCOMMITTED)) {
-        readConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
-      }
-      connections.add(readConnection);
-      return readConnection;
-    }
-
-    private Connection openWriteConnection() throws SQLException {
-      Connection writeConnection = db.getDataSource().getConnection();
-      writeConnection.setAutoCommit(false);
-      connections.add(writeConnection);
-      return writeConnection;
-    }
-
-    void close() {
-      for (Connection connection : connections) {
-        DbUtils.closeQuietly(connection);
-      }
-      connections.clear();
+      return new MassUpdate(db, readConnection, writeConnection);
     }
   }
 
