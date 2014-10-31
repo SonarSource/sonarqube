@@ -26,6 +26,10 @@ define(['handlebars'], function (Handlebars) {
     console.log.apply(console, args);
   });
 
+  Handlebars.registerHelper('link', function(url) {
+    return baseUrl + url;
+  });
+
   Handlebars.registerHelper('capitalize', function(string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   });

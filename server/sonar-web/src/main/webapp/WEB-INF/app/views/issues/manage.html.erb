@@ -59,7 +59,7 @@
               <%= issue_filter_star(filter, @favourite_filter_ids.include?(filter.id)) -%>
             </td>
             <td>
-              <a href="<%= ApplicationController.root_context -%>/issues/search#id=<%= h filter.id -%>|<%= h filter.data -%>"><%= h filter.name -%></a>
+              <a href="<%= ApplicationController.root_context -%>/issues/search#id=<%= h filter.id -%>"><%= h filter.name -%></a>
               <% if filter.description %>
                 <div class="note"><%= h filter.description -%></div>
               <% end %>
