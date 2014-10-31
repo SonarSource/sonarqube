@@ -142,17 +142,27 @@ define [
       line = issue.get('line') || 0
       @model.set key: componentKey, issueLine: line
 
-      @requestSources(line - LINES_AROUND, line + LINES_AROUND).done (data) =>
+      @requestSources(line - LINES_AROUND, line + LINES_AROUND)
+      .done (data) =>
         formattedSource = _.map data.sources, (item) => lineNumber: item[0], code: item[1]
         @source.set
           source: data.sources
           formattedSource: formattedSource
-        @model.set hasSourceBefore: line > LINES_AROUND
+        @model.set
+          hasSourceBefore: line > LINES_AROUND
+          hasSourceAfter: formattedSource.length > 2 * LINES_AROUND + 1
         @render()
         @highlightIssue issue.get 'key'
         @scrollToLine issue.get 'line'
         @bindScrollEvents()
         @requestIssues()
+      .fail =>
+        @source.set
+          source: []
+          formattedSource: []
+        @model.set hasSourceBefore: false, hasSourceAfter: false
+        @render()
+        @highlightIssue issue.get 'key'
 
 
     requestSources: (lineFrom, lineTo) ->
