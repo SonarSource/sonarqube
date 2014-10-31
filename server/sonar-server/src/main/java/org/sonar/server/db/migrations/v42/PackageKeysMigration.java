@@ -43,7 +43,7 @@ public class PackageKeysMigration extends BaseDataChange {
   }
 
   @Override
-  public void execute(final Context context) throws SQLException {
+  public void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT id, kee FROM projects WHERE qualifier='PAC'");
     massUpdate.update("UPDATE projects SET qualifier='DIR', kee=? WHERE id=?");
@@ -54,9 +54,6 @@ public class PackageKeysMigration extends BaseDataChange {
         String key = row.getString(2);
         update.setString(1, convertKey(key));
         update.setLong(2, id);
-
-        context.prepareSelect("");
-
         return true;
       }
     });
