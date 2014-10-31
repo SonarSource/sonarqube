@@ -137,9 +137,10 @@ define [
       @options.app.state.setQuery resolved: 'false'
 
 
-    applyFilter: (filter) ->
-      query = @parseQuery filter.get 'query'
-      @options.app.state.setQuery query
+    applyFilter: (filter, ignoreQuery = false) ->
+      unless ignoreQuery
+        filterQuery = @parseQuery filter.get 'query'
+        @options.app.state.setQuery filterQuery
       @options.app.state.set filter: filter, changed: false
 
 
@@ -158,6 +159,17 @@ define [
       _.map filter, (value, property) ->
         route.push "#{property}=#{decodeURIComponent value}"
       route.join separator
+
+
+    getRoute: (separator = '|') ->
+      filter = @options.app.state.get 'filter'
+      query = @getQuery separator
+      if filter?
+        if @options.app.state.get('changed') && query.length > 0
+          query = "id=#{filter.id}|#{query}"
+        else
+          query = "id=#{filter.id}"
+      query
 
 
     _prepareComponent: (issue) ->

@@ -43,6 +43,6 @@ define [
 
     setQuery: (query) ->
       @set { query: query }, { silent: true }
-      @trigger 'change:query'
       @set changed: true
+      @trigger 'change:query'
 

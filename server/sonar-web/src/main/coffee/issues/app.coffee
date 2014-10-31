@@ -75,10 +75,6 @@ requirejs [
 
 
   App.addInitializer ->
-    @controller.fetchFilters()
-
-
-  App.addInitializer ->
     @issuesView = new WorkspaceListView
       app: @
       collection: @issues
@@ -108,9 +104,10 @@ requirejs [
 
 
   App.addInitializer ->
-    key.setScope 'list'
-    @router = new Router app: @
-    Backbone.history.start()
+    @controller.fetchFilters().done =>
+      key.setScope 'list'
+      @router = new Router app: @
+      Backbone.history.start()
 
 
   l10nXHR = window.requestMessages()
