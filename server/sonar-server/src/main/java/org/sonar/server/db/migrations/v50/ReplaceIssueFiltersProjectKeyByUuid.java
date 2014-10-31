@@ -20,15 +20,16 @@
 
 package org.sonar.server.db.migrations.v50;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.BaseDataChange;
-import org.sonar.server.db.migrations.MassUpdate;
-import org.sonar.server.db.migrations.Select;
-import org.sonar.server.db.migrations.SqlStatement;
+import org.sonar.server.db.migrations.*;
 
 import javax.annotation.Nullable;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -52,33 +53,44 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
   public void execute(final Context context) throws SQLException {
     final Date now = new Date(system.now());
 
-    MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT f.id, f.data FROM issue_filters f WHERE f.data like '%componentRoots=%'");
-    massUpdate.update("UPDATE issue_filters SET data=?, updated_at=? WHERE id=?");
-    massUpdate.execute(new MassUpdate.Handler() {
-      @Override
-      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
-        Long id = row.getLong(1);
-        String data = row.getString(2);
-        if (data == null) {
-          return false;
+    Connection connection = null;
+    PreparedStatement pstmt = null;
+    try {
+      connection = openConnection();
+      pstmt = connection.prepareStatement("SELECT p.uuid as uuid FROM projects p WHERE p.kee=?");
+
+      MassUpdate massUpdate = context.prepareMassUpdate();
+      massUpdate.select("SELECT f.id, f.data FROM issue_filters f WHERE f.data like '%componentRoots=%'");
+      massUpdate.update("UPDATE issue_filters SET data=?, updated_at=? WHERE id=?");
+      final PreparedStatement finalPstmt = pstmt;
+      massUpdate.execute(new MassUpdate.Handler() {
+        @Override
+        public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+          Long id = row.getLong(1);
+          String data = row.getString(2);
+          if (data == null) {
+            return false;
+          }
+          update.setString(1, convertData(finalPstmt, data));
+          update.setDate(2, now);
+          update.setLong(3, id);
+          return true;
         }
-        update.setString(1, convertData(context, data));
-        update.setDate(2, now);
-        update.setLong(3, id);
-        return true;
-      }
-    });
+      });
+    } finally {
+      DbUtils.closeQuietly(connection);
+      DbUtils.closeQuietly(pstmt);
+    }
   }
 
-  private String convertData(Context context, String data) throws SQLException {
+  private String convertData(PreparedStatement pstmt, String data) throws SQLException {
     StringBuilder newFields = new StringBuilder();
     String[] fields = data.split("\\|");
     for (int i=0; i<fields.length; i++) {
       String field = fields[i];
       if (field.contains(OLD_COMPONENT_ROOTS_FIELDS)) {
         String[] componentRootValues = field.split("=");
-        append(context, newFields, componentRootValues.length == 2 ? componentRootValues[1] : null);
+        append(pstmt, newFields, componentRootValues.length == 2 ? componentRootValues[1] : null);
       } else {
         newFields.append(field);
       }
@@ -89,11 +101,20 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
     return newFields.toString();
   }
 
-  private void append(Context context, StringBuilder newFields, @Nullable String projectKey) throws SQLException {
+  private void append(PreparedStatement pstmt, StringBuilder newFields, @Nullable String projectKey) throws SQLException {
     if (projectKey != null) {
-      String projectUuid = context.prepareSelect("SELECT p.uuid FROM projects p WHERE p.kee=?").setString(1, projectKey).get(Select.STRING_READER);
-      if (projectUuid != null) {
-        newFields.append(NEW_COMPONENT_ROOTS_FIELDS + "=" + projectUuid);
+      pstmt.setString(1, projectKey);
+      ResultSet rs = null;
+      try {
+        rs = pstmt.executeQuery();
+        if (rs.next()) {
+          String projectUuid = SqlUtil.getString(rs, "uuid");
+          if (projectUuid != null) {
+            newFields.append(NEW_COMPONENT_ROOTS_FIELDS).append("=").append(projectUuid);
+          }
+        }
+      } finally {
+        DbUtils.closeQuietly(rs);
       }
     }
   }

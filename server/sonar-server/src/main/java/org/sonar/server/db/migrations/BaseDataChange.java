@@ -37,11 +37,7 @@ public abstract class BaseDataChange implements DataChange, DatabaseMigration {
   public final void execute() throws SQLException {
     Connection readConnection = null, writeConnection = null;
     try {
-      readConnection = db.getDataSource().getConnection();
-      readConnection.setAutoCommit(false);
-      if (readConnection.getMetaData().supportsTransactionIsolationLevel(Connection.TRANSACTION_READ_UNCOMMITTED)) {
-        readConnection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
-      }
+      readConnection = openConnection();
 
       writeConnection = db.getDataSource().getConnection();
       writeConnection.setAutoCommit(false);
@@ -53,4 +49,17 @@ public abstract class BaseDataChange implements DataChange, DatabaseMigration {
       DbUtils.closeQuietly(writeConnection);
     }
   }
+
+  /**
+   * Do not forget to close it !
+   */
+  protected Connection openConnection() throws SQLException {
+    Connection connection = db.getDataSource().getConnection();
+    connection.setAutoCommit(false);
+    if (connection.getMetaData().supportsTransactionIsolationLevel(Connection.TRANSACTION_READ_UNCOMMITTED)) {
+      connection.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+    }
+    return connection;
+  }
+
 }

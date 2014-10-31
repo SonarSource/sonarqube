@@ -61,4 +61,10 @@ public class SqlUtil {
     int i = rs.getInt(columnName);
     return rs.wasNull() ? null : i;
   }
+
+  @CheckForNull
+  public static String getString(ResultSet rs, String columnName) throws SQLException {
+    String s = rs.getString(columnName);
+    return rs.wasNull() ? null : s;
+  }
 }
