@@ -21,7 +21,7 @@
     values (#{key}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <select id="selectAfterDate" resultType="fake" resultSetType="FORWARD_ONLY" fetchSize="200">
+  <select id="selectAfterDate" resultType="fake" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
     <include refid="selectColumns"/>
     from fake f

@@ -12,7 +12,8 @@
     <result property="updatedAt" column="updatedAt" javaType="java.util.Date"/>
   </resultMap>
 
-  <select id="selectAfterDate" parameterType="map" resultMap="resultMap">
+  <select id="selectAfterDate" parameterType="map" resultMap="resultMap"
+          fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     SELECT
       project_authorization.project as "project",
       project_authorization.login as "permissionUser",

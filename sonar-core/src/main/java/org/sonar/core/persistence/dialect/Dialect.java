@@ -73,5 +73,10 @@ public interface Dialect {
    */
   String getValidationQuery();
 
+  /**
+   * Fetch size to be used when scrolling large result sets.
+   *
+   * @since 5.0
+   */
   int getScrollDefaultFetchSize();
 }

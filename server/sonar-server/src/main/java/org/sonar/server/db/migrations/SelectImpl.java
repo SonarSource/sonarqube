@@ -21,7 +21,6 @@ package org.sonar.server.db.migrations;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.dialect.MySql;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -83,11 +82,7 @@ class SelectImpl extends BaseSqlStatement<Select> implements Select {
 
   static SelectImpl create(Database db, Connection connection, String sql) throws SQLException {
     PreparedStatement pstmt = connection.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-    if (db.getDialect().getId().equals(MySql.ID)) {
-      pstmt.setFetchSize(Integer.MIN_VALUE);
-    } else {
-      pstmt.setFetchSize(1000);
-    }
+    pstmt.setFetchSize(db.getDialect().getScrollDefaultFetchSize());
     return new SelectImpl(pstmt);
   }
 }

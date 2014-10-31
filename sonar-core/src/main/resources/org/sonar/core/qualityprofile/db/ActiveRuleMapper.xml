@@ -39,7 +39,8 @@
     LEFT JOIN active_rules active_rule_parent ON active_rule_parent.profile_id=profile_parent.id AND a.rule_id=active_rule_parent.rule_id
   </sql>
 
-  <select id="selectAfterDate" parameterType="Date" resultType="ActiveRule" resultSetType="FORWARD_ONLY">
+  <select id="selectAfterDate" parameterType="Date" resultType="ActiveRule"
+          fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
     <include refid="activeRuleKeyColumns"/>
     from active_rules a

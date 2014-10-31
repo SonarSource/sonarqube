@@ -41,7 +41,7 @@
     from rules r
   </select>
 
-  <select id="selectAfterDate" resultType="Rule" resultSetType="FORWARD_ONLY" fetchSize="200">
+  <select id="selectAfterDate" resultType="Rule" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
     <include refid="selectColumns"/>
     from rules r
