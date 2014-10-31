@@ -55,4 +55,9 @@ public class MySql extends AbstractDialect {
       registerColumnType(Types.BLOB, "blob");
     }
   }
+
+  @Override
+  public int getScrollDefaultFetchSize() {
+    return Integer.MIN_VALUE;
+  }
 }

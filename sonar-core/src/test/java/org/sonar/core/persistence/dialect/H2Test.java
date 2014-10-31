@@ -25,25 +25,30 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class H2Test {
 
-  private H2 h2 = new H2();
+  H2 dialect = new H2();
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(h2.matchesJdbcURL("jdbc:h2:foo")).isTrue();
-    assertThat(h2.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(dialect.matchesJdbcURL("jdbc:h2:foo")).isTrue();
+    assertThat(dialect.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
   }
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(h2.getTrueSqlValue()).isEqualTo("true");
-    assertThat(h2.getFalseSqlValue()).isEqualTo("false");
+    assertThat(dialect.getTrueSqlValue()).isEqualTo("true");
+    assertThat(dialect.getFalseSqlValue()).isEqualTo("false");
   }
 
   @Test
   public void should_configure() {
-    assertThat(h2.getId()).isEqualTo("h2");
-    assertThat(h2.getActiveRecordDialectCode()).isEqualTo(".h2.");
-    assertThat(h2.getDefaultDriverClassName()).isEqualTo("org.h2.Driver");
-    assertThat(h2.getValidationQuery()).isEqualTo("SELECT 1");
+    assertThat(dialect.getId()).isEqualTo("h2");
+    assertThat(dialect.getActiveRecordDialectCode()).isEqualTo(".h2.");
+    assertThat(dialect.getDefaultDriverClassName()).isEqualTo("org.h2.Driver");
+    assertThat(dialect.getValidationQuery()).isEqualTo("SELECT 1");
+  }
+
+  @Test
+  public void testFetchSizeForScrolling() throws Exception {
+    assertThat(dialect.getScrollDefaultFetchSize()).isEqualTo(200);
   }
 }

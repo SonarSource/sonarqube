@@ -77,4 +77,9 @@ abstract class AbstractDialect implements Dialect {
   public List<String> getConnectionInitStatements() {
     return Collections.emptyList();
   }
+
+  @Override
+  public int getScrollDefaultFetchSize() {
+    return 200;
+  }
 }

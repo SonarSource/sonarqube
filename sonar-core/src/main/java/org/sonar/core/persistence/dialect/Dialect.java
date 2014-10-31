@@ -72,4 +72,6 @@ public interface Dialect {
    * @since 3.2
    */
   String getValidationQuery();
+
+  int getScrollDefaultFetchSize();
 }

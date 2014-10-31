@@ -25,31 +25,36 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class PostgreSqlTest {
 
-  private PostgreSql postgreSql = new PostgreSql();
+  PostgreSql dialect = new PostgreSql();
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(postgreSql.matchesJdbcURL("jdbc:postgresql://localhost/sonar")).isTrue();
-    assertThat(postgreSql.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(dialect.matchesJdbcURL("jdbc:postgresql://localhost/sonar")).isTrue();
+    assertThat(dialect.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
   }
 
   @Test
   public void should_set_connection_properties() {
-    assertThat(postgreSql.getConnectionInitStatements()).isEqualTo(PostgreSql.INIT_STATEMENTS);
+    assertThat(dialect.getConnectionInitStatements()).isEqualTo(PostgreSql.INIT_STATEMENTS);
   }
 
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(postgreSql.getTrueSqlValue()).isEqualTo("true");
-    assertThat(postgreSql.getFalseSqlValue()).isEqualTo("false");
+    assertThat(dialect.getTrueSqlValue()).isEqualTo("true");
+    assertThat(dialect.getFalseSqlValue()).isEqualTo("false");
   }
 
   @Test
   public void should_configure() {
-    assertThat(postgreSql.getId()).isEqualTo("postgresql");
-    assertThat(postgreSql.getActiveRecordDialectCode()).isEqualTo("postgre");
-    assertThat(postgreSql.getDefaultDriverClassName()).isEqualTo("org.postgresql.Driver");
-    assertThat(postgreSql.getValidationQuery()).isEqualTo("SELECT 1");
+    assertThat(dialect.getId()).isEqualTo("postgresql");
+    assertThat(dialect.getActiveRecordDialectCode()).isEqualTo("postgre");
+    assertThat(dialect.getDefaultDriverClassName()).isEqualTo("org.postgresql.Driver");
+    assertThat(dialect.getValidationQuery()).isEqualTo("SELECT 1");
+  }
+
+  @Test
+  public void testFetchSizeForScrolling() throws Exception {
+    assertThat(dialect.getScrollDefaultFetchSize()).isEqualTo(200);
   }
 }

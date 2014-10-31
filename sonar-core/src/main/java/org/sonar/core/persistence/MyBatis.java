@@ -55,6 +55,7 @@ import org.sonar.core.measure.db.*;
 import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.notification.db.NotificationQueueMapper;
 import org.sonar.core.permission.*;
+import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.migration.v44.Migration44Mapper;
 import org.sonar.core.persistence.migration.v45.Migration45Mapper;
 import org.sonar.core.persistence.migration.v50.Migration50Mapper;
@@ -100,12 +101,14 @@ public class MyBatis implements BatchComponent, ServerComponent {
 
     Configuration conf = new Configuration();
     conf.setEnvironment(new Environment("production", createTransactionFactory(), database.getDataSource()));
-    conf.setDatabaseId(database.getDialect().getId());
     conf.setUseGeneratedKeys(true);
     conf.setLazyLoadingEnabled(false);
     conf.setJdbcTypeForNull(JdbcType.NULL);
-    conf.getVariables().setProperty("_true", database.getDialect().getTrueSqlValue());
-    conf.getVariables().setProperty("_false", database.getDialect().getFalseSqlValue());
+    Dialect dialect = database.getDialect();
+    conf.setDatabaseId(dialect.getId());
+    conf.getVariables().setProperty("_true", dialect.getTrueSqlValue());
+    conf.getVariables().setProperty("_false", dialect.getFalseSqlValue());
+    conf.getVariables().setProperty("_scrollFetchSize", String.valueOf(dialect.getScrollDefaultFetchSize()));
 
     loadAlias(conf, "ActiveDashboard", ActiveDashboardDto.class);
     loadAlias(conf, "Author", AuthorDto.class);

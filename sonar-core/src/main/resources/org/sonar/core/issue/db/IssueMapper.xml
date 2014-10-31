@@ -141,7 +141,8 @@
     where i.kee=#{kee}
   </select>
 
-  <select id="selectAfterDate" resultType="Issue" fetchSize="200" resultSetType="FORWARD_ONLY">
+  <select id="selectAfterDate" resultType="Issue"
+          fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
     <include refid="issueColumns"/>
     from issues i

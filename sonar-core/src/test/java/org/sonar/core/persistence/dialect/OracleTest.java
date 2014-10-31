@@ -25,25 +25,30 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class OracleTest {
 
-  private Oracle oracle = new Oracle();
+  Oracle dialect = new Oracle();
 
   @Test
   public void matchesJdbcURL() {
-    assertThat(oracle.matchesJdbcURL("jdbc:oracle:thin:@localhost/XE")).isTrue();
-    assertThat(oracle.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
+    assertThat(dialect.matchesJdbcURL("jdbc:oracle:thin:@localhost/XE")).isTrue();
+    assertThat(dialect.matchesJdbcURL("jdbc:hsql:foo")).isFalse();
   }
 
   @Test
   public void testBooleanSqlValues() {
-    assertThat(oracle.getTrueSqlValue()).isEqualTo("1");
-    assertThat(oracle.getFalseSqlValue()).isEqualTo("0");
+    assertThat(dialect.getTrueSqlValue()).isEqualTo("1");
+    assertThat(dialect.getFalseSqlValue()).isEqualTo("0");
   }
 
   @Test
   public void should_configure() {
-    assertThat(oracle.getId()).isEqualTo("oracle");
-    assertThat(oracle.getActiveRecordDialectCode()).isEqualTo("oracle");
-    assertThat(oracle.getDefaultDriverClassName()).isEqualTo("oracle.jdbc.OracleDriver");
-    assertThat(oracle.getValidationQuery()).isEqualTo("SELECT 1 FROM DUAL");
+    assertThat(dialect.getId()).isEqualTo("oracle");
+    assertThat(dialect.getActiveRecordDialectCode()).isEqualTo("oracle");
+    assertThat(dialect.getDefaultDriverClassName()).isEqualTo("oracle.jdbc.OracleDriver");
+    assertThat(dialect.getValidationQuery()).isEqualTo("SELECT 1 FROM DUAL");
+  }
+
+  @Test
+  public void testFetchSizeForScrolling() throws Exception {
+    assertThat(dialect.getScrollDefaultFetchSize()).isEqualTo(200);
   }
 }

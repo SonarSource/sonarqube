@@ -49,4 +49,9 @@ public class MySqlTest {
     assertThat(mySql.getDefaultDriverClassName()).isEqualTo("com.mysql.jdbc.Driver");
     assertThat(mySql.getValidationQuery()).isEqualTo("SELECT 1");
   }
+
+  @Test
+  public void testFetchSizeForScrolling() throws Exception {
+    assertThat(mySql.getScrollDefaultFetchSize()).isEqualTo(Integer.MIN_VALUE);
+  }
 }
