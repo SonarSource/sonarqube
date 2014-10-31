@@ -17,10 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/**
- * Deprecated in 4.5.1. JFreechart charts are replaced by Javascript charts.
- */
-@ParametersAreNonnullByDefault
-package org.sonar.plugins.core.batch;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+package org.sonar.server.computation;
+
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.resource.ResourceIndexerDao;
+
+public class ProjectDatabaseIndexationStep implements ComputationStep {
+  private final ResourceIndexerDao resourceIndexerDao;
+
+  public ProjectDatabaseIndexationStep(ResourceIndexerDao resourceIndexerDao) {
+    this.resourceIndexerDao = resourceIndexerDao;
+  }
+
+  @Override
+  public void execute(DbSession session, AnalysisReportDto analysisReportDto, ComponentDto project) {
+    resourceIndexerDao.indexProject(project.getId().intValue());
+  }
+
+  @Override
+  public String getDescription() {
+    return "Index project in database";
+  }
+}

@@ -21,24 +21,30 @@
 package org.sonar.server.computation;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.platform.ComponentContainer;
 
 import java.util.List;
 
 public class ComputationStepRegistry implements ServerComponent {
 
-  private final List<ComputationStep> steps;
+  private final ComponentContainer pico;
 
-  public ComputationStepRegistry(
-    SynchronizeProjectPermissionsStep synchronizeProjectPermissionsStep,
-    IndexProjectIssuesStep indexProjectIssuesStep,
-    SwitchSnapshotStep switchSnapshotStep,
-    DataCleanerStep dataCleanerStep,
-    InvalidatePreviewCacheStep invalidatePreviewCacheStep) {
-    steps = ImmutableList.of(synchronizeProjectPermissionsStep, switchSnapshotStep, invalidatePreviewCacheStep, dataCleanerStep, indexProjectIssuesStep);
+  public ComputationStepRegistry(ComponentContainer pico) {
+    this.pico = pico;
+
   }
 
   public List<ComputationStep> steps() {
-    return steps;
+    List<ComputationStep> steps = Lists.newArrayList();
+    steps.add(pico.getComponentByType(SynchronizeProjectPermissionsStep.class));
+    steps.add(pico.getComponentByType(SwitchSnapshotStep.class));
+    steps.add(pico.getComponentByType(InvalidatePreviewCacheStep.class));
+    steps.add(pico.getComponentByType(DataCleanerStep.class));
+    steps.add(pico.getComponentByType(ProjectDatabaseIndexationStep.class));
+    steps.add(pico.getComponentByType(IndexProjectIssuesStep.class));
+
+    return ImmutableList.copyOf(steps);
   }
 }

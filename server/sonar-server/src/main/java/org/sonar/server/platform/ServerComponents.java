@@ -271,7 +271,7 @@ class ServerComponents {
       ActivityNormalizer.class,
       ActivityIndex.class,
       ActivityDao.class
-    ));
+      ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
     components.addAll(DaoUtils.getDaoClasses());
@@ -304,7 +304,7 @@ class ServerComponents {
       // ws
       RestartHandler.class,
       SystemWs.class
-    );
+      );
   }
 
   /**
@@ -321,7 +321,7 @@ class ServerComponents {
       HttpDownloader.class,
       UriReader.class,
       ServerIdGenerator.class
-    );
+      );
   }
 
   void startLevel4Components(ComponentContainer pico) {
@@ -598,6 +598,7 @@ class ServerComponents {
       IndexProjectIssuesStep.class,
       SwitchSnapshotStep.class,
       InvalidatePreviewCacheStep.class,
+      ProjectDatabaseIndexationStep.class,
       DataCleanerStep.class));
     pico.addSingleton(AnalysisReportQueue.class);
     pico.addSingleton(AnalysisReportTaskLauncher.class);

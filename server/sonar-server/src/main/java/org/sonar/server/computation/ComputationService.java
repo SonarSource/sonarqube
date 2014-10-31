@@ -65,7 +65,7 @@ public class ComputationService implements ServerComponent {
     try {
       report.succeed();
       for (ComputationStep step : stepRegistry.steps()) {
-        TimeProfiler stepProfiler = new TimeProfiler(LOG).start(step.description());
+        TimeProfiler stepProfiler = new TimeProfiler(LOG).start(step.getDescription());
         step.execute(session, report, project);
         session.commit();
         stepProfiler.stop();

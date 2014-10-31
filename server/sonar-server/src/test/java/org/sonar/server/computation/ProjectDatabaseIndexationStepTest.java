@@ -17,37 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.batch;
 
+package org.sonar.server.computation;
+
+import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.resources.Project;
+import org.sonar.core.component.ComponentDto;
+import org.sonar.core.computation.db.AnalysisReportDto;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceIndexerDao;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 
-public class IndexProjectPostJobTest {
-  @Test
-  public void shouldIndexProject() {
-    ResourceIndexerDao indexer = mock(ResourceIndexerDao.class);
-    IndexProjectPostJob job = new IndexProjectPostJob(indexer);
-    Project project = new Project("foo");
-    project.setId(123);
+public class ProjectDatabaseIndexationStepTest {
 
-    job.executeOn(project, null);
+  private ProjectDatabaseIndexationStep sut;
+  private ResourceIndexerDao resourceIndexerDao;
 
-    verify(indexer).indexProject(123);
+  @Before
+  public void before() {
+    this.resourceIndexerDao = mock(ResourceIndexerDao.class);
+    this.sut = new ProjectDatabaseIndexationStep(resourceIndexerDao);
   }
 
   @Test
-  public void shouldNotIndexProjectIfMissingId() {
-    ResourceIndexerDao indexer = mock(ResourceIndexerDao.class);
-    IndexProjectPostJob job = new IndexProjectPostJob(indexer);
+  public void call_indexProject_of_dao() {
+    ComponentDto project = mock(ComponentDto.class);
+    when(project.getId()).thenReturn(123L);
 
-    job.executeOn(new Project("foo"), null);
+    sut.execute(mock(DbSession.class), mock(AnalysisReportDto.class), project);
 
-    verifyZeroInteractions(indexer);
+    verify(resourceIndexerDao).indexProject(123);
   }
 
 }

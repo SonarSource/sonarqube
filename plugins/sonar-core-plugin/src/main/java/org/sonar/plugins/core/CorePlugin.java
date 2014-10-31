@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.*;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.core.timemachine.Periods;
-import org.sonar.plugins.core.batch.IndexProjectPostJob;
 import org.sonar.plugins.core.charts.DistributionAreaChart;
 import org.sonar.plugins.core.charts.DistributionBarChart;
 import org.sonar.plugins.core.colorizers.JavaColorizerFormat;
@@ -312,7 +311,6 @@ public final class CorePlugin extends SonarPlugin {
       NoSonarFilter.class,
       DirectoriesDecorator.class,
       FilesDecorator.class,
-      IndexProjectPostJob.class,
       ManualMeasureDecorator.class,
       FileHashSensor.class,
 

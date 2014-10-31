@@ -46,7 +46,7 @@ public class InvalidatePreviewCacheStep implements ComputationStep {
   }
 
   @Override
-  public String description() {
+  public String getDescription() {
     return "Invalidate preview cache";
   }
 }

@@ -47,7 +47,7 @@ public class SynchronizeProjectPermissionsStep implements ComputationStep {
   }
 
   @Override
-  public String description() {
+  public String getDescription() {
     return "Synchronize project permissions";
   }
 

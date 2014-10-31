@@ -29,5 +29,5 @@ public interface ComputationStep extends ServerComponent {
 
   void execute(DbSession session, AnalysisReportDto analysisReportDto, ComponentDto project);
 
-  String description();
+  String getDescription();
 }

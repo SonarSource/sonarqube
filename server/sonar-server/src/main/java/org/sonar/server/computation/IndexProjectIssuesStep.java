@@ -47,7 +47,7 @@ public class IndexProjectIssuesStep implements ComputationStep {
   }
 
   @Override
-  public String description() {
+  public String getDescription() {
     return "Update issues index";
   }
 

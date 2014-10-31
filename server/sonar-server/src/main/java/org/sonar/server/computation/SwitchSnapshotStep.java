@@ -43,7 +43,7 @@ public class SwitchSnapshotStep implements ComputationStep {
   }
 
   @Override
-  public String description() {
+  public String getDescription() {
     return "Switch last snapshot flag";
   }
 
