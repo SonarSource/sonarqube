@@ -66,6 +66,7 @@ public class ComponentDto extends Dto<String> implements Component {
     return this;
   }
 
+  @Override
   public String key() {
     return kee;
   }
@@ -79,6 +80,7 @@ public class ComponentDto extends Dto<String> implements Component {
     return this;
   }
 
+  @Override
   public String qualifier() {
     return qualifier;
   }

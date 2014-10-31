@@ -78,7 +78,8 @@ public class CpdSensor implements Sensor {
 
     for (String language : fs.languages()) {
       if (settings.hasKey("sonar.cpd." + language + ".skip")) {
-        LOG.warn("\"sonar.cpd." + language + ".skip\" property is deprecated and will be removed. Please set \"sonar.cpd.exclusions=**\" instead to disable duplication mechanism.");
+        LOG
+          .warn("\"sonar.cpd." + language + ".skip\" property is deprecated and will be removed. Please set \"sonar.cpd.exclusions=**\" instead to disable duplication mechanism.");
       }
 
       if (isSkipped(language)) {
