@@ -16,6 +16,8 @@ define [
 
   API_SOURCES = "#{baseUrl}/api/sources/show"
   LINES_AROUND = 500
+  TOP_OFFSET = 38
+  BOTTOM_OFFSET = 10
 
 
   class extends Marionette.ItemView
@@ -126,8 +128,26 @@ define [
 
     select: ->
       selected = @options.app.state.get 'selectedIndex'
-      selectedKey = @options.app.issues.at(selected).get 'key'
-      @highlightIssue selectedKey
+      selectedIssue = @options.app.issues.at selected
+      if selectedIssue.get('component') == @model.get('key')
+        selectedKey = selectedIssue.get 'key'
+        @scrollToIssue selectedKey
+        @highlightIssue selectedKey
+      else
+        @options.app.controller.showComponentViewer selectedIssue
+
+
+    scrollToIssue: (key) ->
+      el = @$("[data-issue-key='#{key}']")
+      if el.length > 0
+        viewTop = el.offset().top
+        viewBottom = viewTop + el.outerHeight()
+        windowTop = $(window).scrollTop()
+        windowBottom = windowTop + $(window).height()
+        if viewTop < windowTop
+          $(window).scrollTop viewTop - TOP_OFFSET
+        if viewBottom > windowBottom
+          $(window).scrollTop $(window).scrollTop() - windowBottom + viewBottom + BOTTOM_OFFSET
 
 
     highlightIssue: (key) ->
