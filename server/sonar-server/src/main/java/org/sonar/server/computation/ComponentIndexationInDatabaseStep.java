@@ -25,10 +25,10 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceIndexerDao;
 
-public class ProjectDatabaseIndexationStep implements ComputationStep {
+public class ComponentIndexationInDatabaseStep implements ComputationStep {
   private final ResourceIndexerDao resourceIndexerDao;
 
-  public ProjectDatabaseIndexationStep(ResourceIndexerDao resourceIndexerDao) {
+  public ComponentIndexationInDatabaseStep(ResourceIndexerDao resourceIndexerDao) {
     this.resourceIndexerDao = resourceIndexerDao;
   }
 

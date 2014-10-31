@@ -48,7 +48,7 @@ public class ComputationStepRegistryMediumTest {
     pico.addSingleton(mock(SwitchSnapshotStep.class));
     pico.addSingleton(mock(DataCleanerStep.class));
     pico.addSingleton(mock(InvalidatePreviewCacheStep.class));
-    pico.addSingleton(mock(ProjectDatabaseIndexationStep.class));
+    pico.addSingleton(mock(ComponentIndexationInDatabaseStep.class));
 
     sut = new ComputationStepRegistry(pico);
   }
@@ -59,8 +59,8 @@ public class ComputationStepRegistryMediumTest {
       SynchronizeProjectPermissionsStep.class,
       SwitchSnapshotStep.class,
       InvalidatePreviewCacheStep.class,
+      ComponentIndexationInDatabaseStep.class,
       DataCleanerStep.class,
-      ProjectDatabaseIndexationStep.class,
       IndexProjectIssuesStep.class
       );
     List<ComputationStep> steps = sut.steps();

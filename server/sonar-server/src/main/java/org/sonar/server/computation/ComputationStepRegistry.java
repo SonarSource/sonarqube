@@ -41,8 +41,8 @@ public class ComputationStepRegistry implements ServerComponent {
     steps.add(pico.getComponentByType(SynchronizeProjectPermissionsStep.class));
     steps.add(pico.getComponentByType(SwitchSnapshotStep.class));
     steps.add(pico.getComponentByType(InvalidatePreviewCacheStep.class));
+    steps.add(pico.getComponentByType(ComponentIndexationInDatabaseStep.class));
     steps.add(pico.getComponentByType(DataCleanerStep.class));
-    steps.add(pico.getComponentByType(ProjectDatabaseIndexationStep.class));
     steps.add(pico.getComponentByType(IndexProjectIssuesStep.class));
 
     return ImmutableList.copyOf(steps);

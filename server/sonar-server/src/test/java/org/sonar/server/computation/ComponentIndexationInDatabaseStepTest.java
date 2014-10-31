@@ -29,15 +29,15 @@ import org.sonar.core.resource.ResourceIndexerDao;
 
 import static org.mockito.Mockito.*;
 
-public class ProjectDatabaseIndexationStepTest {
+public class ComponentIndexationInDatabaseStepTest {
 
-  private ProjectDatabaseIndexationStep sut;
+  private ComponentIndexationInDatabaseStep sut;
   private ResourceIndexerDao resourceIndexerDao;
 
   @Before
   public void before() {
     this.resourceIndexerDao = mock(ResourceIndexerDao.class);
-    this.sut = new ProjectDatabaseIndexationStep(resourceIndexerDao);
+    this.sut = new ComponentIndexationInDatabaseStep(resourceIndexerDao);
   }
 
   @Test

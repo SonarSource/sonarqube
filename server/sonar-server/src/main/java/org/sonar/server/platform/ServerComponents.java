@@ -598,7 +598,7 @@ class ServerComponents {
       IndexProjectIssuesStep.class,
       SwitchSnapshotStep.class,
       InvalidatePreviewCacheStep.class,
-      ProjectDatabaseIndexationStep.class,
+      ComponentIndexationInDatabaseStep.class,
       DataCleanerStep.class));
     pico.addSingleton(AnalysisReportQueue.class);
     pico.addSingleton(AnalysisReportTaskLauncher.class);
