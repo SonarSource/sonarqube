@@ -317,4 +317,20 @@ public final class SnapshotDto extends Dto<Long> {
   public Long getKey() {
     return id;
   }
+
+  @Override
+  public SnapshotDto setCreatedAt(Date datetime) {
+    super.setCreatedAt(datetime);
+    return this;
+  }
+
+  @Override
+  public SnapshotDto setUpdatedAt(Date datetime) {
+    super.setUpdatedAt(datetime);
+    return this;
+  }
+
+  public Long getRootIdOrSelf() {
+    return getRootId() == null ? getId() : getRootId();
+  }
 }

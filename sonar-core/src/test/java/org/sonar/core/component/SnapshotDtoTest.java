@@ -88,4 +88,21 @@ public class SnapshotDtoTest {
     assertThat(snapshotDto.getPeriodDate(5)).isEqualTo(DateUtils.parseDate("2014-06-05"));
   }
 
+  @Test
+  public void get_root_id_if_when_it_is_not_null() {
+    SnapshotDto snapshot = new SnapshotDto().setRootId(123L).setId(456L);
+
+    Long rootIdOrSelf = snapshot.getRootIdOrSelf();
+
+    assertThat(rootIdOrSelf).isEqualTo(123L);
+  }
+
+  @Test
+  public void getRootIdOrSelf_return_own_id_when_root_id_is_null() {
+    SnapshotDto snapshot = new SnapshotDto().setRootId(null).setId(456L);
+
+    Long rootIdOrSelf = snapshot.getRootIdOrSelf();
+
+    assertThat(rootIdOrSelf).isEqualTo(456L);
+  }
 }

@@ -20,7 +20,6 @@
 
 package org.sonar.server.component.db;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -31,6 +30,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.List;
 
@@ -69,7 +69,7 @@ public class SnapshotDao extends BaseDao<SnapshotMapper, SnapshotDto, Long> impl
   public int updateSnapshotAndChildrenLastFlagAndStatus(DbSession session, SnapshotDto snapshot, boolean isLast, String status) {
     Long rootId = snapshot.getId();
     String path = snapshot.getPath() + snapshot.getId() + ".%";
-    Long pathRootId = componentRootIdOrSelfIfRootOf(snapshot);
+    Long pathRootId = snapshot.getRootIdOrSelf();
 
     return mapper(session).updateSnapshotAndChildrenLastFlagAndStatus(rootId, pathRootId, path, isLast, status);
   }
@@ -77,13 +77,12 @@ public class SnapshotDao extends BaseDao<SnapshotMapper, SnapshotDto, Long> impl
   public int updateSnapshotAndChildrenLastFlag(DbSession session, SnapshotDto snapshot, boolean isLast) {
     Long rootId = snapshot.getId();
     String path = snapshot.getPath() + snapshot.getId() + ".%";
-    Long pathRootId = componentRootIdOrSelfIfRootOf(snapshot);
+    Long pathRootId = snapshot.getRootIdOrSelf();
 
     return mapper(session).updateSnapshotAndChildrenLastFlag(rootId, pathRootId, path, isLast);
   }
 
-  @VisibleForTesting
-  Long componentRootIdOrSelfIfRootOf(SnapshotDto snapshot) {
-    return snapshot.getRootId() == null ? snapshot.getId() : snapshot.getRootId();
+  public boolean isLast(SnapshotDto snapshotTested, @Nullable SnapshotDto previousLastSnapshot) {
+    return previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(snapshotTested.getCreatedAt());
   }
 }

@@ -70,7 +70,7 @@ public class SwitchSnapshotStep implements ComputationStep {
     SnapshotDto snapshot = dao.getByKey(session, report.getSnapshotId());
     SnapshotDto previousLastSnapshot = dao.getLastSnapshot(session, snapshot);
 
-    boolean isLast = previousLastSnapshot == null || previousLastSnapshot.getCreatedAt().before(snapshot.getCreatedAt());
+    boolean isLast = dao.isLast(snapshot, previousLastSnapshot);
     dao.updateSnapshotAndChildrenLastFlagAndStatus(session, snapshot, isLast, SnapshotDto.STATUS_PROCESSED);
     session.commit();
   }

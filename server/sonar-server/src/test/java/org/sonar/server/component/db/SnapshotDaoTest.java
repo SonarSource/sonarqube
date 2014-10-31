@@ -28,7 +28,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.component.SnapshotTesting;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -40,7 +42,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
   DbSession session;
 
-  SnapshotDao dao;
+  SnapshotDao sut;
 
   System2 system2;
 
@@ -48,7 +50,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void createDao() throws Exception {
     session = getMyBatis().openSession(false);
     system2 = mock(System2.class);
-    dao = new SnapshotDao(system2);
+    sut = new SnapshotDao(system2);
   }
 
   @After
@@ -60,7 +62,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void get_by_key() {
     setupData("shared");
 
-    SnapshotDto result = dao.getNullableByKey(session, 3L);
+    SnapshotDto result = sut.getNullableByKey(session, 3L);
     assertThat(result).isNotNull();
     assertThat(result.getId()).isEqualTo(3L);
     assertThat(result.getResourceId()).isEqualTo(3L);
@@ -95,7 +97,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     assertThat(result.getCreatedAt()).isEqualTo(DateUtils.parseDate("2008-12-02"));
     assertThat(result.getBuildDate()).isEqualTo(DateUtils.parseDate("2011-09-29"));
 
-    assertThat(dao.getNullableByKey(session, 999L)).isNull();
+    assertThat(sut.getNullableByKey(session, 999L)).isNull();
   }
 
   @Test
@@ -106,7 +108,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
     SnapshotDto dto = defaultSnapshot();
 
-    dao.insert(session, dto);
+    sut.insert(session, dto);
     session.commit();
 
     assertThat(dto.getId()).isNotNull();
@@ -117,7 +119,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void lastSnapshot_returns_null_when_no_last_snapshot() {
     setupData("empty");
 
-    SnapshotDto snapshot = dao.getLastSnapshot(session, defaultSnapshot());
+    SnapshotDto snapshot = sut.getLastSnapshot(session, defaultSnapshot());
 
     assertThat(snapshot).isNull();
   }
@@ -126,7 +128,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void lastSnapshot_from_one_resource() {
     setupData("snapshots");
 
-    SnapshotDto snapshot = dao.getLastSnapshot(session, defaultSnapshot().setResourceId(2L));
+    SnapshotDto snapshot = sut.getLastSnapshot(session, defaultSnapshot().setResourceId(2L));
 
     assertThat(snapshot).isNotNull();
     assertThat(snapshot.getId()).isEqualTo(4L);
@@ -136,7 +138,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void lastSnapshot_from_one_resource_without_last_is_null() {
     setupData("snapshots");
 
-    SnapshotDto snapshot = dao.getLastSnapshot(session, defaultSnapshot().setResourceId(5L));
+    SnapshotDto snapshot = sut.getLastSnapshot(session, defaultSnapshot().setResourceId(5L));
 
     assertThat(snapshot).isNull();
   }
@@ -145,7 +147,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void no_last_snapshot_older_than_another_one_in_a_empty_table() {
     setupData("empty");
 
-    SnapshotDto snapshot = dao.getLastSnapshotOlderThan(session, defaultSnapshot());
+    SnapshotDto snapshot = sut.getLastSnapshotOlderThan(session, defaultSnapshot());
 
     assertThat(snapshot).isNull();
   }
@@ -156,7 +158,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
     SnapshotDto referenceSnapshot = defaultSnapshot().setResourceId(1L);
     referenceSnapshot.setCreatedAt(DateUtils.parseDate("2008-12-03"));
-    SnapshotDto snapshot = dao.getLastSnapshotOlderThan(session, referenceSnapshot);
+    SnapshotDto snapshot = sut.getLastSnapshotOlderThan(session, referenceSnapshot);
 
     assertThat(snapshot).isNotNull();
     assertThat(snapshot.getId()).isEqualTo(1L);
@@ -168,7 +170,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
 
     SnapshotDto referenceSnapshot = defaultSnapshot().setResourceId(1L);
     referenceSnapshot.setCreatedAt(DateUtils.parseDate("2008-12-01"));
-    SnapshotDto snapshot = dao.getLastSnapshotOlderThan(session, referenceSnapshot);
+    SnapshotDto snapshot = sut.getLastSnapshotOlderThan(session, referenceSnapshot);
 
     assertThat(snapshot).isNull();
   }
@@ -177,7 +179,7 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
   public void snapshot_and_child_retrieved() {
     setupData("snapshots");
 
-    List<SnapshotDto> snapshots = dao.findSnapshotAndChildrenOfProjectScope(session, defaultSnapshot().setId(1L));
+    List<SnapshotDto> snapshots = sut.findSnapshotAndChildrenOfProjectScope(session, defaultSnapshot().setId(1L));
 
     assertThat(snapshots).isNotEmpty();
     assertThat(snapshots).onProperty("id").containsOnly(1L, 6L);
@@ -188,10 +190,10 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     setupData("snapshots");
     SnapshotDto snapshot = defaultSnapshot().setId(1L);
 
-    dao.updateSnapshotAndChildrenLastFlagAndStatus(session, snapshot, false, SnapshotDto.STATUS_PROCESSED);
+    sut.updateSnapshotAndChildrenLastFlagAndStatus(session, snapshot, false, SnapshotDto.STATUS_PROCESSED);
     session.commit();
 
-    List<SnapshotDto> snapshots = dao.findSnapshotAndChildrenOfProjectScope(session, snapshot);
+    List<SnapshotDto> snapshots = sut.findSnapshotAndChildrenOfProjectScope(session, snapshot);
     assertThat(snapshots).hasSize(2);
     assertThat(snapshots).onProperty("id").containsOnly(1L, 6L);
     assertThat(snapshots).onProperty("last").containsOnly(false);
@@ -203,21 +205,47 @@ public class SnapshotDaoTest extends AbstractDaoTestCase {
     setupData("snapshots");
     SnapshotDto snapshot = defaultSnapshot().setId(1L);
 
-    dao.updateSnapshotAndChildrenLastFlag(session, snapshot, false);
+    sut.updateSnapshotAndChildrenLastFlag(session, snapshot, false);
     session.commit();
 
-    List<SnapshotDto> snapshots = dao.findSnapshotAndChildrenOfProjectScope(session, snapshot);
+    List<SnapshotDto> snapshots = sut.findSnapshotAndChildrenOfProjectScope(session, snapshot);
     assertThat(snapshots).hasSize(2);
     assertThat(snapshots).onProperty("id").containsOnly(1L, 6L);
     assertThat(snapshots).onProperty("last").containsOnly(false);
   }
 
   @Test
-  public void root_id_of_a_component_is_himself_if_root_id_is_null_root_id_otherwise() {
-    SnapshotDto snapshotWithRootId = defaultSnapshot().setId(3L).setRootId(1L);
-    assertThat(dao.componentRootIdOrSelfIfRootOf(snapshotWithRootId)).isEqualTo(1L);
+  public void is_last_snapshot_when_no_previous_snapshot() {
+    SnapshotDto snapshot = SnapshotTesting.defaultSnapshot();
 
-    SnapshotDto snapshotWithNullRootId = defaultSnapshot().setId(3L).setRootId(null);
-    assertThat(dao.componentRootIdOrSelfIfRootOf(snapshotWithNullRootId)).isEqualTo(3L);
+    boolean isLast = sut.isLast(snapshot, null);
+
+    assertThat(isLast).isTrue();
+  }
+
+  @Test
+  public void is_last_snapshot_when_previous_snapshot_is_older() {
+    Date today = new Date();
+    Date yesterday = DateUtils.addDays(today, -1);
+
+    SnapshotDto snapshot = SnapshotTesting.defaultSnapshot().setCreatedAt(today);
+    SnapshotDto previousLastSnapshot = SnapshotTesting.defaultSnapshot().setCreatedAt(yesterday);
+
+    boolean isLast = sut.isLast(snapshot, previousLastSnapshot);
+
+    assertThat(isLast).isTrue();
+  }
+
+  @Test
+  public void is_not_last_snapshot_when_previous_snapshot_is_newer() {
+    Date today = new Date();
+    Date yesterday = DateUtils.addDays(today, -1);
+
+    SnapshotDto snapshot = SnapshotTesting.defaultSnapshot().setCreatedAt(yesterday);
+    SnapshotDto previousLastSnapshot = SnapshotTesting.defaultSnapshot().setCreatedAt(today);
+
+    boolean isLast = sut.isLast(snapshot, previousLastSnapshot);
+
+    assertThat(isLast).isFalse();
   }
 }

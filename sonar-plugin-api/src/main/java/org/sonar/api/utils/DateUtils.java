@@ -130,6 +130,10 @@ public final class DateUtils {
     return datetime;
   }
 
+  public static Date addDays(Date date, int numberOfDays) {
+    return org.apache.commons.lang.time.DateUtils.addDays(date, numberOfDays);
+  }
+
   static class ThreadSafeDateFormat extends DateFormat {
     private final String format;
     private final ThreadLocal<Reference<DateFormat>> cache = new ThreadLocal<Reference<DateFormat>>() {
