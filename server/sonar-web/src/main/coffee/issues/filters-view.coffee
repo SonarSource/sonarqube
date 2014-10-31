@@ -16,11 +16,11 @@ define [
     events:
       'click .js-issues-toggle-filters': 'toggleFilters'
       'click .js-issues-filter': 'applyFilter'
-      'click .js-issues-new-search': 'newSearch'
-      'click .js-issues-save-as': 'saveAs'
-      'click .js-issues-save': 'save'
-      'click .js-issues-copy': 'copy'
-      'click .js-issues-edit': 'edit'
+      'click #issues-new-search': 'newSearch'
+      'click #issues-filter-save-as': 'saveAs'
+      'click #issues-filter-save': 'save'
+      'click #issues-filter-copy': 'copy'
+      'click #issues-filter-edit': 'edit'
 
 
     initialize: (options) ->
@@ -32,6 +32,10 @@ define [
         @options.app.controller.fetchFilters().done =>
           filter = @collection.get id
           filter.fetch().done => @options.app.controller.applyFilter filter
+
+
+    onRender: ->
+      @$el.toggleClass 'issues-filters-selected', @options.app.state.has('filter')
 
 
     toggleFilters: ->
@@ -75,3 +79,4 @@ define [
       _.extend super,
         state: @options.app.state.toJSON()
         filter: @options.app.state.get('filter')?.toJSON()
+        currentUser: window.SS.user

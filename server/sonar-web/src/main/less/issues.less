@@ -38,9 +38,7 @@
   width: @sideWidth;
   top: 30px; left: 0; bottom: 0;
   .box-sizing(border-box);
-  border-right: 1px solid @barBorderColor;
   background-color: @barBorderColor;
-  color: #fff;
   overflow-x: hidden;
 }
 
@@ -142,11 +140,21 @@
 
 .issues-filters {
   .clearfix;
-  padding: 8px 10px;
+  padding: 5px 10px;
   background-color: @barBackgroundColor;
-  color: @secondFontColor;
-  font-size: @smallFontSize;
-  font-weight: 300;
+}
+
+.issues-filters-selected {
+  margin-bottom: 5px;
+
+  .issues-filters-header {
+    float: none;
+  }
+
+  .issues-filters-actions {
+    float: none;
+    margin-top: 5px;
+  }
 }
 
 .issues-filters-list {
@@ -160,32 +168,30 @@
 }
 
 .issues-filters-header {
+  float: left;
+  line-height: 22px;
+}
+
+.issues-filters-name {
+  vertical-align: top;
+  font-size: @bigFontSize;
+}
+
+.issues-filters-description {
+  margin: 4px 0;
   font-size: @smallFontSize;
-  font-weight: 300;
+  font-style: italic;
 }
 
-.issues-filters-header-filters {
-  display: inline-block;
-  max-width: 50%;
-  .text-ellipsis;
+.issues-filters-show-list {
+  margin-right: 4px;
+  border-bottom: none;
+  color: @baseFontColor;
+  font-size: @iconSmallFontSize;
 }
 
-.issues-filters-header-actions {
+.issues-filters-actions {
   float: right;
-}
-
-.issues-filters-button {
-  border-bottom-color: @secondFontColor;
-  color: @secondFontColor;
-  font-size: @smallFontSize;
-  font-weight: 300;
-  .trans(color);
-
-  &:hover, &:active {
-    color: #fff;
-  }
-
-  &:focus {}
 }
 
 .issues-workspace {
@@ -196,9 +202,8 @@
   .clearfix;
   margin-bottom: 10px;
   padding: 5px 0;
-  border: 1px solid @barBorderColor;
-  border-left: none;
-  background: @barBackgroundColor;
+  line-height: 22px;
+  background-color: @barBackgroundColor;
   font-size: @smallFontSize;
 }
 

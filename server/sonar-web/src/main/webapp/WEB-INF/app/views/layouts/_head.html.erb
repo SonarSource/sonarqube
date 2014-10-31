@@ -26,6 +26,7 @@
     <%# The two lines below mean that before full removal of Rails, we have to find a way to handle config properties %>
     window.SS = typeof window.SS === 'object' ? window.SS : {};
     window.SS.hoursInDay = <%= configuration('sonar.technicalDebt.hoursInDay', 8) %>;
+    window.SS.user = '<%= current_user.login if current_user -%>';
   </script>
   <script src="<%= ApplicationController.root_context -%>/js/sonar.js"></script>
   <script>

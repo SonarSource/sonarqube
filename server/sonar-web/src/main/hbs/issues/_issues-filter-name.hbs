@@ -1,0 +1,18 @@
+{{#if filter.name}}
+  {{filter.name}}
+  <span class="subtitle nowrap">
+    {{#unless filter.shared}}
+      [{{t 'issue_filter.private'}}]
+    {{else}}
+      {{#eq filter.user currentUser}}
+        [{{t 'issue_filter.shared_with_all_users'}}]
+      {{else}}
+        {{#if filter.user}}
+          [{{t 'issue_filter.shared'}}]
+        {{/if}}
+      {{/eq}}
+    {{/unless}}
+  </span>
+{{else}}
+  {{t 'issues'}}
+{{/if}}
