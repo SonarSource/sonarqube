@@ -37,7 +37,7 @@ define [
         when 'statuses' then StatusFacet
         when 'assignees' then AssigneeFacet
         when 'resolutions' then ResolutionFacet
-        when 'created' then CreationDateFacet
+        when 'creationDate' then CreationDateFacet
         when 'componentRootUuids' then ProjectFacet
         when 'rules' then RuleFacet
         when 'actionPlans' then ActionPlanFacet
