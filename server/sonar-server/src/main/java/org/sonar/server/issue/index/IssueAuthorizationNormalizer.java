@@ -44,12 +44,11 @@ public class IssueAuthorizationNormalizer extends BaseNormalizer<IssueAuthorizat
   public static final class IssueAuthorizationField extends Indexable {
 
     public static final IndexField PROJECT = add(IndexField.Type.STRING, "project");
-    public static final IndexField PERMISSION = add(IndexField.Type.STRING, "permission");
     public static final IndexField GROUPS = add(IndexField.Type.STRING, "groups");
     public static final IndexField USERS = add(IndexField.Type.STRING, "users");
     public static final IndexField UPDATED_AT = add(IndexField.Type.DATE, BaseNormalizer.UPDATED_AT_FIELD);
 
-    public static final Set<IndexField> ALL_FIELDS = ImmutableSet.of(PROJECT, PERMISSION, GROUPS, USERS, UPDATED_AT);
+    public static final Set<IndexField> ALL_FIELDS = ImmutableSet.of(PROJECT, GROUPS, USERS, UPDATED_AT);
   }
 
   @Override
@@ -59,7 +58,6 @@ public class IssueAuthorizationNormalizer extends BaseNormalizer<IssueAuthorizat
     Preconditions.checkNotNull(dto.getProjectUuid(), "Project uuid is null");
 
     update.put(IssueAuthorizationField.PROJECT.field(), dto.getProjectUuid());
-    update.put(IssueAuthorizationField.PERMISSION.field(), dto.getPermission());
     update.put(IssueAuthorizationField.USERS.field(), dto.getUsers());
     update.put(IssueAuthorizationField.GROUPS.field(), dto.getGroups());
     update.put(IssueAuthorizationField.UPDATED_AT.field(), dto.getUpdatedAt());

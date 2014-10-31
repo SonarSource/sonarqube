@@ -48,15 +48,6 @@ public final class IssueAuthorizationDto extends Dto<String> implements Serializ
     return this;
   }
 
-  public String getPermission() {
-    return permission;
-  }
-
-  public IssueAuthorizationDto setPermission(String permission) {
-    this.permission = permission;
-    return this;
-  }
-
   public List<String> getGroups() {
     return groups;
   }

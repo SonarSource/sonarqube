@@ -97,7 +97,6 @@ public class InternalPermissionServiceMediumTest {
     IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.uuid());
     assertThat(issueAuthorizationDoc).isNotNull();
     assertThat(issueAuthorizationDoc.project()).isEqualTo(project.uuid());
-    assertThat(issueAuthorizationDoc.permission()).isEqualTo(UserRole.USER);
     assertThat(issueAuthorizationDoc.users()).containsExactly(user.getLogin());
     assertThat(issueAuthorizationDoc.groups()).isEmpty();
   }
@@ -126,7 +125,6 @@ public class InternalPermissionServiceMediumTest {
     IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.uuid());
     assertThat(issueAuthorizationDoc).isNotNull();
     assertThat(issueAuthorizationDoc.project()).isEqualTo(project.uuid());
-    assertThat(issueAuthorizationDoc.permission()).isEqualTo(UserRole.USER);
     assertThat(issueAuthorizationDoc.users()).containsExactly(user2.getLogin());
     assertThat(issueAuthorizationDoc.groups()).isEmpty();
   }

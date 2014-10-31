@@ -71,8 +71,7 @@ public class IssueAuthorizationDao extends BaseDao<IssueAuthorizationMapper, Iss
         IssueAuthorizationDto issueAuthorizationDto = authorizationDtoMap.get(project);
         if (issueAuthorizationDto == null) {
           issueAuthorizationDto = new IssueAuthorizationDto()
-            .setProjectUuid(project)
-            .setPermission(UserRole.USER);
+            .setProjectUuid(project);
           issueAuthorizationDto.setUpdatedAt(updatedAt);
         }
         if (group != null) {

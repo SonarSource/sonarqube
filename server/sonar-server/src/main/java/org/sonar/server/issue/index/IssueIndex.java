@@ -40,7 +40,6 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
@@ -312,7 +311,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       QueryBuilders.filteredQuery(
         QueryBuilders.matchAllQuery(),
         FilterBuilders.boolFilter()
-          .must(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.PERMISSION.field(), UserRole.USER), groupsAndUser)
+          .must(groupsAndUser)
           .cache(true))
       );
   }

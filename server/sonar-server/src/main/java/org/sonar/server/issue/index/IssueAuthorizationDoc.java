@@ -37,10 +37,6 @@ public class IssueAuthorizationDoc extends BaseDoc {
     return getField(IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field());
   }
 
-  public String permission() {
-    return getField(IssueAuthorizationNormalizer.IssueAuthorizationField.PERMISSION.field());
-  }
-
   public List<String> groups() {
     return (List<String>) getField(IssueAuthorizationNormalizer.IssueAuthorizationField.GROUPS.field());
   }

@@ -91,7 +91,6 @@ public class IssueAuthorizationIndexMediumTest {
     IssueAuthorizationDoc issueAuthorizationDoc = index.getByKey(project.uuid());
     assertThat(issueAuthorizationDoc).isNotNull();
     assertThat(issueAuthorizationDoc.project()).isEqualTo("ABCD");
-    assertThat(issueAuthorizationDoc.permission()).isEqualTo("user");
     assertThat(issueAuthorizationDoc.groups()).containsExactly("devs");
     assertThat(issueAuthorizationDoc.users()).containsExactly("john");
     assertThat(issueAuthorizationDoc.updatedAt()).isNotNull();
@@ -146,7 +145,6 @@ public class IssueAuthorizationIndexMediumTest {
     IssueAuthorizationDoc issueAuthorizationDoc = index.getByKey(project.uuid());
     assertThat(issueAuthorizationDoc).isNotNull();
     assertThat(issueAuthorizationDoc.project()).isEqualTo("ABCD");
-    assertThat(issueAuthorizationDoc.permission()).isEqualTo("user");
     assertThat(issueAuthorizationDoc.groups()).containsExactly("devs");
     assertThat(issueAuthorizationDoc.users()).containsExactly("john");
     assertThat(issueAuthorizationDoc.updatedAt()).isNotNull();
