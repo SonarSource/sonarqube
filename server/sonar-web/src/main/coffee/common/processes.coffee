@@ -27,7 +27,7 @@ _.extend process,
     spinner = $ '<div></div>'
     spinner.addClass 'process-spinner'
     spinner.prop 'id', id
-    spinner.text 'still working... ' + uid
+    spinner.text t 'process.still_working'
     spinner.appendTo $('body')
     setTimeout (-> spinner.addClass 'shown'), 100
 
