@@ -146,10 +146,7 @@ public class SearchActionMediumTest {
     db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
 
     IssueDto issue = IssueTesting.newDto(rule, file, project)
-      .setRule(rule)
       .setDebt(10L)
-      .setProject(project)
-      .setComponent(file)
       .setStatus("OPEN").setResolution("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR")
@@ -165,6 +162,45 @@ public class SearchActionMediumTest {
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
     // TODO date assertion is complex to test, and components id are not predictable, that's why strict boolean is set to false
     result.assertJson(this.getClass(), "issue.json", false);
+  }
+
+  @Test
+  public void issues_on_different_projects() throws Exception {
+    db.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
+
+    IssueDto issue = IssueTesting.newDto(rule, file, project)
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setStatus("OPEN").setResolution("OPEN")
+      .setSeverity("MAJOR")
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
+    db.issueDao().insert(session, issue);
+
+    ComponentDto project2 = ComponentTesting.newProjectDto().setUuid("DBCA").setProjectUuid("DBCA")
+      .setKey("MyProject2");
+    db.componentDao().insert(session, project2);
+    db.snapshotDao().insert(session, SnapshotTesting.createForProject(project2));
+    tester.get(PermissionFacade.class).insertGroupPermission(project2.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
+    tester.get(PermissionFacade.class).insertGroupPermission(project2.getId(), DefaultGroups.ANYONE, UserRole.CODEVIEWER, session);
+    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+
+    ComponentDto file2 = ComponentTesting.newFileDto(project2).setUuid("EDCB")
+      .setKey("MyComponent2")
+      .setSubProjectId(project2.getId());
+    db.componentDao().insert(session, file2);
+
+    IssueDto issue2 = IssueTesting.newDto(rule, file2, project2)
+      .setKee("92fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setStatus("OPEN").setResolution("OPEN")
+      .setSeverity("MAJOR")
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"));
+    db.issueDao().insert(session, issue2);
+
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).execute();
+    result.assertJson(this.getClass(), "issues_on_different_projects.json", false);
   }
 
   @Test
@@ -266,8 +302,6 @@ public class SearchActionMediumTest {
 
     IssueDto issue = IssueTesting.newDto(rule, removedFile, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
-      .setRule(rule)
-      .setProject(project)
       .setComponent(removedFile)
       .setStatus("OPEN").setResolution("OPEN")
       .setSeverity("MAJOR")
@@ -335,10 +369,7 @@ public class SearchActionMediumTest {
     IssueDto issue = IssueTesting.newDto(rule, file, project)
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
       .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
-      .setRule(rule)
       .setDebt(10L)
-      .setProject(project)
-      .setComponent(file)
       .setStatus("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR");
@@ -357,10 +388,7 @@ public class SearchActionMediumTest {
     IssueDto issue = IssueTesting.newDto(rule, file, project)
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
       .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
-      .setRule(rule)
       .setDebt(10L)
-      .setProject(project)
-      .setComponent(file)
       .setStatus("OPEN")
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setSeverity("MAJOR");
