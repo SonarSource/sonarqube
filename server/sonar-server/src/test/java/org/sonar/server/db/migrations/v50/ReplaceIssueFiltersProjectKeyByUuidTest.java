@@ -47,11 +47,20 @@ public class ReplaceIssueFiltersProjectKeyByUuidTest {
 
   @Test
   public void execute() throws Exception {
-    db.prepareDbUnit(getClass(), "before.xml");
+    db.prepareDbUnit(getClass(), "execute.xml");
 
     migration.execute();
 
-    db.assertDbUnit(getClass(), "after.xml", "issue_filters");
+    db.assertDbUnit(getClass(), "execute-result.xml", "issue_filters");
+  }
+
+  @Test
+  public void not_migrate_already_migrated_data() throws Exception {
+    db.prepareDbUnit(getClass(), "not_migrate_already_migrated_data.xml");
+
+    migration.execute();
+
+    db.assertDbUnit(getClass(), "not_migrate_already_migrated_data-result.xml", "issue_filters");
   }
 
 }

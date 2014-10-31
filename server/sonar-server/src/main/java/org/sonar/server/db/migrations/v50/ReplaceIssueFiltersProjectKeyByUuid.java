@@ -27,6 +27,8 @@ import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
+import javax.annotation.Nullable;
+
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -51,14 +53,14 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
     final Date now = new Date(system.now());
 
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT f.id, f.data FROM issue_filters f");
+    massUpdate.select("SELECT f.id, f.data FROM issue_filters f WHERE f.data like '%componentRoots=%'");
     massUpdate.update("UPDATE issue_filters SET data=?, updated_at=? WHERE id=?");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
         Long id = row.getLong(1);
         String data = row.getString(2);
-        if (!data.contains(OLD_COMPONENT_ROOTS_FIELDS)) {
+        if (data == null) {
           return false;
         }
         update.setString(1, convertData(context, data));
@@ -76,11 +78,7 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
       String field = fields[i];
       if (field.contains(OLD_COMPONENT_ROOTS_FIELDS)) {
         String[] componentRootValues = field.split("=");
-        if (componentRootValues.length == 2) {
-          newFields.append(convertField(context, componentRootValues[1]));
-        } else {
-          newFields.append(NEW_COMPONENT_ROOTS_FIELDS + "=");
-        }
+        append(context, newFields, componentRootValues.length == 2 ? componentRootValues[1] : null);
       } else {
         newFields.append(field);
       }
@@ -91,9 +89,13 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
     return newFields.toString();
   }
 
-  private String convertField(Context context, String projectKey) throws SQLException {
-    String projectUuid = context.prepareSelect("SELECT p.uuid FROM projects p WHERE p.kee=?").setString(1, projectKey).get(Select.STRING_READER);
-    return NEW_COMPONENT_ROOTS_FIELDS + "=" + projectUuid;
+  private void append(Context context, StringBuilder newFields, @Nullable String projectKey) throws SQLException {
+    if (projectKey != null) {
+      String projectUuid = context.prepareSelect("SELECT p.uuid FROM projects p WHERE p.kee=?").setString(1, projectKey).get(Select.STRING_READER);
+      if (projectUuid != null) {
+        newFields.append(NEW_COMPONENT_ROOTS_FIELDS + "=" + projectUuid);
+      }
+    }
   }
 
 }
