@@ -70,6 +70,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     sortColumns.put(IssueQuery.SORT_BY_FILE_LINE, IssueNormalizer.IssueField.PROJECT);
     sortColumns.put(IssueQuery.SORT_BY_FILE_LINE, IssueNormalizer.IssueField.FILE_PATH);
     sortColumns.put(IssueQuery.SORT_BY_FILE_LINE, IssueNormalizer.IssueField.LINE);
+    sortColumns.put(IssueQuery.SORT_BY_FILE_LINE, IssueNormalizer.IssueField.KEY);
   }
 
   @Override
