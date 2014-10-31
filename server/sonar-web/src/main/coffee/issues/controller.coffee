@@ -15,7 +15,7 @@ define [
   PAGE_SIZE = 50
   ALL_FACETS = ['severities', 'statuses', 'resolutions', 'componentRootUuids', 'assignees', 'reporters', 'rules',
                 'languages', 'actionPlans', 'componentUuids', 'creationDate']
-  FACET_DATA_FIELDS = ['components', 'projects', 'users', 'rules', 'actionPlans']
+  FACET_DATA_FIELDS = ['components', 'projects', 'users', 'rules', 'actionPlans', 'languages']
   FACETS_FROM_SERVER = ['severities', 'statuses', 'resolutions', 'actionPlans', 'componentRootUuids', 'rules',
                         'assignees', 'reporters', 'componentUuids', 'languages']
 
