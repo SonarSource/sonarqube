@@ -31,6 +31,7 @@ define [
 
     events:
       'click .js-close-component-viewer': 'closeComponentViewer'
+      'click .sym': 'highlightUsages'
 
 
     initialize: (options) ->
@@ -215,6 +216,13 @@ define [
 
     closeComponentViewer: ->
       @options.app.controller.closeComponentViewer()
+
+
+    highlightUsages: (e) ->
+      highlighted = $(e.currentTarget).is '.highlighted'
+      key = e.currentTarget.className.split(/\s+/)[0]
+      @$('.sym.highlighted').removeClass 'highlighted'
+      @$(".sym.#{key}").addClass 'highlighted' unless highlighted
 
 
     serializeData: ->
