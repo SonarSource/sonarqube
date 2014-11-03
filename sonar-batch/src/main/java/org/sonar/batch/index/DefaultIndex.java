@@ -475,14 +475,6 @@ public class DefaultIndex extends SonarIndex {
   }
 
   @Override
-  public void setSource(Resource reference, String source) {
-    Bucket bucket = getBucket(reference);
-    if (bucket != null) {
-      persistence.setSource(reference, source);
-    }
-  }
-
-  @Override
   public String getSource(Resource resource) {
     return persistence.getSource(resource);
   }

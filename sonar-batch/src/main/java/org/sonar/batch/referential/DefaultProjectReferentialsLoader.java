@@ -42,10 +42,13 @@ import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotDataDto;
 
+import javax.annotation.CheckForNull;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -102,6 +105,7 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
         ref.addFileData(module.getKeyWithBranch(), path, new FileData(hash, lastCommits, revisions, authors));
       }
     }
+    ref.setLastAnalysisDate(lastSnapshotCreationDate(projectKey));
     return ref;
   }
 
@@ -153,5 +157,34 @@ public class DefaultProjectReferentialsLoader implements ProjectReferentialsLoad
       jpaQuery.setParameter(entry.getKey(), entry.getValue());
     }
     return jpaQuery.getResultList();
+  }
+
+  @CheckForNull
+  Date lastSnapshotCreationDate(String resourceKey) {
+    StringBuilder sb = new StringBuilder();
+    Map<String, Object> params = Maps.newHashMap();
+
+    sb.append("SELECT s.buildDate");
+    sb.append(" FROM ")
+      .append(ResourceModel.class.getSimpleName())
+      .append(" r, ")
+      .append(Snapshot.class.getSimpleName())
+      .append(" s WHERE s.resourceId=r.id AND r.key=:kee AND s.status=:status AND s.qualifier<>:lib");
+    params.put("kee", resourceKey);
+    params.put("status", Snapshot.STATUS_PROCESSED);
+    params.put("lib", Qualifiers.LIBRARY);
+
+    sb.append(" AND s.last=true ");
+
+    Query jpaQuery = session.createQuery(sb.toString());
+
+    for (Map.Entry<String, Object> entry : params.entrySet()) {
+      jpaQuery.setParameter(entry.getKey(), entry.getValue());
+    }
+    try {
+      return (Date) jpaQuery.getSingleResult();
+    } catch (NoResultException e) {
+      return null;
+    }
   }
 }

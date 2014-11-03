@@ -19,20 +19,17 @@
  */
 package org.sonar.batch.index;
 
-import com.google.common.collect.Sets;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.DuplicatedSourceException;
 import org.sonar.api.resources.Resource;
 import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.core.source.db.SnapshotSourceDto;
 
 import javax.annotation.CheckForNull;
 
-import java.util.Set;
+import java.util.Date;
 
-public final class SourcePersister {
+public class SourcePersister {
 
-  private Set<Integer> savedSnapshotIds = Sets.newHashSet();
   private ResourcePersister resourcePersister;
   private final SnapshotSourceDao sourceDao;
 
@@ -41,16 +38,13 @@ public final class SourcePersister {
     this.sourceDao = sourceDao;
   }
 
-  public void saveSource(Resource resource, String source) {
+  public void saveSource(Resource resource, String source, Date updatedAt) {
     Snapshot snapshot = resourcePersister.getSnapshotOrFail(resource);
-    if (isCached(snapshot)) {
-      throw new DuplicatedSourceException(resource);
-    }
     SnapshotSourceDto dto = new SnapshotSourceDto();
     dto.setSnapshotId(snapshot.getId().longValue());
     dto.setData(source);
+    dto.setUpdatedAt(updatedAt);
     sourceDao.insert(dto);
-    addToCache(snapshot);
   }
 
   @CheckForNull
@@ -60,17 +54,5 @@ public final class SourcePersister {
       return sourceDao.selectSnapshotSource(snapshot.getId());
     }
     return null;
-  }
-
-  private boolean isCached(Snapshot snapshot) {
-    return savedSnapshotIds.contains(snapshot.getId());
-  }
-
-  private void addToCache(Snapshot snapshot) {
-    savedSnapshotIds.add(snapshot.getId());
-  }
-
-  public void clear() {
-    savedSnapshotIds.clear();
   }
 }

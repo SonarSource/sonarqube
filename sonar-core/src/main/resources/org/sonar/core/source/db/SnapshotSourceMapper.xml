@@ -19,7 +19,8 @@
   </select>
 
   <insert id="insert" parameterType="org.sonar.core.source.db.SnapshotSourceDto" useGeneratedKeys="false">
-    insert into snapshot_sources (snapshot_id, data) values (#{snapshotId}, #{data})
+    insert into snapshot_sources (snapshot_id, data, updated_at) 
+    values (#{snapshotId}, #{data}, #{updatedAt})
   </insert>
 
 </mapper>

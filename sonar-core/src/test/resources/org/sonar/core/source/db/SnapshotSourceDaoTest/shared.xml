@@ -5,6 +5,6 @@
     <snapshots id="10" project_id="1" islast="[false]" />
     <snapshots id="11" project_id="1" islast="[true]" />
 
-    <snapshot_sources id="101" snapshot_id="11" data="public class Foo {public Foo(){}}" />
+    <snapshot_sources id="101" snapshot_id="11" data="public class Foo {public Foo(){}}" updated_at="2014-10-30 16:44:02.000" />
 
 </dataset>

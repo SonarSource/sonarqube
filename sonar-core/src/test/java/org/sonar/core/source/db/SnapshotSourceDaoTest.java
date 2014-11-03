@@ -22,6 +22,7 @@ package org.sonar.core.source.db;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -52,7 +53,7 @@ public class SnapshotSourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void insert() throws Exception {
-    dao.insert(new SnapshotSourceDto().setId(102L).setData("bar").setSnapshotId(11L));
+    dao.insert(new SnapshotSourceDto().setId(102L).setData("bar").setSnapshotId(11L).setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100")));
 
     checkTable("insert", "snapshot_sources");
   }

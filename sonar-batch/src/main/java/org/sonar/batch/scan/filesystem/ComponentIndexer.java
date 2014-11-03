@@ -26,6 +26,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Languages;
@@ -33,7 +34,12 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourceKeyMigration;
+import org.sonar.batch.index.SnapshotCache;
+import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 import org.sonar.batch.util.DeprecatedKeyUtils;
+
+import java.util.Date;
 
 /**
  * Index all files/directories of the module in SQ database and importing source code.
@@ -46,12 +52,19 @@ public class ComponentIndexer implements BatchComponent {
   private final SonarIndex sonarIndex;
   private final ResourceKeyMigration migration;
   private final Project module;
+  private final SourcePersister sourcePersister;
+  private final ProjectReferentials projectReferentials;
+  private final Date projectAnalysisDate;
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceKeyMigration migration) {
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, ResourceKeyMigration migration, SourcePersister sourcePersister,
+    ProjectReferentials projectReferentials, SnapshotCache snapshotCache) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
     this.migration = migration;
+    this.sourcePersister = sourcePersister;
+    this.projectReferentials = projectReferentials;
+    this.projectAnalysisDate = snapshotCache.get(module.getEffectiveKey()).getBuildDate();
   }
 
   public void execute(FileSystem fs) {
@@ -80,12 +93,16 @@ public class ComponentIndexer implements BatchComponent {
   void importSources(FileSystem fs, InputFile inputFile, Resource sonarFile) {
     try {
       // TODO this part deserves optimization.
-      // No need to read full content in memory when shouldImportSource=false
       // We should try to remove BOM and count lines in a single pass
       String source = Files.toString(inputFile.file(), fs.encoding());
       // SONAR-3860 Remove BOM character from source
       source = CharMatcher.anyOf("\uFEFF").removeFrom(source);
-      sonarIndex.setSource(sonarFile, source);
+      if (inputFile.status() == Status.SAME) {
+        sourcePersister.saveSource(sonarFile, source, projectReferentials.lastAnalysisDate());
+      } else {
+        sourcePersister.saveSource(sonarFile, source, this.projectAnalysisDate);
+      }
+
     } catch (Exception e) {
       throw new SonarException("Unable to read and import the source file : '" + inputFile.absolutePath() + "' with the charset : '"
         + fs.encoding() + "'.", e);

@@ -94,19 +94,8 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
   public abstract Collection<Resource> getChildren(Resource reference);
 
   /**
-   * Save the source code of a file. The file must be have been indexed before.
-   * Note: the source stream is not closed.
-   *
-   * @throws org.sonar.api.resources.DuplicatedSourceException
-   *          if the source has already been set on this resource
-   * @deprecated since 4.2 should not be used by plugins
-   */
-  @Deprecated
-  public abstract void setSource(Resource reference, String source);
-
-  /**
    * @return source code associated with a specified resource, <code>null</code> if not available 
-   * (for example when sonar.importSources=false)
+   * (for example if resource is not a file)
    * @since 2.9
    */
   @CheckForNull

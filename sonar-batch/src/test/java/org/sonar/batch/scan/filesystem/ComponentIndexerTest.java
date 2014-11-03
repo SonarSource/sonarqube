@@ -33,6 +33,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
+import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
@@ -40,10 +41,14 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.ResourceKeyMigration;
+import org.sonar.batch.index.SnapshotCache;
+import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.protocol.input.ProjectReferentials;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Date;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -62,12 +67,14 @@ public class ComponentIndexerTest {
 
   String aClaess;
   String explicacao;
+  private SourcePersister sourcePersister;
 
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     sonarIndex = mock(SonarIndex.class);
-    project = mock(Project.class);
+    sourcePersister = mock(SourcePersister.class);
+    project = new Project("myProject");
     cobolLanguage = new AbstractLanguage("cobol") {
       @Override
       public String[] getFileSuffixes() {
@@ -85,7 +92,7 @@ public class ComponentIndexerTest {
     fs.add(newInputFile("src/main/java2/foo/bar/Foo.java", "", "foo/bar/Foo.java", "java", false));
     fs.add(newInputFile("src/test/java/foo/bar/FooTest.java", "", "foo/bar/FooTest.java", "java", true));
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, mock(ResourceKeyMigration.class));
+    ComponentIndexer indexer = createIndexer(languages);
     indexer.execute(fs);
 
     verify(sonarIndex).index(org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false));
@@ -101,6 +108,14 @@ public class ComponentIndexerTest {
     }));
   }
 
+  private ComponentIndexer createIndexer(Languages languages) {
+    SnapshotCache snapshotCache = new SnapshotCache();
+    snapshotCache.put("myProject", mock(Snapshot.class));
+    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, mock(ResourceKeyMigration.class), sourcePersister, new ProjectReferentials(),
+      snapshotCache);
+    return indexer;
+  }
+
   @Test
   public void should_index_cobol_files() throws IOException {
     fs.add(newInputFile("src/foo/bar/Foo.cbl", "", "foo/bar/Foo.cbl", "cobol", false));
@@ -108,7 +123,7 @@ public class ComponentIndexerTest {
     fs.add(newInputFile("src/test/foo/bar/FooTest.cbl", "", "foo/bar/FooTest.cbl", "cobol", true));
 
     Languages languages = new Languages(cobolLanguage);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, mock(ResourceKeyMigration.class));
+    ComponentIndexer indexer = createIndexer(languages);
     indexer.execute(fs);
 
     verify(sonarIndex).index(org.sonar.api.resources.File.create("/src/foo/bar/Foo.cbl", "foo/bar/Foo.cbl", cobolLanguage, false));
@@ -120,12 +135,12 @@ public class ComponentIndexerTest {
   public void shouldImportSource() throws IOException {
     fs.add(newInputFile("src/main/java/foo/bar/Foo.java", "sample code", "foo/bar/Foo.java", "java", false));
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, mock(ResourceKeyMigration.class));
+    ComponentIndexer indexer = createIndexer(languages);
     indexer.execute(fs);
 
     Resource sonarFile = org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false);
     verify(sonarIndex).index(sonarFile);
-    verify(sonarIndex).setSource(sonarFile, "sample code");
+    verify(sourcePersister).saveSource(sonarFile, "sample code", null);
   }
 
   @Test
@@ -158,18 +173,18 @@ public class ComponentIndexerTest {
       .setFile(javaFile1)
       .setLanguage("java"));
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, mock(ResourceKeyMigration.class));
+    ComponentIndexer indexer = createIndexer(languages);
     indexer.execute(fs);
 
     Resource sonarFile = org.sonar.api.resources.File.create("src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false);
 
-    verify(sonarIndex).setSource(eq(sonarFile), argThat(new ArgumentMatcher<String>() {
+    verify(sourcePersister).saveSource(eq(sonarFile), argThat(new ArgumentMatcher<String>() {
       @Override
       public boolean matches(Object arg0) {
         String source = (String) arg0;
         return !source.contains("\uFEFF");
       }
-    }));
+    }), (Date) eq(null));
   }
 
   private void fileEncodingTest(String encoding, String testFile) throws Exception {
@@ -182,18 +197,18 @@ public class ComponentIndexerTest {
       .setFile(javaFile1)
       .setLanguage("java"));
     Languages languages = new Languages(Java.INSTANCE);
-    ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, mock(ResourceKeyMigration.class));
+    ComponentIndexer indexer = createIndexer(languages);
     indexer.execute(fs);
 
     Resource sonarFile = org.sonar.api.resources.File.create("/src/main/java/foo/bar/Foo.java", "foo/bar/Foo.java", Java.INSTANCE, false);
 
-    verify(sonarIndex).setSource(eq(sonarFile), argThat(new ArgumentMatcher<String>() {
+    verify(sourcePersister).saveSource(eq(sonarFile), argThat(new ArgumentMatcher<String>() {
       @Override
       public boolean matches(Object arg0) {
         String source = (String) arg0;
         return source.contains(aClaess) && source.contains(explicacao);
       }
-    }));
+    }), (Date) eq(null));
   }
 
   private File getFile(String testFile) {

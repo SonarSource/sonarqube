@@ -5,8 +5,8 @@
   <snapshots id="10" project_id="1" islast="[false]"/>
   <snapshots id="11" project_id="1" islast="[true]"/>
 
-  <snapshot_sources id="101" snapshot_id="11" data="public class Foo {public Foo(){}}" updated_at="[null]"/>
+  <snapshot_sources id="101" snapshot_id="11" data="public class Foo {public Foo(){}}" updated_at="2014-10-30 16:44:02.000"/>
 
-  <snapshot_sources id="102" snapshot_id="11" data="bar" updated_at="[null]"/>
+  <snapshot_sources id="102" snapshot_id="11" data="bar" updated_at="2014-10-31 16:44:02.000"/>
 
 </dataset>

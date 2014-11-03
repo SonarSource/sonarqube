@@ -22,9 +22,9 @@ package org.sonar.batch.index;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.DuplicatedSourceException;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.source.db.SnapshotSourceDao;
 
@@ -48,14 +48,8 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
 
   @Test
   public void shouldSaveSource() {
-    sourcePersister.saveSource(new File("org/foo/Bar.java"), "this is the file content");
+    sourcePersister.saveSource(new File("org/foo/Bar.java"), "this is the file content", DateUtils.parseDateTime("2014-10-31T16:44:02+0100"));
     checkTables("shouldSaveSource", "snapshot_sources");
   }
 
-  @Test(expected = DuplicatedSourceException.class)
-  public void shouldFailIfSourceSavedSeveralTimes() {
-    File file = new File("org/foo/Bar.java");
-    sourcePersister.saveSource(file, "this is the file content");
-    sourcePersister.saveSource(file, "new content"); // fail
-  }
 }

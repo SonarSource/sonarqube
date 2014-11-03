@@ -51,7 +51,6 @@ public final class DefaultPersistenceManager implements PersistenceManager {
   @Override
   public void clear() {
     resourcePersister.clear();
-    sourcePersister.clear();
   }
 
   @Override
@@ -65,11 +64,6 @@ public final class DefaultPersistenceManager implements PersistenceManager {
       return resourcePersister.saveResource(project, resource, parent);
     }
     return null;
-  }
-
-  @Override
-  public void setSource(Resource file, String source) {
-    sourcePersister.saveSource(file, source);
   }
 
   @Override

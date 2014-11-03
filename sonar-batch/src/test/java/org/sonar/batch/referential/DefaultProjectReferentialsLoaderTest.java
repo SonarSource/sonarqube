@@ -32,7 +32,9 @@ import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.core.source.db.SnapshotDataDao;
 
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,7 +51,9 @@ public class DefaultProjectReferentialsLoaderTest {
     serverClient = mock(ServerClient.class);
     analysisMode = mock(AnalysisMode.class);
     loader = new DefaultProjectReferentialsLoader(mock(DatabaseSession.class), serverClient, analysisMode, mock(SnapshotDataDao.class));
-    when(serverClient.request(anyString())).thenReturn("");
+    loader = spy(loader);
+    doReturn(null).when(loader).lastSnapshotCreationDate(anyString());
+    when(serverClient.request(anyString())).thenReturn("{}");
     reactor = new ProjectReactor(ProjectDefinition.create().setKey("foo"));
     taskProperties = new TaskProperties(Maps.<String, String>newHashMap(), "");
   }

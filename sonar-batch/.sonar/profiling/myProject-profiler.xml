@@ -10,9 +10,9 @@
 <entry key="Post-Jobs">30</entry>
 <entry key="FakeSensor">10</entry>
 <entry key="Maven">4</entry>
-<entry key="Free memory">9</entry>
-<entry key="Persisters">40</entry>
 <entry key="Decorators">30</entry>
-<entry key="FakeInitializer">7</entry>
+<entry key="Persisters">40</entry>
+<entry key="Free memory">9</entry>
 <entry key="Sensors">10</entry>
+<entry key="FakeInitializer">7</entry>
 </properties>

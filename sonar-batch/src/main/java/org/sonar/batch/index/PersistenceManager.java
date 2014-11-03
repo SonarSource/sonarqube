@@ -37,8 +37,6 @@ public interface PersistenceManager {
 
   Snapshot saveResource(Project project, Resource resource, @Nullable Resource parent);
 
-  void setSource(Resource file, String source);
-
   String getSource(Resource resource);
 
   void saveDependency(Project project, Dependency dependency, Dependency parentDependency);

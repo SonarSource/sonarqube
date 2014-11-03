@@ -20,12 +20,15 @@
 package org.sonar.batch.protocol.input;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +43,7 @@ public class ProjectReferentials {
   private Collection<ActiveRule> activeRules = new ArrayList<ActiveRule>();
   private Map<String, Map<String, String>> settingsByModule = new HashMap<String, Map<String, String>>();
   private Map<String, Map<String, FileData>> fileDataByModuleAndPath = new HashMap<String, Map<String, FileData>>();
+  private Date lastAnalysisDate;
 
   public Map<String, String> settings(String projectKey) {
     return settingsByModule.containsKey(projectKey) ? settingsByModule.get(projectKey) : Collections.<String, String>emptyMap();
@@ -100,12 +104,23 @@ public class ProjectReferentials {
     this.timestamp = timestamp;
   }
 
+  @CheckForNull
+  public Date lastAnalysisDate() {
+    return lastAnalysisDate;
+  }
+
+  public void setLastAnalysisDate(@Nullable Date lastAnalysisDate) {
+    this.lastAnalysisDate = lastAnalysisDate;
+  }
+
   public String toJson() {
-    return new Gson().toJson(this);
+    Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create();
+    return gson.toJson(this);
   }
 
   public static ProjectReferentials fromJson(String json) {
-    return new Gson().fromJson(json, ProjectReferentials.class);
+    Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").create();
+    return gson.fromJson(json, ProjectReferentials.class);
   }
 
 }

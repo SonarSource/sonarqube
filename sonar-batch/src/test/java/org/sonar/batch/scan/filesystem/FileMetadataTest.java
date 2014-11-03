@@ -35,6 +35,7 @@ public class FileMetadataTest {
   private static final String EXPECTED_HASH_WITHOUT_LATEST_EOL = "c80cc50d65ace6c4eb63f189d274dbeb";
   private static final String EXPECTED_HASH_NEW_LINE_FIRST = "cf2d41454b5b451eeb5122f0848c1d2a";
   private static final String EXPECTED_HASH_WITH_LATEST_EOL = "bf77e51d219e7d7d643faac86f1b5d15";
+  private static final String NON_ASCII = "4050369e8ba432c9079e258b43fe4ab5";
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -63,13 +64,23 @@ public class FileMetadataTest {
   }
 
   @Test
-  public void windows_with_latest_eol() throws Exception {
+  public void non_ascii_utf_8() throws Exception {
     File tempFile = temp.newFile();
-    FileUtils.write(tempFile, "foo\r\nbar\r\nbaz\r\n", Charsets.UTF_8, true);
+    FileUtils.write(tempFile, "föo\r\nbàr\r\n\u1D11Ebaßz\r\n", Charsets.UTF_8, true);
 
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
-    assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
+    assertThat(metadata.hash).isEqualTo(NON_ASCII);
+  }
+
+  @Test
+  public void non_ascii_utf_16() throws Exception {
+    File tempFile = temp.newFile();
+    FileUtils.write(tempFile, "föo\r\nbàr\r\n\u1D11Ebaßz\r\n", Charsets.UTF_16, true);
+
+    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_16);
+    assertThat(metadata.lines).isEqualTo(4);
+    assertThat(metadata.hash).isEqualTo(NON_ASCII);
   }
 
   @Test

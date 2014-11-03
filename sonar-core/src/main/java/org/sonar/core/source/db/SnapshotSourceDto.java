@@ -19,10 +19,13 @@
  */
 package org.sonar.core.source.db;
 
+import java.util.Date;
+
 public class SnapshotSourceDto {
   private Long id;
   private Long snapshotId;
   private String data;
+  private Date updatedAt;
 
   public Long getId() {
     return id;
@@ -48,6 +51,15 @@ public class SnapshotSourceDto {
 
   public SnapshotSourceDto setData(String data) {
     this.data = data;
+    return this;
+  }
+
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public SnapshotSourceDto setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 }
