@@ -193,7 +193,8 @@ define [
     requestIssues: ->
       lastIssue = @options.app.issues.at @options.app.issues.length - 1
       lastLine = _.last(@source.get('formattedSource')).lineNumber
-      needMore = lastIssue.get('component') == @model.get 'key'
+      needMore = !@options.app.state.get('maxResultsReached')
+      needMore = needMore && (lastIssue.get('component') == @model.get 'key')
       needMore = needMore && (lastIssue.get('line') <= lastLine)
       if needMore
         @options.app.controller.fetchNextPage().done =>
