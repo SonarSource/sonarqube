@@ -19,9 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Resources;
 import org.sonar.api.i18n.I18n;
@@ -580,14 +578,26 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   private Map<String, ComponentDto> getProjectsByComponentUuid(Collection<ComponentDto> components, Collection<ComponentDto> projects) {
+    Map<String, ComponentDto> projectsByUuid = newHashMap();
+    for (ComponentDto project: projects) {
+      if (project == null) {
+        throw new IllegalStateException("Found a null project in issues");
+      }
+      if (project.uuid() == null) {
+        throw new IllegalStateException("Project has no UUID: " + project.getKey());
+      }
+      projectsByUuid.put(project.uuid(), project);
+    }
+
     Map<String, ComponentDto> projectsByComponentUuid = newHashMap();
-    for (final ComponentDto component : components) {
-      projectsByComponentUuid.put(component.uuid(), Iterables.find(projects, new Predicate<ComponentDto>() {
-        @Override
-        public boolean apply(@Nullable ComponentDto project) {
-          return project != null && project.uuid().equals(component.projectUuid());
-        }
-      }));
+    for (ComponentDto component : components) {
+      if (component.uuid() == null) {
+        throw new IllegalStateException("Component has no UUID: " + component.getKey());
+      }
+      if (!projectsByUuid.containsKey(component.projectUuid())) {
+        throw new IllegalStateException("Project cannot be found for component: " + component.getKey());
+      }
+      projectsByComponentUuid.put(component.uuid(), projectsByUuid.get(component.projectUuid()));
     }
     return projectsByComponentUuid;
   }
