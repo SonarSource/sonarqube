@@ -205,21 +205,52 @@
 }
 
 .issues-header {
-  .clearfix;
+  position: relative;
   margin-bottom: 10px;
   padding: 5px 0;
   line-height: 22px;
   background-color: @barBackgroundColor;
   font-size: @smallFontSize;
+
+  .button-group,
+  .button-group > button,
+  .button-group > .button {
+    vertical-align: top;
+  }
 }
 
-.issues-header-item {
+.issues-header-component {
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+.issues-header-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 5px 10px;
+  background-color: @barBackgroundColor;
+  font-size: 0;
+  white-space: nowrap;
+
+  &:before {
+    content: " ";
+    position: absolute;
+    top: 0; bottom: 0; right: 100%;
+    width: 10px;
+    background-image: linear-gradient(to right, rgba(243, 243, 243, 0), @barBackgroundColor 75%);
+  }
+}
+
+.issues-header-pagination {
   display: inline-block;
-  margin: 0 10px;
+  vertical-align: top;
+  margin-right: 20px;
+  font-size: @smallFontSize;
 }
 
-.issues-header-nav {
-  float: right;
+.issues-header-buttons {
+  vertical-align: top;
 }
 
 .issues-workspace-list {

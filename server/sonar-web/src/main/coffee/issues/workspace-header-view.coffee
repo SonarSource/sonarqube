@@ -19,7 +19,8 @@ define [
 
     events:
       'click .js-back': 'returnToList'
-      'click .js-issues-bulk-change': 'bulkChange'
+      'click #issues-bulk-change': 'bulkChange'
+      'click #issues-reload': 'reloadIssues'
       'click .js-issues-next': 'selectNextIssue'
       'click .js-issues-prev': 'selectPrevIssue'
 
@@ -45,6 +46,10 @@ define [
       query = @options.app.controller.getQuery '&'
       url = "#{baseUrl}/issues/bulk_change_form?#{query}"
       openModalWindow url, {}
+
+
+    reloadIssues: ->
+      @options.app.controller.fetchIssues()
 
 
     selectNextIssue: ->

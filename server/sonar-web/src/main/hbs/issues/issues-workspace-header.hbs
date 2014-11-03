@@ -1,21 +1,27 @@
-{{#if state.component}}
-  <span class="issues-header-item">
-    <a class="js-back">Return to List</a>
-  </span>
+<div class="issues-header-component">
+  {{#if state.component}}
+    {{#with state.component}}
+      <a href="{{dashboardUrl project}}" title="{{projectName}}">{{projectName}}</a>
+      /
+      <a href="{{dashboardUrl key}}" title="{{name}}">{{name}}</a>
+    {{/with}}
+  {{else}}
+    &nbsp;
+  {{/if}}
+</div>
 
-  <span class="issues-header-item">
-    {{state.component.projectName}} {{state.component.name}}
-  </span>
-{{/if}}
 
-<span class="issues-header-item issues-header-nav">
-  <a class="icon-bulk-change js-issues-bulk-change"></a>
-</span>
+<div class="issues-header-actions">
+  {{#if state.total}}
+    <div class="issues-header-pagination">
+      <a class="js-issues-prev icon-prev" title="{{t 'paging_previous'}}"></a>
+      <span class="current">{{sum state.selectedIndex 1}} / <span id="issues-total">{{state.total}}</span></span>
+      <a class="js-issues-next icon-next" title="{{t 'paging_next'}}"></a>
+    </div>
+  {{/if}}
 
-{{#if state.total}}
-  <span class="issues-header-item issues-header-nav">
-    <a class="js-issues-prev icon-prev"></a>
-    <span class="current">{{sum state.selectedIndex 1}} / <span id="issues-total">{{state.total}}</span></span>
-    <a class="js-issues-next icon-next"></a>
-  </span>
-{{/if}}
+  <div class="issues-header-buttons button-group">
+    <button id="issues-reload">{{t 'reload'}}</button>
+    <button id="issues-bulk-change">{{t 'bulk_change'}}</button>
+  </div>
+</div>
