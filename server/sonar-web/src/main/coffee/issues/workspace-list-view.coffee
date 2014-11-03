@@ -57,7 +57,7 @@ define [
 
 
     bindShortcuts: ->
-      key 'return', 'list', =>
+      key 'return,right', 'list', =>
         selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
         @options.app.controller.showComponentViewer selectedIssue
         return false
