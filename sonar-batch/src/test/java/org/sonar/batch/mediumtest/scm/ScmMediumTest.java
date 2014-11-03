@@ -150,6 +150,37 @@ public class ScmMediumTest {
       .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
   }
 
+  @Test
+  public void testAutoDetection() throws IOException {
+
+    File baseDir = prepareProject();
+    new File(baseDir, ".xoo").createNewFile();
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(result.measures()).hasSize(4);
+
+    assertThat(result.measures()).contains(new DefaultMeasure<Integer>()
+      .forMetric(CoreMetrics.LINES)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue(5));
+
+    assertThat(result.measures()).contains(new DefaultMeasure<String>()
+      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
+      .onFile(new DefaultInputFile("com.foo.project", "src/sample.xoo"))
+      .withValue("1=;2=julien;3=julien;4=julien;5=simon"));
+  }
+
   private File prepareProject() throws IOException {
     File baseDir = temp.newFolder();
     File srcDir = new File(baseDir, "src");

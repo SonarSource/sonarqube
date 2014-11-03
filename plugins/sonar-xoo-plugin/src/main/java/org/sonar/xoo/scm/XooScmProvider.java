@@ -22,12 +22,19 @@ package org.sonar.xoo.scm;
 import org.sonar.api.batch.scm.BlameCommand;
 import org.sonar.api.batch.scm.ScmProvider;
 
+import java.io.File;
+
 public class XooScmProvider extends ScmProvider {
 
   private final XooBlameCommand blame;
 
   public XooScmProvider(XooBlameCommand blame) {
     this.blame = blame;
+  }
+
+  @Override
+  public boolean supports(File baseDir) {
+    return new File(baseDir, ".xoo").exists();
   }
 
   @Override

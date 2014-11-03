@@ -87,8 +87,7 @@ class IssueTrackingResult {
     }
     unmatchedByRuleAndKey.get(ruleKey).put(i.getKee(), i);
     Map<Integer, Multimap<String, IssueDto>> unmatchedForRule = unmatchedByRuleAndLineAndChecksum.get(ruleKey);
-    Integer line = i.getLine();
-    Integer lineNotNull = line != null ? line : 0;
+    Integer lineNotNull = lineNotNull(i);
     if (!unmatchedForRule.containsKey(lineNotNull)) {
       unmatchedForRule.put(lineNotNull, HashMultimap.<String, IssueDto>create());
     }
@@ -97,12 +96,18 @@ class IssueTrackingResult {
     unmatchedForRuleAndLine.put(checksumNotNull, i);
   }
 
+  private Integer lineNotNull(IssueDto i) {
+    Integer line = i.getLine();
+    Integer lineNotNull = line != null ? line : 0;
+    return lineNotNull;
+  }
+
   void setMatch(DefaultIssue issue, IssueDto matching) {
     matched.put(issue, matching);
     RuleKey ruleKey = RuleKey.of(matching.getRuleRepo(), matching.getRule());
     unmatchedByRuleAndKey.get(ruleKey).remove(matching.getKee());
     unmatchedByKey.remove(matching.getKee());
-    Integer lineNotNull = matching.getLine() != null ? matching.getLine() : 0;
+    Integer lineNotNull = lineNotNull(matching);
     String checksumNotNull = StringUtils.defaultString(matching.getChecksum(), "");
     unmatchedByRuleAndLineAndChecksum.get(ruleKey).get(lineNotNull).get(checksumNotNull).remove(matching);
   }
