@@ -142,7 +142,7 @@ public class ProjectReferentialsActionTest {
     when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
       new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key()).setParam("preview", "true");
     request.execute().assertJson(getClass(), "not_returned_secured_settings_with_only_preview_permission.json");
@@ -158,7 +158,7 @@ public class ProjectReferentialsActionTest {
     when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
       new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
-    ));
+      ));
 
     when(propertiesDao.selectProjectProperties(module.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER"),
@@ -224,17 +224,17 @@ public class ProjectReferentialsActionTest {
     when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
       new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
-    ));
+      ));
 
     when(propertiesDao.selectProjectProperties(module.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER"),
       // This property should not be found on the other module
       new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
-    ));
+      ));
 
     when(propertiesDao.selectProjectProperties(module2.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-APPLICATION")
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
     request.execute().assertJson(getClass(), "return_project_with_two_modules.json");
@@ -250,7 +250,7 @@ public class ProjectReferentialsActionTest {
     when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
       new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
     request.execute().assertJson(getClass(), "return_project_settings.json");
@@ -265,7 +265,7 @@ public class ProjectReferentialsActionTest {
 
     when(qProfileFactory.getByProjectAndLanguage(session, project.key(), "java")).thenReturn(
       QualityProfileDto.createFor("abcd").setName("SonarQube way").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
-    );
+      );
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
     request.execute().assertJson(getClass(), "return_provisioned_project_profile.json");
@@ -283,7 +283,7 @@ public class ProjectReferentialsActionTest {
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR"),
       new PropertyDto().setKey("sonar.jira.login.secured").setValue("john"),
       new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", subModule.key());
     request.execute().assertJson(getClass(), "return_sub_module_settings.json");
@@ -299,15 +299,15 @@ public class ProjectReferentialsActionTest {
 
     when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR")
-    ));
+      ));
 
     when(propertiesDao.selectProjectProperties(module.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.login.secured").setValue("john")
-    ));
+      ));
 
     when(propertiesDao.selectProjectProperties(subModule.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
-    ));
+      ));
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", subModule.key());
     request.execute().assertJson(getClass(), "return_sub_module_settings_including_settings_from_parent_modules.json");
@@ -343,11 +343,11 @@ public class ProjectReferentialsActionTest {
     when(propertiesDao.selectProjectProperties(project.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.login.secured").setValue("john"),
       new PropertyDto().setKey("sonar.coverage.exclusions").setValue("**/*.java")
-    ));
+      ));
 
     when(propertiesDao.selectProjectProperties(module.key(), session)).thenReturn(newArrayList(
       new PropertyDto().setKey("sonar.jira.project.key").setValue("SONAR-SERVER")
-    ));
+      ));
 
     // No settings on sub module -> All setting should come from the project and the module
 
@@ -415,7 +415,7 @@ public class ProjectReferentialsActionTest {
 
     when(qProfileFactory.getDefault(session, "java")).thenReturn(
       QualityProfileDto.createFor("abcd").setName("Default").setLanguage("java").setRulesUpdatedAt("2014-01-14T14:00:00+0200")
-    );
+      );
 
     WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", projectKey);
     request.execute().assertJson(getClass(), "return_quality_profiles_even_when_project_does_not_exists.json");
@@ -453,7 +453,7 @@ public class ProjectReferentialsActionTest {
     try {
       WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key());
       request.execute();
-    } catch(Exception e){
+    } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("You're not authorized to execute any SonarQube analysis. Please contact your SonarQube administrator.");
     }
   }
@@ -465,9 +465,10 @@ public class ProjectReferentialsActionTest {
     try {
       WsTester.TestRequest request = tester.newGetRequest("batch", "project").setParam("key", project.key()).setParam("preview", "false");
       request.execute();
-    } catch(Exception e){
-      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage("You're only authorized to execute a local (dry run) SonarQube analysis without pushing the results to the SonarQube server. " +
-        "Please contact your SonarQube administrator.");
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(ForbiddenException.class).hasMessage(
+        "You're only authorized to execute a local (dry run) SonarQube analysis without pushing the results to the SonarQube server. " +
+          "Please contact your SonarQube administrator.");
     }
   }
 
