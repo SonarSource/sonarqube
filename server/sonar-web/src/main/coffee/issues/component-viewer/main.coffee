@@ -172,9 +172,11 @@ define [
         @source.set
           source: data.sources
           formattedSource: formattedSource
+        firstLine = _.first(formattedSource).lineNumber
+        lastLine = _.last(formattedSource).lineNumber
         @model.set
-          hasSourceBefore: line > LINES_AROUND
-          hasSourceAfter: formattedSource.length > 2 * LINES_AROUND + 1
+          hasSourceBefore: firstLine > 1
+          hasSourceAfter: lastLine == line + LINES_AROUND
         @render()
         @highlightIssue issue.get 'key'
         @scrollToLine issue.get 'line'
