@@ -40,6 +40,7 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
@@ -341,9 +342,9 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(esQuery, filters);
       // Execute Term aggregations
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        IssueFilterParameters.SEVERITIES, IssueNormalizer.IssueField.SEVERITY.field(), 0);
+        IssueFilterParameters.SEVERITIES, IssueNormalizer.IssueField.SEVERITY.field(), 0, Severity.ALL.toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        IssueFilterParameters.STATUSES, IssueNormalizer.IssueField.STATUS.field(), 0);
+        IssueFilterParameters.STATUSES, IssueNormalizer.IssueField.STATUS.field(), 0, Issue.STATUSES.toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         IssueFilterParameters.ACTION_PLANS, IssueNormalizer.IssueField.ACTION_PLAN.field(), 1, query.actionPlans().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
@@ -409,7 +410,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     StickyFacetBuilder assigneeFacetBuilder = new StickyFacetBuilder(esQuery, resolutionFilters);
     BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_ISSUE_FACET_SIZE, 0);
-    facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.resolutions().toArray());
+    facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, Issue.RESOLUTIONS.toArray());
 
     // Add missing facet for unresolved issues
     facetTopAggregation.subAggregation(
