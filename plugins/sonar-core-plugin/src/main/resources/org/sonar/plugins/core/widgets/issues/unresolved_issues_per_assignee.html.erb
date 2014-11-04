@@ -1,7 +1,7 @@
 <%
     options = {}
     options['resolved'] = 'false'
-    options['componentRootUuids'] = @project.uuid
+    options['projectUuids'] = @project.uuid
     if @dashboard_configuration.selected_period?
       options['createdAfter'] = Api::Utils.format_datetime(@dashboard_configuration.from_datetime)
       options['createdBefore'] = Api::Utils.format_datetime(DateTime.now)
