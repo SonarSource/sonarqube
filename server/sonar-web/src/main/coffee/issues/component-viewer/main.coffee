@@ -122,7 +122,10 @@ define [
         issueView.render().$el.insertBefore @$('.issues-workspace-component-viewer-code')
       else
         row.find('.line').addClass 'issue'
-        barRow = $('<tr></tr>').insertAfter row
+        positionRow = row
+        while positionRow.next().hasClass('issues-issue-row')
+          positionRow = positionRow.next()
+        barRow = $('<tr class="issues-issue-row"></tr>').insertAfter positionRow
         barCell = $('<td colspan="2"></td>').appendTo barRow
         issueView.render().$el.appendTo barCell
 
