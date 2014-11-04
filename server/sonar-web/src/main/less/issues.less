@@ -92,12 +92,12 @@
       position: absolute;
       top: 0; bottom: 0; right: 100%;
       width: 10px;
-      background-image: linear-gradient(to right, rgba(255, 255, 255, 0), @barBackgroundColor 75%);
+      background-image: linear-gradient(to right, fade(@barBackgroundColor, 0%), @barBackgroundColor 75%);
     }
   }
 
   &.active .facet-stat:before {
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0), @lightBlue 75%);
+    background-image: linear-gradient(to right, fade(@lightBlue, 0%), @lightBlue 75%);
   }
 }
 
@@ -238,7 +238,7 @@
     position: absolute;
     top: 0; bottom: 0; right: 100%;
     width: 10px;
-    background-image: linear-gradient(to right, rgba(243, 243, 243, 0), @barBackgroundColor 75%);
+    background-image: linear-gradient(to right, fade(@barBackgroundColor, 0%), @barBackgroundColor 75%);
   }
 }
 
