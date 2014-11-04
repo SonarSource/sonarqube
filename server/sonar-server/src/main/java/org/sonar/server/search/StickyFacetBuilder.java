@@ -100,7 +100,8 @@ public class StickyFacetBuilder {
       facetTopAggregation.subAggregation(
         AggregationBuilders.terms(facetName + "_selected")
           .field(fieldName)
-          .include(Joiner.on('|').join(selected)));
+          .include(Joiner.on('|').join(selected))
+          .minDocCount(0));
     }
     return facetTopAggregation;
   }

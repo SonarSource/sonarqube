@@ -18,6 +18,22 @@
         {
           "val": "OPEN",
           "count": 1
+        },
+        {
+          "val": "CONFIRMED",
+          "count": 0
+        },
+        {
+          "val": "REOPENED",
+          "count": 0
+        },
+        {
+          "val": "RESOLVED",
+          "count": 0
+        },
+        {
+          "val": "CLOSED",
+          "count": 0
         }
       ]
     },
@@ -25,8 +41,24 @@
       "property": "severities",
       "values": [
         {
+          "val": "INFO",
+          "count": 0
+        },
+        {
+          "val": "MINOR",
+          "count": 0
+        },
+        {
           "val": "MAJOR",
           "count": 1
+        },
+        {
+          "val": "CRITICAL",
+          "count": 0
+        },
+        {
+          "val": "BLOCKER",
+          "count": 0
         }
       ]
     },
@@ -36,6 +68,18 @@
         {
           "val": "",
           "count": 1
+        },
+        {
+          "val": "FALSE-POSITIVE",
+          "count": 0
+        },
+        {
+          "val": "FIXED",
+          "count": 0
+        },
+        {
+          "val": "REMOVED",
+          "count": 0
         }
       ]
     },
@@ -72,6 +116,10 @@
         {
           "val": "",
           "count": 1
+        },
+        {
+          "val": "john",
+          "count": 0
         }
       ]
     },

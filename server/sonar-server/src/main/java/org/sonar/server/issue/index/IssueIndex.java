@@ -20,10 +20,7 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
+import com.google.common.collect.*;
 import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -45,6 +42,7 @@ import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.search.*;
+import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
@@ -384,8 +382,14 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     assigneeFilters.remove(fieldName);
     StickyFacetBuilder assigneeFacetBuilder = new StickyFacetBuilder(esQuery, assigneeFilters);
     BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
-    FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_ISSUE_FACET_SIZE, 1);
-    facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.assignees().toArray());
+    FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_ISSUE_FACET_SIZE, 0);
+    List<String> assignees = Lists.newArrayList(query.assignees());
+
+    UserSession session = UserSession.get();
+    if (session.isLoggedIn()) {
+      assignees.add(session.login());
+    }
+    facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, assignees.toArray());
 
     // Add missing facet for unassigned issues
     facetTopAggregation.subAggregation(

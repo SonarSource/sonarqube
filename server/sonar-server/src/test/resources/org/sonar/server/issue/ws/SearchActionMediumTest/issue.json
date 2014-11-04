@@ -59,6 +59,12 @@
       "name": "Fabrice",
       "active": true,
       "email": "fabrice@email.com"
+    },
+    {
+      "login": "john",
+      "name": "John",
+      "active": true,
+      "email": "john@email.com"
     }
   ]
 }

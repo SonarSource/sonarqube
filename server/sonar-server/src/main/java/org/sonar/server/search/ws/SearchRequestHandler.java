@@ -19,6 +19,7 @@
  */
 package org.sonar.server.search.ws;
 
+import com.google.common.collect.Sets;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -33,6 +34,7 @@ import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHandler {
 
@@ -113,7 +115,7 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
     this.writeStatistics(json, result, context);
     doContextResponse(request, context, result, json);
     if (context.isFacet()) {
-      writeFacets(context, result, json);
+      writeFacets(request, context, result, json);
     }
     json.endObject().close();
   }
@@ -139,18 +141,31 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
     json.prop(PARAM_PAGE_SIZE, context.getLimit());
   }
 
-  protected void writeFacets(QueryContext context, Result<?> results, JsonWriter json) {
+  protected void writeFacets(Request request, QueryContext context, Result<?> results, JsonWriter json) {
     json.name("facets").beginArray();
     for (String facetName: context.facets()) {
       json.beginObject();
       json.prop("property", facetName);
       json.name("values").beginArray();
       if (results.getFacets().containsKey(facetName)) {
+        Set<String> itemsFromFacets = Sets.newHashSet();
         for (FacetValue facetValue : results.getFacets().get(facetName)) {
+          itemsFromFacets.add(facetValue.getKey());
           json.beginObject();
           json.prop("val", facetValue.getKey());
           json.prop("count", facetValue.getValue());
           json.endObject();
+        }
+        List<String> requestParams = request.paramAsStrings(facetName);
+        if (requestParams != null) {
+          for (String param: requestParams) {
+            if (!itemsFromFacets.contains(param)) {
+              json.beginObject();
+              json.prop("val", param);
+              json.prop("count", 0);
+              json.endObject();
+            }
+          }
         }
       }
       json.endArray().endObject();

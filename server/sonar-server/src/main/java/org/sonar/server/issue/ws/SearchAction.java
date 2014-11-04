@@ -20,6 +20,8 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Resources;
 import org.sonar.api.i18n.I18n;
@@ -284,12 +286,28 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         ruleKeys.add(RuleKey.parse(rule.getKey()));
       }
     }
+    List<String> rulesFromRequest = request.paramAsStrings(IssueFilterParameters.RULES);
+    if (rulesFromRequest != null ) {
+      for (String ruleKey: rulesFromRequest) {
+        ruleKeys.add(RuleKey.parse(ruleKey));
+      }
+    }
 
     collectFacetKeys(result, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
+    collectParameterValues(request, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
     collectFacetKeys(result, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
+    collectParameterValues(request, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
     collectFacetKeys(result, IssueFilterParameters.ASSIGNEES, userLogins);
+    collectParameterValues(request, IssueFilterParameters.ASSIGNEES, userLogins);
     collectFacetKeys(result, IssueFilterParameters.REPORTERS, userLogins);
+    collectParameterValues(request, IssueFilterParameters.REPORTERS, userLogins);
     collectFacetKeys(result, IssueFilterParameters.ACTION_PLANS, actionPlanKeys);
+    collectParameterValues(request, IssueFilterParameters.ACTION_PLANS, actionPlanKeys);
+
+    UserSession userSession = UserSession.get();
+    if (userSession.isLoggedIn()) {
+      userLogins.add(userSession.login());
+    }
 
     DbSession session = dbClient.openSession(false);
     try {
@@ -336,12 +354,64 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     writeLegacyPaging(context, json, result);
   }
 
+  @Override
+  protected void writeFacets(Request request, QueryContext context, Result<?> results, JsonWriter json) {
+    addMandatoryFacetValues(results, IssueFilterParameters.SEVERITIES, Severity.ALL);
+    addMandatoryFacetValues(results, IssueFilterParameters.STATUSES, Issue.STATUSES);
+    List<String> resolutions = Lists.newArrayList("");
+    resolutions.addAll(Issue.RESOLUTIONS);
+    addMandatoryFacetValues(results, IssueFilterParameters.RESOLUTIONS, resolutions);
+    addMandatoryFacetValues(results, IssueFilterParameters.PROJECT_UUIDS, request.paramAsStrings(IssueFilterParameters.PROJECT_UUIDS));
+
+    List<String> assigneesFromRequest = request.paramAsStrings(IssueFilterParameters.ASSIGNEES);
+    if (assigneesFromRequest == null) {
+      assigneesFromRequest = Lists.newArrayList();
+    }
+    UserSession userSession = UserSession.get();
+    if (userSession.isLoggedIn()) {
+      assigneesFromRequest.add(userSession.login());
+    }
+    addMandatoryFacetValues(results, IssueFilterParameters.ASSIGNEES, assigneesFromRequest);
+    addMandatoryFacetValues(results, IssueFilterParameters.REPORTERS, request.paramAsStrings(IssueFilterParameters.REPORTERS));
+    addMandatoryFacetValues(results, IssueFilterParameters.RULES, request.paramAsStrings(IssueFilterParameters.RULES));
+    addMandatoryFacetValues(results, IssueFilterParameters.LANGUAGES, request.paramAsStrings(IssueFilterParameters.LANGUAGES));
+    addMandatoryFacetValues(results, IssueFilterParameters.ACTION_PLANS, request.paramAsStrings(IssueFilterParameters.ACTION_PLANS));
+    addMandatoryFacetValues(results, IssueFilterParameters.COMPONENT_UUIDS, request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS));
+
+    super.writeFacets(request, context, results, json);
+  }
+
+  private void addMandatoryFacetValues(Result<?> results, String facetName, @Nullable List<String> mandatoryValues) {
+    Collection<FacetValue> facetValues = results.getFacetValues(facetName);
+    if (facetValues != null) {
+      Map<String, Long> valuesByItem = Maps.newHashMap();
+      for (FacetValue value: facetValues) {
+        valuesByItem.put(value.getKey(), value.getValue());
+      }
+      if (mandatoryValues == null) {
+        mandatoryValues = Lists.newArrayList();
+      }
+      for (String item: mandatoryValues) {
+        if (!valuesByItem.containsKey(item)) {
+          facetValues.add(new FacetValue(item, 0));
+        }
+      }
+    }
+  }
+
   private void collectFacetKeys(Result<Issue> result, String facetName, Collection<String> facetKeys) {
     Collection<FacetValue> facetValues = result.getFacetValues(facetName);
     if (facetValues != null) {
       for (FacetValue project: facetValues) {
         facetKeys.add(project.getKey());
       }
+    }
+  }
+
+  private void collectParameterValues(Request request, String facetName, Collection<String> facetKeys) {
+    Collection<String> paramValues = request.paramAsStrings(facetName);
+    if (paramValues != null) {
+      facetKeys.addAll(paramValues);
     }
   }
 
