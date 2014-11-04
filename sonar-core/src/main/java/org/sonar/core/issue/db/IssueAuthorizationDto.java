@@ -30,7 +30,6 @@ import static com.google.common.collect.Lists.newArrayList;
 public final class IssueAuthorizationDto extends Dto<String> implements Serializable {
 
   private String projectUuid;
-  private String permission;
   private List<String> groups = newArrayList();
   private List<String> users = newArrayList();
 
