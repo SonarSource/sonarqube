@@ -19,8 +19,8 @@
 #
 
 #
-# SonarQube 4.5.1
-# SONAR-4950 Unique constraint cannot be created because it would be on resource_id that is nullable
+# SonarQube 4.5.2
+# SONAR-4950
 #
 class RemoveDuplicationInGroupRoles < ActiveRecord::Migration
 
@@ -40,5 +40,7 @@ class RemoveDuplicationInGroupRoles < ActiveRecord::Migration
         end
       end
     end
+
+    add_index 'group_roles', ['group_id', 'resource_id', 'role'], :unique => true, :name => 'uniq_group_roles'
   end
 end
