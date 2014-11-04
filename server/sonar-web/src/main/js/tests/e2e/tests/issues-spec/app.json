@@ -1,0 +1,14 @@
+{
+  "canManageFilters": true,
+  "canBulkChange": true,
+  "favorites": [
+    {
+      "id": 31,
+      "name": "Critical and Blocker Issues"
+    },
+    {
+      "id": 32,
+      "name": "Foo"
+    }
+  ]
+}

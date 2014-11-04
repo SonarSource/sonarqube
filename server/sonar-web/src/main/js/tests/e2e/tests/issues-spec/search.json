@@ -1,0 +1,2103 @@
+{
+  "total": 4623,
+  "p": 1,
+  "ps": 50,
+  "projects": [
+    {
+      "uuid": "015c6451-1709-4360-b4fa-e4508e13082d",
+      "key": "org.codehaus.sonar-plugins.xml:xml",
+      "id": 17156,
+      "qualifier": "TRK",
+      "name": "XML",
+      "longName": "XML"
+    },
+    {
+      "uuid": "071bdfec-a244-444d-877e-772a68973e18",
+      "key": "com.sonarsource.plugins.vb:vb",
+      "id": 28554,
+      "qualifier": "TRK",
+      "name": "SonarSource :: Visual Basic",
+      "longName": "SonarSource :: Visual Basic"
+    }
+  ],
+  "components": [
+    {
+      "uuid": "367350ce-00c7-461b-8348-c64138515ef9",
+      "key": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks/UnusedPrivateVariableCheck.java",
+      "id": 29801,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "UnusedPrivateVariableCheck.java",
+      "longName": "src/main/java/com/sonar/vb/checks/UnusedPrivateVariableCheck.java",
+      "path": "src/main/java/com/sonar/vb/checks/UnusedPrivateVariableCheck.java",
+      "projectId": 28554,
+      "subProjectId": 29689
+    },
+    {
+      "uuid": "2c39c99e-6c3e-4635-a673-fbd876eb2107",
+      "key": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/CDataDocTokenizer.java",
+      "id": 19130,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "CDataDocTokenizer.java",
+      "longName": "src/main/java/org/sonar/xml/CDataDocTokenizer.java",
+      "path": "src/main/java/org/sonar/xml/CDataDocTokenizer.java",
+      "projectId": 17156,
+      "subProjectId": 17157
+    },
+    {
+      "uuid": "729bcb00-97b2-432d-b36e-06174e0bea26",
+      "key": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/XmlStartElementTokenizer.java",
+      "id": 19132,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "XmlStartElementTokenizer.java",
+      "longName": "src/main/java/org/sonar/xml/XmlStartElementTokenizer.java",
+      "path": "src/main/java/org/sonar/xml/XmlStartElementTokenizer.java",
+      "projectId": 17156,
+      "subProjectId": 17157
+    },
+    {
+      "uuid": "e1cf7541-9f52-4c9c-864e-85257b6126da",
+      "key": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/api",
+      "id": 26175,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/xml/api",
+      "longName": "src/main/java/org/sonar/xml/api",
+      "path": "src/main/java/org/sonar/xml/api",
+      "projectId": 17156,
+      "subProjectId": 17157
+    },
+    {
+      "uuid": "23eaa59a-36dd-484d-9cb3-af9ddac0943f",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/parsers/AbstractParser.java",
+      "id": 17191,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "AbstractParser.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/parsers/AbstractParser.java",
+      "path": "src/main/java/org/sonar/plugins/xml/parsers/AbstractParser.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "730a7d9f-f280-48dd-9a09-de210f5db607",
+      "key": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml",
+      "id": 26174,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/xml",
+      "longName": "src/main/java/org/sonar/xml",
+      "path": "src/main/java/org/sonar/xml",
+      "projectId": 17156,
+      "subProjectId": 17157
+    },
+    {
+      "uuid": "45d36e11-d9ed-4157-8a2c-916d2e131af7",
+      "key": "org.codehaus.sonar-plugins.xml:sslr-xml-toolkit",
+      "id": 17257,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "XML :: SSLR Toolkit",
+      "longName": "XML :: SSLR Toolkit",
+      "path": "sslr-xml-toolkit",
+      "projectId": 17156,
+      "subProjectId": 17156
+    },
+    {
+      "uuid": "e3ac3a3e-ac1b-4e3a-8e38-039e06a2ca38",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/LineContinuationChannel.java",
+      "id": 28613,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "LineContinuationChannel.java",
+      "longName": "src/main/java/com/sonar/vb/LineContinuationChannel.java",
+      "path": "src/main/java/com/sonar/vb/LineContinuationChannel.java",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "7428200d-ce03-464d-a099-593092cd0291",
+      "key": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks/TrailingCommentCheck.java",
+      "id": 29769,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "TrailingCommentCheck.java",
+      "longName": "src/main/java/com/sonar/vb/checks/TrailingCommentCheck.java",
+      "path": "src/main/java/com/sonar/vb/checks/TrailingCommentCheck.java",
+      "projectId": 28554,
+      "subProjectId": 29689
+    },
+    {
+      "uuid": "966aa6fd-9463-422c-b785-208ad519e4ea",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/ProgressAstScanner.java",
+      "id": 28614,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "ProgressAstScanner.java",
+      "longName": "src/main/java/com/sonar/vb/ProgressAstScanner.java",
+      "path": "src/main/java/com/sonar/vb/ProgressAstScanner.java",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "c236560b-b257-4f34-bb7b-3977d178e1ff",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/AbstractXmlCheck.java",
+      "id": 17168,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "AbstractXmlCheck.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/checks/AbstractXmlCheck.java",
+      "path": "src/main/java/org/sonar/plugins/xml/checks/AbstractXmlCheck.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "26f2099c-664b-424a-b815-c017eb2165b1",
+      "key": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks",
+      "id": 29690,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/checks",
+      "longName": "src/main/java/com/sonar/vb/checks",
+      "path": "src/main/java/com/sonar/vb/checks",
+      "projectId": 28554,
+      "subProjectId": 29689
+    },
+    {
+      "uuid": "4adacc63-7447-4bb1-95ae-1cc5102e8335",
+      "key": "com.sonarsource.plugins.vb:vb-checks",
+      "id": 29689,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "SonarSource :: Visual Basic :: Checks",
+      "longName": "SonarSource :: Visual Basic :: Checks",
+      "path": "vb-checks",
+      "projectId": 28554,
+      "subProjectId": 28554
+    },
+    {
+      "uuid": "fa92c266-befe-460c-8bad-1ff13b918ec5",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb",
+      "id": 28611,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb",
+      "longName": "src/main/java/com/sonar/vb",
+      "path": "src/main/java/com/sonar/vb",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "e92b1510-91c3-4479-8714-44fa3a139f7c",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin",
+      "id": 28610,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "SonarSource :: Visual Basic :: Sonar Plugin",
+      "longName": "SonarSource :: Visual Basic :: Sonar Plugin",
+      "path": "sonar-vb-plugin",
+      "projectId": 28554,
+      "subProjectId": 28554
+    },
+    {
+      "uuid": "1f609143-c6a4-4f76-ac38-370d349feaf7",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/schemas",
+      "id": 26182,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml/schemas",
+      "longName": "src/main/java/org/sonar/plugins/xml/schemas",
+      "path": "src/main/java/org/sonar/plugins/xml/schemas",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "7abb4d57-160a-41ba-927f-b53603e843b8",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/schemas/SchemaResolver.java",
+      "id": 17178,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "SchemaResolver.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/schemas/SchemaResolver.java",
+      "path": "src/main/java/org/sonar/plugins/xml/schemas/SchemaResolver.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "c960a7a1-e078-47de-8a31-167b0f774002",
+      "key": "org.codehaus.sonar-plugins.xml:sslr-xml-toolkit:src/main/java/org/sonar/xml/toolkit",
+      "id": 26183,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/xml/toolkit",
+      "longName": "src/main/java/org/sonar/xml/toolkit",
+      "path": "src/main/java/org/sonar/xml/toolkit",
+      "projectId": 17156,
+      "subProjectId": 17257
+    },
+    {
+      "uuid": "7d14bd3e-33b7-4b0f-ade5-cf6cef0085b9",
+      "key": "com.sonarsource.plugins.vb:vb-squid",
+      "id": 28555,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "SonarSource :: Visual Basic :: Squid",
+      "longName": "SonarSource :: Visual Basic :: Squid",
+      "path": "vb-squid",
+      "projectId": 28554,
+      "subProjectId": 28554
+    },
+    {
+      "uuid": "d9716626-0952-4ec7-a8fb-2760ba3256a3",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/parsers",
+      "id": 26180,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml/parsers",
+      "longName": "src/main/java/org/sonar/plugins/xml/parsers",
+      "path": "src/main/java/org/sonar/plugins/xml/parsers",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "071bdfec-a244-444d-877e-772a68973e18",
+      "key": "com.sonarsource.plugins.vb:vb",
+      "id": 28554,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "SonarSource :: Visual Basic",
+      "longName": "SonarSource :: Visual Basic"
+    },
+    {
+      "uuid": "99d31cea-6b8f-4fb6-ba87-c86ce8d339cf",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/api",
+      "id": 28622,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/api",
+      "longName": "src/main/java/com/sonar/vb/api",
+      "path": "src/main/java/com/sonar/vb/api",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "26facc1b-fd2b-4fe4-a543-65e9ec692360",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/rules",
+      "id": 26181,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml/rules",
+      "longName": "src/main/java/org/sonar/plugins/xml/rules",
+      "path": "src/main/java/org/sonar/plugins/xml/rules",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "d789993b-c5fe-414b-9164-33871fd3c3c2",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks",
+      "id": 26178,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml/checks",
+      "longName": "src/main/java/org/sonar/plugins/xml/checks",
+      "path": "src/main/java/org/sonar/plugins/xml/checks",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "91715de9-47ed-4837-a51b-4dcead30a71c",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/plugin",
+      "id": 28952,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/plugin",
+      "longName": "src/main/java/com/sonar/vb/plugin",
+      "path": "src/main/java/com/sonar/vb/plugin",
+      "projectId": 28554,
+      "subProjectId": 28610
+    },
+    {
+      "uuid": "3c338bdb-39c9-4cb8-9b13-2e08358047d6",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/language",
+      "id": 26179,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml/language",
+      "longName": "src/main/java/org/sonar/plugins/xml/language",
+      "path": "src/main/java/org/sonar/plugins/xml/language",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "639e257b-d3fb-4d10-b94a-31079b71532d",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml",
+      "id": 26177,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/org/sonar/plugins/xml",
+      "longName": "src/main/java/org/sonar/plugins/xml",
+      "path": "src/main/java/org/sonar/plugins/xml",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "08bafb36-5990-4f10-821c-534dc451d297",
+      "key": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks/NumberedLineProcessor.java",
+      "id": 29907,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "NumberedLineProcessor.java",
+      "longName": "src/main/java/com/sonar/vb/checks/NumberedLineProcessor.java",
+      "path": "src/main/java/com/sonar/vb/checks/NumberedLineProcessor.java",
+      "projectId": 28554,
+      "subProjectId": 29689
+    },
+    {
+      "uuid": "e3bb947b-9385-4972-8367-f69beb488d21",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/metrics/LinesOfCodeVisitor.java",
+      "id": 28629,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "LinesOfCodeVisitor.java",
+      "longName": "src/main/java/com/sonar/vb/metrics/LinesOfCodeVisitor.java",
+      "path": "src/main/java/com/sonar/vb/metrics/LinesOfCodeVisitor.java",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "dd9c314f-0c19-498d-9e16-67ef0b49486e",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/colorizer",
+      "id": 28932,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/colorizer",
+      "longName": "src/main/java/com/sonar/vb/colorizer",
+      "path": "src/main/java/com/sonar/vb/colorizer",
+      "projectId": 28554,
+      "subProjectId": 28610
+    },
+    {
+      "uuid": "9d771010-5d4f-49ed-9f70-ff131189610d",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/pp",
+      "id": 28630,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/pp",
+      "longName": "src/main/java/com/sonar/vb/pp",
+      "path": "src/main/java/com/sonar/vb/pp",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "8597e351-39d2-4b17-8422-00409d21bccd",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/cpd",
+      "id": 28935,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/cpd",
+      "longName": "src/main/java/com/sonar/vb/cpd",
+      "path": "src/main/java/com/sonar/vb/cpd",
+      "projectId": 28554,
+      "subProjectId": 28610
+    },
+    {
+      "uuid": "9d44133a-d633-48b4-a54b-800df905a1fd",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/pp/EmptyLinesRemovalPreprocessor.java",
+      "id": 28631,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "EmptyLinesRemovalPreprocessor.java",
+      "longName": "src/main/java/com/sonar/vb/pp/EmptyLinesRemovalPreprocessor.java",
+      "path": "src/main/java/com/sonar/vb/pp/EmptyLinesRemovalPreprocessor.java",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "b6d552ca-aabe-499b-9c72-18247177ae68",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin",
+      "id": 17158,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "XML :: SonarQube Plugin",
+      "longName": "XML :: SonarQube Plugin",
+      "path": "sonar-xml-plugin",
+      "projectId": 17156,
+      "subProjectId": 17156
+    },
+    {
+      "uuid": "2e9ae8fd-fa5c-48a4-a0f6-1eaba1c38a2f",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/batch",
+      "id": 28928,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/batch",
+      "longName": "src/main/java/com/sonar/vb/batch",
+      "path": "src/main/java/com/sonar/vb/batch",
+      "projectId": 28554,
+      "subProjectId": 28610
+    },
+    {
+      "uuid": "015c6451-1709-4360-b4fa-e4508e13082d",
+      "key": "org.codehaus.sonar-plugins.xml:xml",
+      "id": 17156,
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "XML",
+      "longName": "XML"
+    },
+    {
+      "uuid": "1bb3f177-d173-469e-a178-6ae8078bd765",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/metrics",
+      "id": 28626,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/metrics",
+      "longName": "src/main/java/com/sonar/vb/metrics",
+      "path": "src/main/java/com/sonar/vb/metrics",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "216ebdfc-9fc9-4c06-9f14-859d051fae69",
+      "key": "org.codehaus.sonar-plugins.xml:xml-squid",
+      "id": 17157,
+      "enabled": true,
+      "qualifier": "BRC",
+      "name": "XML :: Squid",
+      "longName": "XML :: Squid",
+      "path": "xml-squid",
+      "projectId": 17156,
+      "subProjectId": 17156
+    },
+    {
+      "uuid": "aad717d1-12f5-48c0-9273-0c9aac102467",
+      "key": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/metrics/CommentsVisitor.java",
+      "id": 28627,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "CommentsVisitor.java",
+      "longName": "src/main/java/com/sonar/vb/metrics/CommentsVisitor.java",
+      "path": "src/main/java/com/sonar/vb/metrics/CommentsVisitor.java",
+      "projectId": 28554,
+      "subProjectId": 28555
+    },
+    {
+      "uuid": "53ecdff7-a6af-4cc9-b30c-7656a33cf732",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/XPathCheck.java",
+      "id": 17162,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "XPathCheck.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/checks/XPathCheck.java",
+      "path": "src/main/java/org/sonar/plugins/xml/checks/XPathCheck.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "d8f590fb-5a56-49a9-991c-4c9d4ec5a7fe",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/IndentCheck.java",
+      "id": 17163,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "IndentCheck.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/checks/IndentCheck.java",
+      "path": "src/main/java/org/sonar/plugins/xml/checks/IndentCheck.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "7d79ad61-0f0a-449a-bdce-fd544c8d8d27",
+      "key": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/api/XmlGrammar.java",
+      "id": 17160,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "XmlGrammar.java",
+      "longName": "src/main/java/org/sonar/xml/api/XmlGrammar.java",
+      "path": "src/main/java/org/sonar/xml/api/XmlGrammar.java",
+      "projectId": 17156,
+      "subProjectId": 17157
+    },
+    {
+      "uuid": "be763c66-8400-432d-9e84-bc2e9d6e164c",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/NewlineCheck.java",
+      "id": 17166,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "NewlineCheck.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/checks/NewlineCheck.java",
+      "path": "src/main/java/org/sonar/plugins/xml/checks/NewlineCheck.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "c2c82fc7-073f-449e-bb18-ebbf60ceb1d9",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/cpd/VbCpdTokenizer.java",
+      "id": 28937,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "VbCpdTokenizer.java",
+      "longName": "src/main/java/com/sonar/vb/cpd/VbCpdTokenizer.java",
+      "path": "src/main/java/com/sonar/vb/cpd/VbCpdTokenizer.java",
+      "projectId": 28554,
+      "subProjectId": 28610
+    },
+    {
+      "uuid": "bc2e055a-eb0a-4ba6-8c06-8390bdb2c08a",
+      "key": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks/ExpressionComplexityCheck.java",
+      "id": 29783,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "ExpressionComplexityCheck.java",
+      "longName": "src/main/java/com/sonar/vb/checks/ExpressionComplexityCheck.java",
+      "path": "src/main/java/com/sonar/vb/checks/ExpressionComplexityCheck.java",
+      "projectId": 28554,
+      "subProjectId": 29689
+    },
+    {
+      "uuid": "7bbe651e-5b83-4002-9fa9-79397693d529",
+      "key": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/XmlSchemaCheck.java",
+      "id": 17164,
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "XmlSchemaCheck.java",
+      "longName": "src/main/java/org/sonar/plugins/xml/checks/XmlSchemaCheck.java",
+      "path": "src/main/java/org/sonar/plugins/xml/checks/XmlSchemaCheck.java",
+      "projectId": 17156,
+      "subProjectId": 17158
+    },
+    {
+      "uuid": "2dc0e6d7-09b9-4f99-a25e-acf288b26581",
+      "key": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/foundation",
+      "id": 28938,
+      "enabled": true,
+      "qualifier": "DIR",
+      "name": "src/main/java/com/sonar/vb/foundation",
+      "longName": "src/main/java/com/sonar/vb/foundation",
+      "path": "src/main/java/com/sonar/vb/foundation",
+      "projectId": 28554,
+      "subProjectId": 28610
+    }
+  ],
+  "issues": [
+    {
+      "key": "94357807-fcb4-40cc-9598-9a715f1eee6e",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml",
+      "componentId": 26177,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/org/sonar/plugins/xml' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:26:37+0200",
+      "updateDate": "2014-10-09T06:32:55+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "c24088ec-b204-4744-827e-7509fd34c2a7",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks",
+      "componentId": 26178,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/org/sonar/plugins/xml/checks' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:26:37+0200",
+      "updateDate": "2014-10-09T06:33:02+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "e5f8e82a-2765-4084-ba57-4a81ee8da1df",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/AbstractXmlCheck.java",
+      "componentId": 17168,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "common-java:InsufficientBranchCoverage",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "1 more branches need to be covered by unit tests to reach the minimum threshold of 65.0% branch coverage.",
+      "debt": "10min",
+      "creationDate": "2013-02-05T00:47:29+0100",
+      "updateDate": "2014-02-14T23:34:11+0100",
+      "fUpdateAge": "8 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "56f021c3-b717-4cc8-9fad-5f1911a8d66f",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/IndentCheck.java",
+      "componentId": 17163,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:MethodCyclomaticComplexity",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "The Cyclomatic Complexity of this method \"collectIndent\" is 13 which is greater than 10 authorized.",
+      "line": 47,
+      "debt": "10min",
+      "author": "Evgeny Mandrikov",
+      "creationDate": "2013-02-05T00:47:29+0100",
+      "updateDate": "2013-12-18T23:52:20+0100",
+      "fUpdateAge": "10 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "b32333fe-7efd-4bc8-a72b-bad90361af1a",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/IndentCheck.java",
+      "componentId": 17163,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1151",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Reduce this switch case number of lines from 26 to at most 5, for example by extracting code into methods.",
+      "line": 54,
+      "debt": "10min",
+      "author": "Evgeny Mandrikov",
+      "creationDate": "2013-08-11T00:06:49+0200",
+      "updateDate": "2013-10-23T15:15:05+0200",
+      "fUpdateAge": "about a year",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "2174148b-6be9-4213-8f57-c63576904e9e",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/IndentCheck.java",
+      "componentId": 17163,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S134",
+      "status": "CONFIRMED",
+      "severity": "MINOR",
+      "message": "Refactor this code to not nest more than 4 if/for/while/switch/try statements.",
+      "line": 59,
+      "debt": "20min",
+      "author": "mandrikov@gmail.com",
+      "creationDate": "2013-10-18T23:46:56+0200",
+      "updateDate": "2013-12-18T23:52:20+0100",
+      "fUpdateAge": "10 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "633c9ba7-b757-4bdf-9e91-ff2ccbc9dd74",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/NewlineCheck.java",
+      "componentId": 17166,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1151",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Reduce this switch case number of lines from 9 to at most 5, for example by extracting code into methods.",
+      "line": 49,
+      "debt": "10min",
+      "author": "Evgeny Mandrikov",
+      "creationDate": "2013-08-11T00:06:49+0200",
+      "updateDate": "2013-10-23T15:15:05+0200",
+      "fUpdateAge": "about a year",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "63f5037f-a060-4cec-820a-25221a4cc313",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/NewlineCheck.java",
+      "componentId": 17166,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1151",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Reduce this switch case number of lines from 6 to at most 5, for example by extracting code into methods.",
+      "line": 58,
+      "debt": "10min",
+      "author": "Evgeny Mandrikov",
+      "creationDate": "2013-08-13T23:58:09+0200",
+      "updateDate": "2013-10-23T15:15:05+0200",
+      "fUpdateAge": "about a year",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "bf75fe08-7ddc-4c69-989d-7e5b83cee043",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/XmlSchemaCheck.java",
+      "componentId": 17164,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:RightCurlyBraceSameLineAsNextBlockCheck",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Move this \"else\" on the same line that the previous closing curly brace.",
+      "line": 167,
+      "debt": "1min",
+      "author": "Evgeny Mandrikov",
+      "creationDate": "2013-08-07T23:58:51+0200",
+      "updateDate": "2013-10-23T15:15:05+0200",
+      "fUpdateAge": "about a year",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "6d6e64ae-94cd-4367-a9bc-df51093a6468",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/XmlSchemaCheck.java",
+      "componentId": 17164,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "common-java:InsufficientBranchCoverage",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "5 more branches need to be covered by unit tests to reach the minimum threshold of 65.0% branch coverage.",
+      "debt": "50min",
+      "creationDate": "2013-02-05T00:47:29+0100",
+      "updateDate": "2014-06-06T15:53:08+0200",
+      "fUpdateAge": "5 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "5ddc1783-3c72-4f68-bbd1-d2d1fad425eb",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/checks/XPathCheck.java",
+      "componentId": 17162,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "common-java:InsufficientBranchCoverage",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "1 more branches need to be covered by unit tests to reach the minimum threshold of 65.0% branch coverage.",
+      "debt": "10min",
+      "creationDate": "2014-06-06T15:53:08+0200",
+      "updateDate": "2014-06-06T16:53:27+0200",
+      "fUpdateAge": "5 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "f0853649-fe5e-4c6c-92b9-42ad460fcc0f",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/language",
+      "componentId": 26179,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/org/sonar/plugins/xml/language' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:26:37+0200",
+      "updateDate": "2014-10-09T06:32:43+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "24f4c570-a96d-42ea-a99e-60aded51d69c",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/parsers",
+      "componentId": 26180,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/org/sonar/plugins/xml/parsers' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:26:37+0200",
+      "updateDate": "2014-10-09T06:32:48+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "aeeb9e4e-fd39-4b7e-a482-36d9da710127",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/parsers/AbstractParser.java",
+      "componentId": 17191,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1694",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "message": "Convert this \"AbstractParser\" class to a concrete class with a private constructor",
+      "line": 33,
+      "debt": "5min",
+      "author": "matthijs.galesloot@gmail.com",
+      "creationDate": "2014-06-26T23:08:13+0200",
+      "updateDate": "2014-07-23T23:07:58+0200",
+      "fUpdateAge": "3 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "66a25a73-b555-4c35-8bc5-536da40a3493",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/rules",
+      "componentId": 26181,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/org/sonar/plugins/xml/rules' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:26:37+0200",
+      "updateDate": "2014-10-09T06:33:03+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "89695ec6-63c2-457f-966b-b2cfd7ad8489",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/schemas",
+      "componentId": 26182,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/org/sonar/plugins/xml/schemas' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:26:37+0200",
+      "updateDate": "2014-10-09T06:32:50+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "3ac6d2e6-6af2-435f-abc7-b281f3676d34",
+      "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml/schemas/SchemaResolver.java",
+      "componentId": 17178,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1192",
+      "status": "CONFIRMED",
+      "severity": "MINOR",
+      "message": "Define a constant instead of duplicating this literal \"xhtml1/xhtml1-strict.xsd\" 3 times.",
+      "line": 58,
+      "debt": "10min",
+      "author": "Evgeny Mandrikov",
+      "creationDate": "2013-08-22T23:52:06+0200",
+      "updateDate": "2014-04-24T23:32:18+0200",
+      "fUpdateAge": "6 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "39942422-fbc2-4383-81fe-82777eb3ce7f",
+      "component": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml",
+      "componentId": 26174,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/org/sonar/xml' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:26:37+0200",
+      "updateDate": "2014-10-09T06:33:07+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "e44fb44e-df1c-460a-b807-66ff79e21194",
+      "component": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/api",
+      "componentId": 26175,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/org/sonar/xml/api' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:26:37+0200",
+      "updateDate": "2014-10-09T06:32:52+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "08f9aedf-5119-4875-8e58-260bfc2e3f69",
+      "component": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/api/XmlGrammar.java",
+      "componentId": 17160,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S138",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "This method has 233 lines, which is greater than the 100 lines authorized. Split it into smaller methods.",
+      "line": 134,
+      "debt": "1h",
+      "author": "Dinesh Bolkensteyn",
+      "creationDate": "2013-08-22T23:52:06+0200",
+      "updateDate": "2013-10-23T15:15:05+0200",
+      "fUpdateAge": "about a year",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "f781c518-83bd-4bd9-8806-c889d0711a39",
+      "component": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/CDataDocTokenizer.java",
+      "componentId": 19130,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1067",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Reduce the number of conditional operators (4) used in the expression (maximum allowed 3).",
+      "line": 47,
+      "debt": "10min",
+      "author": "Dinesh Bolkensteyn",
+      "creationDate": "2013-08-28T23:50:16+0200",
+      "updateDate": "2013-10-23T15:15:05+0200",
+      "fUpdateAge": "about a year",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "cdde8bbf-9d13-4832-8faa-4d189d79fb6b",
+      "component": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/CDataDocTokenizer.java",
+      "componentId": 19130,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1698",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "message": "Change this comparison to use the equals method.",
+      "line": 82,
+      "debt": "2min",
+      "author": "dinesh.bolkensteyn@sonarsource.com",
+      "creationDate": "2014-06-26T23:08:13+0200",
+      "updateDate": "2014-06-26T23:08:13+0200",
+      "fUpdateAge": "4 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "f9eae4c0-ca44-440f-aeb7-327dca040f57",
+      "component": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/CDataDocTokenizer.java",
+      "componentId": 19130,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "common-java:InsufficientBranchCoverage",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "3 more branches need to be covered by unit tests to reach the minimum threshold of 65.0% branch coverage.",
+      "debt": "30min",
+      "creationDate": "2013-04-04T15:37:48+0200",
+      "updateDate": "2014-02-14T23:34:11+0100",
+      "fUpdateAge": "8 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "19516152-0ad2-485a-bc5f-576d19f5dea4",
+      "component": "org.codehaus.sonar-plugins.xml:sslr-xml-toolkit:src/main/java/org/sonar/xml/toolkit",
+      "componentId": 26183,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/org/sonar/xml/toolkit' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:26:37+0200",
+      "updateDate": "2014-10-09T06:33:05+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "2c767e87-dd31-4803-b8da-581dddb8b73b",
+      "component": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/XmlStartElementTokenizer.java",
+      "componentId": 19132,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1142",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Reduce the number of returns of this method 7, down to the maximum allowed 5.",
+      "line": 74,
+      "debt": "20min",
+      "author": "Dinesh Bolkensteyn",
+      "creationDate": "2013-08-11T00:06:49+0200",
+      "updateDate": "2013-10-23T15:15:05+0200",
+      "fUpdateAge": "about a year",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "f8665ff6-6f1b-4014-acb9-2d8cbcd9bd8b",
+      "component": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/XmlStartElementTokenizer.java",
+      "componentId": 19132,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:MethodCyclomaticComplexity",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "The Cyclomatic Complexity of this method \"consumeStartElement\" is 15 which is greater than 10 authorized.",
+      "line": 74,
+      "debt": "10min",
+      "author": "Dinesh Bolkensteyn",
+      "creationDate": "2013-04-04T15:37:48+0200",
+      "updateDate": "2013-12-18T23:52:20+0100",
+      "fUpdateAge": "10 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "5f039a47-9dcc-474e-894c-5598720cb4e0",
+      "component": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/XmlStartElementTokenizer.java",
+      "componentId": 19132,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1698",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "message": "Change this comparison to use the equals method.",
+      "line": 155,
+      "debt": "2min",
+      "author": "dinesh.bolkensteyn@sonarsource.com",
+      "creationDate": "2014-06-26T23:08:13+0200",
+      "updateDate": "2014-06-26T23:08:13+0200",
+      "fUpdateAge": "4 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "7985c68b-2a1d-4aa7-af55-bb6236a01450",
+      "component": "org.codehaus.sonar-plugins.xml:xml-squid:src/main/java/org/sonar/xml/XmlStartElementTokenizer.java",
+      "componentId": 19132,
+      "project": "org.codehaus.sonar-plugins.xml:xml",
+      "rule": "squid:S1698",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "message": "Change this comparison to use the equals method.",
+      "line": 160,
+      "debt": "2min",
+      "author": "dinesh.bolkensteyn@sonarsource.com",
+      "creationDate": "2014-06-26T23:08:13+0200",
+      "updateDate": "2014-06-26T23:08:13+0200",
+      "fUpdateAge": "4 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "d0dba7cd-e31d-4577-a047-644cdc7e2172",
+      "component": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb",
+      "componentId": 28611,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/com/sonar/vb' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:05:55+0200",
+      "updateDate": "2014-10-09T06:37:50+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "6d77a59b-53c2-444c-b288-a803d1f7f18d",
+      "component": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/api",
+      "componentId": 28622,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/com/sonar/vb/api' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:05:55+0200",
+      "updateDate": "2014-10-09T06:38:38+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "bda16272-3785-47af-a0cd-c3fd3c581887",
+      "component": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/batch",
+      "componentId": 28928,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/com/sonar/vb/batch' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:05:55+0200",
+      "updateDate": "2014-10-09T06:38:06+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "4ea78cde-76c0-41ad-8809-a4e406168a00",
+      "component": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks",
+      "componentId": 29690,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/com/sonar/vb/checks' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:05:55+0200",
+      "updateDate": "2014-10-09T06:38:04+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "459f9f04-0901-4250-9e9b-946d505455ac",
+      "component": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks/ExpressionComplexityCheck.java",
+      "componentId": 29783,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1698",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "message": "Change this comparison to use the equals method.",
+      "line": 54,
+      "debt": "2min",
+      "author": "pierre-yves.nicolas@sonarsource.com",
+      "creationDate": "2014-06-26T23:07:23+0200",
+      "updateDate": "2014-06-26T23:07:23+0200",
+      "fUpdateAge": "4 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "47ec8d6b-b7df-4e8c-a254-f9ccf7c0b90a",
+      "component": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks/NumberedLineProcessor.java",
+      "componentId": 29907,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "common-java:DuplicatedBlocks",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "1 duplicated blocks of code.",
+      "debt": "1h",
+      "creationDate": "2014-05-01T23:14:46+0200",
+      "updateDate": "2014-05-02T09:05:22+0200",
+      "fUpdateAge": "6 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "84f34eb4-5aec-419b-8a2d-094d79d7969a",
+      "component": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks/TrailingCommentCheck.java",
+      "componentId": 29769,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "common-java:DuplicatedBlocks",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "4 duplicated blocks of code.",
+      "debt": "4h",
+      "creationDate": "2014-04-14T23:14:16+0200",
+      "updateDate": "2014-05-23T23:13:54+0200",
+      "fUpdateAge": "5 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "bd85131c-2bac-474d-ac0f-2cf3c8848d40",
+      "component": "com.sonarsource.plugins.vb:vb-checks:src/main/java/com/sonar/vb/checks/UnusedPrivateVariableCheck.java",
+      "componentId": 29801,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1643",
+      "status": "REOPENED",
+      "severity": "MAJOR",
+      "message": "Use a StringBuilder instead.",
+      "line": 57,
+      "debt": "10min",
+      "author": "pierre-yves.nicolas@sonarsource.com",
+      "creationDate": "2014-06-26T23:07:23+0200",
+      "updateDate": "2014-11-03T09:50:23+0100",
+      "fUpdateAge": "a day",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "0f81cd62-e82d-44b1-8773-a7a61536a516",
+      "component": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/colorizer",
+      "componentId": 28932,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/com/sonar/vb/colorizer' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:05:55+0200",
+      "updateDate": "2014-10-09T06:38:03+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "c7d665b1-0d77-4f7b-b893-8678c5324a70",
+      "component": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/cpd",
+      "componentId": 28935,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/com/sonar/vb/cpd' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:05:55+0200",
+      "updateDate": "2014-10-09T06:38:30+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "47780a07-2b00-47bb-a5e0-91af1ab53b49",
+      "component": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/cpd/VbCpdTokenizer.java",
+      "componentId": 28937,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1698",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "message": "Change this comparison to use the equals method.",
+      "line": 55,
+      "debt": "2min",
+      "author": "julien.henry@sonarsource.com",
+      "creationDate": "2014-06-26T23:07:23+0200",
+      "updateDate": "2014-06-26T23:07:23+0200",
+      "fUpdateAge": "4 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "4882c235-98a2-4ac8-8131-acbe30010be5",
+      "component": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/cpd/VbCpdTokenizer.java",
+      "componentId": 28937,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1698",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "message": "Change this comparison to use the equals method.",
+      "line": 55,
+      "debt": "2min",
+      "author": "julien.henry@sonarsource.com",
+      "creationDate": "2014-06-26T23:07:23+0200",
+      "updateDate": "2014-06-26T23:07:23+0200",
+      "fUpdateAge": "4 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "a7816c2c-4a24-4edc-955b-4bf064c8da6c",
+      "component": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/cpd/VbCpdTokenizer.java",
+      "componentId": 28937,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1698",
+      "status": "OPEN",
+      "severity": "MAJOR",
+      "message": "Change this comparison to use the equals method.",
+      "line": 55,
+      "debt": "2min",
+      "author": "julien.henry@sonarsource.com",
+      "creationDate": "2014-06-26T23:07:23+0200",
+      "updateDate": "2014-06-26T23:07:23+0200",
+      "fUpdateAge": "4 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "confirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "5c6bc4d6-560f-47c7-9170-873c7ec51243",
+      "component": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/foundation",
+      "componentId": 28938,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/com/sonar/vb/foundation' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:05:55+0200",
+      "updateDate": "2014-10-09T06:38:32+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "4df1a07e-1961-4b7c-bd9d-f08670b7dc53",
+      "component": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/LineContinuationChannel.java",
+      "componentId": 28613,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "common-java:DuplicatedBlocks",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "1 duplicated blocks of code.",
+      "debt": "1h",
+      "creationDate": "2014-03-24T23:14:21+0100",
+      "updateDate": "2014-04-28T16:56:33+0200",
+      "fUpdateAge": "6 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "8d505c3e-e944-40a7-bdc4-3e55a6d80ddf",
+      "component": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/metrics",
+      "componentId": 28626,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/com/sonar/vb/metrics' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:05:55+0200",
+      "updateDate": "2014-10-09T06:37:59+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "5420d272-a363-44a5-9a8d-4ed9236aee6c",
+      "component": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/metrics/CommentsVisitor.java",
+      "componentId": 28627,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "common-java:DuplicatedBlocks",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "2 duplicated blocks of code.",
+      "debt": "2h",
+      "creationDate": "2014-03-24T23:14:21+0100",
+      "updateDate": "2014-04-28T16:56:15+0200",
+      "fUpdateAge": "6 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "eaff60ef-0e3f-4744-9ada-a701eb92fc38",
+      "component": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/metrics/LinesOfCodeVisitor.java",
+      "componentId": 28629,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "common-java:DuplicatedBlocks",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "2 duplicated blocks of code.",
+      "debt": "2h",
+      "creationDate": "2014-03-24T23:14:21+0100",
+      "updateDate": "2014-04-28T16:56:13+0200",
+      "fUpdateAge": "6 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "4b6e0ff7-8343-4389-bfee-74fb06ae1a4c",
+      "component": "com.sonarsource.plugins.vb:sonar-vb-plugin:src/main/java/com/sonar/vb/plugin",
+      "componentId": 28952,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/com/sonar/vb/plugin' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:05:55+0200",
+      "updateDate": "2014-10-09T06:37:48+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "86a0cb1a-c36b-442e-aac0-5d29efc8b0f0",
+      "component": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/pp",
+      "componentId": 28630,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "squid:S1228",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "Add a 'package-info.java' file to document the 'src/main/java/com/sonar/vb/pp' package",
+      "debt": "20min",
+      "creationDate": "2014-10-03T23:05:55+0200",
+      "updateDate": "2014-10-09T06:38:40+0200",
+      "fUpdateAge": "26 days",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "8d5d8cb6-2f92-4cdd-858e-6d551b6507a3",
+      "component": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/pp/EmptyLinesRemovalPreprocessor.java",
+      "componentId": 28631,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "common-java:DuplicatedBlocks",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "1 duplicated blocks of code.",
+      "debt": "1h",
+      "creationDate": "2014-03-24T23:14:21+0100",
+      "updateDate": "2014-04-28T16:56:10+0200",
+      "fUpdateAge": "6 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    },
+    {
+      "key": "dd34e8a9-7c6a-4a66-8b02-7bf5d9daa4f9",
+      "component": "com.sonarsource.plugins.vb:vb-squid:src/main/java/com/sonar/vb/ProgressAstScanner.java",
+      "componentId": 28614,
+      "project": "com.sonarsource.plugins.vb:vb",
+      "rule": "common-java:DuplicatedBlocks",
+      "status": "CONFIRMED",
+      "severity": "MAJOR",
+      "message": "1 duplicated blocks of code.",
+      "debt": "1h",
+      "creationDate": "2014-03-24T23:14:21+0100",
+      "updateDate": "2014-04-28T16:56:31+0200",
+      "fUpdateAge": "6 months",
+      "actions": [
+        "comment",
+        "assign",
+        "assign_to_me",
+        "plan",
+        "set_severity"
+      ],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "key": "squid:S1698",
+      "name": "Objects should be compared with \"equals()\"",
+      "desc": "<p>Using the equality (<code>==</code>) and inequality (<code>!=</code>) operators to compare two objects does not check to see if they have the same values. Rather it checks to see if both object references point to exactly the same object in memory. The vast majority of the time, this is not what you want to do. Use the .equals() method to compare the values of two objects or to compare a string object to a string literal.</p>\n\n<h2>Noncompliant Code Sample</h2>\n<pre>\nString str1 = \"blue\";\nString str2 = \"blue\";\nString str3 = str1;\n\nif (str1 == str2)\n{\n  System.out.println(\"they're both 'blue'\"); // this doesn't print because the objects are different\n}\n\nif (str1 == \"blue\")\n{\n  System.out.println(\"they're both 'blue'\"); // this doesn't print because the objects are different\n}\n\nif (str1 == str3)\n{\n  System.out.println(\"they're the same object\"); // this prints\n}\n</pre>\n\n<h2>Compliant Solution</h2>\n<pre>\nString str1 = \"blue\";\nString str2 = \"blue\";\nString str3 = str1;\n\nif (str1.equals(str2))\n{\n  System.out.println(\"they're both 'blue'\"); // this prints\n}\n\nif (str1.equals(\"blue\"))\n{\n  System.out.println(\"they're both 'blue'\"); // this prints\n}\n\nif (str1 == str3)\n{\n  System.out.println(\"they're the same object\"); // this still prints, but it's probably not what you meant to do\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1142",
+      "name": "Methods should not contain too many return statements",
+      "desc": "<p>\nHaving too many return statements in a method increases the method's essential complexity because the flow of execution is broken each time a return statement is encountered.\nThis makes it harder to read and understand the logic of the method.\n</p>\n\n<p>\nThe following code snippet illustrates this rule with the default threshold of 3:\n</p>\n\n<pre>\npublic boolean myMethod() { // Non-Compliant as there are 4 return statements\n  if (condition1) {\n    return true;\n  } else {\n    if (condition2) {\n      return false;\n    } else {\n      return true;\n    }\n  }\n  return false;\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1694",
+      "name": "An abstract class should have both abstract and concrete methods",
+      "desc": "<p>The purpose of an abstract class is to provide some heritable behaviors while also defining methods which must be implemented by sub-classes.</p>\n\n<p>A class with no abstract methods that was made abstract purely to prevent instantiation should be converted to a concrete class (i.e. remove the <code>abstract</code> keyword) with a private constructor.</p>\n\n<p>A class with only abstract methods and no inheritable behavior should be converted to an interface.</p>\n\n<h2>Noncompliant Code Sample</h2>\n<pre>\npublic abstract class Animal {\n  abstract void move();\n  abstract void feed();\n}\n\npublic abstract class Color {\n  private int red = 0;\n  private int green = 0;\n  private int blue = 0;\n\n  public int getRed(){\n    return red;\n  }\n}\n</pre>\n\n<h2>Compliant Solution</h2>\n<pre>\npublic interface Animal {\n  void move();\n  void feed();\n}\n\npublic class Color {\n  private int red = 0;\n  private int green = 0;\n  private int blue = 0;\n\n  private Color (){\n  }\n\n  public int getRed() {\n    return red;\n  }\n}\n\npublic abstract class Lamp {\n\n  private boolean switchLamp=false;\n  public abstract void glow();\n\n  public void flipSwitch() {\n    switchLamp = !switchLamp;\n    if (switchLamp) {\n       glow();\n    }\n  }\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1151",
+      "name": "Switch cases should not have too many lines",
+      "desc": "<p>Switch cases should remain small to keep the overall switch compact and readable.</p>\n\n<p>The following code snippet illustrates this rule with the default threshold of 5:</p>\n\n<pre>\nswitch (myVariable) {\n  case 0:                     // Compliant - 5 lines till following case\n    System.out.println(\"\");\n    System.out.println(\"\");\n    System.out.println(\"\");\n    break;\n  default:                    // Non-Compliant - 6 lines till switch end\n    System.out.println(\"\");\n    System.out.println(\"\");\n    System.out.println(\"\");\n    System.out.println(\"\");\n    break;\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1643",
+      "name": "Strings should not be concatenated using '+' in a loop",
+      "desc": "<p>Strings are immutable objects in Java, so concatenation doesn't simply add the new String to the end of the existing string. Instead, in each loop iteration, the first String is converted to an intermediate object type, the second string is appended, and then the intermediate object is converted back to a String. Further, performance of these intermediate operations degrades as the String gets longer. Therefore, the use of StringBuilder is preferred.</p>\n\n<h2>Noncompliant Code Example</h2>\n<pre>\nString str = \"\";\nfor (int i = 0; i < arrayOfStrings.length ; ++i) {\n  str = str + arrayOfStrings[i];\n}\n</pre>\n\n<h2>Compliant Solution</h2>\n<pre>\nStringBuilder bld = new StringBuilder();\nfor (int i = 0; i < arrayOfStrings.length; ++i) {\n  bld.append(arrayOfStrings[i]);\n}\nString str = bld.toString();\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S134",
+      "name": "Control flow statements \"if\", \"for\", \"while\", \"switch\" and \"try\" should not be nested too deeply",
+      "desc": "<p>\nNested <code>if</code>, <code>for</code>, <code>while</code> and <code>try</code> statements is a key ingredient for making what's known as \"Spaghetti code\".\nSuch code is hard to read, refactor and therefore maintain.\n</p>\n\n<h2>Noncompliant Code Example</h2>\n\n<p>The following code snippet illustrates this rule with the default threshold of 3.</p>\n\n<pre>\npublic void process() {\n  if (condition1) {                  // Compliant - depth = 1\n    /* ... */\n    if (condition2) {                // Compliant - depth = 2\n      /* ... */\n      for(int i = 0; i < 10; i++) {  // Compliant - depth = 3, not exceeding the limit\n        /* ... */\n        if (condition4) {            // Non-Compliant - depth = 4\n          if (condition5) {          // Depth = 5, exceeding the limit, but issues are only reported on depth = 4\n            /* ... */\n          }\n          return;\n        }\n      }\n    }\n  }\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "common-java:DuplicatedBlocks",
+      "name": "Duplicated blocks",
+      "desc": "<p>An issue is created on a file as soon as there is a block of duplicated code on this file. It gives the number of blocks in the file.</p>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:RightCurlyBraceSameLineAsNextBlockCheck",
+      "name": "Right curly brace and next \"else\", \"catch\" and \"finally\" keywords should be located on the same line",
+      "desc": "<p>\nSharing some coding conventions is a key point to make it possible for a team to efficiently collaborate.\nThis rule make it mandatory to place closing curly braces on the same line that next <code>else</code>, <code>catch</code> or <code>finally</code> keywords.\n</p>\n\n<p>\nThe following code snippet illustrates this rule:\n</p>\n\n<pre>\npublic void myMethod() {\n  if(something) {\n    executeTask();\n  } else if (somethingElse) {          // Compliant\n    doSomethingElse();\n  }\n  else {                               // Non-Compliant\n     generateError();\n  }\n\n  try {\n    generateOrder();\n  } catch (Exception e) {              // Compliant\n    log(e);\n  }\n  finally {                            // Non-Compliant\n    closeConnection();\n  }\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:MethodCyclomaticComplexity",
+      "name": "Methods should not be too complex",
+      "desc": "<p>The Cyclomatic Complexity is measured by the number of\n\t(&amp;&amp;, ||) operators and (if, while, do, for, ?:, catch, switch,\n\tcase, return, throw) statements in the body of a class plus one for\n\teach constructor, method (but not getter/setter), static initializer,\n\tor instance initializer in the class. The last return stament in\n\tmethod, if exists, is not taken into account.</p>\n<p>\n\tEven when the Cyclomatic Complexity of a class is very high, this\n\tcomplexity might be well distributed among all methods. Nevertheless,\n\tmost of the time, a very complex class is a class which breaks the <a\n\t\thref=\"http://en.wikipedia.org/wiki/Single_responsibility_principle\">Single\n\t\tResponsibility Principle</a> and which should be re-factored to be split\n\tin several classes.\n</p>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1192",
+      "name": "String literals should not be duplicated",
+      "desc": "<p>\n  Duplicated string literals make the process of refactoring error-prone, since you must be sure to update all occurrences.\n  On the other hand, constants can be referenced from many places, but only need to be updated in a single place.\n</p>\n\n<h2>Non Compliant Code Example</h2>\n\n<pre>\npublic void run() {\n  prepare(\"action1\");                              // Non-Compliant - \"action1\" is duplicated 3 times\n  execute(\"action1\");\n  release(\"action1\");\n}\n\n@SuppressWarning(\"all\")                            // Compliant - annotations are excluded\nprivate void method1() { /* ... */ }\n@SuppressWarning(\"all\")\nprivate void method2() { /* ... */ }\n\npublic String method3(String a) {\n  System.out.println(\"'\" + a + \"'\");               // Compliant - literal \"'\" has less than 5 characters and is excluded\n  return \"\";                                       // Compliant - literal \"\" has less than 5 characters and is excluded\n}\n</pre>\n\n<h2>Compliant Code Example</h2>\n\n<pre>\nprivate static final String ACTION_1 = \"action1\";  // Compliant\n\npublic void run() {\n  prepare(ACTION_1);                               // Compliant\n  execute(ACTION_1);\n  release(ACTION_1);\n}\n</pre>\n\n<h2>Exceptions</h2>\n<p>To prevent generating some false-positives, literals having less than 5 characters are excluded.</p>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S138",
+      "name": "Methods should not have too many lines",
+      "desc": "<p>\nA method that grows too large tends to aggregate too many responsibilities.\nSuch methods inevitably become harder to understand and therefore harder to maintain.\n</p>\n\n<p>\nAbove a specific threshold, it is strongly advised to refactor into smaller methods which focus on well-defined tasks.\nThose smaller methods will not only be easier to understand, but also probably easier to test.\n</p>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1067",
+      "name": "Expressions should not be too complex",
+      "desc": "<p>\nThe complexity of an expression is defined by the number of <code>&&</code>, <code>||</code> and <code>condition ? ifTrue : ifFalse</code> operators it contains.\nA single expression's complexity should not become too high to keep the code readable.\n</p>\n\n<p>The following code, with a maximum complexity of 3:</p>\n\n<pre>\nif (condition1 && condition2 && condition3 && condition4) { /* ... */ }  // Non-Compliant\n</pre>\n\n<p>could be refactored into something like:</p>\n\n<pre>\nif (relevantMethodName1() && relevantMethodName2()) { /* ... */ }        // Compliant\n\n/* ... */\n\nprivate boolean relevantMethodName1() {\n  return condition1 && condition2;\n}\n\nprivate boolean relevantMethodName2() {\n  return condition3 && condition4;\n}\n</pre>",
+      "status": "READY"
+    },
+    {
+      "key": "common-java:InsufficientBranchCoverage",
+      "name": "Insufficient branch coverage by unit tests",
+      "desc": "<p>An issue is created on a file as soon as the branch coverage on this file is less than the required threshold.It gives the number of branches to be covered in order to reach the required threshold.</p>",
+      "status": "READY"
+    },
+    {
+      "key": "squid:S1228",
+      "name": "Packages should have a javadoc file 'package-info.java'",
+      "desc": "<p>Each package in a Java project should include a <code>package-info.java</code> file. The purpose of this file is to document the Java package using javadoc and declare package annotations.</p>\n\n<h2>Compliant Solution</h2>\n<pre>\n/**\n* This package has non null parameters and is documented.\n**/\n@ParametersAreNonnullByDefault\npackage org.foo.bar;\n</pre>",
+      "status": "REMOVED"
+    }
+  ],
+  "users": [],
+  "languages": [
+    {
+      "key": "js",
+      "name": "JavaScript"
+    },
+    {
+      "key": "java",
+      "name": "Java"
+    }
+  ],
+  "maxResultsReached": false,
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 50,
+    "total": 4623,
+    "fTotal": "4,623",
+    "pages": 93
+  },
+  "facets": [
+    {
+      "property": "severities",
+      "values": [
+        {
+          "val": "MAJOR",
+          "count": 3214
+        },
+        {
+          "val": "INFO",
+          "count": 930
+        },
+        {
+          "val": "MINOR",
+          "count": 436
+        },
+        {
+          "val": "CRITICAL",
+          "count": 43
+        },
+        {
+          "val": "BLOCKER",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "statuses",
+      "values": [
+        {
+          "val": "CONFIRMED",
+          "count": 4123
+        },
+        {
+          "val": "OPEN",
+          "count": 499
+        },
+        {
+          "val": "REOPENED",
+          "count": 1
+        },
+        {
+          "val": "CLOSED",
+          "count": 0
+        },
+        {
+          "val": "RESOLVED",
+          "count": 0
+        }
+      ]
+    },
+    {
+      "property": "resolutions",
+      "values": [
+        {
+          "val": "",
+          "count": 4623
+        },
+        {
+          "val": "FIXED",
+          "count": 39744
+        },
+        {
+          "val": "REMOVED",
+          "count": 14385
+        },
+        {
+          "val": "FALSE-POSITIVE",
+          "count": 724
+        }
+      ]
+    }
+  ]
+}
