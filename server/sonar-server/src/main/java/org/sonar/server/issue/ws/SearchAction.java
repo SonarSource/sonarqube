@@ -289,6 +289,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     collectFacetKeys(result, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
     collectFacetKeys(result, IssueFilterParameters.ASSIGNEES, userLogins);
     collectFacetKeys(result, IssueFilterParameters.REPORTERS, userLogins);
+    collectFacetKeys(result, IssueFilterParameters.ACTION_PLANS, actionPlanKeys);
 
     DbSession session = dbClient.openSession(false);
     try {
