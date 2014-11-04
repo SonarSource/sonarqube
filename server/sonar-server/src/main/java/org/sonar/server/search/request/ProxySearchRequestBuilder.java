@@ -20,17 +20,16 @@
 
 package org.sonar.server.search.request;
 
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.search.SearchClient;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -39,13 +38,13 @@ public class ProxySearchRequestBuilder extends SearchRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxySearchRequestBuilder(Client client, Profiling profiling) {
+  public ProxySearchRequestBuilder(SearchClient client, Profiling profiling) {
     super(client);
     this.profiling = profiling;
   }
 
   @Override
-  public SearchResponse get() throws ElasticsearchException {
+  public SearchResponse get() {
     StopWatch fullProfile = profiling.start("search", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
@@ -59,12 +58,12 @@ public class ProxySearchRequestBuilder extends SearchRequestBuilder {
   }
 
   @Override
-  public SearchResponse get(TimeValue timeout) throws ElasticsearchException {
+  public SearchResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public SearchResponse get(String timeout) throws ElasticsearchException {
+  public SearchResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
@@ -73,6 +72,7 @@ public class ProxySearchRequestBuilder extends SearchRequestBuilder {
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
+  @Override
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append(String.format("ES search request '%s'", xContentToString(super.internalBuilder())));

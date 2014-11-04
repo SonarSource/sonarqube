@@ -21,26 +21,25 @@
 package org.sonar.server.search.request;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.search.SearchClient;
 
 public class ProxyClusterHealthRequestBuilder extends ClusterHealthRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyClusterHealthRequestBuilder(Client client, Profiling profiling) {
+  public ProxyClusterHealthRequestBuilder(SearchClient client, Profiling profiling) {
     super(client.admin().cluster());
     this.profiling = profiling;
   }
 
   @Override
-  public ClusterHealthResponse get() throws ElasticsearchException {
+  public ClusterHealthResponse get() {
     StopWatch fullProfile = profiling.start("cluster health", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
@@ -54,12 +53,12 @@ public class ProxyClusterHealthRequestBuilder extends ClusterHealthRequestBuilde
   }
 
   @Override
-  public ClusterHealthResponse get(TimeValue timeout) throws ElasticsearchException {
+  public ClusterHealthResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public ClusterHealthResponse get(String timeout) throws ElasticsearchException {
+  public ClusterHealthResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
@@ -68,6 +67,7 @@ public class ProxyClusterHealthRequestBuilder extends ClusterHealthRequestBuilde
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
+  @Override
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("ES cluster health request");

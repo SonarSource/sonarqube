@@ -21,26 +21,25 @@
 package org.sonar.server.search.request;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.count.CountResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.search.SearchClient;
 
 public class ProxyCountRequestBuilder extends CountRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyCountRequestBuilder(Client client, Profiling profiling) {
+  public ProxyCountRequestBuilder(SearchClient client, Profiling profiling) {
     super(client);
     this.profiling = profiling;
   }
 
   @Override
-  public CountResponse get() throws ElasticsearchException {
+  public CountResponse get() {
     StopWatch fullProfile = profiling.start("count", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
@@ -54,12 +53,12 @@ public class ProxyCountRequestBuilder extends CountRequestBuilder {
   }
 
   @Override
-  public CountResponse get(TimeValue timeout) throws ElasticsearchException {
+  public CountResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public CountResponse get(String timeout) throws ElasticsearchException {
+  public CountResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
@@ -68,6 +67,7 @@ public class ProxyCountRequestBuilder extends CountRequestBuilder {
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
+  @Override
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("ES count request");

@@ -21,26 +21,25 @@
 package org.sonar.server.search.request;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.search.SearchClient;
 
 public class ProxyIndicesExistsRequestBuilder extends IndicesExistsRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyIndicesExistsRequestBuilder(Client client, Profiling profiling, String... indices) {
+  public ProxyIndicesExistsRequestBuilder(SearchClient client, Profiling profiling, String... indices) {
     super(client.admin().indices(), indices);
     this.profiling = profiling;
   }
 
   @Override
-  public IndicesExistsResponse get() throws ElasticsearchException {
+  public IndicesExistsResponse get() {
     StopWatch fullProfile = profiling.start("indices exists", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
@@ -54,12 +53,12 @@ public class ProxyIndicesExistsRequestBuilder extends IndicesExistsRequestBuilde
   }
 
   @Override
-  public IndicesExistsResponse get(TimeValue timeout) throws ElasticsearchException {
+  public IndicesExistsResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public IndicesExistsResponse get(String timeout) throws ElasticsearchException {
+  public IndicesExistsResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
@@ -68,6 +67,7 @@ public class ProxyIndicesExistsRequestBuilder extends IndicesExistsRequestBuilde
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
+  @Override
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("ES indices exists request");

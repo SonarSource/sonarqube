@@ -20,26 +20,25 @@
 
 package org.sonar.server.search.request;
 
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.search.SearchClient;
 
 public class ProxySearchScrollRequestBuilder extends SearchScrollRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxySearchScrollRequestBuilder(String scrollId, Client client, Profiling profiling) {
+  public ProxySearchScrollRequestBuilder(String scrollId, SearchClient client, Profiling profiling) {
     super(client, scrollId);
     this.profiling = profiling;
   }
 
   @Override
-  public SearchResponse get() throws ElasticsearchException {
+  public SearchResponse get() {
     StopWatch fullProfile = profiling.start("search", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
@@ -53,12 +52,12 @@ public class ProxySearchScrollRequestBuilder extends SearchScrollRequestBuilder 
   }
 
   @Override
-  public SearchResponse get(TimeValue timeout) throws ElasticsearchException {
+  public SearchResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public SearchResponse get(String timeout) throws ElasticsearchException {
+  public SearchResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
@@ -67,6 +66,7 @@ public class ProxySearchScrollRequestBuilder extends SearchScrollRequestBuilder 
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
+  @Override
   public String toString() {
     return String.format("ES search scroll request for scroll id '%s'", super.request().scroll());
   }

@@ -21,26 +21,25 @@
 package org.sonar.server.search.request;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.search.SearchClient;
 
 public class ProxyClusterStateRequestBuilder extends ClusterStateRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyClusterStateRequestBuilder(Client client, Profiling profiling) {
+  public ProxyClusterStateRequestBuilder(SearchClient client, Profiling profiling) {
     super(client.admin().cluster());
     this.profiling = profiling;
   }
 
   @Override
-  public ClusterStateResponse get() throws ElasticsearchException {
+  public ClusterStateResponse get() {
     StopWatch fullProfile = profiling.start("cluster state", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
@@ -54,12 +53,12 @@ public class ProxyClusterStateRequestBuilder extends ClusterStateRequestBuilder 
   }
 
   @Override
-  public ClusterStateResponse get(TimeValue timeout) throws ElasticsearchException {
+  public ClusterStateResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public ClusterStateResponse get(String timeout) throws ElasticsearchException {
+  public ClusterStateResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
@@ -68,6 +67,7 @@ public class ProxyClusterStateRequestBuilder extends ClusterStateRequestBuilder 
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
+  @Override
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("ES cluster state request");

@@ -21,26 +21,25 @@
 package org.sonar.server.search.request;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.search.SearchClient;
 
 public class ProxyNodesStatsRequestBuilder extends NodesStatsRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyNodesStatsRequestBuilder(Client client, Profiling profiling) {
+  public ProxyNodesStatsRequestBuilder(SearchClient client, Profiling profiling) {
     super(client.admin().cluster());
     this.profiling = profiling;
   }
 
   @Override
-  public NodesStatsResponse get() throws ElasticsearchException {
+  public NodesStatsResponse get() {
     StopWatch fullProfile = profiling.start("nodes stats", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
@@ -54,12 +53,12 @@ public class ProxyNodesStatsRequestBuilder extends NodesStatsRequestBuilder {
   }
 
   @Override
-  public NodesStatsResponse get(TimeValue timeout) throws ElasticsearchException {
+  public NodesStatsResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public NodesStatsResponse get(String timeout) throws ElasticsearchException {
+  public NodesStatsResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
@@ -68,6 +67,7 @@ public class ProxyNodesStatsRequestBuilder extends NodesStatsRequestBuilder {
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
+  @Override
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("ES nodes stats request");

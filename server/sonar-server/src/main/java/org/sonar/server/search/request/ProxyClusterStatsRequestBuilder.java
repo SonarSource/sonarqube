@@ -21,26 +21,25 @@
 package org.sonar.server.search.request;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.search.SearchClient;
 
 public class ProxyClusterStatsRequestBuilder extends ClusterStatsRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyClusterStatsRequestBuilder(Client client, Profiling profiling) {
+  public ProxyClusterStatsRequestBuilder(SearchClient client, Profiling profiling) {
     super(client.admin().cluster());
     this.profiling = profiling;
   }
 
   @Override
-  public ClusterStatsResponse get() throws ElasticsearchException {
+  public ClusterStatsResponse get() {
     StopWatch fullProfile = profiling.start("cluster stats", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
@@ -54,12 +53,12 @@ public class ProxyClusterStatsRequestBuilder extends ClusterStatsRequestBuilder 
   }
 
   @Override
-  public ClusterStatsResponse get(TimeValue timeout) throws ElasticsearchException {
+  public ClusterStatsResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public ClusterStatsResponse get(String timeout) throws ElasticsearchException {
+  public ClusterStatsResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
@@ -68,6 +67,7 @@ public class ProxyClusterStatsRequestBuilder extends ClusterStatsRequestBuilder 
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
+  @Override
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("ES cluster stats request");

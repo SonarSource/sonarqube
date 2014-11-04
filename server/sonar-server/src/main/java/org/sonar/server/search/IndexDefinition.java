@@ -44,7 +44,7 @@ public class IndexDefinition {
   public static final IndexDefinition LOG = new IndexDefinition("logs", "sonarLog");
 
   // Only used for test
-  public static IndexDefinition TEST = new IndexDefinition("test", "test");
+  static final IndexDefinition TEST = new IndexDefinition("test", "test");
 
   public static IndexDefinition createFor(String indexName, String indexType) {
     return new IndexDefinition(indexName, indexType);

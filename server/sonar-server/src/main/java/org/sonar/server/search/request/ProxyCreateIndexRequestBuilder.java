@@ -20,28 +20,27 @@
 
 package org.sonar.server.search.request;
 
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.search.SearchClient;
 
 public class ProxyCreateIndexRequestBuilder extends CreateIndexRequestBuilder {
 
   private final Profiling profiling;
   private final String index;
 
-  public ProxyCreateIndexRequestBuilder(Client client, Profiling profiling, String index) {
+  public ProxyCreateIndexRequestBuilder(SearchClient client, Profiling profiling, String index) {
     super(client.admin().indices(), index);
     this.profiling = profiling;
     this.index = index;
   }
 
   @Override
-  public CreateIndexResponse get() throws ElasticsearchException {
+  public CreateIndexResponse get() {
     StopWatch fullProfile = profiling.start("create index", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
@@ -55,12 +54,12 @@ public class ProxyCreateIndexRequestBuilder extends CreateIndexRequestBuilder {
   }
 
   @Override
-  public CreateIndexResponse get(TimeValue timeout) throws ElasticsearchException {
+  public CreateIndexResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public CreateIndexResponse get(String timeout) throws ElasticsearchException {
+  public CreateIndexResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
@@ -69,6 +68,7 @@ public class ProxyCreateIndexRequestBuilder extends CreateIndexRequestBuilder {
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
+  @Override
   public String toString() {
     return String.format("ES create index '%s'", index);
   }

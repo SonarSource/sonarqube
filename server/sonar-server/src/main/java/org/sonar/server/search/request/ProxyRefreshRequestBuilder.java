@@ -21,26 +21,25 @@
 package org.sonar.server.search.request;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
 import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.search.SearchClient;
 
 public class ProxyRefreshRequestBuilder extends RefreshRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyRefreshRequestBuilder(Client client, Profiling profiling) {
+  public ProxyRefreshRequestBuilder(SearchClient client, Profiling profiling) {
     super(client.admin().indices());
     this.profiling = profiling;
   }
 
   @Override
-  public RefreshResponse get() throws ElasticsearchException {
+  public RefreshResponse get() {
     StopWatch fullProfile = profiling.start("refresh", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
@@ -54,12 +53,12 @@ public class ProxyRefreshRequestBuilder extends RefreshRequestBuilder {
   }
 
   @Override
-  public RefreshResponse get(TimeValue timeout) throws ElasticsearchException {
+  public RefreshResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public RefreshResponse get(String timeout) throws ElasticsearchException {
+  public RefreshResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
@@ -68,6 +67,7 @@ public class ProxyRefreshRequestBuilder extends RefreshRequestBuilder {
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
+  @Override
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("ES refresh request");

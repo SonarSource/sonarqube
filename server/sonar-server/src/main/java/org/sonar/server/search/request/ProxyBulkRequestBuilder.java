@@ -20,7 +20,6 @@
 
 package org.sonar.server.search.request;
 
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -28,22 +27,22 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.search.SearchClient;
 
 public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyBulkRequestBuilder(Client client, Profiling profiling) {
+  public ProxyBulkRequestBuilder(SearchClient client, Profiling profiling) {
     super(client);
     this.profiling = profiling;
   }
 
   @Override
-  public BulkResponse get() throws ElasticsearchException {
+  public BulkResponse get() {
     StopWatch fullProfile = profiling.start("bulk", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
@@ -57,12 +56,12 @@ public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
   }
 
   @Override
-  public BulkResponse get(TimeValue timeout) throws ElasticsearchException {
+  public BulkResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public BulkResponse get(String timeout) throws ElasticsearchException {
+  public BulkResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
@@ -71,6 +70,7 @@ public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
+  @Override
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("ES bulk request for ");

@@ -20,24 +20,19 @@
 
 package org.sonar.server.search.request;
 
-import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.search.SearchClient;
 
 public class ProxyGetRequestBuilder extends GetRequestBuilder {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProxyGetRequestBuilder.class);
-
   private final Profiling profiling;
 
-  public ProxyGetRequestBuilder(Client client, Profiling profiling) {
+  public ProxyGetRequestBuilder(SearchClient client, Profiling profiling) {
     super(client);
     this.profiling = profiling;
   }
@@ -57,12 +52,12 @@ public class ProxyGetRequestBuilder extends GetRequestBuilder {
   }
 
   @Override
-  public GetResponse get(TimeValue timeout) throws ElasticsearchException {
+  public GetResponse get(TimeValue timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
   @Override
-  public GetResponse get(String timeout) throws ElasticsearchException {
+  public GetResponse get(String timeout) {
     throw new IllegalStateException("Not yet implemented");
   }
 
@@ -71,6 +66,7 @@ public class ProxyGetRequestBuilder extends GetRequestBuilder {
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
+  @Override
   public String toString() {
     StringBuilder message = new StringBuilder().append("ES get request");
     message.append(String.format(" for key '%s'", request.id()));

@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.index;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -54,7 +55,7 @@ public class IssueAuthorizationNormalizer extends BaseNormalizer<IssueAuthorizat
   public List<UpdateRequest> normalize(IssueAuthorizationDto dto) {
     Map<String, Object> update = new HashMap<String, Object>();
 
-//    Preconditions.checkNotNull(dto.getProjectUuid(), "Project uuid is null");
+    Preconditions.checkNotNull(dto.getProjectUuid(), "Project uuid is null");
 
     update.put(IssueAuthorizationField.PROJECT.field(), dto.getProjectUuid());
     update.put(IssueAuthorizationField.USERS.field(), dto.getUsers());
