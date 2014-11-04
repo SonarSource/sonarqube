@@ -146,6 +146,9 @@ class PluginRealm
           user.name = details.getName()
           user.email = details.getEmail()
         end
+
+        # Force the update of updated_ad in order to execute an SQL update to block other session
+        user.updated_at = Time.now
       end
       if @save_password
         user.password = password
