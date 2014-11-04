@@ -68,6 +68,12 @@ class DefaultSettings {
     defaults.put(ProcessConstants.JDBC_URL, "jdbc:h2:tcp://localhost:9092/sonar");
     defaults.put(ProcessConstants.JDBC_LOGIN, "sonar");
     defaults.put(ProcessConstants.JDBC_PASSWORD, "sonar");
+    defaults.put(ProcessConstants.JDBC_MAX_ACTIVE, "50");
+    defaults.put(ProcessConstants.JDBC_MAX_IDLE, "5");
+    defaults.put(ProcessConstants.JDBC_MIN_IDLE, "2");
+    defaults.put(ProcessConstants.JDBC_MAX_WAIT, "5000");
+    defaults.put(ProcessConstants.JDBC_MIN_EVICTABLE_IDLE_TIME_MILLIS, "600000");
+    defaults.put(ProcessConstants.JDBC_TIME_BETWEEN_EVICTION_RUNS_MILLIS, "30000");
     return defaults;
   }
 

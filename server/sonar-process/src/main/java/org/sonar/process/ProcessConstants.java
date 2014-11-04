@@ -35,6 +35,12 @@ public interface ProcessConstants {
   String JDBC_LOGIN = "sonar.jdbc.username";
   String JDBC_PASSWORD = "sonar.jdbc.password";
   String JDBC_DRIVER_PATH = "sonar.jdbc.driverPath";
+  String JDBC_MAX_ACTIVE = "sonar.jdbc.maxActive";
+  String JDBC_MAX_IDLE = "sonar.jdbc.maxIdle";
+  String JDBC_MIN_IDLE = "sonar.jdbc.minIdle";
+  String JDBC_MAX_WAIT = "sonar.jdbc.maxWait";
+  String JDBC_MIN_EVICTABLE_IDLE_TIME_MILLIS = "sonar.jdbc.minEvictableIdleTimeMillis";
+  String JDBC_TIME_BETWEEN_EVICTION_RUNS_MILLIS = "sonar.jdbc.timeBetweenEvictionRunsMillis";
 
   String PATH_DATA = "sonar.path.data";
   String PATH_HOME = "sonar.path.home";

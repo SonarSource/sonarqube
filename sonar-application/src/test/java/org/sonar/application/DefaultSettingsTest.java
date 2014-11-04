@@ -36,6 +36,7 @@ public class DefaultSettingsTest {
 
     assertThat(props.value("sonar.search.javaOpts")).contains("-Xmx");
     assertThat(props.value("sonar.jdbc.username")).isEqualTo("sonar");
+    assertThat(props.valueAsInt("sonar.jdbc.maxActive")).isEqualTo(50);
   }
 
   @Test
