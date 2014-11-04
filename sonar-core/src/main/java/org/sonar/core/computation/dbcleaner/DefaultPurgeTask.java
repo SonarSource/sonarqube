@@ -84,7 +84,7 @@ public class DefaultPurgeTask implements PurgeTask {
     try {
       purgeDao.purge(newPurgeConfigurationOnResource(resourceId));
     } catch (Exception e) {
-      // purge errors must no fail the batch
+      // purge errors must no fail the report analysis
       LOG.error("Fail to purge data [id=" + resourceId + "]", e);
     }
   }

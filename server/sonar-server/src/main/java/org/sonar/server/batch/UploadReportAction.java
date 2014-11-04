@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.computation.AnalysisReportQueue;
-import org.sonar.server.computation.AnalysisReportTask;
 import org.sonar.server.computation.AnalysisReportTaskLauncher;
 import org.sonar.server.computation.ComputationService;
 
@@ -73,9 +72,6 @@ public class UploadReportAction implements RequestHandler {
     String snapshotId = request.mandatoryParam(PARAM_SNAPSHOT);
 
     analysisReportQueue.add(projectKey, Long.valueOf(snapshotId));
-
-    // TODO remove synchronization as soon as it won't break ITs !
-    (new AnalysisReportTask(analysisReportQueue, computationService)).run();
 
     analysisTaskLauncher.startAnalysisTaskNow();
   }
