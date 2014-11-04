@@ -40,10 +40,10 @@
       ]
     },
     {
-      "property": "componentRootUuids",
+      "property": "projectUuids",
       "values": [
         {
-          "val": "abcd",
+          "val": "ABCD",
           "count": 1
         }
       ]

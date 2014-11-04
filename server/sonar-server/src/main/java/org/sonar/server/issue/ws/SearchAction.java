@@ -140,6 +140,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         "Issues associated to its sub-components (such as files, packages, etc.) are not retrieved. See also componentRoots. " +
         "If this parameter is set, componentUuids must not be set.")
       .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
+    action.createParam(IssueFilterParameters.PROJECTS)
+      .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project keys). " +
+        "If this parameter is set, projectUuids must not be set.")
+      .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
     action.createParam(IssueFilterParameters.COMPONENT_ROOTS)
       .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component keys). " +
         "Views are not supported. If this parameter is set, componentRootUuids must not be set.")
@@ -153,6 +157,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     action.createParam(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component UUIDs). " +
         "Views are not supported. If this parameter is set, componentRoots must not be set.")
+      .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
+    action.createParam(IssueFilterParameters.PROJECT_UUIDS)
+      .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project UUIDs). " +
+        "Views are not supported. If this parameter is set, projects must not be set.")
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
     action.createParam(IssueFilterParameters.RULES)
       .setDescription("Comma-separated list of coding rule keys. Format is <repository>:<rule>")
@@ -231,7 +239,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       IssueFilterParameters.STATUSES,
       IssueFilterParameters.RESOLUTIONS,
       IssueFilterParameters.ACTION_PLANS,
-      IssueFilterParameters.COMPONENT_ROOT_UUIDS,
+      IssueFilterParameters.PROJECT_UUIDS,
       IssueFilterParameters.RULES,
       IssueFilterParameters.ASSIGNEES,
       IssueFilterParameters.REPORTERS,
@@ -277,7 +285,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       }
     }
 
-    collectFacetKeys(result, IssueFilterParameters.COMPONENT_ROOT_UUIDS, projectUuids);
+    collectFacetKeys(result, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
     collectFacetKeys(result, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
     collectFacetKeys(result, IssueFilterParameters.ASSIGNEES, userLogins);
     collectFacetKeys(result, IssueFilterParameters.REPORTERS, userLogins);
@@ -293,11 +301,15 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
       List<ComponentDto> fileDtos = dbClient.componentDao().getByUuids(session, componentUuids);
       List<ComponentDto> subProjectDtos = dbClient.componentDao().findSubProjectsByComponentUuids(session, componentUuids);
-      projectDtos = dbClient.componentDao().getByUuids(session, projectUuids);
       componentDtos.addAll(fileDtos);
       componentDtos.addAll(subProjectDtos);
-      componentDtos.addAll(projectDtos);
 
+      for (ComponentDto component: componentDtos) {
+        projectUuids.add(component.projectUuid());
+      }
+
+      projectDtos = dbClient.componentDao().getByUuids(session, projectUuids);
+      componentDtos.addAll(projectDtos);
       for (ComponentDto componentDto : componentDtos) {
         componentsByUuid.put(componentDto.uuid(), componentDto);
       }
@@ -595,7 +607,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         throw new IllegalStateException("Component has no UUID: " + component.getKey());
       }
       if (!projectsByUuid.containsKey(component.projectUuid())) {
-        throw new IllegalStateException("Project cannot be found for component: " + component.getKey());
+        throw new IllegalStateException("Project cannot be found for component: " + component.getKey() + " / " + component.uuid());
       }
       projectsByComponentUuid.put(component.uuid(), projectsByUuid.get(component.projectUuid()));
     }

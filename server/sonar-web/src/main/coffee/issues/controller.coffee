@@ -13,10 +13,10 @@ define [
   $ = jQuery
   EXTRA_FIELDS = 'actions,transitions,assigneeName,reporterName,actionPlanName'
   PAGE_SIZE = 50
-  ALL_FACETS = ['severities', 'statuses', 'resolutions', 'componentRootUuids', 'assignees', 'reporters', 'rules',
+  ALL_FACETS = ['severities', 'statuses', 'resolutions', 'projectUuids', 'assignees', 'reporters', 'rules',
                 'languages', 'actionPlans', 'componentUuids', 'creationDate']
   FACET_DATA_FIELDS = ['components', 'projects', 'users', 'rules', 'actionPlans', 'languages']
-  FACETS_FROM_SERVER = ['severities', 'statuses', 'resolutions', 'actionPlans', 'componentRootUuids', 'rules',
+  FACETS_FROM_SERVER = ['severities', 'statuses', 'resolutions', 'actionPlans', 'projectUuids', 'rules',
                         'assignees', 'reporters', 'componentUuids', 'languages']
 
 

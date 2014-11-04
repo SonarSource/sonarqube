@@ -23,6 +23,7 @@ import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.ComponentDto;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 

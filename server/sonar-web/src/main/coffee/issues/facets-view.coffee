@@ -40,7 +40,7 @@ define [
         when 'assignees' then AssigneeFacet
         when 'resolutions' then ResolutionFacet
         when 'creationDate' then CreationDateFacet
-        when 'componentRootUuids' then ProjectFacet
+        when 'projectUuids' then ProjectFacet
         when 'rules' then RuleFacet
         when 'actionPlans' then ActionPlanFacet
         when 'componentUuids' then ComponentFacet
@@ -61,4 +61,3 @@ define [
       enabledFacets = @collection.filter (model) -> model.get('enabled')
       enabledFacetIds = enabledFacets.map (model) -> model.id
       @options.app.state.set facets: enabledFacetIds
-

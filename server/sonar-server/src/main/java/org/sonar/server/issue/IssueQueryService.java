@@ -75,6 +75,8 @@ public class IssueQueryService implements ServerComponent {
         .createdAt(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AT)))
         .createdAfter(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AFTER)))
         .createdBefore(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_BEFORE)));
+      addProjectUuids(builder, session,
+        RubyUtils.toStrings(params.get(IssueFilterParameters.PROJECT_UUIDS)), RubyUtils.toStrings(params.get(IssueFilterParameters.PROJECTS)));
       addComponentUuids(builder, session,
         RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENT_UUIDS)), RubyUtils.toStrings(params.get(IssueFilterParameters.COMPONENTS)));
       addComponentRootUuids(builder, session,
@@ -110,6 +112,8 @@ public class IssueQueryService implements ServerComponent {
         .createdAt(request.paramAsDateTime(IssueFilterParameters.CREATED_AT))
         .createdAfter(request.paramAsDateTime(IssueFilterParameters.CREATED_AFTER))
         .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE));
+      addProjectUuids(builder, session,
+        request.paramAsStrings(IssueFilterParameters.PROJECT_UUIDS), request.paramAsStrings(IssueFilterParameters.PROJECTS));
       addComponentUuids(builder, session,
         request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS), request.paramAsStrings(IssueFilterParameters.COMPONENTS));
       addComponentRootUuids(builder, session,
@@ -123,6 +127,17 @@ public class IssueQueryService implements ServerComponent {
 
     } finally {
       session.close();
+    }
+  }
+
+  private void addProjectUuids(IssueQuery.Builder builder, DbSession session, @Nullable Collection<String> projectUuids, @Nullable Collection<String> projects) {
+    if (projectUuids != null) {
+      if (projects != null) {
+        throw new IllegalArgumentException("projects and projectUuids cannot be set simultaneously");
+      }
+      builder.projectUuids(projectUuids);
+    } else {
+      builder.projectUuids(componentUuids(session, projects));
     }
   }
 
