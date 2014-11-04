@@ -113,7 +113,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         try {
           SearchScrollRequestBuilder esRequest = client.prepareSearchScroll(scrollId)
             .setScroll(TimeValue.timeValueMinutes(3));
-          Collections.addAll(hits, ((SearchResponse) client.execute(esRequest)).getHits().getHits());
+          Collections.addAll(hits, esRequest.get().getHits().getHits());
         } catch (Exception e) {
           throw new IllegalStateException("Error while filling in the scroll buffer", e);
         }
@@ -148,19 +148,18 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected void initializeIndex() {
     String index = this.getIndexName();
 
-    IndicesExistsResponse indexExistsResponse = client.admin().indices()
-      .prepareExists(index).execute().actionGet();
+    IndicesExistsResponse indexExistsResponse = client.prepareExists(index).get();
     try {
 
       if (!indexExistsResponse.isExists()) {
         LOG.debug("Setup of {} for type {}", this.getIndexName(), this.getIndexType());
-        client.admin().indices().prepareCreate(index)
+        client.prepareCreate(index)
           .setSettings(getIndexSettings())
-          .execute().actionGet();
+          .get();
       }
 
       LOG.debug("Update of index {} for type {}", this.getIndexName(), this.getIndexType());
-      client.admin().indices().preparePutMapping(index)
+      client.preparePutMapping(index)
         .setType(getIndexType())
         .setIgnoreConflicts(true)
         .setSource(mapDomain())
@@ -176,7 +175,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     CountRequestBuilder countRequest = client.prepareCount(this.getIndexName())
       .setTypes(this.getIndexType())
       .setQuery(QueryBuilders.matchAllQuery());
-    CountResponse response = client.execute(countRequest);
+    CountResponse response = countRequest.get();
     return new IndexStat(getLastSynchronization(), response.getCount());
   }
 
@@ -201,7 +200,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       .addAggregation(AggregationBuilders.max("latest")
         .field(BaseNormalizer.UPDATED_AT_FIELD));
 
-    SearchResponse response = client.execute(request);
+    SearchResponse response = request.get();
 
     Max max = response.getAggregations().get("latest");
     if (max.getValue() > 0) {
@@ -416,7 +415,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       .setFetchSource(true)
       .setRouting(this.getKeyValue(key));
 
-    GetResponse response = client.execute(request);
+    GetResponse response = request.get();
 
     if (response.isExists()) {
       return toDoc(response.getSource());
@@ -438,7 +437,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
           .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
     }
 
-    MultiGetResponse response = client.execute(request);
+    MultiGetResponse response = request.get();
     if (response.getResponses() != null) {
       for (MultiGetItemResponse item : response.getResponses()) {
         Map<String, Object> source = item.getResponse().getSource();
@@ -497,7 +496,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         .size(Integer.MAX_VALUE)
         .minDocCount(0));
 
-    SearchResponse response = client.execute(request);
+    SearchResponse response = request.get();
 
     Terms values =
       response.getAggregations().get(indexField.field());

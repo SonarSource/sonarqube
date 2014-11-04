@@ -21,33 +21,54 @@
 package org.sonar.server.search;
 
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.ActionRequestBuilder;
-import org.elasticsearch.action.ActionResponse;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilder;
+import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
+import org.elasticsearch.action.admin.cluster.stats.ClusterStatsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
+import org.elasticsearch.action.admin.indices.flush.FlushRequestBuilder;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
+import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
+import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequestBuilder;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.count.CountRequestBuilder;
+import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
+import org.elasticsearch.action.explain.ExplainRequestBuilder;
+import org.elasticsearch.action.get.GetRequestBuilder;
+import org.elasticsearch.action.get.MultiGetRequestBuilder;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.mlt.MoreLikeThisRequestBuilder;
+import org.elasticsearch.action.percolate.MultiPercolateRequestBuilder;
+import org.elasticsearch.action.percolate.PercolateRequestBuilder;
+import org.elasticsearch.action.search.ClearScrollRequestBuilder;
+import org.elasticsearch.action.search.MultiSearchRequestBuilder;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchScrollRequestBuilder;
+import org.elasticsearch.action.suggest.SuggestRequestBuilder;
+import org.elasticsearch.action.termvector.MultiTermVectorsRequestBuilder;
+import org.elasticsearch.action.termvector.TermVectorRequestBuilder;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.logging.ESLoggerFactory;
 import org.elasticsearch.common.logging.slf4j.Slf4jESLoggerFactory;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.common.xcontent.ToXContent;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.picocontainer.Startable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.StopWatch;
 import org.sonar.process.LoopbackAddress;
 import org.sonar.process.ProcessConstants;
+import org.sonar.server.search.request.*;
 
 /**
  * ElasticSearch Node used to connect to index.
  */
 public class SearchClient extends TransportClient implements Startable {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(SearchClient.class);
 
   private final Profiling profiling;
 
@@ -66,7 +87,7 @@ public class SearchClient extends TransportClient implements Startable {
 
   public ClusterHealth getClusterHealth() {
     ClusterHealth health = new ClusterHealth();
-    ClusterStatsResponse clusterStatsResponse = this.admin().cluster().prepareClusterStats().get();
+    ClusterStatsResponse clusterStatsResponse = this.prepareClusterStats().get();
 
     // Cluster health
     health.setClusterAvailable(clusterStatsResponse.getStatus() != ClusterHealthStatus.RED);
@@ -81,28 +102,173 @@ public class SearchClient extends TransportClient implements Startable {
     ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
   }
 
-  public <K extends ActionResponse> K execute(ActionRequestBuilder request) {
-    StopWatch fullProfile = profiling.start("search", Profiling.Level.FULL);
-    K response = null;
-    try {
-      response = (K) request.get();
+  public RefreshRequestBuilder prepareRefresh(String... indices) {
+    return new ProxyRefreshRequestBuilder(this, profiling).setIndices(indices);
+  }
 
-      if (profiling.isProfilingEnabled(Profiling.Level.BASIC)) {
-        if (ToXContent.class.isAssignableFrom(request.getClass())) {
-          XContentBuilder debugResponse = XContentFactory.jsonBuilder();
-          debugResponse.startObject();
-          ((ToXContent) request).toXContent(debugResponse, ToXContent.EMPTY_PARAMS);
-          debugResponse.endObject();
-          fullProfile.stop("ES Request: %s", debugResponse.string());
-        } else {
-          fullProfile.stop("ES Request: %s", request.toString().replaceAll("\n", ""));
-        }
-      }
-      return response;
-    } catch (Exception e) {
-      LOGGER.error(String.format("could not execute request: %s", request), e);
-      throw new IllegalStateException("ES error: ", e);
-    }
+  public FlushRequestBuilder prepareFlush(String... indices) {
+    return new ProxyFlushRequestBuilder(this, profiling).setIndices(indices);
+  }
+
+  public IndicesStatsRequestBuilder prepareStats(String... indices) {
+    return new ProxyIndicesStatsRequestBuilder(this, profiling).setIndices(indices);
+  }
+
+  public NodesStatsRequestBuilder prepareNodesStats(String... nodesIds) {
+    return new ProxyNodesStatsRequestBuilder(this, profiling).setNodesIds(nodesIds);
+  }
+
+  public ClusterStatsRequestBuilder prepareClusterStats() {
+    return new ProxyClusterStatsRequestBuilder(this, profiling);
+  }
+
+  public ClusterStateRequestBuilder prepareState() {
+    return new ProxyClusterStateRequestBuilder(this, profiling);
+  }
+
+  public ClusterHealthRequestBuilder prepareHealth(String... indices) {
+    return new ProxyClusterHealthRequestBuilder(this, profiling).setIndices(indices);
+  }
+
+  public IndicesExistsRequestBuilder prepareExists(String... indices) {
+    return new ProxyIndicesExistsRequestBuilder(this, profiling, indices);
+  }
+
+  public CreateIndexRequestBuilder prepareCreate(String index) {
+    return new ProxyCreateIndexRequestBuilder(this, profiling, index);
+  }
+
+  public PutMappingRequestBuilder preparePutMapping(String... indices) {
+    return new ProxyPutMappingRequestBuilder(this, profiling).setIndices(indices);
+  }
+
+  @Override
+  public SearchRequestBuilder prepareSearch(String... indices) {
+    return new ProxySearchRequestBuilder(this, profiling).setIndices(indices);
+  }
+
+  @Override
+  public SearchScrollRequestBuilder prepareSearchScroll(String scrollId) {
+    return new ProxySearchScrollRequestBuilder(scrollId, this, profiling);
+  }
+
+  @Override
+  public GetRequestBuilder prepareGet() {
+    return new ProxyGetRequestBuilder(this, profiling);
+  }
+
+  @Override
+  public GetRequestBuilder prepareGet(String index, String type, String id) {
+    return new ProxyGetRequestBuilder(this, profiling).setIndex(index).setType(type).setId(id);
+  }
+
+  @Override
+  public MultiGetRequestBuilder prepareMultiGet() {
+    return new ProxyMultiGetRequestBuilder(this, profiling);
+  }
+
+  @Override
+  public CountRequestBuilder prepareCount(String... indices) {
+    return new ProxyCountRequestBuilder(this, profiling).setIndices(indices);
+  }
+
+  @Override
+  public BulkRequestBuilder prepareBulk() {
+    return new ProxyBulkRequestBuilder(this, profiling);
+  }
+
+  @Override
+  public DeleteByQueryRequestBuilder prepareDeleteByQuery(String... indices) {
+    // TODO
+    return new DeleteByQueryRequestBuilder(this).setIndices(indices);
+  }
+
+  // ****************************************************************************************************************
+  // Not yet implemented methods
+  // ****************************************************************************************************************
+
+  @Override
+  public MultiSearchRequestBuilder prepareMultiSearch() {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public IndexRequestBuilder prepareIndex() {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public IndexRequestBuilder prepareIndex(String index, String type) {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public IndexRequestBuilder prepareIndex(String index, String type, @Nullable String id) {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public UpdateRequestBuilder prepareUpdate() {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public UpdateRequestBuilder prepareUpdate(String index, String type, String id) {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public DeleteRequestBuilder prepareDelete() {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public DeleteRequestBuilder prepareDelete(String index, String type, String id) {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public PercolateRequestBuilder preparePercolate() {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public MultiPercolateRequestBuilder prepareMultiPercolate() {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public SuggestRequestBuilder prepareSuggest(String... indices) {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public MoreLikeThisRequestBuilder prepareMoreLikeThis(String index, String type, String id) {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public TermVectorRequestBuilder prepareTermVector(String index, String type, String id) {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public MultiTermVectorsRequestBuilder prepareMultiTermVectors() {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public ExplainRequestBuilder prepareExplain(String index, String type, String id) {
+    throw throwNotYetImplemented();
+  }
+
+  @Override
+  public ClearScrollRequestBuilder prepareClearScroll() {
+    throw throwNotYetImplemented();
+  }
+
+  private static IllegalStateException throwNotYetImplemented(){
+    return new IllegalStateException("Not yet implemented");
   }
 
   @Override

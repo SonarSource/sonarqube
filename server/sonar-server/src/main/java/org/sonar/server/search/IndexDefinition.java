@@ -19,8 +19,6 @@
  */
 package org.sonar.server.search;
 
-import com.google.common.annotations.VisibleForTesting;
-
 public class IndexDefinition {
 
   private final String indexName;
@@ -45,8 +43,8 @@ public class IndexDefinition {
   public static final IndexDefinition ISSUES = new IndexDefinition("issues", "issue");
   public static final IndexDefinition LOG = new IndexDefinition("logs", "sonarLog");
 
-  @VisibleForTesting
-  protected static IndexDefinition TEST = new IndexDefinition("test", "test");
+  // Only used for test
+  public static IndexDefinition TEST = new IndexDefinition("test", "test");
 
   public static IndexDefinition createFor(String indexName, String indexType) {
     return new IndexDefinition(indexName, indexType);

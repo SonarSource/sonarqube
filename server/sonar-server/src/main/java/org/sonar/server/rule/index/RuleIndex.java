@@ -357,7 +357,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
 
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
-    SearchResponse esResult = getClient().execute(esSearch);
+    SearchResponse esResult = esSearch.get();
     return new Result<Rule>(this, esResult);
   }
 
@@ -379,7 +379,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         .size(Integer.MAX_VALUE)
         .minDocCount(1));
 
-    SearchResponse esResponse = getClient().execute(request);
+    SearchResponse esResponse = request.get();
 
     Terms aggregation = esResponse.getAggregations().get(key);
 
@@ -401,7 +401,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .setTypes(this.getIndexType())
       .setQuery(QueryBuilders.termQuery(RuleNormalizer.RuleField.ID.field(), id))
       .setSize(1);
-    SearchResponse response = getClient().execute(request);
+    SearchResponse response = request.get();
 
     SearchHit hit = response.getHits().getAt(0);
     if (hit == null) {
@@ -422,7 +422,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .setScroll(TimeValue.timeValueSeconds(3L))
       .setSize(100)
       .setQuery(QueryBuilders.termsQuery(RuleNormalizer.RuleField.ID.field(), ids));
-    SearchResponse scrollResp = getClient().execute(request);
+    SearchResponse scrollResp = request.get();
 
     List<Rule> rules = newArrayList();
     while (true) {
@@ -430,7 +430,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         .prepareSearchScroll(scrollResp.getScrollId())
         .setScroll(TimeValue.timeValueSeconds(3L));
 
-      scrollResp = getClient().execute(scrollRequest);
+      scrollResp = scrollRequest.get();
 
       for (SearchHit hit : scrollResp.getHits()) {
         rules.add(toDoc(hit.getSource()));

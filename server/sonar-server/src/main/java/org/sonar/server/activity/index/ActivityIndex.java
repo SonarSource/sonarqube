@@ -24,22 +24,14 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.AndFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.OrFilterBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
-import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.IndexField;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.*;
 
 import javax.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,7 +81,7 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
       .setQuery(QueryBuilders.matchAllQuery())
       .setTypes(this.getIndexType())
       .setSize(Integer.MAX_VALUE);
-    SearchResponse response = getClient().execute(request);
+    SearchResponse response = request.get();
     return new Result<Activity>(this, response);
   }
 
@@ -140,8 +132,6 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
       esSearch.setScroll(TimeValue.timeValueMinutes(3));
     }
 
-    SearchResponse response = getClient().execute(esSearch);
-
-    return response;
+    return esSearch.get();
   }
 }

@@ -73,14 +73,14 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
       }
     }
 
-    BulkRequestBuilder bulkRequestBuilder = new BulkRequestBuilder(searchClient);
+    BulkRequestBuilder bulkRequestBuilder = searchClient.prepareBulk();
 
     long normTime = processActionsIntoQueries(bulkRequestBuilder, actions);
 
     if (bulkRequestBuilder.numberOfActions() > 0) {
       // execute the request
       long indexTime = System.currentTimeMillis();
-      BulkResponse response = searchClient.execute(bulkRequestBuilder.setRefresh(false));
+      BulkResponse response = bulkRequestBuilder.setRefresh(false).get();
 
       indexTime = System.currentTimeMillis() - indexTime;
 
@@ -99,14 +99,12 @@ public class IndexQueue implements ServerComponent, WorkQueue<IndexAction<?>> {
   }
 
   private long refreshRequiredIndex(Set<String> indices) {
-
     long refreshTime = System.currentTimeMillis();
     if (!indices.isEmpty()) {
-      RefreshRequestBuilder refreshRequest = searchClient.admin().indices()
-        .prepareRefresh(indices.toArray(new String[indices.size()]))
+      RefreshRequestBuilder refreshRequest = searchClient.prepareRefresh(indices.toArray(new String[indices.size()]))
         .setForce(false);
 
-      RefreshResponse refreshResponse = searchClient.execute(refreshRequest);
+      RefreshResponse refreshResponse = refreshRequest.get();
 
       if (refreshResponse.getFailedShards() > 0) {
         LOGGER.warn("{} Shard(s) did not refresh", refreshResponse.getFailedShards());

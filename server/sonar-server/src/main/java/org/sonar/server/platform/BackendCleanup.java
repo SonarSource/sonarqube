@@ -77,15 +77,15 @@ public class BackendCleanup implements ServerComponent {
   }
 
   public void clearIndexes() {
-    searchClient.prepareDeleteByQuery(searchClient.admin().cluster().prepareState().get()
+    searchClient.prepareDeleteByQuery(searchClient.prepareState().get()
       .getState().getMetaData().concreteAllIndices())
       .setQuery(QueryBuilders.matchAllQuery())
       .get();
-    searchClient.admin().indices().prepareRefresh(searchClient.admin().cluster().prepareState().get()
+    searchClient.prepareRefresh(searchClient.prepareState().get()
       .getState().getMetaData().concreteAllIndices())
       .setForce(true)
       .get();
-    searchClient.admin().indices().prepareFlush(searchClient.admin().cluster().prepareState().get()
+    searchClient.prepareFlush(searchClient.prepareState().get()
       .getState().getMetaData().concreteAllIndices())
       .get();
   }
@@ -150,7 +150,7 @@ public class BackendCleanup implements ServerComponent {
    * Completely remove a index with all types
    */
   public void clearIndex(IndexDefinition indexDefinition){
-    searchClient.prepareDeleteByQuery(searchClient.admin().cluster().prepareState().get()
+    searchClient.prepareDeleteByQuery(searchClient.prepareState().get()
       .getState().getMetaData().concreteIndices(new String[]{indexDefinition.getIndexName()}))
       .setQuery(QueryBuilders.matchAllQuery())
       .get();
@@ -160,7 +160,7 @@ public class BackendCleanup implements ServerComponent {
    * Remove only the type of an index
    */
   public void clearIndexType(IndexDefinition indexDefinition){
-    searchClient.prepareDeleteByQuery(searchClient.admin().cluster().prepareState().get()
+    searchClient.prepareDeleteByQuery(searchClient.prepareState().get()
       .getState().getMetaData().concreteIndices(new String[]{indexDefinition.getIndexName()})).setTypes(indexDefinition.getIndexType())
       .setQuery(QueryBuilders.matchAllQuery())
       .get();

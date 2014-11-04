@@ -172,7 +172,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     esSearch.addAggregation(AggregationBuilders.missing("notAssigned")
       .field(IssueNormalizer.IssueField.ASSIGNEE.field()));
 
-    SearchResponse response = getClient().execute(esSearch);
+    SearchResponse response = esSearch.get();
     Terms aggregation = (Terms) response.getAggregations().getAsMap().get(IssueNormalizer.IssueField.ASSIGNEE.field());
     List<FacetValue> facetValues = newArrayList();
     for (Terms.Bucket value : aggregation.getBuckets()) {
@@ -214,7 +214,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
 
     setFacets(query, options, filters, esQuery, esSearch);
 
-    SearchResponse response = getClient().execute(esSearch);
+    SearchResponse response = esSearch.get();
     return new Result<Issue>(this, response);
   }
 

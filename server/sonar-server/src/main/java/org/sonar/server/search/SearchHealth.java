@@ -54,9 +54,9 @@ public class SearchHealth {
       newIndexHealth.documentCount = indexStat.getDocumentCount();
       newIndexHealth.lastSync = indexStat.getLastUpdate();
 
-      IndicesStatsRequestBuilder statRequest = searchClient.admin().indices().prepareStats(index.getIndexName())
+      IndicesStatsRequestBuilder statRequest = searchClient.prepareStats(index.getIndexName())
         .setTypes(index.getIndexType());
-      IndicesStatsResponse indicesStatsResponse = searchClient.execute(statRequest);
+      IndicesStatsResponse indicesStatsResponse = statRequest.get();
       newIndexHealth.segmentCount = indicesStatsResponse.getTotal().getSegments().getCount();
       newIndexHealth.pendingDeletion = indicesStatsResponse.getTotal().getDocs().getDeleted();
 
@@ -66,8 +66,8 @@ public class SearchHealth {
   }
 
   public Map<String, NodeHealth > getNodesHealth() {
-    NodesStatsRequestBuilder nodesStatsRequest = searchClient.admin().cluster().prepareNodesStats().all();
-    NodesStatsResponse nodesStats = searchClient.execute(nodesStatsRequest);
+    NodesStatsRequestBuilder nodesStatsRequest = searchClient.prepareNodesStats().all();
+    NodesStatsResponse nodesStats = nodesStatsRequest.get();
 
     Map<String, NodeHealth> health = Maps.newHashMap();
     for (Entry<String, NodeStats> nodeEntry: nodesStats.getNodesMap().entrySet()) {

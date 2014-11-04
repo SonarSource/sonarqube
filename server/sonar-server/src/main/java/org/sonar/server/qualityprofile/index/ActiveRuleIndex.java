@@ -35,11 +35,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleNormalizer;
-import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.IndexField;
-import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,7 +112,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
 
-    SearchResponse response = getClient().execute(request);
+    SearchResponse response = request.get();
 
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
     for (SearchHit hit : response.getHits()) {
@@ -135,7 +131,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       .setRouting(key)
       // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
-    SearchResponse response = getClient().execute(request);
+    SearchResponse response = request.get();
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
     for (SearchHit hit : response.getHits()) {
       activeRules.add(toDoc(hit.getSource()));
@@ -181,7 +177,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
         .subAggregation(AggregationBuilders.count("countActiveRules")))
       .setSize(0)
       .setTypes(this.getIndexType());
-    SearchResponse response = getClient().execute(request);
+    SearchResponse response = request.get();
     Map<String, Multimap<String, FacetValue>> stats = new HashMap<String, Multimap<String, FacetValue>>();
     Aggregation aggregation = response.getAggregations().get(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field());
     for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
