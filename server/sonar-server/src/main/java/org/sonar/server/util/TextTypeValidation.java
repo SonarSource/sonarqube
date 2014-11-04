@@ -22,6 +22,8 @@ package org.sonar.server.util;
 
 import org.sonar.api.PropertyType;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class TextTypeValidation implements TypeValidation {
@@ -32,7 +34,7 @@ public class TextTypeValidation implements TypeValidation {
   }
 
   @Override
-  public void validate(String value, List<String> options) {
+  public void validate(String value, @Nullable List<String> options) {
     // Nothing to do
   }
 

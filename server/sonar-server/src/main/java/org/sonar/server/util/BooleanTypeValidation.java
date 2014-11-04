@@ -24,6 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
 import org.sonar.server.exceptions.BadRequestException;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class BooleanTypeValidation implements TypeValidation {
@@ -34,7 +36,7 @@ public class BooleanTypeValidation implements TypeValidation {
   }
 
   @Override
-  public void validate(String value, List<String> options) {
+  public void validate(String value, @Nullable List<String> options) {
     if (!StringUtils.equalsIgnoreCase(value, "true") && !StringUtils.equalsIgnoreCase(value, "false")) {
       throw new BadRequestException("errors.type.notBoolean", value);
     }

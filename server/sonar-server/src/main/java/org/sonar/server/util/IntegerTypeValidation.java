@@ -24,6 +24,8 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.PropertyType;
 import org.sonar.server.exceptions.BadRequestException;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class IntegerTypeValidation implements TypeValidation {
@@ -34,7 +36,7 @@ public class IntegerTypeValidation implements TypeValidation {
   }
 
   @Override
-  public void validate(String value, List<String> options) {
+  public void validate(String value, @Nullable List<String> options) {
     if (!NumberUtils.isDigits(value)) {
       throw new BadRequestException("errors.type.notInteger", value);
     }

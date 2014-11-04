@@ -24,6 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
 import org.sonar.server.exceptions.BadRequestException;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class StringListTypeValidation implements TypeValidation {
@@ -34,8 +36,8 @@ public class StringListTypeValidation implements TypeValidation {
   }
 
   @Override
-  public void validate(String value, List<String> options) {
-    if (!options.contains(value)) {
+  public void validate(String value, @Nullable List<String> options) {
+    if (options != null && !options.contains(value)) {
       String optionsAsString = StringUtils.join(options, ", ");
       throw new BadRequestException("errors.type.notInOptions", value, optionsAsString);
     }

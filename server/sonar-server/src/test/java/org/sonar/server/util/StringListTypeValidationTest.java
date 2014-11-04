@@ -45,6 +45,7 @@ public class StringListTypeValidationTest {
   @Test
   public void not_fail_on_valid_option() {
     validation.validate("a", newArrayList("a", "b", "c"));
+    validation.validate("a", null);
   }
 
   @Test
