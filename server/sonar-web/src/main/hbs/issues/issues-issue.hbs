@@ -95,6 +95,10 @@
       <li>{{t 'issue.technical_debt_short'}}: {{debt}}</li>
     {{/if}}
 
+    {{#if creationDate}}
+      <li>{{t 'issue.creation_date'}}: {{dt creationDate}}</li>
+    {{/if}}
+
     {{#if reporterName}}<li>{{t 'reporter'}}: {{reporterName}}</li>{{/if}}
     {{#if author}}<li>{{t 'author'}}: {{author}}</li>{{/if}}
   </ul>
