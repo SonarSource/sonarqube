@@ -191,7 +191,7 @@ public class SvnBlameCommandTest {
     });
 
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("The svn blame command [svn blame --xml src/foo.xoo --non-interactive] failed: My error");
+    thrown.expectMessage("The svn blame command [svn blame --xml --non-interactive -x -w src/foo.xoo] failed: My error");
 
     when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
     new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(input, result);
@@ -204,21 +204,21 @@ public class SvnBlameCommandTest {
     SvnBlameCommand svnBlameCommand = new SvnBlameCommand(commandExecutor, new SvnConfiguration(settings));
 
     Command commandLine = svnBlameCommand.createCommandLine(baseDir, "src/main/java/Foo.java");
-    assertThat(commandLine.toCommandLine()).isEqualTo("svn blame --xml src/main/java/Foo.java --non-interactive");
-    assertThat(commandLine.toString()).isEqualTo("svn blame --xml src/main/java/Foo.java --non-interactive");
+    assertThat(commandLine.toCommandLine()).isEqualTo("svn blame --xml --non-interactive -x -w src/main/java/Foo.java");
+    assertThat(commandLine.toString()).isEqualTo("svn blame --xml --non-interactive -x -w src/main/java/Foo.java");
 
     settings.setProperty(SvnConfiguration.USER_PROP_KEY, "myUser");
     settings.setProperty(SvnConfiguration.PASSWORD_PROP_KEY, "myPass");
     commandLine = svnBlameCommand.createCommandLine(baseDir, "src/main/java/Foo.java");
-    assertThat(commandLine.toCommandLine()).isEqualTo("svn blame --xml src/main/java/Foo.java --non-interactive --username myUser --password myPass");
-    assertThat(commandLine.toString()).isEqualTo("svn blame --xml src/main/java/Foo.java --non-interactive --username ******** --password ********");
+    assertThat(commandLine.toCommandLine()).isEqualTo("svn blame --xml --non-interactive -x -w --username myUser --password myPass src/main/java/Foo.java");
+    assertThat(commandLine.toString()).isEqualTo("svn blame --xml --non-interactive -x -w --username ******** --password ******** src/main/java/Foo.java");
 
     settings.setProperty(SvnConfiguration.CONFIG_DIR_PROP_KEY, "/home/julien/.svn");
     settings.setProperty(SvnConfiguration.TRUST_SERVER_PROP_KEY, "true");
     commandLine = svnBlameCommand.createCommandLine(baseDir, "src/main/java/Foo.java");
     assertThat(commandLine.toCommandLine())
-      .isEqualTo("svn blame --xml src/main/java/Foo.java --non-interactive --config-dir /home/julien/.svn --username myUser --password myPass --trust-server-cert");
+      .isEqualTo("svn blame --xml --non-interactive -x -w --config-dir /home/julien/.svn --username myUser --password myPass --trust-server-cert src/main/java/Foo.java");
     assertThat(commandLine.toString()).isEqualTo(
-      "svn blame --xml src/main/java/Foo.java --non-interactive --config-dir /home/julien/.svn --username ******** --password ******** --trust-server-cert");
+      "svn blame --xml --non-interactive -x -w --config-dir /home/julien/.svn --username ******** --password ******** --trust-server-cert src/main/java/Foo.java");
   }
 }

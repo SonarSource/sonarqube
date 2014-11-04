@@ -128,8 +128,9 @@ public class SvnBlameCommand extends BlameCommand {
     cl.setDirectory(baseDir);
     cl.addArgument("blame");
     cl.addArgument("--xml");
-    cl.addArgument(filename);
     cl.addArgument("--non-interactive");
+    cl.addArgument("-x");
+    cl.addArgument("-w");
     String configDir = configuration.configDir();
     if (configDir != null) {
       cl.addArgument("--config-dir");
@@ -148,6 +149,7 @@ public class SvnBlameCommand extends BlameCommand {
     if (configuration.trustServerCert()) {
       cl.addArgument("--trust-server-cert");
     }
+    cl.addArgument(filename);
     return cl;
   }
 }
