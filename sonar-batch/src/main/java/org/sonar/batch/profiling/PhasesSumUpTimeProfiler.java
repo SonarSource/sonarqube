@@ -119,7 +119,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
       println("");
       println(" -------- End of profiling of module " + module.getName() + " --------");
       println("");
-      String fileName = module.getKey() + "-profiler.xml";
+      String fileName = module.getKey() + "-profiler.properties";
       dumpToFile(props, fileName);
       totalProfiling.merge(currentModuleProfiling);
       if (module.isRoot() && !module.getModules().isEmpty()) {
@@ -145,19 +145,19 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     println("");
     println(" ======== End of profiling of total execution ========");
     println("");
-    String fileName = "total-execution-profiler.xml";
+    String fileName = "total-execution-profiler.properties";
     dumpToFile(props, fileName);
   }
 
   private void dumpToFile(Properties props, String fileName) {
     FileOutputStream fos = null;
+    File file = new File(out, fileName);
     try {
-      File file = new File(out, fileName);
       fos = new FileOutputStream(file);
-      props.storeToXML(fos, "SonarQube");
-      println("Results stored in " + file.getAbsolutePath());
+      props.store(fos, "SonarQube");
+      println("Profiling data stored in " + file.getAbsolutePath());
     } catch (Exception e) {
-      throw new IllegalStateException("Unable to store profiler output", e);
+      throw new IllegalStateException("Unable to store profiler output: " + file, e);
     } finally {
       Closeables.closeQuietly(fos);
     }
