@@ -406,7 +406,7 @@ input[type=button] {
   top: 0; left: 50%;
   width: 300px;
   margin-left: -150px;
-  padding: 3px 0;
+  line-height: 22px;
   background-color: #f0e8ac;
   border-radius: 0 0 3px 3px;
   text-align: center;
@@ -414,4 +414,18 @@ input[type=button] {
   .trans;
 
   &.shown { opacity: 1; }
+}
+
+.process-spinner-failed {
+  background-color: @red;
+  color: @white;
+}
+
+.process-spinner-close {
+  float: right;
+  margin-right: 5px;
+  padding: 3px;
+  background: none !important;
+  border: none !important;
+  line-height: 1;
 }

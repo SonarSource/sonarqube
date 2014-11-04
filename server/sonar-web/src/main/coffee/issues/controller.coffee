@@ -59,25 +59,25 @@ define [
       _.extend data, @options.app.state.get 'query'
 
       fetchIssuesProcess = window.process.addBackgroundProcess()
-      $.get "#{baseUrl}/api/issues/search", data, (r) =>
+      $.get "#{baseUrl}/api/issues/search", data
+      .done (r) =>
         issues = @options.app.issues.parseIssues r
         if firstPage
           @options.app.issues.reset issues
         else
           @options.app.issues.add issues
-
         FACET_DATA_FIELDS.forEach (field) => @options.app.facets[field] = r[field]
         @options.app.facets.reset @_allFacets()
         @options.app.facets.add r.facets, merge: true
         @enableFacets @_enabledFacets()
-
         @options.app.state.set
           page: r.p
           pageSize: r.ps
           total: r.total
           maxResultsReached: r.p * r.ps >= r.total
-
         window.process.finishBackgroundProcess fetchIssuesProcess
+      .fail ->
+        window.process.failBackgroundProcess fetchIssuesProcess
 
 
     fetchNextPage: ->
@@ -99,9 +99,12 @@ define [
         facet.set enabled: true
       else
         p = window.process.addBackgroundProcess()
-        @requestFacet(id).done =>
+        @requestFacet(id)
+        .done =>
           facet.set enabled: true
           window.process.finishBackgroundProcess p
+        .fail ->
+          window.process.failBackgroundProcess p
 
 
     disableFacet: (id) ->
