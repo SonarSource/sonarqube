@@ -324,6 +324,10 @@ public final class DefaultResourcePersister implements ResourcePersister {
   }
 
   private void updateUuids(Resource resource, Resource parentResource, ResourceModel model) {
+    // Don't override uuids when persisting a library and a project already exists
+    if (ResourceUtils.isLibrary(resource) && !Qualifiers.LIBRARY.equals(model.getQualifier())) {
+      return;
+    }
     if (parentResource != null) {
       ResourceModel parentModel = session.getSingleResult(ResourceModel.class, "id", parentResource.getId());
       if (parentModel.getProjectUuid() != null) {

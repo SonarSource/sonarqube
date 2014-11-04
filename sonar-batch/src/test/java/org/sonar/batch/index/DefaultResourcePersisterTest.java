@@ -242,7 +242,10 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     index.setCurrentProject(moduleB1, null);
     index.index(file);
 
-    checkTables("shouldSaveNewMultiModulesProject",
+    // Emulate another project having library dependency on moduleA
+    index.addResource(new Library(moduleA.getKey(), "1.0"));
+
+    checkTables("shouldSaveNewMultiModulesProjectAndLibrary",
       new String[] {"build_date", "created_at", "authorization_updated_at", "uuid", "project_uuid", "module_uuid", "module_uuid_path"}, "projects", "snapshots");
 
     // Need to enable snapshot to make resource visible using ComponentMapper
