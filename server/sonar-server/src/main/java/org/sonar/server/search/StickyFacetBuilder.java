@@ -56,12 +56,12 @@ public class StickyFacetBuilder {
   }
 
   public AggregationBuilder buildStickyFacet(String fieldName, String facetName, Object... selected) {
-    return buildStickyFacet(fieldName, facetName, FACET_DEFAULT_SIZE, FACET_DEFAULT_MIN_DOC_COUNT, selected);
+    return buildStickyFacet(fieldName, facetName, FACET_DEFAULT_SIZE, selected);
   }
 
-  public AggregationBuilder buildStickyFacet(String fieldName, String facetName, int size, int minDocCount, Object... selected) {
+  public AggregationBuilder buildStickyFacet(String fieldName, String facetName, int size, Object... selected) {
     BoolFilterBuilder facetFilter = getStickyFacetFilter(fieldName);
-    FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter, size, minDocCount);
+    FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter, size);
     facetTopAggregation = addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, selected);
 
     return AggregationBuilders
@@ -79,7 +79,7 @@ public class StickyFacetBuilder {
     return facetFilter;
   }
 
-  public FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolFilterBuilder facetFilter, int size, int minDocCount) {
+  public FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolFilterBuilder facetFilter, int size) {
     return AggregationBuilders
       .filter(facetName + "_filter")
       .filter(facetFilter)
@@ -88,11 +88,11 @@ public class StickyFacetBuilder {
           .field(fieldName)
           .order(Terms.Order.count(false))
           .size(size)
-          .minDocCount(minDocCount));
+          .minDocCount(FACET_DEFAULT_MIN_DOC_COUNT));
   }
 
   protected FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolFilterBuilder facetFilter) {
-    return buildTopFacetAggregation(fieldName, facetName, facetFilter, FACET_DEFAULT_SIZE, FACET_DEFAULT_MIN_DOC_COUNT);
+    return buildTopFacetAggregation(fieldName, facetName, facetFilter, FACET_DEFAULT_SIZE);
   }
 
   public FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation, Object... selected) {
@@ -100,8 +100,7 @@ public class StickyFacetBuilder {
       facetTopAggregation.subAggregation(
         AggregationBuilders.terms(facetName + "_selected")
           .field(fieldName)
-          .include(Joiner.on('|').join(selected))
-          .minDocCount(0));
+          .include(Joiner.on('|').join(selected)));
     }
     return facetTopAggregation;
   }
