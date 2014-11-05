@@ -163,6 +163,7 @@
 }
 
 .issues-filters {
+  position: relative;
   .clearfix;
   padding: 5px 10px;
   background-color: @barBackgroundColor;
@@ -183,8 +184,18 @@
 
 .issues-filters-list {
   display: none;
+  position: absolute;
+  z-index: 6;
+  top: 31px;
+  left: 0;
+  right: 10px;
   margin-bottom: 8px;
+  padding: 5px 10px;
+  border: 1px solid #e8e8e8;
+  .box-sizing(border-box);
   line-height: 1.5;
+  background-color: #fff;
+  box-shadow: @defaultShadow;
 }
 
 .issues-filters-filter {

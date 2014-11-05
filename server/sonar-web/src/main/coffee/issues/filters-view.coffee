@@ -38,8 +38,12 @@ define [
       @$el.toggleClass 'issues-filters-selected', @options.app.state.has('filter')
 
 
-    toggleFilters: ->
+    toggleFilters: (e) ->
+      e.stopPropagation()
       @$('.issues-filters-list').toggle()
+      $('body').on 'click.issues-filters', =>
+        $('body').off 'click.issues-filters'
+        @$('.issues-filters-list').hide()
 
 
     applyFilter: (e) ->
