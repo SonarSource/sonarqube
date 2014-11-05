@@ -19,10 +19,12 @@
  */
 package org.sonar.batch.profiling;
 
+import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.Initializer;
@@ -52,10 +54,10 @@ import org.sonar.batch.phases.Phases.Phase;
 import org.sonar.batch.phases.event.PersisterExecutionHandler;
 import org.sonar.batch.phases.event.PersistersPhaseHandler;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
@@ -70,9 +72,11 @@ public class PhasesSumUpTimeProfilerTest {
   private PhasesSumUpTimeProfiler profiler;
 
   @Before
-  public void prepare() throws IOException {
+  public void prepare() throws Exception {
     clock = new MockedSystem();
-    profiler = new PhasesSumUpTimeProfiler(clock, new BootstrapProperties(Collections.<String, String>emptyMap()));
+    Map<String, String> props = Maps.newHashMap();
+    props.put(CoreProperties.WORKING_DIRECTORY, temp.newFolder().getAbsolutePath());
+    profiler = new PhasesSumUpTimeProfiler(clock, new BootstrapProperties(props));
   }
 
   @Test
