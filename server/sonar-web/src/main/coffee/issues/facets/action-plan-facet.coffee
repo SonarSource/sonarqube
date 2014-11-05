@@ -15,7 +15,7 @@ define [
         label = null
         if key
           actionPlan = _.findWhere actionPlans, key: key
-          label = actionPlan.longName if actionPlan?
+          label = actionPlan.name if actionPlan?
         v.label = label
       values
 
