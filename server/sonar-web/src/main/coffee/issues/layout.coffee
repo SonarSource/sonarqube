@@ -8,10 +8,9 @@ define [
 
   $ = jQuery
 
-  # http://stackoverflow.com/questions/7600454/how-to-prevent-page-scrolling-when-scrolling-a-div-element
   $.fn.isolatedScroll = ->
-    @on 'mousewheel DOMMouseScroll', (e) ->
-      delta = e.wheelDelta || (e.originalEvent && e.originalEvent.wheelDelta) || -e.detail
+    @on 'wheel', (e) ->
+      delta = -e.originalEvent.deltaY
       bottomOverflow = @scrollTop + $(@).outerHeight() - @scrollHeight >= 0
       topOverflow = @scrollTop <= 0
       e.preventDefault() if (delta < 0 && bottomOverflow) || (delta > 0 && topOverflow)
