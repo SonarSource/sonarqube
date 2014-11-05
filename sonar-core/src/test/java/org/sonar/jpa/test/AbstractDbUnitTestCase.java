@@ -36,16 +36,15 @@ import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.core.cluster.NullQueue;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DatabaseCommands;
 import org.sonar.core.persistence.H2Database;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.jpa.session.DatabaseSessionFactory;
-import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 import org.sonar.jpa.session.MemoryDatabaseConnector;
 
@@ -61,33 +60,35 @@ public abstract class AbstractDbUnitTestCase {
   private static Database database;
   private static MyBatis myBatis;
   private static DatabaseCommands databaseCommands;
-  private static IDatabaseTester databaseTester;
-  private static JpaDatabaseSession session;
-  private WorkQueue queue = new NullQueue();
+  private static MemoryDatabaseConnector dbConnector;
+  private IDatabaseTester databaseTester;
+  private JpaDatabaseSession session;
 
-  @Before
-  public void startDatabase() throws SQLException {
+  @BeforeClass
+  public static void startDatabase() throws SQLException {
     if (database == null) {
       database = new H2Database("sonarHibernate", true);
       database.start();
 
       databaseCommands = DatabaseCommands.forDialect(database.getDialect());
-      databaseTester = new DataSourceDatabaseTester(database.getDataSource());
 
-      DefaultDatabaseConnector dbConnector = new MemoryDatabaseConnector(database);
+      dbConnector = new MemoryDatabaseConnector(database);
       dbConnector.start();
-      session = new JpaDatabaseSession(dbConnector);
-      session.start();
 
-      myBatis = new MyBatis(database, new Logback(), queue);
+      myBatis = new MyBatis(database, new Logback(), new NullQueue());
       myBatis.start();
     }
+  }
 
-    databaseCommands.truncateDatabase(database.getDataSource());
+  @Before
+  public void startDbUnit() throws Exception {
+    databaseTester = new DataSourceDatabaseTester(database.getDataSource());
+    session = new JpaDatabaseSession(dbConnector);
+    session.start();
   }
 
   @After
-  public void stopConnection() throws Exception {
+  public void stopDbUnit() throws Exception {
     if (session != null) {
       session.rollback();
     }
@@ -119,6 +120,7 @@ public abstract class AbstractDbUnitTestCase {
   protected void setupData(String... testNames) {
     InputStream[] streams = new InputStream[testNames.length];
     try {
+      databaseCommands.truncateDatabase(database.getDataSource());
       for (int i = 0; i < testNames.length; i++) {
         String className = getClass().getName();
         className = String.format("/%s/%s.xml", className.replace(".", "/"), testNames[i]);
@@ -142,6 +144,7 @@ public abstract class AbstractDbUnitTestCase {
   private void setupData(InputStream... dataSetStream) {
     IDatabaseConnection connection = null;
     try {
+      databaseCommands.truncateDatabase(database.getDataSource());
       IDataSet[] dataSets = new IDataSet[dataSetStream.length];
       for (int i = 0; i < dataSetStream.length; i++) {
         dataSets[i] = getData(dataSetStream[i]);
@@ -163,7 +166,8 @@ public abstract class AbstractDbUnitTestCase {
       if (connection != null) {
         connection.close();
       }
-    } catch (SQLException e) {
+    } catch (SQLException ignored) {
+
     }
   }
 

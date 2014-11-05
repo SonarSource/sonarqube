@@ -41,15 +41,13 @@ import org.dbunit.ext.mysql.MySqlMetadataHandler;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.core.cluster.NullQueue;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.persistence.dialect.MySql;
-
-import javax.sql.DataSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,31 +64,15 @@ import static org.junit.Assert.fail;
 
 public abstract class AbstractDaoTestCase {
 
-  public static class MyDBTester extends DataSourceDatabaseTester {
-
-    public MyDBTester(DataSource dataSource) {
-      super(dataSource);
-    }
-
-    public MyDBTester(DataSource dataSource, String schema) {
-      super(dataSource, schema);
-    }
-
-    @Override
-    public void closeConnection(IDatabaseConnection connection) throws Exception {
-
-    }
-  }
-
   private static final Logger LOG = LoggerFactory.getLogger(AbstractDaoTestCase.class);
   private static Database database;
   private static DatabaseCommands databaseCommands;
-  private static IDatabaseTester databaseTester;
-  private static MyBatis myBatis;
-  private WorkQueue queue = new NullQueue();
+  private MyBatis myBatis;
 
-  @Before
-  public void startDatabase() throws Exception {
+  private IDatabaseTester databaseTester;
+
+  @BeforeClass
+  public static void startDatabase() throws Exception {
     if (database == null) {
       Settings settings = new Settings().setProperties(Maps.fromProperties(System.getProperties()));
       if (settings.hasKey("orchestrator.configUrl")) {
@@ -103,27 +85,25 @@ public abstract class AbstractDaoTestCase {
       if (hasDialect) {
         database = new DefaultDatabase(settings);
       } else {
-        database = new H2Database("h2Tests", true);
+        database = new H2Database("test", true);
       }
       database.start();
       LOG.info("Test Database: " + database);
-
       databaseCommands = DatabaseCommands.forDialect(database.getDialect());
-
-      boolean hasSchema = settings.hasKey("sonar.jdbc.schema");
-      if (hasSchema) {
-        databaseTester = new MyDBTester(database.getDataSource(), settings.getString("sonar.jdbc.schema"));
-      } else {
-        databaseTester = new MyDBTester(database.getDataSource());
-      }
-      myBatis = new MyBatis(database, new Logback(), queue);
-      myBatis.start();
     }
-
-    databaseCommands.truncateDatabase(database.getDataSource());
   }
 
-  private void loadOrchestratorSettings(Settings settings) throws URISyntaxException, IOException {
+  @Before
+  public void startDbUnit() throws Exception {
+    databaseTester = new DataSourceDatabaseTester(database.getDataSource());
+    myBatis = new MyBatis(database, new Logback(), new NullQueue());
+    myBatis.start();
+  }
+
+  /**
+   * Orchestrator is the name of a SonarSource close-source library for database and integration testing.
+   */
+  private static void loadOrchestratorSettings(Settings settings) throws URISyntaxException, IOException {
     String url = settings.getString("orchestrator.configUrl");
     URI uri = new URI(url);
     InputStream input = null;
@@ -164,6 +144,7 @@ public abstract class AbstractDaoTestCase {
   protected void setupData(String... testNames) {
     InputStream[] streams = new InputStream[testNames.length];
     try {
+      databaseCommands.truncateDatabase(database.getDataSource());
       for (int i = 0; i < testNames.length; i++) {
         String className = getClass().getName();
         className = String.format("/%s/%s.xml", className.replace(".", "/"), testNames[i]);
@@ -186,6 +167,7 @@ public abstract class AbstractDaoTestCase {
 
   private void setupData(InputStream... dataSetStream) {
     try {
+      databaseCommands.truncateDatabase(database.getDataSource());
       IDataSet[] dataSets = new IDataSet[dataSetStream.length];
       for (int i = 0; i < dataSetStream.length; i++) {
         dataSets[i] = getData(dataSetStream[i]);
