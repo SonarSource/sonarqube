@@ -18,6 +18,13 @@ define [
   FACET_DATA_FIELDS = ['components', 'projects', 'users', 'rules', 'actionPlans', 'languages']
   FACETS_FROM_SERVER = ['severities', 'statuses', 'resolutions', 'actionPlans', 'projectUuids', 'rules',
                         'assignees', 'reporters', 'componentUuids', 'languages']
+  TRANSFORM = {
+    'resolved': 'resolutions'
+    'assigned': 'assignees'
+    'createdAt': 'creationDate'
+    'createdBefore': 'creationDate'
+    'createdAfter': 'creationDate'
+  }
 
 
   class extends Marionette.Controller
@@ -43,6 +50,8 @@ define [
       facets = @options.app.state.get 'facets'
       criteria = Object.keys @options.app.state.get 'query'
       facets = facets.concat criteria
+      facets = facets.map (facet) ->
+        if TRANSFORM[facet]? then TRANSFORM[facet] else facet
       facets.filter (facet) -> ALL_FACETS.indexOf(facet) != -1
 
 

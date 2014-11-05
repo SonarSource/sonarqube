@@ -44,3 +44,8 @@ define [
 
     disable: ->
       @options.app.state.updateFilter createdAfter: null, createdBefore: null, createdAt: null
+
+
+    serializeData: ->
+      _.extend super,
+        createdAt: @options.app.state.get('query').createdAt
