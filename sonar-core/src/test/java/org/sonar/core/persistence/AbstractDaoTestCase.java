@@ -87,7 +87,6 @@ public abstract class AbstractDaoTestCase {
   private static DatabaseCommands databaseCommands;
   private static IDatabaseTester databaseTester;
   private static MyBatis myBatis;
-  private static IDatabaseConnection connection;
   private WorkQueue queue = new NullQueue();
 
   @Before
@@ -119,16 +118,6 @@ public abstract class AbstractDaoTestCase {
       }
       myBatis = new MyBatis(database, new Logback(), queue);
       myBatis.start();
-    }
-
-
-    if (connection == null || connection.getConnection().isClosed()) {
-      connection = databaseTester.getConnection();
-      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, databaseCommands.getDbUnitFactory());
-      if (MySql.ID.equals(database.getDialect().getId())) {
-        connection.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, false);
-        connection.getConfig().setProperty(DatabaseConfig.PROPERTY_METADATA_HANDLER, new MySqlMetadataHandler());
-      }
     }
 
     databaseCommands.truncateDatabase(database.getDataSource());
@@ -214,6 +203,7 @@ public abstract class AbstractDaoTestCase {
   }
 
   protected void checkTables(String testName, String[] excludedColumnNames, String... tables) {
+    IDatabaseConnection connection = openDbUnitConnection();
     try {
       IDataSet dataSet = connection.createDataSet();
       IDataSet expectedDataSet = getExpectedData(testName);
@@ -226,12 +216,14 @@ public abstract class AbstractDaoTestCase {
       fail(e.getMessage());
     } catch (SQLException e) {
       throw translateException("Error while checking results", e);
+    } finally {
+      closeDbUnitConnection(connection);
     }
   }
 
   protected void checkTable(String testName, String table, String... columns) {
+    IDatabaseConnection connection = openDbUnitConnection();
     try {
-
       IDataSet dataSet = connection.createDataSet();
       IDataSet expectedDataSet = getExpectedData(testName);
       ITable filteredTable = DefaultColumnFilter.includedColumnsTable(dataSet.getTable(table), columns);
@@ -241,12 +233,14 @@ public abstract class AbstractDaoTestCase {
       fail(e.getMessage());
     } catch (SQLException e) {
       throw translateException("Error while checking results", e);
+    } finally {
+      closeDbUnitConnection(connection);
     }
   }
 
   protected void assertEmptyTables(String... emptyTables) {
+    IDatabaseConnection connection = openDbUnitConnection();
     try {
-
       IDataSet dataSet = connection.createDataSet();
       for (String table : emptyTables) {
         try {
@@ -257,6 +251,30 @@ public abstract class AbstractDaoTestCase {
       }
     } catch (SQLException e) {
       throw translateException("Error while checking results", e);
+    } finally {
+      closeDbUnitConnection(connection);
+    }
+  }
+
+  private IDatabaseConnection openDbUnitConnection() {
+    try {
+      IDatabaseConnection connection = databaseTester.getConnection();
+      connection.getConfig().setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, databaseCommands.getDbUnitFactory());
+      if (MySql.ID.equals(database.getDialect().getId())) {
+        connection.getConfig().setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, false);
+        connection.getConfig().setProperty(DatabaseConfig.PROPERTY_METADATA_HANDLER, new MySqlMetadataHandler());
+      }
+      return connection;
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to open dbunit connection", e);
+    }
+  }
+
+  private void closeDbUnitConnection(IDatabaseConnection c) {
+    try {
+      c.close();
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to close dbunit connection", e);
     }
   }
 
