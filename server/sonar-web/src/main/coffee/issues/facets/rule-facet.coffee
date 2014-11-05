@@ -1,29 +1,19 @@
 define [
-  'issues/facets/base-facet'
-  'templates/issues'
+  'issues/facets/custom-values-facet'
 ], (
-  BaseFacet
-  Templates
+  CustomValuesFacet
 ) ->
 
 
-  class extends BaseFacet
-    template: Templates['issues-rule-facet']
+  class extends CustomValuesFacet
 
-
-    events: ->
-      _.extend super,
-        'change .js-issues-custom-value': 'addCustomValue'
-
-
-    onRender: ->
-      super
+    prepareSearch: ->
       url = "#{baseUrl}/api/rules/search?f=name"
       languages = @options.app.state.get('query').languages
       if languages?
         url += "&languages=#{languages}"
       @$('.js-issues-custom-value').select2
-        placeholder: 'Add rule'
+        placeholder: 'Search...'
         minimumInputLength: 2
         allowClear: false
         formatNoMatches: -> t 'select2.noMatches'
@@ -53,17 +43,6 @@ define [
       values
 
 
-    addCustomValue: ->
-      property = @model.get 'property'
-      customValue = @$('.js-issues-custom-value').select2 'val'
-      value = @getValue()
-      value += ',' if value.length > 0
-      value += customValue
-      obj = {}
-      obj[property] = value
-      @options.app.state.updateFilter obj
-
-
     serializeData: ->
       _.extend super,
-        values: @getValuesWithLabels()
+        values: @sortValues @getValuesWithLabels()

@@ -1,10 +1,6 @@
 {{> '_issues-facet-header'}}
 
 <div class="issues-facet-list">
-  <div class="issues-facet-custom-value">
-    <input type="hidden" class="js-issues-custom-value">
-  </div>
-
   {{#each values}}
     {{#eq val ''}}
       {{! unassigned }}
@@ -19,4 +15,8 @@
       </a>
     {{/eq}}
   {{/each}}
+
+  <div class="issues-facet-custom-value">
+    <input type="hidden" class="js-issues-custom-value">
+  </div>
 </div>

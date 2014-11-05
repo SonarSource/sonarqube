@@ -15,8 +15,3 @@ define [
       order = ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR']
       _.sortBy values, (v) -> order.indexOf v.val
 
-
-    serializeData: ->
-      _.extend super,
-        values: @sortValues @model.getValues()
-

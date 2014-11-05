@@ -30,7 +30,10 @@ define [
       value = @options.app.state.get('query')[property]
       if typeof value == 'string'
         value.split(',').forEach (s) =>
-          @$('.js-issues-facet').filter("[data-value='#{s}']").addClass 'active'
+          facet = @$('.js-issues-facet').filter("[data-value='#{s}']")
+          if facet.length > 0
+            parent = facet.parent()
+            facet.addClass('active')#.detach().prependTo parent
 
 
     toggle: ->
@@ -55,3 +58,12 @@ define [
       obj = {}
       obj[property] = null
       @options.app.state.updateFilter obj
+
+
+    sortValues: (values) ->
+      _.sortBy values, (v) -> -v.count
+
+
+    serializeData: ->
+      _.extend super,
+        values: @sortValues @model.getValues()

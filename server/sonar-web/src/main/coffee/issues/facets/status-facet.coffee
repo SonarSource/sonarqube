@@ -14,8 +14,3 @@ define [
     sortValues: (values) ->
       order = ['OPEN', 'RESOLVED', 'REOPENED', 'CLOSED', 'CONFIRMED']
       _.sortBy values, (v) -> order.indexOf v.val
-
-
-    serializeData: ->
-      _.extend super,
-        values: @sortValues @model.getValues()

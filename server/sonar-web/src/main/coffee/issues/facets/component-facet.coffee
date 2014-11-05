@@ -34,4 +34,4 @@ define [
 
     serializeData: ->
       _.extend super,
-        values: @getValuesWithLabels()
+        values: @sortValues @getValuesWithLabels()
