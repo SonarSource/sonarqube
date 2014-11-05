@@ -34,6 +34,8 @@ requirejs [
   'issues/facets-view'
   'issues/filters-view'
 
+  'issues/help-view'
+
   'common/handlebars-extensions'
 ], (
   Backbone, Marionette
@@ -52,6 +54,8 @@ requirejs [
 
   FacetsView
   FiltersView
+
+  HelpView
 ) ->
 
   $ = jQuery
@@ -102,6 +106,11 @@ requirejs [
       app: @
       collection: @filters
     @layout.filtersRegion.show @filtersView
+
+
+  App.addInitializer ->
+    @helpView = new HelpView app: @
+    key '?,/', => @helpView.render()
 
 
   App.addInitializer ->
