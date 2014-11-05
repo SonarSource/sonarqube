@@ -18,6 +18,10 @@ define [
 
     onRender: ->
       super
+      url = "#{baseUrl}/api/rules/search?f=name"
+      languages = @options.app.state.get('query').languages
+      if languages?
+        url += "&languages=#{languages}"
       @$('.js-issues-custom-value').select2
         placeholder: 'Add rule'
         minimumInputLength: 2
@@ -28,7 +32,7 @@ define [
         width: '100%'
         ajax:
           quietMillis: 300
-          url: "#{baseUrl}/api/rules/search?f=name"
+          url: url
           data: (term, page) -> { q: term, p: page }
           results: (data) ->
             results = data.rules.map (rule) ->
