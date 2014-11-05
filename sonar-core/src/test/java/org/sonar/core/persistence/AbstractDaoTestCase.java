@@ -37,6 +37,7 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
+import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.ext.mysql.MySqlMetadataHandler;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.Assert;
@@ -166,16 +167,18 @@ public abstract class AbstractDaoTestCase {
   }
 
   private void setupData(InputStream... dataSetStream) {
+    IDatabaseConnection connection = openDbUnitConnection();
     try {
       IDataSet[] dataSets = new IDataSet[dataSetStream.length];
       for (int i = 0; i < dataSetStream.length; i++) {
         dataSets[i] = getData(dataSetStream[i]);
       }
       databaseTester.setDataSet(new CompositeDataSet(dataSets));
-      databaseTester.setSetUpOperation(DatabaseOperation.INSERT);
-      databaseTester.onSetup();
+      new InsertIdentityOperation(DatabaseOperation.INSERT).execute(connection, databaseTester.getDataSet());
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
+    } finally {
+      closeDbUnitConnection(connection);
     }
   }
 
