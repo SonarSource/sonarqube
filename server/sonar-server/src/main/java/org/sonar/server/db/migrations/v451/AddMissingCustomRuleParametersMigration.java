@@ -31,11 +31,15 @@ import org.sonar.core.persistence.migration.v45.Rule;
 import org.sonar.core.persistence.migration.v45.RuleParameter;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.server.db.migrations.MassUpdate;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * See http://jira.codehaus.org/browse/SONAR-5575
@@ -49,6 +53,10 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
   private final DbClient db;
   private final System2 system;
 
+  private final AtomicLong counter = new AtomicLong(0L);
+  private final MassUpdate.ProgressTask progressTask = new MassUpdate.ProgressTask(counter);
+
+
   public AddMissingCustomRuleParametersMigration(DbClient db, System2 system) {
     this.db = db;
     this.system = system;
@@ -56,6 +64,9 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
 
   @Override
   public void execute() {
+    Timer timer = new Timer("Db Migration Progress");
+    timer.schedule(progressTask, MassUpdate.ProgressTask.PERIOD_MS, MassUpdate.ProgressTask.PERIOD_MS);
+
     DbSession session = db.openSession(false);
     try {
       Migration45Mapper mapper = session.getMapper(Migration45Mapper.class);
@@ -95,14 +106,22 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
 
               // Update updated at date of custom rule in order to allow E/S indexation
               mapper.updateRuleUpdateAt(customRuleId, new Date(system.now()));
+
+              counter.getAndIncrement();
             }
           }
         }
       }
 
       session.commit();
+
+      // log the total number of process rows
+      progressTask.log();
     } finally {
       session.close();
+
+      timer.cancel();
+      timer.purge();
     }
   }
 
