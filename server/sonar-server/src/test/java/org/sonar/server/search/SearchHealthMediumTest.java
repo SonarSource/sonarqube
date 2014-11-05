@@ -19,6 +19,8 @@
  */
 package org.sonar.server.search;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -40,12 +42,22 @@ public class SearchHealthMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
+  DbSession dbSession;
+
+  @Before
+  public void setUp() throws Exception {
+    dbSession = tester.get(DbClient.class).openSession(false);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    dbSession.close();
+  }
+
   @Test
   public void get_search_health() {
-    DbSession dbSession = tester.get(DbClient.class).openSession(false);
     tester.get(RuleDao.class).insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S001")));
     dbSession.commit();
-    dbSession.close();
 
     SearchHealth health = tester.get(SearchHealth.class);
     Date now = new Date();
