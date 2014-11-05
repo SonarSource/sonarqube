@@ -37,7 +37,6 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
-import org.dbunit.ext.mssql.InsertIdentityOperation;
 import org.dbunit.ext.mysql.MySqlMetadataHandler;
 import org.dbunit.operation.DatabaseOperation;
 import org.junit.Assert;
@@ -51,6 +50,7 @@ import org.sonar.core.config.Logback;
 import org.sonar.core.persistence.dialect.MySql;
 
 import javax.sql.DataSource;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -117,7 +117,6 @@ public abstract class AbstractDaoTestCase {
       } else {
         databaseTester = new MyDBTester(database.getDataSource());
       }
-
       myBatis = new MyBatis(database, new Logback(), queue);
       myBatis.start();
     }
@@ -203,8 +202,8 @@ public abstract class AbstractDaoTestCase {
         dataSets[i] = getData(dataSetStream[i]);
       }
       databaseTester.setDataSet(new CompositeDataSet(dataSets));
-
-      new InsertIdentityOperation(DatabaseOperation.INSERT).execute(connection, databaseTester.getDataSet());
+      databaseTester.setSetUpOperation(DatabaseOperation.INSERT);
+      databaseTester.onSetup();
     } catch (Exception e) {
       throw translateException("Could not setup DBUnit data", e);
     }
