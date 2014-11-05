@@ -60,7 +60,9 @@ define [
           data: (term, page) -> s: term, p: page
           results: (data) -> more: data.more, results: data.results
 
-      @ui.select.select2(select2Options).select2 'open'
+      @ui.select.select2 select2Options
+      @ui.select.on 'change', => @$('[type=submit]').focus()
+      @ui.select.select2 'open'
 
 
     cancel: ->

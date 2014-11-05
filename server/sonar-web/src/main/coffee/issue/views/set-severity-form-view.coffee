@@ -33,6 +33,9 @@ define [
        formatSelection: format
        escapeMarkup: (m) -> m
 
+     @ui.select.on 'change', => @$('[type=submit]').focus()
+     @ui.select.select2 'open'
+
 
     cancel: ->
       @options.detailView.updateAfterAction false

@@ -30,6 +30,8 @@ define [
       @ui.select.select2
         width: '250px'
         minimumResultsForSearch: 100
+      @ui.select.on 'change', => @$('[type=submit]').focus()
+      @ui.select.select2 'open'
 
       @$('.error a').prop('href', baseUrl + '/action_plans/index/' + this.options.issue.get('project'))
 

@@ -74,6 +74,8 @@ define [
       @changeLog = new ChangeLog()
       @changeLogRegion.show new ChangeLogView collection: @changeLog, issue: @model
 
+      key 'escape', (=> @updateAfterAction false)
+
 
     onClose: ->
       @ruleRegion.reset() if @ruleRegion

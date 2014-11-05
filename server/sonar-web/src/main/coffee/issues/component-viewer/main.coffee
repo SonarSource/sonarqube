@@ -48,7 +48,7 @@ define [
 
 
     bindShortcuts: ->
-      key 'delete,backspace,left', 'componentViewer', =>
+      key 'left', 'componentViewer', =>
         @options.app.controller.closeComponentViewer()
         false
 

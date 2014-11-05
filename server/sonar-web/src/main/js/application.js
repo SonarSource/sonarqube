@@ -479,7 +479,11 @@ jQuery(function() {
 
   // Define global shortcuts
   key('s', function() {
-    jQuery('#searchInput').focus();
+    jQuery('#searchInput').focus().on('keydown', function (e) {
+       if (e.keyCode == 27) {
+         jQuery('#searchInput').blur();
+       }
+    });
     return false;
   });
 });

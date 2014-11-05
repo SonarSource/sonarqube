@@ -57,10 +57,33 @@ define [
 
 
     bindShortcuts: ->
-      key 'return,right', 'list', =>
+      doTransition = (transition) =>
+        selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
+        return unless selectedIssue?
+        selectedIssueView = @children.findByModel selectedIssue
+        selectedIssueView.$("[data-transition=#{transition}]").click()
+
+      doAction = (action) =>
+        selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
+        return unless selectedIssue?
+        selectedIssueView = @children.findByModel selectedIssue
+        selectedIssueView.$("#issue-#{action}").click()
+
+      key 'right', 'list', =>
         selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
         @options.app.controller.showComponentViewer selectedIssue
         return false
+
+      key 'c', -> doTransition 'confirm'
+      key 'u', -> doTransition 'unconfirm'
+      key 'r', -> doTransition 'resolve'
+      key 'r', -> doTransition 'reopen'
+      key 'f', -> doTransition 'falsepositive'
+
+      key 'a', -> doAction 'assign'
+      key 'm', -> doAction 'assign-to-me'
+      key 'p', -> doAction 'plan'
+      key 'i', -> doAction 'set-severity'
 
 
     loadMore: ->
