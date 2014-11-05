@@ -123,6 +123,30 @@
   font-size: 0;
 }
 
+.issues-facet-list-align-right {
+
+  .facet-name {
+    float: right;
+
+    &:before {
+      content: " ";
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      width: 10px;
+      background-image: linear-gradient(to left, fade(@barBackgroundColor, 0%), @barBackgroundColor 75%);
+    }
+  }
+
+  .facet-stat:before {
+    display: none;
+  }
+
+  .facet.active .facet-name:before {
+    background-image: linear-gradient(to left, fade(@lightBlue, 0%), @lightBlue 75%);
+  }
+
+}
+
 .issues-facet-container {
   margin-top: 6px;
   padding: 0 10px 16px;

@@ -1,0 +1,10 @@
+{{> '_issues-facet-header'}}
+
+<div class="issues-facet-list issues-facet-list-align-right">
+  {{#each values}}
+    <a class="facet issues-facet js-issues-facet" data-value="{{val}}" title="{{default label val}}">
+      <span class="facet-name">{{default label val}}</span>
+      <span class="facet-stat">{{count}}</span>
+    </a>
+  {{/each}}
+</div>
