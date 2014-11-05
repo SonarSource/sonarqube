@@ -31,7 +31,9 @@ import java.util.Arrays;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public class ComponentContainerTest {
 
@@ -216,6 +218,20 @@ public class ComponentContainerTest {
     // do not expect a PicoException
     thrown.expect(IllegalStateException.class);
     container.startComponents();
+  }
+
+  @Test
+  public void display_plugin_name_when_failing_to_add_extension() {
+    ComponentContainer container = new ComponentContainer();
+    PluginMetadata plugin = mock(PluginMetadata.class);
+
+    container.startComponents();
+
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Unable to register extension org.sonar.api.platform.ComponentContainerTest$UnstartableComponent");
+
+    container.addExtension(plugin, UnstartableComponent.class);
+
   }
 
   @Test

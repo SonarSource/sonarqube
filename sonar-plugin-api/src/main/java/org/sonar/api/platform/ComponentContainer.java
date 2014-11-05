@@ -32,6 +32,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.PropertyDefinitions;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -122,7 +123,6 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
     try {
       pico.stop();
 
-
     } catch (RuntimeException e) {
       if (!swallowException) {
         throw PicoUtils.propagate(e);
@@ -180,9 +180,20 @@ public class ComponentContainer implements BatchComponent, ServerComponent {
 
   public ComponentContainer addExtension(@Nullable PluginMetadata plugin, Object extension) {
     Object key = componentKeys.of(extension);
-    pico.as(Characteristics.CACHE).addComponent(key, extension);
+    try {
+      pico.as(Characteristics.CACHE).addComponent(key, extension);
+    } catch (Throwable t) {
+      throw new IllegalStateException("Unable to register extension " + getName(extension), t);
+    }
     declareExtension(plugin, extension);
     return this;
+  }
+
+  private String getName(Object extension) {
+    if (extension instanceof Class) {
+      return ((Class) extension).getName();
+    }
+    return getName(extension.getClass());
   }
 
   public void declareExtension(@Nullable PluginMetadata plugin, Object extension) {
