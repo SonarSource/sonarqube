@@ -36,12 +36,10 @@ import static org.junit.Assert.assertThat;
 
 public class PropertiesDaoTest extends AbstractDaoTestCase {
 
-  private DbSession session;
-
-  private PropertiesDao dao;
-
   @Rule
   public ExpectedException thrown = ExpectedException.none();
+  private DbSession session;
+  private PropertiesDao dao;
 
   @Before
   public void createDao() {
@@ -141,6 +139,17 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
     PropertyDto first = properties.get(0);
     assertThat(first.getKey(), is("struts.one"));
     assertThat(first.getValue(), is("one"));
+  }
+
+  @Test
+  public void selectProjectPropertiesByResourceId() {
+    setupData("selectProjectPropertiesByResourceId");
+
+    List<PropertyDto> properties = dao.selectProjectProperties(10L);
+
+    assertThat(properties.size(), is(2));
+    assertThat(properties).onProperty("key").containsOnly("struts.one", "user.two");
+    assertThat(properties).onProperty("value").containsOnly("one", "two");
   }
 
   @Test

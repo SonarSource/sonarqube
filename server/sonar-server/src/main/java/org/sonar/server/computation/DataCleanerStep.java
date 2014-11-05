@@ -23,33 +23,34 @@ package org.sonar.server.computation;
 import org.sonar.api.config.Settings;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
+import org.sonar.core.computation.dbcleaner.ProjectPurgeTask;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.server.issue.index.IssueIndex;
 
-import java.util.Date;
+import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
 
 public class DataCleanerStep implements ComputationStep {
-  private final DefaultPurgeTask purgeTask;
+  private final ProjectPurgeTask purgeTask;
   private final IssueIndex issueIndex;
-  private final Settings settings;
+  private final ProjectSettingsFactory projectSettingsFactory;
 
-  public DataCleanerStep(DefaultPurgeTask purgeTask, IssueIndex issueIndex, Settings settings) {
+  public DataCleanerStep(ProjectSettingsFactory projectSettingsFactory, ProjectPurgeTask purgeTask, IssueIndex issueIndex) {
+    this.projectSettingsFactory = projectSettingsFactory;
     this.purgeTask = purgeTask;
     this.issueIndex = issueIndex;
-    this.settings = settings;
   }
 
   @Override
   public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
     Long projectId = project.getId();
-    purgeTask.purge(projectId);
-    issueIndex.deleteClosedIssuesOfProjectBefore(project.uuid(), dateBeforeWhichDeleteClosedIssues(projectId));
-  }
 
-  private Date dateBeforeWhichDeleteClosedIssues(Long resourceId) {
-    return PurgeConfiguration.newDefaultPurgeConfiguration(resourceId, settings).maxLiveDateOfClosedIssues();
+    Settings settings = projectSettingsFactory.newProjectSettings(projectId);
+    PurgeConfiguration purgeConfiguration = newDefaultPurgeConfiguration(projectId, settings);
+
+    purgeTask.purge(purgeConfiguration, settings);
+    issueIndex.deleteClosedIssuesOfProjectBefore(project.uuid(), purgeConfiguration.maxLiveDateOfClosedIssues());
   }
 
   @Override

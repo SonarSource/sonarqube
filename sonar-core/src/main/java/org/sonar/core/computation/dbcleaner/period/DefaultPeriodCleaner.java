@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.purge.PurgeDao;
@@ -45,11 +44,11 @@ public class DefaultPeriodCleaner implements TaskExtension, ServerExtension {
     this.settings = settings;
   }
 
-  public void purge(Project project, int projectSnapshotId) {
-    clean(project.getId());
+  public void clean(long projectId) {
+    clean(projectId, settings);
   }
 
-  public void clean(long projectId) {
+  public void clean(long projectId, Settings settings) {
     doClean(projectId, new Filters(settings).all());
   }
 

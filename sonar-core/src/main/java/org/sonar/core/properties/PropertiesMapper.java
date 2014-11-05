@@ -35,6 +35,8 @@ public interface PropertiesMapper {
 
   List<PropertyDto> selectProjectProperties(String resourceKey);
 
+  List<PropertyDto> selectProjectPropertiesByResourceId(Long resourceId);
+
   List<PropertyDto> selectSetOfResourceProperties(@Param("rId") Long projectId, @Param("propKeys") List<String> propertyKeys);
 
   PropertyDto selectByKey(PropertyDto key);
@@ -57,5 +59,5 @@ public interface PropertiesMapper {
 
   void renamePropertyKey(@Param("oldKey") String oldKey, @Param("newKey") String newKey);
 
-  void updateProperties(@Param("key") String key, @Param("oldValue")String oldValue, @Param("newValue") String newValue);
+  void updateProperties(@Param("key") String key, @Param("oldValue") String oldValue, @Param("newValue") String newValue);
 }

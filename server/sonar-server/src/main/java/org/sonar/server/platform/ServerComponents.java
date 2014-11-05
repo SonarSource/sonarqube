@@ -38,6 +38,7 @@ import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
+import org.sonar.core.computation.dbcleaner.ProjectPurgeTask;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.config.Logback;
@@ -55,6 +56,7 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.*;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.profiling.Profiling;
+import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociationDao;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
@@ -608,6 +610,8 @@ class ServerComponents {
     pico.addSingleton(AnalysisReportHistorySearchAction.class);
     pico.addSingleton(DefaultPeriodCleaner.class);
     pico.addSingleton(DefaultPurgeTask.class);
+    pico.addSingleton(ProjectPurgeTask.class);
+    pico.addSingleton(ProjectSettingsFactory.class);
 
     for (Object components : level4AddedComponents) {
       pico.addSingleton(components);

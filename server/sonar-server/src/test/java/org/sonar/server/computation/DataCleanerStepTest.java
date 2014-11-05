@@ -25,8 +25,11 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
-import org.sonar.core.computation.dbcleaner.DefaultPurgeTask;
+import org.sonar.core.computation.dbcleaner.ProjectPurgeTask;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.properties.ProjectSettings;
+import org.sonar.server.properties.ProjectSettingsFactory;
+import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.server.issue.index.IssueIndex;
 
 import java.util.Date;
@@ -37,17 +40,20 @@ import static org.mockito.Mockito.*;
 public class DataCleanerStepTest {
 
   private DataCleanerStep sut;
-  private DefaultPurgeTask purgeTask;
+  private ProjectPurgeTask purgeTask;
   private IssueIndex issueIndex;
   private Settings settings;
+  private ProjectSettingsFactory projectSettingsFactory;
 
   @Before
   public void before() {
-    this.purgeTask = mock(DefaultPurgeTask.class);
+    this.purgeTask = mock(ProjectPurgeTask.class);
     this.issueIndex = mock(IssueIndex.class);
-    this.settings = mock(Settings.class);
+    this.settings = mock(ProjectSettings.class);
+    this.projectSettingsFactory = mock(ProjectSettingsFactory.class);
+    when(projectSettingsFactory.newProjectSettings(anyLong())).thenReturn(settings);
 
-    this.sut = new DataCleanerStep(purgeTask, issueIndex, settings);
+    this.sut = new DataCleanerStep(projectSettingsFactory, purgeTask, issueIndex);
   }
 
   @Test
@@ -57,7 +63,8 @@ public class DataCleanerStepTest {
 
     sut.execute(mock(DbSession.class), report, project);
 
-    verify(purgeTask).purge(any(Long.class));
+    verify(projectSettingsFactory).newProjectSettings(anyLong());
+    verify(purgeTask).purge(any(PurgeConfiguration.class), any(Settings.class));
     verify(issueIndex).deleteClosedIssuesOfProjectBefore(anyString(), any(Date.class));
   }
 }
