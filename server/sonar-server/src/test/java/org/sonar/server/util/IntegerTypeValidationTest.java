@@ -44,10 +44,11 @@ public class IntegerTypeValidationTest {
   @Test
   public void not_fail_on_valid_integer() {
     validation.validate("10", null);
+    validation.validate("-10", null);
   }
 
   @Test
-  public void fail_on_invalid_integer() {
+  public void fail_on_string() {
     try {
       validation.validate("abc", null);
       fail();
@@ -55,6 +56,18 @@ public class IntegerTypeValidationTest {
       assertThat(e).isInstanceOf(BadRequestException.class);
       BadRequestException badRequestException = (BadRequestException) e;
       assertThat(badRequestException.firstError().getParams()[0]).isEqualTo("abc");
+    }
+  }
+
+  @Test
+  public void fail_on_float() {
+    try {
+      validation.validate("10.1", null);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+      BadRequestException badRequestException = (BadRequestException) e;
+      assertThat(badRequestException.firstError().getParams()[0]).isEqualTo("10.1");
     }
   }
 

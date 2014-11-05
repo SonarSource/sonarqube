@@ -158,6 +158,21 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
+  public void activate_rule_with_negative_integer_value_on_parameter_without_default_value() throws Exception {
+    RuleKey ruleKey = RuleKey.of("negative", "value");
+    RuleDto rule = RuleTesting.newDto(ruleKey).setLanguage("xoo").setSeverity(Severity.MINOR);
+    db.ruleDao().insert(dbSession, rule);
+    db.ruleDao().addRuleParam(dbSession, rule, RuleParamDto.createFor(rule)
+      .setName("max").setType(RuleParamType.INTEGER.type()));
+
+    activate(new RuleActivation(ruleKey).setParameter("max", "-10"), XOO_P1_KEY);
+
+    assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
+    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, ruleKey), Severity.MINOR, null,
+      ImmutableMap.of("max", "-10"));
+  }
+
+  @Test
   public void activation_ignores_unsupported_parameters() throws Exception {
     RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setParameter("xxx", "yyy");

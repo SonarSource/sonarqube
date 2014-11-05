@@ -45,6 +45,7 @@ public class FloatTypeValidationTest {
   public void not_fail_on_valid_float() {
     validation.validate("10.2", null);
     validation.validate("10", null);
+    validation.validate("-10.3", null);
   }
 
   @Test
