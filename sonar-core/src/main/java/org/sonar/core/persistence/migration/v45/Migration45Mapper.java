@@ -19,10 +19,7 @@
  */
 package org.sonar.core.persistence.migration.v45;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.Date;
 import java.util.List;
@@ -53,9 +50,11 @@ public interface Migration45Mapper {
 
   @Insert("INSERT INTO rules_parameters (rule_id, name, param_type, default_value, description)" +
     " VALUES (#{ruleId}, #{name}, #{type}, #{defaultValue}, #{description})")
+  @Options(useGeneratedKeys = false)
   void insertRuleParameter(RuleParameter ruleParameter);
 
   @Insert("UPDATE rules SET updated_at=#{date} WHERE id=#{id}")
+  @Options(useGeneratedKeys = false)
   void updateRuleUpdateAt(@Param("id") Integer ruleId, @Param("date") Date updatedAt);
 
 }
