@@ -157,19 +157,49 @@ public class RuleActivatorMediumTest {
       ImmutableMap.of("max", "10"));
   }
 
+  /**
+   * SONAR-5841
+   */
   @Test
-  public void activate_rule_with_negative_integer_value_on_parameter_without_default_value() throws Exception {
-    RuleKey ruleKey = RuleKey.of("negative", "value");
-    RuleDto rule = RuleTesting.newDto(ruleKey).setLanguage("xoo").setSeverity(Severity.MINOR);
-    db.ruleDao().insert(dbSession, rule);
-    db.ruleDao().addRuleParam(dbSession, rule, RuleParamDto.createFor(rule)
-      .setName("max").setType(RuleParamType.INTEGER.type()));
-
-    activate(new RuleActivation(ruleKey).setParameter("max", "-10"), XOO_P1_KEY);
+  public void activate_with_empty_parameter_having_no_default_value() throws Exception {
+    activate(new RuleActivation(RuleTesting.XOO_X1)
+        .setParameter("min", ""),
+      XOO_P1_KEY);
 
     assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
-    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, ruleKey), Severity.MINOR, null,
-      ImmutableMap.of("max", "-10"));
+    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MINOR, null,
+      // Max should be set to default value, min has not value it should be ignored
+      ImmutableMap.of("max", "10"));
+  }
+
+  /**
+   * SONAR-5841
+   */
+  @Test
+  public void activate_with_empty_parameters() throws Exception {
+    activate(new RuleActivation(RuleTesting.XOO_X1)
+        .setParameters(ImmutableMap.of("max", "", "min", "")),
+      XOO_P1_KEY);
+
+    assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
+    // Max should be set to default value, min has not value it should be ignored
+    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MINOR, null,
+      ImmutableMap.of("max", "10"));
+  }
+
+  /**
+   * SONAR-5840
+   */
+  @Test
+  public void activate_rule_with_negative_integer_value_on_parameter_having_no_default_value() throws Exception {
+    activate(new RuleActivation(RuleTesting.XOO_X1)
+        .setParameter("min", "-10"),
+      XOO_P1_KEY);
+
+    assertThat(countActiveRules(XOO_P1_KEY)).isEqualTo(1);
+    // Max should be set to default value, min should be set to -10
+    verifyHasActiveRule(ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1), Severity.MINOR, null,
+      ImmutableMap.of("max", "10", "min", "-10"));
   }
 
   @Test
@@ -1007,18 +1037,18 @@ public class RuleActivatorMediumTest {
   }
 
   private void verifyOneActiveRule(String profileKey, RuleKey ruleKey, String expectedSeverity,
-    @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     assertThat(countActiveRules(profileKey)).isEqualTo(1);
     verifyHasActiveRule(profileKey, ruleKey, expectedSeverity, expectedInheritance, expectedParams);
   }
 
   private void verifyHasActiveRule(String profileKey, RuleKey ruleKey, String expectedSeverity,
-    @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     verifyHasActiveRule(ActiveRuleKey.of(profileKey, ruleKey), expectedSeverity, expectedInheritance, expectedParams);
   }
 
   private void verifyHasActiveRule(ActiveRuleKey activeRuleKey, String expectedSeverity,
-    @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     // verify db
     boolean found = false;
     List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, activeRuleKey.qProfile());

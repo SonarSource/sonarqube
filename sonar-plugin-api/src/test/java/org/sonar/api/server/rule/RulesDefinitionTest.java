@@ -173,6 +173,25 @@ public class RulesDefinitionTest {
   }
 
   @Test
+  public void define_rule_parameter_with_empty_default_value() {
+    RulesDefinition.NewRepository newFindbugs = context.createRepository("findbugs", "java");
+    RulesDefinition.NewRule newNpe = newFindbugs.createRule("NPE").setName("NPE").setHtmlDescription("NPE");
+    newNpe.createParam("level").setDefaultValue("").setName("Level").setDescription("The level").setType(RuleParamType.INTEGER);
+    newFindbugs.done();
+
+    RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
+    assertThat(rule.params()).hasSize(1);
+
+    RulesDefinition.Param level = rule.param("level");
+    assertThat(level.key()).isEqualTo("level");
+    assertThat(level.name()).isEqualTo("Level");
+    assertThat(level.description()).isEqualTo("The level");
+    // Empty value is converted in null value
+    assertThat(level.defaultValue()).isNull();
+    assertThat(level.type()).isEqualTo(RuleParamType.INTEGER);
+  }
+
+  @Test
   public void sanitize_rule_name() {
     RulesDefinition.NewRepository newFindbugs = context.createRepository("findbugs", "java");
     newFindbugs.createRule("NPE").setName("   \n  NullPointer   \n   ").setHtmlDescription("NPE");
