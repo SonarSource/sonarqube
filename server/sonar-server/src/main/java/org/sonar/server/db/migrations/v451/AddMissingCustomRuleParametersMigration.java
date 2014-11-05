@@ -56,7 +56,6 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
   private final AtomicLong counter = new AtomicLong(0L);
   private final MassUpdate.ProgressTask progressTask = new MassUpdate.ProgressTask(counter);
 
-
   public AddMissingCustomRuleParametersMigration(DbClient db, System2 system) {
     this.db = db;
     this.system = system;
@@ -110,19 +109,19 @@ public class AddMissingCustomRuleParametersMigration implements DatabaseMigratio
   }
 
   private void insertCustomRuleParameterIfNotAlreadyExisting(RuleParameter templateRuleParam, Integer templateRuleId,
-                                                             Multimap<Integer, Integer> customRuleIdsByTemplateRuleId,
-                                                             Multimap<Integer, RuleParameter> customRuleParamsByRuleId,
-                                                             DbSession session) {
+    Multimap<Integer, Integer> customRuleIdsByTemplateRuleId,
+    Multimap<Integer, RuleParameter> customRuleParamsByRuleId,
+    DbSession session) {
     for (Integer customRuleId : customRuleIdsByTemplateRuleId.get(templateRuleId)) {
       if (!hasParameter(templateRuleParam.getName(), customRuleParamsByRuleId.get(customRuleId))) {
         // Insert new custom rule parameter
         session.getMapper(Migration45Mapper.class).insertRuleParameter(new RuleParameter()
-            .setRuleId(customRuleId)
-            .setRuleTemplateId(templateRuleId)
-            .setName(templateRuleParam.getName())
-            .setDescription(templateRuleParam.getDescription())
-            .setType(templateRuleParam.getType())
-        );
+          .setRuleId(customRuleId)
+          .setRuleTemplateId(templateRuleId)
+          .setName(templateRuleParam.getName())
+          .setDescription(templateRuleParam.getDescription())
+          .setType(templateRuleParam.getType())
+          );
 
         // Update updated at date of custom rule in order to allow E/S indexation
         session.getMapper(Migration45Mapper.class).updateRuleUpdateAt(customRuleId, new Date(system.now()));
