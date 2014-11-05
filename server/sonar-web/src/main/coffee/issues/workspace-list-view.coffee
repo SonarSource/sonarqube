@@ -80,6 +80,7 @@ define [
 
     scrollToIssue: ->
       selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
+      return unless selectedIssue?
       selectedIssueView = @children.findByModel selectedIssue
       viewTop = selectedIssueView.$el.offset().top
       viewBottom = viewTop + selectedIssueView.$el.outerHeight()

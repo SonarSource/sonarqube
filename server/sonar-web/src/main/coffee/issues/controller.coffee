@@ -63,6 +63,7 @@ define [
     fetchIssues: (firstPage = true) ->
       if firstPage
         @options.app.state.set { selectedIndex: 0, page: 1 }, { silent: true }
+        @closeComponentViewer()
 
       data = @_issuesParameters()
       _.extend data, @options.app.state.get 'query'
@@ -210,7 +211,7 @@ define [
     closeComponentViewer: ->
       key.setScope 'list'
       @options.app.state.unset 'component'
-      @options.app.componentViewer.unbindScrollEvents()
+      @options.app.componentViewer?.unbindScrollEvents()
       @options.app.layout.workspaceComponentViewerRegion.reset()
       @options.app.layout.hideComponentViewer()
       @options.app.issuesView.bindScrollEvents()
