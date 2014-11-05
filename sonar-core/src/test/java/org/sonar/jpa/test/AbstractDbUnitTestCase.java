@@ -82,6 +82,7 @@ public abstract class AbstractDbUnitTestCase {
 
   @Before
   public void startDbUnit() throws Exception {
+    databaseCommands.truncateDatabase(database.getDataSource());
     databaseTester = new DataSourceDatabaseTester(database.getDataSource());
     session = new JpaDatabaseSession(dbConnector);
     session.start();
@@ -120,7 +121,6 @@ public abstract class AbstractDbUnitTestCase {
   protected void setupData(String... testNames) {
     InputStream[] streams = new InputStream[testNames.length];
     try {
-      databaseCommands.truncateDatabase(database.getDataSource());
       for (int i = 0; i < testNames.length; i++) {
         String className = getClass().getName();
         className = String.format("/%s/%s.xml", className.replace(".", "/"), testNames[i]);
@@ -144,7 +144,6 @@ public abstract class AbstractDbUnitTestCase {
   private void setupData(InputStream... dataSetStream) {
     IDatabaseConnection connection = null;
     try {
-      databaseCommands.truncateDatabase(database.getDataSource());
       IDataSet[] dataSets = new IDataSet[dataSetStream.length];
       for (int i = 0; i < dataSetStream.length; i++) {
         dataSets[i] = getData(dataSetStream[i]);
