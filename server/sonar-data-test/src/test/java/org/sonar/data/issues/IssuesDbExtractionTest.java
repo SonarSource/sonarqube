@@ -32,6 +32,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.rule.RuleDto;
@@ -69,6 +70,9 @@ public class IssuesDbExtractionTest {
 
   Iterator<RuleDto> rules;
   Iterator<String> users;
+  Iterator<String> severities;
+  Iterator<String> statuses;
+  Iterator<String> resolutions;
 
   ProxyIssueDao issueDao;
   RuleDao ruleDao;
@@ -84,6 +88,9 @@ public class IssuesDbExtractionTest {
 
     rules = Iterables.cycle(generateRules(session)).iterator();
     users = Iterables.cycle(generateUsers()).iterator();
+    severities = Iterables.cycle(Severity.ALL).iterator();
+    statuses = Iterables.cycle(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED).iterator();
+    resolutions = Iterables.cycle(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED, Issue.RESOLUTION_REMOVED).iterator();
 
     generateUsers();
     session.commit();
@@ -112,16 +119,22 @@ public class IssuesDbExtractionTest {
           .setLongName("File " + index);
         componentDao.insert(session, file);
 
-        issueDao.insert(session, IssueTesting.newDto(rules.next(), file, project)
-          .setMessage("Message on " + index)
+        String status = statuses.next();
+        String resolution = null;
+        if (status.equals(Issue.STATUS_RESOLVED) || status.equals(Issue.STATUS_CLOSED)) {
+          resolution = resolutions.next();
+        }
+        RuleDto rule = rules.next();
+        IssueDto issue = IssueTesting.newDto(rule, file, project)
+          .setMessage("Message from rule " + rule.getKey().toString())
           .setAssignee(users.next())
           .setReporter(users.next())
           .setAuthorLogin(users.next())
-          // Change Severity
-          .setSeverity(Severity.BLOCKER)
-          // Change status & resolution
-          .setStatus(Issue.STATUS_RESOLVED)
-          .setResolution(Issue.RESOLUTION_FIXED));
+          .setSeverity(severities.next())
+          .setStatus(status)
+          .setResolution(resolution);
+
+        issueDao.insert(session, issue);
       }
       session.commit();
     }
