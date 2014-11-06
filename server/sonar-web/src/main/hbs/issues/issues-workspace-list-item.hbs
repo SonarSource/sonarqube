@@ -1,7 +1,7 @@
 <div class="issue-box-component subtitle">
   <a href="{{dashboardUrl project}}">{{projectLongName}}</a>
   /
-  <a href="{{dashboardUrl component}}">{{componentLongName}}</a>
+  <a class="js-issues-to-source">{{componentLongName}}{{#if line}} (line {{line}}){{/if}}</a>
 </div>
 
 {{#if source}}

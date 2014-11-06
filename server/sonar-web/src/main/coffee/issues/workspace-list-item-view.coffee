@@ -15,7 +15,7 @@ define [
 
 
     events:
-      'click .js-issues-snippet': 'openComponentViewer'
+      'click .js-issues-to-source': 'openComponentViewer'
 
 
     initialize: (options) ->
