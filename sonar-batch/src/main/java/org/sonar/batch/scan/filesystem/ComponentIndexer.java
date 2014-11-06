@@ -27,6 +27,7 @@ import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Status;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Languages;
@@ -71,6 +72,7 @@ public class ComponentIndexer implements BatchComponent {
     migration.migrateIfNeeded(module, fs);
 
     for (InputFile inputFile : fs.inputFiles(fs.predicates().all())) {
+      DefaultInputFile defaultInputFile = (DefaultInputFile) inputFile;
       String languageKey = inputFile.language();
       boolean unitTest = InputFile.Type.TEST == inputFile.type();
       String pathFromSourceDir = ((DeprecatedDefaultInputFile) inputFile).pathRelativeToSourceDir();

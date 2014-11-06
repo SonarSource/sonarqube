@@ -23,19 +23,20 @@ import org.sonar.batch.index.Data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class SyntaxHighlightingData implements Data {
 
-  private static final String FIELD_SEPARATOR = ",";
-  private static final String RULE_SEPARATOR = ";";
+  public static final String FIELD_SEPARATOR = ",";
+  public static final String RULE_SEPARATOR = ";";
 
-  private Collection<SyntaxHighlightingRule> syntaxHighlightingRuleSet;
+  private List<SyntaxHighlightingRule> syntaxHighlightingRuleSet;
 
   public SyntaxHighlightingData(Collection<SyntaxHighlightingRule> syntaxHighlightingRuleSet) {
     this.syntaxHighlightingRuleSet = new ArrayList<SyntaxHighlightingRule>(syntaxHighlightingRuleSet);
   }
 
-  public Collection<SyntaxHighlightingRule> syntaxHighlightingRuleSet() {
+  public List<SyntaxHighlightingRule> syntaxHighlightingRuleSet() {
     return syntaxHighlightingRuleSet;
   }
 

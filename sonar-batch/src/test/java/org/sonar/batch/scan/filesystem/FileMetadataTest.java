@@ -51,6 +51,8 @@ public class FileMetadataTest {
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(0);
     assertThat(metadata.hash).isNotEmpty();
+    assertThat(metadata.originalLineOffsets).containsOnly(0);
+    assertThat(metadata.lineChecksum).isEmpty();
   }
 
   @Test
@@ -61,6 +63,8 @@ public class FileMetadataTest {
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10);
+    assertThat(metadata.lineChecksum).containsOnly(2090263731, 2090104836, 193487042);
   }
 
   @Test
@@ -71,6 +75,8 @@ public class FileMetadataTest {
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(NON_ASCII);
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10, 18);
+    assertThat(metadata.lineChecksum).containsOnly(2090410746, 2090243139, -931663839, 5381);
   }
 
   @Test
@@ -81,6 +87,8 @@ public class FileMetadataTest {
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_16);
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(NON_ASCII);
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10, 18);
+    assertThat(metadata.lineChecksum).containsOnly(2090410746, 2090243139, -931663839, 5381);
   }
 
   @Test
@@ -91,6 +99,8 @@ public class FileMetadataTest {
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 8);
+    assertThat(metadata.lineChecksum).containsOnly(2090263731, 2090104836, 193487042);
   }
 
   @Test
@@ -101,6 +111,8 @@ public class FileMetadataTest {
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 8, 12);
+    assertThat(metadata.lineChecksum).containsOnly(2090263731, 2090104836, 2090105100, 5381);
   }
 
   @Test
@@ -111,6 +123,8 @@ public class FileMetadataTest {
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 9, 13);
+    assertThat(metadata.lineChecksum).containsOnly(2090263731, 2090104836, 2090105100, 5381);
   }
 
   @Test
@@ -121,6 +135,8 @@ public class FileMetadataTest {
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 9);
+    assertThat(metadata.lineChecksum).containsOnly(2090263731, 2090104836, 193487042);
   }
 
   @Test
@@ -131,6 +147,20 @@ public class FileMetadataTest {
     FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_NEW_LINE_FIRST);
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 1, 5, 10);
+    assertThat(metadata.lineChecksum).containsOnly(177583, 2090263731, 2090104836, 193487042);
+  }
+
+  @Test
+  public void start_with_bom() throws Exception {
+    File tempFile = temp.newFile();
+    FileUtils.write(tempFile, "\uFEFFfoo\nbar\r\nbaz", Charsets.UTF_8, true);
+
+    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    assertThat(metadata.lines).isEqualTo(3);
+    assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 9);
+    assertThat(metadata.lineChecksum).containsOnly(2090263731, 2090104836, 193487042);
   }
 
   @Test

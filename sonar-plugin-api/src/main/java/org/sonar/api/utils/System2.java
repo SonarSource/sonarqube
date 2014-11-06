@@ -24,6 +24,8 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
 import javax.annotation.CheckForNull;
+
+import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 
@@ -118,5 +120,9 @@ public class System2 implements BatchComponent, ServerComponent {
 
   public void println(String obj) {
     System.out.print(obj);
+  }
+
+  public Date newDate() {
+    return new Date();
   }
 }

@@ -38,6 +38,8 @@ public class DefaultInputFile implements InputFile, Serializable {
   private Status status;
   private String hash;
   private int lines;
+  private String encoding;
+  long[] originalLineOffsets;
 
   public DefaultInputFile(String moduleKey, String relativePath) {
     this.moduleKey = moduleKey;
@@ -103,6 +105,14 @@ public class DefaultInputFile implements InputFile, Serializable {
     return moduleKey;
   }
 
+  public String encoding() {
+    return encoding;
+  }
+
+  public long[] originalLineOffsets() {
+    return originalLineOffsets;
+  }
+
   public DefaultInputFile setAbsolutePath(String s) {
     this.absolutePath = PathUtils.sanitize(s);
     return this;
@@ -138,6 +148,16 @@ public class DefaultInputFile implements InputFile, Serializable {
     return this;
   }
 
+  public DefaultInputFile setEncoding(String encoding) {
+    this.encoding = encoding;
+    return this;
+  }
+
+  public DefaultInputFile setOriginalLineOffsets(long[] originalLineOffsets) {
+    this.originalLineOffsets = originalLineOffsets;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -160,4 +180,5 @@ public class DefaultInputFile implements InputFile, Serializable {
   public String toString() {
     return "[moduleKey=" + moduleKey + ", relative=" + relativePath + ", abs=" + absolutePath + "]";
   }
+
 }

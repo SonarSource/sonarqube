@@ -265,9 +265,8 @@ public abstract class AbstractDaoTestCase {
 
   private IDataSet getExpectedData(String testName) {
     String className = getClass().getName();
-    className = String.format("/%s/%s-result.xml", className.replace('.', '/'), testName);
-
-    InputStream in = getClass().getResourceAsStream(className);
+    String fileName = String.format("/%s/%s-result.xml", className.replace('.', '/'), testName);
+    InputStream in = getClass().getResourceAsStream(fileName);
     try {
       return getData(in);
     } finally {

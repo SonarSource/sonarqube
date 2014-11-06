@@ -32,6 +32,7 @@ import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
@@ -165,7 +166,7 @@ public class FileIndexer implements BatchComponent {
 
       @Override
       public Void call() throws Exception {
-        InputFile completedFile = inputFileBuilder.complete(inputFile, type);
+        DefaultInputFile completedFile = inputFileBuilder.complete(inputFile, type);
         if (completedFile != null && accept(completedFile)) {
           status.markAsIndexed(inputFile);
           File parentDir = inputFile.file().getParentFile();

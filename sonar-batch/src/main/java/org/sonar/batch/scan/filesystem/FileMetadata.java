@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
@@ -31,6 +33,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Computes hash of files. Ends of Lines are ignored, so files with
@@ -40,6 +44,7 @@ class FileMetadata {
 
   private static final char LINE_FEED = '\n';
   private static final char CARRIAGE_RETURN = '\r';
+  private static final char BOM = '\uFEFF';
 
   // This singleton aims only to increase the coverage by allowing
   // to test the private method !
@@ -54,6 +59,11 @@ class FileMetadata {
    */
   Metadata read(File file, Charset encoding) {
     Reader reader = null;
+    long currentOriginalOffset = 0;
+    List<Long> originalLineOffsets = new ArrayList<Long>();
+    List<Integer> lineCheckSum = new ArrayList<Integer>();
+    int hash = 5381;
+    StringBuilder currentLineStr = new StringBuilder();
     int lines = 0;
     char c = (char) -1;
     try {
@@ -62,11 +72,20 @@ class FileMetadata {
       reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
       int i = reader.read();
       boolean afterCR = false;
+      // First offset of first line is always 0
+      originalLineOffsets.add(0L);
       while (i != -1) {
         c = (char) i;
+        if (c == BOM) {
+          // Ignore
+          i = reader.read();
+          continue;
+        }
+        currentOriginalOffset++;
         if (afterCR) {
           afterCR = false;
           if (c == LINE_FEED) {
+            originalLineOffsets.set(originalLineOffsets.size() - 1, originalLineOffsets.get(originalLineOffsets.size() - 1) + 1);
             // Ignore
             i = reader.read();
             continue;
@@ -76,17 +95,24 @@ class FileMetadata {
           afterCR = true;
           c = LINE_FEED;
         }
+        currentLineStr.append(c);
+        hash = ((hash << 5) + hash) + (c & 0xff);
         if (c == LINE_FEED) {
           lines++;
+          originalLineOffsets.add(currentOriginalOffset);
+          lineCheckSum.add(hash);
+          hash = 5381;
+          currentLineStr.setLength(0);
         }
         md5Digest.update(charToBytesUTF(c));
         i = reader.read();
       }
       if (c != (char) -1) {
         lines++;
+        lineCheckSum.add(hash);
       }
-      String hash = Hex.encodeHexString(md5Digest.digest());
-      return new Metadata(lines, hash);
+      String filehash = Hex.encodeHexString(md5Digest.digest());
+      return new Metadata(lines, filehash, originalLineOffsets, lineCheckSum);
 
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Fail to read file '%s' with encoding '%s'", file.getAbsolutePath(), encoding), e);
@@ -107,12 +133,16 @@ class FileMetadata {
   }
 
   static class Metadata {
-    int lines;
-    String hash;
+    final int lines;
+    final String hash;
+    final long[] originalLineOffsets;
+    final int[] lineChecksum;
 
-    private Metadata(int lines, String hash) {
+    private Metadata(int lines, String hash, List<Long> originalLineOffsets, List<Integer> lineCheckSum) {
       this.lines = lines;
       this.hash = hash;
+      this.originalLineOffsets = Longs.toArray(originalLineOffsets);
+      this.lineChecksum = Ints.toArray(lineCheckSum);
     }
   }
 }

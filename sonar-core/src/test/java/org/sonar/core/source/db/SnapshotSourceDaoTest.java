@@ -53,7 +53,7 @@ public class SnapshotSourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void insert() throws Exception {
-    dao.insert(new SnapshotSourceDto().setId(102L).setData("bar").setSnapshotId(11L).setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100")));
+    dao.insert(new SnapshotSourceDto().setData("bar").setSnapshotId(11L).setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100")));
 
     checkTable("insert", "snapshot_sources");
   }

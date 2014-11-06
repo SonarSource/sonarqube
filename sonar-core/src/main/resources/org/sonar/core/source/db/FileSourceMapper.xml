@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.source.db.FileSourceMapper">
+
+  <select id="select" parameterType="string" resultType="org.sonar.core.source.db.FileSourceDto">
+    SELECT id, project_uuid as projectUuid, file_uuid as fileUuid, created_at as createdAt, updated_at as updatedAt, data, data_hash as dataHash
+    FROM file_sources
+    WHERE file_uuid = #{fileUuid}
+  </select>
+
+  <insert id="insert" parameterType="org.sonar.core.source.db.FileSourceDto" useGeneratedKeys="false">
+    insert into file_sources (project_uuid, file_uuid, created_at, updated_at, data, data_hash) 
+    values (#{projectUuid}, #{fileUuid}, #{createdAt}, #{updatedAt}, #{data}, #{dataHash})
+  </insert>
+  
+  <update id="update" parameterType="org.sonar.core.source.db.FileSourceDto" useGeneratedKeys="false">
+    update file_sources set
+      updated_at = #{updatedAt},
+      data = #{data},
+      data_hash = #{dataHash}
+    where id = #{id}
+  </update>
+
+</mapper>
+
