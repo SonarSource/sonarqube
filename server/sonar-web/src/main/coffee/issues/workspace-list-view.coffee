@@ -77,16 +77,15 @@ define [
         @options.app.controller.showComponentViewer selectedIssue
         return false
 
-      key 'c', -> doTransition 'confirm'
-      key 'u', -> doTransition 'unconfirm'
-      key 'r', -> doTransition 'resolve'
-      key 'r', -> doTransition 'reopen'
-      key 'f', -> doTransition 'falsepositive'
-
-      key 'a', -> doAction 'assign'
-      key 'm', -> doAction 'assign-to-me'
-      key 'p', -> doAction 'plan'
-      key 'i', -> doAction 'set-severity'
+      key 'c', 'list', -> doTransition 'confirm'
+      key 'u', 'list', -> doTransition 'unconfirm'
+      key 'r', 'list', -> doTransition 'resolve'
+      key 'r', 'list', -> doTransition 'reopen'
+      key 'f', 'list', -> doTransition 'falsepositive'
+      key 'a', 'list', -> doAction 'assign'
+      key 'm', 'list', -> doAction 'assign-to-me'
+      key 'p', 'list', -> doAction 'plan'
+      key 'i', 'list', -> doAction 'set-severity'
 
 
     loadMore: ->

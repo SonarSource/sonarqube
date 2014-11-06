@@ -48,9 +48,29 @@ define [
 
 
     bindShortcuts: ->
+      doTransition = (transition) =>
+        selectedIssueView = @getSelectedIssueEl()
+        return unless selectedIssueView
+        selectedIssueView.find("[data-transition=#{transition}]").click()
+
+      doAction = (action) =>
+        selectedIssueView = @getSelectedIssueEl()
+        return unless selectedIssueView
+        selectedIssueView.find("#issue-#{action}").click()
+
       key 'left', 'componentViewer', =>
         @options.app.controller.closeComponentViewer()
         false
+
+      key 'c', 'componentViewer', -> doTransition 'confirm'
+      key 'u', 'componentViewer', -> doTransition 'unconfirm'
+      key 'r', 'componentViewer', -> doTransition 'resolve'
+      key 'r', 'componentViewer', -> doTransition 'reopen'
+      key 'f', 'componentViewer', -> doTransition 'falsepositive'
+      key 'a', 'componentViewer', -> doAction 'assign'
+      key 'm', 'componentViewer', -> doAction 'assign-to-me'
+      key 'p', 'componentViewer', -> doAction 'plan'
+      key 'i', 'componentViewer', -> doAction 'set-severity'
 
 
     bindScrollEvents: ->
@@ -139,6 +159,15 @@ define [
         @highlightIssue selectedKey
       else
         @options.app.controller.showComponentViewer selectedIssue
+
+
+    getSelectedIssueEl: ->
+      selected = @options.app.state.get 'selectedIndex'
+      return null unless selected?
+      selectedIssue = @options.app.issues.at selected
+      return null unless selectedIssue?
+      selectedIssueView = @$("[data-issue-key='#{selectedIssue.get('key')}']")
+      if selectedIssueView.length > 0 then selectedIssueView else null
 
 
     scrollToIssue: (key) ->
