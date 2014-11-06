@@ -2,10 +2,12 @@ define [
   'backbone.marionette'
   'templates/issues'
   'issues/workspace-list-item-view'
+  'issues/workspace-list-empty-view'
 ], (
   Marionette
   Templates
   IssueView
+  EmptyView
 ) ->
 
   $ = jQuery
@@ -18,6 +20,7 @@ define [
     template: Templates['issues-workspace-list']
     itemView: IssueView
     itemViewContainer: 'ul'
+    emptyView: EmptyView
 
 
     ui:

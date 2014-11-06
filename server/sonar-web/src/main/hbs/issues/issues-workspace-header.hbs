@@ -12,13 +12,18 @@
 
 
 <div class="issues-header-actions">
-  {{#if state.total}}
+  {{#notNull state.total}}
     <div class="issues-header-pagination">
-      <a class="js-issues-prev icon-prev" title="{{t 'paging_previous'}}"></a>
-      <span class="current">{{sum state.selectedIndex 1}} / <span id="issues-total">{{state.total}}</span></span>
-      <a class="js-issues-next icon-next" title="{{t 'paging_next'}}"></a>
+      {{#gt state.total 0}}
+        <a class="js-issues-prev icon-prev" title="{{t 'paging_previous'}}"></a>
+        <span class="current">{{sum state.selectedIndex 1}} / <span id="issues-total">{{state.total}}</span></span>
+        <a class="js-issues-next icon-next" title="{{t 'paging_next'}}"></a>
+      {{else}}
+        <span class="current">0 / <span id="issues-total">0</span></span>
+      {{/gt}}
     </div>
-  {{/if}}
+  {{/notNull}}
+
 
   <div class="issues-header-buttons button-group">
     <button id="issues-reload">{{t 'reload'}}</button>
