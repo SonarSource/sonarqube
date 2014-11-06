@@ -40,8 +40,6 @@ import java.util.Date;
  */
 public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
 
-  public static final String OLD_COMPONENT_ROOTS_FIELDS = "componentRoots";
-  public static final String NEW_COMPONENT_ROOTS_FIELDS = "componentRootUuids";
   private final System2 system;
 
   public ReplaceIssueFiltersProjectKeyByUuid(Database db, System2 system) {
@@ -88,7 +86,7 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
     String[] fields = data.split("\\|");
     for (int i=0; i<fields.length; i++) {
       String field = fields[i];
-      if (field.contains(OLD_COMPONENT_ROOTS_FIELDS)) {
+      if (field.contains("componentRoots")) {
         String[] componentRootValues = field.split("=");
         append(pstmt, newFields, componentRootValues.length == 2 ? componentRootValues[1] : null);
       } else {
@@ -110,7 +108,7 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
         if (rs.next()) {
           String projectUuid = SqlUtil.getString(rs, "uuid");
           if (projectUuid != null) {
-            newFields.append(NEW_COMPONENT_ROOTS_FIELDS).append("=").append(projectUuid);
+            newFields.append("projectUuids=").append(projectUuid);
           }
         }
       } finally {

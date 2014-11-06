@@ -12,7 +12,7 @@
       user_login="stephane"
       shared="[true]"
       description="All issues of Struts"
-      data="componentRootUuids=ABCD"
+      data="projectUuids=ABCD"
       created_at="2013-06-10"
       updated_at="2013-06-10" />
 
@@ -32,7 +32,7 @@
       user_login="michael"
       shared="[true]"
       description="All open issues on Sonar"
-      data="statuses=CLOSED|componentRootUuids=ABCD|resolution=FIXED"
+      data="statuses=CLOSED|projectUuids=ABCD|resolution=FIXED"
       created_at="2013-06-10"
       updated_at="2013-06-10" />
 
@@ -42,7 +42,7 @@
       user_login="michael"
       shared="[true]"
       description="All open issues on Sonar"
-      data="statuses=CLOSED|componentRootUuids=|resolution=FIXED"
+      data="statuses=CLOSED|projectUuids=|resolution=FIXED"
       created_at="2013-06-10"
       updated_at="2013-06-10" />
 
