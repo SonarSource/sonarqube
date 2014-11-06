@@ -59,8 +59,8 @@ public class StopperThreadTest {
       }
     }).when(monitored).stop();
 
-    // max stop timeout is 50 milliseconds
-    StopperThread stopper = new StopperThread(monitored, commands, 50L);
+    // max stop timeout is 100 milliseconds
+    StopperThread stopper = new StopperThread(monitored, commands, 100L);
     stopper.start();
     stopper.join();
 
