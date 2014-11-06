@@ -22,12 +22,8 @@ casper.test.begin(testName('Filters'), function (test) {
 
       .then(function () {
         casper.click('.js-header-tab-duplications');
-        casper.waitForSelector('.js-filter-duplications');
-      })
-
-      .then(function () {
-        casper.click('.js-filter-duplications');
         casper.waitForSelector('.duplication-exists', function () {
+          test.assertExists('.js-filter-duplications.active');
           test.assertElementCount('.component-viewer-source .row', 39);
         });
       })

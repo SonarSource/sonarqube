@@ -406,10 +406,8 @@ casper.test.begin(testName('Ability to Deselect Filters'), function (test) {
       .then(function () {
         casper.click('.js-header-tab-issues');
         var testFilter = '.js-filter-unresolved-issues';
-        casper.waitForSelector(testFilter, function () {
-          casper.click(testFilter);
+        casper.waitForSelector(testFilter + '.active', function () {
           lib.waitForElementCount('.component-viewer-source .row', 56, function () {
-            test.assertExists(testFilter + '.active');
             casper.click(testFilter);
             lib.waitForElementCount('.component-viewer-source .row', 520, function () {
               test.assertDoesntExist(testFilter + '.active');
@@ -425,10 +423,8 @@ casper.test.begin(testName('Ability to Deselect Filters'), function (test) {
       .then(function () {
         casper.click('.js-header-tab-coverage');
         var testFilter = '.js-filter-lines-to-cover';
-        casper.waitForSelector(testFilter, function () {
-          casper.click(testFilter);
+        casper.waitForSelector(testFilter + '.active', function () {
           lib.waitForElementCount('.component-viewer-source .row', 369, function () {
-            test.assertExists(testFilter + '.active');
             casper.click(testFilter);
             lib.waitForElementCount('.component-viewer-source .row', 520, function () {
               test.assertDoesntExist(testFilter + '.active');
@@ -444,10 +440,8 @@ casper.test.begin(testName('Ability to Deselect Filters'), function (test) {
       .then(function () {
         casper.click('.js-header-tab-duplications');
         var testFilter = '.js-filter-duplications';
-        casper.waitForSelector(testFilter, function () {
-          casper.click(testFilter);
+        casper.waitForSelector(testFilter + '.active', function () {
           lib.waitForElementCount('.component-viewer-source .row', 39, function () {
-            test.assertExists(testFilter + '.active');
             casper.click(testFilter);
             lib.waitForElementCount('.component-viewer-source .row', 520, function () {
               test.assertDoesntExist(testFilter + '.active');
