@@ -42,6 +42,10 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String> implements ServerComponent, DaoComponent {
 
+  public ComponentDao() {
+    this(System2.INSTANCE);
+  }
+
   public ComponentDao(System2 system) {
     super(ComponentMapper.class, system);
   }
