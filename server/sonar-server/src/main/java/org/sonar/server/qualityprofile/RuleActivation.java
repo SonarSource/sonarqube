@@ -93,7 +93,9 @@ public class RuleActivation {
 
   public RuleActivation setParameters(Map<String, String> m) {
     parameters.clear();
-    parameters.putAll(m);
+    for (Map.Entry<String, String> entry : m.entrySet()) {
+      setParameter(entry.getKey(), entry.getValue());
+    }
     return this;
   }
 

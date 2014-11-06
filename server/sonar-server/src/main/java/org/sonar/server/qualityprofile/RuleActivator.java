@@ -68,8 +68,8 @@ public class RuleActivator implements ServerComponent {
   private final ActivityService log;
 
   public RuleActivator(DbClient db, IndexClient index,
-    RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
-    PreviewCache previewCache, ActivityService log) {
+                       RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
+                       PreviewCache previewCache, ActivityService log) {
     this.db = db;
     this.index = index;
     this.contextFactory = contextFactory;
@@ -201,10 +201,11 @@ public class RuleActivator implements ServerComponent {
         context.defaultSeverity()));
       for (RuleParamDto ruleParamDto : context.ruleParams()) {
         String paramKey = ruleParamDto.getName();
-        change.setParameter(paramKey, validateParam(ruleParamDto, firstNonNull(
-          context.requestParamValue(request, paramKey),
-          context.parentParamValue(paramKey),
-          context.defaultParamValue(paramKey))));
+        change.setParameter(paramKey, validateParam(ruleParamDto,
+          firstNonNull(
+            context.requestParamValue(request, paramKey),
+            context.parentParamValue(paramKey),
+            context.defaultParamValue(paramKey))));
       }
     }
   }
@@ -212,7 +213,7 @@ public class RuleActivator implements ServerComponent {
   @CheckForNull
   String firstNonNull(String... strings) {
     for (String s : strings) {
-      if (s!=null) {
+      if (s != null) {
         return s;
       }
     }

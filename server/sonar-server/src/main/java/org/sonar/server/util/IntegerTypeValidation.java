@@ -20,7 +20,6 @@
 
 package org.sonar.server.util;
 
-import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.PropertyType;
 import org.sonar.server.exceptions.BadRequestException;
 
@@ -37,7 +36,9 @@ public class IntegerTypeValidation implements TypeValidation {
 
   @Override
   public void validate(String value, @Nullable List<String> options) {
-    if (!NumberUtils.isDigits(value)) {
+    try {
+      Integer.parseInt(value);
+    } catch (NumberFormatException e) {
       throw new BadRequestException("errors.type.notInteger", value);
     }
   }

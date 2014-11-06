@@ -881,8 +881,11 @@ public interface RulesDefinition extends ServerExtension {
       return this;
     }
 
+    /**
+     * Empty default value will be converted to null.
+     */
     public NewParam setDefaultValue(@Nullable String s) {
-      this.defaultValue = s;
+      this.defaultValue = Strings.emptyToNull(s);
       return this;
     }
   }
