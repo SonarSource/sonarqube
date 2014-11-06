@@ -110,7 +110,8 @@ requirejs [
 
   App.addInitializer ->
     @helpView = new HelpView app: @
-    key '?,/', => @helpView.render()
+    $(window).on 'keypress', (e) =>
+      @helpView.render() if e.keyCode == 63
 
 
   App.addInitializer ->
