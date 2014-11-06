@@ -270,7 +270,7 @@ public class MonitorTest {
     boolean isReady() {
       try {
         HttpRequest httpRequest = HttpRequest.get("http://localhost:" + httpPort + "/ping")
-          .readTimeout(500).connectTimeout(500);
+          .readTimeout(2000).connectTimeout(2000);
         return httpRequest.ok() && httpRequest.body().equals("ping");
       } catch (HttpRequest.HttpRequestException e) {
         return false;
