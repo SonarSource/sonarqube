@@ -5,6 +5,7 @@ define [
   'issues/facets/severity-facet'
   'issues/facets/status-facet'
   'issues/facets/project-facet'
+  'issues/facets/module-facet'
   'issues/facets/assignee-facet'
   'issues/facets/rule-facet'
   'issues/facets/resolution-facet'
@@ -19,6 +20,7 @@ define [
   SeverityFacet
   StatusFacet
   ProjectFacet
+  ModuleFacet
   AssigneeFacet
   RuleFacet
   ResolutionFacet
@@ -41,6 +43,7 @@ define [
         when 'resolutions' then ResolutionFacet
         when 'creationDate' then CreationDateFacet
         when 'projectUuids' then ProjectFacet
+        when 'componentRootUuids' then ModuleFacet
         when 'rules' then RuleFacet
         when 'actionPlans' then ActionPlanFacet
         when 'componentUuids' then ComponentFacet

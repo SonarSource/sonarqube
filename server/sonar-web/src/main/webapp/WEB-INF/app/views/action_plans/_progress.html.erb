@@ -2,7 +2,12 @@
    unless action_plan.totalIssues()==0
      project = @project
      project = @resource if project.nil?
-     options = {:actionPlans => action_plan.key, :componentRoots => u(project.key)}
+     options = {:actionPlans => action_plan.key}
+     if @project.qualifier == 'TRK'
+       options['projectUuids'] = @project.uuid
+     else
+       options['componentRootUuids'] = @project.uuid
+     end
 
      resolved_issues_link = action_plan.resolvedIssues().to_s
      resolved_issues_link = link_to action_plan.resolvedIssues().to_s, url_for_issues(options.merge(:resolved => 'true')) unless action_plan.resolvedIssues()==0
