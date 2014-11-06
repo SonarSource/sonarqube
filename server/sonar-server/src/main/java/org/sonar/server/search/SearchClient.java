@@ -179,8 +179,7 @@ public class SearchClient extends TransportClient implements Startable {
 
   @Override
   public DeleteByQueryRequestBuilder prepareDeleteByQuery(String... indices) {
-    // TODO
-    return new DeleteByQueryRequestBuilder(this).setIndices(indices);
+    return new ProxyDeleteByQueryRequestBuilder(this, profiling).setIndices(indices);
   }
 
   // ****************************************************************************************************************
