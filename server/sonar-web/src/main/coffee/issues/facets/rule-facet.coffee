@@ -8,7 +8,7 @@ define [
   class extends CustomValuesFacet
 
     prepareSearch: ->
-      url = "#{baseUrl}/api/rules/search?f=name"
+      url = "#{baseUrl}/api/rules/search?f=name,langName"
       languages = @options.app.state.get('query').languages
       if languages?
         url += "&languages=#{languages}"
@@ -26,7 +26,7 @@ define [
           data: (term, page) -> { q: term, p: page }
           results: (data) ->
             results = data.rules.map (rule) ->
-              id: rule.key, text: rule.name
+              id: rule.key, text: "(#{rule.langName}) #{rule.name}"
             { more: (data.p * data.ps < data.total), results: results }
 
 
@@ -36,10 +36,13 @@ define [
       values.forEach (v) =>
         key = v.val
         label = ''
+        extra = ''
         if key
           rule = _.findWhere rules, key: key
           label = rule.name if rule?
+          extra = rule.language if rule?
         v.label = label
+        v.extra = extra
       values
 
 
