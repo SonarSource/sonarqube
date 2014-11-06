@@ -74,9 +74,9 @@ public final class DsmSerializer {
   }
 
   private void serializeCell(int y, int x) {
-    DsmCell cell = dsm.getCell(x, y);
+    DsmCell cell = dsm.cell(x, y);
     json.append('{');
-    if (cell.getEdge() != null && cell.getWeight() > 0) {
+    if (cell != null && cell.getEdge() != null && cell.getWeight() > 0) {
       Dependency dep = (Dependency) cell.getEdge();
       json.append("\"i\":");
       json.append(dep.getId());

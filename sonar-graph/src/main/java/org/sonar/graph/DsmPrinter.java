@@ -46,7 +46,7 @@ public final class DsmPrinter {
         printRow(y);
       }
       writer.flush();
-      
+
     } catch (IOException e) {
       throw new RuntimeException("Unable to print the desired DSM.", e); // NOSONAR
     }
@@ -76,12 +76,13 @@ public final class DsmPrinter {
   }
 
   private void printCell(int y, int x) throws IOException {
-    if (dsm.getCell(x, y).getWeight() == 0) {
+    DsmCell cell = dsm.cell(x, y);
+    if (cell == null || cell.getWeight() == 0) {
       writer.append(" ");
     } else {
-      writer.append("").append(String.valueOf(dsm.getCell(x, y).getWeight()));
+      writer.append("").append(String.valueOf(cell.getWeight()));
     }
-    if (dsm.getCell(x, y).isFeedbackEdge()) {
+    if (cell != null && cell.isFeedbackEdge()) {
       writer.append(FEEDBACK_EDGE_FLAG);
     } else {
       writer.append(' ');

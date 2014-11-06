@@ -19,6 +19,8 @@
  */
 package org.sonar.graph;
 
+import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -53,9 +55,10 @@ public class Dsm<V> {
         V to = vertices[y];
 
         Edge<V> edge = graph.getEdge(from, to);
-        boolean isFeedbackEdge = edge != null && feedbackEdges.contains(edge);
-        DsmCell cell = new DsmCell(edge, isFeedbackEdge);
-        cells[x][y] = cell;
+        if (edge != null) {
+          boolean isFeedbackEdge = feedbackEdges.contains(edge);
+          cells[x][y] = new DsmCell(edge, isFeedbackEdge);
+        }
       }
     }
   }
@@ -129,7 +132,7 @@ public class Dsm<V> {
     int incomingEdges = 0;
     for (int x = from; x <= to; x++) {
       DsmCell cell = cells[x][y];
-      if (cell.getWeight() != 0 && !cell.isFeedbackEdge()) {
+      if (cell != null && cell.getWeight() != 0 && !cell.isFeedbackEdge()) {
         incomingEdges++;
       }
     }
@@ -140,14 +143,24 @@ public class Dsm<V> {
     int outgoingEdges = 0;
     for (int y = from; y <= to; y++) {
       DsmCell cell = cells[x][y];
-      if (cell.getWeight() != 0 && !cell.isFeedbackEdge()) {
+      if (cell != null && cell.getWeight() != 0 && !cell.isFeedbackEdge()) {
         outgoingEdges++;
       }
     }
     return outgoingEdges;
   }
 
+  /**
+   * @deprecated since 5.0 use {@link #cell(int, int)}
+   */
+  @Deprecated
   public DsmCell getCell(int x, int y) {
+    DsmCell cell = cells[x][y];
+    return cell != null ? cell : new DsmCell(null, false);
+  }
+
+  @CheckForNull
+  public DsmCell cell(int x, int y) {
     return cells[x][y];
   }
 
