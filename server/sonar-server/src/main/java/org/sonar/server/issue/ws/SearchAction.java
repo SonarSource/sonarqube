@@ -444,9 +444,12 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       json.beginObject()
         .prop("key", rule.key().toString())
         .prop("name", rule.name())
+        .prop("lang", rule.language())
         .prop("desc", rule.htmlDescription())
-        .prop("status", rule.status().toString())
-        .endObject();
+        .prop("status", rule.status().toString());
+      Language lang = languages.get(rule.language());
+      json.prop("langName", lang == null ? null : lang.getName());
+      json.endObject();
     }
     json.endArray();
   }
