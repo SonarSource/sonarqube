@@ -36,9 +36,11 @@ import java.lang.annotation.Target;
  * </p>
  * 
  * @since 3.0
+ * @deprecated in 4.5. Not supported anymore in source viewer as Ruby on Rails is being dropped.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Deprecated
 public @interface RequiredMeasures {
 
   /**
