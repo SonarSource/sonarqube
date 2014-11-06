@@ -128,6 +128,9 @@ public class SvnBlameCommand extends BlameCommand {
     cl.setDirectory(baseDir);
     cl.addArgument("blame");
     cl.addArgument("--xml");
+    if (configuration.useMergeHistory()) {
+      cl.addArgument("--use-merge-history");
+    }
     cl.addArgument("--non-interactive");
     cl.addArgument("-x");
     cl.addArgument("-w");

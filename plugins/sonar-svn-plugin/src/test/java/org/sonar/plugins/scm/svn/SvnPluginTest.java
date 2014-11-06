@@ -27,6 +27,6 @@ public class SvnPluginTest {
 
   @Test
   public void getExtensions() {
-    assertThat(new SvnPlugin().getExtensions()).hasSize(7);
+    assertThat(new SvnPlugin().getExtensions()).hasSize(8);
   }
 }

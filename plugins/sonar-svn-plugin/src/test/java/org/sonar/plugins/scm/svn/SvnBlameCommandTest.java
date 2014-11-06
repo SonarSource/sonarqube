@@ -141,6 +141,39 @@ public class SvnBlameCommandTest {
   }
 
   @Test
+  public void testParsingOfOutputWithMergeHistory() throws IOException {
+    File source = new File(baseDir, "src/foo.xoo");
+    FileUtils.write(source, "sample content");
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setAbsolutePath(new File(baseDir, "src/foo.xoo").getAbsolutePath());
+    fs.add(inputFile);
+
+    BlameOutput result = mock(BlameOutput.class);
+    CommandExecutor commandExecutor = mock(CommandExecutor.class);
+
+    when(commandExecutor.execute(any(Command.class), any(StreamConsumer.class), any(StreamConsumer.class), anyLong())).thenAnswer(new Answer<Integer>() {
+
+      @Override
+      public Integer answer(InvocationOnMock invocation) throws Throwable {
+        StreamConsumer outConsumer = (StreamConsumer) invocation.getArguments()[1];
+        List<String> lines = IOUtils.readLines(getClass().getResourceAsStream("/blame-with-merge-history.xml"), "UTF-8");
+        for (String line : lines) {
+          outConsumer.consumeLine(line);
+        }
+        return 0;
+      }
+    });
+
+    when(input.filesToBlame()).thenReturn(Arrays.<InputFile>asList(inputFile));
+
+    new SvnBlameCommand(commandExecutor, mock(SvnConfiguration.class)).blame(input, result);
+    verify(result).blameResult(inputFile,
+      Arrays.asList(
+        new BlameLine().date(DateUtils.parseDateTime("2012-07-19T11:44:57+0200")).revision("9490").author("dgageot"),
+        new BlameLine().date(DateUtils.parseDateTime("2009-04-18T10:29:59+0000")).revision("9491").author("simon.brandhof"),
+        new BlameLine().date(DateUtils.parseDateTime("2009-08-31T22:32:17+0000")).revision("10558").author("david")));
+  }
+
+  @Test
   public void shouldFailIfFileContainsLocalModification() throws IOException {
     File source = new File(baseDir, "src/foo.xoo");
     FileUtils.write(source, "sample content");
@@ -215,10 +248,13 @@ public class SvnBlameCommandTest {
 
     settings.setProperty(SvnConfiguration.CONFIG_DIR_PROP_KEY, "/home/julien/.svn");
     settings.setProperty(SvnConfiguration.TRUST_SERVER_PROP_KEY, "true");
+    settings.setProperty(SvnConfiguration.USE_MERGE_HISTORY_KEY, "true");
     commandLine = svnBlameCommand.createCommandLine(baseDir, "src/main/java/Foo.java");
     assertThat(commandLine.toCommandLine())
-      .isEqualTo("svn blame --xml --non-interactive -x -w --config-dir /home/julien/.svn --username myUser --password myPass --trust-server-cert src/main/java/Foo.java");
-    assertThat(commandLine.toString()).isEqualTo(
-      "svn blame --xml --non-interactive -x -w --config-dir /home/julien/.svn --username ******** --password ******** --trust-server-cert src/main/java/Foo.java");
+      .isEqualTo(
+        "svn blame --xml --use-merge-history --non-interactive -x -w --config-dir /home/julien/.svn --username myUser --password myPass --trust-server-cert src/main/java/Foo.java");
+    assertThat(commandLine.toString())
+      .isEqualTo(
+        "svn blame --xml --use-merge-history --non-interactive -x -w --config-dir /home/julien/.svn --username ******** --password ******** --trust-server-cert src/main/java/Foo.java");
   }
 }

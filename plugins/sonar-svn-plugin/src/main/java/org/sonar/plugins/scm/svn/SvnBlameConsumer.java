@@ -68,6 +68,9 @@ public class SvnBlameConsumer implements StreamConsumer {
 
   private static final Pattern DATE_PATTERN = Pattern.compile("<date>(.*)T(.*)\\.(.*)Z</date>");
 
+  private boolean insideCommitSection = false;
+  private boolean insideMergedSection = false;
+
   private SimpleDateFormat dateFormat;
 
   private List<BlameLine> lines = new ArrayList<BlameLine>();
@@ -82,31 +85,61 @@ public class SvnBlameConsumer implements StreamConsumer {
 
   private int lineNumber = 0;
 
-  private String revision;
-
+  private String committerRevision;
+  private String committer;
+  private Date committerDate;
+  private String authorRevision;
   private String author;
+  private Date authorDate;
 
   @Override
   public void consumeLine(String line) {
     Matcher matcher;
     if ((matcher = LINE_PATTERN.matcher(line)).find()) {
-      if (lineNumber != 0) {
-        throw new IllegalStateException("Unable to blame file " + filename + ". No blame info at line " + lineNumber + ". Is file commited?");
-      }
       String lineNumberStr = matcher.group(1);
       lineNumber = Integer.parseInt(lineNumberStr);
+      insideCommitSection = false;
+      insideMergedSection = false;
+    } else if (line.contains("<commit") && !insideMergedSection) {
+      insideCommitSection = true;
+    } else if (line.contains("<merged")) {
+      insideMergedSection = true;
+      insideCommitSection = false;
     } else if ((matcher = REVISION_PATTERN.matcher(line)).find()) {
-      revision = matcher.group(1);
+      if (insideCommitSection) {
+        committerRevision = matcher.group(1);
+      } else if (insideMergedSection) {
+        authorRevision = matcher.group(1);
+      }
     } else if ((matcher = AUTHOR_PATTERN.matcher(line)).find()) {
-      author = matcher.group(1);
+      if (insideCommitSection) {
+        committer = matcher.group(1);
+      } else if (insideMergedSection) {
+        author = matcher.group(1);
+      }
     } else if ((matcher = DATE_PATTERN.matcher(line)).find()) {
       String date = matcher.group(1);
       String time = matcher.group(2);
       Date dateTime = parseDateTime(date + " " + time);
-      lines.add(new BlameLine().revision(revision).author(author).date(dateTime));
-      lineNumber = 0;
-      revision = null;
+      if (insideCommitSection) {
+        committerDate = dateTime;
+      } else if (insideMergedSection) {
+        authorDate = dateTime;
+      }
+    } else if (line.contains("</entry>")) {
+      if (authorRevision != null) {
+        lines.add(new BlameLine().revision(authorRevision).author(author).date(authorDate));
+      } else if (committerRevision != null) {
+        lines.add(new BlameLine().revision(committerRevision).author(committer).date(committerDate));
+      } else {
+        throw new IllegalStateException("Unable to blame file " + filename + ". No blame info at line " + lineNumber + ". Is file commited?");
+      }
+      insideCommitSection = false;
+      insideMergedSection = false;
       author = null;
+      committer = null;
+      committerRevision = null;
+      authorRevision = null;
     }
   }
 

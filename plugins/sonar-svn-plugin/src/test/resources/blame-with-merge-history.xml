@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blame>
+<target
+   path="pom.xml">
+<entry
+   line-number="1">
+<commit
+   revision="9491">
+<author>automatic-merge</author>
+<date>2009-04-18T10:29:59.077093Z</date>
+</commit>
+<merged
+   path="/dummy-svn/pom.xml">
+<commit
+   revision="9490">
+<author>dgageot</author>
+<date>2012-07-19T09:44:57.393222Z</date>
+</commit>
+</merged>
+</entry>
+<entry
+   line-number="2">
+<commit
+   revision="9491">
+<author>simon.brandhof</author>
+<date>2009-04-18T10:29:59.077093Z</date>
+</commit>
+<merged
+   path="/dummy-svn/pom.xml">
+<commit
+   revision="9491">
+<author>simon.brandhof</author>
+<date>2009-04-18T10:29:59.077093Z</date>
+</commit>
+</merged>
+</entry>
+<entry
+   line-number="3">
+<commit
+   revision="10558">
+<author>david</author>
+<date>2009-08-31T22:32:17.361675Z</date>
+</commit>
+<merged
+   path="/dummy-svn/pom.xml">
+<commit
+   revision="10558">
+<author>david</author>
+<date>2009-08-31T22:32:17.361675Z</date>
+</commit>
+</merged>
+</entry>
+</target>
+</blame>
