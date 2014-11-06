@@ -68,7 +68,7 @@ public abstract class AbstractDaoTestCase {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractDaoTestCase.class);
   private static Database database;
   private static DatabaseCommands databaseCommands;
-  private MyBatis myBatis;
+  private static MyBatis myBatis;
 
   private IDatabaseTester databaseTester;
 
@@ -91,6 +91,9 @@ public abstract class AbstractDaoTestCase {
       database.start();
       LOG.info("Test Database: " + database);
       databaseCommands = DatabaseCommands.forDialect(database.getDialect());
+
+      myBatis = new MyBatis(database, new Logback(), new NullQueue());
+      myBatis.start();
     }
   }
 
@@ -98,8 +101,6 @@ public abstract class AbstractDaoTestCase {
   public void startDbUnit() throws Exception {
     databaseCommands.truncateDatabase(database.getDataSource());
     databaseTester = new DataSourceDatabaseTester(database.getDataSource());
-    myBatis = new MyBatis(database, new Logback(), new NullQueue());
-    myBatis.start();
   }
 
   /**
