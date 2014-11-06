@@ -57,17 +57,23 @@ public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
 
   @Override
   public BulkResponse get(TimeValue timeout) {
-    throw new IllegalStateException("Not yet implemented");
+    throw unsupported();
   }
 
   @Override
   public BulkResponse get(String timeout) {
-    throw new IllegalStateException("Not yet implemented");
+    // easy to implement if needed (copy get())
+    throw unsupported();
   }
 
   @Override
   public ListenableActionFuture<BulkResponse> execute() {
-    throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
+    // easy to implement if needed (copy get())
+    throw unsupported();
+  }
+
+  private UnsupportedOperationException unsupported() {
+    throw new UnsupportedOperationException("See " + ProxyBulkRequestBuilder.class.getName());
   }
 
   @Override

@@ -20,6 +20,7 @@
 
 package org.sonar.server.search;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
@@ -63,7 +64,23 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.process.LoopbackAddress;
 import org.sonar.process.ProcessConstants;
-import org.sonar.server.search.request.*;
+import org.sonar.server.search.request.ProxyBulkRequestBuilder;
+import org.sonar.server.search.request.ProxyClusterHealthRequestBuilder;
+import org.sonar.server.search.request.ProxyClusterStateRequestBuilder;
+import org.sonar.server.search.request.ProxyClusterStatsRequestBuilder;
+import org.sonar.server.search.request.ProxyCountRequestBuilder;
+import org.sonar.server.search.request.ProxyCreateIndexRequestBuilder;
+import org.sonar.server.search.request.ProxyDeleteByQueryRequestBuilder;
+import org.sonar.server.search.request.ProxyFlushRequestBuilder;
+import org.sonar.server.search.request.ProxyGetRequestBuilder;
+import org.sonar.server.search.request.ProxyIndicesExistsRequestBuilder;
+import org.sonar.server.search.request.ProxyIndicesStatsRequestBuilder;
+import org.sonar.server.search.request.ProxyMultiGetRequestBuilder;
+import org.sonar.server.search.request.ProxyNodesStatsRequestBuilder;
+import org.sonar.server.search.request.ProxyPutMappingRequestBuilder;
+import org.sonar.server.search.request.ProxyRefreshRequestBuilder;
+import org.sonar.server.search.request.ProxySearchRequestBuilder;
+import org.sonar.server.search.request.ProxySearchScrollRequestBuilder;
 
 /**
  * ElasticSearch Node used to connect to index.
@@ -73,6 +90,11 @@ public class SearchClient extends TransportClient implements Startable {
   private final Profiling profiling;
 
   public SearchClient(Settings settings) {
+    this(settings, new Profiling(settings));
+  }
+
+  @VisibleForTesting
+  public SearchClient(Settings settings, Profiling profiling) {
     super(ImmutableSettings.settingsBuilder()
       .put("node.name", StringUtils.defaultIfEmpty(settings.getString(ProcessConstants.CLUSTER_NODE_NAME), "sq_local_client"))
       .put("network.bind_host", "localhost")
@@ -82,7 +104,7 @@ public class SearchClient extends TransportClient implements Startable {
     initLogging();
     this.addTransportAddress(new InetSocketTransportAddress(LoopbackAddress.get().getHostAddress(),
       settings.getInt(ProcessConstants.SEARCH_PORT)));
-    this.profiling = new Profiling(settings);
+    this.profiling = profiling;
   }
 
   public ClusterHealth getClusterHealth() {
@@ -266,7 +288,7 @@ public class SearchClient extends TransportClient implements Startable {
     throw throwNotYetImplemented();
   }
 
-  private static IllegalStateException throwNotYetImplemented(){
+  private static IllegalStateException throwNotYetImplemented() {
     return new IllegalStateException("Not yet implemented");
   }
 
