@@ -40,7 +40,7 @@ define [
         if key
           rule = _.findWhere rules, key: key
           label = rule.name if rule?
-          extra = rule.language if rule?
+          extra = rule.langName if rule?
         v.label = label
         v.extra = extra
       values
