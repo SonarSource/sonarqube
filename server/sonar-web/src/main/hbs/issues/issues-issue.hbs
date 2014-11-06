@@ -33,15 +33,15 @@
 
 
     {{#inArray actions "assign"}}
-    <li>
-      {{#if assigneeName}}
-        <a id="issue-assign" class="link-action">{{t 'assigned_to'}}</a> {{assigneeName}}</li>
-      {{else}}
-        <a id="issue-assign" class="link-action">{{t 'issue.assign.formlink' }}</a>
-        {{#inArray actions "assign_to_me"}}
-          [<a id="issue-assign-to-me" class="link-action">{{t 'issue.assign.to_me' }}</a>]
-        {{/inArray}}
-      {{/if}}
+      <li>
+        {{#if assigneeName}}
+          <a id="issue-assign" class="link-action">{{t 'assigned_to'}}</a> {{assigneeName}}
+        {{else}}
+          <a id="issue-assign" class="link-action">{{t 'issue.assign.formlink' }}</a>
+          {{#inArray actions "assign_to_me"}}
+            [<a id="issue-assign-to-me" class="link-action">{{t 'issue.assign.to_me' }}</a>]
+          {{/inArray}}
+        {{/if}}
       </li>
     {{else}}
       {{#if assigneeName}}
@@ -95,12 +95,12 @@
       <li>{{t 'issue.technical_debt_short'}}: {{debt}}</li>
     {{/if}}
 
-    {{#if creationDate}}
-      <li>{{t 'issue.creation_date'}}: {{dt creationDate}}</li>
-    {{/if}}
-
     {{#if reporterName}}<li>{{t 'reporter'}}: {{reporterName}}</li>{{/if}}
     {{#if author}}<li>{{t 'author'}}: {{author}}</li>{{/if}}
+
+    {{#if creationDate}}
+      <li class="first-letter-uppercase" title="{{t 'issue.creation_date'}}: {{dt creationDate}}">{{fromNow creationDate}}</li>
+    {{/if}}
   </ul>
 
   <div class="code-issue-form" style="display: none;"></div>
