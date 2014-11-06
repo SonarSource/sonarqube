@@ -534,7 +534,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   private void writeIssueExtraFields(Issue issue, @Nullable String projectKey, Map<String, User> usersByLogin, Map<String, ActionPlan> actionPlanByKeys,
     @Nullable List<String> extraFields,
     JsonWriter json) {
-    if (extraFields != null && UserSession.get().isLoggedIn()) {
+    if (extraFields != null) {
       if (extraFields.contains(ACTIONS_EXTRA_FIELD)) {
         actionsWriter.writeActions(issue, json);
       }
