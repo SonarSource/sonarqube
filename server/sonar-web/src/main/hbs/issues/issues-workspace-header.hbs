@@ -1,9 +1,9 @@
 <div class="issues-header-component">
   {{#if state.component}}
     {{#with state.component}}
-      <a href="{{dashboardUrl project}}" title="{{projectName}}">{{projectName}}</a>
+      {{qualifierIcon 'TRK'}}&nbsp;<a href="{{dashboardUrl project}}" title="{{projectName}}">{{projectName}}</a>
       /
-      <a href="{{dashboardUrl key}}" title="{{name}}">{{name}}</a>
+      {{qualifierIcon qualifier}}&nbsp;<a href="{{dashboardUrl key}}" title="{{name}}">{{name}}</a>
     {{/with}}
   {{else}}
     &nbsp;
