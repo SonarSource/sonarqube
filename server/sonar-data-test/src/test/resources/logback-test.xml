@@ -1,38 +1,42 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!--
-  Configuration for default logger. Only used while embedded server is starting,
-  before proper logging configuration is loaded.
+<configuration>
 
-  See http://logback.qos.ch/manual/configuration.html
--->
-<configuration debug="false">
-  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
-
-  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <filter class="ch.qos.logback.classic.filter.LevelFilter">
-      <level>INFO</level>
-      <onMatch>ACCEPT</onMatch>
-      <onMismatch>DENY</onMismatch>
-    </filter>
-    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+  <appender name="STDOUT"
+            class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
       <pattern>
-        %d{yyyy.MM.dd HH:mm:ss} %-5level %msg%n
+        %d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n
       </pattern>
     </encoder>
   </appender>
 
-  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>
-        %d{yyyy.MM.dd HH:mm:ss} %-5level %msg%n
-      </pattern>
-    </encoder>
-  </appender>
+  <logger name="org.hibernate">
+    <level value="WARN"/>
+  </logger>
+
+  <logger name="org.dbunit">
+    <level value="WARN"/>
+  </logger>
+
+  <!-- set to level DEBUG to log SQL requests executed by MyBatis -->
+  <logger name="java.sql">
+    <level value="WARN"/>
+  </logger>
+
+  <!-- required for DryRunDatabaseFactoryTest -->
+  <logger name="org.sonar.core.persistence.DryRunDatabaseFactory">
+    <level value="DEBUG"/>
+  </logger>
+
+  <!-- required for DryRunDatabaseFactoryTest -->
+  <logger name="org.elasticsearch">
+    <level value="WARN"/>
+  </logger>
 
   <root>
     <level value="INFO"/>
-    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="STDOUT"/>
   </root>
 
 </configuration>

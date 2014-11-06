@@ -20,32 +20,31 @@
 package org.sonar.data.issues;
 
 import org.apache.ibatis.session.ResultContext;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.search.DbSynchronizationHandler;
 
-import java.util.Date;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MassSynchronizingTest extends IssueData {
 
-  MyIssueDao myIssueDao;
+  IssueIndexLessDao myIssueDao;
+
+  DbSession setupSession;
 
   @Before
   public void setUp() throws Exception {
+    myIssueDao = new IssueIndexLessDao();
 
-    myIssueDao = new MyIssueDao();
-
-    DbSession setupSession = db.openSession(false);
+    setupSession = db.openSession(false);
     generateRules(setupSession);
     generateProjects(setupSession);
 
-
-    // Inserting Issues now (finally)
     for (int i = 0; i < ISSUE_COUNT; i++) {
       myIssueDao.insert(setupSession, getIssue(i));
       if (i % 100 == 0) {
@@ -53,6 +52,10 @@ public class MassSynchronizingTest extends IssueData {
       }
     }
     setupSession.commit();
+  }
+
+  @After
+  public void closeSession() throws Exception {
     setupSession.close();
   }
 
@@ -60,17 +63,17 @@ public class MassSynchronizingTest extends IssueData {
   public void synchronize_issues() throws Exception {
     long start = System.currentTimeMillis();
     int issueInsertCount = ISSUE_COUNT;
-    myIssueDao.synchronizeAfter(session, new Date(0));
+    myIssueDao.synchronizeAfter(session);
     long stop = System.currentTimeMillis();
 
     // TODO add performance assertions here
     assertThat(myIssueDao.synchronizedIssues).isEqualTo(issueInsertCount);
 
     long time = stop-start;
-    LOGGER.info("processed {} Issues in {}ms with avg {} Issue/second", ISSUE_COUNT, time, this.documentPerSecond(time));
+    LOGGER.info("Processed {} Issues in {} ms with avg {} Issue/second", ISSUE_COUNT, time, this.documentPerSecond(time));
   }
 
-  class MyIssueDao extends IssueDao {
+  class IssueIndexLessDao extends IssueDao {
     public Integer synchronizedIssues = 0;
 
     @Override
