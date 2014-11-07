@@ -20,6 +20,7 @@
 package org.sonar.server.db.migrations;
 
 import javax.annotation.Nullable;
+
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -35,6 +36,8 @@ public interface SqlStatement<CHILD extends SqlStatement> {
   CHILD setLong(int columnIndex, @Nullable Long value) throws SQLException;
 
   CHILD setString(int columnIndex, @Nullable String value) throws SQLException;
+
+  CHILD setBytes(int columnIndex, @Nullable byte[] data) throws SQLException;
 
   CHILD close();
 }

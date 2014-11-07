@@ -20,6 +20,7 @@
 package org.sonar.server.db.migrations;
 
 import javax.annotation.CheckForNull;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -69,6 +70,12 @@ public interface Select extends SqlStatement<Select> {
     public Date getDate(int columnIndex) throws SQLException {
       Timestamp t = rs.getTimestamp(columnIndex);
       return rs.wasNull() ? null : t;
+    }
+
+    @CheckForNull
+    public byte[] getBytes(int columnIndex) throws SQLException {
+      byte[] b = rs.getBytes(columnIndex);
+      return rs.wasNull() ? null : b;
     }
   }
 

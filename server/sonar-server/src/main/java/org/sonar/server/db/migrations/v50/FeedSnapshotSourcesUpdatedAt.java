@@ -29,7 +29,7 @@ import org.sonar.server.db.migrations.SqlStatement;
 import java.sql.SQLException;
 
 /**
- * Used in the Active Record Migration 705
+ * Used in the Active Record Migration 712
  *
  * @since 5.0
  */
