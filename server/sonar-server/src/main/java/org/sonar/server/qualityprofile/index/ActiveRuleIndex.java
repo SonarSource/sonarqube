@@ -169,7 +169,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
           .mustNot(FilterBuilders.hasParentFilter(this.getParentType(),
             FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), RuleStatus.REMOVED.name())))))
       .addAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
-        .field(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
+        .field(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field()).size(0)
         .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
           .field(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field()))
         .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())

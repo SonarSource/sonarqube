@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ActiveRuleBackendMediumTest extends SearchMediumTest {
@@ -322,6 +323,35 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
         profileDto2.getKey()));
 
     assertThat(stats).hasSize(2);
+  }
+
+  /**
+   * SONAR-5844
+   */
+  @Test
+  public void stats_for_all_with_lof_of_profiles() {
+    RuleDto ruleDto1 = newRuleDto(RuleTesting.XOO_X1);
+    RuleDto ruleDto2 = newRuleDto(RuleTesting.XOO_X2);
+    db.ruleDao().insert(dbSession, ruleDto1, ruleDto2);
+
+    List<String> profileKeys = newArrayList();
+    for (int i = 0; i<30; i++) {
+      QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor("xoo", "profile-" + i), "profile-" + i);
+      profileKeys.add(profileDto.getKey());
+      db.qualityProfileDao().insert(dbSession, profileDto);
+
+      db.activeRuleDao().insert(dbSession,
+        ActiveRuleDto.createFor(profileDto, ruleDto1)
+          .setSeverity(Severity.BLOCKER),
+        ActiveRuleDto.createFor(profileDto, ruleDto2)
+          .setSeverity(Severity.MAJOR)
+      );
+    }
+    dbSession.commit();
+    dbSession.clearCache();
+
+    Map<String, Multimap<String, FacetValue>> stats = index.get(ActiveRuleIndex.class).getStatsByProfileKeys(profileKeys);
+    assertThat(stats).hasSize(30);
   }
 
   private RuleDto newRuleDto(RuleKey ruleKey) {
