@@ -27,7 +27,6 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
-
 public class InvalidatePreviewCacheStep implements ComputationStep {
   private final PropertiesDao propertiesDao;
 
@@ -37,7 +36,7 @@ public class InvalidatePreviewCacheStep implements ComputationStep {
 
   @Override
   public void execute(DbSession session, AnalysisReportDto analysisReportDto, ComponentDto project) {
-    propertiesDao.setProperty(newProjectPreviewCacheProperty(project));
+    propertiesDao.setProperty(newProjectPreviewCacheProperty(project), session);
   }
 
   private PropertyDto newProjectPreviewCacheProperty(ComponentDto project) {

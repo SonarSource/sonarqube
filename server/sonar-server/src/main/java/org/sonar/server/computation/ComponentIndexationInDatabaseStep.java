@@ -34,7 +34,7 @@ public class ComponentIndexationInDatabaseStep implements ComputationStep {
 
   @Override
   public void execute(DbSession session, AnalysisReportDto analysisReportDto, ComponentDto project) {
-    resourceIndexerDao.indexProject(project.getId().intValue());
+    resourceIndexerDao.indexProject(project.getId().intValue(), session);
   }
 
   @Override

@@ -102,10 +102,14 @@ public class PropertiesDao implements BatchComponent, ServerComponent, DaoCompon
   public List<PropertyDto> selectProjectProperties(long resourceId) {
     SqlSession session = mybatis.openSession(false);
     try {
-      return session.getMapper(PropertiesMapper.class).selectProjectPropertiesByResourceId(resourceId);
+      return selectProjectProperties(resourceId, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public List<PropertyDto> selectProjectProperties(long resourceId, SqlSession session) {
+    return session.getMapper(PropertiesMapper.class).selectProjectPropertiesByResourceId(resourceId);
   }
 
   public List<PropertyDto> selectProjectProperties(String resourceKey) {

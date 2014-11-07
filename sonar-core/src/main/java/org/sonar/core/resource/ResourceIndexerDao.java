@@ -53,14 +53,18 @@ public class ResourceIndexerDao {
   public ResourceIndexerDao indexProject(final int rootProjectId) {
     DbSession session = mybatis.openSession(true);
     try {
-      ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
-      doIndexProject(rootProjectId, session, mapper);
+      indexProject(rootProjectId, session);
       session.commit();
       return this;
 
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public void indexProject(final int rootProjectId, DbSession session) {
+    ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
+    doIndexProject(rootProjectId, session, mapper);
   }
 
   /**

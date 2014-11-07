@@ -56,24 +56,28 @@ public class PurgeDao {
 
   public PurgeDao purge(PurgeConfiguration conf) {
     DbSession session = mybatis.openSession(true);
-    PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-    PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
     try {
-      List<ResourceDto> projects = getProjects(conf.rootProjectId(), session);
-      for (ResourceDto project : projects) {
-        LOG.info("-> Clean " + project.getLongName() + " [id=" + project.getId() + "]");
-        deleteAbortedBuilds(project, commands);
-        purge(project, conf.scopesWithoutHistoricalData(), commands);
-      }
-      for (ResourceDto project : projects) {
-        disableOrphanResources(project, session, mapper);
-      }
-      deleteOldClosedIssues(conf, mapper);
+      purge(conf, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
     return this;
+  }
+
+  public void purge(PurgeConfiguration conf, DbSession session) {
+    PurgeMapper mapper = session.getMapper(PurgeMapper.class);
+    PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
+    List<ResourceDto> projects = getProjects(conf.rootProjectId(), session);
+    for (ResourceDto project : projects) {
+      LOG.info("-> Clean " + project.getLongName() + " [id=" + project.getId() + "]");
+      deleteAbortedBuilds(project, commands);
+      purge(project, conf.scopesWithoutHistoricalData(), commands);
+    }
+    for (ResourceDto project : projects) {
+      disableOrphanResources(project, session, mapper);
+    }
+    deleteOldClosedIssues(conf, mapper);
   }
 
   private void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper) {
@@ -87,7 +91,7 @@ public class PurgeDao {
       LOG.info("<- Delete aborted builds");
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
         .setIslast(false)
-        .setStatus(new String[]{"U"})
+        .setStatus(new String[] {"U"})
         .setRootProjectId(project.getId());
       commands.deleteSnapshots(query);
     }
@@ -96,7 +100,7 @@ public class PurgeDao {
   private boolean hasAbortedBuilds(Long projectId, PurgeCommands commands) {
     PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
       .setIslast(false)
-      .setStatus(new String[]{"U"})
+      .setStatus(new String[] {"U"})
       .setResourceId(projectId);
     return !commands.selectSnapshotIds(query).isEmpty();
   }
@@ -107,7 +111,7 @@ public class PurgeDao {
         .setResourceId(project.getId())
         .setIslast(false)
         .setNotPurged(true)
-    );
+      );
     for (final Long projectSnapshotId : projectSnapshotIds) {
       LOG.info("<- Clean snapshot " + projectSnapshotId);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
@@ -142,16 +146,20 @@ public class PurgeDao {
   public List<PurgeableSnapshotDto> selectPurgeableSnapshots(long resourceId) {
     DbSession session = mybatis.openSession(true);
     try {
-      PurgeMapper mapper = session.getMapper(PurgeMapper.class);
-      List<PurgeableSnapshotDto> result = Lists.newArrayList();
-      result.addAll(mapper.selectPurgeableSnapshotsWithEvents(resourceId));
-      result.addAll(mapper.selectPurgeableSnapshotsWithoutEvents(resourceId));
-      // sort by date
-      Collections.sort(result);
-      return result;
+      return selectPurgeableSnapshots(resourceId, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public List<PurgeableSnapshotDto> selectPurgeableSnapshots(long resourceId, DbSession session) {
+    PurgeMapper mapper = session.getMapper(PurgeMapper.class);
+    List<PurgeableSnapshotDto> result = Lists.newArrayList();
+    result.addAll(mapper.selectPurgeableSnapshotsWithEvents(resourceId));
+    result.addAll(mapper.selectPurgeableSnapshotsWithoutEvents(resourceId));
+    // sort by date
+    Collections.sort(result);
+    return result;
   }
 
   public PurgeDao deleteResourceTree(long rootProjectId) {
@@ -185,12 +193,16 @@ public class PurgeDao {
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {
     final DbSession session = mybatis.openSession(true);
     try {
-      new PurgeCommands(session, profiler).deleteSnapshots(query);
-      return this;
+      return deleteSnapshots(query, session);
 
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public PurgeDao deleteSnapshots(PurgeSnapshotQuery query, final DbSession session) {
+    new PurgeCommands(session, profiler).deleteSnapshots(query);
+    return this;
   }
 
   /**

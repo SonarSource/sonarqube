@@ -27,6 +27,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeProfiler;
@@ -43,11 +44,11 @@ public class ProjectPurgeTask implements ServerComponent {
     this.profiler = profiler;
   }
 
-  public ProjectPurgeTask purge(PurgeConfiguration configuration, Settings settings) {
+  public ProjectPurgeTask purge(PurgeConfiguration configuration, Settings settings, DbSession session) {
     long start = System.currentTimeMillis();
     profiler.reset();
-    cleanHistoricalData(configuration.rootProjectId(), settings);
-    doPurge(configuration);
+    cleanHistoricalData(configuration.rootProjectId(), settings, session);
+    doPurge(configuration, session);
     if (settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
       long duration = System.currentTimeMillis() - start;
       LOG.info("\n -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------\n");
@@ -57,18 +58,18 @@ public class ProjectPurgeTask implements ServerComponent {
     return this;
   }
 
-  private void cleanHistoricalData(long resourceId, Settings settings) {
+  private void cleanHistoricalData(long resourceId, Settings settings, DbSession session) {
     try {
-      periodCleaner.clean(resourceId, settings);
+      periodCleaner.clean(resourceId, settings, session);
     } catch (Exception e) {
       // purge errors must no fail the batch
       LOG.error("Fail to clean historical data [id=" + resourceId + "]", e);
     }
   }
 
-  private void doPurge(PurgeConfiguration configuration) {
+  private void doPurge(PurgeConfiguration configuration, DbSession session) {
     try {
-      purgeDao.purge(configuration);
+      purgeDao.purge(configuration, session);
     } catch (Exception e) {
       // purge errors must no fail the report analysis
       LOG.error("Fail to purge data [id=" + configuration.rootProjectId() + "]", e);

@@ -27,7 +27,9 @@ import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.resource.ResourceIndexerDao;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ComponentIndexationInDatabaseStepTest {
 
@@ -45,9 +47,10 @@ public class ComponentIndexationInDatabaseStepTest {
     ComponentDto project = mock(ComponentDto.class);
     when(project.getId()).thenReturn(123L);
 
-    sut.execute(mock(DbSession.class), mock(AnalysisReportDto.class), project);
+    DbSession session = mock(DbSession.class);
+    sut.execute(session, mock(AnalysisReportDto.class), project);
 
-    verify(resourceIndexerDao).indexProject(123);
+    verify(resourceIndexerDao).indexProject(123, session);
   }
 
 }

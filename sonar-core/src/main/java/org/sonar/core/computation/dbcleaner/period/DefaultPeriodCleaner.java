@@ -27,6 +27,8 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.config.Settings;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeSnapshotQuery;
 import org.sonar.core.purge.PurgeableSnapshotDto;
@@ -38,10 +40,12 @@ public class DefaultPeriodCleaner implements TaskExtension, ServerExtension {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPeriodCleaner.class);
   private PurgeDao purgeDao;
   private Settings settings;
+  private MyBatis mybatis;
 
-  public DefaultPeriodCleaner(PurgeDao purgeDao, Settings settings) {
+  public DefaultPeriodCleaner(PurgeDao purgeDao, Settings settings, MyBatis mybatis) {
     this.purgeDao = purgeDao;
     this.settings = settings;
+    this.mybatis = mybatis;
   }
 
   public void clean(long projectId) {
@@ -49,27 +53,36 @@ public class DefaultPeriodCleaner implements TaskExtension, ServerExtension {
   }
 
   public void clean(long projectId, Settings settings) {
-    doClean(projectId, new Filters(settings).all());
+    DbSession session = mybatis.openSession(true);
+    try {
+      doClean(projectId, new Filters(settings).all(), session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void clean(long projectId, Settings settings, DbSession session) {
+    doClean(projectId, new Filters(settings).all(), session);
   }
 
   @VisibleForTesting
-  void doClean(long projectId, List<Filter> filters) {
-    List<PurgeableSnapshotDto> history = selectProjectSnapshots(projectId);
+  void doClean(long projectId, List<Filter> filters, DbSession session) {
+    List<PurgeableSnapshotDto> history = selectProjectSnapshots(projectId, session);
     for (Filter filter : filters) {
       filter.log();
-      delete(filter.filter(history));
+      delete(filter.filter(history), session);
     }
   }
 
-  private void delete(List<PurgeableSnapshotDto> snapshots) {
+  private void delete(List<PurgeableSnapshotDto> snapshots, DbSession session) {
     for (PurgeableSnapshotDto snapshot : snapshots) {
       LOG.info("<- Delete snapshot: " + DateUtils.formatDateTime(snapshot.getDate()) + " [" + snapshot.getSnapshotId() + "]");
-      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getSnapshotId()));
-      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setId(snapshot.getSnapshotId()));
+      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getSnapshotId()), session);
+      purgeDao.deleteSnapshots(PurgeSnapshotQuery.create().setId(snapshot.getSnapshotId()), session);
     }
   }
 
-  private List<PurgeableSnapshotDto> selectProjectSnapshots(long resourceId) {
-    return purgeDao.selectPurgeableSnapshots(resourceId);
+  private List<PurgeableSnapshotDto> selectProjectSnapshots(long resourceId, DbSession session) {
+    return purgeDao.selectPurgeableSnapshots(resourceId, session);
   }
 }

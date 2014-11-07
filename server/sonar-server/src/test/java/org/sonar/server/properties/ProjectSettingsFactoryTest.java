@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
@@ -49,7 +50,7 @@ public class ProjectSettingsFactoryTest {
 
   @Test
   public void newProjectSettings_returns_a_ProjectSettings() throws Exception {
-    Settings projectSettings = sut.newProjectSettings(1L);
+    Settings projectSettings = sut.newProjectSettings(1L, mock(DbSession.class));
 
     assertThat(projectSettings).isInstanceOf(ProjectSettings.class);
   }
