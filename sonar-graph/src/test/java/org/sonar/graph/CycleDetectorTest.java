@@ -19,12 +19,11 @@
  */
 package org.sonar.graph;
 
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.apache.commons.lang.SystemUtils;
-import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -66,13 +65,7 @@ public class CycleDetectorTest {
     CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
     cycleDetector.detectCycles();
     assertThat(cycleDetector.getCycles()).hasSize(8);
-
-    if (SystemUtils.IS_JAVA_1_6 || SystemUtils.IS_JAVA_1_7) {
-      assertThat(cycleDetector.getSearchCyclesCalls()).isEqualTo(8);
-    } else {
-      // Java 8
-      assertThat(cycleDetector.getSearchCyclesCalls()).isEqualTo(11);
-    }
+    assertThat(cycleDetector.getSearchCyclesCalls()).isEqualTo(11);
   }
 
   @Test
