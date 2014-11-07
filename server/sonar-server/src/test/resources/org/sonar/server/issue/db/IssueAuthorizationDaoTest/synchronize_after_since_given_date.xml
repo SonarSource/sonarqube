@@ -35,12 +35,9 @@
 
   <!-- Permissions for user 2 -->
 
-  <users id="11" login="user2" name="User 2" email="user2@company.net" active="[true]"/>
+  <users id="11" login="user2" name="User 2" email="user2@company.net" active="[true]" />
 
   <user_roles id="4" user_id="10" resource_id="1" role="user"/>
   <user_roles id="5" user_id="10" resource_id="2" role="user"/>
-
-  <group_roles id="10" group_id="100" resource_id="1" role="user"/>
-  <group_roles id="11" group_id="100" resource_id="2" role="user"/>
 
 </dataset>
