@@ -25,56 +25,34 @@ import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.fetch.source.FetchSourceContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.rule.RuleTesting;
-import org.sonar.server.rule.db.RuleDao;
+import org.sonar.api.config.Settings;
+import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.SearchClient;
-import org.sonar.server.tester.ServerTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 public class ProxyMultiGetRequestBuilderTest {
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
-
-  DbSession dbSession;
-
-  SearchClient searchClient;
-
-  @Before
-  public void setUp() throws Exception {
-    tester.clearDbAndIndexes();
-    dbSession = tester.get(DbClient.class).openSession(false);
-    searchClient = tester.get(SearchClient.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    dbSession.close();
-  }
+  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
+  SearchClient searchClient = new SearchClient(new Settings(), profiling);
 
   @Test
   public void multi_get() {
-    RuleDto rule = RuleTesting.newXooX1();
-    tester.get(RuleDao.class).insert(dbSession, RuleTesting.newXooX1());
-    dbSession.commit();
+    try {
+      MultiGetRequestBuilder request = searchClient.prepareMultiGet();
+      request.add(new MultiGetRequest.Item(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), "ruleKey")
+        .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
+      MultiGetResponse response = request.get();
 
-    MultiGetRequestBuilder request = searchClient.prepareMultiGet();
-    request.add(new MultiGetRequest.Item(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), rule.getKey().toString())
-      .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
-
-    MultiGetResponse response = request.get();
-    assertThat(response.getResponses()).isNotEmpty();
-    assertThat(response.getResponses()[0].getResponse().getSource()).isNotEmpty();
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+      assertThat(e.getMessage()).contains("Fail to execute ES multi get request");
+    }
   }
 
   @Test

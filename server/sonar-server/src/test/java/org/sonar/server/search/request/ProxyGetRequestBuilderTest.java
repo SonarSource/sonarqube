@@ -21,68 +21,47 @@
 package org.sonar.server.search.request;
 
 import org.elasticsearch.action.get.GetRequestBuilder;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.indices.IndexMissingException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.rule.RuleTesting;
-import org.sonar.server.rule.db.RuleDao;
+import org.sonar.api.config.Settings;
+import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.SearchClient;
-import org.sonar.server.tester.ServerTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 public class ProxyGetRequestBuilderTest {
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
-
-  DbSession dbSession;
-
-  SearchClient searchClient;
-
-  @Before
-  public void setUp() throws Exception {
-    tester.clearDbAndIndexes();
-    dbSession = tester.get(DbClient.class).openSession(false);
-    searchClient = tester.get(SearchClient.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    dbSession.close();
-  }
+  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
+  SearchClient searchClient = new SearchClient(new Settings(), profiling);
 
   @Test
   public void get() {
-    RuleDto rule = RuleTesting.newXooX1();
-    tester.get(RuleDao.class).insert(dbSession, rule);
-    dbSession.commit();
+    try {
+      searchClient.prepareGet()
+        .setIndex(IndexDefinition.RULE.getIndexName())
+        .setType(IndexDefinition.RULE.getIndexType())
+        .setId("ruleKey")
+        .get();
 
-    GetResponse response = searchClient.prepareGet()
-      .setIndex(IndexDefinition.RULE.getIndexName())
-      .setType(IndexDefinition.RULE.getIndexType())
-      .setId(rule.getKey().toString())
-      .get();
-    assertThat(response.getSource()).isNotEmpty();
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("Fail to execute ES get request for key 'ruleKey' on index 'rules' on type 'rule'");
+    }
   }
 
   @Test
   public void get_with_index_type_and_id() {
-    RuleDto rule = RuleTesting.newXooX1();
-    tester.get(RuleDao.class).insert(dbSession, RuleTesting.newXooX1());
-    dbSession.commit();
+    try {
+      searchClient.prepareGet(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), "ruleKey").get();
 
-    GetResponse response = searchClient.prepareGet(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), rule.getKey().toString()).get();
-    assertThat(response.getSource()).isNotEmpty();
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("Fail to execute ES get request for key 'ruleKey' on index 'rules' on type 'rule'");
+    }
   }
 
   @Test
@@ -98,15 +77,6 @@ public class ProxyGetRequestBuilderTest {
       assertThat(e).isInstanceOf(IllegalStateException.class);
       assertThat(e.getMessage()).contains("Fail to execute ES get request for key 'rule1' on index 'unknown' on type 'test'");
     }
-  }
-
-  @Test(expected = IndexMissingException.class)
-  public void fail_to_get_bad_query_using_new_builder() throws Exception {
-    GetRequestBuilder requestBuilder = new GetRequestBuilder(searchClient)
-      .setIndex("unknown")
-      .setType("test")
-      .setId("rule1");
-    requestBuilder.get();
   }
 
   @Test

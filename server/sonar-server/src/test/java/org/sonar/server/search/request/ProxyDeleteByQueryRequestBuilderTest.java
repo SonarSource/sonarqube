@@ -20,56 +20,32 @@
 
 package org.sonar.server.search.request;
 
-import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.rule.RuleTesting;
-import org.sonar.server.rule.db.RuleDao;
+import org.sonar.api.config.Settings;
+import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.SearchClient;
-import org.sonar.server.tester.ServerTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 public class ProxyDeleteByQueryRequestBuilderTest {
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
-
-  DbSession dbSession;
-
-  SearchClient searchClient;
-
-  @Before
-  public void setUp() throws Exception {
-    tester.clearDbAndIndexes();
-    dbSession = tester.get(DbClient.class).openSession(false);
-    searchClient = tester.get(SearchClient.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    dbSession.close();
-  }
+  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
+  SearchClient searchClient = new SearchClient(new Settings(), profiling);
 
   @Test
   public void bulk() {
-    tester.get(RuleDao.class).insert(dbSession, RuleTesting.newXooX1());
-    dbSession.commit();
+    try {
+      searchClient.prepareDeleteByQuery(IndexDefinition.RULE.getIndexName()).setQuery(QueryBuilders.matchAllQuery()).get();
 
-    DeleteByQueryRequestBuilder requestBuilder = searchClient.prepareDeleteByQuery(IndexDefinition.RULE.getIndexName())
-      .setQuery(QueryBuilders.matchAllQuery());
-
-    DeleteByQueryResponse response = requestBuilder.get();
-    assertThat(response.iterator()).hasSize(1);
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("Fail to execute ES delete by query request on indices 'rules'");
+    }
   }
 
   @Test
@@ -81,7 +57,7 @@ public class ProxyDeleteByQueryRequestBuilderTest {
   @Test
   public void fail_to_bulk_bad_query() throws Exception {
     try {
-        searchClient.prepareDeleteByQuery(IndexDefinition.RULE.getIndexName()).get();
+      searchClient.prepareDeleteByQuery(IndexDefinition.RULE.getIndexName()).get();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);

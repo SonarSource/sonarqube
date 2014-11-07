@@ -22,43 +22,30 @@ package org.sonar.server.search.request;
 
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.DbClient;
+import org.sonar.api.config.Settings;
+import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.SearchClient;
-import org.sonar.server.tester.ServerTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 public class ProxyClusterHealthRequestBuilderTest {
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
-
-  DbSession dbSession;
-
-  SearchClient searchClient;
-
-  @Before
-  public void setUp() throws Exception {
-    tester.clearDbAndIndexes();
-    dbSession = tester.get(DbClient.class).openSession(false);
-    searchClient = tester.get(SearchClient.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    dbSession.close();
-  }
+  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
+  SearchClient searchClient = new SearchClient(new Settings(), profiling);
 
   @Test
   public void state() {
-    ClusterHealthRequestBuilder requestBuilder = searchClient.prepareHealth();
-    requestBuilder.get();
+    try {
+      ClusterHealthRequestBuilder requestBuilder = searchClient.prepareHealth();
+      requestBuilder.get();
+
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("Fail to execute ES cluster health request");
+    }
   }
 
   @Test

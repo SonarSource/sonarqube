@@ -22,44 +22,32 @@ package org.sonar.server.search.request;
 
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.DbClient;
+import org.sonar.api.config.Settings;
+import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.SearchClient;
-import org.sonar.server.tester.ServerTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 public class ProxyRefreshRequestBuilderTest {
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
-
-  DbSession dbSession;
-
-  SearchClient searchClient;
-
-  @Before
-  public void setUp() throws Exception {
-    tester.clearDbAndIndexes();
-    dbSession = tester.get(DbClient.class).openSession(false);
-    searchClient = tester.get(SearchClient.class);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    dbSession.close();
-  }
+  Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
+  SearchClient searchClient = new SearchClient(new Settings(), profiling);
 
   @Test
   public void refresh() {
-    RefreshRequestBuilder requestBuilder = searchClient.prepareRefresh(IndexDefinition.RULE.getIndexName());
-    requestBuilder.get();
+    try {
+      RefreshRequestBuilder requestBuilder = searchClient.prepareRefresh(IndexDefinition.RULE.getIndexName());
+      requestBuilder.get();
+
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+      assertThat(e.getMessage()).contains("Fail to execute ES refresh request on indices 'rules'");
+    }
   }
 
   @Test

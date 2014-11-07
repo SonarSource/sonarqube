@@ -68,8 +68,7 @@ public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
 
   @Override
   public ListenableActionFuture<BulkResponse> execute() {
-    // easy to implement if needed (copy get())
-    throw unsupported();
+    throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
   private UnsupportedOperationException unsupported() {
