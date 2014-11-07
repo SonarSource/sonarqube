@@ -364,15 +364,16 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     addMandatoryFacetValues(results, IssueFilterParameters.RESOLUTIONS, resolutions);
     addMandatoryFacetValues(results, IssueFilterParameters.PROJECT_UUIDS, request.paramAsStrings(IssueFilterParameters.PROJECT_UUIDS));
 
+    List<String> assignees = Lists.newArrayList("");
     List<String> assigneesFromRequest = request.paramAsStrings(IssueFilterParameters.ASSIGNEES);
-    if (assigneesFromRequest == null) {
-      assigneesFromRequest = Lists.newArrayList();
+    if (assigneesFromRequest != null) {
+      assignees.addAll(assigneesFromRequest);
     }
     UserSession userSession = UserSession.get();
     if (userSession.isLoggedIn()) {
-      assigneesFromRequest.add(userSession.login());
+      assignees.add(userSession.login());
     }
-    addMandatoryFacetValues(results, IssueFilterParameters.ASSIGNEES, assigneesFromRequest);
+    addMandatoryFacetValues(results, IssueFilterParameters.ASSIGNEES, assignees);
     addMandatoryFacetValues(results, IssueFilterParameters.REPORTERS, request.paramAsStrings(IssueFilterParameters.REPORTERS));
     addMandatoryFacetValues(results, IssueFilterParameters.RULES, request.paramAsStrings(IssueFilterParameters.RULES));
     addMandatoryFacetValues(results, IssueFilterParameters.LANGUAGES, request.paramAsStrings(IssueFilterParameters.LANGUAGES));
@@ -394,10 +395,8 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       for (FacetValue value: facetValues) {
         valuesByItem.put(value.getKey(), value.getValue());
       }
-      if (mandatoryValues == null) {
-        mandatoryValues = Lists.newArrayList();
-      }
-      for (String item: mandatoryValues) {
+      List<String> valuesToAdd = (mandatoryValues == null ? Lists.<String>newArrayList() : mandatoryValues);
+      for (String item: valuesToAdd) {
         if (!valuesByItem.containsKey(item)) {
           facetValues.add(new FacetValue(item, 0));
         }
