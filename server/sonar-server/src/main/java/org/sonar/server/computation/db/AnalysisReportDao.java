@@ -71,7 +71,6 @@ public class AnalysisReportDao extends BaseDao<AnalysisReportMapper, AnalysisRep
   }
 
   public AnalysisReportDto getNextAvailableReport(DbSession session) {
-    // TODO to improve – the query should return one element or null
     List<AnalysisReportDto> reports = mapper(session).selectNextAvailableReport(PENDING, WORKING);
 
     if (reports.isEmpty()) {

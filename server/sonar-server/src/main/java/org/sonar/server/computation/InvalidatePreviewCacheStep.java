@@ -40,7 +40,9 @@ public class InvalidatePreviewCacheStep implements ComputationStep {
   }
 
   private PropertyDto newProjectPreviewCacheProperty(ComponentDto project) {
-    return new PropertyDto().setKey(PreviewCache.SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY).setResourceId(project.getId())
+    return new PropertyDto()
+      .setKey(PreviewCache.SONAR_PREVIEW_CACHE_LAST_UPDATE_KEY)
+      .setResourceId(project.getId())
       .setValue(String.valueOf(System.currentTimeMillis()));
   }
 

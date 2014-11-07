@@ -57,7 +57,7 @@ public class PurgeDao {
   public PurgeDao purge(PurgeConfiguration conf) {
     DbSession session = mybatis.openSession(true);
     try {
-      purge(conf, session);
+      purge(session, conf);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -65,7 +65,7 @@ public class PurgeDao {
     return this;
   }
 
-  public void purge(PurgeConfiguration conf, DbSession session) {
+  public void purge(DbSession session, PurgeConfiguration conf) {
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
     List<ResourceDto> projects = getProjects(conf.rootProjectId(), session);

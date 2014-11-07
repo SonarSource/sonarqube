@@ -67,10 +67,6 @@ public class AnalysisReportHistorySearchAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    /*
-     * TODO should be done in a specific service, not logService but maybe something like AnalysisReportHistory ? A Facade Service could be
-     * needed
-     */
     checkUserRights();
 
     ActivityQuery query = logService.newActivityQuery();

@@ -44,11 +44,11 @@ public class ProjectPurgeTask implements ServerComponent {
     this.profiler = profiler;
   }
 
-  public ProjectPurgeTask purge(PurgeConfiguration configuration, Settings settings, DbSession session) {
+  public ProjectPurgeTask purge(DbSession session, PurgeConfiguration configuration, Settings settings) {
     long start = System.currentTimeMillis();
     profiler.reset();
-    cleanHistoricalData(configuration.rootProjectId(), settings, session);
-    doPurge(configuration, session);
+    cleanHistoricalData(session, configuration.rootProjectId(), settings);
+    doPurge(session, configuration);
     if (settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
       long duration = System.currentTimeMillis() - start;
       LOG.info("\n -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------\n");
@@ -58,18 +58,18 @@ public class ProjectPurgeTask implements ServerComponent {
     return this;
   }
 
-  private void cleanHistoricalData(long resourceId, Settings settings, DbSession session) {
+  private void cleanHistoricalData(DbSession session, long resourceId, Settings settings) {
     try {
-      periodCleaner.clean(resourceId, settings, session);
+      periodCleaner.clean(session, resourceId, settings);
     } catch (Exception e) {
       // purge errors must no fail the batch
       LOG.error("Fail to clean historical data [id=" + resourceId + "]", e);
     }
   }
 
-  private void doPurge(PurgeConfiguration configuration, DbSession session) {
+  private void doPurge(DbSession session, PurgeConfiguration configuration) {
     try {
-      purgeDao.purge(configuration, session);
+      purgeDao.purge(session, configuration);
     } catch (Exception e) {
       // purge errors must no fail the report analysis
       LOG.error("Fail to purge data [id=" + configuration.rootProjectId() + "]", e);

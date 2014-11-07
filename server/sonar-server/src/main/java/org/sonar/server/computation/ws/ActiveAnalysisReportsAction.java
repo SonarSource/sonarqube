@@ -57,7 +57,6 @@ public class ActiveAnalysisReportsAction implements RequestHandler {
       json.beginObject();
       json.prop("id", report.getId());
       json.prop("project", report.getProjectKey());
-      // TODO give the project name !
       json.prop("projectName", report.getProjectKey());
       json.propDateTime("startedAt", report.getStartedAt());
       json.propDateTime("finishedAt", report.getFinishedAt());

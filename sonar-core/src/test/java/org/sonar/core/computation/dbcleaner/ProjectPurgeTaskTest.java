@@ -61,7 +61,7 @@ public class ProjectPurgeTaskTest {
     Settings settings = mock(Settings.class);
     when(settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)).thenReturn(false);
 
-    sut.purge(mock(PurgeConfiguration.class), settings, mock(DbSession.class));
+    sut.purge(mock(DbSession.class), mock(PurgeConfiguration.class), settings);
 
     verify(profiler, never()).dump(anyLong(), any(Logger.class));
   }
@@ -71,7 +71,7 @@ public class ProjectPurgeTaskTest {
     Settings settings = mock(Settings.class);
     when(settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)).thenReturn(true);
 
-    sut.purge(mock(PurgeConfiguration.class), settings, mock(DbSession.class));
+    sut.purge(mock(DbSession.class), mock(PurgeConfiguration.class), settings);
 
     verify(profiler, times(1)).dump(anyLong(), any(Logger.class));
   }
@@ -80,17 +80,17 @@ public class ProjectPurgeTaskTest {
   public void if_dao_purge_fails_it_should_not_interrupt_program_execution() throws Exception {
     when(dao.purge(any(PurgeConfiguration.class))).thenThrow(NullPointerException.class);
 
-    sut.purge(mock(PurgeConfiguration.class), mock(Settings.class), mock(DbSession.class));
+    sut.purge(mock(DbSession.class), mock(PurgeConfiguration.class), mock(Settings.class));
 
-    verify(dao, times(1)).purge(any(PurgeConfiguration.class), any(DbSession.class));
+    verify(dao, times(1)).purge(any(DbSession.class), any(PurgeConfiguration.class));
   }
 
   @Test
   public void if_profiler_cleaning_fails_it_should_not_interrupt_program_execution() throws Exception {
     doThrow(NullPointerException.class).when(periodCleaner).clean(anyLong(), any(Settings.class));
 
-    sut.purge(mock(PurgeConfiguration.class), mock(Settings.class), mock(DbSession.class));
+    sut.purge(mock(DbSession.class), mock(PurgeConfiguration.class), mock(Settings.class));
 
-    verify(periodCleaner, times(1)).clean(anyLong(), any(Settings.class), any(DbSession.class));
+    verify(periodCleaner, times(1)).clean(any(DbSession.class), anyLong(), any(Settings.class));
   }
 }

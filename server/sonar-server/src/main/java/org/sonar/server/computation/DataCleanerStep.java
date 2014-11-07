@@ -49,8 +49,11 @@ public class DataCleanerStep implements ComputationStep {
     Settings settings = projectSettingsFactory.newProjectSettings(projectId, session);
     PurgeConfiguration purgeConfiguration = newDefaultPurgeConfiguration(projectId, settings);
 
-    purgeTask.purge(purgeConfiguration, settings, session);
-    issueIndex.deleteClosedIssuesOfProjectBefore(project.uuid(), purgeConfiguration.maxLiveDateOfClosedIssues());
+    purgeTask.purge(session, purgeConfiguration, settings);
+
+    if (purgeConfiguration.maxLiveDateOfClosedIssues() != null) {
+      issueIndex.deleteClosedIssuesOfProjectBefore(project.uuid(), purgeConfiguration.maxLiveDateOfClosedIssues());
+    }
   }
 
   @Override

@@ -37,9 +37,7 @@ import java.util.Date;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DataCleanerStepTest {
 
@@ -56,6 +54,7 @@ public class DataCleanerStepTest {
     this.settings = mock(ProjectSettings.class);
     this.projectSettingsFactory = mock(ProjectSettingsFactory.class);
     when(projectSettingsFactory.newProjectSettings(anyLong(), any(DbSession.class))).thenReturn(settings);
+    when(settings.getInt(any(String.class))).thenReturn(123);
 
     this.sut = new DataCleanerStep(projectSettingsFactory, purgeTask, issueIndex);
   }
@@ -68,7 +67,7 @@ public class DataCleanerStepTest {
     sut.execute(mock(DbSession.class), report, project);
 
     verify(projectSettingsFactory).newProjectSettings(anyLong(), any(DbSession.class));
-    verify(purgeTask).purge(any(PurgeConfiguration.class), any(Settings.class), any(DbSession.class));
+    verify(purgeTask).purge(any(DbSession.class), any(PurgeConfiguration.class), any(Settings.class));
     verify(issueIndex).deleteClosedIssuesOfProjectBefore(anyString(), any(Date.class));
   }
 }

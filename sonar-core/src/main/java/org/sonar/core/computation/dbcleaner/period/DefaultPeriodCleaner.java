@@ -61,7 +61,7 @@ public class DefaultPeriodCleaner implements TaskExtension, ServerExtension {
     }
   }
 
-  public void clean(long projectId, Settings settings, DbSession session) {
+  public void clean(DbSession session, long projectId, Settings settings) {
     doClean(projectId, new Filters(settings).all(), session);
   }
 
