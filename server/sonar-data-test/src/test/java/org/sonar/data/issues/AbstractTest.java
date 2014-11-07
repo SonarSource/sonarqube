@@ -23,9 +23,12 @@ package org.sonar.data.issues;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.io.Resources;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -40,6 +43,8 @@ import java.io.FileReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -50,15 +55,19 @@ public class AbstractTest {
   final static int USERS_NUMBER = 100;
 
   private static final double ACCEPTED_DURATION_VARIATION_IN_PERCENTS = 10.0;
+
   static Iterator<RuleDto> rules;
   static Iterator<String> users;
   static Iterator<String> severities;
   static Iterator<String> statuses;
   static Iterator<String> closedResolutions;
   static Iterator<String> resolvedResolutions;
-  private static Properties properties = new Properties();
+
+  static Properties properties = new Properties();
   @Rule
   public TestName testName = new TestName();
+  protected AtomicLong counter;
+  protected ProgressTask progressTask;
 
   @BeforeClass
   public static void loadProperties() {
@@ -96,6 +105,12 @@ public class AbstractTest {
     return users;
   }
 
+  @Before
+  public void initCounter() throws Exception {
+    counter = new AtomicLong(0L);
+    progressTask = new ProgressTask(counter);
+  }
+
   protected String getProperty(String test) {
     String currentUser = StringUtils.defaultString(properties.getProperty("user"), "default");
     String property = currentUser + "." + test;
@@ -129,6 +144,25 @@ public class AbstractTest {
       .setSeverity(severities.next())
       .setStatus(status)
       .setResolution(resolution);
+  }
+
+  protected static class ProgressTask extends TimerTask {
+    public static final long PERIOD_MS = 60000L;
+    private static final Logger LOGGER = LoggerFactory.getLogger("PerformanceTests");
+    private final AtomicLong counter;
+
+    public ProgressTask(AtomicLong counter) {
+      this.counter = counter;
+    }
+
+    @Override
+    public void run() {
+      log();
+    }
+
+    public void log() {
+      LOGGER.info(String.format("%d issues processed", counter.get()));
+    }
   }
 
 }

@@ -37,6 +37,7 @@ import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.DbSynchronizationHandler;
 
 import java.util.Map;
+import java.util.Timer;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -55,7 +56,6 @@ public class IssuesDbExtractionTest extends AbstractTest {
 
   DbSession session;
 
-
   ProxyIssueDao issueDao;
   RuleDao ruleDao;
   ComponentDao componentDao;
@@ -67,11 +67,6 @@ public class IssuesDbExtractionTest extends AbstractTest {
     componentDao = new ComponentDao(System2.INSTANCE);
 
     session = db.myBatis().openSession(false);
-
-    for (int i = 0; i < RULES_NUMBER; i++) {
-      ruleDao.insert(session, rules.next());
-    }
-    session.commit();
   }
 
   @After
@@ -83,7 +78,36 @@ public class IssuesDbExtractionTest extends AbstractTest {
   public void extract_issues() throws Exception {
     int issueInsertCount = ISSUE_COUNT;
 
+    Timer timer = new Timer("Extract Issues");
+    timer.schedule(progressTask, ProgressTask.PERIOD_MS, ProgressTask.PERIOD_MS);
+    try {
+      generateData();
+
+      long start = System.currentTimeMillis();
+      issueDao.synchronizeAfter(session); // FIXME Seems that on H2 there's no streaming when reading the data from the db !
+      long stop = System.currentTimeMillis();
+      progressTask.log();
+
+      assertThat(issueDao.synchronizedIssues).isEqualTo(issueInsertCount);
+
+      long time = stop - start;
+      LOGGER.info("Extracted {} Issues in {} ms with avg {} Issue/second", ISSUE_COUNT, time, documentPerSecond(time));
+      assertDurationAround(time, Long.parseLong(getProperty("IssuesDbExtractionTest.extract_issues")));
+
+    } finally {
+      timer.cancel();
+      timer.purge();
+    }
+  }
+
+  private void generateData() {
     long start = System.currentTimeMillis();
+
+    for (int i = 0; i < RULES_NUMBER; i++) {
+      ruleDao.insert(session, rules.next());
+    }
+    session.commit();
+
     for (long projectIndex = 0; projectIndex < PROJECTS_NUMBER; projectIndex++) {
       ComponentDto project = ComponentTesting.newProjectDto()
         .setKey("project-" + projectIndex)
@@ -105,17 +129,7 @@ public class IssuesDbExtractionTest extends AbstractTest {
         session.commit();
       }
     }
-    LOGGER.info("Inserted {} Issues in {} ms", ISSUE_COUNT, System.currentTimeMillis() - start);
-
-    start = System.currentTimeMillis();
-    issueDao.synchronizeAfter(session);
-    long stop = System.currentTimeMillis();
-
-    assertThat(issueDao.synchronizedIssues).isEqualTo(issueInsertCount);
-
-    long time = stop - start;
-    LOGGER.info("Extracted {} Issues in {} ms with avg {} Issue/second", ISSUE_COUNT, time, documentPerSecond(time));
-    assertDurationAround(time, Long.parseLong(getProperty("IssuesDbExtractionTest.extract_issues")));
+    LOGGER.info("Generated data in {} ms", System.currentTimeMillis() - start);
   }
 
   protected int documentPerSecond(long time) {
@@ -137,10 +151,12 @@ public class IssuesDbExtractionTest extends AbstractTest {
         @Override
         public void handleResult(ResultContext context) {
           synchronizedIssues++;
+          counter.getAndIncrement();
         }
 
         @Override
         public void enqueueCollected() {
+
         }
       };
     }

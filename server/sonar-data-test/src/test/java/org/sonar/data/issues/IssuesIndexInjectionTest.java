@@ -31,16 +31,15 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.InsertDto;
 import org.sonar.server.search.action.RefreshIndex;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
+import java.util.Timer;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -62,9 +61,6 @@ public class IssuesIndexInjectionTest extends AbstractTest {
 
   IssueIndex issueIndex;
 
-  RuleDao ruleDao;
-  ComponentDao componentDao;
-
   List<ComponentDto> projects = newArrayList();
   ArrayListMultimap<ComponentDto, ComponentDto> componentsByProjectId = ArrayListMultimap.create();
 
@@ -73,8 +69,6 @@ public class IssuesIndexInjectionTest extends AbstractTest {
     issueIndex = tester.get(IssueIndex.class);
 
     batchSession = tester.get(DbClient.class).openSession(true);
-    ruleDao = tester.get(RuleDao.class);
-    componentDao = tester.get(ComponentDao.class);
   }
 
   @After
@@ -86,24 +80,33 @@ public class IssuesIndexInjectionTest extends AbstractTest {
   public void inject_issues() throws Exception {
     generateData();
 
-    long start = System.currentTimeMillis();
-    for (ComponentDto project : projects) {
-      for (ComponentDto file : componentsByProjectId.get(project)) {
-        for (int issueIndex = 1; issueIndex < NUMBER_ISSUES_PER_FILE + 1; issueIndex++) {
-          batchSession.enqueue(new InsertDto<IssueDto>(IndexDefinition.ISSUES.getIndexType(), newIssue(issueIndex, file, project, rules.next()), false));
+    Timer timer = new Timer("Inject Issues");
+    timer.schedule(progressTask, ProgressTask.PERIOD_MS, ProgressTask.PERIOD_MS);
+    try {
+      long start = System.currentTimeMillis();
+      for (ComponentDto project : projects) {
+        for (ComponentDto file : componentsByProjectId.get(project)) {
+          for (int issueIndex = 1; issueIndex < NUMBER_ISSUES_PER_FILE + 1; issueIndex++) {
+            batchSession.enqueue(new InsertDto<IssueDto>(IndexDefinition.ISSUES.getIndexType(), newIssue(issueIndex, file, project, rules.next()), false));
+            counter.getAndIncrement();
+          }
         }
       }
+      batchSession.enqueue(new RefreshIndex(IndexDefinition.ISSUES.getIndexType()));
+      batchSession.commit();
+      long stop = System.currentTimeMillis();
+      progressTask.log();
+
+      assertThat(issueIndex.countAll()).isEqualTo(ISSUE_COUNT);
+
+      long time = stop - start;
+      LOGGER.info("Processed {} Issues in {} ms with avg {} Issue/second", ISSUE_COUNT, time, documentPerSecond(time));
+      assertDurationAround(time, Long.parseLong(getProperty("IssuesIndexInjectionTest.inject_issues")));
+
+    } finally {
+      timer.cancel();
+      timer.purge();
     }
-    batchSession.enqueue(new RefreshIndex(IndexDefinition.ISSUES.getIndexType()));
-    batchSession.commit();
-    batchSession.clearCache();
-    long stop = System.currentTimeMillis();
-
-    assertThat(issueIndex.countAll()).isEqualTo(ISSUE_COUNT);
-
-    long time = stop - start;
-    LOGGER.info("processed {} Issues in {} ms with avg {} Issue/second", ISSUE_COUNT, time, documentPerSecond(time));
-    assertDurationAround(time, Long.parseLong(getProperty("IssuesIndexInjectionTest.inject_issues")));
   }
 
   private void generateData() {
