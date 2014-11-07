@@ -29,6 +29,8 @@
 
   <div class="issues-header-buttons button-group">
     <button id="issues-reload">{{t 'reload'}}</button>
-    <button id="issues-bulk-change">{{t 'bulk_change'}}</button>
+    {{#if state.canBulkChange}}
+      <button id="issues-bulk-change">{{t 'bulk_change'}}</button>
+    {{/if}}
   </div>
 </div>
