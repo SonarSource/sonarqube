@@ -21,6 +21,8 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -30,6 +32,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 
+import java.io.IOException;
 import java.util.List;
 
 public class RawAction implements RequestHandler {
@@ -63,10 +66,12 @@ public class RawAction implements RequestHandler {
     try {
       dbClient.componentDao().getByKey(session, fileKey);
       List<String> lines = sourceService.getLinesAsTxt(session, fileKey);
-      if (lines.isEmpty()) {
-        throw new NotFoundException("File '" + fileKey + "' has no sources");
+      if (lines == null) {
+        throw new NotFoundException("File '" + fileKey + "' does not exist");
       }
-      response.newTxtWriter().values(lines).close();
+      IOUtils.writeLines(lines, "\n", response.stream().output(), Charsets.UTF_8);
+    } catch (IOException e) {
+      throw new IllegalStateException("Fail to write raw source of file " + fileKey, e);
     } finally {
       session.close();
     }

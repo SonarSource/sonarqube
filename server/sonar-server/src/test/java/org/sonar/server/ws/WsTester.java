@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.utils.text.TxtWriter;
 import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.server.ws.WsTester.TestResponse.TestStream;
 
@@ -131,11 +130,6 @@ public class WsTester {
     @Override
     public XmlWriter newXmlWriter() {
       return XmlWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
-    }
-
-    @Override
-    public TxtWriter newTxtWriter() {
-      return TxtWriter.of(new OutputStreamWriter(output, Charsets.UTF_8));
     }
 
     @Override

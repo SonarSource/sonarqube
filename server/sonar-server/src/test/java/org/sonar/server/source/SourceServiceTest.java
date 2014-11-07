@@ -140,7 +140,7 @@ public class SourceServiceTest {
   }
 
   @Test
-  public void get_txt_lines() throws Exception {
+  public void getLinesAsTxt() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
 
     when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn("line1\nline2");
@@ -150,13 +150,13 @@ public class SourceServiceTest {
   }
 
   @Test
-  public void get_txt_lines_when_no_source() throws Exception {
+  public void getLinesAsTxt_returns_null_when_no_sources() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
 
     when(snapshotSourceDao.selectSnapshotSourceByComponentKey(COMPONENT_KEY, session)).thenReturn(null);
 
     List<String> result = service.getLinesAsTxt(session, COMPONENT_KEY);
-    assertThat(result).isEmpty();
+    assertThat(result).isNull();
   }
 
 }

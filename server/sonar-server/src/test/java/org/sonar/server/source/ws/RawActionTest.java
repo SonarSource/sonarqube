@@ -81,26 +81,21 @@ public class RawActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "raw").setParam("key", fileKey);
     String result = request.execute().outputAsString();
-    assertThat(result).isEqualTo("public class HelloWorld {\r\n}\r\n");
+    assertThat(result).isEqualTo("public class HelloWorld {\n}\n");
   }
 
-  @Test(expected = NotFoundException.class)
-  public void fail_to_get_txt_when_file_does_not_exists() throws Exception {
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "raw").setParam("key", "unknown");
-    request.execute();
-  }
-
+  @Test
   public void fail_to_get_txt_when_no_source() throws Exception {
     String fileKey = "src/Foo.java";
     when(componentDao.getByKey(session, fileKey)).thenReturn(file);
-    when(sourceService.getLinesAsTxt(session, fileKey)).thenReturn(Collections.<String>emptyList());
+    when(sourceService.getLinesAsTxt(session, fileKey)).thenReturn(null);
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "raw").setParam("key", fileKey);
     try {
       request.execute();
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("");
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("File 'src/Foo.java' does not exist");
     }
   }
 }

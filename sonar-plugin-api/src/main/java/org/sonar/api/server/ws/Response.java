@@ -20,7 +20,6 @@
 package org.sonar.api.server.ws;
 
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.utils.text.TxtWriter;
 import org.sonar.api.utils.text.XmlWriter;
 
 import java.io.OutputStream;
@@ -41,8 +40,6 @@ public interface Response {
   JsonWriter newJsonWriter();
 
   XmlWriter newXmlWriter();
-
-  TxtWriter newTxtWriter();
 
   Response noContent();
 

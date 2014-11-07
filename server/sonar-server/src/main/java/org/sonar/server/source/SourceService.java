@@ -74,6 +74,10 @@ public class SourceService implements ServerComponent {
     return deprecatedSourceDecorator.getSourceAsHtml(fileKey, from, to);
   }
 
+  /**
+   * Raw lines of source file. Returns <code>null</code> if the file does not exist
+   */
+  @CheckForNull
   public List<String> getLinesAsTxt(DbSession session, String fileKey) {
     checkPermission(fileKey);
 
@@ -81,7 +85,7 @@ public class SourceService implements ServerComponent {
     if (source != null) {
       return newArrayList(Splitter.onPattern("\r?\n|\r").split(source));
     }
-    return Collections.emptyList();
+    return null;
   }
 
   @CheckForNull
