@@ -20,10 +20,13 @@ define [
         searchDict[keyField || 'key'] = key
         _.findWhere(source, searchDict) || key
 
-      r.issues.map (issue) ->
+      r.issues.map (issue, index) ->
         component = find r.components, issue.component
         project = find r.projects, issue.project
         rule = find r.rules, issue.rule
+
+        _.extend issue,
+          index: index
 
         if component
           _.extend issue,
@@ -59,3 +62,8 @@ define [
             scmDate: scmDate
 
         issue
+
+
+    setIndex: ->
+      @forEach (issue, index) ->
+        issue.set index: index

@@ -1,0 +1,11 @@
+<div class="issue-action-options">
+  {{#each items}}
+    {{#notEq status 'CLOSED'}}
+      <a href="#" class="issue-action-option js-issue-assignee" data-value="{{key}}" data-text="{{name}}">
+        {{name}}
+      </a>
+    {{/notEq}}
+  {{/each}}
+</div>
+
+<div class="bubble-popup-arrow"></div>

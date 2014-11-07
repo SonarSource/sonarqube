@@ -3,7 +3,7 @@ define [
   'backbone.marionette'
   'templates/issues'
   'issues/models/issues'
-  'issues/issue-view'
+  'issues/component-viewer/issue-view'
 ], (
   Backbone
   Marionette
@@ -57,7 +57,15 @@ define [
       doAction = (action) =>
         selectedIssueView = @getSelectedIssueEl()
         return unless selectedIssueView
-        selectedIssueView.find("#issue-#{action}").click()
+        selectedIssueView.find(".js-issue-#{action}").click()
+
+      key 'up', 'componentViewer', =>
+        @options.app.controller.selectPreviousIssue()
+        false
+
+      key 'down', 'componentViewer', =>
+        @options.app.controller.selectNextIssue()
+        false
 
       key 'left', 'componentViewer', =>
         @options.app.controller.closeComponentViewer()
@@ -72,6 +80,11 @@ define [
       key 'm', 'componentViewer', -> doAction 'assign-to-me'
       key 'p', 'componentViewer', -> doAction 'plan'
       key 'i', 'componentViewer', -> doAction 'set-severity'
+      key 'o', 'componentViewer', -> doAction 'comment'
+
+
+    unbindShortcuts: ->
+      key.deleteScope 'componentViewer'
 
 
     bindScrollEvents: ->
@@ -122,6 +135,11 @@ define [
         @render()
 
 
+    onClose: ->
+      @unbindScrollEvents()
+      @unbindShortcuts()
+
+
     onRender: ->
       @renderIssues()
 
@@ -138,17 +156,16 @@ define [
     renderIssue: (issue) ->
       line = issue.get 'line' || 0
       row = @$("[data-line-number=#{line}]")
-      issueView = new IssueView model: issue
+      issueView = new IssueView app: @options.app, model: issue
       if row.length == 0
         issueView.render().$el.insertBefore @$('.issues-workspace-component-viewer-code')
       else
-        row.find('.line').addClass 'issue'
-        positionRow = row
-        while positionRow.next().hasClass('issues-issue-row')
-          positionRow = positionRow.next()
-        barRow = $('<tr class="issues-issue-row"></tr>').insertAfter positionRow
-        barCell = $('<td colspan="2"></td>').appendTo barRow
-        issueView.render().$el.appendTo barCell
+        line = row.find '.line'
+        line.addClass 'has-issues'
+        issues = line.find '.issue-list'
+        if issues.length == 0
+          issues = $('<div class="issue-list"></div>').appendTo line
+        issueView.render().$el.appendTo issues
 
 
     select: ->
@@ -157,7 +174,6 @@ define [
       if selectedIssue.get('component') == @model.get('key')
         selectedKey = selectedIssue.get 'key'
         @scrollToIssue selectedKey
-        @highlightIssue selectedKey
       else
         @options.app.controller.showComponentViewer selectedIssue
 
@@ -167,7 +183,7 @@ define [
       return null unless selected?
       selectedIssue = @options.app.issues.at selected
       return null unless selectedIssue?
-      selectedIssueView = @$("[data-issue-key='#{selectedIssue.get('key')}']")
+      selectedIssueView = @$("#issue-#{selectedIssue.get('key')}")
       if selectedIssueView.length > 0 then selectedIssueView else null
 
 
@@ -179,7 +195,7 @@ define [
 
 
     scrollToIssue: (key) ->
-      el = @$("[data-issue-key='#{key}']")
+      el = @$("#issue-#{key}")
       if el.length > 0
         viewTop = el.offset().top
         viewBottom = viewTop + el.outerHeight()
@@ -189,11 +205,6 @@ define [
           $(window).scrollTop viewTop - TOP_OFFSET
         if viewBottom > windowBottom
           $(window).scrollTop $(window).scrollTop() - windowBottom + viewBottom + BOTTOM_OFFSET
-
-
-    highlightIssue: (key) ->
-      @$("[data-issue-key]").removeClass 'selected'
-      @$("[data-issue-key='#{key}']").addClass 'selected'
 
 
     openFileByIssue: (issue) ->
@@ -215,7 +226,6 @@ define [
           hasSourceBefore: firstLine > 1
           hasSourceAfter: lastLine == line + LINES_AROUND
         @render()
-        @highlightIssue issue.get 'key'
         @scrollToLine issue.get 'line'
         @bindScrollEvents()
         @requestIssues()
@@ -225,7 +235,6 @@ define [
           formattedSource: []
         @model.set hasSourceBefore: false, hasSourceAfter: false
         @render()
-        @highlightIssue issue.get 'key'
 
 
     requestSources: (lineFrom, lineTo) ->

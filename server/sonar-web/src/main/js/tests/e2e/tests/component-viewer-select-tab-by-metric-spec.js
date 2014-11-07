@@ -25,7 +25,7 @@ casper.test.begin(testName('sqale_index'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.code-issue', function () {
+        casper.waitForSelector('.issue', function () {
           test.assertExists('.js-toggle-issues.active');
           test.assertExists('.component-viewer-header-expanded-bar.active');
           test.assertExists('.js-filter-unresolved-issues.active');
@@ -59,7 +59,7 @@ casper.test.begin(testName('minor_violations'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.code-issue', function () {
+        casper.waitForSelector('.issue', function () {
           test.assertExists('.js-toggle-issues.active');
           test.assertExists('.component-viewer-header-expanded-bar.active');
           test.assertExists('.js-filter-MINOR-issues.active');

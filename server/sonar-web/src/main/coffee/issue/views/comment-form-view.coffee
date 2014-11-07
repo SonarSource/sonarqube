@@ -1,36 +1,49 @@
 define [
-  'backbone.marionette'
   'templates/issue'
+  'common/popup'
 ], (
-  Marionette
   Templates
+  PopupView
 ) ->
 
   $ = jQuery
   
 
-  class IssueDetailCommentFormView extends Marionette.ItemView
+  class extends PopupView
+    className: 'bubble-popup issue-comment-bubble-popup'
     template: Templates['comment-form']
 
 
     ui:
-      textarea: '#issue-comment-text'
-      cancelButton: '#issue-comment-cancel'
-      submitButton: '#issue-comment-submit'
+      textarea: '.issue-comment-form-text textarea'
+      cancelButton: '.js-issue-comment-cancel'
+      submitButton: '.js-issue-comment-submit'
 
 
     events:
-      'keyup #issue-comment-text': 'toggleSubmit'
-      'click #issue-comment-cancel': 'cancel'
-      'click #issue-comment-submit': 'submit'
+      'click': 'onClick'
+      'keydown @ui.textarea': 'onKeydown'
+      'keyup @ui.textarea': 'toggleSubmit'
+      'click @ui.cancelButton': 'cancel'
+      'click @ui.submitButton': 'submit'
 
 
-    onDomRefresh: ->
-      @ui.textarea.focus()
+    onRender: ->
+      super
+      setTimeout (=> @ui.textarea.focus()), 100
 
 
     toggleSubmit: ->
       @ui.submitButton.prop 'disabled', @ui.textarea.val().length == 0
+
+
+    onClick: (e) ->
+      # disable close by clicking inside
+      e.stopPropagation()
+
+
+    onKeydown: (e) ->
+      @close() if e.keyCode == 27 # escape
 
 
     cancel: ->
@@ -38,23 +51,19 @@ define [
 
 
     submit: ->
+      p = window.process.addBackgroundProcess()
       text = @ui.textarea.val()
       update = @model && @model.has('key')
-      url = baseUrl + '/api/issues/' + (if update then 'edit_comment' else 'add_comment')
+      method = if update then 'edit_comment' else 'add_comment'
+      url = "#{baseUrl}/api/issues/#{method}"
       data = text: text
-
       if update
         data.key = @model.get('key')
       else
-        data.issue = @options.issue.get('key')
-
-      @options.detailView.showActionSpinner()
-
-      $.ajax
-        type: 'POST'
-        url: url
-        data: data
-      .done => @options.detailView.updateAfterAction true
-      .fail (r) =>
-        alert _.pluck(r.responseJSON.errors 'msg').join(' ')
-        @options.detailView.hideActionSpinner()
+        data.issue = @options.issue.id
+      $.post url, data
+      .done =>
+        window.process.finishBackgroundProcess p
+        @options.detailView.updateAfterAction true
+      .fail =>
+        window.process.failBackgroundProcess p

@@ -1,17 +1,18 @@
-<table class="width100">
-  <tr>
-    <td style="vertical-align:top" colspan="2">
-      <textarea id="issue-comment-text" rows="4" name="text" style="width: 100%">{{show raw markdown}}</textarea>
-    </td>
-  </tr>
-  <tr>
-    <td style="padding-top: 5px">
-      <input id="issue-comment-submit" type="submit"
-             value="{{#if id}}{{t 'save'}}{{else}}{{t 'issue.comment.submit'}}{{/if}}" disabled>
-      <a id="issue-comment-cancel" class="action">{{t 'cancel'}}</a>
-    </td>
-    <td align="right">
-      {{> '_markdown-tips' }}
-    </td>
-  </tr>
-</table>
+<div class="issue-comment-form-text">
+  <textarea rows="2">{{show raw markdown}}</textarea>
+</div>
+
+<div class="issue-comment-form-footer">
+  <div class="issue-comment-form-actions">
+    <div class="button-group">
+      <button class="js-issue-comment-submit" disabled>
+        {{#if id}}{{t 'save'}}{{else}}{{t 'issue.comment.submit'}}{{/if}}
+      </button>
+    </div>
+    <a class="js-issue-comment-cancel">{{t 'cancel'}}</a>
+  </div>
+
+  <div class="issue-comment-form-tips">{{> '_markdown-tips' }}</div>
+</div>
+
+<div class="bubble-popup-arrow"></div>

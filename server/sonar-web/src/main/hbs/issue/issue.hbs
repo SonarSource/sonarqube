@@ -1,146 +1,114 @@
-<div class="code-issue code-issue-collapsed" data-issue-key="{{key}}" data-issue-component="{{component}}" data-issue-rule="{{rule}}">
-  <div class="code-issue-name code-issue-toggle">
-    <div class="code-issue-name-rule">
-      {{severityIcon severity}}&nbsp;<span class="rulename">{{message}}</span>
-    </div>
+<div class="issue-message">{{{message}}}</div>
 
-    <div class="code-issue-permalink">
-      <a target="_blank" href="{{permalink}}">
-        <i class="icon-link"></i>
+{{#if showComponent}}
+  <div class="issue-meta-list">
+    <div class="issue-meta">
+      <a class="issue-action" href="{{dashboardUrl project}}">
+        {{qualifierIcon 'TRK'}} {{projectLongName}}
+      </a>
+    </div>
+    <div class="issue-meta">
+      <a class="issue-action" href="{{dashboardUrl component}}">
+        {{qualifierIcon componentQualifier}} {{componentLongName}}
+      </a>
+    </div>
+    <div class="issue-meta">
+      <a class="issue-action js-issue-line">
+        {{#if line}}Line #{{line}}{{else}}Top Level{{/if}}
       </a>
     </div>
   </div>
+{{/if}}
 
-
-  <ul class="code-issue-actions code-issue-list">
-    {{#inArray actions "comment"}}
-      <li>
-        <a id="issue-comment" class="link-action">{{t 'issue.comment.formlink' }}</a>
-      </li>
-    {{/inArray}}
-
-
-    <li>
-      {{statusIcon status}}{{t 'issue.status' status}}
-      {{#if resolution}}({{t 'issue.resolution' resolution}}){{/if}}
-
-      {{#ifNotEmpty transitions}}
-        {{#each transitions}}
-          <a class="link-action issue-transition spacer-left" data-transition="{{this}}">{{t 'issue.transition' this}}</a>
-        {{/each}}
-      {{/ifNotEmpty}}
-    </li>
-
-
-    {{#inArray actions "assign"}}
-      <li>
-        {{#if assigneeName}}
-          <a id="issue-assign" class="link-action">{{t 'assigned_to'}}</a> {{assigneeName}}
-        {{else}}
-          <a id="issue-assign" class="link-action">{{t 'issue.assign.formlink' }}</a>
-          {{#inArray actions "assign_to_me"}}
-            [<a id="issue-assign-to-me" class="link-action">{{t 'issue.assign.to_me' }}</a>]
-          {{/inArray}}
-        {{/if}}
-      </li>
+<div class="issue-meta-list">
+  <div class="issue-meta">
+    {{#inArray actions "set_severity"}}
+      <a class="issue-action issue-action-with-options js-issue-set-severity">
+        <span class="issue-meta-label">{{severity severity}}</span>&nbsp;<i class="icon-dropdown"></i>
+      </a>
     {{else}}
-      {{#if assigneeName}}
-        <li>{{t 'assigned_to'}} <strong>{{assigneeName}}</strong></li>
-      {{/if}}
+      {{severity severity}}
     {{/inArray}}
-
-
-    {{#inArray actions "plan"}}
-      <li>
-        {{#if actionPlanName}}
-          <a id="issue-plan" class="link-action">{{t 'issue.planned_for'}}</a> {{actionPlanName}}
-        {{else}}
-          <a id="issue-plan" class="link-action">{{t 'issue.do_plan'}}</a>
-        {{/if}}
-      </li>
-    {{else}}
-      {{#if actionPlanName}}
-        <li>{{t 'issue.planned_for'}} <strong>{{actionPlanName}}</strong></li>
-      {{/if}}
-    {{/inArray}}
-
-
-    {{#ifHasExtraActions actions}}
-      <li>
-        <div class="dropdown">
-          <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;">{{t 'more_actions'}}</a>
-          <ul style="display: none" class="dropdown-menu">
-            {{#inArray actions "set_severity"}}
-              <li>
-                <a id="issue-set-severity" class="link-action spacer-right">{{t "issue.set_severity"}}</a>
-              </li>
-            {{/inArray}}
-            {{#pluginActions actions}}
-              <li>
-                <a class="link-action spacer-right issue-action" data-action="{{this}}">{{t "issue.action" this "formlink"}}</a>
-              </li>
-            {{/pluginActions}}
-          </ul>
-        </div>
-      </li>
-    {{else}}
-      {{#inArray actions "set_severity"}}
-        <li>
-          <a id="issue-set-severity" class="link-action">{{t "issue.set_severity"}}</a>
-        </li>
-      {{/inArray}}
-    {{/ifHasExtraActions}}
-
-    {{#if debt}}
-      <li>{{t 'issue.technical_debt_short'}}: {{debt}}</li>
-    {{/if}}
-
-    {{#if reporterName}}<li>{{t 'reporter'}}: {{reporterName}}</li>{{/if}}
-    {{#if author}}<li>{{t 'author'}}: {{author}}</li>{{/if}}
-
-    {{#if creationDate}}
-      <li class="first-letter-uppercase" title="{{t 'issue.creation_date'}}: {{dt creationDate}}">{{fromNow creationDate}}</li>
-    {{/if}}
-  </ul>
-
-  <div class="code-issue-form" style="display: none;"></div>
-
-
-  <div class="code-issue-details">
-    <ul class="code-issue-tabs">
-      <li>
-        <a class="js-tab-link" href="#tab-issue-rule">{{t 'rule'}}</a>
-      </li>
-      <li>
-        <a class="js-tab-link" href="#tab-issue-changelog">{{t 'changelog'}}</a>
-      </li>
-    </ul>
-
-    <div id="tab-issue-rule" class="js-tab">
-      <div class="rule-desc"></div>
-    </div>
-
-    <div id="tab-issue-changelog" class="js-tab"></div>
   </div>
 
+  <div class="issue-meta">
+    {{statusHelper status resolution}}
+  </div>
 
-  <div class="code-issue-comments">
+  {{#notEmpty transitions}}
+    <div class="issue-meta">
+      {{#each transitions}}
+        <a class="issue-action js-issue-transition" data-transition="{{this}}">
+          <span class="issue-meta-label">{{t 'issue.transition' this}}</span>
+        </a>
+      {{/each}}
+    </div>
+  {{/notEmpty}}
+
+  <div class="issue-meta">
+    {{#inArray actions "assign"}}
+      <a class="issue-action issue-action-with-options js-issue-assign">
+        <span class="issue-meta-label">{{#if assignee}}{{default assigneeName assignee}}{{else}}{{t 'unassigned'}}{{/if}}</span>&nbsp;<i class="icon-dropdown"></i>
+      </a>
+    {{else}}
+      <span class="issue-meta-label">{{#if assignee}}{{default assigneeName assignee}}{{else}}{{t 'unassigned'}}{{/if}}</span>
+    {{/inArray}}
+  </div>
+
+  {{#inArray actions "assign_to_me"}}
+    <a class="js-issue-assign-to-me"></a>
+  {{/inArray}}
+
+  <div class="issue-meta">
+    {{#inArray actions "plan"}}
+      <a class="issue-action issue-action-with-options js-issue-plan">
+        <span class="issue-meta-label">{{#if actionPlan}}{{default actionPlanName actionPlan}}{{else}}{{t 'issue.unplanned'}}{{/if}}</span>&nbsp;<i class="icon-dropdown"></i>
+      </a>
+    {{else}}
+      <span class="issue-meta-label">{{#if actionPlan}}{{default actionPlanName actionPlan}}{{else}}{{t 'issue.unplanned'}}{{/if}}</span>
+    {{/inArray}}
+  </div>
+
+  {{#if debt}}
+    <div class="issue-meta">
+      <span class="issue-meta-label">{{debt}}</span>
+    </div>
+  {{/if}}
+
+  {{#inArray actions "comment"}}
+    <div class="issue-meta">
+      <a class="issue-action js-issue-comment"><span class="issue-meta-label">{{t 'issue.comment.formlink' }}</span></a>
+    </div>
+  {{/inArray}}
+
+  <div class="issue-meta">
+    <a class="issue-action issue-action-with-options js-issue-more">
+      <span class="issue-meta-label">{{t 'more'}}</span>&nbsp;<i class="icon-dropdown"></i>
+    </a>
+  </div>
+
+  <div class="issue-meta issue-meta-on-right">
+    <a class="issue-action issue-action-with-options js-issue-show-changelog" title="{{dt creationDate}}">
+      <span class="issue-meta-label">{{fromNow creationDate}}</span>&nbsp;<i class="icon-dropdown"></i>
+    </a>
+  </div>
+</div>
+
+{{#notEmpty comments}}
+  <div class="issue-comments">
     {{#each comments}}
-      <div class="code-issue-comment" data-comment-key="{{key}}">
-        <h4>
-          <i class="icon-comment"></i>
-          <b>{{userName}}</b>
-          ({{fromNow createdAt}})
-
+      <div class="issue-comment" data-comment-key="{{key}}">
+        <div class="issue-comment-author" title="{{userName}}"><i class="icon-comment"></i>&nbsp;{{userName}}</div>
+        <div class="issue-comment-text markdown">{{{show html htmlText}}}</div>
+        <div class="issue-comment-age">({{fromNow createdAt}})</div>
+        <div class="issue-comment-actions">
           {{#if updatable}}
-            &nbsp;&nbsp;
-            <a class="link-action issue-comment-edit">{{t 'edit'}}</a>&nbsp;
-            <a class="link-action link-red spacer-right issue-comment-delete"
+            <a class="js-issue-comment-edit">{{t 'edit'}}</a>&nbsp;
+            <a class="link-red js-issue-comment-delete"
                data-confirm-msg="{{t 'issue.comment.delete_confirm_message'}}">{{t 'delete'}}</a>
           {{/if}}
-        </h4>
-        <div class="markdown">{{{show html htmlText}}}</div>
+        </div>
       </div>
     {{/each}}
   </div>
-</div>
+{{/notEmpty}}

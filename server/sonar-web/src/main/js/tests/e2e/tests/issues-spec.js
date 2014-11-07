@@ -37,9 +37,9 @@ casper.test.begin(testName('Base'), function (test) {
           test.assertExists('.facet[data-value=FALSE-POSITIVE]');
 
           // Issues
-          test.assertElementCount('.issue-box', 50);
-          test.assertElementCount('.issue-box.selected', 1);
-          test.assertSelectorContains('.issue-box', '1 more branches need to be covered by unit tests to reach');
+          test.assertElementCount('.issue', 50);
+          test.assertElementCount('.issue.selected', 1);
+          test.assertSelectorContains('.issue', '1 more branches need to be covered by unit tests to reach');
 
           // Filters
           test.assertExists('.js-issues-toggle-filters');

@@ -6,7 +6,6 @@ define [
 
   class extends Marionette.ItemView
     className: 'issues-no-results'
-    tagName: 'li'
 
 
     template: ->

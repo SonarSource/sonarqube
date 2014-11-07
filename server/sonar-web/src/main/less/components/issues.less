@@ -1,0 +1,237 @@
+@import (reference) "../variables";
+@import (reference) "../mixins";
+@import (reference) "../ui";
+
+@leftPadding: 10px;
+@rightPadding: 10px;
+@topPadding: 10px;
+@bottomPadding: 10px;
+
+
+.issue-list {
+  margin: 5px -5px;
+  border-top: 1px solid @barBorderColor;
+  border-bottom: 1px solid @barBorderColor;
+}
+
+
+.issue {
+  padding-top: @topPadding;
+  padding-bottom: @bottomPadding;
+  border: 1px solid transparent;
+  border-left-width: 3px;
+  background-color: #fff;
+}
+
+.issue.selected {
+  border-color: @blue !important;
+}
+
+.issue + .issue {
+  border-top-color: @barBorderColor;
+}
+
+.issue.selected + .issue {
+  border-top-color: transparent;
+}
+
+.issue-message {
+  padding-left: @leftPadding;
+  padding-right: @rightPadding;
+  line-height: 1.5;
+  font-size: @baseFontSize;
+  font-weight: 400;
+}
+
+.issue-component {
+  margin-top: 5px;
+  padding-left: @leftPadding;
+  padding-right: @rightPadding;
+  line-height: 1.5;
+  font-size: @smallFontSize;
+  font-weight: 300;
+}
+
+.issue-age {
+  position: relative;
+  float: right;
+  margin-top: -@baseFontSize * 1.5;
+  padding-right: @rightPadding;
+  line-height: 1.5;
+  font-size: @smallFontSize;
+  font-weight: 300;
+
+  &:before {
+    content: " ";
+    position: absolute;
+    top: 0; bottom: 0; right: 100%;
+    width: 10px;
+    background-image: linear-gradient(to right, fade(#fff, 0%), #fff 75%);
+  }
+}
+
+.issue-meta-list {
+  .clearfix;
+  margin-top: 5px;
+  padding-left: @leftPadding;
+  padding-right: @rightPadding;
+  font-size: 0;
+}
+
+.issue-meta {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 10px;
+  line-height: 1.5;
+  font-size: @smallFontSize;
+  font-weight: 300;
+}
+
+.issue-meta-on-right {
+  float: right;
+  margin-right: 0;
+}
+
+.issue-meta-label {
+  display: inline-block;
+  vertical-align: top;
+  max-width: 80px;
+  .text-ellipsis;
+}
+
+.issue-action {
+  border-bottom: none;
+}
+
+.issue-action + .issue-action {
+  margin-left: 4px;
+}
+
+.issue-changelog {
+  max-width: 540px;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.issue-comments {
+  margin-top: 5px;
+  padding-left: @leftPadding;
+  padding-right: @rightPadding;
+  font-size: @smallFontSize;
+  font-weight: 300;
+}
+
+.issue-comment {
+  display: table;
+}
+
+.issue-comment + .issue-comment {
+  margin-top: 4px;
+}
+
+.issue-comment-author {
+  display: table-cell;
+  vertical-align: top;
+  max-width: 100px;
+  line-height: 18px;
+  color: @secondFontColor;
+  .text-ellipsis;
+}
+
+.issue-comment-age {
+  display: table-cell;
+  vertical-align: top;
+  line-height: 18px;
+  white-space: nowrap;
+  color: @secondFontColor;
+}
+
+.issue-comment-text {
+  display: table-cell;
+  vertical-align: top;
+  padding-left: 5px;
+  padding-right: 5px;
+  line-height: 18px;
+}
+
+.issue-comment-actions {
+  display: table-cell;
+  vertical-align: top;
+  padding-left: 5px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.issue-action-options {
+  position: relative;
+  min-width: 120px;
+  margin: 0 -10px;
+  font-size: @smallFontSize;
+  font-weight: 300;
+}
+
+.issue-action-option {
+  display: block;
+  padding: 3px 10px;
+}
+
+a.issue-action-option {
+  border-bottom: none;
+  color: @baseFontColor;
+
+  &.active {
+    background-color: @barBackgroundColor;
+    color: @baseFontColor;
+  }
+}
+
+input.issue-action-options-search {
+  padding: 0 10px 0 30px;
+  border: none;
+  font-weight: 300;
+}
+
+.issue-action-options-search-icon {
+  position: absolute;
+  top: 3px; left: 10px;
+  color: @secondFontColor;
+
+  &:before {
+    font-size: @iconSmallFontSize;
+  }
+}
+
+.issue-comment-bubble-popup {
+  width: 540px;
+  font-size: @smallFontSize;
+  font-weight: 300;
+}
+
+.issue-comment-form-text {
+
+}
+
+.issue-comment-form-text textarea {
+  width: 100%;
+  font-weight: 300;
+}
+
+.issue-comment-form-footer {
+  .clearfix;
+  margin-top: 5px;
+  line-height: 22px;
+}
+
+.issue-comment-form-actions {
+  float: right;
+}
+
+.issue-comment-form-tips {
+  float: left;
+}
+
+.issue-more-actions {
+  line-height: 1.5;
+  font-size: @smallFontSize;
+  font-weight: 300;
+}

@@ -30,7 +30,7 @@ _.extend process,
       clearInterval @queue[uid]
       delete @queue[uid]
       spinner = @getSpinner uid
-      spinner.addClass 'process-spinner-failed'
+      spinner.addClass 'process-spinner-failed shown'
       spinner.text t 'process.fail'
       close = $('<button></button>').html('<i class="icon-close"></i>').addClass 'process-spinner-close'
       close.appendTo spinner

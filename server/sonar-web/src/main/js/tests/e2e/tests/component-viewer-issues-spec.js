@@ -27,74 +27,74 @@ casper.test.begin(testName('Filters'), function (test) {
 
       .then(function () {
         casper.click('.js-filter-unresolved-issues');
-        casper.waitForSelector('.code-issue', function () {
-          test.assertElementCount('.code-issue', 6);
+        casper.waitForSelector('.issue', function () {
+          test.assertElementCount('.issue', 6);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-open-issues');
-        casper.waitForSelector('.code-issue', function () {
-          test.assertElementCount('.code-issue', 1);
+        casper.waitForSelector('.issue', function () {
+          test.assertElementCount('.issue', 1);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-fixed-issues');
-        casper.waitForSelector('.code-issue', function () {
-          test.assertElementCount('.code-issue', 11);
+        casper.waitForSelector('.issue', function () {
+          test.assertElementCount('.issue', 11);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-false-positive-issues');
-        casper.waitForSelector('.code-issue', function () {
-          test.assertElementCount('.code-issue', 1);
+        casper.waitForSelector('.issue', function () {
+          test.assertElementCount('.issue', 1);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-MAJOR-issues');
-        casper.waitForSelector('.code-issue', function () {
-          test.assertElementCount('.code-issue', 1);
+        casper.waitForSelector('.issue', function () {
+          test.assertElementCount('.issue', 1);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-MINOR-issues');
-        casper.waitForSelector('.code-issue', function () {
-          test.assertElementCount('.code-issue', 1);
+        casper.waitForSelector('.issue', function () {
+          test.assertElementCount('.issue', 1);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-INFO-issues');
-        casper.waitForSelector('.code-issue', function () {
-          test.assertElementCount('.code-issue', 4);
+        casper.waitForSelector('.issue', function () {
+          test.assertElementCount('.issue', 4);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-rule[data-rule="common-java:DuplicatedBlocks"]');
-        casper.waitForSelector('.code-issue', function () {
-          test.assertElementCount('.code-issue', 1);
-          test.assertSelectorContains('.code-issue', '2 duplicated blocks of code.');
+        casper.waitForSelector('.issue', function () {
+          test.assertElementCount('.issue', 1);
+          test.assertSelectorContains('.issue', '2 duplicated blocks of code.');
         });
       })
 
       .then(function () {
         casper.click('.js-filter-rule[data-rule="squid:S1192"]');
-        casper.waitForSelector('.code-issue', function () {
-          test.assertElementCount('.code-issue', 1);
-          test.assertSelectorContains('.code-issue', 'Define a constant instead of duplicating this literal');
+        casper.waitForSelector('.issue', function () {
+          test.assertElementCount('.issue', 1);
+          test.assertSelectorContains('.issue', 'Define a constant instead of duplicating this literal');
         });
       })
 
       .then(function () {
         casper.click('.js-filter-rule[data-rule="squid:S1135"]');
-        casper.waitForSelector('.code-issue', function () {
-          test.assertElementCount('.code-issue', 4);
-          test.assertSelectorContains('.code-issue', 'Complete the task associated to this TODO comment');
+        casper.waitForSelector('.issue', function () {
+          test.assertElementCount('.issue', 4);
+          test.assertSelectorContains('.issue', 'Complete the task associated to this TODO comment');
         });
       })
 
@@ -126,12 +126,12 @@ casper.test.begin(testName('On File Level'), function (test) {
 
       .then(function () {
         casper.click('.js-filter-unresolved-issues');
-        casper.waitForSelector('.code-issue');
+        casper.waitForSelector('.issue');
       })
 
       .then(function () {
         test.assertVisible('.component-viewer-source .row[data-line-number="0"]');
-        test.assertExists('.code-issue[data-issue-key="20002ec7-b647-44da-bdf5-4d9fbf4b7c58"]');
+        test.assertExists('#issue-20002ec7-b647-44da-bdf5-4d9fbf4b7c58');
       })
 
       .run(function () {
@@ -161,6 +161,7 @@ casper.test.begin(testName('Bulk Change Link Exists'), function (test) {
       })
 
       .then(function () {
+        lib.capture('test.png');
         test.assertExists('.js-issues-bulk-change');
       })
 

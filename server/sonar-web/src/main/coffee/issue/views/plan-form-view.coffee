@@ -1,61 +1,63 @@
 define [
-  'backbone.marionette'
   'templates/issue'
+  'issue/views/action-options-view'
 ], (
-  Marionette
   Templates
+  ActionOptionsView
 ) ->
 
   $ = jQuery
 
 
-  class PlanFormView extends Marionette.ItemView
-    template: Templates['plan-form']
+  class extends ActionOptionsView
+    template: Templates['issue-plan-form']
 
 
-    collectionEvents:
-      'reset': 'render'
+    getActionPlan: ->
+      @model.get('actionPlan') || ''
 
 
-    ui:
-      select: '#issue-detail-plan-select'
+    getActionPlanName: ->
+      @model.get 'actionPlanName'
 
 
-    events:
-      'click #issue-plan-cancel': 'cancel'
-      'click #issue-plan-submit': 'submit'
+    selectInitialOption: ->
+      @makeActive @getOptions().filter("[data-value=#{@getActionPlan()}]")
 
 
-    onRender: ->
-      @ui.select.select2
-        width: '250px'
-        minimumResultsForSearch: 100
-      @ui.select.on 'change', => @$('[type=submit]').focus()
-      @ui.select.select2 'open'
-
-      @$('.error a').prop('href', baseUrl + '/action_plans/index/' + this.options.issue.get('project'))
+    selectOption: (e) ->
+      actionPlan = $(e.currentTarget).data 'value'
+      actionPlanName = $(e.currentTarget).data 'text'
+      @submit actionPlan, actionPlanName
+      super
 
 
-    cancel: ->
-      @options.detailView.updateAfterAction(false);
-
-
-    submit: ->
-      plan = @ui.select.val()
-      @options.detailView.showActionSpinner()
-
+    submit: (actionPlan, actionPlanName) ->
+      _actionPlan = @getActionPlan()
+      _actionPlanName = @getActionPlanName()
+      return if actionPlan == _actionPlan
+      p = window.process.addBackgroundProcess()
+      if actionPlan == ''
+        @model.set actionPlan: null, actionPlanName: null
+      else
+        @model.set actionPlan: actionPlan, actionPlanName: actionPlanName
       $.ajax
         type: 'POST'
-        url: baseUrl + '/api/issues/plan'
+        url: "#{baseUrl}/api/issues/plan"
         data:
-          issue: this.options.issue.get('key'),
-          plan: if plan == '#unplan' then '' else plan
-      .done => @options.detailView.updateAfterAction true
-      .fail (r) =>
-        alert _.pluck(r.responseJSON.errors, 'msg').join(' ')
-        @options.detailView.hideActionSpinner()
+          issue: @model.id
+          plan: actionPlan
+      .done =>
+        window.process.finishBackgroundProcess p
+      .fail =>
+        @model.set assignee: _actionPlan, assigneeName: _actionPlanName
+        window.process.failBackgroundProcess p
+
+
+    getActionPlans: ->
+      [{ key: '', name: t 'issue.unplanned' }].concat @collection.toJSON()
 
 
     serializeData: ->
-      items: @collection.toJSON()
-      issue: @options.issue.toJSON()
+      _.extend super,
+        items: @getActionPlans()

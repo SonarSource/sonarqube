@@ -1,13 +1,13 @@
 define [
-  'backbone.marionette'
   'templates/issue'
+  'common/popup'
 ], (
-  Marionette
   Templates
+  PopupView
 ) ->
 
-  class IssueDetailChangeLogView extends Marionette.ItemView
-    template: Templates['change-log']
+  class extends PopupView
+    template: Templates['issue-changelog']
 
 
     collectionEvents:

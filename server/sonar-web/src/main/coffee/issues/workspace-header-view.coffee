@@ -31,7 +31,6 @@ define [
       window.onBulkIssues = =>
         $('#modal').dialog 'close'
         @options.app.controller.fetchIssues()
-      @bindShortcuts()
 
 
     onClose: ->
@@ -58,15 +57,6 @@ define [
 
     selectPrevIssue: ->
       @options.app.controller.selectPreviousIssue()
-
-
-    bindShortcuts: ->
-      key 'j,up', =>
-        @options.app.controller.selectPreviousIssue()
-        false
-      key 'k,down', =>
-        @options.app.controller.selectNextIssue()
-        false
 
 
     serializeData: ->

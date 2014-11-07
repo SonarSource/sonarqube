@@ -70,13 +70,13 @@ casper.test.begin(testName('Decoration'), function (test) {
       .then(function () {
         // Check issues decoration
         casper.click('.js-toggle-issues');
-        casper.waitForSelector('.code-issue', function () {
-          test.assertElementCount('.code-issue', 6);
-          test.assertSelectorContains('.code-issue', '2 duplicated blocks of code.');
+        casper.waitForSelector('.issue', function () {
+          test.assertElementCount('.issue', 6);
+          test.assertSelectorContains('.issue', '2 duplicated blocks of code.');
 
           casper.click('.js-toggle-issues');
-          casper.waitWhileSelector('.code-issue', function () {
-            test.assertDoesntExist('.code-issue');
+          casper.waitWhileSelector('.issue', function () {
+            test.assertDoesntExist('.issue');
           });
         });
       })

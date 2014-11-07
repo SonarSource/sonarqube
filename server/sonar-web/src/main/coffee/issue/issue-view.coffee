@@ -2,133 +2,107 @@ define [
   'backbone.marionette'
   'templates/issue'
 
-  'issue/models/rule'
-  'issue/views/rule-view'
-
-  'issue/models/change-log'
-  'issue/views/change-log-view'
+  'issue/models/changelog'
+  'issue/views/changelog-view'
 
   'issue/collections/action-plans'
+
+  'issue/views/issue-popup'
 
   'issue/views/assign-form-view'
   'issue/views/comment-form-view'
   'issue/views/plan-form-view'
   'issue/views/set-severity-form-view'
+  'issue/views/more-actions-view'
 
 ], (
   Marionette
   Templates
-
-  Rule
-  RuleView
 
   ChangeLog
   ChangeLogView
 
   ActionPlans
 
+  IssuePopup
+
   AssignFormView
   CommentFormView
   PlanFormView
   SetSeverityFormView
+  MoreActionsView
 
 ) ->
 
   $ = jQuery
 
 
-  class IssueView extends Marionette.Layout
+  class extends Marionette.ItemView
+    className: 'issue'
     template: Templates['issue']
-
-
-    regions:
-      formRegion: '.code-issue-form'
-      ruleRegion: '#tab-issue-rule'
-      changeLogRegion: '#tab-issue-changelog'
 
 
     modelEvents:
       'change': 'render'
 
 
-    events:
-      'click .code-issue-toggle': 'toggleCollapsed',
+    events: ->
+      'click .js-issue-comment': 'comment'
+      'click .js-issue-comment-edit': 'editComment'
+      'click .js-issue-comment-delete': 'deleteComment'
 
-      'click [href=#tab-issue-rule]': 'showRuleTab',
-      'click [href=#tab-issue-changelog]': 'showChangeLogTab',
-
-      'click #issue-comment': 'comment',
-      'click .issue-comment-edit': 'editComment',
-      'click .issue-comment-delete': 'deleteComment',
-      'click .issue-transition': 'transition',
-      'click #issue-set-severity': 'setSeverity',
-      'click #issue-assign': 'assign',
-      'click #issue-assign-to-me': 'assignToMe',
-      'click #issue-plan': 'plan',
-      'click .issue-action': 'action'
+      'click .js-issue-transition': 'transition'
+      'click .js-issue-set-severity': 'setSeverity'
+      'click .js-issue-assign': 'assign'
+      'click .js-issue-assign-to-me': 'assignToMe'
+      'click .js-issue-plan': 'plan'
+      'click .js-issue-show-changelog': 'showChangeLog'
+      'click .js-issue-more': 'showMoreActions'
 
 
     onRender: ->
-      @rule = new Rule key: this.model.get('rule')
-      @ruleRegion.show new RuleView model: @rule, issue: @model
-      @changeLog = new ChangeLog()
-      @changeLogRegion.show new ChangeLogView collection: @changeLog, issue: @model
-
-      key 'escape', (=> @updateAfterAction false)
+      @$el.prop('id', "issue-#{@model.id}").data('issue-key', @model.id)
 
 
-    onClose: ->
-      @ruleRegion.reset() if @ruleRegion
-
-
-    resetIssue: (options) ->
+    resetIssue: (options, p) ->
       key = @model.get 'key'
       @model.clear silent: true
       @model.set { key: key }, { silent: true }
-      @model.fetch(options).done => @trigger 'reset'
+      @model.fetch(options)
+      .done =>
+        @trigger 'reset'
+        window.process.finishBackgroundProcess p if p?
+      .fail ->
+        window.process.failBackgroundProcess p if p?
 
 
-    toggleCollapsed: ->
-      @$('.code-issue').toggleClass 'code-issue-collapsed'
-      unless @$('.code-issue').is '.code-issue-collapsed'
-        @showRuleTab()
+    showChangeLog: (e) ->
+      t = $(e.currentTarget)
+      changeLog = new ChangeLog()
+      changeLog.fetch
+        data: issue: @model.get 'key'
+      .done =>
+        @popup.close() if @popup
+        @popup = new ChangeLogView
+          triggerEl: t
+          bottomRight: true
+          collection: changeLog
+          issue: @model
+        @popup.render()
 
 
-    hideTabs: ->
-      @$('.js-tab-link').removeClass 'active-link'
-      @$('.js-tab').hide()
-
-
-    showTab: (tab) ->
-      @hideTabs()
-      s = "#tab-issue-#{tab}"
-      @$(s).show()
-      @$("[href=#{s}]").addClass 'active-link'
-
-
-    showRuleTab: (e) ->
-      e?.preventDefault()
-      @showTab 'rule'
-      unless @rule.has 'name'
-        @$('#tab-issue-rule').addClass 'navigator-fetching'
-        @rule.fetch
-          success: => @$('#tab-issue-rule').removeClass 'navigator-fetching'
-
-
-    showChangeLogTab: (e) ->
-      e?.preventDefault()
-      @showTab 'changelog'
-      unless @changeLog.length > 0
-        @$('#tab-issue-changeLog').addClass 'navigator-fetching'
-        @changeLog.fetch
-          data: issue: @model.get 'key'
-          success: => @$('#tab-issue-changelog').removeClass 'navigator-fetching'
-
-
-    showActionView: (view) ->
-      @$('.code-issue-actions').hide()
-      @$('.code-issue-form').show()
-      @formRegion.show view
+    showActionView: (view, el, position) ->
+      if el
+        @popup.close() if @popup
+        options =
+          view: view
+          triggerEl: el
+        if position?
+          options[position] = true
+        else
+          options['bottom'] = true
+        @popup = new IssuePopup options
+        @popup.render()
 
 
     showActionSpinner: ->
@@ -140,34 +114,37 @@ define [
 
 
     updateAfterAction: (fetch) ->
-      @formRegion.reset()
-      @$('.code-issue-actions').show()
-      @$('.code-issue-form').hide()
-      @$('[data-comment-key]').show()
-
+      @popup.close() if @popup
       if fetch
-        $.when(@resetIssue()).done => @hideActionSpinner()
+        p = window.process.addBackgroundProcess()
+        $.when(@resetIssue()).done =>
+          window.process.finishBackgroundProcess p
 
 
-    comment: ->
-      commentFormView = new CommentFormView
+    comment: (e) ->
+      e.stopPropagation()
+      $('body').click()
+      @popup = new CommentFormView
+        triggerEl: $(e.currentTarget)
+        bottomRight: true
         issue: @model
         detailView: @
-      @showActionView commentFormView
+      @popup.render()
 
 
     editComment: (e) ->
-      commentEl = $(e.target).closest '[data-comment-key]'
+      e.stopPropagation()
+      $('body').click()
+      commentEl = $(e.currentTarget).closest '.issue-comment'
       commentKey = commentEl.data 'comment-key'
-      comment = _.findWhere this.model.get('comments'), { key: commentKey }
-
-      commentEl.hide();
-
-      commentFormView = new CommentFormView
+      comment = _.findWhere @model.get('comments'), { key: commentKey }
+      @popup = new CommentFormView
+        triggerEl: $(e.currentTarget)
+        bottomRight: true
         model: new Backbone.Model comment
         issue: @model
         detailView: @
-      @showActionView commentFormView
+      @popup.render()
 
 
     deleteComment: (e) ->
@@ -186,79 +163,82 @@ define [
 
 
     transition: (e) ->
-      @showActionSpinner();
+      p = window.process.addBackgroundProcess()
       $.ajax
         type: 'POST',
         url: baseUrl + '/api/issues/do_transition',
         data:
           issue: @model.get('key')
-          transition: $(e.target).data('transition')
-      .done => @resetIssue()
-      .fail (r) =>
-        alert  _.pluck(r.responseJSON.errors, 'msg').join(' ')
-        @hideActionSpinner()
+          transition: $(e.currentTarget).data 'transition'
+      .done =>
+        @resetIssue {}, p
+      .fail =>
+        window.process.failBackgroundProcess p
 
 
-    setSeverity: ->
-      setSeverityFormView = new SetSeverityFormView
-        issue: @model
-        detailView: @
-      @showActionView setSeverityFormView
+    setSeverity: (e) ->
+      e.stopPropagation()
+      $('body').click()
+      @popup = new SetSeverityFormView
+        triggerEl: $(e.currentTarget)
+        bottom: true
+        model: @model
+      @popup.render()
 
 
-    assign: ->
-      assignFormView = new AssignFormView
-        issue: @model
-        detailView: this
-      @showActionView assignFormView
+    assign: (e) ->
+      e.stopPropagation()
+      $('body').click()
+      @popup = new AssignFormView
+        triggerEl: $(e.currentTarget)
+        bottom: true
+        model: @model
+      @popup.render()
 
 
     assignToMe: ->
-      @showActionSpinner()
-      $.ajax
-        type: 'POST'
-        url: baseUrl + '/api/issues/assign'
-        data:
-          issue: @model.get('key')
-          me: true
-      .done => @resetIssue()
-      .fail (r) =>
-        alert  _.pluck(r.responseJSON.errors, 'msg').join(' ')
-        @hideActionSpinner()
+      view = new AssignFormView model: @model
+      view.submit window.SS.user, window.SS.userName
+      view.close()
 
 
-    plan: ->
+    plan: (e) ->
+      p = window.process.addBackgroundProcess()
+      t = $(e.currentTarget)
       actionPlans = new ActionPlans()
-      planFormView = new PlanFormView
-        collection: actionPlans
-        issue: @model
-        detailView: @
-      @showActionSpinner()
       actionPlans.fetch
         reset: true
         data: project: @model.get('project')
-        success: =>
-          @hideActionSpinner()
-          @showActionView planFormView
+      .done =>
+        e.stopPropagation()
+        $('body').click()
+        @popup = new PlanFormView
+          triggerEl: t
+          bottom: true
+          model: @model
+          collection: actionPlans
+        @popup.render()
+        window.process.finishBackgroundProcess p
+      .fail =>
+        window.process.failBackgroundProcess p
 
 
-    action: (e) ->
-      actionKey = $(e.target).data 'action'
-      @showActionSpinner()
-      $.ajax
-        type: 'POST'
-        url: baseUrl + '/api/issues/do_action'
-        data:
-          issue: @model.get('key')
-          actionKey: actionKey
-      .done => @resetIssue()
-      .fail (r) =>
-        alert  _.pluck(r.responseJSON.errors, 'msg').join(' ')
-        @hideActionSpinner()
+    showMoreActions: (e) ->
+      e.stopPropagation()
+      $('body').click()
+      @popup = new MoreActionsView
+        triggerEl: $(e.currentTarget)
+        bottomRight: true
+        model: @model
+        detailView: @
+      @popup.render()
 
 
-    serializeData: ->
-      componentKey = encodeURIComponent @model.get 'component'
-      issueKey = encodeURIComponent @model.get 'key'
-      _.extend super,
-        permalink: "#{baseUrl}/component/index#component=#{componentKey}&currentIssue=#{issueKey}"
+    action: (action) ->
+      p = window.process.addBackgroundProcess()
+      $.post "#{baseUrl}/api/issues/do_action", issue: @model.id, actionKey: action
+      .done =>
+        window.process.finishBackgroundProcess p
+        @resetIssue()
+      .fail =>
+        window.process.failBackgroundProcess p

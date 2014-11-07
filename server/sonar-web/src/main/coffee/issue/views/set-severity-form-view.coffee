@@ -1,55 +1,50 @@
 define [
-  'backbone.marionette'
   'templates/issue'
+  'issue/views/action-options-view'
 ], (
-  Marionette
   Templates
+  ActionOptionsView
 ) ->
 
   $ = jQuery
   
 
-  class SetSeverityFormView extends Marionette.ItemView
-    template: Templates['set-severity-form']
+  class extends ActionOptionsView
+    template: Templates['issue-set-severity-form']
 
 
-    ui:
-      select: '#issue-set-severity-select'
+    getSeverity: ->
+      @model.get 'severity'
 
 
-    events:
-      'click #issue-set-severity-cancel': 'cancel'
-      'click #issue-set-severity-submit': 'submit'
+    selectInitialOption: ->
+      @makeActive @getOptions().filter("[data-value=#{@getSeverity()}]")
 
 
-    onRender: ->
-     format = (state) ->
-       return state.text unless state.id
-       '<i class="icon-severity-' + state.id.toLowerCase() + '"></i> ' + state.text
-
-     @ui.select.select2
-       minimumResultsForSearch: 100
-       formatResult: format
-       formatSelection: format
-       escapeMarkup: (m) -> m
-
-     @ui.select.on 'change', => @$('[type=submit]').focus()
-     @ui.select.select2 'open'
+    selectOption: (e) ->
+      severity = $(e.currentTarget).data 'value'
+      @submit severity
+      super
 
 
-    cancel: ->
-      @options.detailView.updateAfterAction false
-
-
-    submit: ->
-      @options.detailView.showActionSpinner()
+    submit: (severity) ->
+      _severity = @getSeverity()
+      return if severity == _severity
+      p = window.process.addBackgroundProcess()
+      @model.set severity: severity
       $.ajax
         type: 'POST'
-        url: baseUrl + '/api/issues/set_severity'
+        url: "#{baseUrl}/api/issues/set_severity"
         data:
-          issue: @options.issue.get('key')
-          severity: @ui.select.val()
-      .done => @options.detailView.updateAfterAction true
-      .fail (r) =>
-        alert _.pluck(r.responseJSON.errors, 'msg').join(' ')
-        @options.detailView.hideActionSpinner()
+          issue: @model.id
+          severity: severity
+      .done =>
+        window.process.finishBackgroundProcess p
+      .fail =>
+        @model.set severity: _severity
+        window.process.failBackgroundProcess p
+
+
+    serializeData: ->
+      _.extend super,
+        items: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']

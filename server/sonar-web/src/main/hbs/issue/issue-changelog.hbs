@@ -1,0 +1,24 @@
+<div class="issue-changelog">
+  <table class="spaced">
+    <tbody>
+    <tr>
+      <td class="thin left top" nowrap>{{dt issue.creationDate}}</td>
+      <td class="thin left top" nowrap></td>
+      <td class="left top">{{t 'created'}}</td>
+    </tr>
+    {{#each items}}
+      <tr>
+        <td class="thin left top" nowrap>{{dt creationDate}}</td>
+        <td class="thin left top" nowrap>{{userName}}</td>
+        <td class="left top">
+          {{#each diffs}}
+            {{changelog this}}<br>
+          {{/each}}
+        </td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+</div>
+
+<div class="bubble-popup-arrow"></div>

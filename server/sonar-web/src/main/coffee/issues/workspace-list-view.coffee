@@ -19,7 +19,7 @@ define [
   class extends Marionette.CompositeView
     template: Templates['issues-workspace-list']
     itemView: IssueView
-    itemViewContainer: 'ul'
+    itemViewContainer: '.js-issues-list'
     emptyView: EmptyView
 
 
@@ -27,9 +27,8 @@ define [
       loadMore: '.js-issues-more'
 
 
-    itemViewOptions: (_, index) ->
+    itemViewOptions: ->
       app: @options.app
-      index: index
 
 
     collectionEvents:
@@ -45,6 +44,7 @@ define [
 
     onClose: ->
       @unbindScrollEvents()
+      @unbindShortcuts()
 
 
     toggleLoadMore: ->
@@ -70,7 +70,15 @@ define [
         selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
         return unless selectedIssue?
         selectedIssueView = @children.findByModel selectedIssue
-        selectedIssueView.$("#issue-#{action}").click()
+        selectedIssueView.$(".js-issue-#{action}").click()
+
+      key 'up', 'list', =>
+        @options.app.controller.selectPreviousIssue()
+        false
+
+      key 'down', 'list', =>
+        @options.app.controller.selectNextIssue()
+        false
 
       key 'right', 'list', =>
         selectedIssue = @collection.at @options.app.state.get 'selectedIndex'
@@ -78,7 +86,7 @@ define [
         return false
 
       key 'c', 'list', -> doTransition 'confirm'
-      key 'u', 'list', -> doTransition 'unconfirm'
+      key 'c', 'list', -> doTransition 'unconfirm'
       key 'r', 'list', -> doTransition 'resolve'
       key 'r', 'list', -> doTransition 'reopen'
       key 'f', 'list', -> doTransition 'falsepositive'
@@ -86,6 +94,7 @@ define [
       key 'm', 'list', -> doAction 'assign-to-me'
       key 'p', 'list', -> doAction 'plan'
       key 'i', 'list', -> doAction 'set-severity'
+      key 'o', 'list', -> doAction 'comment'
 
 
     loadMore: ->

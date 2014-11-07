@@ -1,22 +1,16 @@
 define [
-  'backbone.marionette'
-  'templates/issues'
-  'issues/issue-view'
+  'issue/issue-view'
 ], (
-  Marionette
-  Templates
-  IssueBoxView
+  IssueView
 ) ->
 
-  class extends Marionette.ItemView
-    tagName: 'li'
-    className: 'issue-box'
-    template: Templates['issues-workspace-list-item']
+  class extends IssueView
 
 
-    events:
-      'click': 'selectCurrent'
-      'click .js-issues-to-source': 'openComponentViewer'
+    events: ->
+      _.extend super,
+        'click': 'selectCurrent'
+        'click .js-issue-line': 'openComponentViewer'
 
 
     initialize: (options) ->
@@ -24,24 +18,37 @@ define [
 
 
     onRender: ->
-      @issueBoxView = new IssueBoxView model: @model
-      @$('.issue-box-details').append @issueBoxView.render().el
+      super
       @select()
 
 
     select: ->
-      selected = @options.index == @options.app.state.get 'selectedIndex'
+      selected = @model.get('index') == @options.app.state.get 'selectedIndex'
       @$el.toggleClass 'selected', selected
 
 
     selectCurrent: ->
-      @options.app.state.set selectedIndex: @options.index
+      @options.app.state.set selectedIndex: @model.get('index')
 
 
-    onClose: ->
-      @issueBoxView?.close()
+    resetIssue: (options, p) ->
+      key = @model.get 'key'
+      index = @model.get 'index'
+      @model.clear silent: true
+      @model.set { key: key, index: index }, { silent: true }
+      @model.fetch(options)
+      .done =>
+        @trigger 'reset'
+        window.process.finishBackgroundProcess p if p?
+      .fail ->
+        window.process.failBackgroundProcess p if p?
 
 
     openComponentViewer: ->
-      @options.app.state.set selectedIndex: @options.index
+      @options.app.state.set selectedIndex: @model.get('index')
       @options.app.controller.showComponentViewer @model
+
+
+    serializeData: ->
+      _.extend super,
+        showComponent: true

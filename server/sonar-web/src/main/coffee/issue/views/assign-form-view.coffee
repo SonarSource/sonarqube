@@ -1,83 +1,137 @@
 define [
-  'backbone.marionette'
   'templates/issue'
+  'issue/views/action-options-view'
 ], (
-  Marionette
   Templates
+  ActionOptionsView
 ) ->
 
   $ = jQuery
-  ME = '#me#'
 
 
-  class AssignFormView extends Marionette.ItemView
-    template: Templates['assign-form']
+  class extends ActionOptionsView
+    template: Templates['issue-assign-form']
+    optionTemplate: Templates['issue-assign-form-option']
 
 
-    ui:
-      select: '#issue-assignee-select'
+    events: ->
+      _.extend super,
+        'click input': 'onInputClick'
+        'keydown input': 'onInputKeydown'
+        'keyup input': 'onInputKeyup'
 
 
-    events:
-      'click #issue-assign-cancel': 'cancel'
-      'click #issue-assign-submit': 'submit'
+    initialize: ->
+      super
+      @assignees = []
+      @debouncedSearch = _.debounce @search, 250
+
+
+    getAssignee: ->
+      @model.get 'assignee'
+
+
+    getAssigneeName: ->
+      @model.get 'assigneeName'
 
 
     onRender: ->
-      currentUser = window.SS.currentUser
-      assignee = @options.issue.get('assignee')
-      additionalChoices = []
+      super
+      @renderAssignees()
+      setTimeout (=> @$('input').focus()), 100
 
-      if !assignee || currentUser != assignee
-        additionalChoices.push id: ME, text: t('assigned_to_me')
 
-      if !!assignee
-        additionalChoices.push id: '', text: t('unassigned')
+    renderAssignees: ->
+      @$('.issue-action-option').remove()
+      @getAssignees().forEach @renderAssignee, @
+      @selectInitialOption()
 
-      select2Options =
-        allowClear: false
-        width: '250px'
-        formatNoMatches: -> t('select2.noMatches')
-        formatSearching: -> t('select2.searching')
-        formatInputTooShort: -> t('select2.tooShort')
 
-      if additionalChoices.length > 0
-        select2Options.minimumInputLength = 0
-        select2Options.query = (query) ->
-          if query.term.length == 0
-            query.callback results: additionalChoices
-          else if query.term.length >= 2
-            $.ajax
-              url: baseUrl + '/api/users/search?f=s2'
-              data: s: query.term
-              dataType: 'jsonp'
-            .done (data) -> query.callback data
+    renderAssignee: (assignee) ->
+      html = @optionTemplate assignee
+      @$('.issue-action-options').append html
+
+
+    selectOption: (e) ->
+      assignee = $(e.currentTarget).data 'value'
+      assigneeName = $(e.currentTarget).data 'text'
+      @submit assignee, assigneeName
+      super
+
+
+    submit: (assignee, assigneeName) ->
+      _assignee = @getAssignee()
+      _assigneeName = @getAssigneeName()
+      return if assignee == _assignee
+      p = window.process.addBackgroundProcess()
+      if assignee == ''
+        @model.set assignee: null, assigneeName: null
       else
-        select2Options.minimumInputLength = 2
-        select2Options.ajax =
-          quietMillis: 300
-          url: baseUrl + '/api/users/search?f=s2'
-          data: (term, page) -> s: term, p: page
-          results: (data) -> more: data.more, results: data.results
-
-      @ui.select.select2 select2Options
-      @ui.select.on 'change', => @$('[type=submit]').focus()
-      @ui.select.select2 'open'
-
-
-    cancel: ->
-      @options.detailView.updateAfterAction false
-
-
-    submit: ->
-      @options.detailView.showActionSpinner()
-      data = issue: @options.issue.get('key')
-      if @ui.select.val() == ME then data.me = true else data.assignee = @ui.select.val()
+        @model.set assignee: assignee, assigneeName: assigneeName
       $.ajax
         type: 'POST'
-        url: baseUrl + '/api/issues/assign'
-        data: data
-      .done => @options.detailView.updateAfterAction true
-      .fail (r) =>
-        alert _.pluck(r.responseJSON.errors, 'msg').join(' ')
-        @options.detailView.hideActionSpinner()
+        url: "#{baseUrl}/api/issues/assign"
+        data:
+          issue: @model.id
+          assignee: assignee
+      .done =>
+        window.process.finishBackgroundProcess p
+      .fail =>
+        @model.set assignee: _assignee, assigneeName: _assigneeName
+        window.process.failBackgroundProcess p
+
+
+    onInputClick: (e) ->
+      e.stopPropagation()
+
+
+    onInputKeydown: (e) ->
+      @query = @$('input').val()
+      return @selectPreviousOption() if e.keyCode == 38 # up
+      return @selectNextOption() if e.keyCode == 40 # down
+      return @selectActiveOption() if e.keyCode == 13 # return
+      return false if e.keyCode == 9 # tab
+      @close() if e.keyCode == 27 # escape
+
+
+    onInputKeyup: ->
+      query = @$('input').val()
+      if query != @query
+        query = '' if query.length < 2
+        @query = query
+        @debouncedSearch query
+
+
+    search: (query) ->
+      if query.length > 1
+        p = window.process.addBackgroundProcess()
+        $.get "#{baseUrl}/api/users/search", s: query
+        .done (data) =>
+          @resetAssignees data.users
+          window.process.finishBackgroundProcess p
+        .fail =>
+          window.process.failBackgroundProcess p
+      else
+        @resetAssignees []
+
+
+    resetAssignees: (users) ->
+      @assignees = users.map (user) ->
+        id: user.login
+        text: user.name
+      @renderAssignees()
+
+
+    getAssignees: ->
+      return @assignees if @assignees.length > 0
+      assignees = [{ id: '', text: t('unassigned') }]
+      currentUser = window.SS.user
+      currentUserName = window.SS.userName
+      currentAssignee = @getAssignee()
+      if !currentAssignee || currentUser != currentAssignee
+        assignees.push id: currentUser, text: currentUserName
+      @makeUnique assignees
+
+
+    makeUnique: (assignees) ->
+      _.uniq assignees, false, (assignee) -> assignee.id

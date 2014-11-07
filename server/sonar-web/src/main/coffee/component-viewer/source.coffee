@@ -116,11 +116,14 @@ define [
           rendered += 1
           row.removeClass 'row-hidden'
           container = row.children('.line')
-          container.addClass 'issue' if line > 0
+          container.addClass 'has-issues' if line > 0
           if rendered < ISSUES_LIMIT
             issueModel = new Issue issue
             issueView = new IssueView model: issueModel
-            issueView.render().$el.appendTo container
+            issues = container.find '.issue-list'
+            if issues.length == 0
+              issues = $('<div class="issue-list"></div>').appendTo container
+            issueView.render().$el.appendTo issues
             issueView.on 'reset', =>
               @updateIssue issueModel
               @options.main.requestComponent(@options.main.key, false, false).done =>

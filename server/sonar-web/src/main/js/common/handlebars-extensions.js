@@ -40,10 +40,24 @@ define(['handlebars'], function (Handlebars) {
     );
   });
 
+  Handlebars.registerHelper('severity', function(severity) {
+    return new Handlebars.SafeString(
+            '<i class="icon-severity-' + severity.toLowerCase() + '"></i>&nbsp;' + t('severity', severity)
+    );
+  });
+
   Handlebars.registerHelper('statusIcon', function(status) {
     return new Handlebars.SafeString(
         '<i class="icon-status-' + status.toLowerCase() + '"></i>'
     );
+  });
+
+  Handlebars.registerHelper('statusHelper', function(status, resolution) {
+    var s = '<i class="icon-status-' + status.toLowerCase() + '"></i>&nbsp;' + t('issue.status', status);
+    if (resolution != null) {
+      s = s + '&nbsp;(' + t('issue.resolution', resolution) + ')';
+    }
+    return new Handlebars.SafeString(s);
   });
 
   Handlebars.registerHelper('testStatusIcon', function(status) {

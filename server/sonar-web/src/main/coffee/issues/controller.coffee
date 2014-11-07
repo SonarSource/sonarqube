@@ -76,6 +76,7 @@ define [
           @options.app.issues.reset issues
         else
           @options.app.issues.add issues
+        @options.app.issues.setIndex()
         FACET_DATA_FIELDS.forEach (field) => @options.app.facets[field] = r[field]
         @options.app.facets.reset @_allFacets()
         @options.app.facets.add r.facets, merge: true
@@ -197,6 +198,7 @@ define [
 
 
     showComponentViewer: (issue) ->
+      @options.app.layout.workspaceComponentViewerRegion.reset()
       key.setScope 'componentViewer'
       @options.app.issuesView.unbindScrollEvents()
       @options.app.state.set 'component', @_prepareComponent(issue)
@@ -211,7 +213,6 @@ define [
     closeComponentViewer: ->
       key.setScope 'list'
       @options.app.state.unset 'component'
-      @options.app.componentViewer?.unbindScrollEvents()
       @options.app.layout.workspaceComponentViewerRegion.reset()
       @options.app.layout.hideComponentViewer()
       @options.app.issuesView.bindScrollEvents()

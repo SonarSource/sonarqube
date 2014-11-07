@@ -31,6 +31,7 @@ define [
 
       @attachCloseEvents()
 
+
     attachCloseEvents: ->
       $('body').on 'click.bubble-popup', =>
         $('body').off 'click.bubble-popup'
