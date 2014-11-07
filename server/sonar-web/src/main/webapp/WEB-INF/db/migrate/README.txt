@@ -11,6 +11,7 @@ HOW TO ADD A MIGRATION
   + Create the class for the Java migration in package package org.sonar.server.db.migrations.vXYZ, where XYZ is the version of SQ without dots
   + Add the class to org.sonar.server.db.migrations.DatabaseMigrations.CLASSES
   + Create a Ruby migration which calls execute_java_migration('org.sonar.server.db.migrations.vXYZ.MyMigration')
+  + Simple, "one to one" migrations that only need to be split by 1000 can rely on class org.sonar.server.db.migrations.BaseDataChange
 
 
 RECOMMENDATIONS

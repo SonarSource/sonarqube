@@ -122,20 +122,4 @@ public interface Migration50Mapper {
     " WHERE id=#{id}")
   @Options(useGeneratedKeys = false)
   void updateComponentUuids(Component component);
-
-  @Select("SELECT " +
-    "  ss.id as \"id\", " +
-    "  ss.updated_at as \"updatedAt\", " +
-    "  s.build_date as \"snapshotBuildDate\" " +
-    "FROM snapshot_sources ss " +
-    "  INNER JOIN snapshots s ON s.id = ss.snapshot_id " +
-    "  WHERE ss.updated_at IS NULL")
-  @Result(javaType = SnapshotSource.class)
-  List<SnapshotSource> selectSnapshotSources();
-
-  @Update("UPDATE snapshot_sources " +
-    " SET updated_at=#{updatedAt} " +
-    " WHERE id=#{id}")
-  @Options(useGeneratedKeys = false)
-  void updateSnapshotSource(SnapshotSource snapshotSource);
 }

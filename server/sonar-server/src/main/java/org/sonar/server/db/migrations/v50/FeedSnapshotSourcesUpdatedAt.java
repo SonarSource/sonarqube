@@ -20,60 +20,42 @@
 
 package org.sonar.server.db.migrations.v50;
 
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.migration.v50.Migration50Mapper;
-import org.sonar.core.persistence.migration.v50.SnapshotSource;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.db.migrations.DatabaseMigration;
+import org.sonar.core.persistence.Database;
+import org.sonar.server.db.migrations.BaseDataChange;
 import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.Select;
+import org.sonar.server.db.migrations.SqlStatement;
 
-import java.util.Timer;
-import java.util.concurrent.atomic.AtomicLong;
+import java.sql.SQLException;
 
 /**
  * Used in the Active Record Migration 705
  *
  * @since 5.0
  */
-public class FeedSnapshotSourcesUpdatedAt implements DatabaseMigration {
+public class FeedSnapshotSourcesUpdatedAt extends BaseDataChange {
 
-  private final DbClient db;
-  private final AtomicLong counter = new AtomicLong(0L);
-  private final MassUpdate.ProgressTask progressTask = new MassUpdate.ProgressTask(counter);
-
-  public FeedSnapshotSourcesUpdatedAt(DbClient db) {
-    this.db = db;
+  public FeedSnapshotSourcesUpdatedAt(Database db) {
+    super(db);
   }
 
   @Override
-  public void execute() {
-    Timer timer = new Timer("Db Migration Progress");
-    timer.schedule(progressTask, MassUpdate.ProgressTask.PERIOD_MS, MassUpdate.ProgressTask.PERIOD_MS);
-
-    final DbSession readSession = db.openSession(false);
-    final DbSession writeSession = db.openSession(true);
-    try {
-      readSession.select("org.sonar.core.persistence.migration.v50.Migration50Mapper.selectSnapshotSources", new ResultHandler() {
-        @Override
-        public void handleResult(ResultContext context) {
-          SnapshotSource snapshotSource = (SnapshotSource) context.getResultObject();
-          snapshotSource.setUpdatedAt(snapshotSource.getSnapshotBuildDate());
-          writeSession.getMapper(Migration50Mapper.class).updateSnapshotSource(snapshotSource);
-          counter.getAndIncrement();
-        }
-      });
-      writeSession.commit();
-      readSession.commit();
-
-      // log the total number of process rows
-      progressTask.log();
-    } finally {
-      readSession.close();
-      writeSession.close();
-      timer.cancel();
-      timer.purge();
-    }
+  public void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT ss.id, s.build_date " +
+      "FROM snapshot_sources ss " +
+      "INNER JOIN snapshots s ON s.id = ss.snapshot_id " +
+      "WHERE ss.updated_at IS NULL");
+    massUpdate.update("UPDATE snapshot_sources " +
+      "SET updated_at=? " +
+      "WHERE id=?");
+    massUpdate.execute(new MassUpdate.Handler() {
+      @Override
+      public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+        update.setDate(1, row.getDate(2));
+        update.setLong(2, row.getLong(1));
+        return true;
+      }
+    });
   }
 }
