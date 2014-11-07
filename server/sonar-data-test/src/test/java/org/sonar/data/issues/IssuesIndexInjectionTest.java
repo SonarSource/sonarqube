@@ -17,57 +17,70 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.data.issues;
 
 import com.google.common.collect.Iterables;
-import org.apache.ibatis.session.ResultContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.process.NetworkUtils;
+import org.sonar.process.ProcessConstants;
+import org.sonar.process.Props;
+import org.sonar.search.SearchServer;
 import org.sonar.server.component.ComponentTesting;
-import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.issue.db.IssueDao;
+import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueNormalizer;
 import org.sonar.server.rule.RuleTesting;
-import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.search.DbSynchronizationHandler;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.action.InsertDto;
+import org.sonar.server.search.action.RefreshIndex;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
-public class IssuesDbExtractionTest extends AbstractTest {
+public class IssuesIndexInjectionTest extends AbstractTest {
 
-  static final Logger LOGGER = LoggerFactory.getLogger(IssuesDbExtractionTest.class);
+  static final Logger LOGGER = LoggerFactory.getLogger(IssuesIndexInjectionTest.class);
 
   final static int RULES_NUMBER = 25;
   final static int USERS_NUMBER = 100;
 
   final static int PROJECTS_NUMBER = 100;
-  final static int NUMBER_FILES_PER_PROJECT = 100;
-  final static int NUMBER_ISSUES_PER_FILE = 100;
+  final static int NUMBER_FILES_PER_PROJECT = 1;
+  final static int NUMBER_ISSUES_PER_FILE = 1;
 
   final static int ISSUE_COUNT = PROJECTS_NUMBER * NUMBER_FILES_PER_PROJECT * NUMBER_ISSUES_PER_FILE;
 
+  @ClassRule
+  public static TemporaryFolder temp = new TemporaryFolder();
+  static String clusterName;
+  static Integer clusterPort;
+  private static SearchServer searchServer;
   @Rule
   public TestDatabase db = new TestDatabase();
-
+  SearchClient searchClient;
   DbSession session;
+
+  long ids = 1;
 
   Iterator<RuleDto> rules;
   Iterator<String> users;
@@ -76,19 +89,44 @@ public class IssuesDbExtractionTest extends AbstractTest {
   Iterator<String> closedResolutions;
   Iterator<String> resolvedResolutions;
 
-  ProxyIssueDao issueDao;
-  RuleDao ruleDao;
-  ComponentDao componentDao;
+  IssueIndex issueIndex;
+
+  @BeforeClass
+  public static void setupSearchEngine() {
+    clusterName = "sonarqube-test";
+    clusterPort = NetworkUtils.freePort();
+    Properties properties = new Properties();
+    properties.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
+    properties.setProperty(ProcessConstants.CLUSTER_NODE_NAME, "test");
+    properties.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
+    properties.setProperty(ProcessConstants.PATH_HOME, temp.getRoot().getAbsolutePath());
+
+    searchServer = new SearchServer(new Props(properties));
+    searchServer.start();
+  }
+
+  @AfterClass
+  public static void tearDownSearchEngine() {
+    searchServer.stop();
+  }
 
   @Before
-  public void setUp() throws Exception {
-    issueDao = new ProxyIssueDao();
-    ruleDao = new RuleDao();
-    componentDao = new ComponentDao(System2.INSTANCE);
+  public void setupSearchClient() throws IOException {
+    File dataDir = temp.newFolder();
+    Settings settings = new Settings();
+    settings.setProperty(ProcessConstants.CLUSTER_ACTIVATE, false);
+    settings.setProperty(ProcessConstants.CLUSTER_NAME, clusterName);
+    settings.setProperty(ProcessConstants.CLUSTER_NODE_NAME, "test");
+    settings.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
+    settings.setProperty(ProcessConstants.PATH_HOME, dataDir.getAbsolutePath());
+    searchClient = new SearchClient(settings);
+
+    issueIndex = new IssueIndex(new IssueNormalizer(null), searchClient);
+    issueIndex.start();
 
     session = db.myBatis().openSession(false);
 
-    rules = Iterables.cycle(generateRules(session)).iterator();
+    rules = Iterables.cycle(generateRules()).iterator();
     users = Iterables.cycle(generateUsers()).iterator();
     severities = Iterables.cycle(Severity.ALL).iterator();
     statuses = Iterables.cycle(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED).iterator();
@@ -97,29 +135,33 @@ public class IssuesDbExtractionTest extends AbstractTest {
   }
 
   @After
-  public void closeSession() throws Exception {
+  public void after() throws Exception {
+    searchClient.stop();
     session.close();
   }
 
   @Test
-  public void extract_issues() throws Exception {
+  public void inject_issues() throws Exception {
+
+    // Thread.sleep(100000);
+
     int issueInsertCount = ISSUE_COUNT;
 
     long start = System.currentTimeMillis();
     for (long projectIndex = 1; projectIndex <= PROJECTS_NUMBER; projectIndex++) {
       ComponentDto project = ComponentTesting.newProjectDto()
+        .setId(ids++)
         .setKey("project-" + projectIndex)
         .setName("Project " + projectIndex)
         .setLongName("Project " + projectIndex);
-      componentDao.insert(session, project);
 
       for (int fileIndex = 0; fileIndex < NUMBER_FILES_PER_PROJECT; fileIndex++) {
         String index = projectIndex * PROJECTS_NUMBER + fileIndex + "";
         ComponentDto file = ComponentTesting.newFileDto(project)
+          .setId(ids++)
           .setKey("file-" + index)
           .setName("File " + index)
           .setLongName("File " + index);
-        componentDao.insert(session, file);
 
         for (int issueIndex = 1; issueIndex < NUMBER_ISSUES_PER_FILE + 1; issueIndex++) {
           String status = statuses.next();
@@ -139,31 +181,26 @@ public class IssuesDbExtractionTest extends AbstractTest {
             .setSeverity(severities.next())
             .setStatus(status)
             .setResolution(resolution);
-          issueDao.insert(session, issue);
+          session.enqueue(new InsertDto<IssueDto>(IndexDefinition.ISSUES.getIndexType(), issue, false));
         }
-        session.commit();
       }
     }
-    LOGGER.info("Inserted {} Issues in {} ms", ISSUE_COUNT, System.currentTimeMillis() - start);
-
-    start = System.currentTimeMillis();
-    issueDao.synchronizeAfter(session);
+    session.enqueue(new RefreshIndex(IndexDefinition.ISSUES.getIndexType()));
+    session.commit();
     long stop = System.currentTimeMillis();
 
-    assertThat(issueDao.synchronizedIssues).isEqualTo(issueInsertCount);
+    assertThat(issueIndex.countAll()).isEqualTo(issueInsertCount);
 
     long time = stop - start;
-    LOGGER.info("Extracted {} Issues in {} ms with avg {} Issue/second", ISSUE_COUNT, time, documentPerSecond(time));
-    assertDurationAround(time, Long.parseLong(getProperty("IssuesDbExtractionTest.extract_issues")));
+    LOGGER.info("processed {} Issues in {} ms with avg {} Issue/second", ISSUE_COUNT, time, documentPerSecond(time));
+    assertDurationAround(time, Long.parseLong(getProperty("IssuesIndexInjectionTest.inject_issues")));
   }
 
-  protected List<RuleDto> generateRules(DbSession session) {
+  protected List<RuleDto> generateRules() {
     List<RuleDto> rules = newArrayList();
     for (int i = 0; i < RULES_NUMBER; i++) {
-      rules.add(RuleTesting.newDto(RuleKey.of("rule-repo", "rule-key-" + i)));
+      rules.add(RuleTesting.newDto(RuleKey.of("rule-repo", "rule-key-" + i)).setId((int) (ids++)));
     }
-    ruleDao.insert(this.session, rules);
-    session.commit();
     return rules;
   }
 
@@ -177,30 +214,6 @@ public class IssuesDbExtractionTest extends AbstractTest {
 
   private int documentPerSecond(long time) {
     return (int) Math.round(ISSUE_COUNT / (time / 1000.0));
-  }
-
-  class ProxyIssueDao extends IssueDao {
-    public Integer synchronizedIssues = 0;
-
-    @Override
-    protected boolean hasIndex() {
-      return false;
-    }
-
-    @Override
-    protected DbSynchronizationHandler getSynchronizationResultHandler(DbSession session, Map<String, String> params) {
-      return new DbSynchronizationHandler(session, params) {
-
-        @Override
-        public void handleResult(ResultContext context) {
-          synchronizedIssues++;
-        }
-
-        @Override
-        public void enqueueCollected() {
-        }
-      };
-    }
   }
 
 }
