@@ -32,6 +32,7 @@ define [
     events:
       'click .js-close-component-viewer': 'closeComponentViewer'
       'click .sym': 'highlightUsages'
+      'click .code-issue': 'selectIssue'
 
 
     initialize: (options) ->
@@ -168,6 +169,13 @@ define [
       return null unless selectedIssue?
       selectedIssueView = @$("[data-issue-key='#{selectedIssue.get('key')}']")
       if selectedIssueView.length > 0 then selectedIssueView else null
+
+
+    selectIssue: (e) ->
+      key = $(e.currentTarget).data 'issue-key'
+      issue = @issues.find (issue) -> issue.get('key') == key
+      index = @options.app.issues.indexOf issue
+      @options.app.state.set selectedIndex: index
 
 
     scrollToIssue: (key) ->

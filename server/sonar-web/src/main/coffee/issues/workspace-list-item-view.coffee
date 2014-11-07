@@ -15,6 +15,7 @@ define [
 
 
     events:
+      'click': 'selectCurrent'
       'click .js-issues-to-source': 'openComponentViewer'
 
 
@@ -31,6 +32,10 @@ define [
     select: ->
       selected = @options.index == @options.app.state.get 'selectedIndex'
       @$el.toggleClass 'selected', selected
+
+
+    selectCurrent: ->
+      @options.app.state.set selectedIndex: @options.index
 
 
     onClose: ->
