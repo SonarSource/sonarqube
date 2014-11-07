@@ -31,15 +31,16 @@ define [
 
 
     bindScrollEvents: ->
-      $('.navigator-results').on 'scroll', (=> @loadMoreThrottled())
+      $(window).on 'scroll', (=> @loadMoreThrottled())
 
 
     unbindScrollEvents: ->
-      $('.navigator-results').off 'scroll'
+      $(window).off 'scroll'
 
 
     loadMore: ->
-      if $('.navigator-results').scrollTop() + $('.navigator-results').outerHeight() >= $('.navigator-results-list').outerHeight() - 40
+      lastItem = this.children.findByIndex(@collection.length - 1)
+      if $(window).scrollTop() + $(window).outerHeight() >= lastItem.$el.offset().top - 40
         @unbindScrollEvents()
         @options.app.fetchNextPage().done =>
           @bindScrollEvents() unless @collection.paging.maxResultsReached

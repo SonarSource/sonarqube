@@ -1,11 +1,6 @@
-{{#if state.active}}
-  {{t 'analysis_reports.current_activity'}}
-  &nbsp;&nbsp;&nbsp;
-  <a class="js-show-past-reports">{{t 'analysis_reports.past_reports'}}</a>
-{{else}}
-  <a class="js-show-current-activity">{{t 'analysis_reports.current_activity'}}</a>
-  &nbsp;&nbsp;&nbsp;
-  {{t 'analysis_reports.past_reports'}}
-{{/if}}
+<ul class="tabs">
+  <li><a class="js-show-current-activity {{#if state.active}}selected{{/if}}">{{t 'analysis_reports.current_activity'}}</a></li>
+  <li><a class="js-show-past-reports {{#unless state.active}}selected{{/unless}}">{{t 'analysis_reports.past_reports'}}</a></li>
+</ul>
 
-<span style="float: right;">{{tp 'analysis_reports.x_reports' total}}</span>
+<div class="analysis-reports-total">{{tp 'analysis_reports.x_reports' total}}</div>

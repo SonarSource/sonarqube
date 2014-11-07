@@ -23,7 +23,6 @@ requirejs [
   'analysis-reports/layout'
   'analysis-reports/models/reports'
   'analysis-reports/views/reports-view'
-  'analysis-reports/views/header-view'
   'analysis-reports/views/actions-view'
 
   'common/handlebars-extensions'
@@ -33,7 +32,6 @@ requirejs [
   Layout
   Reports
   ReportsView
-  HeaderView
   ActionsView
 ) ->
 
@@ -65,8 +63,6 @@ requirejs [
         collection: @reports
       @layout.actionsRegion.show @actionsView
 
-      @layout.onResize()
-
       window.process.finishBackgroundProcess process
 
 
@@ -89,11 +85,6 @@ requirejs [
   App.addInitializer ->
     @layout = new Layout app: @
     jQuery('#analysis-reports').empty().append @layout.render().el
-
-
-  App.addInitializer ->
-    @headerView = new HeaderView app: @
-    @layout.headerRegion.show @headerView
 
 
   App.addInitializer ->
