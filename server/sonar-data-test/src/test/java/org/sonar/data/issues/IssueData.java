@@ -50,7 +50,7 @@ public class IssueData {
   public final static int MAX_NUMBER_PROJECTS = 500;
   public final static int MAX_NUMBER_RESOURCES_PER_PROJECT = 10000;
 
-  public final static int ISSUE_COUNT = 100000;
+  public final static int ISSUE_COUNT = 1000000;
 
   protected static final Logger LOGGER = LoggerFactory.getLogger(IssueData.class);
 
@@ -65,17 +65,17 @@ public class IssueData {
   protected List<RuleDto> rules = new ArrayList<RuleDto>();
   protected ArrayListMultimap<ComponentDto, ComponentDto> componentsByProjectId = ArrayListMultimap.create();
 
+  @AfterClass
+  public static void reset() throws Exception {
+    tester = new ServerTester();
+  }
+
   @After
   public void tearDown() throws Exception {
     tester.clearDbAndIndexes();
     if (session != null) {
       session.close();
     }
-  }
-
-  @AfterClass
-  public static void reset() throws Exception {
-    tester = new ServerTester();
   }
 
   protected IssueDto getIssue(int id) {

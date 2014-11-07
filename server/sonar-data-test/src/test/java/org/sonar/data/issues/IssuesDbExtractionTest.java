@@ -19,7 +19,6 @@
  */
 package org.sonar.data.issues;
 
-import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.ResultContext;
 import org.junit.After;
 import org.junit.Before;
@@ -27,36 +26,23 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.TestDatabase;
-import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.db.ComponentDao;
-import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.db.IssueDao;
-import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.DbSynchronizationHandler;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssuesDbExtractionTest extends AbstractTest {
 
   static final Logger LOGGER = LoggerFactory.getLogger(IssuesDbExtractionTest.class);
-
-  final static int RULES_NUMBER = 25;
-  final static int USERS_NUMBER = 100;
 
   final static int PROJECTS_NUMBER = 100;
   final static int NUMBER_FILES_PER_PROJECT = 100;
@@ -69,12 +55,6 @@ public class IssuesDbExtractionTest extends AbstractTest {
 
   DbSession session;
 
-  Iterator<RuleDto> rules;
-  Iterator<String> users;
-  Iterator<String> severities;
-  Iterator<String> statuses;
-  Iterator<String> closedResolutions;
-  Iterator<String> resolvedResolutions;
 
   ProxyIssueDao issueDao;
   RuleDao ruleDao;
@@ -88,12 +68,10 @@ public class IssuesDbExtractionTest extends AbstractTest {
 
     session = db.myBatis().openSession(false);
 
-    rules = Iterables.cycle(generateRules(session)).iterator();
-    users = Iterables.cycle(generateUsers()).iterator();
-    severities = Iterables.cycle(Severity.ALL).iterator();
-    statuses = Iterables.cycle(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED, Issue.STATUS_REOPENED, Issue.STATUS_RESOLVED, Issue.STATUS_CLOSED).iterator();
-    closedResolutions = Iterables.cycle(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED, Issue.RESOLUTION_REMOVED).iterator();
-    resolvedResolutions = Iterables.cycle(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED).iterator();
+    for (int i = 0; i < RULES_NUMBER; i++) {
+      ruleDao.insert(session, rules.next());
+    }
+    session.commit();
   }
 
   @After
@@ -106,7 +84,7 @@ public class IssuesDbExtractionTest extends AbstractTest {
     int issueInsertCount = ISSUE_COUNT;
 
     long start = System.currentTimeMillis();
-    for (long projectIndex = 1; projectIndex <= PROJECTS_NUMBER; projectIndex++) {
+    for (long projectIndex = 0; projectIndex < PROJECTS_NUMBER; projectIndex++) {
       ComponentDto project = ComponentTesting.newProjectDto()
         .setKey("project-" + projectIndex)
         .setName("Project " + projectIndex)
@@ -122,24 +100,7 @@ public class IssuesDbExtractionTest extends AbstractTest {
         componentDao.insert(session, file);
 
         for (int issueIndex = 1; issueIndex < NUMBER_ISSUES_PER_FILE + 1; issueIndex++) {
-          String status = statuses.next();
-          String resolution = null;
-          if (status.equals(Issue.STATUS_CLOSED)) {
-            resolution = closedResolutions.next();
-          } else if (status.equals(Issue.STATUS_RESOLVED)) {
-            resolution = resolvedResolutions.next();
-          }
-          RuleDto rule = rules.next();
-          IssueDto issue = IssueTesting.newDto(rule, file, project)
-            .setMessage("Message from rule " + rule.getKey().toString() + " on line " + issueIndex)
-            .setLine(issueIndex)
-            .setAssignee(users.next())
-            .setReporter(users.next())
-            .setAuthorLogin(users.next())
-            .setSeverity(severities.next())
-            .setStatus(status)
-            .setResolution(resolution);
-          issueDao.insert(session, issue);
+          issueDao.insert(session, newIssue(issueIndex, file, project, rules.next()));
         }
         session.commit();
       }
@@ -157,25 +118,7 @@ public class IssuesDbExtractionTest extends AbstractTest {
     assertDurationAround(time, Long.parseLong(getProperty("IssuesDbExtractionTest.extract_issues")));
   }
 
-  protected List<RuleDto> generateRules(DbSession session) {
-    List<RuleDto> rules = newArrayList();
-    for (int i = 0; i < RULES_NUMBER; i++) {
-      rules.add(RuleTesting.newDto(RuleKey.of("rule-repo", "rule-key-" + i)));
-    }
-    ruleDao.insert(this.session, rules);
-    session.commit();
-    return rules;
-  }
-
-  protected List<String> generateUsers() {
-    List<String> users = newArrayList();
-    for (int i = 0; i < USERS_NUMBER; i++) {
-      users.add("user-" + i);
-    }
-    return users;
-  }
-
-  private int documentPerSecond(long time) {
+  protected int documentPerSecond(long time) {
     return (int) Math.round(ISSUE_COUNT / (time / 1000.0));
   }
 
