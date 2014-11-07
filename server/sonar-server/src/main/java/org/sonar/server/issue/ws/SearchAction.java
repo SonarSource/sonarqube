@@ -376,7 +376,12 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     addMandatoryFacetValues(results, IssueFilterParameters.REPORTERS, request.paramAsStrings(IssueFilterParameters.REPORTERS));
     addMandatoryFacetValues(results, IssueFilterParameters.RULES, request.paramAsStrings(IssueFilterParameters.RULES));
     addMandatoryFacetValues(results, IssueFilterParameters.LANGUAGES, request.paramAsStrings(IssueFilterParameters.LANGUAGES));
-    addMandatoryFacetValues(results, IssueFilterParameters.ACTION_PLANS, request.paramAsStrings(IssueFilterParameters.ACTION_PLANS));
+    List<String> actionPlans = Lists.newArrayList("");
+    List<String> actionPlansFromRequest = request.paramAsStrings(IssueFilterParameters.ACTION_PLANS);
+    if (actionPlansFromRequest != null) {
+      actionPlans.addAll(actionPlansFromRequest);
+    }
+    addMandatoryFacetValues(results, IssueFilterParameters.ACTION_PLANS, actionPlans);
     addMandatoryFacetValues(results, IssueFilterParameters.COMPONENT_UUIDS, request.paramAsStrings(IssueFilterParameters.COMPONENT_UUIDS));
 
     super.writeFacets(request, context, results, json);

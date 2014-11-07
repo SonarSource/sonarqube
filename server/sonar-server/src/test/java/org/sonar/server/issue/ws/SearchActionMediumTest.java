@@ -378,7 +378,7 @@ public class SearchActionMediumTest {
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
-      .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,projectUuids,rules,componentUuids,assignees,languages")
+      .setParam(SearchAction.PARAM_FACETS, "statuses,severities,resolutions,projectUuids,rules,componentUuids,assignees,languages,actionPlans")
       .execute();
     result.assertJson(this.getClass(), "display_facets.json", false);
   }
