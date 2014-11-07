@@ -20,14 +20,14 @@
 
 package org.sonar.graph;
 
+import com.google.common.collect.LinkedHashMultiset;
+import com.google.common.collect.Multiset;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
 
 /**
  * Note: this class has a natural ordering that is inconsistent with equals
@@ -70,7 +70,7 @@ public final class FeedbackCycle implements Iterable<FeedbackEdge>, Comparable<F
   }
 
   private static Multiset<Edge> createBagWithAllEdgesOfCycles(Set<Cycle> cycles) {
-    Multiset<Edge> edgesBag = HashMultiset.create();
+    Multiset<Edge> edgesBag = LinkedHashMultiset.create();
     for (Cycle cycle : cycles) {
       for (Edge edge : cycle.getEdges()) {
         edgesBag.add(edge);
@@ -94,7 +94,9 @@ public final class FeedbackCycle implements Iterable<FeedbackEdge>, Comparable<F
 
   @Override
   public int compareTo(FeedbackCycle feedbackCycle) {
-    if (getTotalOccurrencesOfEdgesInCycle() < feedbackCycle.getTotalOccurrencesOfEdgesInCycle()) {//NOSONAR this class has a natural ordering that is inconsistent with equals
+    if (getTotalOccurrencesOfEdgesInCycle() < feedbackCycle.getTotalOccurrencesOfEdgesInCycle()) {// NOSONAR this class has a natural
+                                                                                                  // ordering that is inconsistent with
+                                                                                                  // equals
       return -1;
     }
     if (getTotalOccurrencesOfEdgesInCycle() == feedbackCycle.getTotalOccurrencesOfEdgesInCycle()) {

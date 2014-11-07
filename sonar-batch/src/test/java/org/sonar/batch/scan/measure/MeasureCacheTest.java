@@ -111,10 +111,6 @@ public class MeasureCacheTest {
     assertThat(cache.byResource(p)).hasSize(2);
   }
 
-  /**
-   * This test fails when compression is not enabled for measures. PersistIt seems to be ok with
-   * put but fail when reading value.
-   */
   @Test
   public void should_add_measure_with_big_data() throws Exception {
     MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);

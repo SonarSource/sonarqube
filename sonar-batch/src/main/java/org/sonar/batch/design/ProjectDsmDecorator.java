@@ -20,81 +20,38 @@
 package org.sonar.batch.design;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.graph.Cycle;
 import org.sonar.graph.CycleDetector;
-import org.sonar.graph.Dsm;
-import org.sonar.graph.DsmTopologicalSorter;
 import org.sonar.graph.Edge;
 import org.sonar.graph.MinimumFeedbackEdgeSetSolver;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public class ProjectDsmDecorator implements Decorator {
-
-  private SonarIndex index;
+public class ProjectDsmDecorator extends DsmDecorator {
 
   public ProjectDsmDecorator(SonarIndex index) {
-    this.index = index;
-  }
-
-  @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return true;
-  }
-
-  @Override
-  public void decorate(final Resource resource, DecoratorContext context) {
-    if (shouldDecorateResource(resource, context)) {
-      Collection<Resource> subProjects = getSubProjects((Project) resource);
-
-      if (!subProjects.isEmpty()) {
-        Dsm<Resource> dsm = getDsm(subProjects);
-        saveDsm(context, dsm);
-      }
-    }
-  }
-
-  private void saveDsm(DecoratorContext context, Dsm<Resource> dsm) {
-    Measure measure = new Measure(CoreMetrics.DEPENDENCY_MATRIX, DsmSerializer.serialize(dsm));
-    measure.setPersistenceMode(PersistenceMode.DATABASE);
-    context.saveMeasure(measure);
-  }
-
-  private Dsm<Resource> getDsm(Collection<Resource> subProjects) {
-    CycleDetector<Resource> cycleDetector = new CycleDetector<Resource>(index, subProjects);
-    Set<Cycle> cycles = cycleDetector.getCycles();
-
-    MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycles);
-    Set<Edge> feedbackEdges = solver.getEdges();
-
-    Dsm<Resource> dsm = new Dsm<Resource>(index, subProjects, feedbackEdges);
-    DsmTopologicalSorter.sort(dsm);
-    return dsm;
+    super(index);
   }
 
   /**
    * sub-projects, including all descendants but not only direct children
    */
-  private Collection<Resource> getSubProjects(final Project project) {
+  @Override
+  protected List<Resource> getChildren(Resource resource, DecoratorContext context) {
     List<Resource> subProjects = Lists.newArrayList();
-    addSubProjects(project, subProjects);
+    addSubProjects((Project) resource, subProjects);
     return subProjects;
   }
 
   private void addSubProjects(Project project, List<Resource> subProjects) {
     for (Project subProject : project.getModules()) {
-      Project indexedSubProject = index.getResource(subProject);
+      Project indexedSubProject = getIndex().getResource(subProject);
       if (indexedSubProject != null) {
         subProjects.add(indexedSubProject);
       }
@@ -102,7 +59,17 @@ public class ProjectDsmDecorator implements Decorator {
     }
   }
 
-  private boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
+  @Override
+  protected Set<Edge> doProcess(List<Resource> children, DecoratorContext context) {
+    CycleDetector<Resource> cycleDetector = new CycleDetector<Resource>(getIndex(), children);
+    Set<Cycle> cycles = cycleDetector.getCycles();
+
+    MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycles);
+    return solver.getEdges();
+  }
+
+  @Override
+  protected boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
     // Should not execute on views
     return (ResourceUtils.isRootProject(resource) || ResourceUtils.isModuleProject(resource))
       && !((Project) resource).getModules().isEmpty();

@@ -26,7 +26,7 @@ import java.io.LineNumberReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public final class DsmScanner {
@@ -36,7 +36,7 @@ public final class DsmScanner {
   private static final char FEEDBACK_EDGE_FLAG = '*';
   private final DirectedGraph<String, StringEdge> graph = DirectedGraph.createStringDirectedGraph();
   private String[] vertices;
-  private Set<Edge> feedbackEdges = new HashSet<Edge>();
+  private Set<Edge> feedbackEdges = new LinkedHashSet<Edge>();
 
   private DsmScanner(Reader reader) {
     this.reader = new LineNumberReader(reader);
@@ -49,7 +49,7 @@ public final class DsmScanner {
         readRow(i);
       }
     } catch (IOException e) {
-      throw new RuntimeException("Unable to read DSM content.", e); //NOSONAR
+      throw new RuntimeException("Unable to read DSM content.", e); // NOSONAR
     }
     Dsm<String> dsm = new Dsm<String>(graph, graph.getVertices(), feedbackEdges);
     DsmManualSorter.sort(dsm, Arrays.asList(vertices));

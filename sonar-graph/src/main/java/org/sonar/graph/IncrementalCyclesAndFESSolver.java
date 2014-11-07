@@ -20,12 +20,12 @@
 package org.sonar.graph;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class IncrementalCyclesAndFESSolver<V> {
 
-  private Set<Cycle> cycles = new HashSet<Cycle>();
+  private Set<Cycle> cycles = new LinkedHashSet<Cycle>();
   private long searchCyclesCalls = 0;
   private static final int DEFAULT_MAX_SEARCH_DEPTH_AT_FIRST = 3;
   private static final int DEFAULT_MAX_CYCLES_TO_FOUND_BY_ITERATION = 100;
@@ -37,7 +37,7 @@ public class IncrementalCyclesAndFESSolver<V> {
   }
 
   public IncrementalCyclesAndFESSolver(DirectedGraphAccessor<V, ? extends Edge> graph, Collection<V> vertices, int maxSearchDepthAtFirst,
-      int maxCyclesToFoundByIteration) {
+    int maxCyclesToFoundByIteration) {
 
     iterations++;
     CycleDetector<V> cycleDetector = new CycleDetector<V>(graph, vertices);

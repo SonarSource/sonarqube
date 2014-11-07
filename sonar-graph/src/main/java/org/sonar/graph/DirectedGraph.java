@@ -22,7 +22,7 @@ package org.sonar.graph;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +32,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
   private EdgeFactory<V, E> edgeFactory;
   private Map<V, Map<V, E>> outgoingEdgesByVertex = new HashMap<V, Map<V, E>>();
   private Map<V, Map<V, E>> incomingEdgesByVertex = new HashMap<V, Map<V, E>>();
-  private Set<V> vertices = new HashSet<V>();
+  private Set<V> vertices = new LinkedHashSet<V>();
 
   public DirectedGraph() {
   }
@@ -60,7 +60,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
   private void checkEdgeFacory() {
     if (edgeFactory == null) {
       throw new IllegalStateException(
-          "EdgeFactory<V, E> has not been defined. Please use the 'public E addEdge(V from, V to, E edge)' method.");
+        "EdgeFactory<V, E> has not been defined. Please use the 'public E addEdge(V from, V to, E edge)' method.");
     }
   }
 
@@ -133,7 +133,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
   public Collection<E> getOutgoingEdges(V from) {
     Map<V, E> outgoingEdges = outgoingEdgesByVertex.get(from);
     if (outgoingEdges == null) {
-      return new HashSet<E>();
+      return new LinkedHashSet<E>();
     }
     return outgoingEdges.values();
   }
@@ -142,7 +142,7 @@ public class DirectedGraph<V, E extends Edge<V>> implements DirectedGraphAccesso
   public Collection<E> getIncomingEdges(V to) {
     Map<V, E> incomingEdges = incomingEdgesByVertex.get(to);
     if (incomingEdges == null) {
-      return new HashSet<E>();
+      return new LinkedHashSet<E>();
     }
     return incomingEdges.values();
   }

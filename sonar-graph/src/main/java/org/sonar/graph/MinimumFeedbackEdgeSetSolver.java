@@ -19,7 +19,9 @@
  */
 package org.sonar.graph;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 public class MinimumFeedbackEdgeSetSolver {
 
@@ -62,7 +64,7 @@ public class MinimumFeedbackEdgeSetSolver {
    * Get edges tagged as feedback.
    */
   public Set<Edge> getEdges() {
-    Set<Edge> edges = new HashSet<Edge>();
+    Set<Edge> edges = new LinkedHashSet<Edge>();
     for (FeedbackEdge fe : feedbackEdges) {
       edges.add(fe.getEdge());
     }
@@ -70,7 +72,7 @@ public class MinimumFeedbackEdgeSetSolver {
   }
 
   private void run() {
-    Set<FeedbackEdge> pendingFeedbackEdges = new HashSet<FeedbackEdge>();
+    Set<FeedbackEdge> pendingFeedbackEdges = new LinkedHashSet<FeedbackEdge>();
     if (cyclesNumber < maxNumberCyclesForSearchingMinimumFeedback) {
       searchFeedbackEdges(0, 0, pendingFeedbackEdges);
     } else {
@@ -79,7 +81,7 @@ public class MinimumFeedbackEdgeSetSolver {
   }
 
   private void lightResearchForFeedbackEdges() {
-    feedbackEdges = new HashSet<FeedbackEdge>();
+    feedbackEdges = new LinkedHashSet<FeedbackEdge>();
     for (FeedbackCycle cycle : feedbackCycles) {
       for (FeedbackEdge edge : cycle) {
         feedbackEdges.add(edge);
@@ -87,7 +89,7 @@ public class MinimumFeedbackEdgeSetSolver {
       }
     }
     minimumFeedbackEdgesWeight = 0;
-    for(FeedbackEdge edge : feedbackEdges) {
+    for (FeedbackEdge edge : feedbackEdges) {
       minimumFeedbackEdgesWeight += edge.getWeight();
     }
   }
@@ -103,7 +105,7 @@ public class MinimumFeedbackEdgeSetSolver {
 
     if (level == cyclesNumber) {
       minimumFeedbackEdgesWeight = pendingWeight;
-      feedbackEdges = new HashSet<FeedbackEdge>(pendingFeedbackEdges);
+      feedbackEdges = new LinkedHashSet<FeedbackEdge>(pendingFeedbackEdges);
       return;
     }
 

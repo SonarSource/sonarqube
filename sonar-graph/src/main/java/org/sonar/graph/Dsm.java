@@ -27,17 +27,17 @@ import java.util.Set;
 
 public class Dsm<V> {
 
-  private V[] vertices;
-  private DsmCell[][] cells;
-  private int dimension;
-  private DirectedGraphAccessor<V, ? extends Edge<V>> graph;
+  private final V[] vertices;
+  private final DsmCell[][] cells;
+  private final int dimension;
+  private final DirectedGraphAccessor<V, ? extends Edge<V>> graph;
+  private boolean atLeastOneDependency = false;
 
   public Dsm(DirectedGraphAccessor<V, ? extends Edge<V>> graph, Collection<V> vertices, Set<Edge> feedbackEdges) {
     this.graph = graph;
     this.dimension = vertices.size();
-    this.cells = new DsmCell[dimension][dimension];
-    initVertices(vertices);
-    initCells(feedbackEdges);
+    this.vertices = initVertices(vertices);
+    this.cells = initCells(feedbackEdges);
   }
 
   public Dsm(DirectedGraphAccessor<V, ? extends Edge<V>> acyclicGraph, Set<Edge> feedbackEdges) {
@@ -48,7 +48,8 @@ public class Dsm<V> {
     this(acyclicGraph, acyclicGraph.getVertices(), Collections.<Edge>emptySet());
   }
 
-  private void initCells(Set<Edge> feedbackEdges) {
+  private DsmCell[][] initCells(Set<Edge> feedbackEdges) {
+    DsmCell[][] cells = new DsmCell[dimension][dimension];
     for (int x = 0; x < dimension; x++) {
       for (int y = 0; y < dimension; y++) {
         V from = vertices[x];
@@ -56,20 +57,23 @@ public class Dsm<V> {
 
         Edge<V> edge = graph.getEdge(from, to);
         if (edge != null) {
+          atLeastOneDependency = true;
           boolean isFeedbackEdge = feedbackEdges.contains(edge);
           cells[x][y] = new DsmCell(edge, isFeedbackEdge);
         }
       }
     }
+    return cells;
   }
 
-  private void initVertices(Collection<V> verticesCol) {
-    this.vertices = (V[]) new Object[dimension];
+  private V[] initVertices(Collection<V> verticesCol) {
+    V[] vertices = (V[]) new Object[dimension];
     int i = 0;
     for (V vertex : verticesCol) {
       vertices[i] = vertex;
       i++;
     }
+    return vertices;
   }
 
   public V getVertex(int rowIndex) {
@@ -159,9 +163,19 @@ public class Dsm<V> {
     return cell != null ? cell : new DsmCell(null, false);
   }
 
+  /**
+   * @since 5.0
+   */
   @CheckForNull
   public DsmCell cell(int x, int y) {
     return cells[x][y];
+  }
+
+  /**
+   * @since 5.0
+   */
+  public boolean hasAtLeastOneDependency() {
+    return atLeastOneDependency;
   }
 
   public V[] getVertices() {

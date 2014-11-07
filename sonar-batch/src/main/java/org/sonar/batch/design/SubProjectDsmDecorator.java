@@ -19,107 +19,55 @@
  */
 package org.sonar.batch.design;
 
-import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.graph.Cycle;
-import org.sonar.graph.Dsm;
-import org.sonar.graph.DsmTopologicalSorter;
 import org.sonar.graph.Edge;
 import org.sonar.graph.IncrementalCyclesAndFESSolver;
 import org.sonar.graph.MinimumFeedbackEdgeSetSolver;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public class SubProjectDsmDecorator implements Decorator {
-
-  private SonarIndex index;
+public class SubProjectDsmDecorator extends DsmDecorator {
 
   public SubProjectDsmDecorator(SonarIndex index) {
-    this.index = index;
+    super(index);
   }
 
   @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return true;
+  protected List<Resource> getChildren(Resource resource, DecoratorContext context) {
+    List<DecoratorContext> directoryContexts = context.getChildren();
+    List<Resource> directories = new ArrayList<Resource>(directoryContexts.size());
+    for (DecoratorContext decoratorContext : directoryContexts) {
+      directories.add(decoratorContext.getResource());
+    }
+    return directories;
   }
 
   @Override
-  public void decorate(final Resource resource, DecoratorContext context) {
-    if (shouldDecorateResource(resource, context)) {
-      List<DecoratorContext> directoryContexts = context.getChildren();
-      List<Resource> directories = new ArrayList<Resource>(directoryContexts.size());
-      for (DecoratorContext decoratorContext : directoryContexts) {
-        directories.add(decoratorContext.getResource());
-      }
+  protected Set<Edge> doProcess(List<Resource> children, DecoratorContext context) {
+    IncrementalCyclesAndFESSolver<Resource> cycleDetector = new IncrementalCyclesAndFESSolver<Resource>(getIndex(), children);
+    Set<Cycle> cycles = cycleDetector.getCycles();
 
-      IncrementalCyclesAndFESSolver<Resource> cycleDetector = new IncrementalCyclesAndFESSolver<Resource>(index, directories);
-      Set<Cycle> cycles = cycleDetector.getCycles();
+    MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycles);
+    Set<Edge> feedbackEdges = solver.getEdges();
+    int tangles = solver.getWeightOfFeedbackEdgeSet();
 
-      MinimumFeedbackEdgeSetSolver solver = new MinimumFeedbackEdgeSetSolver(cycles);
-      Set<Edge> feedbackEdges = solver.getEdges();
-      int tangles = solver.getWeightOfFeedbackEdgeSet();
-
-      savePositiveMeasure(context, CoreMetrics.DIRECTORY_CYCLES, cycles.size());
-      savePositiveMeasure(context, CoreMetrics.DIRECTORY_FEEDBACK_EDGES, feedbackEdges.size());
-      savePositiveMeasure(context, CoreMetrics.DIRECTORY_TANGLES, tangles);
-      savePositiveMeasure(context, CoreMetrics.DIRECTORY_EDGES_WEIGHT, getEdgesWeight(directories));
-
-      Dsm<Resource> dsm = getDsm(directories, feedbackEdges);
-      saveDsm(context, dsm);
-    }
+    savePositiveMeasure(context, CoreMetrics.DIRECTORY_CYCLES, cycles.size());
+    savePositiveMeasure(context, CoreMetrics.DIRECTORY_FEEDBACK_EDGES, feedbackEdges.size());
+    savePositiveMeasure(context, CoreMetrics.DIRECTORY_TANGLES, tangles);
+    savePositiveMeasure(context, CoreMetrics.DIRECTORY_EDGES_WEIGHT, getEdgesWeight(children));
+    return feedbackEdges;
   }
 
-  private void savePositiveMeasure(DecoratorContext context, Metric<Integer> metric, double value) {
-    if (value >= 0.0) {
-      context.saveMeasure(new Measure(metric, value));
-    }
-  }
-
-  private int getEdgesWeight(Collection<Resource> sourceCodes) {
-    List<Dependency> edges = getEdges(sourceCodes);
-    int total = 0;
-    for (Dependency edge : edges) {
-      total += edge.getWeight();
-    }
-    return total;
-  }
-
-  public List<Dependency> getEdges(Collection<Resource> vertices) {
-    List<Dependency> result = new ArrayList<Dependency>();
-    for (Resource vertice : vertices) {
-      Collection<Dependency> outgoingEdges = index.getOutgoingEdges(vertice);
-      if (outgoingEdges != null) {
-        result.addAll(outgoingEdges);
-      }
-    }
-    return result;
-  }
-
-  private void saveDsm(DecoratorContext context, Dsm<Resource> dsm) {
-    Measure measure = new Measure(CoreMetrics.DEPENDENCY_MATRIX, DsmSerializer.serialize(dsm));
-    measure.setPersistenceMode(PersistenceMode.DATABASE);
-    context.saveMeasure(measure);
-  }
-
-  private Dsm<Resource> getDsm(Collection<Resource> directories, Set<Edge> feedbackEdges) {
-    Dsm<Resource> dsm = new Dsm<Resource>(index, directories, feedbackEdges);
-    DsmTopologicalSorter.sort(dsm);
-    return dsm;
-  }
-
-  private boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
+  @Override
+  protected boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
     // Should not execute on views
     return (ResourceUtils.isRootProject(resource) || ResourceUtils.isModuleProject(resource))
       // Only on leaf projects

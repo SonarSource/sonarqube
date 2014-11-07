@@ -80,11 +80,11 @@ public class DefaultIndex extends SonarIndex {
 
   // caches
   private Project currentProject;
-  private Map<Resource, Bucket> buckets = Maps.newHashMap();
-  private Map<String, Bucket> bucketsByDeprecatedKey = Maps.newHashMap();
-  private Set<Dependency> dependencies = Sets.newHashSet();
-  private Map<Resource, Map<Resource, Dependency>> outgoingDependenciesByResource = Maps.newHashMap();
-  private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newHashMap();
+  private Map<Resource, Bucket> buckets = Maps.newLinkedHashMap();
+  private Map<String, Bucket> bucketsByDeprecatedKey = Maps.newLinkedHashMap();
+  private Set<Dependency> dependencies = Sets.newLinkedHashSet();
+  private Map<Resource, Map<Resource, Dependency>> outgoingDependenciesByResource = Maps.newLinkedHashMap();
+  private Map<Resource, Map<Resource, Dependency>> incomingDependenciesByResource = Maps.newLinkedHashMap();
   private ProjectTree projectTree;
   private final DeprecatedViolations deprecatedViolations;
   private ModuleIssues moduleIssues;
