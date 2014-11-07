@@ -21,16 +21,20 @@
 package org.sonar.core.computation.dbcleaner;
 
 import ch.qos.logback.classic.Logger;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -39,12 +43,22 @@ import static org.mockito.Mockito.*;
 
 public class DefaultPurgeTaskTest {
 
+  private ResourceDao resourceDao;
+
+  @Before
+  public void before() throws Exception {
+    this.resourceDao = mock(ResourceDao.class);
+
+    when(resourceDao.getResource(anyLong())).thenReturn(new ResourceDto().setQualifier(Qualifiers.PROJECT));
+
+  }
+
   @Test
   public void shouldNotDeleteHistoricalDataOfDirectories() {
     PurgeDao purgeDao = mock(PurgeDao.class);
     Settings settings = new Settings(new PropertyDefinitions(DbCleanerProperties.all()));
     settings.setProperty(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY, "false");
-    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
+    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, resourceDao, settings, mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
     task.purge(1L);
 
@@ -61,7 +75,7 @@ public class DefaultPurgeTaskTest {
   public void shouldDeleteHistoricalDataOfDirectoriesByDefault() {
     PurgeDao purgeDao = mock(PurgeDao.class);
     Settings settings = new Settings(new PropertyDefinitions(DbCleanerProperties.all()));
-    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
+    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, resourceDao, settings, mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
     task.purge(1L);
 
@@ -81,7 +95,7 @@ public class DefaultPurgeTaskTest {
   public void shouldNotFailOnErrors() {
     PurgeDao purgeDao = mock(PurgeDao.class);
     when(purgeDao.purge(any(PurgeConfiguration.class))).thenThrow(new RuntimeException());
-    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, new Settings(), mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
+    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, resourceDao, new Settings(), mock(DefaultPeriodCleaner.class), mock(PurgeProfiler.class));
 
     task.purge(1L);
 
@@ -97,7 +111,7 @@ public class DefaultPurgeTaskTest {
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, true);
     PurgeProfiler profiler = mock(PurgeProfiler.class);
 
-    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, settings, mock(DefaultPeriodCleaner.class), profiler);
+    DefaultPurgeTask task = new DefaultPurgeTask(purgeDao, resourceDao, settings, mock(DefaultPeriodCleaner.class), profiler);
     task.purge(1L);
 
     verify(profiler).dump(anyLong(), any(Logger.class));

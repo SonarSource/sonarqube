@@ -24,11 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.core.computation.dbcleaner.period.DefaultPeriodCleaner;
 import org.sonar.core.purge.PurgeConfiguration;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.core.purge.PurgeProfiler;
+import org.sonar.core.resource.ResourceDao;
 import org.sonar.plugins.dbcleaner.api.PurgeTask;
 
 import static org.sonar.core.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
@@ -40,11 +42,13 @@ public class DefaultPurgeTask implements PurgeTask {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultPurgeTask.class);
   private final PurgeProfiler profiler;
   private final PurgeDao purgeDao;
+  private final ResourceDao resourceDao;
   private final Settings settings;
   private final DefaultPeriodCleaner periodCleaner;
 
-  public DefaultPurgeTask(PurgeDao purgeDao, Settings settings, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler) {
+  public DefaultPurgeTask(PurgeDao purgeDao, ResourceDao resourceDao, Settings settings, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler) {
     this.purgeDao = purgeDao;
+    this.resourceDao = resourceDao;
     this.settings = settings;
     this.periodCleaner = periodCleaner;
     this.profiler = profiler;
@@ -56,17 +60,24 @@ public class DefaultPurgeTask implements PurgeTask {
     return this;
   }
 
+  private boolean isNotViewNorSubview(String resourceQualifier) {
+    return !(Qualifiers.VIEW.equals(resourceQualifier) || Qualifiers.SUBVIEW.equals(resourceQualifier));
+  }
+
   @Override
   public DefaultPurgeTask purge(long resourceId) {
     long start = System.currentTimeMillis();
-    profiler.reset();
-    cleanHistoricalData(resourceId);
-    doPurge(resourceId);
-    if (settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
-      long duration = System.currentTimeMillis() - start;
-      LOG.info("\n -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------\n");
-      profiler.dump(duration, LOG);
-      LOG.info("\n -------- End of profiling for purge --------\n");
+    String resourceQualifier = resourceDao.getResource(resourceId).getQualifier();
+    if (isNotViewNorSubview(resourceQualifier)) {
+      profiler.reset();
+      cleanHistoricalData(resourceId);
+      doPurge(resourceId);
+      if (settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
+        long duration = System.currentTimeMillis() - start;
+        LOG.info("\n -------- Profiling for purge: " + TimeUtils.formatDuration(duration) + " --------\n");
+        profiler.dump(duration, LOG);
+        LOG.info("\n -------- End of profiling for purge --------\n");
+      }
     }
     return this;
   }
