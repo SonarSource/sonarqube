@@ -82,7 +82,7 @@ public class UpdateStatusJobTest extends AbstractDbUnitTestCase {
     UpdateStatusJob job = new UpdateStatusJob(settings, serverClient, project, mock(Snapshot.class), mode);
 
     job.uploadReport();
-    verify(serverClient).request(contains("/batch/upload_report"), eq("POST"), eq(true), eq(0));
+    verify(serverClient).request(contains("/batch/upload_report"), eq("POST"));
   }
 
   @Test

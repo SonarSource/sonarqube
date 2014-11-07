@@ -42,7 +42,7 @@ public class UpdateStatusJob implements BatchComponent {
   private AnalysisMode analysisMode;
 
   public UpdateStatusJob(Settings settings, ServerClient server,
-                         Project project, Snapshot snapshot, AnalysisMode analysisMode) {
+    Project project, Snapshot snapshot, AnalysisMode analysisMode) {
     this.server = server;
     this.project = project;
     this.snapshot = snapshot;
@@ -64,7 +64,7 @@ public class UpdateStatusJob implements BatchComponent {
     String url = "/batch/upload_report?project=" + project.getEffectiveKey() + "&snapshot=" + snapshot.getId();
     try {
       LOG.debug("Publish results");
-      server.request(url, "POST", true, 0);
+      server.request(url, "POST");
     } catch (Exception e) {
       throw new IllegalStateException("Unable to publish results: " + url, e);
     }
