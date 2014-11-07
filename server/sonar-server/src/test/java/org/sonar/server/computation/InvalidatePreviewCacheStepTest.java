@@ -29,6 +29,7 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -44,8 +45,9 @@ public class InvalidatePreviewCacheStepTest {
 
   @Test
   public void update_property_calling_propertiesDao() {
-    sut.execute(mock(DbSession.class), mock(AnalysisReportDto.class), mock(ComponentDto.class));
+    DbSession session = mock(DbSession.class);
+    sut.execute(session, mock(AnalysisReportDto.class), mock(ComponentDto.class));
 
-    verify(propertiesDao).setProperty(any(PropertyDto.class));
+    verify(propertiesDao).setProperty(any(PropertyDto.class), eq(session));
   }
 }
