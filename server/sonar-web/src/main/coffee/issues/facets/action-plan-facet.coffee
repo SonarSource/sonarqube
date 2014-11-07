@@ -1,11 +1,35 @@
 define [
   'issues/facets/base-facet'
+  'templates/issues'
 ], (
   BaseFacet
+  Templates
 ) ->
+
+  $ = jQuery
 
 
   class extends BaseFacet
+    template: Templates['issues-action-plan-facet']
+
+
+    onRender: ->
+      super
+      value = @options.app.state.get('query')['planned']
+      if value? && (!value || value == 'false')
+        @$('.js-issues-facet').filter("[data-unplanned]").addClass 'active'
+
+
+    toggleFacet: (e) ->
+      unplanned = $(e.currentTarget).is "[data-unplanned]"
+      $(e.currentTarget).toggleClass 'active'
+      if unplanned
+        checked = $(e.currentTarget).is '.active'
+        value = if checked then 'false' else null
+        @options.app.state.updateFilter planned: value, actionPlans: null
+      else
+        @options.app.state.updateFilter planned: null, actionPlans: @getValue()
+
 
     getValuesWithLabels: ->
       values = @model.getValues()
@@ -20,6 +44,10 @@ define [
       values
 
 
+    disable: ->
+      @options.app.state.updateFilter planned: null, actionPlans: null
+
+
     serializeData: ->
       _.extend super,
-        values: @sortValues @getValuesWithLabels()
+        values: @getValuesWithLabels()
