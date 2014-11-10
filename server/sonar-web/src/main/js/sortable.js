@@ -28,14 +28,12 @@
     });
 
     rows.detach();
-    var newRows = jQuery();
     sortArray.forEach(function(a) {
-      var row = rows.eq(a.index);
-      row.appendTo(container);
-      newRows = newRows.add(row);
+      var row = rows[a.index];
+      container.append(row);
     });
 
-    stripe(newRows);
+    stripe(container.find('tr'));
   }
 
 
