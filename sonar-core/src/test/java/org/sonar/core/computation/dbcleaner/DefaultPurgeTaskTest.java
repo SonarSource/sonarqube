@@ -36,6 +36,7 @@ import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.argThat;
@@ -43,14 +44,24 @@ import static org.mockito.Mockito.*;
 
 public class DefaultPurgeTaskTest {
 
+  private DefaultPurgeTask sut;
   private ResourceDao resourceDao;
+  private PurgeDao purgeDao;
+  private Settings settings;
+  private DefaultPeriodCleaner periodCleaner;
+  private PurgeProfiler profiler;
 
   @Before
   public void before() throws Exception {
+    this.purgeDao = mock(PurgeDao.class);
     this.resourceDao = mock(ResourceDao.class);
-
     when(resourceDao.getResource(anyLong())).thenReturn(new ResourceDto().setQualifier(Qualifiers.PROJECT));
 
+    this.settings = mock(Settings.class);
+    this.periodCleaner = mock(DefaultPeriodCleaner.class);
+    this.profiler = mock(PurgeProfiler.class);
+
+    this.sut = new DefaultPurgeTask(purgeDao, resourceDao, settings, periodCleaner, profiler);
   }
 
   @Test
@@ -117,4 +128,19 @@ public class DefaultPurgeTaskTest {
     verify(profiler).dump(anyLong(), any(Logger.class));
   }
 
+  @Test
+  public void recognize_view_and_subview() {
+    boolean viewCheck = sut.isNotViewNorSubview(Qualifiers.VIEW);
+    boolean subViewCheck = sut.isNotViewNorSubview(Qualifiers.SUBVIEW);
+
+    assertThat(viewCheck).isFalse();
+    assertThat(subViewCheck).isFalse();
+  }
+
+  @Test
+  public void call_dao_delete_when_deleting() throws Exception {
+    sut.delete(123L);
+
+    verify(purgeDao, times(1)).deleteResourceTree(123L);
+  }
 }

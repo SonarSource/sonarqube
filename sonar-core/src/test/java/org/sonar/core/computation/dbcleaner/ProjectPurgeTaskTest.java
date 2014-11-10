@@ -33,12 +33,7 @@ import org.sonar.core.purge.PurgeProfiler;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ProjectPurgeTaskTest {
 
@@ -78,7 +73,7 @@ public class ProjectPurgeTaskTest {
 
   @Test
   public void if_dao_purge_fails_it_should_not_interrupt_program_execution() throws Exception {
-    when(dao.purge(any(PurgeConfiguration.class))).thenThrow(NullPointerException.class);
+    doThrow(RuntimeException.class).when(dao).purge(any(DbSession.class), any(PurgeConfiguration.class));
 
     sut.purge(mock(DbSession.class), mock(PurgeConfiguration.class), mock(Settings.class));
 
@@ -87,7 +82,7 @@ public class ProjectPurgeTaskTest {
 
   @Test
   public void if_profiler_cleaning_fails_it_should_not_interrupt_program_execution() throws Exception {
-    doThrow(NullPointerException.class).when(periodCleaner).clean(anyLong(), any(Settings.class));
+    doThrow(RuntimeException.class).when(periodCleaner).clean(any(DbSession.class), anyLong(), any(Settings.class));
 
     sut.purge(mock(DbSession.class), mock(PurgeConfiguration.class), mock(Settings.class));
 

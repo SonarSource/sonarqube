@@ -20,6 +20,7 @@
 
 package org.sonar.core.computation.dbcleaner;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -60,7 +61,8 @@ public class DefaultPurgeTask implements PurgeTask {
     return this;
   }
 
-  private boolean isNotViewNorSubview(String resourceQualifier) {
+  @VisibleForTesting
+  boolean isNotViewNorSubview(String resourceQualifier) {
     return !(Qualifiers.VIEW.equals(resourceQualifier) || Qualifiers.SUBVIEW.equals(resourceQualifier));
   }
 
