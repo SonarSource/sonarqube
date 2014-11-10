@@ -85,13 +85,11 @@ public class ProxySearchRequestBuilder extends SearchRequestBuilder {
     return message.toString();
   }
 
-  private static String xContentToString(ToXContent toXContent) {
+  private String xContentToString(ToXContent toXContent) {
     try {
-      XContentBuilder debugResponse = XContentFactory.jsonBuilder();
-      debugResponse.startObject();
-      toXContent.toXContent(debugResponse, ToXContent.EMPTY_PARAMS);
-      debugResponse.endObject();
-      return debugResponse.string();
+      XContentBuilder builder = XContentFactory.jsonBuilder();
+      toXContent.toXContent(builder, ToXContent.EMPTY_PARAMS);
+      return builder.string();
     } catch (IOException e) {
       throw new IllegalStateException("Fail to convert request to string", e);
     }

@@ -50,7 +50,7 @@ public class ProxySearchScrollRequestBuilderTest {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e.getMessage()).contains("Fail to execute ES search request '{:{}}' on indices '[rules]'");
+      assertThat(e.getMessage()).contains("Fail to execute ES search request '{}' on indices '[rules]'");
     }
   }
 
@@ -69,7 +69,7 @@ public class ProxySearchScrollRequestBuilderTest {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
-      assertThat(e.getMessage()).contains("Fail to execute ES search request '{:{}}' on indices '[rules]'");
+      assertThat(e.getMessage()).contains("Fail to execute ES search request '{}' on indices '[rules]'");
     }
   }
 

@@ -36,6 +36,7 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
@@ -62,7 +63,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class IssueIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name());
 
   DbClient db;
   DbSession session;
