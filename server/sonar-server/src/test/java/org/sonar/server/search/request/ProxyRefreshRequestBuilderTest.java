@@ -57,6 +57,25 @@ public class ProxyRefreshRequestBuilderTest {
   }
 
   @Test
+  public void with_profiling_basic() {
+    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
+    SearchClient searchClient = new SearchClient(new Settings(), profiling);
+
+    try {
+      RefreshRequestBuilder requestBuilder = searchClient.prepareRefresh(IndexDefinition.RULE.getIndexName());
+      requestBuilder.get();
+
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+      assertThat(e.getMessage()).contains("Fail to execute ES refresh request on indices 'rules'");
+    }
+
+    // TODO assert profiling
+  }
+
+  @Test
   public void fail_to_refresh() throws Exception {
     try {
       searchClient.prepareRefresh("unknown").get();

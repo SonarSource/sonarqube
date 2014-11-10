@@ -55,6 +55,24 @@ public class ProxyClusterHealthRequestBuilderTest {
   }
 
   @Test
+  public void with_profiling_basic() {
+    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
+    SearchClient searchClient = new SearchClient(new Settings(), profiling);
+
+    try {
+      ClusterHealthRequestBuilder requestBuilder = searchClient.prepareHealth();
+      requestBuilder.get();
+
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("Fail to execute ES cluster health request");
+    }
+
+    // TODO assert profiling
+  }
+
+  @Test
   public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
     try {
       searchClient.prepareHealth().get("1");

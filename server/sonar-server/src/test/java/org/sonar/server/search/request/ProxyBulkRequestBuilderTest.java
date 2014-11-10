@@ -74,6 +74,30 @@ public class ProxyBulkRequestBuilderTest {
       .contains("[Action 'IndexRequest' for key 'rule1' on index 'rules' on type 'rules'],");
   }
 
+  @Test
+  public void with_profiling_basic() {
+    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
+    SearchClient searchClient = new SearchClient(new Settings(), profiling);
+
+    BulkRequestBuilder bulkRequestBuilder = searchClient.prepareBulk();
+    bulkRequestBuilder.add(new UpdateRequest(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexName(), "rule1").doc(Collections.emptyMap()));
+    bulkRequestBuilder.add(new DeleteRequest(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexName(), "rule1"));
+    bulkRequestBuilder.add(new IndexRequest(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexName(), "rule1").source(Collections.emptyMap()));
+    try {
+      bulkRequestBuilder.get();
+
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage())
+        .contains("Fail to execute ES bulk request for [Action 'UpdateRequest' for key 'rule1' on index 'rules' on type 'rules'],")
+        .contains("[Action 'DeleteRequest' for key 'rule1' on index 'rules' on type 'rules'],")
+        .contains("[Action 'IndexRequest' for key 'rule1' on index 'rules' on type 'rules'],");
+    }
+
+    // TODO assert profiling
+  }
+
   @Test(expected = UnsupportedOperationException.class)
   public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
     searchClient.prepareBulk().get("1");

@@ -22,7 +22,6 @@ package org.sonar.server.search.request;
 
 import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
-import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.fetch.source.FetchSourceContext;
 import org.junit.Test;
@@ -45,7 +44,7 @@ public class ProxyMultiGetRequestBuilderTest {
       MultiGetRequestBuilder request = searchClient.prepareMultiGet();
       request.add(new MultiGetRequest.Item(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), "ruleKey")
         .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
-      MultiGetResponse response = request.get();
+      request.get();
 
       // expected to fail because elasticsearch is not correctly configured, but that does not matter
       fail();
@@ -57,12 +56,32 @@ public class ProxyMultiGetRequestBuilderTest {
 
   @Test
   public void to_string() {
-    MultiGetRequestBuilder request = searchClient.prepareMultiGet();
-    assertThat(request.toString()).isEqualTo("ES multi get request");
+    assertThat(searchClient.prepareMultiGet().toString()).isEqualTo("ES multi get request");
+    assertThat(searchClient.prepareMultiGet().add(new MultiGetRequest.Item(IndexDefinition.RULE.getIndexName(), null, "ruleKey")
+      .fetchSourceContext(FetchSourceContext.FETCH_SOURCE)).toString()).isEqualTo("ES multi get request [key 'ruleKey', index 'rules'],");
+    assertThat(searchClient.prepareMultiGet().add(new MultiGetRequest.Item(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), "ruleKey")
+      .fetchSourceContext(FetchSourceContext.FETCH_SOURCE)).toString()).isEqualTo("ES multi get request [key 'ruleKey', index 'rules', type 'rule'],");
+  }
 
-    request.add(new MultiGetRequest.Item(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), "ruleKey")
-      .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
-    assertThat(request.toString()).isEqualTo("ES multi get request [key 'ruleKey', index 'rules', type 'rule'],");
+  @Test
+  public void with_profiling_basic() {
+    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
+    SearchClient searchClient = new SearchClient(new Settings(), profiling);
+
+    try {
+      MultiGetRequestBuilder request = searchClient.prepareMultiGet();
+      request.add(new MultiGetRequest.Item(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), "ruleKey")
+        .fetchSourceContext(FetchSourceContext.FETCH_SOURCE));
+      request.get();
+
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+      assertThat(e.getMessage()).contains("Fail to execute ES multi get request");
+    }
+
+    // TODO assert profiling
   }
 
   @Test

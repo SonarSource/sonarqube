@@ -55,6 +55,23 @@ public class ProxyDeleteByQueryRequestBuilderTest {
   }
 
   @Test
+  public void with_profiling_basic() {
+    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
+    SearchClient searchClient = new SearchClient(new Settings(), profiling);
+
+    try {
+      searchClient.prepareDeleteByQuery(IndexDefinition.RULE.getIndexName()).setQuery(QueryBuilders.matchAllQuery()).get();
+
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("Fail to execute ES delete by query request on indices 'rules'");
+    }
+
+    // TODO assert profiling
+  }
+
+  @Test
   public void fail_to_bulk_bad_query() throws Exception {
     try {
       searchClient.prepareDeleteByQuery(IndexDefinition.RULE.getIndexName()).get();

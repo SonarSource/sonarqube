@@ -38,6 +38,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -123,6 +124,48 @@ public class IssueQueryServiceTest {
     assertThat(IssueQueryService.toRules("squid:AvoidCycle")).containsOnly(RuleKey.of("squid", "AvoidCycle"));
     assertThat(IssueQueryService.toRules("squid:AvoidCycle,findbugs:NullRef")).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
     assertThat(IssueQueryService.toRules(asList("squid:AvoidCycle", "findbugs:NullRef"))).containsOnly(RuleKey.of("squid", "AvoidCycle"), RuleKey.of("findbugs", "NullRef"));
+  }
+
+  @Test
+  public void fail_if_components_and_components_uuid_params_are_set_at_the_same_time() {
+    Map<String, Object> map = newHashMap();
+    map.put("components", newArrayList("org.apache"));
+    map.put("componentUuids", newArrayList("ABCD"));
+
+    try {
+      issueQueryService.createFromMap(map);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("components and componentUuids cannot be set simultaneously");
+    }
+  }
+
+  @Test
+  public void fail_if_projects_and_project_uuids_params_are_set_at_the_same_time() {
+    Map<String, Object> map = newHashMap();
+    map.put("projects", newArrayList("org.apache"));
+    map.put("projectUuids", newArrayList("ABCD"));
+
+    try {
+      issueQueryService.createFromMap(map);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("projects and projectUuids cannot be set simultaneously");
+    }
+  }
+
+  @Test
+  public void fail_if_component_roots_and_component_root_uuids_params_are_set_at_the_same_time() {
+    Map<String, Object> map = newHashMap();
+    map.put("componentRoots", newArrayList("org.apache"));
+    map.put("componentRootUuids", newArrayList("ABCD"));
+
+    try {
+      issueQueryService.createFromMap(map);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("componentRoots and componentRootUuids cannot be set simultaneously");
+    }
   }
 
 }

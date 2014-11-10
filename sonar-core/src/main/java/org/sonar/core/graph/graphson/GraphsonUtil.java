@@ -33,13 +33,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.sonar.core.graph.graphson.ElementPropertyConfig.ElementPropertiesRule;
 
@@ -467,7 +461,7 @@ class GraphsonUtil {
         JSONObject convertedMap = new JSONObject();
         JSONObject jsonObject = (JSONObject) value;
 
-        Map<Object, Object> jsonObjectMap = (Map<Object, Object>) jsonObject;
+        Map<Object, Object> jsonObjectMap = jsonObject;
         for (Map.Entry<Object, Object> entry : jsonObjectMap.entrySet()) {
 
           // no need to getValue() here as this is already a ObjectNode and should have type info

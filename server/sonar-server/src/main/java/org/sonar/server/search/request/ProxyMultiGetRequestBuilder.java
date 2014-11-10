@@ -76,8 +76,9 @@ public class ProxyMultiGetRequestBuilder extends MultiGetRequestBuilder {
       message.append(String.format(", index '%s'", item.index()));
       String type = item.type();
       if (type != null) {
-        message.append(String.format(", type '%s'],", type));
+        message.append(String.format(", type '%s'", type));
       }
+      message.append("],");
     }
     return message.toString();
   }

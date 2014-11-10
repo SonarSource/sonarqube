@@ -43,6 +43,7 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.component.SnapshotTesting;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.filter.IssueFilterParameters;
@@ -102,7 +103,7 @@ public class SearchActionMediumTest {
       + "Third Line\n"
       + "Fourth Line\n"
       + "Fifth Line\n");
-    tester.get(SnapshotSourceDao.class).insert(snapshotSource );
+    tester.get(SnapshotSourceDao.class).insert(snapshotSource);
 
     UserDto john = new UserDto().setLogin("john").setName("John").setEmail("john@email.com");
     db.userDao().insert(session, john);
@@ -325,6 +326,38 @@ public class SearchActionMediumTest {
   }
 
   @Test
+  public void search_by_project_uuid() throws Exception {
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
+    session.commit();
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.PROJECT_UUIDS, project.uuid())
+      .execute()
+      .assertJson(this.getClass(), "search_by_project_uuid.json", false);
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.PROJECT_UUIDS, "unknown")
+      .execute()
+      .assertJson(this.getClass(), "no_issue.json", false);
+  }
+
+  @Test
+  public void search_by_component_uuid() throws Exception {
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
+    session.commit();
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, file.uuid())
+      .execute()
+      .assertJson(this.getClass(), "search_by_file_uuid.json", false);
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, "unknown")
+      .execute()
+      .assertJson(this.getClass(), "no_issue.json", false);
+  }
+
+  @Test
   public void return_full_number_of_issues_when_only_one_component_is_set() throws Exception {
     for (int i = 0; i < QueryContext.MAX_LIMIT + 1; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
@@ -397,6 +430,20 @@ public class SearchActionMediumTest {
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.HIDE_RULES, "true").execute();
     result.assertJson(this.getClass(), "hide_rules.json", false);
+  }
+
+  @Test
+  public void sort_by_updated_at() throws Exception {
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac1").setIssueUpdateDate(DateUtils.parseDate("2014-11-02")));
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2").setIssueUpdateDate(DateUtils.parseDate("2014-11-01")));
+    db.issueDao().insert(session, IssueTesting.newDto(rule, file, project).setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3").setIssueUpdateDate(DateUtils.parseDate("2014-11-03")));
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam("sort", IssueQuery.SORT_BY_UPDATE_DATE)
+      .setParam("asc", "false")
+      .execute();
+    result.assertJson(this.getClass(), "sort_by_updated_at.json", false);
   }
 
   @Test

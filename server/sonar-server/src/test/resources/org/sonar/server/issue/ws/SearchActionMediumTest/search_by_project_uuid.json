@@ -1,0 +1,13 @@
+{
+  "total": 1,
+  "p": 1,
+  "ps": 100,
+  "issues": [
+    {
+      "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
+      "component": "MyComponent",
+      "project": "MyProject",
+      "rule": "xoo:x1"
+    }
+  ]
+}

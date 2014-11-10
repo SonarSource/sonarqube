@@ -293,17 +293,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       }
     }
 
-    collectFacetKeys(result, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
-    collectParameterValues(request, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
-    collectFacetKeys(result, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
-    collectParameterValues(request, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
-    collectParameterValues(request, IssueFilterParameters.COMPONENT_ROOT_UUIDS, componentUuids);
-    collectFacetKeys(result, IssueFilterParameters.ASSIGNEES, userLogins);
-    collectParameterValues(request, IssueFilterParameters.ASSIGNEES, userLogins);
-    collectFacetKeys(result, IssueFilterParameters.REPORTERS, userLogins);
-    collectParameterValues(request, IssueFilterParameters.REPORTERS, userLogins);
-    collectFacetKeys(result, IssueFilterParameters.ACTION_PLANS, actionPlanKeys);
-    collectParameterValues(request, IssueFilterParameters.ACTION_PLANS, actionPlanKeys);
+    collectFacetsData(request, result, projectUuids, componentUuids, userLogins, actionPlanKeys);
 
     UserSession userSession = UserSession.get();
     if (userSession.isLoggedIn()) {
@@ -323,7 +313,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       List<ComponentDto> subProjectDtos = dbClient.componentDao().findSubProjectsByComponentUuids(session, componentUuids);
       componentDtos.addAll(fileDtos);
       componentDtos.addAll(subProjectDtos);
-
       for (ComponentDto component: componentDtos) {
         projectUuids.add(component.projectUuid());
       }
@@ -333,7 +322,6 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       for (ComponentDto componentDto : componentDtos) {
         componentsByUuid.put(componentDto.uuid(), componentDto);
       }
-
       projectsByComponentUuid = getProjectsByComponentUuid(componentDtos, projectDtos);
 
       writeProjects(json, projectDtos);
@@ -402,6 +390,20 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         }
       }
     }
+  }
+
+  private void collectFacetsData(Request request, Result<Issue> result, Set<String> projectUuids, Set<String> componentUuids, List<String> userLogins, Set<String> actionPlanKeys){
+    collectFacetKeys(result, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
+    collectParameterValues(request, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
+    collectFacetKeys(result, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
+    collectParameterValues(request, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
+    collectParameterValues(request, IssueFilterParameters.COMPONENT_ROOT_UUIDS, componentUuids);
+    collectFacetKeys(result, IssueFilterParameters.ASSIGNEES, userLogins);
+    collectParameterValues(request, IssueFilterParameters.ASSIGNEES, userLogins);
+    collectFacetKeys(result, IssueFilterParameters.REPORTERS, userLogins);
+    collectParameterValues(request, IssueFilterParameters.REPORTERS, userLogins);
+    collectFacetKeys(result, IssueFilterParameters.ACTION_PLANS, actionPlanKeys);
+    collectParameterValues(request, IssueFilterParameters.ACTION_PLANS, actionPlanKeys);
   }
 
   private void collectFacetKeys(Result<Issue> result, String facetName, Collection<String> facetKeys) {
@@ -670,7 +672,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   private Map<String, ComponentDto> getProjectsByComponentUuid(Collection<ComponentDto> components, Collection<ComponentDto> projects) {
     Map<String, ComponentDto> projectsByUuid = newHashMap();
-    for (ComponentDto project: projects) {
+    for (ComponentDto project : projects) {
       if (project == null) {
         throw new IllegalStateException("Found a null project in issues");
       }

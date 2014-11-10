@@ -43,18 +43,18 @@ public class ProxyPutMappingRequestBuilderTest {
   @Test
   public void put_mapping() {
     try {
-    PutMappingRequestBuilder requestBuilder = searchClient.preparePutMapping(IndexDefinition.RULE.getIndexName())
-      .setType(IndexDefinition.RULE.getIndexType())
-      .setIgnoreConflicts(true)
-      .setSource(mapDomain());
-    requestBuilder.get();
+      PutMappingRequestBuilder requestBuilder = searchClient.preparePutMapping(IndexDefinition.RULE.getIndexName())
+        .setType(IndexDefinition.RULE.getIndexType())
+        .setIgnoreConflicts(true)
+        .setSource(mapDomain());
+      requestBuilder.get();
 
-    // expected to fail because elasticsearch is not correctly configured, but that does not matter
-    fail();
-  } catch (Exception e) {
-    assertThat(e).isInstanceOf(IllegalStateException.class);
-    assertThat(e.getMessage()).contains("Fail to execute ES put mapping request");
-  }
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+      assertThat(e.getMessage()).contains("Fail to execute ES put mapping request");
+    }
   }
 
   @Test
@@ -63,6 +63,28 @@ public class ProxyPutMappingRequestBuilderTest {
       .isEqualTo("ES put mapping request on indices 'rules' with source '{\"dynamic\":false,\"_all\":{\"enabled\":false}}'");
     assertThat(searchClient.preparePutMapping(IndexDefinition.RULE.getIndexName()).setType(IndexDefinition.RULE.getIndexType()).setSource(mapDomain()).toString())
       .isEqualTo("ES put mapping request on indices 'rules' on type 'rule' with source '{\"dynamic\":false,\"_all\":{\"enabled\":false}}'");
+  }
+
+  @Test
+  public void with_profiling_basic() {
+    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
+    SearchClient searchClient = new SearchClient(new Settings(), profiling);
+
+    try {
+      PutMappingRequestBuilder requestBuilder = searchClient.preparePutMapping(IndexDefinition.RULE.getIndexName())
+        .setType(IndexDefinition.RULE.getIndexType())
+        .setIgnoreConflicts(true)
+        .setSource(mapDomain());
+      requestBuilder.get();
+
+      // expected to fail because elasticsearch is not correctly configured, but that does not matter
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+      assertThat(e.getMessage()).contains("Fail to execute ES put mapping request");
+    }
+
+    // TODO assert profiling
   }
 
   @Test

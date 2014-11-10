@@ -100,7 +100,7 @@ public class IssuesIndexInjectionTest extends AbstractTest {
       assertThat(issueIndex.countAll()).isEqualTo(ISSUE_COUNT);
 
       long time = stop - start;
-      LOGGER.info("Processed {} Issues in {} ms with avg {} Issue/second", ISSUE_COUNT, time, documentPerSecond(time));
+      LOGGER.info("Inserted {} Issues in {} ms with avg {} Issue/second", ISSUE_COUNT, time, documentPerSecond(time));
       assertDurationAround(time, Long.parseLong(getProperty("IssuesIndexInjectionTest.inject_issues")));
 
     } finally {
