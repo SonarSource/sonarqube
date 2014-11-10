@@ -56,7 +56,6 @@ import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.*;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociationDao;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
@@ -108,7 +107,6 @@ import org.sonar.server.db.migrations.DatabaseMigrations;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.debt.*;
 import org.sonar.server.design.FileDesignWidget;
-import org.sonar.server.design.PackageDesignWidget;
 import org.sonar.server.duplication.ws.DuplicationsJsonWriter;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
@@ -146,6 +144,7 @@ import org.sonar.server.platform.ws.RestartHandler;
 import org.sonar.server.platform.ws.ServerWs;
 import org.sonar.server.platform.ws.SystemWs;
 import org.sonar.server.plugins.*;
+import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
 import org.sonar.server.qualitygate.RegisterQualityGates;
@@ -590,7 +589,6 @@ class ServerComponents {
 
     // Design
     pico.addSingleton(FileDesignWidget.class);
-    pico.addSingleton(PackageDesignWidget.class);
 
     // Compute engine
     pico.addSingleton(ComputationService.class);
