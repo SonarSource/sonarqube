@@ -27,16 +27,24 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.security.DefaultGroups;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.issue.db.IssueAuthorizationDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.issue.IssueQuery;
+import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
 import org.sonar.server.search.action.InsertDto;
 import org.sonar.server.search.action.RefreshIndex;
 import org.sonar.server.tester.ServerTester;
+import org.sonar.server.user.MockUserSession;
 
 import java.util.List;
 import java.util.Timer;
@@ -60,9 +68,10 @@ public class IssuesIndexInjectionTest extends AbstractTest {
   DbSession batchSession;
 
   IssueIndex issueIndex;
+  IssueAuthorizationIndex issueAuthorizationIndex;
 
   List<ComponentDto> projects = newArrayList();
-  ArrayListMultimap<ComponentDto, ComponentDto> componentsByProjectId = ArrayListMultimap.create();
+  ArrayListMultimap<ComponentDto, ComponentDto> componentsByProject = ArrayListMultimap.create();
 
   protected static int documentPerSecond(long nbIssues, long time) {
     return (int) Math.round(nbIssues / (time / 1000.0));
@@ -71,8 +80,10 @@ public class IssuesIndexInjectionTest extends AbstractTest {
   @Before
   public void setUp() throws Exception {
     issueIndex = tester.get(IssueIndex.class);
-
+    issueAuthorizationIndex = tester.get(IssueAuthorizationIndex.class);
     batchSession = tester.get(DbClient.class).openSession(true);
+
+    MockUserSession.set().setLogin("test");
   }
 
   @After
@@ -81,16 +92,20 @@ public class IssuesIndexInjectionTest extends AbstractTest {
   }
 
   @Test
-  public void inject_issues() throws Exception {
+  public void inject_issues_and_execute_queries() throws Exception {
     generateData();
+    injectIssuesInIndex();
+    executeQueries();
+  }
 
+  public void injectIssuesInIndex() {
     ProgressTask progressTask = new ProgressTask(counter);
     Timer timer = new Timer("Inject Issues");
     timer.schedule(progressTask, ProgressTask.PERIOD_MS, ProgressTask.PERIOD_MS);
     try {
       long start = System.currentTimeMillis();
       for (ComponentDto project : projects) {
-        for (ComponentDto file : componentsByProjectId.get(project)) {
+        for (ComponentDto file : componentsByProject.get(project)) {
           for (int issueIndex = 1; issueIndex < NUMBER_ISSUES_PER_FILE + 1; issueIndex++) {
             batchSession.enqueue(new InsertDto<IssueDto>(IndexDefinition.ISSUES.getIndexType(), newIssue(issueIndex, file, project, rules.next()), false));
             counter.getAndIncrement();
@@ -106,12 +121,28 @@ public class IssuesIndexInjectionTest extends AbstractTest {
 
       long totalTime = stop - start;
       LOGGER.info("Inserted {} Issues in {} ms with avg {} Issue/second", ISSUE_COUNT, totalTime, documentPerSecond(ISSUE_COUNT, totalTime));
-      assertDurationAround(totalTime, Long.parseLong(getProperty("IssuesIndexInjectionTest.inject_issues")));
+      // assertDurationAround(totalTime, Long.parseLong(getProperty("IssuesIndexInjectionTest.inject_issues")));
 
     } finally {
       timer.cancel();
       timer.purge();
     }
+  }
+
+  public void executeQueries() {
+    long start = System.currentTimeMillis();
+    Result<Issue> result = issueIndex.search(IssueQuery.builder().build(), new QueryContext());
+    LOGGER.info("Search for all issues : returned {} issues in {} ms", result.getTotal(), System.currentTimeMillis() - start);
+
+    start = System.currentTimeMillis();
+    ComponentDto project = componentsByProject.keySet().iterator().next();
+    result = issueIndex.search(IssueQuery.builder().projectUuids(newArrayList(project.uuid())).build(), new QueryContext());
+    LOGGER.info("Search for issues from one project : returned {} issues in {} ms", result.getTotal(), System.currentTimeMillis() - start);
+
+    start = System.currentTimeMillis();
+    ComponentDto file = componentsByProject.get(project).get(0);
+    result = issueIndex.search(IssueQuery.builder().componentUuids(newArrayList(file.uuid())).build(), new QueryContext());
+    LOGGER.info("Search for issues from one file : returned {} issues in {} ms", result.getTotal(), System.currentTimeMillis() - start);
   }
 
   private void generateData() {
@@ -130,6 +161,11 @@ public class IssuesIndexInjectionTest extends AbstractTest {
         .setLongName("Project " + projectIndex);
       projects.add(project);
 
+      // All project are visible by anyone
+      // TODO set different groups/users to test search issues queries with more realistic data
+      batchSession.enqueue(new InsertDto<IssueAuthorizationDto>(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType(),
+        new IssueAuthorizationDto().setProjectUuid(project.uuid()).setGroups(newArrayList(DefaultGroups.ANYONE)), false));
+
       for (int fileIndex = 0; fileIndex < NUMBER_FILES_PER_PROJECT; fileIndex++) {
         String index = projectIndex * PROJECTS_NUMBER + fileIndex + "";
         ComponentDto file = ComponentTesting.newFileDto(project)
@@ -137,9 +173,11 @@ public class IssuesIndexInjectionTest extends AbstractTest {
           .setKey("file-" + index)
           .setName("File " + index)
           .setLongName("File " + index);
-        componentsByProjectId.put(project, file);
+        componentsByProject.put(project, file);
       }
     }
+    batchSession.enqueue(new RefreshIndex(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType()));
+    batchSession.commit();
     LOGGER.info("Generated data in {} ms", System.currentTimeMillis() - start);
   }
 
