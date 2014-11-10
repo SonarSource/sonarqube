@@ -40,6 +40,8 @@ import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
 import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -47,22 +49,24 @@ import static org.fest.assertions.Assertions.assertThat;
 public class IssuesIndexInjectionTest extends AbstractTest {
 
   static final Logger LOGGER = LoggerFactory.getLogger(IssuesIndexInjectionTest.class);
-
   final static int PROJECTS_NUMBER = 100;
   final static int NUMBER_FILES_PER_PROJECT = 100;
   final static int NUMBER_ISSUES_PER_FILE = 100;
-
   final static int ISSUE_COUNT = PROJECTS_NUMBER * NUMBER_FILES_PER_PROJECT * NUMBER_ISSUES_PER_FILE;
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
-
+  AtomicLong counter = new AtomicLong(0L);
   DbSession batchSession;
 
   IssueIndex issueIndex;
 
   List<ComponentDto> projects = newArrayList();
   ArrayListMultimap<ComponentDto, ComponentDto> componentsByProjectId = ArrayListMultimap.create();
+
+  protected static int documentPerSecond(long nbIssues, long time) {
+    return (int) Math.round(nbIssues / (time / 1000.0));
+  }
 
   @Before
   public void setUp() throws Exception {
@@ -80,6 +84,7 @@ public class IssuesIndexInjectionTest extends AbstractTest {
   public void inject_issues() throws Exception {
     generateData();
 
+    ProgressTask progressTask = new ProgressTask(counter);
     Timer timer = new Timer("Inject Issues");
     timer.schedule(progressTask, ProgressTask.PERIOD_MS, ProgressTask.PERIOD_MS);
     try {
@@ -99,9 +104,9 @@ public class IssuesIndexInjectionTest extends AbstractTest {
 
       assertThat(issueIndex.countAll()).isEqualTo(ISSUE_COUNT);
 
-      long time = stop - start;
-      LOGGER.info("Inserted {} Issues in {} ms with avg {} Issue/second", ISSUE_COUNT, time, documentPerSecond(time));
-      assertDurationAround(time, Long.parseLong(getProperty("IssuesIndexInjectionTest.inject_issues")));
+      long totalTime = stop - start;
+      LOGGER.info("Inserted {} Issues in {} ms with avg {} Issue/second", ISSUE_COUNT, totalTime, documentPerSecond(ISSUE_COUNT, totalTime));
+      assertDurationAround(totalTime, Long.parseLong(getProperty("IssuesIndexInjectionTest.inject_issues")));
 
     } finally {
       timer.cancel();
@@ -138,8 +143,30 @@ public class IssuesIndexInjectionTest extends AbstractTest {
     LOGGER.info("Generated data in {} ms", System.currentTimeMillis() - start);
   }
 
-  protected int documentPerSecond(long time) {
-    return (int) Math.round(ISSUE_COUNT / (time / 1000.0));
+  protected static class ProgressTask extends TimerTask {
+
+    public static final long PERIOD_MS = 60000L;
+    private static final Logger LOGGER = LoggerFactory.getLogger("PerformanceTests");
+    private final AtomicLong counter;
+    private long currentStart;
+    private long previousTotal = 0;
+
+    public ProgressTask(AtomicLong counter) {
+      this.counter = counter;
+      this.currentStart = System.currentTimeMillis();
+    }
+
+    @Override
+    public void run() {
+      log();
+    }
+
+    public void log() {
+      long currentNumberOfIssues = counter.get() - this.previousTotal;
+      LOGGER.info("{} issues inserted with avg {} issue/second", currentNumberOfIssues, documentPerSecond(currentNumberOfIssues, System.currentTimeMillis() - this.currentStart));
+      this.previousTotal = counter.get();
+      this.currentStart = System.currentTimeMillis();
+    }
   }
 
 }
