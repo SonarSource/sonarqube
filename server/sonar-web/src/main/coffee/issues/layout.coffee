@@ -19,6 +19,7 @@ define [
 
   class extends Marionette.Layout
     template: Templates['issues-layout']
+    topOffset: 30
 
 
     regions:
@@ -43,8 +44,8 @@ define [
 
     onScroll: ->
       scrollTop = $(window).scrollTop()
-      $('.issues').toggleClass 'sticky', scrollTop >= 30
-      @$('.issues-side').css top: Math.max(0, Math.min(30 - scrollTop, 30))
+      $('.issues').toggleClass 'sticky', scrollTop >= @topOffset
+      @$('.issues-side').css top: Math.max(0, Math.min(@topOffset - scrollTop, @topOffset))
 
 
     showSpinner: (region) ->
