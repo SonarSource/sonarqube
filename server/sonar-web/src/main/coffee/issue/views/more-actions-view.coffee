@@ -25,7 +25,5 @@ define [
     serializeData: ->
       componentKey = encodeURIComponent @model.get 'component'
       issueKey = encodeURIComponent @model.get 'key'
-      ruleKey = encodeURIComponent @model.get 'rule'
       _.extend super,
         permalink: "#{baseUrl}/component/index#component=#{componentKey}&currentIssue=#{issueKey}"
-        rulePermalink: "#{baseUrl}/coding_rules#rule_key=#{ruleKey}"

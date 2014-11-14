@@ -242,3 +242,9 @@ define [
         @resetIssue()
       .fail =>
         window.process.failBackgroundProcess p
+
+
+    serializeData: ->
+      ruleKey = encodeURIComponent @model.get 'rule'
+      _.extend super,
+        rulePermalink: "#{baseUrl}/coding_rules#rule_key=#{ruleKey}"
