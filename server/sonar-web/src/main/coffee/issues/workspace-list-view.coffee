@@ -103,7 +103,14 @@ define [
         @options.app.controller.fetchNextPage().done => @bindScrollEvents()
 
 
+    disablePointerEvents: ->
+      clearTimeout @scrollTimer
+      $('body').addClass 'disabled-pointer-events'
+      @scrollTimer = setTimeout (-> $('body').removeClass 'disabled-pointer-events'), 250
+
+
     onScroll: ->
+      @disablePointerEvents()
       if $(window).scrollTop() + $(window).height() >= @ui.loadMore.offset().top
         @loadMoreThrottled()
 

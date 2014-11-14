@@ -46,6 +46,7 @@ define [
       @bindShortcuts()
       @loadSourceBeforeThrottled = _.throttle @loadSourceBefore, 1000
       @loadSourceAfterThrottled = _.throttle @loadSourceAfter, 1000
+      @scrollTimer = null
 
 
     bindShortcuts: ->
@@ -95,7 +96,15 @@ define [
       $(window).off 'scroll.issues-component-viewer'
 
 
+    disablePointerEvents: ->
+      clearTimeout @scrollTimer
+      $('body').addClass 'disabled-pointer-events'
+      @scrollTimer = setTimeout (-> $('body').removeClass 'disabled-pointer-events'), 250
+
+
     onScroll: ->
+      @disablePointerEvents()
+
       if @model.get('hasSourceBefore') && $(window).scrollTop() <= @ui.sourceBeforeSpinner.offset().top
         @loadSourceBeforeThrottled()
 
