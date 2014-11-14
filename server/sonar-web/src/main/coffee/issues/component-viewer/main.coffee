@@ -223,6 +223,9 @@ define [
       line = issue.get('line') || 0
       @model.set key: componentKey, issueLine: line
 
+      # disable clipping effect of the black header
+      @$el.addClass 'full-height'
+
       @requestSources(line - LINES_AROUND, line + LINES_AROUND)
       .done (data) =>
         formattedSource = _.map data.sources, (item) => lineNumber: item[0], code: item[1]
@@ -235,7 +238,6 @@ define [
           hasSourceBefore: firstLine > 1
           hasSourceAfter: lastLine == line + LINES_AROUND
         @render()
-        @scrollToLine issue.get 'line'
         @bindScrollEvents()
         @requestIssues()
       .fail =>
@@ -244,6 +246,9 @@ define [
           formattedSource: []
         @model.set hasSourceBefore: false, hasSourceAfter: false
         @render()
+      .always =>
+        @$el.removeClass 'full-height'
+        @scrollToLine issue.get 'line'
 
 
     requestSources: (lineFrom, lineTo) ->
