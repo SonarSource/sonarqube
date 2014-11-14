@@ -109,10 +109,11 @@ requirejs [
 
 
   App.addInitializer ->
-    @helpView = new HelpView app: @
     $(window).on 'keypress', (e) =>
       code = e.keyCode || e.which
-      @helpView.render() if code == 63
+      if code == 63
+        @helpView = new HelpView app: @
+        @helpView.render()
 
 
   App.addInitializer ->

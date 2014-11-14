@@ -13,7 +13,7 @@ define [
     overlayClassName: 'modal-overlay'
 
 
-    events:
+    events: ->
       'click .js-modal-close': 'close'
 
 
