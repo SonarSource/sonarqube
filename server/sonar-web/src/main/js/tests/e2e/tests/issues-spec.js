@@ -59,3 +59,45 @@ casper.test.begin(testName('Base'), function (test) {
         test.done();
       });
 });
+
+
+casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
+  casper
+      .start(lib.buildUrl('issues'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
+        lib.mockRequestFromFile('/api/issues/search', 'search.json');
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue.selected');
+      })
+
+      .then(function () {
+        test.assertSelectorContains('.issue.selected', "Add a 'package-info.java' file to document the");
+        test.assertSelectorContains('.issue.selected', 'XML');
+        test.assertSelectorContains('.issue.selected', 'src/main/java/org/sonar/plugins/xml');
+
+        test.assertExists('.issue.selected .js-issue-set-severity');
+        test.assertSelectorContains('.issue.selected .js-issue-set-severity', 'MAJOR');
+        test.assertSelectorContains('.issue.selected', 'CONFIRMED');
+        test.assertElementCount('.issue.selected .js-issue-transition', 3);
+        test.assertExists('.issue.selected [data-transition=unconfirm]');
+        test.assertExists('.issue.selected [data-transition=resolve]');
+        test.assertExists('.issue.selected [data-transition=falsepositive]');
+        test.assertExists('.issue.selected .js-issue-assign');
+        test.assertSelectorContains('.issue.selected .js-issue-assign', 'unassigned');
+        test.assertExists('.issue.selected .js-issue-plan');
+        test.assertSelectorContains('.issue.selected .js-issue-plan', 'unplanned');
+        test.assertSelectorContains('.issue.selected', '20min');
+        test.assertExists('.issue.selected .js-issue-comment');
+        test.assertExists('.issue.selected .js-issue-more');
+        test.assertExists('.issue.selected .js-issue-show-changelog');
+      })
+
+      .run(function () {
+        test.done();
+      });
+});
