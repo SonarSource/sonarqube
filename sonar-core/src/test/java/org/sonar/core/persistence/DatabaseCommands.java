@@ -21,6 +21,7 @@ package org.sonar.core.persistence;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.dbunit.dataset.datatype.DefaultDataTypeFactory;
 import org.dbunit.dataset.datatype.IDataTypeFactory;
@@ -30,9 +31,14 @@ import org.dbunit.ext.mssql.MsSqlDataTypeFactory;
 import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.ext.oracle.Oracle10DataTypeFactory;
 import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory;
-import org.sonar.core.persistence.dialect.*;
+import org.sonar.core.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.MsSql;
+import org.sonar.core.persistence.dialect.MySql;
+import org.sonar.core.persistence.dialect.Oracle;
+import org.sonar.core.persistence.dialect.PostgreSql;
 
 import javax.sql.DataSource;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -116,21 +122,23 @@ public abstract class DatabaseCommands {
 
   public void truncateDatabase(DataSource dataSource) throws SQLException {
     Connection connection = dataSource.getConnection();
-    connection.setAutoCommit(false);
-
-    Statement statement = connection.createStatement();
-    for (String table : DatabaseVersion.TABLES) {
-      try {
-        statement.executeUpdate("TRUNCATE TABLE " + table);
-        connection.commit();
-      } catch (Exception e) {
-        // ignore
-        connection.rollback();
+    Statement statement = null;
+    try {
+      connection.setAutoCommit(false);
+      statement = connection.createStatement();
+      for (String table : DatabaseVersion.TABLES) {
+        try {
+          statement.executeUpdate("TRUNCATE TABLE " + table);
+          connection.commit();
+        } catch (Exception e) {
+          // ignore
+          connection.rollback();
+        }
       }
+    } finally {
+      DbUtils.closeQuietly(connection);
+      DbUtils.closeQuietly(statement);
     }
-
-    statement.close();
-    connection.close();
   }
 
   public void resetPrimaryKeys(DataSource dataSource) throws SQLException {

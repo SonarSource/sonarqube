@@ -24,16 +24,16 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
-import org.sonar.server.search.SearchClient;
 
 public class ProxyClusterHealthRequestBuilder extends ClusterHealthRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyClusterHealthRequestBuilder(SearchClient client, Profiling profiling) {
+  public ProxyClusterHealthRequestBuilder(Client client, Profiling profiling) {
     super(client.admin().cluster());
     this.profiling = profiling;
   }

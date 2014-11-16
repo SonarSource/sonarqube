@@ -20,6 +20,7 @@
 package org.sonar.search;
 
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
@@ -147,10 +148,7 @@ class SearchSettings {
     builder
       .put("index.number_of_shards", "1")
       .put("index.refresh_interval", "30s")
-      .put("index.store.type", "mmapfs")
-      .put("indices.store.throttle.type", "none")
-      .put("index.merge.scheduler.max_thread_count",
-        Math.max(1, Math.min(3, Runtime.getRuntime().availableProcessors() / 2)));
+      .put("indices.store.throttle.type", "none");
   }
 
   private void configureCluster(ImmutableSettings.Builder builder) {
@@ -161,18 +159,16 @@ class SearchSettings {
         LOGGER.info("Elasticsearch cluster enabled. Master node.");
         builder.put("node.master", true);
       } else if (!masterHosts.isEmpty()) {
-        LOGGER.info("Elasticsearch cluster enabled. Slave node connecting to master: {}", masterHosts);
+        LOGGER.info("Elasticsearch cluster enabled. Node connecting to master: {}", masterHosts);
         builder.put("discovery.zen.ping.unicast.hosts", StringUtils.join(masterHosts, ","));
         builder.put("node.master", false);
-
-        // Enforce a N/2+1 number of masters in cluster
         builder.put("discovery.zen.minimum_master_nodes", 1);
       } else {
         throw new MessageException(String.format("Not an Elasticsearch master nor slave. Please check properties %s and %s",
           ProcessConstants.CLUSTER_MASTER, ProcessConstants.CLUSTER_MASTER_HOST));
       }
     }
-    builder.put("index.number_of_replicas", replicationFactor);
+    builder.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicationFactor);
     builder.put("cluster.name", clusterName);
     builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
     builder.put("node.rack_id", props.value(ProcessConstants.CLUSTER_NODE_NAME, "unknown"));

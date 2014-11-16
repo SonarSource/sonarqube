@@ -17,26 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.server.es;
 
-public class ClusterHealth {
+import org.elasticsearch.common.collect.ImmutableMap;
+import org.junit.Test;
+import org.sonar.test.TestUtils;
 
-  private boolean clusterAvailable;
-  private int numberOfNodes;
+import static org.fest.assertions.Assertions.assertThat;
 
-  public void setClusterAvailable(boolean clusterAvailable) {
-    this.clusterAvailable = clusterAvailable;
+public class DefaultMappingSettingsTest {
+
+  @Test
+  public void defaults() throws Exception {
+    ImmutableMap<String, String> map = DefaultMappingSettings.defaults().build().getAsMap();
+    assertThat(map).isNotEmpty();
+
+    // test some values
+    assertThat(map.get("index.number_of_shards")).isEqualTo("1");
+    assertThat(map.get("index.number_of_replicas")).isEqualTo("0");
+    assertThat(map.get("index.analysis.analyzer.sortable.type")).isEqualTo("custom");
   }
 
-  public boolean isClusterAvailable() {
-    return clusterAvailable;
-  }
+  @Test
+  public void only_statics() throws Exception {
+    TestUtils.hasOnlyPrivateConstructors(DefaultMappingSettings.class);
 
-  public void setNumberOfNodes(int total) {
-    this.numberOfNodes = total;
-  }
-
-  public int getNumberOfNodes() {
-    return numberOfNodes;
   }
 }

@@ -24,16 +24,16 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.flush.FlushRequestBuilder;
 import org.elasticsearch.action.admin.indices.flush.FlushResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
-import org.sonar.server.search.SearchClient;
 
 public class ProxyFlushRequestBuilder extends FlushRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyFlushRequestBuilder(SearchClient client, Profiling profiling) {
+  public ProxyFlushRequestBuilder(Client client, Profiling profiling) {
     super(client.admin().indices());
     this.profiling = profiling;
   }

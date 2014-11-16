@@ -23,13 +23,13 @@ package org.sonar.server.search.request;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
-import org.sonar.server.search.SearchClient;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ public class ProxySearchRequestBuilder extends SearchRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxySearchRequestBuilder(SearchClient client, Profiling profiling) {
+  public ProxySearchRequestBuilder(Client client, Profiling profiling) {
     super(client);
     this.profiling = profiling;
   }

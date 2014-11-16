@@ -26,10 +26,8 @@ import org.elasticsearch.index.query.FilterBuilders;
 import org.sonar.core.issue.db.IssueAuthorizationDto;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.IndexField;
 import org.sonar.server.search.SearchClient;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class IssueAuthorizationIndex extends BaseIndex<IssueAuthorizationDoc, IssueAuthorizationDto, String> {
@@ -44,19 +42,18 @@ public class IssueAuthorizationIndex extends BaseIndex<IssueAuthorizationDoc, Is
   }
 
   @Override
+  protected void initializeIndex() {
+    // being refactored
+  }
+
+  @Override
   protected Map mapProperties() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    for (IndexField field : IssueAuthorizationNormalizer.IssueAuthorizationField.ALL_FIELDS) {
-      mapping.put(field.field(), mapField(field));
-    }
-    return mapping;
+    throw new UnsupportedOperationException("being refactored");
   }
 
   @Override
   protected Map mapKey() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("path", IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field());
-    return mapping;
+    throw new UnsupportedOperationException("being refactored");
   }
 
   @Override

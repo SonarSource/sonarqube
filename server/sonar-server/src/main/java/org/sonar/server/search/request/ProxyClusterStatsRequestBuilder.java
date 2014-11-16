@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
@@ -33,7 +34,7 @@ public class ProxyClusterStatsRequestBuilder extends ClusterStatsRequestBuilder 
 
   private final Profiling profiling;
 
-  public ProxyClusterStatsRequestBuilder(SearchClient client, Profiling profiling) {
+  public ProxyClusterStatsRequestBuilder(Client client, Profiling profiling) {
     super(client.admin().cluster());
     this.profiling = profiling;
   }

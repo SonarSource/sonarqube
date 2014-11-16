@@ -20,14 +20,21 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.BooleanUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.OrFilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
@@ -41,12 +48,22 @@ import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
-import org.sonar.server.search.*;
+import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.QueryContext;
+import org.sonar.server.search.Result;
+import org.sonar.server.search.SearchClient;
+import org.sonar.server.search.StickyFacetBuilder;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -74,8 +91,8 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
   }
 
   @Override
-  protected ImmutableSettings.Builder addCustomIndexSettings(ImmutableSettings.Builder baseIndexSettings) {
-    return baseIndexSettings.put("index.number_of_shards", 4);
+  protected void initializeIndex() {
+    // replaced by IssueIndexDefinition
   }
 
   @Override
@@ -85,47 +102,12 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
 
   @Override
   protected Map mapProperties() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    for (IndexField field : IssueNormalizer.IssueField.ALL_FIELDS) {
-      mapping.put(field.field(), mapField(field));
-    }
-    return mapping;
-  }
-
-  @Override
-  protected Map mapDomain() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("dynamic", false);
-    mapping.put("_all", ImmutableMap.of("enabled", false));
-    mapping.put("_id", mapKey());
-    mapping.put("_parent", mapParent());
-    mapping.put("_routing", mapRouting());
-    mapping.put("properties", mapProperties());
-    return mapping;
-  }
-
-  private Object mapParent() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("type", getParentType());
-    return mapping;
-  }
-
-  private String getParentType() {
-    return IndexDefinition.ISSUES_AUTHORIZATION.getIndexType();
-  }
-
-  private Map mapRouting() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("required", true);
-    mapping.put("path", IssueNormalizer.IssueField.PROJECT.field());
-    return mapping;
+    throw new UnsupportedOperationException("Being refactored");
   }
 
   @Override
   protected Map mapKey() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("path", IssueNormalizer.IssueField.KEY.field());
-    return mapping;
+    throw new UnsupportedOperationException("Being refactored");
   }
 
   @Override

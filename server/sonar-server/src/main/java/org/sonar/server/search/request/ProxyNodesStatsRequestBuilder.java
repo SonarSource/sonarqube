@@ -24,16 +24,16 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
-import org.sonar.server.search.SearchClient;
 
 public class ProxyNodesStatsRequestBuilder extends NodesStatsRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyNodesStatsRequestBuilder(SearchClient client, Profiling profiling) {
+  public ProxyNodesStatsRequestBuilder(Client client, Profiling profiling) {
     super(client.admin().cluster());
     this.profiling = profiling;
   }

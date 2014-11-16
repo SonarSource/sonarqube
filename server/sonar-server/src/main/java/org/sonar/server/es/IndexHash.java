@@ -1,0 +1,86 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.es;
+
+import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.Lists;
+import org.apache.commons.codec.digest.DigestUtils;
+
+import javax.annotation.Nullable;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+
+class IndexHash {
+
+  private static final char DELIMITER = ',';
+
+  String of(NewIndex index) {
+    return of(index.getSettings().internalMap(), index.getMappings());
+  }
+
+  String of(Map... maps) {
+    StringBuilder sb = new StringBuilder();
+    for (Map map : maps) {
+      appendMap(sb, map);
+    }
+    return DigestUtils.sha1Hex(sb.toString());
+  }
+
+  private void appendObject(StringBuilder sb, Object value) {
+    if (value instanceof NewIndex.NewMapping) {
+      appendMapping(sb, (NewIndex.NewMapping) value);
+    } else if (value instanceof Map) {
+      appendMap(sb, (Map) value);
+    } else if (value instanceof Iterable) {
+      appendIterable(sb, (Iterable) value);
+    } else {
+      sb.append(String.valueOf(value));
+    }
+  }
+
+  private void appendMapping(StringBuilder sb, NewIndex.NewMapping mapping) {
+    appendMap(sb, mapping.getAttributes());
+  }
+
+  private void appendMap(StringBuilder sb, Map attributes) {
+    for (Object entry : sort(attributes).entrySet()) {
+      sb.append(((Map.Entry) entry).getKey());
+      sb.append(DELIMITER);
+      appendObject(sb, ((Map.Entry) entry).getValue());
+      sb.append(DELIMITER);
+    }
+  }
+
+  private void appendIterable(StringBuilder sb, Iterable value) {
+    List sorted = Lists.newArrayList(value);
+    Collections.sort(sorted);
+    for (Object o : sorted) {
+      appendObject(sb, o);
+      sb.append(DELIMITER);
+    }
+  }
+
+  private SortedMap sort(Map map) {
+    return ImmutableSortedMap.copyOf(map);
+  }
+}

@@ -23,17 +23,17 @@ package org.sonar.server.search.request;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
-import org.sonar.server.search.SearchClient;
 
 public class ProxyCreateIndexRequestBuilder extends CreateIndexRequestBuilder {
 
   private final Profiling profiling;
   private final String index;
 
-  public ProxyCreateIndexRequestBuilder(SearchClient client, Profiling profiling, String index) {
+  public ProxyCreateIndexRequestBuilder(Client client, Profiling profiling, String index) {
     super(client.admin().indices(), index);
     this.profiling = profiling;
     this.index = index;

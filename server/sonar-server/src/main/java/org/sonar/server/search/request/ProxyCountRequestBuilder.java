@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.count.CountResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
@@ -33,7 +34,7 @@ public class ProxyCountRequestBuilder extends CountRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyCountRequestBuilder(SearchClient client, Profiling profiling) {
+  public ProxyCountRequestBuilder(Client client, Profiling profiling) {
     super(client);
     this.profiling = profiling;
   }

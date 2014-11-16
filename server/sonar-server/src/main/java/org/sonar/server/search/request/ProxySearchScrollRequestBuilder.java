@@ -23,16 +23,16 @@ package org.sonar.server.search.request;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
-import org.sonar.server.search.SearchClient;
 
 public class ProxySearchScrollRequestBuilder extends SearchScrollRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxySearchScrollRequestBuilder(String scrollId, SearchClient client, Profiling profiling) {
+  public ProxySearchScrollRequestBuilder(String scrollId, Client client, Profiling profiling) {
     super(client, scrollId);
     this.profiling = profiling;
   }

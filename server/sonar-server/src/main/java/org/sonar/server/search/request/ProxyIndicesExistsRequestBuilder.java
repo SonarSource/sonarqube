@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
@@ -33,7 +34,7 @@ public class ProxyIndicesExistsRequestBuilder extends IndicesExistsRequestBuilde
 
   private final Profiling profiling;
 
-  public ProxyIndicesExistsRequestBuilder(SearchClient client, Profiling profiling, String... indices) {
+  public ProxyIndicesExistsRequestBuilder(Client client, Profiling profiling, String... indices) {
     super(client.admin().indices(), indices);
     this.profiling = profiling;
   }

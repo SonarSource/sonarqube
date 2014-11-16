@@ -20,6 +20,7 @@
 package org.sonar.search;
 
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.hppc.cursors.ObjectCursor;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
@@ -55,7 +56,7 @@ public class SearchServer implements Monitored {
       for (ObjectCursor<Settings> settingCursor : node.client().admin().indices()
         .prepareGetSettings().get().getIndexToSettings().values()) {
         Settings settings = settingCursor.value;
-        String clusterReplicationFactor = settings.get("index.number_of_replicas", "-1");
+        String clusterReplicationFactor = settings.get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, "-1");
         if (Integer.parseInt(clusterReplicationFactor) <= 0) {
           node.stop();
           throw new MessageException("Invalid number of Elasticsearch replicas: " + clusterReplicationFactor);

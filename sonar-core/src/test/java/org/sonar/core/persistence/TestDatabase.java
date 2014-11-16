@@ -127,7 +127,15 @@ public class TestDatabase extends ExternalResource {
     myBatis = new MyBatis(db, new Logback(), queue);
     myBatis.start();
 
-    commands.truncateDatabase(db.getDataSource());
+    truncateTables();
+  }
+
+  public void truncateTables() {
+    try {
+      commands.truncateDatabase(db.getDataSource());
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to truncate db tables", e);
+    }
   }
 
   @Override

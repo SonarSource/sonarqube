@@ -27,16 +27,16 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
-import org.sonar.server.search.SearchClient;
 
 public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyBulkRequestBuilder(SearchClient client, Profiling profiling) {
+  public ProxyBulkRequestBuilder(Client client, Profiling profiling) {
     super(client);
     this.profiling = profiling;
   }

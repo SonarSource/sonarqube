@@ -107,6 +107,10 @@ public class SearchClient extends TransportClient implements Startable {
     this.profiling = profiling;
   }
 
+  public Profiling getProfiling() {
+    return profiling;
+  }
+
   public ClusterHealth getClusterHealth() {
     ClusterHealth health = new ClusterHealth();
     ClusterStatsResponse clusterStatsResponse = this.prepareClusterStats().get();

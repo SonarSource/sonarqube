@@ -24,16 +24,16 @@ import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
-import org.sonar.server.search.SearchClient;
 
 public class ProxyMultiGetRequestBuilder extends MultiGetRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyMultiGetRequestBuilder(SearchClient client, Profiling profiling) {
+  public ProxyMultiGetRequestBuilder(Client client, Profiling profiling) {
     super(client);
     this.profiling = profiling;
   }

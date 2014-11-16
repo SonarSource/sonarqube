@@ -24,16 +24,16 @@ import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
 import org.elasticsearch.action.admin.indices.refresh.RefreshResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
-import org.sonar.server.search.SearchClient;
 
 public class ProxyRefreshRequestBuilder extends RefreshRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyRefreshRequestBuilder(SearchClient client, Profiling profiling) {
+  public ProxyRefreshRequestBuilder(Client client, Profiling profiling) {
     super(client.admin().indices());
     this.profiling = profiling;
   }

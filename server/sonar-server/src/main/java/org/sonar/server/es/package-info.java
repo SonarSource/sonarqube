@@ -17,26 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
 
-public class ClusterHealth {
+@ParametersAreNonnullByDefault
+package org.sonar.server.es;
 
-  private boolean clusterAvailable;
-  private int numberOfNodes;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-  public void setClusterAvailable(boolean clusterAvailable) {
-    this.clusterAvailable = clusterAvailable;
-  }
-
-  public boolean isClusterAvailable() {
-    return clusterAvailable;
-  }
-
-  public void setNumberOfNodes(int total) {
-    this.numberOfNodes = total;
-  }
-
-  public int getNumberOfNodes() {
-    return numberOfNodes;
-  }
-}

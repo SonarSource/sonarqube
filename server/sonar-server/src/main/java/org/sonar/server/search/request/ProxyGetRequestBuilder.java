@@ -23,6 +23,7 @@ package org.sonar.server.search.request;
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
@@ -32,7 +33,7 @@ public class ProxyGetRequestBuilder extends GetRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyGetRequestBuilder(SearchClient client, Profiling profiling) {
+  public ProxyGetRequestBuilder(Client client, Profiling profiling) {
     super(client);
     this.profiling = profiling;
   }

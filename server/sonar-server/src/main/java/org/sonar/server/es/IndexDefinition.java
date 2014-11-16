@@ -17,26 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.server.es;
 
-public class ClusterHealth {
+import java.util.HashMap;
+import java.util.Map;
 
-  private boolean clusterAvailable;
-  private int numberOfNodes;
+public interface IndexDefinition {
 
-  public void setClusterAvailable(boolean clusterAvailable) {
-    this.clusterAvailable = clusterAvailable;
+  public static class IndexDefinitionContext {
+    private final Map<String, NewIndex> byKey = new HashMap<String, NewIndex>();
+
+    public NewIndex create(String key) {
+      NewIndex index = byKey.get(key);
+      if (index == null) {
+        index = new NewIndex(key);
+        byKey.put(key, index);
+      }
+      return index;
+    }
+
+    public Map<String, NewIndex> getIndices() {
+      return byKey;
+    }
   }
 
-  public boolean isClusterAvailable() {
-    return clusterAvailable;
-  }
-
-  public void setNumberOfNodes(int total) {
-    this.numberOfNodes = total;
-  }
-
-  public int getNumberOfNodes() {
-    return numberOfNodes;
-  }
+  void define(IndexDefinitionContext context);
 }
