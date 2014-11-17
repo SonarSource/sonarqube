@@ -8,13 +8,8 @@
       </a>
     </div>
     <div class="issue-meta">
-      <a class="issue-action" href="{{dashboardUrl component}}">
-        {{qualifierIcon componentQualifier}} {{componentLongName}}
-      </a>
-    </div>
-    <div class="issue-meta">
       <a class="issue-action js-issue-line">
-        {{#if line}}Line #{{line}}{{else}}Top Level{{/if}}
+        {{qualifierIcon componentQualifier}} {{componentLongName}}{{#if line}} (L{{line}}){{/if}}
       </a>
     </div>
   </div>
@@ -69,21 +64,11 @@
     {{/inArray}}
   </div>
 
-  {{#if debt}}
-    <div class="issue-meta">
-      <span class="issue-meta-label">{{debt}}</span>
-    </div>
-  {{/if}}
-
   {{#inArray actions "comment"}}
     <div class="issue-meta">
       <a class="issue-action js-issue-comment"><span class="issue-meta-label">{{t 'issue.comment.formlink' }}</span></a>
     </div>
   {{/inArray}}
-
-  <div class="issue-meta">
-    <a class="issue-action" href="{{rulePermalink}}">Rule</a>
-  </div>
 
   <div class="issue-meta">
     <a class="issue-action issue-action-with-options js-issue-more">
@@ -95,6 +80,16 @@
     <a class="issue-action issue-action-with-options js-issue-show-changelog" title="{{dt creationDate}}">
       <span class="issue-meta-label">{{fromNow creationDate}}</span>&nbsp;<i class="icon-dropdown"></i>
     </a>
+  </div>
+
+  {{#if debt}}
+    <div class="issue-meta issue-meta-on-right">
+      <span class="issue-meta-label">{{debt}}</span>
+    </div>
+  {{/if}}
+
+  <div class="issue-meta issue-meta-on-right">
+    <a class="issue-action" href="{{rulePermalink}}">Rule</a>
   </div>
 </div>
 

@@ -38,8 +38,9 @@ define [
 
 
     makeActive: (option) ->
-      @getOptions().removeClass 'active'
-      option.addClass 'active'
+      if option.length > 0
+        @getOptions().removeClass 'active'
+        option.addClass 'active'
 
 
     selectInitialOption: ->
