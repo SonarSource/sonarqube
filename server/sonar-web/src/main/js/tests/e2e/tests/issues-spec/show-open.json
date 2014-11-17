@@ -1,0 +1,28 @@
+{
+  "issue": {
+    "key": "94357807-fcb4-40cc-9598-9a715f1eee6e",
+    "component": "org.codehaus.sonar-plugins.xml:sonar-xml-plugin:src/main/java/org/sonar/plugins/xml",
+    "componentId": 26177,
+    "project": "org.codehaus.sonar-plugins.xml:xml",
+    "rule": "squid:S1228",
+    "status": "OPEN",
+    "severity": "MAJOR",
+    "message": "Add a 'package-info.java' file to document the 'src/main/java/org/sonar/plugins/xml' package",
+    "debt": "20min",
+    "creationDate": "2014-10-03T23:26:37+0200",
+    "updateDate": "2014-10-09T06:32:55+0200",
+    "fUpdateAge": "26 days",
+    "actions": [
+      "comment",
+      "assign",
+      "assign_to_me",
+      "plan",
+      "set_severity"
+    ],
+    "transitions": [
+      "confirm",
+      "resolve",
+      "falsepositive"
+    ]
+  }
+}

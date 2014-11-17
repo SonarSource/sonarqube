@@ -101,3 +101,67 @@ casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
         test.done();
       });
 });
+
+
+casper.test.begin(testName('Issue Box', 'Transitions'), function (test) {
+  casper
+      .start(lib.buildUrl('issues'), function () {
+        lib.setDefaultViewport();
+
+        lib.mockRequest('/api/l10n/index', '{}');
+        lib.mockRequestFromFile('/api/issue_filters/app', 'app.json');
+        lib.mockRequestFromFile('/api/issues/search', 'search.json');
+        this.showMock = lib.mockRequestFromFile('/api/issues/show*', 'show.json');
+        lib.mockRequest('/api/issues/do_transition', '{}');
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue.selected [data-transition=unconfirm]', function () {
+          test.assertExists('.issue.selected [data-transition=unconfirm]');
+          test.assertExists('.issue.selected [data-transition=resolve]');
+          test.assertExists('.issue.selected [data-transition=falsepositive]');
+          lib.clearRequestMock(this.showMock);
+          this.showMock = lib.mockRequestFromFile('/api/issues/show*', 'show-open.json');
+          casper.click('.issue.selected [data-transition=unconfirm]');
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue.selected [data-transition=confirm]', function () {
+          test.assertExists('.issue.selected [data-transition=resolve]');
+          test.assertExists('.issue.selected [data-transition=falsepositive]');
+          lib.clearRequestMock(this.showMock);
+          this.showMock = lib.mockRequestFromFile('/api/issues/show*', 'show-resolved.json');
+          casper.click('.issue.selected [data-transition=resolve]');
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue.selected [data-transition=reopen]', function () {
+          lib.clearRequestMock(this.showMock);
+          this.showMock = lib.mockRequestFromFile('/api/issues/show*', 'show-open.json');
+          casper.click('.issue.selected [data-transition=reopen]');
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue.selected [data-transition=confirm]', function () {
+          test.assertExists('.issue.selected [data-transition=confirm]');
+          test.assertExists('.issue.selected [data-transition=resolve]');
+          test.assertExists('.issue.selected [data-transition=falsepositive]');
+          lib.clearRequestMock(this.showMock);
+          this.showMock = lib.mockRequestFromFile('/api/issues/show*', 'show-resolved.json');
+          casper.click('.issue.selected [data-transition=falsepositive]');
+        });
+      })
+
+      .then(function () {
+        casper.waitForSelector('.issue.selected [data-transition=reopen]', function () {
+          test.assertExists('.issue.selected [data-transition=reopen]');
+        });
+      })
+
+      .run(function () {
+        test.done();
+      });
+});

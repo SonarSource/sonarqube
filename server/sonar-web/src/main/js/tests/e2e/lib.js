@@ -67,14 +67,14 @@ exports.clearRequestMocks = function () {
   casper.evaluate(function() {
     jQuery.mockjaxClear();
   });
-}
+};
 
 
 exports.clearRequestMock = function (mockId) {
   casper.evaluate(function(mockId) {
     jQuery.mockjaxClear(mockId);
   }, mockId);
-}
+};
 
 
 exports.buildUrl = function (urlTail) {
@@ -88,6 +88,9 @@ exports.setDefaultViewport = function () {
 
 
 exports.capture = function (fileName) {
+  if (!fileName) {
+    fileName = 'screenshot.png';
+  }
   casper.capture(fileName, { top: 0, left: 0, width: WINDOW_WIDTH, height: WINDOW_HEIGHT });
 };
 
