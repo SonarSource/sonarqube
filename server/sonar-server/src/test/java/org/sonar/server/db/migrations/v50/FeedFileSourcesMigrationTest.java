@@ -58,6 +58,11 @@ public class FeedFileSourcesMigrationTest {
   }
 
   @Test
+  public void migrate_empty_db() throws Exception {
+    migration.execute();
+  }
+
+  @Test
   public void migrate_sources_with_no_scm() throws Exception {
     db.prepareDbUnit(getClass(), "before.xml");
 

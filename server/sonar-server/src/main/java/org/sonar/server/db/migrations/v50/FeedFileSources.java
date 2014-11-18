@@ -48,12 +48,13 @@ public class FeedFileSources extends BaseDataChange {
     RowReader<Long> simpleLongReader = new RowReader<Long>() {
       @Override
       public Long read(Row row) throws SQLException {
-        return row.getLong(1);
+        Long longValue = row.getLong(1);
+        return longValue == null ? Long.valueOf(0L) : longValue;
       }
     };
-    long revisionMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'revisions_by_line'").get(simpleLongReader).longValue();
-    long authorMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'authors_by_line'").get(simpleLongReader).longValue();
-    long datesMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'last_commit_datetimes_by_line'").get(simpleLongReader).longValue();
+    Long revisionMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'revisions_by_line'").get(simpleLongReader);
+    Long authorMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'authors_by_line'").get(simpleLongReader);
+    Long datesMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'last_commit_datetimes_by_line'").get(simpleLongReader);
 
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT " +
@@ -84,9 +85,9 @@ public class FeedFileSources extends BaseDataChange {
         "f.enabled = TRUE " +
         "AND f.scope = 'FIL' " +
         "AND p.scope = 'PRJ' AND p.qualifier = 'TRK' ")
-        .setLong(1, revisionMetricId)
-        .setLong(2, authorMetricId)
-        .setLong(3, datesMetricId);
+        .setLong(1, revisionMetricId != null ? revisionMetricId : 0L)
+        .setLong(2, authorMetricId != null ? authorMetricId : 0L)
+        .setLong(3, datesMetricId != null ? datesMetricId : 0L);
 
     massUpdate.update("INSERT INTO file_sources" +
       "(project_uuid, file_uuid, created_at, updated_at, data, data_hash)" +
