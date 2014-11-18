@@ -70,7 +70,7 @@ public class FeedFileSources extends BaseDataChange {
         "m3.measure_data as short_dates_by_line " +
       "FROM snapshots s " +
       "JOIN snapshot_sources ss " +
-        "ON s.id = ss.snapshot_id AND s.islast = TRUE " +
+        "ON s.id = ss.snapshot_id AND s.islast = ? " +
       "JOIN projects p " +
         "ON s.root_project_id = p.id " +
       "JOIN projects f " +
@@ -82,12 +82,14 @@ public class FeedFileSources extends BaseDataChange {
       "LEFT JOIN project_measures m3 " +
         "ON m3.snapshot_id = s.id AND m3.metric_id = ? " +
       "WHERE " +
-        "f.enabled = TRUE " +
+        "f.enabled = ? " +
         "AND f.scope = 'FIL' " +
         "AND p.scope = 'PRJ' AND p.qualifier = 'TRK' ")
-        .setLong(1, revisionMetricId != null ? revisionMetricId : 0L)
-        .setLong(2, authorMetricId != null ? authorMetricId : 0L)
-        .setLong(3, datesMetricId != null ? datesMetricId : 0L);
+        .setBoolean(1, true)
+        .setLong(2, revisionMetricId != null ? revisionMetricId : 0L)
+        .setLong(3, authorMetricId != null ? authorMetricId : 0L)
+        .setLong(4, datesMetricId != null ? datesMetricId : 0L)
+        .setBoolean(5, true);
 
     massUpdate.update("INSERT INTO file_sources" +
       "(project_uuid, file_uuid, created_at, updated_at, data, data_hash)" +
