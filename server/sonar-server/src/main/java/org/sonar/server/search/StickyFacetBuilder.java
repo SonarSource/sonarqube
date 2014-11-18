@@ -91,10 +91,6 @@ public class StickyFacetBuilder {
           .minDocCount(FACET_DEFAULT_MIN_DOC_COUNT));
   }
 
-  protected FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolFilterBuilder facetFilter) {
-    return buildTopFacetAggregation(fieldName, facetName, facetFilter, FACET_DEFAULT_SIZE);
-  }
-
   public FilterAggregationBuilder addSelectedItemsToFacet(String fieldName, String facetName, FilterAggregationBuilder facetTopAggregation, Object... selected) {
     if (selected.length > 0) {
       facetTopAggregation.subAggregation(

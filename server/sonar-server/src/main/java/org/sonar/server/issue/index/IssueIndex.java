@@ -52,6 +52,8 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
 
+  private static final String FACET_SUFFIX_MISSING = "_missing";
+
   private static final int DEFAULT_ISSUE_FACET_SIZE = 5;
 
   private ListMultimap<String, IndexField> sortColumns = ArrayListMultimap.create();
@@ -395,7 +397,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     // Add missing facet for unassigned issues
     facetTopAggregation.subAggregation(
       AggregationBuilders
-        .missing(facetName + "_missing")
+        .missing(facetName + FACET_SUFFIX_MISSING)
         .field(fieldName)
       );
 
@@ -420,7 +422,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     // Add missing facet for unresolved issues
     facetTopAggregation.subAggregation(
       AggregationBuilders
-        .missing(facetName + "_missing")
+        .missing(facetName + FACET_SUFFIX_MISSING)
         .field(fieldName)
       );
 
@@ -445,7 +447,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     // Add missing facet for unresolved issues
     facetTopAggregation.subAggregation(
       AggregationBuilders
-        .missing(facetName + "_missing")
+        .missing(facetName + FACET_SUFFIX_MISSING)
         .field(fieldName)
       );
 

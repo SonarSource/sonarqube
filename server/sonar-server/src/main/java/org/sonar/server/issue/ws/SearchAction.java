@@ -112,8 +112,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   @Override
   protected void doDefinition(WebService.NewAction action) {
-    action.setDescription("Get a list of issues. If the number of issues is greater than 10,000, " +
-      "only the first 10,000 ones are returned by the web service. " +
+    action.setDescription("Get a list of issues. If the number of issues is greater than 10,000, only the first 10,000 ones are returned by the web service. " +
       "Requires Browse permission on project(s)")
       .setSince("3.6")
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
@@ -383,7 +382,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       for (FacetValue value: facetValues) {
         valuesByItem.put(value.getKey(), value.getValue());
       }
-      List<String> valuesToAdd = (mandatoryValues == null ? Lists.<String>newArrayList() : mandatoryValues);
+      List<String> valuesToAdd = mandatoryValues == null ? Lists.<String>newArrayList() : mandatoryValues;
       for (String item: valuesToAdd) {
         if (!valuesByItem.containsKey(item)) {
           facetValues.add(new FacetValue(item, 0));
@@ -671,6 +670,11 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   }
 
   private Map<String, ComponentDto> getProjectsByComponentUuid(Collection<ComponentDto> components, Collection<ComponentDto> projects) {
+    Map<String, ComponentDto> projectsByUuid = buildProjectsByUuid(projects);
+    return buildProjectsByComponentUuid(components, projectsByUuid);
+  }
+
+  private Map<String, ComponentDto> buildProjectsByUuid(Collection<ComponentDto> projects) {
     Map<String, ComponentDto> projectsByUuid = newHashMap();
     for (ComponentDto project : projects) {
       if (project == null) {
@@ -681,7 +685,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       }
       projectsByUuid.put(project.uuid(), project);
     }
+    return projectsByUuid;
+  }
 
+  private Map<String, ComponentDto> buildProjectsByComponentUuid(Collection<ComponentDto> components, Map<String, ComponentDto> projectsByUuid) {
     Map<String, ComponentDto> projectsByComponentUuid = newHashMap();
     for (ComponentDto component : components) {
       if (component.uuid() == null) {

@@ -156,21 +156,25 @@ public abstract class SearchRequestHandler<QUERY, DOMAIN> implements RequestHand
           json.prop("count", facetValue.getValue());
           json.endObject();
         }
-        List<String> requestParams = request.paramAsStrings(facetName);
-        if (requestParams != null) {
-          for (String param: requestParams) {
-            if (!itemsFromFacets.contains(param)) {
-              json.beginObject();
-              json.prop("val", param);
-              json.prop("count", 0);
-              json.endObject();
-            }
-          }
-        }
+        addZeroFacetsForSelectedItems(request, facetName, itemsFromFacets, json);
       }
       json.endArray().endObject();
     }
     json.endArray();
+  }
+
+  private void addZeroFacetsForSelectedItems(Request request, String facetName, Set<String> itemsFromFacets, JsonWriter json) {
+    List<String> requestParams = request.paramAsStrings(facetName);
+    if (requestParams != null) {
+      for (String param: requestParams) {
+        if (!itemsFromFacets.contains(param)) {
+          json.beginObject();
+          json.prop("val", param);
+          json.prop("count", 0);
+          json.endObject();
+        }
+      }
+    }
   }
 
 }

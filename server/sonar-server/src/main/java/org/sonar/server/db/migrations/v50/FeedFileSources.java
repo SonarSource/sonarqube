@@ -36,6 +36,39 @@ import java.util.Date;
  */
 public class FeedFileSources extends BaseDataChange {
 
+  private final class FileSourceBuilder implements MassUpdate.Handler {
+    private final Date now;
+
+    public FileSourceBuilder(System2 system) {
+      now = new Date(system.now());
+    }
+
+    @Override
+    public boolean handle(Row row, SqlStatement update) throws SQLException {
+      String projectUuid = row.getString(1);
+      String fileUuid = row.getString(2);
+      String source = row.getString(3);
+      Date updatedAt = row.getDate(4);
+      String shortRevisions = row.getString(5);
+      String longRevisions = row.getString(6);
+      String shortAuthors = row.getString(7);
+      String longAuthors = row.getString(8);
+      String shortDates = row.getString(9);
+      String longDates = row.getString(10);
+
+      String sourceData = new FileSourceDto(source, shortRevisions, longRevisions, shortAuthors, longAuthors, shortDates, longDates).getSourceData();
+
+      update.setString(1, projectUuid)
+        .setString(2, fileUuid)
+        .setDate(3, now)
+        .setDate(4, updatedAt == null ? now : updatedAt)
+        .setString(5, sourceData)
+        .setString(6, "");
+
+      return true;
+    }
+  }
+
   private final System2 system;
 
   public FeedFileSources(Database db, System2 system) {
@@ -96,34 +129,7 @@ public class FeedFileSources extends BaseDataChange {
       "VALUES " +
       "(?, ?, ?, ?, ?, ?)");
 
-    massUpdate.execute(new MassUpdate.Handler() {
-      final Date now = new Date(system.now());
-
-      @Override
-      public boolean handle(Row row, SqlStatement update) throws SQLException {
-        String projectUuid = row.getString(1);
-        String fileUuid = row.getString(2);
-        String source = row.getString(3);
-        Date updatedAt = row.getDate(4);
-        String shortRevisions = row.getString(5);
-        String longRevisions = row.getString(6);
-        String shortAuthors = row.getString(7);
-        String longAuthors = row.getString(8);
-        String shortDates = row.getString(9);
-        String longDates = row.getString(10);
-
-        String sourceData = new FileSourceDto(source, shortRevisions, longRevisions, shortAuthors, longAuthors, shortDates, longDates).getSourceData();
-
-        update.setString(1, projectUuid)
-          .setString(2, fileUuid)
-          .setDate(3, now)
-          .setDate(4, updatedAt == null ? now : updatedAt)
-          .setString(5, sourceData)
-          .setString(6, "");
-
-        return true;
-      }
-    });
+    massUpdate.execute(new FileSourceBuilder(system));
   }
 
 }

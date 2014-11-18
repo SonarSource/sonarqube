@@ -19,39 +19,25 @@
  */
 package org.sonar.server.search;
 
-public class FacetValue {
+import org.junit.Test;
 
-  private final String key;
-  private final long value;
+import static org.fest.assertions.Assertions.assertThat;
 
-  public FacetValue(String key, long value) {
-    this.key = key;
-    this.value = value;
-  }
+public class FacetValueTest {
 
-  public String getKey() {
-    return key;
-  }
+  @Test
+  public void should_check_for_equality_on_key() {
+    FacetValue facetValue = new FacetValue("polop", 42);
+    assertThat(facetValue.equals(facetValue)).isTrue();
+    assertThat(facetValue.equals(null)).isFalse();
+    assertThat(facetValue.equals(new Object())).isFalse();
 
-  public long getValue() {
-    return value;
-  }
+    assertThat(facetValue.equals(new FacetValue("polop", 666))).isTrue();
+    assertThat(facetValue.equals(new FacetValue("palap", 42))).isFalse();
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    FacetValue that = (FacetValue) o;
-    return key == null ? that.key == null : key.equals(that.key);
-  }
-
-  @Override
-  public int hashCode() {
-    return key != null ? key.hashCode() : 0;
+    FacetValue withNullKey = new FacetValue(null, 42);
+    assertThat(facetValue.equals(withNullKey)).isFalse();
+    assertThat(withNullKey.equals(withNullKey)).isTrue();
+    assertThat(withNullKey.equals(facetValue)).isFalse();
   }
 }
