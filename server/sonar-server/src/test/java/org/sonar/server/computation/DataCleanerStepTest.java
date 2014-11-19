@@ -53,7 +53,7 @@ public class DataCleanerStepTest {
     this.issueIndex = mock(IssueIndex.class);
     this.settings = mock(ProjectSettings.class);
     this.projectSettingsFactory = mock(ProjectSettingsFactory.class);
-    when(projectSettingsFactory.newProjectSettings(anyLong(), any(DbSession.class))).thenReturn(settings);
+    when(projectSettingsFactory.newProjectSettings(any(DbSession.class), anyLong())).thenReturn(settings);
     when(settings.getInt(any(String.class))).thenReturn(123);
 
     this.sut = new DataCleanerStep(projectSettingsFactory, purgeTask, issueIndex);
@@ -66,7 +66,7 @@ public class DataCleanerStepTest {
 
     sut.execute(mock(DbSession.class), report, project);
 
-    verify(projectSettingsFactory).newProjectSettings(anyLong(), any(DbSession.class));
+    verify(projectSettingsFactory).newProjectSettings(any(DbSession.class), anyLong());
     verify(purgeTask).purge(any(DbSession.class), any(PurgeConfiguration.class), any(Settings.class));
     verify(issueIndex).deleteClosedIssuesOfProjectBefore(anyString(), any(Date.class));
   }

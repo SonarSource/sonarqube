@@ -243,4 +243,16 @@ public class ComponentDto extends Dto<String> implements Component {
   public int hashCode() {
     return id.hashCode();
   }
+
+  @Override
+  public ComponentDto setCreatedAt(Date datetime) {
+    super.setCreatedAt(datetime);
+    return this;
+  }
+
+  @Override
+  public ComponentDto setUpdatedAt(Date datetime) {
+    super.setUpdatedAt(datetime);
+    return this;
+  }
 }

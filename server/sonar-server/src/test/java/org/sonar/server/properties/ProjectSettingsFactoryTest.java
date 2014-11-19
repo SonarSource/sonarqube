@@ -50,7 +50,7 @@ public class ProjectSettingsFactoryTest {
 
   @Test
   public void newProjectSettings_returns_a_ProjectSettings() throws Exception {
-    Settings projectSettings = sut.newProjectSettings(1L, mock(DbSession.class));
+    Settings projectSettings = sut.newProjectSettings(mock(DbSession.class), 1L);
 
     assertThat(projectSettings).isInstanceOf(ProjectSettings.class);
   }

@@ -46,8 +46,8 @@ public class DataCleanerStep implements ComputationStep {
   public void execute(DbSession session, AnalysisReportDto report, ComponentDto project) {
     Long projectId = project.getId();
 
-    Settings settings = projectSettingsFactory.newProjectSettings(projectId, session);
-    PurgeConfiguration purgeConfiguration = newDefaultPurgeConfiguration(projectId, settings);
+    Settings settings = projectSettingsFactory.newProjectSettings(session, projectId);
+    PurgeConfiguration purgeConfiguration = newDefaultPurgeConfiguration(settings, projectId);
 
     purgeTask.purge(session, purgeConfiguration, settings);
 

@@ -49,7 +49,7 @@ public class PurgeConfiguration {
     this.system2 = system2;
   }
 
-  public static PurgeConfiguration newDefaultPurgeConfiguration(long resourceId, Settings settings) {
+  public static PurgeConfiguration newDefaultPurgeConfiguration(Settings settings, long resourceId) {
     String[] scopes = new String[] {Scopes.FILE};
     if (settings.getBoolean(DbCleanerConstants.PROPERTY_CLEAN_DIRECTORY)) {
       scopes = new String[] {Scopes.DIRECTORY, Scopes.FILE};

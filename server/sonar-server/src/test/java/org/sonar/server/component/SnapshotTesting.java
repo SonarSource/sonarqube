@@ -40,6 +40,9 @@ public class SnapshotTesting {
     return new SnapshotDto()
       .setResourceId(project.getId())
       .setRootProjectId(project.getId())
+      .setStatus(SnapshotDto.STATUS_PROCESSED)
+      .setQualifier(project.qualifier())
+      .setScope(project.scope())
       .setLast(true);
   }
 

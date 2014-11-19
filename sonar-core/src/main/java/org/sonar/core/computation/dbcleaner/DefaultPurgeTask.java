@@ -103,6 +103,6 @@ public class DefaultPurgeTask implements PurgeTask {
   }
 
   public PurgeConfiguration newPurgeConfigurationOnResource(long resourceId) {
-    return newDefaultPurgeConfiguration(resourceId, settings);
+    return newDefaultPurgeConfiguration(settings, resourceId);
   }
 }

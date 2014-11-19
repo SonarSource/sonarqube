@@ -41,7 +41,7 @@ public class ProjectSettingsFactory implements ServerComponent {
     this.settings = settings;
   }
 
-  public Settings newProjectSettings(long projectId, DbSession session) {
+  public Settings newProjectSettings(DbSession session, long projectId) {
     List<PropertyDto> propertyList = dao.selectProjectProperties(projectId, session);
 
     return new ProjectSettings(settings, getPropertyMap(propertyList));
