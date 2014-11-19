@@ -24,10 +24,10 @@ import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DbCleanerPropertiesTest {
+public class DataCleanerPropertiesTest {
 
   @Test
   public void shouldGetExtensions() {
-    assertThat(DbCleanerProperties.all()).hasSize(6);
+    assertThat(DataCleanerProperties.all()).hasSize(6);
   }
 }

@@ -28,9 +28,9 @@ import org.sonar.api.resources.Qualifiers;
 import java.util.Arrays;
 import java.util.List;
 
-public final class DbCleanerProperties {
+public final class DataCleanerProperties {
 
-  private DbCleanerProperties() {
+  private DataCleanerProperties() {
   }
 
   public static List<PropertyDefinition> all() {

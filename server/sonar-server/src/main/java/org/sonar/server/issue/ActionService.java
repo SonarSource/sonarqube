@@ -132,6 +132,7 @@ public class ActionService implements ServerComponent {
     }, null);
   }
 
+  // TODO org.sonar.server.properties.ProjectSettings should be used instead
   public Settings getProjectSettings(Component project) {
     Settings projectSettings = new Settings(settings);
     List<PropertyDto> properties = propertiesDao.selectProjectProperties(project.key());
