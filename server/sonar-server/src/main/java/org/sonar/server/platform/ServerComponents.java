@@ -162,6 +162,8 @@ import org.sonar.server.source.CodeColorizers;
 import org.sonar.server.source.DeprecatedSourceDecorator;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
+import org.sonar.server.source.index.SourceLineIndexDefinition;
+import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.source.ws.*;
 import org.sonar.server.source.ws.ShowAction;
 import org.sonar.server.startup.*;
@@ -548,6 +550,8 @@ class ServerComponents {
     pico.addSingleton(ScmWriter.class);
     pico.addSingleton(RawAction.class);
     pico.addSingleton(ScmAction.class);
+    pico.addSingleton(SourceLineIndexDefinition.class);
+    pico.addSingleton(SourceLineIndexer.class);
 
     // Duplications
     pico.addSingleton(DuplicationsParser.class);
