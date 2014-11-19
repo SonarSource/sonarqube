@@ -20,6 +20,8 @@
 
 package org.sonar.server.db.migrations.v50;
 
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.io.Charsets;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -28,6 +30,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.Date;
 
 import static org.mockito.Mockito.mock;
@@ -80,25 +84,40 @@ public class FeedFileSourcesMigrationTest {
   public void migrate_sources_with_scm() throws Exception {
     db.prepareDbUnit(getClass(), "before.xml");
 
-    db.executeUpdateSql("insert into snapshot_sources " +
-      "(snapshot_id, data, updated_at) " +
-      "values " +
-      "(6, 'class Foo {\r\n  // Empty\r\n}\r\n', '2014-10-31 16:44:02.000')");
+    Connection connection = null;
+    try {
+      connection = db.openConnection();
 
-    db.executeUpdateSql("insert into project_measures " +
-      "(metric_id, snapshot_id, text_value) " +
-      "values " +
-      "(1, 6, $$1=aef12a;2=abe465;3=afb789;4=afb789$$)");
+      connection.prepareStatement("insert into snapshot_sources " +
+        "(snapshot_id, data, updated_at) " +
+        "values " +
+        "(6, 'class Foo {\r\n  // Empty\r\n}\r\n', '2014-10-31 16:44:02.000')")
+        .executeUpdate();
 
-    db.executeUpdateSql("insert into project_measures " +
-      "(metric_id, snapshot_id, text_value) " +
-      "values " +
-      "(2, 6, $$1=alice;2=bob;3=carol;4=carol$$)");
+      PreparedStatement revisionStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, text_value) " +
+        "values " +
+        "(1, 6, ?)");
+      revisionStmt.setBytes(1, "1=aef12a;2=abe465;3=afb789;4=afb789".getBytes(Charsets.UTF_8));
+      revisionStmt.executeUpdate();
 
-    db.executeUpdateSql("insert into project_measures " +
-      "(metric_id, snapshot_id, text_value) " +
-      "values " +
-      "(3, 6, $$1=2014-04-25T12:34:56+0100;2=2014-07-25T12:34:56+0100;3=2014-03-23T12:34:56+0100;4=2014-03-23T12:34:56+0100$$)");
+      PreparedStatement authorStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, text_value) " +
+        "values " +
+        "(2, 6, ?)");
+      authorStmt.setBytes(1, "1=alice;2=bob;3=carol;4=carol".getBytes(Charsets.UTF_8));
+      authorStmt.executeUpdate();
+
+      PreparedStatement dateStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, text_value) " +
+        "values " +
+        "(3, 6, ?)");
+      dateStmt.setBytes(1, "1=2014-04-25T12:34:56+0100;2=2014-07-25T12:34:56+0100;3=2014-03-23T12:34:56+0100;4=2014-03-23T12:34:56+0100".getBytes(Charsets.UTF_8));
+      dateStmt.executeUpdate();
+    } finally {
+      DbUtils.commitAndCloseQuietly(connection);
+    }
+
 
     migration.execute();
 

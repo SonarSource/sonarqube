@@ -42,8 +42,8 @@ class FileSourceDto {
 
   private Map<Integer, String> dates;
 
-  FileSourceDto(String source, @Nullable String shortRevisions, @Nullable String longRevisions, @Nullable String shortAuthors, @Nullable String longAuthors,
-    @Nullable String shortDates, @Nullable String longDates) {
+  FileSourceDto(String source, @Nullable byte[] shortRevisions, @Nullable byte[] longRevisions, @Nullable byte[] shortAuthors, @Nullable byte[] longAuthors,
+    @Nullable byte[] shortDates, @Nullable byte[] longDates) {
     sourceSplitter = Splitter.onPattern("\r?\n|\r").split(source).iterator();
     revisions = KeyValueFormat.parseIntString(ofNullableBytes(shortRevisions, longRevisions));
     authors = KeyValueFormat.parseIntString(ofNullableBytes(shortAuthors, longAuthors));
@@ -65,17 +65,17 @@ class FileSourceDto {
     return new String(output.toByteArray(), UTF_8);
   }
 
-  private static String ofNullableBytes(@Nullable String shortBytes, @Nullable String longBytes) {
-    String result;
+  private static String ofNullableBytes(@Nullable byte[] shortBytes, @Nullable byte[] longBytes) {
+    byte[] result;
     if (shortBytes == null) {
       if (longBytes == null) {
-        result = "";
+        return "";
       } else {
         result = longBytes;
       }
     } else {
       result = shortBytes;
     }
-    return result;
+    return new String(result, UTF_8);
   }
 }

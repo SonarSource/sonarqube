@@ -49,12 +49,12 @@ public class FeedFileSources extends BaseDataChange {
       String fileUuid = row.getString(2);
       String source = row.getString(3);
       Date updatedAt = row.getDate(4);
-      String shortRevisions = row.getString(5);
-      String longRevisions = row.getString(6);
-      String shortAuthors = row.getString(7);
-      String longAuthors = row.getString(8);
-      String shortDates = row.getString(9);
-      String longDates = row.getString(10);
+      byte[] shortRevisions = row.getBytes(5);
+      byte[] longRevisions = row.getBytes(6);
+      byte[] shortAuthors = row.getBytes(7);
+      byte[] longAuthors = row.getBytes(8);
+      byte[] shortDates = row.getBytes(9);
+      byte[] longDates = row.getBytes(10);
 
       String sourceData = new FileSourceDto(source, shortRevisions, longRevisions, shortAuthors, longAuthors, shortDates, longDates).getSourceData();
 
