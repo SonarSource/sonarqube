@@ -23,6 +23,7 @@ package org.sonar.server.search.request;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
+import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
@@ -36,6 +37,11 @@ public class ProxySearchScrollRequestBuilderTest {
 
   Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
   SearchClient searchClient = new SearchClient(new Settings(), profiling);
+
+  @After
+  public void tearDown() throws Exception {
+    searchClient.stop();
+  }
 
   @Test
   public void search_scroll() {
@@ -56,9 +62,9 @@ public class ProxySearchScrollRequestBuilderTest {
 
   @Test
   public void with_profiling_basic() {
+    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
+    SearchClient searchClient = new SearchClient(new Settings(), profiling);
     try {
-      Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
-      SearchClient searchClient = new SearchClient(new Settings(), profiling);
       SearchResponse search = searchClient.prepareSearch(IndexDefinition.RULE.getIndexName())
         .setSearchType(SearchType.SCAN)
         .setScroll(TimeValue.timeValueSeconds(3L))
@@ -71,6 +77,7 @@ public class ProxySearchScrollRequestBuilderTest {
       assertThat(e).isInstanceOf(IllegalStateException.class);
       assertThat(e.getMessage()).contains("Fail to execute ES search request '{}' on indices '[rules]'");
     }
+    searchClient.stop();
   }
 
   @Test

@@ -22,6 +22,7 @@ package org.sonar.server.search.request;
 
 import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
+import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
@@ -34,6 +35,11 @@ public class ProxyClusterStateRequestBuilderText {
 
   Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
   SearchClient searchClient = new SearchClient(new Settings(), profiling);
+
+  @After
+  public void tearDown() throws Exception {
+    searchClient.stop();
+  }
 
   @Test
   public void state() {
@@ -56,9 +62,9 @@ public class ProxyClusterStateRequestBuilderText {
 
   @Test
   public void with_profiling_basic() {
+    Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
+    SearchClient searchClient = new SearchClient(new Settings(), profiling);
     try {
-      Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.BASIC.name()));
-      SearchClient searchClient = new SearchClient(new Settings(), profiling);
 
       ClusterStateRequestBuilder requestBuilder = searchClient.prepareState();
       requestBuilder.get();
@@ -70,6 +76,7 @@ public class ProxyClusterStateRequestBuilderText {
     }
 
     // TODO assert profiling
+    searchClient.stop();
   }
 
   @Test

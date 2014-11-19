@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.annotation.CheckForNull;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -40,7 +41,9 @@ public class IndexCreatorTest {
   public void create_index() throws Exception {
     assertThat(mappings()).isEmpty();
 
-    IndexCreator creator = new IndexCreator(es.client(), new IndexDefinition[]{new FakeIndexDefinition()});
+    IndexRegistry registry = new IndexRegistry(new IndexDefinition[] {new FakeIndexDefinition()});
+    registry.start();
+    IndexCreator creator = new IndexCreator(es.client(), registry);
     creator.start();
 
     // check that index is created with related mapping
@@ -58,24 +61,23 @@ public class IndexCreatorTest {
     assertThat(mappings()).isNotEmpty();
   }
 
-  private String setting(String indexName, String settingKey) {
-    GetSettingsResponse indexSettings = es.client().nativeClient().admin().indices().prepareGetSettings(indexName).get();
-    return indexSettings.getSetting(indexName, settingKey);
-  }
-
   @Test
   public void recreate_index_on_definition_changes() throws Exception {
     assertThat(mappings()).isEmpty();
 
     // v1
-    IndexCreator creator = new IndexCreator(es.client(), new IndexDefinition[]{new FakeIndexDefinition()});
+    IndexRegistry registry = new IndexRegistry(new IndexDefinition[] {new FakeIndexDefinition()});
+    registry.start();
+    IndexCreator creator = new IndexCreator(es.client(), registry);
     creator.start();
     creator.stop();
     String hashV1 = setting("fakes", "index.sonar_hash");
     assertThat(hashV1).isNotEmpty();
 
     // v2
-    creator = new IndexCreator(es.client(), new IndexDefinition[]{new FakeIndexDefinitionV2()});
+    registry = new IndexRegistry(new IndexDefinition[] {new FakeIndexDefinitionV2()});
+    registry.start();
+    creator = new IndexCreator(es.client(), registry);
     creator.start();
     ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings = mappings();
     MappingMetaData mapping = mappings.get("fakes").get("fake");
@@ -85,6 +87,11 @@ public class IndexCreatorTest {
     String hashV2 = setting("fakes", "index.sonar_hash");
     assertThat(hashV2).isNotEqualTo(hashV1);
     creator.stop();
+  }
+
+  private String setting(String indexName, String settingKey) {
+    GetSettingsResponse indexSettings = es.client().nativeClient().admin().indices().prepareGetSettings(indexName).get();
+    return indexSettings.getSetting(indexName, settingKey);
   }
 
   private ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings() {
@@ -105,7 +112,7 @@ public class IndexCreatorTest {
     @Override
     public void define(IndexDefinitionContext context) {
       NewIndex index = context.create("fakes");
-      NewIndex.NewMapping mapping = index.createMapping("fake");
+      NewIndex.NewIndexType mapping = index.createType("fake");
       mapping.stringFieldBuilder("key").build();
       mapping.createDateTimeField("updatedAt");
     }
@@ -115,7 +122,7 @@ public class IndexCreatorTest {
     @Override
     public void define(IndexDefinitionContext context) {
       NewIndex index = context.create("fakes");
-      NewIndex.NewMapping mapping = index.createMapping("fake");
+      NewIndex.NewIndexType mapping = index.createType("fake");
       mapping.stringFieldBuilder("key").build();
       mapping.createDateTimeField("updatedAt");
       mapping.createIntegerField("newField");

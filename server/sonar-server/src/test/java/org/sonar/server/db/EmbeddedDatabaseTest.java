@@ -40,7 +40,7 @@ public class EmbeddedDatabaseTest {
   @Rule
   public ExpectedException throwable = ExpectedException.none();
 
-  @Test(timeout = 10000)
+  @Test(timeout = 5000)
   public void should_start_and_stop() throws IOException {
     int port = NetworkUtils.freePort();
 
@@ -58,28 +58,8 @@ public class EmbeddedDatabaseTest {
     database.stop();
   }
 
-  @Test(timeout = 10000)
-  public void should_support_memory_database() throws IOException {
-    int port = NetworkUtils.freePort();
-
-    EmbeddedDatabase database = new EmbeddedDatabase(testSettings(port)
-      .setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:tcp://localhost:" + port + "/mem:sonarIT;USER=sonar;PASSWORD=sonar"));
-    database.start();
-
-    try {
-      String driverUrl = String.format("jdbc:h2:tcp://localhost:%d/mem:sonarIT;USER=sonar;PASSWORD=sonar", port);
-      DriverManager.registerDriver(new Driver());
-      DriverManager.getConnection(driverUrl).close();
-    } catch (Exception ex) {
-      fail("Unable to connect after start");
-    }
-
-    database.stop();
-  }
-
   @Test
   public void should_return_embedded_data_directory() throws Exception {
-
     Settings settings = testSettings(0);
     EmbeddedDatabase database = new EmbeddedDatabase(settings);
 

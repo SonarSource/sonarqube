@@ -34,11 +34,13 @@ import java.util.TreeMap;
 
 public class NewIndex {
 
-  public static class NewMapping {
+  public static class NewIndexType {
+    private final String name;
     private final Map<String, Object> attributes = new TreeMap<String, Object>();
     private final Map<String, Object> properties = new TreeMap<String, Object>();
 
-    private NewMapping() {
+    private NewIndexType(String typeName) {
+      this.name = typeName;
       // defaults
       attributes.put("dynamic", false);
       attributes.put("_all", ImmutableSortedMap.of("enabled", false));
@@ -46,10 +48,14 @@ public class NewIndex {
       attributes.put("properties", properties);
     }
 
+    public String getName() {
+      return name;
+    }
+
     /**
      * Complete the root json hash of mapping type, for example to set the attribute "_id"
      */
-    public NewMapping setAttribute(String key, Object value) {
+    public NewIndexType setAttribute(String key, Object value) {
       attributes.put(key, value);
       return this;
     }
@@ -57,7 +63,7 @@ public class NewIndex {
     /**
      * Complete the json hash named "properties" in mapping type, usually to declare fields
      */
-    public NewMapping setProperty(String key, Object value) {
+    public NewIndexType setProperty(String key, Object value) {
       properties.put(key, value);
       return this;
     }
@@ -66,35 +72,35 @@ public class NewIndex {
       return new StringFieldBuilder(this, fieldName);
     }
 
-    public NewMapping createBooleanField(String fieldName) {
+    public NewIndexType createBooleanField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of("type", "boolean"));
     }
 
-    public NewMapping createByteField(String fieldName) {
+    public NewIndexType createByteField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of("type", "byte"));
     }
 
-    public NewMapping createDateTimeField(String fieldName) {
+    public NewIndexType createDateTimeField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of("type", "date", "format", "date_time"));
     }
 
-    public NewMapping createDoubleField(String fieldName) {
+    public NewIndexType createDoubleField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of("type", "double"));
     }
 
-    public NewMapping createIntegerField(String fieldName) {
+    public NewIndexType createIntegerField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of("type", "integer"));
     }
 
-    public NewMapping createLongField(String fieldName) {
+    public NewIndexType createLongField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of("type", "long"));
     }
 
-    public NewMapping createShortField(String fieldName) {
+    public NewIndexType createShortField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of("type", "short"));
     }
 
-    public NewMapping createUuidPathField(String fieldName) {
+    public NewIndexType createUuidPathField(String fieldName) {
       return setProperty(fieldName, ImmutableSortedMap.of(
         "type", "string",
         "index", "analyzed",
@@ -119,12 +125,12 @@ public class NewIndex {
       "type", "string",
       "index", "not_analyzed");
 
-    private final NewMapping newMapping;
+    private final NewIndexType indexType;
     private final String fieldName;
     private boolean sortable = false, wordSearch = false, gramSearch = false;
 
-    private StringFieldBuilder(NewMapping newMapping, String fieldName) {
-      this.newMapping = newMapping;
+    private StringFieldBuilder(NewIndexType indexType, String fieldName) {
+      this.indexType = indexType;
       this.fieldName = fieldName;
     }
 
@@ -178,13 +184,13 @@ public class NewIndex {
         hash.putAll(NOT_ANALYZED);
       }
 
-      newMapping.setProperty(fieldName, hash);
+      indexType.setProperty(fieldName, hash);
     }
   }
 
   private final String indexName;
-  private final ImmutableSettings.Builder settings = DefaultMappingSettings.defaults();
-  private final SortedMap<String, NewMapping> mappings = new TreeMap<String, NewMapping>();
+  private final ImmutableSettings.Builder settings = DefaultIndexSettings.defaults();
+  private final SortedMap<String, NewIndexType> types = new TreeMap<String, NewIndexType>();
 
   NewIndex(String indexName) {
     Preconditions.checkArgument(StringUtils.isAllLowerCase(indexName), "Index name must be lower-case: " + indexName);
@@ -199,13 +205,13 @@ public class NewIndex {
     return settings;
   }
 
-  public NewMapping createMapping(String typeName) {
-    NewMapping type = new NewMapping();
-    mappings.put(typeName, type);
+  public NewIndexType createType(String typeName) {
+    NewIndexType type = new NewIndexType(typeName);
+    types.put(typeName, type);
     return type;
   }
 
-  public SortedMap<String, NewMapping> getMappings() {
-    return mappings;
+  public SortedMap<String, NewIndexType> getTypes() {
+    return types;
   }
 }

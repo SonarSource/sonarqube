@@ -143,7 +143,9 @@ import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.IndexCreator;
+import org.sonar.server.es.IndexRegistry;
 import org.sonar.server.es.IssueIndexDefinition;
+import org.sonar.server.es.IssueIndexer;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.CommentAction;
@@ -479,6 +481,7 @@ class ServerComponents {
     pico.addSingleton(Periods.class);
     pico.addSingleton(ServerWs.class);
     pico.addSingleton(BackendCleanup.class);
+    pico.addSingleton(IndexRegistry.class);
     pico.addSingleton(IndexCreator.class);
 
     // batch
@@ -628,6 +631,7 @@ class ServerComponents {
 
     // issues
     pico.addSingleton(IssueIndexDefinition.class);
+    pico.addSingleton(IssueIndexer.class);
     pico.addSingleton(ServerIssueStorage.class);
     pico.addSingleton(IssueUpdater.class);
     pico.addSingleton(FunctionExecutor.class);

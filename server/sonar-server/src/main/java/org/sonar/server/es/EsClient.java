@@ -39,6 +39,9 @@ import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.metrics.max.Max;
 import org.picocontainer.Startable;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.ClusterHealth;
@@ -75,7 +78,7 @@ public class EsClient implements Startable {
     this.client = deprecatedClient;
   }
 
-  public EsClient(Profiling profiling, Client client) {
+  EsClient(Profiling profiling, Client client) {
     this.profiling = profiling;
     this.client = client;
   }
@@ -166,6 +169,17 @@ public class EsClient implements Startable {
     return new ProxyDeleteByQueryRequestBuilder(client, profiling).setIndices(indices);
   }
 
+  public long getLastUpdatedAt(String indexName, String typeName) {
+    SearchRequestBuilder request = prepareSearch(indexName)
+      .setTypes(typeName)
+      .setQuery(QueryBuilders.matchAllQuery())
+      .setSize(0)
+      .addAggregation(AggregationBuilders.max("latest").field("updatedAt"));
+
+    Max max = request.get().getAggregations().get("latest");
+    return (long) max.getValue();
+  }
+
   @Override
   public void start() {
     // nothing to do
@@ -173,7 +187,8 @@ public class EsClient implements Startable {
 
   @Override
   public void stop() {
-    client.close();
+    // TODO re-enable when SearchClient is dropped
+    //client.close();
   }
 
   protected Client nativeClient() {

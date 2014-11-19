@@ -22,6 +22,7 @@ package org.sonar.server.search.request;
 
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
+import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
@@ -34,6 +35,11 @@ public class ProxyCreateIndexRequestBuilderText {
 
   Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
   SearchClient searchClient = new SearchClient(new Settings(), profiling);
+
+  @After
+  public void tearDown() throws Exception {
+    searchClient.stop();
+  }
 
   @Test
   public void create_index() {
@@ -69,6 +75,7 @@ public class ProxyCreateIndexRequestBuilderText {
     }
 
     // TODO assert profiling
+    searchClient.stop();
   }
 
   @Test

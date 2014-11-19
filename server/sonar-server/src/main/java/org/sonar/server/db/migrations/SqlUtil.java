@@ -25,6 +25,8 @@ import javax.annotation.CheckForNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class SqlUtil {
 
@@ -66,5 +68,34 @@ public class SqlUtil {
   public static String getString(ResultSet rs, String columnName) throws SQLException {
     String s = rs.getString(columnName);
     return rs.wasNull() ? null : s;
+  }
+
+  @CheckForNull
+  public static Long getLong(ResultSet rs, int columnIndex) throws SQLException {
+    long l = rs.getLong(columnIndex);
+    return rs.wasNull() ? null : l;
+  }
+
+  @CheckForNull
+  public static Double getDouble(ResultSet rs, int columnIndex) throws SQLException {
+    double d = rs.getDouble(columnIndex);
+    return rs.wasNull() ? null : d;
+  }
+
+  @CheckForNull
+  public static Integer getInt(ResultSet rs, int columnIndex) throws SQLException {
+    int i = rs.getInt(columnIndex);
+    return rs.wasNull() ? null : i;
+  }
+
+  @CheckForNull
+  public static String getString(ResultSet rs, int columnIndex) throws SQLException {
+    String s = rs.getString(columnIndex);
+    return rs.wasNull() ? null : s;
+  }
+
+  public static Date getDate(ResultSet rs, int columnIndex) throws SQLException {
+    Timestamp t = rs.getTimestamp(columnIndex);
+    return rs.wasNull() ? null : new Date(t.getTime());
   }
 }

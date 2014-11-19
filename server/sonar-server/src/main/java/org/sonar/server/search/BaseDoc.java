@@ -20,6 +20,7 @@
 package org.sonar.server.search;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
@@ -57,5 +58,13 @@ public abstract class BaseDoc {
       throw new IllegalStateException("Value of index field is null: " + key);
     }
     return value;
+  }
+
+  public void setField(String key, @Nullable Object value) {
+    fields.put(key, value);
+  }
+
+  public Map<String, Object> getFields() {
+    return fields;
   }
 }

@@ -20,13 +20,9 @@
 package org.sonar.search;
 
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.common.hppc.cursors.ObjectCursor;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.internal.InternalNode;
 import org.slf4j.LoggerFactory;
-import org.sonar.process.MessageException;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
@@ -49,20 +45,6 @@ public class SearchServer implements Monitored {
 
     node = new InternalNode(settings.build(), true);
     node.start();
-
-    // When joining a cluster, make sur the master(s) have a
-    // replication factor on all indices > 0
-    if (settings.inCluster() && !settings.isMaster()) {
-      for (ObjectCursor<Settings> settingCursor : node.client().admin().indices()
-        .prepareGetSettings().get().getIndexToSettings().values()) {
-        Settings settings = settingCursor.value;
-        String clusterReplicationFactor = settings.get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, "-1");
-        if (Integer.parseInt(clusterReplicationFactor) <= 0) {
-          node.stop();
-          throw new MessageException("Invalid number of Elasticsearch replicas: " + clusterReplicationFactor);
-        }
-      }
-    }
   }
 
   @Override

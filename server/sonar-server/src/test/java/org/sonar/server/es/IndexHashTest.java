@@ -29,25 +29,25 @@ public class IndexHashTest {
 
   @Test
   public void of() throws Exception {
-    NewIndex indexV1 = createIndex();
+    IndexRegistry.Index indexV1 = new IndexRegistry.Index(createIndex());
     String hashV1 = new IndexHash().of(indexV1);
     assertThat(hashV1).isNotEmpty();
     // always the same
     assertThat(hashV1).isEqualTo(new IndexHash().of(indexV1));
 
-    NewIndex indexV2 = createIndex();
-    indexV2.getMappings().get("fake").createIntegerField("max");
-    String hashV2 = new IndexHash().of(indexV2);
+    NewIndex newIndexV2 = createIndex();
+    newIndexV2.getTypes().get("fake").createIntegerField("max");
+    String hashV2 = new IndexHash().of(new IndexRegistry.Index(newIndexV2));
     assertThat(hashV2).isNotEmpty().isNotEqualTo(hashV1);
   }
 
   private NewIndex createIndex() {
-    NewIndex index = new NewIndex("fakes");
-    NewIndex.NewMapping mapping = index.createMapping("fake");
+    NewIndex newIndex = new NewIndex("fakes");
+    NewIndex.NewIndexType mapping = newIndex.createType("fake");
     mapping.setAttribute("list_attr", Arrays.asList("foo", "bar"));
     mapping.stringFieldBuilder("key").build();
     mapping.createDateTimeField("updatedAt");
-    return index;
+    return newIndex;
   }
 
 }

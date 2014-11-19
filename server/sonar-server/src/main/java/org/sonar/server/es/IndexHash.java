@@ -23,8 +23,6 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Lists;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import javax.annotation.Nullable;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +32,8 @@ class IndexHash {
 
   private static final char DELIMITER = ',';
 
-  String of(NewIndex index) {
-    return of(index.getSettings().internalMap(), index.getMappings());
+  String of(IndexRegistry.Index index) {
+    return of(index.getSettings().getAsMap(), index.getTypes());
   }
 
   String of(Map... maps) {
@@ -47,8 +45,8 @@ class IndexHash {
   }
 
   private void appendObject(StringBuilder sb, Object value) {
-    if (value instanceof NewIndex.NewMapping) {
-      appendMapping(sb, (NewIndex.NewMapping) value);
+    if (value instanceof IndexRegistry.IndexType) {
+      appendIndexType(sb, (IndexRegistry.IndexType) value);
     } else if (value instanceof Map) {
       appendMap(sb, (Map) value);
     } else if (value instanceof Iterable) {
@@ -58,8 +56,8 @@ class IndexHash {
     }
   }
 
-  private void appendMapping(StringBuilder sb, NewIndex.NewMapping mapping) {
-    appendMap(sb, mapping.getAttributes());
+  private void appendIndexType(StringBuilder sb, IndexRegistry.IndexType type) {
+    appendMap(sb, type.getAttributes());
   }
 
   private void appendMap(StringBuilder sb, Map attributes) {

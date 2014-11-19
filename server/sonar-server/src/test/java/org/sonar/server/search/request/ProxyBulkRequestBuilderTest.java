@@ -25,6 +25,7 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.unit.TimeValue;
+import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
@@ -40,6 +41,11 @@ public class ProxyBulkRequestBuilderTest {
 
   Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
   SearchClient searchClient = new SearchClient(new Settings(), profiling);
+
+  @After
+  public void tearDown() throws Exception {
+    searchClient.stop();
+  }
 
   @Test
   public void bulk() {
@@ -96,6 +102,7 @@ public class ProxyBulkRequestBuilderTest {
     }
 
     // TODO assert profiling
+    searchClient.stop();
   }
 
   @Test(expected = UnsupportedOperationException.class)

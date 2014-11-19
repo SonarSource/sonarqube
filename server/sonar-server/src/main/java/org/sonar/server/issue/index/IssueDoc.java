@@ -22,12 +22,15 @@ package org.sonar.server.issue.index;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.server.es.IssueIndexDefinition;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Collections;
 import java.util.Date;
@@ -42,7 +45,7 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public String key() {
-    return getField(IssueNormalizer.IssueField.KEY.field());
+    return getField(IssueIndexDefinition.FIELD_ISSUE_KEY);
   }
 
   @Override
@@ -191,5 +194,106 @@ public class IssueDoc extends BaseDoc implements Issue {
   @CheckForNull
   public String filePath() {
     return getNullableField(IssueNormalizer.IssueField.FILE_PATH.field());
+  }
+
+  public void setKey(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_KEY, s);
+  }
+
+  public void setComponentUuid(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, s);
+  }
+
+  public void setModuleUuid(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, s);
+  }
+
+  public void setProjectUuid(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, s);
+  }
+
+  public void setRuleKey(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, s);
+  }
+
+  public void setLanguage(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, s);
+  }
+
+  public void setSeverity(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, s);
+    setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE, Severity.ALL.indexOf(s));
+  }
+
+  public void setMessage(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_MESSAGE, s);
+  }
+
+  public void setLine(@Nullable Integer i) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_LINE, i);
+  }
+
+  public void setEffortToFix(@Nullable Double d) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_EFFORT, d);
+  }
+
+  public void setStatus(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_STATUS, s);
+  }
+
+  public void setResolution(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, s);
+  }
+
+  public void setReporter(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_REPORTER, s);
+  }
+
+  public void setAssignee(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, s);
+  }
+
+  public void setCreationDate(Date d) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_CREATED_AT, d);
+  }
+
+  public void setUpdateDate(Date d) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_UPDATED_AT, d);
+  }
+
+  public void setFuncCreationDate(Date d) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, d);
+  }
+
+  public void setFuncUpdateDate(Date d) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_UPDATED_AT, d);
+  }
+
+  public void setFuncCloseDate(Date d) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_CLOSED_AT, d);
+  }
+
+  public void setAttributes(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_ATTRIBUTES, s);
+  }
+
+  public void setAuthorLogin(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, s);
+  }
+
+  public void setActionPlanKey(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN, s);
+  }
+
+  public void setDebt(Long l) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_DEBT, l);
+  }
+
+  public void setFilePath(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_FILE_PATH, s);
+  }
+
+  public void setModuleUuidPath(String s) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, s);
   }
 }

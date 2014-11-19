@@ -105,10 +105,15 @@ public class ServerTester extends ExternalResource {
       }
     }
 
-    searchServer.start();
-    platform.init(properties);
-    platform.addComponents(components);
-    platform.doStart();
+    try {
+      searchServer.start();
+      platform.init(properties);
+      platform.addComponents(components);
+      platform.doStart();
+    } catch (RuntimeException e) {
+      stop();
+      throw e;
+    }
     if (!platform.isStarted()) {
       throw new IllegalStateException("Server not started. You should check that db migrations " +
         "are correctly declared, for example in schema-h2.sql or DatabaseVersion");
@@ -118,7 +123,7 @@ public class ServerTester extends ExternalResource {
   private File createTempDir() {
     try {
       // Technique to create a temp directory from a temp file
-      File f = File.createTempFile("SonarQube", "");
+      File f = File.createTempFile("tmp-sq", "");
       f.delete();
       f.mkdir();
       return f;
@@ -139,8 +144,20 @@ public class ServerTester extends ExternalResource {
    * This method should not be called by test when ServerTester is annotated with {@link org.junit.Rule}
    */
   public void stop() {
-    platform.doStop();
-    searchServer.stop();
+    try {
+      if (platform != null) {
+        platform.doStop();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    try {
+      if (searchServer != null) {
+        searchServer.stop();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     FileUtils.deleteQuietly(homeDir);
   }
 

@@ -19,103 +19,135 @@
  */
 package org.sonar.server.es;
 
-import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang.StringUtils;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.admin.indices.settings.get.GetSettingsRequestBuilder;
+import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequestBuilder;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
-import org.sonar.server.search.SearchClient;
+import org.picocontainer.Startable;
 
-import java.util.Iterator;
+import java.util.Map;
 
 /**
- *
+ * Helper to bulk requests in an efficient way :
+ * <ul>
+ *   <li>bulk request is sent on the wire when its size is higher than 5Mb</li>
+ *   <li>on large table indexing, replicas and automatic refresh can be temporarily disabled</li>
+ *   <li>index refresh is optional (enabled by default)</li>
+ * </ul>
  */
-public class BulkIndexer {
+public class BulkIndexer implements Startable {
 
-  private static final long FLUSH_BYTE_SIZE = new ByteSizeValue(5, ByteSizeUnit.MB).bytes();
-  
-  private final SearchClient client;
+  public static final long FLUSH_BYTE_SIZE = new ByteSizeValue(5, ByteSizeUnit.MB).bytes();
 
-  public BulkIndexer(SearchClient client) {
+  private final EsClient client;
+  private final String indexName;
+  private boolean large = false;
+  private boolean refresh = true;
+  private long flushByteSize = FLUSH_BYTE_SIZE;
+  private BulkRequestBuilder bulkRequest = null;
+  private Map<String, Object> largeInitialSettings = null;
+
+  public BulkIndexer(EsClient client, String indexName) {
     this.client = client;
+    this.indexName = indexName;
   }
 
   /**
-   * Heavy operation that populates an index from scratch. Replicas are disabled during
-   * the bulk indexation and lucene segments are optimized at the end. No need
-   * to call {@link #refresh(String)} after this method.
-   * 
-   * @see BulkIndexRequestIterator
+   * Large indexing is an heavy operation that populates an index generally from scratch. Replicas and
+   * automatic refresh are disabled during bulk indexing and lucene segments are optimized at the end.
    */
-  public void fullIndex(String index, Iterator<ActionRequest> requests) {
-    // deactivate replicas
-    GetSettingsRequestBuilder replicaRequest = client.admin().indices().prepareGetSettings(index);
-    String initialRequestSetting = replicaRequest.get().getSetting(index, IndexMetaData.SETTING_NUMBER_OF_REPLICAS);
-    int initialReplicas = Integer.parseInt(StringUtils.defaultIfEmpty(initialRequestSetting, "0"));
-    if (initialReplicas > 0) {
-      setNumberOfReplicas(index, 0);
-    }
 
-    index(requests);
-    refresh(index);
-    optimize(index);
-
-    if (initialReplicas > 0) {
-      // re-enable replicas
-      setNumberOfReplicas(index, initialReplicas);
-    }
+  public BulkIndexer setLarge(boolean b) {
+    Preconditions.checkState(bulkRequest == null, "Bulk indexing is already started");
+    this.large = b;
+    return this;
   }
 
-  private void setNumberOfReplicas(String index, int replicas) {
-    UpdateSettingsRequestBuilder req = client.admin().indices().prepareUpdateSettings(index);
-    req.setSettings(ImmutableMap.<String, Object>of(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, String.valueOf(replicas)));
-    req.get();
+  public BulkIndexer setRefresh(boolean b) {
+    Preconditions.checkState(bulkRequest == null, "Bulk indexing is already started");
+    this.refresh = b;
+    return this;
   }
 
   /**
-   * @see BulkIndexRequestIterator
+   * Default value is {@link org.sonar.server.es.BulkIndexer#FLUSH_BYTE_SIZE}
+   * @see org.elasticsearch.common.unit.ByteSizeValue
    */
-  public void index(Iterator<ActionRequest> requests) {
-    BulkRequest bulkRequest = client.prepareBulk().request();
-    while (requests.hasNext()) {
-      ActionRequest request = requests.next();
-      bulkRequest.add(request);
-      if (bulkRequest.estimatedSizeInBytes() >= FLUSH_BYTE_SIZE) {
-        executeBulk(bulkRequest);
-        bulkRequest = client.prepareBulk().request();
+  public BulkIndexer setFlushByteSize(long l) {
+    this.flushByteSize = l;
+    return this;
+  }
+
+  @Override
+  public void start() {
+    Preconditions.checkState(bulkRequest == null, "Bulk indexing is already started");
+    if (large) {
+      largeInitialSettings = Maps.newHashMap();
+      Map<String, Object> bulkSettings = Maps.newHashMap();
+      GetSettingsResponse settingsResp = client.nativeClient().admin().indices().prepareGetSettings(indexName).get();
+
+      // deactivate replicas
+      int initialReplicas = Integer.parseInt(settingsResp.getSetting(indexName, IndexMetaData.SETTING_NUMBER_OF_REPLICAS));
+      if (initialReplicas > 0) {
+        largeInitialSettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, initialReplicas);
+        bulkSettings.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0);
       }
+
+      // deactivate periodical refresh
+      String refreshInterval = settingsResp.getSetting(indexName, "index.refresh_interval");
+      largeInitialSettings.put("index.refresh_interval", refreshInterval);
+      bulkSettings.put("index.refresh_interval", "-1");
+
+      updateSettings(bulkSettings);
     }
-    if (bulkRequest.numberOfActions() > 0) {
+    bulkRequest = client.prepareBulk();
+  }
+
+  public void add(ActionRequest request) {
+    bulkRequest.request().add(request);
+    if (bulkRequest.request().estimatedSizeInBytes() >= flushByteSize) {
       executeBulk(bulkRequest);
     }
   }
 
-  private void executeBulk(BulkRequest bulkRequest) {
-    try {
-      BulkResponse response = client.bulk(bulkRequest).get();
-
-      // TODO check failures
-      // WARNING - complexity of response#hasFailures() and #buildFailureMessages() is O(n)
-    } catch (Exception e) {
-      throw new IllegalStateException("TODO", e);
+  @Override
+  public void stop() {
+    if (bulkRequest.numberOfActions() > 0) {
+      executeBulk(bulkRequest);
     }
+    if (refresh) {
+      client.prepareRefresh(indexName).get();
+    }
+    if (large) {
+      // optimize lucene segments and revert index settings
+      // Optimization must be done before re-applying replicas:
+      // http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
+      // TODO do not use nativeClient, else request is not profiled
+      client.nativeClient().admin().indices().prepareOptimize(indexName)
+        .setMaxNumSegments(1)
+        .setWaitForMerge(true)
+        .get();
+
+      updateSettings(largeInitialSettings);
+    }
+    bulkRequest = null;
   }
 
-  public void refresh(String index) {
-    client.prepareRefresh(index).get();
+  private void updateSettings(Map<String, Object> settings) {
+    UpdateSettingsRequestBuilder req = client.nativeClient().admin().indices().prepareUpdateSettings(indexName);
+    req.setSettings(settings);
+    req.get();
   }
 
-  private void optimize(String index) {
-    client.admin().indices().prepareOptimize(index)
-      .setMaxNumSegments(1)
-      .setWaitForMerge(true)
-      .get();
-  }
+  private void executeBulk(BulkRequestBuilder bulkRequest) {
+    bulkRequest.get();
 
+    // TODO check failures
+    // WARNING - complexity of response#hasFailures() and #buildFailureMessages() is O(n)
+  }
 }

@@ -33,8 +33,36 @@ import org.sonar.server.search.BaseNormalizer;
 public class IssueIndexDefinition implements IndexDefinition {
 
   public static final String INDEX_ISSUES = "issues";
+
   public static final String TYPE_ISSUE_AUTHORIZATION = "issueAuthorization";
   public static final String TYPE_ISSUE = "issue";
+
+  public static final String FIELD_ISSUE_ACTION_PLAN = "actionPlan";
+  public static final String FIELD_ISSUE_ASSIGNEE = "assignee";
+  public static final String FIELD_ISSUE_ATTRIBUTES = "attributes";
+  public static final String FIELD_ISSUE_AUTHOR_LOGIN = "authorLogin";
+  public static final String FIELD_ISSUE_COMPONENT_UUID = "component";
+  public static final String FIELD_ISSUE_CREATED_AT = "createdAt";
+  public static final String FIELD_ISSUE_DEBT = "debt";
+  public static final String FIELD_ISSUE_EFFORT = "effort";
+  public static final String FIELD_ISSUE_FILE_PATH = "filePath";
+  public static final String FIELD_ISSUE_FUNC_CREATED_AT = "issueCreatedAt";
+  public static final String FIELD_ISSUE_FUNC_UPDATED_AT = "issueUpdatedAt";
+  public static final String FIELD_ISSUE_FUNC_CLOSED_AT = "issueClosedAt";
+  public static final String FIELD_ISSUE_KEY = "key";
+  public static final String FIELD_ISSUE_LANGUAGE = "language";
+  public static final String FIELD_ISSUE_LINE = "line";
+  public static final String FIELD_ISSUE_MESSAGE = "message";
+  public static final String FIELD_ISSUE_MODULE_UUID = "module";
+  public static final String FIELD_ISSUE_MODULE_PATH = "modulePath";
+  public static final String FIELD_ISSUE_PROJECT_UUID = "project";
+  public static final String FIELD_ISSUE_REPORTER = "reporter";
+  public static final String FIELD_ISSUE_RESOLUTION = "resolution";
+  public static final String FIELD_ISSUE_RULE_KEY = "ruleKey";
+  public static final String FIELD_ISSUE_SEVERITY = "severity";
+  public static final String FIELD_ISSUE_SEVERITY_VALUE = "severityValue";
+  public static final String FIELD_ISSUE_STATUS = "status";
+  public static final String FIELD_ISSUE_UPDATED_AT = "updatedAt";
 
   private final Settings settings;
 
@@ -55,7 +83,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     }
 
     // type "issueAuthorization"
-    NewIndex.NewMapping authorizationMapping = index.createMapping(TYPE_ISSUE_AUTHORIZATION);
+    NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_ISSUE_AUTHORIZATION);
     authorizationMapping.setAttribute("_id", ImmutableMap.of("path", IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field()));
     authorizationMapping.createDateTimeField(BaseNormalizer.UPDATED_AT_FIELD);
     authorizationMapping.stringFieldBuilder("project").build();
@@ -63,39 +91,42 @@ public class IssueIndexDefinition implements IndexDefinition {
     authorizationMapping.stringFieldBuilder("users").build();
 
     // type "issue"
-    NewIndex.NewMapping issueMapping = index.createMapping(TYPE_ISSUE);
+    NewIndex.NewIndexType issueMapping = index.createType(TYPE_ISSUE);
     issueMapping.setAttribute("_id", ImmutableMap.of("path", IssueNormalizer.IssueField.KEY.field()));
     issueMapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_ISSUE_AUTHORIZATION));
     issueMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", IssueNormalizer.IssueField.PROJECT.field()));
-    issueMapping.stringFieldBuilder("component").build();
-    issueMapping.stringFieldBuilder("actionPlan").build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_ACTION_PLAN).build();
     // TODO do we really sort by assignee ?
-    issueMapping.stringFieldBuilder("assignee").enableSorting().build();
-    issueMapping.stringFieldBuilder("attributes").build();
-    issueMapping.stringFieldBuilder("authorLogin").build();
-    issueMapping.createDateTimeField("createdAt");
-    issueMapping.createDoubleField("debt");
-    issueMapping.createDoubleField("effort");
-    issueMapping.stringFieldBuilder("filePath").enableSorting().build();
-    issueMapping.createDateTimeField("issueCreatedAt");
-    issueMapping.createDateTimeField("issueUpdatedAt");
-    issueMapping.createDateTimeField("issueClosedAt");
-    issueMapping.stringFieldBuilder("key").enableSorting().build();
-    issueMapping.stringFieldBuilder("language").build();
-    issueMapping.createIntegerField("line");
-    issueMapping.stringFieldBuilder("message").build();
-    issueMapping.stringFieldBuilder("module").build();
-    issueMapping.createUuidPathField("modulePath");
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).enableSorting().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).build();
+    // TODO rename into componentUuid ? or restrict to fileUuid ?
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).build();
+    issueMapping.createDoubleField(FIELD_ISSUE_DEBT);
+    issueMapping.createDoubleField(FIELD_ISSUE_EFFORT);
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_FILE_PATH).enableSorting().build();
+    issueMapping.createDateTimeField(FIELD_ISSUE_FUNC_CREATED_AT);
+    issueMapping.createDateTimeField(FIELD_ISSUE_FUNC_UPDATED_AT);
+    issueMapping.createDateTimeField(FIELD_ISSUE_FUNC_CLOSED_AT);
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_KEY).enableSorting().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_LANGUAGE).build();
+    issueMapping.createIntegerField(FIELD_ISSUE_LINE);
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_MESSAGE).build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_MODULE_UUID).build();
+    issueMapping.createUuidPathField(FIELD_ISSUE_MODULE_PATH);
     // TODO do we need to sort by project ?
-    issueMapping.stringFieldBuilder("project").enableSorting().build();
-    issueMapping.stringFieldBuilder("reporter").build();
-    issueMapping.stringFieldBuilder("resolution").build();
-    issueMapping.stringFieldBuilder("ruleKey").build();
-    issueMapping.stringFieldBuilder("severity").build();
+    // TODO rename into projectUuid ?
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_PROJECT_UUID).enableSorting().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_REPORTER).build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_RESOLUTION).build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_RULE_KEY).build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_SEVERITY).build();
     // TODO do we need to sort by severity ?
-    issueMapping.createByteField("severityValue");
+    issueMapping.createByteField(FIELD_ISSUE_SEVERITY_VALUE);
     // TODO do we really sort by status ? If yes, then we should sort by "int value", but not by string key
-    issueMapping.stringFieldBuilder("status").enableSorting().build();
-    issueMapping.createDateTimeField("updatedAt");
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_STATUS).enableSorting().build();
+    // TODO is createdAt required ?
+    issueMapping.createDateTimeField(FIELD_ISSUE_CREATED_AT);
+    issueMapping.createDateTimeField(FIELD_ISSUE_UPDATED_AT);
   }
 }

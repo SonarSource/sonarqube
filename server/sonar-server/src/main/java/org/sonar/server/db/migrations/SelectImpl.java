@@ -81,6 +81,7 @@ class SelectImpl extends BaseSqlStatement<Select> implements Select {
   }
 
   static SelectImpl create(Database db, Connection connection, String sql) throws SQLException {
+    // TODO use DbClient#newScrollingSelectStatement()
     PreparedStatement pstmt = connection.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
     pstmt.setFetchSize(db.getDialect().getScrollDefaultFetchSize());
     return new SelectImpl(pstmt);

@@ -24,13 +24,14 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.ServerComponent;
 
 import java.util.Map;
 
 /**
  * Create registered indices in Elasticsearch.
  */
-public class IndexCreator implements Startable {
+public class IndexCreator implements ServerComponent, Startable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexCreator.class);
 
@@ -41,16 +42,29 @@ public class IndexCreator implements Startable {
   private static final String SETTING_HASH = "sonar_hash";
 
   private final EsClient client;
-  private final IndexDefinition[] definitions;
+  private final IndexRegistry registry;
 
-  public IndexCreator(EsClient client, IndexDefinition[] definitions) {
+  public IndexCreator(EsClient client, IndexRegistry registry) {
     this.client = client;
-    this.definitions = definitions;
+    this.registry = registry;
   }
 
   @Override
   public void start() {
-    create();
+    // create indices that do not exist or that have a new definition (different mapping, cluster enabled, ...)
+    for (IndexRegistry.Index index : registry.getIndices().values()) {
+      boolean exists = client.prepareExists(index.getName()).get().isExists();
+      if (exists) {
+        if (needsToDeleteIndex(index)) {
+          LOGGER.info(String.format("Delete index %s (settings changed)", index.getName()));
+          deleteIndex(index.getName());
+          exists = false;
+        }
+      }
+      if (!exists) {
+        createIndex(index);
+      }
+    }
   }
 
   @Override
@@ -58,42 +72,20 @@ public class IndexCreator implements Startable {
     // nothing to do
   }
 
-  public void create() {
-    // collect definitions
-    IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
-    for (IndexDefinition definition : definitions) {
-      definition.define(context);
-    }
-
-    // create indices that do not exist or that have a new definition (different mapping, cluster enabled, ...)
-    for (NewIndex newIndex : context.getIndices().values()) {
-      boolean exists = client.prepareExists(newIndex.getName()).get().isExists();
-      if (exists) {
-        if (needsToDeleteIndex(newIndex)) {
-          LOGGER.info(String.format("Delete index %s (settings changed)", newIndex.getName()));
-          deleteIndex(newIndex.getName());
-          exists = false;
-        }
-      }
-      if (!exists) {
-        createIndex(newIndex);
-      }
-    }
-  }
-
-  private void createIndex(NewIndex newIndex) {
-    LOGGER.info(String.format("Create index %s", newIndex.getName()));
-    ImmutableSettings.Builder settings = newIndex.getSettings();
-    settings.put(SETTING_HASH, new IndexHash().of(newIndex));
+  private void createIndex(IndexRegistry.Index index) {
+    LOGGER.info(String.format("Create index %s", index.getName()));
+    ImmutableSettings.Builder settings = ImmutableSettings.builder();
+    settings.put(index.getSettings());
+    settings.put(SETTING_HASH, new IndexHash().of(index));
     client
-      .prepareCreate(newIndex.getName())
+      .prepareCreate(index.getName())
       .setSettings(settings)
       .get();
 
     // create types
-    for (Map.Entry<String, NewIndex.NewMapping> entry : newIndex.getMappings().entrySet()) {
-      LOGGER.info(String.format("Create type %s/%s", newIndex.getName(), entry.getKey()));
-      client.preparePutMapping(newIndex.getName())
+    for (Map.Entry<String, IndexRegistry.IndexType> entry : index.getTypes().entrySet()) {
+      LOGGER.info(String.format("Create type %s/%s", index.getName(), entry.getKey()));
+      client.preparePutMapping(index.getName())
         .setType(entry.getKey())
         .setIgnoreConflicts(false)
         .setSource(entry.getValue().getAttributes())
@@ -105,7 +97,7 @@ public class IndexCreator implements Startable {
     client.nativeClient().admin().indices().prepareDelete(indexName).get();
   }
 
-  private boolean needsToDeleteIndex(NewIndex index) {
+  private boolean needsToDeleteIndex(IndexRegistry.Index index) {
     boolean toBeDeleted = false;
     String hash = client.nativeClient().admin().indices().prepareGetSettings(index.getName()).get().getSetting(index.getName(), "index." + SETTING_HASH);
     if (hash != null) {

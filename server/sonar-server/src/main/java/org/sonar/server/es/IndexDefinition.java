@@ -19,20 +19,21 @@
  */
 package org.sonar.server.es;
 
-import java.util.HashMap;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import org.sonar.api.ServerComponent;
+
 import java.util.Map;
 
-public interface IndexDefinition {
+public interface IndexDefinition extends ServerComponent {
 
   public static class IndexDefinitionContext {
-    private final Map<String, NewIndex> byKey = new HashMap<String, NewIndex>();
+    private final Map<String, NewIndex> byKey = Maps.newHashMap();
 
     public NewIndex create(String key) {
-      NewIndex index = byKey.get(key);
-      if (index == null) {
-        index = new NewIndex(key);
-        byKey.put(key, index);
-      }
+      Preconditions.checkArgument(!byKey.containsKey(key), String.format("Index already exists: %s", key));
+      NewIndex index = new NewIndex(key);
+      byKey.put(key, index);
       return index;
     }
 
@@ -41,5 +42,7 @@ public interface IndexDefinition {
     }
   }
 
+
   void define(IndexDefinitionContext context);
+
 }

@@ -25,11 +25,11 @@ import org.sonar.test.TestUtils;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DefaultMappingSettingsTest {
+public class DefaultIndexSettingsTest {
 
   @Test
   public void defaults() throws Exception {
-    ImmutableMap<String, String> map = DefaultMappingSettings.defaults().build().getAsMap();
+    ImmutableMap<String, String> map = DefaultIndexSettings.defaults().build().getAsMap();
     assertThat(map).isNotEmpty();
 
     // test some values
@@ -40,7 +40,7 @@ public class DefaultMappingSettingsTest {
 
   @Test
   public void only_statics() throws Exception {
-    TestUtils.hasOnlyPrivateConstructors(DefaultMappingSettings.class);
+    TestUtils.hasOnlyPrivateConstructors(DefaultIndexSettings.class);
 
   }
 }

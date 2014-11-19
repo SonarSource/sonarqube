@@ -17,27 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations;
+package org.sonar.server.es;
 
-import org.junit.Test;
-import org.slf4j.Logger;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
 
-import java.sql.SQLException;
+public class FakeIndexDefinition implements IndexDefinition {
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+  public static final String INDEX = "fakes";
+  public static final String TYPE = "fake";
+  public static final String INT_FIELD = "intField";
 
-public class SqlUtilTest {
+  private int replicas = 0;
 
-  @Test
-  public void log_all_sql_exceptions() {
-    SQLException root = new SQLException("this is root", "123");
-    SQLException next = new SQLException("this is next", "456");
-    root.setNextException(next);
+  public FakeIndexDefinition setReplicas(int replicas) {
+    this.replicas = replicas;
+    return this;
+  }
 
-    Logger logger = mock(Logger.class);
-    SqlUtil.log(logger, root);
-
-    verify(logger).error("SQL error: {}. Message: {}", "456", "this is next");
+  @Override
+  public void define(IndexDefinitionContext context) {
+    NewIndex index = context.create(INDEX);
+    index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
+    NewIndex.NewIndexType type = index.createType(TYPE);
+    type.createIntegerField(INT_FIELD);
   }
 }

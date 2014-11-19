@@ -35,7 +35,7 @@ public class NewIndexTest {
   public void most_basic_index() throws Exception {
     NewIndex index = new NewIndex("issues");
     assertThat(index.getName()).isEqualTo("issues");
-    assertThat(index.getMappings()).isEmpty();
+    assertThat(index.getTypes()).isEmpty();
     Settings settings = index.getSettings().build();
     // test some basic settings
     assertThat(settings.get("index.number_of_shards")).isNotEmpty();
@@ -54,7 +54,7 @@ public class NewIndexTest {
   @Test
   public void define_fields() throws Exception {
     NewIndex index = new NewIndex("issues");
-    NewIndex.NewMapping mapping = index.createMapping("issue");
+    NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.setAttribute("dynamic", "true");
     mapping.setProperty("foo_field", ImmutableMap.of("type", "string"));
     mapping.createBooleanField("boolean_field");
@@ -66,7 +66,7 @@ public class NewIndexTest {
     mapping.createShortField("short_field");
     mapping.createUuidPathField("uuid_path_field");
 
-    mapping = index.getMappings().get("issue");
+    mapping = index.getTypes().get("issue");
     assertThat(mapping.getAttributes().get("dynamic")).isEqualTo("true");
     assertThat(mapping).isNotNull();
     assertThat(mapping.getProperty("foo_field")).isInstanceOf(Map.class);
@@ -84,7 +84,7 @@ public class NewIndexTest {
   @Test
   public void define_string_field() throws Exception {
     NewIndex index = new NewIndex("issues");
-    NewIndex.NewMapping mapping = index.createMapping("issue");
+    NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.stringFieldBuilder("basic_field").build();
     mapping.stringFieldBuilder("all_capabilities_field")
       .enableGramSearch()

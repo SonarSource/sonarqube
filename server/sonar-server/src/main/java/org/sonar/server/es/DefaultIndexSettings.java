@@ -22,9 +22,9 @@ package org.sonar.server.es;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.ImmutableSettings;
 
-class DefaultMappingSettings {
+class DefaultIndexSettings {
 
-  private DefaultMappingSettings() {
+  private DefaultIndexSettings() {
     // only static stuff
   }
 

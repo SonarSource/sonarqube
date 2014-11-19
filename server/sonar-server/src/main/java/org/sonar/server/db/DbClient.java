@@ -47,6 +47,10 @@ import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.user.db.GroupDao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -210,5 +214,18 @@ public class DbClient implements ServerComponent {
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {
     return (K) map.get(clazz);
+  }
+
+  /**
+   * Create a PreparedStatement for SELECT requests with scrolling of results
+   */
+  public final PreparedStatement newScrollingSelectStatement(Connection connection, String sql) {
+    try {
+      PreparedStatement stmt = connection.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+      stmt.setFetchSize(database().getDialect().getScrollDefaultFetchSize());
+      return stmt;
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to create SQL statement: " + sql, e);
+    }
   }
 }

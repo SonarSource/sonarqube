@@ -21,6 +21,7 @@ package org.sonar.server.search;
 
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -84,6 +85,13 @@ public class BaseIndexTest {
     settings.setProperty(ProcessConstants.SEARCH_PORT, clusterPort.toString());
     settings.setProperty(ProcessConstants.PATH_HOME, dataDir.getAbsolutePath());
     searchClient = new SearchClient(settings);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    if (searchClient != null) {
+      searchClient.stop();
+    }
   }
 
   @Test

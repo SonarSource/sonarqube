@@ -24,6 +24,7 @@ import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.fetch.source.FetchSourceContext;
+import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
@@ -37,6 +38,11 @@ public class ProxyMultiGetRequestBuilderTest {
 
   Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
   SearchClient searchClient = new SearchClient(new Settings(), profiling);
+
+  @After
+  public void tearDown() throws Exception {
+    searchClient.stop();
+  }
 
   @Test
   public void multi_get() {
@@ -82,6 +88,7 @@ public class ProxyMultiGetRequestBuilderTest {
     }
 
     // TODO assert profiling
+    searchClient.stop();
   }
 
   @Test

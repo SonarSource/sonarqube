@@ -38,7 +38,6 @@ import org.sonar.process.Props;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 
 public class SearchServerTest {
 
@@ -127,49 +126,6 @@ public class SearchServerTest {
     searchServer.stop();
     slaveServer.stop();
     searchServer.awaitStop();
-    slaveServer.awaitStop();
-  }
-
-  @Test
-  public void slave_failed_replication() throws Exception {
-    Props props = new Props(new Properties());
-    props.set(ProcessConstants.SEARCH_PORT, String.valueOf(port));
-    props.set(ProcessConstants.CLUSTER_ACTIVATE, "false");
-    props.set(ProcessConstants.CLUSTER_NAME, CLUSTER_NAME);
-    props.set(ProcessConstants.CLUSTER_NODE_NAME, "NOT_MASTER");
-    props.set(ProcessConstants.PATH_HOME, temp.newFolder().getAbsolutePath());
-    searchServer = new SearchServer(props);
-    assertThat(searchServer).isNotNull();
-
-    searchServer.start();
-    assertThat(searchServer.isReady()).isTrue();
-
-    client = getSearchClient();
-    client.admin().indices().prepareCreate("test").get();
-
-    // start a slave
-    props = new Props(new Properties());
-    props.set(ProcessConstants.CLUSTER_ACTIVATE, "true");
-    props.set(ProcessConstants.CLUSTER_MASTER, "false");
-    props.set(ProcessConstants.CLUSTER_MASTER_HOST, "localhost:" + port);
-    props.set(ProcessConstants.CLUSTER_NAME, CLUSTER_NAME);
-    props.set(ProcessConstants.CLUSTER_NODE_NAME, "SLAVE");
-    props.set(ProcessConstants.SEARCH_PORT, String.valueOf(NetworkUtils.freePort()));
-    props.set(ProcessConstants.PATH_HOME, temp.newFolder().getAbsolutePath());
-    SearchServer slaveServer = new SearchServer(props);
-    assertThat(slaveServer).isNotNull();
-
-    try {
-      slaveServer.start();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Invalid number of Elasticsearch replicas: 0");
-    }
-
-    assertThat(client.admin().cluster().prepareClusterStats().get()
-      .getNodesStats().getCounts().getTotal()).isEqualTo(1);
-
-    slaveServer.stop();
     slaveServer.awaitStop();
   }
 
