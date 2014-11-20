@@ -112,6 +112,7 @@ public class BulkIndexer implements Startable {
     bulkRequest.request().add(request);
     if (bulkRequest.request().estimatedSizeInBytes() >= flushByteSize) {
       executeBulk(bulkRequest);
+      bulkRequest = client.prepareBulk();
     }
   }
 

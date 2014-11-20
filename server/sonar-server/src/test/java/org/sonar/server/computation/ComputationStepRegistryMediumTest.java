@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.platform.ComponentContainer;
+import org.sonar.server.source.IndexSourceLinesStep;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
@@ -49,6 +50,7 @@ public class ComputationStepRegistryMediumTest {
     pico.addSingleton(mock(DataCleanerStep.class));
     pico.addSingleton(mock(InvalidatePreviewCacheStep.class));
     pico.addSingleton(mock(ComponentIndexationInDatabaseStep.class));
+    pico.addSingleton(mock(IndexSourceLinesStep.class));
 
     sut = new ComputationStepRegistry(pico);
   }
@@ -61,7 +63,8 @@ public class ComputationStepRegistryMediumTest {
       InvalidatePreviewCacheStep.class,
       ComponentIndexationInDatabaseStep.class,
       DataCleanerStep.class,
-      IndexProjectIssuesStep.class
+      IndexProjectIssuesStep.class,
+      IndexSourceLinesStep.class
       );
     List<ComputationStep> steps = sut.steps();
 

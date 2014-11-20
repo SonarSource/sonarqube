@@ -84,7 +84,7 @@ public class SourceLineDoc extends BaseDoc {
   }
 
   public void setHighlighting(String fileUuid) {
-    setField(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid);
+    setField(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, fileUuid);
   }
 
   public String source() {

@@ -39,6 +39,7 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.source.index.SourceLineIndexer;
 import org.sonar.server.tester.ServerTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -51,14 +52,16 @@ public class IndexSynchronizerMediumTest {
   IndexSynchronizer synchronizer;
   DbClient dbClient;
   IndexClient indexClient;
+  SourceLineIndexer sourceLineIndexer;
   DbSession dbSession;
 
   @Before
   public void setUp() throws Exception {
     dbClient = tester.get(DbClient.class);
     indexClient = tester.get(IndexClient.class);
+    sourceLineIndexer = tester.get(SourceLineIndexer.class);
     dbSession = dbClient.openSession(false);
-    synchronizer = new IndexSynchronizer(dbClient, indexClient);
+    synchronizer = new IndexSynchronizer(dbClient, indexClient, sourceLineIndexer);
     tester.clearDbAndIndexes();
   }
 

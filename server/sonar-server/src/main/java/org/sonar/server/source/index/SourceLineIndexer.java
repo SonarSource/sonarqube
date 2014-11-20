@@ -25,7 +25,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.IssueIndexDefinition;
 
 import java.sql.Connection;
 import java.util.Collection;
@@ -92,7 +91,7 @@ public class SourceLineIndexer implements ServerComponent {
 
   private UpdateRequest newUpsertRequest(SourceLineDoc lineDoc) {
     String projectUuid = lineDoc.projectUuid();
-    return new UpdateRequest(IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE, lineDoc.key())
+    return new UpdateRequest(SourceLineIndexDefinition.INDEX_SOURCE_LINES, SourceLineIndexDefinition.TYPE_SOURCE_LINE, lineDoc.key())
       .routing(projectUuid)
       .doc(lineDoc.getFields())
       .upsert(lineDoc.getFields());

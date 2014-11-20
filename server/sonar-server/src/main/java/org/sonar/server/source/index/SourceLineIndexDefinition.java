@@ -31,9 +31,9 @@ public class SourceLineIndexDefinition implements IndexDefinition {
   public static final String FIELD_PROJECT_UUID = "projectUuid";
   public static final String FIELD_FILE_UUID = "fileUuid";
   public static final String FIELD_LINE = "line";
-  public static final String FIELD_SCM_REVISION = "scm_revision";
-  public static final String FIELD_SCM_AUTHOR = "scm_author";
-  public static final String FIELD_SCM_DATE = "scm_date";
+  public static final String FIELD_SCM_REVISION = "scmRevision";
+  public static final String FIELD_SCM_AUTHOR = "scmAuthor";
+  public static final String FIELD_SCM_DATE = "scmDate";
   public static final String FIELD_HIGHLIGHTING = "highlighting";
   public static final String FIELD_SOURCE = "source";
 

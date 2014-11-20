@@ -32,6 +32,7 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueNormalizer;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.source.index.SourceLineIndexer;
 
 import java.util.Date;
 import java.util.List;
@@ -46,10 +47,12 @@ public class IndexSynchronizer {
 
   private final DbClient db;
   private final IndexClient index;
+  private final SourceLineIndexer sourceLineIndexer;
 
-  public IndexSynchronizer(DbClient db, IndexClient index) {
+  public IndexSynchronizer(DbClient db, IndexClient index, SourceLineIndexer sourceLineIndexer) {
     this.db = db;
     this.index = index;
+    this.sourceLineIndexer = sourceLineIndexer;
   }
 
   public void execute() {
@@ -66,6 +69,10 @@ public class IndexSynchronizer {
         IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field(), projectUuids);
       synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
       synchronize(session, db.activityDao(), index.get(ActivityIndex.class));
+
+      LOG.info("Indexing of sourceLine records");
+      sourceLineIndexer.indexSourceLines(true);
+
       session.commit();
       LOG.info("Synchronization done in {}ms...", System.currentTimeMillis() - start);
     } finally {

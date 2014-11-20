@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.ComponentContainer;
+import org.sonar.server.source.IndexSourceLinesStep;
 
 import java.util.List;
 
@@ -50,6 +51,8 @@ public class ComputationStepRegistry implements ServerComponent {
     steps.add(pico.getComponentByType(DataCleanerStep.class));
     // project only
     steps.add(pico.getComponentByType(IndexProjectIssuesStep.class));
+    // project only
+    steps.add(pico.getComponentByType(IndexSourceLinesStep.class));
 
     return ImmutableList.copyOf(steps);
   }

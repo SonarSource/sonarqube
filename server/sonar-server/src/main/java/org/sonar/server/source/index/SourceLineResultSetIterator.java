@@ -31,7 +31,9 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
 import org.sonar.server.db.migrations.SqlUtil;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.sql.*;
 import java.util.Collection;
@@ -56,18 +58,18 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from file_sources";
 
-  private static final String SQL_AFTER_DATE = SQL_ALL + " where i.updated_at>=?";
+  private static final String SQL_AFTER_DATE = SQL_ALL + " where updated_at>=?";
 
   static SourceLineResultSetIterator create(DbClient dbClient, Connection connection, long afterDate) {
     try {
       String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
       PreparedStatement stmt = dbClient.newScrollingSelectStatement(connection, sql);
       if (afterDate > 0L) {
-        stmt.setTimestamp(0, new Timestamp(afterDate));
+        stmt.setTimestamp(1, new Timestamp(afterDate));
       }
       return new SourceLineResultSetIterator(stmt);
     } catch (SQLException e) {
-      throw new IllegalStateException("Fail to prepare SQL request to select all issues", e);
+      throw new IllegalStateException("Fail to prepare SQL request to select all file sources", e);
     }
   }
 
@@ -77,13 +79,10 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
 
   @Override
   protected Collection<SourceLineDoc> read(ResultSet rs) throws SQLException {
-
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
-    // createdAt = rs.getDate(3);
     Date updatedAt = SqlUtil.getDate(rs, 4);
-    Reader dataStream = rs.getClob(5).getCharacterStream();
-    // String dataHash = rs.getString(6);
+    Reader dataStream = new InputStreamReader(new ByteArrayInputStream(rs.getBytes(5)));
 
     int line = 1;
     List<SourceLineDoc> lines = Lists.newArrayList();
@@ -91,22 +90,28 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
     try {
       csvParser = new CSVParser(dataStream, CSVFormat.DEFAULT);
 
-      for(CSVRecord record: csvParser) {
-        SourceLineDoc doc = new SourceLineDoc(Maps.<String, Object>newHashMapWithExpectedSize(8));
+      for(CSVRecord csvRecord: csvParser) {
+        SourceLineDoc doc = new SourceLineDoc(Maps.<String, Object>newHashMapWithExpectedSize(9));
   
         doc.setProjectUuid(projectUuid);
         doc.setFileUuid(fileUuid);
-        doc.setLine(line ++);
+        doc.setLine(line);
         doc.setUpdateDate(updatedAt);
-        doc.setScmRevision(record.get(0));
-        doc.setScmAuthor(record.get(1));
-        doc.setScmDate(DateUtils.parseDateTimeQuietly(record.get(2)));
-        doc.setHighlighting(record.get(3));
-        doc.setSource(record.get(4));
+        doc.setScmRevision(csvRecord.get(0));
+        doc.setScmAuthor(csvRecord.get(1));
+        doc.setScmDate(DateUtils.parseDateTimeQuietly(csvRecord.get(2)));
+        doc.setHighlighting(csvRecord.get(3));
+        doc.setSource(csvRecord.get(4));
+
+        lines.add(doc);
+
+        line ++;
       }
     } catch(IOException ioError) {
+      throw new IllegalStateException("Impossible to open stream for file_sources.data with file_uuid " + fileUuid);
+    } catch(ArrayIndexOutOfBoundsException lineError) {
       throw new IllegalStateException(
-        String.format("Impossible to parse source line data, stuck at line %d", line), ioError);
+        String.format("Impossible to parse source line data, stuck at line %d", line), lineError);
     } finally {
       IOUtils.closeQuietly(csvParser);
       IOUtils.closeQuietly(dataStream);
