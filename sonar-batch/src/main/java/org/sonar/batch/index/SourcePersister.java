@@ -22,6 +22,7 @@ package org.sonar.batch.index;
 import com.google.common.base.CharMatcher;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -117,7 +118,7 @@ public class SourcePersister implements ScanPersister {
           String fileUuid = file.getUuid();
           FileSourceDto previous = mapper.select(fileUuid);
           String newData = getSourceData(inputFile);
-          String dataHash = DigestUtils.md5Hex(newData);
+          String dataHash = newData != null ? DigestUtils.md5Hex(newData) : "0";
           Date now = system2.newDate();
           if (previous == null) {
             FileSourceDto newFileSource = new FileSourceDto().setProjectUuid(projectTree.getRootProject().getUuid()).setFileUuid(fileUuid).setData(newData).setDataHash(dataHash)
@@ -143,9 +144,10 @@ public class SourcePersister implements ScanPersister {
 
   }
 
+  @CheckForNull
   String getSourceData(DefaultInputFile file) {
     if (file.lines() == 0) {
-      return "";
+      return null;
     }
     List<String> lines;
     try {
@@ -170,7 +172,7 @@ public class SourcePersister implements ScanPersister {
         CharMatcher.anyOf(BOM).removeFrom(lines.get(lineIdx - 1)));
     }
     csv.close();
-    return new String(output.toByteArray(), UTF_8);
+    return StringUtils.defaultIfEmpty(new String(output.toByteArray(), UTF_8), null);
   }
 
   String[] computeHighlightingPerLine(DefaultInputFile file, @Nullable SyntaxHighlightingData highlighting) {
