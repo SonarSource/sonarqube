@@ -79,7 +79,7 @@ public class AnalysisReportHistorySearchAction implements RequestHandler {
 
     JsonWriter json = response.newJsonWriter().beginObject();
     searchOptions.writeStatistics(json, results);
-    writeReports(results, json, searchOptions);
+    writeReports(results, json);
     json.endObject().close();
   }
 
@@ -87,7 +87,7 @@ public class AnalysisReportHistorySearchAction implements RequestHandler {
     UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
-  private void writeReports(Result<Activity> result, JsonWriter json, SearchOptions options) {
+  private void writeReports(Result<Activity> result, JsonWriter json) {
     json.name("reports").beginArray();
     for (Activity reportActivity : result.getHits()) {
       json.beginObject();

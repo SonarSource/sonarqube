@@ -20,7 +20,6 @@
 
 package org.sonar.server.computation.ws;
 
-import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -72,7 +71,7 @@ public class ActiveAnalysisReportsAction implements RequestHandler {
       .createAction("active")
       .setDescription("List all the active analysis reports")
       .setSince("5.0")
-      .setResponseExample(Resources.getResource(getClass(), "example-list.json"))
+      .setInternal(true)
       .setHandler(this);
   }
 
