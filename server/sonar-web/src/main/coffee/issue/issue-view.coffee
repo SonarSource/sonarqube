@@ -14,6 +14,7 @@ define [
   'issue/views/plan-form-view'
   'issue/views/set-severity-form-view'
   'issue/views/more-actions-view'
+  'issue/views/rule-overlay'
 
 ], (
   Marionette
@@ -31,6 +32,7 @@ define [
   PlanFormView
   SetSeverityFormView
   MoreActionsView
+  RuleOverlay
 
 ) ->
 
@@ -58,6 +60,7 @@ define [
       'click .js-issue-plan': 'plan'
       'click .js-issue-show-changelog': 'showChangeLog'
       'click .js-issue-more': 'showMoreActions'
+      'click .js-issue-rule': 'showRule'
 
 
     onRender: ->
@@ -244,7 +247,9 @@ define [
         window.process.failBackgroundProcess p
 
 
-    serializeData: ->
-      ruleKey = encodeURIComponent @model.get 'rule'
-      _.extend super,
-        rulePermalink: "#{baseUrl}/coding_rules#rule_key=#{ruleKey}"
+    showRule: ->
+      ruleKey = @model.get 'rule'
+      $.get "#{baseUrl}/api/rules/show", key: ruleKey, (r) =>
+        ruleOverlay = new RuleOverlay
+          model: new Backbone.Model r.rule
+        ruleOverlay.render()
