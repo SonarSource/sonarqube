@@ -9,7 +9,13 @@
     FROM file_sources
     WHERE file_uuid = #{fileUuid}
   </select>
-
+  
+  <select id="selectAllFileDataHashByProject" parameterType="string" resultType="org.sonar.core.source.db.FileSourceDto">
+    SELECT id, file_uuid as fileUuid, data_hash as dataHash
+    FROM file_sources
+    WHERE project_uuid = #{projectUuid}
+  </select>
+  
   <insert id="insert" parameterType="org.sonar.core.source.db.FileSourceDto" useGeneratedKeys="false">
     insert into file_sources (project_uuid, file_uuid, created_at, updated_at, data, data_hash) 
     values (#{projectUuid}, #{fileUuid}, #{createdAt}, #{updatedAt}, #{data}, #{dataHash})

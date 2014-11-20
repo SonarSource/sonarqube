@@ -23,6 +23,8 @@ import com.google.common.base.CharMatcher;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -55,6 +57,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -109,11 +112,23 @@ public class SourcePersister implements ScanPersister {
   public void persist() {
     DbSession session = mybatis.openSession(false);
     try {
+
+      final Map<String, FileSourceDto> fileSourceDtoByFileUuid = new HashMap<String, FileSourceDto>();
+
+      session.select("org.sonar.core.source.db.FileSourceMapper.selectAllFileDataHashByProject", projectTree.getRootProject().getUuid(), new ResultHandler() {
+
+        @Override
+        public void handleResult(ResultContext context) {
+          FileSourceDto dto = (FileSourceDto) context.getResultObject();
+          fileSourceDtoByFileUuid.put(dto.getFileUuid(), dto);
+        }
+      });
+
       FileSourceMapper mapper = session.getMapper(FileSourceMapper.class);
 
       for (InputPath inputPath : inputPathCache.all()) {
         if (inputPath instanceof InputFile) {
-          persist(session, mapper, inputPath);
+          persist(session, mapper, inputPath, fileSourceDtoByFileUuid);
         }
       }
     } catch (Exception e) {
@@ -124,23 +139,23 @@ public class SourcePersister implements ScanPersister {
 
   }
 
-  private void persist(DbSession session, FileSourceMapper mapper, InputPath inputPath) {
+  private void persist(DbSession session, FileSourceMapper mapper, InputPath inputPath, Map<String, FileSourceDto> fileSourceDtoByFileUuid) {
     DefaultInputFile inputFile = (DefaultInputFile) inputPath;
     org.sonar.api.resources.File file = (org.sonar.api.resources.File) resourceCache.get(inputFile.key());
     String fileUuid = file.getUuid();
-    FileSourceDto previous = mapper.select(fileUuid);
+    FileSourceDto previous = fileSourceDtoByFileUuid.get(fileUuid);
     String newData = getSourceData(inputFile);
-    String dataHash = newData != null ? DigestUtils.md5Hex(newData) : "0";
+    String newDataHash = newData != null ? DigestUtils.md5Hex(newData) : "0";
     Date now = system2.newDate();
     if (previous == null) {
-      FileSourceDto newFileSource = new FileSourceDto().setProjectUuid(projectTree.getRootProject().getUuid()).setFileUuid(fileUuid).setData(newData).setDataHash(dataHash)
+      FileSourceDto newFileSource = new FileSourceDto().setProjectUuid(projectTree.getRootProject().getUuid()).setFileUuid(fileUuid).setData(newData).setDataHash(newDataHash)
         .setCreatedAt(now)
         .setUpdatedAt(now);
       mapper.insert(newFileSource);
       session.commit();
     } else {
-      if (!dataHash.equals(previous.getDataHash())) {
-        previous.setData(newData).setDataHash(dataHash).setUpdatedAt(now);
+      if (!newDataHash.equals(previous.getDataHash())) {
+        previous.setData(newData).setDataHash(newDataHash).setUpdatedAt(now);
         mapper.update(previous);
         session.commit();
       }

@@ -22,7 +22,11 @@ package org.sonar.core.source.db;
 
 import javax.annotation.CheckForNull;
 
+import java.util.List;
+
 public interface FileSourceMapper {
+
+  List<FileSourceDto> selectAllFileDataHashByProject(String projectUuid);
 
   @CheckForNull
   FileSourceDto select(String fileUuid);
