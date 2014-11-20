@@ -111,13 +111,13 @@ public final class PhaseExecutor {
 
     if (phases.isEnabled(Phases.Phase.SENSOR)) {
       // Index and lock the filesystem
-      fs.index();
+      indexFs();
 
       // Log detected languages and their profiles after FS is indexed and languages detected
       profileVerifier.execute();
 
       // Initialize issue exclusions
-      issueExclusionsLoader.execute();
+      initIssueExclusions();
 
       sensorsExecutor.execute(sensorContext);
     }
@@ -137,6 +137,20 @@ public final class PhaseExecutor {
     }
     cleanMemory();
     eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
+  }
+
+  private void initIssueExclusions() {
+    String stepName = "Init issue exclusions";
+    eventBus.fireEvent(new BatchStepEvent(stepName, true));
+    issueExclusionsLoader.execute();
+    eventBus.fireEvent(new BatchStepEvent(stepName, false));
+  }
+
+  private void indexFs() {
+    String stepName = "Index filesystem and store sources";
+    eventBus.fireEvent(new BatchStepEvent(stepName, true));
+    fs.index();
+    eventBus.fireEvent(new BatchStepEvent(stepName, false));
   }
 
   private void executePersisters() {
