@@ -37,7 +37,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
-import org.sonar.batch.highlighting.SyntaxHighlightingRule;
+import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -188,16 +189,86 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.SCM_REVISIONS_BY_LINE_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.SCM_REVISIONS_BY_LINE, "1=123;2=234;3=345")));
 
-    SyntaxHighlightingData highlighting = new SyntaxHighlightingData(Arrays.asList(
-      SyntaxHighlightingRule.create(0, 3, TypeOfText.ANNOTATION),
-      SyntaxHighlightingRule.create(4, 5, TypeOfText.COMMENT),
-      SyntaxHighlightingRule.create(7, 16, TypeOfText.CONSTANT)
-      ));
+    SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
+      .registerHighlightingRule(0, 3, TypeOfText.ANNOTATION)
+      .registerHighlightingRule(4, 5, TypeOfText.COMMENT)
+      .registerHighlightingRule(7, 16, TypeOfText.CONSTANT)
+      .build();
     when(componentDataCache.getData(PROJECT_KEY + ":" + relativePathNew, SnapshotDataTypes.SYNTAX_HIGHLIGHTING))
       .thenReturn(highlighting);
 
     sourcePersister.persist();
     checkTables("testPersistNewFileWithScmAndHighlighting", "file_sources");
+  }
+
+  @Test
+  public void testSimpleConversionOfHighlightingOffset() {
+    DefaultInputFile file = new DefaultInputFile(PROJECT_KEY, "src/foo.java")
+      .setLines(3)
+      .setOriginalLineOffsets(new long[] {0, 4, 7});
+
+    SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
+      .registerHighlightingRule(0, 3, TypeOfText.ANNOTATION)
+      .registerHighlightingRule(4, 5, TypeOfText.COMMENT)
+      .registerHighlightingRule(7, 16, TypeOfText.CONSTANT)
+      .build();
+
+    String[] highlightingPerLine = sourcePersister.computeHighlightingPerLine(file, highlighting);
+
+    assertThat(highlightingPerLine).containsOnly("0,3,a", "0,1,cd", "0,9,c");
+  }
+
+  @Test
+  public void testConversionOfHighlightingOffsetMultiLine() {
+    DefaultInputFile file = new DefaultInputFile(PROJECT_KEY, "src/foo.java")
+      .setLines(3)
+      .setOriginalLineOffsets(new long[] {0, 4, 7});
+
+    SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
+      .registerHighlightingRule(0, 3, TypeOfText.ANNOTATION)
+      .registerHighlightingRule(4, 9, TypeOfText.COMMENT)
+      .registerHighlightingRule(10, 16, TypeOfText.CONSTANT)
+      .build();
+
+    String[] highlightingPerLine = sourcePersister.computeHighlightingPerLine(file, highlighting);
+
+    assertThat(highlightingPerLine).containsOnly("0,3,a", "0,3,cd", "0,2,cd;3,9,c");
+  }
+
+  @Test
+  public void testConversionOfHighlightingNestedRules() {
+    DefaultInputFile file = new DefaultInputFile(PROJECT_KEY, "src/foo.java")
+      .setLines(3)
+      .setOriginalLineOffsets(new long[] {0, 4, 7});
+
+    SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
+      .registerHighlightingRule(0, 3, TypeOfText.ANNOTATION)
+      .registerHighlightingRule(4, 6, TypeOfText.COMMENT)
+      .registerHighlightingRule(7, 16, TypeOfText.CONSTANT)
+      .registerHighlightingRule(8, 15, TypeOfText.KEYWORD)
+      .build();
+
+    String[] highlightingPerLine = sourcePersister.computeHighlightingPerLine(file, highlighting);
+
+    assertThat(highlightingPerLine).containsOnly("0,3,a", "0,2,cd", "0,9,c;1,8,k");
+  }
+
+  @Test
+  public void testConversionOfHighlightingNestedRulesMultiLine() {
+    DefaultInputFile file = new DefaultInputFile(PROJECT_KEY, "src/foo.java")
+      .setLines(3)
+      .setOriginalLineOffsets(new long[] {0, 4, 7});
+
+    SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
+      .registerHighlightingRule(0, 3, TypeOfText.ANNOTATION)
+      .registerHighlightingRule(4, 6, TypeOfText.COMMENT)
+      .registerHighlightingRule(4, 16, TypeOfText.CONSTANT)
+      .registerHighlightingRule(8, 15, TypeOfText.KEYWORD)
+      .build();
+
+    String[] highlightingPerLine = sourcePersister.computeHighlightingPerLine(file, highlighting);
+
+    assertThat(highlightingPerLine).containsOnly("0,3,a", "0,3,c;0,2,cd", "0,9,c;1,8,k");
   }
 
   private void mockResourceCache(String relativePathEmpty, String projectKey, String uuid) {

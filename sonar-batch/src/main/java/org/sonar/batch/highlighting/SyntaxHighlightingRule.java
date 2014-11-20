@@ -50,4 +50,9 @@ public class SyntaxHighlightingRule implements Serializable {
   public TypeOfText getTextType() {
     return textType;
   }
+
+  @Override
+  public String toString() {
+    return "" + startPosition + "," + endPosition + "," + textType.cssClass();
+  }
 }

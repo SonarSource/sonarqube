@@ -113,28 +113,8 @@ public class SourcePersister implements ScanPersister {
 
       for (InputPath inputPath : inputPathCache.all()) {
         if (inputPath instanceof InputFile) {
-          DefaultInputFile inputFile = (DefaultInputFile) inputPath;
-          org.sonar.api.resources.File file = (org.sonar.api.resources.File) resourceCache.get(inputFile.key());
-          String fileUuid = file.getUuid();
-          FileSourceDto previous = mapper.select(fileUuid);
-          String newData = getSourceData(inputFile);
-          String dataHash = newData != null ? DigestUtils.md5Hex(newData) : "0";
-          Date now = system2.newDate();
-          if (previous == null) {
-            FileSourceDto newFileSource = new FileSourceDto().setProjectUuid(projectTree.getRootProject().getUuid()).setFileUuid(fileUuid).setData(newData).setDataHash(dataHash)
-              .setCreatedAt(now)
-              .setUpdatedAt(now);
-            mapper.insert(newFileSource);
-          } else {
-            if (dataHash.equals(previous.getDataHash())) {
-              continue;
-            } else {
-              previous.setData(newData).setDataHash(dataHash).setUpdatedAt(now);
-              mapper.update(previous);
-            }
-          }
+          persist(session, mapper, inputPath);
         }
-        session.commit();
       }
     } catch (Exception e) {
       throw new IllegalStateException("Unable to save file sources", e);
@@ -142,6 +122,29 @@ public class SourcePersister implements ScanPersister {
       MyBatis.closeQuietly(session);
     }
 
+  }
+
+  private void persist(DbSession session, FileSourceMapper mapper, InputPath inputPath) {
+    DefaultInputFile inputFile = (DefaultInputFile) inputPath;
+    org.sonar.api.resources.File file = (org.sonar.api.resources.File) resourceCache.get(inputFile.key());
+    String fileUuid = file.getUuid();
+    FileSourceDto previous = mapper.select(fileUuid);
+    String newData = getSourceData(inputFile);
+    String dataHash = newData != null ? DigestUtils.md5Hex(newData) : "0";
+    Date now = system2.newDate();
+    if (previous == null) {
+      FileSourceDto newFileSource = new FileSourceDto().setProjectUuid(projectTree.getRootProject().getUuid()).setFileUuid(fileUuid).setData(newData).setDataHash(dataHash)
+        .setCreatedAt(now)
+        .setUpdatedAt(now);
+      mapper.insert(newFileSource);
+      session.commit();
+    } else {
+      if (!dataHash.equals(previous.getDataHash())) {
+        previous.setData(newData).setDataHash(dataHash).setUpdatedAt(now);
+        mapper.update(previous);
+        session.commit();
+      }
+    }
   }
 
   @CheckForNull
@@ -176,36 +179,50 @@ public class SourcePersister implements ScanPersister {
   }
 
   String[] computeHighlightingPerLine(DefaultInputFile file, @Nullable SyntaxHighlightingData highlighting) {
-    String[] highlightingPerLine = new String[file.lines()];
+    String[] result = new String[file.lines()];
     if (highlighting == null) {
-      return highlightingPerLine;
+      return result;
     }
     Iterable<SyntaxHighlightingRule> rules = highlighting.syntaxHighlightingRuleSet();
     int currentLineIdx = 1;
-    StringBuilder currentLineSb = new StringBuilder();
+    StringBuilder[] highlightingPerLine = new StringBuilder[file.lines()];
     for (SyntaxHighlightingRule rule : rules) {
-      long ruleStartOffset = rule.getStartPosition();
-      long ruleEndOffset = rule.getEndPosition();
-      while (currentLineIdx < file.lines() && ruleStartOffset >= file.originalLineOffsets()[currentLineIdx]) {
+      while (currentLineIdx < file.lines() && rule.getStartPosition() >= file.originalLineOffsets()[currentLineIdx]) {
         // This rule starts on another line so advance
-        saveLineHighlighting(highlightingPerLine, currentLineIdx, currentLineSb);
         currentLineIdx++;
       }
       // Now we know current rule starts on current line
-      long ruleStartOffsetCurrentLine = ruleStartOffset;
-      while (currentLineIdx < file.lines() && ruleEndOffset >= file.originalLineOffsets()[currentLineIdx]) {
-        // rule continue on next line so write current line and continue on next line with same rule
-        writeRule(currentLineSb, ruleStartOffsetCurrentLine - file.originalLineOffsets()[currentLineIdx - 1], file.originalLineOffsets()[currentLineIdx] - 1, rule.getTextType());
-        saveLineHighlighting(highlightingPerLine, currentLineIdx, currentLineSb);
-        currentLineIdx++;
-        ruleStartOffsetCurrentLine = file.originalLineOffsets()[currentLineIdx];
-      }
-      // Rule ends on current line
-      writeRule(currentLineSb, ruleStartOffsetCurrentLine - file.originalLineOffsets()[currentLineIdx - 1], ruleEndOffset - file.originalLineOffsets()[currentLineIdx - 1],
-        rule.getTextType());
+      writeRule(file, rule, highlightingPerLine, currentLineIdx);
     }
-    saveLineHighlighting(highlightingPerLine, currentLineIdx, currentLineSb);
-    return highlightingPerLine;
+    for (int i = 0; i < file.lines(); i++) {
+      result[i] = highlightingPerLine[i] != null ? highlightingPerLine[i].toString() : null;
+    }
+    return result;
+  }
+
+  private void writeRule(DefaultInputFile file, SyntaxHighlightingRule rule, StringBuilder[] highlightingPerLine, int currentLineIdx) {
+    // We know current rule starts on current line
+    long ruleStartOffsetCurrentLine = rule.getStartPosition();
+    while (currentLineIdx < file.lines() && rule.getEndPosition() >= file.originalLineOffsets()[currentLineIdx]) {
+      // rule continue on next line so write current line and continue on next line with same rule
+      writeRule(highlightingPerLine, currentLineIdx, ruleStartOffsetCurrentLine - file.originalLineOffsets()[currentLineIdx - 1], file.originalLineOffsets()[currentLineIdx]
+        - file.originalLineOffsets()[currentLineIdx - 1],
+        rule.getTextType());
+      currentLineIdx++;
+      ruleStartOffsetCurrentLine = file.originalLineOffsets()[currentLineIdx - 1];
+    }
+    // Rule ends on current line
+    writeRule(highlightingPerLine, currentLineIdx, ruleStartOffsetCurrentLine - file.originalLineOffsets()[currentLineIdx - 1], rule.getEndPosition()
+      - file.originalLineOffsets()[currentLineIdx - 1],
+      rule.getTextType());
+  }
+
+  private void writeRule(StringBuilder[] highlightingPerLine, int currentLineIdx, long startLineOffset, long endLineOffset, TypeOfText textType) {
+    if (highlightingPerLine[currentLineIdx - 1] == null) {
+      highlightingPerLine[currentLineIdx - 1] = new StringBuilder();
+    }
+    StringBuilder currentLineSb = highlightingPerLine[currentLineIdx - 1];
+    writeRule(currentLineSb, startLineOffset, endLineOffset, textType);
   }
 
   private void writeRule(StringBuilder currentLineSb, long startLineOffset, long endLineOffset, TypeOfText textType) {
@@ -217,11 +234,6 @@ public class SourcePersister implements ScanPersister {
       .append(endLineOffset)
       .append(SyntaxHighlightingData.FIELD_SEPARATOR)
       .append(textType.cssClass());
-  }
-
-  private void saveLineHighlighting(String[] highlightingPerLine, int currentLineIdx, StringBuilder currentLineSb) {
-    highlightingPerLine[currentLineIdx - 1] = currentLineSb.toString();
-    currentLineSb.setLength(0);
   }
 
   private Map<Integer, String> getLineMetric(DefaultInputFile file, String metricKey) {

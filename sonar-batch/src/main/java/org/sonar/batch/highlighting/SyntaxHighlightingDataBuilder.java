@@ -19,11 +19,10 @@
  */
 package org.sonar.batch.highlighting;
 
-import com.google.common.collect.Sets;
-import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 
 import javax.annotation.Nullable;
 
@@ -38,10 +37,10 @@ public class SyntaxHighlightingDataBuilder {
     syntaxHighlightingRuleSet = Sets.newTreeSet(new Ordering<SyntaxHighlightingRule>() {
       @Override
       public int compare(@Nullable SyntaxHighlightingRule left,
-                         @Nullable SyntaxHighlightingRule right) {
+        @Nullable SyntaxHighlightingRule right) {
         int result = left.getStartPosition() - right.getStartPosition();
         if (result == 0) {
-          result = left.getEndPosition() - right.getEndPosition();
+          result = right.getEndPosition() - left.getEndPosition();
         }
         return result;
       }
