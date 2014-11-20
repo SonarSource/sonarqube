@@ -1,11 +1,29 @@
 <div class="issue-changelog">
   <table class="spaced">
     <tbody>
+
+    {{#if issue.author}}
+      <tr>
+        <td colspan="3">
+          {{t 'author'}}: {{issue.author}}
+        </td>
+      </tr>
+    {{/if}}
+
+    {{#if issue.reporter}}
+      <tr>
+        <td colspan="3">
+          {{t 'reporter'}}: {{default issue.reporterName issue.reporter}}
+        </td>
+      </tr>
+    {{/if}}
+
     <tr>
       <td class="thin left top" nowrap>{{dt issue.creationDate}}</td>
       <td class="thin left top" nowrap></td>
       <td class="left top">{{t 'created'}}</td>
     </tr>
+    
     {{#each items}}
       <tr>
         <td class="thin left top" nowrap>{{dt creationDate}}</td>

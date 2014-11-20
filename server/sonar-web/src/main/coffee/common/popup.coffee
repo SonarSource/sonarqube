@@ -36,3 +36,13 @@ define [
       $('body').on 'click.bubble-popup', =>
         $('body').off 'click.bubble-popup'
         @close()
+
+      @options.triggerEl.on 'click.bubble-popup', (e) =>
+        @options.triggerEl.off 'click.bubble-popup'
+        e.stopPropagation()
+        @close()
+
+
+    onClose: ->
+      $('body').off 'click.bubble-popup'
+      @options.triggerEl.off 'click.bubble-popup'
