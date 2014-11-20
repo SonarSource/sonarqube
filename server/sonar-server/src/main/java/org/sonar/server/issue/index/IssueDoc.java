@@ -187,8 +187,8 @@ public class IssueDoc extends BaseDoc implements Issue {
   @Override
   @CheckForNull
   public Duration debt() {
-    Integer debt = getNullableField(IssueNormalizer.IssueField.DEBT.field());
-    return (debt != null) ? Duration.create(Long.valueOf(debt)) : null;
+    Number debt = getNullableField(IssueNormalizer.IssueField.DEBT.field());
+    return (debt != null) ? Duration.create(debt.longValue()) : null;
   }
 
   @CheckForNull

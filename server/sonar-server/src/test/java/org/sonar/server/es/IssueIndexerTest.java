@@ -17,37 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.es;
 
-package org.sonar.server.issue.index;
+import com.google.common.collect.Iterators;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.api.config.Settings;
+import org.sonar.server.issue.index.IssueDoc;
 
-import org.sonar.server.es.IssueIndexDefinition;
-import org.sonar.server.search.BaseDoc;
-import org.sonar.server.search.IndexUtils;
+import static org.fest.assertions.Assertions.assertThat;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+public class IssueIndexerTest {
 
-public class IssueAuthorizationDoc extends BaseDoc {
+  @Rule
+  public EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
 
-  public IssueAuthorizationDoc(Map<String, Object> fields) {
-    super(fields);
-  }
-
-  public String project() {
-    return getField(IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID);
-  }
-
-  public List<String> groups() {
-    return (List<String>) getField(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS);
-  }
-
-  public List<String> users() {
-    return (List<String>) getField(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS);
-  }
-
-  public Date updatedAt() {
-    return IndexUtils.parseDateTime((String) getNullableField(IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT));
+  @Test
+  public void index_nothing() throws Exception {
+    IssueIndexer indexer = new IssueIndexer(null, esTester.client());
+    indexer.index(indexer.createBulkIndexer(false), Iterators.<IssueDoc>emptyIterator());
+    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0L);
   }
 
 }

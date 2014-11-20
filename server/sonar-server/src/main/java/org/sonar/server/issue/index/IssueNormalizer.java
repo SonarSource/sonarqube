@@ -57,7 +57,7 @@ public class IssueNormalizer extends BaseNormalizer<IssueDto, String> {
     public static final IndexField ASSIGNEE = addSortable(IndexField.Type.STRING, "assignee");
     public static final IndexField ATTRIBUTES = add(IndexField.Type.STRING, "attributes");
     public static final IndexField AUTHOR_LOGIN = add(IndexField.Type.STRING, "authorLogin");
-    public static final IndexField DEBT = add(IndexField.Type.DOUBLE, "debt");
+    public static final IndexField DEBT = add(IndexField.Type.LONG, "debt");
     public static final IndexField EFFORT = add(IndexField.Type.DOUBLE, "effort");
     public static final IndexField ISSUE_CREATED_AT = addSortable(IndexField.Type.DATE, "issueCreatedAt");
     public static final IndexField ISSUE_UPDATED_AT = addSortable(IndexField.Type.DATE, "issueUpdatedAt");

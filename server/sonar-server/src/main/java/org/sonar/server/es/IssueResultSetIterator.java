@@ -84,7 +84,7 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
       String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
       PreparedStatement stmt = dbClient.newScrollingSelectStatement(connection, sql);
       if (afterDate > 0L) {
-        stmt.setTimestamp(0, new Timestamp(afterDate));
+        stmt.setTimestamp(1, new Timestamp(afterDate));
       }
       return new IssueResultSetIterator(stmt);
     } catch (SQLException e) {

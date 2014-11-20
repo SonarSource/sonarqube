@@ -85,7 +85,7 @@ public class BulkIndexerTest {
   }
 
   private long count() {
-    return esTester.client().prepareCount(FakeIndexDefinition.INDEX).get().getCount();
+    return esTester.countDocuments("fakes", "fake");
   }
 
   private int replicas() {

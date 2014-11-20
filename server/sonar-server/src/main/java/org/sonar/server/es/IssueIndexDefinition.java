@@ -23,8 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessConstants;
-import org.sonar.server.issue.index.IssueAuthorizationNormalizer;
-import org.sonar.server.issue.index.IssueNormalizer;
 import org.sonar.server.search.BaseNormalizer;
 
 /**
@@ -36,6 +34,11 @@ public class IssueIndexDefinition implements IndexDefinition {
 
   public static final String TYPE_ISSUE_AUTHORIZATION = "issueAuthorization";
   public static final String TYPE_ISSUE = "issue";
+
+  public static final String FIELD_AUTHORIZATION_PROJECT_UUID = "project";
+  public static final String FIELD_AUTHORIZATION_GROUPS = "groups";
+  public static final String FIELD_AUTHORIZATION_USERS = "users";
+  public static final String FIELD_AUTHORIZATION_UPDATED_AT = BaseNormalizer.UPDATED_AT_FIELD;
 
   public static final String FIELD_ISSUE_ACTION_PLAN = "actionPlan";
   public static final String FIELD_ISSUE_ASSIGNEE = "assignee";
@@ -84,17 +87,18 @@ public class IssueIndexDefinition implements IndexDefinition {
 
     // type "issueAuthorization"
     NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_ISSUE_AUTHORIZATION);
-    authorizationMapping.setAttribute("_id", ImmutableMap.of("path", IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field()));
-    authorizationMapping.createDateTimeField(BaseNormalizer.UPDATED_AT_FIELD);
-    authorizationMapping.stringFieldBuilder("project").build();
-    authorizationMapping.stringFieldBuilder("groups").build();
-    authorizationMapping.stringFieldBuilder("users").build();
+    authorizationMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_AUTHORIZATION_PROJECT_UUID));
+    //authorizationMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_AUTHORIZATION_PROJECT_UUID));
+    authorizationMapping.createDateTimeField(FIELD_AUTHORIZATION_UPDATED_AT);
+    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_PROJECT_UUID).build();
+    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_GROUPS).build();
+    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_USERS).build();
 
     // type "issue"
     NewIndex.NewIndexType issueMapping = index.createType(TYPE_ISSUE);
-    issueMapping.setAttribute("_id", ImmutableMap.of("path", IssueNormalizer.IssueField.KEY.field()));
+    issueMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_ISSUE_KEY));
     issueMapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_ISSUE_AUTHORIZATION));
-    issueMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", IssueNormalizer.IssueField.PROJECT.field()));
+    issueMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_ISSUE_PROJECT_UUID));
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ACTION_PLAN).build();
     // TODO do we really sort by assignee ?
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).enableSorting().build();
@@ -102,7 +106,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     issueMapping.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).build();
     // TODO rename into componentUuid ? or restrict to fileUuid ?
     issueMapping.stringFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).build();
-    issueMapping.createDoubleField(FIELD_ISSUE_DEBT);
+    issueMapping.createLongField(FIELD_ISSUE_DEBT);
     issueMapping.createDoubleField(FIELD_ISSUE_EFFORT);
     issueMapping.stringFieldBuilder(FIELD_ISSUE_FILE_PATH).enableSorting().build();
     issueMapping.createDateTimeField(FIELD_ISSUE_FUNC_CREATED_AT);

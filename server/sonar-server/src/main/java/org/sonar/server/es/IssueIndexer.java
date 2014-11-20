@@ -19,6 +19,7 @@
  */
 package org.sonar.server.es;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DbSession;
@@ -42,39 +43,24 @@ public class IssueIndexer implements ServerComponent {
     this.esClient = esClient;
   }
 
-  public void indexProjectPermissions() {
-    final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX_ISSUES);
-
-    DbSession dbSession = dbClient.openSession(false);
-    Connection dbConnection = dbSession.getConnection();
-    try {
-      IssueResultSetIterator rowIt = IssueResultSetIterator.create(dbClient, dbConnection, getLastUpdatedAt());
-      indexIssues(bulk, rowIt);
-      rowIt.close();
-
-    } finally {
-      dbSession.close();
-    }
-  }
-
-  public void indexIssues(boolean large) {
+  public void index(boolean large) {
     // TODO support timezones
-    final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX_ISSUES);
-    bulk.setLarge(large);
+    final BulkIndexer bulk = createBulkIndexer(large);
 
     DbSession dbSession = dbClient.openSession(false);
     Connection dbConnection = dbSession.getConnection();
     try {
       IssueResultSetIterator rowIt = IssueResultSetIterator.create(dbClient, dbConnection, getLastUpdatedAt());
-      indexIssues(bulk, rowIt);
+      index(bulk, rowIt);
       rowIt.close();
 
     } finally {
+      DbUtils.closeQuietly(dbConnection);
       dbSession.close();
     }
   }
 
-  public void indexIssues(BulkIndexer bulk, Iterator<IssueDoc> issues) {
+  public void index(BulkIndexer bulk, Iterator<IssueDoc> issues) {
     bulk.start();
     while (issues.hasNext()) {
       IssueDoc issue = issues.next();
@@ -87,6 +73,12 @@ public class IssueIndexer implements ServerComponent {
       }
     }
     bulk.stop();
+  }
+
+  BulkIndexer createBulkIndexer(boolean large) {
+    BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX_ISSUES);
+    bulk.setLarge(large);
+    return bulk;
   }
 
   private long getLastUpdatedAt() {
@@ -103,7 +95,10 @@ public class IssueIndexer implements ServerComponent {
 
   private UpdateRequest newUpsertRequest(IssueDoc issue) {
     String projectUuid = issue.projectUuid();
+
+    // parent doc is issueAuthorization
     issue.setField("_parent", projectUuid);
+
     return new UpdateRequest(IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE, issue.key())
       .routing(projectUuid)
       .parent(projectUuid)

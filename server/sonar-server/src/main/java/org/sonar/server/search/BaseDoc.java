@@ -39,7 +39,7 @@ public abstract class BaseDoc {
   }
 
   /**
-   * Use this method when field value can be null
+   * Use this method when field value can be null. See warning in {@link #getField(String)}
    */
   @CheckForNull
   public <K> K getNullableField(String key) {
@@ -50,7 +50,13 @@ public abstract class BaseDoc {
   }
 
   /**
-   * Use this method when you are sure that the value can't be null in ES document
+   * Use this method when you are sure that the value can't be null in ES document.
+   * <p/>
+   * Warning with numbers - even if mapping declares long field, value can be an Integer
+   * instead of an expected Long. The reason is that ES delegates the deserialization of JSON
+   * to Jackson, which doesn't know the field type declared in mapping. See
+   * https://groups.google.com/forum/#!searchin/elasticsearch/getsource$20integer$20long/elasticsearch/jxIY22TmA8U/PyqZPPyYQ0gJ
+   * for more details. Workaround is to cast to java.lang.Number and then to call {@link Number#longValue()}
    */
   public <K> K getField(String key) {
     K value = getNullableField(key);

@@ -120,4 +120,8 @@ public class EsTester extends ExternalResource {
   public EsClient client() {
     return client;
   }
+
+  public long countDocuments(String indexName, String typeName) {
+    return client().prepareCount(indexName).setTypes(typeName).get().getCount();
+  }
 }

@@ -489,6 +489,7 @@ class ServerComponents {
     // issues
     pico.addSingleton(IssueIndexDefinition.class);
     pico.addSingleton(IssueIndexer.class);
+    pico.addSingleton(IssueAuthorizationIndexer.class);
     pico.addSingleton(ServerIssueStorage.class);
     pico.addSingleton(IssueUpdater.class);
     pico.addSingleton(FunctionExecutor.class);
