@@ -36,6 +36,7 @@ define [
       tagInput: '.coding-rules-detail-tag-input'
       tagsEdit: '.coding-rules-detail-tag-edit'
       tagsEditDone: '.coding-rules-detail-tag-edit-done'
+      tagsEditCancel: '.coding-rules-details-tag-edit-cancel'
       tagsList: '.coding-rules-detail-tag-list'
 
       subcharacteristic: '.coding-rules-subcharacteristic'
@@ -61,6 +62,7 @@ define [
     events:
       'click @ui.tagsChange': 'changeTags'
       'click @ui.tagsEditDone': 'editDone'
+      'click @ui.tagsEditCancel': 'cancelEdit'
 
       'click @ui.extendDescriptionLink': 'showExtendDescriptionForm'
       'click @ui.cancelExtendDescription': 'hideExtendDescriptionForm'
@@ -199,6 +201,7 @@ define [
         @ui.tagsEdit.show()
       if @ui.tagsList.hide
         @ui.tagsList.hide()
+      @tagsBuffer = @ui.tagInput.select2 'val'
       key.setScope 'tags'
       key 'escape', 'tags', => @cancelEdit()
 
@@ -208,6 +211,8 @@ define [
       if @ui.tagsList.show
         @ui.tagsList.show()
       if @ui.tagInput.select2
+        console.log @tagsBuffer
+        @ui.tagInput.select2 'val', @tagsBuffer
         @ui.tagInput.select2 'close'
       if @ui.tagsEdit.hide
         @ui.tagsEdit.hide()
