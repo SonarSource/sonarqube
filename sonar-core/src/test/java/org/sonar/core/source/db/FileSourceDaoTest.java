@@ -41,7 +41,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   public void select() throws Exception {
     FileSourceDto fileSourceDto = dao.select("ab12");
 
-    assertThat(fileSourceDto.getData()).isEqualTo("public class Foo {public Foo(){}}");
+    assertThat(fileSourceDto.getStringData()).isEqualTo("public class Foo {public Foo(){}}");
     assertThat(fileSourceDto.getDataHash()).isEqualTo("hash");
     assertThat(fileSourceDto.getProjectUuid()).isEqualTo("abcd");
     assertThat(fileSourceDto.getFileUuid()).isEqualTo("ab12");
@@ -51,7 +51,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void insert() throws Exception {
-    dao.insert(new FileSourceDto().setProjectUuid("prj").setFileUuid("file").setData("bla bla").setDataHash("hash2")
+    dao.insert(new FileSourceDto().setProjectUuid("prj").setFileUuid("file").setStringData("bla bla").setDataHash("hash2")
       .setCreatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100"))
       .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100")));
 
@@ -60,7 +60,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void update() throws Exception {
-    dao.update(new FileSourceDto().setId(101L).setProjectUuid("prj").setFileUuid("file").setData("bla bla").setDataHash("hash2")
+    dao.update(new FileSourceDto().setId(101L).setProjectUuid("prj").setFileUuid("file").setStringData("bla bla").setDataHash("hash2")
       .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100")));
 
     checkTable("update", "file_sources");

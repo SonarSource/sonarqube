@@ -1,7 +1,0 @@
-<dataset>
-    <file_sources id="101" project_uuid="projectUuid" file_uuid="uuidsame" data=",,,,unchanged&#13;&#10;,,,,content&#13;&#10;" data_hash="ee716d4ed9faae16eb9167714442a3bc" created_at="2014-10-10 16:44:02.000" updated_at="2014-10-10 16:44:02.000" />
-    <file_sources id="102" project_uuid="projectUuid" file_uuid="uuidnew" data="123,julien,2014-10-11T16:44:02+0100,&#34;0,3,a&#34;,foo&#13;&#10;234,simon,2014-10-12T16:44:02+0100,&#34;0,1,cd&#34;,bar&#13;&#10;345,julien,2014-10-13T16:44:02+0100,&#34;0,9,c&#34;,biz&#13;&#10;" data_hash="a2aaee165e33957a67331fb9f869e0f1" created_at="2014-10-29 16:44:02.000" updated_at="2014-10-29 16:44:02.000" />
-</dataset>
-
-
-

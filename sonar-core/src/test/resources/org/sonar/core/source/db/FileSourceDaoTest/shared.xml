@@ -1,5 +1,5 @@
 <dataset>
 
-    <file_sources id="101" project_uuid="abcd" file_uuid="ab12" data="public class Foo {public Foo(){}}" data_hash="hash" created_at="2014-10-29 16:44:02.000" updated_at="2014-10-30 16:44:02.000" />
+    <file_sources id="101" project_uuid="abcd" file_uuid="ab12" data="7075626c696320636c61737320466f6f207b7075626c696320466f6f28297b7d7d" data_hash="hash" created_at="2014-10-29 16:44:02.000" updated_at="2014-10-30 16:44:02.000" />
 
 </dataset>

@@ -19,6 +19,11 @@
  */
 package org.sonar.core.source.db;
 
+import com.google.common.base.Charsets;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Date;
 
 public class FileSourceDto {
@@ -27,7 +32,7 @@ public class FileSourceDto {
   private String fileUuid;
   private Date createdAt;
   private Date updatedAt;
-  private String data;
+  private byte[] data;
   private String dataHash;
 
   public Long getId() {
@@ -57,13 +62,23 @@ public class FileSourceDto {
     return this;
   }
 
-  public String getData() {
+  @CheckForNull
+  public byte[] getData() {
     return data;
   }
 
-  public FileSourceDto setData(String data) {
+  @CheckForNull
+  public String getStringData() {
+    return data != null ? new String(data, Charsets.UTF_8) : null;
+  }
+
+  public FileSourceDto setData(@Nullable byte[] data) {
     this.data = data;
     return this;
+  }
+
+  public FileSourceDto setStringData(@Nullable String data) {
+    return setData(data != null ? data.getBytes(Charsets.UTF_8) : null);
   }
 
   public String getDataHash() {

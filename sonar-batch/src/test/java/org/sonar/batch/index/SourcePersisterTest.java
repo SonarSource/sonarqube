@@ -43,11 +43,14 @@ import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.CodeColorizers;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.source.SnapshotDataTypes;
+import org.sonar.core.source.db.FileSourceDao;
+import org.sonar.core.source.db.FileSourceDto;
 import org.sonar.core.source.db.SnapshotSourceDao;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -121,7 +124,8 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
   @Test
   public void testPersistUpdateChanged() throws Exception {
     setupData("file_sources");
-    when(system2.newDate()).thenReturn(DateUtils.parseDateTime("2014-10-29T16:44:02+0100"));
+    Date now = DateUtils.parseDateTime("2014-10-29T16:44:02+0100");
+    when(system2.newDate()).thenReturn(now);
 
     String relativePathSame = "src/changed.java";
     java.io.File sameFile = new java.io.File(basedir, relativePathSame);
@@ -132,7 +136,13 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     mockResourceCache(relativePathSame, PROJECT_KEY, "uuidsame");
 
     sourcePersister.persist();
-    checkTables("testPersistUpdateChanged", "file_sources");
+
+    FileSourceDto fileSourceDto = new FileSourceDao(getMyBatis()).select("uuidsame");
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(DateUtils.parseDateTime("2014-10-10T16:44:02+0200"));
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
+    assertThat(fileSourceDto.getStringData()).isEqualTo(
+      ",,,,changed\r\n,,,,content\r\n");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("e41cca9c51ff853c748f708f39dfc035");
   }
 
   @Test
@@ -153,7 +163,8 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
   @Test
   public void testPersistNewFileNoScmNoHighlighting() throws Exception {
     setupData("file_sources");
-    when(system2.newDate()).thenReturn(DateUtils.parseDateTime("2014-10-29T16:44:02+0100"));
+    Date now = DateUtils.parseDateTime("2014-10-29T16:44:02+0100");
+    when(system2.newDate()).thenReturn(now);
 
     String relativePathNew = "src/new.java";
     java.io.File newFile = new java.io.File(basedir, relativePathNew);
@@ -164,13 +175,20 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     mockResourceCache(relativePathNew, PROJECT_KEY, "uuidnew");
 
     sourcePersister.persist();
-    checkTables("testPersistNewFileNoScmNoHighlighting", "file_sources");
+    FileSourceDto fileSourceDto = new FileSourceDao(getMyBatis()).select("uuidnew");
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now);
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
+    assertThat(fileSourceDto.getStringData()).isEqualTo(
+      ",,,,foo\r\n,,,,bar\r\n,,,,biz\r\n");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("0c43ed6418d690ee0ffc3e43e6660967");
+
   }
 
   @Test
   public void testPersistNewFileWithScmAndHighlighting() throws Exception {
     setupData("file_sources");
-    when(system2.newDate()).thenReturn(DateUtils.parseDateTime("2014-10-29T16:44:02+0100"));
+    Date now = DateUtils.parseDateTime("2014-10-29T16:44:02+0100");
+    when(system2.newDate()).thenReturn(now);
 
     String relativePathNew = "src/new.java";
     java.io.File newFile = new java.io.File(basedir, relativePathNew);
@@ -199,7 +217,15 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
       .thenReturn(highlighting);
 
     sourcePersister.persist();
-    checkTables("testPersistNewFileWithScmAndHighlighting", "file_sources");
+
+    FileSourceDto fileSourceDto = new FileSourceDao(getMyBatis()).select("uuidnew");
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now);
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
+    assertThat(fileSourceDto.getStringData()).isEqualTo(
+      "123,julien,2014-10-11T16:44:02+0100,\"0,3,a\",foo\r\n"
+        + "234,simon,2014-10-12T16:44:02+0100,\"0,1,cd\",bar\r\n"
+        + "345,julien,2014-10-13T16:44:02+0100,\"0,9,c\",biz\r\n");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("a2aaee165e33957a67331fb9f869e0f1");
   }
 
   @Test
