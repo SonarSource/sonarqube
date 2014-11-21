@@ -19,6 +19,7 @@ define [], () ->
       formattedSource = @source.get 'formattedSource'
       coverage.forEach (c) ->
         line = _.findWhere formattedSource, lineNumber: c[0]
+        return unless line?
         line.coverage =
           covered: c[1]
           testCases: c[2]
