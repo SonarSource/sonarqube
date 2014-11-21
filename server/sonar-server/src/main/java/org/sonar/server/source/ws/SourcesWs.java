@@ -25,11 +25,13 @@ import org.sonar.api.server.ws.WebService;
 public class SourcesWs implements WebService {
 
   private final ShowAction showAction;
+  private final IndexAction show2Action;
   private final RawAction rawAction;
   private final ScmAction scmAction;
 
-  public SourcesWs(ShowAction showAction, RawAction rawAction, ScmAction scmAction) {
+  public SourcesWs(ShowAction showAction, RawAction rawAction, ScmAction scmAction, IndexAction show2Action) {
     this.showAction = showAction;
+    this.show2Action = show2Action;
     this.rawAction = rawAction;
     this.scmAction = scmAction;
   }
@@ -40,6 +42,7 @@ public class SourcesWs implements WebService {
       .setSince("4.2")
       .setDescription("Display sources information");
     showAction.define(controller);
+    show2Action.define(controller);
     rawAction.define(controller);
     scmAction.define(controller);
     controller.done();

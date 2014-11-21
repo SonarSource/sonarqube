@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
+import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -34,7 +35,8 @@ public class SourcesWsTest {
   ShowAction showAction = new ShowAction(mock(SourceService.class));
   RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class));
   ScmAction scmAction = new ScmAction(mock(SourceService.class), new ScmWriter());
-  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, scmAction));
+  IndexAction indexAction = new IndexAction(mock(SourceLineIndex.class));
+  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, scmAction, indexAction));
 
   @Test
   public void define_ws() throws Exception {
@@ -42,7 +44,7 @@ public class SourcesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("4.2");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(3);
+    assertThat(controller.actions()).hasSize(4);
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
@@ -67,5 +69,13 @@ public class SourcesWsTest {
     assertThat(scm.isInternal()).isFalse();
     assertThat(scm.responseExampleAsString()).isNotEmpty();
     assertThat(scm.params()).hasSize(4);
+
+    WebService.Action index = controller.action("index");
+    assertThat(index).isNotNull();
+    assertThat(index.handler()).isSameAs(indexAction);
+    assertThat(index.since()).isEqualTo("5.0");
+    assertThat(index.isInternal()).isTrue();
+    assertThat(index.responseExampleAsString()).isNotEmpty();
+    assertThat(index.params()).hasSize(3);
   }
 }

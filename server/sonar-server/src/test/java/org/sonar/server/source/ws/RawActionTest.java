@@ -34,8 +34,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.ws.WsTester;
 
-import java.util.Collections;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -66,7 +64,7 @@ public class RawActionTest {
   public void setUp() throws Exception {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(mock(ShowAction.class), new RawAction(dbClient, sourceService), mock(ScmAction.class)));
+    tester = new WsTester(new SourcesWs(mock(ShowAction.class), new RawAction(dbClient, sourceService), mock(ScmAction.class), mock(IndexAction.class)));
   }
 
   @Test

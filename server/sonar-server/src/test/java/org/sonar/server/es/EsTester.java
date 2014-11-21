@@ -20,8 +20,11 @@
 package org.sonar.server.es;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -32,7 +35,9 @@ import org.junit.rules.ExternalResource;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.core.profiling.Profiling;
+import org.sonar.test.TestUtils;
 
+import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -111,6 +116,15 @@ public class EsTester extends ExternalResource {
     client.prepareFlush(client.prepareState().get()
       .getState().getMetaData().concreteAllIndices())
       .get();
+  }
+
+  public void putDocuments(String index, String type, Class<?> testClass, String... jsonPaths) throws Exception {
+    BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
+    for (String path: jsonPaths) {
+      bulk.add(new IndexRequest(index, type).source(IOUtils.toString(
+        new FileInputStream(TestUtils.getResource(testClass, path)))));
+    }
+    bulk.get();
   }
 
   public Node node() {

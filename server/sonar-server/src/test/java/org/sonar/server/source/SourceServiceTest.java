@@ -33,13 +33,20 @@ import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.measure.persistence.MeasureDao;
+import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SourceServiceTest {
@@ -59,17 +66,21 @@ public class SourceServiceTest {
   @Mock
   MeasureDao measureDao;
 
+  @Mock
+  SourceLineIndex sourceLineIndex;
+
   static final String PROJECT_KEY = "org.sonar.sample";
   static final String COMPONENT_KEY = "org.sonar.sample:Sample";
 
   SourceService service;
+
 
   @Before
   public void setUp() throws Exception {
     DbClient dbClient = mock(DbClient.class);
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.measureDao()).thenReturn(measureDao);
-    service = new SourceService(dbClient, sourceDecorator, snapshotSourceDao, deprecatedSourceDecorator);
+    service = new SourceService(dbClient, sourceDecorator, snapshotSourceDao, deprecatedSourceDecorator, sourceLineIndex);
   }
 
   @Test

@@ -19,9 +19,15 @@
  */
 package org.sonar.server.source.index;
 
+import com.google.common.base.Preconditions;
+import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ServerComponent;
 import org.sonar.server.es.EsClient;
+
+import java.util.List;
 
 public class SourceLineIndex implements ServerComponent {
 
@@ -31,6 +37,9 @@ public class SourceLineIndex implements ServerComponent {
     this.esClient = esClient;
   }
 
+  /**
+   * Unindex all lines in file with UUID <code>fileUuid</code> above line <code>lastLine</code>
+   */
   public void deleteLinesFromFileAbove(String fileUuid, int lastLine) {
     esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX_SOURCE_LINES)
       .setTypes(SourceLineIndexDefinition.TYPE_SOURCE_LINE)
@@ -38,5 +47,34 @@ public class SourceLineIndex implements ServerComponent {
         .must(QueryBuilders.termQuery(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid))
         .must(QueryBuilders.rangeQuery(SourceLineIndexDefinition.FIELD_LINE).gt(lastLine))
       ).get();
+  }
+
+  /**
+   * Get lines of code for file with UUID <code>fileUuid</code> with line numbers
+   * between <code>from</code> and <code>to</code> (both inclusive). Line numbers
+   * start at 1.
+   * @param fileUuid the UUID of the file for which to get source code
+   * @param from starting line; must be strictly positive
+   * @param to ending line; must be greater than or equal to <code>to</code>
+   */
+  public List<SourceLineDoc> getLines(String fileUuid, int from, int to) {
+    Preconditions.checkArgument(from > 0, "Minimum value for 'from' is 1");
+    Preconditions.checkArgument(to >= from, "'to' must be larger than or equal to 'from'");
+    List<SourceLineDoc> lines = Lists.newArrayList();
+
+    for (SearchHit hit: esClient.prepareSearch(SourceLineIndexDefinition.INDEX_SOURCE_LINES)
+      .setTypes(SourceLineIndexDefinition.TYPE_SOURCE_LINE)
+      .setSize(1 + to - from)
+      .setQuery(QueryBuilders.boolQuery()
+        .must(QueryBuilders.termQuery(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid))
+        .must(QueryBuilders.rangeQuery(SourceLineIndexDefinition.FIELD_LINE)
+          .gte(from)
+          .lte(to)))
+      .addSort(SourceLineIndexDefinition.FIELD_LINE, SortOrder.ASC)
+      .get().getHits().getHits()) {
+      lines.add(new SourceLineDoc(hit.sourceAsMap()));
+    }
+
+    return lines;
   }
 }

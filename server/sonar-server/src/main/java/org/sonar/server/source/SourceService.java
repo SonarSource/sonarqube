@@ -21,6 +21,7 @@
 package org.sonar.server.source;
 
 import com.google.common.base.Splitter;
+import org.elasticsearch.common.collect.Lists;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
@@ -30,6 +31,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.source.index.SourceLineDoc;
+import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -44,17 +47,20 @@ public class SourceService implements ServerComponent {
   private final DbClient dbClient;
   private final HtmlSourceDecorator sourceDecorator;
   private final SnapshotSourceDao snapshotSourceDao;
+  private final SourceLineIndex sourceLineIndex;
 
   /**
    * Old service to colorize code
    */
   private final DeprecatedSourceDecorator deprecatedSourceDecorator;
 
-  public SourceService(DbClient dbClient, HtmlSourceDecorator sourceDecorator, SnapshotSourceDao snapshotSourceDao, DeprecatedSourceDecorator deprecatedSourceDecorator) {
+  public SourceService(DbClient dbClient, HtmlSourceDecorator sourceDecorator, SnapshotSourceDao snapshotSourceDao, DeprecatedSourceDecorator deprecatedSourceDecorator,
+      SourceLineIndex sourceLineIndex) {
     this.dbClient = dbClient;
     this.sourceDecorator = sourceDecorator;
     this.snapshotSourceDao = snapshotSourceDao;
     this.deprecatedSourceDecorator = deprecatedSourceDecorator;
+    this.sourceLineIndex = sourceLineIndex;
   }
 
   @CheckForNull
@@ -85,6 +91,17 @@ public class SourceService implements ServerComponent {
       return newArrayList(Splitter.onPattern("\r?\n|\r").split(source));
     }
     return null;
+  }
+
+  /**
+   * Raw lines of source file.
+   */
+  public List<String> getLinesAsTxt(String fileUuid) {
+    List<String> lines = Lists.newArrayList();
+    for (SourceLineDoc lineDoc: sourceLineIndex.getLines(fileUuid, 1, Integer.MAX_VALUE)) {
+      lines.add(lineDoc.source());
+    }
+    return lines;
   }
 
   @CheckForNull

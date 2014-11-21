@@ -1,0 +1,10 @@
+{
+  "sources": [
+    {"line": 20, "code": "<span class=\"k\">package </span>org.sonar.check;", "scmAuthor": "simon.brandhof@sonarsource.com", "scmDate": "2011-01-02T12:34:56+0100", "scmRevision":"a1e2b3e5d6f5"],
+    {"line": 21, "code":"", "scmAuthor": "simon.brandhof@sonarsource.com", "scmDate": "2011-01-02T12:34:56+0100", "scmRevision":"a1e2b3e5d6f5"],
+    {"line": 22, "code":"<span class=\"k\">public </span><span class=\"k\">enum </span><span class=\"sym-922 sym\">Priority</span> {", "scmAuthor": "simon.brandhof@sonarsource.com", "scmDate": "2011-01-02T12:34:56+0100", "scmRevision":"a1e2b3e5d6f5"],
+    {"line": 23, "code":"  <span class=\"cppd\">/**</span>", "scmAuthor": "simon.brandhof@sonarsource.com", "scmDate": "2011-01-02T12:34:56+0100", "scmRevision":"a1e2b3e5d6f5"],
+    {"line": 24, "code":"<span class=\"cppd\">   * WARNING : DO NOT CHANGE THE ENUMERATION ORDER</span>", "scmAuthor": "simon.brandhof@sonarsource.com", "scmDate": "2011-01-02T12:34:56+0100", "scmRevision":"a1e2b3e5d6f5"],
+    {"line": 25, "code":"<span class=\"cppd\">   * the enum ordinal is used for db persistence</span>", "scmAuthor": "simon.brandhof@sonarsource.com", "scmDate": "2011-01-02T12:34:56+0100", "scmRevision":"a1e2b3e5d6f5"]
+  ]
+}

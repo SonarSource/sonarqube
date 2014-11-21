@@ -31,7 +31,9 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ShowActionTest {
 
@@ -41,7 +43,7 @@ public class ShowActionTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new SourcesWs(new ShowAction(sourceService), mock(RawAction.class), new ScmAction(sourceService, mock(ScmWriter.class))));
+    tester = new WsTester(new SourcesWs(new ShowAction(sourceService), mock(RawAction.class), new ScmAction(sourceService, mock(ScmWriter.class)), mock(IndexAction.class)));
   }
 
   @Test

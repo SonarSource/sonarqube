@@ -26,13 +26,15 @@ import org.sonar.server.ws.WsTester;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ScmActionTest {
 
   SourceService sourceService = mock(SourceService.class);
   ScmWriter scmWriter = mock(ScmWriter.class);
-  WsTester tester = new WsTester(new SourcesWs(mock(ShowAction.class), mock(RawAction.class), new ScmAction(sourceService, scmWriter)));
+  WsTester tester = new WsTester(new SourcesWs(mock(ShowAction.class), mock(RawAction.class), new ScmAction(sourceService, scmWriter), mock(IndexAction.class)));
 
   @Test
   public void get_scm() throws Exception {

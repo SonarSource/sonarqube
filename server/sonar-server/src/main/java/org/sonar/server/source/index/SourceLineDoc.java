@@ -22,6 +22,9 @@ package org.sonar.server.source.index;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.BaseNormalizer;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.Map;
 
@@ -55,27 +58,30 @@ public class SourceLineDoc extends BaseDoc {
     setField(SourceLineIndexDefinition.FIELD_LINE, line);
   }
 
+  @CheckForNull
   public String scmRevision() {
-    return getField(SourceLineIndexDefinition.FIELD_SCM_REVISION);
+    return getNullableField(SourceLineIndexDefinition.FIELD_SCM_REVISION);
   }
 
   public void setScmRevision(String scmRevision) {
     setField(SourceLineIndexDefinition.FIELD_SCM_REVISION, scmRevision);
   }
 
+  @CheckForNull
   public String scmAuthor() {
-    return getField(SourceLineIndexDefinition.FIELD_SCM_AUTHOR);
+    return getNullableField(SourceLineIndexDefinition.FIELD_SCM_AUTHOR);
   }
 
   public void setScmAuthor(String scmAuthor) {
     setField(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, scmAuthor);
   }
 
+  @CheckForNull
   public Date scmDate() {
-    return getField(SourceLineIndexDefinition.FIELD_SCM_DATE);
+    return getNullableField(SourceLineIndexDefinition.FIELD_SCM_DATE);
   }
 
-  public void setScmDate(Date scmDate) {
+  public void setScmDate(@Nullable Date scmDate) {
     setField(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate);
   }
 
