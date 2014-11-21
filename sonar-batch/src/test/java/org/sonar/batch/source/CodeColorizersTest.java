@@ -62,9 +62,9 @@ public class CodeColorizersTest {
     CodeColorizers codeColorizers = new CodeColorizers(Arrays.<CodeColorizerFormat>asList(new JavaScriptColorizerFormat()));
 
     File fileWithBom = temp.newFile();
-    FileUtils.write(fileWithBom, "\uFEFF");
+    FileUtils.write(fileWithBom, "\uFEFF", "UTF-8");
     File jsFile = new File(this.getClass().getResource("CodeColorizersTest/Person.js").toURI());
-    FileUtils.write(fileWithBom, FileUtils.readFileToString(jsFile), true);
+    FileUtils.write(fileWithBom, FileUtils.readFileToString(jsFile), "UTF-8", true);
 
     SyntaxHighlightingData syntaxHighlighting = codeColorizers.toSyntaxHighlighting(fileWithBom, "UTF-8", "js");
 
