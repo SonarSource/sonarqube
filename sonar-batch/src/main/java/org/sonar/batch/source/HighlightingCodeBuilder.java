@@ -33,8 +33,6 @@ public class HighlightingCodeBuilder extends HtmlCodeBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(HighlightingCodeBuilder.class);
 
-  private static final char BOM = '\uFEFF';
-
   private SyntaxHighlightingDataBuilder highlightingBuilder = new SyntaxHighlightingDataBuilder();
   private int currentOffset = 0;
   private static final Pattern START_TAG_PATTERN = Pattern.compile("<span class=\"(.+)\">");
@@ -52,9 +50,7 @@ public class HighlightingCodeBuilder extends HtmlCodeBuilder {
 
   @Override
   public Appendable append(char c) {
-    if (c != BOM) {
-      currentOffset++;
-    }
+    currentOffset++;
     return this;
   }
 

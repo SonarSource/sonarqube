@@ -21,6 +21,7 @@ package org.sonar.batch.source;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,7 @@ public class CodeColorizers implements BatchComponent {
     }
     Reader reader = null;
     try {
-      reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
+      reader = new BufferedReader(new InputStreamReader(new BOMInputStream(new FileInputStream(file)), encoding));
       return new HighlightingRenderer().render(reader, tokenizers);
     } catch (Exception e) {
       throw new IllegalStateException("Unable to read source file for colorization", e);
