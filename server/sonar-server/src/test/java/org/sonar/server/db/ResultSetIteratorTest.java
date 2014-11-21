@@ -52,7 +52,7 @@ public class ResultSetIteratorTest {
   }
 
   @Test
-  public void iterate_through_statement() throws Exception {
+  public void create_iterator_from_statement() throws Exception {
     dbTester.prepareDbUnit(getClass(), "feed.xml");
 
     PreparedStatement stmt = connection.prepareStatement("select * from fake order by id");
@@ -77,7 +77,17 @@ public class ResultSetIteratorTest {
   }
 
   @Test
-  public void iterate_through_rs() throws Exception {
+  public void iterate_empty_list() throws Exception {
+    dbTester.prepareDbUnit(getClass(), "feed.xml");
+
+    PreparedStatement stmt = connection.prepareStatement("select * from fake where id < 0");
+    FirstIntColumnIterator iterator = new FirstIntColumnIterator(stmt);
+
+    assertThat(iterator.hasNext()).isFalse();
+  }
+
+  @Test
+  public void create_iterator_from_result_set() throws Exception {
     dbTester.prepareDbUnit(getClass(), "feed.xml");
 
     PreparedStatement stmt = connection.prepareStatement("select * from fake order by id");
