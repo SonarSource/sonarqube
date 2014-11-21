@@ -37,11 +37,13 @@ public class SourceLineIndexer implements ServerComponent {
 
   private final DbClient dbClient;
   private final EsClient esClient;
+  private final SourceLineIndex index;
   private long lastUpdatedAt = 0L;
 
-  public SourceLineIndexer(DbClient dbClient, EsClient esClient) {
+  public SourceLineIndexer(DbClient dbClient, EsClient esClient, SourceLineIndex index) {
     this.dbClient = dbClient;
     this.esClient = esClient;
+    this.index = index;
   }
 
   public void indexSourceLines(boolean large) {
@@ -65,14 +67,18 @@ public class SourceLineIndexer implements ServerComponent {
     bulk.start();
     while (sourceLines.hasNext()) {
       Collection<SourceLineDoc> lineDocs = sourceLines.next();
+      String fileUuid = null;
+      int lastLine = 0;
       for (SourceLineDoc sourceLine: lineDocs) {
+        lastLine ++;
+        fileUuid = sourceLine.fileUuid();
         bulk.add(newUpsertRequest(sourceLine));
         long dtoUpdatedAt = sourceLine.updateDate().getTime();
         if (lastUpdatedAt < dtoUpdatedAt) {
           lastUpdatedAt = dtoUpdatedAt;
         }
       }
-
+      index.deleteLinesFromFileAbove(fileUuid, lastLine);
     }
     bulk.stop();
   }

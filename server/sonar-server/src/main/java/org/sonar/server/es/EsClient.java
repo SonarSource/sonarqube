@@ -36,6 +36,7 @@ import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
+import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.client.Client;
@@ -46,23 +47,7 @@ import org.picocontainer.Startable;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.ClusterHealth;
 import org.sonar.server.search.SearchClient;
-import org.sonar.server.search.request.ProxyBulkRequestBuilder;
-import org.sonar.server.search.request.ProxyClusterHealthRequestBuilder;
-import org.sonar.server.search.request.ProxyClusterStateRequestBuilder;
-import org.sonar.server.search.request.ProxyClusterStatsRequestBuilder;
-import org.sonar.server.search.request.ProxyCountRequestBuilder;
-import org.sonar.server.search.request.ProxyCreateIndexRequestBuilder;
-import org.sonar.server.search.request.ProxyDeleteByQueryRequestBuilder;
-import org.sonar.server.search.request.ProxyFlushRequestBuilder;
-import org.sonar.server.search.request.ProxyGetRequestBuilder;
-import org.sonar.server.search.request.ProxyIndicesExistsRequestBuilder;
-import org.sonar.server.search.request.ProxyIndicesStatsRequestBuilder;
-import org.sonar.server.search.request.ProxyMultiGetRequestBuilder;
-import org.sonar.server.search.request.ProxyNodesStatsRequestBuilder;
-import org.sonar.server.search.request.ProxyPutMappingRequestBuilder;
-import org.sonar.server.search.request.ProxyRefreshRequestBuilder;
-import org.sonar.server.search.request.ProxySearchRequestBuilder;
-import org.sonar.server.search.request.ProxySearchScrollRequestBuilder;
+import org.sonar.server.search.request.*;
 
 /**
  * Facade to connect to Elasticsearch node. Handles correctly errors (logging + exceptions
@@ -167,6 +152,10 @@ public class EsClient implements Startable {
 
   public DeleteByQueryRequestBuilder prepareDeleteByQuery(String... indices) {
     return new ProxyDeleteByQueryRequestBuilder(client, profiling).setIndices(indices);
+  }
+
+  public IndexRequestBuilder prepareIndex(String index, String type) {
+    return new ProxyIndexRequestBuilder(client, profiling).setIndex(index).setType(type);
   }
 
   public long getLastUpdatedAt(String indexName, String typeName) {
