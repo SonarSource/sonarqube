@@ -70,13 +70,13 @@ public class BatchSession extends DbSession {
   @Override
   public <T> T selectOne(String statement) {
     reset();
-    return (T) super.selectOne(statement);
+    return super.selectOne(statement);
   }
 
   @Override
   public <T> T selectOne(String statement, Object parameter) {
     reset();
-    return (T) super.selectOne(statement, parameter);
+    return super.selectOne(statement, parameter);
   }
 
   @Override

@@ -196,36 +196,36 @@ public class IssueDoc extends BaseDoc implements Issue {
     return getNullableField(IssueNormalizer.IssueField.FILE_PATH.field());
   }
 
-  public void setKey(String s) {
+  public void setKey(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_KEY, s);
   }
 
-  public void setComponentUuid(String s) {
+  public void setComponentUuid(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, s);
   }
 
-  public void setModuleUuid(String s) {
+  public void setModuleUuid(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, s);
   }
 
-  public void setProjectUuid(String s) {
+  public void setProjectUuid(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, s);
   }
 
-  public void setRuleKey(String s) {
+  public void setRuleKey(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, s);
   }
 
-  public void setLanguage(String s) {
+  public void setLanguage(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, s);
   }
 
-  public void setSeverity(String s) {
+  public void setSeverity(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, s);
     setField(IssueIndexDefinition.FIELD_ISSUE_SEVERITY_VALUE, Severity.ALL.indexOf(s));
   }
 
-  public void setMessage(String s) {
+  public void setMessage(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_MESSAGE, s);
   }
 
@@ -237,63 +237,63 @@ public class IssueDoc extends BaseDoc implements Issue {
     setField(IssueIndexDefinition.FIELD_ISSUE_EFFORT, d);
   }
 
-  public void setStatus(String s) {
+  public void setStatus(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_STATUS, s);
   }
 
-  public void setResolution(String s) {
+  public void setResolution(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, s);
   }
 
-  public void setReporter(String s) {
+  public void setReporter(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_REPORTER, s);
   }
 
-  public void setAssignee(String s) {
+  public void setAssignee(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, s);
   }
 
-  public void setCreationDate(Date d) {
+  public void setCreationDate(@Nullable Date d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_CREATED_AT, d);
   }
 
-  public void setUpdateDate(Date d) {
+  public void setUpdateDate(@Nullable Date d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_UPDATED_AT, d);
   }
 
-  public void setFuncCreationDate(Date d) {
+  public void setFuncCreationDate(@Nullable Date d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, d);
   }
 
-  public void setFuncUpdateDate(Date d) {
+  public void setFuncUpdateDate(@Nullable Date d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_UPDATED_AT, d);
   }
 
-  public void setFuncCloseDate(Date d) {
+  public void setFuncCloseDate(@Nullable Date d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_CLOSED_AT, d);
   }
 
-  public void setAttributes(String s) {
+  public void setAttributes(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_ATTRIBUTES, s);
   }
 
-  public void setAuthorLogin(String s) {
+  public void setAuthorLogin(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, s);
   }
 
-  public void setActionPlanKey(String s) {
+  public void setActionPlanKey(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN, s);
   }
 
-  public void setDebt(Long l) {
+  public void setDebt(@Nullable Long l) {
     setField(IssueIndexDefinition.FIELD_ISSUE_DEBT, l);
   }
 
-  public void setFilePath(String s) {
+  public void setFilePath(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_FILE_PATH, s);
   }
 
-  public void setModuleUuidPath(String s) {
+  public void setModuleUuidPath(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, s);
   }
 }

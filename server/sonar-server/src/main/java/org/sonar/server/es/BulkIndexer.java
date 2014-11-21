@@ -42,7 +42,8 @@ import java.util.Map;
  */
 public class BulkIndexer implements Startable {
 
-  public static final long FLUSH_BYTE_SIZE = new ByteSizeValue(5, ByteSizeUnit.MB).bytes();
+  private static final long FLUSH_BYTE_SIZE = new ByteSizeValue(5, ByteSizeUnit.MB).bytes();
+  private static final String REFRESH_INTERVAL_SETTING = "index.refresh_interval";
 
   private final EsClient client;
   private final String indexName;
@@ -99,9 +100,9 @@ public class BulkIndexer implements Startable {
       }
 
       // deactivate periodical refresh
-      String refreshInterval = settingsResp.getSetting(indexName, "index.refresh_interval");
-      largeInitialSettings.put("index.refresh_interval", refreshInterval);
-      bulkSettings.put("index.refresh_interval", "-1");
+      String refreshInterval = settingsResp.getSetting(indexName, REFRESH_INTERVAL_SETTING);
+      largeInitialSettings.put(REFRESH_INTERVAL_SETTING, refreshInterval);
+      bulkSettings.put(REFRESH_INTERVAL_SETTING, "-1");
 
       updateSettings(bulkSettings);
     }
