@@ -29,6 +29,8 @@ import org.sonar.api.web.CodeColorizerFormat;
 import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.colorizer.Tokenizer;
 
+import javax.annotation.CheckForNull;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,11 +65,12 @@ public class CodeColorizers implements BatchComponent {
     this(Lists.<CodeColorizerFormat>newArrayList());
   }
 
+  @CheckForNull
   public SyntaxHighlightingData toSyntaxHighlighting(File file, String encoding, String language) {
     CodeColorizerFormat format = byLang.get(language);
     List<Tokenizer> tokenizers;
     if (format == null) {
-      tokenizers = null;
+      return null;
     } else {
       tokenizers = format.getTokenizers();
     }
