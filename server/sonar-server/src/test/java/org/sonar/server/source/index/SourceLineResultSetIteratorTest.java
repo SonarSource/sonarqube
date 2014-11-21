@@ -66,7 +66,6 @@ public class SourceLineResultSetIteratorTest {
       "afb789,carol,2014-03-23T12:34:56+0100,,}\r\n" +
       "afb789,carol,2014-03-23T12:34:56+0100,,\r\n").getBytes(Charsets.UTF_8));
     stmt.executeUpdate();
-    connection.commit();
 
     SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L);
     assertThat(iterator.hasNext()).isTrue();
