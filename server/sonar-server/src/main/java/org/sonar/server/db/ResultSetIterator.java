@@ -37,6 +37,10 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
   private final ResultSet rs;
   private final PreparedStatement stmt;
 
+  // TODO can be simpler by using rs.isLast(). See ResultSetIterator from commons-dbutils
+  private boolean didNext = false;
+  private boolean hasNext = false;
+
   public ResultSetIterator(PreparedStatement stmt) throws SQLException {
     this.stmt = stmt;
     this.rs = stmt.executeQuery();
@@ -49,21 +53,25 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
 
   @Override
   public boolean hasNext() {
-    try {
-      return !rs.isLast();
-    } catch (SQLException e) {
-      throw new IllegalStateException("Fail to call ResultSet#isLast()", e);
+    if (!didNext) {
+      hasNext = doNextQuietly();
+      didNext = true;
     }
+    return hasNext;
   }
 
   @Override
   @CheckForNull
   public E next() {
+    if (!didNext) {
+      doNextQuietly();
+    }
+    didNext = false;
     try {
-      rs.next();
       return read(rs);
     } catch (SQLException e) {
-      throw new IllegalStateException("Fail to read row of JDBC result set", e);
+      // TODO add SQL request to context
+      throw new IllegalStateException("Fail to read result set row", e);
     }
   }
 
@@ -79,4 +87,12 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
   }
 
   protected abstract E read(ResultSet rs) throws SQLException;
+
+  private boolean doNextQuietly() {
+    try {
+      return rs.next();
+    } catch (SQLException e) {
+      throw new IllegalStateException("Fail to read row of JDBC result set", e);
+    }
+  }
 }
