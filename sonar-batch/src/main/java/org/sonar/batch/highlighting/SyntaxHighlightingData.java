@@ -44,12 +44,14 @@ public class SyntaxHighlightingData implements Data {
   public String writeString() {
     StringBuilder sb = new StringBuilder();
     for (SyntaxHighlightingRule highlightingRule : syntaxHighlightingRuleSet) {
+      if (sb.length() > 0) {
+        sb.append(RULE_SEPARATOR);
+      }
       sb.append(highlightingRule.getStartPosition())
         .append(FIELD_SEPARATOR)
         .append(highlightingRule.getEndPosition())
         .append(FIELD_SEPARATOR)
-        .append(highlightingRule.getTextType().cssClass())
-        .append(RULE_SEPARATOR);
+        .append(highlightingRule.getTextType().cssClass());
     }
 
     return sb.toString();

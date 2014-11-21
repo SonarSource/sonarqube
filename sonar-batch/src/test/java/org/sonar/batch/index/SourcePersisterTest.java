@@ -40,6 +40,7 @@ import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.measure.MeasureCache;
+import org.sonar.batch.source.CodeColorizers;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.SnapshotSourceDao;
@@ -86,7 +87,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     componentDataCache = mock(ComponentDataCache.class);
     sourcePersister = new SourcePersister(resourcePersister, new SnapshotSourceDao(getMyBatis()), inputPathCache,
       getMyBatis(), measureCache, componentDataCache, projectTree, system2,
-      resourceCache);
+      resourceCache, mock(CodeColorizers.class));
     Project project = new Project(PROJECT_KEY);
     project.setUuid("projectUuid");
     when(projectTree.getRootProject()).thenReturn(project);

@@ -41,6 +41,7 @@ import org.sonar.batch.highlighting.SyntaxHighlightingData;
 import org.sonar.batch.highlighting.SyntaxHighlightingRule;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.measure.MeasureCache;
+import org.sonar.batch.source.CodeColorizers;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.SnapshotDataTypes;
@@ -76,9 +77,11 @@ public class SourcePersister implements ScanPersister {
   private final System2 system2;
   private final ProjectTree projectTree;
   private final ResourceCache resourceCache;
+  private CodeColorizers codeColorizers;
 
   public SourcePersister(ResourcePersister resourcePersister, SnapshotSourceDao sourceDao, InputPathCache inputPathCache,
-    MyBatis mybatis, MeasureCache measureCache, ComponentDataCache componentDataCache, ProjectTree projectTree, System2 system2, ResourceCache resourceCache) {
+    MyBatis mybatis, MeasureCache measureCache, ComponentDataCache componentDataCache, ProjectTree projectTree, System2 system2, ResourceCache resourceCache,
+    CodeColorizers codeColorizers) {
     this.resourcePersister = resourcePersister;
     this.sourceDao = sourceDao;
     this.inputPathCache = inputPathCache;
@@ -88,6 +91,7 @@ public class SourcePersister implements ScanPersister {
     this.projectTree = projectTree;
     this.system2 = system2;
     this.resourceCache = resourceCache;
+    this.codeColorizers = codeColorizers;
   }
 
   public void saveSource(Resource resource, String source, Date updatedAt) {
@@ -180,7 +184,7 @@ public class SourcePersister implements ScanPersister {
     Map<Integer, String> authorsByLine = getLineMetric(file, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
     Map<Integer, String> revisionsByLine = getLineMetric(file, CoreMetrics.SCM_REVISIONS_BY_LINE_KEY);
     Map<Integer, String> datesByLine = getLineMetric(file, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
-    SyntaxHighlightingData highlighting = componentDataCache.getData(file.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING);
+    SyntaxHighlightingData highlighting = loadHighlighting(file);
     String[] highlightingPerLine = computeHighlightingPerLine(file, highlighting);
 
     ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -191,6 +195,15 @@ public class SourcePersister implements ScanPersister {
     }
     csv.close();
     return StringUtils.defaultIfEmpty(new String(output.toByteArray(), UTF_8), null);
+  }
+
+  @CheckForNull
+  private SyntaxHighlightingData loadHighlighting(DefaultInputFile file) {
+    SyntaxHighlightingData highlighting = componentDataCache.getData(file.key(), SnapshotDataTypes.SYNTAX_HIGHLIGHTING);
+    if (highlighting == null) {
+      highlighting = codeColorizers.toSyntaxHighlighting(file.file(), file.encoding(), file.language());
+    }
+    return highlighting;
   }
 
   String[] computeHighlightingPerLine(DefaultInputFile file, @Nullable SyntaxHighlightingData highlighting) {

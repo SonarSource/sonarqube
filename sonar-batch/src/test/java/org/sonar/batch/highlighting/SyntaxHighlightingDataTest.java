@@ -44,6 +44,6 @@ public class SyntaxHighlightingDataTest {
       );
 
     String serializedRules = new SyntaxHighlightingData(orderedHighlightingRules).writeString();
-    assertThat(serializedRules).isEqualTo("0,10,cd;10,12,k;12,20,cd;24,38,k;24,65,cppd;42,50,k;");
+    assertThat(serializedRules).isEqualTo("0,10,cd;10,12,k;12,20,cd;24,38,k;24,65,cppd;42,50,k");
   }
 }

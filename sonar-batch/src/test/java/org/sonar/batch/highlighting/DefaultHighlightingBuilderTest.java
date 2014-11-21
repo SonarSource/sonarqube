@@ -45,6 +45,6 @@ public class DefaultHighlightingBuilderTest {
 
     ArgumentCaptor<SyntaxHighlightingData> argCaptor = ArgumentCaptor.forClass(SyntaxHighlightingData.class);
     verify(cache).setData(eq("myComponent"), eq(SnapshotDataTypes.SYNTAX_HIGHLIGHTING), argCaptor.capture());
-    assertThat(argCaptor.getValue().writeString()).isEqualTo("0,10,k;20,30,cppd;");
+    assertThat(argCaptor.getValue().writeString()).isEqualTo("0,10,k;20,30,cppd");
   }
 }

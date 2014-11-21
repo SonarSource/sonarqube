@@ -73,6 +73,7 @@ import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
 import org.sonar.batch.scan.measure.MeasureCache;
+import org.sonar.batch.source.CodeColorizers;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
 import org.sonar.core.component.ScanGraph;
@@ -140,6 +141,7 @@ public class ProjectScanContainer extends ComponentContainer {
       DuplicationPersister.class,
       DefaultResourcePersister.class,
       SourcePersister.class,
+      CodeColorizers.class,
       DefaultNotificationManager.class,
       MetricProvider.class,
       ProjectConfigurator.class,

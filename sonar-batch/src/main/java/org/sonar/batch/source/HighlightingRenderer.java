@@ -17,22 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.colorizers;
+package org.sonar.batch.source;
 
-import org.sonar.api.web.CodeColorizerFormat;
-import org.sonar.colorizer.CodeColorizer;
-import org.sonar.colorizer.Tokenizer;
+import org.sonar.batch.highlighting.SyntaxHighlightingData;
+import org.sonar.channel.Channel;
+import org.sonar.channel.CodeReader;
+import org.sonar.colorizer.HtmlCodeBuilder;
+import org.sonar.colorizer.TokenizerDispatcher;
 
+import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 
-public class JavaColorizerFormat extends CodeColorizerFormat{
+public class HighlightingRenderer {
 
-  public JavaColorizerFormat() {
-    super("java");
-  }
+  public SyntaxHighlightingData render(Reader code, List<? extends Channel<HtmlCodeBuilder>> tokenizers) {
+    List<Channel<HtmlCodeBuilder>> allTokenizers = new ArrayList<Channel<HtmlCodeBuilder>>();
+    HighlightingCodeBuilder codeBuilder = new HighlightingCodeBuilder();
 
-  @Override
-  public List<Tokenizer> getTokenizers() {
-    return CodeColorizer.Format.JAVA.getTokenizers();
+    allTokenizers.addAll(tokenizers);
+
+    new TokenizerDispatcher(allTokenizers).colorize(new CodeReader(code), codeBuilder);
+
+    return codeBuilder.getHighlightingData();
   }
 }

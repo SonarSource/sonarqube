@@ -19,18 +19,21 @@
  */
 package org.sonar.api.web;
 
-import java.util.List;
-
 import com.google.common.base.Objects;
 import org.sonar.api.ServerExtension;
+import org.sonar.api.source.Highlightable;
+import org.sonar.api.task.TaskExtension;
 import org.sonar.colorizer.Tokenizer;
 
+import java.util.List;
+
 /**
- * Extend the library sonar-colorizer to support new languages. By default only Java sources are colorized in Sonar.
+ * Extend the library sonar-colorizer to support new languages.
  * 
  * @since 1.12
+ * @deprecated since 5.1 use {@link Highlightable} API
  */
-public abstract class CodeColorizerFormat implements ServerExtension {
+public abstract class CodeColorizerFormat implements ServerExtension, TaskExtension {
 
   private String languageKey;
 
@@ -57,7 +60,7 @@ public abstract class CodeColorizerFormat implements ServerExtension {
     if (this == o) {
       return true;
     }
-    if ( !(o instanceof CodeColorizerFormat)) {
+    if (!(o instanceof CodeColorizerFormat)) {
       return false;
     }
 
