@@ -110,7 +110,7 @@ public class SourcePersister implements ScanPersister {
 
   @Override
   public void persist() {
-    DbSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(true);
     try {
 
       final Map<String, FileSourceDto> fileSourceDtoByFileUuid = new HashMap<String, FileSourceDto>();
