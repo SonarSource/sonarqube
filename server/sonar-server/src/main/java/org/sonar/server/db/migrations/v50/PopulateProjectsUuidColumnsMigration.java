@@ -25,6 +25,7 @@ import com.google.common.base.Strings;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v50.Component;
 import org.sonar.core.persistence.migration.v50.Migration50Mapper;
@@ -35,7 +36,6 @@ import org.sonar.server.db.migrations.MassUpdate;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -159,7 +159,7 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
 
   private void migrateComponentsWithoutUuid(DbSession readSession, DbSession writeSession) {
     for (Component component : readSession.getMapper(Migration50Mapper.class).selectComponentsWithoutUuid()) {
-      String uuid = UUID.randomUUID().toString();
+      String uuid = Uuids.create();
       component.setUuid(uuid);
       component.setProjectUuid(uuid);
 
@@ -172,7 +172,7 @@ public class PopulateProjectsUuidColumnsMigration implements DatabaseMigration {
     String existingUuid = component.getUuid();
     String uuid = existingUuid == null ? uuidByComponentId.get(component.getId()) : existingUuid;
     if (uuid == null) {
-      String newUuid = UUID.randomUUID().toString();
+      String newUuid = Uuids.create();
       uuidByComponentId.put(component.getId(), newUuid);
       return newUuid;
     }

@@ -20,17 +20,15 @@
 package org.sonar.core.issue;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.internal.Uuids;
 
 import javax.annotation.Nullable;
-
 import java.util.Map;
-import java.util.UUID;
 
 public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
@@ -110,8 +108,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     Preconditions.checkNotNull(ruleKey, "Rule key must be set");
 
     DefaultIssue issue = new DefaultIssue();
-    String key = UUID.randomUUID().toString();
-    Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
+    String key = Uuids.create();
     issue.setKey(key);
     issue.setComponentKey(componentKey);
     issue.setProjectKey(projectKey);

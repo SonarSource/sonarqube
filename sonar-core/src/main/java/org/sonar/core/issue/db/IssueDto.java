@@ -28,6 +28,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.Dto;
 import org.sonar.core.rule.RuleDto;
@@ -633,6 +634,6 @@ public final class IssueDto extends Dto<String> implements Serializable {
     return new IssueDto()
       .setProjectId(Long.valueOf(project.getId()))
       .setRuleId(rule.getId())
-      .setKee(UUID.randomUUID().toString());
+      .setKee(Uuids.create());
   }
 }

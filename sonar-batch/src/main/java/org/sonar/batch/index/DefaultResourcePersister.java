@@ -36,6 +36,7 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.internal.Uuids;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -46,7 +47,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public final class DefaultResourcePersister implements ResourcePersister {
 
@@ -306,7 +306,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     model.setEnabled(Boolean.TRUE);
     model.setDescription(resource.getDescription());
     model.setKey(resource.getEffectiveKey());
-    model.setUuid(UUID.randomUUID().toString());
+    model.setUuid(Uuids.create());
     model.setPath(resource.getPath());
     Language language = resource.getLanguage();
     if (language != null) {

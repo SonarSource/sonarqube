@@ -21,12 +21,11 @@
 package org.sonar.core.issue;
 
 import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.utils.internal.Uuids;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Date;
-import java.util.UUID;
 
 public class DefaultActionPlan implements ActionPlan {
 
@@ -46,7 +45,7 @@ public class DefaultActionPlan implements ActionPlan {
 
   public static DefaultActionPlan create(String name) {
     DefaultActionPlan actionPlan = new DefaultActionPlan();
-    actionPlan.setKey(UUID.randomUUID().toString());
+    actionPlan.setKey(Uuids.create());
     Date now = new Date();
     actionPlan.setName(name);
     actionPlan.setStatus(ActionPlan.STATUS_OPEN);

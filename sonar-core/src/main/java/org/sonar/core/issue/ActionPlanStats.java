@@ -21,9 +21,9 @@
 package org.sonar.core.issue;
 
 import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.utils.internal.Uuids;
 
 import java.util.Date;
-import java.util.UUID;
 
 public class ActionPlanStats extends DefaultActionPlan {
 
@@ -36,7 +36,7 @@ public class ActionPlanStats extends DefaultActionPlan {
 
   public static ActionPlanStats create(String name) {
     ActionPlanStats actionPlan = new ActionPlanStats();
-    actionPlan.setKey(UUID.randomUUID().toString());
+    actionPlan.setKey(Uuids.create());
     Date now = new Date();
     actionPlan.setName(name);
     actionPlan.setStatus(ActionPlan.STATUS_OPEN);

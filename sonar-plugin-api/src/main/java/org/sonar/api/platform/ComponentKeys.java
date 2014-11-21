@@ -22,10 +22,10 @@ package org.sonar.api.platform;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.utils.internal.Uuids;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -50,7 +50,7 @@ class ComponentKeys {
       if (!objectsWithoutToString.add(component.getClass())) {
         log.warn(String.format("Bad component key: %s. Please implement toString() method on class %s", key, component.getClass().getName()));
       }
-      key += UUID.randomUUID().toString();
+      key += Uuids.create();
     }
     return new StringBuilder().append(component.getClass().getCanonicalName()).append("-").append(key).toString();
   }

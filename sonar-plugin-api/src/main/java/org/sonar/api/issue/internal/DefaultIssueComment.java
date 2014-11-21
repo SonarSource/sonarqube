@@ -20,13 +20,12 @@
 package org.sonar.api.issue.internal;
 
 import org.sonar.api.issue.IssueComment;
+import org.sonar.api.utils.internal.Uuids;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
@@ -118,7 +117,7 @@ public class DefaultIssueComment implements Serializable, IssueComment {
   public static DefaultIssueComment create(String issueKey, @Nullable String login, String markdownText) {
     DefaultIssueComment comment = new DefaultIssueComment();
     comment.setIssueKey(issueKey);
-    comment.setKey(UUID.randomUUID().toString());
+    comment.setKey(Uuids.create());
     Date now = new Date();
     comment.setUserLogin(login);
     comment.setMarkdownText(markdownText);

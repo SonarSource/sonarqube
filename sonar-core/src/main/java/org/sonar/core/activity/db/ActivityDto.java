@@ -22,11 +22,10 @@ package org.sonar.core.activity.db;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.ActivityLog;
 import org.sonar.core.persistence.Dto;
-
-import java.util.UUID;
 
 /**
  * @since 4.4
@@ -42,7 +41,7 @@ public final class ActivityDto extends Dto<String> {
   private String data;
 
   protected ActivityDto() {
-    this.key = UUID.randomUUID().toString();
+    this.key = Uuids.create();
   }
 
   @Override

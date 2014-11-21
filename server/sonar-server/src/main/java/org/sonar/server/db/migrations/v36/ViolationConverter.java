@@ -27,6 +27,7 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.AbstractListHandler;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.SqlUtil;
 
@@ -177,7 +178,7 @@ class ViolationConverter implements Callable<Object> {
         if (componentId == null) {
           continue;
         }
-        String issueKey = UUID.randomUUID().toString();
+        String issueKey = Uuids.create();
         String status, severity, reporter = null;
         boolean manualSeverity;
         Object createdAt = Objects.firstNonNull(row.get(CREATED_AT), ONE_YEAR_AGO);
@@ -248,7 +249,7 @@ class ViolationConverter implements Callable<Object> {
       String login = referentials.userLogin((Long) comment.get(USER_ID));
       if (login != null) {
         Object[] params = new Object[6];
-        params[0] = UUID.randomUUID().toString();
+        params[0] = Uuids.create();
         params[1] = comment.get(ISSUE_KEY);
         params[2] = login;
         params[3] = comment.get(REVIEW_TEXT);

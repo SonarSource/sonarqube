@@ -25,6 +25,7 @@ import org.sonar.api.component.RubyComponentService;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.resource.ResourceDao;
@@ -75,7 +76,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
       }
       checkKeyFormat(qualifier, kee);
 
-      String uuid = UUID.randomUUID().toString();
+      String uuid = Uuids.create();
       resourceDao.insertOrUpdate(
         new ResourceDto()
           .setUuid(uuid)

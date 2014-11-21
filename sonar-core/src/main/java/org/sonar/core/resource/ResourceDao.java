@@ -25,6 +25,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
 import org.sonar.core.persistence.DaoComponent;
@@ -151,7 +152,7 @@ public class ResourceDao implements DaoComponent {
         if (resource.getId() == null) {
           // Fix for Views
           if (resource.getUuid() == null && Scopes.PROJECT.equals(resource.getScope())) {
-            String uuid = UUID.randomUUID().toString();
+            String uuid = Uuids.create();
             resource.setUuid(uuid);
             resource.setProjectUuid(uuid);
           }

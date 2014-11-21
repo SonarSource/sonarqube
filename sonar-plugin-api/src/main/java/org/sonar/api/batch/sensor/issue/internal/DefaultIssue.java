@@ -28,11 +28,10 @@ import org.sonar.api.batch.sensor.SensorStorage;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.internal.Uuids;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.util.UUID;
 
 public class DefaultIssue extends DefaultStorable implements Issue {
 
@@ -51,12 +50,12 @@ public class DefaultIssue extends DefaultStorable implements Issue {
 
   public DefaultIssue() {
     super(null);
-    this.key = UUID.randomUUID().toString();
+    this.key = Uuids.create();
   }
 
   public DefaultIssue(SensorStorage storage) {
     super(storage);
-    this.key = UUID.randomUUID().toString();
+    this.key = Uuids.create();
   }
 
   @Override
