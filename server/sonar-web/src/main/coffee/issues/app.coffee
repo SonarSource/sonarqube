@@ -110,10 +110,12 @@ requirejs [
 
   App.addInitializer ->
     $(window).on 'keypress', (e) =>
-      code = e.keyCode || e.which
-      if code == 63
-        @helpView = new HelpView app: @
-        @helpView.render()
+      tagName = e.target.tagName
+      unless tagName == 'INPUT' || tagName == 'SELECT' || tagName == 'TEXTAREA'
+        code = e.keyCode || e.which
+        if code == 63
+          @helpView = new HelpView app: @
+          @helpView.render()
 
 
   App.addInitializer ->
