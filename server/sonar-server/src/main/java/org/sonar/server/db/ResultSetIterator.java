@@ -37,7 +37,6 @@ public abstract class ResultSetIterator<E> implements Iterator<E>, Closeable {
   private final ResultSet rs;
   private final PreparedStatement stmt;
 
-  // TODO can be simpler by using rs.isLast(). See ResultSetIterator from commons-dbutils
   private boolean didNext = false;
   private boolean hasNext = false;
 
