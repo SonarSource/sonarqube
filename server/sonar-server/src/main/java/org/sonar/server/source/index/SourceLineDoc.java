@@ -48,7 +48,7 @@ public class SourceLineDoc extends BaseDoc {
   }
 
   public int line() {
-    return getField(SourceLineIndexDefinition.FIELD_LINE);
+    return ((Number)getField(SourceLineIndexDefinition.FIELD_LINE)).intValue();
   }
 
   public void setLine(int line) {
