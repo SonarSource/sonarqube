@@ -215,7 +215,8 @@ public class SourcePersister implements ScanPersister {
     return result;
   }
 
-  private void writeRule(DefaultInputFile file, SyntaxHighlightingRule rule, StringBuilder[] highlightingPerLine, int currentLineIdx) {
+  private void writeRule(DefaultInputFile file, SyntaxHighlightingRule rule, StringBuilder[] highlightingPerLine, int currentLine) {
+    int currentLineIdx = currentLine;
     // We know current rule starts on current line
     long ruleStartOffsetCurrentLine = rule.getStartPosition();
     while (currentLineIdx < file.lines() && rule.getEndPosition() >= file.originalLineOffsets()[currentLineIdx]) {

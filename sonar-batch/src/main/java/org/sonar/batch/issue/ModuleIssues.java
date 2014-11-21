@@ -72,7 +72,7 @@ public class ModuleIssues {
   }
 
   private DefaultIssue newIssue(Violation violation) {
-    return (DefaultIssue) new DefaultIssueBuilder()
+    return new DefaultIssueBuilder()
       .componentKey(violation.getResource().getEffectiveKey())
       // Project can be null but Violation not used by scan2
       .projectKey(project.getRoot().getEffectiveKey())

@@ -49,7 +49,7 @@ public class Dsm<V> {
   }
 
   private DsmCell[][] initCells(Set<Edge> feedbackEdges) {
-    DsmCell[][] cells = new DsmCell[dimension][dimension];
+    DsmCell[][] result = new DsmCell[dimension][dimension];
     for (int x = 0; x < dimension; x++) {
       for (int y = 0; y < dimension; y++) {
         V from = vertices[x];
@@ -59,21 +59,21 @@ public class Dsm<V> {
         if (edge != null) {
           atLeastOneDependency = true;
           boolean isFeedbackEdge = feedbackEdges.contains(edge);
-          cells[x][y] = new DsmCell(edge, isFeedbackEdge);
+          result[x][y] = new DsmCell(edge, isFeedbackEdge);
         }
       }
     }
-    return cells;
+    return result;
   }
 
   private V[] initVertices(Collection<V> verticesCol) {
-    V[] vertices = (V[]) new Object[dimension];
+    V[] result = (V[]) new Object[dimension];
     int i = 0;
     for (V vertex : verticesCol) {
-      vertices[i] = vertex;
+      result[i] = vertex;
       i++;
     }
-    return vertices;
+    return result;
   }
 
   public V getVertex(int rowIndex) {

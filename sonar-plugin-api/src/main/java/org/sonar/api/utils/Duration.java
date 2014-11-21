@@ -48,7 +48,7 @@ public class Duration implements Serializable {
   }
 
   private Duration(int days, int hours, int minutes, int hoursInDay) {
-    this(((long) days * hoursInDay * MINUTES_IN_ONE_HOUR) + (hours * MINUTES_IN_ONE_HOUR) + minutes);
+    this((days * hoursInDay * MINUTES_IN_ONE_HOUR) + (hours * MINUTES_IN_ONE_HOUR) + minutes);
   }
 
   /**
