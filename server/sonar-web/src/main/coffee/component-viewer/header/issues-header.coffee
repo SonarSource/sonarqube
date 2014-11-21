@@ -46,7 +46,8 @@ define [
     issuesBulkChange: ->
       issues = @source.get('activeIssues')?.map (issue) -> issue.key
       if issues.length > 0
-        url = "#{baseUrl}/issues/bulk_change_form?issues=#{issues.join()}"
+        count = Math.min issues.length, 200
+        url = "#{baseUrl}/issues/bulk_change_form?issues=#{_.first(issues, count).join()}"
         openModalWindow url, {}
 
 
