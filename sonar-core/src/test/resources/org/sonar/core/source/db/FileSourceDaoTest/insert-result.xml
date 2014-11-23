@@ -1,7 +1,12 @@
 <dataset>
 
-    <file_sources id="101" project_uuid="abcd" file_uuid="ab12" data="7075626c696320636c61737320466f6f207b7075626c696320466f6f28297b7d7d" data_hash="hash" created_at="2014-10-29 16:44:02.000" updated_at="2014-10-30 16:44:02.000" />
+    <file_sources id="101" project_uuid="abcd" file_uuid="ab12"
+                  data="aef12a,alice,2014-04-25T12:34:56+0100,,class Foo" data_hash="hash"
+                  created_at="2014-10-29 16:44:02.000" updated_at="2014-10-30 16:44:02.000" />
 
-    <file_sources id="102" project_uuid="prj" file_uuid="file" data="626c6120626c61" data_hash="hash2" created_at="2014-10-31 16:44:02.000" updated_at="2014-10-31 16:44:02.000" />
+
+    <file_sources id="102" project_uuid="prj" file_uuid="file"
+                  data="bla bla" data_hash="hash2"
+                  created_at="2014-10-31 16:44:02.000" updated_at="2014-10-31 16:44:02.000" />
 
 </dataset>

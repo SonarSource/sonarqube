@@ -152,7 +152,7 @@ public class SourcePersister implements ScanPersister {
     String newDataHash = newData != null ? DigestUtils.md5Hex(newData) : "0";
     Date now = system2.newDate();
     if (previous == null) {
-      FileSourceDto newFileSource = new FileSourceDto().setProjectUuid(projectTree.getRootProject().getUuid()).setFileUuid(fileUuid).setStringData(newData)
+      FileSourceDto newFileSource = new FileSourceDto().setProjectUuid(projectTree.getRootProject().getUuid()).setFileUuid(fileUuid).setData(newData)
         .setDataHash(newDataHash)
         .setCreatedAt(now)
         .setUpdatedAt(now);
@@ -160,7 +160,7 @@ public class SourcePersister implements ScanPersister {
       session.commit();
     } else {
       if (!newDataHash.equals(previous.getDataHash())) {
-        previous.setStringData(newData).setDataHash(newDataHash).setUpdatedAt(now);
+        previous.setData(newData).setDataHash(newDataHash).setUpdatedAt(now);
         mapper.update(previous);
         session.commit();
       }

@@ -31,11 +31,13 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
 import org.sonar.server.db.migrations.SqlUtil;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -82,7 +84,7 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
     Date updatedAt = SqlUtil.getDate(rs, 4);
-    Reader dataStream = new InputStreamReader(new ByteArrayInputStream(rs.getBytes(5)));
+    Reader dataStream = rs.getClob(5).getCharacterStream();
 
     int line = 1;
     List<SourceLineDoc> lines = Lists.newArrayList();

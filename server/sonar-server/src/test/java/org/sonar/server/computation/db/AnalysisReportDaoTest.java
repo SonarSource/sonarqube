@@ -43,7 +43,6 @@ import static org.sonar.core.computation.db.AnalysisReportDto.Status.WORKING;
 
 public class AnalysisReportDaoTest {
   private static final String DEFAULT_PROJECT_KEY = "123456789-987654321";
-  private static final String DEFAULT_PROJECT_NAME = "default project name";
   private static final long DEFAULT_SNAPSHOT_ID = 123L;
 
   @Rule
@@ -288,14 +287,12 @@ public class AnalysisReportDaoTest {
   }
 
   private AnalysisReportDto newDefaultReport() {
-    AnalysisReportDto report = AnalysisReportDto.newForTests(1L)
+    return AnalysisReportDto.newForTests(1L)
       .setStatus(PENDING)
       .setProjectKey(DEFAULT_PROJECT_KEY)
       .setCreatedAt(DateUtils.parseDate("2014-09-30"))
       .setFinishedAt(DateUtils.parseDate("2014-09-30"))
       .setStartedAt(DateUtils.parseDate("2014-09-30"))
       .setUpdatedAt(DateUtils.parseDate("2014-09-30"));
-
-    return report;
   }
 }
