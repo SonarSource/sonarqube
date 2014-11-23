@@ -65,7 +65,7 @@ public class IssuesDbExtractionTest extends AbstractTest {
     ruleDao = new RuleDao();
     componentDao = new ComponentDao(System2.INSTANCE);
 
-    session = db.myBatis().openSession(false);
+    session = db.myBatis().openSession(true);
   }
 
   @After
