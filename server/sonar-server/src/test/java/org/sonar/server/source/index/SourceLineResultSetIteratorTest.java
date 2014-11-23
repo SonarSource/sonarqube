@@ -20,7 +20,6 @@
 package org.sonar.server.source.index;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.io.Charsets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -34,6 +33,7 @@ import java.sql.PreparedStatement;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class SourceLineResultSetIteratorTest {
 
@@ -91,18 +91,26 @@ public class SourceLineResultSetIteratorTest {
     assertThat(iterator.hasNext()).isFalse();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void should_fail_on_bad_csv() throws Exception {
     db.prepareDbUnit(getClass(), "source-with-scm.xml");
     Connection connection = db.openConnection();
     PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET data = ? WHERE id=1");
-    stmt.setBytes(1, ("plouf").getBytes(Charsets.UTF_8));
+    stmt.setString(1, "plouf");
     stmt.executeUpdate();
     connection.commit();
+    stmt.close();
 
     SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L);
-    assertThat(iterator.hasNext()).isTrue();
-    iterator.next();
-  }
+    try {
+      assertThat(iterator.hasNext()).isTrue();
+      iterator.next();
+      fail();
+    } catch (IllegalStateException e) {
+      // ok
+    } finally {
+      iterator.close();
 
+    }
+  }
 }
