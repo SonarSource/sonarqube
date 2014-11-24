@@ -445,9 +445,12 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
       List<IndexField> fields = toIndexFields(sortField);
       for (IndexField field : fields) {
         FieldSortBuilder sortBuilder = SortBuilders.fieldSort(field.sortField());
+        // line is optional. When missing, it means zero.
         if (asc != null && asc) {
+          sortBuilder.missing("_first");
           sortBuilder.order(SortOrder.ASC);
         } else {
+          sortBuilder.missing("_last");
           sortBuilder.order(SortOrder.DESC);
         }
         esSearch.addSort(sortBuilder);

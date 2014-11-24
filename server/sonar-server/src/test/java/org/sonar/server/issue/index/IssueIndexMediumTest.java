@@ -538,9 +538,9 @@ public class IssueIndexMediumTest {
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(true);
     Result<Issue> result = index.search(query.build(), new QueryContext());
     assertThat(result.getHits()).hasSize(3);
-    assertThat(result.getHits().get(0).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
-    assertThat(result.getHits().get(1).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
-    assertThat(result.getHits().get(2).closeDate()).isNull();
+    assertThat(result.getHits().get(0).closeDate()).isNull();
+    assertThat(result.getHits().get(1).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-23"));
+    assertThat(result.getHits().get(2).closeDate()).isEqualTo(DateUtils.parseDate("2014-09-24"));
 
     query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(false);
     result = index.search(query.build(), new QueryContext());
@@ -554,9 +554,9 @@ public class IssueIndexMediumTest {
   public void sort_by_file_and_line() throws Exception {
     db.issueDao().insert(session,
       // file Foo.java
-      IssueTesting.newDto(rule, file, project).setLine(20).setFilePath("src/Foo.java").setKee("FOO1"),
-      IssueTesting.newDto(rule, file, project).setLine(null).setFilePath("src/Foo.java").setKee("FOO3"),
-      IssueTesting.newDto(rule, file, project).setLine(25).setFilePath("src/Foo.java").setKee("FOO2"),
+      IssueTesting.newDto(rule, file, project).setLine(20).setFilePath("src/Foo.java").setKee("FOO2"),
+      IssueTesting.newDto(rule, file, project).setLine(null).setFilePath("src/Foo.java").setKee("FOO1"),
+      IssueTesting.newDto(rule, file, project).setLine(25).setFilePath("src/Foo.java").setKee("FOO3"),
 
       // file Bar.java
       IssueTesting.newDto(rule, file, project).setLine(9).setFilePath("src/Bar.java").setKee("BAR1"),
@@ -581,10 +581,9 @@ public class IssueIndexMediumTest {
     query = IssueQuery.builder().sort(IssueQuery.SORT_BY_FILE_LINE).asc(false);
     result = index.search(query.build(), new QueryContext());
     assertThat(result.getHits()).hasSize(6);
-    assertThat(result.getHits().get(0).key()).isEqualTo("FOO2");
-    assertThat(result.getHits().get(1).key()).isEqualTo("FOO1");
-    // nul line is on last. Could be improved.
-    assertThat(result.getHits().get(2).key()).isEqualTo("FOO3");
+    assertThat(result.getHits().get(0).key()).isEqualTo("FOO3");
+    assertThat(result.getHits().get(1).key()).isEqualTo("FOO2");
+    assertThat(result.getHits().get(2).key()).isEqualTo("FOO1");
     assertThat(result.getHits().get(3).key()).isEqualTo("BAR3");
     assertThat(result.getHits().get(4).key()).isEqualTo("BAR2");
     assertThat(result.getHits().get(5).key()).isEqualTo("BAR1");
