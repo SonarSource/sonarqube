@@ -19,11 +19,11 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,6 +45,7 @@ class FileMetadata {
   private static final char LINE_FEED = '\n';
   private static final char CARRIAGE_RETURN = '\r';
   private static final char BOM = '\uFEFF';
+  private static final String SPACE_CHARS = "\t\n\r ";
 
   // This singleton aims only to increase the coverage by allowing
   // to test the private method !
@@ -61,14 +62,13 @@ class FileMetadata {
     Reader reader = null;
     long currentOriginalOffset = 0;
     List<Long> originalLineOffsets = new ArrayList<Long>();
-    List<Integer> lineCheckSum = new ArrayList<Integer>();
-    int hash = 5381;
+    List<String> lineHashes = new ArrayList<String>();
     StringBuilder currentLineStr = new StringBuilder();
     int lines = 0;
     char c = (char) -1;
     try {
-      MessageDigest md5Digest = DigestUtils.getMd5Digest();
-      md5Digest.reset();
+      MessageDigest globalMd5Digest = DigestUtils.getMd5Digest();
+      globalMd5Digest.reset();
       reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
       int i = reader.read();
       boolean afterCR = false;
@@ -95,30 +95,38 @@ class FileMetadata {
           afterCR = true;
           c = LINE_FEED;
         }
-        currentLineStr.append(c);
-        hash = ((hash << 5) + hash) + (c & 0xff);
         if (c == LINE_FEED) {
           lines++;
           originalLineOffsets.add(currentOriginalOffset);
-          lineCheckSum.add(hash);
-          hash = 5381;
+          lineHashes.add(md5IgnoreWhitespace(currentLineStr));
           currentLineStr.setLength(0);
+        } else {
+          currentLineStr.append(c);
         }
-        md5Digest.update(charToBytesUTF(c));
+        globalMd5Digest.update(charToBytesUTF(c));
         i = reader.read();
       }
       if (c != (char) -1) {
+        // Last empty line
         lines++;
-        lineCheckSum.add(hash);
+        lineHashes.add(md5IgnoreWhitespace(currentLineStr));
       }
-      String filehash = Hex.encodeHexString(md5Digest.digest());
-      return new Metadata(lines, filehash, originalLineOffsets, lineCheckSum);
+      String filehash = Hex.encodeHexString(globalMd5Digest.digest());
+      return new Metadata(lines, filehash, originalLineOffsets, lineHashes.toArray(new String[0]));
 
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Fail to read file '%s' with encoding '%s'", file.getAbsolutePath(), encoding), e);
     } finally {
       IOUtils.closeQuietly(reader);
     }
+  }
+
+  private String md5IgnoreWhitespace(StringBuilder currentLineStr) {
+    String reducedLine = StringUtils.replaceChars(currentLineStr.toString(), SPACE_CHARS, "");
+    if (reducedLine.isEmpty()) {
+      return "";
+    }
+    return DigestUtils.md5Hex(reducedLine);
   }
 
   private byte[] charToBytesUTF(char c) {
@@ -136,13 +144,13 @@ class FileMetadata {
     final int lines;
     final String hash;
     final long[] originalLineOffsets;
-    final int[] lineChecksum;
+    final String[] lineHashes;
 
-    private Metadata(int lines, String hash, List<Long> originalLineOffsets, List<Integer> lineCheckSum) {
+    private Metadata(int lines, String hash, List<Long> originalLineOffsets, String[] lineHashes) {
       this.lines = lines;
       this.hash = hash;
       this.originalLineOffsets = Longs.toArray(originalLineOffsets);
-      this.lineChecksum = Ints.toArray(lineCheckSum);
+      this.lineHashes = lineHashes;
     }
   }
 }

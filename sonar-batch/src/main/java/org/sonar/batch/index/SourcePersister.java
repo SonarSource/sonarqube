@@ -20,6 +20,7 @@
 package org.sonar.batch.index;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Joiner;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -56,7 +57,12 @@ import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Charsets.UTF_8;
 
@@ -147,15 +153,23 @@ public class SourcePersister implements ScanPersister {
     String newDataHash = newData != null ? DigestUtils.md5Hex(newData) : "0";
     Date now = system2.newDate();
     if (previous == null) {
-      FileSourceDto newFileSource = new FileSourceDto().setProjectUuid(projectTree.getRootProject().getUuid()).setFileUuid(fileUuid).setData(newData)
+      FileSourceDto newFileSource = new FileSourceDto()
+        .setProjectUuid(projectTree.getRootProject().getUuid())
+        .setFileUuid(fileUuid)
+        .setData(newData)
         .setDataHash(newDataHash)
+        .setLineHashes(StringUtils.defaultIfEmpty(Joiner.on('\n').join(inputFile.lineHashes()), null))
         .setCreatedAt(now.getTime())
         .setUpdatedAt(now.getTime());
       mapper.insert(newFileSource);
       session.commit();
     } else {
       if (!newDataHash.equals(previous.getDataHash())) {
-        previous.setData(newData).setDataHash(newDataHash).setUpdatedAt(now.getTime());
+        previous
+          .setData(newData)
+          .setLineHashes(StringUtils.defaultIfEmpty(Joiner.on('\n').join(inputFile.lineHashes()), null))
+          .setDataHash(newDataHash)
+          .setUpdatedAt(now.getTime());
         mapper.update(previous);
         session.commit();
       }

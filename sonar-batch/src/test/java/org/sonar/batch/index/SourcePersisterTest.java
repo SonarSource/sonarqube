@@ -130,7 +130,9 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     String relativePathSame = "src/changed.java";
     java.io.File sameFile = new java.io.File(basedir, relativePathSame);
     FileUtils.write(sameFile, "changed\ncontent");
-    DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathSame).setLines(2).setAbsolutePath(sameFile.getAbsolutePath());
+    DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathSame).setLines(2)
+      .setAbsolutePath(sameFile.getAbsolutePath())
+      .setLineHashes(new String[] {"foo", "bar"});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileNew));
 
     mockResourceCache(relativePathSame, PROJECT_KEY, "uuidsame");
@@ -142,6 +144,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
       ",,,,changed\r\n,,,,content\r\n");
+    assertThat(fileSourceDto.getLineHashes()).isEqualTo("foo\nbar");
     assertThat(fileSourceDto.getDataHash()).isEqualTo("e41cca9c51ff853c748f708f39dfc035");
   }
 
@@ -151,7 +154,9 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     when(system2.newDate()).thenReturn(DateUtils.parseDateTime("2014-10-29T16:44:02+0100"));
 
     String relativePathEmpty = "src/empty.java";
-    DefaultInputFile inputFileEmpty = new DefaultInputFile(PROJECT_KEY, relativePathEmpty).setLines(0);
+    DefaultInputFile inputFileEmpty = new DefaultInputFile(PROJECT_KEY, relativePathEmpty)
+      .setLines(0)
+      .setLineHashes(new String[] {});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileEmpty));
 
     mockResourceCache(relativePathEmpty, PROJECT_KEY, "uuidempty");
@@ -169,7 +174,10 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     String relativePathNew = "src/new.java";
     java.io.File newFile = new java.io.File(basedir, relativePathNew);
     FileUtils.write(newFile, "foo\nbar\nbiz");
-    DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathNew).setLines(3).setAbsolutePath(newFile.getAbsolutePath());
+    DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathNew)
+      .setLines(3)
+      .setAbsolutePath(newFile.getAbsolutePath())
+      .setLineHashes(new String[] {"foo", "bar", "bee"});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileNew));
 
     mockResourceCache(relativePathNew, PROJECT_KEY, "uuidnew");
@@ -180,6 +188,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
       ",,,,foo\r\n,,,,bar\r\n,,,,biz\r\n");
+    assertThat(fileSourceDto.getLineHashes()).isEqualTo("foo\nbar\nbee");
     assertThat(fileSourceDto.getDataHash()).isEqualTo("0c43ed6418d690ee0ffc3e43e6660967");
 
   }
@@ -196,7 +205,8 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathNew)
       .setLines(3)
       .setAbsolutePath(newFile.getAbsolutePath())
-      .setOriginalLineOffsets(new long[] {0, 4, 7});
+      .setOriginalLineOffsets(new long[] {0, 4, 7})
+      .setLineHashes(new String[] {"foo", "bar", "bee"});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileNew));
 
     mockResourceCache(relativePathNew, PROJECT_KEY, "uuidnew");
@@ -221,6 +231,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     FileSourceDto fileSourceDto = new FileSourceDao(getMyBatis()).select("uuidnew");
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
+    assertThat(fileSourceDto.getLineHashes()).isEqualTo("foo\nbar\nbee");
     assertThat(fileSourceDto.getData()).isEqualTo(
       "123,julien,2014-10-11T16:44:02+0100,\"0,3,a\",foo\r\n"
         + "234,simon,2014-10-12T16:44:02+0100,\"0,1,cd\",bar\r\n"

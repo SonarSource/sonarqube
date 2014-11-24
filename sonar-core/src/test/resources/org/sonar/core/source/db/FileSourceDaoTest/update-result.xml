@@ -2,6 +2,7 @@
 
     <file_sources id="101" project_uuid="abcd" file_uuid="ab12"
                   data="updated data" data_hash="hash2"
+                  line_hashes="foo2&#10;bar2"
                   created_at="1414597442000" updated_at="1414770242000" />
 
 

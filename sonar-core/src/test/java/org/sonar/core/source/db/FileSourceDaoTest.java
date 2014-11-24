@@ -53,7 +53,9 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void insert() throws Exception {
-    dao.insert(new FileSourceDto().setProjectUuid("prj").setFileUuid("file").setData("bla bla").setDataHash("hash2")
+    dao.insert(new FileSourceDto().setProjectUuid("prj").setFileUuid("file").setData("bla bla")
+      .setDataHash("hash2")
+      .setLineHashes("foo\nbar")
       .setCreatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime())
       .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime()));
 
@@ -62,10 +64,12 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void update() throws Exception {
-    dao.update(new FileSourceDto().setId(101L).setProjectUuid("prj").setFileUuid("file").setData("updated data").setDataHash("hash2")
+    dao.update(new FileSourceDto().setId(101L).setProjectUuid("prj").setFileUuid("file")
+      .setData("updated data")
+      .setDataHash("hash2")
+      .setLineHashes("foo2\nbar2")
       .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime()));
 
     checkTable("update", "file_sources");
   }
-
 }

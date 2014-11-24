@@ -21,13 +21,14 @@ package org.sonar.server.db.migrations.v50;
 
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.*;
+import org.sonar.server.db.migrations.BaseDataChange;
+import org.sonar.server.db.migrations.MassUpdate;
 import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.Select.RowReader;
+import org.sonar.server.db.migrations.SqlStatement;
 
 import java.sql.SQLException;
 import java.util.Date;
-
 
 /**
  * Used in the Active Record Migration 714
@@ -56,14 +57,15 @@ public class FeedFileSources extends BaseDataChange {
       byte[] shortDates = row.getBytes(9);
       byte[] longDates = row.getBytes(10);
 
-      String sourceData = new FileSourceDto(source, shortRevisions, longRevisions, shortAuthors, longAuthors, shortDates, longDates).getSourceData();
+      String[] sourceData = new FileSourceDto(source, shortRevisions, longRevisions, shortAuthors, longAuthors, shortDates, longDates).getSourceData();
 
       update.setString(1, projectUuid)
         .setString(2, fileUuid)
         .setLong(3, now.getTime())
         .setLong(4, (updatedAt == null ? now : updatedAt).getTime())
-        .setString(5, sourceData)
-        .setString(6, "");
+        .setString(5, sourceData[0])
+        .setString(6, sourceData[1])
+        .setString(7, "");
 
       return true;
     }
@@ -91,43 +93,43 @@ public class FeedFileSources extends BaseDataChange {
 
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT " +
-        "p.uuid as project_uuid, " +
-        "f.uuid as file_uuid, " +
-        "ss.data as source, " +
-        "ss.updated_at, " +
-        "m1.text_value as short_revisions_by_line, " +
-        "m1.measure_data as long_revisions_by_line, " +
-        "m2.text_value as short_authors_by_line, " +
-        "m2.measure_data as long_authors_by_line, " +
-        "m3.text_value as short_dates_by_line, " +
-        "m3.measure_data as short_dates_by_line " +
+      "p.uuid as project_uuid, " +
+      "f.uuid as file_uuid, " +
+      "ss.data as source, " +
+      "ss.updated_at, " +
+      "m1.text_value as short_revisions_by_line, " +
+      "m1.measure_data as long_revisions_by_line, " +
+      "m2.text_value as short_authors_by_line, " +
+      "m2.measure_data as long_authors_by_line, " +
+      "m3.text_value as short_dates_by_line, " +
+      "m3.measure_data as short_dates_by_line " +
       "FROM snapshots s " +
       "JOIN snapshot_sources ss " +
-        "ON s.id = ss.snapshot_id AND s.islast = ? " +
+      "ON s.id = ss.snapshot_id AND s.islast = ? " +
       "JOIN projects p " +
-        "ON s.root_project_id = p.id " +
+      "ON s.root_project_id = p.id " +
       "JOIN projects f " +
-        "ON s.project_id = f.id " +
+      "ON s.project_id = f.id " +
       "LEFT JOIN project_measures m1 " +
-        "ON m1.snapshot_id = s.id AND m1.metric_id = ? " +
+      "ON m1.snapshot_id = s.id AND m1.metric_id = ? " +
       "LEFT JOIN project_measures m2 " +
-        "ON m2.snapshot_id = s.id AND m2.metric_id = ? " +
+      "ON m2.snapshot_id = s.id AND m2.metric_id = ? " +
       "LEFT JOIN project_measures m3 " +
-        "ON m3.snapshot_id = s.id AND m3.metric_id = ? " +
+      "ON m3.snapshot_id = s.id AND m3.metric_id = ? " +
       "WHERE " +
-        "f.enabled = ? " +
-        "AND f.scope = 'FIL' " +
-        "AND p.scope = 'PRJ' AND p.qualifier = 'TRK' ")
-        .setBoolean(1, true)
-        .setLong(2, revisionMetricId != null ? revisionMetricId : 0L)
-        .setLong(3, authorMetricId != null ? authorMetricId : 0L)
-        .setLong(4, datesMetricId != null ? datesMetricId : 0L)
-        .setBoolean(5, true);
+      "f.enabled = ? " +
+      "AND f.scope = 'FIL' " +
+      "AND p.scope = 'PRJ' AND p.qualifier = 'TRK' ")
+      .setBoolean(1, true)
+      .setLong(2, revisionMetricId != null ? revisionMetricId : 0L)
+      .setLong(3, authorMetricId != null ? authorMetricId : 0L)
+      .setLong(4, datesMetricId != null ? datesMetricId : 0L)
+      .setBoolean(5, true);
 
     massUpdate.update("INSERT INTO file_sources" +
-      "(project_uuid, file_uuid, created_at, updated_at, data, data_hash)" +
+      "(project_uuid, file_uuid, created_at, updated_at, data, line_hashes, data_hash)" +
       "VALUES " +
-      "(?, ?, ?, ?, ?, ?)");
+      "(?, ?, ?, ?, ?, ?, ?)");
 
     massUpdate.execute(new FileSourceBuilder(system));
   }

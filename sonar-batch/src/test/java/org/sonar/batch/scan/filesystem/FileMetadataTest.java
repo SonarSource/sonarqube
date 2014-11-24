@@ -20,6 +20,7 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.base.Charsets;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,7 +53,7 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(0);
     assertThat(metadata.hash).isNotEmpty();
     assertThat(metadata.originalLineOffsets).containsOnly(0);
-    assertThat(metadata.lineChecksum).isEmpty();
+    assertThat(metadata.lineHashes).isEmpty();
   }
 
   @Test
@@ -64,7 +65,7 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
     assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10);
-    assertThat(metadata.lineChecksum).containsOnly(2090263731, 2090104836, 193487042);
+    assertThat(metadata.lineHashes).containsOnly(md5("foo"), md5("bar"), md5("baz"));
   }
 
   @Test
@@ -76,7 +77,7 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(NON_ASCII);
     assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10, 18);
-    assertThat(metadata.lineChecksum).containsOnly(2090410746, 2090243139, -931663839, 5381);
+    assertThat(metadata.lineHashes).containsOnly(md5("föo"), md5("bàr"), md5("\u1D11Ebaßz"), "");
   }
 
   @Test
@@ -88,7 +89,7 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(NON_ASCII);
     assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10, 18);
-    assertThat(metadata.lineChecksum).containsOnly(2090410746, 2090243139, -931663839, 5381);
+    assertThat(metadata.lineHashes).containsOnly(md5("föo"), md5("bàr"), md5("\u1D11Ebaßz"), "");
   }
 
   @Test
@@ -100,7 +101,7 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
     assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 8);
-    assertThat(metadata.lineChecksum).containsOnly(2090263731, 2090104836, 193487042);
+    assertThat(metadata.lineHashes).containsOnly(md5("foo"), md5("bar"), md5("baz"));
   }
 
   @Test
@@ -112,7 +113,7 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
     assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 8, 12);
-    assertThat(metadata.lineChecksum).containsOnly(2090263731, 2090104836, 2090105100, 5381);
+    assertThat(metadata.lineHashes).containsOnly(md5("foo"), md5("bar"), md5("baz"), "");
   }
 
   @Test
@@ -124,7 +125,7 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
     assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 9, 13);
-    assertThat(metadata.lineChecksum).containsOnly(2090263731, 2090104836, 2090105100, 5381);
+    assertThat(metadata.lineHashes).containsOnly(md5("foo"), md5("bar"), md5("baz"), "");
   }
 
   @Test
@@ -136,7 +137,7 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
     assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 9);
-    assertThat(metadata.lineChecksum).containsOnly(2090263731, 2090104836, 193487042);
+    assertThat(metadata.lineHashes).containsOnly(md5("foo"), md5("bar"), md5("baz"));
   }
 
   @Test
@@ -148,7 +149,7 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(4);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_NEW_LINE_FIRST);
     assertThat(metadata.originalLineOffsets).containsOnly(0, 1, 5, 10);
-    assertThat(metadata.lineChecksum).containsOnly(177583, 2090263731, 2090104836, 193487042);
+    assertThat(metadata.lineHashes).containsOnly("", md5("foo"), md5("bar"), md5("baz"));
   }
 
   @Test
@@ -160,7 +161,17 @@ public class FileMetadataTest {
     assertThat(metadata.lines).isEqualTo(3);
     assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
     assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 9);
-    assertThat(metadata.lineChecksum).containsOnly(2090263731, 2090104836, 193487042);
+    assertThat(metadata.lineHashes).containsOnly(md5("foo"), md5("bar"), md5("baz"));
+  }
+
+  @Test
+  public void ignore_whitespace_when_computing_line_hashes() throws Exception {
+    File tempFile = temp.newFile();
+    FileUtils.write(tempFile, " foo\nb ar\r\nbaz \t", Charsets.UTF_8, true);
+
+    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    assertThat(metadata.lines).isEqualTo(3);
+    assertThat(metadata.lineHashes).containsOnly(md5("foo"), md5("bar"), md5("baz"));
   }
 
   @Test
@@ -191,5 +202,9 @@ public class FileMetadataTest {
     String hash2 = FileMetadata.INSTANCE.read(file2, Charsets.UTF_8).hash;
     assertThat(hash1).isEqualTo(hash1a);
     assertThat(hash1).isNotEqualTo(hash2);
+  }
+
+  private static String md5(String input) {
+    return DigestUtils.md5Hex(input);
   }
 }

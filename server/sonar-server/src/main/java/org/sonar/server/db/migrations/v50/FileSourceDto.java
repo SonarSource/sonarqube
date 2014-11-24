@@ -20,6 +20,8 @@
 package org.sonar.server.db.migrations.v50;
 
 import com.google.common.base.Splitter;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.text.CsvWriter;
 
@@ -33,6 +35,8 @@ import java.util.Map;
 import static com.google.common.base.Charsets.UTF_8;
 
 class FileSourceDto {
+
+  private static final String SPACE_CHARS = "\t\n\r ";
 
   private Iterator<String> sourceSplitter;
 
@@ -50,19 +54,29 @@ class FileSourceDto {
     dates = KeyValueFormat.parseIntString(ofNullableBytes(shortDates, longDates));
   }
 
-  String getSourceData() {
+  String[] getSourceData() {
     String highlighting = "";
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     int line = 0;
     String sourceLine = null;
     CsvWriter csv = CsvWriter.of(new OutputStreamWriter(output, UTF_8));
+    StringBuilder lineHashes = new StringBuilder();
     while (sourceSplitter.hasNext()) {
-      line ++;
+      line++;
       sourceLine = sourceSplitter.next();
+      lineHashes.append(lineChecksum(sourceLine)).append("\n");
       csv.values(revisions.get(line), authors.get(line), dates.get(line), highlighting, sourceLine);
     }
     csv.close();
-    return new String(output.toByteArray(), UTF_8);
+    return new String[] {new String(output.toByteArray(), UTF_8), lineHashes.toString()};
+  }
+
+  public static String lineChecksum(String line) {
+    String reducedLine = StringUtils.replaceChars(line, SPACE_CHARS, "");
+    if (line.isEmpty()) {
+      return "";
+    }
+    return DigestUtils.md5Hex(reducedLine);
   }
 
   private static String ofNullableBytes(@Nullable byte[] shortBytes, @Nullable byte[] longBytes) {

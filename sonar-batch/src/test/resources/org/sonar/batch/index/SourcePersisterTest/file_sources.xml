@@ -1,5 +1,8 @@
 <dataset>
-
-  <file_sources id="101" project_uuid="projectUuid" file_uuid="uuidsame" data=",,,,unchanged&#13;&#10;,,,,content&#13;&#10;" data_hash="ee716d4ed9faae16eb9167714442a3bc" created_at="1412952242000" updated_at="1412952242000" />
+  <file_sources id="101" project_uuid="projectUuid" file_uuid="uuidsame" 
+      data=",,,,unchanged&#13;&#10;,,,,content&#13;&#10;" 
+      line_hashes="8d7b3d6b83c0a517eac07e1aac94b773&#10;9a0364b9e99bb480dd25e1f0284c8555" 
+      data_hash="ee716d4ed9faae16eb9167714442a3bc" 
+      created_at="1412952242000" updated_at="1412952242000" />
 
 </dataset>

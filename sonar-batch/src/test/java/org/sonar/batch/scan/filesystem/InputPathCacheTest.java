@@ -67,10 +67,16 @@ public class InputPathCacheTest {
       .setStatus(Status.ADDED)
       .setHash("xyz")
       .setLines(1)
+      .setEncoding("UTF-8")
+      .setOriginalLineOffsets(new long[] {0, 4})
+      .setLineHashes(new String[] {"foo", "bar"})
       .setFile(temp.newFile("Bar.java")));
 
-    assertThat(cache.getFile("struts", "src/main/java/Foo.java").relativePath())
-      .isEqualTo("src/main/java/Foo.java");
+    DefaultInputFile loadedFile = (DefaultInputFile) cache.getFile("struts-core", "src/main/java/Bar.java");
+    assertThat(loadedFile.relativePath()).isEqualTo("src/main/java/Bar.java");
+    assertThat(loadedFile.encoding()).isEqualTo("UTF-8");
+    assertThat(loadedFile.originalLineOffsets()).containsOnly(0, 4);
+    assertThat(loadedFile.lineHashes()).containsOnly("foo", "bar");
 
     assertThat(cache.filesByModule("struts")).hasSize(1);
     assertThat(cache.filesByModule("struts-core")).hasSize(1);

@@ -29,6 +29,7 @@ public class FileSourceDto {
   private long createdAt;
   private long updatedAt;
   private String data;
+  private String lineHashes;
   private String dataHash;
 
   public Long getId() {
@@ -65,6 +66,16 @@ public class FileSourceDto {
 
   public FileSourceDto setData(@Nullable String data) {
     this.data = data;
+    return this;
+  }
+
+  @CheckForNull
+  public String getLineHashes() {
+    return lineHashes;
+  }
+
+  public FileSourceDto setLineHashes(@Nullable String lineHashes) {
+    this.lineHashes = lineHashes;
     return this;
   }
 

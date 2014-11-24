@@ -2,11 +2,13 @@
 
     <file_sources id="101" project_uuid="abcd" file_uuid="ab12"
                   data="aef12a,alice,2014-04-25T12:34:56+0100,,class Foo" data_hash="hash"
+                  line_hashes="truc"
                   created_at="1414597442000" updated_at="1414683842000" />
 
 
     <file_sources id="102" project_uuid="prj" file_uuid="file"
                   data="bla bla" data_hash="hash2"
+                  line_hashes="foo&#10;bar"
                   created_at="1414770242000" updated_at="1414770242000" />
 
 </dataset>
