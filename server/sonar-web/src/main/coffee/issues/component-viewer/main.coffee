@@ -275,7 +275,7 @@ define [
 
     scrollToLine: (line) ->
       row = @$("[data-line-number=#{line}]")
-      goal = if row.length > 0 then row.offset().top - 40 else 0
+      goal = if row.length > 0 then row.offset().top - 200 else 0
       $(window).scrollTop goal
 
 

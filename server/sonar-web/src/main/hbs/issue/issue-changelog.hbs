@@ -2,28 +2,22 @@
   <table class="spaced">
     <tbody>
 
-    {{#if issue.author}}
-      <tr>
-        <td colspan="3">
-          {{t 'author'}}: {{issue.author}}
-        </td>
-      </tr>
-    {{/if}}
-
-    {{#if issue.reporter}}
-      <tr>
-        <td colspan="3">
-          {{t 'reporter'}}: {{default issue.reporterName issue.reporter}}
-        </td>
-      </tr>
-    {{/if}}
-
     <tr>
       <td class="thin left top" nowrap>{{dt issue.creationDate}}</td>
       <td class="thin left top" nowrap></td>
-      <td class="left top">{{t 'created'}}</td>
+      <td class="left top">
+        {{#if issue.reporter}}
+          {{t 'issue.reported_by'}} {{default issue.reporterName issue.reporter}}
+        {{else}}
+          {{#if issue.author}}
+            {{t 'created_by'}} {{issue.author}}
+          {{else}}
+            {{t 'created'}}
+          {{/if}}
+        {{/if}}
+      </td>
     </tr>
-    x§
+
     {{#each items}}
       <tr>
         <td class="thin left top" nowrap>{{dt creationDate}}</td>

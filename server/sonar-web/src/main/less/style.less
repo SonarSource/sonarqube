@@ -2792,22 +2792,27 @@ text.max-results-reached-message {
 }
 
 
-@overlayPopupMargin: 40px;
+@overlayPopupMargin: 20px;
+@overlayPopupPadding: 40px;
 
 .overlay-popup {
   position: fixed;
   z-index: 1200;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: @overlayPopupMargin;
+  top: @overlayPopupMargin;
+  bottom: @overlayPopupMargin;
+  left: @overlayPopupMargin;
+  right: @overlayPopupMargin;
+  padding: @overlayPopupPadding @overlayPopupPadding @overlayPopupPadding + 30px;
   background-color: #fff;
   overflow: scroll;
+  box-shadow: 0 0 20px 15px rgba(0, 0, 0, 0.5);
+
+  .modal-foot {
+    position: fixed;
+    z-index: 1201;
+    bottom: @overlayPopupMargin;
+    left: @overlayPopupMargin;
+    right: @overlayPopupMargin;
+  }
 }
 
-.overlay-popup-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-}
