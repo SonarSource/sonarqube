@@ -98,7 +98,6 @@ public class SourceLineResultSetIteratorTest {
     PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET data = ? WHERE id=1");
     stmt.setString(1, "plouf");
     stmt.executeUpdate();
-    connection.commit();
     stmt.close();
 
     SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L);
