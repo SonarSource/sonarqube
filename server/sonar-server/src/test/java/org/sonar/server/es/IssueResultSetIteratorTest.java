@@ -62,14 +62,17 @@ public class IssueResultSetIteratorTest {
     IssueDoc issue = it.next();
     assertThat(issue.key()).isNotEmpty();
     assertThat(issue.assignee()).isNotEmpty();
-    assertThat(issue.actionPlanKey()).isNotEmpty();
-    assertThat(issue.authorLogin()).isNotEmpty();
     assertThat(issue.componentUuid()).isNotEmpty();
     assertThat(issue.projectUuid()).isNotEmpty();
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
 
     assertThat(it.hasNext()).isTrue();
-    assertThat(it.next()).isNotNull();
+    issue = it.next();
+    assertThat(issue.key()).isNotEmpty();
+    assertThat(issue.assignee()).isNotEmpty();
+    assertThat(issue.componentUuid()).isNotEmpty();
+    assertThat(issue.projectUuid()).isNotEmpty();
+    assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
 
     assertThat(it.hasNext()).isFalse();
   }
