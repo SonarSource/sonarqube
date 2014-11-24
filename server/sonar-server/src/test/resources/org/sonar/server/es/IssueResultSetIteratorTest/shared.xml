@@ -42,7 +42,7 @@
     author_login="[null]"
     checksum="FFFFF"
     effort_to_fix="[null]"
-    technical_debt="[null]"
+    technical_debt="15"
     message="[null]"
     line="444"
     component_id="100"
