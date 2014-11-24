@@ -56,12 +56,7 @@ import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.base.Charsets.UTF_8;
 
@@ -154,13 +149,13 @@ public class SourcePersister implements ScanPersister {
     if (previous == null) {
       FileSourceDto newFileSource = new FileSourceDto().setProjectUuid(projectTree.getRootProject().getUuid()).setFileUuid(fileUuid).setData(newData)
         .setDataHash(newDataHash)
-        .setCreatedAt(now)
-        .setUpdatedAt(now);
+        .setCreatedAt(now.getTime())
+        .setUpdatedAt(now.getTime());
       mapper.insert(newFileSource);
       session.commit();
     } else {
       if (!newDataHash.equals(previous.getDataHash())) {
-        previous.setData(newData).setDataHash(newDataHash).setUpdatedAt(now);
+        previous.setData(newData).setDataHash(newDataHash).setUpdatedAt(now.getTime());
         mapper.update(previous);
         session.commit();
       }

@@ -60,8 +60,8 @@ public class FeedFileSources extends BaseDataChange {
 
       update.setString(1, projectUuid)
         .setString(2, fileUuid)
-        .setDate(3, now)
-        .setDate(4, updatedAt == null ? now : updatedAt)
+        .setLong(3, now.getTime())
+        .setLong(4, (updatedAt == null ? now : updatedAt).getTime())
         .setString(5, sourceData)
         .setString(6, "");
 

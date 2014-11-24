@@ -37,7 +37,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -60,15 +59,16 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from file_sources";
 
-  private static final String SQL_AFTER_DATE = SQL_ALL + " where updated_at>=?";
+  private static final String SQL_AFTER_DATE = SQL_ALL + " where updated_at>?";
 
   static SourceLineResultSetIterator create(DbClient dbClient, Connection connection, long afterDate) {
     try {
       String sql = afterDate > 0L ? SQL_AFTER_DATE : SQL_ALL;
       PreparedStatement stmt = dbClient.newScrollingSelectStatement(connection, sql);
       if (afterDate > 0L) {
-        stmt.setTimestamp(1, new Timestamp(afterDate));
+        stmt.setLong(1, afterDate);
       }
+      System.out.println(sql);
       return new SourceLineResultSetIterator(stmt);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all file sources", e);
@@ -83,7 +83,7 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
   protected Collection<SourceLineDoc> read(ResultSet rs) throws SQLException {
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
-    Date updatedAt = SqlUtil.getDate(rs, 4);
+    Date updatedAt = new Date(SqlUtil.getLong(rs, 4));
 
     int line = 1;
     List<SourceLineDoc> lines = Lists.newArrayList();

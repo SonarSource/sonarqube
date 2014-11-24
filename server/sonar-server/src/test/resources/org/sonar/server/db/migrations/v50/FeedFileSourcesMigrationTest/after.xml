@@ -1,6 +1,6 @@
 <dataset>
 
-  <file_sources id="1" project_uuid="uuid-MyProject" file_uuid="uuid-MyFile.xoo" created_at="2014-11-17 16:27:00.000" updated_at="2014-10-31 16:44:02.000"
+  <file_sources id="1" project_uuid="uuid-MyProject" file_uuid="uuid-MyFile.xoo" created_at="1416238020000" updated_at="1414770242000"
     data=",,,,class Foo {&#13;&#10;,,,,  // Empty&#13;&#10;,,,,}&#13;&#10;,,,,&#13;&#10;" data_hash="" />
 
 </dataset>

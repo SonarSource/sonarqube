@@ -21,14 +21,13 @@ package org.sonar.core.source.db;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.Date;
 
 public class FileSourceDto {
   private Long id;
   private String projectUuid;
   private String fileUuid;
-  private Date createdAt;
-  private Date updatedAt;
+  private long createdAt;
+  private long updatedAt;
   private String data;
   private String dataHash;
 
@@ -78,20 +77,20 @@ public class FileSourceDto {
     return this;
   }
 
-  public Date getCreatedAt() {
+  public long getCreatedAt() {
     return createdAt;
   }
 
-  public FileSourceDto setCreatedAt(Date createdAt) {
+  public FileSourceDto setCreatedAt(long createdAt) {
     this.createdAt = createdAt;
     return this;
   }
 
-  public Date getUpdatedAt() {
+  public long getUpdatedAt() {
     return updatedAt;
   }
 
-  public FileSourceDto setUpdatedAt(Date updatedAt) {
+  public FileSourceDto setUpdatedAt(long updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }

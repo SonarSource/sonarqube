@@ -87,7 +87,7 @@ public class SourceLineResultSetIteratorTest {
     db.prepareDbUnit(getClass(), "source-with-scm.xml");
 
     SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, db.openConnection(),
-      DateUtils.parseDateTime("2014-11-01T16:44:02+0100").getTime());
+      DateUtils.parseDateTime("2014-11-17T16:44:02+0100").getTime());
     assertThat(iterator.hasNext()).isFalse();
   }
 

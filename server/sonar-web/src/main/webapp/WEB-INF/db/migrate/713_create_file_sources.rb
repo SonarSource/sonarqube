@@ -29,8 +29,8 @@ class CreateFileSources < ActiveRecord::Migration
       t.column :file_uuid,    :string,   :limit => 50, :null => false
       t.column :data,         :text,     :null => true
       t.column :data_hash,    :string,   :limit => 50, :null => true
-      t.column :created_at,   :datetime, :null => false
-      t.column :updated_at,   :datetime, :null => false
+      t.column :created_at,   :integer,  :limit => 8, :null => false 
+      t.column :updated_at,   :integer,  :limit => 8, :null => false
     end
 
     if dialect()=='mysql'

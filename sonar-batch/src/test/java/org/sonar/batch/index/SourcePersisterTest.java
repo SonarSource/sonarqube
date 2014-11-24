@@ -138,8 +138,8 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     sourcePersister.persist();
 
     FileSourceDto fileSourceDto = new FileSourceDao(getMyBatis()).select("uuidsame");
-    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(DateUtils.parseDateTime("2014-10-10T16:44:02+0200"));
-    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(DateUtils.parseDateTime("2014-10-10T16:44:02+0200").getTime());
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
       ",,,,changed\r\n,,,,content\r\n");
     assertThat(fileSourceDto.getDataHash()).isEqualTo("e41cca9c51ff853c748f708f39dfc035");
@@ -176,8 +176,8 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
 
     sourcePersister.persist();
     FileSourceDto fileSourceDto = new FileSourceDao(getMyBatis()).select("uuidnew");
-    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now);
-    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now.getTime());
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
       ",,,,foo\r\n,,,,bar\r\n,,,,biz\r\n");
     assertThat(fileSourceDto.getDataHash()).isEqualTo("0c43ed6418d690ee0ffc3e43e6660967");
@@ -219,8 +219,8 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     sourcePersister.persist();
 
     FileSourceDto fileSourceDto = new FileSourceDao(getMyBatis()).select("uuidnew");
-    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now);
-    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now);
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now.getTime());
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
       "123,julien,2014-10-11T16:44:02+0100,\"0,3,a\",foo\r\n"
         + "234,simon,2014-10-12T16:44:02+0100,\"0,1,cd\",bar\r\n"

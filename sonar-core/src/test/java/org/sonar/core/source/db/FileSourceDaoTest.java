@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
+import java.util.Date;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class FileSourceDaoTest extends AbstractDaoTestCase {
@@ -45,15 +47,15 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getDataHash()).isEqualTo("hash");
     assertThat(fileSourceDto.getProjectUuid()).isEqualTo("abcd");
     assertThat(fileSourceDto.getFileUuid()).isEqualTo("ab12");
-    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(DateUtils.parseDateTime("2014-10-29T16:44:02+0100"));
-    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(DateUtils.parseDateTime("2014-10-30T16:44:02+0100"));
+    assertThat(new Date(fileSourceDto.getCreatedAt())).isEqualTo(DateUtils.parseDateTime("2014-10-29T16:44:02+0100"));
+    assertThat(new Date(fileSourceDto.getUpdatedAt())).isEqualTo(DateUtils.parseDateTime("2014-10-30T16:44:02+0100"));
   }
 
   @Test
   public void insert() throws Exception {
     dao.insert(new FileSourceDto().setProjectUuid("prj").setFileUuid("file").setData("bla bla").setDataHash("hash2")
-      .setCreatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100"))
-      .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100")));
+      .setCreatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime())
+      .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime()));
 
     checkTable("insert", "file_sources");
   }
@@ -61,7 +63,7 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
   @Test
   public void update() throws Exception {
     dao.update(new FileSourceDto().setId(101L).setProjectUuid("prj").setFileUuid("file").setData("updated data").setDataHash("hash2")
-      .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100")));
+      .setUpdatedAt(DateUtils.parseDateTime("2014-10-31T16:44:02+0100").getTime()));
 
     checkTable("update", "file_sources");
   }
