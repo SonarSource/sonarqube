@@ -3,10 +3,10 @@
      project = @project
      project = @resource if project.nil?
      options = {:actionPlans => action_plan.key}
-     if @project.qualifier == 'TRK'
-       options['projectUuids'] = @project.uuid
+     if project.qualifier == 'TRK'
+       options['projectUuids'] = project.uuid
      else
-       options['componentRootUuids'] = @project.uuid
+       options['componentRootUuids'] = project.uuid
      end
 
      resolved_issues_link = action_plan.resolvedIssues().to_s
