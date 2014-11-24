@@ -236,9 +236,6 @@ define [
       line = issue.get('line') || 0
       @model.set key: componentKey, issueLine: line, issueIndex: issue.get('index')
 
-      # disable clipping effect of the black header
-      @$el.addClass 'full-height'
-
       @requestSources(line - LINES_AROUND, line + LINES_AROUND)
       .done (data) =>
         formattedSource = _.map data.sources, (item) => lineNumber: item[0], code: item[1]
@@ -255,7 +252,6 @@ define [
           @render()
           @bindScrollEvents()
           @bindShortcuts()
-          @$el.removeClass 'full-height'
           @scrollToLine issue.get 'line'
       .fail =>
         @source.set
@@ -265,7 +261,6 @@ define [
         @issues.reset @options.app.issues.filter (issue) => issue.get('component') == componentKey
         @render()
         @bindShortcuts()
-        @$el.removeClass 'full-height'
         @scrollToLine issue.get 'line'
 
 
@@ -289,6 +284,7 @@ define [
     scrollToLine: (line) ->
       row = @$("[data-line-number=#{line}]")
       goal = if row.length > 0 then row.offset().top - 200 else 0
+      goal = Math.max goal, 30
       $(window).scrollTop goal
 
 
