@@ -24,12 +24,11 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.issue.index.IssueDoc;
-
-import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -45,7 +44,7 @@ public class IssueTesting {
    */
   public static IssueDto newDto(RuleDto rule, ComponentDto file, ComponentDto project) {
     return new IssueDto()
-      .setKee(UUID.randomUUID().toString())
+      .setKee(Uuids.create())
       .setRule(rule)
       .setComponent(file)
       .setProject(project)

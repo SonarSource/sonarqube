@@ -25,6 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.TestDatabase;
@@ -33,7 +34,6 @@ import org.sonar.server.db.fake.FakeDto;
 import org.sonar.server.db.fake.FakeMapper;
 
 import java.util.Date;
-import java.util.UUID;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -78,7 +78,7 @@ public class BaseDaoTest {
   public void can_insert_and_select_by_key() throws Exception {
     long t0 = System.currentTimeMillis() - 1000;
 
-    String key = UUID.randomUUID().toString();
+    String key = Uuids.create();
     FakeDto myDto = new FakeDto()
       .setKey(key);
     dao.insert(session, myDto);
@@ -98,7 +98,7 @@ public class BaseDaoTest {
   @Test
   public void does_enqueue_on_insert() {
     FakeDto myDto = new FakeDto()
-      .setKey(UUID.randomUUID().toString());
+      .setKey(Uuids.create());
     dao.insert(session, myDto);
     session.commit();
     assertThat(session.getActionCount()).isEqualTo(1);
@@ -108,7 +108,7 @@ public class BaseDaoTest {
   public void synchronize_to_es_after_date() throws Exception {
     long t0 = System.currentTimeMillis() - 1000;
 
-    String key = UUID.randomUUID().toString();
+    String key = Uuids.create();
     FakeDto myDto = new FakeDto()
       .setKey(key);
     dao.insert(session, myDto);

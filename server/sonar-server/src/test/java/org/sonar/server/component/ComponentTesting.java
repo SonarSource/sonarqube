@@ -22,15 +22,14 @@ package org.sonar.server.component;
 
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.internal.Uuids;
 import org.sonar.core.component.ComponentDto;
-
-import java.util.UUID;
 
 public class ComponentTesting {
 
   public static ComponentDto newFileDto(ComponentDto subProjectOrProject) {
     return new ComponentDto()
-      .setUuid(UUID.randomUUID().toString())
+      .setUuid(Uuids.create())
       .setProjectUuid(subProjectOrProject.projectUuid())
       .setModuleUuid(subProjectOrProject.uuid())
       .setModuleUuidPath(subProjectOrProject.moduleUuidPath() == null ? subProjectOrProject.uuid() : subProjectOrProject.moduleUuidPath() + "." + subProjectOrProject.uuid())
@@ -47,7 +46,7 @@ public class ComponentTesting {
 
   public static ComponentDto newModuleDto(ComponentDto subProjectOrProject) {
     return new ComponentDto()
-      .setUuid(UUID.randomUUID().toString())
+      .setUuid(Uuids.create())
       .setProjectUuid(subProjectOrProject.projectUuid())
       .setModuleUuid(subProjectOrProject.uuid())
       .setModuleUuidPath(subProjectOrProject.moduleUuidPath() == null ? subProjectOrProject.uuid() : subProjectOrProject.moduleUuidPath() + "." + subProjectOrProject.uuid())
@@ -63,7 +62,7 @@ public class ComponentTesting {
   }
 
   public static ComponentDto newProjectDto() {
-    String uuid = UUID.randomUUID().toString();
+    String uuid = Uuids.create();
     return new ComponentDto()
       .setUuid(uuid)
       .setProjectUuid(uuid)
