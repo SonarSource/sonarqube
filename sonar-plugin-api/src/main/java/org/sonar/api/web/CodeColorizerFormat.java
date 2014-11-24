@@ -31,8 +31,9 @@ import java.util.List;
  * Extend the library sonar-colorizer to support new languages.
  * 
  * @since 1.12
- * @deprecated since 5.1 use {@link Highlightable} API
+ * @deprecated since 5.0 use {@link Highlightable} API
  */
+@Deprecated
 public abstract class CodeColorizerFormat implements ServerExtension, TaskExtension {
 
   private String languageKey;
