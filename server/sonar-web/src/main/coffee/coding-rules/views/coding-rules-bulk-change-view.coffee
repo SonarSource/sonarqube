@@ -7,7 +7,6 @@ define [
 ) ->
 
   class CodingRulesBulkChangeView extends Marionette.ItemView
-    className: 'modal'
     template: Templates['coding-rules-bulk-change']
 
     ui:
