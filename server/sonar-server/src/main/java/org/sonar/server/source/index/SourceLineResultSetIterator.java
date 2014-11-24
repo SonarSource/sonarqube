@@ -32,7 +32,7 @@ import org.sonar.server.db.ResultSetIterator;
 import org.sonar.server.db.migrations.SqlUtil;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -84,17 +84,16 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
     Date updatedAt = SqlUtil.getDate(rs, 4);
-    Reader dataStream = rs.getClob(5).getCharacterStream();
 
     int line = 1;
     List<SourceLineDoc> lines = Lists.newArrayList();
     CSVParser csvParser = null;
     try {
-      csvParser = new CSVParser(dataStream, CSVFormat.DEFAULT);
+      csvParser = new CSVParser(new StringReader(rs.getString(5)), CSVFormat.DEFAULT);
 
       for(CSVRecord csvRecord: csvParser) {
         SourceLineDoc doc = new SourceLineDoc(Maps.<String, Object>newHashMapWithExpectedSize(9));
-  
+
         doc.setProjectUuid(projectUuid);
         doc.setFileUuid(fileUuid);
         doc.setLine(line);
@@ -116,7 +115,6 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
         String.format("Impossible to parse source line data, stuck at line %d", line), lineError);
     } finally {
       IOUtils.closeQuietly(csvParser);
-      IOUtils.closeQuietly(dataStream);
     }
 
     return lines;
