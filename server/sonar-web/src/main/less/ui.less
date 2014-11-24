@@ -411,9 +411,12 @@ input[type=button] {
 
 .process-spinner {
   position: fixed;
+  z-index: 2000;
   top: 0; left: 50%;
-  width: 300px;
+  min-width: 300px;
+  max-width: 900px;
   margin-left: -150px;
+  padding: 0 10px;
   line-height: 22px;
   background-color: #f0e8ac;
   border-radius: 0 0 3px 3px;

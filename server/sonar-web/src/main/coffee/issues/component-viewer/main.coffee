@@ -15,9 +15,10 @@ define [
   $ = jQuery
 
   API_SOURCES = "#{baseUrl}/api/sources/show"
-  LINES_AROUND = 500
+  LINES_AROUND = 200
   TOP_OFFSET = 38
   BOTTOM_OFFSET = 10
+  ISSUES_LIMIT = 100
 
 
   class extends Marionette.ItemView
@@ -41,9 +42,7 @@ define [
         formattedSource: []
       @component = new Backbone.Model()
       @issues = new Issues()
-      @listenTo @issues, 'add', @addIssue
       @listenTo options.app.state, 'change:selectedIndex', @select
-      @bindShortcuts()
       @loadSourceBeforeThrottled = _.throttle @loadSourceBefore, 1000
       @loadSourceAfterThrottled = _.throttle @loadSourceAfter, 1000
       @scrollTimer = null
@@ -154,8 +153,14 @@ define [
 
 
     renderIssues: ->
+      @hiddenIssues = false
       @issues.forEach (issue) =>
         @renderIssue issue
+      if @hiddenIssues
+        issues = @$('.issue').length
+        warn = $('<div class="process-spinner shown">' + tp('issues.issues_limit_reached', issues) + '</div>')
+        $('body').append warn
+        setTimeout (-> warn.remove()), 3000
 
 
     addIssue: (issue) ->
@@ -163,18 +168,21 @@ define [
 
 
     renderIssue: (issue) ->
-      line = issue.get 'line' || 0
+      line = issue.get('line') || 0
       row = @$("[data-line-number=#{line}]")
       issueView = new IssueView app: @options.app, model: issue
-      if row.length == 0
+      if line == 0
         issueView.render().$el.insertBefore @$('.issues-workspace-component-viewer-code')
       else
-        line = row.find '.line'
-        line.addClass 'has-issues'
-        issues = line.find '.issue-list'
-        if issues.length == 0
-          issues = $('<div class="issue-list"></div>').appendTo line
-        issueView.render().$el.appendTo issues
+        showBox = Math.abs(issue.get('index') - @model.get('issueIndex')) < ISSUES_LIMIT / 2
+        @hiddenIssues = true unless showBox
+        if showBox && row.length > 0
+          line = row.find '.line'
+          line.addClass 'has-issues'
+          issues = line.find '.issue-list'
+          if issues.length == 0
+            issues = $('<div class="issue-list"></div>').appendTo line
+          issueView.render().$el.appendTo issues
 
 
     select: ->
@@ -184,6 +192,7 @@ define [
         selectedKey = selectedIssue.get 'key'
         @scrollToIssue selectedKey
       else
+        @unbindShortcuts()
         @options.app.controller.showComponentViewer selectedIssue
 
 
@@ -214,14 +223,18 @@ define [
           $(window).scrollTop viewTop - TOP_OFFSET
         if viewBottom > windowBottom
           $(window).scrollTop $(window).scrollTop() - windowBottom + viewBottom + BOTTOM_OFFSET
+      else
+        @unbindShortcuts()
+        selected = @options.app.state.get 'selectedIndex'
+        selectedIssue = @options.app.issues.at selected
+        @options.app.controller.showComponentViewer selectedIssue
 
 
     openFileByIssue: (issue) ->
       componentKey = issue.get 'component'
-      @issues.reset @options.app.issues.filter (issue) => issue.get('component') == componentKey
 
       line = issue.get('line') || 0
-      @model.set key: componentKey, issueLine: line
+      @model.set key: componentKey, issueLine: line, issueIndex: issue.get('index')
 
       # disable clipping effect of the black header
       @$el.addClass 'full-height'
@@ -237,18 +250,24 @@ define [
         @model.set
           hasSourceBefore: firstLine > 1
           hasSourceAfter: lastLine == line + LINES_AROUND
-        @render()
-        @bindScrollEvents()
-        @requestIssues()
+        @requestIssues().done =>
+          @issues.reset @options.app.issues.filter (issue) => issue.get('component') == componentKey
+          @render()
+          @bindScrollEvents()
+          @bindShortcuts()
+          @$el.removeClass 'full-height'
+          @scrollToLine issue.get 'line'
       .fail =>
         @source.set
           source: []
           formattedSource: []
         @model.set hasSourceBefore: false, hasSourceAfter: false
+        @issues.reset @options.app.issues.filter (issue) => issue.get('component') == componentKey
         @render()
-      .always =>
+        @bindShortcuts()
         @$el.removeClass 'full-height'
         @scrollToLine issue.get 'line'
+
 
 
     requestSources: (lineFrom, lineTo) ->
@@ -257,15 +276,9 @@ define [
 
 
     requestIssues: ->
-      lastIssue = @options.app.issues.at @options.app.issues.length - 1
-      lastLine = _.last(@source.get('formattedSource')).lineNumber
-      needMore = !@options.app.state.get('maxResultsReached')
-      needMore = needMore && (lastIssue.get('component') == @model.get 'key')
-      needMore = needMore && (lastIssue.get('line') <= lastLine)
-      if needMore
-        @options.app.controller.fetchNextPage().done =>
-          @addNextIssuesPage()
-          @requestIssues()
+      if @options.app.issues.last().get('component') == @model.get('key')
+        @options.app.controller.fetchNextPage()
+      else $.Deferred().resolve().promise()
 
 
     addNextIssuesPage: ->
