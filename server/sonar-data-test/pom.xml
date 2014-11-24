@@ -73,6 +73,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <skipTests>${skipServerTests}</skipTests>
+          <argLine>-Xmx256m</argLine>
         </configuration>
       </plugin>
     </plugins>

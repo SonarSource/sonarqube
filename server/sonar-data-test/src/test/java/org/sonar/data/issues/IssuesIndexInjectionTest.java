@@ -57,10 +57,10 @@ import static org.fest.assertions.Assertions.assertThat;
 public class IssuesIndexInjectionTest extends AbstractTest {
 
   static final Logger LOGGER = LoggerFactory.getLogger(IssuesIndexInjectionTest.class);
-  final static int PROJECTS_NUMBER = 100;
-  final static int NUMBER_FILES_PER_PROJECT = 100;
-  final static int NUMBER_ISSUES_PER_FILE = 100;
-  final static int ISSUE_COUNT = PROJECTS_NUMBER * NUMBER_FILES_PER_PROJECT * NUMBER_ISSUES_PER_FILE;
+  final static int PROJECTS = 100;
+  final static int FILES_PER_PROJECT = 100;
+  final static int ISSUES_PER_FILE = 100;
+  final static int ISSUE_COUNT = PROJECTS * FILES_PER_PROJECT * ISSUES_PER_FILE;
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
@@ -106,7 +106,7 @@ public class IssuesIndexInjectionTest extends AbstractTest {
       long start = System.currentTimeMillis();
       for (ComponentDto project : projects) {
         for (ComponentDto file : componentsByProject.get(project)) {
-          for (int issueIndex = 1; issueIndex < NUMBER_ISSUES_PER_FILE + 1; issueIndex++) {
+          for (int issueIndex = 1; issueIndex < ISSUES_PER_FILE + 1; issueIndex++) {
             batchSession.enqueue(new InsertDto<IssueDto>(IndexDefinition.ISSUES.getIndexType(), newIssue(issueIndex, file, project, rules.next()), false));
             counter.getAndIncrement();
           }
@@ -153,7 +153,7 @@ public class IssuesIndexInjectionTest extends AbstractTest {
     }
 
     long start = System.currentTimeMillis();
-    for (long projectIndex = 0; projectIndex < PROJECTS_NUMBER; projectIndex++) {
+    for (long projectIndex = 0; projectIndex < PROJECTS; projectIndex++) {
       ComponentDto project = ComponentTesting.newProjectDto()
         .setId(ids++)
         .setKey("project-" + projectIndex)
@@ -166,8 +166,8 @@ public class IssuesIndexInjectionTest extends AbstractTest {
       batchSession.enqueue(new InsertDto<IssueAuthorizationDto>(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType(),
         new IssueAuthorizationDto().setProjectUuid(project.uuid()).setGroups(newArrayList(DefaultGroups.ANYONE)), false));
 
-      for (int fileIndex = 0; fileIndex < NUMBER_FILES_PER_PROJECT; fileIndex++) {
-        String index = projectIndex * PROJECTS_NUMBER + fileIndex + "";
+      for (int fileIndex = 0; fileIndex < FILES_PER_PROJECT; fileIndex++) {
+        String index = projectIndex * PROJECTS + fileIndex + "";
         ComponentDto file = ComponentTesting.newFileDto(project)
           .setId(ids++)
           .setKey("file-" + index)
