@@ -34,16 +34,16 @@ import org.sonar.server.source.index.SourceLineIndex;
 import java.util.Date;
 import java.util.List;
 
-public class IndexAction implements RequestHandler {
+public class LinesAction implements RequestHandler {
 
   private final SourceLineIndex sourceLineIndex;
 
-  public IndexAction(SourceLineIndex sourceLineIndex) {
+  public LinesAction(SourceLineIndex sourceLineIndex) {
     this.sourceLineIndex = sourceLineIndex;
   }
 
   void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("index")
+    WebService.NewAction action = controller.createAction("lines")
       .setDescription("Show source code with line oriented info. Require Browse permission on file's project<br/>" +
         "Each element of the result array is an object which contains:" +
         "<ol>" +
@@ -55,7 +55,7 @@ public class IndexAction implements RequestHandler {
         "</ol>")
       .setSince("5.0")
       .setInternal(true)
-      .setResponseExample(Resources.getResource(getClass(), "example-index.json"))
+      .setResponseExample(Resources.getResource(getClass(), "example-lines.json"))
       .setHandler(this);
 
     action

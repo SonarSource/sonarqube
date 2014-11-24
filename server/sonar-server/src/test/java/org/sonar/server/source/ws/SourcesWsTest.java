@@ -35,8 +35,8 @@ public class SourcesWsTest {
   ShowAction showAction = new ShowAction(mock(SourceService.class));
   RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class));
   ScmAction scmAction = new ScmAction(mock(SourceService.class), new ScmWriter());
-  IndexAction indexAction = new IndexAction(mock(SourceLineIndex.class));
-  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, scmAction, indexAction));
+  LinesAction linesAction = new LinesAction(mock(SourceLineIndex.class));
+  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, scmAction, linesAction));
 
   @Test
   public void define_ws() throws Exception {
@@ -70,9 +70,9 @@ public class SourcesWsTest {
     assertThat(scm.responseExampleAsString()).isNotEmpty();
     assertThat(scm.params()).hasSize(4);
 
-    WebService.Action index = controller.action("index");
+    WebService.Action index = controller.action("lines");
     assertThat(index).isNotNull();
-    assertThat(index.handler()).isSameAs(indexAction);
+    assertThat(index.handler()).isSameAs(linesAction);
     assertThat(index.since()).isEqualTo("5.0");
     assertThat(index.isInternal()).isTrue();
     assertThat(index.responseExampleAsString()).isNotEmpty();

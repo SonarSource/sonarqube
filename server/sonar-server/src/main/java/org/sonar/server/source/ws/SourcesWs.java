@@ -25,11 +25,11 @@ import org.sonar.api.server.ws.WebService;
 public class SourcesWs implements WebService {
 
   private final ShowAction showAction;
-  private final IndexAction show2Action;
+  private final LinesAction show2Action;
   private final RawAction rawAction;
   private final ScmAction scmAction;
 
-  public SourcesWs(ShowAction showAction, RawAction rawAction, ScmAction scmAction, IndexAction show2Action) {
+  public SourcesWs(ShowAction showAction, RawAction rawAction, ScmAction scmAction, LinesAction show2Action) {
     this.showAction = showAction;
     this.show2Action = show2Action;
     this.rawAction = rawAction;

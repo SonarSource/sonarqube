@@ -64,7 +64,7 @@ public class RawActionTest {
   public void setUp() throws Exception {
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.openSession(false)).thenReturn(session);
-    tester = new WsTester(new SourcesWs(mock(ShowAction.class), new RawAction(dbClient, sourceService), mock(ScmAction.class), mock(IndexAction.class)));
+    tester = new WsTester(new SourcesWs(mock(ShowAction.class), new RawAction(dbClient, sourceService), mock(ScmAction.class), mock(LinesAction.class)));
   }
 
   @Test

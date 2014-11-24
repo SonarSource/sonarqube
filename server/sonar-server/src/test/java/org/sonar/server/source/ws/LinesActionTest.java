@@ -48,7 +48,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IndexActionTest {
+public class LinesActionTest {
 
   @Mock
   SourceLineIndex sourceLineIndex;
@@ -62,7 +62,7 @@ public class IndexActionTest {
         mock(ShowAction.class),
         mock(RawAction.class),
         mock(ScmAction.class),
-        new IndexAction(sourceLineIndex)
+        new LinesAction(sourceLineIndex)
       )
     );
   }
@@ -108,7 +108,7 @@ public class IndexActionTest {
       line3
     ));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "index").setParam("uuid", componentUuid);
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "lines").setParam("uuid", componentUuid);
     // Using non-strict match b/c of dates
     request.execute().assertJson(getClass(), "show_source.json", false);
   }
@@ -119,7 +119,7 @@ public class IndexActionTest {
     when(sourceLineIndex.getLines(anyString(), anyInt(), anyInt())).thenReturn(Lists.<SourceLineDoc>newArrayList());
 
     try {
-      WsTester.TestRequest request = tester.newGetRequest("api/sources", "index").setParam("uuid", componentKey);
+      WsTester.TestRequest request = tester.newGetRequest("api/sources", "lines").setParam("uuid", componentKey);
       request.execute();
       fail();
     } catch (Exception e) {
@@ -143,7 +143,7 @@ public class IndexActionTest {
       new SourceLineDoc(fieldMap)
     ));
     WsTester.TestRequest request = tester
-      .newGetRequest("api/sources", "index")
+      .newGetRequest("api/sources", "lines")
       .setParam("uuid", fileKey)
       .setParam("from", "3")
       .setParam("to", "3");
