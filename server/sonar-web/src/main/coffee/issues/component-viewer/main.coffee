@@ -42,6 +42,7 @@ define [
         formattedSource: []
       @component = new Backbone.Model()
       @issues = new Issues()
+      @issueViews = []
       @listenTo options.app.state, 'change:selectedIndex', @select
       @loadSourceBeforeThrottled = _.throttle @loadSourceBefore, 1000
       @loadSourceAfterThrottled = _.throttle @loadSourceAfter, 1000
@@ -144,6 +145,8 @@ define [
 
 
     onClose: ->
+      @issueViews.forEach (view) -> view.close()
+      @issuesView = []
       @unbindScrollEvents()
       @unbindShortcuts()
 
@@ -171,6 +174,7 @@ define [
       line = issue.get('line') || 0
       row = @$("[data-line-number=#{line}]")
       issueView = new IssueView app: @options.app, model: issue
+      @issueViews.push issueView
       if line == 0
         issueView.render().$el.insertBefore @$('.issues-workspace-component-viewer-code')
       else
