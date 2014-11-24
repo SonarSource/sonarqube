@@ -55,13 +55,6 @@ public class HighlightingCodeBuilder extends HtmlCodeBuilder {
   }
 
   @Override
-  public Appendable append(CharSequence csq, int start, int end) {
-    for (int i = start; i < end; i++) {
-      append(csq.charAt(i));
-    }
-    return this;
-  }
-
   public void appendWithoutTransforming(String htmlTag) {
     if (startOffset == -1) {
       Matcher startMatcher = START_TAG_PATTERN.matcher(htmlTag);
