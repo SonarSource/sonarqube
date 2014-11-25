@@ -291,12 +291,6 @@
 
 .issues-workspace-list {
   padding: 0 5px;
-
-  .issue {
-    padding-top: 20px;
-    padding-bottom: 20px;
-    background-color: #fff;
-  }
 }
 
 .issues-workspace-list-more {
@@ -305,6 +299,23 @@
   border: 1px solid @barBorderColor;
   background: @barBackgroundColor;
   text-align: center;
+}
+
+.issues-workspace-list-component {
+  line-height: 1.5;
+}
+
+.issues-workspace-list-component + .issue {
+  margin-top: 10px;
+}
+
+.issue + .issues-workspace-list-component {
+  margin-top: 25px;
+}
+
+.issues-workspace-list-component-part {
+  margin-right: 10px;
+  border-bottom: none;
 }
 
 .issues-workspace-component-viewer {

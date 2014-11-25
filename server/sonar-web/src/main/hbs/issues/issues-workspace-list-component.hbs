@@ -1,0 +1,13 @@
+<div class="issues-workspace-list-component">
+  <a class="issues-workspace-list-component-part" href="{{dashboardUrl project}}">
+    {{qualifierIcon 'TRK'}}&nbsp;{{projectLongName}}
+  </a>
+  {{#if subProject}}
+    <a class="issues-workspace-list-component-part" href="{{dashboardUrl subProject}}">
+      {{qualifierIcon 'TRK'}}&nbsp;{{subProjectLongName}}
+    </a>
+  {{/if}}
+  <a class="issues-workspace-list-component-part" href="{{dashboardUrl component}}">
+    {{qualifierIcon componentQualifier}}&nbsp;{{componentLongName}}
+  </a>
+</div>

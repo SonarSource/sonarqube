@@ -18,6 +18,7 @@ define [
 
   class extends Marionette.CompositeView
     template: Templates['issues-workspace-list']
+    componentTemplate: Templates['issues-workspace-list-component']
     itemView: IssueView
     itemViewContainer: '.js-issues-list'
     emptyView: EmptyView
@@ -131,5 +132,20 @@ define [
         $(window).scrollTop viewTop - TOP_OFFSET
       if viewBottom > windowBottom
         $(window).scrollTop $(window).scrollTop() - windowBottom + viewBottom + BOTTOM_OFFSET
+
+
+    appendHtml: (compositeView, itemView, index) ->
+      $container = this.getItemViewContainer compositeView
+      model = @collection.at(index)
+      if model?
+        prev = @collection.at(index - 1)
+        putComponent = !prev?
+        if prev?
+          fullComponent = [model.get('project'), model.get('component')].join ' '
+          fullPrevComponent = [prev.get('project'), prev.get('component')].join ' '
+          putComponent = true unless fullComponent == fullPrevComponent
+        if putComponent
+          $container.append @componentTemplate model.toJSON()
+      $container.append itemView.el
 
 

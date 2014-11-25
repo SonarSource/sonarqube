@@ -6,6 +6,11 @@ define [
 
   class extends IssueView
 
+    onRender: ->
+      super
+      @$el.removeClass 'issue-navigate-right'
+      @$el.addClass 'issue-navigate-left'
+
     serializeData: ->
       _.extend super,
         showComponent: false

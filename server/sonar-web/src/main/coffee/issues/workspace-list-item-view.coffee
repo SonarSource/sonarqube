@@ -10,7 +10,7 @@ define [
     events: ->
       _.extend super,
         'click': 'selectCurrent'
-        'click .js-issue-line': 'openComponentViewer'
+        'click .js-issue-navigate': 'openComponentViewer'
 
 
     initialize: (options) ->
@@ -19,6 +19,7 @@ define [
 
     onRender: ->
       super
+      @$el.addClass 'issue-navigate-right'
       @select()
 
 
@@ -46,7 +47,10 @@ define [
 
     openComponentViewer: ->
       @options.app.state.set selectedIndex: @model.get('index')
-      @options.app.controller.showComponentViewer @model
+      if @options.app.state.has 'component'
+        @options.app.controller.closeComponentViewer()
+      else
+        @options.app.controller.showComponentViewer @model
 
 
     serializeData: ->

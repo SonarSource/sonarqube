@@ -23,6 +23,7 @@ define [
       r.issues.map (issue, index) ->
         component = find r.components, issue.component
         project = find r.projects, issue.project
+        subProject = find r.components, issue.subProject
         rule = find r.rules, issue.rule
 
         _.extend issue,
@@ -36,6 +37,10 @@ define [
         if project
           _.extend issue,
             projectLongName: project.longName
+
+        if subProject
+          _.extend issue,
+            subProjectLongName: subProject.longName
 
         if rule
           _.extend issue,

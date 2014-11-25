@@ -1,20 +1,5 @@
 <div class="issue-message">{{message}}</div>
 
-{{#if showComponent}}
-  <div class="issue-meta-list">
-    <div class="issue-meta">
-      <a class="issue-action" href="{{dashboardUrl project}}">
-        {{qualifierIcon 'TRK'}} {{default projectLongName projectName}}
-      </a>
-    </div>
-    <div class="issue-meta">
-      <a class="issue-action js-issue-line">
-        {{qualifierIcon componentQualifier}} {{componentLongName}}{{#if line}} (L{{line}}){{/if}}
-      </a>
-    </div>
-  </div>
-{{/if}}
-
 <div class="issue-meta-list">
   <div class="issue-meta">
     {{#inArray actions "set_severity"}}
@@ -91,6 +76,12 @@
   <div class="issue-meta issue-meta-on-right">
     <a class="issue-action js-issue-rule">Rule</a>
   </div>
+
+  {{#if line}}
+    <div class="issue-meta issue-meta-in-corner">
+      <span class="issue-meta-label">L{{line}}</span>
+    </div>
+  {{/if}}
 </div>
 
 {{#notEmpty comments}}
@@ -111,3 +102,8 @@
     {{/each}}
   </div>
 {{/notEmpty}}
+
+<a class="issue-navigate js-issue-navigate">
+  <i class="issue-navigate-to-left icon-chevron-left"></i>
+  <i class="issue-navigate-to-right icon-chevron-right"></i>
+</a>

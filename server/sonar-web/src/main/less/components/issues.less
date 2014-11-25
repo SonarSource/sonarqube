@@ -16,15 +16,14 @@
 
 
 .issue {
+  position: relative;
   padding-top: @topPadding;
   padding-bottom: @bottomPadding;
-  border: 1px solid transparent;
-  border-left-width: 3px;
   background-color: @barBackgroundColor;
 }
 
 .issue.selected {
-  border-color: @blue !important;
+  background-color: #e4ecf3 !important;
 }
 
 .issue + .issue {
@@ -91,6 +90,13 @@
 
 .issue-meta-on-right + .issue-meta-on-right {
   margin-right: 10px;
+}
+
+.issue-meta-in-corner {
+  position: absolute;
+  top: @topPadding;
+  right: @rightPadding;
+  margin: 0 !important;
 }
 
 .issue-meta-label {
@@ -229,4 +235,59 @@ input.issue-action-options-search {
 .issue-more-actions {
   line-height: 1.5;
   font-size: @smallFontSize;
+}
+
+.issue-navigate {
+  display: none;
+  position: absolute;
+  width: 24px;
+  top: 0;
+  bottom: 0;
+  border-bottom: none;
+
+  .issue-navigate-to-left,
+  .issue-navigate-to-right {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -8px 0 0 -3px;
+
+    &:before {
+     font-size: 18px;
+   }
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+.issue-navigate-right .issue-meta-in-corner {
+  padding-right: 24px;
+}
+
+.issue-navigate-left {
+  padding-left: 24px;
+
+  .issue-navigate {
+    display: block;
+    left: 0;
+
+    .issue-navigate-to-right {
+      display: none;
+    }
+  }
+}
+
+.issue-navigate-right {
+  padding-right: 24px;
+
+  .issue-navigate {
+    display: block;
+    right: 0;
+
+    .issue-navigate-to-left {
+      display: none;
+    }
+  }
 }
