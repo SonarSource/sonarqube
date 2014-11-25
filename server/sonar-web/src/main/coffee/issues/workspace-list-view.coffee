@@ -149,3 +149,8 @@ define [
       $container.append itemView.el
 
 
+    closeChildren: ->
+      super
+      @$('.issues-workspace-list-component').remove()
+
+
