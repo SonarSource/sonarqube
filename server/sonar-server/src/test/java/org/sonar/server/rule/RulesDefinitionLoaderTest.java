@@ -23,13 +23,14 @@ import org.junit.Test;
 import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class RulesDefinitionLoaderTest {
   @Test
   public void no_definitions() {
     RuleRepositories repositories = new RuleRepositories();
 
-    RulesDefinition.Context context = new RuleDefinitionsLoader(repositories).load();
+    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), repositories).load();
 
     assertThat(context.repositories()).isEmpty();
     assertThat(repositories.repositories()).isEmpty();
@@ -39,7 +40,7 @@ public class RulesDefinitionLoaderTest {
   public void load_definitions() {
     RuleRepositories repositories = new RuleRepositories();
 
-    RulesDefinition.Context context = new RuleDefinitionsLoader(repositories, new RulesDefinition[]{
+    RulesDefinition.Context context = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), repositories, new RulesDefinition[]{
       new FindbugsDefinitions(), new SquidDefinitions()
     }).load();
 

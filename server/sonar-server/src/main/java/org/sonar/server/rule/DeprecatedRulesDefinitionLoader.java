@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleParam;
@@ -51,9 +52,9 @@ import static org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 /**
  * Inject deprecated RuleRepository into {@link org.sonar.api.server.rule.RulesDefinition} for backward-compatibility.
  */
-public class DeprecatedRulesDefinition implements RulesDefinition {
+public class DeprecatedRulesDefinitionLoader implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DeprecatedRulesDefinition.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DeprecatedRulesDefinitionLoader.class);
 
   private final RuleI18nManager i18n;
   private final RuleRepository[] repositories;
@@ -61,33 +62,35 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
   private final DebtModelPluginRepository languageModelFinder;
   private final DebtRulesXMLImporter importer;
 
-  public DeprecatedRulesDefinition(RuleI18nManager i18n, RuleRepository[] repositories, DebtModelPluginRepository languageModelFinder, DebtRulesXMLImporter importer) {
+  public DeprecatedRulesDefinitionLoader(RuleI18nManager i18n, DebtModelPluginRepository languageModelFinder, DebtRulesXMLImporter importer, RuleRepository[] repositories) {
     this.i18n = i18n;
     this.repositories = repositories;
     this.languageModelFinder = languageModelFinder;
     this.importer = importer;
   }
 
-  public DeprecatedRulesDefinition(RuleI18nManager i18n, DebtModelPluginRepository languageModelFinder, DebtRulesXMLImporter importer) {
-    this(i18n, new RuleRepository[0], languageModelFinder, importer);
+  /**
+   * Used when no deprecated repositories
+   */
+  public DeprecatedRulesDefinitionLoader(RuleI18nManager i18n, DebtModelPluginRepository languageModelFinder, DebtRulesXMLImporter importer) {
+    this(i18n, languageModelFinder, importer, new RuleRepository[0]);
   }
 
-  @Override
-  public void define(Context context) {
+  void complete(RulesDefinition.Context context) {
     // Load rule debt definitions from xml files provided by plugin
     List<RuleDebt> ruleDebts = loadRuleDebtList();
 
     for (RuleRepository repository : repositories) {
       // RuleRepository API does not handle difference between new and extended repositories,
-      NewRepository newRepository;
+      RulesDefinition.NewRepository newRepository;
       if (context.repository(repository.getKey()) == null) {
         newRepository = context.createRepository(repository.getKey(), repository.getLanguage());
         newRepository.setName(repository.getName());
       } else {
-        newRepository = (NewRepository) context.extendRepository(repository.getKey(), repository.getLanguage());
+        newRepository = (RulesDefinition.NewRepository) context.extendRepository(repository.getKey(), repository.getLanguage());
       }
       for (org.sonar.api.rules.Rule rule : repository.createRules()) {
-        NewRule newRule = newRepository.createRule(rule.getKey());
+        RulesDefinition.NewRule newRule = newRepository.createRule(rule.getKey());
         newRule.setName(ruleName(repository.getKey(), rule));
         newRule.setHtmlDescription(ruleDescription(repository.getKey(), rule));
         newRule.setInternalKey(rule.getConfigKey());
@@ -96,7 +99,7 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
         newRule.setStatus(rule.getStatus() == null ? RuleStatus.defaultStatus() : RuleStatus.valueOf(rule.getStatus()));
         newRule.setTags(rule.getTags());
         for (RuleParam param : rule.getParams()) {
-          NewParam newParam = newRule.createParam(param.getKey());
+          RulesDefinition.NewParam newParam = newRule.createParam(param.getKey());
           newParam.setDefaultValue(param.getDefaultValue());
           newParam.setDescription(paramDescription(repository.getKey(), rule.getKey(), param));
           newParam.setType(RuleParamType.parse(param.getType()));
@@ -107,7 +110,7 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
     }
   }
 
-  private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, List<RuleDebt> ruleDebts) {
+  private void updateRuleDebtDefinitions(RulesDefinition.NewRule newRule, String repoKey, String ruleKey, List<RuleDebt> ruleDebts) {
     RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
       newRule.setDebtSubCharacteristic(ruleDebt.subCharacteristicKey());
@@ -116,12 +119,12 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
         ruleDebt.offset(),
         newRule.debtRemediationFunctions(),
         repoKey, ruleKey
-      ));
+        ));
     }
   }
 
   private DebtRemediationFunction remediationFunction(DebtRemediationFunction.Type function, @Nullable String coefficient, @Nullable String offset,
-                                                      DebtRemediationFunctions functions, String repoKey, String ruleKey) {
+    RulesDefinition.DebtRemediationFunctions functions, String repoKey, String ruleKey) {
     if (DebtRemediationFunction.Type.LINEAR.equals(function) && coefficient != null) {
       return functions.linear(coefficient);
     } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.equals(function) && offset != null) {
@@ -156,7 +159,7 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
     String desc = StringUtils.defaultIfEmpty(
       i18n.getParamDescription(repositoryKey, ruleKey, param.getKey()),
       param.getDescription()
-    );
+      );
     return StringUtils.defaultIfBlank(desc, null);
   }
 
