@@ -21,6 +21,7 @@ package org.sonar.batch.mediumtest.fs;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,7 +33,6 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskResult;
-import org.sonar.batch.protocol.input.ActiveRule;
 import org.sonar.xoo.XooPlugin;
 
 import java.io.File;
@@ -51,7 +51,6 @@ public class FileSystemMediumTest {
   public BatchMediumTester tester = BatchMediumTester.builder()
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
-    .activateRule(new ActiveRule("xoo", "OneIssuePerLine", "One issue per line", "MAJOR", "xoo", "xoo"))
     .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     .build();
 
@@ -98,6 +97,28 @@ public class FileSystemMediumTest {
     assertThat(result.inputFile("src/sample.xoo").type()).isEqualTo(InputFile.Type.MAIN);
     assertThat(result.inputFile("src/sample.xoo").relativePath()).isEqualTo("src/sample.xoo");
     assertThat(result.inputDir("src").relativePath()).isEqualTo("src");
+  }
+
+  @Test
+  public void scanBigProject() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    int nbFiles = 100;
+    int ruleCount = 100000;
+    for (int nb = 1; nb <= nbFiles; nb++) {
+      File xooFile = new File(srcDir, "sample" + nb + ".xoo");
+      FileUtils.write(xooFile, StringUtils.repeat(StringUtils.repeat("a", 100) + "\n", ruleCount / 1000));
+    }
+
+    TaskResult result = tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(result.inputFiles()).hasSize(100);
+    assertThat(result.inputDirs()).hasSize(1);
   }
 
   @Test

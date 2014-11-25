@@ -219,8 +219,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   @Override
   protected void doPreloadFiles() {
     if (!initialized) {
-      LOG.warn("Accessing the filesystem before the Sensor phase is deprecated and will not be supported in the future. Please update your plugin.");
-      indexer.index(this);
+      throw MessageException.of("Accessing the filesystem before the Sensor phase is not supported. Please update your plugin.");
     }
   }
 

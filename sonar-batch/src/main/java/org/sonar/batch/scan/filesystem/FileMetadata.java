@@ -19,11 +19,11 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import com.google.common.base.Charsets;
 import com.google.common.primitives.Longs;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,6 +31,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -45,14 +47,6 @@ class FileMetadata {
   private static final char LINE_FEED = '\n';
   private static final char CARRIAGE_RETURN = '\r';
   private static final char BOM = '\uFEFF';
-  private static final String SPACE_CHARS = "\t\n\r ";
-
-  // This singleton aims only to increase the coverage by allowing
-  // to test the private method !
-  static final FileMetadata INSTANCE = new FileMetadata();
-
-  private FileMetadata() {
-  }
 
   /**
    * Compute hash of a file ignoring line ends differences.
@@ -63,17 +57,17 @@ class FileMetadata {
     long currentOriginalOffset = 0;
     List<Long> originalLineOffsets = new ArrayList<Long>();
     List<Object> lineHashes = new ArrayList<Object>();
-    StringBuilder currentLineStr = new StringBuilder();
     int lines = 0;
     char c = (char) -1;
     try {
       MessageDigest globalMd5Digest = DigestUtils.getMd5Digest();
-      globalMd5Digest.reset();
+      MessageDigest lineMd5Digest = DigestUtils.getMd5Digest();
       reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
       int i = reader.read();
       boolean afterCR = false;
       // First offset of first line is always 0
       originalLineOffsets.add(0L);
+      boolean blankline = true;
       while (i != -1) {
         c = (char) i;
         if (c == BOM) {
@@ -98,18 +92,21 @@ class FileMetadata {
         if (c == LINE_FEED) {
           lines++;
           originalLineOffsets.add(currentOriginalOffset);
-          lineHashes.add(md5IgnoreWhitespace(currentLineStr));
-          currentLineStr.setLength(0);
+          lineHashes.add(blankline ? null : lineMd5Digest.digest());
+          blankline = true;
         } else {
-          currentLineStr.append(c);
+          if (!Character.isWhitespace(c)) {
+            blankline = false;
+            updateDigestUTF8Char(c, lineMd5Digest);
+          }
         }
-        globalMd5Digest.update(charToBytesUTF(c));
+        updateDigestUTF8Char(c, globalMd5Digest);
         i = reader.read();
       }
       if (c != (char) -1) {
-        // Last empty line
+        // Last line
         lines++;
-        lineHashes.add(md5IgnoreWhitespace(currentLineStr));
+        lineHashes.add(blankline ? null : lineMd5Digest.digest());
       }
       String filehash = Hex.encodeHexString(globalMd5Digest.digest());
       return new Metadata(lines, filehash, originalLineOffsets, lineHashes.toArray(new byte[0][]));
@@ -121,23 +118,17 @@ class FileMetadata {
     }
   }
 
-  private byte[] md5IgnoreWhitespace(StringBuilder currentLineStr) {
-    String reducedLine = StringUtils.replaceChars(currentLineStr.toString(), SPACE_CHARS, "");
-    if (reducedLine.isEmpty()) {
-      return null;
+  private void updateDigestUTF8Char(char c, MessageDigest md5Digest) {
+    CharBuffer cb = CharBuffer.allocate(1);
+    cb.put(c);
+    cb.flip();
+    ByteBuffer bb = Charsets.UTF_8.encode(cb);
+    byte[] array = bb.array();
+    for (int i = 0; i < array.length; i++) {
+      if (array[i] != 0) {
+        md5Digest.update(array[i]);
+      }
     }
-    return DigestUtils.md5(reducedLine);
-  }
-
-  private byte[] charToBytesUTF(char c) {
-    char[] buffer = new char[] {c};
-    byte[] b = new byte[buffer.length << 1];
-    for (int i = 0; i < buffer.length; i++) {
-      int bpos = i << 1;
-      b[bpos] = (byte) ((buffer[i] & 0xFF00) >> 8);
-      b[bpos + 1] = (byte) (buffer[i] & 0x00FF);
-    }
-    return b;
   }
 
   static class Metadata {

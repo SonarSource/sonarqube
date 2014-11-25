@@ -20,7 +20,6 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.base.Charsets;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,14 +28,11 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
+import static org.apache.commons.codec.digest.DigestUtils.md5;
+import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class FileMetadataTest {
-
-  private static final String EXPECTED_HASH_WITHOUT_LATEST_EOL = "c80cc50d65ace6c4eb63f189d274dbeb";
-  private static final String EXPECTED_HASH_NEW_LINE_FIRST = "cf2d41454b5b451eeb5122f0848c1d2a";
-  private static final String EXPECTED_HASH_WITH_LATEST_EOL = "bf77e51d219e7d7d643faac86f1b5d15";
-  private static final String NON_ASCII = "4050369e8ba432c9079e258b43fe4ab5";
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -49,7 +45,7 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.touch(tempFile);
 
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(0);
     assertThat(metadata.hash).isNotEmpty();
     assertThat(metadata.originalLineOffsets).containsOnly(0);
@@ -61,9 +57,9 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\r\nbar\r\nbaz", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
-    assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
+    assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10);
     assertThat(metadata.lineHashes[0]).containsOnly(md5("foo"));
     assertThat(metadata.lineHashes[1]).containsOnly(md5("bar"));
@@ -75,9 +71,9 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "föo\r\nbàr\r\n\u1D11Ebaßz\r\n", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
-    assertThat(metadata.hash).isEqualTo(NON_ASCII);
+    assertThat(metadata.hash).isEqualTo(md5Hex("föo\nbàr\n\u1D11Ebaßz\n"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10, 18);
     assertThat(metadata.lineHashes[0]).containsOnly(md5("föo"));
     assertThat(metadata.lineHashes[1]).containsOnly(md5("bàr"));
@@ -90,9 +86,9 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "föo\r\nbàr\r\n\u1D11Ebaßz\r\n", Charsets.UTF_16, true);
 
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_16);
+    FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_16);
     assertThat(metadata.lines).isEqualTo(4);
-    assertThat(metadata.hash).isEqualTo(NON_ASCII);
+    assertThat(metadata.hash).isEqualTo(md5Hex("föo\nbàr\n\u1D11Ebaßz\n"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 5, 10, 18);
     assertThat(metadata.lineHashes[0]).containsOnly(md5("föo"));
     assertThat(metadata.lineHashes[1]).containsOnly(md5("bàr"));
@@ -105,9 +101,9 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\nbar\nbaz", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
-    assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
+    assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 8);
     assertThat(metadata.lineHashes[0]).containsOnly(md5("foo"));
     assertThat(metadata.lineHashes[1]).containsOnly(md5("bar"));
@@ -119,9 +115,9 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\nbar\nbaz\n", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
-    assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
+    assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz\n"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 8, 12);
     assertThat(metadata.lineHashes[0]).containsOnly(md5("foo"));
     assertThat(metadata.lineHashes[1]).containsOnly(md5("bar"));
@@ -134,9 +130,9 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\nbar\r\nbaz\n", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
-    assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITH_LATEST_EOL);
+    assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz\n"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 9, 13);
     assertThat(metadata.lineHashes[0]).containsOnly(md5("foo"));
     assertThat(metadata.lineHashes[1]).containsOnly(md5("bar"));
@@ -145,13 +141,28 @@ public class FileMetadataTest {
   }
 
   @Test
+  public void several_new_lines() throws Exception {
+    File tempFile = temp.newFile();
+    FileUtils.write(tempFile, "foo\n\n\nbar", Charsets.UTF_8, true);
+
+    FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
+    assertThat(metadata.lines).isEqualTo(4);
+    assertThat(metadata.hash).isEqualTo(md5Hex("foo\n\n\nbar"));
+    assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 5, 6);
+    assertThat(metadata.lineHashes[0]).containsOnly(md5("foo"));
+    assertThat(metadata.lineHashes[1]).isNull();
+    assertThat(metadata.lineHashes[2]).isNull();
+    assertThat(metadata.lineHashes[3]).containsOnly(md5("bar"));
+  }
+
+  @Test
   public void mix_of_newlines_without_latest_eol() throws Exception {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "foo\nbar\r\nbaz", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
-    assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
+    assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 9);
     assertThat(metadata.lineHashes[0]).containsOnly(md5("foo"));
     assertThat(metadata.lineHashes[1]).containsOnly(md5("bar"));
@@ -163,9 +174,9 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "\nfoo\nbar\r\nbaz", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(4);
-    assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_NEW_LINE_FIRST);
+    assertThat(metadata.hash).isEqualTo(md5Hex("\nfoo\nbar\nbaz"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 1, 5, 10);
     assertThat(metadata.lineHashes[0]).isNull();
     assertThat(metadata.lineHashes[1]).containsOnly(md5("foo"));
@@ -178,9 +189,9 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, "\uFEFFfoo\nbar\r\nbaz", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
-    assertThat(metadata.hash).isEqualTo(EXPECTED_HASH_WITHOUT_LATEST_EOL);
+    assertThat(metadata.hash).isEqualTo(md5Hex("foo\nbar\nbaz"));
     assertThat(metadata.originalLineOffsets).containsOnly(0, 4, 9);
     assertThat(metadata.lineHashes[0]).containsOnly(md5("foo"));
     assertThat(metadata.lineHashes[1]).containsOnly(md5("bar"));
@@ -192,8 +203,9 @@ public class FileMetadataTest {
     File tempFile = temp.newFile();
     FileUtils.write(tempFile, " foo\nb ar\r\nbaz \t", Charsets.UTF_8, true);
 
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(tempFile, Charsets.UTF_8);
+    FileMetadata.Metadata metadata = new FileMetadata().read(tempFile, Charsets.UTF_8);
     assertThat(metadata.lines).isEqualTo(3);
+    assertThat(metadata.hash).isEqualTo(md5Hex(" foo\nb ar\nbaz \t"));
     assertThat(metadata.lineHashes[0]).containsOnly(md5("foo"));
     assertThat(metadata.lineHashes[1]).containsOnly(md5("bar"));
     assertThat(metadata.lineHashes[2]).containsOnly(md5("baz"));
@@ -207,7 +219,7 @@ public class FileMetadataTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Fail to read file '" + file.getAbsolutePath() + "' with encoding 'UTF-8'");
 
-    FileMetadata.INSTANCE.read(file, Charsets.UTF_8);
+    new FileMetadata().read(file, Charsets.UTF_8);
   }
 
   @Test
@@ -222,14 +234,11 @@ public class FileMetadataTest {
     File file2 = temp.newFile();
     FileUtils.write(file2, "foo\nbar", Charsets.UTF_8, true);
 
-    String hash1 = FileMetadata.INSTANCE.read(file1, Charsets.UTF_8).hash;
-    String hash1a = FileMetadata.INSTANCE.read(file1a, Charsets.UTF_8).hash;
-    String hash2 = FileMetadata.INSTANCE.read(file2, Charsets.UTF_8).hash;
+    String hash1 = new FileMetadata().read(file1, Charsets.UTF_8).hash;
+    String hash1a = new FileMetadata().read(file1a, Charsets.UTF_8).hash;
+    String hash2 = new FileMetadata().read(file2, Charsets.UTF_8).hash;
     assertThat(hash1).isEqualTo(hash1a);
     assertThat(hash1).isNotEqualTo(hash2);
   }
 
-  private static byte[] md5(String input) {
-    return DigestUtils.md5(input);
-  }
 }

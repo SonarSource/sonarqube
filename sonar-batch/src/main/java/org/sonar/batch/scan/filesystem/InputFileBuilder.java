@@ -95,8 +95,15 @@ class InputFileBuilder {
   DeprecatedDefaultInputFile complete(DeprecatedDefaultInputFile inputFile, InputFile.Type type) {
     inputFile.setType(type);
     inputFile.setBasedir(fs.baseDir());
-    FileMetadata.Metadata metadata = FileMetadata.INSTANCE.read(inputFile.file(), fs.encoding());
     inputFile.setEncoding(fs.encoding().name());
+
+    String lang = langDetection.language(inputFile);
+    if (lang == null) {
+      return null;
+    }
+    inputFile.setLanguage(lang);
+
+    FileMetadata.Metadata metadata = new FileMetadata().read(inputFile.file(), fs.encoding());
     inputFile.setLines(metadata.lines);
     inputFile.setHash(metadata.hash);
     inputFile.setOriginalLineOffsets(metadata.originalLineOffsets);
@@ -105,11 +112,6 @@ class InputFileBuilder {
     if (analysisMode.isIncremental() && inputFile.status() == InputFile.Status.SAME) {
       return null;
     }
-    String lang = langDetection.language(inputFile);
-    if (lang == null) {
-      return null;
-    }
-    inputFile.setLanguage(lang);
     fillDeprecatedData(inputFile);
     return inputFile;
   }

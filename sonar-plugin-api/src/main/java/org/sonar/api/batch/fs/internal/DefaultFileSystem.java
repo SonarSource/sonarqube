@@ -181,8 +181,9 @@ public class DefaultFileSystem implements FileSystem {
 
   /**
    * Adds InputFile to the list and registers its language, if present.
+   * Synchronized because PersistIt Exchange is not concurrent
    */
-  public DefaultFileSystem add(InputFile inputFile) {
+  public synchronized DefaultFileSystem add(InputFile inputFile) {
     cache.add(inputFile);
     if (inputFile.language() != null) {
       languages.add(inputFile.language());
@@ -192,8 +193,9 @@ public class DefaultFileSystem implements FileSystem {
 
   /**
    * Adds InputDir to the list.
+   * Synchronized because PersistIt Exchange is not concurrent
    */
-  public DefaultFileSystem add(InputDir inputDir) {
+  public synchronized DefaultFileSystem add(InputDir inputDir) {
     cache.add(inputDir);
     return this;
   }
