@@ -344,7 +344,7 @@ class ServerComponents {
     pico.addSingleton(RuleOperations.class);
     pico.addSingleton(RubyRuleService.class);
     pico.addSingleton(RuleRepositories.class);
-    pico.addSingleton(DeprecatedRulesDefinition.class);
+    pico.addSingleton(DeprecatedRulesDefinitionLoader.class);
     pico.addSingleton(RuleDefinitionsLoader.class);
     pico.addSingleton(RulesDefinitionXmlLoader.class);
     pico.addSingleton(RuleService.class);

@@ -27,16 +27,22 @@ import org.sonar.api.server.rule.RulesDefinition;
  * and initializes {@link org.sonar.server.rule.RuleRepositories}. Used at server startup.
  */
 public class RuleDefinitionsLoader implements ServerComponent {
+
+  private final DeprecatedRulesDefinitionLoader deprecatedDefinitionConverter;
   private final RulesDefinition[] definitions;
   private final RuleRepositories repositories;
 
-  public RuleDefinitionsLoader(RuleRepositories repositories, RulesDefinition[] definitions) {
+  public RuleDefinitionsLoader(DeprecatedRulesDefinitionLoader deprecatedDefinitionConverter, RuleRepositories repositories, RulesDefinition[] definitions) {
+    this.deprecatedDefinitionConverter = deprecatedDefinitionConverter;
     this.repositories = repositories;
     this.definitions = definitions;
   }
 
-  public RuleDefinitionsLoader(RuleRepositories repositories) {
-    this(repositories, new RulesDefinition[0]);
+  /**
+   * Used when no definitions at all.
+   */
+  public RuleDefinitionsLoader(DeprecatedRulesDefinitionLoader converter, RuleRepositories repositories) {
+    this(converter, repositories, new RulesDefinition[0]);
   }
 
   public RulesDefinition.Context load() {
@@ -44,6 +50,7 @@ public class RuleDefinitionsLoader implements ServerComponent {
     for (RulesDefinition definition : definitions) {
       definition.define(context);
     }
+    deprecatedDefinitionConverter.complete(context);
     repositories.register(context);
     return context;
   }

@@ -36,7 +36,6 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.MessageException;
-import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -53,7 +52,12 @@ import org.sonar.server.startup.RegisterDebtModel;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -74,12 +78,12 @@ public class RegisterRules implements Startable {
    * @param registerDebtModel used only to be started after init of the technical debt model
    */
   public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, Languages languages, RegisterDebtModel registerDebtModel) {
-    this(defLoader, ruleActivator, dbClient, languages, System2.INSTANCE);
+    this(defLoader, ruleActivator, dbClient, languages);
   }
 
   @VisibleForTesting
   RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator,
-    DbClient dbClient, Languages languages, System2 system) {
+    DbClient dbClient, Languages languages) {
     this.defLoader = defLoader;
     this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;

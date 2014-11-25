@@ -200,11 +200,11 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   }
 
   private void execute(RulesDefinition... defs) {
-    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(RuleRepositories.class), defs);
+    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(DeprecatedRulesDefinitionLoader.class), new RuleRepositories(),defs);
     Languages languages = mock(Languages.class);
     when(languages.get("java")).thenReturn(mock(Language.class));
 
-    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, languages, system);
+    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, languages);
     task.start();
   }
 
