@@ -62,7 +62,7 @@ class FileMetadata {
     Reader reader = null;
     long currentOriginalOffset = 0;
     List<Long> originalLineOffsets = new ArrayList<Long>();
-    List<String> lineHashes = new ArrayList<String>();
+    List<Object> lineHashes = new ArrayList<Object>();
     StringBuilder currentLineStr = new StringBuilder();
     int lines = 0;
     char c = (char) -1;
@@ -112,7 +112,7 @@ class FileMetadata {
         lineHashes.add(md5IgnoreWhitespace(currentLineStr));
       }
       String filehash = Hex.encodeHexString(globalMd5Digest.digest());
-      return new Metadata(lines, filehash, originalLineOffsets, lineHashes.toArray(new String[0]));
+      return new Metadata(lines, filehash, originalLineOffsets, lineHashes.toArray(new byte[0][]));
 
     } catch (IOException e) {
       throw new IllegalStateException(String.format("Fail to read file '%s' with encoding '%s'", file.getAbsolutePath(), encoding), e);
@@ -121,12 +121,12 @@ class FileMetadata {
     }
   }
 
-  private String md5IgnoreWhitespace(StringBuilder currentLineStr) {
+  private byte[] md5IgnoreWhitespace(StringBuilder currentLineStr) {
     String reducedLine = StringUtils.replaceChars(currentLineStr.toString(), SPACE_CHARS, "");
     if (reducedLine.isEmpty()) {
-      return "";
+      return null;
     }
-    return DigestUtils.md5Hex(reducedLine);
+    return DigestUtils.md5(reducedLine);
   }
 
   private byte[] charToBytesUTF(char c) {
@@ -144,9 +144,9 @@ class FileMetadata {
     final int lines;
     final String hash;
     final long[] originalLineOffsets;
-    final String[] lineHashes;
+    final byte[][] lineHashes;
 
-    private Metadata(int lines, String hash, List<Long> originalLineOffsets, String[] lineHashes) {
+    private Metadata(int lines, String hash, List<Long> originalLineOffsets, byte[][] lineHashes) {
       this.lines = lines;
       this.hash = hash;
       this.originalLineOffsets = Longs.toArray(originalLineOffsets);

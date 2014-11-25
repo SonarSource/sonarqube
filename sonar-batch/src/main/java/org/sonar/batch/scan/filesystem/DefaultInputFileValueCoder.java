@@ -48,7 +48,9 @@ class DefaultInputFileValueCoder implements ValueCoder {
     value.put(f.lines());
     putUTFOrNull(value, f.encoding());
     value.putLongArray(f.originalLineOffsets());
-    value.putStringArray(f.lineHashes());
+    for (int i = 0; i < f.lines(); i++) {
+      value.putByteArray(f.lineHashes()[i]);
+    }
   }
 
   private void putUTFOrNull(Value value, @Nullable String utfOrNull) {
@@ -75,7 +77,11 @@ class DefaultInputFileValueCoder implements ValueCoder {
     file.setLines(value.getInt());
     file.setEncoding(value.getString());
     file.setOriginalLineOffsets(value.getLongArray());
-    file.setLineHashes(value.getStringArray());
+    byte[][] lineHashes = new byte[file.lines()][];
+    for (int i = 0; i < file.lines(); i++) {
+      lineHashes[i] = value.getByteArray();
+    }
+    file.setLineHashes(lineHashes);
     return file;
   }
 

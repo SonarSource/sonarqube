@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -66,17 +67,18 @@ public class InputPathCacheTest {
       .setType(Type.MAIN)
       .setStatus(Status.ADDED)
       .setHash("xyz")
-      .setLines(1)
+      .setLines(2)
       .setEncoding("UTF-8")
       .setOriginalLineOffsets(new long[] {0, 4})
-      .setLineHashes(new String[] {"foo", "bar"})
+      .setLineHashes(new byte[][] {DigestUtils.md5("foo"), DigestUtils.md5("bar")})
       .setFile(temp.newFile("Bar.java")));
 
     DefaultInputFile loadedFile = (DefaultInputFile) cache.getFile("struts-core", "src/main/java/Bar.java");
     assertThat(loadedFile.relativePath()).isEqualTo("src/main/java/Bar.java");
     assertThat(loadedFile.encoding()).isEqualTo("UTF-8");
     assertThat(loadedFile.originalLineOffsets()).containsOnly(0, 4);
-    assertThat(loadedFile.lineHashes()).containsOnly("foo", "bar");
+    assertThat(loadedFile.lineHashes()[0]).containsOnly(DigestUtils.md5("foo"));
+    assertThat(loadedFile.lineHashes()[1]).containsOnly(DigestUtils.md5("bar"));
 
     assertThat(cache.filesByModule("struts")).hasSize(1);
     assertThat(cache.filesByModule("struts-core")).hasSize(1);

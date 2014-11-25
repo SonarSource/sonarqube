@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.index;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -113,7 +114,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     java.io.File sameFile = new java.io.File(basedir, relativePathSame);
     FileUtils.write(sameFile, "unchanged\ncontent");
     DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathSame).setLines(2).setAbsolutePath(sameFile.getAbsolutePath())
-      .setLineHashes(new String[] {"foo", "bar"});
+      .setLineHashes(new byte[][] {md5("unchanged"), md5("ncontent")});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileNew));
 
     mockResourceCache(relativePathSame, PROJECT_KEY, "uuidsame");
@@ -133,7 +134,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     FileUtils.write(sameFile, "changed\ncontent");
     DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathSame).setLines(2)
       .setAbsolutePath(sameFile.getAbsolutePath())
-      .setLineHashes(new String[] {"foo", "bar"});
+      .setLineHashes(new byte[][] {md5("changed"), md5("content")});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileNew));
 
     mockResourceCache(relativePathSame, PROJECT_KEY, "uuidsame");
@@ -145,7 +146,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
       ",,,,,,,changed\r\n,,,,,,,content\r\n");
-    assertThat(fileSourceDto.getLineHashes()).isEqualTo("foo\nbar");
+    assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("changed") + "\n" + md5Hex("content"));
     assertThat(fileSourceDto.getDataHash()).isEqualTo("54f7fa51128a7ee577a476974c56568c");
   }
 
@@ -157,7 +158,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     String relativePathEmpty = "src/empty.java";
     DefaultInputFile inputFileEmpty = new DefaultInputFile(PROJECT_KEY, relativePathEmpty)
       .setLines(0)
-      .setLineHashes(new String[] {});
+      .setLineHashes(new byte[][] {});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileEmpty));
 
     mockResourceCache(relativePathEmpty, PROJECT_KEY, "uuidempty");
@@ -178,7 +179,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathNew)
       .setLines(3)
       .setAbsolutePath(newFile.getAbsolutePath())
-      .setLineHashes(new String[] {"foo", "bar", "bee"});
+      .setLineHashes(new byte[][] {md5("foo"), md5("bar"), md5("biz")});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileNew));
 
     mockResourceCache(relativePathNew, PROJECT_KEY, "uuidnew");
@@ -189,7 +190,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
       ",,,,,,,foo\r\n,,,,,,,bar\r\n,,,,,,,biz\r\n");
-    assertThat(fileSourceDto.getLineHashes()).isEqualTo("foo\nbar\nbee");
+    assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("foo") + "\n" + md5Hex("bar") + "\n" + md5Hex("biz"));
     assertThat(fileSourceDto.getDataHash()).isEqualTo("419c2b162018f6bbeb04fc0500d7852d");
 
   }
@@ -207,7 +208,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
       .setLines(3)
       .setAbsolutePath(newFile.getAbsolutePath())
       .setOriginalLineOffsets(new long[] {0, 4, 7})
-      .setLineHashes(new String[] {"foo", "bar", "bee"});
+      .setLineHashes(new byte[][] {md5("foo"), md5("bar"), md5("biz")});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileNew));
 
     mockResourceCache(relativePathNew, PROJECT_KEY, "uuidnew");
@@ -238,7 +239,7 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     FileSourceDto fileSourceDto = new FileSourceDao(getMyBatis()).select("uuidnew");
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
-    assertThat(fileSourceDto.getLineHashes()).isEqualTo("foo\nbar\nbee");
+    assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("foo") + "\n" + md5Hex("bar") + "\n" + md5Hex("biz"));
     assertThat(fileSourceDto.getData()).isEqualTo(
       "123,julien,2014-10-11T16:44:02+0100,1,4,2,\"0,3,a\",foo\r\n"
         + "234,simon,2014-10-12T16:44:02+0100,,,,\"0,1,cd\",bar\r\n"
@@ -321,4 +322,13 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     sonarFile.setUuid(uuid);
     when(resourceCache.get(projectKey + ":" + relativePathEmpty)).thenReturn(sonarFile);
   }
+
+  private byte[] md5(String string) {
+    return DigestUtils.md5(string);
+  }
+
+  private String md5Hex(String string) {
+    return DigestUtils.md5Hex(string);
+  }
+
 }

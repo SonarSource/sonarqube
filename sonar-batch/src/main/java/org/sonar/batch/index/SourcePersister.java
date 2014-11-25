@@ -20,7 +20,7 @@
 package org.sonar.batch.index;
 
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Joiner;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -158,7 +158,7 @@ public class SourcePersister implements ScanPersister {
         .setFileUuid(fileUuid)
         .setData(newData)
         .setDataHash(newDataHash)
-        .setLineHashes(StringUtils.defaultIfEmpty(Joiner.on('\n').join(inputFile.lineHashes()), null))
+        .setLineHashes(lineHashesAsMd5Hex(inputFile))
         .setCreatedAt(now.getTime())
         .setUpdatedAt(now.getTime());
       mapper.insert(newFileSource);
@@ -167,13 +167,29 @@ public class SourcePersister implements ScanPersister {
       if (!newDataHash.equals(previous.getDataHash())) {
         previous
           .setData(newData)
-          .setLineHashes(StringUtils.defaultIfEmpty(Joiner.on('\n').join(inputFile.lineHashes()), null))
+          .setLineHashes(lineHashesAsMd5Hex(inputFile))
           .setDataHash(newDataHash)
           .setUpdatedAt(now.getTime());
         mapper.update(previous);
         session.commit();
       }
     }
+  }
+
+  @CheckForNull
+  private String lineHashesAsMd5Hex(DefaultInputFile inputFile) {
+    if (inputFile.lines() == 0) {
+      return null;
+    }
+    // A md5 string is 32 char long + '\n' = 33
+    StringBuilder result = new StringBuilder(inputFile.lines() * (32 + 1));
+    for (byte[] lineHash : inputFile.lineHashes()) {
+      if (result.length() > 0) {
+        result.append("\n");
+      }
+      result.append(lineHash != null ? Hex.encodeHexString(lineHash) : "");
+    }
+    return result.toString();
   }
 
   @CheckForNull
