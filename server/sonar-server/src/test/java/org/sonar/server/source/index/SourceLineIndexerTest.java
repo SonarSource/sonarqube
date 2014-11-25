@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsTester;
@@ -77,7 +78,7 @@ public class SourceLineIndexerTest {
       .put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh")
       .put(SourceLineIndexDefinition.FIELD_LINE, 1)
       .put(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe")
-      .put(SourceLineIndexDefinition.FIELD_SCM_DATE, "2014-01-01T12:34:56.7+0100")
+      .put(SourceLineIndexDefinition.FIELD_SCM_DATE, DateUtils.parseDateTime("2014-01-01T12:34:56+0100"))
       .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
       .put(SourceLineIndexDefinition.FIELD_SOURCE, "package org.sonar.server.source;")
       .put(BaseNormalizer.UPDATED_AT_FIELD, new Date())
@@ -102,7 +103,7 @@ public class SourceLineIndexerTest {
       MapAssert.entry(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh"),
       MapAssert.entry(SourceLineIndexDefinition.FIELD_LINE, 1),
       MapAssert.entry(SourceLineIndexDefinition.FIELD_SCM_REVISION, "cafebabe"),
-      MapAssert.entry(SourceLineIndexDefinition.FIELD_SCM_DATE, "2014-01-01T12:34:56.7+0100"),
+      MapAssert.entry(SourceLineIndexDefinition.FIELD_SCM_DATE, "2014-01-01T11:34:56.000Z"),
       MapAssert.entry(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop"),
       MapAssert.entry(SourceLineIndexDefinition.FIELD_SOURCE, "package org.sonar.server.source;")
     );

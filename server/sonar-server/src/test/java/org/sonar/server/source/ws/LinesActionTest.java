@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.source.index.SourceLineDoc;
@@ -71,7 +70,7 @@ public class LinesActionTest {
   public void show_source() throws Exception {
     String componentUuid = "efgh";
     Date updatedAt = new Date();
-    Date scmDate = DateUtils.parseDateTime("2014-01-01T12:34:56+0100");
+    String scmDate = "2014-01-01T12:34:56.789Z";
     SourceLineDoc line1 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
       .put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd")
       .put(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh")

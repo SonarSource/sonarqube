@@ -21,6 +21,7 @@ package org.sonar.server.source.index;
 
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.BaseNormalizer;
+import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -78,7 +79,7 @@ public class SourceLineDoc extends BaseDoc {
 
   @CheckForNull
   public Date scmDate() {
-    return getNullableField(SourceLineIndexDefinition.FIELD_SCM_DATE);
+    return IndexUtils.parseDateTime(this.<String>getNullableField(SourceLineIndexDefinition.FIELD_SCM_DATE));
   }
 
   public void setScmDate(@Nullable Date scmDate) {
