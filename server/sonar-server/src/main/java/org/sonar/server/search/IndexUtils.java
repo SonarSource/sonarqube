@@ -19,13 +19,12 @@
  */
 package org.sonar.server.search;
 
+import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+
 import java.util.Date;
-import java.util.TimeZone;
 
 public class IndexUtils {
 
@@ -38,15 +37,10 @@ public class IndexUtils {
     if (s == null) {
       return null;
     }
-    try {
+    return ISODateTimeFormat.dateTime().parseDateTime(s).toDate();
+  }
 
-      // ES times are in UTC
-      DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-      sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-      return sdf.parse(s);
-
-    } catch (ParseException e) {
-      throw new IllegalArgumentException("Cannot parse ES date: " + s, e);
-    }
+  public static String format(Date date) {
+    return ISODateTimeFormat.dateTime().print(date.getTime());
   }
 }

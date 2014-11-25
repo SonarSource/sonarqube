@@ -27,11 +27,9 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.server.es.IssueIndexDefinition;
 import org.sonar.server.search.BaseDoc;
-import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -130,20 +128,18 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   @Override
   public Date creationDate() {
-    return IndexUtils.parseDateTime((String) getField(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field()));
+    return getFieldAsDate(IssueNormalizer.IssueField.ISSUE_CREATED_AT.field());
   }
 
   @Override
   public Date updateDate() {
-    return IndexUtils.parseDateTime((String) getField(IssueNormalizer.IssueField.ISSUE_UPDATED_AT.field()));
+    return getFieldAsDate(IssueNormalizer.IssueField.ISSUE_UPDATED_AT.field());
   }
 
   @Override
   @CheckForNull
   public Date closeDate() {
-    return getNullableField(IssueNormalizer.IssueField.ISSUE_CLOSE_DATE.field()) != null ?
-      IndexUtils.parseDateTime((String) getNullableField(IssueNormalizer.IssueField.ISSUE_CLOSE_DATE.field())) :
-      null;
+    return getNullableFieldAsDate(IssueNormalizer.IssueField.ISSUE_CLOSE_DATE.field());
   }
 
   @Override

@@ -21,6 +21,8 @@ package org.sonar.server.search;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -49,6 +51,18 @@ public abstract class BaseDoc {
     return (K) fields.get(key);
   }
 
+  @CheckForNull
+  public Date getNullableFieldAsDate(String key) {
+    Object val = getNullableField(key);
+    if (val != null) {
+      if (val instanceof Date) {
+        return (Date)val;
+      }
+      return IndexUtils.parseDateTime((String) val);
+    }
+    return null;
+  }
+
   /**
    * Use this method when you are sure that the value can't be null in ES document.
    * <p/>
@@ -64,6 +78,14 @@ public abstract class BaseDoc {
       throw new IllegalStateException("Value of index field is null: " + key);
     }
     return value;
+  }
+
+  public Date getFieldAsDate(String key) {
+    Object value = getField(key);
+    if (value instanceof Date) {
+      return (Date)value;
+    }
+    return IndexUtils.parseDateTime((String)value);
   }
 
   public void setField(String key, @Nullable Object value) {

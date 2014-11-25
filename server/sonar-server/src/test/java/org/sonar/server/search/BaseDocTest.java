@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -56,5 +57,32 @@ public class BaseDocTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Field a_string not specified in query options");
     }
+  }
+
+  @Test
+  public void getFieldAsDate() throws Exception {
+    BaseDoc doc = new BaseDoc(Maps.<String,Object>newHashMap()) {
+    };
+    long now = System.currentTimeMillis();
+    doc.setField("javaDate", new Date(now));
+    assertThat(doc.getFieldAsDate("javaDate").getTime()).isEqualTo(now);
+
+    doc.setField("stringDate", IndexUtils.format(new Date(now)));
+    assertThat(doc.getFieldAsDate("stringDate").getTime()).isEqualTo(now);
+  }
+
+  @Test
+  public void getNullableFieldAsDate() throws Exception {
+    BaseDoc doc = new BaseDoc(Maps.<String,Object>newHashMap()) {
+    };
+    long now = System.currentTimeMillis();
+    doc.setField("javaDate", new Date(now));
+    assertThat(doc.getNullableFieldAsDate("javaDate").getTime()).isEqualTo(now);
+
+    doc.setField("stringDate", IndexUtils.format(new Date(now)));
+    assertThat(doc.getNullableFieldAsDate("stringDate").getTime()).isEqualTo(now);
+
+    doc.setField("noValue", null);
+    assertThat(doc.getNullableFieldAsDate("noValue")).isNull();
   }
 }
