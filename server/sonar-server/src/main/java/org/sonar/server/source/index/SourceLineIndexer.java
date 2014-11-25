@@ -92,9 +92,6 @@ public class SourceLineIndexer implements ServerComponent {
       // use cache. Will not work with Tomcat cluster.
       result = lastUpdatedAt;
     }
-    System.out.println("\n\n"
-      + "   Checking for source lines > " + result
-      + "\n\n");
     return result;
   }
 

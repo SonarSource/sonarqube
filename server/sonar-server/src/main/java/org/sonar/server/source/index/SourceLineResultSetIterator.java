@@ -68,7 +68,6 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
       if (afterDate > 0L) {
         stmt.setLong(1, afterDate);
       }
-      System.out.println(sql);
       return new SourceLineResultSetIterator(stmt);
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to prepare SQL request to select all file sources", e);
