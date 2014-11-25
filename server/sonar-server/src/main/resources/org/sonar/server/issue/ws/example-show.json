@@ -19,6 +19,7 @@
     "componentQualifier": "FIL",
     "project": "com.sonarsource.cobol:cobol",
     "projectName": "SonarSource :: Cobol",
+    "subProject": "com.sonarsource.cobol:cobol-preprocessor"
     "subProjectName": "SonarSource :: Cobol :: Preprocessor",
     "subCharacteristic": "Readability",
     "characteristic": "Maintainability",

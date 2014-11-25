@@ -7,6 +7,7 @@
     "componentEnabled": true,
     "project": "org.sonar.Sonar",
     "projectName": "SonarQube",
+    "subProject": "org.sonar.server.Server",
     "subProjectName": "SonarQube :: Server",
     "rule": "squid:AvoidCycle",
     "ruleName": "Avoid cycle",

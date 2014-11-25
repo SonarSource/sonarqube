@@ -390,7 +390,6 @@ public class IssueShowActionTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
-    System.out.println("request.execute().outputAsString() = " + request.execute().outputAsString());
     request.execute().assertJson(getClass(), "show_issue_with_characteristics.json");
   }
 
