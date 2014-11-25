@@ -37,7 +37,7 @@ define [
 
 
     initialize: ->
-      @loadMoreThrottled = _.throttle @loadMore, 1000
+      @loadMoreThrottled = _.throttle @loadMore, 1000, { trailing: false }
       @listenTo @options.app.state, 'change:maxResultsReached', @toggleLoadMore
       @listenTo @options.app.state, 'change:selectedIndex', @scrollToIssue
       @bindShortcuts()
