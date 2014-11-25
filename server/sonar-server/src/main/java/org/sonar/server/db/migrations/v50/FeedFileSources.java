@@ -27,8 +27,12 @@ import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.Select.RowReader;
 import org.sonar.server.db.migrations.SqlStatement;
 
+import javax.annotation.Nullable;
+
 import java.sql.SQLException;
 import java.util.Date;
+
+import static com.google.common.base.Charsets.UTF_8;
 
 /**
  * Used in the Active Record Migration 714
@@ -56,8 +60,21 @@ public class FeedFileSources extends BaseDataChange {
       byte[] longAuthors = row.getBytes(8);
       byte[] shortDates = row.getBytes(9);
       byte[] longDates = row.getBytes(10);
+      byte[] shortHits = row.getBytes(11);
+      byte[] longHits = row.getBytes(12);
+      byte[] shortCond = row.getBytes(13);
+      byte[] longCond = row.getBytes(14);
+      byte[] shortCovCond = row.getBytes(15);
+      byte[] longCovCond = row.getBytes(16);
 
-      String[] sourceData = new FileSourceDto(source, shortRevisions, longRevisions, shortAuthors, longAuthors, shortDates, longDates).getSourceData();
+      String[] sourceData = new FileSourceDto(source,
+        ofNullableBytes(shortRevisions, longRevisions),
+        ofNullableBytes(shortAuthors, longAuthors),
+        ofNullableBytes(shortDates, longDates),
+        ofNullableBytes(shortHits, longHits),
+        ofNullableBytes(shortCond, longCond),
+        ofNullableBytes(shortCovCond, longCovCond)
+        ).getSourceData();
 
       update.setString(1, projectUuid)
         .setString(2, fileUuid)
@@ -69,6 +86,20 @@ public class FeedFileSources extends BaseDataChange {
 
       return true;
     }
+  }
+
+  private static String ofNullableBytes(@Nullable byte[] shortBytes, @Nullable byte[] longBytes) {
+    byte[] result;
+    if (shortBytes == null) {
+      if (longBytes == null) {
+        return "";
+      } else {
+        result = longBytes;
+      }
+    } else {
+      result = shortBytes;
+    }
+    return new String(result, UTF_8);
   }
 
   private final System2 system;
@@ -90,6 +121,9 @@ public class FeedFileSources extends BaseDataChange {
     Long revisionMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'revisions_by_line'").get(simpleLongReader);
     Long authorMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'authors_by_line'").get(simpleLongReader);
     Long datesMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'last_commit_datetimes_by_line'").get(simpleLongReader);
+    Long coverageHitsByLineMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'coverage_line_hits_data'").get(simpleLongReader);
+    Long conditionsByLineMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'conditions_by_line'").get(simpleLongReader);
+    Long coveredConditionsByLineMetricId = context.prepareSelect("SELECT id FROM metrics WHERE name = 'covered_conditions_by_line'").get(simpleLongReader);
 
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT " +
@@ -102,7 +136,13 @@ public class FeedFileSources extends BaseDataChange {
       "m2.text_value as short_authors_by_line, " +
       "m2.measure_data as long_authors_by_line, " +
       "m3.text_value as short_dates_by_line, " +
-      "m3.measure_data as short_dates_by_line " +
+      "m3.measure_data as long_dates_by_line, " +
+      "m4.text_value as short_hits_by_line, " +
+      "m4.measure_data as long_hits_by_line, " +
+      "m5.text_value as short_cond_by_line, " +
+      "m5.measure_data as long_cond_by_line, " +
+      "m6.text_value as short_cover_cond_by_line, " +
+      "m6.measure_data as long_cover_cond_by_line " +
       "FROM snapshots s " +
       "JOIN snapshot_sources ss " +
       "ON s.id = ss.snapshot_id AND s.islast = ? " +
@@ -116,6 +156,12 @@ public class FeedFileSources extends BaseDataChange {
       "ON m2.snapshot_id = s.id AND m2.metric_id = ? " +
       "LEFT JOIN project_measures m3 " +
       "ON m3.snapshot_id = s.id AND m3.metric_id = ? " +
+      "LEFT JOIN project_measures m4 " +
+      "ON m4.snapshot_id = s.id AND m4.metric_id = ? " +
+      "LEFT JOIN project_measures m5 " +
+      "ON m5.snapshot_id = s.id AND m5.metric_id = ? " +
+      "LEFT JOIN project_measures m6 " +
+      "ON m6.snapshot_id = s.id AND m6.metric_id = ? " +
       "WHERE " +
       "f.enabled = ? " +
       "AND f.scope = 'FIL' " +
@@ -124,7 +170,10 @@ public class FeedFileSources extends BaseDataChange {
       .setLong(2, revisionMetricId != null ? revisionMetricId : 0L)
       .setLong(3, authorMetricId != null ? authorMetricId : 0L)
       .setLong(4, datesMetricId != null ? datesMetricId : 0L)
-      .setBoolean(5, true);
+      .setLong(5, coverageHitsByLineMetricId != null ? coverageHitsByLineMetricId : 0L)
+      .setLong(6, conditionsByLineMetricId != null ? conditionsByLineMetricId : 0L)
+      .setLong(7, coveredConditionsByLineMetricId != null ? coveredConditionsByLineMetricId : 0L)
+      .setBoolean(8, true);
 
     massUpdate.update("INSERT INTO file_sources" +
       "(project_uuid, file_uuid, created_at, updated_at, data, line_hashes, data_hash)" +

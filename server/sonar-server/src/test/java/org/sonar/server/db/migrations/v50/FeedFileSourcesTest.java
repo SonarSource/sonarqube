@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.TestDatabase;
-import org.sonar.server.db.migrations.DatabaseMigration;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,7 +41,7 @@ public class FeedFileSourcesTest {
   @ClassRule
   public static TestDatabase db = new TestDatabase().schema(FeedFileSourcesTest.class, "schema.sql");
 
-  DatabaseMigration migration;
+  FeedFileSources migration;
 
   System2 system;
 
@@ -67,7 +66,7 @@ public class FeedFileSourcesTest {
   }
 
   @Test
-  public void migrate_sources_with_no_scm() throws Exception {
+  public void migrate_sources_with_no_scm_no_coverage() throws Exception {
     db.prepareDbUnit(getClass(), "before.xml");
 
     db.executeUpdateSql("insert into snapshot_sources " +
@@ -81,7 +80,16 @@ public class FeedFileSourcesTest {
   }
 
   @Test
-  public void migrate_sources_with_scm() throws Exception {
+  public void migrate_sources_with_scm_and_coverage_in_text_value() throws Exception {
+    migrate_sources_with_scm_and_coverage_in("text_value");
+  }
+
+  @Test
+  public void migrate_sources_with_scm_and_coverage_in_measure_data() throws Exception {
+    migrate_sources_with_scm_and_coverage_in("measure_data");
+  }
+
+  private void migrate_sources_with_scm_and_coverage_in(String columnName) throws Exception {
     db.prepareDbUnit(getClass(), "before.xml");
 
     Connection connection = null;
@@ -95,29 +103,49 @@ public class FeedFileSourcesTest {
         .executeUpdate();
 
       PreparedStatement revisionStmt = connection.prepareStatement("insert into project_measures " +
-        "(metric_id, snapshot_id, text_value) " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(1, 6, ?)");
       revisionStmt.setBytes(1, "1=aef12a;2=abe465;3=afb789;4=afb789".getBytes(Charsets.UTF_8));
       revisionStmt.executeUpdate();
 
       PreparedStatement authorStmt = connection.prepareStatement("insert into project_measures " +
-        "(metric_id, snapshot_id, text_value) " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(2, 6, ?)");
       authorStmt.setBytes(1, "1=alice;2=bob;3=carol;4=carol".getBytes(Charsets.UTF_8));
       authorStmt.executeUpdate();
 
       PreparedStatement dateStmt = connection.prepareStatement("insert into project_measures " +
-        "(metric_id, snapshot_id, text_value) " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(3, 6, ?)");
       dateStmt.setBytes(1, "1=2014-04-25T12:34:56+0100;2=2014-07-25T12:34:56+0100;3=2014-03-23T12:34:56+0100;4=2014-03-23T12:34:56+0100".getBytes(Charsets.UTF_8));
       dateStmt.executeUpdate();
+
+      PreparedStatement hitsStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
+        "values " +
+        "(4, 6, ?)");
+      hitsStmt.setBytes(1, "1=1;3=0".getBytes(Charsets.UTF_8));
+      hitsStmt.executeUpdate();
+
+      PreparedStatement condStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
+        "values " +
+        "(5, 6, ?)");
+      condStmt.setBytes(1, "1=4".getBytes(Charsets.UTF_8));
+      condStmt.executeUpdate();
+
+      PreparedStatement coveredCondStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
+        "values " +
+        "(6, 6, ?)");
+      coveredCondStmt.setBytes(1, "1=2".getBytes(Charsets.UTF_8));
+      coveredCondStmt.executeUpdate();
     } finally {
       DbUtils.commitAndCloseQuietly(connection);
     }
-
 
     migration.execute();
 

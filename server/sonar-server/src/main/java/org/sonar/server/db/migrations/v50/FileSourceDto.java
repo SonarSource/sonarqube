@@ -25,8 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.text.CsvWriter;
 
-import javax.annotation.Nullable;
-
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Iterator;
@@ -41,17 +39,20 @@ class FileSourceDto {
   private Iterator<String> sourceSplitter;
 
   private Map<Integer, String> revisions;
-
   private Map<Integer, String> authors;
-
   private Map<Integer, String> dates;
+  private Map<Integer, String> hits;
+  private Map<Integer, String> conditions;
+  private Map<Integer, String> coveredConditions;
 
-  FileSourceDto(String source, @Nullable byte[] shortRevisions, @Nullable byte[] longRevisions, @Nullable byte[] shortAuthors, @Nullable byte[] longAuthors,
-    @Nullable byte[] shortDates, @Nullable byte[] longDates) {
+  FileSourceDto(String source, String revisions, String authors, String dates, String hits, String conditions, String coveredConditions) {
     sourceSplitter = Splitter.onPattern("\r?\n|\r").split(source).iterator();
-    revisions = KeyValueFormat.parseIntString(ofNullableBytes(shortRevisions, longRevisions));
-    authors = KeyValueFormat.parseIntString(ofNullableBytes(shortAuthors, longAuthors));
-    dates = KeyValueFormat.parseIntString(ofNullableBytes(shortDates, longDates));
+    this.revisions = KeyValueFormat.parseIntString(revisions);
+    this.authors = KeyValueFormat.parseIntString(authors);
+    this.dates = KeyValueFormat.parseIntString(dates);
+    this.hits = KeyValueFormat.parseIntString(hits);
+    this.conditions = KeyValueFormat.parseIntString(conditions);
+    this.coveredConditions = KeyValueFormat.parseIntString(coveredConditions);
   }
 
   String[] getSourceData() {
@@ -65,7 +66,9 @@ class FileSourceDto {
       line++;
       sourceLine = sourceSplitter.next();
       lineHashes.append(lineChecksum(sourceLine)).append("\n");
-      csv.values(revisions.get(line), authors.get(line), dates.get(line), highlighting, sourceLine);
+      csv.values(revisions.get(line), authors.get(line), dates.get(line),
+        hits.get(line), conditions.get(line), coveredConditions.get(line),
+        highlighting, sourceLine);
     }
     csv.close();
     return new String[] {new String(output.toByteArray(), UTF_8), lineHashes.toString()};
@@ -79,17 +82,4 @@ class FileSourceDto {
     return DigestUtils.md5Hex(reducedLine);
   }
 
-  private static String ofNullableBytes(@Nullable byte[] shortBytes, @Nullable byte[] longBytes) {
-    byte[] result;
-    if (shortBytes == null) {
-      if (longBytes == null) {
-        return "";
-      } else {
-        result = longBytes;
-      }
-    } else {
-      result = shortBytes;
-    }
-    return new String(result, UTF_8);
-  }
 }

@@ -112,7 +112,8 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     String relativePathSame = "src/same.java";
     java.io.File sameFile = new java.io.File(basedir, relativePathSame);
     FileUtils.write(sameFile, "unchanged\ncontent");
-    DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathSame).setLines(2).setAbsolutePath(sameFile.getAbsolutePath());
+    DefaultInputFile inputFileNew = new DefaultInputFile(PROJECT_KEY, relativePathSame).setLines(2).setAbsolutePath(sameFile.getAbsolutePath())
+      .setLineHashes(new String[] {"foo", "bar"});
     when(inputPathCache.all()).thenReturn(Arrays.<InputPath>asList(inputFileNew));
 
     mockResourceCache(relativePathSame, PROJECT_KEY, "uuidsame");
@@ -143,9 +144,9 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(DateUtils.parseDateTime("2014-10-10T16:44:02+0200").getTime());
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
-      ",,,,changed\r\n,,,,content\r\n");
+      ",,,,,,,changed\r\n,,,,,,,content\r\n");
     assertThat(fileSourceDto.getLineHashes()).isEqualTo("foo\nbar");
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("e41cca9c51ff853c748f708f39dfc035");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("54f7fa51128a7ee577a476974c56568c");
   }
 
   @Test
@@ -187,14 +188,14 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
-      ",,,,foo\r\n,,,,bar\r\n,,,,biz\r\n");
+      ",,,,,,,foo\r\n,,,,,,,bar\r\n,,,,,,,biz\r\n");
     assertThat(fileSourceDto.getLineHashes()).isEqualTo("foo\nbar\nbee");
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("0c43ed6418d690ee0ffc3e43e6660967");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("419c2b162018f6bbeb04fc0500d7852d");
 
   }
 
   @Test
-  public void testPersistNewFileWithScmAndHighlighting() throws Exception {
+  public void testPersistNewFileWithScmAndCoverageAndHighlighting() throws Exception {
     setupData("file_sources");
     Date now = DateUtils.parseDateTime("2014-10-29T16:44:02+0100");
     when(system2.newDate()).thenReturn(now);
@@ -217,6 +218,12 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE, "1=2014-10-11T16:44:02+0100;2=2014-10-12T16:44:02+0100;3=2014-10-13T16:44:02+0100")));
     when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.SCM_REVISIONS_BY_LINE_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.SCM_REVISIONS_BY_LINE, "1=123;2=234;3=345")));
+    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY))
+      .thenReturn(Arrays.asList(new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "1=1;3=0")));
+    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.CONDITIONS_BY_LINE_KEY))
+      .thenReturn(Arrays.asList(new Measure(CoreMetrics.CONDITIONS_BY_LINE, "1=4")));
+    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY))
+      .thenReturn(Arrays.asList(new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "1=2")));
 
     SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
       .registerHighlightingRule(0, 3, TypeOfText.ANNOTATION)
@@ -233,10 +240,10 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getLineHashes()).isEqualTo("foo\nbar\nbee");
     assertThat(fileSourceDto.getData()).isEqualTo(
-      "123,julien,2014-10-11T16:44:02+0100,\"0,3,a\",foo\r\n"
-        + "234,simon,2014-10-12T16:44:02+0100,\"0,1,cd\",bar\r\n"
-        + "345,julien,2014-10-13T16:44:02+0100,\"0,9,c\",biz\r\n");
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("a2aaee165e33957a67331fb9f869e0f1");
+      "123,julien,2014-10-11T16:44:02+0100,1,4,2,\"0,3,a\",foo\r\n"
+        + "234,simon,2014-10-12T16:44:02+0100,,,,\"0,1,cd\",bar\r\n"
+        + "345,julien,2014-10-13T16:44:02+0100,0,,,\"0,9,c\",biz\r\n");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("66cf8a9176f59672044663f48a19989c");
   }
 
   @Test
