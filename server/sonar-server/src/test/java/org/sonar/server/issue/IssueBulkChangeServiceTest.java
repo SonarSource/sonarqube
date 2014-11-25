@@ -103,7 +103,7 @@ public class IssueBulkChangeServiceTest {
 
     file = new ComponentDto()
       .setId(2L)
-      .setSubProjectId(project.getId())
+      .setParentProjectId(project.getId())
       .setKey("MyComponent")
       .setLongName("My Component");
     when(componentDao.getByKeys(dbSession, newHashSet(file.key()))).thenReturn(newArrayList(file));

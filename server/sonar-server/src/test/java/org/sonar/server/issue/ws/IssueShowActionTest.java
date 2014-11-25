@@ -164,7 +164,7 @@ public class IssueShowActionTest {
       .setLongName("SonarQube :: Issue Client")
       .setName("SonarQube :: Issue Client")
       .setQualifier("FIL")
-      .setSubProjectId(1L);
+      .setParentProjectId(1L);
     when(componentDao.getByUuid(session, file.uuid())).thenReturn(file);
 
     DefaultIssue issue = new DefaultIssue()
@@ -204,7 +204,7 @@ public class IssueShowActionTest {
       .setKey("org.sonar.server.Server")
       .setLongName("SonarQube :: Server")
       .setQualifier("BRC")
-      .setSubProjectId(1L);
+      .setParentProjectId(1L);
     when(componentDao.getNullableById(module.getId(), session)).thenReturn(module);
 
     // File
@@ -213,7 +213,7 @@ public class IssueShowActionTest {
       .setKey("org.sonar.server.issue.IssueClient")
       .setLongName("SonarQube :: Issue Client")
       .setQualifier("FIL")
-      .setSubProjectId(2L);
+      .setParentProjectId(2L);
     when(componentDao.getByUuid(session, file.uuid())).thenReturn(file);
 
     DefaultIssue issue = new DefaultIssue()
@@ -256,7 +256,7 @@ public class IssueShowActionTest {
       .setName("SonarQube :: Server")
       .setLongName(null)
       .setQualifier("BRC")
-      .setSubProjectId(1L);
+      .setParentProjectId(1L);
     when(componentDao.getNullableById(module.getId(), session)).thenReturn(module);
 
     // File
@@ -265,7 +265,7 @@ public class IssueShowActionTest {
       .setKey("org.sonar.server.issue.IssueClient")
       .setLongName("SonarQube :: Issue Client")
       .setQualifier("FIL")
-      .setSubProjectId(2L);
+      .setParentProjectId(2L);
     when(componentDao.getByUuid(session, file.uuid())).thenReturn(file);
 
     DefaultIssue issue = new DefaultIssue()
@@ -308,7 +308,7 @@ public class IssueShowActionTest {
       .setLongName("SonarQube :: Issue Client")
       .setName("SonarQube :: Issue Client")
       .setQualifier("FIL")
-      .setSubProjectId(1L);
+      .setParentProjectId(1L);
     when(componentDao.getByUuid(session, file.uuid())).thenReturn(file);
 
     DefaultIssue issue = createIssue()
@@ -515,7 +515,7 @@ public class IssueShowActionTest {
       .setLongName("SonarQube :: Issue Client")
       .setName("SonarQube :: Issue Client")
       .setQualifier("FIL")
-      .setSubProjectId(1L);
+      .setParentProjectId(1L);
     when(componentDao.getByUuid(session, file.uuid())).thenReturn(file);
 
     return createIssue()

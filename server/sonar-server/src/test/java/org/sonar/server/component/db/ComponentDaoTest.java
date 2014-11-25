@@ -68,7 +68,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.uuid()).isEqualTo("KLMN");
     assertThat(result.moduleUuid()).isEqualTo("EFGH");
     assertThat(result.moduleUuidPath()).isEqualTo("ABCD.EFGH.");
-    assertThat(result.subProjectId()).isEqualTo(2);
+    assertThat(result.parentProjectId()).isEqualTo(2);
     assertThat(result.projectUuid()).isEqualTo("ABCD");
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
@@ -108,7 +108,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.qualifier()).isEqualTo("FIL");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
-    assertThat(result.subProjectId()).isEqualTo(2);
+    assertThat(result.parentProjectId()).isEqualTo(2);
 
     assertThat(dao.getNullableByKey(session, "unknown")).isNull();
   }
@@ -136,7 +136,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.qualifier()).isEqualTo("TRK");
     assertThat(result.scope()).isEqualTo("PRJ");
     assertThat(result.language()).isNull();
-    assertThat(result.subProjectId()).isNull();
+    assertThat(result.parentProjectId()).isNull();
     assertThat(result.getAuthorizationUpdatedAt()).isEqualTo(123456789L);
   }
 
@@ -156,7 +156,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.qualifier()).isEqualTo("FIL");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
-    assertThat(result.subProjectId()).isEqualTo(2);
+    assertThat(result.parentProjectId()).isEqualTo(2);
 
     assertThat(dao.getByKeys(session, "unknown")).isEmpty();
   }
@@ -173,7 +173,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.uuid()).isEqualTo("KLMN");
     assertThat(result.moduleUuid()).isEqualTo("EFGH");
     assertThat(result.moduleUuidPath()).isEqualTo("ABCD.EFGH.");
-    assertThat(result.subProjectId()).isEqualTo(2);
+    assertThat(result.parentProjectId()).isEqualTo(2);
     assertThat(result.projectUuid()).isEqualTo("ABCD");
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
@@ -348,7 +348,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
       .setScope("FIL")
       .setLanguage("java")
       .setPath("src/org/struts/RequestContext.java")
-      .setSubProjectId(3L)
+      .setParentProjectId(3L)
       .setEnabled(true)
       .setAuthorizationUpdatedAt(123456789L);
 
@@ -377,7 +377,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
       .setScope("FIL")
       .setLanguage("java")
       .setPath("src/org/struts/RequestContext.java")
-      .setSubProjectId(3L)
+      .setParentProjectId(3L)
       .setEnabled(false)
       .setAuthorizationUpdatedAt(123456789L);
 

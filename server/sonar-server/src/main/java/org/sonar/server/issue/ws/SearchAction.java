@@ -306,7 +306,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       List<ComponentDto> subProjectDtos = dbClient.componentDao().findSubProjectsByComponentUuids(session, componentUuids);
       componentDtos.addAll(fileDtos);
       componentDtos.addAll(subProjectDtos);
-      for (ComponentDto component: componentDtos) {
+      for (ComponentDto component : componentDtos) {
         projectUuids.add(component.projectUuid());
       }
 
@@ -388,11 +388,11 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     Collection<FacetValue> facetValues = results.getFacetValues(facetName);
     if (facetValues != null) {
       Map<String, Long> valuesByItem = Maps.newHashMap();
-      for (FacetValue value: facetValues) {
+      for (FacetValue value : facetValues) {
         valuesByItem.put(value.getKey(), value.getValue());
       }
       List<String> valuesToAdd = mandatoryValues == null ? Lists.<String>newArrayList() : mandatoryValues;
-      for (String item: valuesToAdd) {
+      for (String item : valuesToAdd) {
         if (!valuesByItem.containsKey(item)) {
           facetValues.add(new FacetValue(item, 0));
         }
@@ -400,7 +400,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
     }
   }
 
-  private void collectFacetsData(Request request, Result<Issue> result, Set<String> projectUuids, Set<String> componentUuids, List<String> userLogins, Set<String> actionPlanKeys){
+  private void collectFacetsData(Request request, Result<Issue> result, Set<String> projectUuids, Set<String> componentUuids, List<String> userLogins, Set<String> actionPlanKeys) {
     collectFacetKeys(result, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
     collectParameterValues(request, IssueFilterParameters.PROJECT_UUIDS, projectUuids);
     collectFacetKeys(result, IssueFilterParameters.COMPONENT_UUIDS, componentUuids);
@@ -417,7 +417,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   private void collectFacetKeys(Result<Issue> result, String facetName, Collection<String> facetKeys) {
     Collection<FacetValue> facetValues = result.getFacetValues(facetName);
     if (facetValues != null) {
-      for (FacetValue project: facetValues) {
+      for (FacetValue project : facetValues) {
         facetKeys.add(project.getKey());
       }
     }
@@ -609,9 +609,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         .prop("name", component.name())
         .prop("longName", component.longName())
         .prop("path", component.path())
-        // On a root project, subProjectId is null but projectId is equal to itself, which make no sense.
-        .prop("projectId", (component.projectUuid() != null && component.subProjectId() != null) ? project.getId() : null)
-        .prop("subProjectId", component.subProjectId())
+        // On a root project, parentProjectId is null but projectId is equal to itself, which make no sense.
+        .prop("projectId", (component.projectUuid() != null && component.parentProjectId() != null) ? project.getId() : null)
+        // TODO should be renamed to parentProjectId
+        .prop("subProjectId", component.parentProjectId())
         .endObject();
     }
     json.endArray();
@@ -647,7 +648,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
   private void writeLanguages(JsonWriter json) {
     json.name("languages").beginArray();
-    for (Language language: languages.all()) {
+    for (Language language : languages.all()) {
       json.beginObject()
         .prop("key", language.getKey())
         .prop("name", language.getName())

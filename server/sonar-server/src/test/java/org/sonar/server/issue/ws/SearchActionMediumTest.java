@@ -98,7 +98,7 @@ public class SearchActionMediumTest {
 
     file = ComponentTesting.newFileDto(project).setUuid("BCDE")
       .setKey("MyComponent")
-      .setSubProjectId(project.getId());
+      .setParentProjectId(project.getId());
     db.componentDao().insert(session, file);
     SnapshotDto snapshot = db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, project));
     SnapshotSourceDto snapshotSource = new SnapshotSourceDto().setSnapshotId(snapshot.getId()).setData("First Line\n"
@@ -110,7 +110,7 @@ public class SearchActionMediumTest {
 
     otherFile = ComponentTesting.newFileDto(project).setUuid("FEDC")
       .setKey("OtherComponent")
-      .setSubProjectId(project.getId());
+      .setParentProjectId(project.getId());
     db.componentDao().insert(session, otherFile);
     snapshot = db.snapshotDao().insert(session, SnapshotTesting.createForComponent(otherFile, project));
     snapshotSource = new SnapshotSourceDto().setSnapshotId(snapshot.getId()).setData("First Line\n"
@@ -205,7 +205,7 @@ public class SearchActionMediumTest {
 
     ComponentDto file2 = ComponentTesting.newFileDto(project2).setUuid("EDCB")
       .setKey("MyComponent2")
-      .setSubProjectId(project2.getId());
+      .setParentProjectId(project2.getId());
     db.componentDao().insert(session, file2);
 
     IssueDto issue2 = IssueTesting.newDto(rule, file2, project2)
@@ -316,7 +316,7 @@ public class SearchActionMediumTest {
     ComponentDto removedFile = ComponentTesting.newFileDto(project).setUuid("EDCB")
       .setEnabled(false)
       .setKey("RemovedComponent")
-      .setSubProjectId(project.getId());
+      .setParentProjectId(project.getId());
     db.componentDao().insert(session, removedFile);
 
     IssueDto issue = IssueTesting.newDto(rule, removedFile, project)
@@ -430,7 +430,7 @@ public class SearchActionMediumTest {
 
     ComponentDto module = ComponentTesting.newFileDto(project).setKey("ModuleHavingFile")
       .setScope("PRJ")
-      .setSubProjectId(project.getId());
+      .setParentProjectId(project.getId());
     db.componentDao().insert(session, module);
     db.snapshotDao().insert(session, SnapshotTesting.createForComponent(module, project));
 

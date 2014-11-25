@@ -170,14 +170,15 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("longName", component.longName());
     json.prop("q", component.qualifier());
 
-    ComponentDto subProject = nullableComponentById(component.subProjectId(), session);
+    ComponentDto parentProject = nullableComponentById(component.parentProjectId(), session);
     ComponentDto project = dbClient.componentDao().getByUuid(session, component.projectUuid());
 
-    // Do not display sub project if sub project and project are the same
-    boolean displaySubProject = subProject != null && !subProject.getId().equals(project.getId());
+    // Do not display parent project if parent project and project are the same
+    boolean displayParentProject = parentProject != null && !parentProject.getId().equals(project.getId());
 
-    json.prop("subProject", displaySubProject ? subProject.key() : null);
-    json.prop("subProjectName", displaySubProject ? subProject.longName() : null);
+    // TODO WS should return parentProject and parentProjectName instead of sub
+    json.prop("subProject", displayParentProject ? parentProject.key() : null);
+    json.prop("subProjectName", displayParentProject ? parentProject.longName() : null);
     json.prop("project", project.key());
     json.prop("projectName", project.longName());
 
@@ -381,6 +382,7 @@ public class ComponentAppAction implements RequestHandler {
     }
     return null;
   }
+
   @CheckForNull
   private String formatMeasureOrVariation(@Nullable MeasureDto measure, @Nullable Integer periodIndex) {
     if (periodIndex == null) {

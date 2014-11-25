@@ -167,15 +167,15 @@ public class IssueShowAction implements RequestHandler {
 
   private void addComponents(DbSession session, Issue issue, JsonWriter json) {
     ComponentDto component = dbClient.componentDao().getByUuid(session, issue.componentUuid());
-    Long subProjectId = component.subProjectId();
-    ComponentDto subProject = subProjectId != null ? dbClient.componentDao().getNullableById(subProjectId, session) : null;
+    Long parentProjectId = component.parentProjectId();
+    ComponentDto parentProject = parentProjectId != null ? dbClient.componentDao().getNullableById(parentProjectId, session) : null;
     ComponentDto project = dbClient.componentDao().getByUuid(session, component.projectUuid());
 
     String projectName = project.longName() != null ? project.longName() : project.name();
     // Do not display sub project long name if sub project and project are the same
-    boolean displaySubProjectLongName = subProject != null && !subProject.getId().equals(project.getId());
-    String subProjectKey = displaySubProjectLongName ? subProject.key() : null;
-    String subProjectName = displaySubProjectLongName ? subProject.longName() != null ? subProject.longName() : subProject.name() : null;
+    boolean displayParentProjectLongName = parentProject != null && !parentProject.getId().equals(project.getId());
+    String parentProjectKey = displayParentProjectLongName ? parentProject.key() : null;
+    String parentProjectName = displayParentProjectLongName ? parentProject.longName() != null ? parentProject.longName() : parentProject.name() : null;
 
     json
       .prop("component", component.key())
@@ -184,8 +184,9 @@ public class IssueShowAction implements RequestHandler {
       .prop("componentEnabled", component.isEnabled())
       .prop("project", project.key())
       .prop("projectName", projectName)
-      .prop("subProject", subProjectKey)
-      .prop("subProjectName", subProjectName);
+      //TODO replace subProject names by parentProject
+      .prop("subProject", parentProjectKey)
+      .prop("subProjectName", parentProjectName);
   }
 
   private void writeComments(Issue issue, JsonWriter json) {

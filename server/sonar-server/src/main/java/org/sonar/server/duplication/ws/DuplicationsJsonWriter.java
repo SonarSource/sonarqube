@@ -85,7 +85,7 @@ public class DuplicationsJsonWriter implements ServerComponent {
 
   private void writeFiles(Map<String, String> refByComponentKey, JsonWriter json, DbSession session) {
     Map<String, ComponentDto> projectsByUuid = newHashMap();
-    Map<Long, ComponentDto> subProjectsById = newHashMap();
+    Map<Long, ComponentDto> parentProjectsById = newHashMap();
     for (Map.Entry<String, String> entry : refByComponentKey.entrySet()) {
       String componentKey = entry.getKey();
       String ref = entry.getValue();
@@ -95,8 +95,8 @@ public class DuplicationsJsonWriter implements ServerComponent {
 
         addFile(json, file);
         ComponentDto project = getProject(file.projectUuid(), projectsByUuid, session);
-        ComponentDto subProject = getSubProject(file.subProjectId(), subProjectsById, session);
-        addProject(json, project, subProject);
+        ComponentDto parentProject = getParentProject(file.parentProjectId(), parentProjectsById, session);
+        addProject(json, project, parentProject);
 
         json.endObject();
       }
@@ -133,7 +133,7 @@ public class DuplicationsJsonWriter implements ServerComponent {
     return project;
   }
 
-  private ComponentDto getSubProject(@Nullable Long projectId, Map<Long, ComponentDto> subProjectsById, DbSession session) {
+  private ComponentDto getParentProject(@Nullable Long projectId, Map<Long, ComponentDto> subProjectsById, DbSession session) {
     ComponentDto project = subProjectsById.get(projectId);
     if (project == null && projectId != null) {
       project = componentDao.getNullableById(projectId, session);

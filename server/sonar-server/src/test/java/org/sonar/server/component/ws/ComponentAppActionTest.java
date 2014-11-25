@@ -159,7 +159,7 @@ public class ComponentAppActionTest {
       .setName("Plugin.java")
       .setLongName("src/main/java/org/sonar/api/Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java")
-      .setSubProjectId(5L);
+      .setParentProjectId(5L);
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
     when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
     when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
@@ -192,7 +192,7 @@ public class ComponentAppActionTest {
       .setName("Plugin.java")
       .setLongName(null)
       .setPath("src/main/java/org/sonar/api/Plugin.java")
-      .setSubProjectId(1L);
+      .setParentProjectId(1L);
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
     when(componentDao.getById(project.getId(), session)).thenReturn(project);
     when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
@@ -328,7 +328,7 @@ public class ComponentAppActionTest {
       .setLongName(null)
       .setKey(componentKey).setName("PlanActionTest.java")
       .setPath("src/test/java/org/sonar/server/issue/PlanActionTest.java")
-      .setSubProjectId(5L);
+      .setParentProjectId(5L);
     when(componentDao.getNullableByKey(session, componentKey)).thenReturn(file);
     when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
     when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);
@@ -505,7 +505,7 @@ public class ComponentAppActionTest {
       .setName("Plugin.java")
       .setLongName("src/main/java/org/sonar/api/Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java")
-      .setSubProjectId(5L);
+      .setParentProjectId(5L);
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
     when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
     when(componentDao.getByUuid(session, project.uuid())).thenReturn(project);

@@ -44,7 +44,7 @@ public class ComponentDto extends Dto<String> implements Component {
   private String name;
   private String longName;
   private String language;
-  private Long subProjectId;
+  private Long parentProjectId;
   private boolean enabled = true;
   private Long authorizationUpdatedAt;
 
@@ -180,12 +180,12 @@ public class ComponentDto extends Dto<String> implements Component {
   }
 
   @CheckForNull
-  public Long subProjectId() {
-    return subProjectId;
+  public Long parentProjectId() {
+    return parentProjectId;
   }
 
-  public ComponentDto setSubProjectId(@Nullable Long subProjectId) {
-    this.subProjectId = subProjectId;
+  public ComponentDto setParentProjectId(@Nullable Long parentProjectId) {
+    this.parentProjectId = parentProjectId;
     return this;
   }
 

@@ -15,7 +15,7 @@
     p.qualifier as qualifier,
     p.scope as scope,
     p.language as language,
-    p.root_id as subProjectId,
+    p.root_id as parentProjectId,
     p.path as path,
     p.enabled as enabled,
     p.authorization_updated_at as authorizationUpdatedAt,
@@ -149,7 +149,7 @@
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into projects <include refid="insertColumns"/>
     values (#{kee}, #{deprecatedKey}, #{uuid}, #{projectUuid}, #{moduleUuid}, #{moduleUuidPath}, #{name}, #{longName}, #{qualifier}, #{scope},
-      #{language}, #{subProjectId}, #{path}, #{enabled}, #{createdAt}, #{authorizationUpdatedAt})
+      #{language}, #{parentProjectId}, #{path}, #{enabled}, #{createdAt}, #{authorizationUpdatedAt})
   </insert>
 
   <delete id="deleteByKey" parameterType="String">
