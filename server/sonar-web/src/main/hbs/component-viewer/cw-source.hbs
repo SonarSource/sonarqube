@@ -38,24 +38,7 @@
       {{#if show}}
         <tr class="row" data-line-number="{{lineNumber}}" id="{{../../uid}}-{{lineNumber}}">
 
-          {{#if ../../settings.scm}}
-            <td class="stat {{#if scm}}scm{{/if}}">
-              {{#if scm}}
-                {{#ifSCMChanged ../../../../source ../../../lineNumber}}
-                  <span class="scm-date">{{scm.date}}</span>
-                  <span class="scm-author" title="{{scm.author}}">{{scm.author}}</span>
-                {{/ifSCMChanged}}
-              {{/if}}
-            </td>
-          {{/if}}
-
-          {{#if ../../settings.duplications}}
-            <td class="stat duplications">
-              {{#each duplications}}
-                <span class="duplication {{#if this}}duplication-exists{{/if}}" data-index="{{this}}"></span>
-              {{/each}}
-            </td>
-          {{/if}}
+          <td class="stat lid js-line-actions" title="{{t 'component_viewer.line_actions'}}">{{lineNumber}}</td>
 
           {{#if ../../settings.coverage}}
             <td class="stat {{#if coverage}}coverage-{{#if coverage.covered}}green{{else}}red{{/if}}{{/if}}">
@@ -77,7 +60,23 @@
             </td>
           {{/if}}
 
-          <td class="stat lid js-line-actions" title="{{t 'component_viewer.line_actions'}}">{{lineNumber}}</td>
+          {{#if ../../settings.duplications}}
+            <td class="stat duplications">
+              {{#each duplications}}
+                <span class="duplication {{#if this}}duplication-exists{{/if}}" data-index="{{this}}"></span>
+              {{/each}}
+            </td>
+          {{/if}}
+
+          {{#if ../../settings.scm}}
+            <td class="stat {{#if scm}}scm{{/if}}">
+              {{#if scm}}
+                {{#ifSCMChanged ../../../../source ../../../lineNumber}}
+                  <span class="scm-author" title="{{dt scm.date}}&#013;{{scm.author}}">{{scm.author}}</span>
+                {{/ifSCMChanged}}
+              {{/if}}
+            </td>
+          {{/if}}
 
           <td class="line"><pre>{{{code}}}</pre></td>
         </tr>
