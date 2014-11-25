@@ -165,7 +165,7 @@ class IssueAuthorizationDao {
   private PreparedStatement createStatement(DbClient dbClient, Connection connection, long afterDate) throws SQLException {
     String sql;
     if (afterDate > 0L) {
-      sql = StringUtils.replace(SQL_TEMPLATE, "{dateCondition}", " AND projects.authorization_updated_at>=? ");
+      sql = StringUtils.replace(SQL_TEMPLATE, "{dateCondition}", " AND projects.authorization_updated_at>? ");
     } else {
       sql = StringUtils.replace(SQL_TEMPLATE, "{dateCondition}", "");
     }

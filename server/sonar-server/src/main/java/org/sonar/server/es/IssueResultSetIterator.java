@@ -77,7 +77,7 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "inner join projects p on p.id=i.component_id " +
     "inner join projects root on root.id=i.root_component_id";
 
-  private static final String SQL_AFTER_DATE = SQL_ALL + " where i.updated_at>=?";
+  private static final String SQL_AFTER_DATE = SQL_ALL + " where i.updated_at>?";
 
   static IssueResultSetIterator create(DbClient dbClient, Connection connection, long afterDate) {
     try {
