@@ -279,18 +279,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       }
     }
 
-    Collection<FacetValue> facetRules = result.getFacetValues(IssueFilterParameters.RULES);
-    if (facetRules != null) {
-      for (FacetValue rule: facetRules) {
-        ruleKeys.add(RuleKey.parse(rule.getKey()));
-      }
-    }
-    List<String> rulesFromRequest = request.paramAsStrings(IssueFilterParameters.RULES);
-    if (rulesFromRequest != null ) {
-      for (String ruleKey: rulesFromRequest) {
-        ruleKeys.add(RuleKey.parse(ruleKey));
-      }
-    }
+    collectRuleKeys(request, result, ruleKeys);
 
     collectFacetsData(request, result, projectUuids, componentUuids, userLogins, actionPlanKeys);
 
@@ -340,6 +329,21 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
     // TODO remove legacy paging. Handled by the SearchRequestHandler
     writeLegacyPaging(context, json, result);
+  }
+
+  private void collectRuleKeys(Request request, Result<Issue> result, Set<RuleKey> ruleKeys) {
+    Collection<FacetValue> facetRules = result.getFacetValues(IssueFilterParameters.RULES);
+    if (facetRules != null) {
+      for (FacetValue rule: facetRules) {
+        ruleKeys.add(RuleKey.parse(rule.getKey()));
+      }
+    }
+    List<String> rulesFromRequest = request.paramAsStrings(IssueFilterParameters.RULES);
+    if (rulesFromRequest != null ) {
+      for (String ruleKey: rulesFromRequest) {
+        ruleKeys.add(RuleKey.parse(ruleKey));
+      }
+    }
   }
 
   @Override
@@ -469,7 +473,13 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
 
       String actionPlanKey = issue.actionPlanKey();
       ComponentDto file = componentsByUuid.get(issue.componentUuid());
-      ComponentDto project = file != null ? projectsByComponentUuid.get(file.uuid()) : null;
+      ComponentDto project = null, subProject = null;
+      if (file != null) {
+        project = projectsByComponentUuid.get(file.uuid());
+        if (! file.projectUuid().equals(file.moduleUuid())) {
+          subProject = componentsByUuid.get(file.moduleUuid());
+        }
+      }
       Duration debt = issue.debt();
       Date updateDate = issue.updateDate();
 
@@ -479,6 +489,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         // Only used for the compatibility with the Issues Java WS Client <= 4.4 used by Eclipse
         .prop("componentId", file != null ? file.getId() : null)
         .prop("project", project != null ? project.getKey() : null)
+        .prop("subProject", subProject != null ? subProject.getKey() : null)
         .prop("rule", issue.ruleKey().toString())
         .prop("status", issue.status())
         .prop("resolution", issue.resolution())
@@ -548,23 +559,35 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
         actionsWriter.writeTransitions(issue, json);
       }
 
-      String assignee = issue.assignee();
-      if (extraFields.contains(ASSIGNEE_NAME_EXTRA_FIELD) && assignee != null) {
-        User user = usersByLogin.get(assignee);
-        json.prop(ASSIGNEE_NAME_EXTRA_FIELD, user != null ? user.name() : null);
-      }
+      writeAssigneeIfNeeded(issue, usersByLogin, extraFields, json);
 
-      String reporter = issue.reporter();
-      if (extraFields.contains(REPORTER_NAME_EXTRA_FIELD) && reporter != null) {
-        User user = usersByLogin.get(reporter);
-        json.prop(REPORTER_NAME_EXTRA_FIELD, user != null ? user.name() : null);
-      }
+      writeReporterIfNeeded(issue, usersByLogin, extraFields, json);
 
-      String actionPlanKey = issue.actionPlanKey();
-      if (extraFields.contains(ACTION_PLAN_NAME_EXTRA_FIELD) && actionPlanKey != null) {
-        ActionPlan actionPlan = actionPlanByKeys.get(actionPlanKey);
-        json.prop(ACTION_PLAN_NAME_EXTRA_FIELD, actionPlan != null ? actionPlan.name() : null);
-      }
+      writeActionPlanIfNeeded(issue, actionPlanByKeys, extraFields, json);
+    }
+  }
+
+  private void writeAssigneeIfNeeded(Issue issue, Map<String, User> usersByLogin, List<String> extraFields, JsonWriter json) {
+    String assignee = issue.assignee();
+    if (extraFields.contains(ASSIGNEE_NAME_EXTRA_FIELD) && assignee != null) {
+      User user = usersByLogin.get(assignee);
+      json.prop(ASSIGNEE_NAME_EXTRA_FIELD, user != null ? user.name() : null);
+    }
+  }
+
+  private void writeReporterIfNeeded(Issue issue, Map<String, User> usersByLogin, List<String> extraFields, JsonWriter json) {
+    String reporter = issue.reporter();
+    if (extraFields.contains(REPORTER_NAME_EXTRA_FIELD) && reporter != null) {
+      User user = usersByLogin.get(reporter);
+      json.prop(REPORTER_NAME_EXTRA_FIELD, user != null ? user.name() : null);
+    }
+  }
+
+  private void writeActionPlanIfNeeded(Issue issue, Map<String, ActionPlan> actionPlanByKeys, List<String> extraFields, JsonWriter json) {
+    String actionPlanKey = issue.actionPlanKey();
+    if (extraFields.contains(ACTION_PLAN_NAME_EXTRA_FIELD) && actionPlanKey != null) {
+      ActionPlan actionPlan = actionPlanByKeys.get(actionPlanKey);
+      json.prop(ACTION_PLAN_NAME_EXTRA_FIELD, actionPlan != null ? actionPlan.name() : null);
     }
   }
 
