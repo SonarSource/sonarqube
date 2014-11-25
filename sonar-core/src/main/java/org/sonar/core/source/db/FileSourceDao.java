@@ -66,4 +66,8 @@ public class FileSourceDao implements BatchComponent, ServerComponent {
     }
   }
 
+  @CheckForNull
+  public String selectLineHashes(String fileUuid, DbSession session) {
+    return session.getMapper(FileSourceMapper.class).selectLineHashes(fileUuid);
+  }
 }

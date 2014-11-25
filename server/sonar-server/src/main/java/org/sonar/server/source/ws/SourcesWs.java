@@ -28,12 +28,14 @@ public class SourcesWs implements WebService {
   private final LinesAction show2Action;
   private final RawAction rawAction;
   private final ScmAction scmAction;
+  private final HashAction hashAction;
 
-  public SourcesWs(ShowAction showAction, RawAction rawAction, ScmAction scmAction, LinesAction show2Action) {
+  public SourcesWs(ShowAction showAction, RawAction rawAction, ScmAction scmAction, LinesAction show2Action, HashAction hashAction) {
     this.showAction = showAction;
     this.show2Action = show2Action;
     this.rawAction = rawAction;
     this.scmAction = scmAction;
+    this.hashAction = hashAction;
   }
 
   @Override
@@ -45,6 +47,7 @@ public class SourcesWs implements WebService {
     show2Action.define(controller);
     rawAction.define(controller);
     scmAction.define(controller);
+    hashAction.define(controller);
     controller.done();
   }
 }

@@ -61,7 +61,8 @@ public class LinesActionTest {
         mock(ShowAction.class),
         mock(RawAction.class),
         mock(ScmAction.class),
-        new LinesAction(sourceLineIndex)
+        new LinesAction(sourceLineIndex),
+        mock(HashAction.class)
       )
     );
   }

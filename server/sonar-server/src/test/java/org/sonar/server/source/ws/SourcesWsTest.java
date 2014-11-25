@@ -22,6 +22,7 @@ package org.sonar.server.source.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.source.index.SourceLineIndex;
@@ -36,7 +37,8 @@ public class SourcesWsTest {
   RawAction rawAction = new RawAction(mock(DbClient.class), mock(SourceService.class));
   ScmAction scmAction = new ScmAction(mock(SourceService.class), new ScmWriter());
   LinesAction linesAction = new LinesAction(mock(SourceLineIndex.class));
-  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, scmAction, linesAction));
+  HashAction hashAction = new HashAction(mock(DbClient.class), mock(FileSourceDao.class));
+  WsTester tester = new WsTester(new SourcesWs(showAction, rawAction, scmAction, linesAction, hashAction));
 
   @Test
   public void define_ws() throws Exception {
@@ -44,7 +46,7 @@ public class SourcesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("4.2");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(4);
+    assertThat(controller.actions()).hasSize(5);
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
@@ -77,5 +79,13 @@ public class SourcesWsTest {
     assertThat(index.isInternal()).isTrue();
     assertThat(index.responseExampleAsString()).isNotEmpty();
     assertThat(index.params()).hasSize(3);
+
+    WebService.Action hash = controller.action("hash");
+    assertThat(hash).isNotNull();
+    assertThat(hash.handler()).isSameAs(hashAction);
+    assertThat(hash.since()).isEqualTo("5.0");
+    assertThat(hash.isInternal()).isTrue();
+    assertThat(hash.responseExampleAsString()).isNotEmpty();
+    assertThat(hash.params()).hasSize(1);
   }
 }

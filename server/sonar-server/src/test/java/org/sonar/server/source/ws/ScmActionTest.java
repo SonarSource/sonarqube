@@ -34,7 +34,8 @@ public class ScmActionTest {
 
   SourceService sourceService = mock(SourceService.class);
   ScmWriter scmWriter = mock(ScmWriter.class);
-  WsTester tester = new WsTester(new SourcesWs(mock(ShowAction.class), mock(RawAction.class), new ScmAction(sourceService, scmWriter), mock(LinesAction.class)));
+  WsTester tester = new WsTester(new SourcesWs(mock(ShowAction.class), mock(RawAction.class), new ScmAction(sourceService, scmWriter), mock(LinesAction.class),
+    mock(HashAction.class)));
 
   @Test
   public void get_scm() throws Exception {

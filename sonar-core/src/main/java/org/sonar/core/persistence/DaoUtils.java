@@ -36,6 +36,7 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.rule.RuleDao;
+import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -61,6 +62,7 @@ public final class DaoUtils {
       AuthorizationDao.class,
       DashboardDao.class,
       DuplicationDao.class,
+      FileSourceDao.class,
       GraphDao.class,
       GroupMembershipDao.class,
       IssueDao.class,

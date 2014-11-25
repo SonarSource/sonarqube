@@ -28,6 +28,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.user.AuthorizationDao;
@@ -83,6 +84,7 @@ public class DbClient implements ServerComponent {
   private final DashboardDao dashboardDao;
   private final WidgetDao widgetDao;
   private final WidgetPropertyDao widgetPropertyDao;
+  private final FileSourceDao fileSourceDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -114,6 +116,7 @@ public class DbClient implements ServerComponent {
     dashboardDao = getDao(map, DashboardDao.class);
     widgetDao = getDao(map, WidgetDao.class);
     widgetPropertyDao = getDao(map, WidgetPropertyDao.class);
+    fileSourceDao = getDao(map, FileSourceDao.class);
   }
 
   public Database database() {
@@ -210,6 +213,10 @@ public class DbClient implements ServerComponent {
 
   public WidgetPropertyDao widgetPropertyDao() {
     return widgetPropertyDao;
+  }
+
+  public FileSourceDao fileSourceDao() {
+    return fileSourceDao;
   }
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {

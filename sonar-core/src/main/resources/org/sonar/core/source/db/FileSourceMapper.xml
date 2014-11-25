@@ -30,5 +30,11 @@
     where id = #{id}
   </update>
 
+  <select id="selectLineHashes" parameterType="string" resultType="String">
+    SELECT line_hashes
+    FROM file_sources
+    WHERE file_uuid = #{fileUuid}
+  </select>
+
 </mapper>
 

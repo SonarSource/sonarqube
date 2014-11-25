@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 
 import java.util.Date;
 
@@ -49,6 +50,19 @@ public class FileSourceDaoTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getFileUuid()).isEqualTo("ab12");
     assertThat(new Date(fileSourceDto.getCreatedAt())).isEqualTo(DateUtils.parseDateTime("2014-10-29T16:44:02+0100"));
     assertThat(new Date(fileSourceDto.getUpdatedAt())).isEqualTo(DateUtils.parseDateTime("2014-10-30T16:44:02+0100"));
+  }
+
+  @Test
+  public void selectLineHashes() throws Exception {
+    DbSession session = getMyBatis().openSession(false);
+    String lineHashes = null;
+    try {
+      lineHashes = dao.selectLineHashes("ab12", session);
+    } finally {
+      session.close();
+    }
+
+    assertThat(lineHashes).isEqualTo("truc");
   }
 
   @Test

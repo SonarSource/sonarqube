@@ -34,4 +34,7 @@ public interface FileSourceMapper {
   void insert(FileSourceDto dto);
 
   void update(FileSourceDto dto);
+
+  @CheckForNull
+  String selectLineHashes(String fileUuid);
 }
