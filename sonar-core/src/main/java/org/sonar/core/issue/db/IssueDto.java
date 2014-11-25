@@ -38,7 +38,6 @@ import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * @since 3.6

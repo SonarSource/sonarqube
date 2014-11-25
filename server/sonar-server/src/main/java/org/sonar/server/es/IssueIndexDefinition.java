@@ -88,7 +88,6 @@ public class IssueIndexDefinition implements IndexDefinition {
     // type "issueAuthorization"
     NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_ISSUE_AUTHORIZATION);
     authorizationMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_AUTHORIZATION_PROJECT_UUID));
-    //authorizationMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_AUTHORIZATION_PROJECT_UUID));
     authorizationMapping.createDateTimeField(FIELD_AUTHORIZATION_UPDATED_AT);
     authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_PROJECT_UUID).build();
     authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_GROUPS).build();

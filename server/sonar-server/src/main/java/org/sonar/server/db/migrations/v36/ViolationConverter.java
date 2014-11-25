@@ -37,7 +37,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 
 class ViolationConverter implements Callable<Object> {
@@ -72,7 +71,6 @@ class ViolationConverter implements Callable<Object> {
   private static final String REVIEW_TEXT = "reviewText";
   private static final String USER_ID = "userId";
   private static final String SEVERITY_MAJOR = "MAJOR";
-
 
   private static final String SQL_ISSUE_COLUMNS = "kee, component_id, root_component_id, rule_id, severity, manual_severity, message, line, effort_to_fix, status, resolution, " +
     "checksum, reporter, assignee, action_plan_key, issue_attributes, issue_creation_date, issue_update_date, created_at, updated_at";
@@ -135,12 +133,12 @@ class ViolationConverter implements Callable<Object> {
     // For each group of 1000 violation ids:
     // - load related violations, reviews and action plans
     // - in a transaction
-    //   -- insert issues
-    //   -- insert issue_changes if there are review comments
-    //   -- delete violations
+    // -- insert issues
+    // -- insert issue_changes if there are review comments
+    // -- delete violations
 
     Long[] violationIds = referentials.pollGroupOfViolationIds();
-    while (violationIds.length>0) {
+    while (violationIds.length > 0) {
       List<Map<String, Object>> rows = selectRows(violationIds);
       convert(rows, violationIds);
 
@@ -263,7 +261,6 @@ class ViolationConverter implements Callable<Object> {
     }
   }
 
-
   private static class ReviewCommentsHandler extends AbstractListHandler<Map<String, Object>> {
     static final String SQL = "select created_at as createdAt, updated_at as updatedAt, user_id as userId, review_text as reviewText from review_comments where review_id=";
 
@@ -280,7 +277,6 @@ class ViolationConverter implements Callable<Object> {
 
   private static class ViolationHandler extends AbstractListHandler<Map<String, Object>> {
     private static final Map<Integer, String> SEVERITIES = ImmutableMap.of(0, Severity.INFO, 1, Severity.MINOR, 2, Severity.MAJOR, 3, Severity.CRITICAL, 4, Severity.BLOCKER);
-
 
     @Override
     protected Map<String, Object> handleRow(ResultSet rs) throws SQLException {

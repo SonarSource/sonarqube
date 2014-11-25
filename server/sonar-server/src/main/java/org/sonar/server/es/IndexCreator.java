@@ -54,12 +54,10 @@ public class IndexCreator implements ServerComponent, Startable {
     // create indices that do not exist or that have a new definition (different mapping, cluster enabled, ...)
     for (IndexRegistry.Index index : registry.getIndices().values()) {
       boolean exists = client.prepareExists(index.getName()).get().isExists();
-      if (exists) {
-        if (needsToDeleteIndex(index)) {
-          LOGGER.info(String.format("Delete index %s (settings changed)", index.getName()));
-          deleteIndex(index.getName());
-          exists = false;
-        }
+      if (exists && needsToDeleteIndex(index)) {
+        LOGGER.info(String.format("Delete index %s (settings changed)", index.getName()));
+        deleteIndex(index.getName());
+        exists = false;
       }
       if (!exists) {
         createIndex(index);
