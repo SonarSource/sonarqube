@@ -7,6 +7,6 @@ define [
   class extends Backbone.Model
 
     defaults:
-      hasSourceBefore: true
-      hasSourceAfter: true
+      hasSourceBefore: false
+      hasSourceAfter: false
 
