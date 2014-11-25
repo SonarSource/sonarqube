@@ -31,6 +31,7 @@ define [
 
         if component
           _.extend issue,
+            componentUuid: component.uuid
             componentLongName: component.longName
             componentQualifier: component.qualifier
 

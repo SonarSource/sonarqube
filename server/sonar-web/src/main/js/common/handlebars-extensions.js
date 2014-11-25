@@ -403,6 +403,17 @@ define(['handlebars'], function (Handlebars) {
     return changed ? options.fn(this) : options.inverse(this);
   });
 
+  Handlebars.registerHelper('ifSCMChanged2', function(source, line, options) {
+    var currentLine = _.findWhere(source, { line: line }),
+        prevLine = _.findWhere(source, { line: line - 1 }),
+        changed = true;
+    if (currentLine && prevLine && currentLine.scmAuthor && prevLine.scmAuthor) {
+      changed = (currentLine.scmAuthor !== prevLine.scmAuthor)
+          || (currentLine.scmDate !== prevLine.scmDate);
+    }
+    return changed ? options.fn(this) : options.inverse(this);
+  });
+
   Handlebars.registerHelper('ifTestData', function(test, options) {
     if ((test.status !== 'OK') || ((test.status === 'OK') && test.coveredLines)) {
       return options.fn(this);

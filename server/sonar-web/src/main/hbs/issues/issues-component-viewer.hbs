@@ -5,8 +5,15 @@
 
   <table class="code">
     {{#each source}}
-      <tr class="row" data-line-number="{{lineNumber}}">
-        <td class="stat ">{{lineNumber}}</td>
+      <tr class="row" data-line-number="{{line}}">
+        <td class="stat">{{line}}</td>
+        {{#if ../hasSCM}}
+          <td class="stat scm">
+            {{#ifSCMChanged2 ../source line}}
+              <span class="scm-author" title="{{dt scmDate}}&#013;{{scmAuthor}}">{{scmAuthor}}</span>
+            {{/ifSCMChanged2}}
+          </td>
+        {{/if}}
         <td class="line"><pre>{{{code}}}</pre></td>
       </tr>
     {{/each}}

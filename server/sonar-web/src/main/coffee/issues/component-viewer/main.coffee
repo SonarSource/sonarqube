@@ -14,7 +14,7 @@ define [
 
   $ = jQuery
 
-  API_SOURCES = "#{baseUrl}/api/sources/show"
+  API_SOURCES = "#{baseUrl}/api/sources/lines"
   LINES_AROUND = 200
   TOP_OFFSET = 38
   BOTTOM_OFFSET = 10
@@ -37,9 +37,6 @@ define [
 
 
     initialize: (options) ->
-      @source = new Backbone.Model
-        source: []
-        formattedSource: []
       @component = new Backbone.Model()
       @issues = new Issues()
       @issueViews = []
@@ -114,13 +111,13 @@ define [
 
     loadSourceBefore: ->
       @unbindScrollEvents()
-      formattedSource = @source.get 'formattedSource'
-      firstLine = _.first(formattedSource).lineNumber
+      source = @model.get 'source'
+      firstLine = _.first(source).line
       @requestSources(firstLine - LINES_AROUND, firstLine - 1).done (data) =>
-        newFormattedSource = _.map data.sources, (item) => lineNumber: item[0], code: item[1]
-        formattedSource = newFormattedSource.concat formattedSource
-        @source.set formattedSource: formattedSource
-        @model.set hasSourceBefore: newFormattedSource.length == LINES_AROUND
+        source = data.sources.concat source
+        @model.set
+          source: source
+          hasSourceBefore: data.sources.length == LINES_AROUND
         @render()
         @scrollToLine firstLine
         @bindScrollEvents() if @model.get('hasSourceBefore') || @model.get('hasSourceAfter')
@@ -128,19 +125,20 @@ define [
 
     loadSourceAfter: ->
       @unbindScrollEvents()
-      formattedSource = @source.get 'formattedSource'
-      lastLine = _.last(formattedSource).lineNumber
+      source = @model.get 'source'
+      lastLine = _.last(source).line
       @requestSources(lastLine + 1, lastLine + LINES_AROUND)
       .done (data) =>
-        newFormattedSource = _.map data.sources, (item) => lineNumber: item[0], code: item[1]
-        formattedSource = formattedSource.concat newFormattedSource
-        @source.set formattedSource: formattedSource
-        @model.set hasSourceAfter: newFormattedSource.length == LINES_AROUND
+        source = source.concat data.sources
+        @model.set
+          source: source
+          hasSourceAfter: data.sources.length == LINES_AROUND
         @render()
         @bindScrollEvents() if @model.get('hasSourceBefore') || @model.get('hasSourceAfter')
       .fail =>
-        @source.set formattedSource: []
-        @model.set hasSourceAfter: false
+        @model.set
+          source: []
+          hasSourceAfter: false
         @render()
 
 
@@ -236,18 +234,20 @@ define [
 
     openFileByIssue: (issue) ->
       componentKey = issue.get 'component'
+      componentUuid = issue.get 'componentUuid'
 
       line = issue.get('line') || 0
-      @model.set key: componentKey, issueLine: line, issueIndex: issue.get('index')
+      @model.set
+        id: componentUuid
+        key: componentKey
+        issueLine: line
+        issueIndex: issue.get 'index'
 
       @requestSources(line - LINES_AROUND, line + LINES_AROUND)
       .done (data) =>
-        formattedSource = _.map data.sources, (item) => lineNumber: item[0], code: item[1]
-        @source.set
-          source: data.sources
-          formattedSource: formattedSource
-        firstLine = _.first(formattedSource).lineNumber
-        lastLine = _.last(formattedSource).lineNumber
+        @model.set source: data.sources
+        firstLine = _.first(data.sources).line
+        lastLine = _.last(data.sources).line
         @model.set
           hasSourceBefore: firstLine > 1
           hasSourceAfter: lastLine == line + LINES_AROUND
@@ -258,9 +258,7 @@ define [
           @bindShortcuts()
           @scrollToLine issue.get 'line'
       .fail =>
-        @source.set
-          source: []
-          formattedSource: []
+        @model.set source: []
         @model.set hasSourceBefore: false, hasSourceAfter: false
         @issues.reset @options.app.issues.filter (issue) => issue.get('component') == componentKey
         @render()
@@ -271,7 +269,7 @@ define [
 
     requestSources: (lineFrom, lineTo) ->
       lineFrom = Math.max 0, lineFrom
-      $.get API_SOURCES, key: @model.get('key'), from: lineFrom, to: lineTo
+      $.get API_SOURCES, uuid: @model.id, from: lineFrom, to: lineTo
 
 
     requestIssues: ->
@@ -304,5 +302,6 @@ define [
 
 
     serializeData: ->
+      hasSCM = _.some @model.get('source'), (row) -> row.scmAuthor?
       _.extend super,
-        source: @source.get 'formattedSource'
+        hasSCM: hasSCM
