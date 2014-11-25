@@ -37,10 +37,10 @@ import java.util.Date;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class FeedFileSourcesMigrationTest {
+public class FeedFileSourcesTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(FeedFileSourcesMigrationTest.class, "schema.sql");
+  public static TestDatabase db = new TestDatabase().schema(FeedFileSourcesTest.class, "schema.sql");
 
   DatabaseMigration migration;
 
