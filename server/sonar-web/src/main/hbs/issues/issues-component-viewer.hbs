@@ -4,6 +4,13 @@
   {{/if}}
 
   <table class="code">
+    <tr class="row hidden" data-line-number="0">
+      <td class="stat">&nbsp;</td>
+      {{#if hasSCM}}
+          <td class="stat scm">&nbsp;</td>
+      {{/if}}
+      <td class="line"></td>
+    </tr>
     {{#each source}}
       <tr class="row" data-line-number="{{line}}">
         <td class="stat">{{line}}</td>

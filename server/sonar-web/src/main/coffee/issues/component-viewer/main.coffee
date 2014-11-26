@@ -173,18 +173,16 @@ define [
       row = @$("[data-line-number=#{line}]")
       issueView = new IssueView app: @options.app, model: issue
       @issueViews.push issueView
-      if line == 0
-        issueView.render().$el.insertBefore @$('.issues-workspace-component-viewer-code')
-      else
-        showBox = Math.abs(issue.get('index') - @model.get('issueIndex')) < ISSUES_LIMIT / 2
-        @hiddenIssues = true unless showBox
-        if showBox && row.length > 0
-          line = row.find '.line'
-          line.addClass 'has-issues'
-          issues = line.find '.issue-list'
-          if issues.length == 0
-            issues = $('<div class="issue-list"></div>').appendTo line
-          issueView.render().$el.appendTo issues
+      showBox = Math.abs(issue.get('index') - @model.get('issueIndex')) < ISSUES_LIMIT / 2
+      @hiddenIssues = true unless showBox
+      if showBox && row.length > 0
+        row.removeClass 'hidden'
+        line = row.find '.line'
+        line.addClass 'has-issues'
+        issues = line.find '.issue-list'
+        if issues.length == 0
+          issues = $('<div class="issue-list"></div>').appendTo line
+        issueView.render().$el.appendTo issues
 
 
     select: ->

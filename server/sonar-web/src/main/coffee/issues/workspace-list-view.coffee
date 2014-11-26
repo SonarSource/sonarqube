@@ -12,7 +12,7 @@ define [
 
   $ = jQuery
 
-  TOP_OFFSET = 38
+  TOP_OFFSET = 72
   BOTTOM_OFFSET = 10
 
 
