@@ -59,7 +59,6 @@ public class SourceLineResultSetIteratorTest {
   @Test
   public void should_generate_source_line_documents() throws Exception {
     db.prepareDbUnit(getClass(), "source-with-scm.xml");
-    Connection connection = db.openConnection();
     PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET data = ? WHERE id=1");
     stmt.setString(1, "aef12a,alice,2014-04-25T12:34:56+0100,,,,polop,class Foo {\r\n" +
       "abe465,bob,2014-07-25T12:34:56+0100,,,,,  // Empty\r\n" +
@@ -95,7 +94,6 @@ public class SourceLineResultSetIteratorTest {
   @Test
   public void should_fail_on_bad_csv() throws Exception {
     db.prepareDbUnit(getClass(), "source-with-scm.xml");
-    Connection connection = db.openConnection();
     PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET data = ? WHERE id=1");
     stmt.setString(1, "plouf");
     stmt.executeUpdate();
