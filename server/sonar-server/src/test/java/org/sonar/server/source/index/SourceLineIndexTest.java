@@ -41,7 +41,7 @@ public class SourceLineIndexTest {
 
   @Test
   public void should_retrieve_line_range() throws Exception {
-    es.putDocuments(SourceLineIndexDefinition.INDEX_SOURCE_LINES, SourceLineIndexDefinition.TYPE_SOURCE_LINE,
+    es.putDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE,
       this.getClass(),
       "file1_line1.json",
       "file1_line2.json",

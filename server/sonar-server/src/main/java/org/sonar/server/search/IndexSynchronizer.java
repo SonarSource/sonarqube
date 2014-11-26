@@ -72,7 +72,7 @@ public class IndexSynchronizer {
       synchronize(session, db.activityDao(), index.get(ActivityIndex.class));
 
       LOG.info("Indexing of sourceLine records");
-      sourceLineIndexer.indexSourceLines(true);
+      sourceLineIndexer.index();
 
       session.commit();
       LOG.info("Synchronization done in {}ms...", System.currentTimeMillis() - start);

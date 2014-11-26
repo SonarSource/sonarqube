@@ -293,7 +293,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     for (String group : groups) {
       groupsAndUser.add(FilterBuilders.termFilter(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, group));
     }
-    return FilterBuilders.hasParentFilter(IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION,
+    return FilterBuilders.hasParentFilter(IssueIndexDefinition.TYPE_AUTHORIZATION,
       QueryBuilders.filteredQuery(
         QueryBuilders.matchAllQuery(),
         FilterBuilders.boolFilter()

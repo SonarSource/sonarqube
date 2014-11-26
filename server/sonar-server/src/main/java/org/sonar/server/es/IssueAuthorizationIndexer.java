@@ -45,7 +45,7 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
   private final DbClient dbClient;
 
   public IssueAuthorizationIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 0L, IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION);
+    super(esClient, 0L, IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION);
     this.dbClient = dbClient;
   }
 
@@ -53,7 +53,7 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
   protected long doIndex(long lastUpdatedAt) {
     // warning - do not enable large mode, else disabling of replicas
     // will impact the type "issue" which is much bigger than issueAuthorization
-    final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX_ISSUES);
+    final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
 
     DbSession dbSession = dbClient.openSession(false);
     Connection dbConnection = dbSession.getConnection();
@@ -70,7 +70,7 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
 
   @VisibleForTesting
   void index(Collection<IssueAuthorizationDao.Dto> authorizations) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX_ISSUES);
+    final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
     doIndex(bulk, authorizations);
   }
 
@@ -86,10 +86,10 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
   }
 
   public void deleteProject(String uuid, boolean refresh) {
-    esClient.prepareDelete(IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION, uuid).get();
-    if (refresh) {
-      esClient.prepareRefresh(IssueIndexDefinition.INDEX_ISSUES).get();
-    }
+    esClient
+      .prepareDelete(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, uuid)
+      .setRefresh(refresh)
+      .get();
   }
 
   private ActionRequest newUpdateRequest(IssueAuthorizationDao.Dto dto) {
@@ -97,7 +97,7 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
     if (dto.hasNoGroupsNorUsers()) {
       // project still exists but there are no permissions
       // TODO do we really need to delete the document ? Pushing empty groups/users should be enough
-      request = new DeleteRequest(IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION, dto.getProjectUuid())
+      request = new DeleteRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
         .routing(dto.getProjectUuid());
     } else {
       Map<String, Object> doc = ImmutableMap.of(
@@ -105,7 +105,7 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
         IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
         IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
         IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
-      request = new UpdateRequest(IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION, dto.getProjectUuid())
+      request = new UpdateRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, dto.getProjectUuid())
         .routing(dto.getProjectUuid())
         .doc(doc)
         .upsert(doc);

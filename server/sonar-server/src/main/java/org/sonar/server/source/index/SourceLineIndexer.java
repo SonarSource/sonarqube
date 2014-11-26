@@ -19,83 +19,83 @@
  */
 package org.sonar.server.source.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.api.ServerComponent;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
 import java.sql.Connection;
-import java.util.Collection;
 import java.util.Iterator;
 
-public class SourceLineIndexer implements ServerComponent {
+public class SourceLineIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
-  private final EsClient esClient;
-  private final SourceLineIndex index;
-  private long lastUpdatedAt = 0L;
 
-  public SourceLineIndexer(DbClient dbClient, EsClient esClient, SourceLineIndex index) {
+  public SourceLineIndexer(DbClient dbClient, EsClient esClient) {
+    super(esClient, 0L, SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE);
     this.dbClient = dbClient;
-    this.esClient = esClient;
-    this.index = index;
   }
 
-  public void indexSourceLines(boolean large) {
-    final BulkIndexer bulk = new BulkIndexer(esClient, SourceLineIndexDefinition.INDEX_SOURCE_LINES);
-    bulk.setLarge(large);
+  @Override
+  protected long doIndex(long lastUpdatedAt) {
+    final BulkIndexer bulk = new BulkIndexer(esClient, SourceLineIndexDefinition.INDEX);
+    bulk.setLarge(lastUpdatedAt == 0L);
 
     DbSession dbSession = dbClient.openSession(false);
     Connection dbConnection = dbSession.getConnection();
     try {
-      SourceLineResultSetIterator rowIt = SourceLineResultSetIterator.create(dbClient, dbConnection, getLastUpdatedAt());
-      indexSourceLines(bulk, rowIt);
+      SourceLineResultSetIterator rowIt = SourceLineResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt);
+      long maxUpdatedAt = doIndex(bulk, rowIt);
       rowIt.close();
+      return maxUpdatedAt;
 
     } finally {
       dbSession.close();
     }
   }
 
-  public void indexSourceLines(BulkIndexer bulk, Iterator<Collection<SourceLineDoc>> sourceLines) {
-    bulk.start();
-    while (sourceLines.hasNext()) {
-      Collection<SourceLineDoc> lineDocs = sourceLines.next();
-      String fileUuid = null;
-      int lastLine = 0;
-      for (SourceLineDoc sourceLine: lineDocs) {
-        lastLine ++;
-        fileUuid = sourceLine.fileUuid();
-        bulk.add(newUpsertRequest(sourceLine));
-        long dtoUpdatedAt = sourceLine.updateDate().getTime();
-        if (lastUpdatedAt < dtoUpdatedAt) {
-          lastUpdatedAt = dtoUpdatedAt;
-        }
-      }
-      index.deleteLinesFromFileAbove(fileUuid, lastLine);
-    }
-    bulk.stop();
+  @VisibleForTesting
+  long index(Iterator<SourceLineResultSetIterator.SourceFile> sourceFiles) {
+    final BulkIndexer bulk = new BulkIndexer(esClient, SourceLineIndexDefinition.INDEX);
+    return doIndex(bulk, sourceFiles);
   }
 
-  private long getLastUpdatedAt() {
-    long result;
-    if (lastUpdatedAt <= 0L) {
-      // request ES to get the max(updatedAt)
-      result = esClient.getLastUpdatedAt(SourceLineIndexDefinition.INDEX_SOURCE_LINES, SourceLineIndexDefinition.TYPE_SOURCE_LINE);
-    } else {
-      // use cache. Will not work with Tomcat cluster.
-      result = lastUpdatedAt;
+  private long doIndex(BulkIndexer bulk, Iterator<SourceLineResultSetIterator.SourceFile> files) {
+    long maxUpdatedAt = 0L;
+    bulk.start();
+    while (files.hasNext()) {
+      SourceLineResultSetIterator.SourceFile file = files.next();
+      for (SourceLineDoc line : file.getLines()) {
+        bulk.add(newUpsertRequest(line));
+      }
+      deleteLinesFromFileAbove(file.getFileUuid(), file.getLines().size());
+      maxUpdatedAt = Math.max(maxUpdatedAt, file.getUpdatedAt());
     }
-    return result;
+    bulk.stop();
+    return maxUpdatedAt;
   }
 
   private UpdateRequest newUpsertRequest(SourceLineDoc lineDoc) {
     String projectUuid = lineDoc.projectUuid();
-    return new UpdateRequest(SourceLineIndexDefinition.INDEX_SOURCE_LINES, SourceLineIndexDefinition.TYPE_SOURCE_LINE, lineDoc.key())
+    return new UpdateRequest(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE, lineDoc.key())
       .routing(projectUuid)
       .doc(lineDoc.getFields())
       .upsert(lineDoc.getFields());
+  }
+
+  /**
+   * Unindex all lines in file with UUID <code>fileUuid</code> above line <code>lastLine</code>
+   */
+  private void deleteLinesFromFileAbove(String fileUuid, int lastLine) {
+    esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX)
+      .setTypes(SourceLineIndexDefinition.TYPE)
+      .setQuery(QueryBuilders.boolQuery()
+        .must(QueryBuilders.termQuery(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid))
+        .must(QueryBuilders.rangeQuery(SourceLineIndexDefinition.FIELD_LINE).gt(lastLine))
+      ).get();
   }
 }

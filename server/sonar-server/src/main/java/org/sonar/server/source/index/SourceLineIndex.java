@@ -20,7 +20,7 @@
 package org.sonar.server.source.index;
 
 import com.google.common.base.Preconditions;
-import org.elasticsearch.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
@@ -38,18 +38,6 @@ public class SourceLineIndex implements ServerComponent {
   }
 
   /**
-   * Unindex all lines in file with UUID <code>fileUuid</code> above line <code>lastLine</code>
-   */
-  public void deleteLinesFromFileAbove(String fileUuid, int lastLine) {
-    esClient.prepareDeleteByQuery(SourceLineIndexDefinition.INDEX_SOURCE_LINES)
-      .setTypes(SourceLineIndexDefinition.TYPE_SOURCE_LINE)
-      .setQuery(QueryBuilders.boolQuery()
-        .must(QueryBuilders.termQuery(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid))
-        .must(QueryBuilders.rangeQuery(SourceLineIndexDefinition.FIELD_LINE).gt(lastLine))
-      ).get();
-  }
-
-  /**
    * Get lines of code for file with UUID <code>fileUuid</code> with line numbers
    * between <code>from</code> and <code>to</code> (both inclusive). Line numbers
    * start at 1.
@@ -62,8 +50,8 @@ public class SourceLineIndex implements ServerComponent {
     Preconditions.checkArgument(to >= from, "'to' must be larger than or equal to 'from'");
     List<SourceLineDoc> lines = Lists.newArrayList();
 
-    for (SearchHit hit: esClient.prepareSearch(SourceLineIndexDefinition.INDEX_SOURCE_LINES)
-      .setTypes(SourceLineIndexDefinition.TYPE_SOURCE_LINE)
+    for (SearchHit hit: esClient.prepareSearch(SourceLineIndexDefinition.INDEX)
+      .setTypes(SourceLineIndexDefinition.TYPE)
       .setSize(1 + to - from)
       .setQuery(QueryBuilders.boolQuery()
         .must(QueryBuilders.termQuery(SourceLineIndexDefinition.FIELD_FILE_UUID, fileUuid))

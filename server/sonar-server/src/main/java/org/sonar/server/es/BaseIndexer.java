@@ -37,12 +37,12 @@ public abstract class BaseIndexer implements ServerComponent, Startable {
   protected final EsClient esClient;
   private volatile long lastUpdatedAt = 0L;
 
-  protected BaseIndexer(EsClient client, long threadKeepAliveMilliseconds, String indexName, String typeName) {
+  protected BaseIndexer(EsClient client, long threadKeepAliveSeconds, String indexName, String typeName) {
     this.indexName = indexName;
     this.typeName = typeName;
     this.esClient = client;
     this.executor = new ThreadPoolExecutor(0, 1,
-      threadKeepAliveMilliseconds, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+      threadKeepAliveSeconds, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
   }
 
   public void index() {

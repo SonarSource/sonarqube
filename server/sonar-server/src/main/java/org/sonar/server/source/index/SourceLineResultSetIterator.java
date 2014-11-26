@@ -37,15 +37,41 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 /**
- * Scroll over table ISSUES and directly read the maps required to
- * post index requests
+ * Scroll over table FILE_SOURCES and directly parse CSV field required to
+ * populate the index sourcelines
  */
-class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLineDoc>> {
+class SourceLineResultSetIterator extends ResultSetIterator<SourceLineResultSetIterator.SourceFile> {
+
+  static class SourceFile {
+    private final String fileUuid;
+    private final long updatedAt;
+    private final List<SourceLineDoc> lines = Lists.newArrayList();
+
+    SourceFile(String fileUuid, long updatedAt) {
+      this.fileUuid = fileUuid;
+      this.updatedAt = updatedAt;
+    }
+
+    String getFileUuid() {
+      return fileUuid;
+    }
+
+    long getUpdatedAt() {
+      return updatedAt;
+    }
+
+    List<SourceLineDoc> getLines() {
+      return lines;
+    }
+
+    void addLine(SourceLineDoc line) {
+      this.lines.add(line);
+    }
+  }
 
   private static final String[] FIELDS = {
     // column 1
@@ -77,13 +103,15 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
   }
 
   @Override
-  protected Collection<SourceLineDoc> read(ResultSet rs) throws SQLException {
+  protected SourceFile read(ResultSet rs) throws SQLException {
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
-    Date updatedAt = new Date(SqlUtil.getLong(rs, 3));
+    long updatedAt = SqlUtil.getLong(rs, 3);
+    Date updatedDate = new Date(updatedAt);
+    SourceFile result = new SourceFile(fileUuid, updatedAt);
+
     String csv = rs.getString(4);
 
-    List<SourceLineDoc> lines = Lists.newArrayList();
     if (StringUtils.isNotEmpty(csv)) {
       int line = 1;
       CSVParser csvParser = null;
@@ -96,7 +124,7 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
           doc.setProjectUuid(projectUuid);
           doc.setFileUuid(fileUuid);
           doc.setLine(line);
-          doc.setUpdateDate(updatedAt);
+          doc.setUpdateDate(updatedDate);
           doc.setScmRevision(csvRecord.get(0));
           doc.setScmAuthor(csvRecord.get(1));
           doc.setScmDate(DateUtils.parseDateTimeQuietly(csvRecord.get(2)));
@@ -106,7 +134,7 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
           doc.setHighlighting(csvRecord.get(6));
           doc.setSource(csvRecord.get(csvRecord.size() - 1));
 
-          lines.add(doc);
+          result.addLine(doc);
 
           line++;
         }
@@ -120,6 +148,6 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
       }
     }
 
-    return lines;
+    return result;
   }
 }

@@ -115,7 +115,7 @@ public class EsTester extends ExternalResource {
     }
   }
 
-  public void truncateAllIndices() {
+  public void truncateIndices() {
     client.prepareDeleteByQuery(client.prepareState().get()
       .getState().getMetaData().concreteAllIndices())
       .setQuery(QueryBuilders.matchAllQuery())

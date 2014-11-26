@@ -19,9 +19,8 @@
  */
 package org.sonar.server.source.index;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Iterators;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -31,47 +30,49 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.test.TestUtils;
 
 import java.io.FileInputStream;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class SourceLineIndexerTest {
 
   @Rule
   public EsTester es = new EsTester().addDefinitions(new SourceLineIndexDefinition(new Settings()));
 
-  private SourceLineIndex index;
+  @Rule
+  public TestDatabase db = new TestDatabase();
 
   private SourceLineIndexer indexer;
 
   @Before
   public void setUp() {
-    index = new SourceLineIndex(es.client());
-    indexer = new SourceLineIndexer(mock(DbClient.class), es.client(), index);
+    indexer = new SourceLineIndexer(new DbClient(db.database(), db.myBatis()), es.client());
   }
 
   @Test
-  public void should_index_source_lines() throws Exception {
-    es.client().prepareIndex(SourceLineIndexDefinition.INDEX_SOURCE_LINES, SourceLineIndexDefinition.TYPE_SOURCE_LINE)
+  public void index_source_lines_from_db() throws Exception {
+    db.prepareDbUnit(getClass(), "db.xml");
+    indexer.index();
+    assertThat(countDocuments()).isEqualTo(2);
+  }
+
+  @Test
+  public void update_already_indexed_lines() throws Exception {
+    es.client().prepareIndex(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE)
       .setSource(IOUtils.toString(new FileInputStream(TestUtils.getResource(this.getClass(), "line2.json"))))
       .get();
-    es.client().prepareIndex(SourceLineIndexDefinition.INDEX_SOURCE_LINES, SourceLineIndexDefinition.TYPE_SOURCE_LINE)
+    es.client().prepareIndex(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE)
       .setSource(IOUtils.toString(new FileInputStream(TestUtils.getResource(this.getClass(), "line2_other_file.json"))))
       .setRefresh(true)
       .get();
-
-    BulkIndexer bulk = new BulkIndexer(es.client(), SourceLineIndexDefinition.INDEX_SOURCE_LINES);
 
     SourceLineDoc line1 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
       .put(SourceLineIndexDefinition.FIELD_PROJECT_UUID, "abcd")
@@ -83,16 +84,14 @@ public class SourceLineIndexerTest {
       .put(SourceLineIndexDefinition.FIELD_SOURCE, "package org.sonar.server.source;")
       .put(BaseNormalizer.UPDATED_AT_FIELD, new Date())
       .build());
-    Collection<SourceLineDoc> sourceLines = ImmutableList.of(line1);
+    SourceLineResultSetIterator.SourceFile file = new SourceLineResultSetIterator.SourceFile("efgh", System.currentTimeMillis());
+    file.addLine(line1);
+    indexer.index(Iterators.singletonIterator(file));
 
-    List<Collection<SourceLineDoc>> sourceLineContainer = Lists.newArrayList();
-    sourceLineContainer.add(sourceLines);
-    indexer.indexSourceLines(bulk, sourceLineContainer.iterator());
+    assertThat(countDocuments()).isEqualTo(2L);
 
-    assertThat(es.countDocuments(SourceLineIndexDefinition.INDEX_SOURCE_LINES, SourceLineIndexDefinition.TYPE_SOURCE_LINE)).isEqualTo(2L);
-
-    SearchResponse fileSearch = es.client().prepareSearch(SourceLineIndexDefinition.INDEX_SOURCE_LINES)
-      .setTypes(SourceLineIndexDefinition.TYPE_SOURCE_LINE)
+    SearchResponse fileSearch = es.client().prepareSearch(SourceLineIndexDefinition.INDEX)
+      .setTypes(SourceLineIndexDefinition.TYPE)
       .setQuery(QueryBuilders.termQuery(SourceLineIndexDefinition.FIELD_FILE_UUID, "efgh"))
       .get();
     assertThat(fileSearch.getHits().getTotalHits()).isEqualTo(1L);
@@ -106,6 +105,10 @@ public class SourceLineIndexerTest {
       MapAssert.entry(SourceLineIndexDefinition.FIELD_SCM_DATE, "2014-01-01T11:34:56.000Z"),
       MapAssert.entry(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop"),
       MapAssert.entry(SourceLineIndexDefinition.FIELD_SOURCE, "package org.sonar.server.source;")
-    );
+      );
+  }
+
+  private long countDocuments() {
+    return es.countDocuments(SourceLineIndexDefinition.INDEX, SourceLineIndexDefinition.TYPE);
   }
 }

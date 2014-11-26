@@ -27,7 +27,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.index.IssueDoc;
-import org.sonar.server.issue.index.IssueNormalizer;
 
 import java.sql.Connection;
 import java.util.Iterator;
@@ -37,7 +36,7 @@ public class IssueIndexer extends BaseIndexer {
   private final DbClient dbClient;
 
   public IssueIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 300000L, IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE);
+    super(esClient, 300, IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE);
     this.dbClient = dbClient;
   }
 
@@ -79,14 +78,14 @@ public class IssueIndexer extends BaseIndexer {
       QueryBuilders.matchAllQuery(),
       FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, uuid))
     );
-    esClient.prepareDeleteByQuery(IssueIndexDefinition.INDEX_ISSUES).setQuery(query).get();
+    esClient.prepareDeleteByQuery(IssueIndexDefinition.INDEX).setQuery(query).get();
     if (refresh) {
-      esClient.prepareRefresh(IssueIndexDefinition.INDEX_ISSUES).get();
+      esClient.prepareRefresh(IssueIndexDefinition.INDEX).get();
     }
   }
 
   BulkIndexer createBulkIndexer(boolean large) {
-    BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX_ISSUES);
+    BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
     bulk.setLarge(large);
     return bulk;
   }
@@ -97,7 +96,7 @@ public class IssueIndexer extends BaseIndexer {
     // parent doc is issueAuthorization
     issue.setField("_parent", projectUuid);
 
-    return new UpdateRequest(IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE, issue.key())
+    return new UpdateRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, issue.key())
       .routing(projectUuid)
       .parent(projectUuid)
       .doc(issue.getFields())

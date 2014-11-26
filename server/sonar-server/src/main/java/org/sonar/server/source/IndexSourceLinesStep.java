@@ -27,7 +27,7 @@ import org.sonar.server.source.index.SourceLineIndexer;
 
 public class IndexSourceLinesStep implements ComputationStep {
 
-  private SourceLineIndexer indexer;
+  private final SourceLineIndexer indexer;
 
   public IndexSourceLinesStep(SourceLineIndexer indexer) {
     this.indexer = indexer;
@@ -35,7 +35,7 @@ public class IndexSourceLinesStep implements ComputationStep {
 
   @Override
   public void execute(DbSession session, AnalysisReportDto analysisReportDto, ComponentDto project) {
-    indexer.indexSourceLines(false);
+    indexer.index();
   }
 
   @Override

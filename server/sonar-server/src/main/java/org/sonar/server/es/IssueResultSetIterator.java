@@ -34,8 +34,8 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 /**
- * Scroll over table ISSUES and directly read the maps required to
- * post index requests
+ * Scrolls over table ISSUES and reads documents to populate
+ * the issues index
  */
 class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
 

@@ -37,9 +37,9 @@ public class SourceLineIndexDefinition implements IndexDefinition {
   public static final String FIELD_HIGHLIGHTING = "highlighting";
   public static final String FIELD_SOURCE = "source";
 
-  public static final String INDEX_SOURCE_LINES = "sourcelines";
+  public static final String INDEX = "sourcelines";
 
-  public static final String TYPE_SOURCE_LINE = "sourceline";
+  public static final String TYPE = "sourceline";
 
 
   private final Settings settings;
@@ -50,7 +50,7 @@ public class SourceLineIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_SOURCE_LINES);
+    NewIndex index = context.create(INDEX);
 
     // shards
     boolean clusterMode = settings.getBoolean(ProcessConstants.CLUSTER_ACTIVATE);
@@ -61,7 +61,7 @@ public class SourceLineIndexDefinition implements IndexDefinition {
     }
 
     // type "sourceline"
-    NewIndex.NewIndexType sourceLineMapping = index.createType(TYPE_SOURCE_LINE);
+    NewIndex.NewIndexType sourceLineMapping = index.createType(TYPE);
     sourceLineMapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
     sourceLineMapping.stringFieldBuilder(FIELD_FILE_UUID).build();
     sourceLineMapping.createIntegerField(FIELD_LINE);

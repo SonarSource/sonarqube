@@ -30,9 +30,9 @@ import org.sonar.server.search.BaseNormalizer;
  */
 public class IssueIndexDefinition implements IndexDefinition {
 
-  public static final String INDEX_ISSUES = "issues";
+  public static final String INDEX = "issues";
 
-  public static final String TYPE_ISSUE_AUTHORIZATION = "issueAuthorization";
+  public static final String TYPE_AUTHORIZATION = "issueAuthorization";
   public static final String TYPE_ISSUE = "issue";
 
   public static final String FIELD_AUTHORIZATION_PROJECT_UUID = "project";
@@ -75,7 +75,7 @@ public class IssueIndexDefinition implements IndexDefinition {
 
   @Override
   public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX_ISSUES);
+    NewIndex index = context.create(INDEX);
 
     // shards
     boolean clusterMode = settings.getBoolean(ProcessConstants.CLUSTER_ACTIVATE);
@@ -86,7 +86,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     }
 
     // type "issueAuthorization"
-    NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_ISSUE_AUTHORIZATION);
+    NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_AUTHORIZATION);
     authorizationMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_AUTHORIZATION_PROJECT_UUID));
     authorizationMapping.createDateTimeField(FIELD_AUTHORIZATION_UPDATED_AT);
     authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_PROJECT_UUID).build();
@@ -96,7 +96,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     // type "issue"
     NewIndex.NewIndexType issueMapping = index.createType(TYPE_ISSUE);
     issueMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_ISSUE_KEY));
-    issueMapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_ISSUE_AUTHORIZATION));
+    issueMapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_AUTHORIZATION));
     issueMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_ISSUE_PROJECT_UUID));
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ACTION_PLAN).build();
     // TODO do we really sort by assignee ?

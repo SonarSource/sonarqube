@@ -135,6 +135,6 @@ public class ComponentCleanerServiceMediumTest {
   }
 
   private long countIssueAuthorizationDocs() {
-    return tester.get(EsClient.class).prepareCount(IssueIndexDefinition.INDEX_ISSUES).setTypes(IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION).get().getCount();
+    return tester.get(EsClient.class).prepareCount(IssueIndexDefinition.INDEX).setTypes(IssueIndexDefinition.TYPE_AUTHORIZATION).get().getCount();
   }
 }

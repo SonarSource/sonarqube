@@ -19,7 +19,6 @@
  */
 package org.sonar.server.source.index;
 
-import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -29,8 +28,6 @@ import org.sonar.server.db.DbClient;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.util.Collection;
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -68,9 +65,9 @@ public class SourceLineResultSetIteratorTest {
 
     SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L);
     assertThat(iterator.hasNext()).isTrue();
-    List<SourceLineDoc> sourceLines = Lists.newArrayList(iterator.next());
-    assertThat(sourceLines).hasSize(4);
-    SourceLineDoc firstLine = sourceLines.get(0);
+    SourceLineResultSetIterator.SourceFile file = iterator.next();
+    assertThat(file.getLines()).hasSize(4);
+    SourceLineDoc firstLine = file.getLines().get(0);
     assertThat(firstLine.projectUuid()).isEqualTo("uuid-MyProject");
     assertThat(firstLine.fileUuid()).isEqualTo("uuid-MyFile.xoo");
     assertThat(firstLine.line()).isEqualTo(1);
@@ -97,8 +94,9 @@ public class SourceLineResultSetIteratorTest {
 
     SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, db.openConnection(), 0L);
     assertThat(iterator.hasNext()).isTrue();
-    Collection<SourceLineDoc> lines = iterator.next();
-    assertThat(lines).isEmpty();
+    SourceLineResultSetIterator.SourceFile file = iterator.next();
+    assertThat(file.getFileUuid()).isEqualTo("uuid-MyFile.xoo");
+    assertThat(file.getLines()).isEmpty();
   }
 
   @Test

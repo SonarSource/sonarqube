@@ -36,7 +36,7 @@ public class IssueIndexerTest {
   public void index_nothing() throws Exception {
     IssueIndexer indexer = new IssueIndexer(null, esTester.client());
     indexer.index(indexer.createBulkIndexer(false), Iterators.<IssueDoc>emptyIterator());
-    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0L);
+    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0L);
   }
 
 }
