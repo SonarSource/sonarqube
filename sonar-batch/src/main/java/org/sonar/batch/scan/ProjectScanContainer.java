@@ -149,7 +149,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ResourceKeyMigration.class,
       DefaultFileLinesContextFactory.class,
       ProjectLock.class,
-      LastSnapshots.class,
+      LastLineHashes.class,
       Caches.class,
       SnapshotCache.class,
       ResourceCache.class,

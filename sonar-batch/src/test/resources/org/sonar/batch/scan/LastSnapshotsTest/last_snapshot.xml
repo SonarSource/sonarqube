@@ -1,6 +1,0 @@
-<dataset>
-  <projects id="100" kee="myproject:org/foo/Bar.c" enabled="[true]" scope="FIL" qualifier="FIL" language="c"/>
-  <snapshots id="1000" project_id="100" status="P" islast="[false]" purge_status="[null]"/>
-  <snapshots id="1100" project_id="100" status="P" islast="[true]" purge_status="[null]"/>
-  <snapshot_sources ID="10000" SNAPSHOT_ID="1100" DATA="this is bar"/>
-</dataset>

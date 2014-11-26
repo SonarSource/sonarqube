@@ -20,44 +20,41 @@
 package org.sonar.plugins.core.issue.tracking;
 
 /**
- * Wraps a {@link Sequence} to assign hash codes to elements.
+ * Compute hashes of block around each line
  */
-public class RollingHashSequence<S extends Sequence> implements Sequence {
+public class RollingFileHashes {
 
-  final S base;
-  final int[] hashes;
+  final int[] rollingHashes;
 
-  public static <S extends Sequence> RollingHashSequence<S> wrap(S base, SequenceComparator<S> cmp, int lines) {
-    int size = base.length();
-    int[] hashes = new int[size];
+  public static RollingFileHashes create(FileHashes hashes, int halfBlockSize) {
+    int size = hashes.length();
+    int[] rollingHashes = new int[size];
 
-    RollingHashCalculator hashCalulator = new RollingHashCalculator(lines * 2 + 1);
-    for (int i = 0; i <= Math.min(size - 1, lines); i++) {
-      hashCalulator.add(cmp.hash(base, i));
+    RollingHashCalculator hashCalulator = new RollingHashCalculator(halfBlockSize * 2 + 1);
+    for (int i = 1; i <= Math.min(size, halfBlockSize + 1); i++) {
+      hashCalulator.add(hashes.getHash(i).hashCode());
     }
-    for (int i = 0; i < size; i++) {
-      hashes[i] = hashCalulator.getHash();
-      if (i - lines >= 0) {
-        hashCalulator.remove(cmp.hash(base, i - lines));
+    for (int i = 1; i <= size; i++) {
+      rollingHashes[i - 1] = hashCalulator.getHash();
+      if (i - halfBlockSize > 0) {
+        hashCalulator.remove(hashes.getHash(i - halfBlockSize).hashCode());
       }
-      if (i + lines + 1 < size) {
-        hashCalulator.add(cmp.hash(base, i + lines + 1));
+      if (i + 1 + halfBlockSize <= size) {
+        hashCalulator.add(hashes.getHash(i + 1 + halfBlockSize).hashCode());
       } else {
         hashCalulator.add(0);
       }
     }
 
-    return new RollingHashSequence<S>(base, hashes);
+    return new RollingFileHashes(rollingHashes);
   }
 
-  private RollingHashSequence(S base, int[] hashes) {
-    this.base = base;
-    this.hashes = hashes;
+  public int getHash(int line) {
+    return rollingHashes[line - 1];
   }
 
-  @Override
-  public int length() {
-    return base.length();
+  private RollingFileHashes(int[] hashes) {
+    this.rollingHashes = hashes;
   }
 
   private static class RollingHashCalculator {

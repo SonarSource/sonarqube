@@ -19,31 +19,16 @@
  */
 package org.sonar.plugins.core.issue.tracking;
 
-import com.google.common.annotations.VisibleForTesting;
-import org.sonar.plugins.core.issue.tracking.HashedSequence;
-import org.sonar.plugins.core.issue.tracking.HashedSequenceComparator;
-import org.sonar.plugins.core.issue.tracking.StringText;
-import org.sonar.plugins.core.issue.tracking.StringTextComparator;
-
 import javax.annotation.Nullable;
 
 public class IssueTrackingBlocksRecognizer {
 
-  private final HashedSequence<StringText> a;
-  private final HashedSequence<StringText> b;
-  private final HashedSequenceComparator<StringText> cmp;
+  private final FileHashes a;
+  private final FileHashes b;
 
-  @VisibleForTesting
-  public IssueTrackingBlocksRecognizer(String referenceSource, String source) {
-    this.a = HashedSequence.wrap(new StringText(referenceSource), StringTextComparator.IGNORE_WHITESPACE);
-    this.b = HashedSequence.wrap(new StringText(source), StringTextComparator.IGNORE_WHITESPACE);
-    this.cmp = new HashedSequenceComparator<StringText>(StringTextComparator.IGNORE_WHITESPACE);
-  }
-
-  public IssueTrackingBlocksRecognizer(HashedSequence<StringText> a, HashedSequence<StringText> b, HashedSequenceComparator<StringText> cmp) {
+  public IssueTrackingBlocksRecognizer(FileHashes a, FileHashes b) {
     this.a = a;
     this.b = b;
-    this.cmp = cmp;
   }
 
   public boolean isValidLineInReference(@Nullable Integer line) {
@@ -55,24 +40,24 @@ public class IssueTrackingBlocksRecognizer {
   }
 
   /**
-   * @param startA number of line from first version of text (numbering starts from 0)
-   * @param startB number of line from second version of text (numbering starts from 0)
+   * @param startA number of line from first version of text (numbering starts from 1)
+   * @param startB number of line from second version of text (numbering starts from 1)
    */
   public int computeLengthOfMaximalBlock(int startA, int startB) {
-    if (!cmp.equals(a, startA, b, startB)) {
+    if (!a.getHash(startA).equals(b.getHash(startB))) {
       return 0;
     }
     int length = 0;
     int ai = startA;
     int bi = startB;
-    while (ai < a.length() && bi < b.length() && cmp.equals(a, ai, b, bi)) {
+    while (ai <= a.length() && bi <= b.length() && a.getHash(ai).equals(b.getHash(bi))) {
       ai++;
       bi++;
       length++;
     }
     ai = startA;
     bi = startB;
-    while (ai >= 0 && bi >= 0 && cmp.equals(a, ai, b, bi)) {
+    while (ai > 0 && bi > 0 && a.getHash(ai).equals(b.getHash(bi))) {
       ai--;
       bi--;
       length++;

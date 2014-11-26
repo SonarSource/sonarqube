@@ -20,7 +20,6 @@
 package org.sonar.plugins.core.issue.tracking;
 
 import org.junit.Test;
-import org.sonar.plugins.core.issue.tracking.IssueTrackingBlocksRecognizer;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -28,23 +27,23 @@ public class IssueTrackingBlocksRecognizerTest {
 
   @Test
   public void test() {
-    assertThat(compute(t("abcde"), t("abcde"), 3, 3)).isEqualTo(5);
-    assertThat(compute(t("abcde"), t("abcd"), 3, 3)).isEqualTo(4);
-    assertThat(compute(t("bcde"), t("abcde"), 3, 3)).isEqualTo(0);
-    assertThat(compute(t("bcde"), t("abcde"), 2, 3)).isEqualTo(4);
+    assertThat(compute(t("abcde"), t("abcde"), 4, 4)).isEqualTo(5);
+    assertThat(compute(t("abcde"), t("abcd"), 4, 4)).isEqualTo(4);
+    assertThat(compute(t("bcde"), t("abcde"), 4, 4)).isEqualTo(0);
+    assertThat(compute(t("bcde"), t("abcde"), 3, 4)).isEqualTo(4);
   }
 
-  private static int compute(String a, String b, int ai, int bi) {
+  private static int compute(FileHashes a, FileHashes b, int ai, int bi) {
     IssueTrackingBlocksRecognizer rec = new IssueTrackingBlocksRecognizer(a, b);
     return rec.computeLengthOfMaximalBlock(ai, bi);
   }
 
-  private static String t(String text) {
-    StringBuilder sb = new StringBuilder();
+  private static FileHashes t(String text) {
+    String[] array = new String[text.length()];
     for (int i = 0; i < text.length(); i++) {
-      sb.append(text.charAt(i)).append('\n');
+      array[i] = "" + text.charAt(i);
     }
-    return sb.toString();
+    return FileHashes.create(array);
   }
 
 }

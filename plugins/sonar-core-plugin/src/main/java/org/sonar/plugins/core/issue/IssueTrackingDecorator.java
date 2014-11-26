@@ -30,13 +30,15 @@ import org.sonar.api.batch.DecoratorBarriers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -46,7 +48,8 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.scan.LastSnapshots;
+import org.sonar.batch.scan.LastLineHashes;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueDto;
@@ -63,8 +66,7 @@ public class IssueTrackingDecorator implements Decorator {
   private final IssueCache issueCache;
   private final InitialOpenIssuesStack initialOpenIssues;
   private final IssueTracking tracking;
-  private final LastSnapshots lastSnapshots;
-  private final SonarIndex index;
+  private final LastLineHashes lastLineHashes;
   private final IssueHandlers handlers;
   private final IssueWorkflow workflow;
   private final IssueUpdater updater;
@@ -72,23 +74,26 @@ public class IssueTrackingDecorator implements Decorator {
   private final ResourcePerspectives perspectives;
   private final RulesProfile rulesProfile;
   private final RuleFinder ruleFinder;
+  private final InputPathCache inputPathCache;
+  private final Project project;
 
   public IssueTrackingDecorator(IssueCache issueCache, InitialOpenIssuesStack initialOpenIssues, IssueTracking tracking,
-    LastSnapshots lastSnapshots, SonarIndex index,
+    LastLineHashes lastLineHashes,
     IssueHandlers handlers, IssueWorkflow workflow,
     IssueUpdater updater,
     Project project,
     ResourcePerspectives perspectives,
     RulesProfile rulesProfile,
-    RuleFinder ruleFinder) {
+    RuleFinder ruleFinder, InputPathCache inputPathCache) {
     this.issueCache = issueCache;
     this.initialOpenIssues = initialOpenIssues;
     this.tracking = tracking;
-    this.lastSnapshots = lastSnapshots;
-    this.index = index;
+    this.lastLineHashes = lastLineHashes;
     this.handlers = handlers;
     this.workflow = workflow;
     this.updater = updater;
+    this.project = project;
+    this.inputPathCache = inputPathCache;
     this.changeContext = IssueChangeContext.createScan(project.getAnalysisDate());
     this.perspectives = perspectives;
     this.rulesProfile = rulesProfile;
@@ -120,7 +125,12 @@ public class IssueTrackingDecorator implements Decorator {
     // all the issues that are not closed in db before starting this module scan, including manual issues
     Collection<IssueDto> dbOpenIssues = initialOpenIssues.selectAndRemoveIssues(resource.getEffectiveKey());
 
-    SourceHashHolder sourceHashHolder = new SourceHashHolder(index, lastSnapshots, resource);
+    SourceHashHolder sourceHashHolder = null;
+    if (ResourceUtils.isFile(resource)) {
+      File sonarFile = (File) resource;
+      InputFile file = inputPathCache.getFile(project.getEffectiveKey(), sonarFile.getPath());
+      sourceHashHolder = new SourceHashHolder((DefaultInputFile) file, lastLineHashes);
+    }
 
     IssueTrackingResult trackingResult = tracking.track(sourceHashHolder, dbOpenIssues, issues);
 

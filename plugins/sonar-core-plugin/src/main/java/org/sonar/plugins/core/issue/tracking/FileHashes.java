@@ -21,47 +21,57 @@ package org.sonar.plugins.core.issue.tracking;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.ObjectUtils;
 
 import java.util.Collection;
 
 /**
  * Wraps a {@link Sequence} to assign hash codes to elements.
  */
-public final class HashedSequence<S extends Sequence> implements Sequence {
+public final class FileHashes {
 
-  final S base;
-  final int[] hashes;
-  final Multimap<Integer, Integer> linesByHash;
+  private final String[] hashes;
+  private final Multimap<String, Integer> linesByHash;
 
-  private HashedSequence(S base, int[] hashes, Multimap<Integer, Integer> linesByHash) {
-    this.base = base;
+  private FileHashes(String[] hashes, Multimap<String, Integer> linesByHash) {
     this.hashes = hashes;
     this.linesByHash = linesByHash;
   }
 
-  public static <S extends Sequence> HashedSequence<S> wrap(S base, SequenceComparator<S> cmp) {
-    int size = base.length();
-    int[] hashes = new int[size];
-    Multimap<Integer, Integer> linesByHash = LinkedHashMultimap.create();
+  public static FileHashes create(String[] hashes) {
+    int size = hashes.length;
+    Multimap<String, Integer> linesByHash = LinkedHashMultimap.create();
     for (int i = 0; i < size; i++) {
-      hashes[i] = cmp.hash(base, i);
       // indices in array are shifted one line before
       linesByHash.put(hashes[i], i + 1);
     }
-    return new HashedSequence<S>(base, hashes, linesByHash);
+    return new FileHashes(hashes, linesByHash);
   }
 
-  @Override
+  public static FileHashes create(byte[][] hashes) {
+    int size = hashes.length;
+    Multimap<String, Integer> linesByHash = LinkedHashMultimap.create();
+    String[] hexHashes = new String[size];
+    for (int i = 0; i < size; i++) {
+      String hash = hashes[i] != null ? Hex.encodeHexString(hashes[i]) : "";
+      hexHashes[i] = hash;
+      // indices in array are shifted one line before
+      linesByHash.put(hash, i + 1);
+    }
+    return new FileHashes(hexHashes, linesByHash);
+  }
+
   public int length() {
-    return base.length();
+    return hashes.length;
   }
 
-  public Collection<Integer> getLinesForHash(Integer hash) {
+  public Collection<Integer> getLinesForHash(String hash) {
     return linesByHash.get(hash);
   }
 
-  public Integer getHash(Integer line) {
+  public String getHash(int line) {
     // indices in array are shifted one line before
-    return hashes[line - 1];
+    return (String) ObjectUtils.defaultIfNull(hashes[line - 1], "");
   }
 }

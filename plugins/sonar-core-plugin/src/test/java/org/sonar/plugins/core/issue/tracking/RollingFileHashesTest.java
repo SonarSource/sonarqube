@@ -20,22 +20,24 @@
 package org.sonar.plugins.core.issue.tracking;
 
 import org.junit.Test;
-import org.sonar.plugins.core.issue.tracking.StringText;
 
+import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.fest.assertions.Assertions.assertThat;
 
-public class StringTextTest {
+public class RollingFileHashesTest {
 
   @Test
-  public void testEmpty() {
-    StringText r = new StringText("");
-    assertThat(r.length()).isEqualTo(0);
-  }
+  public void test_equals() {
+    RollingFileHashes a = RollingFileHashes.create(FileHashes.create(new String[] {md5Hex("line0"), md5Hex("line1"), md5Hex("line2")}), 1);
+    RollingFileHashes b = RollingFileHashes.create(FileHashes.create(new String[] {md5Hex("line0"), md5Hex("line1"), md5Hex("line2"), md5Hex("line3")}), 1);
 
-  @Test
-  public void testTwoLines() {
-    StringText r = new StringText("a\nb");
-    assertThat(r.length()).isEqualTo(2);
+    assertThat(a.getHash(1) == b.getHash(1)).isTrue();
+    assertThat(a.getHash(2) == b.getHash(2)).isTrue();
+    assertThat(a.getHash(3) == b.getHash(3)).isFalse();
+
+    RollingFileHashes c = RollingFileHashes.create(FileHashes.create(new String[] {md5Hex("line-1"), md5Hex("line0"), md5Hex("line1"), md5Hex("line2"), md5Hex("line3")}), 1);
+    assertThat(a.getHash(1) == c.getHash(2)).isFalse();
+    assertThat(a.getHash(2) == c.getHash(3)).isTrue();
   }
 
 }

@@ -19,12 +19,13 @@
  */
 package org.sonar.plugins.core.issue;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -38,7 +39,8 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.Duration;
 import org.sonar.batch.issue.IssueCache;
-import org.sonar.batch.scan.LastSnapshots;
+import org.sonar.batch.scan.LastLineHashes;
+import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueDto;
@@ -55,11 +57,17 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
@@ -67,14 +75,14 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   IssueCache issueCache = mock(IssueCache.class, RETURNS_MOCKS);
   InitialOpenIssuesStack initialOpenIssues = mock(InitialOpenIssuesStack.class);
   IssueTracking tracking = mock(IssueTracking.class, RETURNS_MOCKS);
-  LastSnapshots lastSnapshots = mock(LastSnapshots.class);
-  SonarIndex index = mock(SonarIndex.class);
+  LastLineHashes lastSnapshots = mock(LastLineHashes.class);
   IssueHandlers handlers = mock(IssueHandlers.class);
   IssueWorkflow workflow = mock(IssueWorkflow.class);
   IssueUpdater updater = mock(IssueUpdater.class);
   ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
   RulesProfile profile = mock(RulesProfile.class);
   RuleFinder ruleFinder = mock(RuleFinder.class);
+  InputPathCache inputPathCache = mock(InputPathCache.class);
 
   @Before
   public void init() {
@@ -83,14 +91,14 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       initialOpenIssues,
       tracking,
       lastSnapshots,
-      index,
       handlers,
       workflow,
       updater,
-      mock(Project.class),
+      new Project("foo"),
       perspectives,
       profile,
-      ruleFinder);
+      ruleFinder,
+      inputPathCache);
   }
 
   @Test
@@ -160,8 +168,6 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void manual_issues_should_be_moved_if_matching_line_found() throws Exception {
-    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
-
     // INPUT : one issue existing during previous scan
     IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(6).setStatus("OPEN").setRuleKey("manual", "Performance");
     when(ruleFinder.findByKey(RuleKey.of("manual", "Performance"))).thenReturn(new Rule("manual", "Performance"));
@@ -183,8 +189,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       + "   void method3();\n"
       + "   void method4();\n"
       + "}";
-    when(index.getSource(file)).thenReturn(newSource);
-    when(lastSnapshots.getSource(file)).thenReturn(originalSource);
+    Resource file = mockHashes(originalSource, newSource);
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
@@ -204,9 +209,19 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     assertThat(issue.isOnDisabledRule()).isFalse();
   }
 
+  private Resource mockHashes(String originalSource, String newSource) {
+    DefaultInputFile inputFile = mock(DefaultInputFile.class);
+    byte[][] hashes = computeHashes(newSource);
+    when(inputFile.lineHashes()).thenReturn(hashes);
+    when(inputFile.key()).thenReturn("foo:Action.java");
+    when(inputPathCache.getFile("foo", "Action.java")).thenReturn(inputFile);
+    when(lastSnapshots.getLineHashes("foo:Action.java")).thenReturn(computeHexHashes(originalSource));
+    Resource file = File.create("Action.java");
+    return file;
+  }
+
   @Test
   public void manual_issues_should_be_untouched_if_already_closed() throws Exception {
-    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
     IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("CLOSED").setRuleKey("manual", "Performance");
@@ -216,8 +231,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     trackingResult.addUnmatched(unmatchedIssue);
 
     String originalSource = "public interface Action {}";
-    when(index.getSource(file)).thenReturn(originalSource);
-    when(lastSnapshots.getSource(file)).thenReturn(originalSource);
+    Resource file = mockHashes(originalSource, originalSource);
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
@@ -240,7 +254,6 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
 
   @Test
   public void manual_issues_should_be_untouched_if_line_is_null() throws Exception {
-    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
     IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(null).setStatus("OPEN").setRuleKey("manual", "Performance");
@@ -250,8 +263,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     trackingResult.addUnmatched(unmatchedIssue);
 
     String originalSource = "public interface Action {}";
-    when(index.getSource(file)).thenReturn(originalSource);
-    when(lastSnapshots.getSource(file)).thenReturn(originalSource);
+    Resource file = mockHashes(originalSource, originalSource);
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
@@ -275,7 +287,6 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   @Test
   public void manual_issues_should_be_kept_if_matching_line_not_found() throws Exception {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
-    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
     final int issueOnLine = 6;
@@ -299,8 +310,8 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       + "   void method4();\n"
       + "   void method6();\n" // Poof, no method5 anymore
       + "}";
-    when(index.getSource(file)).thenReturn(newSource);
-    when(lastSnapshots.getSource(file)).thenReturn(originalSource);
+
+    Resource file = mockHashes(originalSource, newSource);
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
@@ -323,7 +334,6 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   @Test
   public void manual_issues_should_be_kept_if_multiple_matching_lines_found() throws Exception {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
-    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
     final int issueOnLine = 3;
@@ -347,8 +357,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       + "     notify();\n"
       + "   }\n"
       + "}";
-    when(index.getSource(file)).thenReturn(newSource);
-    when(lastSnapshots.getSource(file)).thenReturn(originalSource);
+    Resource file = mockHashes(originalSource, newSource);
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
@@ -368,11 +377,9 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     assertThat(issue.isOnDisabledRule()).isFalse();
   }
 
-
   @Test
   public void manual_issues_should_be_closed_if_manual_rule_is_removed() throws Exception {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
-    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
     IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("OPEN").setRuleKey("manual", "Performance");
@@ -382,8 +389,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     trackingResult.addUnmatched(unmatchedIssue);
 
     String source = "public interface Action {}";
-    when(index.getSource(file)).thenReturn(source);
-    when(lastSnapshots.getSource(file)).thenReturn(source);
+    Resource file = mockHashes(source, source);
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
@@ -405,7 +411,6 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   @Test
   public void manual_issues_should_be_closed_if_manual_rule_is_not_found() throws Exception {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
-    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
     IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(1).setStatus("OPEN").setRuleKey("manual", "Performance");
@@ -415,8 +420,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     trackingResult.addUnmatched(unmatchedIssue);
 
     String source = "public interface Action {}";
-    when(index.getSource(file)).thenReturn(source);
-    when(lastSnapshots.getSource(file)).thenReturn(source);
+    Resource file = mockHashes(source, source);
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
@@ -438,7 +442,6 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   @Test
   public void manual_issues_should_be_closed_if_new_source_is_shorter() throws Exception {
     // "Unmatched" issues existed in previous scan but not in current one -> they have to be closed
-    Resource file = new File("Action.java").setEffectiveKey("struts:Action.java").setId(123);
 
     // INPUT : one issue existing during previous scan
     IssueDto unmatchedIssue = new IssueDto().setKee("ABCDE").setReporter("freddy").setLine(6).setStatus("OPEN").setRuleKey("manual", "Performance");
@@ -458,8 +461,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
       + "   void method1();\n"
       + "   void method2();\n"
       + "}";
-    when(index.getSource(file)).thenReturn(newSource);
-    when(lastSnapshots.getSource(file)).thenReturn(originalSource);
+    Resource file = mockHashes(originalSource, newSource);
 
     when(tracking.track(isA(SourceHashHolder.class), anyCollection(), anyCollection())).thenReturn(trackingResult);
 
@@ -554,6 +556,24 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     decorator.mergeMatched(trackingResult);
 
     assertThat(issue.changes()).hasSize(1);
+  }
+
+  private byte[][] computeHashes(String source) {
+    String[] lines = source.split("\n");
+    byte[][] hashes = new byte[lines.length][];
+    for (int i = 0; i < lines.length; i++) {
+      hashes[i] = DigestUtils.md5(lines[i].replaceAll("[\t ]", ""));
+    }
+    return hashes;
+  }
+
+  private String[] computeHexHashes(String source) {
+    String[] lines = source.split("\n");
+    String[] hashes = new String[lines.length];
+    for (int i = 0; i < lines.length; i++) {
+      hashes[i] = DigestUtils.md5Hex(lines[i].replaceAll("[\t ]", ""));
+    }
+    return hashes;
   }
 
 }

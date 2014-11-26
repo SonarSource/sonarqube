@@ -19,64 +19,89 @@
  */
 package org.sonar.plugins.core.issue;
 
-import static org.mockito.Mockito.verify;
-
-import org.mockito.Mockito;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.resources.Resource;
-import org.sonar.batch.scan.LastSnapshots;
+import org.mockito.Mockito;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.batch.scan.LastLineHashes;
+
+import static org.apache.commons.codec.digest.DigestUtils.md5;
+import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SourceHashHolderTest {
 
   SourceHashHolder sourceHashHolder;
 
-  SonarIndex index;
-  LastSnapshots lastSnapshots;
-  Resource resource;
+  LastLineHashes lastSnapshots;
+  DefaultInputFile file;
 
   @Before
   public void setUp() {
-    index = mock(SonarIndex.class);
-    lastSnapshots = mock(LastSnapshots.class);
-    resource = mock(Resource.class);
+    lastSnapshots = mock(LastLineHashes.class);
+    file = mock(DefaultInputFile.class);
 
-    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, resource);
+    sourceHashHolder = new SourceHashHolder(file, lastSnapshots);
   }
 
   @Test
-  public void should_lazy_load_source() {
+  public void should_lazy_load_line_hashes() {
     final String source = "source";
-    when(index.getSource(resource)).thenReturn(source);
+    when(file.lineHashes()).thenReturn(new byte[][] {md5(source), null});
 
-    assertThat(sourceHashHolder.getSource()).isEqualTo(source);
-    verify(index).getSource(resource);
+    assertThat(sourceHashHolder.getHashedSource().getHash(1)).isEqualTo(md5Hex(source));
+    assertThat(sourceHashHolder.getHashedSource().getHash(2)).isEqualTo("");
+    verify(file).lineHashes();
+    verify(file).key();
+    verify(file).status();
 
-    assertThat(sourceHashHolder.getSource()).isEqualTo(source);
-    Mockito.verifyNoMoreInteractions(index);
+    assertThat(sourceHashHolder.getHashedSource().getHash(1)).isEqualTo(md5Hex(source));
+    Mockito.verifyNoMoreInteractions(file);
   }
 
   @Test
-  public void should_lazy_load_reference_source() {
+  public void should_lazy_load_reference_hashes_when_status_changed() {
     final String source = "source";
-    when(lastSnapshots.getSource(resource)).thenReturn(source);
+    String key = "foo:src/Foo.java";
+    when(file.lineHashes()).thenReturn(new byte[][] {md5(source)});
+    when(file.key()).thenReturn(key);
+    when(file.status()).thenReturn(InputFile.Status.CHANGED);
+    when(lastSnapshots.getLineHashes(key)).thenReturn(new String[] {md5Hex(source)});
 
-    assertThat(sourceHashHolder.getReferenceSource()).isEqualTo(source);
-    verify(lastSnapshots).getSource(resource);
+    assertThat(sourceHashHolder.getHashedReference().getHash(1)).isEqualTo(md5Hex(source));
+    verify(lastSnapshots).getLineHashes(key);
 
-    assertThat(sourceHashHolder.getReferenceSource()).isEqualTo(source);
+    assertThat(sourceHashHolder.getHashedReference().getHash(1)).isEqualTo(md5Hex(source));
     Mockito.verifyNoMoreInteractions(lastSnapshots);
   }
 
   @Test
-  public void should_have_null_reference_source_for_null_resource() {
-    sourceHashHolder = new SourceHashHolder(index, lastSnapshots, null);
+  public void should_not_load_reference_hashes_when_status_same() {
+    final String source = "source";
+    String key = "foo:src/Foo.java";
+    when(file.lineHashes()).thenReturn(new byte[][] {md5(source)});
+    when(file.key()).thenReturn(key);
+    when(file.status()).thenReturn(InputFile.Status.SAME);
 
-    assertThat(sourceHashHolder.getReferenceSource()).isNull();
+    assertThat(sourceHashHolder.getHashedReference().getHash(1)).isEqualTo(md5Hex(source));
+    assertThat(sourceHashHolder.getHashedReference().getHash(1)).isEqualTo(md5Hex(source));
     Mockito.verifyNoMoreInteractions(lastSnapshots);
   }
+
+  @Test
+  public void no_reference_hashes_when_status_added() {
+    final String source = "source";
+    String key = "foo:src/Foo.java";
+    when(file.lineHashes()).thenReturn(new byte[][] {md5(source)});
+    when(file.key()).thenReturn(key);
+    when(file.status()).thenReturn(InputFile.Status.ADDED);
+
+    assertThat(sourceHashHolder.getHashedReference()).isNull();
+    Mockito.verifyNoMoreInteractions(lastSnapshots);
+  }
+
 }

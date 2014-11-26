@@ -19,77 +19,52 @@
  */
 package org.sonar.plugins.core.issue;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.resources.Resource;
-import org.sonar.batch.scan.LastSnapshots;
-import org.sonar.plugins.core.issue.tracking.HashedSequence;
-import org.sonar.plugins.core.issue.tracking.StringText;
-import org.sonar.plugins.core.issue.tracking.StringTextComparator;
+import org.sonar.api.batch.fs.InputFile.Status;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.batch.scan.LastLineHashes;
+import org.sonar.plugins.core.issue.tracking.FileHashes;
+
+import javax.annotation.CheckForNull;
 
 import java.util.Collection;
 
 public class SourceHashHolder {
 
-  private final SonarIndex index;
-  private final LastSnapshots lastSnapshots;
-  private final Resource resource;
+  private final LastLineHashes lastSnapshots;
 
-  private String source;
-  private boolean sourceInitialized;
-  private String referenceSource;
-  private boolean referenceSourceInitialized;
+  private FileHashes hashedReference;
+  private FileHashes hashedSource;
+  private DefaultInputFile inputFile;
 
-  private HashedSequence<StringText> hashedReference;
-  private HashedSequence<StringText> hashedSource;
-
-  public SourceHashHolder(SonarIndex index, LastSnapshots lastSnapshots, Resource resource) {
-    this.index = index;
+  public SourceHashHolder(DefaultInputFile inputFile, LastLineHashes lastSnapshots) {
+    this.inputFile = inputFile;
     this.lastSnapshots = lastSnapshots;
-    this.resource = resource;
   }
 
   private void initHashes() {
-    hashedReference = HashedSequence.wrap(new StringText(getReferenceSource()), StringTextComparator.IGNORE_WHITESPACE);
-    hashedSource = HashedSequence.wrap(new StringText(getSource()), StringTextComparator.IGNORE_WHITESPACE);
+    if (hashedSource == null) {
+      hashedSource = FileHashes.create(inputFile.lineHashes());
+      Status status = inputFile.status();
+      if (status == Status.ADDED) {
+        hashedReference = null;
+      } else if (status == Status.SAME) {
+        hashedReference = hashedSource;
+      } else {
+        String[] lineHashes = lastSnapshots.getLineHashes(inputFile.key());
+        hashedReference = lineHashes != null ? FileHashes.create(lineHashes) : null;
+      }
+    }
   }
 
-  public HashedSequence<StringText> getHashedReference() {
-    initHashesIfNull(hashedReference);
+  @CheckForNull
+  public FileHashes getHashedReference() {
+    initHashes();
     return hashedReference;
   }
 
-  public HashedSequence<StringText> getHashedSource() {
-    initHashesIfNull(hashedSource);
+  public FileHashes getHashedSource() {
+    initHashes();
     return hashedSource;
-  }
-
-  public String getSource() {
-    if (!sourceInitialized) {
-      source = StringUtils.defaultString(index.getSource(resource), "");
-      sourceInitialized = true;
-    }
-    return source;
-  }
-
-  public String getReferenceSource() {
-    if (!referenceSourceInitialized) {
-      if (resource != null) {
-        referenceSource = lastSnapshots.getSource(resource);
-      }
-      referenceSourceInitialized = true;
-    }
-    return referenceSource;
-  }
-
-  public boolean hasBothReferenceAndCurrentSource() {
-    return getSource() != null && getReferenceSource() != null;
-  }
-
-  private void initHashesIfNull(Object required) {
-    if (required == null) {
-      initHashes();
-    }
   }
 
   public Collection<Integer> getNewLinesMatching(Integer originLine) {

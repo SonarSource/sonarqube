@@ -30,14 +30,8 @@ import org.sonar.api.BatchExtension;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.db.IssueDto;
-import org.sonar.plugins.core.issue.tracking.HashedSequence;
-import org.sonar.plugins.core.issue.tracking.HashedSequenceComparator;
 import org.sonar.plugins.core.issue.tracking.IssueTrackingBlocksRecognizer;
-import org.sonar.plugins.core.issue.tracking.RollingHashSequence;
-import org.sonar.plugins.core.issue.tracking.RollingHashSequenceComparator;
-import org.sonar.plugins.core.issue.tracking.SourceChecksum;
-import org.sonar.plugins.core.issue.tracking.StringText;
-import org.sonar.plugins.core.issue.tracking.StringTextComparator;
+import org.sonar.plugins.core.issue.tracking.RollingFileHashes;
 
 import javax.annotation.Nullable;
 
@@ -49,10 +43,15 @@ import java.util.Map;
 
 public class IssueTracking implements BatchExtension {
 
-  public IssueTrackingResult track(SourceHashHolder sourceHashHolder, Collection<IssueDto> dbIssues, Collection<DefaultIssue> newIssues) {
+  /**
+   * @param sourceHashHolder Null when working on resource that is not a file (directory/project)
+   */
+  public IssueTrackingResult track(@Nullable SourceHashHolder sourceHashHolder, Collection<IssueDto> dbIssues, Collection<DefaultIssue> newIssues) {
     IssueTrackingResult result = new IssueTrackingResult();
 
-    setChecksumOnNewIssues(newIssues, sourceHashHolder);
+    if (sourceHashHolder != null) {
+      setChecksumOnNewIssues(newIssues, sourceHashHolder);
+    }
 
     // Map new issues with old ones
     mapIssues(newIssues, dbIssues, sourceHashHolder, result);
@@ -63,9 +62,10 @@ public class IssueTracking implements BatchExtension {
     if (issues.isEmpty()) {
       return;
     }
-    List<String> checksums = SourceChecksum.lineChecksumsOfFile(sourceHashHolder.getSource());
     for (DefaultIssue issue : issues) {
-      issue.setChecksum(SourceChecksum.getChecksumForLine(checksums, issue.line()));
+      if (issue.line() != null) {
+        issue.setChecksum(sourceHashHolder.getHashedSource().getHash(issue.line()));
+      }
     }
   }
 
@@ -80,7 +80,7 @@ public class IssueTracking implements BatchExtension {
 
     // If each new issue matches an old one we can stop the matching mechanism
     if (result.matched().size() != newIssues.size()) {
-      if (sourceHashHolder.hasBothReferenceAndCurrentSource() && hasLastScan) {
+      if (sourceHashHolder != null && sourceHashHolder.getHashedReference() != null && hasLastScan) {
         mapNewissues(sourceHashHolder, newIssues, result);
       }
       mapIssuesOnSameRule(newIssues, result);
@@ -110,12 +110,10 @@ public class IssueTracking implements BatchExtension {
 
   private void mapNewissues(SourceHashHolder sourceHashHolder, Collection<DefaultIssue> newIssues, IssueTrackingResult result) {
 
-    HashedSequenceComparator<StringText> hashedComparator = new HashedSequenceComparator<StringText>(StringTextComparator.IGNORE_WHITESPACE);
-    IssueTrackingBlocksRecognizer rec = new IssueTrackingBlocksRecognizer(sourceHashHolder.getHashedReference(), sourceHashHolder.getHashedSource(), hashedComparator);
+    IssueTrackingBlocksRecognizer rec = new IssueTrackingBlocksRecognizer(sourceHashHolder.getHashedReference(), sourceHashHolder.getHashedSource());
 
-    RollingHashSequence<HashedSequence<StringText>> a = RollingHashSequence.wrap(sourceHashHolder.getHashedReference(), hashedComparator, 5);
-    RollingHashSequence<HashedSequence<StringText>> b = RollingHashSequence.wrap(sourceHashHolder.getHashedSource(), hashedComparator, 5);
-    RollingHashSequenceComparator<HashedSequence<StringText>> cmp = new RollingHashSequenceComparator<HashedSequence<StringText>>(hashedComparator);
+    RollingFileHashes a = RollingFileHashes.create(sourceHashHolder.getHashedReference(), 5);
+    RollingFileHashes b = RollingFileHashes.create(sourceHashHolder.getHashedSource(), 5);
 
     Multimap<Integer, DefaultIssue> newIssuesByLines = newIssuesByLines(newIssues, rec, result);
     Multimap<Integer, IssueDto> lastIssuesByLines = lastIssuesByLines(result.unmatched(), rec);
@@ -123,7 +121,7 @@ public class IssueTracking implements BatchExtension {
     Map<Integer, HashOccurrence> map = Maps.newHashMap();
 
     for (Integer line : lastIssuesByLines.keySet()) {
-      int hash = cmp.hash(a, line - 1);
+      int hash = a.getHash(line);
       HashOccurrence hashOccurrence = map.get(hash);
       if (hashOccurrence == null) {
         // first occurrence in A
@@ -137,7 +135,7 @@ public class IssueTracking implements BatchExtension {
     }
 
     for (Integer line : newIssuesByLines.keySet()) {
-      int hash = cmp.hash(b, line - 1);
+      int hash = b.getHash(line);
       HashOccurrence hashOccurrence = map.get(hash);
       if (hashOccurrence != null) {
         hashOccurrence.lineB = line;
@@ -159,7 +157,7 @@ public class IssueTracking implements BatchExtension {
       List<LinePair> possibleLinePairs = Lists.newArrayList();
       for (Integer oldLine : lastIssuesByLines.keySet()) {
         for (Integer newLine : newIssuesByLines.keySet()) {
-          int weight = rec.computeLengthOfMaximalBlock(oldLine - 1, newLine - 1);
+          int weight = rec.computeLengthOfMaximalBlock(oldLine, newLine);
           possibleLinePairs.add(new LinePair(oldLine, newLine, weight));
         }
       }
