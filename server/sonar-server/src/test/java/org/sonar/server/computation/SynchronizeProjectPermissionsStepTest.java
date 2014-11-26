@@ -20,7 +20,7 @@
 package org.sonar.server.computation;
 
 import org.junit.Test;
-import org.sonar.server.es.IssueAuthorizationIndexer;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

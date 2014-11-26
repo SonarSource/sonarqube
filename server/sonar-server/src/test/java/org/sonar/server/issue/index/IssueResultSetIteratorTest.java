@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+package org.sonar.server.issue.index;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.junit.After;
@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.index.IssueDoc;
 
 import java.sql.Connection;
 import java.util.Date;

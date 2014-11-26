@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+package org.sonar.server.issue.index;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
@@ -27,6 +27,9 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.BaseIndexer;
+import org.sonar.server.es.BulkIndexer;
+import org.sonar.server.es.EsClient;
 
 import java.sql.Connection;
 import java.util.Collection;

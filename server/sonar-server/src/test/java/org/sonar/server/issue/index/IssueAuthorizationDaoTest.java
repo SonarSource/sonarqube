@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+package org.sonar.server.issue.index;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -26,13 +26,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.DbClient;
 
 import java.sql.Connection;
 import java.util.Collection;
-import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 

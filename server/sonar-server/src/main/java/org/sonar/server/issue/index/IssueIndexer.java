@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+package org.sonar.server.issue.index;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -26,7 +26,9 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.index.IssueDoc;
+import org.sonar.server.es.BaseIndexer;
+import org.sonar.server.es.BulkIndexer;
+import org.sonar.server.es.EsClient;
 
 import java.sql.Connection;
 import java.util.Iterator;

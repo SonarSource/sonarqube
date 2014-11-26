@@ -34,7 +34,7 @@ import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.es.IssueIndexDefinition;
+import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 

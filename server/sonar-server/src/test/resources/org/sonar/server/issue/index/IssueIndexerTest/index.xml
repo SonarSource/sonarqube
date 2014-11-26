@@ -1,0 +1,35 @@
+<dataset>
+  <rules id="1" tags="[null]" system_tags="[null]" name="Avoid Cycles" plugin_rule_key="AvoidCycles"
+         plugin_config_key="[null]" plugin_name="squid"/>
+
+  <projects id="10" scope="PRJ" qualifier="TRK" kee="the_project" name="TheProject"
+            uuid="THE_PROJECT" module_uuid="[null]" module_uuid_path="[null]"/>
+  <projects id="11" scope="FIL" qualifier="FIL" kee="abcde" name="TheFile"
+            uuid="THE_FILE" module_uuid="THE_PROJECT" module_uuid_path="[null]"/>
+
+  <issues id="1"
+          kee="ABCDE"
+          resolution="FIXED"
+          status="RESOLVED"
+          severity="BLOCKER"
+          manual_severity="[false]"
+          assignee="winner"
+          author_login="[null]"
+          checksum="FFFFF"
+          effort_to_fix="[null]"
+          technical_debt="[null]"
+          message="[null]"
+          line="444"
+          component_id="11"
+          root_component_id="10"
+          rule_id="1"
+          reporter="[null]"
+          issue_attributes="JIRA=http://jira.com"
+          action_plan_key="[null]"
+          created_at="2005-05-12"
+          updated_at="2013-05-18"
+          issue_creation_date="2005-05-12 00:00:00.0"
+          issue_update_date="2013-05-18 00:00:00.0"
+          issue_close_date="[null]"
+    />
+</dataset>

@@ -31,7 +31,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.es.IssueAuthorizationIndexer;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.RuleTesting;

@@ -25,7 +25,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.server.es.IssueIndexDefinition;
 import org.sonar.server.search.BaseDoc;
 
 import javax.annotation.CheckForNull;

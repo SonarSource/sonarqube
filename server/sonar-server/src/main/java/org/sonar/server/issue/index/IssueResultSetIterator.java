@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+package org.sonar.server.issue.index;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
 import org.sonar.server.db.migrations.SqlUtil;
-import org.sonar.server.issue.index.IssueDoc;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -62,9 +62,10 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "i.issue_close_date",
     "i.issue_creation_date",
     "i.issue_update_date",
-    "r.plugin_rule_key",
+    "r.plugin_name",
 
     // column 21
+    "r.plugin_rule_key",
     "r.language",
     "p.uuid",
     "p.module_uuid",
@@ -123,12 +124,14 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setFuncCloseDate(SqlUtil.getDate(rs, 17));
     doc.setFuncCreationDate(SqlUtil.getDate(rs, 18));
     doc.setFuncUpdateDate(SqlUtil.getDate(rs, 19));
-    doc.setRuleKey(rs.getString(20));
-    doc.setLanguage(rs.getString(21));
-    doc.setComponentUuid(rs.getString(22));
-    doc.setModuleUuid(rs.getString(23));
-    doc.setModuleUuidPath(rs.getString(24));
-    doc.setFilePath(rs.getString(25));
+    String ruleRepo = rs.getString(20);
+    String ruleKey = rs.getString(21);
+    doc.setRuleKey(RuleKey.of(ruleRepo, ruleKey).toString());
+    doc.setLanguage(rs.getString(22));
+    doc.setComponentUuid(rs.getString(23));
+    doc.setModuleUuid(rs.getString(24));
+    doc.setModuleUuidPath(rs.getString(25));
+    doc.setFilePath(rs.getString(26));
     return doc;
   }
 }

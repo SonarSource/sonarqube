@@ -152,7 +152,7 @@ public class EsTester extends ExternalResource {
       @Override
       public E apply(SearchHit input) {
         try {
-          return (E) ConstructorUtils.invokeExactConstructor(docClass, input.getSource());
+          return (E) ConstructorUtils.invokeConstructor(docClass, input.getSource());
         } catch (Exception e) {
           throw Throwables.propagate(e);
         }

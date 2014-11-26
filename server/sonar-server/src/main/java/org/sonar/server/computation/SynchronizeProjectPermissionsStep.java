@@ -23,7 +23,7 @@ package org.sonar.server.computation;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.computation.db.AnalysisReportDto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.es.IssueAuthorizationIndexer;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 
 public class SynchronizeProjectPermissionsStep implements ComputationStep {
 

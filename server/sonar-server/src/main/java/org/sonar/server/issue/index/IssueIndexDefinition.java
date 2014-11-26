@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+package org.sonar.server.issue.index;
 
 import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessConstants;
+import org.sonar.server.es.IndexDefinition;
+import org.sonar.server.es.NewIndex;
 import org.sonar.server.search.BaseNormalizer;
 
 /**

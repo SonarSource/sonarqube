@@ -26,7 +26,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.Dao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.es.IssueAuthorizationIndexer;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueNormalizer;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;

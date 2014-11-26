@@ -27,8 +27,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.es.IssueAuthorizationIndexer;
-import org.sonar.server.es.IssueIndexer;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
+import org.sonar.server.issue.index.IssueIndexer;
 
 public class ComponentCleanerService implements ServerComponent {
 

@@ -31,7 +31,7 @@ import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.es.IssueAuthorizationIndexer;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;

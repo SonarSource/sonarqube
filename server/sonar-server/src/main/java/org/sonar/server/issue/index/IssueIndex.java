@@ -46,7 +46,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.db.IssueDto;
-import org.sonar.server.es.IssueIndexDefinition;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.search.BaseIndex;
