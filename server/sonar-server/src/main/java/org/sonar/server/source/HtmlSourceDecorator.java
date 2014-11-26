@@ -76,6 +76,23 @@ public class HtmlSourceDecorator implements ServerComponent {
   }
 
   @CheckForNull
+  public String getDecoratedSourceAsHtml(@Nullable String sourceLine, @Nullable String highlighting) {
+    Collection<SnapshotDataDto> snapshotDataEntries = Lists.newArrayList();
+    if (highlighting != null) {
+      SnapshotDataDto highlightingDto = new SnapshotDataDto();
+      highlightingDto.setData(highlighting);
+      highlightingDto.setDataType(SnapshotDataTypes.SYNTAX_HIGHLIGHTING);
+      snapshotDataEntries.add(highlightingDto);
+    }
+    List<String> decoratedSource = decorate(sourceLine, snapshotDataEntries, 1, 1);
+    if (decoratedSource == null) {
+      return null;
+    } else {
+      return decoratedSource.get(0);
+    }
+  }
+
+  @CheckForNull
   private List<String> decorate(@Nullable String snapshotSource, Collection<SnapshotDataDto> snapshotDataEntries, @Nullable Integer from, @Nullable Integer to) {
     if (snapshotSource != null) {
       DecorationDataHolder decorationDataHolder = new DecorationDataHolder();

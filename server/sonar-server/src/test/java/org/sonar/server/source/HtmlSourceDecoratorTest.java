@@ -32,7 +32,11 @@ import org.sonar.core.source.db.SnapshotSourceDao;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
 
@@ -176,4 +180,24 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
     verify(snapshotSourceDao, times(0)).selectSnapshotSourceByComponentKey(eq("org.apache.struts:struts:DebuggingInterceptor"),
       any(SqlSession.class));
   }
+
+  @Test
+  public void should_decorate_single_line() {
+    String sourceLine = "package org.polop;";
+    String highlighting = "0,7,k";
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, highlighting)).isEqualTo("<span class=\"k\">package</span> org.polop;");
+  }
+
+  @Test
+  public void should_ignore_missing_highlighting() {
+    String sourceLine = "    if (toto < 42) {";
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, null)).isEqualTo("    if (toto &lt; 42) {");
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(sourceLine, "")).isEqualTo("    if (toto &lt; 42) {");
+  }
+
+  @Test
+  public void should_ignore_null_source() {
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml(null, null)).isNull();
+  }
 }
+

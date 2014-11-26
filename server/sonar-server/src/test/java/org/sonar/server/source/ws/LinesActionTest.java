@@ -20,15 +20,19 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.search.BaseNormalizer;
+import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 import org.sonar.server.source.index.SourceLineIndexDefinition;
@@ -52,6 +56,9 @@ public class LinesActionTest {
   @Mock
   SourceLineIndex sourceLineIndex;
 
+  @Mock
+  HtmlSourceDecorator htmlSourceDecorator;
+
   WsTester tester;
 
   @Before
@@ -61,10 +68,18 @@ public class LinesActionTest {
         mock(ShowAction.class),
         mock(RawAction.class),
         mock(ScmAction.class),
-        new LinesAction(sourceLineIndex),
+        new LinesAction(sourceLineIndex, htmlSourceDecorator),
         mock(HashAction.class)
       )
     );
+    when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString())).thenAnswer(new Answer<String>() {
+      @Override
+      public String answer(InvocationOnMock invocation) throws Throwable {
+        return "<span class=\"" + invocation.getArguments()[1] + "\">" +
+          StringEscapeUtils.escapeHtml((String) invocation.getArguments()[0]) +
+            "</span>";
+      }
+    });
   }
 
   @Test
@@ -80,6 +95,7 @@ public class LinesActionTest {
       .put(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate)
       .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
       .put(SourceLineIndexDefinition.FIELD_SOURCE, "class Polop {")
+      .put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h1")
       .put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt)
       .build());
     SourceLineDoc line2 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
@@ -90,6 +106,7 @@ public class LinesActionTest {
       .put(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate)
       .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
       .put(SourceLineIndexDefinition.FIELD_SOURCE, "  // Empty")
+      .put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h2")
       .put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt)
       .build());
     SourceLineDoc line3 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
@@ -100,6 +117,7 @@ public class LinesActionTest {
       .put(SourceLineIndexDefinition.FIELD_SCM_DATE, scmDate)
       .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
       .put(SourceLineIndexDefinition.FIELD_SOURCE, "}")
+      .put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h3")
       .put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt)
       .build());
     when(sourceLineIndex.getLines(eq(componentUuid), anyInt(), anyInt())).thenReturn(newArrayList(
@@ -138,6 +156,7 @@ public class LinesActionTest {
     fieldMap.put(SourceLineIndexDefinition.FIELD_SCM_DATE, null);
     fieldMap.put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop");
     fieldMap.put(SourceLineIndexDefinition.FIELD_SOURCE, "}");
+    fieldMap.put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "");
     fieldMap.put(BaseNormalizer.UPDATED_AT_FIELD, new Date());
     when(sourceLineIndex.getLines(fileKey, 3, 3)).thenReturn(newArrayList(
       new SourceLineDoc(fieldMap)

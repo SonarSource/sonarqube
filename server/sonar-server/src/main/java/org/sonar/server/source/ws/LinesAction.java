@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.index.SourceLineDoc;
 import org.sonar.server.source.index.SourceLineIndex;
 
@@ -37,9 +38,11 @@ import java.util.List;
 public class LinesAction implements RequestHandler {
 
   private final SourceLineIndex sourceLineIndex;
+  private final HtmlSourceDecorator htmlSourceDecorator;
 
-  public LinesAction(SourceLineIndex sourceLineIndex) {
+  public LinesAction(SourceLineIndex sourceLineIndex, HtmlSourceDecorator htmlSourceDecorator) {
     this.sourceLineIndex = sourceLineIndex;
+    this.htmlSourceDecorator = htmlSourceDecorator;
   }
 
   void define(WebService.NewController controller) {
@@ -98,7 +101,7 @@ public class LinesAction implements RequestHandler {
     for (SourceLineDoc line: lines) {
       json.beginObject()
         .prop("line", line.line())
-        .prop("code", line.source())
+        .prop("code", htmlSourceDecorator.getDecoratedSourceAsHtml(line.source(), line.highlighting()))
         .prop("scmAuthor", line.scmAuthor())
         .prop("scmRevision", line.scmRevision());
       Date scmDate = line.scmDate();

@@ -61,10 +61,10 @@ public class SourceLineResultSetIteratorTest {
     db.prepareDbUnit(getClass(), "source-with-scm.xml");
     Connection connection = db.openConnection();
     PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET data = ? WHERE id=1");
-    stmt.setString(1, "aef12a,alice,2014-04-25T12:34:56+0100,,class Foo {\r\n" +
-      "abe465,bob,2014-07-25T12:34:56+0100,,  // Empty\r\n" +
-      "afb789,carol,2014-03-23T12:34:56+0100,,}\r\n" +
-      "afb789,carol,2014-03-23T12:34:56+0100,,\r\n");
+    stmt.setString(1, "aef12a,alice,2014-04-25T12:34:56+0100,,,,polop,class Foo {\r\n" +
+      "abe465,bob,2014-07-25T12:34:56+0100,,,,,  // Empty\r\n" +
+      "afb789,carol,2014-03-23T12:34:56+0100,,,,,}\r\n" +
+      "afb789,carol,2014-03-23T12:34:56+0100,,,,,\r\n");
     stmt.executeUpdate();
 
     SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L);
@@ -79,7 +79,7 @@ public class SourceLineResultSetIteratorTest {
     assertThat(firstLine.scmAuthor()).isEqualTo("alice");
     // TODO Sanitize usage of fscking dates
     // assertThat(firstLine.scmDate()).isEqualTo(DateUtils.parseDateTime("2014-04-25T12:34:56+0100"));
-    assertThat(firstLine.highlighting()).isEmpty();
+    assertThat(firstLine.highlighting()).isEqualTo("polop");
     assertThat(firstLine.source()).isEqualTo("class Foo {");
   }
 

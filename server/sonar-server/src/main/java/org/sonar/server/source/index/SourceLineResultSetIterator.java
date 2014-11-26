@@ -100,7 +100,10 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
         doc.setScmRevision(csvRecord.get(0));
         doc.setScmAuthor(csvRecord.get(1));
         doc.setScmDate(DateUtils.parseDateTimeQuietly(csvRecord.get(2)));
-        doc.setHighlighting(csvRecord.get(3));
+        // doc.setLineHits(csvRecord.get(3));
+        // doc.setConditions(csvRecord.get(4));
+        // doc.setCoveredConditions(csvRecord.get(5));
+        doc.setHighlighting(csvRecord.get(6));
         doc.setSource(csvRecord.get(csvRecord.size() - 1));
 
         lines.add(doc);
