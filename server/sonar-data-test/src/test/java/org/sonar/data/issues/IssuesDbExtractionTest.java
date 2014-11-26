@@ -22,6 +22,7 @@ package org.sonar.data.issues;
 import org.apache.ibatis.session.ResultContext;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore("Waiting for usage of IssueIndexer")
 public class IssuesDbExtractionTest extends AbstractTest {
 
   static final Logger LOGGER = LoggerFactory.getLogger(IssuesDbExtractionTest.class);
