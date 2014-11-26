@@ -88,7 +88,11 @@ public class HtmlSourceDecorator implements ServerComponent {
     if (decoratedSource == null) {
       return null;
     } else {
-      return decoratedSource.get(0);
+      if (decoratedSource.isEmpty()) {
+        return "";
+      } else {
+        return decoratedSource.get(0);
+      }
     }
   }
 

@@ -199,5 +199,10 @@ public class HtmlSourceDecoratorTest extends AbstractDaoTestCase {
   public void should_ignore_null_source() {
     assertThat(sourceDecorator.getDecoratedSourceAsHtml(null, null)).isNull();
   }
+
+  @Test
+  public void should_ignore_empty_source() {
+    assertThat(sourceDecorator.getDecoratedSourceAsHtml("", null)).isEqualTo("");
+  }
 }
 
