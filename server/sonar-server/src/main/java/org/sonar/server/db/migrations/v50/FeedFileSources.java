@@ -179,6 +179,7 @@ public class FeedFileSources extends BaseDataChange {
       "(project_uuid, file_uuid, created_at, updated_at, data, line_hashes, data_hash)" +
       "VALUES " +
       "(?, ?, ?, ?, ?, ?, ?)");
+    massUpdate.rowPluralName("files");
 
     massUpdate.execute(new FileSourceBuilder(system));
   }

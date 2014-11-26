@@ -179,9 +179,8 @@ class IssueAuthorizationDao {
     }
     PreparedStatement stmt = dbClient.newScrollingSelectStatement(connection, sql);
     if (afterDate > 0L) {
-      Timestamp ts = new Timestamp(afterDate);
       for (int i = 1; i <= 4; i++) {
-        stmt.setTimestamp(i, ts);
+        stmt.setLong(i, afterDate);
       }
     }
     return stmt;
@@ -194,7 +193,7 @@ class IssueAuthorizationDao {
 
     Dto dto = dtosByProjectUuid.get(projectUuid);
     if (dto == null) {
-      long updatedAt = rs.getTimestamp(4).getTime();
+      long updatedAt = rs.getLong(4);
       dto = new Dto(projectUuid, updatedAt);
       dtosByProjectUuid.put(projectUuid, dto);
     }

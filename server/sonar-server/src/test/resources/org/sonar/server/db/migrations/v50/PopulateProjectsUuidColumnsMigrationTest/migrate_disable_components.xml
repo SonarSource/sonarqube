@@ -5,7 +5,7 @@
             uuid="[null]" project_uuid="[null]" module_uuid="[null]" module_uuid_path="[null]"
             description="the description" long_name="Apache Struts"
             enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]"
-            created_at="2014-06-18" authorization_updated_at="2014-06-18" />
+            created_at="2014-06-18" />
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -20,7 +20,7 @@
   <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
             uuid="[null]" project_uuid="[null]" module_uuid="[null]" module_uuid_path="[null]"
             scope="PRJ" qualifier="BRC" long_name="Struts Core" deprecated_kee="[null]"
-            description="[null]" enabled="[false]" language="[null]" copy_resource_id="[null]" person_id="[null]" created_at="2014-06-18" authorization_updated_at="[null]" />
+            description="[null]" enabled="[false]" language="[null]" copy_resource_id="[null]" person_id="[null]" created_at="2014-06-18" />
   <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -35,7 +35,7 @@
   <projects id="3" root_id="2" kee="org.struts:struts-db" name="Struts Db"
             uuid="[null]" project_uuid="[null]" module_uuid="[null]" module_uuid_path="[null]"
             scope="PRJ" qualifier="BRC" long_name="Struts Db" deprecated_kee="[null]"
-            description="[null]" enabled="[false]" language="[null]" copy_resource_id="[null]" person_id="[null]" created_at="2014-06-18" authorization_updated_at="[null]" />
+            description="[null]" enabled="[false]" language="[null]" copy_resource_id="[null]" person_id="[null]" created_at="2014-06-18" />
   <snapshots id="3" project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -51,7 +51,7 @@
             uuid="[null]" project_uuid="[null]" module_uuid="[null]" module_uuid_path="[null]"
             name="src/org/struts" root_id="2"
             description="[null]" deprecated_kee="[null]"
-            enabled="[false]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="src/org/struts" created_at="2014-06-18" authorization_updated_at="[null]" />
+            enabled="[false]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="src/org/struts" created_at="2014-06-18" />
   <snapshots id="4" project_id="4" parent_snapshot_id="3" root_project_id="1" root_snapshot_id="1"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -67,7 +67,7 @@
             uuid="[null]" project_uuid="[null]" module_uuid="[null]" module_uuid_path="[null]"
             name="RequestContext.java" root_id="2"
             description="[null]" deprecated_kee="[null]"
-            enabled="[false]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/RequestContext.java" created_at="2014-06-18" authorization_updated_at="[null]" />
+            enabled="[false]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/RequestContext.java" created_at="2014-06-18" />
 
   <snapshots id="5" project_id="5" parent_snapshot_id="4" root_project_id="1" root_snapshot_id="1"
              status="P" islast="[false]" purge_status="[null]"

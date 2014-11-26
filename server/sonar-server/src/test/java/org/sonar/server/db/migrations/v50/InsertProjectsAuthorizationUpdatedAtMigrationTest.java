@@ -23,7 +23,6 @@ package org.sonar.server.db.migrations.v50;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.migrations.DatabaseMigration;
@@ -43,7 +42,7 @@ public class InsertProjectsAuthorizationUpdatedAtMigrationTest {
   public void setUp() throws Exception {
     db.executeUpdateSql("truncate table projects");
     migration = new InsertProjectsAuthorizationUpdatedAtMigration(db.database(), system);
-    when(system.now()).thenReturn(DateUtils.parseDate("2014-09-03").getTime());
+    when(system.now()).thenReturn(123456789L);
   }
 
   @Test

@@ -66,7 +66,6 @@ import org.sonar.core.issue.db.ActionPlanMapper;
 import org.sonar.core.issue.db.ActionPlanStatsDto;
 import org.sonar.core.issue.db.ActionPlanStatsMapper;
 import org.sonar.core.issue.db.IssueAuthorizationDto;
-import org.sonar.core.issue.db.IssueAuthorizationMapper;
 import org.sonar.core.issue.db.IssueChangeDto;
 import org.sonar.core.issue.db.IssueChangeMapper;
 import org.sonar.core.issue.db.IssueDto;
@@ -230,7 +229,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, "org.sonar.core.permission.PermissionMapper");
     Class<?>[] mappers = {ActivityMapper.class, ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
-      IssueMapper.class, IssueAuthorizationMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
+      IssueMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, Migration44Mapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, GroupMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,

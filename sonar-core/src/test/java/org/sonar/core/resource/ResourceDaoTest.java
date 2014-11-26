@@ -265,7 +265,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     assertThat(file1.getId()).isNotNull();
     assertThat(file2.getId()).isNotNull();
-    checkTables("insert", "projects");
+    checkTables("insert", new String[] {"authorization_updated_at"}, "projects");
 
     // SONAR-3636 : created_at must be fed when inserting a new entry in the 'projects' table
     ResourceDto fileLoadedFromDB = dao.getResource(file1.getId());
@@ -436,7 +436,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void update_authorization_date() {
     setupData("update_authorization_date");
 
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-03").getTime());
+    when(system2.now()).thenReturn(987654321L);
     dao.updateAuthorizationDate(1L, session);
     session.commit();
 

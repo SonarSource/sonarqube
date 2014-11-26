@@ -24,7 +24,6 @@ import org.apache.ibatis.session.ResultHandler;
 import org.sonar.core.component.SnapshotDto;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 public interface ResourceMapper {
@@ -77,6 +76,6 @@ public interface ResourceMapper {
 
   void update(ResourceDto resource);
 
-  void updateAuthorizationDate(@Param("projectId") Long projectId, @Param("authorizationDate") Date authorizationDate);
+  void updateAuthorizationDate(@Param("projectId") Long projectId, @Param("authorizationDate") Long authorizationDate);
 
 }

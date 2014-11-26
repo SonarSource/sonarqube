@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -53,7 +52,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   @Before
   public void setUp() {
     system2 = mock(System2.class);
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-09-03").getTime());
+    when(system2.now()).thenReturn(123456789L);
 
     session = getMyBatis().openSession(false);
     RoleDao roleDao = new RoleDao();
@@ -86,7 +85,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
 
     assertThat(permissionFacade.selectUserPermissions(session, "marius", 123L)).containsOnly("admin");
 
-    assertThat(resourceDao.getResource(123L, session).getAuthorizationUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-09-03"));
+    assertThat(resourceDao.getResource(123L, session).getAuthorizationUpdatedAt()).isEqualTo(123456789L);
   }
 
   @Test

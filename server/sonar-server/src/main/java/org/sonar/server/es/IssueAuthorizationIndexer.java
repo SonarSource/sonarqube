@@ -30,6 +30,7 @@ import org.sonar.server.db.DbClient;
 
 import java.sql.Connection;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -103,7 +104,7 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
         IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, dto.getProjectUuid(),
         IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, dto.getGroups(),
         IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, dto.getUsers(),
-        IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, dto.getUpdatedAt());
+        IssueIndexDefinition.FIELD_AUTHORIZATION_UPDATED_AT, new Date(dto.getUpdatedAt()));
       request = new UpdateRequest(IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION, dto.getProjectUuid())
         .routing(dto.getProjectUuid())
         .doc(doc)

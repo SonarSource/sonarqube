@@ -25,7 +25,7 @@
 class AddAuthorizationUpdatedAtToProjects < ActiveRecord::Migration
 
   def self.up
-    add_column 'projects', :authorization_updated_at, :datetime, :null => true
+    add_column 'projects', :authorization_updated_at, :big_integer, :null => true
   end
 end
 

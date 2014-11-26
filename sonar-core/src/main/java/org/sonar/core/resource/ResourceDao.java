@@ -35,7 +35,10 @@ import org.sonar.core.persistence.MyBatis;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -157,7 +160,7 @@ public class ResourceDao implements DaoComponent {
             resource.setProjectUuid(uuid);
           }
           resource.setCreatedAt(now);
-          resource.setAuthorizationUpdatedAt(now);
+          resource.setAuthorizationUpdatedAt(now.getTime());
           mapper.insert(resource);
         } else {
           mapper.update(resource);
@@ -174,7 +177,7 @@ public class ResourceDao implements DaoComponent {
    * Should not be called from batch side (used to reindex permission in E/S)
    */
   public void updateAuthorizationDate(Long projectId, SqlSession session) {
-    session.getMapper(ResourceMapper.class).updateAuthorizationDate(projectId, new Date(system2.now()));
+    session.getMapper(ResourceMapper.class).updateAuthorizationDate(projectId, system2.now());
   }
 
   @CheckForNull

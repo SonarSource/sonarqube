@@ -77,9 +77,8 @@ public class IssueIndexer extends BaseIndexer {
   public void deleteProject(String uuid, boolean refresh) {
     QueryBuilder query = QueryBuilders.filteredQuery(
       QueryBuilders.matchAllQuery(),
-      FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueNormalizer.IssueField.PROJECT.field(), uuid))
+      FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, uuid))
     );
-
     esClient.prepareDeleteByQuery(IssueIndexDefinition.INDEX_ISSUES).setQuery(query).get();
     if (refresh) {
       esClient.prepareRefresh(IssueIndexDefinition.INDEX_ISSUES).get();

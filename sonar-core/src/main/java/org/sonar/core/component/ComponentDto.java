@@ -46,7 +46,7 @@ public class ComponentDto extends Dto<String> implements Component {
   private String language;
   private Long subProjectId;
   private boolean enabled = true;
-  private Date authorizationUpdatedAt;
+  private Long authorizationUpdatedAt;
 
   public Long getId() {
     return id;
@@ -202,11 +202,11 @@ public class ComponentDto extends Dto<String> implements Component {
    * Only available on projects
    */
   @CheckForNull
-  public Date getAuthorizationUpdatedAt() {
+  public Long getAuthorizationUpdatedAt() {
     return authorizationUpdatedAt;
   }
 
-  public ComponentDto setAuthorizationUpdatedAt(@Nullable Date authorizationUpdatedAt) {
+  public ComponentDto setAuthorizationUpdatedAt(@Nullable Long authorizationUpdatedAt) {
     this.authorizationUpdatedAt = authorizationUpdatedAt;
     return this;
   }

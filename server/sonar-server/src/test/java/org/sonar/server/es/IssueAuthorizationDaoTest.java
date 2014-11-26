@@ -80,8 +80,7 @@ public class IssueAuthorizationDaoTest {
   public void select_after_date() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
-    Date date = DateUtils.parseDate("2014-01-01");
-    Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(client, connection, date.getTime());
+    Collection<IssueAuthorizationDao.Dto> dtos = dao.selectAfterDate(client, connection, 1500000000L);
 
     // only project DEF was updated in this period
     assertThat(dtos).hasSize(1);

@@ -4,12 +4,12 @@
             scope="FIL" qualifier="FIL" kee="org.struts:struts:/src/main/java/org/struts/Action.java" name="Action"
             description="[null]" long_name="org.struts.Action"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="2014-09-03" path="/foo/bar" deprecated_kee="org.struts:struts:org.struts.Action"
-            authorization_updated_at="2014-09-03"/>
+            authorization_updated_at="123456789"/>
 
   <projects id="2" root_id="[null]" uuid="BCDE" project_uuid="FGHI" module_uuid="[null]" module_uuid_path="[null]"
             scope="FIL" qualifier="FIL" kee="org.struts:struts:/src/main/java/org/struts/Filter.java" name="Filter"
             description="[null]" long_name="org.struts.Filter"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" created_at="2014-09-03" path="[null]" deprecated_kee="org.struts:struts:org.struts.Filter"
-            authorization_updated_at="2014-09-03"/>
+            authorization_updated_at="123456789"/>
 
 </dataset>

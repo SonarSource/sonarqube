@@ -8,7 +8,7 @@
   <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts" deprecated_kee="org.struts:struts"
             uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="[null]"
             description="the description" long_name="Apache Struts"
-            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" created_at="[null]" authorization_updated_at="2014-06-18" />
+            enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" created_at="[null]" authorization_updated_at="123456789" />
   <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -79,6 +79,6 @@
   <projects id="10" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.disabled.project" name="Disabled Project"
             uuid="DCBA" project_uuid="DCBA" module_uuid="[null]" module_uuid_path="[null]"
             description="the description" long_name="Disabled project"
-            enabled="[false]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="2014-06-18" />
+            enabled="[false]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="123456789" />
 
 </dataset>

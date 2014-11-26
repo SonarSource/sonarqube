@@ -4,13 +4,13 @@
             root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
             description="the description" long_name="Apache Struts"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
-            authorization_updated_at="2012-01-01"/>
+            authorization_updated_at="1000000000"/>
 
   <projects id="2" uuid="DEF" project_uuid="DEF" module_uuid="[null]" module_uuid_path="[null]"
             root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.sonar.sample" name="Sample"
             description="the description" long_name="Sample"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
-            authorization_updated_at="2014-01-02"/>
+            authorization_updated_at="2000000000"/>
 
   <!-- user1 can access both projects -->
   <users id="10" login="user1" name="User 1" email="user1@company.net" active="[true]"/>

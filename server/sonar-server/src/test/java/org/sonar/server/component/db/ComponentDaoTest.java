@@ -137,7 +137,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.scope()).isEqualTo("PRJ");
     assertThat(result.language()).isNull();
     assertThat(result.subProjectId()).isNull();
-    assertThat(result.getAuthorizationUpdatedAt()).isEqualTo(DateUtils.parseDate("2014-06-18"));
+    assertThat(result.getAuthorizationUpdatedAt()).isEqualTo(123456789L);
   }
 
   @Test
@@ -350,7 +350,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
       .setPath("src/org/struts/RequestContext.java")
       .setSubProjectId(3L)
       .setEnabled(true)
-      .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-06-18"));
+      .setAuthorizationUpdatedAt(123456789L);
 
     dao.insert(session, componentDto);
     session.commit();
@@ -379,7 +379,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
       .setPath("src/org/struts/RequestContext.java")
       .setSubProjectId(3L)
       .setEnabled(false)
-      .setAuthorizationUpdatedAt(DateUtils.parseDate("2014-06-18"));
+      .setAuthorizationUpdatedAt(123456789L);
 
     dao.insert(session, componentDto);
     session.commit();

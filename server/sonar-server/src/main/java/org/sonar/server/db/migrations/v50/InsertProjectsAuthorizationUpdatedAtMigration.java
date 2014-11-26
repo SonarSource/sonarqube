@@ -28,10 +28,9 @@ import org.sonar.server.db.migrations.Select;
 import org.sonar.server.db.migrations.SqlStatement;
 
 import java.sql.SQLException;
-import java.util.Date;
 
 /**
- * Used in the Active Record Migration 701
+ * Used in the Active Record Migration 716
  *
  * @since 5.0
  */
@@ -46,16 +45,17 @@ public class InsertProjectsAuthorizationUpdatedAtMigration extends BaseDataChang
 
   @Override
   public void execute(Context context) throws SQLException {
-    final Date now = new Date(system.now());
+    final long now = system.now();
 
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT p.id FROM projects p WHERE p.scope=? AND p.enabled=?").setString(1, "PRJ").setBoolean(2, true);
     massUpdate.update("UPDATE projects SET authorization_updated_at=? WHERE id=?");
+    massUpdate.rowPluralName("projects");
     massUpdate.execute(new MassUpdate.Handler() {
       @Override
       public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
         Long id = row.getLong(1);
-        update.setDate(1, now);
+        update.setLong(1, now);
         update.setLong(2, id);
         return true;
       }

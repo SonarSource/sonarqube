@@ -42,7 +42,7 @@ public class ResourceDto {
   private Long copyResourceId;
   private Long personId;
   private Date createdAt;
-  private Date authorizationUpdatedAt;
+  private Long authorizationUpdatedAt;
 
   public Long getId() {
     return id;
@@ -215,11 +215,11 @@ public class ResourceDto {
     return this;
   }
 
-  public Date getAuthorizationUpdatedAt() {
+  public Long getAuthorizationUpdatedAt() {
     return authorizationUpdatedAt;
   }
 
-  public ResourceDto setAuthorizationUpdatedAt(Date authorizationUpdatedAt) {
+  public ResourceDto setAuthorizationUpdatedAt(Long authorizationUpdatedAt) {
     this.authorizationUpdatedAt = authorizationUpdatedAt;
     return this;
   }
