@@ -27,34 +27,52 @@ import org.sonar.core.permission.ComponentPermissions;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.BadRequestException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Map;
 
-public class PermissionChangeQuery {
+public class PermissionChange {
 
   static final String USER_KEY = "user";
   static final String GROUP_KEY = "group";
   static final String PERMISSION_KEY = "permission";
   static final String COMPONENT_KEY = "component";
 
-  private final String user;
-  private final String group;
-  private final String component;
-  private final String permission;
+  private String user;
+  private String group;
+  private String componentKey;
+  private String permission;
 
-  private PermissionChangeQuery(@Nullable String user, @Nullable String group, @Nullable String component, String permission) {
+  public PermissionChange setUser(@Nullable String user) {
     this.user = user;
+    return this;
+  }
+
+  public PermissionChange setGroup(@Nullable String group) {
     this.group = group;
-    this.component = component;
+    return this;
+  }
+
+  public PermissionChange setComponentKey(@Nullable String componentKey) {
+    this.componentKey = componentKey;
+    return this;
+  }
+
+  public PermissionChange setPermission(String permission) {
     this.permission = permission;
+    return this;
   }
 
-  public static PermissionChangeQuery buildFromParams(Map<String, Object> params) {
-    return new PermissionChangeQuery((String) params.get(USER_KEY), (String) params.get(GROUP_KEY), (String) params.get(COMPONENT_KEY), (String) params.get(PERMISSION_KEY));
+  public static PermissionChange buildFromParams(Map<String, Object> params) {
+    return new PermissionChange()
+      .setUser((String) params.get(USER_KEY))
+      .setGroup((String) params.get(GROUP_KEY))
+      .setComponentKey((String) params.get(COMPONENT_KEY))
+      .setPermission((String) params.get(PERMISSION_KEY));
   }
 
-  public void validate() {
+  void validate() {
     validatePermission();
     validateUserGroup();
   }
@@ -72,7 +90,7 @@ public class PermissionChangeQuery {
     if (StringUtils.isBlank(permission)) {
       throw new BadRequestException("Missing permission parameter");
     }
-    if (Strings.isNullOrEmpty(component)){
+    if (Strings.isNullOrEmpty(componentKey)) {
       if (!GlobalPermissions.ALL.contains(permission)) {
         throw new BadRequestException(String.format("Invalid global permission key %s. Valid values are %s", permission, GlobalPermissions.ALL));
       }
@@ -83,23 +101,19 @@ public class PermissionChangeQuery {
     }
   }
 
-  public boolean targetsUser() {
-    return user != null;
-  }
-
-  @Nullable
+  @CheckForNull
   public String user() {
     return user;
   }
 
-  @Nullable
+  @CheckForNull
   public String group() {
     return group;
   }
 
-  @Nullable
+  @CheckForNull
   public String component() {
-    return component;
+    return componentKey;
   }
 
   public String permission() {

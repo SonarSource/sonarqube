@@ -28,15 +28,16 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.permission.PermissionFacade;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
@@ -44,7 +45,6 @@ import org.sonar.server.search.SearchClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
-import java.util.Date;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -69,10 +69,11 @@ public class ComponentServiceMediumTest {
 
     project = ComponentTesting.newProjectDto().setKey("sample:root");
     tester.get(ComponentDao.class).insert(session, project);
+    session.commit();
 
     // project can be seen by anyone
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
 
     rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(session, rule);
@@ -136,12 +137,6 @@ public class ComponentServiceMediumTest {
     // Check that no new issue has been added
     assertThat(tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES.getIndexName()).setTypes(IndexDefinition.ISSUES.getIndexType()).get().getCount()).isEqualTo(1);
 
-    // Check Issue Authorization index
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNotNull();
-    assertThat(
-      tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES_AUTHORIZATION.getIndexName()).setTypes(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType()).get()
-        .getCount()).isEqualTo(1);
-
     // Check dry run cache have been updated
     assertThat(db.propertiesDao().selectProjectProperties("sample2:root", session)).hasSize(1);
   }
@@ -177,9 +172,6 @@ public class ComponentServiceMediumTest {
     // Check issues are still here
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).componentUuid()).isEqualTo(file.uuid());
     assertThat(tester.get(IssueIndex.class).getNullableByKey(issue.getKey()).projectUuid()).isEqualTo(project.uuid());
-
-    // Check Issue Authorization index
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNotNull();
 
     // Check dry run cache have been updated -> on a module it's the project cache that is updated
     assertThat(db.propertiesDao().selectProjectProperties(project.key(), session)).hasSize(1);
@@ -287,12 +279,6 @@ public class ComponentServiceMediumTest {
 
     // Check that no new issue has been added
     assertThat(tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES.getIndexName()).setTypes(IndexDefinition.ISSUES.getIndexType()).get().getCount()).isEqualTo(1);
-
-    // Check Issue Authorization index
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNotNull();
-    assertThat(
-      tester.get(SearchClient.class).prepareCount(IndexDefinition.ISSUES_AUTHORIZATION.getIndexName()).setTypes(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType()).get()
-        .getCount()).isEqualTo(1);
 
     // Check dry run cache have been updated
     assertThat(db.propertiesDao().selectProjectProperties("sample2:root", session)).hasSize(1);

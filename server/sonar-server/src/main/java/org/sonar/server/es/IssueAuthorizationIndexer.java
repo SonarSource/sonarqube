@@ -19,12 +19,12 @@
  */
 package org.sonar.server.es;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 
@@ -32,18 +32,24 @@ import java.sql.Connection;
 import java.util.Collection;
 import java.util.Map;
 
-public class IssueAuthorizationIndexer implements ServerComponent {
+/**
+ * Manages the synchronization of index issues/issueAuthorization with authorization settings defined in database :
+ * <ul>
+ *   <li>index the projects with recent permission changes</li>
+ *   <li>delete project orphans from index</li>
+ * </ul>
+ */
+public class IssueAuthorizationIndexer extends BaseIndexer {
 
   private final DbClient dbClient;
-  private final EsClient esClient;
-  private long lastUpdatedAt = 0L;
 
   public IssueAuthorizationIndexer(DbClient dbClient, EsClient esClient) {
+    super(esClient, 0L, IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION);
     this.dbClient = dbClient;
-    this.esClient = esClient;
   }
 
-  public void index() {
+  @Override
+  protected long doIndex(long lastUpdatedAt) {
     // warning - do not enable large mode, else disabling of replicas
     // will impact the type "issue" which is much bigger than issueAuthorization
     final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX_ISSUES);
@@ -52,8 +58,8 @@ public class IssueAuthorizationIndexer implements ServerComponent {
     Connection dbConnection = dbSession.getConnection();
     try {
       IssueAuthorizationDao dao = new IssueAuthorizationDao();
-      Collection<IssueAuthorizationDao.Dto> authorizations = dao.selectAfterDate(dbClient, dbConnection, getLastUpdatedAt());
-      index(bulk, authorizations);
+      Collection<IssueAuthorizationDao.Dto> authorizations = dao.selectAfterDate(dbClient, dbConnection, lastUpdatedAt);
+      return doIndex(bulk, authorizations);
 
     } finally {
       DbUtils.closeQuietly(dbConnection);
@@ -61,23 +67,35 @@ public class IssueAuthorizationIndexer implements ServerComponent {
     }
   }
 
-  public void index(BulkIndexer bulk, Collection<IssueAuthorizationDao.Dto> authorizations) {
-    bulk.start();
-    for (IssueAuthorizationDao.Dto authorization : authorizations) {
-      bulk.add(toEsRequest(authorization));
-
-      // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
-      long updatedAt = authorization.getUpdatedAt();
-      if (lastUpdatedAt < updatedAt) {
-        lastUpdatedAt = updatedAt;
-      }
-    }
-    bulk.stop();
+  @VisibleForTesting
+  void index(Collection<IssueAuthorizationDao.Dto> authorizations) {
+    final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX_ISSUES);
+    doIndex(bulk, authorizations);
   }
 
-  private ActionRequest toEsRequest(IssueAuthorizationDao.Dto dto) {
+  private long doIndex(BulkIndexer bulk, Collection<IssueAuthorizationDao.Dto> authorizations) {
+    long maxDate = 0L;
+    bulk.start();
+    for (IssueAuthorizationDao.Dto authorization : authorizations) {
+      bulk.add(newUpdateRequest(authorization));
+      maxDate = Math.max(maxDate, authorization.getUpdatedAt());
+    }
+    bulk.stop();
+    return maxDate;
+  }
+
+  public void deleteProject(String uuid, boolean refresh) {
+    esClient.prepareDelete(IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION, uuid).get();
+    if (refresh) {
+      esClient.prepareRefresh(IssueIndexDefinition.INDEX_ISSUES).get();
+    }
+  }
+
+  private ActionRequest newUpdateRequest(IssueAuthorizationDao.Dto dto) {
     ActionRequest request;
-    if (dto.isEmpty()) {
+    if (dto.hasNoGroupsNorUsers()) {
+      // project still exists but there are no permissions
+      // TODO do we really need to delete the document ? Pushing empty groups/users should be enough
       request = new DeleteRequest(IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION, dto.getProjectUuid())
         .routing(dto.getProjectUuid());
     } else {
@@ -92,18 +110,5 @@ public class IssueAuthorizationIndexer implements ServerComponent {
         .upsert(doc);
     }
     return request;
-  }
-
-  // TODO remove duplication with IssueIndexer
-  private long getLastUpdatedAt() {
-    long result;
-    if (lastUpdatedAt <= 0L) {
-      // request ES to get the max(updatedAt)
-      result = esClient.getLastUpdatedAt(IssueIndexDefinition.INDEX_ISSUES, IssueIndexDefinition.TYPE_ISSUE);
-    } else {
-      // use cache. Will not work with Tomcat cluster.
-      result = lastUpdatedAt;
-    }
-    return result;
   }
 }

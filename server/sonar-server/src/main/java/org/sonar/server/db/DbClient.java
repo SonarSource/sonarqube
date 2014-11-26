@@ -40,7 +40,6 @@ import org.sonar.server.computation.db.AnalysisReportDao;
 import org.sonar.server.dashboard.db.DashboardDao;
 import org.sonar.server.dashboard.db.WidgetDao;
 import org.sonar.server.dashboard.db.WidgetPropertyDao;
-import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.measure.persistence.MetricDao;
@@ -78,7 +77,6 @@ public class DbClient implements ServerComponent {
   private final UserDao userDao;
   private final GroupDao groupDao;
   private final IssueDao issueDao;
-  private final IssueAuthorizationDao issueAuthorizationDao;
   private final ActionPlanDao actionPlanDao;
   private final AnalysisReportDao analysisReportDao;
   private final DashboardDao dashboardDao;
@@ -110,7 +108,6 @@ public class DbClient implements ServerComponent {
     userDao = getDao(map, UserDao.class);
     groupDao = getDao(map, GroupDao.class);
     issueDao = getDao(map, IssueDao.class);
-    issueAuthorizationDao = getDao(map, IssueAuthorizationDao.class);
     actionPlanDao = getDao(map, ActionPlanDao.class);
     analysisReportDao = getDao(map, AnalysisReportDao.class);
     dashboardDao = getDao(map, DashboardDao.class);
@@ -137,10 +134,6 @@ public class DbClient implements ServerComponent {
 
   public IssueDao issueDao() {
     return issueDao;
-  }
-
-  public IssueAuthorizationDao issueAuthorizationDao() {
-    return issueAuthorizationDao;
   }
 
   public QualityProfileDao qualityProfileDao() {

@@ -100,13 +100,6 @@ public class SearchClientMediumTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
     }
-
-    try {
-      searchClient.prepareDelete("index", "type", "id");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not yet implemented");
-    }
   }
 
   @Test

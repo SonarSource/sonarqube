@@ -28,6 +28,7 @@ import org.sonar.server.search.request.ProxyClusterStatsRequestBuilder;
 import org.sonar.server.search.request.ProxyCountRequestBuilder;
 import org.sonar.server.search.request.ProxyCreateIndexRequestBuilder;
 import org.sonar.server.search.request.ProxyDeleteByQueryRequestBuilder;
+import org.sonar.server.search.request.ProxyDeleteRequestBuilder;
 import org.sonar.server.search.request.ProxyFlushRequestBuilder;
 import org.sonar.server.search.request.ProxyGetRequestBuilder;
 import org.sonar.server.search.request.ProxyIndicesExistsRequestBuilder;
@@ -57,6 +58,7 @@ public class EsClientTest {
     assertThat(client.prepareCount()).isInstanceOf(ProxyCountRequestBuilder.class);
     assertThat(client.prepareCreate("fakes")).isInstanceOf(ProxyCreateIndexRequestBuilder.class);
     assertThat(client.prepareDeleteByQuery()).isInstanceOf(ProxyDeleteByQueryRequestBuilder.class);
+    assertThat(client.prepareDelete("fakes", "fake", "my_id")).isInstanceOf(ProxyDeleteRequestBuilder.class);
     assertThat(client.prepareExists()).isInstanceOf(ProxyIndicesExistsRequestBuilder.class);
     assertThat(client.prepareFlush()).isInstanceOf(ProxyFlushRequestBuilder.class);
     assertThat(client.prepareGet()).isInstanceOf(ProxyGetRequestBuilder.class);

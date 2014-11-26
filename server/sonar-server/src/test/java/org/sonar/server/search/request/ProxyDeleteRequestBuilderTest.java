@@ -17,22 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.search.request;
 
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.SearchClient;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
-public class ProxyDeleteByQueryRequestBuilderTest {
+public class ProxyDeleteRequestBuilderTest {
 
   Profiling profiling = new Profiling(new Settings().setProperty(Profiling.CONFIG_PROFILING_LEVEL, Profiling.Level.FULL.name()));
   SearchClient searchClient = new SearchClient(new Settings(), profiling);
@@ -45,19 +42,18 @@ public class ProxyDeleteByQueryRequestBuilderTest {
   @Test
   public void expect_failure() {
     try {
-      searchClient.prepareDeleteByQuery(IndexDefinition.RULE.getIndexName()).setQuery(QueryBuilders.matchAllQuery()).get();
+      searchClient.prepareDelete("fakes", "fake", "the_id").get();
 
       // expected to fail because elasticsearch is not correctly configured, but that does not matter
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Fail to execute ES delete by query request on indices 'rules'");
+      assertThat(e.getMessage()).isEqualTo("Fail to execute ES delete request of doc the_id in index fakes/fake");
     }
   }
 
   @Test
   public void to_string() {
-    assertThat(searchClient.prepareDeleteByQuery(IndexDefinition.RULE.getIndexName()).toString()).isEqualTo("ES delete by query request on indices 'rules'");
-    assertThat(searchClient.prepareDeleteByQuery().toString()).isEqualTo("ES delete by query request");
+    assertThat(searchClient.prepareDelete("fakes", "fake", "the_id").toString()).isEqualTo("ES delete request of doc the_id in index fakes/fake");
   }
 
   @Test
@@ -66,12 +62,12 @@ public class ProxyDeleteByQueryRequestBuilderTest {
     SearchClient searchClient = new SearchClient(new Settings(), profiling);
 
     try {
-      searchClient.prepareDeleteByQuery(IndexDefinition.RULE.getIndexName()).setQuery(QueryBuilders.matchAllQuery()).get();
+      searchClient.prepareDelete("fakes", "fake", "the_id").get();
 
       // expected to fail because elasticsearch is not correctly configured, but that does not matter
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e.getMessage()).isEqualTo("Fail to execute ES delete by query request on indices 'rules'");
+      assertThat(e.getMessage()).isEqualTo("Fail to execute ES delete request of doc the_id in index fakes/fake");
     }
 
     // TODO assert profiling
@@ -81,7 +77,7 @@ public class ProxyDeleteByQueryRequestBuilderTest {
   @Test
   public void get_with_string_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareDeleteByQuery().get("1");
+      searchClient.prepareDelete("fakes", "fake", "the_id").get("1");
       fail();
     } catch (UnsupportedOperationException e) {
       assertThat(e).hasMessage("Not yet implemented");
@@ -91,7 +87,7 @@ public class ProxyDeleteByQueryRequestBuilderTest {
   @Test
   public void get_with_time_value_timeout_is_not_yet_implemented() throws Exception {
     try {
-      searchClient.prepareDeleteByQuery().get(TimeValue.timeValueMinutes(1));
+      searchClient.prepareDelete("fakes", "fake", "the_id").get(TimeValue.timeValueMinutes(1));
       fail();
     } catch (UnsupportedOperationException e) {
       assertThat(e).hasMessage("Not yet implemented");
@@ -101,11 +97,10 @@ public class ProxyDeleteByQueryRequestBuilderTest {
   @Test
   public void execute_should_throw_an_unsupported_operation_exception() throws Exception {
     try {
-      searchClient.prepareDeleteByQuery().execute();
+      searchClient.prepareDelete("fakes", "fake", "the_id").execute();
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(UnsupportedOperationException.class).hasMessage("execute() should not be called as it's used for asynchronous");
+    } catch (UnsupportedOperationException e) {
+      assertThat(e).hasMessage("execute() should not be called as it's used for asynchronous");
     }
   }
-
 }

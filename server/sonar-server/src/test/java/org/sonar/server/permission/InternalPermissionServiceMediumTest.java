@@ -28,12 +28,13 @@ import org.junit.Test;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.user.GroupDto;
 import org.sonar.core.user.RoleDao;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.index.IssueAuthorizationDoc;
-import org.sonar.server.issue.index.IssueAuthorizationIndex;
+import org.sonar.server.es.EsClient;
+import org.sonar.server.es.IssueIndexDefinition;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -53,7 +54,6 @@ public class InternalPermissionServiceMediumTest {
 
   DbClient db;
   DbSession session;
-  IssueAuthorizationIndex index;
   InternalPermissionService service;
 
   ComponentDto project;
@@ -63,7 +63,6 @@ public class InternalPermissionServiceMediumTest {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     session = db.openSession(false);
-    index = tester.get(IssueAuthorizationIndex.class);
     service = tester.get(InternalPermissionService.class);
 
     project = ComponentTesting.newProjectDto();
@@ -77,32 +76,28 @@ public class InternalPermissionServiceMediumTest {
   }
 
   @Test
-  public void add_component_user_permission() throws Exception {
+  public void add_project_permission_to_user() throws Exception {
+    // init
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
-
     UserDto user = new UserDto().setLogin("john").setName("John");
     db.userDao().insert(session, user);
     session.commit();
-
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), project.getId())).isEmpty();
-    assertThat(index.getNullableByKey(project.uuid())).isNull();
+    assertThat(countIssueAuthorizationDocs()).isZero();
 
+    // add permission
     service.addPermission(params(user.getLogin(), null, project.key(), UserRole.USER));
     session.commit();
 
-    // Check in db
+    // Check db
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), project.getId())).hasSize(1);
 
-    // Check in index
-    IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.uuid());
-    assertThat(issueAuthorizationDoc).isNotNull();
-    assertThat(issueAuthorizationDoc.project()).isEqualTo(project.uuid());
-    assertThat(issueAuthorizationDoc.users()).containsExactly(user.getLogin());
-    assertThat(issueAuthorizationDoc.groups()).isEmpty();
+    // Check index of issue authorizations
+    assertThat(countIssueAuthorizationDocs()).isEqualTo(1);
   }
 
   @Test
-  public void remove_component_user_permission() throws Exception {
+  public void remove_project_permission_to_user() throws Exception {
     MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
 
     UserDto user1 = new UserDto().setLogin("user1").setName("User1");
@@ -121,12 +116,8 @@ public class InternalPermissionServiceMediumTest {
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user1.getLogin(), project.getId())).isEmpty();
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user2.getLogin(), project.getId())).hasSize(1);
 
-    // Check in index
-    IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.uuid());
-    assertThat(issueAuthorizationDoc).isNotNull();
-    assertThat(issueAuthorizationDoc.project()).isEqualTo(project.uuid());
-    assertThat(issueAuthorizationDoc.users()).containsExactly(user2.getLogin());
-    assertThat(issueAuthorizationDoc.groups()).isEmpty();
+    // Check index of issue authorizations
+    assertThat(countIssueAuthorizationDocs()).isEqualTo(1);
   }
 
   @Test
@@ -144,9 +135,35 @@ public class InternalPermissionServiceMediumTest {
     // Check in db
     assertThat(tester.get(RoleDao.class).selectUserPermissions(session, user.getLogin(), project.getId())).isEmpty();
 
-    // Check in index
-    IssueAuthorizationDoc issueAuthorizationDoc = index.getNullableByKey(project.uuid());
-    assertThat(issueAuthorizationDoc).isNull();
+    // Check index of issue authorizations
+    assertThat(countIssueAuthorizationDocs()).isEqualTo(0);
+  }
+
+  @Test
+  public void add_and_remove_permission_to_group() throws Exception {
+    // init
+    MockUserSession.set().setLogin("admin").addProjectPermissions(UserRole.ADMIN, project.key());
+    GroupDto group = new GroupDto().setName("group1");
+    db.groupDao().insert(session, group);
+    session.commit();
+    assertThat(tester.get(RoleDao.class).selectGroupPermissions(session, group.getName(), project.getId())).isEmpty();
+
+    // add permission
+    PermissionChange change = new PermissionChange().setPermission(UserRole.USER).setGroup(group.getName()).setComponentKey(project.key());
+    service.addPermission(change);
+    session.commit();
+
+    // Check db
+    assertThat(tester.get(RoleDao.class).selectGroupPermissions(session, group.getName(), project.getId())).hasSize(1);
+
+    // Check index of issue authorizations
+    assertThat(countIssueAuthorizationDocs()).isEqualTo(1);
+
+    // remove permission
+    service.removePermission(change);
+    session.commit();
+    assertThat(tester.get(RoleDao.class).selectGroupPermissions(session, group.getName(), project.getId())).hasSize(0);
+    assertThat(countIssueAuthorizationDocs()).isEqualTo(0);
   }
 
   private Map<String, Object> params(@Nullable String login, @Nullable String group, @Nullable String component, String permission) {
@@ -158,4 +175,7 @@ public class InternalPermissionServiceMediumTest {
     return params;
   }
 
+  private long countIssueAuthorizationDocs() {
+    return tester.get(EsClient.class).prepareCount(IssueIndexDefinition.INDEX_ISSUES).setTypes(IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION).get().getCount();
+  }
 }

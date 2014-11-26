@@ -32,7 +32,7 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.permission.PermissionFacade;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.ComponentTesting;
@@ -40,13 +40,13 @@ import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.platform.Platform;
+import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
-
-import java.util.Date;
+import org.sonar.server.user.MockUserSession;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -83,8 +83,9 @@ public class IssueBackendMediumTest {
     tester.get(ComponentDao.class).insert(dbSession, project);
 
     // project can be seen by anyone
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, dbSession);
-    dbClient.issueAuthorizationDao().synchronizeAfter(dbSession, new Date(0));
+    dbSession.commit();
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
 
     ComponentDto file = ComponentTesting.newFileDto(project);
     tester.get(ComponentDao.class).insert(dbSession, file);
@@ -117,38 +118,6 @@ public class IssueBackendMediumTest {
     assertThat(issueDoc.severity()).isEqualTo(issue.getSeverity());
     assertThat(issueDoc.attributes()).isEqualTo(KeyValueFormat.parse(issue.getIssueAttributes()));
     assertThat(issueDoc.attribute("key")).isEqualTo("value");
-  }
-
-  @Test
-  public void insert_and_find_after_date() throws Exception {
-    RuleDto rule = RuleTesting.newXooX1();
-    tester.get(RuleDao.class).insert(dbSession, rule);
-
-    ComponentDto project = ComponentTesting.newProjectDto();
-    tester.get(ComponentDao.class).insert(dbSession, project);
-
-    ComponentDto file = ComponentTesting.newFileDto(project);
-    tester.get(ComponentDao.class).insert(dbSession, file);
-
-    IssueDto issue = IssueTesting.newDto(rule, file, project).setId(1L);
-    dbClient.issueDao().insert(dbSession, issue);
-
-    dbSession.commit();
-    assertThat(issue.getId()).isNotNull();
-
-    // Find Issues since forever
-    Date t0 = new Date(0);
-    assertThat(dbClient.issueDao().findAfterDate(dbSession, t0)).hasSize(1);
-
-    // Should not find any new issues
-    Date t1 = new Date();
-    assertThat(dbClient.issueDao().findAfterDate(dbSession, t1)).hasSize(0);
-
-    // Should synchronise
-    tester.clearIndexes();
-    assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(0);
-    tester.get(Platform.class).executeStartupTasks();
-    assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(1);
   }
 
 }

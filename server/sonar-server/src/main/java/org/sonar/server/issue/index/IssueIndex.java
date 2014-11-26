@@ -46,6 +46,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.issue.db.IssueDto;
+import org.sonar.server.es.IssueIndexDefinition;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.search.BaseIndex;
@@ -59,6 +60,7 @@ import org.sonar.server.search.StickyFacetBuilder;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -127,7 +129,7 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
 
   @Override
   protected FilterBuilder getLastSynchronizationBuilder(Map<String, String> params) {
-    String projectUuid = params.get(IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field());
+    String projectUuid = params.get(IssueNormalizer.IssueField.PROJECT.field());
     if (projectUuid != null) {
       return FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueNormalizer.IssueField.PROJECT.field(), projectUuid));
     }
@@ -286,12 +288,12 @@ public class IssueIndex extends BaseIndex<Issue, IssueDto, String> {
     Set<String> groups = options.getUserGroups();
     OrFilterBuilder groupsAndUser = FilterBuilders.orFilter();
     if (user != null) {
-      groupsAndUser.add(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.USERS.field(), user));
+      groupsAndUser.add(FilterBuilders.termFilter(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, user));
     }
     for (String group : groups) {
-      groupsAndUser.add(FilterBuilders.termFilter(IssueAuthorizationNormalizer.IssueAuthorizationField.GROUPS.field(), group));
+      groupsAndUser.add(FilterBuilders.termFilter(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, group));
     }
-    return FilterBuilders.hasParentFilter(IndexDefinition.ISSUES_AUTHORIZATION.getIndexType(),
+    return FilterBuilders.hasParentFilter(IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION,
       QueryBuilders.filteredQuery(
         QueryBuilders.matchAllQuery(),
         FilterBuilders.boolFilter()

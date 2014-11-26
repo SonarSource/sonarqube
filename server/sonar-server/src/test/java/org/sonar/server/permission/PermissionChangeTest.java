@@ -31,7 +31,7 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class PermissionChangeQueryTest {
+public class PermissionChangeTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -44,7 +44,7 @@ public class PermissionChangeQueryTest {
     params.put("component", "org.sample.Sample");
     params.put("permission", GlobalPermissions.SYSTEM_ADMIN);
 
-    PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(params);
+    PermissionChange query = PermissionChange.buildFromParams(params);
 
     assertThat(query.user()).isEqualTo("my_login");
     assertThat(query.group()).isEqualTo("my_group");
@@ -58,7 +58,7 @@ public class PermissionChangeQueryTest {
     validUserParams.put("user", "my_login");
     validUserParams.put("permission", GlobalPermissions.SYSTEM_ADMIN);
 
-    PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(validUserParams);
+    PermissionChange query = PermissionChange.buildFromParams(validUserParams);
     query.validate();
   }
 
@@ -68,7 +68,7 @@ public class PermissionChangeQueryTest {
     validGroupParams.put("group", "my_group");
     validGroupParams.put("permission", GlobalPermissions.SYSTEM_ADMIN);
 
-    PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(validGroupParams);
+    PermissionChange query = PermissionChange.buildFromParams(validGroupParams);
     query.validate();
   }
 
@@ -79,7 +79,7 @@ public class PermissionChangeQueryTest {
     inconsistentParams.put("group", "my_group");
     inconsistentParams.put("permission", GlobalPermissions.SYSTEM_ADMIN);
 
-    PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
+    PermissionChange query = PermissionChange.buildFromParams(inconsistentParams);
 
     thrown.expect(BadRequestException.class);
     thrown.expectMessage("Only one of user or group parameter should be provided");
@@ -91,7 +91,7 @@ public class PermissionChangeQueryTest {
     Map<String, Object> inconsistentParams = Maps.newHashMap();
     inconsistentParams.put("permission", "admin");
 
-    PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
+    PermissionChange query = PermissionChange.buildFromParams(inconsistentParams);
 
     thrown.expect(BadRequestException.class);
     thrown.expectMessage("Missing user or group parameter");
@@ -103,7 +103,7 @@ public class PermissionChangeQueryTest {
     Map<String, Object> inconsistentParams = Maps.newHashMap();
     inconsistentParams.put("user", "my_login");
 
-    PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
+    PermissionChange query = PermissionChange.buildFromParams(inconsistentParams);
 
     thrown.expect(BadRequestException.class);
     thrown.expectMessage("Missing permission parameter");
@@ -116,7 +116,7 @@ public class PermissionChangeQueryTest {
     inconsistentParams.put("user", "my_login");
     inconsistentParams.put("permission", "invalid");
 
-    PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
+    PermissionChange query = PermissionChange.buildFromParams(inconsistentParams);
 
     thrown.expect(BadRequestException.class);
     thrown.expectMessage("Invalid global permission key invalid. Valid values are [admin, profileadmin, shareDashboard, scan, dryRunScan, provisioning]");
@@ -130,7 +130,7 @@ public class PermissionChangeQueryTest {
     inconsistentParams.put("component", "org.sample.Sample");
     inconsistentParams.put("permission", "invalid");
 
-    PermissionChangeQuery query = PermissionChangeQuery.buildFromParams(inconsistentParams);
+    PermissionChange query = PermissionChange.buildFromParams(inconsistentParams);
 
     thrown.expect(BadRequestException.class);
     thrown.expectMessage("Invalid component permission key invalid. Valid values are [user, admin, issueadmin, codeviewer]");

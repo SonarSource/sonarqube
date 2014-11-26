@@ -62,11 +62,19 @@ class IssueAuthorizationDao {
       return users;
     }
 
+    void addUser(String s) {
+      users.add(s);
+    }
+
+    void addGroup(String s) {
+      groups.add(s);
+    }
+
     List<String> getGroups() {
       return groups;
     }
 
-    boolean isEmpty() {
+    boolean hasNoGroupsNorUsers() {
       return users.isEmpty() && groups.isEmpty();
     }
   }
@@ -191,10 +199,10 @@ class IssueAuthorizationDao {
       dtosByProjectUuid.put(projectUuid, dto);
     }
     if (StringUtils.isNotBlank(userLogin)) {
-      dto.users.add(userLogin);
+      dto.addUser(userLogin);
     }
     if (StringUtils.isNotBlank(group)) {
-      dto.groups.add(group);
+      dto.addGroup(group);
     }
   }
 }

@@ -33,8 +33,12 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.issue.db.*;
-import org.sonar.core.permission.PermissionFacade;
+import org.sonar.core.issue.db.ActionPlanDao;
+import org.sonar.core.issue.db.ActionPlanDto;
+import org.sonar.core.issue.db.IssueChangeDao;
+import org.sonar.core.issue.db.IssueChangeDto;
+import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.source.db.SnapshotSourceDao;
@@ -47,14 +51,14 @@ import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.filter.IssueFilterParameters;
+import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -87,11 +91,13 @@ public class SearchActionMediumTest {
       .setKey("MyProject");
     db.componentDao().insert(session, project);
     db.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
+    session.commit();
 
     // project can be seen by anyone
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.CODEVIEWER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    tester.get(InternalPermissionService.class).addPermission(
+      new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.CODEVIEWER));
 
     file = ComponentTesting.newFileDto(project).setUuid("BCDE")
       .setKey("MyComponent")
@@ -110,7 +116,7 @@ public class SearchActionMediumTest {
 
     session.commit();
 
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.CODEVIEWER, project.getKey(), file.getKey());
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.CODEVIEWER, project.getKey(), file.getKey()).setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   @After
@@ -181,9 +187,12 @@ public class SearchActionMediumTest {
       .setKey("MyProject2");
     db.componentDao().insert(session, project2);
     db.snapshotDao().insert(session, SnapshotTesting.createForProject(project2));
-    tester.get(PermissionFacade.class).insertGroupPermission(project2.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
-    tester.get(PermissionFacade.class).insertGroupPermission(project2.getId(), DefaultGroups.ANYONE, UserRole.CODEVIEWER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+    session.commit();
+
+    tester.get(InternalPermissionService.class)
+      .addPermission(new PermissionChange().setComponentKey(project2.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
+    tester.get(InternalPermissionService.class).addPermission(
+      new PermissionChange().setComponentKey(project2.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.CODEVIEWER));
 
     ComponentDto file2 = ComponentTesting.newFileDto(project2).setUuid("EDCB")
       .setKey("MyComponent2")
@@ -374,10 +383,10 @@ public class SearchActionMediumTest {
     ComponentDto project = ComponentTesting.newProjectDto().setKey("ProjectHavingModule");
     db.componentDao().insert(session, project);
     db.snapshotDao().insert(session, SnapshotTesting.createForProject(project));
+    session.commit();
 
     // project can be seen by anyone
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
+    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
 
     ComponentDto module = ComponentTesting.newFileDto(project).setKey("ModuleHavingFile")
       .setScope("PRJ")
@@ -501,5 +510,4 @@ public class SearchActionMediumTest {
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "default_page_size_is_100.json", false);
   }
-
 }

@@ -111,13 +111,10 @@ import org.sonar.server.es.*;
 import org.sonar.server.issue.*;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.actionplan.ActionPlanWs;
-import org.sonar.server.issue.db.IssueAuthorizationDao;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.issue.filter.IssueFilterWriter;
 import org.sonar.server.issue.filter.IssueFilterWs;
-import org.sonar.server.issue.index.IssueAuthorizationIndex;
-import org.sonar.server.issue.index.IssueAuthorizationNormalizer;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueNormalizer;
 import org.sonar.server.issue.ws.IssueActionsWriter;
@@ -260,11 +257,8 @@ class ServerComponents {
 
       // issues
       IssueNormalizer.class,
-      IssueAuthorizationNormalizer.class,
       IssueIndex.class,
-      IssueAuthorizationIndex.class,
       IssueDao.class,
-      IssueAuthorizationDao.class,
 
       // Activity
       ActivityService.class,

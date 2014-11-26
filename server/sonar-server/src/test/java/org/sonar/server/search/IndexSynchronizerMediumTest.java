@@ -22,19 +22,17 @@ package org.sonar.server.search;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.persistence.BatchSession;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.ComponentTesting;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.IssueAuthorizationIndexer;
 import org.sonar.server.issue.IssueTesting;
-import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
@@ -44,6 +42,7 @@ import org.sonar.server.tester.ServerTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore
 public class IndexSynchronizerMediumTest {
 
   @ClassRule
@@ -52,16 +51,14 @@ public class IndexSynchronizerMediumTest {
   IndexSynchronizer synchronizer;
   DbClient dbClient;
   IndexClient indexClient;
-  SourceLineIndexer sourceLineIndexer;
   DbSession dbSession;
 
   @Before
   public void setUp() throws Exception {
     dbClient = tester.get(DbClient.class);
     indexClient = tester.get(IndexClient.class);
-    sourceLineIndexer = tester.get(SourceLineIndexer.class);
     dbSession = dbClient.openSession(false);
-    synchronizer = new IndexSynchronizer(dbClient, indexClient, sourceLineIndexer);
+    synchronizer = new IndexSynchronizer(dbClient, indexClient, tester.get(SourceLineIndexer.class), tester.get(IssueAuthorizationIndexer.class));
     tester.clearDbAndIndexes();
   }
 
@@ -134,23 +131,5 @@ public class IndexSynchronizerMediumTest {
     assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(1);
     synchronizer.execute();
     assertThat(indexClient.get(IssueIndex.class).countAll()).isEqualTo(2);
-  }
-
-  @Test
-  public void synchronize_issues_authorization() throws Exception {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project);
-    dbClient.componentDao().insert(dbSession, project, file);
-
-    RuleDto rule = RuleTesting.newXooX1();
-    tester.get(RuleDao.class).insert(dbSession, rule);
-    dbClient.issueDao().insert(dbSession, IssueTesting.newDto(rule, file, project));
-
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, dbSession);
-    dbSession.commit();
-
-    assertThat(indexClient.get(IssueAuthorizationIndex.class).countAll()).isEqualTo(0);
-    synchronizer.execute();
-    assertThat(indexClient.get(IssueAuthorizationIndex.class).countAll()).isEqualTo(1);
   }
 }

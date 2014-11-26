@@ -49,6 +49,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.db.IssueDao;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexClient;
@@ -98,22 +100,21 @@ public class IssueServiceMediumTest {
     tester.get(ComponentDao.class).insert(session, file);
     tester.get(SnapshotDao.class).insert(session, SnapshotTesting.createForComponent(file, project));
 
-    // project can be seen by anyone
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
 
+    // workaround for the test to have sufficient privileges
     connectedUser = new UserDto().setLogin("gandalf").setName("Gandalf");
     db.userDao().insert(session, connectedUser);
     tester.get(PermissionFacade.class).insertUserPermission(project.getId(), connectedUser.getId(), UserRole.USER, session);
-
     MockUserSession.set()
       .setLogin(connectedUser.getLogin())
       .setUserId(connectedUser.getId().intValue())
       .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN)
       .addProjectPermissions(UserRole.USER, project.key())
       .addProjectPermissions(UserRole.ISSUE_ADMIN, project.key());
-
     session.commit();
+
+    // project can be seen by group "anyone"
+    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
   }
 
   @After

@@ -26,8 +26,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.Dao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.index.IssueAuthorizationIndex;
-import org.sonar.server.issue.index.IssueAuthorizationNormalizer;
+import org.sonar.server.es.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueNormalizer;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
@@ -48,11 +47,14 @@ public class IndexSynchronizer {
   private final DbClient db;
   private final IndexClient index;
   private final SourceLineIndexer sourceLineIndexer;
+  private final IssueAuthorizationIndexer issueAuthorizationIndexer;
 
-  public IndexSynchronizer(DbClient db, IndexClient index, SourceLineIndexer sourceLineIndexer) {
+  public IndexSynchronizer(DbClient db, IndexClient index, SourceLineIndexer sourceLineIndexer,
+                           IssueAuthorizationIndexer issueAuthorizationIndexer) {
     this.db = db;
     this.index = index;
     this.sourceLineIndexer = sourceLineIndexer;
+    this.issueAuthorizationIndexer = issueAuthorizationIndexer;
   }
 
   public void execute() {
@@ -63,10 +65,9 @@ public class IndexSynchronizer {
       long start = System.currentTimeMillis();
       List<String> projectUuids = db.componentDao().findProjectUuids(session);
       synchronize(session, db.ruleDao(), index.get(RuleIndex.class));
+      issueAuthorizationIndexer.index();
       synchronizeByProject(session, db.issueDao(), index.get(IssueIndex.class),
         IssueNormalizer.IssueField.PROJECT.field(), projectUuids);
-      synchronizeByProject(session, db.issueAuthorizationDao(), index.get(IssueAuthorizationIndex.class),
-        IssueAuthorizationNormalizer.IssueAuthorizationField.PROJECT.field(), projectUuids);
       synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
       synchronize(session, db.activityDao(), index.get(ActivityIndex.class));
 

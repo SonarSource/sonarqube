@@ -71,6 +71,7 @@ import org.sonar.server.search.request.ProxyClusterStatsRequestBuilder;
 import org.sonar.server.search.request.ProxyCountRequestBuilder;
 import org.sonar.server.search.request.ProxyCreateIndexRequestBuilder;
 import org.sonar.server.search.request.ProxyDeleteByQueryRequestBuilder;
+import org.sonar.server.search.request.ProxyDeleteRequestBuilder;
 import org.sonar.server.search.request.ProxyFlushRequestBuilder;
 import org.sonar.server.search.request.ProxyGetRequestBuilder;
 import org.sonar.server.search.request.ProxyIndicesExistsRequestBuilder;
@@ -249,7 +250,7 @@ public class SearchClient extends TransportClient implements Startable {
 
   @Override
   public DeleteRequestBuilder prepareDelete(String index, String type, String id) {
-    throw throwNotYetImplemented();
+    return new ProxyDeleteRequestBuilder(profiling, this, index).setType(type).setId(id);
   }
 
   @Override

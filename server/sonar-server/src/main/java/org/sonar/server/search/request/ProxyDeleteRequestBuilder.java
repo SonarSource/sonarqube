@@ -17,30 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.search.request;
 
-import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ListenableActionFuture;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
+import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
 
-public class ProxyDeleteByQueryRequestBuilder extends DeleteByQueryRequestBuilder {
+public class ProxyDeleteRequestBuilder extends DeleteRequestBuilder {
 
   private final Profiling profiling;
 
-  public ProxyDeleteByQueryRequestBuilder(Client client, Profiling profiling) {
-    super(client);
+  public ProxyDeleteRequestBuilder(Profiling profiling, Client client, String index) {
+    super(client, index);
     this.profiling = profiling;
   }
 
   @Override
-  public DeleteByQueryResponse get() {
-    StopWatch fullProfile = profiling.start("delete by query", Profiling.Level.FULL);
+  public DeleteResponse get() throws ElasticsearchException {
+    StopWatch fullProfile = profiling.start("delete", Profiling.Level.FULL);
     try {
       return super.execute().actionGet();
     } catch (Exception e) {
@@ -53,27 +52,30 @@ public class ProxyDeleteByQueryRequestBuilder extends DeleteByQueryRequestBuilde
   }
 
   @Override
-  public DeleteByQueryResponse get(TimeValue timeout) {
+  public DeleteResponse get(TimeValue timeout) throws ElasticsearchException {
     throw new UnsupportedOperationException("Not yet implemented");
   }
 
   @Override
-  public DeleteByQueryResponse get(String timeout) {
+  public DeleteResponse get(String timeout) throws ElasticsearchException {
     throw new UnsupportedOperationException("Not yet implemented");
   }
 
   @Override
-  public ListenableActionFuture<DeleteByQueryResponse> execute() {
+  public ListenableActionFuture<DeleteResponse> execute() {
     throw new UnsupportedOperationException("execute() should not be called as it's used for asynchronous");
   }
 
   @Override
   public String toString() {
     StringBuilder message = new StringBuilder();
-    message.append("ES delete by query request");
-    if (request.indices().length > 0) {
-      message.append(String.format(" on indices '%s'", StringUtils.join(request.indices(), ",")));
-    }
+    message
+      .append("ES delete request of doc ")
+      .append(request.id())
+      .append(" in index ")
+      .append(request.index())
+      .append("/")
+      .append(request.type());
     return message.toString();
   }
 }

@@ -27,21 +27,23 @@ import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.permission.PermissionFacade;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.component.db.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.es.EsClient;
+import org.sonar.server.es.IssueIndexDefinition;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.db.IssueDao;
-import org.sonar.server.issue.index.IssueAuthorizationIndex;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.permission.InternalPermissionService;
+import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
-
-import java.util.Date;
+import org.sonar.server.user.MockUserSession;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -88,21 +90,20 @@ public class ComponentCleanerServiceMediumTest {
     db.componentDao().insert(session, project);
 
     // project can be seen by anyone
-    tester.get(PermissionFacade.class).insertGroupPermission(project.getId(), DefaultGroups.ANYONE, UserRole.USER, session);
-    db.issueAuthorizationDao().synchronizeAfter(session, new Date(0));
-
     session.commit();
+    MockUserSession.set().setLogin("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    tester.get(InternalPermissionService.class).addPermission(new PermissionChange().setComponentKey(project.getKey()).setGroup(DefaultGroups.ANYONE).setPermission(UserRole.USER));
 
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNotNull();
+    assertThat(countIssueAuthorizationDocs()).isEqualTo(1);
 
     service.delete(project.getKey());
 
-    assertThat(tester.get(IssueAuthorizationIndex.class).getNullableByKey(project.uuid())).isNull();
+    assertThat(countIssueAuthorizationDocs()).isEqualTo(0);
   }
 
   @Test
   public void remove_issue_when_deleting_a_project() throws Exception {
-    //ARRANGE
+    // ARRANGE
     ComponentDto project = ComponentTesting.newProjectDto();
     db.componentDao().insert(session, project);
 
@@ -117,7 +118,7 @@ public class ComponentCleanerServiceMediumTest {
 
     assertThat(tester.get(IssueIndex.class).countAll()).isEqualTo(1);
 
-    //ACT
+    // ACT
     service.delete(project.getKey());
 
     assertThat(tester.get(IssueIndex.class).countAll()).isEqualTo(0);
@@ -131,5 +132,9 @@ public class ComponentCleanerServiceMediumTest {
     session.commit();
 
     service.delete(file.getKey());
+  }
+
+  private long countIssueAuthorizationDocs() {
+    return tester.get(EsClient.class).prepareCount(IssueIndexDefinition.INDEX_ISSUES).setTypes(IssueIndexDefinition.TYPE_ISSUE_AUTHORIZATION).get().getCount();
   }
 }

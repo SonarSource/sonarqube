@@ -27,19 +27,21 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.purge.PurgeDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.search.IndexClient;
+import org.sonar.server.es.IssueAuthorizationIndexer;
+import org.sonar.server.es.IssueIndexer;
 
 public class ComponentCleanerService implements ServerComponent {
 
   private final DbClient dbClient;
   private final PurgeDao purgeDao;
-  private final IndexClient indexClient;
+  private final IssueAuthorizationIndexer issueAuthorizationIndexer;
+  private final IssueIndexer issueIndexer;
 
-  public ComponentCleanerService(DbClient dbClient, PurgeDao purgeDao, IndexClient indexClient) {
+  public ComponentCleanerService(DbClient dbClient, PurgeDao purgeDao, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer) {
     this.dbClient = dbClient;
     this.purgeDao = purgeDao;
-    this.indexClient = indexClient;
+    this.issueAuthorizationIndexer = issueAuthorizationIndexer;
+    this.issueIndexer = issueIndexer;
   }
 
   public void delete(String projectKey) {
@@ -47,24 +49,21 @@ public class ComponentCleanerService implements ServerComponent {
     try {
       ComponentDto project = dbClient.componentDao().getByKey(dbSession, projectKey);
       if (!Scopes.PROJECT.equals(project.scope())) {
-        throw new IllegalArgumentException("Only project can be deleted");
+        throw new IllegalArgumentException("Only projects can be deleted");
       }
       purgeDao.deleteResourceTree(project.getId());
-      deletePermissionIndexes(dbSession, project.uuid());
       dbSession.commit();
 
-      deleteIssuesFromIndex(project.uuid());
+      deleteFromIndices(project.uuid());
     } finally {
       MyBatis.closeQuietly(dbSession);
     }
   }
 
-  private void deleteIssuesFromIndex(String projectUuid) {
-    indexClient.get(IssueIndex.class).deleteByProjectUuid(projectUuid);
-  }
-
-  private void deletePermissionIndexes(DbSession session, String projectUuid) {
-    dbClient.issueAuthorizationDao().deleteByKey(session, projectUuid);
+  private void deleteFromIndices(String projectUuid) {
+    // optimization : index issues is refreshed once at the end
+    issueAuthorizationIndexer.deleteProject(projectUuid, false);
+    issueIndexer.deleteProject(projectUuid, true);
   }
 
 }
