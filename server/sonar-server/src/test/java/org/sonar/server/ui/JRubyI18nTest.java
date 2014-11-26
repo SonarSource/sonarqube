@@ -83,7 +83,7 @@ public class JRubyI18nTest {
   @Test
   public void age_from_now() throws Exception {
     Date date = new Date();
-    jRubyI18n.ageFromNow(new Date());
+    jRubyI18n.ageFromNow(date);
     verify(i18n).ageFromNow(any(Locale.class), eq(date));
   }
 
