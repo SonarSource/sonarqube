@@ -100,9 +100,9 @@ public class WorkDuration implements Serializable {
   }
 
   static WorkDuration createFromMinutes(long duration, int hoursInDay) {
-    int days = ((Double) (duration / hoursInDay / 60d)).intValue();
+    int days = (int)(duration / (double)hoursInDay / 60.0);
     Long currentDurationInMinutes = duration - (60L * days * hoursInDay);
-    int hours = ((Double) (currentDurationInMinutes / 60d)).intValue();
+    int hours = (int)(currentDurationInMinutes / 60.0);
     currentDurationInMinutes = currentDurationInMinutes - (60L * hours);
     return new WorkDuration(duration, days, hours, currentDurationInMinutes.intValue(), hoursInDay);
   }
