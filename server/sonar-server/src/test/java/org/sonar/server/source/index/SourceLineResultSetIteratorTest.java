@@ -24,12 +24,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.DbClient;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.Collection;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -58,7 +58,7 @@ public class SourceLineResultSetIteratorTest {
 
   @Test
   public void should_generate_source_line_documents() throws Exception {
-    db.prepareDbUnit(getClass(), "source-with-scm.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
     PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET data = ? WHERE id=1");
     stmt.setString(1, "aef12a,alice,2014-04-25T12:34:56+0100,,,,polop,class Foo {\r\n" +
       "abe465,bob,2014-07-25T12:34:56+0100,,,,,  // Empty\r\n" +
@@ -84,16 +84,26 @@ public class SourceLineResultSetIteratorTest {
 
   @Test
   public void should_ignore_lines_already_handled() throws Exception {
-    db.prepareDbUnit(getClass(), "source-with-scm.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, db.openConnection(),
-      DateUtils.parseDateTime("2014-11-17T16:44:02+0100").getTime());
+      2000000000000L);
     assertThat(iterator.hasNext()).isFalse();
   }
 
   @Test
+  public void parse_empty_file() throws Exception {
+    db.prepareDbUnit(getClass(), "empty-file.xml");
+
+    SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, db.openConnection(), 0L);
+    assertThat(iterator.hasNext()).isTrue();
+    Collection<SourceLineDoc> lines = iterator.next();
+    assertThat(lines).isEmpty();
+  }
+
+  @Test
   public void should_fail_on_bad_csv() throws Exception {
-    db.prepareDbUnit(getClass(), "source-with-scm.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
     PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET data = ? WHERE id=1");
     stmt.setString(1, "plouf");
     stmt.executeUpdate();
@@ -108,7 +118,6 @@ public class SourceLineResultSetIteratorTest {
       // ok
     } finally {
       iterator.close();
-
     }
   }
 }

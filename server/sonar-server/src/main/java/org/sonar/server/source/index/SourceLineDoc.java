@@ -103,7 +103,7 @@ public class SourceLineDoc extends BaseDoc {
   }
 
   public Date updateDate() {
-    return getField(BaseNormalizer.UPDATED_AT_FIELD);
+    return getFieldAsDate(BaseNormalizer.UPDATED_AT_FIELD);
   }
 
   public void setUpdateDate(Date updatedAt) {

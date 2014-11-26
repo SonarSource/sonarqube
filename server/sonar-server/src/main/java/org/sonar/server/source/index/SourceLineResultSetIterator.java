@@ -51,10 +51,8 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
     // column 1
     "project_uuid",
     "file_uuid",
-    "created_at",
     "updated_at",
-    "data",
-    "data_hash"
+    "data"
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from file_sources";
@@ -82,41 +80,44 @@ class SourceLineResultSetIterator extends ResultSetIterator<Collection<SourceLin
   protected Collection<SourceLineDoc> read(ResultSet rs) throws SQLException {
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
-    Date updatedAt = new Date(SqlUtil.getLong(rs, 4));
+    Date updatedAt = new Date(SqlUtil.getLong(rs, 3));
+    String csv = rs.getString(4);
 
-    int line = 1;
     List<SourceLineDoc> lines = Lists.newArrayList();
-    CSVParser csvParser = null;
-    try {
-      csvParser = new CSVParser(new StringReader(rs.getString(5)), CSVFormat.DEFAULT);
+    if (StringUtils.isNotEmpty(csv)) {
+      int line = 1;
+      CSVParser csvParser = null;
+      try {
+        csvParser = new CSVParser(new StringReader(csv), CSVFormat.DEFAULT);
 
-      for(CSVRecord csvRecord: csvParser) {
-        SourceLineDoc doc = new SourceLineDoc(Maps.<String, Object>newHashMapWithExpectedSize(9));
+        for (CSVRecord csvRecord : csvParser) {
+          SourceLineDoc doc = new SourceLineDoc(Maps.<String, Object>newHashMapWithExpectedSize(9));
 
-        doc.setProjectUuid(projectUuid);
-        doc.setFileUuid(fileUuid);
-        doc.setLine(line);
-        doc.setUpdateDate(updatedAt);
-        doc.setScmRevision(csvRecord.get(0));
-        doc.setScmAuthor(csvRecord.get(1));
-        doc.setScmDate(DateUtils.parseDateTimeQuietly(csvRecord.get(2)));
-        // doc.setLineHits(csvRecord.get(3));
-        // doc.setConditions(csvRecord.get(4));
-        // doc.setCoveredConditions(csvRecord.get(5));
-        doc.setHighlighting(csvRecord.get(6));
-        doc.setSource(csvRecord.get(csvRecord.size() - 1));
+          doc.setProjectUuid(projectUuid);
+          doc.setFileUuid(fileUuid);
+          doc.setLine(line);
+          doc.setUpdateDate(updatedAt);
+          doc.setScmRevision(csvRecord.get(0));
+          doc.setScmAuthor(csvRecord.get(1));
+          doc.setScmDate(DateUtils.parseDateTimeQuietly(csvRecord.get(2)));
+          // doc.setLineHits(csvRecord.get(3));
+          // doc.setConditions(csvRecord.get(4));
+          // doc.setCoveredConditions(csvRecord.get(5));
+          doc.setHighlighting(csvRecord.get(6));
+          doc.setSource(csvRecord.get(csvRecord.size() - 1));
 
-        lines.add(doc);
+          lines.add(doc);
 
-        line ++;
+          line++;
+        }
+      } catch (IOException ioError) {
+        throw new IllegalStateException("Impossible to open stream for file_sources.data with file_uuid " + fileUuid);
+      } catch (ArrayIndexOutOfBoundsException lineError) {
+        throw new IllegalStateException(
+          String.format("Impossible to parse source line data, stuck at line %d", line), lineError);
+      } finally {
+        IOUtils.closeQuietly(csvParser);
       }
-    } catch(IOException ioError) {
-      throw new IllegalStateException("Impossible to open stream for file_sources.data with file_uuid " + fileUuid);
-    } catch(ArrayIndexOutOfBoundsException lineError) {
-      throw new IllegalStateException(
-        String.format("Impossible to parse source line data, stuck at line %d", line), lineError);
-    } finally {
-      IOUtils.closeQuietly(csvParser);
     }
 
     return lines;

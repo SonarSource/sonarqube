@@ -30,9 +30,6 @@ import java.sql.Connection;
 import java.util.Collection;
 import java.util.Iterator;
 
-/**
- * Not thread-safe
- */
 public class SourceLineIndexer implements ServerComponent {
 
   private final DbClient dbClient;
@@ -47,7 +44,6 @@ public class SourceLineIndexer implements ServerComponent {
   }
 
   public void indexSourceLines(boolean large) {
-    // TODO support timezones
     final BulkIndexer bulk = new BulkIndexer(esClient, SourceLineIndexDefinition.INDEX_SOURCE_LINES);
     bulk.setLarge(large);
 

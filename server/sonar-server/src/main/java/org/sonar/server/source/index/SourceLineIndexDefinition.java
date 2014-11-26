@@ -39,7 +39,7 @@ public class SourceLineIndexDefinition implements IndexDefinition {
 
   public static final String INDEX_SOURCE_LINES = "sourcelines";
 
-  public static final String TYPE_SOURCE_LINE = "sourceLine";
+  public static final String TYPE_SOURCE_LINE = "sourceline";
 
 
   private final Settings settings;
@@ -60,7 +60,7 @@ public class SourceLineIndexDefinition implements IndexDefinition {
       // else keep defaults (one shard)
     }
 
-    // type "sourceLine"
+    // type "sourceline"
     NewIndex.NewIndexType sourceLineMapping = index.createType(TYPE_SOURCE_LINE);
     sourceLineMapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
     sourceLineMapping.stringFieldBuilder(FIELD_FILE_UUID).build();
