@@ -68,9 +68,13 @@ public class HashAction implements RequestHandler {
         throw new NotFoundException("Unable to find component with key " + componentKey);
       }
       String lineHashes = fileSourceDao.selectLineHashes(component.uuid(), session);
-      OutputStream output = response.stream().setMediaType("text/plain").output();
-      output.write(lineHashes.getBytes(Charsets.UTF_8));
-      output.close();
+      if (lineHashes == null) {
+        response.noContent();
+      } else {
+        OutputStream output = response.stream().setMediaType("text/plain").output();
+        output.write(lineHashes.getBytes(Charsets.UTF_8));
+        output.close();
+      }
     } finally {
       session.close();
     }
