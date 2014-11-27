@@ -1,6 +1,8 @@
 extends ./layouts/main
 
 block header
+  script.
+    localStorage.removeItem('componentViewerSCM');
   script(data-main='/js/component-viewer/app', src='../js/require.js')
 
 block body

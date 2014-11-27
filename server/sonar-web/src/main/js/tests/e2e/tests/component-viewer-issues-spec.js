@@ -161,7 +161,6 @@ casper.test.begin(testName('Bulk Change Link Exists'), function (test) {
       })
 
       .then(function () {
-        lib.capture('test.png');
         test.assertExists('.js-issues-bulk-change');
       })
 

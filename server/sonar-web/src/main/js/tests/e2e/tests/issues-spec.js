@@ -77,9 +77,6 @@ casper.test.begin(testName('Issue Box', 'Check Elements'), function (test) {
 
       .then(function () {
         test.assertSelectorContains('.issue.selected', "Add a 'package-info.java' file to document the");
-        test.assertSelectorContains('.issue.selected', 'XML');
-        test.assertSelectorContains('.issue.selected', 'src/main/java/org/sonar/plugins/xml');
-
         test.assertExists('.issue.selected .js-issue-set-severity');
         test.assertSelectorContains('.issue.selected .js-issue-set-severity', 'MAJOR');
         test.assertSelectorContains('.issue.selected', 'CONFIRMED');

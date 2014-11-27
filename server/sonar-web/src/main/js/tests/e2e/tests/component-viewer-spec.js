@@ -116,15 +116,12 @@ casper.test.begin(testName('Decoration'), function (test) {
         casper.click('.js-toggle-scm');
         casper.waitForSelector('.scm-author', function () {
           test.assertElementCount('.scm-author', 182);
-          test.assertElementCount('.scm-date', 182);
           test.assertSelectorContains('.scm-author', 'simon.brandhof@gmail.com');
           test.assertSelectorContains('.scm-author', 'julien.henry@sonarsource.com');
-          test.assertSelectorContains('.scm-date', '2014-02-20');
 
           casper.click('.js-toggle-scm');
           casper.waitWhileSelector('.scm-author', function () {
             test.assertDoesntExist('.scm-author');
-            test.assertDoesntExist('.scm-date');
           });
         });
       })
