@@ -51,7 +51,7 @@ public class SearchServer implements Monitored {
   public boolean isReady() {
     return node != null && node.client().admin().cluster().prepareHealth()
       .setWaitForYellowStatus()
-      .setTimeout(TimeValue.timeValueSeconds(3L))
+      .setTimeout(TimeValue.timeValueSeconds(30L))
       .get()
       .getStatus() != ClusterHealthStatus.RED;
   }
