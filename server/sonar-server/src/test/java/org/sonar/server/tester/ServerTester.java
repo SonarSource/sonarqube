@@ -107,6 +107,9 @@ public class ServerTester extends ExternalResource {
 
     try {
       searchServer.start();
+      // wait for ES to be ready
+      searchServer.isReady();
+      
       platform.init(properties);
       platform.addComponents(components);
       platform.doStart();

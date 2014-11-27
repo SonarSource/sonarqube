@@ -87,6 +87,11 @@ public class EsTester extends ExternalResource {
     node.start();
     assertThat(DiscoveryNode.localNode(node.settings())).isTrue();
 
+    // wait for node to be ready
+    node.client().admin().cluster().prepareHealth()
+      .setWaitForGreenStatus()
+      .get();
+
     // delete the indices created by previous tests
     DeleteIndexResponse response = node.client().admin().indices().prepareDelete("_all").get();
     assertThat(response.isAcknowledged()).isTrue();
