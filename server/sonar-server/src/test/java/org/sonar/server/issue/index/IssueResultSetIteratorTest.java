@@ -74,6 +74,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
 
     assertThat(it.hasNext()).isFalse();
+    it.close();
   }
 
   @Test
@@ -87,5 +88,6 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.key()).isEqualTo("DEF");
 
     assertThat(it.hasNext()).isFalse();
+    it.close();
   }
 }

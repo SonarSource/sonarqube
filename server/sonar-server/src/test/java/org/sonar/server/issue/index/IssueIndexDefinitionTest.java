@@ -24,7 +24,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessConstants;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
-import org.sonar.server.issue.index.IssueIndexDefinition;
 
 import static org.fest.assertions.Assertions.assertThat;
 
