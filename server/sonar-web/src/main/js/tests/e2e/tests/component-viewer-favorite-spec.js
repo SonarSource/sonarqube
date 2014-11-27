@@ -17,7 +17,7 @@ casper.test.begin(testName('Mark as Favorite'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
@@ -49,7 +49,7 @@ casper.test.begin(testName('Don\'t Show Favorite If Not Logged In'), function (t
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {

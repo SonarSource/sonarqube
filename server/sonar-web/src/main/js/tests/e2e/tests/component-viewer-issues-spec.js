@@ -17,7 +17,7 @@ casper.test.begin(testName('Filters'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
@@ -116,7 +116,7 @@ casper.test.begin(testName('On File Level'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
@@ -130,7 +130,7 @@ casper.test.begin(testName('On File Level'), function (test) {
       })
 
       .then(function () {
-        test.assertVisible('.component-viewer-source .row[data-line-number="0"]');
+        test.assertVisible('.component-viewer-source .source-line[data-line-number="0"]');
         test.assertExists('#issue-20002ec7-b647-44da-bdf5-4d9fbf4b7c58');
       })
 
@@ -152,7 +152,7 @@ casper.test.begin(testName('Bulk Change Link Exists'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {

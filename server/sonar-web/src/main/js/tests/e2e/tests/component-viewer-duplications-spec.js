@@ -17,20 +17,20 @@ casper.test.begin(testName('Filters'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
         casper.click('.js-header-tab-duplications');
-        casper.waitForSelector('.duplication-exists', function () {
+        casper.waitForSelector('.source-line-duplicated', function () {
           test.assertExists('.js-filter-duplications.active');
-          test.assertElementCount('.component-viewer-source .row', 39);
+          test.assertElementCount('.component-viewer-source .source-line', 39);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-duplications');
-        test.assertElementCount('.component-viewer-source .row', 520);
+        test.assertElementCount('.component-viewer-source .source-line', 520);
       })
 
       .run(function () {
@@ -53,15 +53,15 @@ casper.test.begin(testName('Cross-Project'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
         casper.click('.js-header-tab-duplications');
         casper.waitForSelector('.js-filter-duplications', function () {
           casper.click('.js-filter-duplications');
-          casper.waitForSelector('.duplication-exists', function () {
-            casper.click('.duplication-exists');
+          casper.waitForSelector('.source-line-duplicated', function () {
+            casper.click('.source-line-duplicated');
             casper.waitForSelector('.bubble-popup', function () {
               test.assertSelectorContains('.bubble-popup', 'JavaScript');
               test.assertSelectorContains('.bubble-popup', 'JavaScript :: Sonar Plugin');
@@ -92,12 +92,12 @@ casper.test.begin(testName('In Deleted Files'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
         casper.click('.js-toggle-duplications');
-        casper.waitForSelector('.duplication-exists', function () {
+        casper.waitForSelector('.source-line-duplicated', function () {
           test.assertExists('.js-duplications-in-deleted-files');
         });
       })

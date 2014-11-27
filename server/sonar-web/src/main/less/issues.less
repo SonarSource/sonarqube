@@ -35,6 +35,7 @@
 
 .issues-side {
   position: fixed;
+  z-index: 100;
   width: @sideWidth;
   top: 30px; left: 0; bottom: 0;
   .box-sizing(border-box);
@@ -291,6 +292,10 @@
 
 .issues-workspace-list {
   padding: 0 5px;
+
+  .issue {
+    max-width: none;
+  }
 }
 
 .issues-workspace-list-more {

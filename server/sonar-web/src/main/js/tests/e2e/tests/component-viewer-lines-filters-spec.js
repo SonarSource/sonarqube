@@ -16,7 +16,7 @@ casper.test.begin(testName('Lines Filters'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
@@ -26,12 +26,12 @@ casper.test.begin(testName('Lines Filters'), function (test) {
 
       .then(function () {
         casper.click('.js-filter-ncloc');
-        test.assertElementCount('.component-viewer-source .row', 451);
+        test.assertElementCount('.component-viewer-source .source-line', 451);
       })
 
       .then(function () {
         casper.click('.js-filter-ncloc');
-        test.assertElementCount('.component-viewer-source .row', 520);
+        test.assertElementCount('.component-viewer-source .source-line', 520);
       })
 
       .run(function () {
@@ -51,7 +51,7 @@ casper.test.begin(testName('Do Not Show Ncloc Filter If No Data'), function (tes
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {

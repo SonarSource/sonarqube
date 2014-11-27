@@ -64,7 +64,6 @@ define [
 
 
     onRender: ->
-      @$el.prop('id', "issue-#{@model.id}").data('issue-key', @model.id)
 
 
     resetIssue: (options, p) ->

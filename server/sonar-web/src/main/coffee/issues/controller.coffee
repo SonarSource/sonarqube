@@ -202,9 +202,7 @@ define [
       key.setScope 'componentViewer'
       @options.app.issuesView.unbindScrollEvents()
       @options.app.state.set 'component', @_prepareComponent(issue)
-      @options.app.componentViewer = new ComponentViewer
-        app: @options.app
-        model: new ComponentViewerState()
+      @options.app.componentViewer = new ComponentViewer app: @options.app
       @options.app.layout.workspaceComponentViewerRegion.show @options.app.componentViewer
       @options.app.layout.showComponentViewer()
       @options.app.componentViewer.openFileByIssue issue

@@ -16,72 +16,70 @@
     <p class="marginbottom10 js-duplications-in-deleted-files">{{t 'duplications.dups_found_on_deleted_resource'}}</p>
   {{/if}}
 
-  <table class="code">
-    {{#if showZeroLine}}
-      <tr class="row row-hidden" data-line-number="0" id="{{uid}}-0">
-        {{#if settings.coverage}}
-          <td class="stat coverage-tests"></td>
-          <td class="stat coverage-conditions"></td>
-        {{/if}}
-        {{#if settings.duplications}}
-          <td class="stat"></td>
-        {{/if}}
-        {{#if settings.scm}}
-          <td class="stat"></td>
-        {{/if}}
-        <td class="stat lid"></td>
-        <td class="line"></td>
-      </tr>
-    {{/if}}
+  <div class="source">
+    <table class="source-table">
+      {{#if showZeroLine}}
+        <tr class="source-line hidden" data-line-number="0" id="{{uid}}-0">
+          <td class="source-meta source-line-number" title="{{t 'component_viewer.line_actions'}}"></td>
 
-    {{#each source}}
-      {{#if show}}
-        <tr class="row" data-line-number="{{lineNumber}}" id="{{../../uid}}-{{lineNumber}}">
+          {{#if settings.scm}}
+            <td class="source-meta source-line-scm"></td>
+          {{/if}}
 
-          <td class="stat lid js-line-actions" title="{{t 'component_viewer.line_actions'}}">{{lineNumber}}</td>
-
-          {{#if ../../settings.coverage}}
-            <td class="stat {{#if coverage}}coverage-{{#if coverage.covered}}green{{else}}red{{/if}}{{/if}}">
-              {{#if coverage}}
-                <span class="coverage-tests" title="{{tp 'coverage_viewer.line_covered_by_x_tests' coverage.testCases}}">
-                  {{coverage.testCases}}
-                </span>
-              {{/if}}
-            </td>
-
-            <td class="stat {{#if coverage}}{{#if coverage.branchCoverageStatus}}coverage-{{coverage.branchCoverageStatus}}{{/if}}{{/if}}">
-              {{#if coverage}}
-                {{#if coverage.branches}}
-                  <span class="coverage-branches" title="{{tp 'coverage_viewer.x_covered_conditions' coverage.coveredBranches}}">
-                    {{coverage.coveredBranches}}/{{coverage.branches}}
-                  </span>
-                {{/if}}
-              {{/if}}
+          {{#if settings.coverage}}
+            <td class="source-meta source-line-coverage">
+              <div class="source-line-bar"></div>
             </td>
           {{/if}}
 
-          {{#if ../../settings.duplications}}
-            <td class="stat duplications">
-              {{#each duplications}}
-                <span class="duplication {{#if this}}duplication-exists{{/if}}" data-index="{{this}}"></span>
-              {{/each}}
-            </td>
+          {{#if settings.duplications}}
+            {{#each baseDuplications}}
+              <td class="source-meta source-line-duplications-extra">
+                <div class="source-line-bar"></div>
+              </td>
+            {{/each}}
           {{/if}}
 
-          {{#if ../../settings.scm}}
-            <td class="stat {{#if scm}}scm{{/if}}">
-              {{#if scm}}
-                {{#ifSCMChanged ../../../../source ../../../lineNumber}}
-                  <span class="scm-author" title="{{dt scm.date}}&#013;{{scm.author}}">{{scm.author}}</span>
-                {{/ifSCMChanged}}
-              {{/if}}
-            </td>
-          {{/if}}
-
-          <td class="line"><pre>{{{code}}}</pre></td>
+          <td class="source-line-code"></td>
         </tr>
       {{/if}}
-    {{/each}}
-  </table>
+
+      {{#each source}}
+        {{#if show}}
+          <tr class="source-line" data-line-number="{{lineNumber}}" id="{{../../uid}}-{{lineNumber}}">
+            <td class="source-meta source-line-number js-line-actions" title="{{t 'component_viewer.line_actions'}}"
+                {{#if lineNumber}}data-line-number="{{lineNumber}}"{{/if}}></td>
+
+            {{#if ../../settings.scm}}
+              <td class="source-meta {{#if scm}}source-line-scm{{/if}}">
+                {{#if scm}}
+                  {{#ifSCMChanged ../../../../source ../../../lineNumber}}
+                    <div class="source-line-scm-inner" title="{{scm.author}}&#013;{{dt scm.date}}" data-author="{{scm.author}}"></div>
+                  {{/ifSCMChanged}}
+                {{/if}}
+              </td>
+            {{/if}}
+
+            {{#if ../../settings.coverage}}
+              <td class="source-meta source-line-coverage {{#if coverage}}source-line-{{coverageStatus}}{{/if}}">
+                <div class="source-line-bar"></div>
+              </td>
+            {{/if}}
+
+            {{#if ../../settings.duplications}}
+              {{#each duplications}}
+                <td class="source-meta source-line-duplications-extra {{#if this}}source-line-duplicated{{/if}}"
+                    data-index="{{this}}" data-line-number="{{line}}">
+                  <div class="source-line-bar"></div>
+                </td>
+              {{/each}}
+            {{/if}}
+
+            <td class="source-line-code code"><pre>{{{code}}}</pre></td>
+          </tr>
+        {{/if}}
+      {{/each}}
+    </table>
+  </div>
 
 {{/if}}

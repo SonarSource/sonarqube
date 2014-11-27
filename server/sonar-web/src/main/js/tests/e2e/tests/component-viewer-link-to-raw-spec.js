@@ -15,7 +15,7 @@ casper.test.begin(testName('Link to Raw'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {

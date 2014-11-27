@@ -8,14 +8,6 @@ define [
 
   $ = jQuery
 
-  $.fn.isolatedScroll = ->
-    @on 'wheel', (e) ->
-      delta = -e.originalEvent.deltaY
-      bottomOverflow = @scrollTop + $(@).outerHeight() - @scrollHeight >= 0
-      topOverflow = @scrollTop <= 0
-      e.preventDefault() if (delta < 0 && bottomOverflow) || (delta > 0 && topOverflow)
-    @
-
 
   class extends Marionette.Layout
     template: Templates['issues-layout']

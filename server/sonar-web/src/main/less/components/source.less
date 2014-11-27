@@ -1,0 +1,146 @@
+@import (reference) "../mixins";
+@import (reference) "../variables";
+
+@lineHeight: 18px;
+@duplicationColor: #f3ca8e;
+
+.source {
+  width: 100%;
+  border: 1px solid @barBorderColor;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.source-table {
+  width: 100%;
+  border: none;
+  border-collapse: collapse;
+}
+
+.source-line:hover {
+  .source-line-number,
+  .source-line-coverage,
+  .source-line-duplications,
+  .source-line-duplications-extra,
+  .source-line-scm {
+    border-color: darken(@barBackgroundColor, 4%);
+    background-color: darken(@barBackgroundColor, 4%);
+  }
+
+  .source-line-code {
+    background-color: darken(#fff, 4%);
+  }
+}
+
+.source-line-highlighted,
+.source-line-highlighted:hover {
+  .source-line-number,
+  .source-line-coverage,
+  .source-line-duplications,
+  .source-line-duplications-extra,
+  .source-line-scm {
+    border-color: #fdf190 !important;
+    background-color: #fdf190;
+  }
+
+  .source-line-code {
+    background-color: #fff8c2;
+  }
+}
+
+.source-line-expand {
+  .source-line-code {
+    background: url(../images/gray-stripes.png) repeat;
+  }
+}
+
+.source pre {
+  height: @lineHeight;
+  padding: 0;
+}
+
+.source pre,
+.source-meta {
+  line-height: @lineHeight;
+  font-family: @monoFontFamily;
+  font-size: 12px;
+}
+
+.source-line-code {
+  padding: 0 10px;
+}
+
+.source-meta {
+  vertical-align: top;
+  width: 1px;
+  .user-select(none);
+}
+
+.source-meta + .source-meta {
+  border-left: 1px solid @barBackgroundColor;
+}
+
+.source-line-number {
+  min-width: 18px;
+  padding: 0 10px;
+  background-color: @barBackgroundColor;
+  color: @secondFontColor;
+  text-align: right;
+
+  &[data-line-number] {
+    cursor: pointer;
+  }
+
+  &:before {
+    content: attr(data-line-number);
+  }
+}
+
+.source-line-coverage {
+  background-color: @barBackgroundColor;
+}
+
+.source-line-duplications,
+.source-line-duplications-extra {
+  background-color: @barBackgroundColor;
+}
+
+.source-line-scm {
+  padding: 0 5px;
+  background-color: @barBackgroundColor;
+}
+
+.source-line-scm-inner {
+  max-width: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:before {
+    content: attr(data-author);
+  }
+}
+
+.source-line-bar {
+  width: 5px;
+  height: @lineHeight;
+}
+
+.source-line-covered {
+  background-color: @green !important;
+  cursor: pointer;
+}
+
+.source-line-uncovered {
+  background-color: @red !important;
+}
+
+.source-line-partially-covered {
+  background-color: @orange !important;
+  cursor: pointer;
+}
+
+.source-line-duplicated {
+  background-color: @duplicationColor !important;
+  cursor: pointer;
+}

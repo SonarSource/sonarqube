@@ -140,6 +140,13 @@
     background-image: linear-gradient(@angle, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
 }
 
+.user-select(@mode) {
+  -webkit-user-select: @mode;
+     -moz-user-select: @mode;
+      -ms-user-select: @mode;
+          user-select: @mode;
+}
+
 .trans(@property: all, @options: @defaultTransitionOptions) {
   transition: @property @options;
 }

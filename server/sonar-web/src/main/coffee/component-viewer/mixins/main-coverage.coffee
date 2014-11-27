@@ -25,10 +25,13 @@ define [], () ->
           testCases: c[2]
           branches: c[3]
           coveredBranches: c[4]
+        line.coverageStatus = 'partially-covered'
+        line.coverageStatus = 'covered' if c[1] && c[3] == c[4]
+        line.coverageStatus = 'uncovered' if !c[1] || c[4] == 0
         if line.coverage.branches? && line.coverage.coveredBranches?
-          line.coverage.branchCoverageStatus = 'green' if line.coverage.branches == line.coverage.coveredBranches
-          line.coverage.branchCoverageStatus = 'orange' if line.coverage.branches > line.coverage.coveredBranches
-          line.coverage.branchCoverageStatus = 'red' if line.coverage.coveredBranches == 0
+          line.coverage.branchCoverageStatus = 'covered' if line.coverage.branches == line.coverage.coveredBranches
+          line.coverage.branchCoverageStatus = 'partially-covered' if line.coverage.branches > line.coverage.coveredBranches
+          line.coverage.branchCoverageStatus = 'uncovered' if line.coverage.coveredBranches == 0
       @source.set 'formattedSource', formattedSource
 
 

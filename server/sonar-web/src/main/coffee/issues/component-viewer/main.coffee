@@ -2,48 +2,44 @@ define [
   'backbone'
   'backbone.marionette'
   'templates/issues'
+  'source-viewer/viewer'
   'issues/models/issues'
   'issues/component-viewer/issue-view'
 ], (
   Backbone
   Marionette
   Templates
+  SourceViewer
   Issues
   IssueView
 ) ->
 
   $ = jQuery
 
-  API_SOURCES = "#{baseUrl}/api/sources/lines"
-  LINES_AROUND = 200
   TOP_OFFSET = 38
   BOTTOM_OFFSET = 10
-  ISSUES_LIMIT = 100
 
 
-  class extends Marionette.ItemView
-    template: Templates['issues-component-viewer']
+  class extends SourceViewer
 
-
-    ui:
-      sourceBeforeSpinner: '.js-component-viewer-source-before'
-      sourceAfterSpinner: '.js-component-viewer-source-after'
-
-
-    events:
-      'click .js-close-component-viewer': 'closeComponentViewer'
-      'click .sym': 'highlightUsages'
-      'click .code-issue': 'selectIssue'
+    events: ->
+      _.extend super,
+        'click .js-close-component-viewer': 'closeComponentViewer'
+        'click .sym': 'highlightUsages'
+        'click .code-issue': 'selectIssue'
 
 
     initialize: (options) ->
-      @component = new Backbone.Model()
-      @issues = new Issues()
-      @issueViews = []
+      super
+      @listenTo @, 'loaded', @onLoaded
       @listenTo options.app.state, 'change:selectedIndex', @select
-      @loadSourceBeforeThrottled = _.throttle @loadSourceBefore, 1000
-      @loadSourceAfterThrottled = _.throttle @loadSourceAfter, 1000
-      @scrollTimer = null
+
+
+    onLoaded: ->
+      @bindScrollEvents()
+      @bindShortcuts()
+      if @baseIssue?
+        @scrollToLine @baseIssue.get 'line'
 
 
     bindShortcuts: ->
@@ -85,104 +81,10 @@ define [
       key.deleteScope 'componentViewer'
 
 
-    bindScrollEvents: ->
-      $(window).on 'scroll.issues-component-viewer', (=> @onScroll())
-
-
-    unbindScrollEvents: ->
-      $(window).off 'scroll.issues-component-viewer'
-
-
-    disablePointerEvents: ->
-      clearTimeout @scrollTimer
-      $('body').addClass 'disabled-pointer-events'
-      @scrollTimer = setTimeout (-> $('body').removeClass 'disabled-pointer-events'), 250
-
-
-    onScroll: ->
-      @disablePointerEvents()
-
-      if @model.get('hasSourceBefore') && $(window).scrollTop() <= @ui.sourceBeforeSpinner.offset().top
-        @loadSourceBeforeThrottled()
-
-      if @model.get('hasSourceAfter') && $(window).scrollTop() + $(window).height() >= @ui.sourceAfterSpinner.offset().top
-        @loadSourceAfterThrottled()
-
-
-    loadSourceBefore: ->
-      @unbindScrollEvents()
-      source = @model.get 'source'
-      firstLine = _.first(source).line
-      @requestSources(firstLine - LINES_AROUND, firstLine - 1).done (data) =>
-        source = data.sources.concat source
-        @model.set
-          source: source
-          hasSourceBefore: data.sources.length == LINES_AROUND
-        @render()
-        @scrollToLine firstLine
-        @bindScrollEvents() if @model.get('hasSourceBefore') || @model.get('hasSourceAfter')
-
-
-    loadSourceAfter: ->
-      @unbindScrollEvents()
-      source = @model.get 'source'
-      lastLine = _.last(source).line
-      @requestSources(lastLine + 1, lastLine + LINES_AROUND)
-      .done (data) =>
-        source = source.concat data.sources
-        @model.set
-          source: source
-          hasSourceAfter: data.sources.length == LINES_AROUND
-        @render()
-        @bindScrollEvents() if @model.get('hasSourceBefore') || @model.get('hasSourceAfter')
-      .fail =>
-        @model.set
-          source: []
-          hasSourceAfter: false
-        @render()
-
-
     onClose: ->
-      @issueViews.forEach (view) -> view.close()
-      @issuesView = []
+      super
       @unbindScrollEvents()
       @unbindShortcuts()
-
-
-    onRender: ->
-      @renderIssues()
-
-
-    renderIssues: ->
-      @hiddenIssues = false
-      @issues.forEach (issue) =>
-        @renderIssue issue
-      if @hiddenIssues
-        issues = @$('.issue').length
-        warn = $('<div class="process-spinner shown">' + tp('issues.issues_limit_reached', issues) + '</div>')
-        $('body').append warn
-        setTimeout (-> warn.remove()), 3000
-
-
-    addIssue: (issue) ->
-      @renderIssue issue
-
-
-    renderIssue: (issue) ->
-      line = issue.get('line') || 0
-      row = @$("[data-line-number=#{line}]")
-      issueView = new IssueView app: @options.app, model: issue
-      @issueViews.push issueView
-      showBox = Math.abs(issue.get('index') - @model.get('issueIndex')) < ISSUES_LIMIT / 2
-      @hiddenIssues = true unless showBox
-      if showBox && row.length > 0
-        row.removeClass 'hidden'
-        line = row.find '.line'
-        line.addClass 'has-issues'
-        issues = line.find '.issue-list'
-        if issues.length == 0
-          issues = $('<div class="issue-list"></div>').appendTo line
-        issueView.render().$el.appendTo issues
 
 
     select: ->
@@ -231,49 +133,48 @@ define [
 
 
     openFileByIssue: (issue) ->
+      @baseIssue = issue
       componentKey = issue.get 'component'
       componentUuid = issue.get 'componentUuid'
-
-      line = issue.get('line') || 0
-      @model.set
-        id: componentUuid
-        key: componentKey
-        issueLine: line
-        issueIndex: issue.get 'index'
-
-      @requestSources(line - LINES_AROUND, line + LINES_AROUND)
-      .done (data) =>
-        @model.set source: data.sources
-        firstLine = _.first(data.sources).line
-        lastLine = _.last(data.sources).line
-        @model.set
-          hasSourceBefore: firstLine > 1
-          hasSourceAfter: lastLine == line + LINES_AROUND
-        @requestIssues().done =>
-          @issues.reset @options.app.issues.filter (issue) => issue.get('component') == componentKey
-          @render()
-          @bindScrollEvents()
-          @bindShortcuts()
-          @scrollToLine issue.get 'line'
-      .fail =>
-        @model.set source: []
-        @model.set hasSourceBefore: false, hasSourceAfter: false
-        @issues.reset @options.app.issues.filter (issue) => issue.get('component') == componentKey
-        @render()
-        @bindShortcuts()
-        @scrollToLine issue.get 'line'
+      @open componentUuid, componentKey
 
 
+    linesLimit: ->
+      line = @LINES_LIMIT / 2
+      if @baseIssue? && @baseIssue.has('line')
+        line = Math.max line, @baseIssue.get('line')
+      from: line - @LINES_LIMIT / 2 + 1
+      to: line + @LINES_LIMIT / 2
 
-    requestSources: (lineFrom, lineTo) ->
-      lineFrom = Math.max 0, lineFrom
-      $.get API_SOURCES, uuid: @model.id, from: lineFrom, to: lineTo
+
+    limitIssues: (issues) ->
+      index = @ISSUES_LIMIT / 2
+      if @baseIssue? && @baseIssue.has('index')
+        index = Math.max index, @baseIssue.get('index')
+      x = issues.filter (issue) =>
+        Math.abs(issue.get('index') - index) <= @ISSUES_LIMIT / 2
+      x
 
 
     requestIssues: ->
+      console.log 'Request issues'
       if @options.app.issues.last().get('component') == @model.get('key')
-        @options.app.controller.fetchNextPage()
-      else $.Deferred().resolve().promise()
+        r = @options.app.controller.fetchNextPage()
+      else r = $.Deferred().resolve().promise()
+      r.done =>
+        @issues.reset @options.app.issues.filter (issue) => issue.get('component') == @model.key()
+        @issues.reset @limitIssues @issues
+        @addIssuesPerLineMeta @issues
+        console.log 'Issues loaded'
+
+
+    renderIssue: (issue) ->
+      issueView = new IssueView
+        el: '#issue-' + issue.get('key')
+        model: issue
+        app: @options.app
+      @issueViews.push issueView
+      issueView.render()
 
 
     addNextIssuesPage: ->
@@ -298,8 +199,3 @@ define [
       @$('.sym.highlighted').removeClass 'highlighted'
       @$(".sym.#{key}").addClass 'highlighted' unless highlighted
 
-
-    serializeData: ->
-      hasSCM = _.some @model.get('source'), (row) -> row.scmAuthor?
-      _.extend super,
-        hasSCM: hasSCM

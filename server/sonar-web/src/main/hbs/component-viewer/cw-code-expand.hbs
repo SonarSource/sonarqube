@@ -1,16 +1,17 @@
-<tr class="row row-expand">
+<tr class="source-line source-line-expand">
+  <td class="source-meta source-line-number"></td>
+  {{#if settings.scm}}
+    <td class="source-meta source-line-scm"></td>
+  {{/if}}
   {{#if settings.coverage}}
-    <td class="stat coverage-tests"></td>
-    <td class="stat coverage-conditions"></td>
+    <td class="source-meta source-line-coverage"></td>
   {{/if}}
   {{#if settings.duplications}}
-    <td class="stat"></td>
+    {{#each baseDuplications}}
+      <td class="source-meta source-line-duplications-extra"></td>
+    {{/each}}
   {{/if}}
-  {{#if settings.scm}}
-    <td class="stat"></td>
-  {{/if}}
-  <td class="stat lid">
+  <td class="source-line-code">
     <button class="button-clean js-expand" data-from="{{from}}" data-to="{{to}}"><i class="icon-expand"></i></button>
   </td>
-  <td class="line"></td>
 </tr>

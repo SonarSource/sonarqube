@@ -21,7 +21,7 @@ casper.test.begin(testName('sqale_index'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
@@ -29,7 +29,7 @@ casper.test.begin(testName('sqale_index'), function (test) {
           test.assertExists('.js-toggle-issues.active');
           test.assertExists('.component-viewer-header-expanded-bar.active');
           test.assertExists('.js-filter-unresolved-issues.active');
-          test.assertElementCount('.component-viewer-source .row', 56);
+          test.assertElementCount('.component-viewer-source .source-line', 56);
         });
       })
 
@@ -55,7 +55,7 @@ casper.test.begin(testName('minor_violations'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
@@ -63,7 +63,7 @@ casper.test.begin(testName('minor_violations'), function (test) {
           test.assertExists('.js-toggle-issues.active');
           test.assertExists('.component-viewer-header-expanded-bar.active');
           test.assertExists('.js-filter-MINOR-issues.active');
-          test.assertElementCount('.component-viewer-source .row', 11);
+          test.assertElementCount('.component-viewer-source .source-line', 11);
         });
       })
 
@@ -89,15 +89,15 @@ casper.test.begin(testName('line_coverage'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
-        casper.waitForSelector('.coverage-green', function () {
+        casper.waitForSelector('.source-line-covered', function () {
           test.assertExists('.js-toggle-coverage.active');
           test.assertExists('.component-viewer-header-expanded-bar.active');
           test.assertExists('.js-filter-lines-to-cover.active');
-          test.assertElementCount('.component-viewer-source .row', 369);
+          test.assertElementCount('.component-viewer-source .source-line', 369);
         });
       })
 
@@ -123,15 +123,15 @@ casper.test.begin(testName('duplicated_lines'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
-        casper.waitForSelector('.duplication-exists', function () {
+        casper.waitForSelector('.source-line-duplicated', function () {
           test.assertExists('.js-toggle-duplications.active');
           test.assertExists('.component-viewer-header-expanded-bar.active');
           test.assertExists('.js-filter-duplications.active');
-          test.assertElementCount('.component-viewer-source .row', 39);
+          test.assertElementCount('.component-viewer-source .source-line', 39);
         });
       })
 

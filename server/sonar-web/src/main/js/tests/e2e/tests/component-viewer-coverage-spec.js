@@ -17,7 +17,7 @@ casper.test.begin(testName('Coverage Filters'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
@@ -27,41 +27,41 @@ casper.test.begin(testName('Coverage Filters'), function (test) {
 
       .then(function () {
         casper.click('.js-filter-lines-to-cover');
-        casper.waitForSelector('.coverage-green', function () {
-          test.assertElementCount('.coverage-green', 149);
-          test.assertElementCount('.coverage-red', 51);
-          test.assertElementCount('.coverage-orange', 2);
-          test.assertElementCount('.component-viewer-source .row', 369);
+        casper.waitForSelector('.source-line-covered', function () {
+          test.assertElementCount('.source-line-covered', 142);
+          test.assertElementCount('.source-line-uncovered', 50);
+          test.assertElementCount('.source-line-partially-covered', 2);
+          test.assertElementCount('.component-viewer-source .source-line', 369);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-uncovered-lines');
-        casper.waitForSelector('.coverage-green', function () {
-          test.assertElementCount('.coverage-green', 18);
-          test.assertElementCount('.coverage-red', 51);
-          test.assertElementCount('.coverage-orange', 0);
-          test.assertElementCount('.component-viewer-source .row', 136);
+        casper.waitForSelector('.source-line-covered', function () {
+          test.assertElementCount('.source-line-covered', 18);
+          test.assertElementCount('.source-line-uncovered', 50);
+          test.assertElementCount('.source-line-partially-covered', 0);
+          test.assertElementCount('.component-viewer-source .source-line', 136);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-branches-to-cover');
-        casper.waitForSelector('.coverage-green', function () {
-          test.assertElementCount('.coverage-green', 26);
-          test.assertElementCount('.coverage-red', 4);
-          test.assertElementCount('.coverage-orange', 2);
-          test.assertElementCount('.component-viewer-source .row', 33);
+        casper.waitForSelector('.source-line-covered', function () {
+          test.assertElementCount('.source-line-covered', 19);
+          test.assertElementCount('.source-line-uncovered', 3);
+          test.assertElementCount('.source-line-partially-covered', 2);
+          test.assertElementCount('.component-viewer-source .source-line', 33);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-uncovered-branches');
-        casper.waitForSelector('.coverage-green', function () {
-          test.assertElementCount('.coverage-green', 6);
-          test.assertElementCount('.coverage-red', 4);
-          test.assertElementCount('.coverage-orange', 2);
-          test.assertElementCount('.component-viewer-source .row', 13);
+        casper.waitForSelector('.source-line-covered', function () {
+          test.assertElementCount('.source-line-covered', 4);
+          test.assertElementCount('.source-line-uncovered', 3);
+          test.assertElementCount('.source-line-partially-covered', 2);
+          test.assertElementCount('.component-viewer-source .source-line', 13);
         });
       })
 
@@ -83,13 +83,13 @@ casper.test.begin(testName('Go From Coverage to Test File'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
         casper.click('.js-toggle-coverage');
-        casper.waitForSelector('.coverage-green', function () {
-          casper.click('.coverage-green .coverage-tests');
+        casper.waitForSelector('.source-line-covered', function () {
+          casper.click('.source-line-covered');
           casper.waitForSelector('.bubble-popup', function () {
             test.assertSelectorContains('.bubble-popup', 'src/test/java/org/sonar/batch/issue/IssueCacheTest.java');
             test.assertSelectorContains('.bubble-popup', 'should_update_existing_issue');

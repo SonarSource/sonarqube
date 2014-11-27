@@ -1,0 +1,51 @@
+{{#if hasSourceBefore}}
+  <i class="spinner js-component-viewer-source-before"></i>
+{{/if}}
+
+<table class="source-table">
+  {{#each source}}
+    <tr class="source-line {{#eq line 0}}{{#empty issues}}hidden{{/empty}}{{/eq}}">
+      <td class="source-meta source-line-number" {{#if line}}data-line-number="{{line}}"{{/if}}></td>
+
+      <td class="source-meta source-line-scm">
+        {{#ifSCMChanged2 ../source line}}
+          <div class="source-line-scm-inner" title="{{scmAuthor}} {{scmDate}}" data-author="{{scmAuthor}}"></div>
+        {{/ifSCMChanged2}}
+      </td>
+
+      <td class="source-meta source-line-coverage {{#notNull covered}}source-line-{{covered}}{{/notNull}}"
+          data-line-number="{{line}}">
+        <div class="source-line-bar"></div>
+      </td>
+
+      <td class="source-meta source-line-duplications {{#if duplicated}}source-line-duplicated{{/if}}">
+        <div class="source-line-bar"></div>
+      </td>
+
+      {{#each duplications}}
+        <td class="source-meta source-line-duplications-extra hidden {{#if this}}source-line-duplicated{{/if}}"
+            data-index="{{this}}" data-line-number="{{line}}">
+          <div class="source-line-bar"></div>
+        </td>
+      {{/each}}
+
+      <td class="source-line-code" data-line-number="{{line}}">
+        {{#notNull code}}
+          <pre>{{#if code}}{{{code}}}{{else}}&nbsp;{{/if}}</pre>
+        {{/notNull}}
+
+        {{#notEmpty issues}}
+          <div class="issue-list">
+            {{#each issues}}
+              <div class="issue" id="issue-{{key}}"></div>
+            {{/each}}
+          </div>
+        {{/notEmpty}}
+      </td>
+    </tr>
+  {{/each}}
+</table>
+
+{{#if hasSourceAfter}}
+  <i class="spinner js-component-viewer-source-after"></i>
+{{/if}}

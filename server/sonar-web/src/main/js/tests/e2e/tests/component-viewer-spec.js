@@ -16,7 +16,7 @@ casper.test.begin(testName('Base'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row', function () {
+        casper.waitForSelector('.component-viewer-source .source-line', function () {
           // Check header elements
           test.assertExists('.component-viewer-header');
           test.assertSelectorContains('.component-viewer-header-component-project', 'SonarQube');
@@ -35,7 +35,7 @@ casper.test.begin(testName('Base'), function (test) {
           test.assertExists('.js-header-tab-scm');
 
           // Check source
-          test.assertElementCount('.component-viewer-source .row', 520);
+          test.assertElementCount('.component-viewer-source .source-line', 520);
           test.assertSelectorContains('.component-viewer-source', 'public class Cache');
 
           // Check workspace
@@ -64,7 +64,7 @@ casper.test.begin(testName('Decoration'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
@@ -84,16 +84,14 @@ casper.test.begin(testName('Decoration'), function (test) {
       .then(function () {
         // Check coverage decoration
         casper.click('.js-toggle-coverage');
-        casper.waitForSelector('.coverage-green', function () {
-          test.assertElementCount('.coverage-green', 149);
-          test.assertSelectorContains('.coverage-green', '27');
-          test.assertElementCount('.coverage-red', 51);
-          test.assertElementCount('.coverage-orange', 2);
-          test.assertSelectorContains('.coverage-orange', '1/2');
+        casper.waitForSelector('.source-line-covered', function () {
+          test.assertElementCount('.source-line-covered', 142);
+          test.assertElementCount('.source-line-uncovered', 50);
+          test.assertElementCount('.source-line-partially-covered', 2);
 
           casper.click('.js-toggle-coverage');
-          casper.waitWhileSelector('.coverage-green', function () {
-            test.assertDoesntExist('.coverage-green');
+          casper.waitWhileSelector('.source-line-covered', function () {
+            test.assertDoesntExist('.source-line-covered');
           });
         });
       })
@@ -101,12 +99,12 @@ casper.test.begin(testName('Decoration'), function (test) {
       .then(function () {
         // Check duplications decoration
         casper.click('.js-toggle-duplications');
-        casper.waitForSelector('.duplication-exists', function () {
-          test.assertElementCount('.duplication-exists', 32);
+        casper.waitForSelector('.source-line-duplicated', function () {
+          test.assertElementCount('.source-line-duplicated', 32);
 
           casper.click('.js-toggle-duplications');
-          casper.waitWhileSelector('.duplication-exists', function () {
-            test.assertDoesntExist('.duplication-exists');
+          casper.waitWhileSelector('.source-line-duplicated', function () {
+            test.assertDoesntExist('.source-line-duplicated');
           });
         });
       })
@@ -114,14 +112,14 @@ casper.test.begin(testName('Decoration'), function (test) {
       .then(function () {
         // Check scm decoration
         casper.click('.js-toggle-scm');
-        casper.waitForSelector('.scm-author', function () {
-          test.assertElementCount('.scm-author', 182);
-          test.assertSelectorContains('.scm-author', 'simon.brandhof@gmail.com');
-          test.assertSelectorContains('.scm-author', 'julien.henry@sonarsource.com');
+        casper.waitForSelector('.source-line-scm-inner', function () {
+          test.assertElementCount('.source-line-scm-inner', 182);
+          test.assertExists('.source-line-scm-inner[data-author="simon.brandhof@gmail.com"]');
+          test.assertExists('.source-line-scm-inner[data-author="julien.henry@sonarsource.com"]');
 
           casper.click('.js-toggle-scm');
-          casper.waitWhileSelector('.scm-author', function () {
-            test.assertDoesntExist('.scm-author');
+          casper.waitWhileSelector('.source-line-scm-inner', function () {
+            test.assertDoesntExist('.source-line-scm-inner');
           });
         });
       })
@@ -141,10 +139,14 @@ casper.test.begin(testName('Header'), function (test) {
         lib.mockRequestFromFile('/api/components/app', 'app.json');
         lib.mockRequestFromFile('/api/sources/show', 'source.json');
         lib.mockRequestFromFile('/api/resources', 'resources.json');
+        lib.mockRequestFromFile('/api/issues/search', 'issues.json');
+        lib.mockRequestFromFile('/api/coverage/show', 'coverage.json');
+        lib.mockRequestFromFile('/api/duplications/show', 'duplications.json');
+        lib.mockRequestFromFile('/api/sources/scm', 'scm.json');
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
@@ -244,7 +246,7 @@ casper.test.begin(testName('Test File'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
@@ -284,13 +286,13 @@ casper.test.begin(testName('Go From Coverage to Test File'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
         casper.click('.js-toggle-coverage');
-        casper.waitForSelector('.coverage-green', function () {
-          casper.click('.coverage-green .coverage-tests');
+        casper.waitForSelector('.source-line-covered', function () {
+          casper.click('.source-line-covered');
           casper.waitForSelector('.bubble-popup', function () {
             test.assertSelectorContains('.bubble-popup', 'src/test/java/org/sonar/batch/issue/IssueCacheTest.java');
             test.assertSelectorContains('.bubble-popup', 'should_update_existing_issue');
@@ -329,7 +331,7 @@ casper.test.begin(testName('Coverage Filters'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
@@ -339,41 +341,41 @@ casper.test.begin(testName('Coverage Filters'), function (test) {
 
       .then(function () {
         casper.click('.js-filter-lines-to-cover');
-        casper.waitForSelector('.coverage-green', function () {
-          test.assertElementCount('.coverage-green', 149);
-          test.assertElementCount('.coverage-red', 51);
-          test.assertElementCount('.coverage-orange', 2);
-          test.assertElementCount('.component-viewer-source .row', 369);
+        casper.waitForSelector('.source-line-covered', function () {
+          test.assertElementCount('.source-line-covered', 142);
+          test.assertElementCount('.source-line-uncovered', 50);
+          test.assertElementCount('.source-line-partially-covered', 2);
+          test.assertElementCount('.component-viewer-source .source-line', 369);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-uncovered-lines');
-        casper.waitForSelector('.coverage-green', function () {
-          test.assertElementCount('.coverage-green', 18);
-          test.assertElementCount('.coverage-red', 51);
-          test.assertElementCount('.coverage-orange', 0);
-          test.assertElementCount('.component-viewer-source .row', 136);
+        casper.waitForSelector('.source-line-covered', function () {
+          test.assertElementCount('.source-line-covered', 18);
+          test.assertElementCount('.source-line-uncovered', 50);
+          test.assertElementCount('.source-line-partially-covered', 0);
+          test.assertElementCount('.component-viewer-source .source-line', 136);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-branches-to-cover');
-        casper.waitForSelector('.coverage-green', function () {
-          test.assertElementCount('.coverage-green', 26);
-          test.assertElementCount('.coverage-red', 4);
-          test.assertElementCount('.coverage-orange', 2);
-          test.assertElementCount('.component-viewer-source .row', 33);
+        casper.waitForSelector('.source-line-covered', function () {
+          test.assertElementCount('.source-line-covered', 19);
+          test.assertElementCount('.source-line-uncovered', 3);
+          test.assertElementCount('.source-line-partially-covered', 2);
+          test.assertElementCount('.component-viewer-source .source-line', 33);
         });
       })
 
       .then(function () {
         casper.click('.js-filter-uncovered-branches');
-        casper.waitForSelector('.coverage-green', function () {
-          test.assertElementCount('.coverage-green', 6);
-          test.assertElementCount('.coverage-red', 4);
-          test.assertElementCount('.coverage-orange', 2);
-          test.assertElementCount('.component-viewer-source .row', 13);
+        casper.waitForSelector('.source-line-covered', function () {
+          test.assertElementCount('.source-line-covered', 4);
+          test.assertElementCount('.source-line-uncovered', 3);
+          test.assertElementCount('.source-line-partially-covered', 2);
+          test.assertElementCount('.component-viewer-source .source-line', 13);
         });
       })
 
@@ -397,19 +399,19 @@ casper.test.begin(testName('Ability to Deselect Filters'), function (test) {
       })
 
       .then(function () {
-        casper.waitForSelector('.component-viewer-source .row');
+        casper.waitForSelector('.component-viewer-source .source-line');
       })
 
       .then(function () {
         casper.click('.js-header-tab-issues');
         var testFilter = '.js-filter-unresolved-issues';
         casper.waitForSelector(testFilter + '.active', function () {
-          lib.waitForElementCount('.component-viewer-source .row', 56, function () {
+          lib.waitForElementCount('.component-viewer-source .source-line', 56, function () {
             casper.click(testFilter);
-            lib.waitForElementCount('.component-viewer-source .row', 520, function () {
+            lib.waitForElementCount('.component-viewer-source .source-line', 520, function () {
               test.assertDoesntExist(testFilter + '.active');
               casper.click(testFilter);
-              lib.waitForElementCount('.component-viewer-source .row', 56, function () {
+              lib.waitForElementCount('.component-viewer-source .source-line', 56, function () {
                 test.assertExists(testFilter + '.active');
               });
             });
@@ -421,12 +423,12 @@ casper.test.begin(testName('Ability to Deselect Filters'), function (test) {
         casper.click('.js-header-tab-coverage');
         var testFilter = '.js-filter-lines-to-cover';
         casper.waitForSelector(testFilter + '.active', function () {
-          lib.waitForElementCount('.component-viewer-source .row', 369, function () {
+          lib.waitForElementCount('.component-viewer-source .source-line', 369, function () {
             casper.click(testFilter);
-            lib.waitForElementCount('.component-viewer-source .row', 520, function () {
+            lib.waitForElementCount('.component-viewer-source .source-line', 520, function () {
               test.assertDoesntExist(testFilter + '.active');
               casper.click(testFilter);
-              lib.waitForElementCount('.component-viewer-source .row', 369, function () {
+              lib.waitForElementCount('.component-viewer-source .source-line', 369, function () {
                 test.assertExists(testFilter + '.active');
               });
             });
@@ -438,12 +440,12 @@ casper.test.begin(testName('Ability to Deselect Filters'), function (test) {
         casper.click('.js-header-tab-duplications');
         var testFilter = '.js-filter-duplications';
         casper.waitForSelector(testFilter + '.active', function () {
-          lib.waitForElementCount('.component-viewer-source .row', 39, function () {
+          lib.waitForElementCount('.component-viewer-source .source-line', 39, function () {
             casper.click(testFilter);
-            lib.waitForElementCount('.component-viewer-source .row', 520, function () {
+            lib.waitForElementCount('.component-viewer-source .source-line', 520, function () {
               test.assertDoesntExist(testFilter + '.active');
               casper.click(testFilter);
-              lib.waitForElementCount('.component-viewer-source .row', 39, function () {
+              lib.waitForElementCount('.component-viewer-source .source-line', 39, function () {
                 test.assertExists(testFilter + '.active');
               });
             });

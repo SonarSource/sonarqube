@@ -41,11 +41,10 @@ define [
 
       'click .js-line-actions': 'highlightLine'
 
-      'click .coverage-tests': 'showCoveragePopup'
+      'click .source-line-covered': 'showCoveragePopup'
+      'click .source-line-partially-covered': 'showCoveragePopup'
 
-      'click .duplication-exists': 'showDuplicationPopup'
-      'mouseenter .duplication-exists': 'duplicationMouseEnter'
-      'mouseleave .duplication-exists': 'duplicationMouseLeave'
+      'click .source-line-duplications-extra': 'showDuplicationPopup'
 
       'click .js-expand': 'expandBlock'
       'click .js-expand-all': 'expandAll'
@@ -78,24 +77,36 @@ define [
 
 
     renderExpandButtons: ->
-      rows = @$('.row[data-line-number]')
+      rows = @$('.source-line[data-line-number]')
       rows.get().forEach (row) =>
         line = $(row).data 'line-number'
         linePrev = $(row).prev('[data-line-number]').data 'line-number'
         if line? && linePrev? && (linePrev + 1) < line
-          expand = @expandTemplate from: linePrev, to: line, settings: @options.main.settings.toJSON()
+          expand = @expandTemplate
+            from: linePrev
+            to: line
+            settings: @options.main.settings.toJSON()
+            baseDuplications: @getBaseDuplications()
           $(expand).insertBefore $(row)
 
       firstShown = rows.first().data('line-number')
       if firstShown > 1
-        expand = @expandTemplate from: firstShown - EXPAND_LINES, to: firstShown, settings: @options.main.settings.toJSON()
+        expand = @expandTemplate
+          from: firstShown - EXPAND_LINES
+          to: firstShown
+          settings: @options.main.settings.toJSON()
+          baseDuplications: @getBaseDuplications()
         $(expand).insertBefore rows.first()
 
       lines = _.size @model.get 'source'
       lines = Math.min lines, LINES_LIMIT
       lastShown = rows.last().data('line-number')
       if lastShown < lines
-        expand = @expandTemplate from: lastShown, to: lines, settings: @options.main.settings.toJSON()
+        expand = @expandTemplate
+          from: lastShown
+          to: lines
+          settings: @options.main.settings.toJSON()
+          baseDuplications: @getBaseDuplications()
         $(expand).insertAfter rows.last()
 
       @delegateEvents()
@@ -114,8 +125,8 @@ define [
           row = @$("##{@cid}-#{line}")
         if row.length > 0
           rendered += 1
-          row.removeClass 'row-hidden'
-          container = row.children('.line')
+          row.removeClass 'hidden'
+          container = row.children('.source-line-code')
           container.addClass 'has-issues' if line > 0
           if rendered < ISSUES_LIMIT
             issueModel = new Issue issue
@@ -124,6 +135,7 @@ define [
             if issues.length == 0
               issues = $('<div class="issue-list"></div>').appendTo container
             issueView.render().$el.appendTo issues
+            issueView.$el.prop('id', "issue-#{issue.key}").data('issue-key', issue.key)
             issueView.on 'reset', =>
               @updateIssue issueModel
               @options.main.requestComponent(@options.main.key, false, false).done =>
@@ -155,12 +167,12 @@ define [
       popup = new LineActionsPopupView
         triggerEl: $(e.currentTarget)
         main: @options.main
-        row: $(e.currentTarget).closest '.row'
+        row: $(e.currentTarget).closest '.source-line'
       popup.render()
 
 
     highlightLine: (e) ->
-      row = $(e.currentTarget).closest('.row')
+      row = $(e.currentTarget).closest('.source-line')
       highlighted = row.is ".#{HIGHLIGHTED_ROW_CLASS}"
       @$(".#{HIGHLIGHTED_ROW_CLASS}").removeClass HIGHLIGHTED_ROW_CLASS
       @highlightedLine = null
@@ -195,7 +207,7 @@ define [
     showCoveragePopup: (e) ->
       e.stopPropagation()
       $('body').click()
-      line = $(e.currentTarget).closest('.row').data 'line-number'
+      line = $(e.currentTarget).closest('.source-line').data 'line-number'
       $.get API_COVERAGE_TESTS, key: @options.main.component.get('key'), line: line, (data) =>
         popup = new CoveragePopupView
           model: new Backbone.Model data
@@ -308,6 +320,14 @@ define [
       r
 
 
+    getBaseDuplications: ->
+      source = @model.get 'formattedSource'
+      baseDuplications = []
+      if source? && source.length > 0 && _.first(source).duplications?
+        baseDuplications = _.first(source).duplications
+      baseDuplications
+
+
     serializeData: ->
       uid: @cid
       source: @prepareSource()
@@ -321,3 +341,4 @@ define [
       issuesLimitReached: @model.get('activeIssues')?.length > ISSUES_LIMIT
       linesLimit: LINES_LIMIT
       linesLimitReached: _.size(@model.get 'source') > LINES_LIMIT
+      baseDuplications: @getBaseDuplications()

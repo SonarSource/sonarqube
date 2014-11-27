@@ -98,6 +98,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/common/inputs.js'
             '<%= pkg.assets %>js/common/dialogs.js'
             '<%= pkg.assets %>js/common/processes.js'
+            '<%= pkg.assets %>js/common/jquery-isolated-scroll.js'
             '<%= pkg.assets %>js/application.js'
             '<%= pkg.assets %>js/csv.js'
             '<%= pkg.assets %>js/dashboard.js'
@@ -133,6 +134,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/common/inputs.js'
             '<%= pkg.assets %>js/common/dialogs.js'
             '<%= pkg.assets %>js/common/processes.js'
+            '<%= pkg.assets %>js/common/jquery-isolated-scroll.js'
             '<%= pkg.assets %>js/application.js'
             '<%= pkg.assets %>js/csv.js'
             '<%= pkg.assets %>js/dashboard.js'
@@ -251,6 +253,9 @@ module.exports = (grunt) ->
           '<%= pkg.assets %>js/templates/component-viewer.js': [
             '<%= pkg.sources %>hbs/component-viewer/**/*.hbs'
           ]
+          '<%= pkg.assets %>js/templates/source-viewer.js': [
+            '<%= pkg.sources %>hbs/source-viewer/**/*.hbs'
+          ]
           '<%= pkg.assets %>js/templates/issue.js': [
             '<%= pkg.sources %>hbs/common/**/*.hbs'
             '<%= pkg.sources %>hbs/issue/**/*.hbs'
@@ -316,6 +321,7 @@ module.exports = (grunt) ->
         options:
           test: true
           verbose: true
+          'fail-fast': true
         src: ['<%= pkg.sources %>js/tests/e2e/tests/<%= grunt.option("spec") %>-spec.js']
 
 
