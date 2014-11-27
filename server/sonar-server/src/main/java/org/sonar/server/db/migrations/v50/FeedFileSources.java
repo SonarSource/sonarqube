@@ -19,13 +19,12 @@
  */
 package org.sonar.server.db.migrations.v50;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
-import org.sonar.server.db.migrations.BaseDataChange;
-import org.sonar.server.db.migrations.MassUpdate;
+import org.sonar.server.db.migrations.*;
 import org.sonar.server.db.migrations.Select.Row;
 import org.sonar.server.db.migrations.Select.RowReader;
-import org.sonar.server.db.migrations.SqlStatement;
 
 import javax.annotation.Nullable;
 
@@ -52,7 +51,7 @@ public class FeedFileSources extends BaseDataChange {
     public boolean handle(Row row, SqlStatement update) throws SQLException {
       String projectUuid = row.getString(1);
       String fileUuid = row.getString(2);
-      String source = row.getString(3);
+      String source = StringUtils.defaultIfBlank(row.getString(3), "");
       Date updatedAt = row.getDate(4);
       byte[] shortRevisions = row.getBytes(5);
       byte[] longRevisions = row.getBytes(6);

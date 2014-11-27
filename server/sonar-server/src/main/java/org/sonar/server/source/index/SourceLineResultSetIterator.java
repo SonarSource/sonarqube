@@ -106,7 +106,10 @@ class SourceLineResultSetIterator extends ResultSetIterator<SourceLineResultSetI
   protected SourceFile read(ResultSet rs) throws SQLException {
     String projectUuid = rs.getString(1);
     String fileUuid = rs.getString(2);
-    long updatedAt = SqlUtil.getLong(rs, 3);
+    Long updatedAt = SqlUtil.getLong(rs, 3);
+    if (updatedAt == null) {
+      updatedAt = System.currentTimeMillis();
+    }
     Date updatedDate = new Date(updatedAt);
     SourceFile result = new SourceFile(fileUuid, updatedAt);
 
@@ -148,7 +151,7 @@ class SourceLineResultSetIterator extends ResultSetIterator<SourceLineResultSetI
           line++;
         }
       } catch (IOException ioError) {
-        throw new IllegalStateException("Impossible to open stream for file_sources.data with file_uuid " + fileUuid);
+        throw new IllegalStateException("Impossible to open stream for file_sources.data with file_uuid " + fileUuid, ioError);
       } catch (ArrayIndexOutOfBoundsException lineError) {
         throw new IllegalStateException(
           String.format("Impossible to parse source line data, stuck at line %d", line), lineError);

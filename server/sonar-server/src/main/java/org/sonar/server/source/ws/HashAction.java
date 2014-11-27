@@ -29,7 +29,6 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.source.db.FileSourceDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
 
 import java.io.OutputStream;
 
@@ -64,9 +63,6 @@ public class HashAction implements RequestHandler {
     try {
       String componentKey = request.mandatoryParam("key");
       ComponentDto component = dbClient.componentDao().getByKey(session, componentKey);
-      if (component == null) {
-        throw new NotFoundException("Unable to find component with key " + componentKey);
-      }
       String lineHashes = fileSourceDao.selectLineHashes(component.uuid(), session);
       if (lineHashes == null) {
         response.noContent();

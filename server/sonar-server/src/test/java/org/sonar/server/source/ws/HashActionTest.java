@@ -95,6 +95,7 @@ public class HashActionTest {
   @Test
   public void fail_to_show_hashes_if_file_does_not_exist() throws Exception {
     String componentKey = "project:src/File.xoo";
+    when(componentDao.getByKey(any(DbSession.class), eq(componentKey))).thenThrow(NotFoundException.class);
     try {
       WsTester.TestRequest request = tester.newGetRequest("api/sources", "hash").setParam("key", componentKey);
       request.execute();
