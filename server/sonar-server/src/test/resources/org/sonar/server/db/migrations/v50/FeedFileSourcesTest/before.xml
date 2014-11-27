@@ -12,6 +12,18 @@
     user_managed="false" enabled="true" origin="JAV" worst_value="[null]" best_value="[null]" optimized_best_value="[null]" hidden="[false]" delete_historical_data="false" />
   <metrics id="6" name="covered_conditions_by_line" description="[null]" direction="0" domain="Tests" short_name="Covered conditions by line" qualitative="false" val_type="DATA"
     user_managed="false" enabled="true" origin="JAV" worst_value="[null]" best_value="[null]" optimized_best_value="[null]" hidden="[false]" delete_historical_data="false" />
+  <metrics id="7" name="it_coverage_line_hits_data" description="[null]" direction="0" domain="Test" short_name="Coverage hits by line" qualitative="false" val_type="DATA"
+    user_managed="false" enabled="true" origin="JAV" worst_value="[null]" best_value="[null]" optimized_best_value="[null]" hidden="[false]" delete_historical_data="false" />
+  <metrics id="8" name="it_conditions_by_line" description="[null]" direction="0" domain="Tests" short_name="Conditions by line" qualitative="false" val_type="DATA"
+    user_managed="false" enabled="true" origin="JAV" worst_value="[null]" best_value="[null]" optimized_best_value="[null]" hidden="[false]" delete_historical_data="false" />
+  <metrics id="9" name="it_covered_conditions_by_line" description="[null]" direction="0" domain="Tests" short_name="Covered conditions by line" qualitative="false" val_type="DATA"
+    user_managed="false" enabled="true" origin="JAV" worst_value="[null]" best_value="[null]" optimized_best_value="[null]" hidden="[false]" delete_historical_data="false" />
+  <metrics id="10" name="overall_coverage_line_hits_data" description="[null]" direction="0" domain="Test" short_name="Coverage hits by line" qualitative="false" val_type="DATA"
+    user_managed="false" enabled="true" origin="JAV" worst_value="[null]" best_value="[null]" optimized_best_value="[null]" hidden="[false]" delete_historical_data="false" />
+  <metrics id="11" name="overall_conditions_by_line" description="[null]" direction="0" domain="Tests" short_name="Conditions by line" qualitative="false" val_type="DATA"
+    user_managed="false" enabled="true" origin="JAV" worst_value="[null]" best_value="[null]" optimized_best_value="[null]" hidden="[false]" delete_historical_data="false" />
+  <metrics id="12" name="overall_covered_conditions_by_line" description="[null]" direction="0" domain="Tests" short_name="Covered conditions by line" qualitative="false" val_type="DATA"
+    user_managed="false" enabled="true" origin="JAV" worst_value="[null]" best_value="[null]" optimized_best_value="[null]" hidden="[false]" delete_historical_data="false" />
 
   <projects id="1" uuid="uuid-MyProject" kee="MyProject" scope="PRJ" qualifier="TRK" />
   <projects id="2" uuid="uuid-prj" kee="MyProject:src/main/xoo/prj" scope="DIR" qualifier="DIR" />

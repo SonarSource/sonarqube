@@ -38,21 +38,36 @@ class FileSourceDto {
 
   private Iterator<String> sourceSplitter;
 
-  private Map<Integer, String> revisions;
-  private Map<Integer, String> authors;
-  private Map<Integer, String> dates;
-  private Map<Integer, String> hits;
-  private Map<Integer, String> conditions;
-  private Map<Integer, String> coveredConditions;
+  private final Map<Integer, String> revisions;
+  private final Map<Integer, String> authors;
+  private final Map<Integer, String> dates;
+  private final Map<Integer, String> utHits;
+  private final Map<Integer, String> utConditions;
+  private final Map<Integer, String> utCoveredConditions;
+  private final Map<Integer, String> itHits;
+  private final Map<Integer, String> itConditions;
+  private final Map<Integer, String> itCoveredConditions;
+  private final Map<Integer, String> overallHits;
+  private final Map<Integer, String> overallConditions;
+  private final Map<Integer, String> overallCoveredConditions;
 
-  FileSourceDto(String source, String revisions, String authors, String dates, String hits, String conditions, String coveredConditions) {
+  FileSourceDto(String source, String revisions, String authors, String dates,
+    String utHits, String utConditions, String utCoveredConditions,
+    String itHits, String itConditions, String itCoveredConditions,
+    String overallHits, String overallConditions, String overallCoveredConditions) {
     sourceSplitter = Splitter.onPattern("\r?\n|\r").split(source).iterator();
     this.revisions = KeyValueFormat.parseIntString(revisions);
     this.authors = KeyValueFormat.parseIntString(authors);
     this.dates = KeyValueFormat.parseIntString(dates);
-    this.hits = KeyValueFormat.parseIntString(hits);
-    this.conditions = KeyValueFormat.parseIntString(conditions);
-    this.coveredConditions = KeyValueFormat.parseIntString(coveredConditions);
+    this.utHits = KeyValueFormat.parseIntString(utHits);
+    this.utConditions = KeyValueFormat.parseIntString(utConditions);
+    this.utCoveredConditions = KeyValueFormat.parseIntString(utCoveredConditions);
+    this.itHits = KeyValueFormat.parseIntString(itHits);
+    this.itConditions = KeyValueFormat.parseIntString(itConditions);
+    this.itCoveredConditions = KeyValueFormat.parseIntString(itCoveredConditions);
+    this.overallHits = KeyValueFormat.parseIntString(overallHits);
+    this.overallConditions = KeyValueFormat.parseIntString(overallConditions);
+    this.overallCoveredConditions = KeyValueFormat.parseIntString(overallCoveredConditions);
   }
 
   String[] getSourceData() {
@@ -67,7 +82,9 @@ class FileSourceDto {
       sourceLine = sourceSplitter.next();
       lineHashes.append(lineChecksum(sourceLine)).append("\n");
       csv.values(revisions.get(line), authors.get(line), dates.get(line),
-        hits.get(line), conditions.get(line), coveredConditions.get(line),
+        utHits.get(line), utConditions.get(line), utCoveredConditions.get(line),
+        itHits.get(line), itConditions.get(line), itCoveredConditions.get(line),
+        overallHits.get(line), overallConditions.get(line), overallCoveredConditions.get(line),
         highlighting, sourceLine);
     }
     csv.close();

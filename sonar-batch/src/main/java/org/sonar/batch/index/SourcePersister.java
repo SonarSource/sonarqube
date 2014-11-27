@@ -210,9 +210,15 @@ public class SourcePersister implements ScanPersister {
     Map<Integer, String> authorsByLine = getLineMetric(file, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
     Map<Integer, String> revisionsByLine = getLineMetric(file, CoreMetrics.SCM_REVISIONS_BY_LINE_KEY);
     Map<Integer, String> datesByLine = getLineMetric(file, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
-    Map<Integer, String> hitsByLine = getLineMetric(file, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
-    Map<Integer, String> condByLine = getLineMetric(file, CoreMetrics.CONDITIONS_BY_LINE_KEY);
-    Map<Integer, String> coveredCondByLine = getLineMetric(file, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
+    Map<Integer, String> utHitsByLine = getLineMetric(file, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
+    Map<Integer, String> utCondByLine = getLineMetric(file, CoreMetrics.CONDITIONS_BY_LINE_KEY);
+    Map<Integer, String> utCoveredCondByLine = getLineMetric(file, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
+    Map<Integer, String> itHitsByLine = getLineMetric(file, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY);
+    Map<Integer, String> itCondByLine = getLineMetric(file, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY);
+    Map<Integer, String> itCoveredCondByLine = getLineMetric(file, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY);
+    Map<Integer, String> overallHitsByLine = getLineMetric(file, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY);
+    Map<Integer, String> overallCondByLine = getLineMetric(file, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY);
+    Map<Integer, String> overallCoveredCondByLine = getLineMetric(file, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY);
     SyntaxHighlightingData highlighting = loadHighlighting(file);
     String[] highlightingPerLine = computeHighlightingPerLine(file, highlighting);
 
@@ -220,7 +226,9 @@ public class SourcePersister implements ScanPersister {
     CsvWriter csv = CsvWriter.of(new OutputStreamWriter(output, UTF_8));
     for (int lineIdx = 1; lineIdx <= file.lines(); lineIdx++) {
       csv.values(revisionsByLine.get(lineIdx), authorsByLine.get(lineIdx), datesByLine.get(lineIdx),
-        hitsByLine.get(lineIdx), condByLine.get(lineIdx), coveredCondByLine.get(lineIdx),
+        utHitsByLine.get(lineIdx), utCondByLine.get(lineIdx), utCoveredCondByLine.get(lineIdx),
+        itHitsByLine.get(lineIdx), itCondByLine.get(lineIdx), itCoveredCondByLine.get(lineIdx),
+        overallHitsByLine.get(lineIdx), overallCondByLine.get(lineIdx), overallCoveredCondByLine.get(lineIdx),
         highlightingPerLine[lineIdx - 1],
         CharMatcher.anyOf(BOM).removeFrom(lines.get(lineIdx - 1)));
     }

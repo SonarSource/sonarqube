@@ -145,9 +145,9 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(DateUtils.parseDateTime("2014-10-10T16:44:02+0200").getTime());
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
-      ",,,,,,,changed\r\n,,,,,,,content\r\n");
+      ",,,,,,,,,,,,,changed\r\n,,,,,,,,,,,,,content\r\n");
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("changed") + "\n" + md5Hex("content"));
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("54f7fa51128a7ee577a476974c56568c");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("00141b1194a360a5d5d1f9dcffb27359");
   }
 
   @Test
@@ -189,9 +189,9 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
-      ",,,,,,,foo\r\n,,,,,,,bar\r\n,,,,,,,biz\r\n");
+      ",,,,,,,,,,,,,foo\r\n,,,,,,,,,,,,,bar\r\n,,,,,,,,,,,,,biz\r\n");
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("foo") + "\n" + md5Hex("bar") + "\n" + md5Hex("biz"));
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("419c2b162018f6bbeb04fc0500d7852d");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("e6860232a097eb0616b9fe1bad760941");
 
   }
 
@@ -225,6 +225,18 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.CONDITIONS_BY_LINE, "1=4")));
     when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY))
       .thenReturn(Arrays.asList(new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE, "1=2")));
+    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY))
+      .thenReturn(Arrays.asList(new Measure(CoreMetrics.IT_COVERAGE_LINE_HITS_DATA, "1=2;3=0")));
+    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY))
+      .thenReturn(Arrays.asList(new Measure(CoreMetrics.IT_CONDITIONS_BY_LINE, "1=5")));
+    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY))
+      .thenReturn(Arrays.asList(new Measure(CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE, "1=3")));
+    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY))
+      .thenReturn(Arrays.asList(new Measure(CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA, "1=3;3=0")));
+    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY))
+      .thenReturn(Arrays.asList(new Measure(CoreMetrics.OVERALL_CONDITIONS_BY_LINE, "1=6")));
+    when(measureCache.byMetric(PROJECT_KEY + ":" + relativePathNew, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY))
+      .thenReturn(Arrays.asList(new Measure(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE, "1=4")));
 
     SyntaxHighlightingData highlighting = new SyntaxHighlightingDataBuilder()
       .registerHighlightingRule(0, 3, TypeOfText.ANNOTATION)
@@ -241,10 +253,10 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("foo") + "\n" + md5Hex("bar") + "\n" + md5Hex("biz"));
     assertThat(fileSourceDto.getData()).isEqualTo(
-      "123,julien,2014-10-11T16:44:02+0100,1,4,2,\"0,3,a\",foo\r\n"
-        + "234,simon,2014-10-12T16:44:02+0100,,,,\"0,1,cd\",bar\r\n"
-        + "345,julien,2014-10-13T16:44:02+0100,0,,,\"0,9,c\",biz\r\n");
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("66cf8a9176f59672044663f48a19989c");
+      "123,julien,2014-10-11T16:44:02+0100,1,4,2,2,5,3,3,6,4,\"0,3,a\",foo\r\n"
+        + "234,simon,2014-10-12T16:44:02+0100,,,,,,,,,,\"0,1,cd\",bar\r\n"
+        + "345,julien,2014-10-13T16:44:02+0100,0,,,0,,,0,,,\"0,9,c\",biz\r\n");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("cb7bdbb98bd053c7367c92e6596b37c0");
   }
 
   @Test

@@ -123,26 +123,68 @@ public class FeedFileSourcesTest {
       dateStmt.setBytes(1, "1=2014-04-25T12:34:56+0100;2=2014-07-25T12:34:56+0100;3=2014-03-23T12:34:56+0100;4=2014-03-23T12:34:56+0100".getBytes(Charsets.UTF_8));
       dateStmt.executeUpdate();
 
-      PreparedStatement hitsStmt = connection.prepareStatement("insert into project_measures " +
+      PreparedStatement utHitsStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(4, 6, ?)");
-      hitsStmt.setBytes(1, "1=1;3=0".getBytes(Charsets.UTF_8));
-      hitsStmt.executeUpdate();
+      utHitsStmt.setBytes(1, "1=1;3=0".getBytes(Charsets.UTF_8));
+      utHitsStmt.executeUpdate();
 
-      PreparedStatement condStmt = connection.prepareStatement("insert into project_measures " +
+      PreparedStatement utCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(5, 6, ?)");
-      condStmt.setBytes(1, "1=4".getBytes(Charsets.UTF_8));
-      condStmt.executeUpdate();
+      utCondStmt.setBytes(1, "1=4".getBytes(Charsets.UTF_8));
+      utCondStmt.executeUpdate();
 
-      PreparedStatement coveredCondStmt = connection.prepareStatement("insert into project_measures " +
+      PreparedStatement utCoveredCondStmt = connection.prepareStatement("insert into project_measures " +
         "(metric_id, snapshot_id, " + columnName + ") " +
         "values " +
         "(6, 6, ?)");
-      coveredCondStmt.setBytes(1, "1=2".getBytes(Charsets.UTF_8));
-      coveredCondStmt.executeUpdate();
+      utCoveredCondStmt.setBytes(1, "1=2".getBytes(Charsets.UTF_8));
+      utCoveredCondStmt.executeUpdate();
+
+      PreparedStatement itHitsStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
+        "values " +
+        "(7, 6, ?)");
+      itHitsStmt.setBytes(1, "1=2;3=0".getBytes(Charsets.UTF_8));
+      itHitsStmt.executeUpdate();
+
+      PreparedStatement itCondStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
+        "values " +
+        "(8, 6, ?)");
+      itCondStmt.setBytes(1, "1=5".getBytes(Charsets.UTF_8));
+      itCondStmt.executeUpdate();
+
+      PreparedStatement itCoveredCondStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
+        "values " +
+        "(9, 6, ?)");
+      itCoveredCondStmt.setBytes(1, "1=3".getBytes(Charsets.UTF_8));
+      itCoveredCondStmt.executeUpdate();
+
+      PreparedStatement overallHitsStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
+        "values " +
+        "(10, 6, ?)");
+      overallHitsStmt.setBytes(1, "1=3;3=0".getBytes(Charsets.UTF_8));
+      overallHitsStmt.executeUpdate();
+
+      PreparedStatement overallCondStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
+        "values " +
+        "(11, 6, ?)");
+      overallCondStmt.setBytes(1, "1=6".getBytes(Charsets.UTF_8));
+      overallCondStmt.executeUpdate();
+
+      PreparedStatement overallCoveredCondStmt = connection.prepareStatement("insert into project_measures " +
+        "(metric_id, snapshot_id, " + columnName + ") " +
+        "values " +
+        "(12, 6, ?)");
+      overallCoveredCondStmt.setBytes(1, "1=4".getBytes(Charsets.UTF_8));
+      overallCoveredCondStmt.executeUpdate();
     } finally {
       DbUtils.commitAndCloseQuietly(connection);
     }
