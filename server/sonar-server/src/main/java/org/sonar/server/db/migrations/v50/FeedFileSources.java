@@ -150,34 +150,59 @@ public class FeedFileSources extends BaseDataChange {
 
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT " +
-      "p.uuid as project_uuid, " +
-      "f.uuid as file_uuid, " +
-      "ss.data as source, " +
+      "p.uuid, " +
+      "f.uuid, " +
+      "ss.data, " +
       "ss.updated_at, " +
-      "m1.text_value as short_revisions_by_line, " +
-      "m1.measure_data as long_revisions_by_line, " +
-      "m2.text_value as short_authors_by_line, " +
-      "m2.measure_data as long_authors_by_line, " +
-      "m3.text_value as short_dates_by_line, " +
-      "m3.measure_data as long_dates_by_line, " +
-      "m4.text_value as short_hits_by_line, " +
-      "m4.measure_data as long_hits_by_line, " +
-      "m5.text_value as short_cond_by_line, " +
-      "m5.measure_data as long_cond_by_line, " +
-      "m6.text_value as short_cover_cond_by_line, " +
-      "m6.measure_data as long_cover_cond_by_line, " +
-      "m7.text_value as short_it_hits_by_line, " +
-      "m7.measure_data as long_it_hits_by_line, " +
-      "m8.text_value as short_it_cond_by_line, " +
-      "m8.measure_data as long_it_cond_by_line, " +
-      "m9.text_value as short_it_cover_cond_by_line, " +
-      "m9.measure_data as long_it_cover_cond_by_line, " +
-      "m10.text_value as short_overall_hits_by_line, " +
-      "m10.measure_data as long_overall_hits_by_line, " +
-      "m11.text_value as short_overall_cond_by_line, " +
-      "m11.measure_data as long_overall_cond_by_line, " +
-      "m12.text_value as short_overall_cover_cond_by_line, " +
-      "m12.measure_data as long_overall_cover_cond_by_line " +
+
+      // revisions_by_line
+      "m1.text_value, " +
+      "m1.measure_data, " +
+
+      // authors_by_line
+      "m2.text_value, " +
+      "m2.measure_data, " +
+
+      // dates_by_line
+      "m3.text_value, " +
+      "m3.measure_data, " +
+
+      // hits_by_line
+      "m4.text_value, " +
+      "m4.measure_data, " +
+
+      // cond_by_line
+      "m5.text_value, " +
+      "m5.measure_data, " +
+
+      // cover_cond_by_line
+      "m6.text_value, " +
+      "m6.measure_data, " +
+
+      // it_hits_by_line
+      "m7.text_value, " +
+      "m7.measure_data, " +
+
+      // it_cond_by_line
+      "m8.text_value, " +
+      "m8.measure_data, " +
+
+      // it_cover_cond_by_line
+      "m9.text_value, " +
+      "m9.measure_data, " +
+
+      // overall_hits_by_line
+      "m10.text_value, " +
+      "m10.measure_data, " +
+
+      // overall_cond_by_line
+      "m11.text_value, " +
+      "m11.measure_data, " +
+
+      // overall_cover_cond_by_line
+      "m12.text_value, " +
+      "m12.measure_data  " +
+
       "FROM snapshots s " +
       "JOIN snapshot_sources ss " +
       "ON s.id = ss.snapshot_id AND s.islast = ? " +
