@@ -43,7 +43,7 @@ public class IssueIndexerTest {
   @Test
   public void index_nothing() throws Exception {
     IssueIndexer indexer = createIndexer();
-    indexer.index(indexer.createBulkIndexer(false), Iterators.<IssueDoc>emptyIterator());
+    indexer.index(Iterators.<IssueDoc>emptyIterator());
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0L);
   }
 

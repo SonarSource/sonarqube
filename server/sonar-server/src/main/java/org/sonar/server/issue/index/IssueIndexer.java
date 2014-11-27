@@ -51,7 +51,7 @@ public class IssueIndexer extends BaseIndexer {
     long maxDate;
     try {
       IssueResultSetIterator rowIt = IssueResultSetIterator.create(dbClient, dbConnection, lastUpdatedAt);
-      maxDate = index(bulk, rowIt);
+      maxDate = doIndex(bulk, rowIt);
       rowIt.close();
       return maxDate;
 
@@ -61,7 +61,12 @@ public class IssueIndexer extends BaseIndexer {
     }
   }
 
-  public long index(BulkIndexer bulk, Iterator<IssueDoc> issues) {
+  public void index(Iterator<IssueDoc> issues) {
+    final BulkIndexer bulk = createBulkIndexer(false);
+    doIndex(bulk, issues);
+  }
+
+  long doIndex(BulkIndexer bulk, Iterator<IssueDoc> issues) {
     bulk.start();
     long maxDate = 0L;
     while (issues.hasNext()) {
@@ -79,7 +84,7 @@ public class IssueIndexer extends BaseIndexer {
     QueryBuilder query = QueryBuilders.filteredQuery(
       QueryBuilders.matchAllQuery(),
       FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, uuid))
-    );
+      );
     esClient.prepareDeleteByQuery(IssueIndexDefinition.INDEX).setQuery(query).get();
     if (refresh) {
       esClient.prepareRefresh(IssueIndexDefinition.INDEX).get();

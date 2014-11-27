@@ -72,7 +72,7 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
   }
 
   @VisibleForTesting
-  void index(Collection<IssueAuthorizationDao.Dto> authorizations) {
+  public void index(Collection<IssueAuthorizationDao.Dto> authorizations) {
     final BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
     doIndex(bulk, authorizations);
   }

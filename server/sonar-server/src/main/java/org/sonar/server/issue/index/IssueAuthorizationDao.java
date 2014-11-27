@@ -36,40 +36,40 @@ import java.util.Map;
 /**
  * No streaming because of union of joins -> no need to use ResultSetIterator
  */
-class IssueAuthorizationDao {
+public class IssueAuthorizationDao {
 
-  static final class Dto {
+  public static final class Dto {
     private final String projectUuid;
     private final long updatedAt;
     private List<String> users = Lists.newArrayList();
     private List<String> groups = Lists.newArrayList();
 
-    Dto(String projectUuid, long updatedAt) {
+    public Dto(String projectUuid, long updatedAt) {
       this.projectUuid = projectUuid;
       this.updatedAt = updatedAt;
     }
 
-    String getProjectUuid() {
+    public String getProjectUuid() {
       return projectUuid;
     }
 
-    long getUpdatedAt() {
+    public long getUpdatedAt() {
       return updatedAt;
     }
 
-    List<String> getUsers() {
+    public List<String> getUsers() {
       return users;
     }
 
-    void addUser(String s) {
+    public void addUser(String s) {
       users.add(s);
     }
 
-    void addGroup(String s) {
+    public void addGroup(String s) {
       groups.add(s);
     }
 
-    List<String> getGroups() {
+    public List<String> getGroups() {
       return groups;
     }
 
