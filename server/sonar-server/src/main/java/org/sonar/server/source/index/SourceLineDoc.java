@@ -113,4 +113,94 @@ public class SourceLineDoc extends BaseDoc {
   public String key() {
     return String.format("%s_%d", fileUuid(), line());
   }
+
+  @Nullable
+  public Integer utLineHits() {
+    Number lineHits = (Number)getNullableField(SourceLineIndexDefinition.FIELD_UT_LINE_HITS);
+    return lineHits == null ? null : lineHits.intValue();
+  }
+
+  public void setUtLineHits(@Nullable Integer lineHits) {
+    setField(SourceLineIndexDefinition.FIELD_UT_LINE_HITS, lineHits);
+  }
+
+  @Nullable
+  public Integer utConditions() {
+    Number conditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_UT_CONDITIONS);
+    return conditions == null ? null : conditions.intValue();
+  }
+
+  public void setUtConditions(@Nullable Integer conditions) {
+    setField(SourceLineIndexDefinition.FIELD_UT_CONDITIONS, conditions);
+  }
+
+  @Nullable
+  public Integer utCoveredConditions() {
+    Number coveredConditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS);
+    return coveredConditions == null ? null : coveredConditions.intValue();
+  }
+
+  public void setUtCoveredConditions(@Nullable Integer coveredConditions) {
+    setField(SourceLineIndexDefinition.FIELD_UT_COVERED_CONDITIONS, coveredConditions);
+  }
+
+  @Nullable
+  public Integer itLineHits() {
+    Number lineHits = (Number)getNullableField(SourceLineIndexDefinition.FIELD_IT_LINE_HITS);
+    return lineHits == null ? null : lineHits.intValue();
+  }
+
+  public void setItLineHits(@Nullable Integer lineHits) {
+    setField(SourceLineIndexDefinition.FIELD_IT_LINE_HITS, lineHits);
+  }
+
+  @Nullable
+  public Integer itConditions() {
+    Number conditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_IT_CONDITIONS);
+    return conditions == null ? null : conditions.intValue();
+  }
+
+  public void setItConditions(@Nullable Integer conditions) {
+    setField(SourceLineIndexDefinition.FIELD_IT_CONDITIONS, conditions);
+  }
+
+  @Nullable
+  public Integer itCoveredConditions() {
+    Number coveredConditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS);
+    return coveredConditions == null ? null : coveredConditions.intValue();
+  }
+
+  public void setItCoveredConditions(@Nullable Integer coveredConditions) {
+    setField(SourceLineIndexDefinition.FIELD_IT_COVERED_CONDITIONS, coveredConditions);
+  }
+
+  @Nullable
+  public Integer overallLineHits() {
+    Number lineHits = (Number)getNullableField(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS);
+    return lineHits == null ? null : lineHits.intValue();
+  }
+
+  public void setOverallLineHits(@Nullable Integer lineHits) {
+    setField(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, lineHits);
+  }
+
+  @Nullable
+  public Integer overallConditions() {
+    Number conditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS);
+    return conditions == null ? null : conditions.intValue();
+  }
+
+  public void setOverallConditions(@Nullable Integer conditions) {
+    setField(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, conditions);
+  }
+
+  @Nullable
+  public Integer overallCoveredConditions() {
+    Number coveredConditions = (Number)getNullableField(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS);
+    return coveredConditions == null ? null : coveredConditions.intValue();
+  }
+
+  public void setOverallCoveredConditions(@Nullable Integer coveredConditions) {
+    setField(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, coveredConditions);
+  }
 }

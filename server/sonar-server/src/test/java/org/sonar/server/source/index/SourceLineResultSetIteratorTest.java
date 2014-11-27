@@ -57,7 +57,7 @@ public class SourceLineResultSetIteratorTest {
   public void should_generate_source_line_documents() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
     PreparedStatement stmt = connection.prepareStatement("UPDATE file_sources SET data = ? WHERE id=1");
-    stmt.setString(1, "aef12a,alice,2014-04-25T12:34:56+0100,,,,,,,,,,polop,class Foo {\r\n" +
+    stmt.setString(1, "aef12a,alice,2014-04-25T12:34:56+0100,1,0,0,2,0,0,3,0,0,polop,class Foo {\r\n" +
       "abe465,bob,2014-07-25T12:34:56+0100,,,,,,,,,,,  // Empty\r\n" +
       "afb789,carol,2014-03-23T12:34:56+0100,,,,,,,,,,,}\r\n" +
       "afb789,carol,2014-03-23T12:34:56+0100,,,,,,,,,,,\r\n");
@@ -77,6 +77,15 @@ public class SourceLineResultSetIteratorTest {
     // assertThat(firstLine.scmDate()).isEqualTo(DateUtils.parseDateTime("2014-04-25T12:34:56+0100"));
     assertThat(firstLine.highlighting()).isEqualTo("polop");
     assertThat(firstLine.source()).isEqualTo("class Foo {");
+    assertThat(firstLine.utLineHits()).isEqualTo(1);
+    assertThat(firstLine.utConditions()).isEqualTo(0);
+    assertThat(firstLine.utCoveredConditions()).isEqualTo(0);
+    assertThat(firstLine.itLineHits()).isEqualTo(2);
+    assertThat(firstLine.itConditions()).isEqualTo(0);
+    assertThat(firstLine.itCoveredConditions()).isEqualTo(0);
+    assertThat(firstLine.overallLineHits()).isEqualTo(3);
+    assertThat(firstLine.overallConditions()).isEqualTo(0);
+    assertThat(firstLine.overallCoveredConditions()).isEqualTo(0);
   }
 
   @Test

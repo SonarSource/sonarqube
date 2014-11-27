@@ -4,19 +4,28 @@
       "code": "<span class=\"h1\">class Polop {</span>",
       "line": 1,
       "scmAuthor": "polop",
-      "scmRevision": "cafebabe"
+      "scmRevision": "cafebabe",
+      "lineHits": 3,
+      "conditions": 2,
+      "coveredConditions": 1
     },
     {
       "code": "<span class=\"h2\">  // Empty</span>",
       "line": 2,
       "scmAuthor": "polop",
-      "scmRevision": "cafebabe"
+      "scmRevision": "cafebabe",
+      "lineHits": 3,
+      "conditions": 2,
+      "coveredConditions": 1
     },
     {
       "code": "<span class=\"h3\">}</span>",
       "line": 3,
       "scmAuthor": "polop",
-      "scmRevision": "cafebabe"
+      "scmRevision": "cafebabe",
+      "lineHits": 3,
+      "conditions": 2,
+      "coveredConditions": 1
     }
   ]
 }

@@ -96,6 +96,9 @@ public class LinesActionTest {
       .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
       .put(SourceLineIndexDefinition.FIELD_SOURCE, "class Polop {")
       .put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h1")
+      .put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 3)
+      .put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 2)
+      .put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 1)
       .put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt)
       .build());
     SourceLineDoc line2 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
@@ -107,6 +110,9 @@ public class LinesActionTest {
       .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
       .put(SourceLineIndexDefinition.FIELD_SOURCE, "  // Empty")
       .put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h2")
+      .put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 3)
+      .put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 2)
+      .put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 1)
       .put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt)
       .build());
     SourceLineDoc line3 = new SourceLineDoc(ImmutableMap.<String, Object>builder()
@@ -118,6 +124,9 @@ public class LinesActionTest {
       .put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop")
       .put(SourceLineIndexDefinition.FIELD_SOURCE, "}")
       .put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "h3")
+      .put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, 3)
+      .put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, 2)
+      .put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, 1)
       .put(BaseNormalizer.UPDATED_AT_FIELD, updatedAt)
       .build());
     when(sourceLineIndex.getLines(eq(componentUuid), anyInt(), anyInt())).thenReturn(newArrayList(
@@ -157,6 +166,9 @@ public class LinesActionTest {
     fieldMap.put(SourceLineIndexDefinition.FIELD_SCM_AUTHOR, "polop");
     fieldMap.put(SourceLineIndexDefinition.FIELD_SOURCE, "}");
     fieldMap.put(SourceLineIndexDefinition.FIELD_HIGHLIGHTING, "");
+    fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_LINE_HITS, null);
+    fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_CONDITIONS, null);
+    fieldMap.put(SourceLineIndexDefinition.FIELD_OVERALL_COVERED_CONDITIONS, null);
     fieldMap.put(BaseNormalizer.UPDATED_AT_FIELD, new Date());
     when(sourceLineIndex.getLines(fileKey, 3, 3)).thenReturn(newArrayList(
       new SourceLineDoc(fieldMap)

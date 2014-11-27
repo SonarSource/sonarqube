@@ -26,6 +26,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.ResultSetIterator;
@@ -132,17 +133,17 @@ class SourceLineResultSetIterator extends ResultSetIterator<SourceLineResultSetI
           doc.setScmAuthor(csvRecord.get(1));
           doc.setScmDate(DateUtils.parseDateTimeQuietly(csvRecord.get(2)));
           // UT
-          // doc.setUtLineHits(csvRecord.get(3));
-          // doc.setUtConditions(csvRecord.get(4));
-          // doc.setUtCoveredConditions(csvRecord.get(5));
+          doc.setUtLineHits(parseIntegerFromRecord(csvRecord, 3));
+          doc.setUtConditions(parseIntegerFromRecord(csvRecord, 4));
+          doc.setUtCoveredConditions(parseIntegerFromRecord(csvRecord, 5));
           // IT
-          // doc.setItLineHits(csvRecord.get(6));
-          // doc.setItConditions(csvRecord.get(7));
-          // doc.setItCoveredConditions(csvRecord.get(8));
+          doc.setItLineHits(parseIntegerFromRecord(csvRecord, 6));
+          doc.setItConditions(parseIntegerFromRecord(csvRecord, 7));
+          doc.setItCoveredConditions(parseIntegerFromRecord(csvRecord, 8));
           // OVERALL
-          // doc.setOverallLineHits(csvRecord.get(9));
-          // doc.setOverallConditions(csvRecord.get(10));
-          // doc.setOverallCoveredConditions(csvRecord.get(11));
+          doc.setOverallLineHits(parseIntegerFromRecord(csvRecord, 9));
+          doc.setOverallConditions(parseIntegerFromRecord(csvRecord, 10));
+          doc.setOverallCoveredConditions(parseIntegerFromRecord(csvRecord, 11));
           doc.setHighlighting(csvRecord.get(12));
           doc.setSource(csvRecord.get(csvRecord.size() - 1));
 
@@ -161,5 +162,14 @@ class SourceLineResultSetIterator extends ResultSetIterator<SourceLineResultSetI
     }
 
     return result;
+  }
+
+  private Integer parseIntegerFromRecord(CSVRecord record, int column) {
+    String cellValue = record.get(column);
+    if (cellValue == null || cellValue.isEmpty()) {
+      return null;
+    } else {
+      return NumberUtils.createInteger(cellValue);
+    }
   }
 }

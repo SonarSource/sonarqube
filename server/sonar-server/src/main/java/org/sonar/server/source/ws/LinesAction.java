@@ -105,7 +105,10 @@ public class LinesAction implements RequestHandler {
         .prop("scmAuthor", line.scmAuthor())
         .prop("scmRevision", line.scmRevision());
       Date scmDate = line.scmDate();
-      json.prop("scmDate", scmDate == null ? null : DateUtils.formatDateTime(scmDate))
+      json.prop("scmDate", scmDate == null ? null : DateUtils.formatDateTime(scmDate));
+      json.prop("lineHits", line.overallLineHits())
+        .prop("conditions", line.overallConditions())
+        .prop("coveredConditions", line.overallCoveredConditions())
         .endObject();
     }
     json.endArray();

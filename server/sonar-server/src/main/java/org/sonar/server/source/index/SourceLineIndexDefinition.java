@@ -36,6 +36,15 @@ public class SourceLineIndexDefinition implements IndexDefinition {
   public static final String FIELD_SCM_DATE = "scmDate";
   public static final String FIELD_HIGHLIGHTING = "highlighting";
   public static final String FIELD_SOURCE = "source";
+  public static final String FIELD_UT_LINE_HITS = "utLineHits";
+  public static final String FIELD_UT_CONDITIONS = "utConditions";
+  public static final String FIELD_UT_COVERED_CONDITIONS = "utCoveredConditions";
+  public static final String FIELD_IT_LINE_HITS = "itLineHits";
+  public static final String FIELD_IT_CONDITIONS = "itConditions";
+  public static final String FIELD_IT_COVERED_CONDITIONS = "itCoveredConditions";
+  public static final String FIELD_OVERALL_LINE_HITS = "overallLineHits";
+  public static final String FIELD_OVERALL_CONDITIONS = "overallConditions";
+  public static final String FIELD_OVERALL_COVERED_CONDITIONS = "overallCoveredConditions";
 
   public static final String INDEX = "sourcelines";
 
@@ -70,6 +79,9 @@ public class SourceLineIndexDefinition implements IndexDefinition {
     sourceLineMapping.createDateTimeField(FIELD_SCM_DATE);
     sourceLineMapping.stringFieldBuilder(FIELD_HIGHLIGHTING).build();
     sourceLineMapping.stringFieldBuilder(FIELD_SOURCE).build();
+    sourceLineMapping.createIntegerField(FIELD_UT_LINE_HITS);
+    sourceLineMapping.createIntegerField(FIELD_UT_CONDITIONS);
+    sourceLineMapping.createIntegerField(FIELD_UT_COVERED_CONDITIONS);
     sourceLineMapping.createDateTimeField(BaseNormalizer.UPDATED_AT_FIELD);
   }
 }
