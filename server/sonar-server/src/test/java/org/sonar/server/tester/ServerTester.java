@@ -58,7 +58,7 @@ public class ServerTester extends ExternalResource {
   private final Integer clusterPort;
 
   private SearchServer searchServer;
-  private final Platform platform;
+  private Platform platform;
   private final File homeDir;
   private final List components = Lists.newArrayList(WsTester.class);
   private final Properties initialProps = new Properties();
@@ -154,6 +154,7 @@ public class ServerTester extends ExternalResource {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    platform = null;
     try {
       if (searchServer != null) {
         searchServer.stop();
@@ -161,6 +162,7 @@ public class ServerTester extends ExternalResource {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    searchServer = null;
     FileUtils.deleteQuietly(homeDir);
   }
 
@@ -234,7 +236,7 @@ public class ServerTester extends ExternalResource {
   }
 
   private void checkNotStarted() {
-    if (platform.isStarted()) {
+    if (platform != null && platform.isStarted()) {
       throw new IllegalStateException("Already started");
     }
   }

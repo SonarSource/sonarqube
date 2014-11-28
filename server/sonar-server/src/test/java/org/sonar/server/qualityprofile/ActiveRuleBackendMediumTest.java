@@ -21,22 +21,29 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
-import org.sonar.server.activity.SearchMediumTest;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.IndexClient;
+import org.sonar.server.tester.ServerTester;
 
 import java.util.Collection;
 import java.util.Date;
@@ -46,7 +53,32 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ActiveRuleBackendMediumTest extends SearchMediumTest {
+public class ActiveRuleBackendMediumTest {
+
+  @ClassRule
+  public static ServerTester tester = new ServerTester();
+
+  DbClient db;
+  RuleDao dao;
+  IndexClient index;
+  DbSession dbSession;
+
+  @Before
+  public void before() {
+    dao = tester.get(RuleDao.class);
+    tester.clearDbAndIndexes();
+    db = tester.get(DbClient.class);
+    index = tester.get(IndexClient.class);
+    dbSession = tester.get(DbClient.class).openSession(false);
+
+  }
+
+  @After
+  public void after() {
+    if (dbSession != null) {
+      dbSession.close();
+    }
+  }
 
   @Test
   public void synchronize_index() throws Exception {
@@ -175,7 +207,8 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
     db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule1).setSeverity(Severity.MINOR));
     db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule2).setSeverity(Severity.BLOCKER));
     db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, rule2).setSeverity(Severity.CRITICAL));
-    // Removed rule can still be activated for instance when removing the checkstyle plugin, active rules related on checkstyle are not removed
+    // Removed rule can still be activated for instance when removing the checkstyle plugin, active rules related on checkstyle are not
+    // removed
     // because if the plugin is re-install, quality profiles using these rule are not changed.
     db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, removedRule).setSeverity(Severity.MAJOR));
     dbSession.commit();
@@ -310,7 +343,7 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
       ActiveRuleDto.createFor(profileDto2, ruleDto2)
         .setInheritance(ActiveRule.Inheritance.INHERITED.name())
         .setSeverity(Severity.BLOCKER)
-    );
+      );
     dbSession.commit();
     dbSession.clearCache();
 
@@ -335,7 +368,7 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
     db.ruleDao().insert(dbSession, ruleDto1, ruleDto2);
 
     List<String> profileKeys = newArrayList();
-    for (int i = 0; i<30; i++) {
+    for (int i = 0; i < 30; i++) {
       QualityProfileDto profileDto = QProfileTesting.newDto(QProfileName.createFor("xoo", "profile-" + i), "profile-" + i);
       profileKeys.add(profileDto.getKey());
       db.qualityProfileDao().insert(dbSession, profileDto);
@@ -345,7 +378,7 @@ public class ActiveRuleBackendMediumTest extends SearchMediumTest {
           .setSeverity(Severity.BLOCKER),
         ActiveRuleDto.createFor(profileDto, ruleDto2)
           .setSeverity(Severity.MAJOR)
-      );
+        );
     }
     dbSession.commit();
     dbSession.clearCache();

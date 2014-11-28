@@ -142,6 +142,7 @@ public class TestDatabase extends ExternalResource {
   protected void after() {
     db.stop();
     db = null;
+    myBatis = null;
   }
 
   public Database database() {
