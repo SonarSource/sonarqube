@@ -180,10 +180,6 @@ module.exports = (grunt) ->
         name: 'issues/app'
         out: '<%= pkg.assets %>build/js/issues/app.js'
 
-      issuesOld: options:
-        name: 'issues-old/app'
-        out: '<%= pkg.assets %>build/js/issues-old/app.js'
-
       measures: options:
         name: 'measures/app'
         out: '<%= pkg.assets %>build/js/measures/app.js'
@@ -262,9 +258,6 @@ module.exports = (grunt) ->
           ]
           '<%= pkg.assets %>js/templates/issues.js': [
             '<%= pkg.sources %>hbs/issues/**/*.hbs'
-          ]
-          '<%= pkg.assets %>js/templates/issues-old.js': [
-            '<%= pkg.sources %>hbs/issues-old/**/*.hbs'
           ]
           '<%= pkg.assets %>js/templates/api-documentation.js': [
             '<%= pkg.sources %>hbs/api-documentation/**/*.hbs'
