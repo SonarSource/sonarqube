@@ -480,7 +480,7 @@ jQuery(function() {
   // Define global shortcuts
   key('s', function() {
     jQuery('#searchInput').focus().on('keydown', function (e) {
-       if (e.keyCode == 27) {
+       if (e.keyCode === 27) {
          jQuery('#searchInput').blur();
        }
     });
