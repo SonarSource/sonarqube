@@ -208,6 +208,10 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
       .setDeprecatedKey(IssueFilterParameters.ASC)
       .setDescription("Ascending sort")
       .setBooleanPossibleValues();
+    action.createParam(IssueFilterParameters.IGNORE_PAGING)
+      .setDescription("Return the full list of issues, regardless of paging. For internal use only")
+      .setBooleanPossibleValues()
+      .setDefaultValue("false");
     action.createParam("format")
       .setDescription("Only json format is available. This parameter is kept only for backward compatibility and shouldn't be used anymore");
   }
@@ -220,7 +224,7 @@ public class SearchAction extends SearchRequestHandler<IssueQuery, Issue> {
   @Override
   protected Result<Issue> doSearch(IssueQuery query, QueryContext context) {
     Collection<String> components = query.componentUuids();
-    if (components != null && components.size() == 1) {
+    if (components != null && components.size() == 1 && query.ignorePaging()) {
       context.setShowFullResult(true);
     }
     return service.search(query, context);

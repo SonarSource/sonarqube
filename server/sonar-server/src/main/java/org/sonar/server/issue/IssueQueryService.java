@@ -86,6 +86,10 @@ public class IssueQueryService implements ServerComponent {
         builder.sort(sort);
         builder.asc(RubyUtils.toBoolean(params.get(IssueFilterParameters.ASC)));
       }
+      String ignorePaging = (String) params.get(IssueFilterParameters.IGNORE_PAGING);
+      if (!Strings.isNullOrEmpty(ignorePaging)) {
+        builder.ignorePaging(RubyUtils.toBoolean(ignorePaging));
+      }
       return builder.build();
 
     } finally {
@@ -111,7 +115,8 @@ public class IssueQueryService implements ServerComponent {
         .planned(request.paramAsBoolean(IssueFilterParameters.PLANNED))
         .createdAt(request.paramAsDateTime(IssueFilterParameters.CREATED_AT))
         .createdAfter(request.paramAsDateTime(IssueFilterParameters.CREATED_AFTER))
-        .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE));
+        .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE))
+        .ignorePaging(request.paramAsBoolean(IssueFilterParameters.IGNORE_PAGING));
       addProjectUuids(builder, session,
         request.paramAsStrings(IssueFilterParameters.PROJECT_UUIDS), request.paramAsStrings(IssueFilterParameters.PROJECTS));
       addComponentUuids(builder, session,

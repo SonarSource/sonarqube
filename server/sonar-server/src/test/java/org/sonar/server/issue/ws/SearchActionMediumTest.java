@@ -33,11 +33,7 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotDto;
-import org.sonar.core.issue.db.ActionPlanDao;
-import org.sonar.core.issue.db.ActionPlanDto;
-import org.sonar.core.issue.db.IssueChangeDao;
-import org.sonar.core.issue.db.IssueChangeDto;
-import org.sonar.core.issue.db.IssueDto;
+import org.sonar.core.issue.db.*;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -73,6 +69,7 @@ public class SearchActionMediumTest {
   RuleDto rule;
   ComponentDto project;
   ComponentDto file;
+  ComponentDto otherFile;
 
   @Before
   public void setUp() throws Exception {
@@ -111,6 +108,18 @@ public class SearchActionMediumTest {
       + "Fifth Line\n");
     tester.get(SnapshotSourceDao.class).insert(snapshotSource);
 
+    otherFile = ComponentTesting.newFileDto(project).setUuid("FEDC")
+      .setKey("OtherComponent")
+      .setSubProjectId(project.getId());
+    db.componentDao().insert(session, otherFile);
+    snapshot = db.snapshotDao().insert(session, SnapshotTesting.createForComponent(otherFile, project));
+    snapshotSource = new SnapshotSourceDto().setSnapshotId(snapshot.getId()).setData("First Line\n"
+      + "Second Line\n"
+      + "Third Line\n"
+      + "Fourth Line\n"
+      + "Fifth Line\n");
+    tester.get(SnapshotSourceDao.class).insert(snapshotSource);
+
     UserDto john = new UserDto().setLogin("john").setName("John").setEmail("john@email.com");
     db.userDao().insert(session, john);
 
@@ -135,7 +144,7 @@ public class SearchActionMediumTest {
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(30);
+    assertThat(show.params()).hasSize(31);
   }
 
   @Test
@@ -367,7 +376,37 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void return_full_number_of_issues_when_only_one_component_is_set() throws Exception {
+  public void ignore_paging_with_one_component() throws Exception {
+    for (int i = 0; i < QueryContext.MAX_LIMIT + 1; i++) {
+      IssueDto issue = IssueTesting.newDto(rule, file, project);
+      tester.get(IssueDao.class).insert(session, issue);
+    }
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+        .setParam(IssueFilterParameters.COMPONENTS, file.getKey())
+        .setParam(IssueFilterParameters.IGNORE_PAGING, "true")
+        .execute();
+    result.assertJson(this.getClass(), "ignore_paging_with_one_component.json", false);
+  }
+
+  @Test
+  public void apply_paging_with_multiple_components() throws Exception {
+    for (int i = 0; i < QueryContext.MAX_LIMIT + 1; i++) {
+      IssueDto issue = IssueTesting.newDto(rule, file, project);
+      tester.get(IssueDao.class).insert(session, issue);
+    }
+    session.commit();
+
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+        .setParam(IssueFilterParameters.COMPONENTS, file.getKey() + "," + otherFile.getKey())
+        .setParam(IssueFilterParameters.IGNORE_PAGING, "true")
+        .execute();
+    result.assertJson(this.getClass(), "apply_paging_with_multiple_components.json", false);
+  }
+
+  @Test
+  public void apply_paging_with_one_component() throws Exception {
     for (int i = 0; i < QueryContext.MAX_LIMIT + 1; i++) {
       IssueDto issue = IssueTesting.newDto(rule, file, project);
       tester.get(IssueDao.class).insert(session, issue);
@@ -375,8 +414,9 @@ public class SearchActionMediumTest {
     session.commit();
 
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.COMPONENTS, file.getKey()).execute();
-    result.assertJson(this.getClass(), "return_full_number_of_issues_when_only_one_component_is_set.json", false);
+    result.assertJson(this.getClass(), "apply_paging_with_one_component.json", false);
   }
+
 
   @Test
   public void components_contains_sub_projects() throws Exception {

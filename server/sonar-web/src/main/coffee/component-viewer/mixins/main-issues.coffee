@@ -15,7 +15,7 @@ define [
     requestIssues: (key) ->
       options =
         components: key
-        ps: 10000
+        ignorePaging: true
         extra_fields: 'actions,transitions,assigneeName,actionPlanName'
       $.get API_ISSUES, options, (data) =>
         @state.set 'hasIssues', true

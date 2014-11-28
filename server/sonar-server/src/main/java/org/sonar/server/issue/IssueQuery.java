@@ -74,6 +74,7 @@ public class IssueQuery {
   private final Date createdBefore;
   private final String sort;
   private final Boolean asc;
+  private final Boolean ignorePaging;
 
   private IssueQuery(Builder builder) {
     this.issueKeys = defaultCollection(builder.issueKeys);
@@ -97,6 +98,7 @@ public class IssueQuery {
     this.createdBefore = builder.createdBefore;
     this.sort = builder.sort;
     this.asc = builder.asc;
+    this.ignorePaging = builder.ignorePaging;
   }
 
   public Collection<String> issueKeys() {
@@ -195,6 +197,11 @@ public class IssueQuery {
     return asc;
   }
 
+  @CheckForNull
+  public Boolean ignorePaging() {
+    return ignorePaging;
+  }
+
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
@@ -226,6 +233,7 @@ public class IssueQuery {
     private Date createdBefore;
     private String sort;
     private Boolean asc = false;
+    private Boolean ignorePaging = false;
 
     private Builder() {
     }
@@ -365,6 +373,10 @@ public class IssueQuery {
       return new IssueQuery(this);
     }
 
+    public Builder ignorePaging(@Nullable Boolean ignorePaging) {
+      this.ignorePaging  = ignorePaging;
+      return this;
+    }
   }
 
   private static <T> Collection<T> defaultCollection(@Nullable Collection<T> c) {

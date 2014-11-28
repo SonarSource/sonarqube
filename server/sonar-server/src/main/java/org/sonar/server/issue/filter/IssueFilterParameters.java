@@ -59,15 +59,16 @@ public class IssueFilterParameters {
   public static final String PAGE_INDEX = "pageIndex";
   public static final String SORT = "sort";
   public static final String ASC = "asc";
+  public static final String IGNORE_PAGING = "ignorePaging";
 
   public static final List<String> ALL = ImmutableList.of(ISSUES, SEVERITIES, STATUSES, RESOLUTIONS, RESOLVED, COMPONENTS, COMPONENT_ROOTS, RULES, ACTION_PLANS, REPORTERS,
     ASSIGNEES, LANGUAGES, ASSIGNED, PLANNED, HIDE_RULES, CREATED_AT, CREATED_AFTER, CREATED_BEFORE, PAGE_SIZE, PAGE_INDEX, SORT, ASC, COMPONENT_UUIDS, COMPONENT_ROOT_UUIDS,
-    PROJECTS, PROJECT_UUIDS);
+    PROJECTS, PROJECT_UUIDS, IGNORE_PAGING);
 
   public static final List<String> ALL_WITHOUT_PAGINATION = newArrayList(Iterables.filter(ALL, new Predicate<String>() {
     @Override
     public boolean apply(String input) {
-      return !PAGE_INDEX.equals(input) && !PAGE_SIZE.equals(input);
+      return !PAGE_INDEX.equals(input) && !PAGE_SIZE.equals(input) && !IGNORE_PAGING.equals(input);
     }
   }));
 
