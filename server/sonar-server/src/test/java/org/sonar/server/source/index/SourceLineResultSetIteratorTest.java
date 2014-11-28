@@ -92,8 +92,7 @@ public class SourceLineResultSetIteratorTest {
   public void should_ignore_lines_already_handled() throws Exception {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, db.openConnection(),
-      2000000000000L);
+    SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 2000000000000L);
     assertThat(iterator.hasNext()).isFalse();
   }
 
@@ -101,7 +100,7 @@ public class SourceLineResultSetIteratorTest {
   public void parse_empty_file() throws Exception {
     db.prepareDbUnit(getClass(), "empty-file.xml");
 
-    SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, db.openConnection(), 0L);
+    SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 0L);
     assertThat(iterator.hasNext()).isTrue();
     SourceLineResultSetIterator.SourceFile file = iterator.next();
     assertThat(file.getFileUuid()).isEqualTo("uuid-MyFile.xoo");
