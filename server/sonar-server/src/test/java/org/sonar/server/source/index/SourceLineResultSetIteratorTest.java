@@ -35,7 +35,7 @@ import static org.fest.assertions.Fail.fail;
 public class SourceLineResultSetIteratorTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase();
+  public static TestDatabase db = new TestDatabase().schema(SourceLineResultSetIteratorTest.class, "schema.sql");
 
   DbClient dbClient;
 
@@ -44,7 +44,6 @@ public class SourceLineResultSetIteratorTest {
   @Before
   public void setUp() throws Exception {
     dbClient = new DbClient(db.database(), db.myBatis());
-    db.schema(this.getClass(), "schema.sql");
     connection = db.openConnection();
   }
 
@@ -86,6 +85,7 @@ public class SourceLineResultSetIteratorTest {
     assertThat(firstLine.overallLineHits()).isEqualTo(3);
     assertThat(firstLine.overallConditions()).isEqualTo(0);
     assertThat(firstLine.overallCoveredConditions()).isEqualTo(0);
+    iterator.close();
   }
 
   @Test
@@ -94,6 +94,7 @@ public class SourceLineResultSetIteratorTest {
 
     SourceLineResultSetIterator iterator = SourceLineResultSetIterator.create(dbClient, connection, 2000000000000L);
     assertThat(iterator.hasNext()).isFalse();
+    iterator.close();
   }
 
   @Test
@@ -105,6 +106,7 @@ public class SourceLineResultSetIteratorTest {
     SourceLineResultSetIterator.SourceFile file = iterator.next();
     assertThat(file.getFileUuid()).isEqualTo("uuid-MyFile.xoo");
     assertThat(file.getLines()).isEmpty();
+    iterator.close();
   }
 
   @Test
@@ -122,8 +124,7 @@ public class SourceLineResultSetIteratorTest {
       fail();
     } catch (IllegalStateException e) {
       // ok
-    } finally {
-      iterator.close();
     }
+    iterator.close();
   }
 }
