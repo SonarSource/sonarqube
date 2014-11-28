@@ -51,12 +51,13 @@ import org.sonar.test.TestUtils;
 import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class EsTester extends ExternalResource {
 
-  private static int PROCESS_ID = RandomUtils.nextInt(Integer.MAX_VALUE);
+  private static final AtomicInteger INSTANCE_ID = new AtomicInteger();
   private Node node;
   private EsClient client;
   private final List<IndexDefinition> definitions = Lists.newArrayList();
@@ -67,7 +68,7 @@ public class EsTester extends ExternalResource {
   }
 
   protected void before() throws Throwable {
-    String nodeName = "es-ram-" + PROCESS_ID;
+    String nodeName = "es-ram-" + INSTANCE_ID.getAndIncrement();
     node = NodeBuilder.nodeBuilder().local(true).data(true).settings(ImmutableSettings.builder()
       .put("cluster.name", nodeName)
       .put("node.name", nodeName)
@@ -81,7 +82,7 @@ public class EsTester extends ExternalResource {
       .put("index.store.type", "memory")
       .put("config.ignore_system_properties", true)
       // reuse the same directory than other tests for faster initialization
-      .put("path.home", "target/es-" + PROCESS_ID)
+      .put("path.home", "target/" + nodeName)
       .put("gateway.type", "none"))
       .build();
     node.start();
