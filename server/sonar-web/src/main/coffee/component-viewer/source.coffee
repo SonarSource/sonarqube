@@ -33,7 +33,7 @@ define [
     LINES_AROUND_ISSUE = 4
     LINES_AROUND_COVERED_LINE = 1
     EXPAND_LINES = 20
-    HIGHLIGHTED_ROW_CLASS = 'row-highlighted'
+    HIGHLIGHTED_ROW_CLASS = 'source-line-highlighted'
 
 
     events:

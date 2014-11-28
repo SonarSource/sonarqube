@@ -370,7 +370,7 @@ define [
 
 
     scrollToLine: (line) ->
-      row = @sourceView.$(".row[data-line-number=#{line}]")
+      row = @sourceView.$(".source-line[data-line-number=#{line}]")
       unless row.length > 0
         unless @scrolled
           setTimeout (=> @scrollToLine(line)), 100

@@ -20,11 +20,11 @@ define([
     },
 
     goToFile: function (e) {
-      // TODO Implement this
-      var el = $(e.currentTarget),
-          key = el.data('key'),
-          method = el.data('method'),
-          files = this.model.get('files');
+      var key = $(e.currentTarget).data('key'),
+          line = $(e.currentTarget).data('line'),
+          url = baseUrl + '/component/index#component=' + encodeURIComponent(key) + '&tab=tests',
+          windowParams = 'resizable=1,scrollbars=1,status=1';
+      window.open(url, key, windowParams);
     },
 
     serializeData: function () {

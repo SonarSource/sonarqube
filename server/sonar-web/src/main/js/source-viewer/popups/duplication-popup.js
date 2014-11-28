@@ -2,8 +2,7 @@ define([
   'backbone.marionette',
   'templates/component-viewer',
   'common/popup',
-  'component-viewer/utils'
-], function (Marionette, Templates, Popup, utils) {
+], function (Marionette, Templates, Popup) {
 
   var $ = jQuery;
 
@@ -17,24 +16,10 @@ define([
     goToFile: function (e) {
       var key = $(e.currentTarget).data('key'),
           line = $(e.currentTarget).data('line'),
-          files = this.options.main.source.get('duplicationFiles'),
-          options = this.collection.map(function (item) {
-            var file = files[item.get('_ref')],
-                x = utils.splitLongName(file.name);
-            return {
-              key: file.key,
-              name: x.name,
-              subname: x.dir,
-              component: {
-                projectName: file.projectName,
-                subProjectName: file.subProjectName
-              },
-              active: file.key === key
-            };
-          });
-      return _.uniq(options, function (item) {
-        return item.key;
-      });
+          url = baseUrl + '/component/index#component=' + encodeURIComponent(key) +
+              '&settings=duplications' + (line ? ('&line=' + line) : ''),
+          windowParams = 'resizable=1,scrollbars=1,status=1';
+      window.open(url, key, windowParams);
     },
 
     serializeData: function () {
