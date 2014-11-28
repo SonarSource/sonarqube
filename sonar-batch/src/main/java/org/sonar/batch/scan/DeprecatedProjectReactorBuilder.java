@@ -71,7 +71,7 @@ public class DeprecatedProjectReactorBuilder extends ProjectReactorBuilder {
 
     mergeParentProperties(moduleProps, parentProject.getProperties());
 
-    return defineProject(moduleProps, parentProject);
+    return defineRootProject(moduleProps, parentProject);
   }
 
   /**

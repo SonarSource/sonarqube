@@ -289,25 +289,37 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldExtractModuleProperties() {
-    Properties props = new Properties();
-    props.setProperty("sources", "src/main/java");
-    props.setProperty("tests", "src/test/java");
-    props.setProperty("foo.sources", "src/main/java");
-    props.setProperty("foobar.tests", "src/test/java");
-    props.setProperty("foobar.binaries", "target/classes");
+  public void modulePropertiesShouldNotLeak() throws IOException {
+    ProjectDefinition projectDefinition = loadProjectDefinition("big-multi-module-definitions-all-in-root");
 
-    Properties moduleProps = ProjectReactorBuilder.extractModuleProperties("bar", props);
-    assertThat(moduleProps.size()).isEqualTo(0);
+    assertThat(projectDefinition.getProperties().getProperty("module11.property")).isNull();
+    ProjectDefinition module1 = null;
+    ProjectDefinition module2 = null;
+    for (ProjectDefinition prj : projectDefinition.getSubProjects()) {
+      if (prj.getKey().equals("com.foo.project:module1")) {
+        module1 = prj;
+      } else if (prj.getKey().equals("com.foo.project:module2")) {
+        module2 = prj;
+      }
+    }
+    assertThat(module1.getProperties().getProperty("module11.property")).isNull();
+    assertThat(module1.getProperties().getProperty("property")).isNull();
+    assertThat(module2.getProperties().getProperty("module11.property")).isNull();
+    assertThat(module2.getProperties().getProperty("property")).isNull();
 
-    moduleProps = ProjectReactorBuilder.extractModuleProperties("foo", props);
-    assertThat(moduleProps.size()).isEqualTo(1);
-    assertThat(moduleProps.get("sources")).isEqualTo("src/main/java");
-
-    moduleProps = ProjectReactorBuilder.extractModuleProperties("foobar", props);
-    assertThat(moduleProps.size()).isEqualTo(2);
-    assertThat(moduleProps.get("tests")).isEqualTo("src/test/java");
-    assertThat(moduleProps.get("binaries")).isEqualTo("target/classes");
+    ProjectDefinition module11 = null;
+    ProjectDefinition module12 = null;
+    for (ProjectDefinition prj : module1.getSubProjects()) {
+      if (prj.getKey().equals("com.foo.project:module1:module11")) {
+        module11 = prj;
+      } else if (prj.getKey().equals("com.foo.project:module1:module12")) {
+        module12 = prj;
+      }
+    }
+    assertThat(module11.getProperties().getProperty("module11.property")).isNull();
+    assertThat(module11.getProperties().getProperty("property")).isEqualTo("My module11 property");
+    assertThat(module12.getProperties().getProperty("module11.property")).isNull();
+    assertThat(module12.getProperties().getProperty("property")).isNull();
   }
 
   @Test
@@ -377,28 +389,29 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldMergeParentProperties() {
+    // Use a random value to avoid VM optimization that would create constant String and make s1 and s2 the same object
+    int i = (int) Math.random() * 10;
+    String s1 = "value" + i;
+    String s2 = "value" + i;
     Properties parentProps = new Properties();
     parentProps.setProperty("toBeMergeProps", "fooParent");
     parentProps.setProperty("existingChildProp", "barParent");
-    parentProps.setProperty("sonar.modules", "mod1,mod2");
+    parentProps.setProperty("duplicatedProp", s1);
     parentProps.setProperty("sonar.projectDescription", "Desc from Parent");
-    parentProps.setProperty("mod1.sonar.projectDescription", "Desc for Mod1");
-    parentProps.setProperty("mod2.sonar.projectkey", "Key for Mod2");
 
     Properties childProps = new Properties();
     childProps.setProperty("existingChildProp", "barChild");
     childProps.setProperty("otherProp", "tutuChild");
+    childProps.setProperty("duplicatedProp", s2);
 
     ProjectReactorBuilder.mergeParentProperties(childProps, parentProps);
 
-    assertThat(childProps.size()).isEqualTo(3);
+    assertThat(childProps).hasSize(4);
     assertThat(childProps.getProperty("toBeMergeProps")).isEqualTo("fooParent");
     assertThat(childProps.getProperty("existingChildProp")).isEqualTo("barChild");
     assertThat(childProps.getProperty("otherProp")).isEqualTo("tutuChild");
-    assertThat(childProps.getProperty("sonar.modules")).isNull();
     assertThat(childProps.getProperty("sonar.projectDescription")).isNull();
-    assertThat(childProps.getProperty("mod1.sonar.projectDescription")).isNull();
-    assertThat(childProps.getProperty("mod2.sonar.projectkey")).isNull();
+    assertThat(childProps.getProperty("duplicatedProp")).isSameAs(parentProps.getProperty("duplicatedProp"));
   }
 
   @Test

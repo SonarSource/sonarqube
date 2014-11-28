@@ -43,10 +43,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Class that creates a project definition based on a set of properties.
@@ -101,48 +105,97 @@ public class ProjectReactorBuilder {
   private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Lists.newArrayList(PROPERTY_PROJECT_BASEDIR, CoreProperties.WORKING_DIRECTORY, PROPERTY_MODULES,
     CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
 
-  private TaskProperties props;
+  private TaskProperties taskProps;
   private File rootProjectWorkDir;
 
   public ProjectReactorBuilder(TaskProperties props) {
-    this.props = props;
+    this.taskProps = props;
   }
 
   public ProjectReactor execute() {
-    Properties bootstrapProperties = new Properties();
-    bootstrapProperties.putAll(props.properties());
-    ProjectDefinition rootProject = defineProject(bootstrapProperties, null);
+    Properties allProperties = new Properties();
+    allProperties.putAll(taskProps.properties());
+    SortedSet<String> moduleIds = new TreeSet<String>(new Comparator<String>() {
+      @Override
+      public int compare(String o1, String o2) {
+        // Reverse string order
+        return o2.compareTo(o1);
+      }
+    });
+    collectModuleIds(null, allProperties, moduleIds);
+    Map<String, Properties> propertiesByModuleId = extractPropertiesByModule(allProperties, new ArrayList<String>(moduleIds));
+    ProjectDefinition rootProject = defineRootProject(propertiesByModuleId.get(""), null);
     rootProjectWorkDir = rootProject.getWorkDir();
-    defineChildren(rootProject);
+    defineChildren(rootProject, propertiesByModuleId);
     cleanAndCheckProjectDefinitions(rootProject);
+    // Optimization now that all properties have been read and stored in appropriate ProjectDefinition
+    taskProps.properties().clear();
     return new ProjectReactor(rootProject);
   }
 
-  protected ProjectDefinition defineProject(Properties properties, @Nullable ProjectDefinition parent) {
-    if (properties.containsKey(PROPERTY_MODULES)) {
-      checkMandatoryProperties(properties, MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT);
-    } else {
-      checkMandatoryProperties(properties, MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT);
+  private Map<String, Properties> extractPropertiesByModule(Properties allProperties, List<String> moduleIds) {
+    Map<String, Properties> result = new HashMap<String, Properties>();
+    for (String moduleId : moduleIds) {
+      result.put(moduleId, new Properties());
     }
-    File baseDir = new File(properties.getProperty(PROPERTY_PROJECT_BASEDIR));
-    final String projectKey = properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
+    // For root module
+    result.put("", new Properties());
+
+    for (Map.Entry<Object, Object> entry : allProperties.entrySet()) {
+      String key = (String) entry.getKey();
+      boolean found = false;
+      for (String moduleId : moduleIds) {
+        String propertyPrefix = moduleId + ".";
+        int prefixLength = propertyPrefix.length();
+        if (key.startsWith(propertyPrefix)) {
+          result.get(moduleId).put(key.substring(prefixLength), entry.getValue());
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        result.get("").put(key, entry.getValue());
+      }
+    }
+    return result;
+  }
+
+  private void collectModuleIds(String currentModuleId, Properties allProperties, Set<String> moduleIds) {
+    if (currentModuleId != null) {
+      if (!moduleIds.add(currentModuleId)) {
+        throw new IllegalStateException("Module ID '" + currentModuleId + "' is defined several times in the reactor");
+      }
+    }
+    for (String moduleId : getListFromProperty(allProperties, (currentModuleId == null ? "" : (currentModuleId + ".")) + PROPERTY_MODULES)) {
+      collectModuleIds(moduleId, allProperties, moduleIds);
+    }
+  }
+
+  protected ProjectDefinition defineRootProject(Properties rootProperties, @Nullable ProjectDefinition parent) {
+    if (rootProperties.containsKey(PROPERTY_MODULES)) {
+      checkMandatoryProperties(rootProperties, MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT);
+    } else {
+      checkMandatoryProperties(rootProperties, MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT);
+    }
+    File baseDir = new File(rootProperties.getProperty(PROPERTY_PROJECT_BASEDIR));
+    final String projectKey = rootProperties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
     File workDir;
     if (parent == null) {
-      validateDirectories(properties, baseDir, projectKey);
+      validateDirectories(rootProperties, baseDir, projectKey);
       workDir = initRootProjectWorkDir(baseDir);
     } else {
-      workDir = initModuleWorkDir(baseDir, properties);
+      workDir = initModuleWorkDir(baseDir, rootProperties);
     }
 
-    return ProjectDefinition.create().setProperties(properties)
+    return ProjectDefinition.create().setProperties(rootProperties)
       .setBaseDir(baseDir)
       .setWorkDir(workDir)
-      .setBuildDir(initModuleBuildDir(baseDir, properties));
+      .setBuildDir(initModuleBuildDir(baseDir, rootProperties));
   }
 
   @VisibleForTesting
   protected File initRootProjectWorkDir(File baseDir) {
-    String workDir = props.property(CoreProperties.WORKING_DIRECTORY);
+    String workDir = taskProps.property(CoreProperties.WORKING_DIRECTORY);
     if (StringUtils.isBlank(workDir)) {
       return new File(baseDir, CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
     }
@@ -184,16 +237,16 @@ public class ProjectReactorBuilder {
     return new File(moduleBaseDir, customBuildDir.getPath());
   }
 
-  private void defineChildren(ProjectDefinition parentProject) {
+  private void defineChildren(ProjectDefinition parentProject, Map<String, Properties> propertiesByModuleId) {
     Properties parentProps = parentProject.getProperties();
     if (parentProps.containsKey(PROPERTY_MODULES)) {
-      for (String module : getListFromProperty(parentProps, PROPERTY_MODULES)) {
-        Properties moduleProps = extractModuleProperties(module, parentProps);
-        ProjectDefinition childProject = loadChildProject(parentProject, moduleProps, module);
+      for (String moduleId : getListFromProperty(parentProps, PROPERTY_MODULES)) {
+        Properties moduleProps = propertiesByModuleId.get(moduleId);
+        ProjectDefinition childProject = loadChildProject(parentProject, moduleProps, moduleId);
         // check the uniqueness of the child key
         checkUniquenessOfChildKey(childProject, parentProject);
         // the child project may have children as well
-        defineChildren(childProject);
+        defineChildren(childProject, propertiesByModuleId);
         // and finally add this child project to its parent
         parentProject.addSubProject(childProject);
       }
@@ -218,7 +271,7 @@ public class ProjectReactorBuilder {
 
     mergeParentProperties(moduleProps, parentProject.getProperties());
 
-    return defineProject(moduleProps, parentProject);
+    return defineRootProject(moduleProps, parentProject);
   }
 
   @VisibleForTesting
@@ -366,52 +419,17 @@ public class ProjectReactorBuilder {
     properties.remove(PROPERTY_TESTS);
     properties.remove(PROPERTY_BINARIES);
     properties.remove(PROPERTY_LIBRARIES);
-
-    // and they don't need properties related to their modules either
-    Properties clone = (Properties) properties.clone();
-    List<String> moduleIds = Lists.newArrayList(getListFromProperty(properties, PROPERTY_MODULES));
-    for (Entry<Object, Object> entry : clone.entrySet()) {
-      String key = (String) entry.getKey();
-      if (isKeyPrefixedByModuleId(key, moduleIds)) {
-        properties.remove(key);
-      }
-    }
   }
 
   @VisibleForTesting
   protected static void mergeParentProperties(Properties childProps, Properties parentProps) {
-    List<String> moduleIds = Lists.newArrayList(getListFromProperty(parentProps, PROPERTY_MODULES));
     for (Map.Entry<Object, Object> entry : parentProps.entrySet()) {
       String key = (String) entry.getKey();
-      if (!childProps.containsKey(key)
-        && !NON_HERITED_PROPERTIES_FOR_CHILD.contains(key)
-        && !isKeyPrefixedByModuleId(key, moduleIds)) {
+      if ((!childProps.containsKey(key) || childProps.get(key).equals(entry.getValue()))
+        && !NON_HERITED_PROPERTIES_FOR_CHILD.contains(key)) {
         childProps.put(entry.getKey(), entry.getValue());
       }
     }
-  }
-
-  private static boolean isKeyPrefixedByModuleId(String key, List<String> moduleIds) {
-    for (String moduleId : moduleIds) {
-      if (key.startsWith(moduleId + ".")) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @VisibleForTesting
-  protected static Properties extractModuleProperties(String module, Properties properties) {
-    Properties moduleProps = new Properties();
-    String propertyPrefix = module + ".";
-    int prefixLength = propertyPrefix.length();
-    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-      String key = (String) entry.getKey();
-      if (key.startsWith(propertyPrefix)) {
-        moduleProps.put(key.substring(prefixLength), entry.getValue());
-      }
-    }
-    return moduleProps;
   }
 
   @VisibleForTesting
