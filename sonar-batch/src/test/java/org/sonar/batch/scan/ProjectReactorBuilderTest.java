@@ -289,10 +289,11 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void modulePropertiesShouldNotLeak() throws IOException {
+  public void multiModuleProperties() throws IOException {
     ProjectDefinition projectDefinition = loadProjectDefinition("big-multi-module-definitions-all-in-root");
 
     assertThat(projectDefinition.getProperties().getProperty("module11.property")).isNull();
+    assertThat(projectDefinition.getProperties().getProperty("sonar.profile")).isEqualTo("Foo");
     ProjectDefinition module1 = null;
     ProjectDefinition module2 = null;
     for (ProjectDefinition prj : projectDefinition.getSubProjects()) {
@@ -304,8 +305,10 @@ public class ProjectReactorBuilderTest {
     }
     assertThat(module1.getProperties().getProperty("module11.property")).isNull();
     assertThat(module1.getProperties().getProperty("property")).isNull();
+    assertThat(module1.getProperties().getProperty("sonar.profile")).isEqualTo("Foo");
     assertThat(module2.getProperties().getProperty("module11.property")).isNull();
     assertThat(module2.getProperties().getProperty("property")).isNull();
+    assertThat(module2.getProperties().getProperty("sonar.profile")).isEqualTo("Foo");
 
     ProjectDefinition module11 = null;
     ProjectDefinition module12 = null;
@@ -316,10 +319,25 @@ public class ProjectReactorBuilderTest {
         module12 = prj;
       }
     }
+    assertThat(module11.getProperties().getProperty("module1.module11.property")).isNull();
     assertThat(module11.getProperties().getProperty("module11.property")).isNull();
     assertThat(module11.getProperties().getProperty("property")).isEqualTo("My module11 property");
+    assertThat(module11.getProperties().getProperty("sonar.profile")).isEqualTo("Foo");
     assertThat(module12.getProperties().getProperty("module11.property")).isNull();
     assertThat(module12.getProperties().getProperty("property")).isNull();
+    assertThat(module12.getProperties().getProperty("sonar.profile")).isEqualTo("Foo");
+  }
+
+  @Test
+  public void shouldRemoveModulePropertiesFromTaskProperties() {
+    Map<String, String> props = loadProps("big-multi-module-definitions-all-in-root");
+
+    TaskProperties taskProperties = new TaskProperties(props, null);
+    assertThat(taskProperties.property("module1.module11.property")).isEqualTo("My module11 property");
+
+    new ProjectReactorBuilder(taskProperties).execute();
+
+    assertThat(taskProperties.property("module1.module11.property")).isNull();
   }
 
   @Test
@@ -498,15 +516,20 @@ public class ProjectReactorBuilderTest {
   }
 
   private ProjectDefinition loadProjectDefinition(String projectFolder) throws IOException {
+    Map<String, String> props = loadProps(projectFolder);
+    TaskProperties bootstrapProps = new TaskProperties(props, null);
+    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps).execute();
+    return projectReactor.getRoot();
+  }
+
+  private Map<String, String> loadProps(String projectFolder) {
     Map<String, String> props = Maps.<String, String>newHashMap();
     Properties runnerProps = ProjectReactorBuilder.toProperties(TestUtils.getResource(this.getClass(), projectFolder + "/sonar-project.properties"));
     for (final String name : runnerProps.stringPropertyNames()) {
       props.put(name, runnerProps.getProperty(name));
     }
     props.put("sonar.projectBaseDir", TestUtils.getResource(this.getClass(), projectFolder).getAbsolutePath());
-    TaskProperties bootstrapProps = new TaskProperties(props, null);
-    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps).execute();
-    return projectReactor.getRoot();
+    return props;
   }
 
   public Map<String, String> toMap(Properties props) {

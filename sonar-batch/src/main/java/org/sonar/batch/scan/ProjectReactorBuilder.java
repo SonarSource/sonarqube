@@ -116,8 +116,11 @@ public class ProjectReactorBuilder {
     rootProjectWorkDir = rootProject.getWorkDir();
     defineChildren(rootProject, propertiesByModuleId);
     cleanAndCheckProjectDefinitions(rootProject);
-    // Optimization now that all properties have been read and stored in appropriate ProjectDefinition
+    // Optimization remove all children properties from taskProps
     taskProps.properties().clear();
+    for (Map.Entry<Object, Object> entry : propertiesByModuleId.get("").entrySet()) {
+      taskProps.properties().put((String) entry.getKey(), (String) entry.getValue());
+    }
     return new ProjectReactor(rootProject);
   }
 
