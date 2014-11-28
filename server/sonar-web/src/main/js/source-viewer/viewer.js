@@ -183,13 +183,13 @@ define([
                 duplications = [];
             if (hasDuplications) {
               duplications = {};
-              data.duplications.forEach(function (d, i) {
+              data.duplications.forEach(function (d) {
                 d.blocks.forEach(function (b) {
                   if (b._ref === '1') {
                     var lineFrom = b.from,
                         lineTo = b.from + b.size;
                     for (var j = lineFrom; j <= lineTo; j++) {
-                      duplications[i] = true;
+                      duplications[j] = true;
                     }
                   }
                 });
@@ -375,13 +375,12 @@ define([
           if (p.is(document)) {
             p = $(window);
           }
-          var pTopOffset = p.offset() != null ? p.offset().top : 0;
-          //FIXME long line
-          if (this.model.get('hasSourceBefore') && (p.scrollTop() + pTopOffset <= this.ui.sourceBeforeSpinner.offset().top)) {
+          var pTopOffset = p.offset() != null ? p.offset().top : 0,
+              pPosition = p.scrollTop() + pTopOffset;
+          if (this.model.get('hasSourceBefore') && (pPosition <= this.ui.sourceBeforeSpinner.offset().top)) {
             this.loadSourceBeforeThrottled();
           }
-          //FIXME long line
-          if (this.model.get('hasSourceAfter') && (p.scrollTop() + pTopOffset + p.height() >= this.ui.sourceAfterSpinner.offset().top)) {
+          if (this.model.get('hasSourceAfter') && (pPosition + p.height() >= this.ui.sourceAfterSpinner.offset().top)) {
             return this.loadSourceAfterThrottled();
           }
         },
