@@ -51,13 +51,12 @@ import org.sonar.test.TestUtils;
 import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class EsTester extends ExternalResource {
 
-  private static final AtomicInteger INSTANCE_ID = new AtomicInteger();
+  private static final int INSTANCE_ID = RandomUtils.nextInt();
   private Node node;
   private EsClient client;
   private final List<IndexDefinition> definitions = Lists.newArrayList();
@@ -68,7 +67,7 @@ public class EsTester extends ExternalResource {
   }
 
   protected void before() throws Throwable {
-    String nodeName = "es-ram-" + INSTANCE_ID.getAndIncrement();
+    String nodeName = "es-ram-" + INSTANCE_ID;
     node = NodeBuilder.nodeBuilder().local(true).data(true).settings(ImmutableSettings.builder()
       .put("cluster.name", nodeName)
       .put("node.name", nodeName)
@@ -79,7 +78,7 @@ public class EsTester extends ExternalResource {
       // limit the number of threads created (see org.elasticsearch.common.util.concurrent.EsExecutors)
       .put("processors", 1)
       .put("http.enabled", false)
-      .put("index.store.type", "memory")
+      .put("index.store.type", "mmapfs")
       .put("config.ignore_system_properties", true)
       // reuse the same directory than other tests for faster initialization
       .put("path.home", "target/" + nodeName)
