@@ -43,14 +43,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * Class that creates a project definition based on a set of properties.
@@ -115,15 +111,7 @@ public class ProjectReactorBuilder {
   public ProjectReactor execute() {
     Properties allProperties = new Properties();
     allProperties.putAll(taskProps.properties());
-    SortedSet<String> moduleIds = new TreeSet<String>(new Comparator<String>() {
-      @Override
-      public int compare(String o1, String o2) {
-        // Reverse string order
-        return o2.compareTo(o1);
-      }
-    });
-    collectModuleIds(null, allProperties, moduleIds);
-    Map<String, Properties> propertiesByModuleId = extractPropertiesByModule(allProperties, new ArrayList<String>(moduleIds));
+    Map<String, Properties> propertiesByModuleId = extractPropertiesByModule("", allProperties);
     ProjectDefinition rootProject = defineRootProject(propertiesByModuleId.get(""), null);
     rootProjectWorkDir = rootProject.getWorkDir();
     defineChildren(rootProject, propertiesByModuleId);
@@ -133,42 +121,27 @@ public class ProjectReactorBuilder {
     return new ProjectReactor(rootProject);
   }
 
-  private Map<String, Properties> extractPropertiesByModule(Properties allProperties, List<String> moduleIds) {
-    Map<String, Properties> result = new HashMap<String, Properties>();
-    for (String moduleId : moduleIds) {
-      result.put(moduleId, new Properties());
-    }
-    // For root module
-    result.put("", new Properties());
-
+  private Map<String, Properties> extractPropertiesByModule(String currentModuleId, Properties parentProperties) {
+    Properties allProperties = new Properties();
+    allProperties.putAll(parentProperties);
+    Properties currentModuleProperties = new Properties();
+    String prefix = !currentModuleId.isEmpty() ? currentModuleId + "." : "";
+    // By default all properties starting with module prefix belong to current module
     for (Map.Entry<Object, Object> entry : allProperties.entrySet()) {
       String key = (String) entry.getKey();
-      boolean found = false;
-      for (String moduleId : moduleIds) {
-        String propertyPrefix = moduleId + ".";
-        int prefixLength = propertyPrefix.length();
-        if (key.startsWith(propertyPrefix)) {
-          result.get(moduleId).put(key.substring(prefixLength), entry.getValue());
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        result.get("").put(key, entry.getValue());
+      int prefixLength = prefix.length();
+      if (key.startsWith(prefix)) {
+        currentModuleProperties.put(key.substring(prefixLength), entry.getValue());
+        parentProperties.remove(key);
       }
     }
+    String[] moduleIds = getListFromProperty(currentModuleProperties, PROPERTY_MODULES);
+    Map<String, Properties> result = new HashMap<String, Properties>();
+    for (String moduleId : moduleIds) {
+      result.putAll(extractPropertiesByModule(moduleId, currentModuleProperties));
+    }
+    result.put(currentModuleId, currentModuleProperties);
     return result;
-  }
-
-  private void collectModuleIds(String currentModuleId, Properties allProperties, Set<String> moduleIds) {
-    if (currentModuleId != null) {
-      if (!moduleIds.add(currentModuleId)) {
-        throw new IllegalStateException("Module ID '" + currentModuleId + "' is defined several times in the reactor");
-      }
-    }
-    for (String moduleId : getListFromProperty(allProperties, (currentModuleId == null ? "" : (currentModuleId + ".")) + PROPERTY_MODULES)) {
-      collectModuleIds(moduleId, allProperties, moduleIds);
-    }
   }
 
   protected ProjectDefinition defineRootProject(Properties rootProperties, @Nullable ProjectDefinition parent) {
