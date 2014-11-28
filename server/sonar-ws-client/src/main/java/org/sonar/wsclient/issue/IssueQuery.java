@@ -151,6 +151,15 @@ public class IssueQuery {
     return this;
   }
 
+  /**
+   * Only valid with one component, do not use in the general case
+   * @since 5.0
+   */
+  public IssueQuery ignorePaging(boolean ignorePaging) {
+    params.put("ignorePaging", ignorePaging);
+    return this;
+  }
+
   private IssueQuery addParam(String key, String[] values) {
     if (values != null) {
       params.put(key, EncodingUtils.toQueryParam(values));

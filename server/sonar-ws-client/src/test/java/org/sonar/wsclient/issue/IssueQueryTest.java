@@ -59,9 +59,10 @@ public class IssueQueryTest {
       .sort("ASSIGNEE")
       .asc(false)
       .pageSize(5)
-      .pageIndex(4);
+      .pageIndex(4)
+      .ignorePaging(true);
 
-    assertThat(query.urlParams()).hasSize(22);
+    assertThat(query.urlParams()).hasSize(23);
     assertThat(query.urlParams()).includes(entry("issues", "ABCDE,FGHIJ"));
     assertThat(query.urlParams()).includes(entry("assignees", "arthur,perceval"));
     assertThat(query.urlParams()).includes(entry("assigned", true));
@@ -84,6 +85,7 @@ public class IssueQueryTest {
     assertThat(query.urlParams()).includes(entry("asc", false));
     assertThat(query.urlParams()).includes(entry("pageSize", 5));
     assertThat(query.urlParams()).includes(entry("pageIndex", 4));
+    assertThat(query.urlParams()).includes(entry("ignorePaging", true));
   }
 
   @Test
