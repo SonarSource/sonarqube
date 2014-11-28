@@ -7,7 +7,6 @@ define [
 ) ->
 
   class QualityGateEditView extends Marionette.ItemView
-    className: 'modal'
     template: Templates['quality-gate-edit']
 
 
