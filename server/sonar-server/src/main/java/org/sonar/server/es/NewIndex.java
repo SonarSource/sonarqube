@@ -121,9 +121,10 @@ public class NewIndex {
    * Helper to define a string field in mapping of index type
    */
   public static class StringFieldBuilder {
-    private static final ImmutableMap<String, String> NOT_ANALYZED = ImmutableSortedMap.of(
+    private static final ImmutableMap NOT_ANALYZED = ImmutableSortedMap.of(
       "type", "string",
-      "index", "not_analyzed");
+      "index", "not_analyzed",
+      "omit_norms", "true");
 
     private final NewIndexType indexType;
     private final String fieldName;
