@@ -1,5 +1,17 @@
 <div class="bubble-popup-container">
-  <div class="bubble-popup-title">{{t 'component_viewer.transition.coverage'}}</div>
+  <div class="bubble-popup-title">
+    {{#if row.lineHits}}
+      {{t 'source_viewer.covered'}}
+      {{#if row.conditions}}
+        ({{default row.coveredConditions 0}} of {{row.conditions}} {{t 'source_viewer.conditions'}})
+      {{/if}}
+    {{else}}
+      {{t 'source_viewer.not_covered'}}
+      {{#if row.conditions}}
+        ({{row.conditions}} {{t 'source_viewer.conditions'}})
+      {{/if}}
+    {{/if}}
+  </div>
 
   {{#each testFiles}}
     <div class="bubble-popup-section">

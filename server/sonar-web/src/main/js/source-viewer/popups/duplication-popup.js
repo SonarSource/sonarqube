@@ -1,7 +1,7 @@
 define([
   'backbone.marionette',
   'templates/component-viewer',
-  'common/popup',
+  'common/popup'
 ], function (Marionette, Templates, Popup) {
 
   var $ = jQuery;

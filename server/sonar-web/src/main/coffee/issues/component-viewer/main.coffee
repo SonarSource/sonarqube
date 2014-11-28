@@ -157,7 +157,6 @@ define [
 
 
     requestIssues: ->
-      console.log 'Request issues'
       if @options.app.issues.last().get('component') == @model.get('key')
         r = @options.app.controller.fetchNextPage()
       else r = $.Deferred().resolve().promise()
@@ -165,7 +164,6 @@ define [
         @issues.reset @options.app.issues.filter (issue) => issue.get('component') == @model.key()
         @issues.reset @limitIssues @issues
         @addIssuesPerLineMeta @issues
-        console.log 'Issues loaded'
 
 
     renderIssue: (issue) ->

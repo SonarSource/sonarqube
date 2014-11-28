@@ -7,23 +7,24 @@
     <tr class="source-line {{#eq line 0}}{{#empty issues}}hidden{{/empty}}{{/eq}}">
       <td class="source-meta source-line-number" {{#if line}}data-line-number="{{line}}"{{/if}}></td>
 
-      <td class="source-meta source-line-scm">
+      <td class="source-meta source-line-scm" {{#if line}}data-line-number="{{line}}"{{/if}}>
         {{#ifSCMChanged2 ../source line}}
           <div class="source-line-scm-inner" title="{{scmAuthor}} {{scmDate}}" data-author="{{scmAuthor}}"></div>
         {{/ifSCMChanged2}}
       </td>
 
-      <td class="source-meta source-line-coverage {{#notNull covered}}source-line-{{covered}}{{/notNull}}"
+      <td class="source-meta source-line-coverage {{#notNull coverageStatus}}source-line-{{coverageStatus}}{{/notNull}}"
           data-line-number="{{line}}">
         <div class="source-line-bar"></div>
       </td>
 
-      <td class="source-meta source-line-duplications {{#if duplicated}}source-line-duplicated{{/if}}">
+      <td class="source-meta source-line-duplications {{#if duplicated}}source-line-duplicated{{/if}}"
+          title="{{t 'source_viewer.expand_duplications'}}">
         <div class="source-line-bar"></div>
       </td>
 
       {{#each duplications}}
-        <td class="source-meta source-line-duplications-extra hidden {{#if this}}source-line-duplicated{{/if}}"
+        <td class="source-meta source-line-duplications-extra {{#if this}}source-line-duplicated{{/if}}"
             data-index="{{this}}" data-line-number="{{line}}">
           <div class="source-line-bar"></div>
         </td>

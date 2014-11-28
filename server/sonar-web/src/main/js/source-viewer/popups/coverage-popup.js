@@ -2,8 +2,7 @@ define([
   'backbone.marionette',
   'templates/source-viewer',
   'common/popup',
-  'component-viewer/utils'
-], function (Marionette, Templates, Popup, utils) {
+], function (Marionette, Templates, Popup) {
 
   var $ = jQuery;
 
@@ -36,7 +35,10 @@ define([
               tests: testSet
             };
           });
-      return { testFiles: testFiles };
+      return {
+        testFiles: testFiles,
+        row: this.options.row
+      };
     }
   });
 });

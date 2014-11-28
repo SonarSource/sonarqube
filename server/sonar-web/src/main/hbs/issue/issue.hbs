@@ -28,10 +28,13 @@
   <div class="issue-meta">
     {{#inArray actions "assign"}}
       <a class="issue-action issue-action-with-options js-issue-assign">
-        <span class="issue-meta-label">{{#if assignee}}{{default assigneeName assignee}}{{else}}{{t 'unassigned'}}{{/if}}</span>&nbsp;<i class="icon-dropdown"></i>
+        <span
+            class="issue-meta-label">{{#if assignee}}{{default assigneeName assignee}}{{else}}{{t 'unassigned'}}{{/if}}</span>&nbsp;<i
+          class="icon-dropdown"></i>
       </a>
     {{else}}
-      <span class="issue-meta-label">{{#if assignee}}{{default assigneeName assignee}}{{else}}{{t 'unassigned'}}{{/if}}</span>
+      <span
+          class="issue-meta-label">{{#if assignee}}{{default assigneeName assignee}}{{else}}{{t 'unassigned'}}{{/if}}</span>
     {{/inArray}}
   </div>
 
@@ -42,10 +45,13 @@
   <div class="issue-meta">
     {{#inArray actions "plan"}}
       <a class="issue-action issue-action-with-options js-issue-plan">
-        <span class="issue-meta-label">{{#if actionPlan}}{{default actionPlanName actionPlan}}{{else}}{{t 'issue.unplanned'}}{{/if}}</span>&nbsp;<i class="icon-dropdown"></i>
+        <span
+            class="issue-meta-label">{{#if actionPlan}}{{default actionPlanName actionPlan}}{{else}}{{t 'issue.unplanned'}}{{/if}}</span>&nbsp;<i
+          class="icon-dropdown"></i>
       </a>
     {{else}}
-      <span class="issue-meta-label">{{#if actionPlan}}{{default actionPlanName actionPlan}}{{else}}{{t 'issue.unplanned'}}{{/if}}</span>
+      <span
+          class="issue-meta-label">{{#if actionPlan}}{{default actionPlanName actionPlan}}{{else}}{{t 'issue.unplanned'}}{{/if}}</span>
     {{/inArray}}
   </div>
 
@@ -55,11 +61,13 @@
     </div>
   {{/inArray}}
 
-  <div class="issue-meta">
-    <a class="issue-action issue-action-with-options js-issue-more">
-      <span class="issue-meta-label">{{t 'more'}}</span>&nbsp;<i class="icon-dropdown"></i>
-    </a>
-  </div>
+  {{#ifHasExtraActions actions}}
+    <div class="issue-meta">
+      <a class="issue-action issue-action-with-options js-issue-more">
+        <span class="issue-meta-label">{{t 'more'}}</span>&nbsp;<i class="icon-dropdown"></i>
+      </a>
+    </div>
+  {{/ifHasExtraActions}}
 
   <div class="issue-meta issue-meta-on-right">
     <a class="issue-action issue-action-with-options js-issue-show-changelog" title="{{dt creationDate}}">
@@ -77,11 +85,15 @@
     <a class="issue-action js-issue-rule">Rule</a>
   </div>
 
-  {{#if line}}
-    <div class="issue-meta issue-meta-in-corner">
+
+  <div class="issue-meta issue-meta-in-corner">
+    {{#if line}}
       <span class="issue-meta-label">L{{line}}</span>
-    </div>
-  {{/if}}
+      &nbsp;&nbsp;
+    {{/if}}
+    <a class="issue-action js-issue-permalink icon-link" href="{{permalink}}" target="_blank"></a>
+  </div>
+
 </div>
 
 {{#notEmpty comments}}

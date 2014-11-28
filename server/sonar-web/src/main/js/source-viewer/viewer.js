@@ -6,6 +6,7 @@ define([
       'issue/models/issue',
       'issue/collections/issues',
       'issue/issue-view',
+      'source-viewer/popups/scm-popup',
       'source-viewer/popups/coverage-popup',
       'source-viewer/popups/duplication-popup',
       'source-viewer/popups/line-actions-popup'
@@ -17,15 +18,13 @@ define([
               Issue,
               Issues,
               IssueView,
+              SCMPopupView,
               CoveragePopupView,
               DuplicationPopupView,
               LineActionsPopupView) {
 
       var $ = jQuery,
-          HIGHLIGHTED_ROW_CLASS = 'source-line-highlighted',
-          log = function (message) {
-            return console.log('Source Viewer:', message);
-          };
+          HIGHLIGHTED_ROW_CLASS = 'source-line-highlighted';
 
       return Marionette.ItemView.extend({
         className: 'source',
@@ -42,8 +41,10 @@ define([
 
         events: function () {
           return {
+            'click .source-line-scm': 'showSCMPopup',
             'click .source-line-covered': 'showCoveragePopup',
             'click .source-line-partially-covered': 'showCoveragePopup',
+            'click .source-line-uncovered': 'showCoveragePopup',
             'click .source-line-duplications': 'showDuplications',
             'click .source-line-duplications-extra': 'showDuplicationPopup',
             'click .source-line-number[data-line-number]': 'highlightLine'
@@ -62,7 +63,6 @@ define([
         },
 
         onRender: function () {
-          log('Render');
           this.renderIssues();
         },
 
@@ -83,12 +83,10 @@ define([
           this.requestComponent().done(function () {
             that.requestSource()
                 .done(function () {
-                  that.requestCoverage().done(function () {
-                    that.requestDuplications().done(function () {
-                      that.requestIssues().done(function () {
-                        that.render();
-                        that.trigger('loaded');
-                      });
+                  that.requestDuplications().done(function () {
+                    that.requestIssues().done(function () {
+                      that.render();
+                      that.trigger('loaded');
                     });
                   });
                 })
@@ -108,7 +106,6 @@ define([
         },
 
         requestComponent: function () {
-          log('Request component details...');
           var that = this,
               url = baseUrl + '/api/components/app',
               options = { key: this.model.key() };
@@ -124,57 +121,43 @@ define([
           };
         },
 
+        getCoverageStatus: function (row) {
+          var status = null;
+          if (row.lineHits > 0) {
+            status = 'partially-covered';
+          }
+          if (row.lineHits > 0 && row.conditions === row.coveredConditions) {
+            status = 'covered';
+          }
+          if (row.lineHits === 0 || row.coveredConditions === 0) {
+            status = 'uncovered';
+          }
+          return status;
+        },
+
         requestSource: function () {
-          log('Request source...');
           var that = this,
               url = baseUrl + '/api/sources/lines',
               options = _.extend({ uuid: this.model.id }, this.linesLimit());
           return $.get(url, options, function (data) {
-            var source = data.sources || [];
+            var source = (data.sources || []).slice(0);
             if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
               source.unshift({ line: 0 });
             }
-            var firstLine = _.first(source).line;
+            source = source.map(function (row) {
+              return _.extend(row, { coverageStatus: that.getCoverageStatus(row) });
+            });
+            var firstLine = _.first(source).line,
+                linesRequested = options.to - options.from + 1;
             that.model.set({
               source: source,
               hasSourceBefore: firstLine > 1,
-              hasSourceAfter: true
+              hasSourceAfter: data.sources.length === linesRequested
             });
-            log('Source loaded');
-          });
-        },
-
-        requestCoverage: function () {
-          log('Request coverage');
-          var that = this,
-              url = baseUrl + '/api/coverage/show',
-              options = { key: this.model.key() };
-          return $.get(url, options, function (data) {
-            var hasCoverage = (data != null) && (data.coverage != null),
-                coverage = [];
-            that.model.set({ hasCoverage: hasCoverage });
-            if (hasCoverage) {
-              coverage = data.coverage.map(function (c) {
-                var status = 'partially-covered';
-                if (c[1] && c[3] === c[4]) {
-                  status = 'covered';
-                }
-                if (!c[1] || c[4] === 0) {
-                  status = 'uncovered';
-                }
-                return {
-                  line: +c[0],
-                  covered: status
-                };
-              });
-            }
-            that.model.addMeta(coverage);
-            log('Coverage loaded');
           });
         },
 
         requestDuplications: function () {
-          log('Request duplications');
           var that = this,
               url = baseUrl + '/api/duplications/show',
               options = { key: this.model.key() };
@@ -207,12 +190,10 @@ define([
               duplications: data.duplications,
               duplicationFiles: data.files
             });
-            log('Duplications loaded');
           });
         },
 
         requestIssues: function () {
-          log('Request issues');
           var that = this,
               options = {
                 data: {
@@ -226,7 +207,6 @@ define([
           return this.issues.fetch(options).done(function () {
             that.issues.reset(that.limitIssues(that.issues));
             that.addIssuesPerLineMeta(that.issues);
-            log('Issues loaded');
           });
         },
 
@@ -253,9 +233,7 @@ define([
         },
 
         renderIssues: function () {
-          log('Render issues');
           this.issues.forEach(this.renderIssue, this);
-          log('Issues rendered');
         },
 
         renderIssue: function (issue) {
@@ -279,11 +257,24 @@ define([
           this.renderIssue(issue);
         },
 
+        showSCMPopup: function (e) {
+          e.stopPropagation();
+          $('body').click();
+          var line = +$(e.currentTarget).data('line-number'),
+              row = _.findWhere(this.model.get('source'), { line: line }),
+              popup = new SCMPopupView({
+                triggerEl: $(e.currentTarget),
+                model: new Backbone.Model(row)
+              });
+          popup.render();
+        },
+
         showCoveragePopup: function (e) {
           e.stopPropagation();
           $('body').click();
           var r = window.process.addBackgroundProcess(),
               line = $(e.currentTarget).data('line-number'),
+              row = _.findWhere(this.model.get('source'), { line: line }),
               url = baseUrl + '/api/tests/test_cases',
               options = {
                 key: this.model.key(),
@@ -292,6 +283,7 @@ define([
           return $.get(url, options).done(function (data) {
             var popup = new CoveragePopupView({
               model: new Backbone.Model(data),
+              row: row,
               triggerEl: $(e.currentTarget)
             });
             popup.render();
@@ -302,8 +294,7 @@ define([
         },
 
         showDuplications: function () {
-          this.$('.source-line-duplications').addClass('hidden');
-          this.$('.source-line-duplications-extra').removeClass('hidden');
+          this.$el.addClass('source-duplications-expanded');
         },
 
         showDuplicationPopup: function (e) {

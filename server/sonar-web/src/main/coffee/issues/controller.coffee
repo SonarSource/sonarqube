@@ -210,6 +210,8 @@ define [
 
     closeComponentViewer: ->
       key.setScope 'list'
+      # close all popups
+      $('body').click()
       @options.app.state.unset 'component'
       @options.app.layout.workspaceComponentViewerRegion.reset()
       @options.app.layout.hideComponentViewer()

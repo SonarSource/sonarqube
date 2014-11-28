@@ -252,3 +252,10 @@ define [
         ruleOverlay = new RuleOverlay
           model: new Backbone.Model r.rule
         ruleOverlay.render()
+
+
+    serializeData: ->
+      componentKey = encodeURIComponent @model.get 'component'
+      issueKey = encodeURIComponent @model.get 'key'
+      _.extend super,
+        permalink: "#{baseUrl}/component/index#component=#{componentKey}&currentIssue=#{issueKey}"

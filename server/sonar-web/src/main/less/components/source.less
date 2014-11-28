@@ -105,9 +105,27 @@
   background-color: @barBackgroundColor;
 }
 
+.source-line-duplications-extra {
+  display: none;
+}
+
+.source-duplications-expanded {
+  .source-line-duplications {
+    display: none;
+  }
+
+  .source-line-duplications-extra {
+    display: table-cell;
+  }
+}
+
 .source-line-scm {
   padding: 0 5px;
   background-color: @barBackgroundColor;
+
+  &[data-line-number] {
+    cursor: pointer;
+  }
 }
 
 .source-line-scm-inner {
@@ -133,6 +151,7 @@
 
 .source-line-uncovered {
   background-color: @red !important;
+  cursor: pointer;
 }
 
 .source-line-partially-covered {
