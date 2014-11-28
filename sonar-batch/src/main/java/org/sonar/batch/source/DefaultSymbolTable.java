@@ -20,25 +20,24 @@
 
 package org.sonar.batch.source;
 
-import com.google.common.collect.SortedSetMultimap;
-import com.google.common.collect.TreeMultimap;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbol;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
-  private SortedSetMultimap<org.sonar.api.batch.sensor.symbol.Symbol, Integer> referencesBySymbol;
+  private Map<Symbol, List<Integer>> referencesBySymbol;
 
-  private DefaultSymbolTable(SortedSetMultimap<org.sonar.api.batch.sensor.symbol.Symbol, Integer> referencesBySymbol) {
+  private DefaultSymbolTable(Map<Symbol, List<Integer>> referencesBySymbol) {
     this.referencesBySymbol = referencesBySymbol;
   }
 
-  public SortedSetMultimap<org.sonar.api.batch.sensor.symbol.Symbol, Integer> getReferencesBySymbol() {
+  public Map<Symbol, List<Integer>> getReferencesBySymbol() {
     return referencesBySymbol;
   }
 
@@ -58,27 +57,29 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
   public static class Builder implements Symbolizable.SymbolTableBuilder {
 
-    private final SortedSetMultimap<org.sonar.api.batch.sensor.symbol.Symbol, Integer> referencesBySymbol;
+    private final Map<Symbol, List<Integer>> referencesBySymbol = new LinkedHashMap<Symbol, List<Integer>>();
     private final String componentKey;
 
     public Builder(String componentKey) {
       this.componentKey = componentKey;
-      referencesBySymbol = TreeMultimap.create(new DefaultSymbolTableBuilder.SymbolComparator(), new DefaultSymbolTableBuilder.ReferenceComparator());
     }
 
     @Override
     public Symbol newSymbol(int fromOffset, int toOffset) {
-      Symbol symbol = new DefaultSymbol(componentKey, fromOffset, toOffset);
-      referencesBySymbol.put(symbol, symbol.getDeclarationStartOffset());
+      Symbol symbol = new DefaultSymbol(fromOffset, toOffset);
+      referencesBySymbol.put(symbol, new ArrayList<Integer>());
       return symbol;
     }
 
     @Override
     public void newReference(Symbol symbol, int fromOffset) {
+      if (!referencesBySymbol.containsKey(symbol)) {
+        throw new UnsupportedOperationException("Cannot add reference to a symbol in another file");
+      }
       if (fromOffset >= symbol.getDeclarationStartOffset() && fromOffset < symbol.getDeclarationEndOffset()) {
         throw new UnsupportedOperationException("Cannot add reference (" + fromOffset + ") overlapping " + symbol);
       }
-      referencesBySymbol.put(symbol, fromOffset);
+      referencesBySymbol.get(symbol).add(fromOffset);
     }
 
     @Override

@@ -20,7 +20,6 @@
 
 package org.sonar.batch.symbol;
 
-import com.google.common.collect.SortedSetMultimap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,6 +30,8 @@ import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.source.SnapshotDataTypes;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -43,7 +44,7 @@ public class DefaultSymbolTableBuilderTest {
   public ExpectedException throwable = ExpectedException.none();
 
   @Test
-  public void should_order_symbol_and_references() throws Exception {
+  public void should_write_symbol_and_references() throws Exception {
     ComponentDataCache componentDataCache = mock(ComponentDataCache.class);
     SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTableBuilder("foo", componentDataCache);
     Symbol firstSymbol = symbolTableBuilder.newSymbol(10, 20);
@@ -57,14 +58,14 @@ public class DefaultSymbolTableBuilderTest {
     ArgumentCaptor<SymbolData> argCaptor = ArgumentCaptor.forClass(SymbolData.class);
     verify(componentDataCache).setData(eq("foo"), eq(SnapshotDataTypes.SYMBOL_HIGHLIGHTING), argCaptor.capture());
 
-    SortedSetMultimap<Symbol, Integer> referencesBySymbol = argCaptor.getValue().referencesBySymbol();
+    Map<org.sonar.api.source.Symbol, List<Integer>> referencesBySymbol = argCaptor.getValue().referencesBySymbol();
 
-    assertThat(new ArrayList<Symbol>(referencesBySymbol.keySet())).containsExactly(firstSymbol, thirdSymbol, secondSymbol);
-    assertThat(new ArrayList<Integer>(referencesBySymbol.get(firstSymbol))).containsExactly(10, 32);
-    assertThat(new ArrayList<Integer>(referencesBySymbol.get(secondSymbol))).containsExactly(84, 124);
-    assertThat(new ArrayList<Integer>(referencesBySymbol.get(thirdSymbol))).containsExactly(55, 70);
+    assertThat(new ArrayList<Symbol>(referencesBySymbol.keySet())).containsExactly(firstSymbol, secondSymbol, thirdSymbol);
+    assertThat(new ArrayList<Integer>(referencesBySymbol.get(firstSymbol))).containsExactly(32);
+    assertThat(new ArrayList<Integer>(referencesBySymbol.get(secondSymbol))).containsExactly(124);
+    assertThat(new ArrayList<Integer>(referencesBySymbol.get(thirdSymbol))).containsExactly(70);
 
-    assertThat(argCaptor.getValue().writeString()).isEqualTo("10,20,10,32;55,62,55,70;84,92,84,124;");
+    assertThat(argCaptor.getValue().writeString()).isEqualTo("10,20,10,32;84,92,84,124;55,62,55,70");
   }
 
   @Test
@@ -78,7 +79,7 @@ public class DefaultSymbolTableBuilderTest {
     ArgumentCaptor<SymbolData> argCaptor = ArgumentCaptor.forClass(SymbolData.class);
     verify(componentDataCache).setData(eq("foo"), eq(SnapshotDataTypes.SYMBOL_HIGHLIGHTING), argCaptor.capture());
 
-    assertThat(argCaptor.getValue().writeString()).isEqualTo("10,20,10;");
+    assertThat(argCaptor.getValue().writeString()).isEqualTo("10,20,10");
   }
 
   @Test

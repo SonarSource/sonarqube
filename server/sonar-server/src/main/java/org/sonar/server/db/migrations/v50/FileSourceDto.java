@@ -72,6 +72,7 @@ class FileSourceDto {
 
   String[] getSourceData() {
     String highlighting = "";
+    String symbolRefs = "";
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     int line = 0;
     String sourceLine = null;
@@ -85,7 +86,7 @@ class FileSourceDto {
         utHits.get(line), utConditions.get(line), utCoveredConditions.get(line),
         itHits.get(line), itConditions.get(line), itCoveredConditions.get(line),
         overallHits.get(line), overallConditions.get(line), overallCoveredConditions.get(line),
-        highlighting, sourceLine);
+        highlighting, symbolRefs, sourceLine);
     }
     csv.close();
     return new String[] {new String(output.toByteArray(), UTF_8), lineHashes.toString()};

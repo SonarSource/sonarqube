@@ -20,8 +20,6 @@
 
 package org.sonar.batch.symbol;
 
-import com.google.common.collect.SortedSetMultimap;
-import com.google.common.collect.TreeMultimap;
 import org.sonar.api.batch.sensor.symbol.Symbol;
 import org.sonar.api.batch.sensor.symbol.SymbolTableBuilder;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbol;
@@ -29,43 +27,48 @@ import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.core.source.SnapshotDataTypes;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DefaultSymbolTableBuilder implements SymbolTableBuilder {
 
   private final String componentKey;
   private final ComponentDataCache cache;
-  private final SortedSetMultimap<Symbol, Integer> referencesBySymbol;
+  private final Map<org.sonar.api.source.Symbol, List<Integer>> referencesBySymbol = new LinkedHashMap<org.sonar.api.source.Symbol, List<Integer>>();
 
   public DefaultSymbolTableBuilder(String componentKey, ComponentDataCache cache) {
     this.componentKey = componentKey;
     this.cache = cache;
-    this.referencesBySymbol = TreeMultimap.create(new SymbolComparator(), new ReferenceComparator());
   }
 
   @Override
   public Symbol newSymbol(int fromOffset, int toOffset) {
-    Symbol symbol = new DefaultSymbol(componentKey, fromOffset, toOffset);
-    referencesBySymbol.put(symbol, symbol.getDeclarationStartOffset());
+    org.sonar.api.source.Symbol symbol = new DefaultSymbol(fromOffset, toOffset);
+    referencesBySymbol.put(symbol, new ArrayList<Integer>());
     return symbol;
   }
 
   @Override
   public void newReference(Symbol symbol, int fromOffset) {
-    String otherComponentKey = ((DefaultSymbol) symbol).componentKey();
-    if (!otherComponentKey.equals(componentKey)) {
-      throw new UnsupportedOperationException("Cannot add reference from (" + componentKey + ") to another file (" + otherComponentKey + ")");
+    if (!referencesBySymbol.containsKey(symbol)) {
+      throw new UnsupportedOperationException("Cannot add reference to a symbol in another file");
     }
     if (fromOffset >= symbol.getDeclarationStartOffset() && fromOffset < symbol.getDeclarationEndOffset()) {
       throw new UnsupportedOperationException("Cannot add reference (" + fromOffset + ") overlapping " + symbol);
     }
-    referencesBySymbol.put(symbol, fromOffset);
+    referencesBySymbol.get(symbol).add(fromOffset);
+  }
+
+  public SymbolData build() {
+    return new SymbolData(referencesBySymbol);
   }
 
   @Override
   public void done() {
-    SymbolData symbolData = new SymbolData(referencesBySymbol);
-    cache.setData(componentKey, SnapshotDataTypes.SYMBOL_HIGHLIGHTING, symbolData);
+    cache.setData(componentKey, SnapshotDataTypes.SYMBOL_HIGHLIGHTING, build());
   }
 
   public static class SymbolComparator implements Comparator<Symbol>, Serializable {

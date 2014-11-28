@@ -49,6 +49,6 @@ public class DefaultSymbolizable implements Symbolizable {
   @Override
   public void setSymbolTable(SymbolTable symbolTable) {
     SymbolData symbolData = new SymbolData(((DefaultSymbolTable) symbolTable).getReferencesBySymbol());
-    cache.setStringData(component().key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING, symbolData.writeString());
+    cache.setData(component().key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING, symbolData);
   }
 }

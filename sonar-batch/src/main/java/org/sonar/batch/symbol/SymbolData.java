@@ -20,24 +20,25 @@
 
 package org.sonar.batch.symbol;
 
-import com.google.common.collect.SortedSetMultimap;
 import org.sonar.api.batch.sensor.symbol.Symbol;
 import org.sonar.batch.index.Data;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public class SymbolData implements Data {
 
-  private static final String FIELD_SEPARATOR = ",";
-  private static final String SYMBOL_SEPARATOR = ";";
+  public static final String FIELD_SEPARATOR = ",";
+  public static final String SYMBOL_SEPARATOR = ";";
 
-  private final SortedSetMultimap<Symbol, Integer> referencesBySymbol;
+  private final Map<org.sonar.api.source.Symbol, List<Integer>> referencesBySymbol;
 
-  public SymbolData(SortedSetMultimap<Symbol, Integer> referencesBySymbol) {
+  public SymbolData(Map<org.sonar.api.source.Symbol, List<Integer>> referencesBySymbol) {
     this.referencesBySymbol = referencesBySymbol;
   }
 
-  public SortedSetMultimap<Symbol, Integer> referencesBySymbol() {
+  public Map<org.sonar.api.source.Symbol, List<Integer>> referencesBySymbol() {
     return referencesBySymbol;
   }
 
@@ -46,15 +47,19 @@ public class SymbolData implements Data {
     StringBuilder sb = new StringBuilder();
 
     for (Symbol symbol : referencesBySymbol.keySet()) {
+      if (sb.length() > 0) {
+        sb.append(SYMBOL_SEPARATOR);
+      }
 
       sb.append(symbol.getDeclarationStartOffset())
         .append(FIELD_SEPARATOR)
-        .append(symbol.getDeclarationEndOffset());
+        .append(symbol.getDeclarationEndOffset())
+        .append(FIELD_SEPARATOR)
+        .append(symbol.getDeclarationStartOffset());
       Collection<Integer> symbolReferences = referencesBySymbol.get(symbol);
       for (Integer symbolReference : symbolReferences) {
         sb.append(FIELD_SEPARATOR).append(symbolReference);
       }
-      sb.append(SYMBOL_SEPARATOR);
     }
 
     return sb.toString();

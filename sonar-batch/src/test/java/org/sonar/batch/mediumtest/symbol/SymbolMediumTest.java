@@ -81,7 +81,7 @@ public class SymbolMediumTest {
       .start();
 
     InputFile file = result.inputFile("src/sample.xoo");
-    assertThat(result.symbolReferencesFor(file, 7, 10)).containsOnly(7, 27);
+    assertThat(result.symbolReferencesFor(file, 7, 10)).containsOnly(27);
   }
 
 }

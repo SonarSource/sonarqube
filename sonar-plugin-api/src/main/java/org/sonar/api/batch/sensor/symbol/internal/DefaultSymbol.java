@@ -27,18 +27,12 @@ import java.io.Serializable;
 
 public class DefaultSymbol implements Symbol, org.sonar.api.source.Symbol, Serializable {
 
-  private final String componentKey;
   private final int declarationStartOffset;
   private final int declarationEndOffset;
 
-  public DefaultSymbol(String componentKey, int startOffset, int endOffset) {
-    this.componentKey = componentKey;
+  public DefaultSymbol(int startOffset, int endOffset) {
     this.declarationStartOffset = startOffset;
     this.declarationEndOffset = endOffset;
-  }
-
-  public String componentKey() {
-    return componentKey;
   }
 
   @Override
@@ -59,7 +53,6 @@ public class DefaultSymbol implements Symbol, org.sonar.api.source.Symbol, Seria
   @Override
   public String toString() {
     return Objects.toStringHelper("Symbol")
-      .add("component", componentKey)
       .add("offset", String.format("%d-%d", declarationStartOffset, declarationEndOffset))
       .toString();
   }

@@ -25,9 +25,14 @@ import org.sonar.api.component.Component;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.symbol.SymbolData;
 import org.sonar.core.source.SnapshotDataTypes;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DefaultSymbolizableTest {
 
@@ -52,6 +57,6 @@ public class DefaultSymbolizableTest {
 
     symbolPerspective.setSymbolTable(symbolTable);
 
-    verify(cache).setStringData("myComponent", SnapshotDataTypes.SYMBOL_HIGHLIGHTING, "4,8,4,12,70;25,33,25,44,60,108;");
+    verify(cache).setData(eq("myComponent"), eq(SnapshotDataTypes.SYMBOL_HIGHLIGHTING), any(SymbolData.class));
   }
 }

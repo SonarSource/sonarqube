@@ -44,10 +44,10 @@ public class DefaultSymbolTableTest {
     symbolTableBuilder.newReference(thirdSymbol, 70);
     Symbolizable.SymbolTable symbolTable = symbolTableBuilder.build();
 
-    assertThat(symbolTable.symbols()).containsExactly(firstSymbol, thirdSymbol, secondSymbol);
-    assertThat(symbolTable.references(firstSymbol)).containsExactly(10, 32);
-    assertThat(symbolTable.references(secondSymbol)).containsExactly(84, 124);
-    assertThat(symbolTable.references(thirdSymbol)).containsExactly(55, 70);
+    assertThat(symbolTable.symbols()).containsExactly(firstSymbol, secondSymbol, thirdSymbol);
+    assertThat(symbolTable.references(firstSymbol)).containsExactly(32);
+    assertThat(symbolTable.references(secondSymbol)).containsExactly(124);
+    assertThat(symbolTable.references(thirdSymbol)).containsExactly(70);
   }
 
   @Test
@@ -64,6 +64,6 @@ public class DefaultSymbolTableTest {
     Symbolizable.SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTable.Builder("foo");
     Symbol symbol = symbolTableBuilder.newSymbol(10, 20);
 
-    assertThat(symbol.toString()).isEqualTo("Symbol{component=foo, offset=10-20}");
+    assertThat(symbol.toString()).isEqualTo("Symbol{offset=10-20}");
   }
 }

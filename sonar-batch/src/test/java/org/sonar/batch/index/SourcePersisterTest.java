@@ -42,6 +42,7 @@ import org.sonar.batch.highlighting.SyntaxHighlightingDataBuilder;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.CodeColorizers;
+import org.sonar.batch.symbol.DefaultSymbolTableBuilder;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.FileSourceDao;
@@ -145,9 +146,9 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(DateUtils.parseDateTime("2014-10-10T16:44:02+0200").getTime());
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
-      ",,,,,,,,,,,,,changed\r\n,,,,,,,,,,,,,content\r\n");
+      ",,,,,,,,,,,,,,changed\r\n,,,,,,,,,,,,,,content\r\n");
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("changed") + "\n" + md5Hex("content"));
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("00141b1194a360a5d5d1f9dcffb27359");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("bd582d7001cfca180c3dacab10043292");
   }
 
   @Test
@@ -189,9 +190,9 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getData()).isEqualTo(
-      ",,,,,,,,,,,,,foo\r\n,,,,,,,,,,,,,bar\r\n,,,,,,,,,,,,,biz\r\n");
+      ",,,,,,,,,,,,,,foo\r\n,,,,,,,,,,,,,,bar\r\n,,,,,,,,,,,,,,biz\r\n");
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("foo") + "\n" + md5Hex("bar") + "\n" + md5Hex("biz"));
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("e6860232a097eb0616b9fe1bad760941");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("e1827ac156bb76144486e6570a591cfb");
 
   }
 
@@ -246,6 +247,16 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     when(componentDataCache.getData(PROJECT_KEY + ":" + relativePathNew, SnapshotDataTypes.SYNTAX_HIGHLIGHTING))
       .thenReturn(highlighting);
 
+    DefaultSymbolTableBuilder symbolBuilder = new DefaultSymbolTableBuilder(PROJECT_KEY + ":" + relativePathNew, null);
+    org.sonar.api.batch.sensor.symbol.Symbol s1 = symbolBuilder.newSymbol(1, 2);
+    symbolBuilder.newReference(s1, 4);
+    symbolBuilder.newReference(s1, 11);
+    org.sonar.api.batch.sensor.symbol.Symbol s2 = symbolBuilder.newSymbol(4, 6);
+    symbolBuilder.newReference(s2, 0);
+    symbolBuilder.newReference(s2, 7);
+    when(componentDataCache.getData(PROJECT_KEY + ":" + relativePathNew, SnapshotDataTypes.SYMBOL_HIGHLIGHTING))
+      .thenReturn(symbolBuilder.build());
+
     sourcePersister.persist();
 
     FileSourceDto fileSourceDto = new FileSourceDao(getMyBatis()).select("uuidnew");
@@ -253,10 +264,10 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(now.getTime());
     assertThat(fileSourceDto.getLineHashes()).isEqualTo(md5Hex("foo") + "\n" + md5Hex("bar") + "\n" + md5Hex("biz"));
     assertThat(fileSourceDto.getData()).isEqualTo(
-      "123,julien,2014-10-11T16:44:02+0100,1,4,2,2,5,3,3,6,4,\"0,3,a\",foo\r\n"
-        + "234,simon,2014-10-12T16:44:02+0100,,,,,,,,,,\"0,1,cd\",bar\r\n"
-        + "345,julien,2014-10-13T16:44:02+0100,0,,,0,,,0,,,\"0,9,c\",biz\r\n");
-    assertThat(fileSourceDto.getDataHash()).isEqualTo("cb7bdbb98bd053c7367c92e6596b37c0");
+      "123,julien,2014-10-11T16:44:02+0100,1,4,2,2,5,3,3,6,4,\"0,3,a\",\"1,2,1;0,2,2\",foo\r\n"
+        + "234,simon,2014-10-12T16:44:02+0100,,,,,,,,,,\"0,1,cd\",\"0,1,1;0,2,2\",bar\r\n"
+        + "345,julien,2014-10-13T16:44:02+0100,0,,,0,,,0,,,\"0,9,c\",\"4,5,1;0,2,2\",biz\r\n");
+    assertThat(fileSourceDto.getDataHash()).isEqualTo("594752666dd282f4a3bb985829c790fa");
   }
 
   @Test
@@ -327,6 +338,25 @@ public class SourcePersisterTest extends AbstractDaoTestCase {
     String[] highlightingPerLine = sourcePersister.computeHighlightingPerLine(file, highlighting);
 
     assertThat(highlightingPerLine).containsOnly("0,3,a", "0,3,c;0,2,cd", "0,9,c;1,8,k");
+  }
+
+  @Test
+  public void testSimpleConversionOfSymbolOffset() {
+    DefaultInputFile file = new DefaultInputFile(PROJECT_KEY, "src/foo.java")
+      .setLines(3)
+      .setOriginalLineOffsets(new long[] {0, 4, 7});
+
+    DefaultSymbolTableBuilder symbolBuilder = new DefaultSymbolTableBuilder(PROJECT_KEY + ":" + "src/foo.java", null);
+    org.sonar.api.batch.sensor.symbol.Symbol s1 = symbolBuilder.newSymbol(1, 2);
+    symbolBuilder.newReference(s1, 4);
+    symbolBuilder.newReference(s1, 11);
+    org.sonar.api.batch.sensor.symbol.Symbol s2 = symbolBuilder.newSymbol(4, 6);
+    symbolBuilder.newReference(s2, 0);
+    symbolBuilder.newReference(s2, 7);
+
+    String[] symbolsPerLine = sourcePersister.computeSymbolReferencesPerLine(file, symbolBuilder.build());
+
+    assertThat(symbolsPerLine).containsOnly("1,2,1;0,2,2", "0,1,1;0,2,2", "4,5,1;0,2,2");
   }
 
   private void mockResourceCache(String relativePathEmpty, String projectKey, String uuid) {

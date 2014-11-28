@@ -29,7 +29,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.symbol.Symbol;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -43,6 +43,7 @@ import org.sonar.batch.highlighting.SyntaxHighlightingRule;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.CodeColorizers;
+import org.sonar.batch.symbol.SymbolData;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.SnapshotDataTypes;
@@ -221,6 +222,7 @@ public class SourcePersister implements ScanPersister {
     Map<Integer, String> overallCoveredCondByLine = getLineMetric(file, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY);
     SyntaxHighlightingData highlighting = loadHighlighting(file);
     String[] highlightingPerLine = computeHighlightingPerLine(file, highlighting);
+    String[] symbolReferencesPerLine = computeSymbolReferencesPerLine(file, loadSymbolReferences(file));
 
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     CsvWriter csv = CsvWriter.of(new OutputStreamWriter(output, UTF_8));
@@ -229,7 +231,7 @@ public class SourcePersister implements ScanPersister {
         utHitsByLine.get(lineIdx), utCondByLine.get(lineIdx), utCoveredCondByLine.get(lineIdx),
         itHitsByLine.get(lineIdx), itCondByLine.get(lineIdx), itCoveredCondByLine.get(lineIdx),
         overallHitsByLine.get(lineIdx), overallCondByLine.get(lineIdx), overallCoveredCondByLine.get(lineIdx),
-        highlightingPerLine[lineIdx - 1],
+        highlightingPerLine[lineIdx - 1], symbolReferencesPerLine[lineIdx - 1],
         CharMatcher.anyOf(BOM).removeFrom(lines.get(lineIdx - 1)));
     }
     csv.close();
@@ -243,6 +245,11 @@ public class SourcePersister implements ScanPersister {
       highlighting = codeColorizers.toSyntaxHighlighting(file.file(), file.encoding(), file.language());
     }
     return highlighting;
+  }
+
+  @CheckForNull
+  private SymbolData loadSymbolReferences(DefaultInputFile file) {
+    return componentDataCache.getData(file.key(), SnapshotDataTypes.SYMBOL_HIGHLIGHTING);
   }
 
   String[] computeHighlightingPerLine(DefaultInputFile file, @Nullable SyntaxHighlightingData highlighting) {
@@ -259,7 +266,7 @@ public class SourcePersister implements ScanPersister {
         currentLineIdx++;
       }
       // Now we know current rule starts on current line
-      writeRule(file, rule, highlightingPerLine, currentLineIdx);
+      writeDataPerLine(file.originalLineOffsets(), rule, rule.getStartPosition(), rule.getEndPosition(), highlightingPerLine, currentLineIdx, new RuleItemWriter());
     }
     for (int i = 0; i < file.lines(); i++) {
       result[i] = highlightingPerLine[i] != null ? highlightingPerLine[i].toString() : null;
@@ -267,41 +274,115 @@ public class SourcePersister implements ScanPersister {
     return result;
   }
 
-  private void writeRule(DefaultInputFile file, SyntaxHighlightingRule rule, StringBuilder[] highlightingPerLine, int currentLine) {
-    int currentLineIdx = currentLine;
+  String[] computeSymbolReferencesPerLine(DefaultInputFile file, @Nullable SymbolData symbolRefs) {
+    String[] result = new String[file.lines()];
+    if (symbolRefs == null) {
+      return result;
+    }
+    StringBuilder[] symbolRefsPerLine = new StringBuilder[file.lines()];
+    long[] originalLineOffsets = file.originalLineOffsets();
+    int symbolId = 1;
+    for (Symbol symbol : symbolRefs.referencesBySymbol().keySet()) {
+      int declarationStartOffset = symbol.getDeclarationStartOffset();
+      int declarationEndOffset = symbol.getDeclarationEndOffset();
+      int length = declarationEndOffset - declarationStartOffset;
+      addSymbol(symbolId, declarationStartOffset, declarationEndOffset, originalLineOffsets, symbolRefsPerLine);
+      for (Integer referenceStartOffset : symbolRefs.referencesBySymbol().get(symbol)) {
+        if (referenceStartOffset == declarationStartOffset) {
+          // Ignore old API that used to store reference as first declaration
+          continue;
+        }
+        addSymbol(symbolId, referenceStartOffset, referenceStartOffset + length, originalLineOffsets, symbolRefsPerLine);
+      }
+      symbolId++;
+    }
+    for (int i = 0; i < file.lines(); i++) {
+      result[i] = symbolRefsPerLine[i] != null ? symbolRefsPerLine[i].toString() : null;
+    }
+    return result;
+  }
+
+  private void addSymbol(int symbolId, int startOffset, int endOffset, long[] originalLineOffsets, StringBuilder[] result) {
+    int startLine = binarySearchLine(startOffset, originalLineOffsets);
+    writeDataPerLine(originalLineOffsets, symbolId, startOffset, endOffset, result, startLine, new SymbolItemWriter());
+  }
+
+  private int binarySearchLine(int declarationStartOffset, long[] originalLineOffsets) {
+    int begin = 0;
+    int end = originalLineOffsets.length - 1;
+    while (begin < end) {
+      int mid = (int) Math.round((begin + end) / 2D);
+      if (declarationStartOffset < originalLineOffsets[mid]) {
+        end = mid - 1;
+      } else {
+        begin = mid;
+      }
+    }
+    return begin + 1;
+  }
+
+  private <G> void writeDataPerLine(long[] originalLineOffsets, G item, int globalStartOffset, int globalEndOffset, StringBuilder[] dataPerLine, int startLine,
+    RangeItemWriter<G> writer) {
+    int currentLineIdx = startLine;
     // We know current rule starts on current line
-    long ruleStartOffsetCurrentLine = rule.getStartPosition();
-    while (currentLineIdx < file.lines() && rule.getEndPosition() >= file.originalLineOffsets()[currentLineIdx]) {
+    long ruleStartOffsetCurrentLine = globalStartOffset;
+    while (currentLineIdx < originalLineOffsets.length && globalEndOffset >= originalLineOffsets[currentLineIdx]) {
       // rule continue on next line so write current line and continue on next line with same rule
-      writeRule(highlightingPerLine, currentLineIdx, ruleStartOffsetCurrentLine - file.originalLineOffsets()[currentLineIdx - 1], file.originalLineOffsets()[currentLineIdx]
-        - file.originalLineOffsets()[currentLineIdx - 1],
-        rule.getTextType());
+      writeItem(item, dataPerLine, currentLineIdx, ruleStartOffsetCurrentLine - originalLineOffsets[currentLineIdx - 1], originalLineOffsets[currentLineIdx]
+        - originalLineOffsets[currentLineIdx - 1], writer);
       currentLineIdx++;
-      ruleStartOffsetCurrentLine = file.originalLineOffsets()[currentLineIdx - 1];
+      ruleStartOffsetCurrentLine = originalLineOffsets[currentLineIdx - 1];
     }
     // Rule ends on current line
-    writeRule(highlightingPerLine, currentLineIdx, ruleStartOffsetCurrentLine - file.originalLineOffsets()[currentLineIdx - 1], rule.getEndPosition()
-      - file.originalLineOffsets()[currentLineIdx - 1],
-      rule.getTextType());
+    writeItem(item, dataPerLine, currentLineIdx, ruleStartOffsetCurrentLine - originalLineOffsets[currentLineIdx - 1], globalEndOffset
+      - originalLineOffsets[currentLineIdx - 1], writer);
   }
 
-  private void writeRule(StringBuilder[] highlightingPerLine, int currentLineIdx, long startLineOffset, long endLineOffset, TypeOfText textType) {
-    if (highlightingPerLine[currentLineIdx - 1] == null) {
-      highlightingPerLine[currentLineIdx - 1] = new StringBuilder();
+  private <G> void writeItem(G item, StringBuilder[] dataPerLine, int currentLineIdx, long startLineOffset, long endLineOffset, RangeItemWriter<G> writer) {
+    if (dataPerLine[currentLineIdx - 1] == null) {
+      dataPerLine[currentLineIdx - 1] = new StringBuilder();
     }
-    StringBuilder currentLineSb = highlightingPerLine[currentLineIdx - 1];
-    writeRule(currentLineSb, startLineOffset, endLineOffset, textType);
+    StringBuilder currentLineSb = dataPerLine[currentLineIdx - 1];
+    writer.writeItem(currentLineSb, startLineOffset, endLineOffset, item);
   }
 
-  private void writeRule(StringBuilder currentLineSb, long startLineOffset, long endLineOffset, TypeOfText textType) {
-    if (currentLineSb.length() > 0) {
-      currentLineSb.append(SyntaxHighlightingData.RULE_SEPARATOR);
+  private static interface RangeItemWriter<G> {
+    /**
+     * Write item on a single line
+     */
+    void writeItem(StringBuilder currentLineSb, long startLineOffset, long endLineOffset, G item);
+  }
+
+  private static class RuleItemWriter implements RangeItemWriter<SyntaxHighlightingRule> {
+
+    @Override
+    public void writeItem(StringBuilder currentLineSb, long startLineOffset, long endLineOffset, SyntaxHighlightingRule item) {
+      if (currentLineSb.length() > 0) {
+        currentLineSb.append(SyntaxHighlightingData.RULE_SEPARATOR);
+      }
+      currentLineSb.append(startLineOffset)
+        .append(SyntaxHighlightingData.FIELD_SEPARATOR)
+        .append(endLineOffset)
+        .append(SyntaxHighlightingData.FIELD_SEPARATOR)
+        .append(item.getTextType().cssClass());
     }
-    currentLineSb.append(startLineOffset)
-      .append(SyntaxHighlightingData.FIELD_SEPARATOR)
-      .append(endLineOffset)
-      .append(SyntaxHighlightingData.FIELD_SEPARATOR)
-      .append(textType.cssClass());
+
+  }
+
+  private static class SymbolItemWriter implements RangeItemWriter<Integer> {
+
+    @Override
+    public void writeItem(StringBuilder currentLineSb, long startLineOffset, long endLineOffset, Integer symbolId) {
+      if (currentLineSb.length() > 0) {
+        currentLineSb.append(SymbolData.SYMBOL_SEPARATOR);
+      }
+      currentLineSb.append(startLineOffset)
+        .append(SymbolData.FIELD_SEPARATOR)
+        .append(endLineOffset)
+        .append(SymbolData.FIELD_SEPARATOR)
+        .append(symbolId);
+    }
+
   }
 
   private Map<Integer, String> getLineMetric(DefaultInputFile file, String metricKey) {
