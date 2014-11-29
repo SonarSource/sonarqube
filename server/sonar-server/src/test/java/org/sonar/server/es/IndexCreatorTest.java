@@ -22,6 +22,7 @@ package org.sonar.server.es;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -32,6 +33,7 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore
 public class IndexCreatorTest {
 
   @Rule

@@ -20,6 +20,7 @@
 package org.sonar.server.source.index;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -27,6 +28,7 @@ import org.sonar.server.es.EsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore
 public class SourceLineIndexTest {
 
   @Rule

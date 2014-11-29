@@ -41,6 +41,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.junit.Ignore;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
@@ -54,6 +55,7 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore
 public class EsTester extends ExternalResource {
 
   private static final int INSTANCE_ID = RandomUtils.nextInt();

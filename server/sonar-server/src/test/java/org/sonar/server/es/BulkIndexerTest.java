@@ -25,11 +25,13 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore
 public class BulkIndexerTest {
 
   @Rule

@@ -20,6 +20,7 @@
 package org.sonar.server.issue.index;
 
 import com.google.common.collect.Iterators;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -32,6 +33,7 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore
 public class IssueIndexerTest {
 
   @Rule
