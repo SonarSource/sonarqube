@@ -110,9 +110,11 @@ public class ServerTester extends ExternalResource {
     }
 
     try {
+      LOG.info("Starting elasticsearch server");
       searchServer.start();
       // wait for ES to be ready
       searchServer.isReady();
+      LOG.info("Elasticsearch server started");
       
       platform.init(properties);
       platform.addComponents(components);
@@ -162,7 +164,9 @@ public class ServerTester extends ExternalResource {
     platform = null;
     try {
       if (searchServer != null) {
+        LOG.info("Stopping Elasticsearch server");
         searchServer.stop();
+        LOG.info("Elasticsearch server stopped");
       }
     } catch (Exception e) {
       LOG.error("Fail to stop elasticsearch server", e);

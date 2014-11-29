@@ -21,6 +21,7 @@ package org.sonar.server.platform;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.DbSession;
@@ -77,6 +78,7 @@ public class BackendCleanup implements ServerComponent {
   }
 
   public void clearIndexes() {
+    LoggerFactory.getLogger(getClass()).info("Truncate Elasticsearch indices");
     searchClient.prepareDeleteByQuery(searchClient.prepareState().get()
       .getState().getMetaData().concreteAllIndices())
       .setQuery(QueryBuilders.matchAllQuery())
