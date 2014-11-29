@@ -20,6 +20,9 @@
 package org.sonar.server.es;
 
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
+import org.elasticsearch.common.Priority;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
@@ -75,19 +78,26 @@ public class IndexCreator implements ServerComponent, Startable {
     ImmutableSettings.Builder settings = ImmutableSettings.builder();
     settings.put(index.getSettings());
     settings.put(SETTING_HASH, new IndexHash().of(index));
-    client
+    CreateIndexResponse indexResponse = client
       .prepareCreate(index.getName())
       .setSettings(settings)
       .get();
+    if (!indexResponse.isAcknowledged()) {
+      throw new IllegalStateException("Failed to create index " + index.getName());
+    }
+    client.prepareHealth().setWaitForEvents(Priority.LANGUID).setWaitForGreenStatus().get();
 
     // create types
     for (Map.Entry<String, IndexRegistry.IndexType> entry : index.getTypes().entrySet()) {
       LOGGER.info(String.format("Create type %s/%s", index.getName(), entry.getKey()));
-      client.preparePutMapping(index.getName())
+      PutMappingResponse mappingResponse = client.preparePutMapping(index.getName())
         .setType(entry.getKey())
         .setIgnoreConflicts(false)
         .setSource(entry.getValue().getAttributes())
         .get();
+      if (!mappingResponse.isAcknowledged()) {
+        throw new IllegalStateException("Failed to create type " + entry.getKey());
+      }
     }
   }
 
